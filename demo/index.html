@@ -1,0 +1,1080 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mythsensus — Feature Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;600&family=Prompt:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#040407;--gold:#c8a45a;--silver:#e6e2d8;--dim:#9a9088;--card:#0d0d14;--border:rgba(200,164,90,0.22);--card2:#0e0e1a}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:17px;line-height:1.8;min-height:100vh}
+a{color:var(--gold);text-decoration:none}
+.nav{position:fixed;top:0;width:100%;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:1rem;letter-spacing:.06em}
+.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
+.nav-right{display:flex;gap:1.2rem;align-items:center}
+.nav-badge{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;background:rgba(200,164,90,.1);border:1px solid rgba(200,164,90,.3);color:var(--gold);padding:.22rem .7rem;border-radius:2px}
+.nav-back{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.12em;color:var(--dim)}
+.nav-back:hover{color:var(--gold)}
+/* Hero */
+.demo-hero{padding:100px 5% 50px;text-align:center;border-bottom:1px solid var(--border);max-width:800px;margin:0 auto}
+.demo-eyebrow{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.8rem}
+.demo-title{font-family:'Cinzel Decorative',serif;font-size:clamp(1.6rem,4vw,2.8rem);color:var(--silver);margin-bottom:.6rem;line-height:1.2}
+.demo-sub{font-family:'Josefin Sans',sans-serif;font-size:.72rem;letter-spacing:.1em;color:var(--dim);margin-bottom:2rem}
+/* Tab nav */
+.demo-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);max-width:1100px;margin:0 auto;padding:0 5%;overflow-x:auto;scrollbar-width:none}
+.demo-tabs::-webkit-scrollbar{display:none}
+.demo-tab{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;padding:.8rem 1.2rem;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:all .15s}
+.demo-tab:hover{color:var(--silver)}
+.demo-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+/* Content */
+.demo-content{max-width:1100px;margin:0 auto;padding:3rem 5%}
+.demo-section{display:none}.demo-section.active{display:block}
+/* Mock input bar */
+.mock-bar{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.2rem 1.6rem;margin-bottom:2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.mock-label{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);flex-shrink:0}
+.mock-val{font-family:'Josefin Sans',sans-serif;font-size:.72rem;letter-spacing:.08em;color:var(--gold)}
+.mock-divider{color:var(--border);flex-shrink:0}
+.btn{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;padding:.5rem 1.3rem;border-radius:2px;cursor:pointer;border:none;transition:all .15s}
+.btn-gold{background:var(--gold);color:#040407;font-weight:600}.btn-gold:hover{opacity:.88}
+.btn-ghost{background:transparent;color:var(--silver);border:1px solid var(--border)}.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+/* Report layout */
+.report-page{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:2.5rem;margin-bottom:1.5rem;position:relative}
+.report-page-num{position:absolute;top:1.2rem;right:1.4rem;font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.2em;color:var(--dim);opacity:.5}
+.rp-eyebrow{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.5rem}
+.rp-title{font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--silver);margin-bottom:1rem}
+.rp-body{font-size:.95rem;color:var(--silver);line-height:1.85}
+.rp-body p{margin-bottom:.9rem}
+.rp-body em{color:var(--gold);font-style:italic}
+.score-hero-block{text-align:center;padding:2rem 0;border-bottom:1px solid var(--border);margin-bottom:1.5rem}
+.score-hero-num{font-family:'Cinzel Decorative',serif;font-size:5rem;color:var(--gold);line-height:1;margin-bottom:.3rem}
+.score-hero-label{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.3em;color:var(--dim);text-transform:uppercase}
+.systems-breakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px;margin:1rem 0}
+.sys-row{background:rgba(200,164,90,.04);border:1px solid rgba(200,164,90,.1);border-radius:3px;padding:.6rem .8rem}
+.sys-row-name{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.1em;color:var(--dim);margin-bottom:.3rem}
+.sys-row-score{font-family:'Cinzel Decorative',serif;font-size:.9rem;color:var(--gold)}
+.sys-row-bar{height:2px;background:rgba(200,164,90,.12);border-radius:1px;margin-top:.3rem}
+.sys-row-fill{height:100%;background:var(--gold);border-radius:1px}
+/* God card */
+.god-output-card{background:linear-gradient(135deg,var(--card) 0%,#0e0c18 100%);border:1px solid var(--border);border-radius:6px;padding:2.5rem;text-align:center;max-width:380px;margin:0 auto}
+.god-tier-badge{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.8rem}
+.god-sym-xl{font-size:3.5rem;margin-bottom:.8rem;display:block}
+.god-name-xl{font-family:'Cinzel Decorative',serif;font-size:1.6rem;color:var(--silver);margin-bottom:.3rem}
+.god-origin{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.2em;color:var(--dim);margin-bottom:.8rem;text-transform:uppercase}
+.god-body-text{font-size:.95rem;color:var(--silver);line-height:1.75;margin-bottom:1rem;font-style:italic}
+.god-attrs-wrap{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.2rem}
+.god-attr-tag{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border);padding:.18rem .55rem;border-radius:2px;color:var(--gold);opacity:.8}
+.god-resonance{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.1em;color:var(--dim);border-top:1px solid var(--border);padding-top:.8rem;margin-top:.5rem;line-height:1.6}
+/* Planet table */
+.planet-table{width:100%;border-collapse:collapse}
+.planet-table th{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);padding:.5rem .7rem;border-bottom:1px solid var(--border);text-align:left}
+.planet-table td{padding:.65rem .7rem;border-bottom:1px solid rgba(200,164,90,.05);font-size:.9rem}
+.planet-table tr:hover td{background:rgba(200,164,90,.02)}
+.retro{color:rgba(200,164,90,.65)}
+/* Add-on output cards */
+.output-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.5rem}
+@media(max-width:640px){.output-grid{grid-template-columns:1fr}}
+.output-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.4rem}
+.output-card-title{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:.8rem}
+.output-card-val{font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--silver);margin-bottom:.4rem}
+.output-card-desc{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.07em;color:var(--dim);line-height:1.55}
+.compat-bar{height:4px;background:rgba(200,164,90,.12);border-radius:2px;margin:.6rem 0}
+.compat-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),#f0d080)}
+.month-row{display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid rgba(200,164,90,.06)}
+.month-name{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.12em;color:var(--dim);width:60px;flex-shrink:0}
+.month-theme{font-size:.88rem;color:var(--silver);flex:1}
+.month-score{font-family:'Cinzel Decorative',serif;font-size:.85rem;color:var(--gold);width:36px;text-align:right;flex-shrink:0}
+.animal-card{background:linear-gradient(135deg,var(--card),#0a0a18);border:1px solid var(--border);border-radius:6px;padding:2rem;text-align:center;max-width:340px}
+.animal-sym{font-size:4rem;display:block;margin-bottom:.6rem}
+.animal-name{font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--silver);margin-bottom:.2rem}
+.animal-origin{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.22em;color:var(--dim);margin-bottom:.8rem;text-transform:uppercase}
+.food-item{display:flex;align-items:center;gap:.8rem;padding:.65rem 0;border-bottom:1px solid rgba(200,164,90,.06)}
+.food-icon{font-size:1.2rem;flex-shrink:0}
+.food-name{font-family:'Cinzel Decorative',serif;font-size:.82rem;color:var(--silver);margin-bottom:.15rem}
+.food-why{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.07em;color:var(--dim);line-height:1.5}
+.exercise-block{background:rgba(200,164,90,.04);border:1px solid rgba(200,164,90,.12);border-radius:3px;padding:1rem 1.2rem;margin-bottom:.7rem}
+.exercise-type{font-family:'Cinzel Decorative',serif;font-size:.88rem;color:var(--gold);margin-bottom:.3rem}
+.exercise-desc{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.07em;color:var(--dim);line-height:1.55}
+.tag{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;padding:.18rem .55rem;border-radius:2px}
+.tag-gold{background:rgba(200,164,90,.15);color:var(--gold);border:1px solid rgba(200,164,90,.25)}
+.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
+.lang-btn{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
+.lang-btn.active{background:var(--gold);color:#040407}.lang-btn:hover:not(.active){color:var(--gold)}
+html[lang="th"] .demo-sub,html[lang="th"] .demo-eyebrow,html[lang="th"] .rp-body,html[lang="th"] .output-card-desc,html[lang="th"] .food-why,html[lang="th"] .exercise-desc,html[lang="th"] .god-resonance{font-family:'Prompt',sans-serif;font-weight:300}
+
+/* ═══ Today's Sky ═══════════════════════════════════════ */
+.sky-wrap{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+@media(max-width:700px){.sky-wrap{grid-template-columns:1fr}}
+
+/* Zodiac Wheel */
+.wheel-container{position:relative;width:100%;max-width:380px;margin:0 auto}
+.wheel-svg{width:100%;height:auto;display:block}
+/* Zodiac ring labels */
+.zodiac-label{font-family:'Josefin Sans',sans-serif;font-size:9px;fill:var(--dim);letter-spacing:.08em;text-transform:uppercase}
+.zodiac-glyph{font-size:11px;fill:rgba(200,164,90,.5)}
+/* Planet orbs */
+.planet-orb{cursor:pointer;transition:opacity .2s}
+.planet-orb circle{transition:r .2s}
+.planet-orb:hover circle{r:10}
+.planet-orb text{font-size:11px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.planet-trail{stroke-dasharray:4 4;animation:trailDash 1.2s linear infinite}
+.planet-trail-retro{stroke-dasharray:4 4;animation:trailDashRetro 1.2s linear infinite}
+@keyframes trailDash{to{stroke-dashoffset:-24}}
+@keyframes trailDashRetro{to{stroke-dashoffset:24}}
+/* Tooltip */
+.wheel-tooltip{position:absolute;background:#0d0d1e;border:1px solid var(--border);border-radius:3px;padding:.5rem .8rem;font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.08em;color:var(--silver);pointer-events:none;opacity:0;transition:opacity .15s;z-index:10;white-space:nowrap;max-width:220px;white-space:normal;line-height:1.5}
+.wheel-tooltip.show{opacity:1}
+.tt-planet{color:var(--gold);font-size:.65rem;margin-bottom:.2rem;letter-spacing:.12em;text-transform:uppercase}
+.tt-retro{color:rgba(200,164,90,.6);font-size:.58rem}
+
+/* Direction panel */
+.dir-panel{display:flex;flex-direction:column;gap:.8rem}
+.dir-card{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:.9rem 1.1rem;display:flex;gap:.8rem;align-items:flex-start}
+.dir-sym{font-size:1.2rem;flex-shrink:0;width:28px;text-align:center;margin-top:.1rem}
+.dir-body{flex:1}
+.dir-name{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.2rem}
+.dir-pos{font-size:.9rem;color:var(--silver);margin-bottom:.2rem}
+.dir-motion{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.08em;color:var(--dim);display:flex;align-items:center;gap:.4rem}
+.dir-arrow{display:inline-block;font-size:.9rem}
+.dir-arrow.direct{color:#4caf7d;animation:arrowPulse 2s ease-in-out infinite}
+.dir-arrow.retro{color:rgba(200,164,90,.7);animation:retroPulse 1.5s ease-in-out infinite}
+@keyframes arrowPulse{0%,100%{transform:translateX(0)}50%{transform:translateX(3px)}}
+@keyframes retroPulse{0%,100%{transform:translateX(0)}50%{transform:translateX(-3px)}}
+
+/* 3-Layer Timeline */
+.timeline-wrap{margin-top:2rem}
+.timeline-head{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:1rem}
+.timeline-track{position:relative;padding:.5rem 0 1.5rem}
+.timeline-line{position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(200,164,90,.15);transform:translateY(-50%)}
+.timeline-now-line{position:absolute;top:0;bottom:0;width:2px;background:var(--gold);opacity:.6;transform:translateX(-50%);left:50%}
+.timeline-now-label{position:absolute;bottom:-1.4rem;left:50%;transform:translateX(-50%);font-family:'Josefin Sans',sans-serif;font-size:.55rem;letter-spacing:.15em;color:var(--gold);opacity:.7;white-space:nowrap}
+.timeline-planets{display:flex;justify-content:space-between;position:relative;z-index:2;padding:0 2%}
+.tl-planet{display:flex;flex-direction:column;align-items:center;gap:.3rem;cursor:pointer}
+.tl-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);border:1px solid rgba(200,164,90,.4);transition:transform .2s}
+.tl-dot.retro{background:rgba(200,164,90,.35);border-color:rgba(200,164,90,.6)}
+.tl-dot.peak{width:12px;height:12px;box-shadow:0 0 8px rgba(200,164,90,.5)}
+.tl-label{font-family:'Josefin Sans',sans-serif;font-size:.55rem;letter-spacing:.08em;color:var(--dim);white-space:nowrap}
+.timeline-strip{display:grid;grid-template-columns:1fr 2px 1fr;gap:0;margin-top:.5rem;border:1px solid var(--border);border-radius:3px;overflow:hidden}
+.tl-past,.tl-future{padding:.8rem 1rem;background:var(--card)}
+.tl-present{background:rgba(200,164,90,.06);border-left:1px solid rgba(200,164,90,.2);border-right:1px solid rgba(200,164,90,.2);padding:.8rem 1rem}
+.tl-strip-head{font-family:'Josefin Sans',sans-serif;font-size:.55rem;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-bottom:.5rem}
+.tl-theme{font-family:'Cinzel Decorative',serif;font-size:.75rem;color:var(--silver);margin-bottom:.3rem;line-height:1.3}
+.tl-desc{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.06em;color:var(--dim);line-height:1.5}
+
+/* Theme Arc cards */
+.arc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem;margin-top:1.5rem}
+.arc-card{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:1rem 1.2rem;position:relative;overflow:hidden}
+.arc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.arc-progress{position:absolute;bottom:0;left:0;height:2px;background:var(--gold);opacity:.4;transition:width 1s ease}
+.arc-planet{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.4rem}
+.arc-theme{font-family:'Cinzel Decorative',serif;font-size:.82rem;color:var(--silver);margin-bottom:.6rem;line-height:1.3}
+.arc-meta{display:flex;gap:.6rem;flex-wrap:wrap}
+.arc-day{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.1em;color:var(--dim)}
+.arc-day span{color:var(--gold)}
+
+/* ═══ TAB INTRO BANNERS ═══ */
+.tab-intro {
+  border-left: 2px solid rgba(200,164,90,.35);
+  padding: .9rem 1.1rem;
+  margin-bottom: 1.6rem;
+  background: rgba(200,164,90,.04);
+  border-radius: 0 6px 6px 0;
+}
+.tab-intro-title {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: .6rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: .7;
+  margin-bottom: .4rem;
+}
+.tab-intro-desc {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  color: var(--dim);
+  line-height: 1.65;
+}
+html[lang="th"] .tab-intro-desc {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 300;
+  font-size: .92rem;
+}
+
+</style></head><body>
+<nav class="nav">
+  <a href="/" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
+  <div class="nav-right">
+    <span class="nav-badge">Feature Demo · Mock Data</span>
+    <a href="/" class="nav-back">← Back to Site</a>
+  </div>
+</nav>
+
+<div class="demo-hero">
+  <p class="demo-eyebrow"><span data-en="All Features · Mock Output" data-th="ทุกฟีเจอร์ · ข้อมูลจำลอง">All Features · Mock Output</span></p>
+  <h1 class="demo-title"><span data-en="See What You Get" data-th="ดูสิ่งที่คุณจะได้รับ">See What You Get</span></h1>
+  <p class="demo-sub"><span data-en="Every output shown below uses mock birth data. Real reports are generated from your actual birth chart." data-th="ผลลัพธ์ทั้งหมดใช้ข้อมูลจำลอง รายงานจริงจะสร้างจากดวงชะตาของคุณ">Every output shown below uses mock birth data. Real reports are generated from your actual birth chart.</span></p>
+  <div style="background:rgba(200,164,90,.07);border:1px solid rgba(200,164,90,.2);border-radius:3px;padding:.6rem 1rem;display:inline-block;margin-top:.5rem">
+    <span style="font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.12em;color:var(--gold)">Mock Profile: <strong>Ariya Srisuk</strong> · 21 Mar 1990 · 08:30 · Bangkok</span>
+  </div>
+</div>
+
+<nav class="demo-tabs" id="demoTabNav">
+  <div class="demo-tab active" onclick="switchDemo(this,'today-sky');initSky()"><span data-en="Today's Sky" data-th="ท้องฟ้าวันนี้">Today's Sky</span></div>
+  <div class="demo-tab" onclick="switchDemo(this,'full-report')"><span data-en="Full Report" data-th="รายงานฉบับเต็ม">Full Report</span></div>
+  <div class="demo-tab" onclick="switchDemo(this,'divine-mirror')"><span data-en="Divine Mirror" data-th="กระจกศักดิ์สิทธิ์">Divine Mirror</span></div>
+  <div class="demo-tab" onclick="switchDemo(this,'relationship')"><span data-en="Relationship Overlay" data-th="ความสัมพันธ์">Relationship Overlay</span></div>
+  <div class="demo-tab" onclick="switchDemo(this,'year-ahead')"><span data-en="Year Ahead Map" data-th="แผนที่ปีข้างหน้า">Year Ahead Map</span></div>
+  <div class="demo-tab" onclick="switchDemo(this,'sacred-name')"><span data-en="Sacred Name" data-th="ชื่อศักดิ์สิทธิ์">Sacred Name</span></div>
+  <div class="demo-tab" onclick="switchDemo(this,'cosmic-fitness')"><span data-en="Cosmic Fitness" data-th="พลังกาย">Cosmic Fitness</span></div>
+  <div class="demo-tab" onclick="switchDemo(this,'spirit-animal')"><span data-en="Spirit Animal" data-th="สัตว์พิทักษ์">Spirit Animal</span></div>
+  <div class="demo-tab" onclick="switchDemo(this,'sacred-food')"><span data-en="Sacred Nourishment" data-th="โภชนาการศักดิ์สิทธิ์">Sacred Nourishment</span></div>
+</nav>
+
+<div class="demo-content">
+<!-- FULL REPORT -->
+<div id="demo-today-sky" class="demo-section active">
+<!-- TODAY'S SKY -->
+
+  <div class="mock-bar">
+    <span class="mock-label" data-en="Feature" data-th="ฟีเจอร์">Feature</span>
+    <span class="mock-val">Today's Sky</span>
+    <span class="mock-divider">·</span>
+    <span class="mock-val" id="sky-date-display">Loading date...</span>
+    <span class="mock-divider">·</span>
+    <span class="mock-val" data-en="Live planet positions" data-th="ตำแหน่งดาวเคราะห์สด">Live planet positions</span>
+  
+
+  <div class="sky-wrap">
+    <!-- LEFT: SVG Zodiac Wheel -->
+    <div class="wheel-container" id="wheelWrap">
+      <svg class="wheel-svg" viewBox="0 0 400 400" id="zodiacWheel">
+        <!-- Outer ring: deep space bg -->
+        <circle cx="200" cy="200" r="196" fill="#040407" stroke="rgba(200,164,90,.12)" stroke-width="1"/>
+        <!-- Zodiac band: 12 segments -->
+        <g id="zodiacRing"></g>
+        <!-- House ring -->
+        <circle cx="200" cy="200" r="130" fill="none" stroke="rgba(200,164,90,.08)" stroke-width="1"/>
+        <!-- Inner chart area -->
+        <circle cx="200" cy="200" r="80" fill="#0a0a14" stroke="rgba(200,164,90,.15)" stroke-width="1"/>
+        <!-- Center dot -->
+        <circle cx="200" cy="200" r="3" fill="rgba(200,164,90,.4)"/>
+        <!-- Planet trails group -->
+        <g id="planetTrails"></g>
+        <!-- Planet orbs group -->
+        <g id="planetOrbs"></g>
+        <!-- Aspect lines group -->
+        <g id="aspectLines"></g>
+        <!-- Star field (static) -->
+        <g id="starField" opacity=".25"></g>
+      </svg>
+      <div class="wheel-tooltip" id="wheelTooltip">
+        <div class="tt-planet" id="tt-planet-name">Saturn</div>
+  
+        <div id="tt-planet-pos">Pisces 17° · 12th House</div>
+        <div class="tt-retro" id="tt-planet-motion">⟳ Retrograde · Moving backward</div>
+        <div id="tt-planet-theme" style="margin-top:.4rem;font-size:.58rem;opacity:.8">Theme active</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Direction Panel -->
+    <div class="dir-panel" id="dirPanel">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.2rem">
+        <span data-en="Planet Directions · Now" data-th="ทิศทางดาวเคราะห์ · ตอนนี้">Planet Directions · Now</span>
+      </div>
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  
+  <div class="tab-intro">
+    <div class="tab-intro-title" data-en="What is Today&#39;s Sky?" data-th="Today&#39;s Sky คืออะไร?">What is Today&#39;s Sky?</div>
+    <div class="tab-intro-desc" data-en="A live view of where the planets are right now — and how their positions interact with the sky above. Each planet carries a theme that is active in the collective field today. This is not a forecast; it is an observation of what is currently in motion." data-th="ภาพรวมตำแหน่งดาวเคราะห์ ณ วันนี้ — แต่ละดวงพกพาธีมที่กำลังเคลื่อนไหวอยู่ในขณะนี้ ไม่ใช่การทำนาย แต่คือการสังเกตสิ่งที่กำลังเกิดขึ้นบนท้องฟ้า">A live view of where the planets are right now — and how their positions interact with the sky above. Each planet carries a theme that is active in the collective field today. This is not a forecast; it is an observation of what is currently in motion.</div>
+  </div>
+
+  <!-- 3-Layer Timeline -->
+  <div class="timeline-wrap">
+    <div class="timeline-head"><span data-en="7 Days Past → Today → 7 Days Ahead" data-th="7 วันที่ผ่านมา → วันนี้ → 7 วันข้างหน้า">7 Days Past → Today → 7 Days Ahead</span></div>
+    <div class="timeline-strip">
+      <div class="tl-past">
+        <div class="tl-strip-head"><span data-en="Past 7 Days" data-th="7 วันที่ผ่านมา">Past 7 Days</span></div>
+        <div class="tl-theme" id="tl-past-theme">Saturn Station</div>
+        <div class="tl-desc" id="tl-past-desc">Saturn stationary before retrograde. Structural themes building.</div>
+      </div>
+      <div style="background:rgba(200,164,90,.12)"></div>
+      <div class="tl-present" style="grid-column:span 1">
+        <div class="tl-strip-head" style="color:var(--gold)"><span data-en="Today" data-th="วันนี้">Today</span></div>
+        <div class="tl-theme" id="tl-now-theme">Mars Retrograde</div>
+        <div class="tl-desc" id="tl-now-desc">Moving backward through Cancer toward Gemini. Energy directed inward.</div>
+      </div>
+      <div style="background:rgba(200,164,90,.12)"></div>
+      <div class="tl-future">
+        <div class="tl-strip-head"><span data-en="Next 7 Days" data-th="7 วันข้างหน้า">Next 7 Days</span></div>
+        <div class="tl-theme" id="tl-future-theme">Mercury Ingress</div>
+        <div class="tl-desc" id="tl-future-desc">Mercury entering Aries. Communication theme shifts from Piscean intuition to direct assertion.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme Arc Cards -->
+  <div class="timeline-head" style="margin-top:2rem"><span data-en="Active Arcs · Ongoing Themes" data-th="อาร์คที่กำลังดำเนิน · ธีมต่อเนื่อง">Active Arcs · Ongoing Themes</span></div>
+  <div class="arc-grid" id="arcGrid">
+    <!-- Populated by JS -->
+  </div>
+</div></div>
+<div id="demo-full-report" class="demo-section">
+  <div class="mock-bar">
+    <span class="mock-label" data-en="Profile" data-th="โปรไฟล์">Profile</span>
+    <span class="mock-val">Ariya Srisuk</span>
+    <span class="mock-divider">·</span>
+    <span class="mock-val">21 Mar 1990</span>
+    <span class="mock-divider">·</span>
+    <span class="mock-val">08:30</span>
+    <span class="mock-divider">·</span>
+    <span class="mock-val">Bangkok, Thailand</span>
+    <button class="btn btn-ghost" style="margin-left:auto;font-size:.6rem" onclick="alert('Enter your real birth data at mythsensus.com/onboarding')" data-en="Use My Data" data-th="ใช้ข้อมูลของฉัน">Use My Data</button>
+  </div>
+  <div class="tab-intro">
+    <div class="tab-intro-title" data-en="What is the Full Report?" data-th="Full Report คืออะไร?">What is the Full Report?</div>
+    <div class="tab-intro-desc" data-en="Your complete Cosmic Score — calculated by running your birth data through all 10 systems simultaneously: Western Astrology, BaZi, Vedic Jyotish, Numerology, Energy Type, Nine Star Ki, I Ching, Mayan Tzolk&#39;in, Celtic Tree, and Kabbalah. The report shows where all ten traditions converge on the same patterns in your chart." data-th="คะแนน Cosmic Score ของคุณ — คำนวณจากข้อมูลวันเกิดผ่านทั้ง 10 ระบบพร้อมกัน ได้แก่ โหราศาสตร์ตะวันตก BaZi โชติษศาสตร์ Numerology Energy Type Nine Star Ki I Ching Mayan Tzolk&#39;in Celtic Tree และ Kabbalah รายงานแสดงจุดที่ทุกระบบมองเห็นรูปแบบเดียวกันในดวงชะตาคุณ">Your complete Cosmic Score — calculated by running your birth data through all 10 systems simultaneously: Western Astrology, BaZi, Vedic Jyotish, Numerology, Energy Type, Nine Star Ki, I Ching, Mayan Tzolk'in, Celtic Tree, and Kabbalah. The report shows where all ten traditions converge on the same patterns in your chart.</div>
+  </div>
+
+  <!-- Cover page -->
+  <div class="report-page">
+    <div class="report-page-num" data-en="Page 1 of 25" data-th="หน้า 1 จาก 25">Page 1 of 25</div>
+    <div style="text-align:center;padding:1rem 0 2rem">
+      <p style="font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.6;margin-bottom:.5rem" data-en="MYTHSENSUS · COSMIC REPORT" data-th="MYTHSENSUS · รายงานจักรวาล">MYTHSENSUS · COSMIC REPORT</p>
+      <div class="score-hero-block">
+        <div class="score-hero-num">742</div>
+        <div class="score-hero-label" data-en="Cosmic Score · 10-System Convergence" data-th="Cosmic Score · การรวมกัน 10 ระบบ">Cosmic Score · 10-System Convergence</div>
+      </div>
+      <p style="font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--silver);margin-bottom:.3rem">Ariya Srisuk</p>
+      <p style="font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.15em;color:var(--dim)">21 March 1990 · 08:30 · Bangkok, Thailand</p>
+    </div>
+    <div class="systems-breakdown">
+      <div class="sys-row"><div class="sys-row-name">Western Astrology</div><div class="sys-row-score">780</div><div class="sys-row-bar"><div class="sys-row-fill" style="width:78%"></div></div></div>
+      <div class="sys-row"><div class="sys-row-name">BaZi · Chinese</div><div class="sys-row-score">720</div><div class="sys-row-bar"><div class="sys-row-fill" style="width:72%"></div></div></div>
+      <div class="sys-row"><div class="sys-row-name">Vedic Jyotish</div><div class="sys-row-score">755</div><div class="sys-row-bar"><div class="sys-row-fill" style="width:75.5%"></div></div></div>
+      <div class="sys-row"><div class="sys-row-name">Numerology</div><div class="sys-row-score">690</div><div class="sys-row-bar"><div class="sys-row-fill" style="width:69%"></div></div></div>
+      <div class="sys-row"><div class="sys-row-name">Energy Type System</div><div class="sys-row-score">810</div><div class="sys-row-bar"><div class="sys-row-fill" style="width:81%"></div></div></div>
+      <div class="sys-row"><div class="sys-row-name">Nine Star Ki</div><div class="sys-row-score">730</div><div class="sys-row-bar"><div class="sys-row-fill" style="width:73%"></div></div></div>
+      <div class="sys-row"><div class="sys-row-name">I Ching</div><div class="sys-row-score">760</div><div class="sys-row-bar"><div class="sys-row-fill" style="width:76%"></div></div></div>
+      <div class="sys-row"><div class="sys-row-name">Mayan Tzolk'in</div><div class="sys-row-score">700</div><div class="sys-row-bar"><div class="sys-row-fill" style="width:70%"></div></div></div>
+      <div class="sys-row"><div class="sys-row-name">Celtic Tree</div><div class="sys-row-score">745</div><div class="sys-row-bar"><div class="sys-row-fill" style="width:74.5%"></div></div></div>
+      <div class="sys-row"><div class="sys-row-name">Kabbalah</div><div class="sys-row-score">770</div><div class="sys-row-bar"><div class="sys-row-fill" style="width:77%"></div></div></div>
+    </div>
+  </div>
+
+  <!-- Western Astrology page -->
+  <div class="report-page">
+    <div class="report-page-num">Page 4 of 25</div>
+    <div class="rp-eyebrow">System 1 · Western Astrology</div>
+    <div class="rp-title" data-en="Natal Chart Analysis" data-th="การวิเคราะห์แผนภูมิกำเนิด">Natal Chart Analysis</div>
+    <div class="rp-body">
+      <p><em>Sun in Aries 0°</em> — You entered the world at the exact cusp of the zodiacal new year. This placement gives a pioneering energy that is almost uncomfortable with stillness — there is always another beginning to initiate.</p>
+      <p><em>Moon in Scorpio 22°</em> — Emotional depth that others rarely see. You process feeling privately and intensely, and you remember everything. The Moon in Scorpio creates an internal emotional archive that shapes all your decisions far beneath the surface.</p>
+      <p><em>Ascendant: Gemini 14°</em> — The world sees someone adaptable, quick, communicative. But this is the interface, not the core. The Gemini rising creates a social flexibility that often surprises people who expect the Aries directness upfront.</p>
+      <p><em>Mercury in Pisces 28°</em> — Thinking at the edge of form. Mercury in the last degree of Pisces is intuitive to the point of precognition, but struggles to translate its insights into language others can follow. Writing is often easier than speaking.</p>
+      <table class="planet-table" style="margin-top:1rem">
+        <thead><tr><th>Planet</th><th>Sign</th><th>House</th><th>Aspect</th></tr></thead>
+        <tbody>
+          <tr><td>☉ Sun</td><td>Aries 0°</td><td>11th</td><td>Trine Jupiter</td></tr>
+          <tr><td>☽ Moon</td><td>Scorpio 22°</td><td>6th</td><td>Square Saturn</td></tr>
+          <tr><td>↑ ASC</td><td>Gemini 14°</td><td>—</td><td>—</td></tr>
+          <tr><td>☿ Mercury</td><td>Pisces 28°</td><td>10th</td><td>Conjunct Neptune</td></tr>
+          <tr><td>♀ Venus</td><td>Taurus 12°</td><td>12th</td><td>Sextile Moon</td></tr>
+          <tr><td>♂ Mars</td><td>Capricorn 8°</td><td>8th</td><td>Trine Sun</td></tr>
+          <tr><td class="retro">♃ Jupiter ⟳</td><td class="retro">Cancer 3°</td><td>2nd</td><td>Trine Sun</td></tr>
+          <tr><td>♄ Saturn</td><td>Capricorn 18°</td><td>8th</td><td>Square Moon</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BaZi page -->
+  <div class="report-page">
+    <div class="report-page-num">Page 7 of 25</div>
+    <div class="rp-eyebrow">System 2 · BaZi · Four Pillars</div>
+    <div class="rp-title" data-en="Four Pillars of Destiny" data-th="สี่เสาแห่งชะตากรรม">Four Pillars of Destiny</div>
+    <div class="rp-body">
+      <p><em>Day Master: Yang Wood (甲)</em> — You are a tall tree. Yang Wood is the most ambitious of all Day Masters — driven upward toward light regardless of what the ground looks like. This is not stubbornness; it is structural necessity. Wood must grow or it dies.</p>
+      <p><em>Current Luck Pillar: Yin Fire (丁)</em> — Fire is the child of Wood; it both supports and exhausts you. The current decade is one where visibility comes at a cost. You are being seen, but you are also being consumed. This is temporary.</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:1.2rem 0">
+        <div style="background:rgba(200,164,90,.06);border:1px solid var(--border);border-radius:3px;padding:.8rem;text-align:center">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:.55rem;letter-spacing:.2em;color:var(--dim);margin-bottom:.4rem">YEAR</div>
+          <div style="font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--gold)">庚午</div>
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:.6rem;color:var(--dim);margin-top:.3rem">Yang Metal · Horse</div>
+        </div>
+        <div style="background:rgba(200,164,90,.06);border:1px solid var(--border);border-radius:3px;padding:.8rem;text-align:center">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:.55rem;letter-spacing:.2em;color:var(--dim);margin-bottom:.4rem">MONTH</div>
+          <div style="font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--gold)">丁卯</div>
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:.6rem;color:var(--dim);margin-top:.3rem">Yin Fire · Rabbit</div>
+        </div>
+        <div style="background:rgba(200,164,90,.08);border:1px solid rgba(200,164,90,.3);border-radius:3px;padding:.8rem;text-align:center">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:.55rem;letter-spacing:.2em;color:var(--gold);margin-bottom:.4rem">DAY ★</div>
+          <div style="font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--gold)">甲子</div>
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:.6rem;color:var(--dim);margin-top:.3rem">Yang Wood · Rat</div>
+        </div>
+        <div style="background:rgba(200,164,90,.06);border:1px solid var(--border);border-radius:3px;padding:.8rem;text-align:center">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:.55rem;letter-spacing:.2em;color:var(--dim);margin-bottom:.4rem">HOUR</div>
+          <div style="font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--gold)">甲辰</div>
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:.6rem;color:var(--dim);margin-top:.3rem">Yang Wood · Dragon</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:1.5rem;opacity:.5">
+    <p style="font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;color:var(--dim)">— Pages 10–25 include Vedic Jyotish, Nine Star Ki, I Ching, Energy Type, Mayan Tzolk'in, Celtic Tree, Kabbalah, Numerology, Sacred Places, Divine Mirror —</p>
+  </div>
+  <div style="text-align:center;margin-top:1rem">
+    <a href="/onboarding" class="btn btn-gold">Get My Real Report · ฿490</a>
+  </div>
+</div>
+<!-- DIVINE MIRROR -->
+<div id="demo-divine-mirror" class="demo-section">
+  <div class="mock-bar">
+    <span class="mock-label" data-en="Add-On" data-th="Add-On">Add-On</span><span class="mock-val">Divine Mirror</span>
+    <span class="mock-divider">·</span><span class="mock-val">$9 · Included in Full Report</span>
+  </div>
+  <div class="tab-intro">
+    <div class="tab-intro-title" data-en="What is the Divine Mirror?" data-th="Divine Mirror คืออะไร?">What is the Divine Mirror?</div>
+    <div class="tab-intro-desc" data-en="Every chart contains the signature of a higher entity — a god, titan, or mythic figure whose story mirrors your own. Divine Mirror finds which being from world mythology most closely resonates with your birth data, identified independently across multiple systems. This is not a label; it is a reflection." data-th="ทุกดวงชะตาซ่อนลายเซ็นของสิ่งศักดิ์สิทธิ์ — เทพ ตำนาน หรือตัวละครจากวรรณกรรมโบราณที่มีเรื่องราวสะท้อนตัวคุณ Divine Mirror ค้นหาว่าเทพองค์ใดจากตำนานโลกที่ตรงกับข้อมูลวันเกิดคุณมากที่สุด ไม่ใช่ป้ายชื่อ — แต่เป็นกระจกที่สะท้อนตัวตน">Every chart contains the signature of a higher entity — a god, titan, or mythic figure whose story mirrors your own. Divine Mirror finds which being from world mythology most closely resonates with your birth data, identified independently across multiple systems. This is not a label; it is a reflection.</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start">
+    <div>
+      <div class="god-output-card">
+        <div class="god-tier-badge" data-en="Primary Archetype · Legendary" data-th="ต้นแบบหลัก · ตำนาน">Primary Archetype · Legendary</div>
+        <span class="god-sym-xl">⚡</span>
+        <div class="god-name-xl">Prometheus</div>
+        <div class="god-origin">Greek Titan · Fire-Bringer</div>
+        <div class="god-body-text">"He stole fire from the gods and gave it to humanity. He knew the punishment before he acted — and he acted anyway. This is your chart's deepest pattern: the willingness to pay the cost of illuminating others."</div>
+        <div class="god-attrs-wrap">
+          <span class="god-attr-tag">Vision</span><span class="god-attr-tag">Sacrifice</span>
+          <span class="god-attr-tag">Fire</span><span class="god-attr-tag">Rebellion</span>
+        </div>
+        <div class="god-resonance">
+          Resonates with: <em>Sun Aries · Mars Capricorn · Saturn-Moon square</em><br>
+          3 systems independently identified this archetype from your chart.
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="report-page" style="margin-bottom:1rem">
+        <div class="rp-eyebrow" data-en="Secondary Archetype" data-th="ต้นแบบรอง">Secondary Archetype</div>
+        <div class="rp-title" style="font-size:.9rem">Chiron — The Wounded Healer</div>
+        <div class="rp-body" style="font-size:.88rem"><p>Where Prometheus acts, Chiron teaches. Your secondary archetype carries the signature of someone who has experienced a wound that cannot be fully healed — and who learns, eventually, to transform that wound into a source of wisdom for others.</p></div>
+      </div>
+      <div class="report-page">
+        <div class="rp-eyebrow" data-en="Shadow Archetype" data-th="ต้นแบบเงา">Shadow Archetype</div>
+        <div class="rp-title" style="font-size:.9rem">Icarus — The Overreacher</div>
+        <div class="rp-body" style="font-size:.88rem"><p>The shadow is not the enemy — it is the unintegrated potential. Icarus appears when the Promethean drive toward illumination loses touch with its limits. The chart shows Saturn square Moon as the structural reminder: ambition without rootedness produces the fall.</p></div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:1.5rem"><a href="/onboarding" class="btn btn-gold">Get My Divine Mirror · $9</a></div>
+</div>
+
+<!-- RELATIONSHIP OVERLAY -->
+<div id="demo-relationship" class="demo-section">
+  <div class="mock-bar">
+    <span class="mock-label">Add-On</span><span class="mock-val">Relationship Overlay</span>
+    <span class="mock-divider">·</span><span class="mock-val">$12 · Two birth charts</span>
+  </div>
+  <div class="tab-intro">
+    <div class="tab-intro-title" data-en="What is the Relationship Overlay?" data-th="Relationship Overlay คืออะไร?">What is the Relationship Overlay?</div>
+    <div class="tab-intro-desc" data-en="Two birth charts analyzed in parallel across all 10 systems. The Relationship Overlay does not predict compatibility — it maps where two energies resonate, where they create productive tension, and what elemental dynamics are at play between them." data-th="วิเคราะห์ดวงชะตาสองคนเทียบกันผ่านทั้ง 10 ระบบพร้อมกัน Relationship Overlay ไม่ได้ทำนายความเข้ากัน — แต่แสดงให้เห็นว่าพลังงานสองขั้วสั่นพ้องกันตรงไหน ขัดแย้งกันแบบไหน และธาตุอะไรกำลังทำงานระหว่างกัน">Two birth charts analyzed in parallel across all 10 systems. The Relationship Overlay does not predict compatibility — it maps where two energies resonate, where they create productive tension, and what elemental dynamics are at play between them.</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.2rem">
+    <div class="output-card">
+      <div class="output-card-title" data-en="Person A" data-th="บุคคล A">Person A</div>
+      <div class="output-card-val">Ariya Srisuk</div>
+      <div class="output-card-desc">21 Mar 1990 · 08:30 · Bangkok<br>Yang Wood · Aries Sun · Generator</div>
+    </div>
+    <div class="output-card">
+      <div class="output-card-title" data-en="Person B" data-th="บุคคล B">Person B</div>
+      <div class="output-card-val">Kawin Thep</div>
+      <div class="output-card-desc">14 Jul 1988 · 14:00 · Chiang Mai<br>Yang Earth · Cancer Sun · Projector</div>
+    </div>
+  </div>
+  <div class="output-grid">
+    <div class="output-card">
+      <div class="output-card-title" data-en="Overall Compatibility" data-th="ความเข้ากันได้โดยรวม">Overall Compatibility</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:2rem;color:var(--gold);margin-bottom:.3rem">78%</div>
+      <div class="compat-bar"><div class="compat-fill" style="width:78%"></div></div>
+      <div class="output-card-desc">Strong across 7 of 10 systems. Elemental tension (Wood vs. Earth) creates productive friction rather than conflict.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-card-title" data-en="Strongest System Alignments" data-th="การจัดเรียงระบบที่แข็งแกร่งที่สุด">Strongest System Alignments</div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;margin-top:.4rem">
+        <div><span class="tag tag-gold" style="margin-right:.4rem">98%</span><span style="font-size:.82rem">I Ching · Hexagram resonance</span></div>
+        <div><span class="tag tag-gold" style="margin-right:.4rem">91%</span><span style="font-size:.82rem">Mayan Tzolk'in · Day sign synergy</span></div>
+        <div><span class="tag tag-gold" style="margin-right:.4rem">85%</span><span style="font-size:.82rem">Numerology · Life Path 7 + 3</span></div>
+        <div><span class="tag tag-gold" style="margin-right:.4rem">82%</span><span style="font-size:.82rem">Vedic Jyotish · Nakshatra harmony</span></div>
+      </div>
+    </div>
+    <div class="output-card">
+      <div class="output-card-title" data-en="Energy Dynamic" data-th="พลวัตพลังงาน">Energy Dynamic</div>
+      <div class="output-card-val" style="font-size:.9rem">Generator + Projector</div>
+      <div class="output-card-desc" style="margin-top:.5rem">Classic complementary pairing. The Generator provides sustainable energy; the Projector provides direction and strategic vision. This pairing works when the Projector is invited rather than initiating, and the Generator responds rather than pushes.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-card-title" data-en="Elemental Tension" data-th="ความตึงเครียดธาตุ">Elemental Tension</div>
+      <div class="output-card-val" style="font-size:.9rem">Wood Controls Earth</div>
+      <div class="output-card-desc" style="margin-top:.5rem">In Five Element theory, Wood roots penetrate Earth — this creates a controlling relationship. Not destructive, but it means A's energy naturally sets the direction, and B must consciously claim their own ground. Awareness transforms this from friction to complementarity.</div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:1rem"><a href="/onboarding" class="btn btn-gold">Get My Relationship Overlay · $12</a></div>
+</div>
+
+<!-- YEAR AHEAD MAP -->
+<div id="demo-year-ahead" class="demo-section">
+  <div class="mock-bar">
+    <span class="mock-label">Add-On</span><span class="mock-val">Year Ahead Map</span>
+    <span class="mock-divider">·</span><span class="mock-val">$15 · 12-month forecast</span>
+  </div>
+  <div class="tab-intro">
+    <div class="tab-intro-title" data-en="What is the Year Ahead Map?" data-th="Year Ahead Map คืออะไร?">What is the Year Ahead Map?</div>
+    <div class="tab-intro-desc" data-en="A 12-month map of which planetary and elemental themes are active each month — drawn from your birth chart overlaid with current transits across multiple systems. Each month shows what is in motion. The score reflects the density of converging influences." data-th="แผนที่ 12 เดือนที่แสดงว่าธีมดาวและธาตุไหนกำลังเคลื่อนไหวในแต่ละช่วง ดึงจากดวงชะตาของคุณเทียบกับตำแหน่งดาวปัจจุบันในหลายระบบ แต่ละเดือนแสดงสิ่งที่กำลังเกิดขึ้น คะแนนสะท้อนความหนาแน่นของอิทธิพลที่มาบรรจบกัน">A 12-month map of which planetary and elemental themes are active each month — drawn from your birth chart overlaid with current transits across multiple systems. Each month shows what is in motion. The score reflects the density of converging influences.</div>
+  </div>
+  <div class="output-card" style="margin-bottom:1.2rem">
+    <div class="output-card-title">2026 Overview · Yang Fire Horse Year</div>
+    <div class="rp-body"><p>The Year of the Yang Fire Horse activates your natal Fire element — feeding your Wood Day Master but requiring conscious management. BaZi Luck Pillar shifts in Q3 bring a significant directional change. Western transits show Saturn entering your 10th house in May, restructuring career identity.</p></div>
+  </div>
+  <div class="output-card">
+    <div class="output-card-title" data-en="Month-by-Month · Apr 2026 – Mar 2027" data-th="รายเดือน · เม.ย. 2026 – มี.ค. 2027">Month-by-Month · Apr 2026 – Mar 2027</div>
+    <div style="margin-top:.5rem">
+      <div class="month-row"><div class="month-name">Apr 2026</div><div class="month-theme">Jupiter direct in Gemini — expansion through communication. Strong window for launches, publications.</div><div class="month-score">847</div></div>
+      <div class="month-row"><div class="month-name">May 2026</div><div class="month-theme">Saturn enters 10th house. Career restructuring is active. A period when identity in public roles is being reconfigured.</div><div class="month-score">612</div></div>
+      <div class="month-row"><div class="month-name">Jun 2026</div><div class="month-theme">Venus conjunct natal Sun. Visibility and relational energy are heightened. Creative and social themes are prominent in this period.</div><div class="month-score">789</div></div>
+      <div class="month-row"><div class="month-name">Jul 2026</div><div class="month-theme">Mercury retrograde in Cancer. Revisit and revise rather than initiate. Old conversations resurface productively.</div><div class="month-score">541</div></div>
+      <div class="month-row"><div class="month-name">Aug 2026</div><div class="month-theme">BaZi Luck Pillar shift. Major 10-year cycle change begins. New elemental influence takes approximately 6 months to stabilize.</div><div class="month-score">698</div></div>
+      <div class="month-row"><div class="month-name">Sep 2026</div><div class="month-theme">Vedic Jyotish: Rahu enters Pisces. Karmic themes surface around vocation and spiritual practice.</div><div class="month-score">723</div></div>
+      <div class="month-row"><div class="month-name">Oct 2026</div><div class="month-theme">Mars direct after retrograde. Energy that was compressed since January now releases. Outward momentum returns after a prolonged inward phase.</div><div class="month-score">901</div></div>
+      <div class="month-row"><div class="month-name">Nov 2026</div><div class="month-theme">Nine Star Ki enters 1-Water year influence. Internal reflection deepens. Less external action, more internal consolidation.</div><div class="month-score">634</div></div>
+      <div class="month-row"><div class="month-name">Dec 2026</div><div class="month-theme">Jupiter trine natal Moon. Emotional and material expansion is active. Domestic and familial themes are amplified through this transit.</div><div class="month-score">812</div></div>
+      <div class="month-row"><div class="month-name">Jan 2027</div><div class="month-theme">Solar eclipse in Capricorn activates natal 8th house. Transformation theme peaks. Release what no longer resonates.</div><div class="month-score">577</div></div>
+      <div class="month-row"><div class="month-name">Feb 2027</div><div class="month-theme">Mayan Tzolk'in: New 260-day cycle begins. Your day sign (8 Lamat) activates new harmonic pattern.</div><div class="month-score">745</div></div>
+      <div class="month-row"><div class="month-name">Mar 2027</div><div class="month-theme">Solar return month. New annual cycle begins. Saturn stabilized in 10th — authority you built this year now has form.</div><div class="month-score">863</div></div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:1.5rem"><a href="/onboarding" class="btn btn-gold">Get My Year Ahead Map · $15</a></div>
+</div>
+
+<!-- SACRED NAME -->
+<div id="demo-sacred-name" class="demo-section">
+  <div class="mock-bar">
+    <span class="mock-label">Add-On</span><span class="mock-val">Sacred Name Report</span>
+    <span class="mock-divider">·</span><span class="mock-val">$8</span>
+  </div>
+  <div class="tab-intro">
+    <div class="tab-intro-title" data-en="What is the Sacred Name Report?" data-th="Sacred Name Report คืออะไร?">What is the Sacred Name Report?</div>
+    <div class="tab-intro-desc" data-en="Your name carries its own vibration — a numerological signature that either amplifies or creates friction with your birth chart. The Sacred Name Report reads your name through Western Numerology and Thai Brahmin tradition, then measures how closely that vibration aligns with who your chart says you are." data-th="ชื่อของคุณมีการสั่นสะเทือนของตัวเอง — ลายเซ็นตัวเลขที่อาจขยายหรือขัดกับดวงชะตา Sacred Name Report อ่านชื่อคุณผ่าน Numerology ตะวันตก และประเพณีพราหมณ์ไทย แล้ววัดว่าการสั่นสะเทือนนั้นสอดคล้องกับดวงชะตาคุณมากแค่ไหน">Your name carries its own vibration — a numerological signature that either amplifies or creates friction with your birth chart. The Sacred Name Report reads your name through Western Numerology and Thai Brahmin tradition, then measures how closely that vibration aligns with who your chart says you are.</div>
+  </div>
+  <div class="output-grid">
+    <div class="output-card">
+      <div class="output-card-title">Numerological Analysis · "Ariya"</div>
+      <div class="output-card-val">Life Path 7</div>
+      <div class="output-card-desc" style="margin-top:.5rem">The Seeker. 7 is the number of introspection, analysis and spiritual inquiry. It seeks to understand the deeper pattern beneath surface appearances. The name Ariya carries a Soul Urge of 9 (humanitarian) and a Personality number of 7 — outer and inner self are unusually aligned.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-card-title">Thai Brahmin Analysis</div>
+      <div class="output-card-val">อริยะ · Skt: Noble One</div>
+      <div class="output-card-desc" style="margin-top:.5rem">In Thai Brahmin tradition, the name อริยะ (Ariya) derives from the Sanskrit ārya — noble, elevated, worthy. The consonant ร (Ra) is ruled by Mercury in the Thai system, aligning with your natal Mercury in Pisces: a mind that aspires to the noble but lives in the poetic and intuitive.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-card-title" data-en="Name Resonance Score" data-th="คะแนนความสัมพันธ์ชื่อ">Name Resonance Score</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:2rem;color:var(--gold);margin-bottom:.3rem">84%</div>
+      <div class="compat-bar"><div class="compat-fill" style="width:84%"></div></div>
+      <div class="output-card-desc">Your name resonates strongly with your chart. The Mercurial root aligns with natal Mercury. The 7 Life Path mirrors your Scorpio Moon's depth-seeking nature.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-card-title" data-en="Resonant Alternative Names" data-th="ชื่อทางเลือกที่สัมพันธ์">Resonant Alternative Names</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:.4rem">
+        <div><span style="font-family:'Cinzel Decorative',serif;color:var(--gold);font-size:.88rem">Akhara</span> <span style="font-family:'Josefin Sans',sans-serif;font-size:.6rem;color:var(--dim);letter-spacing:.08em">· Life Path 8 · strength, authority</span></div>
+        <div><span style="font-family:'Cinzel Decorative',serif;color:var(--gold);font-size:.88rem">Vira</span> <span style="font-family:'Josefin Sans',sans-serif;font-size:.6rem;color:var(--dim);letter-spacing:.08em">· Life Path 4 · courage, structure</span></div>
+        <div><span style="font-family:'Cinzel Decorative',serif;color:var(--gold);font-size:.88rem">Dhira</span> <span style="font-family:'Josefin Sans',sans-serif;font-size:.6rem;color:var(--dim);letter-spacing:.08em">· Life Path 3 · wisdom, patience</span></div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:1rem"><a href="/onboarding" class="btn btn-gold">Get My Sacred Name Report · $8</a>
+  <!-- SACRED NAME GENERATOR -->
+  <div class="output-card" style="margin-top:1.2rem">
+    <div class="output-card-title" data-en="Name Resonance Generator" data-th="เครื่องสร้างความสัมพันธ์ชื่อ">Name Resonance Generator</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--dim);font-style:italic;margin-bottom:.8rem" data-en="Enter any name to analyze its numerological signature and resonance with your chart." data-th="ป้อนชื่อใดก็ได้เพื่อวิเคราะห์ลายเซ็นตัวเลขและความสัมพันธ์กับดวงชะตาของคุณ">Enter any name to analyze its numerological signature and resonance with your chart.</div>
+    <div style="display:flex;gap:.5rem;margin-bottom:.6rem">
+      <input type="text" id="nameGenInput" placeholder="Enter a name..." style="flex:1;background:rgba(200,164,90,.04);border:1px solid rgba(200,164,90,.2);border-radius:6px;padding:.5rem .8rem;color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:.95rem;outline:none" data-en-placeholder="Enter a name..." data-th-placeholder="ป้อนชื่อ...">
+      <button onclick="analyzeNameDemo()" style="padding:.5rem 1rem;background:rgba(200,164,90,.1);border:1px solid rgba(200,164,90,.35);border-radius:6px;color:var(--gold);font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.12em;cursor:pointer;white-space:nowrap" data-en="Analyze" data-th="วิเคราะห์">Analyze</button>
+    </div>
+    <div id="nameGenResult" style="display:none;padding:.8rem;background:rgba(200,164,90,.04);border-left:2px solid rgba(200,164,90,.4);border-radius:0 6px 6px 0">
+      <div id="nameGenMain" style="font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--gold);margin-bottom:.3rem"></div>
+      <div id="nameGenPath" style="font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.1em;color:var(--dim);margin-bottom:.4rem"></div>
+      <div id="nameGenMeaning" style="font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--dim);font-style:italic"></div>
+      <div id="nameGenResonance" style="font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.08em;color:var(--gold);margin-top:.5rem"></div>
+    </div>
+    <div style="font-family:'Josefin Sans',sans-serif;font-size:.55rem;letter-spacing:.08em;color:rgba(200,164,90,.4);margin-top:.5rem" data-en="Full analysis in the Sacred Name Report · $8" data-th="วิเคราะห์ฉบับสมบูรณ์ในรายงาน Sacred Name · $8">Full analysis in the Sacred Name Report · $8</div>
+  </div></div>
+</div>
+<!-- COSMIC FITNESS -->
+<div id="demo-cosmic-fitness" class="demo-section">
+  <div class="mock-bar">
+    <span class="mock-label">Add-On</span><span class="mock-val">Cosmic Fitness</span>
+    <span class="mock-divider">·</span><span class="mock-val">$9 · Exercise aligned to your chart</span>
+  </div>
+  <div class="tab-intro">
+    <div class="tab-intro-title" data-en="What is Cosmic Fitness?" data-th="Cosmic Fitness คืออะไร?">What is Cosmic Fitness?</div>
+    <div class="tab-intro-desc" data-en="Your birth chart describes how your body uses and recovers energy. Cosmic Fitness reads your Mars placement, Day Master, and current transits to identify which types of movement are most aligned with how your system is built — and which planetary phase you are currently in." data-th="ดวงชะตาของคุณบอกได้ว่าร่างกายใช้และฟื้นฟูพลังงานอย่างไร Cosmic Fitness อ่านตำแหน่งดาวอังคาร Day Master และดาวปัจจุบัน เพื่อระบุว่าการออกกำลังกายรูปแบบใดสอดคล้องกับระบบร่างกายคุณมากที่สุด">Your birth chart describes how your body uses and recovers energy. Cosmic Fitness reads your Mars placement, Day Master, and current transits to identify which types of movement are most aligned with how your system is built — and which planetary phase you are currently in.</div>
+  </div>
+  <div class="output-grid">
+    <div class="output-card">
+      <div class="output-card-title" data-en="Your Movement Archetype" data-th="ต้นแบบการเคลื่อนไหวของคุณ">Your Movement Archetype</div>
+      <div class="output-card-val">The Warrior-Monk</div>
+      <div class="output-card-desc" style="margin-top:.5rem">Mars in Capricorn in the 8th house creates a body that excels at disciplined, intense, focused effort over time. This is not a chart for casual movement — it is a chart for training that has purpose and structure. Yang Wood Day Master adds explosive initiation energy that benefits from being channeled into a practice rather than scattered.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-card-title">Current Transit Influence</div>
+      <div class="output-card-val">Mars Retrograde in Cancer</div>
+      <div class="output-card-desc" style="margin-top:.5rem">Mars retrograde period (now through May 2026): energy directed inward rather than outward. This is a recovery and rebuilding phase, not a peak performance phase. Lower intensity, higher consistency. Restorative practices are especially beneficial now.</div>
+    </div>
+  </div>
+  <div class="output-card" style="margin-bottom:1.2rem">
+    <div class="output-card-title" data-en="Recommended Movement Types · Ranked by Chart Alignment" data-th="ประเภทการเคลื่อนไหวที่แนะนำ · จัดอันดับตามดวงชะตา">Recommended Movement Types · Ranked by Chart Alignment</div>
+    <div style="margin-top:.8rem">
+      <div class="exercise-block">
+        <div class="exercise-type">1. Martial Arts · Muay Thai · Combat Sports</div>
+        <div class="exercise-desc">Mars in Capricorn's structured intensity + Aries Sun's combative spirit = strongest chart alignment. Martial arts provide the discipline, the opponent (necessary for Wood's growth), and the clear progress metrics. 95% chart resonance.</div>
+      </div>
+      <div class="exercise-block">
+        <div class="exercise-type">2. Weight Training · Compound Lifts</div>
+        <div class="exercise-desc">Saturn in Capricorn in 8th house rewards progressive overload — the slow accumulation of strength over time. Particularly strong during Saturn transits. Build the structure; it will last. 88% chart resonance.</div>
+      </div>
+      <div class="exercise-block">
+        <div class="exercise-type">3. Running · Trail · Long-Distance</div>
+        <div class="exercise-desc">Mercury in Pisces and Moon in Scorpio both benefit from meditative, rhythmic movement. Running (especially in nature) activates the contemplative mind and allows emotional processing through the body. 81% chart resonance.</div>
+      </div>
+      <div class="exercise-block">
+        <div class="exercise-type">4. Swimming · Water Sports</div>
+        <div class="exercise-desc">Scorpio Moon's deep connection to water. Particularly beneficial during emotional intensity — the water absorbs and transforms. During Mars retrograde in Cancer (now), swimming is especially indicated. 76% chart resonance.</div>
+      </div>
+    </div>
+  </div>
+  <div class="output-grid">
+    <div class="output-card">
+      <div class="output-card-title">Best Training Windows (Weekly)</div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;margin-top:.4rem;font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.08em">
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--silver)">Tuesday · Thursday</span><span style="color:var(--gold)">Peak intensity</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--silver)">Saturday</span><span style="color:var(--gold)">Long session</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--silver)">Sunday · Wednesday</span><span style="color:var(--dim)">Recovery</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--silver)">Monday · Friday</span><span style="color:var(--dim)">Light movement</span></div>
+      </div>
+    </div>
+    <div class="output-card">
+      <div class="output-card-title" data-en="Recovery Protocol" data-th="โปรโตคอลการฟื้นฟู">Recovery Protocol</div>
+      <div class="output-card-desc" style="margin-top:.4rem">Scorpio Moon needs full recovery — half-rest doesn't work for this chart. When you rest, rest completely. Sleep window: 10pm–6am aligns with your Wood Day Master's optimal regeneration cycle. Cold water immersion (Scorpio Moon) accelerates recovery more than most other modalities for this chart.</div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:1rem"><a href="/onboarding" class="btn btn-gold">Get My Cosmic Fitness Report · $9</a></div>
+</div>
+
+<!-- SPIRIT ANIMAL -->
+<div id="demo-spirit-animal" class="demo-section">
+  <div class="mock-bar">
+    <span class="mock-label">Add-On</span><span class="mock-val">Spirit Animal</span>
+    <span class="mock-divider">·</span><span class="mock-val">$7 · From Celtic, Native American & Shamanic traditions</span>
+  </div>
+  <div class="tab-intro">
+    <div class="tab-intro-title" data-en="What is Spirit Animal?" data-th="Spirit Animal คืออะไร?">What is Spirit Animal?</div>
+    <div class="tab-intro-desc" data-en="Across Celtic, Native American, Aztec, and Vedic traditions, specific animals carry energetic signatures that mirror human patterns. Spirit Animal maps your birth chart against the animal symbolism in four independent traditions — finding the being that appears most consistently across all of them." data-th="ใน 4 ประเพณี — Celtic, Native American, Aztec และ Vedic — สัตว์แต่ละชนิดพกพาลายเซ็นพลังงานที่สะท้อนรูปแบบมนุษย์ Spirit Animal เทียบดวงชะตาของคุณกับสัญลักษณ์สัตว์ในสี่ประเพณีนั้น และค้นหาว่าสัตว์ตัวใดปรากฏสอดคล้องกันมากที่สุด">Across Celtic, Native American, Aztec, and Vedic traditions, specific animals carry energetic signatures that mirror human patterns. Spirit Animal maps your birth chart against the animal symbolism in four independent traditions — finding the being that appears most consistently across all of them.</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start">
+    <div style="text-align:center">
+      <div class="animal-card" style="margin:0 auto">
+        <span class="animal-sym">🦅</span>
+        <div class="animal-name">Golden Eagle</div>
+        <div class="animal-origin">Celtic · Native American · Aztec</div>
+        <div style="font-size:.92rem;color:var(--silver);line-height:1.75;margin-bottom:.8rem;font-style:italic">"The eagle sees from the height others cannot reach. It hunts with precision, not with speed. It circles before it strikes — and when it strikes, it does not miss."</div>
+        <div class="god-attrs-wrap">
+          <span class="god-attr-tag">Vision</span><span class="god-attr-tag">Precision</span>
+          <span class="god-attr-tag">Height</span><span class="god-attr-tag">Sovereignty</span>
+        </div>
+        <div class="god-resonance">
+          Resonates with: <em>Sun Aries · Mars Capricorn · Mercury Pisces</em><br>
+          Identified across 4 traditions from your natal chart.
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="report-page" style="margin-bottom:1rem">
+        <div class="rp-eyebrow" data-en="Shadow Animal" data-th="สัตว์เงา">Shadow Animal</div>
+        <div class="rp-title" style="font-size:.9rem">🐍 Serpent · Transformation Guardian</div>
+        <div class="rp-body" style="font-size:.88rem"><p>The shadow animal is not an enemy — it is the part of your nature that requires the most conscious relationship. The Serpent appears in your chart through Scorpio Moon and the 8th house Saturn. It represents transformation through shedding, the willingness to leave the old skin behind. When the Eagle becomes rigid, the Serpent reminds you to release.</p></div>
+      </div>
+      <div class="report-page" style="margin-bottom:1rem">
+        <div class="rp-eyebrow" data-en="Companion Animal (Daily Guidance)" data-th="สัตว์เพื่อน (คำแนะนำรายวัน)">Companion Animal (Daily Guidance)</div>
+        <div class="rp-title" style="font-size:.9rem">🦊 Fox · The Strategist</div>
+        <div class="rp-body" style="font-size:.88rem"><p>The Fox is not your power animal — it is your daily companion. Where the Eagle carries your long-arc identity, the Fox navigates the immediate terrain. Mercury in Pisces and Gemini Rising together call in Fox energy: adapt, observe, find the path others overlooked.</p></div>
+      </div>
+      <div class="output-card">
+        <div class="output-card-title">Traditions That Identified Your Eagle</div>
+        <div style="display:flex;flex-direction:column;gap:.4rem;margin-top:.4rem;font-size:.82rem">
+          <div>🏴󠁧󠁢󠁳󠁣󠁴󠁿 <span style="color:var(--silver)">Celtic</span> · <span style="color:var(--dim)">Eagle of Lleu Llaw Gyffes — sky sovereignty</span></div>
+          <div>🪶 <span style="color:var(--silver)">Lakota</span> · <span style="color:var(--dim)">Wanbli — messenger between worlds</span></div>
+          <div>🌞 <span style="color:var(--silver)">Aztec</span> · <span style="color:var(--dim)">Cuauhtli — solar warrior, dawn</span></div>
+          <div>🌿 <span style="color:var(--silver)">Vedic</span> · <span style="color:var(--dim)">Garuda — mount of Vishnu, destroyer of illusion</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:1.5rem"><a href="/onboarding" class="btn btn-gold">Get My Spirit Animal · $7</a></div>
+</div>
+
+<!-- SACRED NOURISHMENT -->
+<div id="demo-sacred-food" class="demo-section">
+  <div class="mock-bar">
+    <span class="mock-label">Add-On</span><span class="mock-val">Sacred Nourishment</span>
+    <span class="mock-divider">·</span><span class="mock-val">$9 · Food aligned to your Five Elements + Dosha</span>
+  </div>
+  <div class="tab-intro">
+    <div class="tab-intro-title" data-en="What is Sacred Nourishment?" data-th="Sacred Nourishment คืออะไร?">What is Sacred Nourishment?</div>
+    <div class="tab-intro-desc" data-en="Five Element theory (TCM), Ayurvedic Dosha, and your BaZi Day Master together describe how your body relates to food. Sacred Nourishment translates your chart into which foods support your dominant element — based on your constitution, not on generic nutritional advice." data-th="ทฤษฎี 5 ธาตุ (TCM) Dosha ของอายุรเวท และ BaZi Day Master ร่วมกันอธิบายว่าร่างกายคุณสัมพันธ์กับอาหารอย่างไร Sacred Nourishment แปลดวงชะตาของคุณเป็นอาหารที่สนับสนุนธาตุหลักของคุณ — โดยอิงจากสรีรวิทยาของคุณ ไม่ใช่คำแนะนำทั่วไป">Five Element theory (TCM), Ayurvedic Dosha, and your BaZi Day Master together describe how your body relates to food. Sacred Nourishment translates your chart into which foods support your dominant element — based on your constitution, not on generic nutritional advice.</div>
+  </div>
+  <div class="output-grid">
+    <div class="output-card">
+      <div class="output-card-title" data-en="Your Elemental Food Profile" data-th="โปรไฟล์อาหารธาตุของคุณ">Your Elemental Food Profile</div>
+      <div class="output-card-val">Yang Wood · Pitta-Vata</div>
+      <div class="output-card-desc" style="margin-top:.5rem">BaZi Day Master Yang Wood mapped to Ayurvedic Pitta-Vata: a constitution that runs hot, quick, and intense. Your digestive fire (Agni) is strong but irregular — you can process almost anything, but the rhythm matters more than the content.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-card-title" data-en="Current Season Guidance" data-th="คำแนะนำตามฤดูกาลปัจจุบัน">Current Season Guidance</div>
+      <div class="output-card-val">Spring · Wood Season</div>
+      <div class="output-card-desc" style="margin-top:.5rem">Spring activates your dominant element. More Wood feeding more Wood can overstimulate — this is the season to emphasize Earth foods (grounding, sweet, stabilizing) to balance the upward surge of Yang Wood energy.</div>
+    </div>
+  </div>
+  <div class="output-card" style="margin-bottom:1.2rem">
+    <div class="output-card-title" data-en="Most Resonant Foods for Your Chart" data-th="อาหารที่สัมพันธ์ที่สุดสำหรับดวงชะตาของคุณ">Most Resonant Foods for Your Chart</div>
+    <div style="margin-top:.8rem">
+      <div class="food-item"><div class="food-icon">🌿</div><div><div class="food-name">Bitter greens · Dandelion, Arugula, Radicchio</div><div class="food-why">Liver meridian support (Wood element). Bitter flavor in TCM tonifies and drains excess Liver Qi — exactly what Yang Wood overexpression creates. Spring morning is optimal timing.</div></div></div>
+      <div class="food-item"><div class="food-icon">🍠</div><div><div class="food-name">Root vegetables · Sweet potato, Taro, Yam</div><div class="food-why">Earth element foods ground your Wood excess. Scorpio Moon needs sweetness and comfort — root vegetables provide this without destabilizing your Pitta fire the way refined sugar does.</div></div></div>
+      <div class="food-item"><div class="food-icon">🐟</div><div><div class="food-name">Oily fish · Salmon, Mackerel, Sardine</div><div class="food-why">Mercury in Pisces creates a strong resonance with fish — the symbol of your Mercury's domain. Omega-3s support the nervous system that Gemini Rising overloads. Specifically beneficial during Mercury retrograde periods.</div></div></div>
+      <div class="food-item"><div class="food-icon">🌰</div><div><div class="food-name">Walnuts · Chestnuts · Black sesame</div><div class="food-why">Kidney/Water energy foods support the Wood element's root system. In TCM, "water generates wood" — keeping your Water element nourished prevents Wood from becoming brittle and aggressive.</div></div></div>
+      <div class="food-item"><div class="food-icon">🍵</div><div><div class="food-name">Green tea · Chrysanthemum · Peppermint</div><div class="food-why">Liver-cooling herbs for your Wood constitution. Chrysanthemum specifically addresses the eye strain and headaches that Aries Sun overextension produces. Morning ritual timing recommended.</div></div></div>
+    </div>
+  </div>
+  <div class="output-grid">
+    <div class="output-card">
+      <div class="output-card-title">Fasting Rhythm</div>
+      <div class="output-card-desc" style="margin-top:.4rem"><strong style="color:var(--silver)">Intermittent 16:8</strong> aligns well with your chart: Yang Wood thrives with a defined eating window (structure), and the 16-hour fast allows the strong Pitta digestive fire to fully reset. Morning fasting is easier than evening for your constitution — the Aries Sun wants to engage, not digest, at dawn.</div>
+    </div>
+    <div class="output-card">
+      <div class="output-card-title" data-en="Foods to Minimize (For Your Chart)" data-th="อาหารที่ควรลด (สำหรับดวงชะตาของคุณ)">Foods to Minimize (For Your Chart)</div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;margin-top:.4rem;font-size:.82rem;color:var(--dim)">
+        <div>🌶 <span>Excess spice/chili</span> — fans Pitta fire past productive intensity</div>
+        <div>☕ <span>More than 1 coffee</span> — Mercury-Pisces nervousness amplifies</div>
+        <div>🍺 <span>Alcohol</span> — Liver element stress, not compatible with Yang Wood peak</div>
+        <div>🍬 <span>Refined sugar</span> — short-term Earth grounding, long-term Wood depletion</div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:1rem"><a href="/onboarding" class="btn btn-gold">Get My Sacred Nourishment Report · $9</a></div>
+</div>
+</div><!-- /demo-content -->
+
+<div class="lang-pill"><button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button><button class="lang-btn" id="btnTH" onclick="setLang('th')">TH</button></div>
+
+<script>
+function switchDemo(el, id) {
+  document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.demo-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('demo-' + id).classList.add('active');
+  window.scrollTo({top: document.querySelector('.demo-tabs').offsetTop - 64, behavior: 'smooth'});
+}
+
+(function(){
+  var L = localStorage.getItem('msLang') || 'en';
+  function setLang(lang) {
+    L = lang;
+    localStorage.setItem('msLang', lang);
+    document.querySelectorAll('[data-en][data-th]').forEach(function(el) {
+      el.innerHTML = lang === 'th' ? el.getAttribute('data-th') : el.getAttribute('data-en');
+    });
+    document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+    document.getElementById('btnTH').classList.toggle('active', lang === 'th');
+    document.documentElement.lang = lang === 'th' ? 'th' : 'en';
+  }
+  window.setLang = setLang;
+  if (L === 'th') document.addEventListener('DOMContentLoaded', function(){ setLang('th'); });
+})();
+</script>
+
+<script>
+// ═══ PLANET DATA (mock positions for demo — 31 Mar 2026) ═══════════
+const PLANETS = [
+  { id:'sun',  sym:'☉', name:'Sun',     sign:'Aries',   deg:9,   house:1,  r:155, direct:true,  color:'#f0c060', size:9,
+    motion:'Direct · Active',  toward:'Taurus', theme:'Identity · Vitality · Solar will', days:21, total:30 },
+  { id:'moon', sym:'☽', name:'Moon',    sign:'Scorpio', deg:22,  house:8,  r:155, direct:true,  color:'#c8c8e0', size:7,
+    motion:'Waning · Intense', toward:'Sagittarius', theme:'Emotional depth · Transformation', days:3, total:3.5 },
+  { id:'merc', sym:'☿', name:'Mercury', sign:'Pisces',  deg:28,  house:12, r:150, direct:true,  color:'#a0c8a0', size:6,
+    motion:'Direct · Transition', toward:'Aries', theme:'Intuitive thinking · At threshold', days:8, total:14 },
+  { id:'ven',  sym:'♀', name:'Venus',   sign:'Taurus',  deg:8,   house:2,  r:148, direct:true,  color:'#e0a0b8', size:6.5,
+    motion:'Direct · Stable',  toward:'Gemini', theme:'Material stability · Sensory presence', days:12, total:25 },
+  { id:'mars', sym:'♂', name:'Mars',    sign:'Cancer',  deg:14,  house:4,  r:142, direct:false, color:'#e06060', size:7,
+    motion:'⟳ Retrograde · Moving backward through Cancer toward Gemini', toward:'Gemini', theme:'Energy directed inward rather than outward', days:12, total:72 },
+  { id:'jup',  sym:'♃', name:'Jupiter', sign:'Gemini',  deg:22,  house:3,  r:138, direct:true,  color:'#c8a45a', size:8,
+    motion:'Direct · Expansive', toward:'Cancer', theme:'Expansion through communication · Ideas multiply', days:18, total:40 },
+  { id:'sat',  sym:'♄', name:'Saturn',  sign:'Pisces',  deg:17,  house:12, r:132, direct:true,  color:'#9a8060', size:7.5,
+    motion:'Direct · Structured', toward:'Aries', theme:'Structure · Time · Accountability', days:5, total:30 },
+];
+
+const SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+const SIGN_GLYPHS = ['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+const SIGN_COLORS = ['#e06040','#b8a060','#80b0c0','#60a0b0','#e0c060','#90b090','#d0a0b0','#8060a0','#b06040','#808090','#7090c0','#80a0c0'];
+
+const CX = 200, CY = 200;
+
+function toRad(deg) { return deg * Math.PI / 180; }
+function polarToCart(cx, cy, r, angleDeg) {
+  const a = toRad(angleDeg - 90); // 0° = top (Aries)
+  return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+}
+function signToAngle(sign, deg) {
+  return SIGNS.indexOf(sign) * 30 + deg;
+}
+
+// ═══ BUILD STAR FIELD ═══
+function buildStars() {
+  const g = document.getElementById('starField');
+  if (!g) return;
+  const stars = [];
+  for (let i = 0; i < 80; i++) {
+    const angle = Math.random() * 360;
+    const r = 85 + Math.random() * 100;
+    const p = polarToCart(CX, CY, r, angle);
+    const size = Math.random() * 1.2 + 0.3;
+    const opacity = Math.random() * 0.6 + 0.2;
+    stars.push(`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${size.toFixed(2)}" fill="white" opacity="${opacity.toFixed(2)}">
+      <animate attributeName="opacity" values="${opacity.toFixed(2)};${(opacity*0.3).toFixed(2)};${opacity.toFixed(2)}" dur="${(2+Math.random()*4).toFixed(1)}s" repeatCount="indefinite"/>
+    </circle>`);
+  }
+  g.innerHTML = stars.join('');
+}
+
+// ═══ BUILD ZODIAC RING ═══
+function buildZodiacRing() {
+  const g = document.getElementById('zodiacRing');
+  if (!g) return;
+  const R_OUTER = 196, R_INNER = 162;
+  let html = '';
+  for (let i = 0; i < 12; i++) {
+    const startAngle = i * 30 - 90;
+    const endAngle = (i + 1) * 30 - 90;
+    const s1 = polarToCart(CX, CY, R_INNER, startAngle * 180/Math.PI + 90);
+    const e1 = polarToCart(CX, CY, R_OUTER, startAngle * 180/Math.PI + 90);
+    const s2 = polarToCart(CX, CY, R_OUTER, endAngle * 180/Math.PI + 90);
+    const e2 = polarToCart(CX, CY, R_INNER, endAngle * 180/Math.PI + 90);
+    const startRad = toRad(startAngle);
+    const endRad = toRad(endAngle);
+    const x1i = CX + R_INNER * Math.cos(startRad), y1i = CY + R_INNER * Math.sin(startRad);
+    const x1o = CX + R_OUTER * Math.cos(startRad), y1o = CY + R_OUTER * Math.sin(startRad);
+    const x2o = CX + R_OUTER * Math.cos(endRad), y2o = CY + R_OUTER * Math.sin(endRad);
+    const x2i = CX + R_INNER * Math.cos(endRad), y2i = CY + R_INNER * Math.sin(endRad);
+    html += `<path d="M ${x1i.toFixed(1)} ${y1i.toFixed(1)} L ${x1o.toFixed(1)} ${y1o.toFixed(1)} A ${R_OUTER} ${R_OUTER} 0 0 1 ${x2o.toFixed(1)} ${y2o.toFixed(1)} L ${x2i.toFixed(1)} ${y2i.toFixed(1)} A ${R_INNER} ${R_INNER} 0 0 0 ${x1i.toFixed(1)} ${y1i.toFixed(1)} Z" fill="${SIGN_COLORS[i]}18" stroke="rgba(200,164,90,.1)" stroke-width=".5"/>`;
+    // Glyph at midpoint
+    const midAngle = (i + 0.5) * 30;
+    const midR = (R_INNER + R_OUTER) / 2;
+    const mp = polarToCart(CX, CY, midR, midAngle);
+    html += `<text x="${mp.x.toFixed(1)}" y="${mp.y.toFixed(1)}" class="zodiac-glyph" text-anchor="middle" dominant-baseline="central" fill="${SIGN_COLORS[i]}" opacity=".7">${SIGN_GLYPHS[i]}</text>`;
+    // Divider line
+    const dl = polarToCart(CX, CY, R_INNER, i * 30);
+    const dlo = polarToCart(CX, CY, R_OUTER, i * 30);
+    html += `<line x1="${dl.x.toFixed(1)}" y1="${dl.y.toFixed(1)}" x2="${dlo.x.toFixed(1)}" y2="${dlo.y.toFixed(1)}" stroke="rgba(200,164,90,.2)" stroke-width=".5"/>`;
+  }
+  g.innerHTML = html;
+}
+
+// ═══ PLACE PLANETS ═══
+let animFrame;
+function buildPlanets() {
+  const orbsG = document.getElementById('planetOrbs');
+  const trailsG = document.getElementById('planetTrails');
+  if (!orbsG || !trailsG) return;
+  let orbsHTML = '', trailsHTML = '';
+
+  PLANETS.forEach((pl, idx) => {
+    const angle = signToAngle(pl.sign, pl.deg);
+    const p = polarToCart(CX, CY, pl.r, angle);
+
+    // Trail: arc showing direction of travel
+    const trailLen = pl.direct ? 18 : -18;
+    const trailAngle = angle + trailLen;
+    const tp = polarToCart(CX, CY, pl.r, trailAngle);
+    const trailClass = pl.direct ? 'planet-trail' : 'planet-trail-retro';
+    trailsHTML += `<path d="M ${p.x.toFixed(1)} ${p.y.toFixed(1)} Q ${((p.x+tp.x)/2).toFixed(1)} ${((p.y+tp.y)/2 - 8).toFixed(1)} ${tp.x.toFixed(1)} ${tp.y.toFixed(1)}" fill="none" stroke="${pl.color}" stroke-width="1.2" opacity=".45" class="${trailClass}"/>`;
+
+    // Arrow head at trail end
+    const arrowColor = pl.direct ? '#4caf7d' : 'rgba(200,164,90,.7)';
+    trailsHTML += `<circle cx="${tp.x.toFixed(1)}" cy="${tp.y.toFixed(1)}" r="2" fill="${arrowColor}" opacity=".6"/>`;
+
+    // Orb glow ring (pulse for active)
+    const glowAnim = idx < 3 ? `<animate attributeName="r" values="${pl.size+3};${pl.size+6};${pl.size+3}" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values=".15;.05;.15" dur="3s" repeatCount="indefinite"/>` : '';
+    orbsHTML += `<g class="planet-orb" id="orb-${pl.id}" onclick="showPlanetTip(event,'${pl.id}')" onmouseenter="showPlanetTip(event,'${pl.id}')" onmouseleave="hideTip()">
+      <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${pl.size+3}" fill="${pl.color}" opacity=".12">${glowAnim}</circle>
+      <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${pl.size}" fill="${pl.color}" opacity=".85" stroke="rgba(0,0,0,.3)" stroke-width="1"/>
+      ${!pl.direct ? `<text x="${(p.x+pl.size+2).toFixed(1)}" y="${(p.y-pl.size).toFixed(1)}" font-size="7" fill="rgba(200,164,90,.8)" font-family="sans-serif">⟳</text>` : ''}
+      <text x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" fill="white" opacity=".9" font-size="${pl.size*1.1}" text-anchor="middle" dominant-baseline="central" font-family="serif">${pl.sym}</text>
+    </g>`;
+  });
+
+  // Aspect lines (Sun-Jupiter trine, Moon-Mars square)
+  const aspects = [
+    { a: 'sun', b: 'jup', type: 'trine', color: '#4caf7d', opacity: .18 },
+    { a: 'moon', b: 'mars', type: 'square', color: '#e06060', opacity: .15 },
+    { a: 'sat', b: 'merc', type: 'sextile', color: '#c8a45a', opacity: .12 },
+  ];
+  const aspG = document.getElementById('aspectLines');
+  if (aspG) {
+    let aspHTML = '';
+    aspects.forEach(asp => {
+      const pa = PLANETS.find(p=>p.id===asp.a), pb = PLANETS.find(p=>p.id===asp.b);
+      const posA = polarToCart(CX, CY, pa.r, signToAngle(pa.sign, pa.deg));
+      const posB = polarToCart(CX, CY, pb.r, signToAngle(pb.sign, pb.deg));
+      aspHTML += `<line x1="${posA.x.toFixed(1)}" y1="${posA.y.toFixed(1)}" x2="${posB.x.toFixed(1)}" y2="${posB.y.toFixed(1)}" stroke="${asp.color}" stroke-width="1" opacity="${asp.opacity}" stroke-dasharray="3 3"/>`;
+    });
+    aspG.innerHTML = aspHTML;
+  }
+
+  trailsG.innerHTML = trailsHTML;
+  orbsG.innerHTML = orbsHTML;
+}
+
+// ═══ ANIMATE PLANETS (slow drift) ═══
+let driftOffset = 0;
+function animatePlanets() {
+  driftOffset += 0.004;
+  const orbsG = document.getElementById('planetOrbs');
+  if (!orbsG) { cancelAnimationFrame(animFrame); return; }
+  PLANETS.forEach(pl => {
+    const orb = document.getElementById('orb-' + pl.id);
+    if (!orb) return;
+    const baseAngle = signToAngle(pl.sign, pl.deg);
+    const drift = Math.sin(driftOffset + PLANETS.indexOf(pl)) * 0.8;
+    const angle = baseAngle + drift;
+    const p = polarToCart(CX, CY, pl.r, angle);
+    const circles = orb.querySelectorAll('circle');
+    circles.forEach((c, i) => {
+      c.setAttribute('cx', p.x.toFixed(2));
+      c.setAttribute('cy', p.y.toFixed(2));
+    });
+    const texts = orb.querySelectorAll('text');
+    texts.forEach(t => {
+      t.setAttribute('x', p.x.toFixed(2));
+      t.setAttribute('y', p.y.toFixed(2));
+    });
+  });
+  animFrame = requestAnimationFrame(animatePlanets);
+}
+
+// ═══ TOOLTIP ═══
+function showPlanetTip(evt, id) {
+  const pl = PLANETS.find(p => p.id === id);
+  if (!pl) return;
+  const tt = document.getElementById('wheelTooltip');
+  const wrap = document.getElementById('wheelWrap');
+  const wRect = wrap.getBoundingClientRect();
+  const x = evt.clientX - wRect.left + 12;
+  const y = evt.clientY - wRect.top - 20;
+  document.getElementById('tt-planet-name').textContent = pl.sym + ' ' + pl.name;
+  document.getElementById('tt-planet-pos').textContent = pl.sign + ' ' + pl.deg + '° · House ' + pl.house;
+  document.getElementById('tt-planet-motion').textContent = pl.motion;
+  document.getElementById('tt-planet-theme').textContent = pl.theme;
+  tt.style.left = Math.min(x, 220) + 'px';
+  tt.style.top = Math.max(0, y) + 'px';
+  tt.classList.add('show');
+  if (!pl.direct) { tt.querySelector('.tt-retro').style.display = 'block'; }
+  else { tt.querySelector('.tt-retro').style.display = 'none'; }
+}
+function hideTip() {
+  document.getElementById('wheelTooltip').classList.remove('show');
+}
+
+// ═══ DIRECTION PANEL ═══
+function buildDirectionPanel() {
+  const panel = document.getElementById('dirPanel');
+  if (!panel) return;
+  let html = '';
+  PLANETS.forEach(pl => {
+    const arrowCls = pl.direct ? 'direct' : 'retro';
+    const arrowSym = pl.direct ? '→' : '←';
+    const statusColor = pl.direct ? '#4caf7d' : 'rgba(200,164,90,.7)';
+    html += `<div class="dir-card">
+      <div class="dir-sym" style="color:${pl.color}">${pl.sym}</div>
+      <div class="dir-body">
+        <div class="dir-name">${pl.name} · ${pl.sign} ${pl.deg}°</div>
+        <div class="dir-pos" style="font-size:.85rem">${pl.theme}</div>
+        <div class="dir-motion">
+          <span class="dir-arrow ${arrowCls}" style="color:${statusColor}">${arrowSym}</span>
+          <span>${pl.direct ? 'Direct' : 'Retrograde'} · moving toward ${pl.toward}</span>
+        </div>
+      </div>
+    </div>`;
+  });
+  // Add first child after the header div
+  const header = panel.firstElementChild;
+  header.insertAdjacentHTML('afterend', html);
+}
+
+// ═══ THEME ARC CARDS ═══
+function buildArcCards() {
+  const grid = document.getElementById('arcGrid');
+  if (!grid) return;
+  const arcs = [
+    { planet: '♂ Mars', theme: 'Energy Directed Inward', days: 12, total: 72, desc: 'Retrograde through Cancer. Moving backward toward Gemini.' },
+    { planet: '♄ Saturn', theme: 'Structure Crystallizing', days: 5, total: 30, desc: 'Direct in Pisces 17°. Moving toward Aries.' },
+    { planet: '♃ Jupiter', theme: 'Ideas Multiplying', days: 18, total: 40, desc: 'Direct in Gemini 22°. Expansive communication active.' },
+    { planet: '☿ Mercury', theme: 'At the Threshold', days: 8, total: 14, desc: 'Pisces 28° — final degree. Entering Aries within days.' },
+  ];
+  grid.innerHTML = arcs.map(a => {
+    const pct = Math.round((a.days / a.total) * 100);
+    const remain = a.total - a.days;
+    return `<div class="arc-card">
+      <div class="arc-progress" style="width:${pct}%"></div>
+      <div class="arc-planet">${a.planet}</div>
+      <div class="arc-theme">${a.theme}</div>
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.06em;color:var(--dim);margin-bottom:.6rem;line-height:1.5">${a.desc}</div>
+      <div class="arc-meta">
+        <div class="arc-day">Active <span>${a.days} days</span></div>
+        <div class="arc-day" style="opacity:.6">· ~<span>${remain}</span> more</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══ DATE DISPLAY ═══
+function setDateDisplay() {
+  const el = document.getElementById('sky-date-display');
+  if (!el) return;
+  const now = new Date();
+  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+  el.textContent = now.toLocaleDateString('en-GB', opts);
+}
+
+// ═══ INIT when section becomes visible ═══
+function initSky() {
+  if (document.getElementById('zodiacWheel')) {
+    setDateDisplay();
+    buildStars();
+    buildZodiacRing();
+    buildPlanets();
+    buildDirectionPanel();
+    buildArcCards();
+    if (animFrame) cancelAnimationFrame(animFrame);
+    animatePlanets();
+  }
+}
+
+// Hook into switchDemo
+const _origSwitch = window.switchDemo;
+window.switchDemo = function(el, id) {
+  _origSwitch(el, id);
+  if (id === 'today-sky') setTimeout(initSky, 80);
+};
+</script></body></html>
