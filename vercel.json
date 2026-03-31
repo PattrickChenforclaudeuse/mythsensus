@@ -2,9 +2,18 @@
   "functions": {
     "api/generate.js": {
       "maxDuration": 120
+    },
+    "api/auth/line/callback.js": {
+      "maxDuration": 30
+    },
+    "api/line/webhook.js": {
+      "maxDuration": 30
     }
   },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" }
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
   ]
 }
