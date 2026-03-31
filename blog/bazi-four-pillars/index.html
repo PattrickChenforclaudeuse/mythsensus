@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;600&family=Prompt:wght@200;300;400&display=swap" rel="stylesheet">
+<style>:root{--bg:#040407;--gold:#c8a45a;--silver:#e6e2d8;--dim:#9a9088;--card:#0d0d14;--border:rgba(200,164,90,0.22)}*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{background:var(--bg);color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.85}a{color:var(--gold);text-decoration:none}
+.nav{position:fixed;top:0;width:100%;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:1rem;cursor:pointer;letter-spacing:.06em}.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
+.nav-right{display:flex;gap:1.6rem;align-items:center}.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--silver);opacity:.7}.nav-link:hover{opacity:1;color:var(--gold)}
+.btn-gold{background:var(--gold);color:#040407;font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;padding:.55rem 1.4rem;border:none;border-radius:2px;cursor:pointer}
+.blog-hero{padding:110px 5% 60px;max-width:760px;margin:0 auto;border-bottom:1px solid var(--border)}
+.back-link{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);display:inline-flex;align-items:center;gap:.4rem;margin-bottom:1.6rem}
+.back-link:hover{color:var(--gold)}
+.article-tag{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.75;margin-bottom:.8rem;display:block}
+.article-title{font-family:'Cinzel Decorative',serif;font-size:clamp(1.4rem,3vw,2.4rem);color:var(--silver);line-height:1.25;margin-bottom:1rem}
+.article-meta{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;color:var(--dim);margin-bottom:1.8rem}
+.article-lede{font-size:1.12rem;color:var(--silver);line-height:1.9;font-style:italic;border-left:2px solid var(--gold);padding-left:1.2rem;margin-bottom:0}
+.article-body{max-width:760px;margin:0 auto;padding:3rem 5% 5rem}
+.article-body h2{font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);margin:2.8rem 0 1rem;letter-spacing:.04em}
+.article-body h3{font-family:'Josefin Sans',sans-serif;font-size:.75rem;letter-spacing:.22em;text-transform:uppercase;color:var(--silver);margin:2rem 0 .8rem;opacity:.85}
+.article-body p{margin-bottom:1.4rem;color:var(--silver);font-size:1rem;line-height:1.9}
+.article-body em{color:var(--gold);font-style:italic}
+.article-body strong{color:var(--silver);font-weight:600}
+.pull-quote{background:var(--card);border-left:3px solid var(--gold);padding:1.2rem 1.6rem;margin:2rem 0;border-radius:0 3px 3px 0}
+.pull-quote p{font-size:1.05rem;font-style:italic;color:var(--silver);margin:0}
+.system-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.2rem 1.4rem;margin:1rem 0;display:flex;gap:1rem;align-items:flex-start}
+.system-icon{font-size:1.4rem;flex-shrink:0;margin-top:.1rem}
+.system-name{font-family:'Cinzel Decorative',serif;font-size:.82rem;color:var(--gold);margin-bottom:.3rem}
+.system-desc{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.07em;color:var(--dim);line-height:1.55}
+.disclaimer{background:rgba(200,164,90,.06);border:1px solid rgba(200,164,90,.2);border-radius:3px;padding:1rem 1.4rem;margin:2rem 0}
+.disclaimer p{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.07em;color:var(--dim);line-height:1.6;margin:0}
+.cta-block{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:2rem;text-align:center;margin:3rem 0}
+.cta-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--silver);margin-bottom:.5rem}
+.cta-sub{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.1em;color:var(--dim);margin-bottom:1.2rem}
+.related-section{border-top:1px solid var(--border);padding:3rem 5%;max-width:760px;margin:0 auto}
+.related-title{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:1.5rem}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
+.related-card{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:1.2rem;transition:border-color .2s}.related-card:hover{border-color:var(--gold)}
+.related-tag{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);opacity:.65;margin-bottom:.4rem}
+.related-name{font-family:'Cinzel Decorative',serif;font-size:.82rem;color:var(--silver);line-height:1.3}
+.footer-blog{border-top:1px solid var(--border);padding:2rem 5%;text-align:center}
+.footer-blog p{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.1em;color:var(--dim)}
+@media(max-width:640px){.nav-right .nav-link{display:none}}
+html[lang="th"] body,.html[lang="th"] .article-body p{font-family:'Prompt',sans-serif;font-weight:300}
+</style><title>BaZi: Your Four Pillars of Destiny Explained — Mythsensus</title><meta name="description" content="The Chinese Four Pillars system maps your birth year, month, day and hour to elemental patterns that reveal character, luck cycles, and timing."><link rel="canonical" href="https://mythsensus.com/blog/bazi-four-pillars"><style>.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}.lang-btn{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}.lang-btn.active{background:var(--gold,#c8a45a);color:#040407}.lang-btn:hover:not(.active){color:var(--gold,#c8a45a)}</style></head><body>
+<nav class="nav">
+  <a href="/" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
+  <div class="nav-right">
+    <a href="/blog" class="nav-link" data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</a>
+    <a href="/#systems" class="nav-link" data-en="Systems" data-th="ระบบ">Systems</a>
+    <a href="/" class="btn-gold">Reveal My Score →</a>
+  </div>
+</nav>
+<article>
+<div class="blog-hero">
+  <a href="/blog" class="back-link">← Cosmic Library</a>
+  <span class="article-tag">Chinese Astrology · BaZi</span>
+  <h1 class="article-title" data-en="BaZi: Your Four Pillars of Destiny Explained" data-th="BaZi: สี่เสาแห่งชะตากรรมของคุณ อธิบาย">BaZi: Your Four Pillars of Destiny Explained</h1>
+  <p class="article-meta">Cosmic Library · 7 min read · Mythsensus Editorial</p>
+  <p class="article-lede">Born in the Tang Dynasty and still consulted by millions across East Asia, BaZi maps your birth moment to four elemental pillars — and reveals decade-long cycles that shift your fundamental landscape.</p>
+</div>
+<div class="article-body">
+<div class="disclaimer"><p>✦ Mythsensus articles are for educational and self-reflection purposes only. All interpretations are symbolic in nature and do not constitute medical, psychological, financial, or life advice.</p></div>
+<h2>What Are the Four Pillars?</h2>
+<p>BaZi — literally "Eight Characters" — is a Chinese astrological system that encodes your birth year, month, day, and hour into four pairs of characters. Each pair consists of a Heavenly Stem (one of ten) and an Earthly Branch (one of twelve), creating a 2×4 grid that forms your natal chart.</p>
+<p>Each of the eight characters carries one of five elemental energies — Wood, Fire, Earth, Metal, Water — and polarity: Yin or Yang. The interactions between these elements — generating, controlling, weakening, draining — create the dynamic landscape of your character and timing.</p>
+<div class="system-card"><div class="system-icon">八</div><div><div class="system-name">The Day Master</div><div class="system-desc">The Heavenly Stem of your Day Pillar is your most important character — your Day Master. It represents your core self: how you fundamentally process the world, what energizes and depletes you, and what kind of element you naturally attract and need.</div></div></div>
+<h2>The Five Elements in Practice</h2>
+<p><strong>Wood</strong> grows upward, expands, initiates. Wood people tend toward vision, growth orientation, and sometimes difficulty knowing when to stop. <em>Strong Wood years</em> favor new projects, creative launches, and educational endeavors.</p>
+<p><strong>Fire</strong> illuminates, connects, transforms. Fire people are often charismatic, expressive, and emotionally intense. They need meaning. <em>Fire-dominant charts</em> often show careers in communication, performance, or leadership.</p>
+<p><strong>Earth</strong> grounds, stabilizes, mediates. Earth types are practical, reliable, and sometimes too accommodating. They function as bridges between other people and between extremes.</p>
+<p><strong>Metal</strong> refines, structures, discerns. Metal people prize precision and principles. They can cut through to the essential — and sometimes cut too deep. <em>Metal-dominant years</em> favor legal matters, financial planning, and any work requiring sharp judgment.</p>
+<p><strong>Water</strong> flows, adapts, accumulates wisdom. Water people are often highly intuitive, strategic, and comfortable with ambiguity. They move around obstacles rather than through them.</p>
+<h2>Luck Pillars: The Decade Shift</h2>
+<p>What makes BaZi particularly powerful as a timing tool is the concept of Luck Pillars (大運, Dà Yùn). Every ten years, you enter a new Luck Pillar — a major elemental influence that recontextualizes everything in your natal chart for that decade.</p>
+<div class="pull-quote"><p>"Entering a Water Luck Pillar when your natal chart is dominated by Fire is not good news or bad news — it is a fundamental shift in the landscape of what is possible and what is challenging."</p></div>
+<p>Mythsensus calculates your current Luck Pillar and integrates it with your other nine systems to show how it shapes the broader patterns in your Cosmic Score right now.</p>
+<h2>BaZi Within the Mythsensus Framework</h2>
+<p>Within the ten-system synthesis, BaZi contributes most strongly to themes of elemental constitution, decade-scale timing, and career orientation. When BaZi's elemental dominance aligns with the planetary energies in your Western chart and your Vedic Nakshatra, the convergence is particularly significant — these are patterns that multiple civilizations, independently, encoded as important.</p>
+<div class="cta-block">
+  <div class="cta-title">Discover Your Four Pillars</div>
+  <p class="cta-sub">BaZi + 9 other systems · Full Cosmic Score · 25-page report</p>
+  <a href="/onboarding" class="btn-gold">Reveal My Score →</a>
+</div>
+</div>
+</article>
+<section class="related-section">
+  <div class="related-title">Continue Reading</div>
+  <div class="related-grid">
+    <a href="/blog/multi-system-astrology" class="related-card"><div class="related-tag">Multi-System</div><div class="related-name">Why One Astrology System Isn't Enough</div></a>
+    <a href="/blog/energy-type-system" class="related-card"><div class="related-tag">Energy System</div><div class="related-name">The Five Energy Types: Which One Are You?</div></a>
+  </div>
+</section><footer class="footer-blog"><p><a href="/privacy" style="color:var(--dim)">Privacy</a> · <a href="/support" style="color:var(--dim)">Support</a> · <a href="/" style="color:var(--dim)">mythsensus.com</a> · © 2026 MYTHSENSUS</p></footer><div class="lang-pill"><button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button><button class="lang-btn" id="btnTH" onclick="setLang('th')">TH</button></div><script>(function(){var L=localStorage.getItem('msLang')||'en';function setLang(lang){L=lang;localStorage.setItem('msLang',lang);document.querySelectorAll('[data-en][data-th]').forEach(function(el){el.innerHTML=lang==='th'?el.getAttribute('data-th'):el.getAttribute('data-en');});var be=document.getElementById('btnEN'),bt=document.getElementById('btnTH');if(be)be.classList.toggle('active',lang==='en');if(bt)bt.classList.toggle('active',lang==='th');document.documentElement.lang=lang==='th'?'th':'en';}window.setLang=setLang;if(L==='th'){document.addEventListener('DOMContentLoaded',function(){setLang('th');});}else{document.addEventListener('DOMContentLoaded',function(){var be=document.getElementById('btnEN'),bt=document.getElementById('btnTH');if(be)be.classList.add('active');if(bt)bt.classList.remove('active');});}})();</script></body></html>
