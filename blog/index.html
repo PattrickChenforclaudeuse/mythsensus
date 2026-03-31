@@ -1,0 +1,120 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cosmic Library — Mythsensus</title>
+<meta name="description" content="Ancient wisdom explained. Ten systems, one score.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@300;400;600&family=Prompt:wght@300;400&display=swap">
+<style>
+:root{--bg:#040407;--gold:#c8a45a;--silver:#e6e2d8;--dim:#9a9088;--card:#0d0d14;--border:rgba(200,164,90,0.22)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.85}
+a{color:var(--gold);text-decoration:none}
+.nav{position:fixed;top:0;width:100%;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:1rem;cursor:pointer;letter-spacing:.06em}.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
+.nav-right{display:flex;gap:1.6rem;align-items:center}.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--silver);opacity:.7}.nav-link:hover{opacity:1;color:var(--gold)}
+.btn-gold{background:var(--gold);color:#040407;font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;padding:.55rem 1.4rem;border:none;cursor:pointer;border-radius:2px}
+.page-wrap{max-width:860px;margin:0 auto;padding:100px 5% 5rem}
+.lib-eyebrow{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.8rem}
+.lib-title{font-family:'Cinzel Decorative',serif;font-size:clamp(2rem,4vw,3rem);color:var(--silver);margin-bottom:.8rem}
+.lib-sub{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--dim);margin-bottom:3rem}
+.lib-philosophy{background:rgba(200,164,90,.04);border:1px solid rgba(200,164,90,.12);border-radius:10px;padding:2rem;margin-bottom:3rem}
+.lib-philosophy-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--gold);margin-bottom:.8rem}
+.lib-philosophy-body{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--dim);line-height:1.75;font-style:italic}
+.articles-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin-bottom:3.5rem}
+.article-card{display:block;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.5rem;transition:border-color .2s,background .2s}
+.article-card:hover{border-color:rgba(200,164,90,.45);background:#131320}
+.article-tag{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.75;margin-bottom:.8rem;display:block}
+.article-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--silver);margin-bottom:.7rem;line-height:1.4}
+.article-excerpt{font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--dim);line-height:1.6;margin-bottom:.9rem}
+.article-read{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);opacity:.7}
+.cta-block{text-align:center;padding:2.5rem;background:rgba(200,164,90,.04);border:1px solid rgba(200,164,90,.15);border-radius:10px;margin-bottom:2rem}
+.cta-text{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--dim);margin-bottom:.4rem}
+.cta-sub{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.1em;color:rgba(200,164,90,.5);margin-bottom:1.2rem}
+.footer-blog{text-align:center;padding:1.5rem;font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);border-top:1px solid var(--border)}
+.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
+.lang-btn{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
+.lang-btn.active{background:var(--gold);color:#040407}.lang-btn:hover:not(.active){color:var(--gold)}
+html[lang="th"] *{font-family:'Prompt',sans-serif;font-weight:300}
+html[lang="th"] .lib-title, html[lang="th"] .article-title{font-family:'Prompt',sans-serif;font-weight:400}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="/" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
+  <div class="nav-right">
+    <a href="/blog" class="nav-link" data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</a>
+    <a href="/#pricing" class="nav-link" data-en="Pricing" data-th="ราคา">Pricing</a>
+    <a href="/onboarding" class="btn-gold" data-en="Reveal My Score →" data-th="เผย Cosmic Score →">Reveal My Score →</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <p class="lib-eyebrow" data-en="MYTHSENSUS" data-th="MYTHSENSUS">MYTHSENSUS</p>
+  <h1 class="lib-title" data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</h1>
+  <p class="lib-sub" data-en="Ancient wisdom, explained. Ten systems, one score." data-th="ภูมิปัญญาโบราณ อธิบาย สิบระบบ คะแนนเดียว">Ancient wisdom, explained. Ten systems, one score.</p>
+
+  <!-- Philosophy blocks -->
+  <div class="lib-philosophy">
+    <div class="lib-philosophy-title" data-en="Why This Library Exists" data-th="ทำไมห้องสมุดนี้จึงมีอยู่">Why This Library Exists</div>
+    <div class="lib-philosophy-body" data-en="Most horoscopes tell you what to feel. They sort billions of people into twelve sun signs and call it insight. This library exists to show you what these systems actually are — where they came from, what they look at, and why ten of them, read together, say something no single one can." data-th="ดวงชะตาส่วนใหญ่บอกคุณว่าต้องรู้สึกอะไร ห้องสมุดนี้มีอยู่เพื่อแสดงให้คุณเห็นว่าระบบเหล่านี้คืออะไรจริงๆ — มาจากไหน ดูอะไร และทำไมสิบระบบที่อ่านร่วมกันจึงพูดถึงบางอย่างที่ระบบเดียวไม่สามารถพูดได้">Most horoscopes tell you what to feel. They sort billions of people into twelve sun signs and call it insight. This library exists to show you what these systems actually are — where they came from, what they look at, and why ten of them, read together, say something no single one can.</div>
+  </div>
+
+  <!-- Articles grid -->
+  <div class="articles-grid">
+    <a href="/blog/multi-system-astrology" class="article-card">
+      <span class="article-tag" data-en="ANCIENT WISDOM · MULTI-SYSTEM" data-th="ภูมิปัญญาโบราณ · หลายระบบ">ANCIENT WISDOM · MULTI-SYSTEM</span>
+      <div class="article-title" data-en="Why One Astrology System Isn't Enough" data-th="ทำไมระบบโหราศาสตร์เดียวถึงไม่เพียงพอ">Why One Astrology System Isn't Enough</div>
+      <p class="article-excerpt" data-en="Every ancient culture built its own map of the sky. What happens when you read all ten at once?" data-th="ทุกวัฒนธรรมโบราณสร้างแผนที่ท้องฟ้าของตัวเอง จะเกิดอะไรขึ้นเมื่อคุณอ่านทั้งสิบพร้อมกัน?">Every ancient culture built its own map of the sky. What happens when you read all ten at once?</p>
+      <span class="article-read" data-en="8 min read →" data-th="8 นาทีในการอ่าน →">8 min read →</span>
+    </a>
+    <a href="/blog/bazi-four-pillars" class="article-card">
+      <span class="article-tag" data-en="CHINESE ASTROLOGY · BAZI" data-th="โหราศาสตร์จีน · BaZi">CHINESE ASTROLOGY · BAZI</span>
+      <div class="article-title" data-en="BaZi: Your Four Pillars of Destiny" data-th="BaZi: สี่เสาแห่งชะตากรรมของคุณ">BaZi: Your Four Pillars of Destiny</div>
+      <p class="article-excerpt" data-en="The Chinese Four Pillars system maps your birth moment to elemental patterns across your entire life." data-th="ระบบสี่เสาจีนแมปช่วงเวลาเกิดของคุณกับรูปแบบธาตุตลอดชีวิตของคุณ">The Chinese Four Pillars system maps your birth moment to elemental patterns across your entire life.</p>
+      <span class="article-read" data-en="7 min read →" data-th="7 นาทีในการอ่าน →">7 min read →</span>
+    </a>
+    <a href="/blog/energy-type-system" class="article-card">
+      <span class="article-tag" data-en="ENERGY SYSTEM · TYPE" data-th="ระบบพลังงาน · ประเภท">ENERGY SYSTEM · TYPE</span>
+      <div class="article-title" data-en="The Five Energy Types: Which One Are You?" data-th="ห้าประเภทพลังงาน: คุณเป็นแบบไหน?">The Five Energy Types: Which One Are You?</div>
+      <p class="article-excerpt" data-en="Generator, Projector, Manifestor, Reflector — each type processes energy differently and thrives under different conditions." data-th="Generator, Projector, Manifestor, Reflector — แต่ละประเภทประมวลผลพลังงานแตกต่างกันและเจริญเติบโตภายใต้เงื่อนไขที่แตกต่างกัน">Generator, Projector, Manifestor, Reflector — each type processes energy differently and thrives under different conditions.</p>
+      <span class="article-read" data-en="6 min read →" data-th="6 นาทีในการอ่าน →">6 min read →</span>
+    </a>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-block">
+    <p class="cta-text" data-en="Ready to See Your Score?" data-th="พร้อมที่จะดูคะแนนของคุณแล้วหรือยัง?">Ready to See Your Score?</p>
+    <p class="cta-sub" data-en="All 10 systems · Cosmic Score 1–1,000 · Complete report" data-th="ทั้ง 10 ระบบ · Cosmic Score 1–1,000 · รายงานฉบับสมบูรณ์">All 10 systems · Cosmic Score 1–1,000 · Complete report</p>
+    <a href="/onboarding" class="btn-gold" data-en="Reveal My Score →" data-th="เผย Cosmic Score ของฉัน →">Reveal My Score →</a>
+  </div>
+</div>
+
+<div class="footer-blog">
+  <a href="/privacy" style="color:var(--dim)" data-en="Privacy" data-th="นโยบายความเป็นส่วนตัว">Privacy</a> · 
+  <a href="/support" style="color:var(--dim)" data-en="Support" data-th="ช่วยเหลือ">Support</a> · 
+  <a href="/" style="color:var(--dim)">mythsensus.com</a> · 
+  <span>© 2026 MYTHSENSUS</span>
+</div>
+
+<div class="lang-pill">
+  <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+  <button class="lang-btn" id="btnTH" onclick="setLang('th')">TH</button>
+</div>
+
+<script>
+(function(){
+  var L = localStorage.getItem('msLang') || 'en';
+  function setLang(lang) {
+    L = lang;
+    localStorage.setItem('msLang', lang);
+    document.querySelectorAll('[data-en][data-th]').forEach(function(el) {
+      el.innerHTML = lang === 'th' ? el.getAttribute('data-th') : el.getAttribute('data-en');
+    });
+    document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+    document.getElementById('btnTH').classList.toggle('active', lang === 'th');
+    document.documentElement.lang = lang === 'th' ? 'th' : 'en';
+  }
+  window.setLang = setLang;
+  if (L === 'th') document.addEventListener('DOMContentLoaded', function(){ setLang('th'); });
+})();
+</script>
+</body></html>
