@@ -15,6 +15,9 @@
     "api/auth/magic/send.js": {
       "maxDuration": 30
     },
+    "api/auth/magic/verify.js": {
+      "maxDuration": 30
+    },
     "api/line/webhook.js": {
       "maxDuration": 30
     }
