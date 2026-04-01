@@ -298,16 +298,78 @@
         <button class="modal-close" onclick="closeModal()">✕</button>
         <div class="modal-title" data-en="Sign In" data-th="เข้าสู่ระบบ">Sign In</div>
         <div class="modal-sub" data-en="Access your Cosmic Score profile" data-th="เข้าถึงโปรไฟล์ Cosmic Score ของคุณ">Access your Cosmic Score profile</div>
-        <button class="oauth-btn" style="border-color:#4285f4;color:#4285f4" data-en="🔵 Continue with Google" data-th="🔵 ดำเนินการต่อด้วย Google">🔵 Continue with Google</button>
-        <button class="oauth-btn" style="border-color:#1877f2;color:#1877f2" data-en="🔵 Continue with Facebook" data-th="🔵 ดำเนินการต่อด้วย Facebook">🔵 Continue with Facebook</button>
-        <button class="oauth-btn" style="border-color:#06c755;color:#06c755" data-en="🟢 Continue with LINE" data-th="🟢 ดำเนินการต่อด้วย LINE">🟢 Continue with LINE</button>
+        <button class="oauth-btn" style="border-color:#4285f4;color:#4285f4" onclick="loginWithGoogle()" data-en="🔵 Continue with Google" data-th="🔵 ดำเนินการต่อด้วย Google">🔵 Continue with Google</button>
+        <button class="oauth-btn" style="border-color:#1877f2;color:#1877f2" onclick="loginWithFacebook()" data-en="🔵 Continue with Facebook" data-th="🔵 ดำเนินการต่อด้วย Facebook">🔵 Continue with Facebook</button>
+        <button class="oauth-btn" style="border-color:#06c755;color:#06c755" onclick="loginWithLINE()" data-en="🟢 Continue with LINE" data-th="🟢 ดำเนินการต่อด้วย LINE">🟢 Continue with LINE</button>
         <div class="modal-divider" data-en="or" data-th="หรือ">or</div>
         <input type="email" class="magic-input" placeholder="your@email.com">
-        <button class="btn-gold" style="width:100%;margin-top:.5rem" data-en="SEND MAGIC LINK" data-th="ส่งลิงก์เวทมนตร์">SEND MAGIC LINK</button>
+        <button class="btn-gold" onclick="sendMagicLink()" data-en="SEND MAGIC LINK" data-th="ส่งลิงก์เข้าสู่ระบบ">SEND MAGIC LINK</button>
       </div>
     </div>
   </div>
-</div><div id="page-onboard" class="page"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 5%"><div style="max-width:480px;width:100%;text-align:center"><p style="font-family:'Josefin Sans',sans-serif;font-size:.76rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.8rem"><span data-en="Step 1 of 2" data-th="ขั้นตอนที่ 1 จาก 2">Step 1 of 2</span></p><h2 style="font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--silver);margin-bottom:.6rem"><span data-en="Your Birth Data" data-th="ข้อมูลวันเกิดของคุณ">Your Birth Data</span></h2><p style="font-family:'Josefin Sans',sans-serif;font-size:.74rem;letter-spacing:.1em;color:var(--dim);margin-bottom:2rem"><span data-en="Required for all 10 systems. Stored only during report generation." data-th="จำเป็นสำหรับทั้ง 10 ระบบ จัดเก็บเฉพาะระหว่างสร้างรายงาน">Required for all 10 systems. Stored only during report generation.</span></p><div style="text-align:left;display:grid;gap:.8rem;margin-bottom:1.6rem"><div><label style="font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:.3rem">Full Name (Optional)</label><input style="width:100%;background:rgba(200,164,90,.05);border:1px solid var(--border);border-radius:3px;padding:.65rem .9rem;color:var(--silver);font-family:'Josefin Sans',sans-serif;font-size:.8rem;outline:none" placeholder="As it appears on your birth certificate"></div><div><label style="font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:.3rem">Date of Birth</label><input type="date" style="width:100%;background:rgba(200,164,90,.05);border:1px solid var(--border);border-radius:3px;padding:.65rem .9rem;color:var(--silver);font-family:'Josefin Sans',sans-serif;font-size:.8rem;outline:none"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem"><div><label style="font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:.3rem">Time of Birth</label><input type="time" style="width:100%;background:rgba(200,164,90,.05);border:1px solid var(--border);border-radius:3px;padding:.65rem .9rem;color:var(--silver);font-family:'Josefin Sans',sans-serif;font-size:.8rem;outline:none"></div><div><label style="font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:.3rem">Place of Birth</label><input style="width:100%;background:rgba(200,164,90,.05);border:1px solid var(--border);border-radius:3px;padding:.65rem .9rem;color:var(--silver);font-family:'Josefin Sans',sans-serif;font-size:.8rem;outline:none" placeholder="City, Country"></div></div></div><p style="font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.1em;color:var(--dim);opacity:.6;margin-bottom:1.4rem;line-height:1.65">By proceeding you confirm you have read the <a href="/privacy" style="color:var(--dim);text-decoration:underline">disclaimer</a>. Mythsensus reports are for entertainment and self-reflection only.</p><button class="btn-gold" style="width:100%;margin-bottom:.8rem"><span data-en="Calculate My Cosmic Score →" data-th="คำนวณ Cosmic Score ของฉัน →">Calculate My Cosmic Score →</span></button><button class="btn-ghost" style="width:100%;font-size:.76rem" onclick="showPage('home')"><span data-en="← Back" data-th="← ย้อนกลับ">← Back</span></button></div></div></div><script>function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));var el=document.getElementById('page-'+id);if(el)el.classList.add('active');window.scrollTo(0,0);}function openModal(){document.getElementById('signInModal').classList.add('open');}function closeModal(){document.getElementById('signInModal').classList.remove('open');}function switchTab(tab,contentId){tab.closest('.star-section').querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');tab.closest('.star-section').querySelectorAll('.chart-tab-content').forEach(c=>c.classList.remove('active'));var el=document.getElementById(contentId);if(el)el.classList.add('active');}document.addEventListener('DOMContentLoaded',function(){var m=document.getElementById('signInModal');if(m)m.addEventListener('click',function(e){if(e.target===this)closeModal();});setTimeout(function(){var f=document.getElementById('scoreFill');if(f)f.style.width='74.2%';},400);});</script><style>.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}.lang-btn{font-family:'Josefin Sans',sans-serif;font-size:.74rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}.lang-btn.active{background:var(--gold);color:#040407}.lang-btn:hover:not(.active){color:var(--gold)}</style><div class="lang-pill"><button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button><button class="lang-btn" id="btnTH" onclick="setLang('th')">TH</button></div><script>(function(){var L=localStorage.getItem('msLang')||'en';function setLang(lang){L=lang;localStorage.setItem('msLang',lang);document.querySelectorAll('[data-en][data-th]').forEach(function(el){var t=lang==='th'?el.getAttribute('data-th'):el.getAttribute('data-en');el.innerHTML=t;});document.getElementById('btnEN').classList.toggle('active',lang==='en');document.getElementById('btnTH').classList.toggle('active',lang==='th');document.documentElement.lang=lang==='th'?'th':'en';}window.setLang=setLang;if(L==='th'){document.addEventListener('DOMContentLoaded',function(){setLang('th');});}})();
+</div><div id="page-onboard" class="page"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 5%"><div style="max-width:480px;width:100%;text-align:center"><p style="font-family:'Josefin Sans',sans-serif;font-size:.76rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.8rem"><span data-en="Step 1 of 2" data-th="ขั้นตอนที่ 1 จาก 2">Step 1 of 2</span></p><h2 style="font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--silver);margin-bottom:.6rem"><span data-en="Your Birth Data" data-th="ข้อมูลวันเกิดของคุณ">Your Birth Data</span></h2><p style="font-family:'Josefin Sans',sans-serif;font-size:.74rem;letter-spacing:.1em;color:var(--dim);margin-bottom:2rem"><span data-en="Required for all 10 systems. Stored only during report generation." data-th="จำเป็นสำหรับทั้ง 10 ระบบ จัดเก็บเฉพาะระหว่างสร้างรายงาน">Required for all 10 systems. Stored only during report generation.</span></p><div style="text-align:left;display:grid;gap:.8rem;margin-bottom:1.6rem"><div><label style="font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:.3rem">Full Name (Optional)</label><input style="width:100%;background:rgba(200,164,90,.05);border:1px solid var(--border);border-radius:3px;padding:.65rem .9rem;color:var(--silver);font-family:'Josefin Sans',sans-serif;font-size:.8rem;outline:none" placeholder="As it appears on your birth certificate"></div><div><label style="font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:.3rem">Date of Birth</label><input type="date" style="width:100%;background:rgba(200,164,90,.05);border:1px solid var(--border);border-radius:3px;padding:.65rem .9rem;color:var(--silver);font-family:'Josefin Sans',sans-serif;font-size:.8rem;outline:none"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem"><div><label style="font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:.3rem">Time of Birth</label><input type="time" style="width:100%;background:rgba(200,164,90,.05);border:1px solid var(--border);border-radius:3px;padding:.65rem .9rem;color:var(--silver);font-family:'Josefin Sans',sans-serif;font-size:.8rem;outline:none"></div><div><label style="font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:.3rem">Place of Birth</label><input style="width:100%;background:rgba(200,164,90,.05);border:1px solid var(--border);border-radius:3px;padding:.65rem .9rem;color:var(--silver);font-family:'Josefin Sans',sans-serif;font-size:.8rem;outline:none" placeholder="City, Country"></div></div></div><p style="font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.1em;color:var(--dim);opacity:.6;margin-bottom:1.4rem;line-height:1.65">By proceeding you confirm you have read the <a href="/privacy" style="color:var(--dim);text-decoration:underline">disclaimer</a>. Mythsensus reports are for entertainment and self-reflection only.</p><button class="btn-gold" style="width:100%;margin-bottom:.8rem"><span data-en="Calculate My Cosmic Score →" data-th="คำนวณ Cosmic Score ของฉัน →">Calculate My Cosmic Score →</span></button><button class="btn-ghost" style="width:100%;font-size:.76rem" onclick="showPage('home')"><span data-en="← Back" data-th="← ย้อนกลับ">← Back</span></button></div></div></div><script>function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));var el=document.getElementById('page-'+id);if(el)el.classList.add('active');window.scrollTo(0,0);}function openModal(){document.getElementById('signInModal').classList.add('open');}function closeModal(){document.getElementById('signInModal').classList.remove('open');}
+function loginWithGoogle() {
+  var clientId = window.GOOGLE_CLIENT_ID || '';
+  var redirectUri = encodeURIComponent('https://mythsensus.com/api/auth/google/callback');
+  var scope = encodeURIComponent('openid email profile');
+  if (!clientId) {
+    alert('Google login coming soon — configure GOOGLE_CLIENT_ID in Vercel');
+    return;
+  }
+  var url = 'https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=' + clientId + '&redirect_uri=' + redirectUri + '&scope=' + scope + '&access_type=offline';
+  window.location.href = url;
+}
+function loginWithFacebook() {
+  var appId = window.FACEBOOK_APP_ID || '';
+  var redirectUri = encodeURIComponent('https://mythsensus.com/api/auth/facebook/callback');
+  var scope = encodeURIComponent('public_profile,email');
+  if (!appId) {
+    alert('Facebook login coming soon — configure FACEBOOK_APP_ID in Vercel');
+    return;
+  }
+  var url = 'https://www.facebook.com/v18.0/dialog/oauth?client_id=' + appId + '&redirect_uri=' + redirectUri + '&scope=' + scope + '&response_type=code';
+  window.location.href = url;
+}
+function loginWithLINE() {
+  var channelId = window.LINE_LOGIN_CHANNEL_ID || '';
+  var redirectUri = encodeURIComponent('https://mythsensus.com/api/auth/line/callback');
+  var state = Math.random().toString(36).substring(2);
+  if (!channelId) {
+    alert('LINE login coming soon — configure LINE_LOGIN_CHANNEL_ID in Vercel');
+    return;
+  }
+  var url = 'https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=' + channelId + '&redirect_uri=' + redirectUri + '&state=' + state + '&scope=profile%20openid';
+  window.location.href = url;
+}
+function sendMagicLink() {
+  var emailInput = document.querySelector('#signInModal input[type="email"]');
+  if (!emailInput || !emailInput.value.trim()) {
+    if (emailInput) emailInput.focus();
+    return;
+  }
+  var email = emailInput.value.trim();
+  var btn = document.querySelector('#signInModal .btn-gold');
+  if (btn) { btn.disabled = true; btn.textContent = 'SENDING...'; }
+  fetch('/api/auth/magic/send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.ok) {
+      if (btn) { btn.textContent = '✓ CHECK YOUR EMAIL'; }
+      emailInput.value = '';
+    } else {
+      if (btn) { btn.disabled = false; btn.textContent = 'SEND MAGIC LINK'; }
+      alert('Error: ' + (data.error || 'Could not send email'));
+    }
+  })
+  .catch(function() {
+    if (btn) { btn.disabled = false; btn.textContent = 'SEND MAGIC LINK'; }
+    alert('Network error. Please try again.');
+  });
+}function switchTab(tab,contentId){tab.closest('.star-section').querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');tab.closest('.star-section').querySelectorAll('.chart-tab-content').forEach(c=>c.classList.remove('active'));var el=document.getElementById(contentId);if(el)el.classList.add('active');}document.addEventListener('DOMContentLoaded',function(){var m=document.getElementById('signInModal');if(m)m.addEventListener('click',function(e){if(e.target===this)closeModal();});setTimeout(function(){var f=document.getElementById('scoreFill');if(f)f.style.width='74.2%';},400);});</script><style>.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}.lang-btn{font-family:'Josefin Sans',sans-serif;font-size:.74rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}.lang-btn.active{background:var(--gold);color:#040407}.lang-btn:hover:not(.active){color:var(--gold)}</style><div class="lang-pill"><button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button><button class="lang-btn" id="btnTH" onclick="setLang('th')">TH</button></div><script>(function(){var L=localStorage.getItem('msLang')||'en';function setLang(lang){L=lang;localStorage.setItem('msLang',lang);document.querySelectorAll('[data-en][data-th]').forEach(function(el){var t=lang==='th'?el.getAttribute('data-th'):el.getAttribute('data-en');el.innerHTML=t;});document.getElementById('btnEN').classList.toggle('active',lang==='en');document.getElementById('btnTH').classList.toggle('active',lang==='th');document.documentElement.lang=lang==='th'?'th':'en';}window.setLang=setLang;if(L==='th'){document.addEventListener('DOMContentLoaded',function(){setLang('th');});}})();
 
 // ═══ MULTI-PROFILE ═══
 var PROFILES = {
