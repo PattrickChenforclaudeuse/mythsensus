@@ -4,6 +4,12 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/",
+      "has": [{ "type": "host", "value": "www.mythsensus.com" }],
+      "destination": "https://mythsensus.com/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [{ "type": "host", "value": "www.mythsensus.com" }],
       "destination": "https://mythsensus.com/:path*",

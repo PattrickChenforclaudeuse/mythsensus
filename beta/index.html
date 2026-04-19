@@ -1609,6 +1609,23 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <div id="collectionGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;max-width:820px;margin:0 auto 30px;"></div>
 </div>
 
+<!-- ═══ GOD DETAIL MODAL (Pokédex entry) ═══ -->
+<div id="godDetailOverlay" onclick="closeGodDetail(event)"
+     style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(2,2,6,.85);backdrop-filter:blur(6px);padding:24px;overflow-y:auto;align-items:center;justify-content:center">
+  <div id="godDetailBox" onclick="event.stopPropagation()"
+       style="max-width:520px;width:100%;margin:auto;background:linear-gradient(180deg,#0d0d18,#07070c);border:1px solid var(--gold3);border-radius:12px;padding:28px 24px;position:relative;font-family:'Cormorant Garamond',serif;color:var(--text);box-shadow:0 20px 60px rgba(0,0,0,.6)">
+    <button onclick="closeGodDetail()" aria-label="Close"
+            style="position:absolute;top:10px;right:14px;background:transparent;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px;line-height:1">×</button>
+    <div id="gdTier" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;text-align:center;margin-bottom:8px"></div>
+    <div id="gdSymbol" style="font-size:64px;text-align:center;line-height:1;margin-bottom:8px"></div>
+    <div id="gdName" style="font-family:'Cinzel Decorative',serif;font-size:22px;color:var(--gold);text-align:center;margin-bottom:3px"></div>
+    <div id="gdMyth" style="font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:18px"></div>
+    <div id="gdReps" style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold2);text-align:center;margin-bottom:16px;font-style:italic"></div>
+    <div id="gdMessages" style="border-top:1px solid var(--border);padding-top:16px"></div>
+    <div id="gdSeen" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-align:center"></div>
+  </div>
+</div>
+
 <!-- ═══ FREE TIER ─ Streak & Frequency Alerts (current only) ═══ -->
 <div class="panel" id="panel-streak">
   <div class="section-title" data-t="streak_title">STREAK & FREQUENCY ALERTS</div>
@@ -6574,12 +6591,14 @@ const GROUPS = {
     ],
   },
   profile: {
-    default: 'me',
+    // Pokedex-first: user's divine collection is the centerpiece of their
+    // profile — clicking a god card opens their full lore + messages.
+    default: 'collection',
     tabs: [
-      ['me',       'profile',  'sub_me',       false],
-      ['multi',    'multi',    'sub_multi',    false],
-      ['login',    'login',    'sub_login',    false],
-      ['settings', 'settings', 'sub_settings', false],
+      ['collection', 'collection', 'sub_collection', false],
+      ['me',         'profile',    'sub_me',         false],
+      ['multi',      'multi',      'sub_multi',      false],
+      ['settings',   'settings',   'sub_settings',   false],
     ],
   },
 };
@@ -9035,7 +9054,8 @@ function renderCollection(){
   const gridHTML = entries.length
     ? entries.map(([name,info])=>{
         const T = TIERS.find(x => x.name === info.tier) || {color:'var(--gold)'};
-        return `<div style="background:var(--bg2);border:1px solid var(--border);border-top:2px solid ${T.color};border-radius:6px;padding:14px 10px;text-align:center">
+        const esc = name.replace(/'/g, "\\'");
+        return `<div onclick="openGodDetail('${esc}')" style="background:var(--bg2);border:1px solid var(--border);border-top:2px solid ${T.color};border-radius:6px;padding:14px 10px;text-align:center;cursor:pointer;transition:transform .15s,border-color .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='var(--gold3)'" onmouseout="this.style.transform='';this.style.borderColor='var(--border)'">
           <div style="font-size:34px;margin-bottom:6px">${info.symbol}</div>
           <div style="font-family:'Cinzel Decorative',serif;font-size:12px;color:var(--gold);line-height:1.3">${name}</div>
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:${T.color};letter-spacing:1px;margin-top:3px">${info.tier}</div>
@@ -9050,6 +9070,72 @@ function renderCollection(){
   grid.style.gridTemplateColumns = '';
   grid.style.gap = '';
 }
+
+// ── Pokédex entry modal: opens when user clicks a god in Collection ─
+// Shows the god's mythology, what it represents, its messages, and when
+// the user first saw it in their blessing history.
+function openGodDetail(name){
+  const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
+  const pool = (typeof GODS_FULL !== 'undefined' && Array.isArray(GODS_FULL))
+    ? GODS_FULL
+    : (Array.isArray(GODS) ? GODS : []);
+  const god = pool.find(g => g && g.name === name);
+  if (!god) return;
+  const T = TIERS.find(x => x.name === god.tier) || { color:'var(--gold)', nameEN:god.tier||'', nameTH:god.tier||'' };
+
+  // Find first-seen timestamp from history.
+  const hist = (typeof getFullHistory === 'function') ? getFullHistory() : [];
+  let firstSeen = null, seenCount = 0;
+  for (const h of hist) {
+    const hName = (h.god && h.god.name) || h.godName;
+    if (hName === name) {
+      seenCount++;
+      const ts = h.ts || 0;
+      if (!firstSeen || (ts && ts < firstSeen)) firstSeen = ts;
+    }
+  }
+
+  const $ = (id) => document.getElementById(id);
+  const tierLabel = isTh ? (T.nameTH || god.tier) : (T.nameEN || god.tier);
+  $('gdTier').innerHTML = `<span style="color:${T.color}">${tierLabel}</span>`;
+  $('gdSymbol').textContent = god.symbol || '✦';
+  $('gdName').textContent = god.name;
+  $('gdMyth').textContent = (god.mythology || '').toUpperCase();
+
+  const reps = Array.isArray(god.represents) ? god.represents : [];
+  $('gdReps').innerHTML = reps.length
+    ? `<span style="color:var(--muted)">${isTh ? 'เป็นตัวแทนของ' : 'Represents'}</span>  ${reps.map(r=>`<span style="color:var(--gold2)">${r}</span>`).join(' · ')}`
+    : '';
+
+  const msgs = Array.isArray(god.messages) ? god.messages : [];
+  $('gdMessages').innerHTML = msgs.length
+    ? `<div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px">${isTh ? '✦ ข้อความจากเทพ ✦' : '✦ DIVINE MESSAGES ✦'}</div>`
+      + msgs.map(m=>`<div style="font-style:italic;font-size:14.5px;line-height:1.7;color:var(--text);padding:10px 0;border-bottom:1px solid rgba(200,164,90,.08)">"${m}"</div>`).join('')
+    : `<div style="text-align:center;color:var(--muted);font-style:italic;font-size:13px">${isTh ? '(ไม่มีข้อความ)' : '(No messages yet)'}</div>`;
+
+  if (firstSeen) {
+    const d = new Date(firstSeen);
+    const dateStr = d.toLocaleDateString(isTh ? 'th-TH' : 'en-US', { day:'numeric', month:'short', year:'numeric' });
+    $('gdSeen').textContent = isTh
+      ? `✦ พบเจอครั้งแรก: ${dateStr} · ได้รับพรทั้งหมด ${seenCount} ครั้ง`
+      : `✦ First encountered: ${dateStr} · Received ${seenCount} blessing${seenCount>1?'s':''}`;
+  } else {
+    $('gdSeen').textContent = '';
+  }
+
+  const ov = document.getElementById('godDetailOverlay');
+  if (ov) ov.style.display = 'flex';
+  document.addEventListener('keydown', _gdKeyHandler);
+}
+
+function closeGodDetail(e){
+  // If an event is passed, only close when click is on the overlay itself (not inner box).
+  if (e && e.target && e.currentTarget && e.target !== e.currentTarget) return;
+  const ov = document.getElementById('godDetailOverlay');
+  if (ov) ov.style.display = 'none';
+  document.removeEventListener('keydown', _gdKeyHandler);
+}
+function _gdKeyHandler(e){ if (e.key === 'Escape') closeGodDetail(); }
 
 // ── Streak & current Frequency Alerts (current only, free) ─
 function renderStreak(){
