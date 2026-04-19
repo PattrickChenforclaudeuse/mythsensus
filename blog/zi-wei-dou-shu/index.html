@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;600&family=Prompt:wght@200;300;400&display=swap" rel="stylesheet">
+<style>:root{--bg:#040407;--gold:#c8a45a;--silver:#e6e2d8;--dim:#9a9088;--card:#0d0d14;--border:rgba(200,164,90,0.22)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.85}
+a{color:var(--gold);text-decoration:none}
+.nav{position:fixed;top:0;width:100%;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:1rem;cursor:pointer;letter-spacing:.06em}.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
+.nav-right{display:flex;gap:1.6rem;align-items:center}
+.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--silver);opacity:.7}
+.nav-link:hover{opacity:1;color:var(--gold)}
+.btn-gold{background:var(--gold);color:#040407;font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;padding:.55rem 1.4rem;border:none;border-radius:2px;cursor:pointer}
+.blog-hero{padding:110px 5% 60px;max-width:760px;margin:0 auto;border-bottom:1px solid var(--border)}
+.back-link{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);display:inline-flex;align-items:center;gap:.4rem;margin-bottom:1.6rem}
+.back-link:hover{color:var(--gold)}
+.article-tag{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.75;margin-bottom:.8rem;display:block}
+.article-title{font-family:'Cinzel Decorative',serif;font-size:clamp(1.4rem,3vw,2.4rem);color:var(--silver);line-height:1.25;margin-bottom:1rem}
+.article-meta{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;color:var(--dim);margin-bottom:1.8rem}
+.article-lede{font-size:1.12rem;color:var(--silver);line-height:1.9;font-style:italic;border-left:2px solid var(--gold);padding-left:1.2rem;margin-bottom:0}
+.article-body{max-width:760px;margin:0 auto;padding:3rem 5% 5rem}
+.article-body h2{font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);margin:2.8rem 0 1rem;letter-spacing:.04em}
+.article-body h3{font-family:'Josefin Sans',sans-serif;font-size:.75rem;letter-spacing:.22em;text-transform:uppercase;color:var(--silver);margin:2rem 0 .8rem;opacity:.85}
+.article-body p{margin-bottom:1.4rem;color:var(--silver);font-size:1rem;line-height:1.9}
+.article-body em{color:var(--gold);font-style:italic}
+.article-body strong{color:var(--silver);font-weight:600}
+.pull-quote{background:var(--card);border-left:3px solid var(--gold);padding:1.2rem 1.6rem;margin:2rem 0;border-radius:0 3px 3px 0}
+.pull-quote p{font-size:1.05rem;font-style:italic;color:var(--silver);margin:0}
+.disclaimer{background:rgba(200,164,90,.06);border:1px solid rgba(200,164,90,.2);border-radius:3px;padding:1rem 1.4rem;margin:2rem 0}
+.disclaimer p{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.07em;color:var(--dim);line-height:1.6;margin:0}
+.cta-block{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:2rem;text-align:center;margin:3rem 0}
+.cta-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--silver);margin-bottom:.5rem}
+.cta-sub{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.1em;color:var(--dim);margin-bottom:1.2rem}
+.footer-blog{border-top:1px solid var(--border);padding:2rem 5%;text-align:center}
+.footer-blog p{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.1em;color:var(--dim)}
+@media(max-width:640px){.nav-right .nav-link{display:none}}
+html[lang="th"] body,html[lang="th"] .article-body p{font-family:'Prompt',sans-serif;font-weight:300}
+html[lang="th"] .article-body em{font-style:normal;color:var(--gold)}
+.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
+.lang-pill button{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
+.lang-pill button.active{background:var(--gold);color:#040407}
+.lang-pill button:hover:not(.active){color:var(--gold)}
+.body-th{display:none}
+html[lang="th"] .body-en{display:none}
+html[lang="th"] .body-th{display:block}
+</style>
+<title>Zi Wei Dou Shu: The Sleeping Immortal's Map of 108 Stars — Mythsensus</title>
+<meta name="description" content="He received the most complex astrological system in Chinese history while sleeping. This was not a metaphor. Chen Tuan, the Taoist sage of Mount Huashan, s">
+<link rel="canonical" href="https://mythsensus.com/blog/zi-wei-dou-shu">
+</head><body>
+<nav class="nav">
+  <a href="/" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
+  <div class="nav-right">
+    <a href="/blog" class="nav-link" data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</a>
+    <a href="/#systems" class="nav-link" data-en="Systems" data-th="ระบบ">Systems</a>
+    <a href="/beta/" class="btn-gold" data-en="Open App →" data-th="เปิดแอป →">Open App →</a>
+  </div>
+</nav>
+<article>
+<div class="blog-hero">
+  <a href="/blog" class="back-link">← <span data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</span></a>
+  <span class="article-tag" data-en="CHINESE · ZI WEI DOU SHU" data-th="จีน · จื่อเหวย โต่วซู่">CHINESE · ZI WEI DOU SHU</span>
+  <h1 class="article-title" data-en="Zi Wei Dou Shu: The Sleeping Immortal's Map of 108 Stars" data-th="ซื่อเว่ย (紫微斗數): แผนที่ดาว 108 ดวงของเซียนนักหลับ">Zi Wei Dou Shu: The Sleeping Immortal's Map of 108 Stars</h1>
+  <p class="article-meta">Cosmic Library · Mythsensus Editorial</p>
+  <p class="article-lede" data-en="He received the most complex astrological system in Chinese history while sleeping. This was not a metaphor. Chen Tuan, the Taoist sage of Mount Huashan, slept for months at a time — and while he slept, the universe delivered its secrets. What he dreamed became Zi Wei Dou Shu." data-th="เขาได้รับระบบโหราศาสตร์ที่ซับซ้อนที่สุดในประวัติศาสตร์จีนขณะนอนหลับ นี่ไม่ใช่อุปมา Chen Tuan นักปราชญ์เต๋าแห่งภูเขาหัวซาน นอนหลับเป็นเวลาหลายเดือน — และขณะที่เขาหลับ จักรวาลส่งมอบความลับของมัน สิ่งที่เขาฝันกลายเป็น Zi Wei Dou Shu">He received the most complex astrological system in Chinese history while sleeping. This was not a metaphor. Chen Tuan, the Taoist sage of Mount Huashan, slept for months at a time — and while he slept, the universe delivered its secrets. What he dreamed became Zi Wei Dou Shu.</p>
+</div>
+<div class="article-body">
+  <div class="body-en">
+<p>He received the most complex astrological system in Chinese history while sleeping. This was not a metaphor. Chen Tuan, the Taoist sage of Mount Huashan, slept for months at a time — and while he slept, the universe delivered its secrets. What he dreamed became Zi Wei Dou Shu.</p>
+<h2>Origins &amp; History</h2>
+<p>Zi Wei Dou Shu (紫微斗數, Purple Star Astrology) emerged during the Song dynasty (960–1279 CE), one of China's most intellectually fertile periods — an era that produced Neo-Confucian philosophy, landscape painting, movable type, and gunpowder. It was also the era that produced the most sophisticated astrological system the Chinese world had ever conceived.</p>
+<p>The system is attributed to Chen Tuan (陳摶, 906–989 CE), a Taoist scholar-hermit who lived on Mount Huashan in Shaanxi province — one of the Five Sacred Mountains of China, a place of needle-thin peaks, vertiginous cliff paths, and the kind of atmosphere that convinced generations of Taoists that the veil between human and divine realms was thinner there than anywhere else on earth.</p>
+<p>Chen Tuan was not simply a hermit. He was a polymath who studied the I Ching, cosmology, internal alchemy, and the relationships between number, symbol, and cosmic pattern. He is credited with developing early versions of the He Tu (River Diagram) and Lo Shu (Magic Square) diagrams that underlie much of Chinese metaphysics. He declined multiple imperial invitations to serve at court — a decision that only enhanced his legendary reputation. When you refuse an emperor's summons because you're busy with the cosmos, history remembers.</p>
+<p>What distinguished Zi Wei from earlier Chinese astrological systems — particularly BaZi, which reads life through four temporal pillars — was its spatial architecture. Zi Wei constructs a chart of twelve life palaces, each governing a distinct domain of existence: Life (命宮), Siblings (兄弟宮), Spouse (夫妻宮), Children (子女宮), Wealth (財帛宮), Health (疾厄宮), Travel (遷移宮), Friends (交友宮), Career (官祿宮), Property (田宅宮), Karma (福德宮), and Parents (父母宮). Into these twelve houses, 108 stars are distributed — a distribution that changes based on birth year, month, day, and hour — creating a map of astonishing specificity.</p>
+<p>The practitioner does not merely ask &quot;Is this person fortunate?&quot; They ask: &quot;Is this person fortunate in career specifically? In marriage? In the karma palace — what does the soul carry?&quot; Zi Wei treats each life domain as a separate conversation between heaven and the individual.</p>
+<h2>The Legend</h2>
+<p>Mount Huashan's west peak holds a small chamber carved into the rock face, accessible by a path so narrow that pilgrims must shuffle sideways along chains bolted into the cliff. It was in solitudes like this that Chen Tuan slept.</p>
+<p>Not ordinary sleep. Chen Tuan's sleeps were legendary for their duration — some accounts describe him lying unconscious for a hundred days, others for the length of entire seasons. The Emperor Taizong of Song, curious about this prodigious sleeper, once sent imperial envoys to summon Chen Tuan to court. They found him asleep on the mountain. They waited. He did not wake. They reportedly carried him partway down the mountain, and he still slept. He eventually returned to his cave, apparently without ever fully waking, and the emperor — with either enormous respect or enormous frustration — gave up.</p>
+<p>The legend holds that these extended sleeps were not rest but reception. In the inner landscape of deep Taoist meditation — the kind that resembled sleep but opened into vast inner space — Chen Tuan received transmissions from the divine pattern underlying reality. The Zi Wei system, according to this tradition, was not invented. It was downloaded.</p>
+<p>The 108 stars he received mirror — whether by intention or cosmic coincidence — the 108 heroes of the Liangshan Marsh in the classic novel Water Margin (水滸傳), each of those heroes carrying a star-designation, a heavenly fate. Whether Chen Tuan consciously referenced this parallel or whether the number 108 carried its own cosmological weight (it appears in Buddhist mala beads, in the 108 earthly desires, in dozens of Asian sacred contexts) remains ambiguous. The resonance is unmistakable.</p>
+<p>The star at the center of the system is Zi Wei itself (紫微星) — the Purple Star, the name given in Chinese cosmology to the star around which the northern sky appears to rotate: Polaris, or more specifically, the purple forbidden enclosure (紫微垣) of circumpolar stars surrounding it. In imperial China, the emperor ruled from the Forbidden City — and in the sky, the emperor star ruled from its own forbidden enclosure, unmoving while all other stars circled it.</p>
+<p>To have Zi Wei prominent in your chart is to carry this anchoring, central quality — the potential to be a point around which others orient. But the 107 other stars carry their own powers, their own gifts and challenges. The minister stars, the servant stars, the stars of brilliance and destruction and unexpected fortune — all of them rotate through your twelve palaces, creating a map not of one life but of twelve simultaneous lives, each governing its own domain.</p>
+<p>The Song dynasty scholar-practitioners who developed the system after Chen Tuan spent centuries refining the star interpretations, the palace interactions, and the reading of &quot;transformations&quot; — four special stars that, in any given year, transform certain natal stars into catalysts for power, success, obstruction, or hidden fortune. A trained Zi Wei reader can take these transformations and map the pressure points of an entire decade.</p>
+<h2>Core Philosophy</h2>
+<p>Zi Wei Dou Shu understands a life as a complex organism, not a simple story. While BaZi asks what elemental weather governs your life overall, Zi Wei asks what is happening in each room of the house. Career and marriage may tell completely different stories. The karma palace — where the soul's accumulated tendencies live — may explain why the simplest palace, Life itself, is configured as it is. The system demands a reader who can hold twelve conversations simultaneously and find the coherence between them.</p>
+<h2>At Mythsensus</h2>
+<p>In the Mythsensus Cosmic Score, Zi Wei Dou Shu contributes as System 13 — its 108 stars casting their light across your twelve life palaces, joining 25 other ancient voices in forming your complete picture. The Sleeping Immortal dreamed a map. Your birth moment placed you within it. Explore your palaces at <a href="https://mythsensus.com/library/zi-wei" style="color:var(--gold);text-decoration:underline">mythsensus.com/library/zi-wei</a>.</p>
+
+  </div>
+  <div class="body-th">
+<p><em>โดยทีม Mythsensus</em></p>
+<p>เขาได้รับระบบโหราศาสตร์ที่ซับซ้อนที่สุดในประวัติศาสตร์จีนขณะนอนหลับ นี่ไม่ใช่อุปมา Chen Tuan นักปราชญ์เต๋าแห่งภูเขาหัวซาน นอนหลับเป็นเวลาหลายเดือน — และขณะที่เขาหลับ จักรวาลส่งมอบความลับของมัน สิ่งที่เขาฝันกลายเป็น Zi Wei Dou Shu</p>
+<h2>ที่มาและประวัติ</h2>
+<p>Zi Wei Dou Shu (紫微斗數, โหราศาสตร์ดาวม่วง) เกิดขึ้นในราชวงศ์ซ่ง (ค.ศ. 960–1279) ซึ่งเป็นหนึ่งในช่วงเวลาที่อุดมสมบูรณ์ทางปัญญาที่สุดของจีน — ยุคที่ผลิตปรัชญา Neo-Confucian, ภาพวาดภูมิทัศน์, การพิมพ์แบบเคลื่อนย้ายได้ และดินปืน เป็นยังยุคที่ผลิตระบบโหราศาสตร์ที่ซับซ้อนที่สุดเท่าที่โลกจีนเคยสร้างขึ้น</p>
+<p>ระบบนี้ถูกนำมาอ้างถึง Chen Tuan (陳摶, ค.ศ. 906–989) นักวิชาการ-ฤาษีเต๋าที่อาศัยอยู่บนภูเขาหัวซานในมณฑลส่านซี — หนึ่งในห้าภูเขาศักดิ์สิทธิ์ของจีน สถานที่แห่งยอดเขาเรียวบาง เส้นทางหน้าผาที่ทำให้ตาหลอก และบรรยากาศที่ทำให้นักเต๋าหลายชั่วอายุคนเชื่อว่าม่านระหว่างขอบเขตมนุษย์และสวรรค์บางกว่าที่อื่นๆ บนโลก</p>
+<p>Chen Tuan ไม่ใช่เพียงฤาษี เขาเป็นนักรู้รอบด้านที่ศึกษา I Ching, จักรวาลวิทยา, การปฏิบัติธาตุภายใน และความสัมพันธ์ระหว่างตัวเลข สัญลักษณ์ และรูปแบบจักรวาล เขาปฏิเสธคำเชิญหลายครั้งจากจักรพรรดิ — การตัดสินใจที่ยิ่งเสริมชื่อเสียงในตำนานของเขา เมื่อคุณปฏิเสธคำเชิญของจักรพรรดิเพราะยุ่งอยู่กับจักรวาล ประวัติศาสตร์จะจำคุณ</p>
+<p>สิ่งที่ทำให้ Zi Wei แตกต่างจากระบบโหราศาสตร์จีนก่อนหน้า — โดยเฉพาะ BaZi ที่อ่านชีวิตผ่านสี่เสาหลักของเวลา — คือสถาปัตยกรรมเชิงพื้นที่ Zi Wei สร้างแผนภูมิของสิบสองวังชีวิต แต่ละวังปกครองขอบเขตที่แตกต่างกันของการดำรงอยู่: ชีวิต (命宮), พี่น้อง (兄弟宮), คู่ครอง (夫妻宮), บุตร (子女宮), ทรัพย์ (財帛宮), สุขภาพ (疾厄宮), การเดินทาง (遷移宮), เพื่อน (交友宮), อาชีพ (官祿宮), ทรัพย์สิน (田宅宮), กรรม (福德宮) และพ่อแม่ (父母宮) ในสิบสองวังเหล่านี้ ดาว 108 ดวงถูกกระจาย — การกระจายที่เปลี่ยนตามปีเกิด เดือน วัน และชั่วโมง — สร้างแผนที่ที่มีความจำเพาะอย่างน่าทึ่ง</p>
+<h2>ตำนาน</h2>
+<p>ยอดเขาตะวันตกของหัวซานมีห้องเล็กๆ แกะสลักลงในผาหิน เข้าถึงได้โดยเส้นทางแคบที่ผู้แสวงบุญต้องเดินซอยตัวเองไปตามโซ่ที่ตรึงกับผา ในที่สงบเช่นนี้เองที่ Chen Tuan หลับ</p>
+<p>ไม่ใช่การหลับธรรมดา การหลับของ Chen Tuan โด่งดังในเรื่องระยะเวลา — บางฉบับอธิบายว่าเขานอนไม่รู้สึกตัวนานหนึ่งร้อยวัน บางฉบับนานเท่ากับฤดูกาลทั้งหมด จักรพรรดิ Taizong แห่งซ่ง ผู้สงสัยในนักหลับที่น่าตื่นตาคนนี้ ส่งทูตของจักรพรรดิมาเรียกตัว Chen Tuan ไปราชสำนักครั้งหนึ่ง พวกเขาพบเขากำลังหลับอยู่บนภูเขา รอคอย เขาไม่ตื่น พวกเขานำเขาลงมาจากภูเขาบางส่วน และเขายังคงหลับ เขากลับไปที่ถ้ำของเขาในที่สุด ดูเหมือนโดยไม่ตื่นเต็มที่เลย และจักรพรรดิ — ด้วยความเคารพมหาศาลหรือความหงุดหงิดมหาศาล — ยอมแพ้</p>
+<p>ตำนานกล่าวว่าการหลับยาวนานเหล่านี้ไม่ใช่การพักผ่อนแต่เป็นการรับส่ง ในภูมิทัศน์ภายในของการทำสมาธิเต๋าลึก — ชนิดที่เหมือนการหลับแต่เปิดสู่พื้นที่ภายในอันกว้างใหญ่ — Chen Tuan ได้รับการส่งจากรูปแบบสวรรค์ที่อยู่เบื้องหลังความเป็นจริง ระบบ Zi Wei ตามประเพณีนี้ไม่ได้ถูกประดิษฐ์ขึ้น มันถูกดาวน์โหลด</p>
+<p>ดาว 108 ดวงที่เขาได้รับสะท้อน — ไม่ว่าจะโดยเจตนาหรือความบังเอิญทางจักรวาล — วีรบุรุษ 108 คนแห่งหนองน้ำ Liangshan ในนวนิยายคลาสสิก Water Margin (水滸傳) แต่ละวีรบุรุษเหล่านั้นมีการกำหนดดาว ชะตาฟ้า ว่า Chen Tuan อ้างอิงถึงความเชื่อมโยงนี้โดยตั้งใจหรือว่าตัวเลข 108 มีน้ำหนักทางจักรวาลวิทยาของตัวเอง (มันปรากฏในลูกประคำพุทธ ใน 108 ความปรารถนาทางโลก ในบริบทศักดิ์สิทธิ์เอเชียหลายสิบแห่ง) ยังคงคลุมเครือ ความสอดคล้องนั้นเด่นชัด</p>
+<p>ดาวที่อยู่ตรงกลางของระบบคือ Zi Wei เอง (紫微星) — ดาวม่วง ชื่อที่ให้กับดาวในจักรวาลวิทยาจีนรอบๆ ซึ่งท้องฟ้าทางเหนือดูเหมือนหมุน: Polaris หรือโดยเฉพาะเจาะจงกว่า เขตต้องห้ามม่วง (紫微垣) ของดาวรอบขั้วโลกที่ล้อมรอบมัน ในจีนจักรพรรดิ จักรพรรดิปกครองจากเมืองต้องห้าม — และบนท้องฟ้า ดาวจักรพรรดิปกครองจากเขตต้องห้ามของตนเอง ไม่เคลื่อนไหวขณะที่ดาวอื่นทั้งหมดหมุนรอบมัน</p>
+<h2>หลักการและแก่นคิด</h2>
+<p>Zi Wei Dou Shu เข้าใจชีวิตว่าเป็นสิ่งมีชีวิตที่ซับซ้อน ไม่ใช่เรื่องราวเรียบง่าย ในขณะที่ BaZi ถามว่าสภาพอากาศธาตุใดปกครองชีวิตของคุณโดยรวม Zi Wei ถามว่าอะไรกำลังเกิดขึ้นในแต่ละห้องของบ้าน อาชีพและการสมรสอาจบอกเรื่องราวที่แตกต่างกันโดยสิ้นเชิง วังกรรม — ที่ความโน้มเอียงสะสมของจิตวิญญาณอาศัยอยู่ — อาจอธิบายว่าทำไมวังที่เรียบง่ายที่สุด คือชีวิตเอง จึงถูกกำหนดค่าอย่างที่มันเป็น</p>
+<h2>ที่ Mythsensus</h2>
+<p>ใน Cosmic Score ของ Mythsensus Zi Wei Dou Shu มีส่วนร่วมในฐานะระบบที่ 13 — ดาว 108 ดวงของมันส่องแสงผ่านสิบสองวังชีวิตของคุณ ร่วมกับ 25 เสียงโบราณอื่นๆ ในการสร้างภาพสมบูรณ์ของคุณ เซียนนักหลับฝันแผนที่ ช่วงเวลาเกิดของคุณวางตัวคุณไว้ภายในมัน สำรวจวังของคุณที่ <a href="https://mythsensus.com/library/zi-wei" style="color:var(--gold);text-decoration:underline">mythsensus.com/library/zi-wei</a></p>
+
+  </div>
+  <div class="disclaimer"><p data-en="All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone." data-th="เนื้อหาทั้งหมดบน Mythsensus สร้างขึ้นโดยปัญญาประดิษฐ์ เพื่อความบันเทิง การสำรวจตนเอง และการใคร่ครวญส่วนบุคคล ไม่ใช่คำแนะนำทางวิชาชีพ ดวงดาวอาจส่องทาง แต่ก้าวเดินเป็นของคุณ">All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone.</p></div>
+  <div class="cta-block">
+    <div class="cta-title" data-en="Read your full 26-system report" data-th="อ่านรายงาน 26 ศาสตร์ของคุณ">Read your full 26-system report</div>
+    <div class="cta-sub" data-en="Free beta · No signup · Works offline" data-th="ฟรีช่วงทดสอบ · ไม่ต้องสมัคร · ออฟไลน์ได้">Free beta · No signup · Works offline</div>
+    <a href="/beta/" class="btn-gold" data-en="Open the App →" data-th="เปิดแอป →">Open the App →</a>
+  </div>
+</div>
+</article>
+<div class="footer-blog"><p>© Mythsensus · <a href="/privacy" style="color:var(--dim)">Privacy</a></p></div>
+<div class="lang-pill">
+  <button id="lang-en" class="active" onclick="setLang('en')">EN</button>
+  <button id="lang-th" onclick="setLang('th')">TH</button>
+</div>
+<script>
+function setLang(l){
+  document.documentElement.lang=l;
+  document.getElementById('lang-en').classList.toggle('active',l==='en');
+  document.getElementById('lang-th').classList.toggle('active',l==='th');
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    const k=l==='th'?'data-th':'data-en';
+    el.textContent=el.getAttribute(k)||el.textContent;
+  });
+  try{localStorage.setItem('mth_lang',l);}catch(e){}
+}
+(function(){
+  const saved=localStorage.getItem('mth_lang');
+  if(saved==='th') setLang('th');
+})();
+</script>
+</body></html>

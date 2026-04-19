@@ -1,0 +1,137 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;600&family=Prompt:wght@200;300;400&display=swap" rel="stylesheet">
+<style>:root{--bg:#040407;--gold:#c8a45a;--silver:#e6e2d8;--dim:#9a9088;--card:#0d0d14;--border:rgba(200,164,90,0.22)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.85}
+a{color:var(--gold);text-decoration:none}
+.nav{position:fixed;top:0;width:100%;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:1rem;cursor:pointer;letter-spacing:.06em}.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
+.nav-right{display:flex;gap:1.6rem;align-items:center}
+.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--silver);opacity:.7}
+.nav-link:hover{opacity:1;color:var(--gold)}
+.btn-gold{background:var(--gold);color:#040407;font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;padding:.55rem 1.4rem;border:none;border-radius:2px;cursor:pointer}
+.blog-hero{padding:110px 5% 60px;max-width:760px;margin:0 auto;border-bottom:1px solid var(--border)}
+.back-link{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);display:inline-flex;align-items:center;gap:.4rem;margin-bottom:1.6rem}
+.back-link:hover{color:var(--gold)}
+.article-tag{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.75;margin-bottom:.8rem;display:block}
+.article-title{font-family:'Cinzel Decorative',serif;font-size:clamp(1.4rem,3vw,2.4rem);color:var(--silver);line-height:1.25;margin-bottom:1rem}
+.article-meta{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;color:var(--dim);margin-bottom:1.8rem}
+.article-lede{font-size:1.12rem;color:var(--silver);line-height:1.9;font-style:italic;border-left:2px solid var(--gold);padding-left:1.2rem;margin-bottom:0}
+.article-body{max-width:760px;margin:0 auto;padding:3rem 5% 5rem}
+.article-body h2{font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);margin:2.8rem 0 1rem;letter-spacing:.04em}
+.article-body h3{font-family:'Josefin Sans',sans-serif;font-size:.75rem;letter-spacing:.22em;text-transform:uppercase;color:var(--silver);margin:2rem 0 .8rem;opacity:.85}
+.article-body p{margin-bottom:1.4rem;color:var(--silver);font-size:1rem;line-height:1.9}
+.article-body em{color:var(--gold);font-style:italic}
+.article-body strong{color:var(--silver);font-weight:600}
+.pull-quote{background:var(--card);border-left:3px solid var(--gold);padding:1.2rem 1.6rem;margin:2rem 0;border-radius:0 3px 3px 0}
+.pull-quote p{font-size:1.05rem;font-style:italic;color:var(--silver);margin:0}
+.disclaimer{background:rgba(200,164,90,.06);border:1px solid rgba(200,164,90,.2);border-radius:3px;padding:1rem 1.4rem;margin:2rem 0}
+.disclaimer p{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.07em;color:var(--dim);line-height:1.6;margin:0}
+.cta-block{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:2rem;text-align:center;margin:3rem 0}
+.cta-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--silver);margin-bottom:.5rem}
+.cta-sub{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.1em;color:var(--dim);margin-bottom:1.2rem}
+.footer-blog{border-top:1px solid var(--border);padding:2rem 5%;text-align:center}
+.footer-blog p{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.1em;color:var(--dim)}
+@media(max-width:640px){.nav-right .nav-link{display:none}}
+html[lang="th"] body,html[lang="th"] .article-body p{font-family:'Prompt',sans-serif;font-weight:300}
+html[lang="th"] .article-body em{font-style:normal;color:var(--gold)}
+.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
+.lang-pill button{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
+.lang-pill button.active{background:var(--gold);color:#040407}
+.lang-pill button:hover:not(.active){color:var(--gold)}
+.body-th{display:none}
+html[lang="th"] .body-en{display:none}
+html[lang="th"] .body-th{display:block}
+</style>
+<title>Thai Brahmin Astrology: The Celestial Court That Never Closed — Mythsensus</title>
+<meta name="description" content="Inside the Grand Palace in Bangkok, a small group of Brahmin priests still maintain rites that have continued unbroken for centuries. They wear white. They">
+<link rel="canonical" href="https://mythsensus.com/blog/thai-brahmin">
+</head><body>
+<nav class="nav">
+  <a href="/" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
+  <div class="nav-right">
+    <a href="/blog" class="nav-link" data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</a>
+    <a href="/#systems" class="nav-link" data-en="Systems" data-th="ระบบ">Systems</a>
+    <a href="/beta/" class="btn-gold" data-en="Open App →" data-th="เปิดแอป →">Open App →</a>
+  </div>
+</nav>
+<article>
+<div class="blog-hero">
+  <a href="/blog" class="back-link">← <span data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</span></a>
+  <span class="article-tag" data-en="THAI BRAHMIN · DAY-OF-BIRTH" data-th="พรหมไทย · วันเกิด">THAI BRAHMIN · DAY-OF-BIRTH</span>
+  <h1 class="article-title" data-en="Thai Brahmin Astrology: The Celestial Court That Never Closed" data-th="โหราศาสตร์ไทยพราหมณ์: ราชสำนักแห่งสวรรค์ที่ไม่เคยปิดประตู">Thai Brahmin Astrology: The Celestial Court That Never Closed</h1>
+  <p class="article-meta">Cosmic Library · Mythsensus Editorial</p>
+  <p class="article-lede" data-en="Inside the Grand Palace in Bangkok, a small group of Brahmin priests still maintain rites that have continued unbroken for centuries. They wear white. They carry conch shells. And they read the planets. Thai Brahmin Astrology — โหราศาสตร์ไทยพราหมณ์ — is not a relic. It is a living tradition, and it has shaped Thai civilization more deeply than most Thais know." data-th="ภายในพระบรมมหาราชวังในกรุงเทพฯ กลุ่มพราหมณ์เล็กๆ ยังคงรักษาพิธีกรรมที่ดำเนินมาอย่างต่อเนื่องเป็นเวลาหลายศตวรรษ พวกเขาสวมชุดขาว ถือสังข์ และอ่านดาวเคราะห์ โหราศาสตร์ไทยพราหมณ์ไม่ใช่สิ่งตกค้างจากอดีต แต่เป็นประเพณีที่มีชีวิต และได้หล่อหลอมอารยธรรมไทยอย่างลึกซึ้งยิ่งกว่าที่คนไทยส่วนใหญ่รู้">Inside the Grand Palace in Bangkok, a small group of Brahmin priests still maintain rites that have continued unbroken for centuries. They wear white. They carry conch shells. And they read the planets. Thai Brahmin Astrology — โหราศาสตร์ไทยพราหมณ์ — is not a relic. It is a living tradition, and it has shaped Thai civilization more deeply than most Thais know.</p>
+</div>
+<div class="article-body">
+  <div class="body-en">
+<p>Inside the Grand Palace in Bangkok, a small group of Brahmin priests still maintain rites that have continued unbroken for centuries. They wear white. They carry conch shells. And they read the planets. Thai Brahmin Astrology — โหราศาสตร์ไทยพราหมณ์ — is not a relic. It is a living tradition, and it has shaped Thai civilization more deeply than most Thais know.</p>
+<h2>Origins &amp; History</h2>
+<p>Thai Brahmin Astrology descends from Jyotish — the &quot;science of light&quot; — the ancient Indian system of celestial divination that predates Western astrology's formalization by centuries. When Brahmin scholars followed the expansion of Hindu civilization into the Khmer Empire around the 10th century CE, they brought Jyotish with them, along with Sanskrit manuscripts, temple architecture, and the full apparatus of Brahmin ritual life.</p>
+<p>The Khmer kings were ardent patrons of Brahmin learning. Angkor Wat itself is an astrological monument: its towers, galleries, and axes are aligned to solstice and equinox points, its proportions encoding the Hindu cosmological model of time. Within this environment, Jyotish was adapted and refined over generations into a distinctly Southeast Asian form.</p>
+<p>When Thai kingdoms rose — Sukhothai in the 13th century, Ayutthaya from 1351 CE — they inherited and further developed this Khmer-Brahmin tradition. The Thai Royal Brahmins (พราหมณ์หลวง) became an indispensable feature of the royal court, responsible for calculating auspicious dates for every significant act of state: coronations, royal births, military campaigns, the laying of temple foundations, and the naming of princes. This tradition transferred intact through the fall of Ayutthaya in 1767, through the founding of Bangkok, and continues today under the Royal Household Bureau.</p>
+<p>What makes Thai Brahmin Astrology distinct from its Indian ancestor is the deep integration with Thai Buddhism, animism, and local mythology. The planets acquired Thai names and Thai faces. The myths attached to them grew new dimensions in the tropical soil of the Chao Phraya delta.</p>
+<h2>The Legend</h2>
+<p>Of all the celestial dramas in Thai Brahmin mythology, none is more vivid — or more present in daily life — than the legend of Rahu (ราหู).</p>
+<p>In the ancient Vedic account, Rahu was a demon asura named Svarbhanu who disguised himself as a god to drink the amrita, the nectar of immortality, as it was being distributed to the gods after the churning of the cosmic ocean. The sun and moon spotted the deception and alerted Vishnu, who hurled his discus and severed the demon's head from his body. But it was too late — Svarbhanu had already swallowed a mouthful of amrita, and so his severed head became immortal: Rahu. His tail became Ketu. Both ascended to the heavens as shadow planets, vengeful and powerful.</p>
+<p>In Thai mythology, Rahu developed a distinct personality. He is depicted not as a disembodied head but as a dark demon who swallows the sun or moon whole — and periodically, when the timing aligns, he does so during an eclipse. Thai people traditionally respond to eclipses by making enormous noise: banging pots and pans, blowing whistles, setting off firecrackers — a cacophony designed to frighten Rahu into releasing the celestial body he has swallowed.</p>
+<p>This is not merely folklore. Monks in temples across Thailand still recite specific suttas during lunar eclipses. Families still gather. The pots still clang. In a country where the boundary between mythology and daily practice is porous, Rahu is real — a presence to be negotiated with, a force whose timing shapes human destiny.</p>
+<p>The mythology of the planetary guardian (เจ้าเรือน) is equally central. Each person is born under the watch of a specific planetary deity who serves as their celestial patron throughout this lifetime. Knowing your planetary guardian — determined by the day of the week on which you were born — tells you which color to wear for auspiciousness (สีมงคล), which offerings to make, and which periods of life will see the guardian's influence wax or wane.</p>
+<h2>Core Philosophy</h2>
+<p>Thai Brahmin Astrology operates through seven planetary lords: Surya (Sun/อาทิตย์), Chandra (Moon/จันทร์), Angaraka (Mars/อังคาร), Budha (Mercury/พุธ), Guru (Jupiter/พฤหัสบดี), Shukra (Venus/ศุกร์), and Shani (Saturn/เสาร์), plus the shadow planets Rahu and Ketu. Each planet rules a day of the week, a color, a gemstone, a set of life domains, and a character archetype.</p>
+<p>The twelve houses overlay the Vedic model onto Thai cultural geography. Timing periods — analogous to the Dasha system in Jyotish — track which planetary lord is most active in a given phase of life, explaining cycles of fortune, hardship, love, and achievement. The auspicious colors associated with birth days remain a living part of Thai culture: many Thais select the color of clothing or sacred thread (สายสิญจน์) worn for important occasions based on this system.</p>
+<p>Unlike some divinatory traditions, Thai Brahmin Astrology has always been deeply embedded in communal and royal life — it is astrology as statecraft, as medicine, as architecture, as ceremony.</p>
+<h2>At Mythsensus</h2>
+<p>Within the Mythsensus Cosmic Score, Thai Brahmin Astrology contributes the ancient Southeast Asian planetary reading: your birth-day planetary lord, the color frequency of your celestial guardian, and the timing signature of your life's major phases. It is one of 26 wisdom traditions woven into your personal reading. Discover which planet watches over your birth at <a href="https://mythsensus.com/library/thai-brahmin" style="color:var(--gold);text-decoration:underline">mythsensus.com/library/thai-brahmin</a>.</p>
+
+  </div>
+  <div class="body-th">
+<p>ภายในพระบรมมหาราชวังในกรุงเทพฯ กลุ่มพราหมณ์เล็กๆ ยังคงรักษาพิธีกรรมที่ดำเนินมาอย่างต่อเนื่องเป็นเวลาหลายศตวรรษ พวกเขาสวมชุดขาว ถือสังข์ และอ่านดาวเคราะห์ โหราศาสตร์ไทยพราหมณ์ไม่ใช่สิ่งตกค้างจากอดีต แต่เป็นประเพณีที่มีชีวิต และได้หล่อหลอมอารยธรรมไทยอย่างลึกซึ้งยิ่งกว่าที่คนไทยส่วนใหญ่รู้</p>
+<h2>ที่มาและประวัติ</h2>
+<p>โหราศาสตร์ไทยพราหมณ์สืบทอดมาจาก โชยติษ หรือ &quot;ศาสตร์แห่งแสงสว่าง&quot; ระบบการทำนายจากสวรรค์ของอินเดียโบราณที่เก่ากว่าโหราศาสตร์ตะวันตกหลายศตวรรษ เมื่อนักปราชญ์พราหมณ์ติดตามการขยายตัวของอารยธรรมฮินดูเข้าสู่อาณาจักรเขมรราว ๑,๐๐๐ ปี CE พวกเขานำโชยติษมาด้วย พร้อมกับต้นฉบับสันสกฤต สถาปัตยกรรมวัด และอุปกรณ์พิธีกรรมพราหมณ์ทั้งหมด</p>
+<p>นครวัดเองก็เป็นอนุสรณ์ทางโหราศาสตร์ ปราสาท ระเบียง และแกนต่างๆ ถูกจัดวางให้สอดคล้องกับจุดครีษมายันและวิษุวัต สัดส่วนของมันเข้ารหัสแบบจำลองจักรวาลวิทยาฮินดูของเวลา ในสภาพแวดล้อมนี้ โชยติษได้รับการปรับตัวและพัฒนาข้ามรุ่นจนกลายเป็นรูปแบบเอเชียตะวันออกเฉียงใต้อย่างชัดเจน</p>
+<p>เมื่ออาณาจักรไทยรุ่งเรือง สุโขทัยในศตวรรษที่ ๑๓ อยุธยาตั้งแต่ปี ๑๘๙๓ พวกเขาสืบทอดและพัฒนาต่อประเพณีเขมร-พราหมณ์นี้ พราหมณ์หลวงกลายเป็นส่วนสำคัญของราชสำนัก รับผิดชอบการคำนวณฤกษ์ยามสำหรับทุกพระราชกิจสำคัญ ทั้งพระราชพิธีบรมราชาภิเษก การประสูติของเจ้าฟ้า การยุทธ การวางรากศิลาวัด และการตั้งพระนามเจ้าฟ้า ประเพณีนี้ถ่ายทอดอย่างสมบูรณ์ผ่านการเสียกรุงศรีอยุธยาในปี ๒๓๑๐ ผ่านการก่อตั้งกรุงเทพฯ และยังคงดำเนินอยู่จนถึงทุกวันนี้ภายใต้สำนักพระราชวัง</p>
+<h2>ตำนาน</h2>
+<p>ในบรรดาเหตุการณ์ทางสวรรค์ในตำนานพราหมณ์ไทย ไม่มีตำนานใดที่ชัดเจนหรือปรากฏอยู่ในชีวิตประจำวันมากกว่า ตำนานของราหู</p>
+<p>ในเรื่องเล่าพระเวทโบราณ ราหูคืออสูรชื่อสวรภานุที่แปลงร่างเป็นเทพเพื่อดื่มอมฤต น้ำอมตะที่กำลังแจกจ่ายให้เหล่าเทพหลังการกวนมหาสมุทร พระอาทิตย์และพระจันทร์จับได้และแจ้งพระวิษณุ ซึ่งขว้างจักรตัดคอของอสูร แต่ก็สายเกินไป สวรภานุได้กลืนอมฤตไปแล้วหนึ่งคำ ดังนั้นศีรษะที่ถูกตัดออกจึงเป็นอมตะ กลายเป็นราหู ส่วนหางกลายเป็นเกตุ ทั้งคู่ขึ้นสู่สวรรค์เป็นดาวเงาที่แค้นเคืองและทรงพลัง</p>
+<p>ในตำนานไทย ราหูมีบุคลิกที่โดดเด่น เขาถูกวาดเป็นอสูรสีดำที่กลืนพระอาทิตย์หรือพระจันทร์ทั้งดวง และเป็นระยะๆ เมื่อเวลาสอดคล้อง เขาทำเช่นนั้นในช่วงสุริยุปราคาหรือจันทรุปราคา ชาวไทยดั้งเดิมตอบสนองต่อสุริยุปราคาด้วยการทำเสียงดังมาก ตีหม้อกระทะ เป่านกหวีด จุดประทัด เสียงอึกทึกที่ออกแบบมาเพื่อทำให้ราหูตกใจและปล่อยดาวที่กลืนไป</p>
+<p>นี่ไม่ใช่เพียงนิทานพื้นบ้าน พระสงฆ์ในวัดทั่วประเทศไทยยังคงสวดพระสูตรเฉพาะในช่วงจันทรุปราคา ครอบครัวยังคงรวมตัว หม้อกระทะยังคงดัง ในประเทศที่ขอบเขตระหว่างตำนานและการปฏิบัติในชีวิตประจำวันนั้นเปิดกว้าง ราหูเป็นสิ่งจริง เป็นพลังที่ต้องเจรจา เป็นแรงที่จังหวะเวลาของมันกำหนดชะตากรรมมนุษย์</p>
+<p>ตำนานของเจ้าเรือนก็มีความสำคัญเช่นกัน แต่ละคนเกิดมาภายใต้การดูแลของเทพดาวเคราะห์เฉพาะองค์ที่ทำหน้าที่เป็นผู้อุปถัมภ์แห่งสวรรค์ตลอดชีวิตนี้ การรู้จักเจ้าเรือนของคุณ ซึ่งกำหนดโดยวันในสัปดาห์ที่คุณเกิด บอกให้รู้ว่าควรสวมสีใดเพื่อความเป็นมงคล (สีมงคล) ควรทำการบูชาอะไร และช่วงเวลาใดของชีวิตที่อิทธิพลของเจ้าเรือนจะขึ้นหรือลง</p>
+<h2>หลักการและแก่นคิด</h2>
+<p>โหราศาสตร์ไทยพราหมณ์ดำเนินการผ่านเจ้าเรือนเจ็ดดวง ได้แก่ พระอาทิตย์ พระจันทร์ พระอังคาร พระพุธ พระพฤหัสบดี พระศุกร์ และพระเสาร์ บวกกับดาวเงา ราหู และเกตุ ดาวเคราะห์แต่ละดวงปกครองวันในสัปดาห์ สี อัญมณี ชุดของโดเมนชีวิต และต้นแบบบุคลิกภาพ</p>
+<p>บ้านทั้งสิบสองหลังทับซ้อนแบบจำลองพระเวทบนภูมิศาสตร์วัฒนธรรมไทย ช่วงเวลาการกำหนด ซึ่งคล้ายกับระบบดาสาในโชยติษ ติดตามว่าเจ้าเรือนดาวเคราะห์ใดทำงานมากที่สุดในช่วงชีวิตที่กำหนด อธิบายวงจรของโชคลาภ ความยากลำบาก ความรัก และความสำเร็จ สีมงคลที่เกี่ยวข้องกับวันเกิดยังคงเป็นส่วนหนึ่งของวัฒนธรรมไทยที่มีชีวิต คนไทยจำนวนมากเลือกสีเสื้อผ้าหรือสายสิญจน์สำหรับโอกาสสำคัญตามระบบนี้</p>
+<h2>ที่ Mythsensus</h2>
+<p>ภายใน Cosmic Score ของ Mythsensus โหราศาสตร์ไทยพราหมณ์มีส่วนร่วมด้วยการอ่านดาวเคราะห์แบบเอเชียตะวันออกเฉียงใต้โบราณ ได้แก่ เจ้าเรือนดาวเคราะห์ประจำวันเกิดของคุณ ความถี่สีของผู้พิทักษ์แห่งสวรรค์ของคุณ และลายเซ็นจังหวะเวลาของช่วงสำคัญในชีวิตของคุณ เป็นหนึ่งใน ๒๖ ประเพณีภูมิปัญญาที่ถักทอเข้าสู่การอ่านส่วนตัวของคุณ ค้นพบว่าดาวเคราะห์ดวงใดเฝ้าดูการเกิดของคุณได้ที่ <a href="https://mythsensus.com/library/thai-brahmin" style="color:var(--gold);text-decoration:underline">mythsensus.com/library/thai-brahmin</a></p>
+
+  </div>
+  <div class="disclaimer"><p data-en="All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone." data-th="เนื้อหาทั้งหมดบน Mythsensus สร้างขึ้นโดยปัญญาประดิษฐ์ เพื่อความบันเทิง การสำรวจตนเอง และการใคร่ครวญส่วนบุคคล ไม่ใช่คำแนะนำทางวิชาชีพ ดวงดาวอาจส่องทาง แต่ก้าวเดินเป็นของคุณ">All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone.</p></div>
+  <div class="cta-block">
+    <div class="cta-title" data-en="Read your full 26-system report" data-th="อ่านรายงาน 26 ศาสตร์ของคุณ">Read your full 26-system report</div>
+    <div class="cta-sub" data-en="Free beta · No signup · Works offline" data-th="ฟรีช่วงทดสอบ · ไม่ต้องสมัคร · ออฟไลน์ได้">Free beta · No signup · Works offline</div>
+    <a href="/beta/" class="btn-gold" data-en="Open the App →" data-th="เปิดแอป →">Open the App →</a>
+  </div>
+</div>
+</article>
+<div class="footer-blog"><p>© Mythsensus · <a href="/privacy" style="color:var(--dim)">Privacy</a></p></div>
+<div class="lang-pill">
+  <button id="lang-en" class="active" onclick="setLang('en')">EN</button>
+  <button id="lang-th" onclick="setLang('th')">TH</button>
+</div>
+<script>
+function setLang(l){
+  document.documentElement.lang=l;
+  document.getElementById('lang-en').classList.toggle('active',l==='en');
+  document.getElementById('lang-th').classList.toggle('active',l==='th');
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    const k=l==='th'?'data-th':'data-en';
+    el.textContent=el.getAttribute(k)||el.textContent;
+  });
+  try{localStorage.setItem('mth_lang',l);}catch(e){}
+}
+(function(){
+  const saved=localStorage.getItem('mth_lang');
+  if(saved==='th') setLang('th');
+})();
+</script>
+</body></html>

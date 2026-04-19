@@ -1,10 +1,15 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;600&family=Prompt:wght@200;300;400&display=swap" rel="stylesheet">
-<style>:root{--bg:#040407;--gold:#c8a45a;--silver:#e6e2d8;--dim:#9a9088;--card:#0d0d14;--border:rgba(200,164,90,0.22)}*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{background:var(--bg);color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.85}a{color:var(--gold);text-decoration:none}
+<style>:root{--bg:#040407;--gold:#c8a45a;--silver:#e6e2d8;--dim:#9a9088;--card:#0d0d14;--border:rgba(200,164,90,0.22)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.85}
+a{color:var(--gold);text-decoration:none}
 .nav{position:fixed;top:0;width:100%;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
 .nav-logo{font-family:'Cinzel Decorative',serif;font-size:1rem;cursor:pointer;letter-spacing:.06em}.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
-.nav-right{display:flex;gap:1.6rem;align-items:center}.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--silver);opacity:.7}.nav-link:hover{opacity:1;color:var(--gold)}
+.nav-right{display:flex;gap:1.6rem;align-items:center}
+.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--silver);opacity:.7}
+.nav-link:hover{opacity:1;color:var(--gold)}
 .btn-gold{background:var(--gold);color:#040407;font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;padding:.55rem 1.4rem;border:none;border-radius:2px;cursor:pointer}
 .blog-hero{padding:110px 5% 60px;max-width:760px;margin:0 auto;border-bottom:1px solid var(--border)}
 .back-link{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);display:inline-flex;align-items:center;gap:.4rem;margin-bottom:1.6rem}
@@ -21,71 +26,116 @@
 .article-body strong{color:var(--silver);font-weight:600}
 .pull-quote{background:var(--card);border-left:3px solid var(--gold);padding:1.2rem 1.6rem;margin:2rem 0;border-radius:0 3px 3px 0}
 .pull-quote p{font-size:1.05rem;font-style:italic;color:var(--silver);margin:0}
-.system-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.2rem 1.4rem;margin:1rem 0;display:flex;gap:1rem;align-items:flex-start}
-.system-icon{font-size:1.4rem;flex-shrink:0;margin-top:.1rem}
-.system-name{font-family:'Cinzel Decorative',serif;font-size:.82rem;color:var(--gold);margin-bottom:.3rem}
-.system-desc{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.07em;color:var(--dim);line-height:1.55}
 .disclaimer{background:rgba(200,164,90,.06);border:1px solid rgba(200,164,90,.2);border-radius:3px;padding:1rem 1.4rem;margin:2rem 0}
 .disclaimer p{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.07em;color:var(--dim);line-height:1.6;margin:0}
 .cta-block{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:2rem;text-align:center;margin:3rem 0}
 .cta-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--silver);margin-bottom:.5rem}
 .cta-sub{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.1em;color:var(--dim);margin-bottom:1.2rem}
-.related-section{border-top:1px solid var(--border);padding:3rem 5%;max-width:760px;margin:0 auto}
-.related-title{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:1.5rem}
-.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
-.related-card{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:1.2rem;transition:border-color .2s}.related-card:hover{border-color:var(--gold)}
-.related-tag{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);opacity:.65;margin-bottom:.4rem}
-.related-name{font-family:'Cinzel Decorative',serif;font-size:.82rem;color:var(--silver);line-height:1.3}
 .footer-blog{border-top:1px solid var(--border);padding:2rem 5%;text-align:center}
 .footer-blog p{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.1em;color:var(--dim)}
 @media(max-width:640px){.nav-right .nav-link{display:none}}
-html[lang="th"] body,.html[lang="th"] .article-body p{font-family:'Prompt',sans-serif;font-weight:300}
-</style><title>BaZi: Your Four Pillars of Destiny Explained — Mythsensus</title><meta name="description" content="The Chinese Four Pillars system maps your birth year, month, day and hour to elemental patterns that reveal character, luck cycles, and timing."><link rel="canonical" href="https://mythsensus.com/blog/bazi-four-pillars"><style>.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}.lang-btn{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}.lang-btn.active{background:var(--gold,#c8a45a);color:#040407}.lang-btn:hover:not(.active){color:var(--gold,#c8a45a)}</style></head><body>
+html[lang="th"] body,html[lang="th"] .article-body p{font-family:'Prompt',sans-serif;font-weight:300}
+html[lang="th"] .article-body em{font-style:normal;color:var(--gold)}
+.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
+.lang-pill button{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
+.lang-pill button.active{background:var(--gold);color:#040407}
+.lang-pill button:hover:not(.active){color:var(--gold)}
+.body-th{display:none}
+html[lang="th"] .body-en{display:none}
+html[lang="th"] .body-th{display:block}
+</style>
+<title>BaZi — Four Pillars of Destiny: The Architecture of Your Fate — Mythsensus</title>
+<meta name="description" content="What if the entire structure of your life — your talents, your struggles, your timing, and your luck — could be encoded in eight Chinese characters? More t">
+<link rel="canonical" href="https://mythsensus.com/blog/bazi-four-pillars">
+</head><body>
 <nav class="nav">
   <a href="/" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
   <div class="nav-right">
     <a href="/blog" class="nav-link" data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</a>
     <a href="/#systems" class="nav-link" data-en="Systems" data-th="ระบบ">Systems</a>
-    <a href="/" class="btn-gold">Reveal My Score →</a>
+    <a href="/beta/" class="btn-gold" data-en="Open App →" data-th="เปิดแอป →">Open App →</a>
   </div>
 </nav>
 <article>
 <div class="blog-hero">
-  <a href="/blog" class="back-link">← Cosmic Library</a>
-  <span class="article-tag">Chinese Astrology · BaZi</span>
-  <h1 class="article-title" data-en="BaZi: Your Four Pillars of Destiny Explained" data-th="BaZi: สี่เสาแห่งชะตากรรมของคุณ อธิบาย">BaZi: Your Four Pillars of Destiny Explained</h1>
-  <p class="article-meta">Cosmic Library · 7 min read · Mythsensus Editorial</p>
-  <p class="article-lede">Born in the Tang Dynasty and still consulted by millions across East Asia, BaZi maps your birth moment to four elemental pillars — and reveals decade-long cycles that shift your fundamental landscape.</p>
+  <a href="/blog" class="back-link">← <span data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</span></a>
+  <span class="article-tag" data-en="CHINESE ASTROLOGY · BAZI" data-th="โหราศาสตร์จีน · BaZi">CHINESE ASTROLOGY · BAZI</span>
+  <h1 class="article-title" data-en="BaZi — Four Pillars of Destiny: The Architecture of Your Fate" data-th="BaZi สี่เสา (八字): สถาปัตยกรรมแห่งชะตากรรม">BaZi — Four Pillars of Destiny: The Architecture of Your Fate</h1>
+  <p class="article-meta">Cosmic Library · Mythsensus Editorial</p>
+  <p class="article-lede" data-en="What if the entire structure of your life — your talents, your struggles, your timing, and your luck — could be encoded in eight Chinese characters? More than a thousand years ago, a scholar-hermit retreating into the mountains believed exactly that. The Four Pillars of Destiny is not merely an ancient art. It is a complete philosophical system that treats your birth moment as a map of the cosmos itself, rendered in the language of time." data-th="จะเป็นอย่างไรหากโครงสร้างทั้งหมดของชีวิตคุณ — พรสวรรค์ ความยากลำบาก จังหวะเวลา และวาสนา — สามารถบรรจุลงในอักษรจีนแปดตัวได้? มากกว่าหนึ่งพันปีก่อน นักวิชาการที่บวชตัวเองเข้าในภูเขาเชื่อเช่นนั้น สี่เสาแห่งชะตากรรมไม่ใช่เพียงศิลปะโบราณ แต่เป็นระบบปรัชญาสมบูรณ์ที่มองช่วงเวลาเกิดของคุณว่าเป็นแผนที่ของจักรวาล แสดงออกมาในภาษาของกาลเวลา">What if the entire structure of your life — your talents, your struggles, your timing, and your luck — could be encoded in eight Chinese characters? More than a thousand years ago, a scholar-hermit retreating into the mountains believed exactly that. The Four Pillars of Destiny is not merely an ancient art. It is a complete philosophical system that treats your birth moment as a map of the cosmos itself, rendered in the language of time.</p>
 </div>
 <div class="article-body">
-<div class="disclaimer"><p>✦ Mythsensus articles are for educational and self-reflection purposes only. All interpretations are symbolic in nature and do not constitute medical, psychological, financial, or life advice.</p></div>
-<h2>What Are the Four Pillars?</h2>
-<p>BaZi — literally "Eight Characters" — is a Chinese astrological system that encodes your birth year, month, day, and hour into four pairs of characters. Each pair consists of a Heavenly Stem (one of ten) and an Earthly Branch (one of twelve), creating a 2×4 grid that forms your natal chart.</p>
-<p>Each of the eight characters carries one of five elemental energies — Wood, Fire, Earth, Metal, Water — and polarity: Yin or Yang. The interactions between these elements — generating, controlling, weakening, draining — create the dynamic landscape of your character and timing.</p>
-<div class="system-card"><div class="system-icon">八</div><div><div class="system-name">The Day Master</div><div class="system-desc">The Heavenly Stem of your Day Pillar is your most important character — your Day Master. It represents your core self: how you fundamentally process the world, what energizes and depletes you, and what kind of element you naturally attract and need.</div></div></div>
-<h2>The Five Elements in Practice</h2>
-<p><strong>Wood</strong> grows upward, expands, initiates. Wood people tend toward vision, growth orientation, and sometimes difficulty knowing when to stop. <em>Strong Wood years</em> favor new projects, creative launches, and educational endeavors.</p>
-<p><strong>Fire</strong> illuminates, connects, transforms. Fire people are often charismatic, expressive, and emotionally intense. They need meaning. <em>Fire-dominant charts</em> often show careers in communication, performance, or leadership.</p>
-<p><strong>Earth</strong> grounds, stabilizes, mediates. Earth types are practical, reliable, and sometimes too accommodating. They function as bridges between other people and between extremes.</p>
-<p><strong>Metal</strong> refines, structures, discerns. Metal people prize precision and principles. They can cut through to the essential — and sometimes cut too deep. <em>Metal-dominant years</em> favor legal matters, financial planning, and any work requiring sharp judgment.</p>
-<p><strong>Water</strong> flows, adapts, accumulates wisdom. Water people are often highly intuitive, strategic, and comfortable with ambiguity. They move around obstacles rather than through them.</p>
-<h2>Luck Pillars: The Decade Shift</h2>
-<p>What makes BaZi particularly powerful as a timing tool is the concept of Luck Pillars (大運, Dà Yùn). Every ten years, you enter a new Luck Pillar — a major elemental influence that recontextualizes everything in your natal chart for that decade.</p>
-<div class="pull-quote"><p>"Entering a Water Luck Pillar when your natal chart is dominated by Fire is not good news or bad news — it is a fundamental shift in the landscape of what is possible and what is challenging."</p></div>
-<p>Mythsensus calculates your current Luck Pillar and integrates it with your other nine systems to show how it shapes the broader patterns in your Cosmic Score right now.</p>
-<h2>BaZi Within the Mythsensus Framework</h2>
-<p>Within the ten-system synthesis, BaZi contributes most strongly to themes of elemental constitution, decade-scale timing, and career orientation. When BaZi's elemental dominance aligns with the planetary energies in your Western chart and your Vedic Nakshatra, the convergence is particularly significant — these are patterns that multiple civilizations, independently, encoded as important.</p>
-<div class="cta-block">
-  <div class="cta-title">Discover Your Four Pillars</div>
-  <p class="cta-sub">BaZi + 9 other systems · Full Cosmic Score · 25-page report</p>
-  <a href="/onboarding" class="btn-gold">Reveal My Score →</a>
-</div>
+  <div class="body-en">
+<p>What if the entire structure of your life — your talents, your struggles, your timing, and your luck — could be encoded in eight Chinese characters? More than a thousand years ago, a scholar-hermit retreating into the mountains believed exactly that. The Four Pillars of Destiny is not merely an ancient art. It is a complete philosophical system that treats your birth moment as a map of the cosmos itself, rendered in the language of time.</p>
+<h2>Origins &amp; History</h2>
+<p>BaZi (八字, &quot;eight characters&quot;) emerged in China during the Tang Dynasty, roughly the 7th century CE, though its roots reach deeper into Chinese cosmological thinking that had been developing for millennia. The system is sometimes called the Ziping method, after the scholar who would later perfect it — but its earliest foundations are attributed to the Tang Dynasty master Li Xuzhong, who is credited with establishing the practice of reading destiny through the Year, Month, Day, and Hour pillars of birth.</p>
+<p>Li Xuzhong's system was significant, but it was Li Xujian who refined the Hour pillar as the crucial fourth dimension, transforming a three-pillar reading into the complete Eight Characters. Still, the system remained imprecise, and it would take another three centuries and the genius of a mountain recluse to bring it into full flower.</p>
+<p>During the Song Dynasty (960–1279 CE), the scholar Xu Ziping retreated to the mountains and spent decades in solitary contemplation, studying the interplay of the Five Elements and the Heavenly Stems and Earthly Branches. He made a pivotal breakthrough: shifting the system's focus from the Year pillar to the Day pillar as the primary indicator of the individual self. This seemingly small change transformed BaZi from a dynastic omen-reading tool into a deeply personal map of the individual soul. His method became known as the Ziping system, and it remains the foundation of classical BaZi practice to this day.</p>
+<p>By the Ming and Qing dynasties, BaZi had been codified into extensive classical texts. The <em>Sanming Tonghui</em> (三命通會) and the <em>Ziping Zhengzong</em> (子平真詮) stand as the twin pillars of classical BaZi literature — encyclopedic works that generations of masters have studied and interpreted ever since.</p>
+<h2>The Legend</h2>
+<p>In the age when the Yellow Emperor ruled Heaven and Earth, the sky was ablaze with ten suns.</p>
+<p>They were the sons of Dijun, the Celestial Emperor — ten blazing brothers who took turns crossing the sky, each giving the world its daily light. But one morning, overcome by mischief or perhaps simply by longing to be together, all ten rose at once. The heat was catastrophic. Crops burned. Rivers dried. The Earth cracked and screamed.</p>
+<p>The divine archer Yi was summoned. He drew back his bow and shot down nine of the ten suns, one by one, leaving only one to light the world. The nine fallen suns did not perish entirely — they became the nine Heavenly Stems that remain after the tenth (the living sun) is counted. In another telling, the ten Heavenly Stems represent the full cycle of solar energy itself, breathing through five pairs of yin and yang.</p>
+<p>Meanwhile, deep in the heavens, the Jade Emperor grew concerned about time. He summoned all the animals of the Earth to a great race across a cosmic river to determine which twelve would serve as timekeepers of the years. The Rat, clever and small, rode across the back of the Ox and leapt to shore first. The Ox came second. The Tiger swam fiercely to third place. And so they came, twelve in all — Rabbit, Dragon, Snake, Horse, Goat, Monkey, Rooster, Dog, and Pig — each earning their position in the eternal cycle.</p>
+<p>These twelve animals became the Earthly Branches, governing not just years but months, hours, and the deep tidal rhythms of human fate. In BaZi, every pillar is a pairing of one Heavenly Stem (the solar, active force) with one Earthly Branch (the lunar, receptive cycle) — two cosmic forces in perpetual dance. Eight characters. A universe in miniature.</p>
+<p>Then came Xu Ziping, the hermit of the Song Dynasty, who understood how to read that universe. He climbed the mountain not to escape fate, but to understand it so completely that the patterns of any human life became as readable as calligraphy on white silk. He is said to have spent thirty years in contemplation before descending with the complete method — a gift to all who would come after.</p>
+<h2>Core Philosophy</h2>
+<p>BaZi operates through an elegant interlocking of cosmic forces. The Year, Month, Day, and Hour of birth each generate one Heavenly Stem and one Earthly Branch — producing eight characters total (hence 八字, &quot;eight characters&quot;). The Day Stem is considered the &quot;self&quot; — the person whose chart is being read.</p>
+<p>These eight characters encode the Five Elements (Wood, Fire, Earth, Metal, Water) in their yin and yang forms, creating a unique elemental blueprint. No two charts are alike. A chart that is heavy in Water and light in Fire tells a completely different story from one drenched in Earth and Metal. The Ten Gods — relational archetypes derived from the interaction between the self-element and the other elements in the chart — describe how a person relates to power, wealth, creativity, authority, and support.</p>
+<p>Beyond the natal chart, BaZi's greatest gift is the Luck Pillar system (大運, Dà Yùn) — ten-year cycles of elemental weather that shift throughout a life, determining when certain themes become active, when opportunities ripen, and when caution is warranted. It is one of the most sophisticated timing systems ever devised, treating a human life not as a fixed fate but as a story that unfolds through time, shaped by the interaction of who you are and what era you are living through.</p>
+<h2>At Mythsensus</h2>
+<p>BaZi — Four Pillars of Destiny is one of the 26 ancient wisdom systems contributing to your Mythsensus Full Report. Using your precise birth date and time, the system calculates your four pillars and identifies the dominant elemental forces that shape your personality, relationships, and life path. Alongside 25 other traditions spanning cultures and continents, BaZi adds its voice to the cosmic consensus — a conversation about you that has been unfolding for more than a thousand years.</p>
+
+  </div>
+  <div class="body-th">
+<p><em>โดยทีม Mythsensus</em></p>
+<p>จะเป็นอย่างไรหากโครงสร้างทั้งหมดของชีวิตคุณ — พรสวรรค์ ความยากลำบาก จังหวะเวลา และวาสนา — สามารถบรรจุลงในอักษรจีนแปดตัวได้? มากกว่าหนึ่งพันปีก่อน นักวิชาการที่บวชตัวเองเข้าในภูเขาเชื่อเช่นนั้น สี่เสาแห่งชะตากรรมไม่ใช่เพียงศิลปะโบราณ แต่เป็นระบบปรัชญาสมบูรณ์ที่มองช่วงเวลาเกิดของคุณว่าเป็นแผนที่ของจักรวาล แสดงออกมาในภาษาของกาลเวลา</p>
+<h2>ที่มาและประวัติ</h2>
+<p>BaZi (八字, &quot;แปดอักษร&quot;) ถือกำเนิดในจีนช่วงราชวงศ์ถัง ราวคริสตศตวรรษที่ 7 แม้รากเหง้าของมันหยั่งลึกลงในความคิดทางจักรวาลวิทยาจีนที่พัฒนามาหลายพันปี ระบบนี้บางครั้งเรียกว่าวิธีจื่อผิง ตามนามของนักวิชาการผู้ทำให้มันสมบูรณ์ในภายหลัง แต่รากฐานยุคแรกเริ่มนั้นเชื่อกันว่าเป็นผลงานของอาจารย์หลี่ ซวี่จง แห่งราชวงศ์ถัง ผู้สร้างแนวปฏิบัติการอ่านชะตาจากเสาปี เดือน วัน และชั่วโมงแห่งการเกิด</p>
+<p>หลี่ ซวี่จง วางรากฐานสำคัญไว้ แต่เป็นหลี่ ซวี่เจียน ผู้เพิ่มเสาชั่วโมงเป็นมิติที่สี่อันสำคัญ เปลี่ยนจากการอ่านสามเสาสู่แปดอักษรสมบูรณ์ กระนั้นระบบยังคงไม่สมบูรณ์ และต้องใช้เวลาอีกสามศตวรรษกับอัจฉริยภาพของฤษีบนภูเขาเพื่อทำให้มันบรรลุผล</p>
+<p>ในช่วงราชวงศ์ซ่ง (ค.ศ. 960–1279) นักวิชาการ ซวี่ จื่อผิง ถอยตัวเข้าสู่ภูเขาและใช้เวลาหลายทศวรรษในการไตร่ตรองเดี่ยว ศึกษาความสัมพันธ์ของธาตุทั้งห้าและก้านฟ้าสิบกับกิ่งดินสิบสอง เขาค้นพบความก้าวหน้าสำคัญ — การเปลี่ยนจุดสนใจของระบบจากเสาปีมาที่เสาวันเป็นตัวบ่งชี้หลักของตัวตน การเปลี่ยนแปลงที่ดูเล็กน้อยนี้แปลง BaZi จากเครื่องมืออ่านลางสำหรับราชวงศ์ไปสู่แผนที่ส่วนตัวอันลึกซึ้งของจิตวิญญาณแต่ละบุคคล วิธีของเขาเป็นที่รู้จักในนามระบบจื่อผิง และยังคงเป็นรากฐานของการปฏิบัติ BaZi คลาสสิกจนถึงทุกวันนี้ ตำรายุคราชวงศ์หมิงและชิงเช่น <em>ซานหมิงทงฮุ่ย</em> (三命通會) และ <em>จื่อผิงเจิ้งจง</em> (子平真詮) เป็นงานสารานุกรมที่ปรมาจารย์หลายรุ่นได้ศึกษาและตีความ</p>
+<h2>ตำนาน</h2>
+<p>ในยุคที่จักรพรรดิเหลืองปกครองสวรรค์และโลก ท้องฟ้าลุกโชนด้วยสิบดวงอาทิตย์</p>
+<p>พวกเขาคือบุตรของตี้จวิน จักรพรรดิสวรรค์ — สิบพี่น้องที่ลุกโชนผลัดกันข้ามท้องฟ้า แต่เช้าวันหนึ่ง ด้วยความซุกซนหรืออาจเพียงแค่ความอยากอยู่ด้วยกัน ทั้งสิบดวงต่างขึ้นมาพร้อมกัน ความร้อนนั้นนำมาซึ่งหายนะ พืชผลไหม้เกรียม แม่น้ำแห้งขอด โลกแตกร้าวและร้องครวญคราง</p>
+<p>นักธนูเทพ อี้ ถูกเรียกตัว เขาโก่งธนูและยิงเก้าดวงอาทิตย์ออกจากท้องฟ้า ทีละดวง เหลือเพียงหนึ่งดวงเพื่อให้แสงสว่างแก่โลก ดวงอาทิตย์ทั้งเก้าที่ตกลงไม่ได้สูญสลายไปทั้งหมด — พวกมันกลายเป็นก้านฟ้าเก้าตัวที่หลงเหลืออยู่ ในอีกเรื่องเล่าหนึ่ง ก้านฟ้าสิบตัวเป็นตัวแทนของวัฏจักรพลังงานสุริยะเต็มรูปแบบ หายใจผ่านห้าคู่ของหยินและหยาง</p>
+<p>ขณะเดียวกัน ในสวรรค์ชั้นสูง จักรพรรดิหยกวิตกเรื่องกาลเวลา พระองค์เรียกสัตว์ทุกชนิดมาแข่งขันข้ามแม่น้ำจักรวาลเพื่อตัดสินว่าสิบสองตัวใดจะทำหน้าที่เป็นผู้นับเวลาของปีต่างๆ หนูตัวเล็กที่ฉลาดหลิ่ว ขี่ข้ามมาบนหลังวัวแล้วกระโดดขึ้นฝั่งก่อน วัวมาสอง เสือว่ายน้ำมาสาม และนั่นคือจุดเริ่มต้นของสิบสองสัตว์ — กระต่าย มังกร งู ม้า แพะ ลิง ไก่ หมา และหมู — แต่ละตัวได้รับตำแหน่งในวัฏจักรนิรันดร์</p>
+<p>สัตว์ทั้งสิบสองเหล่านี้กลายเป็นกิ่งดินสิบสอง ครอบคลุมไม่เพียงปีแต่ยังรวมถึงเดือน ชั่วโมง และจังหวะน้ำขึ้นน้ำลงอันลึกซึ้งของชะตาชีวิต ใน BaZi แต่ละเสาคือการจับคู่ของก้านฟ้าหนึ่งกับกิ่งดินหนึ่ง — สองพลังจักรวาลในการเต้นรำนิรันดร์ แปดอักษร จักรวาลย่อส่วน</p>
+<p>จากนั้นมาซวี่ จื่อผิง ฤษีแห่งราชวงศ์ซ่ง ผู้เข้าใจวิธีอ่านจักรวาลนั้น เขาขึ้นภูเขาไม่ใช่เพื่อหนีชะตากรรม แต่เพื่อเข้าใจมันอย่างสมบูรณ์จนรูปแบบของชีวิตมนุษย์ใดๆ กลายเป็นสิ่งที่อ่านออกได้ชัดดั่งอักษรบนไหมขาว กล่าวกันว่าเขาใช้เวลาสามสิบปีในการไตร่ตรองก่อนลงมาพร้อมวิธีสมบูรณ์ — ของขวัญแก่ทุกคนที่จะมาหลังจากนั้น</p>
+<h2>หลักการและแก่นคิด</h2>
+<p>BaZi ทำงานผ่านการสัมพันธ์กันอย่างงดงามของพลังจักรวาล ปี เดือน วัน และชั่วโมงแห่งการเกิดแต่ละอย่างสร้างก้านฟ้าหนึ่งและกิ่งดินหนึ่ง — ทำให้ได้อักษรแปดตัวทั้งหมด เสาวันถูกถือเป็น &quot;ตัวตน&quot; — บุคคลที่กำลังอ่านดวงชะตาของเขา</p>
+<p>ตัวอักษรแปดตัวเหล่านี้บรรจุธาตุทั้งห้า (ไม้ ไฟ ดิน ทอง น้ำ) ในรูปแบบหยินและหยาง สร้างพิมพ์เขียวธาตุที่เป็นเอกลักษณ์ ไม่มีดวงใดเหมือนกัน เทพสิบองค์ — ต้นแบบเชิงสัมพันธ์ที่ได้จากปฏิสัมพันธ์ระหว่างธาตุตัวตนกับธาตุอื่นๆ ในดวง — บรรยายถึงวิธีที่บุคคลเกี่ยวข้องกับอำนาจ ความมั่งคั่ง ความคิดสร้างสรรค์ อำนาจการสั่งการ และการสนับสนุน</p>
+<p>นอกจากดวงกำเนิด ของขวัญที่ยิ่งใหญ่ที่สุดของ BaZi คือระบบเสาดวง (大運 ต้า ยวิ้น) — วัฏจักรสิบปีของสภาพอากาศธาตุที่เปลี่ยนไปตลอดชีวิต กำหนดว่าเมื่อใดธีมบางอย่างจะเริ่มทำงาน เมื่อใดโอกาสสุกงอม และเมื่อใดควรระมัดระวัง มันเป็นหนึ่งในระบบกำหนดเวลาที่ซับซ้อนที่สุดที่เคยถูกออกแบบมา ปฏิบัติต่อชีวิตมนุษย์ไม่ใช่เป็นชะตากรรมที่ตายตัว แต่เป็นเรื่องราวที่คลี่คลายผ่านกาลเวลา</p>
+<h2>ที่ Mythsensus</h2>
+<p>BaZi สี่เสา (八字) เป็นหนึ่งใน 26 ระบบภูมิปัญญาโบราณที่มีส่วนในรายงาน Mythsensus Full Report ของคุณ โดยใช้วันเกิดและเวลาเกิดที่แม่นยำของคุณ ระบบคำนวณสี่เสาของคุณและระบุพลังธาตุที่โดดเด่นซึ่งหล่อหลอมบุคลิกภาพ ความสัมพันธ์ และเส้นทางชีวิตของคุณ ร่วมกับ 25 ประเพณีอื่นๆ ที่ครอบคลุมวัฒนธรรมและทวีปต่างๆ BaZi เพิ่มเสียงของมันเข้าสู่ฉันทามติจักรวาล — บทสนทนาเกี่ยวกับตัวคุณที่เริ่มต้นมากกว่าหนึ่งพันปีแล้ว</p>
+
+  </div>
+  <div class="disclaimer"><p data-en="All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone." data-th="เนื้อหาทั้งหมดบน Mythsensus สร้างขึ้นโดยปัญญาประดิษฐ์ เพื่อความบันเทิง การสำรวจตนเอง และการใคร่ครวญส่วนบุคคล ไม่ใช่คำแนะนำทางวิชาชีพ ดวงดาวอาจส่องทาง แต่ก้าวเดินเป็นของคุณ">All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone.</p></div>
+  <div class="cta-block">
+    <div class="cta-title" data-en="Read your full 26-system report" data-th="อ่านรายงาน 26 ศาสตร์ของคุณ">Read your full 26-system report</div>
+    <div class="cta-sub" data-en="Free beta · No signup · Works offline" data-th="ฟรีช่วงทดสอบ · ไม่ต้องสมัคร · ออฟไลน์ได้">Free beta · No signup · Works offline</div>
+    <a href="/beta/" class="btn-gold" data-en="Open the App →" data-th="เปิดแอป →">Open the App →</a>
+  </div>
 </div>
 </article>
-<section class="related-section">
-  <div class="related-title">Continue Reading</div>
-  <div class="related-grid">
-    <a href="/blog/multi-system-astrology" class="related-card"><div class="related-tag">Multi-System</div><div class="related-name">Why One Astrology System Isn't Enough</div></a>
-    <a href="/blog/energy-type-system" class="related-card"><div class="related-tag">Energy System</div><div class="related-name">The Five Energy Types: Which One Are You?</div></a>
-  </div>
-</section><footer class="footer-blog"><p><a href="/privacy" style="color:var(--dim)">Privacy</a> · <a href="/support" style="color:var(--dim)">Support</a> · <a href="/" style="color:var(--dim)">mythsensus.com</a> · © 2026 MYTHSENSUS</p></footer><div class="lang-pill"><button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button><button class="lang-btn" id="btnTH" onclick="setLang('th')">TH</button></div><script>(function(){var L=localStorage.getItem('msLang')||'en';function setLang(lang){L=lang;localStorage.setItem('msLang',lang);document.querySelectorAll('[data-en][data-th]').forEach(function(el){el.innerHTML=lang==='th'?el.getAttribute('data-th'):el.getAttribute('data-en');});var be=document.getElementById('btnEN'),bt=document.getElementById('btnTH');if(be)be.classList.toggle('active',lang==='en');if(bt)bt.classList.toggle('active',lang==='th');document.documentElement.lang=lang==='th'?'th':'en';}window.setLang=setLang;if(L==='th'){document.addEventListener('DOMContentLoaded',function(){setLang('th');});}else{document.addEventListener('DOMContentLoaded',function(){var be=document.getElementById('btnEN'),bt=document.getElementById('btnTH');if(be)be.classList.add('active');if(bt)bt.classList.remove('active');});}})();</script></body></html>
+<div class="footer-blog"><p>© Mythsensus · <a href="/privacy" style="color:var(--dim)">Privacy</a></p></div>
+<div class="lang-pill">
+  <button id="lang-en" class="active" onclick="setLang('en')">EN</button>
+  <button id="lang-th" onclick="setLang('th')">TH</button>
+</div>
+<script>
+function setLang(l){
+  document.documentElement.lang=l;
+  document.getElementById('lang-en').classList.toggle('active',l==='en');
+  document.getElementById('lang-th').classList.toggle('active',l==='th');
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    const k=l==='th'?'data-th':'data-en';
+    el.textContent=el.getAttribute(k)||el.textContent;
+  });
+  try{localStorage.setItem('mth_lang',l);}catch(e){}
+}
+(function(){
+  const saved=localStorage.getItem('mth_lang');
+  if(saved==='th') setLang('th');
+})();
+</script>
+</body></html>

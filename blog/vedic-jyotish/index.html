@@ -1,0 +1,146 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;600&family=Prompt:wght@200;300;400&display=swap" rel="stylesheet">
+<style>:root{--bg:#040407;--gold:#c8a45a;--silver:#e6e2d8;--dim:#9a9088;--card:#0d0d14;--border:rgba(200,164,90,0.22)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.85}
+a{color:var(--gold);text-decoration:none}
+.nav{position:fixed;top:0;width:100%;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:1rem;cursor:pointer;letter-spacing:.06em}.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
+.nav-right{display:flex;gap:1.6rem;align-items:center}
+.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--silver);opacity:.7}
+.nav-link:hover{opacity:1;color:var(--gold)}
+.btn-gold{background:var(--gold);color:#040407;font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;padding:.55rem 1.4rem;border:none;border-radius:2px;cursor:pointer}
+.blog-hero{padding:110px 5% 60px;max-width:760px;margin:0 auto;border-bottom:1px solid var(--border)}
+.back-link{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);display:inline-flex;align-items:center;gap:.4rem;margin-bottom:1.6rem}
+.back-link:hover{color:var(--gold)}
+.article-tag{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.75;margin-bottom:.8rem;display:block}
+.article-title{font-family:'Cinzel Decorative',serif;font-size:clamp(1.4rem,3vw,2.4rem);color:var(--silver);line-height:1.25;margin-bottom:1rem}
+.article-meta{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;color:var(--dim);margin-bottom:1.8rem}
+.article-lede{font-size:1.12rem;color:var(--silver);line-height:1.9;font-style:italic;border-left:2px solid var(--gold);padding-left:1.2rem;margin-bottom:0}
+.article-body{max-width:760px;margin:0 auto;padding:3rem 5% 5rem}
+.article-body h2{font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);margin:2.8rem 0 1rem;letter-spacing:.04em}
+.article-body h3{font-family:'Josefin Sans',sans-serif;font-size:.75rem;letter-spacing:.22em;text-transform:uppercase;color:var(--silver);margin:2rem 0 .8rem;opacity:.85}
+.article-body p{margin-bottom:1.4rem;color:var(--silver);font-size:1rem;line-height:1.9}
+.article-body em{color:var(--gold);font-style:italic}
+.article-body strong{color:var(--silver);font-weight:600}
+.pull-quote{background:var(--card);border-left:3px solid var(--gold);padding:1.2rem 1.6rem;margin:2rem 0;border-radius:0 3px 3px 0}
+.pull-quote p{font-size:1.05rem;font-style:italic;color:var(--silver);margin:0}
+.disclaimer{background:rgba(200,164,90,.06);border:1px solid rgba(200,164,90,.2);border-radius:3px;padding:1rem 1.4rem;margin:2rem 0}
+.disclaimer p{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.07em;color:var(--dim);line-height:1.6;margin:0}
+.cta-block{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:2rem;text-align:center;margin:3rem 0}
+.cta-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--silver);margin-bottom:.5rem}
+.cta-sub{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.1em;color:var(--dim);margin-bottom:1.2rem}
+.footer-blog{border-top:1px solid var(--border);padding:2rem 5%;text-align:center}
+.footer-blog p{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.1em;color:var(--dim)}
+@media(max-width:640px){.nav-right .nav-link{display:none}}
+html[lang="th"] body,html[lang="th"] .article-body p{font-family:'Prompt',sans-serif;font-weight:300}
+html[lang="th"] .article-body em{font-style:normal;color:var(--gold)}
+.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
+.lang-pill button{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
+.lang-pill button.active{background:var(--gold);color:#040407}
+.lang-pill button:hover:not(.active){color:var(--gold)}
+.body-th{display:none}
+html[lang="th"] .body-en{display:none}
+html[lang="th"] .body-th{display:block}
+</style>
+<title>Vedic Astrology (Jyotish): The Eye of the Vedas — Mythsensus</title>
+<meta name="description" content="Three thousand years ago, on the banks of sacred rivers, sages who had memorized the cosmos watched the sky with a purpose that went far beyond agriculture">
+<link rel="canonical" href="https://mythsensus.com/blog/vedic-jyotish">
+</head><body>
+<nav class="nav">
+  <a href="/" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
+  <div class="nav-right">
+    <a href="/blog" class="nav-link" data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</a>
+    <a href="/#systems" class="nav-link" data-en="Systems" data-th="ระบบ">Systems</a>
+    <a href="/beta/" class="btn-gold" data-en="Open App →" data-th="เปิดแอป →">Open App →</a>
+  </div>
+</nav>
+<article>
+<div class="blog-hero">
+  <a href="/blog" class="back-link">← <span data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</span></a>
+  <span class="article-tag" data-en="VEDIC TRADITION · JYOTISH" data-th="โหราศาสตร์พระเวท · Jyotish">VEDIC TRADITION · JYOTISH</span>
+  <h1 class="article-title" data-en="Vedic Astrology (Jyotish): The Eye of the Vedas" data-th="โหราศาสตร์ภารตะ (Vedic Jyotish): ดวงตาแห่งพระเวท">Vedic Astrology (Jyotish): The Eye of the Vedas</h1>
+  <p class="article-meta">Cosmic Library · Mythsensus Editorial</p>
+  <p class="article-lede" data-en="Three thousand years ago, on the banks of sacred rivers, sages who had memorized the cosmos watched the sky with a purpose that went far beyond agriculture or navigation. They believed the stars were not merely lights — they were deities. Living forces. And those forces, they said, were written into the soul of every being born beneath them. This is Jyotish: the ancient Indian science of light, the oldest continuous astrological tradition on Earth." data-th="สามพันปีก่อน บนฝั่งแม่น้ำศักดิ์สิทธิ์ ฤๅษีผู้ท่องจำจักรวาลได้ขึ้นใจจ้องมองท้องฟ้าด้วยเจตนาที่ลึกกว่าการเกษตรหรือการเดินเรือ พวกเขาเชื่อว่าดวงดาวไม่ใช่เพียงแสงสว่าง — แต่เป็นเทพเจ้า พลังที่มีชีวิต และพลังเหล่านั้น พวกเขากล่าว ถูกจารึกลงในจิตวิญญาณของทุกสรรพสิ่งที่เกิดใต้ฟ้า นี่คือโชยติษ: วิทยาศาสตร์โบราณแห่งแสงของอินเดีย ประเพณีโหราศาสตร์ที่ต่อเนื่องยาวนานที่สุดในโลก">Three thousand years ago, on the banks of sacred rivers, sages who had memorized the cosmos watched the sky with a purpose that went far beyond agriculture or navigation. They believed the stars were not merely lights — they were deities. Living forces. And those forces, they said, were written into the soul of every being born beneath them. This is Jyotish: the ancient Indian science of light, the oldest continuous astrological tradition on Earth.</p>
+</div>
+<div class="article-body">
+  <div class="body-en">
+<p>Three thousand years ago, on the banks of sacred rivers, sages who had memorized the cosmos watched the sky with a purpose that went far beyond agriculture or navigation. They believed the stars were not merely lights — they were deities. Living forces. And those forces, they said, were written into the soul of every being born beneath them. This is Jyotish: the ancient Indian science of light, the oldest continuous astrological tradition on Earth.</p>
+<h2>Origins &amp; History</h2>
+<p>Jyotish (ज्योतिष, from <em>jyoti</em> meaning &quot;light&quot;) is one of the six Vedangas — the six limbs of the Vedas, the sacred scriptures of ancient India. The Vedas themselves are among the oldest religious texts in the world, composed in the second millennium BCE or earlier. Astronomical references appear throughout the Vedas, particularly in the Atharvaveda and the Rigveda, where the movements of stars and planets are observed with reverence and awe.</p>
+<p>As a formal system of chart-reading, Jyotish is believed to have been codified between 1000 and 600 BCE. The defining classical text is the <em>Brihat Parashara Hora Shastra</em> — a monumental work attributed to the legendary sage Parashara, who is considered the father of Jyotish. This text covers everything from the nature of the nine planetary deities to intricate timing systems, and remains the primary reference for classical Vedic astrology to this day.</p>
+<p>Over the following centuries, the tradition was enriched by additional classical works: the <em>Saravali</em> by Kalyanavarma, <em>Phala Deepika</em> by Mantresvara, and the <em>Jataka Parijata</em> among others. Scholars like Varahamihira in the 6th century CE synthesized Vedic and Hellenistic astronomical knowledge, producing the encyclopedic <em>Brihat Samhita</em>. Unlike Western astrology, which largely broke from mainstream intellectual life after the Scientific Revolution, Jyotish remained embedded in Indian culture as a living practice — consulted for births, marriages, business ventures, and spiritual guidance — and continues to be studied and practiced by millions today.</p>
+<h2>The Legend</h2>
+<p>Before the beginning, there was Brahma.</p>
+<p>The creator-god sat in eternal contemplation and held in his mind the blueprint of all things — every soul that would ever be born, every karma that would ever play out, every life that would unfold across the ages. But this knowledge was too vast, too complex, too sacred for ordinary minds. Who could carry it forward? Who could teach humanity to read the cosmic script?</p>
+<p>He chose the sage Parashara.</p>
+<p>Parashara was no ordinary seer. Born to the lineage of the great sage Vasishtha, he was a man whose inner eye could see what others could not — the connection between the movements of celestial bodies and the fate of souls below. Brahma appeared before him and transmitted the complete knowledge of Jyotish — the mathematics of karma written in planetary light. Parashara received this transmission in a state of profound samadhi, a meditative absorption so deep that the boundaries between the human and the divine dissolved. He then taught it to his disciples, including his own son Vyasa — the sage who would later compile the Mahabharata.</p>
+<p>But the legend of Jyotish does not end there. At its heart are the Navagrahas — the Nine Planets, each a deity with a distinct personality and domain.</p>
+<p>Surya, the Sun, drives his chariot across the sky each day, dispensing ego and vitality. Chandra, the Moon, presides over the mind and emotions, waxing and waning with the tides of feeling. Mangala, the red planet Mars, is the commander of the celestial army, ruler of courage and conflict. Budha, Mercury, is the trickster-messenger, governing speech and commerce. Guru, Jupiter — the teacher of the gods, dispenser of wisdom and grace. Shukra, Venus, the guru of the demons, bestower of beauty and earthly pleasure. Shani, Saturn, is the great karmic equalizer — slow, inevitable, feared, and deeply respected.</p>
+<p>Then come Rahu and Ketu — the shadow planets. Their origin is one of the darkest and most dramatic stories in all of Hindu mythology.</p>
+<p>During the churning of the cosmic ocean (the Samudra Manthan), the gods and demons together produced <em>amrita</em> — the nectar of immortality. The demon Svarbhanu disguised himself as a god and slipped into the divine assembly, taking a sip of the precious nectar. He was recognized by Surya (the Sun) and Chandra (the Moon), who alerted Vishnu. In an instant, Vishnu hurled his Sudarshana Chakra — the spinning disc weapon of divine justice — and severed the demon's head from his body. But Svarbhanu had already drunk. The amrita had reached his throat. He could not die.</p>
+<p>The severed head became Rahu — the North Node, ever hungry, forever seeking the light he was denied, swallowing the Sun and Moon during eclipses to take his revenge. The headless body became Ketu — the South Node — tail without mind, carrying the accumulated karma of all past lives. Together, they are the axis of fate: Rahu pulling toward the future, Ketu anchored in the past.</p>
+<h2>Core Philosophy</h2>
+<p>Vedic astrology uses the sidereal zodiac — tracking the actual positions of constellations as they appear in the sky — rather than the tropical zodiac used in Western astrology. This means Vedic placements are typically 23 degrees behind their Western equivalents, and the two systems will often place a person in different sun signs.</p>
+<p>At the heart of Jyotish is the <em>rashi</em> (sign) system of twelve divisions, the twenty-seven <em>nakshatras</em> (lunar mansions that divide the zodiac into smaller segments based on the Moon's monthly orbit), and the nine planetary deities whose placements and mutual relationships reveal the karma a soul carries into this lifetime.</p>
+<p>The most celebrated feature of Jyotish is the <em>Dasha</em> system — a sequential timeline of planetary periods that unfolds across a life. Each planet rules a period of specific duration (the Sun 6 years, the Moon 10, Mars 7, and so on, cycling through all nine over 120 years). The Dasha a person is born under, and the sequence that follows, creates a unique biographical timeline — a map of when specific life themes will ripen, when challenges will arrive, and when grace flows freely.</p>
+<h2>At Mythsensus</h2>
+<p>Vedic Astrology (Jyotish) is one of the 26 ancient wisdom systems woven into your Mythsensus Full Report. Drawing on your birth date, time, and location, the system calculates your Vedic chart — including your rising sign (Lagna), Moon sign, and planetary positions in the sidereal zodiac — and contributes its ancient perspective to the Cosmic Score alongside traditions from China, Japan, Greece, and beyond. Where myriad myths reach consensus, the picture becomes startlingly clear.</p>
+
+  </div>
+  <div class="body-th">
+<p><em>โดยทีม Mythsensus</em></p>
+<p>สามพันปีก่อน บนฝั่งแม่น้ำศักดิ์สิทธิ์ ฤๅษีผู้ท่องจำจักรวาลได้ขึ้นใจจ้องมองท้องฟ้าด้วยเจตนาที่ลึกกว่าการเกษตรหรือการเดินเรือ พวกเขาเชื่อว่าดวงดาวไม่ใช่เพียงแสงสว่าง — แต่เป็นเทพเจ้า พลังที่มีชีวิต และพลังเหล่านั้น พวกเขากล่าว ถูกจารึกลงในจิตวิญญาณของทุกสรรพสิ่งที่เกิดใต้ฟ้า นี่คือโชยติษ: วิทยาศาสตร์โบราณแห่งแสงของอินเดีย ประเพณีโหราศาสตร์ที่ต่อเนื่องยาวนานที่สุดในโลก</p>
+<h2>ที่มาและประวัติ</h2>
+<p>โชยติษ (ज्योतिष, จาก <em>โชยติ</em> ที่แปลว่า &quot;แสงสว่าง&quot;) เป็นหนึ่งในเวทางคะหกประการ — หกอวัยวะของพระเวท คัมภีร์ศักดิ์สิทธิ์ของอินเดียโบราณ พระเวทเองถือเป็นหนึ่งในตำราศาสนาที่เก่าแก่ที่สุดในโลก แต่งขึ้นในสหัสวรรษที่สองก่อนคริสตกาลหรือก่อนหน้านั้น การอ้างถึงดาราศาสตร์ปรากฏตลอดทั้งพระเวท โดยเฉพาะในอาถรรพเวทและฤคเวท</p>
+<p>ในฐานะระบบอ่านดวงชะตาเป็นทางการ โชยติษเชื่อกันว่าถูกรวบรวมให้เป็นระบบระหว่าง 1000–600 ปีก่อนคริสตกาล ตำราคลาสสิกที่สำคัญคือ <em>พฤหัตปราศรโหราศาสตร์</em> — ผลงานอันยิ่งใหญ่ที่เชื่อกันว่าเป็นของฤๅษีปราศรผู้เป็นตำนาน ซึ่งถือเป็นบิดาของโชยติษ งานชิ้นนี้ครอบคลุมตั้งแต่ธรรมชาติของเทพเจ้าดาวเคราะห์ทั้งเก้าไปจนถึงระบบกำหนดเวลาที่ซับซ้อน และยังคงเป็นข้อมูลอ้างอิงหลักของโหราศาสตร์พระเวทคลาสสิกจนถึงทุกวันนี้</p>
+<p>ในเวลาต่อมา ต้นตำรับถูกเพิ่มเติมด้วยผลงานคลาสสิกอื่นๆ โดยนักวิชาการอย่างวราหมิหิระในคริสตศตวรรษที่ 6 ได้สังเคราะห์ความรู้ทางดาราศาสตร์เวทิกและเฮลเลนิสติกเข้าด้วยกัน โชยติษไม่เหมือนโหราศาสตร์ตะวันตกที่ส่วนใหญ่แยกออกจากชีวิตทางปัญญาหลังการปฏิวัติวิทยาศาสตร์ — มันยังคงฝังอยู่ในวัฒนธรรมอินเดียในฐานะการปฏิบัติที่มีชีวิต ถูกนำมาปรึกษาเพื่อการเกิด การแต่งงาน การดำเนินธุรกิจ และคำแนะนำทางจิตวิญญาณ</p>
+<h2>ตำนาน</h2>
+<p>ก่อนเริ่มต้น มีพระพรหม</p>
+<p>เทพเจ้าผู้สร้างนั่งในการไตร่ตรองชั่วนิรันดร์และทรงมีในพระทัยแผนผังของทุกสิ่ง — ทุกจิตวิญญาณที่จะถือกำเนิด ทุกกรรมที่จะเล่นออก ทุกชีวิตที่จะคลี่คลายผ่านยุคต่างๆ แต่ความรู้นี้กว้างใหญ่เกินไป ซับซ้อนเกินไป ศักดิ์สิทธิ์เกินไปสำหรับจิตใจธรรมดา ใครจะสามารถถ่ายทอดมันต่อไปได้?</p>
+<p>พระองค์ทรงเลือกฤๅษีปราศร</p>
+<p>ปราศรไม่ใช่ผู้เห็นธรรมดา เกิดในสายของฤๅษีวสิษฐผู้ยิ่งใหญ่ เขาเป็นบุรุษที่ดวงตาภายในสามารถมองเห็นสิ่งที่คนอื่นไม่อาจมองเห็น — ความเชื่อมโยงระหว่างการเคลื่อนที่ของดวงดาวและชะตากรรมของจิตวิญญาณด้านล่าง พระพรหมปรากฏต่อหน้าเขาและถ่ายทอดความรู้สมบูรณ์ของโชยติษ — คณิตศาสตร์แห่งกรรมที่เขียนในแสงของดาวเคราะห์ ปราศรรับการถ่ายทอดนี้ในสภาวะสมาธิอันลึกซึ้ง หลังจากนั้นเขาได้สอนมันให้แก่ลูกศิษย์ รวมถึงลูกชายของเขาเองคือพยาส — ฤๅษีผู้จะรวบรวมมหาภารตะในภายหลัง</p>
+<p>แต่ตำนานของโชยติษไม่ได้จบเพียงแค่นั้น ที่หัวใจของมันคือนวคราห์ — ดาวเคราะห์ทั้งเก้า แต่ละองค์เป็นเทพเจ้าที่มีบุคลิกและอาณาเขตเฉพาะตัว</p>
+<p>สุริยะ ดวงอาทิตย์ ขับรถม้าข้ามท้องฟ้าทุกวัน แจกจ่ายอัตตาและพลังชีวิต จันทรา ดวงจันทร์ ดูแลจิตใจและอารมณ์ ขึ้นและลงตามกระแสความรู้สึก มังคลา ดาวอังคาร คือผู้บัญชาการของกองทัพสวรรค์ ผู้ปกครองความกล้าและความขัดแย้ง พุธ ดาวพุธ คือทูตนักเล่นกล ปกครองคำพูดและการค้า คุรุ ดาวพฤหัสบดี — ครูของเหล่าเทพเจ้า แจกจ่ายปัญญาและพระคุณ ศุกระ ดาวศุกร์ ครูของเหล่าอสูร ผู้มอบความงามและความสุขทางโลก สนิ ดาวเสาร์ คือผู้สร้างสมดุลกรรมที่ยิ่งใหญ่ — ช้า หลีกเลี่ยงไม่ได้ น่ากลัว และได้รับความเคารพอย่างลึกซึ้ง</p>
+<p>จากนั้นมาราหูและเกตุ — ดาวเงา ต้นกำเนิดของพวกเขาเป็นหนึ่งในเรื่องราวที่มืดดำและน่าตื่นตาที่สุดในตำนานฮินดูทั้งหมด</p>
+<p>ระหว่างการปั่นทะเลจักรวาล (สมุทรมันถาน) เทพเจ้าและอสูรร่วมกันผลิต <em>อมฤต</em> — น้ำอมฤตแห่งความเป็นอมตะ อสูรสวรรภนุปลอมตัวเป็นเทพเจ้าและแอบเข้าไปในสภาเทพ ดื่มน้ำอมฤตอันล้ำค่า เขาถูกจดจำโดยสุริยะ (ดวงอาทิตย์) และจันทรา (ดวงจันทร์) ที่แจ้งเตือนพระวิษณุ ในพริบตา พระวิษณุขว้างจักรสุทรรศน์ — อาวุธจักรหมุนแห่งความยุติธรรมอันศักดิ์สิทธิ์ — และตัดหัวอสูรออกจากร่างกาย แต่สวรรภนุดื่มไปแล้ว น้ำอมฤตถึงลำคอของเขาแล้ว เขาไม่อาจตาย</p>
+<p>หัวที่ถูกตัดขาดกลายเป็นราหู — ดาวโหนดเหนือ หิวโหยตลอดกาล ไล่ตามแสงสว่างที่ถูกปฏิเสธ กลืนดวงอาทิตย์และดวงจันทร์ในระหว่างสุริยุปราคาเพื่อแก้แค้น ร่างไร้หัวกลายเป็นเกตุ — ดาวโหนดใต้ — หางที่ปราศจากจิตใจ แบกกรรมสะสมของชาติที่ผ่านมา ด้วยกัน พวกเขาคือแกนของชะตากรรม: ราหูดึงไปสู่อนาคต เกตุผูกติดอยู่กับอดีต</p>
+<h2>หลักการและแก่นคิด</h2>
+<p>โหราศาสตร์พระเวทใช้จักรราศีไซเดอเรียล — ติดตามตำแหน่งจริงของกลุ่มดาวตามที่ปรากฏบนท้องฟ้า — แทนที่จะใช้จักรราศีทรอปิคอลที่ใช้ในโหราศาสตร์ตะวันตก ซึ่งหมายความว่าตำแหน่งพระเวทมักจะอยู่ห่างจากตำแหน่งตะวันตกไปประมาณ 23 องศา</p>
+<p>ใจกลางของโชยติษคือระบบ <em>ราศี</em> (สัญลักษณ์) ของสิบสองส่วน นักษัตร 27 ตัว (บ้านจันทรคติที่แบ่งจักรราศีออกเป็นส่วนเล็กๆ ตามวงโคจรรายเดือนของดวงจันทร์) และเทพเจ้าดาวเคราะห์ทั้งเก้าที่ตำแหน่งและความสัมพันธ์ซึ่งกันและกันเผยให้เห็นกรรมที่จิตวิญญาณนำมาสู่ชาตินี้</p>
+<p>ลักษณะที่มีชื่อเสียงที่สุดของโชยติษคือระบบ <em>ดาศา</em> — ลำดับเวลาของดาวเคราะห์ที่คลี่คลายตลอดชีวิต แต่ละดาวเคราะห์ปกครองช่วงเวลาที่มีระยะเวลาเฉพาะ (ดวงอาทิตย์ 6 ปี ดวงจันทร์ 10 ปี ดาวอังคาร 7 ปี เป็นต้น วัฏจักรผ่านทั้งเก้าดวงตลอด 120 ปี) ดาศาที่บุคคลเกิดภายใต้ และลำดับที่ตามมา สร้างเส้นเวลาชีวประวัติที่เป็นเอกลักษณ์ — แผนที่ว่าเมื่อใดธีมชีวิตบางอย่างจะสุกงอม เมื่อใดความท้าทายจะมาถึง และเมื่อใดพระคุณไหลอย่างอิสระ</p>
+<h2>ที่ Mythsensus</h2>
+<p>โหราศาสตร์ภารตะ (Vedic Jyotish) เป็นหนึ่งใน 26 ระบบภูมิปัญญาโบราณที่ถักทอเข้าไว้ในรายงาน Mythsensus Full Report ของคุณ โดยอาศัยวันเกิด เวลา และสถานที่ของคุณ ระบบคำนวณดวงชะตาพระเวทของคุณ — รวมถึงลัคนา ราศีดวงจันทร์ และตำแหน่งดาวเคราะห์ในจักรราศีไซเดอเรียล — และนำมุมมองโบราณของมันมาสู่ Cosmic Score ร่วมกับประเพณีจากจีน ญี่ปุ่น กรีก และที่อื่นๆ ที่ตำนานมากมายมาถึงฉันทามติ ภาพจะชัดเจนอย่างน่าตกตะลึง</p>
+
+  </div>
+  <div class="disclaimer"><p data-en="All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone." data-th="เนื้อหาทั้งหมดบน Mythsensus สร้างขึ้นโดยปัญญาประดิษฐ์ เพื่อความบันเทิง การสำรวจตนเอง และการใคร่ครวญส่วนบุคคล ไม่ใช่คำแนะนำทางวิชาชีพ ดวงดาวอาจส่องทาง แต่ก้าวเดินเป็นของคุณ">All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone.</p></div>
+  <div class="cta-block">
+    <div class="cta-title" data-en="Read your full 26-system report" data-th="อ่านรายงาน 26 ศาสตร์ของคุณ">Read your full 26-system report</div>
+    <div class="cta-sub" data-en="Free beta · No signup · Works offline" data-th="ฟรีช่วงทดสอบ · ไม่ต้องสมัคร · ออฟไลน์ได้">Free beta · No signup · Works offline</div>
+    <a href="/beta/" class="btn-gold" data-en="Open the App →" data-th="เปิดแอป →">Open the App →</a>
+  </div>
+</div>
+</article>
+<div class="footer-blog"><p>© Mythsensus · <a href="/privacy" style="color:var(--dim)">Privacy</a></p></div>
+<div class="lang-pill">
+  <button id="lang-en" class="active" onclick="setLang('en')">EN</button>
+  <button id="lang-th" onclick="setLang('th')">TH</button>
+</div>
+<script>
+function setLang(l){
+  document.documentElement.lang=l;
+  document.getElementById('lang-en').classList.toggle('active',l==='en');
+  document.getElementById('lang-th').classList.toggle('active',l==='th');
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    const k=l==='th'?'data-th':'data-en';
+    el.textContent=el.getAttribute(k)||el.textContent;
+  });
+  try{localStorage.setItem('mth_lang',l);}catch(e){}
+}
+(function(){
+  const saved=localStorage.getItem('mth_lang');
+  if(saved==='th') setLang('th');
+})();
+</script>
+</body></html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;600&family=Prompt:wght@200;300;400&display=swap" rel="stylesheet">
+<style>:root{--bg:#040407;--gold:#c8a45a;--silver:#e6e2d8;--dim:#9a9088;--card:#0d0d14;--border:rgba(200,164,90,0.22)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.85}
+a{color:var(--gold);text-decoration:none}
+.nav{position:fixed;top:0;width:100%;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:1rem;cursor:pointer;letter-spacing:.06em}.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
+.nav-right{display:flex;gap:1.6rem;align-items:center}
+.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--silver);opacity:.7}
+.nav-link:hover{opacity:1;color:var(--gold)}
+.btn-gold{background:var(--gold);color:#040407;font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;padding:.55rem 1.4rem;border:none;border-radius:2px;cursor:pointer}
+.blog-hero{padding:110px 5% 60px;max-width:760px;margin:0 auto;border-bottom:1px solid var(--border)}
+.back-link{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);display:inline-flex;align-items:center;gap:.4rem;margin-bottom:1.6rem}
+.back-link:hover{color:var(--gold)}
+.article-tag{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.75;margin-bottom:.8rem;display:block}
+.article-title{font-family:'Cinzel Decorative',serif;font-size:clamp(1.4rem,3vw,2.4rem);color:var(--silver);line-height:1.25;margin-bottom:1rem}
+.article-meta{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;color:var(--dim);margin-bottom:1.8rem}
+.article-lede{font-size:1.12rem;color:var(--silver);line-height:1.9;font-style:italic;border-left:2px solid var(--gold);padding-left:1.2rem;margin-bottom:0}
+.article-body{max-width:760px;margin:0 auto;padding:3rem 5% 5rem}
+.article-body h2{font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);margin:2.8rem 0 1rem;letter-spacing:.04em}
+.article-body h3{font-family:'Josefin Sans',sans-serif;font-size:.75rem;letter-spacing:.22em;text-transform:uppercase;color:var(--silver);margin:2rem 0 .8rem;opacity:.85}
+.article-body p{margin-bottom:1.4rem;color:var(--silver);font-size:1rem;line-height:1.9}
+.article-body em{color:var(--gold);font-style:italic}
+.article-body strong{color:var(--silver);font-weight:600}
+.pull-quote{background:var(--card);border-left:3px solid var(--gold);padding:1.2rem 1.6rem;margin:2rem 0;border-radius:0 3px 3px 0}
+.pull-quote p{font-size:1.05rem;font-style:italic;color:var(--silver);margin:0}
+.disclaimer{background:rgba(200,164,90,.06);border:1px solid rgba(200,164,90,.2);border-radius:3px;padding:1rem 1.4rem;margin:2rem 0}
+.disclaimer p{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.07em;color:var(--dim);line-height:1.6;margin:0}
+.cta-block{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:2rem;text-align:center;margin:3rem 0}
+.cta-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--silver);margin-bottom:.5rem}
+.cta-sub{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.1em;color:var(--dim);margin-bottom:1.2rem}
+.footer-blog{border-top:1px solid var(--border);padding:2rem 5%;text-align:center}
+.footer-blog p{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.1em;color:var(--dim)}
+@media(max-width:640px){.nav-right .nav-link{display:none}}
+html[lang="th"] body,html[lang="th"] .article-body p{font-family:'Prompt',sans-serif;font-weight:300}
+html[lang="th"] .article-body em{font-style:normal;color:var(--gold)}
+.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
+.lang-pill button{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
+.lang-pill button.active{background:var(--gold);color:#040407}
+.lang-pill button:hover:not(.active){color:var(--gold)}
+.body-th{display:none}
+html[lang="th"] .body-en{display:none}
+html[lang="th"] .body-th{display:block}
+</style>
+<title>Western Astrology: The Art of Reading Heaven's Mirror — Mythsensus</title>
+<meta name="description" content="Before cities had names, human beings tilted their faces toward the night sky and felt, with absolute certainty, that something up there was watching back.">
+<link rel="canonical" href="https://mythsensus.com/blog/western-astrology">
+</head><body>
+<nav class="nav">
+  <a href="/" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
+  <div class="nav-right">
+    <a href="/blog" class="nav-link" data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</a>
+    <a href="/#systems" class="nav-link" data-en="Systems" data-th="ระบบ">Systems</a>
+    <a href="/beta/" class="btn-gold" data-en="Open App →" data-th="เปิดแอป →">Open App →</a>
+  </div>
+</nav>
+<article>
+<div class="blog-hero">
+  <a href="/blog" class="back-link">← <span data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</span></a>
+  <span class="article-tag" data-en="GREEK TRADITION · WESTERN" data-th="ประเพณีกรีก · ตะวันตก">GREEK TRADITION · WESTERN</span>
+  <h1 class="article-title" data-en="Western Astrology: The Art of Reading Heaven's Mirror" data-th="โหราศาสตร์ตะวันตก: ศิลปะแห่งการอ่านกระจกแห่งสวรรค์">Western Astrology: The Art of Reading Heaven's Mirror</h1>
+  <p class="article-meta">Cosmic Library · Mythsensus Editorial</p>
+  <p class="article-lede" data-en="Before cities had names, human beings tilted their faces toward the night sky and felt, with absolute certainty, that something up there was watching back. Western astrology — the oldest continuous intellectual tradition in the Western world — was born from that primal exchange. It is the story of how ancient stargazers came to believe that the heavens and the human soul are cast from the same cosmic cloth." data-th="ก่อนที่เมืองใดจะมีชื่อ มนุษย์เงยหน้ามองท้องฟ้ายามค่ำคืนและรู้สึกอย่างแน่วแน่ว่ามีบางสิ่งกำลังมองกลับมา โหราศาสตร์ตะวันตก — ประเพณีทางปัญญาที่เก่าแก่และสืบเนื่องยาวนานที่สุดในโลกตะวันตก — ถือกำเนิดจากการสื่อสารอันเป็นดึกดำบรรพ์นั้น มันคือเรื่องราวของนักดูดาวในยุคโบราณที่เชื่อมั่นว่าสรวงสวรรค์และจิตวิญญาณมนุษย์ถูกหล่อหลอมมาจากผ้าผืนเดียวกัน">Before cities had names, human beings tilted their faces toward the night sky and felt, with absolute certainty, that something up there was watching back. Western astrology — the oldest continuous intellectual tradition in the Western world — was born from that primal exchange. It is the story of how ancient stargazers came to believe that the heavens and the human soul are cast from the same cosmic cloth.</p>
+</div>
+<div class="article-body">
+  <div class="body-en">
+<p>Before cities had names, human beings tilted their faces toward the night sky and felt, with absolute certainty, that something up there was watching back. Western astrology — the oldest continuous intellectual tradition in the Western world — was born from that primal exchange. It is the story of how ancient stargazers came to believe that the heavens and the human soul are cast from the same cosmic cloth.</p>
+<h2>Origins &amp; History</h2>
+<p>The roots of Western astrology reach back nearly four millennia to ancient Babylon — the civilization that occupied what is now Iraq, between the Tigris and Euphrates rivers. As early as 2000 BCE, the Babylonian priest-astronomers known as the Chaldeans were systematically recording celestial events on clay tablets, correlating the movements of planets with events on Earth: floods, famines, the rise and fall of kings.</p>
+<p>These were not primitive superstitions. The Chaldeans were rigorous observers who understood lunar cycles, could predict eclipses, and had identified the five visible planets. They believed the heavens constituted a divine script — that Marduk, Ishtar, Nergal, and the other planetary deities communicated their will through the movements of the stars. To read the sky was to read the mind of the gods.</p>
+<p>By the 5th century BCE, Babylonian astronomical knowledge had migrated to Greece, where it was transformed by Greek philosophical thought. The Greeks were less interested in royal omens and more intrigued by the individual human soul. Plato argued that the cosmos was a living creature, ordered by divine reason. Aristotle linked celestial spheres to earthly causation. But it was the astronomer and geographer Claudius Ptolemy of Alexandria who, in the 2nd century CE, synthesized centuries of Babylonian and Greek thought into a single coherent system in his <em>Tetrabiblos</em> — a work that would define Western astrology for the next 1,500 years.</p>
+<p>From Alexandria, astrology traveled with the Roman Empire, was preserved in the Islamic Golden Age by scholars like Al-Kindi and Abu Mashar, and re-entered Europe during the Renaissance. By the 17th century, astrology and astronomy were still practiced by the same minds — Kepler, the discoverer of planetary motion, cast horoscopes for a living. The two disciplines diverged only as the Scientific Revolution took hold, leaving astrology to evolve along a more psychological and symbolic path.</p>
+<h2>The Legend</h2>
+<p>The sky above Babylon was a story told in light.</p>
+<p>Look toward the spring equinox, and you would find Aries — the Golden Ram. The Babylonians knew him first, but it was the Greeks who gave him his immortal narrative. He was the ram sent by Hermes to rescue two royal children, Phrixus and Helle, from a murderous stepmother. He carried them on his back across the sea. Helle fell into the water — the strait that Greeks would call the Hellespont in her memory — but Phrixus arrived safely in Colchis, where the ram was sacrificed and its fleece turned to gold. That golden fleece, hung in a sacred grove, became the object of Jason's famous quest. The ram himself was placed among the stars as eternal thanks.</p>
+<p>Follow the ecliptic further and find Scorpius — the great scorpion sent by the goddess Artemis to slay the hunter Orion, who had boasted he would kill every beast on Earth. Orion and Scorpius were placed on opposite sides of the sky so they would never meet again. Even now, Scorpius rises as Orion sets, and Orion rises as Scorpius disappears below the horizon — an eternal chase frozen in stars.</p>
+<p>The Chaldean astronomers who mapped these stories believed something profound: that these divine dramas, playing out in the heavens, were not merely myth. They were the mechanism of fate itself. Every soul descending to Earth passed through the spheres of the planets, acquiring qualities and challenges from each — courage from Mars, beauty from Venus, wisdom from Saturn — before arriving in a human body at the precise moment its natal chart was cast.</p>
+<p>Ptolemy rationalized this belief in the <em>Tetrabiblos</em> without abandoning its poetry. The planets, he argued, exerted genuine physical influence on earthly matter — just as the Moon moves the tides, so too might Mars inflame the blood or Saturn cool the passions. The cosmos was not a stage set. It was alive.</p>
+<h2>Core Philosophy</h2>
+<p>Western astrology is built on the premise that the moment of birth is cosmically meaningful — that the arrangement of planets at that instant creates a unique symbolic fingerprint, a map of the soul's tendencies, gifts, and unresolved questions.</p>
+<p>The system operates through three interlocking layers. The twelve zodiac signs (Aries through Pisces) describe basic archetypal qualities — Scorpio's intensity, Gemini's versatility, Capricorn's discipline. The ten planetary bodies (including the Sun and Moon) represent different facets of the psyche — the Sun as identity, the Moon as emotional instinct, Mercury as communication, Venus as love and values, Saturn as discipline and limitation. The twelve houses divide the birth chart into areas of life — career, relationships, home, legacy. Where a planet sits, in which sign and house, and how it angles toward other planets: this web of relationships is what the astrologer reads.</p>
+<p>Modern Western astrology, shaped by the 20th-century psychological tradition — particularly the work of Carl Jung and astrologers like Dane Rudhyar — is less a tool for prediction and more a language for self-understanding. The birth chart is not a verdict. It is a map of potential, a portrait of the soul before it has lived its story.</p>
+<h2>At Mythsensus</h2>
+<p>Western Astrology is one of the 26 ancient wisdom systems woven into your Mythsensus Full Report. Its contribution to your Cosmic Score draws on your Sun sign, Moon sign, rising sign, and key planetary positions — synthesized alongside systems from China, India, Japan, and beyond into a single composite portrait of who you are. No single tradition tells the whole story. But together, they reach a remarkable consensus.</p>
+
+  </div>
+  <div class="body-th">
+<p><em>โดยทีม Mythsensus</em></p>
+<p>ก่อนที่เมืองใดจะมีชื่อ มนุษย์เงยหน้ามองท้องฟ้ายามค่ำคืนและรู้สึกอย่างแน่วแน่ว่ามีบางสิ่งกำลังมองกลับมา โหราศาสตร์ตะวันตก — ประเพณีทางปัญญาที่เก่าแก่และสืบเนื่องยาวนานที่สุดในโลกตะวันตก — ถือกำเนิดจากการสื่อสารอันเป็นดึกดำบรรพ์นั้น มันคือเรื่องราวของนักดูดาวในยุคโบราณที่เชื่อมั่นว่าสรวงสวรรค์และจิตวิญญาณมนุษย์ถูกหล่อหลอมมาจากผ้าผืนเดียวกัน</p>
+<h2>ที่มาและประวัติ</h2>
+<p>รากเหง้าของโหราศาสตร์ตะวันตกย้อนไปเกือบสี่พันปีสู่บาบิโลนโบราณ — อารยธรรมที่ตั้งอยู่ในดินแดนที่ปัจจุบันคืออิรัก ระหว่างแม่น้ำไทกริสและยูเฟรติส ตั้งแต่ราว 2000 ปีก่อนคริสตกาล นักบวช-นักดาราศาสตร์ชาวบาบิโลนที่รู้จักกันในนามชาวชัลเดียได้บันทึกปรากฏการณ์บนท้องฟ้าอย่างเป็นระบบลงบนแผ่นดินเหนียว โดยนำการเคลื่อนที่ของดาวเคราะห์มาสัมพันธ์กับเหตุการณ์บนโลก — น้ำท่วม ความอดอยาก การขึ้นและล่มสลายของกษัตริย์</p>
+<p>นี่ไม่ใช่ความเชื่องมงายของคนดั้งเดิม ชาวชัลเดียเป็นผู้สังเกตการณ์ที่เข้มงวดรอบคอบ พวกเขาเข้าใจวัฏจักรของดวงจันทร์ สามารถทำนายสุริยุปราคาได้ และระบุดาวเคราะห์ที่มองเห็นด้วยตาเปล่าทั้งห้าดวง พวกเขาเชื่อว่าท้องฟ้าคือลายลักษณ์อักษรของเทพเจ้า — ว่ามาร์ดุก อิชทาร์ เนอร์กาล และเทพเจ้าแห่งดาวเคราะห์องค์อื่นๆ สื่อสารเจตนารมณ์ผ่านการเคลื่อนที่ของดาว การอ่านท้องฟ้าคือการอ่านจิตใจของเทพเจ้า</p>
+<p>ในศตวรรษที่ 5 ก่อนคริสตกาล ความรู้ทางดาราศาสตร์ของชาวบาบิโลนได้เดินทางสู่กรีก ซึ่งถูกหล่อหลอมใหม่ด้วยความคิดเชิงปรัชญากรีก คลอดิอัส ปโตเลมีแห่งอเล็กซานเดรียนักดาราศาสตร์ผู้ยิ่งใหญ่ในคริสตศตวรรษที่ 2 ได้สังเคราะห์ความรู้หลายศตวรรษเข้าไว้ใน <em>Tetrabiblos</em> — งานชิ้นเอกที่จะกำหนดรูปแบบโหราศาสตร์ตะวันตกนานถึง 1,500 ปี จากนั้นโหราศาสตร์เดินทางผ่านจักรวรรดิโรมัน ได้รับการอนุรักษ์ในยุคทองอิสลาม ก่อนจะกลับสู่ยุโรปในสมัยฟื้นฟูศิลปวิทยา</p>
+<h2>ตำนาน</h2>
+<p>ท้องฟ้าเหนือบาบิโลนคือเรื่องเล่าที่แต่งขึ้นด้วยแสง</p>
+<p>มองไปทางจุดวิษุวัตฤดูใบไม้ผลิ และคุณจะพบราศีเมษ — แกะทองคำ ชาวบาบิโลนรู้จักเขาก่อน แต่ชาวกรีกต่างหากที่มอบเรื่องเล่าอมตะให้แก่เขา เขาคือแกะที่เฮอร์มีสส่งมาช่วยเหลือเจ้าชายและเจ้าหญิงสองพระองค์ที่ต้องหลบหนีจากแม่เลี้ยงใจร้าย เขาพาพวกเขาบินข้ามทะเล เฮลเลตกลงไปในน้ำ — ช่องแคบที่ชาวกรีกตั้งชื่อว่า เฮลเลสพอนต์ เพื่อเป็นอนุสรณ์ — แต่พริกซัสมาถึงโคลคิสอย่างปลอดภัย ที่นั่นแกะถูกบูชายัญ และขนของมันกลายเป็นทองคำ ขนแกะทองคำนั้นถูกแขวนไว้ในป่าศักดิ์สิทธิ์ และกลายเป็นเป้าหมายการเดินทางอันลือชื่อของเจสัน ส่วนตัวแกะเองได้รับการยกขึ้นสู่ดวงดาวเป็นการแสดงความกตัญญู</p>
+<p>ตามไปตามสุริยวิถีและพบราศีพิจิก — แมงป่องยักษ์ที่เทพีอาร์เทมิสส่งมาสังหารนายพรานโอไรออน ผู้อวดอ้างว่าจะล่าสัตว์ทุกชนิดบนโลก โอไรออนและราศีพิจิกถูกวางไว้คนละฟากของท้องฟ้าเพื่อไม่ให้พบกันอีก แม้บัดนี้ ราศีพิจิกยังคงขึ้นเมื่อโอไรออนตก และโอไรออนขึ้นเมื่อราศีพิจิกหายลับขอบฟ้า — การไล่ล่าชั่วนิรันดร์ที่หยุดนิ่งอยู่ในดวงดาว</p>
+<p>นักดาราศาสตร์ชาวชัลเดียที่สร้างแผนที่เรื่องราวเหล่านี้เชื่อในสิ่งที่ลึกซึ้งยิ่ง — ว่าดราม่าอันศักดิ์สิทธิ์ที่เล่นออกบนท้องฟ้าไม่ใช่เพียงตำนาน หากแต่เป็นกลไกแห่งชะตากรรมเอง จิตวิญญาณทุกดวงที่หยั่งลงสู่โลกต้องผ่านทรงกลมของดาวเคราะห์ รับคุณสมบัติและความท้าทายจากแต่ละดวง — ความกล้าจากอังคาร ความงามจากศุกร์ ปัญญาจากเสาร์ — ก่อนจะมาประสูติในร่างมนุษย์ ณ ขณะที่ดวงชะตาถูกร่างขึ้น</p>
+<h2>หลักการและแก่นคิด</h2>
+<p>โหราศาสตร์ตะวันตกสร้างขึ้นบนหลักการที่ว่าช่วงเวลาแห่งการเกิดมีความหมายทางจักรวาล — ว่าการจัดเรียงตัวของดาวเคราะห์ในขณะนั้นสร้างลายนิ้วมือเชิงสัญลักษณ์อันเป็นเอกลักษณ์ แผนที่แห่งแนวโน้ม ของขวัญ และคำถามที่ยังค้างคาของจิตวิญญาณ</p>
+<p>ระบบทำงานผ่านสามชั้นที่สัมพันธ์กัน ราศีทั้งสิบสอง (เมษถึงมีน) บรรยายคุณสมบัติต้นแบบพื้นฐาน ดาวเคราะห์สิบดวง (รวมดวงอาทิตย์และดวงจันทร์) แทนแง่มุมต่างๆ ของจิตใจ และบ้านสิบสองหลังแบ่งดวงชะตาออกเป็นพื้นที่ต่างๆ ของชีวิต ตำแหน่งของดาวเคราะห์ในราศีและบ้านใด รวมถึงมุมที่มันสร้างกับดาวดวงอื่น — เครือข่ายความสัมพันธ์นี้คือสิ่งที่นักโหราศาสตร์อ่าน</p>
+<p>โหราศาสตร์ตะวันตกสมัยใหม่ ซึ่งถูกหล่อหลอมโดยประเพณีทางจิตวิทยาในศตวรรษที่ 20 เป็นภาษาสำหรับการทำความเข้าใจตนเองมากกว่าเครื่องมือทำนาย ดวงชะตาไม่ใช่คำตัดสิน แต่เป็นแผนที่แห่งศักยภาพ ภาพเหมือนของจิตวิญญาณก่อนที่มันจะใช้ชีวิตตามเรื่องราวของตน</p>
+<h2>ที่ Mythsensus</h2>
+<p>โหราศาสตร์ตะวันตกเป็นหนึ่งใน 26 ระบบภูมิปัญญาโบราณที่ถูกถักทอเข้าไว้ในรายงาน Mythsensus Full Report ของคุณ การมีส่วนร่วมต่อ Cosmic Score ของคุณดึงมาจากราศีดวงอาทิตย์ ราศีดวงจันทร์ ราศีลัคนา และตำแหน่งดาวเคราะห์สำคัญ — สังเคราะห์ร่วมกับระบบจากจีน อินเดีย ญี่ปุ่น และอื่นๆ เป็นภาพรวมองค์รวมของตัวตนที่คุณเป็น ไม่มีประเพณีเดียวที่บอกเล่าเรื่องราวได้ครบถ้วน แต่เมื่อรวมกัน พวกมันบรรลุฉันทามติที่น่าทึ่ง</p>
+
+  </div>
+  <div class="disclaimer"><p data-en="All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone." data-th="เนื้อหาทั้งหมดบน Mythsensus สร้างขึ้นโดยปัญญาประดิษฐ์ เพื่อความบันเทิง การสำรวจตนเอง และการใคร่ครวญส่วนบุคคล ไม่ใช่คำแนะนำทางวิชาชีพ ดวงดาวอาจส่องทาง แต่ก้าวเดินเป็นของคุณ">All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone.</p></div>
+  <div class="cta-block">
+    <div class="cta-title" data-en="Read your full 26-system report" data-th="อ่านรายงาน 26 ศาสตร์ของคุณ">Read your full 26-system report</div>
+    <div class="cta-sub" data-en="Free beta · No signup · Works offline" data-th="ฟรีช่วงทดสอบ · ไม่ต้องสมัคร · ออฟไลน์ได้">Free beta · No signup · Works offline</div>
+    <a href="/beta/" class="btn-gold" data-en="Open the App →" data-th="เปิดแอป →">Open the App →</a>
+  </div>
+</div>
+</article>
+<div class="footer-blog"><p>© Mythsensus · <a href="/privacy" style="color:var(--dim)">Privacy</a></p></div>
+<div class="lang-pill">
+  <button id="lang-en" class="active" onclick="setLang('en')">EN</button>
+  <button id="lang-th" onclick="setLang('th')">TH</button>
+</div>
+<script>
+function setLang(l){
+  document.documentElement.lang=l;
+  document.getElementById('lang-en').classList.toggle('active',l==='en');
+  document.getElementById('lang-th').classList.toggle('active',l==='th');
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    const k=l==='th'?'data-th':'data-en';
+    el.textContent=el.getAttribute(k)||el.textContent;
+  });
+  try{localStorage.setItem('mth_lang',l);}catch(e){}
+}
+(function(){
+  const saved=localStorage.getItem('mth_lang');
+  if(saved==='th') setLang('th');
+})();
+</script>
+</body></html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;600&family=Prompt:wght@200;300;400&display=swap" rel="stylesheet">
+<style>:root{--bg:#040407;--gold:#c8a45a;--silver:#e6e2d8;--dim:#9a9088;--card:#0d0d14;--border:rgba(200,164,90,0.22)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.85}
+a{color:var(--gold);text-decoration:none}
+.nav{position:fixed;top:0;width:100%;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:1rem;cursor:pointer;letter-spacing:.06em}.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
+.nav-right{display:flex;gap:1.6rem;align-items:center}
+.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--silver);opacity:.7}
+.nav-link:hover{opacity:1;color:var(--gold)}
+.btn-gold{background:var(--gold);color:#040407;font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;padding:.55rem 1.4rem;border:none;border-radius:2px;cursor:pointer}
+.blog-hero{padding:110px 5% 60px;max-width:760px;margin:0 auto;border-bottom:1px solid var(--border)}
+.back-link{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);display:inline-flex;align-items:center;gap:.4rem;margin-bottom:1.6rem}
+.back-link:hover{color:var(--gold)}
+.article-tag{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.75;margin-bottom:.8rem;display:block}
+.article-title{font-family:'Cinzel Decorative',serif;font-size:clamp(1.4rem,3vw,2.4rem);color:var(--silver);line-height:1.25;margin-bottom:1rem}
+.article-meta{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;color:var(--dim);margin-bottom:1.8rem}
+.article-lede{font-size:1.12rem;color:var(--silver);line-height:1.9;font-style:italic;border-left:2px solid var(--gold);padding-left:1.2rem;margin-bottom:0}
+.article-body{max-width:760px;margin:0 auto;padding:3rem 5% 5rem}
+.article-body h2{font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);margin:2.8rem 0 1rem;letter-spacing:.04em}
+.article-body h3{font-family:'Josefin Sans',sans-serif;font-size:.75rem;letter-spacing:.22em;text-transform:uppercase;color:var(--silver);margin:2rem 0 .8rem;opacity:.85}
+.article-body p{margin-bottom:1.4rem;color:var(--silver);font-size:1rem;line-height:1.9}
+.article-body em{color:var(--gold);font-style:italic}
+.article-body strong{color:var(--silver);font-weight:600}
+.pull-quote{background:var(--card);border-left:3px solid var(--gold);padding:1.2rem 1.6rem;margin:2rem 0;border-radius:0 3px 3px 0}
+.pull-quote p{font-size:1.05rem;font-style:italic;color:var(--silver);margin:0}
+.disclaimer{background:rgba(200,164,90,.06);border:1px solid rgba(200,164,90,.2);border-radius:3px;padding:1rem 1.4rem;margin:2rem 0}
+.disclaimer p{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.07em;color:var(--dim);line-height:1.6;margin:0}
+.cta-block{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:2rem;text-align:center;margin:3rem 0}
+.cta-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--silver);margin-bottom:.5rem}
+.cta-sub{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.1em;color:var(--dim);margin-bottom:1.2rem}
+.footer-blog{border-top:1px solid var(--border);padding:2rem 5%;text-align:center}
+.footer-blog p{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.1em;color:var(--dim)}
+@media(max-width:640px){.nav-right .nav-link{display:none}}
+html[lang="th"] body,html[lang="th"] .article-body p{font-family:'Prompt',sans-serif;font-weight:300}
+html[lang="th"] .article-body em{font-style:normal;color:var(--gold)}
+.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
+.lang-pill button{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
+.lang-pill button.active{background:var(--gold);color:#040407}
+.lang-pill button:hover:not(.active){color:var(--gold)}
+.body-th{display:none}
+html[lang="th"] .body-en{display:none}
+html[lang="th"] .body-th{display:block}
+</style>
+<title>The Mayan Tzolk'in: 260 Days, One Sacred Pulse — Mythsensus</title>
+<meta name="description" content="It does not track the sun. It does not follow the moon. It has no astronomical anchor that modern science has been able to confirm — and yet the Maya consi">
+<link rel="canonical" href="https://mythsensus.com/blog/mayan-tzolkin">
+</head><body>
+<nav class="nav">
+  <a href="/" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
+  <div class="nav-right">
+    <a href="/blog" class="nav-link" data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</a>
+    <a href="/#systems" class="nav-link" data-en="Systems" data-th="ระบบ">Systems</a>
+    <a href="/beta/" class="btn-gold" data-en="Open App →" data-th="เปิดแอป →">Open App →</a>
+  </div>
+</nav>
+<article>
+<div class="blog-hero">
+  <a href="/blog" class="back-link">← <span data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</span></a>
+  <span class="article-tag" data-en="MAYAN TRADITION · TZOLK’IN" data-th="มายา · ตโซลคิน">MAYAN TRADITION · TZOLK’IN</span>
+  <h1 class="article-title" data-en="The Mayan Tzolk'in: 260 Days, One Sacred Pulse" data-th="ปฏิทินมายัน Tzolk'in: ๒๖๐ วัน จังหวะศักดิ์สิทธิ์หนึ่งเดียว">The Mayan Tzolk'in: 260 Days, One Sacred Pulse</h1>
+  <p class="article-meta">Cosmic Library · Mythsensus Editorial</p>
+  <p class="article-lede" data-en="It does not track the sun. It does not follow the moon. It has no astronomical anchor that modern science has been able to confirm — and yet the Maya considered it the most sacred of all their calendars. The Tzolk'in is a 260-day cycle of time that maps something deeper than celestial mechanics: the living rhythm of consciousness itself, from conception to awakening." data-th="มันไม่ได้ติดตามดวงอาทิตย์ ไม่ได้ตามดวงจันทร์ ไม่มีจุดยึดทางดาราศาสตร์ที่วิทยาศาสตร์สมัยใหม่ยืนยันได้ และถึงกระนั้น ชาวมายาก็ถือว่ามันเป็นปฏิทินที่ศักดิ์สิทธิ์ที่สุดในบรรดาปฏิทินทั้งหมด Tzolk'in คือวงจร ๒๖๐ วันแห่งกาลเวลาที่สะท้อนบางสิ่งที่ลึกกว่ากลไกท้องฟ้า นั่นคือจังหวะที่มีชีวิตของจิตสำนึกเอง ตั้งแต่การปฏิสนธิไปจนถึงการตื่นรู้">It does not track the sun. It does not follow the moon. It has no astronomical anchor that modern science has been able to confirm — and yet the Maya considered it the most sacred of all their calendars. The Tzolk'in is a 260-day cycle of time that maps something deeper than celestial mechanics: the living rhythm of consciousness itself, from conception to awakening.</p>
+</div>
+<div class="article-body">
+  <div class="body-en">
+<p>It does not track the sun. It does not follow the moon. It has no astronomical anchor that modern science has been able to confirm — and yet the Maya considered it the most sacred of all their calendars. The Tzolk'in is a 260-day cycle of time that maps something deeper than celestial mechanics: the living rhythm of consciousness itself, from conception to awakening.</p>
+<h2>Origins &amp; History</h2>
+<p>The Tzolk'in is among the oldest continuously used calendrical systems on Earth. Evidence of its 260-day count appears in the archaeological record of the Zapotec civilization in the Oaxaca Valley as early as 500 BCE, and possibly earlier. It spread throughout Mesoamerica, adopted by the Maya, the Aztec (who called it the Tonalpohualli), and dozens of smaller civilizations. In the highlands of Guatemala, the K'iche' Maya still use an unbroken version of the Tzolk'in today — the same count their ancestors kept 2,500 years ago.</p>
+<p>The calendar is structured as a continuous interlocking of two cycles: thirteen numbers (tones) cycling through twenty named day signs (nawales or day lords). 13 × 20 = 260. The cycle never resets against an external reference point — it simply turns, endlessly, like a gear meshing with the gears of other cycles. When the Tzolk'in runs alongside the 365-day solar year (the Haab'), the two cycles synchronize every 52 years — a period the ancient Maya treated as a cosmological era, a &quot;Calendar Round.&quot;</p>
+<p>The 260-day count has fascinated scholars across disciplines. Astronomers note that 260 days closely approximates the synodic period of Mars visible from certain Mesoamerican latitudes, the eclipse warning cycle, and the interval between Venus' morning star appearances. But the most resonant correspondence is human: 260 days is the average duration of human pregnancy from the first missed menstrual period to birth. The Maya may have mapped the calendar of conception — tracing the soul's journey from the moment of cosmic invitation to its emergence into the world.</p>
+<p>Agricultural scholars note a second correspondence: in the highland Maya heartland of Guatemala, 260 days maps the planting-to-harvest cycle. Time, pregnancy, and harvest — three fundamental rhythms of life — all resonating in a single count.</p>
+<h2>The Legend</h2>
+<p>For the ancient Maya, time was not an abstraction. It was a living entity — or rather, a community of living entities. Each of the twenty day signs was a deity, a nawal, a personality force with its own gifts, shadows, relationships, and domains. Each of the thirteen tones was a cosmic power modifying the day's character.</p>
+<p>To be born on a specific Kin — a specific day-sign and tone combination — was not merely a date. It was a spiritual identity, a name given by the cosmos before any human name was spoken. The Maya day-keeper (Aj Q'ij) would read a newborn's Kin and understand not just their personality but their purpose, their challenges, their relationship to the sacred forces that wove the world.</p>
+<p>The twenty nawales include: Imix (Crocodile/the primordial waters), Ik' (Wind/spirit), Ak'bal (Night/mystery), K'an (Corn/abundance), Chikchan (Serpent/life force), Kimi (Death/transformation), Manik (Deer/grace), Lamat (Rabbit/harmony), Muluk (Water/offering), Ok (Dog/loyalty), Chuwen (Monkey/creativity), Eb (Road/community), Ben (Reed/authority), Ix (Jaguar/shamanism), Men (Eagle/vision), Kib (Vulture/wisdom), Kaban (Earth/movement), Etz'nab (Flint/truth), Kawak (Storm/purification), and Ajaw (Sun/sovereignty). Each carries centuries of accumulated meaning, story, and ceremonial knowledge.</p>
+<p>In 1987 — the same fateful year as Human Design's origin — the philosopher José Argüelles introduced the Dreamspell calendar, a modern reinterpretation of the Tzolk'in that spread rapidly through the global New Age movement. Argüelles, inspired by the imminent completion of the Maya Long Count calendar on December 21, 2012, positioned the Tzolk'in as a tool for humanity's conscious evolution — a map for navigating the transition from one great age to the next. The 2012 phenomenon brought the Tzolk'in to global attention, ensuring that a calendar born 2,500 years ago in the mountains of Mesoamerica would be known, in some form, on every continent.</p>
+<h2>Core Philosophy</h2>
+<p>Each person is born on a specific Kin — a combination of one of 20 day signs and one of 13 galactic tones. This is called your Galactic Signature. The day sign (Solar Seal) describes your core nature and archetype. The galactic tone describes the quality of power, purpose, or challenge you carry through this life.</p>
+<p>The thirteen tones move through qualities: Tone 1 is unity and purpose, Tone 2 is duality and challenge, Tone 3 is activation, Tone 4 is stability, Tone 5 is radiance, Tone 6 is organic flow, Tone 7 is resonance, Tone 8 is harmony, Tone 9 is intention, Tone 10 is manifestation, Tone 11 is liberation, Tone 12 is cooperation, Tone 13 is transcendence.</p>
+<p>The Tzolk'in does not tell you your fortune. It tells you your nature — the frequency you were born into, the spiritual work you are here to do, and the archetypal story your soul agreed to carry through this particular revolution of the sacred count.</p>
+<h2>At Mythsensus</h2>
+<p>Within the Mythsensus Cosmic Score, the Tzolk'in contributes your Galactic Signature: the solar seal and tone that describe your core Mesoamerican archetypal identity. It is one of 26 systems of ancient wisdom speaking together about who you are. Discover your Kin and the nawal that called your soul into being at <a href="https://mythsensus.com/library/mayan-tzolkin" style="color:var(--gold);text-decoration:underline">mythsensus.com/library/mayan-tzolkin</a>.</p>
+
+  </div>
+  <div class="body-th">
+<p>มันไม่ได้ติดตามดวงอาทิตย์ ไม่ได้ตามดวงจันทร์ ไม่มีจุดยึดทางดาราศาสตร์ที่วิทยาศาสตร์สมัยใหม่ยืนยันได้ และถึงกระนั้น ชาวมายาก็ถือว่ามันเป็นปฏิทินที่ศักดิ์สิทธิ์ที่สุดในบรรดาปฏิทินทั้งหมด Tzolk'in คือวงจร ๒๖๐ วันแห่งกาลเวลาที่สะท้อนบางสิ่งที่ลึกกว่ากลไกท้องฟ้า นั่นคือจังหวะที่มีชีวิตของจิตสำนึกเอง ตั้งแต่การปฏิสนธิไปจนถึงการตื่นรู้</p>
+<h2>ที่มาและประวัติ</h2>
+<p>Tzolk'in เป็นหนึ่งในระบบปฏิทินที่เก่าแก่ที่สุดที่ยังคงใช้งานอยู่บนโลก หลักฐานการนับ ๒๖๐ วันปรากฏในบันทึกโบราณคดีของอารยธรรมซาโปเทกในหุบเขาโออาซากาเมื่อประมาณ ๕๐๐ ปีก่อนคริสตกาล และอาจเก่ากว่านั้น มันแพร่กระจายทั่วเมโสอเมริกา ชาวมายา ชาวแอซเทก (ที่เรียกว่า Tonalpohualli) และอารยธรรมเล็กๆ หลายสิบแห่งต่างรับเอาไปใช้ ในที่สูงของกัวเตมาลา ชาวมายาเค'อิเช ยังคงใช้ Tzolk'in ที่ไม่ขาดสายจนถึงวันนี้ การนับเดียวกับที่บรรพบุรุษของพวกเขารักษาไว้เมื่อ ๒,๕๐๐ ปีก่อน</p>
+<p>ปฏิทินมีโครงสร้างเป็นการสานต่อเนื่องของสองวัฏจักร ตัวเลขสิบสาม (โทน) วนผ่านสัญลักษณ์วันยี่สิบชื่อ (nawales หรือเจ้าวัน) ๑๓ × ๒๐ = ๒๖๐ วัฏจักรไม่เคยรีเซ็ตเทียบกับจุดอ้างอิงภายนอก มันเพียงหมุน ไม่มีสิ้นสุด เหมือนเฟืองที่ประสานกับเฟืองอื่นๆ เมื่อ Tzolk'in ทำงานควบคู่กับปีสุริยะ ๓๖๕ วัน (Haab') สองวัฏจักรจะประสานกันทุก ๕๒ ปี ช่วงเวลาที่ชาวมายาโบราณถือว่าเป็นยุคจักรวาลวิทยา &quot;Calendar Round&quot;</p>
+<p>การนับ ๒๖๐ วันทำให้นักวิชาการหลายสาขาต่างพิศวง มีการสังเกตว่า ๒๖๐ วันนั้นใกล้เคียงกับระยะเวลาการตั้งครรภ์เฉลี่ยของมนุษย์นับจากการขาดประจำเดือนครั้งแรกจนถึงการคลอด ชาวมายาอาจทำแผนที่ปฏิทินของการปฏิสนธิ ติดตามการเดินทางของวิญญาณจากช่วงเวลาที่ถูกเชิญชวนจากจักรวาลจนถึงการปรากฏตัวสู่โลก</p>
+<h2>ตำนาน</h2>
+<p>สำหรับชาวมายาโบราณ เวลาไม่ใช่นามธรรม มันเป็นสิ่งมีชีวิต หรือพูดให้ถูกกว่าคือชุมชนของสิ่งมีชีวิต สัญลักษณ์วันทั้งยี่สิบต่างเป็นเทพ เป็น nawal เป็นพลังบุคลิกภาพที่มีพรสวรรค์ เงามืด ความสัมพันธ์ และอาณาจักรของตนเอง โทนทั้งสิบสามเป็นพลังจักรวาลที่ปรับเปลี่ยนลักษณะของวัน</p>
+<p>การเกิดในวัน Kin เฉพาะ ซึ่งเป็นการผสมผสานเฉพาะของสัญลักษณ์วันและโทน ไม่ใช่เพียงวันที่ แต่เป็นอัตลักษณ์ทางจิตวิญญาณ ชื่อที่จักรวาลมอบให้ก่อนที่มนุษย์จะเอ่ยชื่อใดๆ นักบวชผู้รักษาวัน (Aj Q'ij) จะอ่าน Kin ของเด็กแรกเกิดและเข้าใจไม่เพียงบุคลิกภาพแต่ยังเข้าใจจุดประสงค์ ความท้าทาย และความสัมพันธ์กับพลังศักดิ์สิทธิ์ที่ถักทอโลกด้วย</p>
+<p>nawales ทั้งยี่สิบ ได้แก่ Imix (จระเข้/น้ำดึกดำบรรพ์) Ik' (ลม/วิญญาณ) Ak'bal (กลางคืน/ความลึกลับ) K'an (ข้าวโพด/ความอุดมสมบูรณ์) Chikchan (งู/พลังชีวิต) Kimi (ความตาย/การเปลี่ยนแปลง) Manik (กวาง/ความสง่างาม) Lamat (กระต่าย/ความสมดุล) Muluk (น้ำ/การถวาย) Ok (สุนัข/ความซื่อสัตย์) Chuwen (ลิง/ความสร้างสรรค์) Eb (ถนน/ชุมชน) Ben (อ้อ/อำนาจ) Ix (เสือจากัวร์/ลัทธิไสยศาสตร์) Men (นกอินทรี/วิสัยทัศน์) Kib (แร้ง/ปัญญา) Kaban (โลก/การเคลื่อนไหว) Etz'nab (หินเหล็กไฟ/ความจริง) Kawak (พายุ/การชำระล้าง) และ Ajaw (ดวงอาทิตย์/อธิปไตย) แต่ละตัวแบกรับความหมาย เรื่องราว และความรู้ทางพิธีกรรมที่สะสมมาหลายศตวรรษ</p>
+<p>ในปี ๑๙๘๗ ซึ่งเป็นปีชะตากรรมเดียวกับต้นกำเนิด Human Design นักปรัชญา José Argüelles ได้แนะนำปฏิทิน Dreamspell การตีความ Tzolk'in สมัยใหม่ที่แพร่กระจายอย่างรวดเร็วผ่านขบวนการ New Age ทั่วโลก Argüelles ได้รับแรงบันดาลใจจากการสิ้นสุดของ Maya Long Count ในวันที่ ๒๑ ธันวาคม ๒๐๑๒ วางตำแหน่ง Tzolk'in เป็นเครื่องมือสำหรับวิวัฒนาการจิตสำนึกของมนุษยชาติ ทำให้ปฏิทินที่เกิดมาเมื่อ ๒,๕๐๐ ปีก่อนในภูเขาของเมโสอเมริกาเป็นที่รู้จักทุกทวีป</p>
+<h2>หลักการและแก่นคิด</h2>
+<p>แต่ละคนเกิดใน Kin เฉพาะ ซึ่งเป็นการผสมผสานของสัญลักษณ์วัน ๑ ใน ๒๐ และโทนจักรวาล ๑ ใน ๑๓ นี่คือ Galactic Signature ของคุณ สัญลักษณ์วัน (Solar Seal) บรรยายธรรมชาติหลักและต้นแบบของคุณ โทนจักรวาลบรรยายคุณภาพของพลัง จุดประสงค์ หรือความท้าทายที่คุณแบกรับในชีวิตนี้</p>
+<p>โทนทั้งสิบสามเคลื่อนที่ผ่านคุณลักษณะ โทน ๑ คือความเป็นหนึ่งและจุดประสงค์ โทน ๒ คือความคู่และความท้าทาย โทน ๓ คือการเปิดใช้งาน โทน ๔ คือความมั่นคง โทน ๕ คือรัศมี โทน ๖ คือการไหลแบบธรรมชาติ โทน ๗ คือการสั่นพ้อง โทน ๘ คือความสามัคคี โทน ๙ คือเจตนา โทน ๑๐ คือการแสดงออก โทน ๑๑ คือการปลดปล่อย โทน ๑๒ คือความร่วมมือ และโทน ๑๓ คือการก้าวข้าม</p>
+<p>Tzolk'in ไม่ได้บอกโชคชะตาของคุณ แต่บอกธรรมชาติของคุณ ความถี่ที่คุณเกิดมา งานทางจิตวิญญาณที่คุณมาทำที่นี่ และเรื่องราวต้นแบบที่วิญญาณของคุณตกลงแบกรับในการหมุนรอบนี้ของการนับศักดิ์สิทธิ์</p>
+<h2>ที่ Mythsensus</h2>
+<p>ภายใน Cosmic Score ของ Mythsensus Tzolk'in มีส่วนร่วมด้วย Galactic Signature ของคุณ ตราสุริยะและโทนที่บรรยายอัตลักษณ์ต้นแบบเมโสอเมริกาหลักของคุณ เป็นหนึ่งใน ๒๖ ระบบภูมิปัญญาโบราณที่พูดร่วมกันเกี่ยวกับตัวคุณ ค้นพบ Kin ของคุณและ nawal ที่เรียกวิญญาณของคุณให้เป็น ได้ที่ <a href="https://mythsensus.com/library/mayan-tzolkin" style="color:var(--gold);text-decoration:underline">mythsensus.com/library/mayan-tzolkin</a></p>
+
+  </div>
+  <div class="disclaimer"><p data-en="All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone." data-th="เนื้อหาทั้งหมดบน Mythsensus สร้างขึ้นโดยปัญญาประดิษฐ์ เพื่อความบันเทิง การสำรวจตนเอง และการใคร่ครวญส่วนบุคคล ไม่ใช่คำแนะนำทางวิชาชีพ ดวงดาวอาจส่องทาง แต่ก้าวเดินเป็นของคุณ">All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone.</p></div>
+  <div class="cta-block">
+    <div class="cta-title" data-en="Read your full 26-system report" data-th="อ่านรายงาน 26 ศาสตร์ของคุณ">Read your full 26-system report</div>
+    <div class="cta-sub" data-en="Free beta · No signup · Works offline" data-th="ฟรีช่วงทดสอบ · ไม่ต้องสมัคร · ออฟไลน์ได้">Free beta · No signup · Works offline</div>
+    <a href="/beta/" class="btn-gold" data-en="Open the App →" data-th="เปิดแอป →">Open the App →</a>
+  </div>
+</div>
+</article>
+<div class="footer-blog"><p>© Mythsensus · <a href="/privacy" style="color:var(--dim)">Privacy</a></p></div>
+<div class="lang-pill">
+  <button id="lang-en" class="active" onclick="setLang('en')">EN</button>
+  <button id="lang-th" onclick="setLang('th')">TH</button>
+</div>
+<script>
+function setLang(l){
+  document.documentElement.lang=l;
+  document.getElementById('lang-en').classList.toggle('active',l==='en');
+  document.getElementById('lang-th').classList.toggle('active',l==='th');
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    const k=l==='th'?'data-th':'data-en';
+    el.textContent=el.getAttribute(k)||el.textContent;
+  });
+  try{localStorage.setItem('mth_lang',l);}catch(e){}
+}
+(function(){
+  const saved=localStorage.getItem('mth_lang');
+  if(saved==='th') setLang('th');
+})();
+</script>
+</body></html>

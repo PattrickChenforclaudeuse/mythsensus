@@ -1,10 +1,15 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;600&family=Prompt:wght@200;300;400&display=swap" rel="stylesheet">
-<style>:root{--bg:#040407;--gold:#c8a45a;--silver:#e6e2d8;--dim:#9a9088;--card:#0d0d14;--border:rgba(200,164,90,0.22)}*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{background:var(--bg);color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.85}a{color:var(--gold);text-decoration:none}
+<style>:root{--bg:#040407;--gold:#c8a45a;--silver:#e6e2d8;--dim:#9a9088;--card:#0d0d14;--border:rgba(200,164,90,0.22)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.85}
+a{color:var(--gold);text-decoration:none}
 .nav{position:fixed;top:0;width:100%;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
 .nav-logo{font-family:'Cinzel Decorative',serif;font-size:1rem;cursor:pointer;letter-spacing:.06em}.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
-.nav-right{display:flex;gap:1.6rem;align-items:center}.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--silver);opacity:.7}.nav-link:hover{opacity:1;color:var(--gold)}
+.nav-right{display:flex;gap:1.6rem;align-items:center}
+.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--silver);opacity:.7}
+.nav-link:hover{opacity:1;color:var(--gold)}
 .btn-gold{background:var(--gold);color:#040407;font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;padding:.55rem 1.4rem;border:none;border-radius:2px;cursor:pointer}
 .blog-hero{padding:110px 5% 60px;max-width:760px;margin:0 auto;border-bottom:1px solid var(--border)}
 .back-link{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);display:inline-flex;align-items:center;gap:.4rem;margin-bottom:1.6rem}
@@ -21,68 +26,112 @@
 .article-body strong{color:var(--silver);font-weight:600}
 .pull-quote{background:var(--card);border-left:3px solid var(--gold);padding:1.2rem 1.6rem;margin:2rem 0;border-radius:0 3px 3px 0}
 .pull-quote p{font-size:1.05rem;font-style:italic;color:var(--silver);margin:0}
-.system-card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.2rem 1.4rem;margin:1rem 0;display:flex;gap:1rem;align-items:flex-start}
-.system-icon{font-size:1.4rem;flex-shrink:0;margin-top:.1rem}
-.system-name{font-family:'Cinzel Decorative',serif;font-size:.82rem;color:var(--gold);margin-bottom:.3rem}
-.system-desc{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.07em;color:var(--dim);line-height:1.55}
 .disclaimer{background:rgba(200,164,90,.06);border:1px solid rgba(200,164,90,.2);border-radius:3px;padding:1rem 1.4rem;margin:2rem 0}
 .disclaimer p{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.07em;color:var(--dim);line-height:1.6;margin:0}
 .cta-block{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:2rem;text-align:center;margin:3rem 0}
 .cta-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--silver);margin-bottom:.5rem}
 .cta-sub{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.1em;color:var(--dim);margin-bottom:1.2rem}
-.related-section{border-top:1px solid var(--border);padding:3rem 5%;max-width:760px;margin:0 auto}
-.related-title{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:1.5rem}
-.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
-.related-card{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:1.2rem;transition:border-color .2s}.related-card:hover{border-color:var(--gold)}
-.related-tag{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);opacity:.65;margin-bottom:.4rem}
-.related-name{font-family:'Cinzel Decorative',serif;font-size:.82rem;color:var(--silver);line-height:1.3}
 .footer-blog{border-top:1px solid var(--border);padding:2rem 5%;text-align:center}
 .footer-blog p{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.1em;color:var(--dim)}
 @media(max-width:640px){.nav-right .nav-link{display:none}}
-html[lang="th"] body,.html[lang="th"] .article-body p{font-family:'Prompt',sans-serif;font-weight:300}
-</style><title>The Five Energy Types: Which One Are You? — Mythsensus</title><meta name="description" content="Generator, Manifesting Generator, Projector, Manifestor, Reflector — each type processes energy differently and thrives under different conditions."><link rel="canonical" href="https://mythsensus.com/blog/energy-type-system"><style>.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}.lang-btn{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}.lang-btn.active{background:var(--gold,#c8a45a);color:#040407}.lang-btn:hover:not(.active){color:var(--gold,#c8a45a)}</style></head><body>
+html[lang="th"] body,html[lang="th"] .article-body p{font-family:'Prompt',sans-serif;font-weight:300}
+html[lang="th"] .article-body em{font-style:normal;color:var(--gold)}
+.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
+.lang-pill button{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
+.lang-pill button.active{background:var(--gold);color:#040407}
+.lang-pill button:hover:not(.active){color:var(--gold)}
+.body-th{display:none}
+html[lang="th"] .body-en{display:none}
+html[lang="th"] .body-th{display:block}
+</style>
+<title>Human Design: The Voice, the Supernova, and the Blueprint of Your Aura — Mythsensus</title>
+<meta name="description" content="In January 1987, a former advertising executive living on the Spanish island of Ibiza claimed he heard a Voice — not a metaphor, not a dream, but a sustain">
+<link rel="canonical" href="https://mythsensus.com/blog/energy-type-system">
+</head><body>
 <nav class="nav">
   <a href="/" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
   <div class="nav-right">
     <a href="/blog" class="nav-link" data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</a>
     <a href="/#systems" class="nav-link" data-en="Systems" data-th="ระบบ">Systems</a>
-    <a href="/" class="btn-gold">Reveal My Score →</a>
+    <a href="/beta/" class="btn-gold" data-en="Open App →" data-th="เปิดแอป →">Open App →</a>
   </div>
 </nav>
 <article>
 <div class="blog-hero">
-  <a href="/blog" class="back-link">← Cosmic Library</a>
-  <span class="article-tag">Energy System · Type</span>
-  <h1 class="article-title" data-en="The Five Energy Types: Which One Are You?" data-th="ห้าประเภทพลังงาน: คุณเป็นแบบไหน?">The Five Energy Types: Which One Are You?</h1>
-  <p class="article-meta">Cosmic Library · 6 min read · Mythsensus Editorial</p>
-  <p class="article-lede">Each person is born with a distinct energetic type — a fundamental pattern in how they generate, exchange, and deplete energy. Knowing yours changes how you work, decide, and rest.</p>
+  <a href="/blog" class="back-link">← <span data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</span></a>
+  <span class="article-tag" data-en="ENERGY SYSTEM · TYPE" data-th="ระบบพลังงาน · ประเภท">ENERGY SYSTEM · TYPE</span>
+  <h1 class="article-title" data-en="Human Design: The Voice, the Supernova, and the Blueprint of Your Aura" data-th="Human Design: เสียง ซุปเปอร์โนวา และแผนที่ออร่าของคุณ">Human Design: The Voice, the Supernova, and the Blueprint of Your Aura</h1>
+  <p class="article-meta">Cosmic Library · Mythsensus Editorial</p>
+  <p class="article-lede" data-en="In January 1987, a former advertising executive living on the Spanish island of Ibiza claimed he heard a Voice — not a metaphor, not a dream, but a sustained transmission lasting eight days and nights that dictated, in exhaustive detail, a complete system for understanding human nature. What Ra Uru Hu received that winter became Human Design: perhaps the most ambitious synthesis of ancient wisdom and modern science ever assembled into a single framework for self-knowledge." data-th="ในเดือนมกราคม ปี ๑๙๘๗ อดีตผู้บริหารฝ่ายโฆษณาที่อาศัยอยู่บนเกาะอิบิซาของสเปนอ้างว่าตนได้ยิน &quot;เสียง&quot; หนึ่ง ไม่ใช่อุปมา ไม่ใช่ความฝัน แต่เป็นการส่งสัญญาณต่อเนื่องนานแปดวันแปดคืนที่บอกเล่าระบบสมบูรณ์สำหรับทำความเข้าใจธรรมชาติมนุษย์อย่างละเอียดถี่ถ้วน สิ่งที่ Ra Uru Hu ได้รับในฤดูหนาวนั้นกลายมาเป็น Human Design ซึ่งอาจเป็นการสังเคราะห์ภูมิปัญญาโบราณและวิทยาศาสตร์สมัยใหม่เข้าไว้ด้วยกันอย่างทะเยอทะยานที่สุดที่เคยมีในกรอบระบบเพื่อการรู้จักตนเอง">In January 1987, a former advertising executive living on the Spanish island of Ibiza claimed he heard a Voice — not a metaphor, not a dream, but a sustained transmission lasting eight days and nights that dictated, in exhaustive detail, a complete system for understanding human nature. What Ra Uru Hu received that winter became Human Design: perhaps the most ambitious synthesis of ancient wisdom and modern science ever assembled into a single framework for self-knowledge.</p>
 </div>
 <div class="article-body">
-<div class="disclaimer"><p>✦ Mythsensus articles are for educational and self-reflection purposes only. All interpretations are symbolic in nature and do not constitute medical, psychological, financial, or life advice.</p></div>
-<h2>Five Ways of Being in the World</h2>
-<p>The Energy Type System categorizes individuals into five fundamental types based on their energetic constitution at birth. Each type has a defined Strategy — the optimal way of navigating decisions and initiating action — and an Authority, the inner guidance system that, when followed, leads to correct choices for that type.</p>
-<div class="system-card"><div class="system-icon">⚡</div><div><div class="system-name">Generator · ~37% of population</div><div class="system-desc">Consistent, renewable life force energy. The Generator's strategy is to respond — to wait for something in the environment to respond to, rather than initiating from scratch. When aligned, Generator energy is sustainable and deeply satisfying. When out of alignment, it burns out or feels trapped.</div></div></div>
-<div class="system-card"><div class="system-icon">⚡✦</div><div><div class="system-name">Manifesting Generator · ~33% of population</div><div class="system-desc">A hybrid type with Generator energy plus a direct connection to the manifest world. Faster-moving than pure Generators, often multi-passionate, and capable of skipping steps others cannot. Still benefits from the Generator strategy of responding, with added capacity to inform before acting.</div></div></div>
-<div class="system-card"><div class="system-icon">◎</div><div><div class="system-name">Projector · ~21% of population</div><div class="system-desc">Not a consistently generating type — Projectors are here to guide, not to work in the traditional sense. Their strategy is to wait for the invitation before entering major life areas. Projectors see deeply into others' energy and processes; when recognized and invited, this becomes their greatest gift.</div></div></div>
-<div class="system-card"><div class="system-icon">→</div><div><div class="system-name">Manifestor · ~8% of population</div><div class="system-desc">The only type designed to initiate. Manifestors carry closed, repelling energy that can create resistance when others don't understand what they're doing. The Manifestor strategy is to inform before acting — not to ask permission, but to neutralize the impact of their independent movement.</div></div></div>
-<div class="system-card"><div class="system-icon">◑</div><div><div class="system-name">Reflector · ~1% of population</div><div class="system-desc">Completely open energetically — Reflectors sample and amplify the energies around them. They are the rarest type and the most sensitive to environment. A Reflector's strategy is to wait a full lunar cycle (28 days) before making major decisions, giving the Moon time to move through all gates.</div></div></div>
-<h2>Strategy and Authority: The Inner Compass</h2>
-<p>Knowing your type gives you the outer framework. Your Authority — the specific decision-making center that is consistent and defined in your chart — gives you the inner compass. There are seven Authority types: Sacral, Emotional/Solar Plexus, Splenic, Ego/Heart, Self-Projected, Mental/Environmental, and Lunar.</p>
-<div class="pull-quote"><p>"Most people make decisions from the mind — from what they think they should want, what others expect, or what seems logical. Authority bypasses all of this and points to the part of the body that actually knows."</p></div>
-<h2>In the Multi-System Context</h2>
-<p>Within the Mythsensus framework, your Energy Type and Authority contribute to understanding <em>how</em> you are best designed to move through the world — independent of timing. Where Western astrology and BaZi reveal what themes are active, your Energy Type reveals the ideal <em>mode of engagement</em> with those themes.</p>
-<p>When your Energy Type's natural strategy aligns with what BaZi says about your current Luck Pillar and what Western transits suggest is active, the convergence is particularly clear in your Cosmic Score.</p>
-<div class="cta-block">
-  <div class="cta-title">Discover Your Energy Type</div>
-  <p class="cta-sub">Energy Type System + 9 others · Complete Cosmic Score</p>
-  <a href="/onboarding" class="btn-gold">Reveal My Score →</a>
-</div>
+  <div class="body-en">
+<p>In January 1987, a former advertising executive living on the Spanish island of Ibiza claimed he heard a Voice — not a metaphor, not a dream, but a sustained transmission lasting eight days and nights that dictated, in exhaustive detail, a complete system for understanding human nature. What Ra Uru Hu received that winter became Human Design: perhaps the most ambitious synthesis of ancient wisdom and modern science ever assembled into a single framework for self-knowledge.</p>
+<h2>Origins &amp; History</h2>
+<p>Robert Alan Krakower was born in Montreal, Canada in 1948. By the mid-1980s, he had left a career in advertising and media, and was living as something of an exile in Ibiza — a man between lives. Then came January 3, 1987.</p>
+<p>The date is significant beyond personal mythology. 1987 was the year of the Harmonic Convergence, a globally coordinated meditation event organized by José Argüelles (who would later adapt the Mayan Tzolk'in calendar into the Dreamspell). And on February 24, 1987 — seven weeks after Ra Uru Hu's experience began — astronomers detected supernova SN 1987A in the Large Magellanic Cloud: the brightest supernova visible from Earth since 1604, when Kepler himself had watched a star explode. Ra Uru Hu described the Voice as a cosmic transmission delivered through neutrinos — the near-massless particles that stream through the sun, through supernovas, through every atom of every body on Earth — as they passed through him.</p>
+<p>He renamed himself Ra Uru Hu and spent the following two decades teaching Human Design, first in Europe, then globally. He died in 2011, leaving behind a system that has attracted millions of followers worldwide and generated an entire industry of analysts, coaches, and certification programs.</p>
+<h2>The Legend</h2>
+<p>Ra Uru Hu described the eight-day transmission in vivid terms: a disembodied intelligence — a Voice — that spoke in specifics, not generalities. It did not offer philosophy. It offered a mechanics: precise instructions for how to build a system that would map human consciousness and decision-making with a rigor the world had never seen.</p>
+<p>The Voice gave him what he called the Rave Mandala — a circular diagram overlaying the Western astrological wheel, the I Ching's 64 hexagrams, the Kabbalah's Tree of Life, and the Hindu chakra system into a single integrated map. At its center: the bodygraph, a mandorla-shaped figure of nine centers connected by 36 channels and 64 gates, calculated from two moments: the exact time of birth, and a moment 88 degrees of the sun's arc before birth — approximately 88 days earlier — representing the &quot;unconscious&quot; or Design layer of the self.</p>
+<p>The neutrino theory gave the system its cosmological underpinning: that particles streaming from stars and supernovas imprint biological information on every organism at the moment of its formation. In this reading, the supernova SN 1987A was not incidental — it was the cosmic event that made the transmission possible, a burst of neutrinos so intense it passed through the planet and through Ra Uru Hu in ways ordinary solar emission could not.</p>
+<p>Whether one accepts this cosmology literally or as a powerful metaphor, the story it tells is undeniably compelling: that each human being is a unique configuration, crystallized at birth, carrying a specific energetic signature written by the stars themselves.</p>
+<h2>Core Philosophy</h2>
+<p>Human Design sorts every person into one of five aura types, each with a distinct Strategy for navigating life correctly:</p>
+<p>- <strong>Generators and Manifesting Generators</strong> (roughly 70% of people): their Strategy is to <em>respond</em> — to wait for life to present something worth engaging, then feel whether the gut says yes or no. - <strong>Projectors</strong> (roughly 20%): their Strategy is to <em>wait for the invitation</em> — their gifts are recognized and invited, not pushed. - <strong>Manifestors</strong> (roughly 9%): the only type designed to initiate — their Strategy is to <em>inform</em> before acting, to avoid the resistance that comes from surprising others. - <strong>Reflectors</strong> (roughly 1%): mirrors of their environment — they are advised to <em>wait a full lunar cycle</em> before making major decisions.</p>
+<p>Beneath aura type lies Authority — the inner decision-making faculty that is reliable for that specific person. Some have Sacral Authority (the gut response). Some have Emotional Authority (the clarity that comes after riding the wave). Others have Splenic, Ego, Self-Projected, or Lunar Authority.</p>
+<p>The bodygraph's 64 gates correspond directly to the 64 hexagrams of the I Ching — the same binary system that describes every possible situation in human experience. Defined gates (colored in the chart) represent consistent energies you carry. Undefined centers (white) are where you are most influenced by others, most conditioned by the world, and paradoxically, where you have the most wisdom to offer — because you have experienced those energies in every flavor.</p>
+<p>Human Design does not claim to tell you what to do. It claims to show you <em>how you are designed to decide</em> — and invites you to experiment with that design for seven years before judging it.</p>
+<h2>At Mythsensus</h2>
+<p>Within the Mythsensus Cosmic Score, Human Design contributes the energetic architecture of your aura: your type, strategy, and the unique configuration of your bodygraph's defined and undefined centers. It is one of 26 ancient and modern wisdom systems we weave together into your personal Cosmic Score — each adding a distinct thread to the portrait of who you are. Explore your aura type and what it means at <a href="https://mythsensus.com/library/human-design" style="color:var(--gold);text-decoration:underline">mythsensus.com/library/human-design</a>.</p>
+
+  </div>
+  <div class="body-th">
+<p>ในเดือนมกราคม ปี ๑๙๘๗ อดีตผู้บริหารฝ่ายโฆษณาที่อาศัยอยู่บนเกาะอิบิซาของสเปนอ้างว่าตนได้ยิน &quot;เสียง&quot; หนึ่ง ไม่ใช่อุปมา ไม่ใช่ความฝัน แต่เป็นการส่งสัญญาณต่อเนื่องนานแปดวันแปดคืนที่บอกเล่าระบบสมบูรณ์สำหรับทำความเข้าใจธรรมชาติมนุษย์อย่างละเอียดถี่ถ้วน สิ่งที่ Ra Uru Hu ได้รับในฤดูหนาวนั้นกลายมาเป็น Human Design ซึ่งอาจเป็นการสังเคราะห์ภูมิปัญญาโบราณและวิทยาศาสตร์สมัยใหม่เข้าไว้ด้วยกันอย่างทะเยอทะยานที่สุดที่เคยมีในกรอบระบบเพื่อการรู้จักตนเอง</p>
+<h2>ที่มาและประวัติ</h2>
+<p>Robert Alan Krakower เกิดที่มอนทรีออล แคนาดา ในปี ๑๙๔๘ กลางทศวรรษ ๑๙๘๐ เขาละทิ้งอาชีพในวงการโฆษณาและสื่อ และใช้ชีวิตเหมือนคนลี้ภัยอยู่บนเกาะอิบิซา ผู้ชายที่อยู่ระหว่างสองชีวิต จากนั้นวันที่ ๓ มกราคม ๑๙๘๗ ก็มาถึง</p>
+<p>วันนั้นมีนัยสำคัญเกินกว่าตำนานส่วนตัว ปี ๑๙๘๗ คือปีแห่ง Harmonic Convergence การทำสมาธิร่วมกันทั่วโลกที่จัดโดย José Argüelles ผู้ซึ่งต่อมาจะดัดแปลงปฏิทิน Tzolk'in ของมายันเป็น Dreamspell และในวันที่ ๒๔ กุมภาพันธ์ ๑๙๘๗ เจ็ดสัปดาห์หลังจากประสบการณ์ของ Ra Uru Hu เริ่มต้น นักดาราศาสตร์ตรวจพบซุปเปอร์โนวา SN 1987A ในเมฆแมกเจลแลนใหญ่ ซุปเปอร์โนวาที่สว่างที่สุดที่มองเห็นได้จากโลกนับตั้งแต่ปี ๑๖๐๔ Ra Uru Hu บรรยายว่าเสียงนั้นคือการส่งสัญญาณจักรวาลผ่านนิวตริโน อนุภาคที่แทบไร้มวลที่ไหลผ่านดวงอาทิตย์ ผ่านซุปเปอร์โนวา ผ่านทุกอะตอมของทุกร่างกายบนโลก</p>
+<p>เขาเปลี่ยนชื่อตัวเองเป็น Ra Uru Hu และใช้เวลาสองทศวรรษถัดมาสอน Human Design ก่อนในยุโรป จากนั้นทั่วโลก เขาเสียชีวิตในปี ๒๐๑๑ ทิ้งระบบที่ดึงดูดผู้ติดตามหลายล้านคนทั่วโลกและก่อให้เกิดอุตสาหกรรมทั้งหมดของนักวิเคราะห์ โค้ช และโปรแกรมรับรองต่างๆ</p>
+<h2>ตำนาน</h2>
+<p>Ra Uru Hu บรรยายการส่งสัญญาณแปดวันด้วยภาษาที่ชัดเจน ปัญญาที่ไม่มีตัวตน ซึ่งเป็นเสียง ไม่ได้พูดในภาษาปรัชญา แต่พูดถึงกลไก คำสั่งที่แม่นยำสำหรับการสร้างระบบที่จะทำแผนที่จิตสำนึกและการตัดสินใจของมนุษย์ด้วยความเข้มงวดที่โลกไม่เคยเห็น</p>
+<p>เสียงนั้นมอบสิ่งที่เขาเรียกว่า Rave Mandala ให้เขา ซึ่งเป็นแผนภาพวงกลมที่ซ้อนทับวงล้อโหราศาสตร์ตะวันตก เฮกซะแกรม ๖๔ ของ I Ching ต้นไม้แห่งชีวิตในคับบาลาห์ และระบบจักระของฮินดูเข้าเป็นแผนที่เดียวที่บูรณาการ ที่ศูนย์กลาง คือ bodygraph รูปมันดอร์ลาของศูนย์เก้าแห่งที่เชื่อมต่อกันด้วยช่อง ๓๖ ช่องและประตู ๖๔ บาน คำนวณจากสองช่วงเวลา คือเวลาเกิดที่แน่นอน และช่วงเวลา ๘๘ องศาของส่วนโค้งดวงอาทิตย์ก่อนเกิด ประมาณ ๘๘ วันก่อนหน้า ซึ่งแสดงถึงชั้น &quot;จิตใต้สำนึก&quot; หรือ Design ของตัวตน</p>
+<p>ทฤษฎีนิวตริโนให้รากฐานทางจักรวาลวิทยาแก่ระบบ ว่าอนุภาคที่ไหลจากดาวและซุปเปอร์โนวาประทับข้อมูลทางชีววิทยาให้แก่ทุกสิ่งมีชีวิต ณ ช่วงเวลาที่มันก่อตัวขึ้น ในความหมายนี้ SN 1987A ไม่ใช่เรื่องบังเอิญ แต่เป็นเหตุการณ์จักรวาลที่ทำให้การส่งสัญญาณเป็นไปได้</p>
+<h2>หลักการและแก่นคิด</h2>
+<p>Human Design จัดทุกคนให้อยู่ในหนึ่งในห้าประเภทออร่า แต่ละประเภทมีกลยุทธ์เฉพาะสำหรับการดำเนินชีวิตอย่างถูกต้อง</p>
+<p>- <strong>Generator และ Manifesting Generator</strong> (ประมาณ ๗๐% ของคนทั้งหมด): กลยุทธ์ของพวกเขาคือ <em>การตอบสนอง</em> รอให้ชีวิตนำเสนอบางสิ่งที่คุ้มค่าแก่การมีส่วนร่วม แล้วรู้สึกว่าท้องบอกว่าใช่หรือไม่ใช่ - <strong>Projector</strong> (ประมาณ ๒๐%): กลยุทธ์คือ <em>การรอรับคำเชิญ</em> พรสวรรค์ของพวกเขาได้รับการยอมรับและเชิญชวน ไม่ใช่ผลักดัน - <strong>Manifestor</strong> (ประมาณ ๙%): ประเภทเดียวที่ออกแบบมาเพื่อริเริ่ม กลยุทธ์คือ <em>การแจ้งให้ทราบ</em> ก่อนดำเนินการ - <strong>Reflector</strong> (ประมาณ ๑%): กระจกของสภาพแวดล้อม แนะนำให้ <em>รอหนึ่งรอบจันทรคติ</em> ก่อนตัดสินใจสำคัญ</p>
+<p>ใต้ประเภทออร่าคือ Authority หรืออำนาจการตัดสินใจภายในที่น่าเชื่อถือสำหรับบุคคลนั้นๆ บางคนมี Sacral Authority (การตอบสนองของลำไส้) บางคนมี Emotional Authority (ความชัดเจนที่มาหลังจากผ่านคลื่นอารมณ์) และบางคนมี Splenic, Ego, Self-Projected หรือ Lunar Authority</p>
+<p>ประตู ๖๔ บานของ bodygraph สอดคล้องโดยตรงกับเฮกซะแกรม ๖๔ ของ I Ching ระบบไบนารีเดียวกันที่บรรยายทุกสถานการณ์ที่เป็นไปได้ในประสบการณ์มนุษย์ Human Design ไม่ได้อ้างว่าจะบอกให้คุณทำอะไร แต่อ้างว่าจะแสดงให้คุณเห็นว่าคุณออกแบบมาเพื่อตัดสินใจอย่างไร และเชิญชวนให้คุณทดลองกับการออกแบบนั้นเป็นเวลาเจ็ดปีก่อนตัดสินมัน</p>
+<h2>ที่ Mythsensus</h2>
+<p>ภายใน Cosmic Score ของ Mythsensus Human Design มีส่วนร่วมเป็นสถาปัตยกรรมพลังงานของออร่าของคุณ ประเภท กลยุทธ์ และการกำหนดค่าเฉพาะตัวของศูนย์ที่กำหนดและไม่ได้กำหนดใน bodygraph ของคุณ เป็นหนึ่งใน ๒๖ ระบบภูมิปัญญาโบราณและสมัยใหม่ที่เราถักทอเข้าด้วยกันเป็น Cosmic Score ส่วนตัวของคุณ สำรวจประเภทออร่าและความหมายของมันได้ที่ <a href="https://mythsensus.com/library/human-design" style="color:var(--gold);text-decoration:underline">mythsensus.com/library/human-design</a></p>
+
+  </div>
+  <div class="disclaimer"><p data-en="All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone." data-th="เนื้อหาทั้งหมดบน Mythsensus สร้างขึ้นโดยปัญญาประดิษฐ์ เพื่อความบันเทิง การสำรวจตนเอง และการใคร่ครวญส่วนบุคคล ไม่ใช่คำแนะนำทางวิชาชีพ ดวงดาวอาจส่องทาง แต่ก้าวเดินเป็นของคุณ">All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone.</p></div>
+  <div class="cta-block">
+    <div class="cta-title" data-en="Read your full 26-system report" data-th="อ่านรายงาน 26 ศาสตร์ของคุณ">Read your full 26-system report</div>
+    <div class="cta-sub" data-en="Free beta · No signup · Works offline" data-th="ฟรีช่วงทดสอบ · ไม่ต้องสมัคร · ออฟไลน์ได้">Free beta · No signup · Works offline</div>
+    <a href="/beta/" class="btn-gold" data-en="Open the App →" data-th="เปิดแอป →">Open the App →</a>
+  </div>
 </div>
 </article>
-<section class="related-section">
-  <div class="related-title">Continue Reading</div>
-  <div class="related-grid">
-    <a href="/blog/multi-system-astrology" class="related-card"><div class="related-tag">Multi-System</div><div class="related-name">Why One Astrology System Isn't Enough</div></a>
-    <a href="/blog/bazi-four-pillars" class="related-card"><div class="related-tag">Chinese Astrology</div><div class="related-name">BaZi: Your Four Pillars of Destiny Explained</div></a>
-  </div>
-</section><footer class="footer-blog"><p><a href="/privacy" style="color:var(--dim)">Privacy</a> · <a href="/support" style="color:var(--dim)">Support</a> · <a href="/" style="color:var(--dim)">mythsensus.com</a> · © 2026 MYTHSENSUS</p></footer><div class="lang-pill"><button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button><button class="lang-btn" id="btnTH" onclick="setLang('th')">TH</button></div><script>(function(){var L=localStorage.getItem('msLang')||'en';function setLang(lang){L=lang;localStorage.setItem('msLang',lang);document.querySelectorAll('[data-en][data-th]').forEach(function(el){el.innerHTML=lang==='th'?el.getAttribute('data-th'):el.getAttribute('data-en');});var be=document.getElementById('btnEN'),bt=document.getElementById('btnTH');if(be)be.classList.toggle('active',lang==='en');if(bt)bt.classList.toggle('active',lang==='th');document.documentElement.lang=lang==='th'?'th':'en';}window.setLang=setLang;if(L==='th'){document.addEventListener('DOMContentLoaded',function(){setLang('th');});}else{document.addEventListener('DOMContentLoaded',function(){var be=document.getElementById('btnEN'),bt=document.getElementById('btnTH');if(be)be.classList.add('active');if(bt)bt.classList.remove('active');});}})();</script></body></html>
+<div class="footer-blog"><p>© Mythsensus · <a href="/privacy" style="color:var(--dim)">Privacy</a></p></div>
+<div class="lang-pill">
+  <button id="lang-en" class="active" onclick="setLang('en')">EN</button>
+  <button id="lang-th" onclick="setLang('th')">TH</button>
+</div>
+<script>
+function setLang(l){
+  document.documentElement.lang=l;
+  document.getElementById('lang-en').classList.toggle('active',l==='en');
+  document.getElementById('lang-th').classList.toggle('active',l==='th');
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    const k=l==='th'?'data-th':'data-en';
+    el.textContent=el.getAttribute(k)||el.textContent;
+  });
+  try{localStorage.setItem('mth_lang',l);}catch(e){}
+}
+(function(){
+  const saved=localStorage.getItem('mth_lang');
+  if(saved==='th') setLang('th');
+})();
+</script>
+</body></html>

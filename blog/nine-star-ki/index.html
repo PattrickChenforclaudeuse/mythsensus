@@ -1,0 +1,144 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;600&family=Prompt:wght@200;300;400&display=swap" rel="stylesheet">
+<style>:root{--bg:#040407;--gold:#c8a45a;--silver:#e6e2d8;--dim:#9a9088;--card:#0d0d14;--border:rgba(200,164,90,0.22)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.85}
+a{color:var(--gold);text-decoration:none}
+.nav{position:fixed;top:0;width:100%;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:1rem;cursor:pointer;letter-spacing:.06em}.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
+.nav-right{display:flex;gap:1.6rem;align-items:center}
+.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--silver);opacity:.7}
+.nav-link:hover{opacity:1;color:var(--gold)}
+.btn-gold{background:var(--gold);color:#040407;font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;padding:.55rem 1.4rem;border:none;border-radius:2px;cursor:pointer}
+.blog-hero{padding:110px 5% 60px;max-width:760px;margin:0 auto;border-bottom:1px solid var(--border)}
+.back-link{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);display:inline-flex;align-items:center;gap:.4rem;margin-bottom:1.6rem}
+.back-link:hover{color:var(--gold)}
+.article-tag{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.75;margin-bottom:.8rem;display:block}
+.article-title{font-family:'Cinzel Decorative',serif;font-size:clamp(1.4rem,3vw,2.4rem);color:var(--silver);line-height:1.25;margin-bottom:1rem}
+.article-meta{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;color:var(--dim);margin-bottom:1.8rem}
+.article-lede{font-size:1.12rem;color:var(--silver);line-height:1.9;font-style:italic;border-left:2px solid var(--gold);padding-left:1.2rem;margin-bottom:0}
+.article-body{max-width:760px;margin:0 auto;padding:3rem 5% 5rem}
+.article-body h2{font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);margin:2.8rem 0 1rem;letter-spacing:.04em}
+.article-body h3{font-family:'Josefin Sans',sans-serif;font-size:.75rem;letter-spacing:.22em;text-transform:uppercase;color:var(--silver);margin:2rem 0 .8rem;opacity:.85}
+.article-body p{margin-bottom:1.4rem;color:var(--silver);font-size:1rem;line-height:1.9}
+.article-body em{color:var(--gold);font-style:italic}
+.article-body strong{color:var(--silver);font-weight:600}
+.pull-quote{background:var(--card);border-left:3px solid var(--gold);padding:1.2rem 1.6rem;margin:2rem 0;border-radius:0 3px 3px 0}
+.pull-quote p{font-size:1.05rem;font-style:italic;color:var(--silver);margin:0}
+.disclaimer{background:rgba(200,164,90,.06);border:1px solid rgba(200,164,90,.2);border-radius:3px;padding:1rem 1.4rem;margin:2rem 0}
+.disclaimer p{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.07em;color:var(--dim);line-height:1.6;margin:0}
+.cta-block{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:2rem;text-align:center;margin:3rem 0}
+.cta-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--silver);margin-bottom:.5rem}
+.cta-sub{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.1em;color:var(--dim);margin-bottom:1.2rem}
+.footer-blog{border-top:1px solid var(--border);padding:2rem 5%;text-align:center}
+.footer-blog p{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.1em;color:var(--dim)}
+@media(max-width:640px){.nav-right .nav-link{display:none}}
+html[lang="th"] body,html[lang="th"] .article-body p{font-family:'Prompt',sans-serif;font-weight:300}
+html[lang="th"] .article-body em{font-style:normal;color:var(--gold)}
+.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
+.lang-pill button{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
+.lang-pill button.active{background:var(--gold);color:#040407}
+.lang-pill button:hover:not(.active){color:var(--gold)}
+.body-th{display:none}
+html[lang="th"] .body-en{display:none}
+html[lang="th"] .body-th{display:block}
+</style>
+<title>Nine Star Ki (九星気学): The Magic Square That Contains the Cosmos — Mythsensus</title>
+<meta name="description" content="In the age of the great flood, when the waters covered the known world and the Emperor of China waded through the current trying to restore order, a turtle">
+<link rel="canonical" href="https://mythsensus.com/blog/nine-star-ki">
+</head><body>
+<nav class="nav">
+  <a href="/" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
+  <div class="nav-right">
+    <a href="/blog" class="nav-link" data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</a>
+    <a href="/#systems" class="nav-link" data-en="Systems" data-th="ระบบ">Systems</a>
+    <a href="/beta/" class="btn-gold" data-en="Open App →" data-th="เปิดแอป →">Open App →</a>
+  </div>
+</nav>
+<article>
+<div class="blog-hero">
+  <a href="/blog" class="back-link">← <span data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</span></a>
+  <span class="article-tag" data-en="JAPANESE TRADITION · 9 STAR KI" data-th="ประเพณีญี่ปุ่น · 9 ดาวคิ">JAPANESE TRADITION · 9 STAR KI</span>
+  <h1 class="article-title" data-en="Nine Star Ki (九星気学): The Magic Square That Contains the Cosmos" data-th="ดาว 9 ดวง (Nine Star Ki 九星気学): จตุรัสวิเศษที่บรรจุจักรวาล">Nine Star Ki (九星気学): The Magic Square That Contains the Cosmos</h1>
+  <p class="article-meta">Cosmic Library · Mythsensus Editorial</p>
+  <p class="article-lede" data-en="In the age of the great flood, when the waters covered the known world and the Emperor of China waded through the current trying to restore order, a turtle emerged from the River Lo. On its shell was a pattern — a grid of nine numbers arranged so perfectly, so impossibly symmetrical, that the Emperor fell to his knees in recognition. The cosmos had sent its own diagram. The universe had revealed its structure. And from that moment, the art of Nine Star Ki was born." data-th="ในยุคน้ำท่วมครั้งใหญ่ เมื่อกระแสน้ำท่วมโลกที่รู้จัก และจักรพรรดิแห่งจีนกำลังย่ำฝ่าน้ำพยายามฟื้นฟูความสงบเรียบร้อย เต่าตัวหนึ่งโผล่ขึ้นมาจากแม่น้ำโล บนกระดองของมันมีลวดลาย — ตารางตัวเลขเก้าช่องที่จัดเรียงอย่างสมบูรณ์แบบ สมมาตรอย่างน่าประหลาดใจ จนจักรพรรดิต้องคุกเข่าลงในความรับรู้ จักรวาลได้ส่งแผนผังของตัวเองมา จักรวาลได้เปิดเผยโครงสร้างของมัน และจากช่วงเวลานั้น ศิลปะแห่งดาว 9 ดวงจึงถือกำเนิด">In the age of the great flood, when the waters covered the known world and the Emperor of China waded through the current trying to restore order, a turtle emerged from the River Lo. On its shell was a pattern — a grid of nine numbers arranged so perfectly, so impossibly symmetrical, that the Emperor fell to his knees in recognition. The cosmos had sent its own diagram. The universe had revealed its structure. And from that moment, the art of Nine Star Ki was born.</p>
+</div>
+<div class="article-body">
+  <div class="body-en">
+<p>In the age of the great flood, when the waters covered the known world and the Emperor of China waded through the current trying to restore order, a turtle emerged from the River Lo. On its shell was a pattern — a grid of nine numbers arranged so perfectly, so impossibly symmetrical, that the Emperor fell to his knees in recognition. The cosmos had sent its own diagram. The universe had revealed its structure. And from that moment, the art of Nine Star Ki was born.</p>
+<h2>Origins &amp; History</h2>
+<p>Nine Star Ki (九星気学, Kyusei Kigaku in Japanese) draws on one of the most ancient streams of Chinese cosmological thought — the tradition of the I Ching (易經), the Book of Changes, whose roots stretch back to at least 1200 BCE during the Shang dynasty, and perhaps much further.</p>
+<p>The mathematical foundation of Nine Star Ki is the Lo Shu (洛書) — the legendary magic square that, according to tradition, appeared on the back of a turtle from the River Lo during the reign of the mythical Emperor Yu. This 3×3 grid of numbers from 1 to 9 — arranged so that every row, column, and diagonal sums to exactly 15 — was recognized as a map of cosmic order. It became one of the foundational documents of Chinese metaphysics, influencing feng shui, Chinese astrology, acupuncture theory, and the I Ching.</p>
+<p>From China, this cosmological framework traveled to Japan during the Nara period (710–794 CE), carried by scholars and Buddhist monks who were part of a systematic exchange of knowledge between the two civilizations. In Japan, it merged with indigenous cosmological thought, Taoist influences, and the rich tradition of <em>onmyodo</em> (the Way of Yin and Yang) to evolve into a distinctly Japanese practice.</p>
+<p>The formalization of Nine Star Ki as a modern system is credited primarily to Japanese scholars of the Meiji and Taisho eras. Sonoda Itsuo and Masanobu Anzawa were instrumental in systematizing what had been a largely oral and fragmented tradition into a coherent written practice. Anzawa in particular developed the contemporary approach to Nine Star Ki that is still taught today — establishing the birth-star calculation method and the principles of directional movement and annual luck cycles that define the system.</p>
+<h2>The Legend</h2>
+<p>The flood came without warning.</p>
+<p>The rivers burst and the waters rose and the civilization that Emperor Yu had been appointed to protect found itself drowning. The Emperor did not flee to high ground. He waded into the current, directing labor gangs, digging channels, redirecting the flow. For thirteen years he worked — it is said he passed his own home three times during those years and did not stop to enter, so devoted was he to his task.</p>
+<p>One day, exhausted and mud-covered, the Emperor stood at the bank of the River Lo when a tortoise emerged from the dark water. It was enormous — ancient in the way that mountains are ancient. And on the smooth plates of its back, someone had drawn a pattern with lines and dots: nine sections, nine numbers, from one to nine. Not scattered randomly, but arranged with eerie precision.</p>
+<p>The Emperor studied the pattern. Every row of three numbers added to fifteen. Every column of three added to fifteen. Even the two diagonals added to fifteen. In the center sat the number five — the axis of the universe, the still point of the turning world. The other numbers radiated outward in a pattern that somehow encoded the Five Elements, the eight directions, and the ceaseless cycle of change that governed all things.</p>
+<p>He understood that the turtle had brought him more than a mathematical curiosity. The Lo Shu was the structure of time itself — a map of how energy moves through the cosmos in cycles of nine. Each number was not merely a quantity but a living force, a <em>ki</em> (気) — a quality of cosmic energy that pulsed through years, months, and hours in an endless, predictable rhythm.</p>
+<p>Later, the Eight Trigrams of the I Ching would be mapped onto the nine sectors of the Lo Shu, and the eight Bagua directions would be overlaid onto the grid, creating the cosmological framework that would underpin feng shui, Chinese astrology, and ultimately Nine Star Ki. The tortoise had given humanity a lens through which to read the universe. All that remained was to learn to look through it.</p>
+<h2>Core Philosophy</h2>
+<p>In Nine Star Ki, every person is born under one of nine stars — each a manifestation of a distinct quality of cosmic energy. These nine stars correspond to the eight trigrams of the I Ching plus a central earth energy:</p>
+<p><strong>1 Water</strong> — deep, introspective, philosophical. <strong>2 Earth</strong> — nurturing, patient, devoted. <strong>3 Thunder</strong> — dynamic, pioneering, impulsive. <strong>4 Wind</strong> — adaptable, communicative, indecisive. <strong>5 Earth (Center)</strong> — powerful, intense, the pivot around which others move. <strong>6 Heaven</strong> — authoritative, principled, demanding. <strong>7 Lake</strong> — charming, social, reflective. <strong>8 Mountain</strong> — stubborn, accumulative, quietly powerful. <strong>9 Fire</strong> — radiant, expressive, passionate.</p>
+<p>A person's natal star is calculated from their birth year, but the system goes deeper: a monthly star overlays the annual, and a daily star overlays the monthly, creating a three-layered energy profile. The movement of these stars through the Lo Shu grid over time creates the cycles of luck, challenge, and opportunity that characterize each period of life.</p>
+<p>Nine Star Ki is also deeply connected to directional practice — specific compass directions are considered auspicious or inauspicious in given years, and a practitioner's choice of travel direction can amplify or dampen the energy available to them. This makes Nine Star Ki not merely a character analysis tool but a practical navigational system for life.</p>
+<h2>At Mythsensus</h2>
+<p>Nine Star Ki (九星気学) is one of the 26 ancient wisdom systems synthesized in your Mythsensus Full Report. Your birth year, month, and day are used to calculate your primary, character, and surface stars, contributing a distinctly East Asian perspective on your energy, cycles, and temperament to the broader cosmic portrait. In the Lo Shu grid, every number has its place. In the Cosmic Score, so do you.</p>
+
+  </div>
+  <div class="body-th">
+<p><em>โดยทีม Mythsensus</em></p>
+<p>ในยุคน้ำท่วมครั้งใหญ่ เมื่อกระแสน้ำท่วมโลกที่รู้จัก และจักรพรรดิแห่งจีนกำลังย่ำฝ่าน้ำพยายามฟื้นฟูความสงบเรียบร้อย เต่าตัวหนึ่งโผล่ขึ้นมาจากแม่น้ำโล บนกระดองของมันมีลวดลาย — ตารางตัวเลขเก้าช่องที่จัดเรียงอย่างสมบูรณ์แบบ สมมาตรอย่างน่าประหลาดใจ จนจักรพรรดิต้องคุกเข่าลงในความรับรู้ จักรวาลได้ส่งแผนผังของตัวเองมา จักรวาลได้เปิดเผยโครงสร้างของมัน และจากช่วงเวลานั้น ศิลปะแห่งดาว 9 ดวงจึงถือกำเนิด</p>
+<h2>ที่มาและประวัติ</h2>
+<p>Nine Star Ki (九星気学, คิวเซ คิงากุ ในภาษาญี่ปุ่น) ดึงจากกระแสความคิดทางจักรวาลวิทยาของจีนที่เก่าแก่ที่สุด — ประเพณีของ I Ching (易經) คัมภีร์แห่งการเปลี่ยนแปลง ซึ่งรากเหง้าย้อนไปถึงอย่างน้อย 1200 ปีก่อนคริสตกาลในช่วงราชวงศ์ซาง หรืออาจก่อนหน้านั้นมาก</p>
+<p>รากฐานทางคณิตศาสตร์ของ Nine Star Ki คือ โล ซู (洛書) — จตุรัสวิเศษในตำนานที่ตามประเพณีเชื่อกันว่าปรากฏบนกระดองเต่าจากแม่น้ำโลในสมัยจักรพรรดิยูในตำนาน ตาราง 3×3 ของตัวเลข 1 ถึง 9 — ที่จัดเรียงจนทุกแถว ทุกคอลัมน์ และทุกเส้นทแยงมุมรวมได้ 15 พอดี — ถูกยอมรับว่าเป็นแผนที่ของระเบียบจักรวาล มันกลายเป็นหนึ่งในเอกสารรากฐานของอภิปรัชญาจีน มีอิทธิพลต่อฮวงจุ้ย โหราศาสตร์จีน ทฤษฎีการฝังเข็ม และ I Ching</p>
+<p>จากจีน กรอบความคิดทางจักรวาลวิทยานี้เดินทางสู่ญี่ปุ่นในช่วงยุคนาระ (ค.ศ. 710–794) พาโดยนักวิชาการและพระสงฆ์พุทธที่เป็นส่วนหนึ่งของการแลกเปลี่ยนความรู้อย่างเป็นระบบระหว่างสองอารยธรรม ในญี่ปุ่น มันรวมเข้ากับความคิดทางจักรวาลวิทยาพื้นเมือง อิทธิพลเต๋า และประเพณีอันมั่งคั่งของ <em>ออนเมียวโด</em> (วิถีแห่งหยินและหยาง) พัฒนาเป็นแนวปฏิบัติที่เป็นเอกลักษณ์ของญี่ปุ่น</p>
+<p>การทำให้ Nine Star Ki เป็นระบบสมัยใหม่นั้นให้เครดิตหลักแก่นักวิชาการญี่ปุ่นในยุคเมจิและไทโช โดยเฉพาะมาซาโนบุ อันซาวะที่พัฒนาแนวทางร่วมสมัยสู่ Nine Star Ki ที่ยังคงสอนอยู่ในปัจจุบัน</p>
+<h2>ตำนาน</h2>
+<p>น้ำท่วมมาโดยไม่มีคำเตือน</p>
+<p>แม่น้ำท่วมตลิ่ง น้ำสูงขึ้น และอารยธรรมที่จักรพรรดิยูได้รับแต่งตั้งให้ปกป้องพบว่าตัวเองกำลังจมน้ำ จักรพรรดิไม่หนีไปยังที่สูง พระองค์ย่ำลงไปในกระแสน้ำ สั่งการแรงงาน ขุดคลอง เปลี่ยนทิศทางของน้ำ เป็นเวลาสิบสามปีที่พระองค์ทรงงาน — กล่าวกันว่าพระองค์ผ่านหน้าบ้านของพระองค์เองสามครั้งในช่วงเวลาเหล่านั้นและไม่หยุดเข้าไป ทรงอุทิศตัวเองต่อหน้าที่ของพระองค์อย่างแน่วแน่</p>
+<p>วันหนึ่ง เหนื่อยล้าและเปื้อนโคลน จักรพรรดิยืนอยู่บนฝั่งแม่น้ำโลเมื่อเต่าตัวหนึ่งโผล่จากน้ำมืด มันมีขนาดใหญ่มาก — โบราณในแบบที่ภูเขาโบราณ และบนแผ่นกระดองที่เรียบ มีคนวาดลวดลายด้วยเส้นและจุด: เก้าส่วน เก้าตัวเลข จากหนึ่งถึงเก้า ไม่กระจัดกระจายแบบสุ่ม แต่จัดเรียงด้วยความแม่นยำที่น่าขนลุก</p>
+<p>จักรพรรดิศึกษาลวดลาย ทุกแถวของสามตัวเลขรวมได้สิบห้า ทุกคอลัมน์รวมได้สิบห้า แม้แต่เส้นทแยงมุมสองเส้นก็รวมได้สิบห้า ตรงกลางนั่งอยู่เลขห้า — แกนของจักรวาล จุดนิ่งของโลกที่หมุนอยู่ ตัวเลขอื่นๆ แผ่ออกไปด้านนอกในลวดลายที่เข้ารหัสธาตุทั้งห้า แปดทิศทาง และวัฏจักรแห่งการเปลี่ยนแปลงอันไม่หยุดยั้งที่ปกครองทุกสิ่ง</p>
+<p>พระองค์เข้าใจว่าเต่าได้นำมาซึ่งมากกว่าความอยากรู้อยากเห็นทางคณิตศาสตร์ โล ซู คือโครงสร้างของเวลาเอง — แผนที่ว่าพลังงานเคลื่อนที่ผ่านจักรวาลในวัฏจักรของเก้าอย่างไร แต่ละหมายเลขไม่ใช่เพียงปริมาณแต่เป็นพลังที่มีชีวิต <em>คิ</em> (気) — คุณภาพของพลังงานจักรวาลที่เต้นผ่านปี เดือน และชั่วโมงในจังหวะไม่มีสิ้นสุดที่คาดเดาได้</p>
+<p>ต่อมา แปดตรีโกณของ I Ching จะถูกวางแผนลงบนเก้าส่วนของโล ซู สร้างกรอบจักรวาลวิทยาที่จะค้ำจุนฮวงจุ้ย โหราศาสตร์จีน และในที่สุด Nine Star Ki เต่าได้มอบเลนส์แก่มวลมนุษย์เพื่ออ่านจักรวาล สิ่งที่เหลืออยู่คือการเรียนรู้ที่จะมองผ่านมัน</p>
+<h2>หลักการและแก่นคิด</h2>
+<p>ใน Nine Star Ki ทุกคนเกิดภายใต้ดาวหนึ่งในเก้าดวง — แต่ละดวงเป็นการแสดงออกของพลังงานจักรวาลที่มีคุณภาพเฉพาะตัว ดาวทั้งเก้าดวงนี้สอดคล้องกับแปดตรีโกณของ I Ching บวกกับพลังงานดินกลาง:</p>
+<p><strong>1 น้ำ</strong> — ลึกซึ้ง ใคร่ครวญ ชอบปรัชญา <strong>2 ดิน</strong> — เอาอกเอาใจ อดทน อุทิศตัว <strong>3 ฟ้าร้อง</strong> — กระตือรือร้น บุกเบิก หุนหันพลันแล่น <strong>4 ลม</strong> — ปรับตัวได้ สื่อสารได้ดี ลังเล <strong>5 ดิน (กลาง)</strong> — ทรงพลัง เข้มข้น จุดหมุนที่คนอื่นหมุนรอบ <strong>6 สวรรค์</strong> — มีอำนาจ มีหลักการ เรียกร้องสูง <strong>7 ทะเลสาบ</strong> — มีเสน่ห์ เข้าสังคมได้ ไตร่ตรอง <strong>8 ภูเขา</strong> — ดื้อรั้น สะสม เงียบแต่ทรงพลัง <strong>9 ไฟ</strong> — เปล่งประกาย แสดงออก หลงใหล</p>
+<p>ดาวกำเนิดของบุคคลถูกคำนวณจากปีเกิด แต่ระบบไปลึกกว่านั้น: ดาวรายเดือนซ้อนทับบนรายปี และดาวรายวันซ้อนทับบนรายเดือน สร้างโปรไฟล์พลังงานสามชั้น การเคลื่อนที่ของดาวเหล่านี้ผ่านตาราง Lo Shu ตามกาลเวลาสร้างวัฏจักรของโชค ความท้าทาย และโอกาสที่เป็นลักษณะเฉพาะของแต่ละช่วงชีวิต</p>
+<p>Nine Star Ki ยังเชื่อมโยงอย่างลึกซึ้งกับการปฏิบัติทางทิศ — ทิศทางเข็มทิศเฉพาะถือว่าเป็นมงคลหรืออัปมงคลในปีที่กำหนด ทำให้ Nine Star Ki ไม่ใช่เพียงเครื่องมือวิเคราะห์บุคลิกภาพ แต่เป็นระบบนำทางเชิงปฏิบัติสำหรับชีวิต</p>
+<h2>ที่ Mythsensus</h2>
+<p>ดาว 9 ดวง (Nine Star Ki 九星気学) เป็นหนึ่งใน 26 ระบบภูมิปัญญาโบราณที่สังเคราะห์ไว้ในรายงาน Mythsensus Full Report ของคุณ ปีเกิด เดือน และวันของคุณถูกใช้คำนวณดาวหลัก ดาวอุปนิสัย และดาวพื้นผิวของคุณ นำมุมมองแบบเอเชียตะวันออกที่โดดเด่นเกี่ยวกับพลังงาน วัฏจักร และอารมณ์ของคุณมาสู่ภาพจักรวาลที่กว้างขึ้น ในตาราง Lo Shu ทุกตัวเลขมีที่ของมัน ใน Cosmic Score คุณก็เช่นกัน</p>
+
+  </div>
+  <div class="disclaimer"><p data-en="All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone." data-th="เนื้อหาทั้งหมดบน Mythsensus สร้างขึ้นโดยปัญญาประดิษฐ์ เพื่อความบันเทิง การสำรวจตนเอง และการใคร่ครวญส่วนบุคคล ไม่ใช่คำแนะนำทางวิชาชีพ ดวงดาวอาจส่องทาง แต่ก้าวเดินเป็นของคุณ">All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone.</p></div>
+  <div class="cta-block">
+    <div class="cta-title" data-en="Read your full 26-system report" data-th="อ่านรายงาน 26 ศาสตร์ของคุณ">Read your full 26-system report</div>
+    <div class="cta-sub" data-en="Free beta · No signup · Works offline" data-th="ฟรีช่วงทดสอบ · ไม่ต้องสมัคร · ออฟไลน์ได้">Free beta · No signup · Works offline</div>
+    <a href="/beta/" class="btn-gold" data-en="Open the App →" data-th="เปิดแอป →">Open the App →</a>
+  </div>
+</div>
+</article>
+<div class="footer-blog"><p>© Mythsensus · <a href="/privacy" style="color:var(--dim)">Privacy</a></p></div>
+<div class="lang-pill">
+  <button id="lang-en" class="active" onclick="setLang('en')">EN</button>
+  <button id="lang-th" onclick="setLang('th')">TH</button>
+</div>
+<script>
+function setLang(l){
+  document.documentElement.lang=l;
+  document.getElementById('lang-en').classList.toggle('active',l==='en');
+  document.getElementById('lang-th').classList.toggle('active',l==='th');
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    const k=l==='th'?'data-th':'data-en';
+    el.textContent=el.getAttribute(k)||el.textContent;
+  });
+  try{localStorage.setItem('mth_lang',l);}catch(e){}
+}
+(function(){
+  const saved=localStorage.getItem('mth_lang');
+  if(saved==='th') setLang('th');
+})();
+</script>
+</body></html>

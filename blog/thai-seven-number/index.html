@@ -1,0 +1,135 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;600&family=Prompt:wght@200;300;400&display=swap" rel="stylesheet">
+<style>:root{--bg:#040407;--gold:#c8a45a;--silver:#e6e2d8;--dim:#9a9088;--card:#0d0d14;--border:rgba(200,164,90,0.22)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.85}
+a{color:var(--gold);text-decoration:none}
+.nav{position:fixed;top:0;width:100%;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:1rem;cursor:pointer;letter-spacing:.06em}.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
+.nav-right{display:flex;gap:1.6rem;align-items:center}
+.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--silver);opacity:.7}
+.nav-link:hover{opacity:1;color:var(--gold)}
+.btn-gold{background:var(--gold);color:#040407;font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;padding:.55rem 1.4rem;border:none;border-radius:2px;cursor:pointer}
+.blog-hero{padding:110px 5% 60px;max-width:760px;margin:0 auto;border-bottom:1px solid var(--border)}
+.back-link{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);display:inline-flex;align-items:center;gap:.4rem;margin-bottom:1.6rem}
+.back-link:hover{color:var(--gold)}
+.article-tag{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.75;margin-bottom:.8rem;display:block}
+.article-title{font-family:'Cinzel Decorative',serif;font-size:clamp(1.4rem,3vw,2.4rem);color:var(--silver);line-height:1.25;margin-bottom:1rem}
+.article-meta{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.15em;color:var(--dim);margin-bottom:1.8rem}
+.article-lede{font-size:1.12rem;color:var(--silver);line-height:1.9;font-style:italic;border-left:2px solid var(--gold);padding-left:1.2rem;margin-bottom:0}
+.article-body{max-width:760px;margin:0 auto;padding:3rem 5% 5rem}
+.article-body h2{font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);margin:2.8rem 0 1rem;letter-spacing:.04em}
+.article-body h3{font-family:'Josefin Sans',sans-serif;font-size:.75rem;letter-spacing:.22em;text-transform:uppercase;color:var(--silver);margin:2rem 0 .8rem;opacity:.85}
+.article-body p{margin-bottom:1.4rem;color:var(--silver);font-size:1rem;line-height:1.9}
+.article-body em{color:var(--gold);font-style:italic}
+.article-body strong{color:var(--silver);font-weight:600}
+.pull-quote{background:var(--card);border-left:3px solid var(--gold);padding:1.2rem 1.6rem;margin:2rem 0;border-radius:0 3px 3px 0}
+.pull-quote p{font-size:1.05rem;font-style:italic;color:var(--silver);margin:0}
+.disclaimer{background:rgba(200,164,90,.06);border:1px solid rgba(200,164,90,.2);border-radius:3px;padding:1rem 1.4rem;margin:2rem 0}
+.disclaimer p{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.07em;color:var(--dim);line-height:1.6;margin:0}
+.cta-block{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:2rem;text-align:center;margin:3rem 0}
+.cta-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--silver);margin-bottom:.5rem}
+.cta-sub{font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.1em;color:var(--dim);margin-bottom:1.2rem}
+.footer-blog{border-top:1px solid var(--border);padding:2rem 5%;text-align:center}
+.footer-blog p{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.1em;color:var(--dim)}
+@media(max-width:640px){.nav-right .nav-link{display:none}}
+html[lang="th"] body,html[lang="th"] .article-body p{font-family:'Prompt',sans-serif;font-weight:300}
+html[lang="th"] .article-body em{font-style:normal;color:var(--gold)}
+.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
+.lang-pill button{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
+.lang-pill button.active{background:var(--gold);color:#040407}
+.lang-pill button:hover:not(.active){color:var(--gold)}
+.body-th{display:none}
+html[lang="th"] .body-en{display:none}
+html[lang="th"] .body-th{display:block}
+</style>
+<title>The Thai 7-Number System: Nine Bases, Nine Heavens, One Soul — Mythsensus</title>
+<meta name="description" content="Before you were named, you were already a number. In the temples and royal courts of Thailand, Brahmin scholars spent lifetimes mapping the invisible archi">
+<link rel="canonical" href="https://mythsensus.com/blog/thai-seven-number">
+</head><body>
+<nav class="nav">
+  <a href="/" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
+  <div class="nav-right">
+    <a href="/blog" class="nav-link" data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</a>
+    <a href="/#systems" class="nav-link" data-en="Systems" data-th="ระบบ">Systems</a>
+    <a href="/beta/" class="btn-gold" data-en="Open App →" data-th="เปิดแอป →">Open App →</a>
+  </div>
+</nav>
+<article>
+<div class="blog-hero">
+  <a href="/blog" class="back-link">← <span data-en="Cosmic Library" data-th="ห้องสมุดจักรวาล">Cosmic Library</span></a>
+  <span class="article-tag" data-en="THAI WISDOM · BASE-7" data-th="ภูมิปัญญาไทย · ฐาน 7">THAI WISDOM · BASE-7</span>
+  <h1 class="article-title" data-en="The Thai 7-Number System: Nine Bases, Nine Heavens, One Soul" data-th="เลข ๗ ตัว ๙ ฐาน: เก้าฐาน เก้าสวรรค์ หนึ่งดวงวิญญาณ">The Thai 7-Number System: Nine Bases, Nine Heavens, One Soul</h1>
+  <p class="article-meta">Cosmic Library · Mythsensus Editorial</p>
+  <p class="article-lede" data-en="Before you were named, you were already a number. In the temples and royal courts of Thailand, Brahmin scholars spent lifetimes mapping the invisible architecture of the self — not through stars alone, but through the sacred resonance of digits derived from the name your family chose and the moment the cosmos received you. The Thai 7-Number System, known as เลข ๗ ตัว ๙ ฐาน, is not numerology as the West knows it. It is something older, stranger, and far more precise." data-th="ก่อนที่คุณจะได้รับชื่อ คุณก็เป็นตัวเลขอยู่แล้ว ในวัดและราชสำนักของไทย นักปราชญ์พราหมณ์ใช้เวลาทั้งชีวิตในการจับโครงสร้างที่มองไม่เห็นของตัวตนมนุษย์ ไม่ใช่เพียงผ่านดวงดาวเท่านั้น แต่ผ่านความสั่นสะเทือนศักดิ์สิทธิ์ของตัวเลขที่ได้มาจากชื่อที่ครอบครัวตั้งให้ และจากชั่วขณะที่จักรวาลรับวิญญาณของคุณมา ระบบเลข ๗ ตัว ๙ ฐาน ไม่ใช่ตัวเลขศาสตร์แบบตะวันตก แต่เป็นสิ่งที่เก่าแก่กว่า แปลกกว่า และแม่นยำกว่าอย่างเทียบไม่ได้">Before you were named, you were already a number. In the temples and royal courts of Thailand, Brahmin scholars spent lifetimes mapping the invisible architecture of the self — not through stars alone, but through the sacred resonance of digits derived from the name your family chose and the moment the cosmos received you. The Thai 7-Number System, known as เลข ๗ ตัว ๙ ฐาน, is not numerology as the West knows it. It is something older, stranger, and far more precise.</p>
+</div>
+<div class="article-body">
+  <div class="body-en">
+<p>Before you were named, you were already a number. In the temples and royal courts of Thailand, Brahmin scholars spent lifetimes mapping the invisible architecture of the self — not through stars alone, but through the sacred resonance of digits derived from the name your family chose and the moment the cosmos received you. The Thai 7-Number System, known as เลข ๗ ตัว ๙ ฐาน, is not numerology as the West knows it. It is something older, stranger, and far more precise.</p>
+<h2>Origins &amp; History</h2>
+<p>The Thai 7-Number System emerged from the confluence of two ancient rivers of knowledge: Indian Brahmin numerology and Southeast Asian Buddhist cosmology. When Brahmanism spread into the Khmer Empire and eventually into the Thai kingdoms of Sukhothai and Ayutthaya — roughly 700 years ago — it carried with it a complete numerical theology. Numbers were not abstract. They were alive. Each carried a planetary lord, a guardian deity, and a vibrational signature that could be read against a human life.</p>
+<p>What makes เลข ๗ ตัว ๙ ฐาน distinctive is its mathematical foundation: it operates in base 9 rather than the base 10 of modern arithmetic. This is not an accident or an eccentricity. The number 9 held supreme cosmological significance in Thai-Brahmin thought — nine sacred gems (นพรัตน์), nine divine mountains, nine levels of heaven. To calculate in base 9 was to align human reckoning with the architecture of the universe itself.</p>
+<p>The system was cultivated within the Thai royal court and Brahmin priestly class (พราหมณ์หลวง), where it was used not merely for personal consultation but for affairs of state: naming crown princes, timing royal ceremonies, and selecting auspicious dates for military campaigns. Ordinary Thais accessed the system primarily through birth and naming ceremonies, where Brahmin priests would calculate a child's seven core numbers and advise on which names would harmonize with those numerical energies. This practice of numerological name selection (การตั้งชื่อ) continues to this day — name consultants across Thailand still use variants of this system when advising new parents.</p>
+<h2>The Legend</h2>
+<p>At the heart of the Thai 7-Number System lies one of the great cosmological texts of Southeast Asia: the Triphum Phra Ruang (ไตรภูมิพระร่วง), the &quot;Three Worlds According to King Ruang.&quot; Written in 1345 CE by the Sukhothai king Li Thai, it is the oldest known Thai prose work and a complete map of Buddhist-Brahmin cosmology — the heavens, the hells, the human realm, and the invisible forces that govern each.</p>
+<p>In the Triphum's cosmology, numbers are not symbols but substances. The nine foundational numbers carry the weight of nine worlds. A soul entering human life does not arrive randomly — it arrives with intention, with a specific vibrational signature impressed upon it by the celestial forces active at the moment of birth and crystallized in the sounds of the name given to it.</p>
+<p>This is the legend the system rests upon: that each human soul (จิตตะ) chooses its incarnation deliberately, and that the numbers embedded in one's full Thai name and birth date are the fingerprints of that choice. The guardian deities of each number — aligned with the nine Navagraha planets of Hindu astrology — serve as celestial sponsors, shaping the soul's trajectory through this lifetime. To know your seven numbers is to read the intention you wrote before you were born.</p>
+<p>The number 9 itself is the sovereign of the system, because 9 is the number that returns to itself. In base-9 calculation, every number eventually resolves. The Brahmin masters saw this as proof of cosmic completeness — the universe is a closed system of nine, and every soul travels its full circuit.</p>
+<h2>Core Philosophy</h2>
+<p>The system generates seven distinct numbers from two sources: the numerical values of the syllables in a person's full Thai name, and the digits of their birth date — day, month, and year. Each of these seven numbers falls between 1 and 9 (thanks to the base-9 reduction), and each maps to a specific domain of life.</p>
+<p>Each number 1 through 9 carries a guardian planetary deity: 1 (Surya/Sun), 2 (Chandra/Moon), 3 (Angaraka/Mars), 4 (Rahu), 5 (Guru/Jupiter), 6 (Shukra/Venus), 7 (Ketu), 8 (Shani/Saturn), and 9 (Budha/Mercury). The interplay between your seven numbers — which planets are amplified, which are in tension, which are absent — forms the living portrait of your soul's design in this incarnation.</p>
+<p>Crucially, the system is used prescriptively as well as descriptively. If a newborn's numbers reveal a weak Venus position, a name with Venus-resonant syllables may be selected to strengthen it. If an adult faces repeated obstacles, a Brahmin numerologist may suggest a legal name change to improve numerical harmony. The system believes the sounds we answer to shape the energy we carry.</p>
+<h2>At Mythsensus</h2>
+<p>Within the Mythsensus Cosmic Score, the Thai 7-Number System contributes one of 26 ancient perspectives on who you are. Calculated from your full birth name and date, your seven core numbers add a distinctly Southeast Asian layer of wisdom to your reading — one that honors both the Brahmin mathematical tradition and the Buddhist understanding of intentional incarnation. Discover what your numbers reveal at <a href="https://mythsensus.com/library/thai-7-number" style="color:var(--gold);text-decoration:underline">mythsensus.com/library/thai-7-number</a>.</p>
+
+  </div>
+  <div class="body-th">
+<p>ก่อนที่คุณจะได้รับชื่อ คุณก็เป็นตัวเลขอยู่แล้ว ในวัดและราชสำนักของไทย นักปราชญ์พราหมณ์ใช้เวลาทั้งชีวิตในการจับโครงสร้างที่มองไม่เห็นของตัวตนมนุษย์ ไม่ใช่เพียงผ่านดวงดาวเท่านั้น แต่ผ่านความสั่นสะเทือนศักดิ์สิทธิ์ของตัวเลขที่ได้มาจากชื่อที่ครอบครัวตั้งให้ และจากชั่วขณะที่จักรวาลรับวิญญาณของคุณมา ระบบเลข ๗ ตัว ๙ ฐาน ไม่ใช่ตัวเลขศาสตร์แบบตะวันตก แต่เป็นสิ่งที่เก่าแก่กว่า แปลกกว่า และแม่นยำกว่าอย่างเทียบไม่ได้</p>
+<h2>ที่มาและประวัติ</h2>
+<p>ระบบเลข ๗ ตัว ๙ ฐานเกิดขึ้นจากการบรรจบของสองสายธารแห่งความรู้โบราณ ได้แก่ ตัวเลขศาสตร์พราหมณ์จากอินเดีย และจักรวาลวิทยาพุทธแบบเอเชียตะวันออกเฉียงใต้ เมื่อศาสนาพราหมณ์แผ่ขยายเข้าสู่อาณาจักรเขมรและต่อมายังอาณาจักรไทย ทั้งสุโขทัยและอยุธยา ราว ๗๐๐ ปีที่แล้ว ได้นำพาเทววิทยาเชิงตัวเลขที่สมบูรณ์มาด้วย ตัวเลขไม่ใช่นามธรรม แต่มีชีวิต แต่ละตัวมีเจ้าเรือนดาวเคราะห์ เทพผู้คุ้มครอง และลายเซ็นแห่งการสั่นพ้องที่อ่านได้กับชีวิตมนุษย์</p>
+<p>สิ่งที่ทำให้เลข ๗ ตัว ๙ ฐาน โดดเด่นคือรากฐานทางคณิตศาสตร์ที่คำนวณในระบบฐาน ๙ ไม่ใช่ฐาน ๑๐ แบบคณิตศาสตร์สมัยใหม่ นี่ไม่ใช่ความบังเอิญหรือความแปลกประหลาด เลข ๙ มีความสำคัญทางจักรวาลวิทยาสูงสุดในความคิดแบบไทย-พราหมณ์ ทั้งนพรัตน์ทั้งเก้า ภูเขาศักดิ์สิทธิ์เก้าลูก และเก้าชั้นสวรรค์ การคำนวณในฐาน ๙ คือการจัดระบบการนับของมนุษย์ให้สอดคล้องกับโครงสร้างของจักรวาลนั่นเอง</p>
+<p>ระบบนี้ถูกบ่มเพาะภายในราชสำนักและหมู่พราหมณ์หลวง ซึ่งใช้ไม่เพียงเพื่อการปรึกษาส่วนตัว แต่ยังใช้สำหรับกิจการของรัฐ ไม่ว่าจะเป็นการตั้งชื่อรัชทายาท การกำหนดวาระพระราชพิธี หรือการเลือกฤกษ์ยามสำหรับการยุทธ ประชาชนทั่วไปเข้าถึงระบบนี้ผ่านพิธีตั้งชื่อเป็นหลัก ที่พราหมณ์จะคำนวณเลข ๗ ตัวหลักของเด็กและให้คำแนะนำว่าชื่อใดที่จะสอดคล้องกับพลังงานเชิงตัวเลขนั้น ประเพณีการตั้งชื่อโดยใช้ตัวเลขนี้ยังคงดำรงอยู่จนถึงทุกวันนี้</p>
+<h2>ตำนาน</h2>
+<p>แก่นของระบบเลข ๗ ตัว ๙ ฐาน อยู่ที่คัมภีร์จักรวาลวิทยาอันยิ่งใหญ่ที่สุดชิ้นหนึ่งของเอเชียตะวันออกเฉียงใต้ คือ ไตรภูมิพระร่วง ซึ่งเขียนขึ้นในปี พ.ศ. ๑๘๘๘ โดยพระมหาธรรมราชาที่ ๑ (พระยาลิไท) แห่งสุโขทัย นับเป็นงานร้อยแก้วภาษาไทยที่เก่าแก่ที่สุดเท่าที่ทราบ และเป็นแผนที่สมบูรณ์ของจักรวาลวิทยาพุทธ-พราหมณ์ ทั้งสวรรค์ นรก โลกมนุษย์ และพลังล่องหนที่ขับเคลื่อนแต่ละภพ</p>
+<p>ในจักรวาลวิทยาของไตรภูมิ ตัวเลขไม่ใช่สัญลักษณ์แต่เป็นสสาร เลขเก้าหลักมูลฐานแบกรับน้ำหนักของเก้าโลก วิญญาณที่เข้าสู่ชีวิตมนุษย์ไม่ได้มาโดยไม่มีเหตุผล มันมาพร้อมเจตนา พร้อมลายเซ็นแห่งการสั่นพ้องเฉพาะตัวที่ประทับลงโดยพลังจักรวาลซึ่งทำงานอยู่ในขณะเกิด และตรึงไว้ในเสียงของชื่อที่ครอบครัวมอบให้</p>
+<p>นี่คือตำนานที่ระบบนี้ตั้งอยู่ วิญญาณมนุษย์แต่ละดวง (จิตตะ) เลือกการเกิดของตนเองอย่างมีเจตนา และตัวเลขที่แฝงอยู่ในชื่อเต็มภาษาไทยและวันเกิดคือรอยนิ้วมือของการเลือกนั้น เทพผู้พิทักษ์ของแต่ละตัวเลข ซึ่งสอดคล้องกับดาวนพเคราะห์ทั้งเก้าของโหราศาสตร์ฮินดู ทำหน้าที่เป็นผู้อุปถัมภ์แห่งสวรรค์ ที่กำหนดวิถีของวิญญาณในชาตินี้ การรู้จักเลขทั้งเจ็ดของตนเองคือการอ่านเจตนาที่คุณเขียนไว้ก่อนจะเกิดมา</p>
+<p>เลข ๙ เองคือประมุขของระบบ เพราะ ๙ คือตัวเลขที่กลับมาหาตัวเอง ในการคำนวณฐาน ๙ ตัวเลขทุกตัวในที่สุดก็ลดทอนกลับมา บรรดาอาจารย์พราหมณ์มองสิ่งนี้เป็นหลักฐานของความสมบูรณ์ทางจักรวาล จักรวาลคือระบบปิดของเก้า และทุกวิญญาณเดินทางครบวงจร</p>
+<h2>หลักการและแก่นคิด</h2>
+<p>ระบบนี้สร้างตัวเลขหลักเจ็ดตัวจากสองแหล่ง ได้แก่ ค่าตัวเลขของพยางค์ในชื่อเต็มภาษาไทย และตัวเลขของวันเกิด คือ วัน เดือน และปี ตัวเลขทั้งเจ็ดนี้แต่ละตัวอยู่ระหว่าง ๑ ถึง ๙ (ด้วยการลดทอนในฐาน ๙) และแต่ละตัวเชื่อมโยงกับโดเมนชีวิตเฉพาะด้าน</p>
+<p>ตัวเลขแต่ละตัวตั้งแต่ ๑ ถึง ๙ มีเทพดาวเคราะห์ผู้พิทักษ์ ๑ (พระอาทิตย์) ๒ (พระจันทร์) ๓ (พระอังคาร) ๔ (ราหู) ๕ (พระพฤหัสบดี) ๖ (พระศุกร์) ๗ (เกตุ) ๘ (พระเสาร์) และ ๙ (พระพุธ) ปฏิสัมพันธ์ระหว่างตัวเลขทั้งเจ็ดของคุณ ว่าดาวเคราะห์ใดถูกขยาย ดาวใดขัดแย้ง และดาวใดขาดหายไป ก่อเป็นภาพชีวิตที่มีชีวิตของการออกแบบวิญญาณในชาตินี้</p>
+<p>ระบบนี้ใช้ได้ทั้งแบบพยากรณ์และแบบกำหนด หากตัวเลขของเด็กแรกเกิดแสดงว่าดาวศุกร์อ่อนแอ ก็อาจเลือกชื่อที่มีพยางค์สอดคล้องกับดาวศุกร์เพื่อเสริมความแข็งแกร่ง หากผู้ใหญ่ประสบอุปสรรคซ้ำแล้วซ้ำเล่า นักโหราศาสตร์พราหมณ์อาจแนะนำให้เปลี่ยนชื่อทางกฎหมายเพื่อปรับปรุงความกลมกลืนเชิงตัวเลข ระบบเชื่อว่าเสียงที่เราตอบสนองต่อมันกำหนดพลังงานที่เราแบกรับ</p>
+<h2>ที่ Mythsensus</h2>
+<p>ภายใน Cosmic Score ของ Mythsensus ระบบเลข ๗ ตัว ๙ ฐาน มีส่วนร่วมเป็นหนึ่งใน ๒๖ มุมมองแห่งภูมิปัญญาโบราณเกี่ยวกับตัวคุณ คำนวณจากชื่อเต็มและวันเกิดของคุณ ตัวเลขหลักทั้งเจ็ดเพิ่มชั้นภูมิปัญญาแบบเอเชียตะวันออกเฉียงใต้ที่โดดเด่นให้กับการอ่านของคุณ การอ่านที่ให้เกียรติทั้งประเพณีคณิตศาสตร์พราหมณ์และความเข้าใจทางพุทธเรื่องการเกิดมาอย่างมีเจตนา ค้นพบสิ่งที่ตัวเลขของคุณเผยให้เห็นได้ที่ <a href="https://mythsensus.com/library/thai-7-number" style="color:var(--gold);text-decoration:underline">mythsensus.com/library/thai-7-number</a></p>
+
+  </div>
+  <div class="disclaimer"><p data-en="All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone." data-th="เนื้อหาทั้งหมดบน Mythsensus สร้างขึ้นโดยปัญญาประดิษฐ์ เพื่อความบันเทิง การสำรวจตนเอง และการใคร่ครวญส่วนบุคคล ไม่ใช่คำแนะนำทางวิชาชีพ ดวงดาวอาจส่องทาง แต่ก้าวเดินเป็นของคุณ">All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone.</p></div>
+  <div class="cta-block">
+    <div class="cta-title" data-en="Read your full 26-system report" data-th="อ่านรายงาน 26 ศาสตร์ของคุณ">Read your full 26-system report</div>
+    <div class="cta-sub" data-en="Free beta · No signup · Works offline" data-th="ฟรีช่วงทดสอบ · ไม่ต้องสมัคร · ออฟไลน์ได้">Free beta · No signup · Works offline</div>
+    <a href="/beta/" class="btn-gold" data-en="Open the App →" data-th="เปิดแอป →">Open the App →</a>
+  </div>
+</div>
+</article>
+<div class="footer-blog"><p>© Mythsensus · <a href="/privacy" style="color:var(--dim)">Privacy</a></p></div>
+<div class="lang-pill">
+  <button id="lang-en" class="active" onclick="setLang('en')">EN</button>
+  <button id="lang-th" onclick="setLang('th')">TH</button>
+</div>
+<script>
+function setLang(l){
+  document.documentElement.lang=l;
+  document.getElementById('lang-en').classList.toggle('active',l==='en');
+  document.getElementById('lang-th').classList.toggle('active',l==='th');
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    const k=l==='th'?'data-th':'data-en';
+    el.textContent=el.getAttribute(k)||el.textContent;
+  });
+  try{localStorage.setItem('mth_lang',l);}catch(e){}
+}
+(function(){
+  const saved=localStorage.getItem('mth_lang');
+  if(saved==='th') setLang('th');
+})();
+</script>
+</body></html>
