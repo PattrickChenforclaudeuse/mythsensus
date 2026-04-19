@@ -976,23 +976,27 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     <div id="authStep1">
       <p style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.6" data-en="Sign in to save your charts and sync across devices" data-th="ลงชื่อเข้าใช้เพื่อบันทึกดวงและซิงค์ข้ามอุปกรณ์">ลงชื่อเข้าใช้เพื่อบันทึกดวงและซิงค์ข้ามอุปกรณ์</p>
       <input id="loginEmailInput" type="email" class="login-input" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendAuthCode()">
-      <button class="login-confirm-btn" id="authSendBtn" onclick="sendAuthCode()" data-en="✉️ Send Code" data-th="✉️ ส่งรหัส OTP">✉️ ส่งรหัส OTP</button>
+      <button class="login-confirm-btn" id="authSendBtn" onclick="sendAuthCode()" data-en="✉️ Send Code" data-th="✉️ ส่งรหัส">✉️ ส่งรหัส</button>
       <div class="login-divider" style="margin:14px 0">
         <span data-en="or continue without signing in" data-th="หรือดำเนินการโดยไม่ลงชื่อเข้าใช้">หรือดำเนินการโดยไม่ลงชื่อเข้าใช้</span>
       </div>
       <button class="login-guest-btn" onclick="_closeLoginOverlay()" data-en="Skip for now →" data-th="ข้ามไปก่อน →">ข้ามไปก่อน →</button>
     </div>
 
-    <!-- Step 2: Magic link sent confirmation -->
-    <div id="authStep2" style="display:none;text-align:center">
-      <div style="font-size:42px;margin:4px 0 14px">✉️</div>
-      <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:var(--gold);margin-bottom:10px" data-en="Check your email" data-th="ตรวจสอบอีเมลของคุณ">ตรวจสอบอีเมลของคุณ</div>
-      <p style="font-family:'Cormorant Garamond',serif;font-size:13.5px;color:var(--muted);line-height:1.7;margin-bottom:6px" data-en="We sent a sign-in link to" data-th="เราส่งลิงก์เข้าสู่ระบบไปยัง">เราส่งลิงก์เข้าสู่ระบบไปยัง</p>
-      <p id="authEmailDisplay" style="color:var(--gold);font-size:12px;margin-bottom:14px;font-family:'Josefin Sans',sans-serif;letter-spacing:1px"></p>
-      <p style="font-family:'Cormorant Garamond',serif;font-size:12.5px;color:var(--muted);line-height:1.65;margin-bottom:18px" data-en="Click the link in the email — this window will update automatically." data-th="คลิกลิงก์ในอีเมล — หน้านี้จะอัปเดตอัตโนมัติหลังจากนั้น">คลิกลิงก์ในอีเมล — หน้านี้จะอัปเดตอัตโนมัติหลังจากนั้น</p>
-      <div style="display:flex;justify-content:space-between">
+    <!-- Step 2: Enter OTP code (+ magic link fallback) -->
+    <div id="authStep2" style="display:none">
+      <p style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--muted);margin-bottom:4px;text-align:center" data-en="Enter the 6-digit code sent to" data-th="กรอกรหัส 6 หลักที่ส่งไปยัง">กรอกรหัส 6 หลักที่ส่งไปยัง</p>
+      <p id="authEmailDisplay" style="color:var(--gold);font-size:12px;margin-bottom:14px;font-family:'Josefin Sans',sans-serif;letter-spacing:1px;text-align:center"></p>
+      <input id="loginOtpInput" type="text" class="login-input" placeholder="000000" maxlength="6" inputmode="numeric" style="text-align:center;letter-spacing:8px;font-size:24px;margin-bottom:12px" onkeydown="if(event.key==='Enter')verifyAuthCode()">
+      <button class="login-confirm-btn" id="authVerifyBtn" onclick="verifyAuthCode()" data-en="✦ Verify & Sign In" data-th="✦ ยืนยันและเข้าสู่ระบบ">✦ ยืนยันและเข้าสู่ระบบ</button>
+      <!-- Fallback: clicked magic link in same browser -->
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);text-align:center">
+        <p style="font-family:'Cormorant Garamond',serif;font-size:12px;color:var(--muted);margin-bottom:8px" data-en="Clicked the link in this browser?" data-th="คลิกลิงก์ในเบราว์เซอร์นี้แล้วใช่ไหม?">คลิกลิงก์ในเบราว์เซอร์นี้แล้วใช่ไหม?</p>
+        <button class="ghost-btn" onclick="checkSession()" data-en="🔄 Check session" data-th="🔄 ตรวจสอบสถานะ">🔄 ตรวจสอบสถานะ</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px">
         <button class="login-guest-btn" onclick="_authBack()" data-en="← Change email" data-th="← เปลี่ยน Email">← เปลี่ยน Email</button>
-        <button class="login-guest-btn" onclick="sendAuthCode()" data-en="Resend link" data-th="ส่งลิงก์ใหม่">ส่งลิงก์ใหม่</button>
+        <button class="login-guest-btn" onclick="sendAuthCode()" data-en="Resend" data-th="ส่งใหม่">ส่งใหม่</button>
       </div>
     </div>
 
@@ -10619,7 +10623,7 @@ async function sendAuthCode(){
     email,
     options:{ shouldCreateUser:true, emailRedirectTo: location.origin + location.pathname }
   });
-  if(btn){btn.disabled=false;btn.textContent=LANG==='th'?'✉️ ส่งลิงก์':'✉️ Send Link';}
+  if(btn){btn.disabled=false;btn.textContent=LANG==='th'?'✉️ ส่งรหัส OTP':'✉️ Send Code';}
   if(error){alert('Error: '+error.message);return;}
   document.getElementById('authEmailDisplay').textContent=email;
   document.getElementById('authStep1').style.display='none';
@@ -10646,6 +10650,24 @@ async function verifyAuthCode(){
     ?`ยินดีต้อนรับ ${data.user.email} · ข้อมูลของคุณปลอดภัยบนคลาวด์ ✦`
     :`Welcome, ${data.user.email} · Your data is safe in the cloud ✦`;
   setTimeout(()=>{_closeLoginOverlay();_resetAuthSteps();},2200);
+}
+
+async function checkSession(){
+  // For magic-link users who clicked the link in the same browser.
+  // onAuthStateChange fires automatically, but this is a manual fallback.
+  const btn=document.querySelector('#authStep2 .ghost-btn');
+  if(btn){btn.disabled=true;btn.textContent='...';}
+  const{data:{session}}=await _sb.auth.getSession();
+  if(btn){btn.disabled=false;btn.textContent=LANG==='th'?'🔄 ตรวจสอบสถานะ':'🔄 Check session';}
+  if(session){
+    await _onSignIn(session);
+    _closeLoginOverlay();
+    _resetAuthSteps();
+  } else {
+    alert(LANG==='th'
+      ?'ยังไม่พบ session\n\nถ้ารับเมลบนอุปกรณ์อื่น — กรุณากรอกรหัส 6 หลักจากอีเมลแทน'
+      :'No session found yet\n\nIf you checked email on another device — enter the 6-digit code from the email instead');
+  }
 }
 
 function _authBack(){
