@@ -107,6 +107,16 @@ main{max-width:820px;margin:0 auto;padding:22px 14px 60px;}
 .web-nav:hover{background:rgba(200,164,90,.15);color:var(--gold2);}
 body.is-web .web-nav{display:inline-block;}
 body.is-web .web-share{display:inline-block;}
+/* Push header-user right so the ← Back pill doesn't cover it */
+body.is-web .header-user{left:110px !important;}
+/* ── Starfield background ── */
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0}
+/* stars injected by initStarfield() */
+/* ── Nav collapse toggle ── */
+.nav-toggle-btn{position:fixed;bottom:16px;right:16px;z-index:800;width:36px;height:36px;border-radius:50%;background:rgba(10,10,16,.85);border:1px solid var(--gold3);color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);transition:all .2s;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+.nav-toggle-btn:hover{background:rgba(200,164,90,.15);border-color:var(--gold)}
+body.nav-hidden .nav-groups,body.nav-hidden .nav-tabs{display:none!important}
+body.nav-hidden .nav-toggle-btn{transform:rotate(180deg)}
 .web-share{position:fixed;top:14px;right:14px;z-index:9000;display:none;
   font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2px;
   text-transform:uppercase;color:var(--gold);background:rgba(10,10,16,.75);
@@ -948,6 +958,11 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     </button>
 
     <div id="entryError" style="display:none;text-align:center;margin-top:8px;font-family:'Cormorant Garamond',serif;font-size:12.5px;color:#ff8080"></div>
+
+    <div style="text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+      <span id="entrySignInLabel" style="font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px">มีบัญชีอยู่แล้ว?</span>
+      <button class="login-guest-btn" onclick="showLoginOverlay()" id="entrySignInBtn" style="margin-left:6px">ลงชื่อเข้าใช้เพื่อกู้ข้อมูล →</button>
+    </div>
   </div>
 </div>
 
@@ -968,15 +983,16 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <button class="login-guest-btn" onclick="_closeLoginOverlay()" data-en="Skip for now →" data-th="ข้ามไปก่อน →">ข้ามไปก่อน →</button>
     </div>
 
-    <!-- Step 2: OTP code entry -->
-    <div id="authStep2" style="display:none">
-      <p style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--muted);margin-bottom:4px" data-en="Enter the 6-digit code sent to" data-th="กรอกรหัส 6 หลักที่ส่งไปยัง">กรอกรหัส 6 หลักที่ส่งไปยัง</p>
-      <p id="authEmailDisplay" style="color:var(--gold);font-size:12px;margin-bottom:16px;font-family:'Josefin Sans',sans-serif;letter-spacing:1px"></p>
-      <input id="loginOtpInput" type="text" class="login-input" placeholder="000000" maxlength="6" inputmode="numeric" style="text-align:center;letter-spacing:8px;font-size:24px;margin-bottom:12px" onkeydown="if(event.key==='Enter')verifyAuthCode()">
-      <button class="login-confirm-btn" id="authVerifyBtn" onclick="verifyAuthCode()" data-en="✦ Verify & Sign In" data-th="✦ ยืนยันและเข้าสู่ระบบ">✦ ยืนยันและเข้าสู่ระบบ</button>
-      <div style="display:flex;justify-content:space-between;margin-top:10px">
-        <button class="login-guest-btn" onclick="_authBack()" data-en="← Back" data-th="← ย้อนกลับ">← ย้อนกลับ</button>
-        <button class="login-guest-btn" onclick="sendAuthCode()" data-en="Resend code" data-th="ส่งรหัสใหม่">ส่งรหัสใหม่</button>
+    <!-- Step 2: Magic link sent confirmation -->
+    <div id="authStep2" style="display:none;text-align:center">
+      <div style="font-size:42px;margin:4px 0 14px">✉️</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:var(--gold);margin-bottom:10px" data-en="Check your email" data-th="ตรวจสอบอีเมลของคุณ">ตรวจสอบอีเมลของคุณ</div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:13.5px;color:var(--muted);line-height:1.7;margin-bottom:6px" data-en="We sent a sign-in link to" data-th="เราส่งลิงก์เข้าสู่ระบบไปยัง">เราส่งลิงก์เข้าสู่ระบบไปยัง</p>
+      <p id="authEmailDisplay" style="color:var(--gold);font-size:12px;margin-bottom:14px;font-family:'Josefin Sans',sans-serif;letter-spacing:1px"></p>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:12.5px;color:var(--muted);line-height:1.65;margin-bottom:18px" data-en="Click the link in the email — this window will update automatically." data-th="คลิกลิงก์ในอีเมล — หน้านี้จะอัปเดตอัตโนมัติหลังจากนั้น">คลิกลิงก์ในอีเมล — หน้านี้จะอัปเดตอัตโนมัติหลังจากนั้น</p>
+      <div style="display:flex;justify-content:space-between">
+        <button class="login-guest-btn" onclick="_authBack()" data-en="← Change email" data-th="← เปลี่ยน Email">← เปลี่ยน Email</button>
+        <button class="login-guest-btn" onclick="sendAuthCode()" data-en="Resend link" data-th="ส่งลิงก์ใหม่">ส่งลิงก์ใหม่</button>
       </div>
     </div>
 
@@ -995,6 +1011,9 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <div class="tagline" data-t="tagline">Where myriad myths reach consensus — about you</div>
   <div class="date-display" id="dateDisplay"></div>
 </header>
+
+<!-- Nav collapse toggle button -->
+<button class="nav-toggle-btn" id="navToggleBtn" onclick="toggleNav()" title="Toggle navigation">▾</button>
 
 <!-- ═══ TOP-LEVEL NAV: 5 Tier Groups ═══ -->
 <nav class="nav-groups" role="tablist">
@@ -6648,8 +6667,6 @@ const GROUPS = {
       ['blessing',   'blessing',    'sub_blessing',   false],
       ['organum',    'organum',     'sub_organum',    false],
       ['preview',    'chart',       'sub_preview',    false],
-      ['collection', 'collection',  'sub_collection', false],
-      ['streak',     'streak',      'sub_streak',     false],
       ['history',    'history',     'sub_history7',   false],
     ],
   },
@@ -6663,12 +6680,14 @@ const GROUPS = {
   subscription: {
     default: 'sky',
     tabs: [
-      ['sky',       'sky',       'sub_sky',        false],
-      ['resonance', 'resonance', 'sub_resonance',  false],
-      ['organum',   'organum',   'sub_organum_plus', false],
-      ['brief',     'brief',     'sub_brief',      false],
-      ['freq',      'freq',      'sub_freq',       false],
-      ['history',   'history',   'sub_history_all', false],
+      ['sky',        'sky',        'sub_sky',          false],
+      ['resonance',  'resonance',  'sub_resonance',    false],
+      ['collection', 'collection', 'sub_collection',   false],
+      ['streak',     'streak',     'sub_streak',       false],
+      ['organum',    'organum',    'sub_organum_plus',  false],
+      ['brief',      'brief',      'sub_brief',        false],
+      ['freq',       'freq',       'sub_freq',         false],
+      ['history',    'history',    'sub_history_all',  false],
     ],
   },
   addon: {
@@ -7554,7 +7573,7 @@ function renderChart(data){
   const topThemes=Object.entries(themeScores).sort((a,b)=>b[1]-a[1]).slice(0,3);
   const maxScore=topThemes[0]?.[1]||1;
   const consensusHtml=topThemes.length?`<div class="consensus-banner">
-    <div class="consensus-banner-title">${LANG==='th'?'🔮 10 ศาสตร์พูดถึงสิ่งเดียวกัน':'🔮 What your 10 systems agree on'}</div>
+    <div class="consensus-banner-title">${LANG==='th'?'🔮 26 ศาสตร์พูดถึงสิ่งเดียวกัน':'🔮 What your 26 systems agree on'}</div>
     ${topThemes.map(([k,v])=>{const td=THEME_DEF[k];return`<div class="consensus-theme">
       <div class="cons-theme-icon">${td.icon}</div>
       <div class="cons-theme-name">${LANG==='th'?td.th:td.en}</div>
@@ -8171,7 +8190,7 @@ function renderLifeGuide(data){
   return`<div class="life-guide">
     <div class="life-guide-header">
       <div class="life-guide-title">${L?'YOUR LIFE GUIDE':'คู่มือชีวิตของคุณ'}</div>
-      <div class="life-guide-sub">${L?'Personalized from your 10-system chart':'วิเคราะห์จากดวงชะตา 10 ศาสตร์ของคุณ'}</div>
+      <div class="life-guide-sub">${L?'Personalized from your 26-system chart':'วิเคราะห์จากดวงชะตา 26 ศาสตร์ของคุณ'}</div>
     </div>
     <div class="life-domain-tabs">${tabs}</div>
     ${panels}
@@ -10599,13 +10618,15 @@ async function sendAuthCode(){
   _authEmail=email;
   const btn=document.getElementById('authSendBtn');
   if(btn){btn.disabled=true;btn.textContent=LANG==='th'?'กำลังส่ง…':'Sending…';}
-  const{error}=await _sb.auth.signInWithOtp({email,options:{shouldCreateUser:true}});
-  if(btn){btn.disabled=false;btn.textContent=LANG==='th'?'✉️ ส่งรหัส OTP':'✉️ Send Code';}
+  const{error}=await _sb.auth.signInWithOtp({
+    email,
+    options:{ shouldCreateUser:true, emailRedirectTo: location.origin + location.pathname }
+  });
+  if(btn){btn.disabled=false;btn.textContent=LANG==='th'?'✉️ ส่งลิงก์':'✉️ Send Link';}
   if(error){alert('Error: '+error.message);return;}
   document.getElementById('authEmailDisplay').textContent=email;
   document.getElementById('authStep1').style.display='none';
   document.getElementById('authStep2').style.display='';
-  setTimeout(()=>document.getElementById('loginOtpInput')?.focus(),100);
 }
 
 async function verifyAuthCode(){
@@ -10661,7 +10682,40 @@ function showLoginOverlay(){
 // ════════════════════════════════════════
 // INIT — entry overlay shown EVERY visit (mandatory lang + DOB)
 // ════════════════════════════════════════
+// ── Starfield background ─────────────────────────────────────
+function initStarfield(){
+  const N=180, gs=[];
+  for(let i=0;i<N;i++){
+    const x=(Math.random()*100).toFixed(2), y=(Math.random()*100).toFixed(2);
+    const s=(0.4+Math.random()*0.9).toFixed(1);
+    const a=(0.12+Math.random()*0.45).toFixed(2);
+    const r=Math.floor(210+Math.random()*30), gb=Math.floor(170+Math.random()*30);
+    gs.push(`radial-gradient(circle ${s}px at ${x}% ${y}%,rgba(${r},${gb},110,${a}) 0%,transparent 100%)`);
+  }
+  const st=document.createElement('style');
+  st.textContent=`body::before{background:${gs.join(',')};opacity:1}`+
+    `@keyframes _tw{0%,100%{opacity:.75}50%{opacity:1}}`+
+    `body::before{animation:_tw 9s ease-in-out infinite}`;
+  document.head.appendChild(st);
+}
+
+// ── Nav collapse toggle ───────────────────────────────────────
+function toggleNav(){
+  const hidden=document.body.classList.toggle('nav-hidden');
+  const btn=document.getElementById('navToggleBtn');
+  if(btn)btn.textContent=hidden?'▴':'▾';
+  try{localStorage.setItem('mth_nav_hidden',hidden?'1':'');}catch(e){}
+}
+
 document.addEventListener('DOMContentLoaded', async ()=>{
+  // ── Restore nav state ─────────────────────────────────────
+  if(localStorage.getItem('mth_nav_hidden')==='1'){
+    document.body.classList.add('nav-hidden');
+    const btn=document.getElementById('navToggleBtn');
+    if(btn)btn.textContent='▴';
+  }
+  // ── Starfield ─────────────────────────────────────────────
+  initStarfield();
   // ── Init Supabase ──────────────────────────────────────────
   _sb = supabase.createClient(_SB_URL, _SB_KEY, {
     auth:{ autoRefreshToken:true, persistSession:true, detectSessionInUrl:true }
@@ -10829,6 +10883,11 @@ function _entryRefreshLang(){
       : `Welcome back${name?` <strong>${name}</strong>`:''} · DOB ${dob}`;
     if (useSaved) useSaved.textContent = isTh ? '✦ ใช้ข้อมูลเดิม' : '✦ Use saved data';
   }
+  // Sign-in link at bottom of entry overlay
+  const siLabel = document.getElementById('entrySignInLabel');
+  const siBtn   = document.getElementById('entrySignInBtn');
+  if (siLabel) siLabel.textContent = isTh ? 'มีบัญชีอยู่แล้ว?' : 'Have an account?';
+  if (siBtn)   siBtn.textContent   = isTh ? 'ลงชื่อเข้าใช้เพื่อกู้ข้อมูล →' : 'Sign in to restore your data →';
 }
 
 function _entryRefreshGender(currentValue){
@@ -13652,11 +13711,14 @@ ${p1}${p3}${p4}${p5}${p6}${p7}${p8}${p9}${p10}${p11}${p12}${p13}${p14}${p15}${p1
 let cbCurrentHTML = '';
 
 function cb_generate() {
-  // Grab form values.
-  const name    = document.getElementById('cb-f-name').value.trim() || 'ผู้ใช้';
-  const gender  = document.getElementById('cb-f-gender').value;
-  const dob     = document.getElementById('cb-f-dob').value;
-  const cityVal = document.getElementById('cb-f-city').value;
+  // Grab form values — fall back to localStorage if form wasn't synced yet.
+  const p       = getStoredProfile ? getStoredProfile() : {};
+  const name    = document.getElementById('cb-f-name').value.trim() || p.name || 'ผู้ใช้';
+  const gender  = document.getElementById('cb-f-gender').value || p.gender || 'ชาย';
+  const dob     = document.getElementById('cb-f-dob').value     || p.dob   || '';
+  const cityVal = document.getElementById('cb-f-city').value    || p.city  || '13.75,100.5,7';
+  // Re-sync if form was empty (e.g. user navigated here from another group)
+  if (!document.getElementById('cb-f-dob').value && dob) syncAllForms();
 
   if (!dob) { alert(LANG === 'th' ? 'กรุณากรอกวันเกิดก่อน' : 'Please enter your date of birth first'); return; }
   const parts = dob.split('-');
