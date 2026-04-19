@@ -6559,7 +6559,16 @@ th:{
 }};
 let LANG='th';
 function t(k,...a){const v=TX[LANG][k];return typeof v==='function'?v(...a):v||k;}
-function toggleLang(){LANG=LANG==='th'?'en':'th';document.getElementById('langBtn').textContent=LANG==='th'?'EN':'ไทย';document.documentElement.lang=LANG;applyLang();}
+function toggleLang(){
+  LANG = LANG === 'th' ? 'en' : 'th';
+  // Persist so the choice survives reloads + matches the entry overlay convention.
+  try { localStorage.setItem('mth_lang', LANG); } catch(e){}
+  document.documentElement.lang = LANG;
+  // Landing-page lang button may not exist in /beta/ — guard the lookup.
+  const btn = document.getElementById('langBtn');
+  if (btn) btn.textContent = LANG === 'th' ? 'EN' : 'ไทย';
+  applyLang();
+}
 function applyLang(){
   document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.getAttribute('data-t')));
   document.querySelectorAll('[data-t-placeholder]').forEach(el=>el.placeholder=t(el.getAttribute('data-t-placeholder')));
