@@ -461,12 +461,12 @@ html[lang="th"] .panel-intro{font-family:'Leelawadee UI','Leelawadee','Tahoma','
   <link rel="apple-touch-icon" href="/favicon.svg">
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#040407">
-  <link rel="canonical" href="https://mythsensus.comC:/Users/CHAIYAPAT/Documents/GitHub/mythsensus/beta/">
+  <link rel="canonical" href="https://mythsensus.com/beta">
   <meta property="og:site_name" content="Mythsensus">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Mythsensus — Daily Oracle">
   <meta property="og:description" content="Your full cosmic blueprint from 26 ancient divination systems. Free beta — works offline, no signup.">
-  <meta property="og:url" content="https://mythsensus.comC:/Users/CHAIYAPAT/Documents/GitHub/mythsensus/beta/">
+  <meta property="og:url" content="https://mythsensus.com/beta">
   <meta property="og:image" content="https://mythsensus.com/og-default.svg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -8716,7 +8716,10 @@ function renderResonance(){
       ${!hasContext ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(212,175,55,0.06);border-left:3px solid var(--gold3);border-radius:0 6px 6px 0;font-size:12px;color:var(--muted);line-height:1.55">💡 ${isTh?'ถ้ายังไม่กรอก Life Terrain + Path Resonance จะเป็น 0 และ Cosmic Score จะใช้เฉพาะ Soul Frequency — กรอกเพื่อปลดล็อกคะแนนเพิ่ม':'If left blank, Life Terrain + Path Resonance = 0 and Cosmic Score uses Soul Frequency only — fill these to unlock the extra scoring layers'}</div>` : ''}
     </div>
 
-    <!-- Live scores (engine-computed) -->
+    <!-- Live scores (engine-computed) — only shown once user has filled
+         in country/career/industry; otherwise a clear "fill in first"
+         empty state encourages them to provide context. -->
+    ${hasContext ? `
     <div class="deep-sys-card" style="margin-top:14px;border-color:var(--gold3)">
       <div class="deep-sys-title">${isTh?'คะแนนปัจจุบัน (อัพเดททันทีตามที่กรอก)':'Live scores (updates as you edit)'}</div>
       <div class="deep-sys-origin">${isTh?'คำนวณจาก engine เดียวกับรายงาน Cosmic Blueprint':'computed by the same engine as your Cosmic Blueprint'}</div>
@@ -8742,7 +8745,6 @@ function renderResonance(){
           <div style="font-size:9.5px;color:${delta>0?'#60c060':delta<0?'#c06060':'var(--muted)'};margin-top:2px">${delta>0?'+':''}${delta} ${isTh?'vs Soul Freq':'vs Soul Freq'}</div>
         </div>
       </div>
-
       ${ltDetail || prDetail ? `
         <div style="margin-top:12px;padding:10px 12px;background:rgba(0,0,0,.15);border-left:3px solid var(--gold3);border-radius:0 6px 6px 0;font-size:11.5px;color:var(--muted);line-height:1.65">
           ${ltDetail ? `<div><strong style="color:#c8a040">Life Terrain detail:</strong> ${ltDetail.split('|').map(s=>s.trim()).join(' · ')}</div>` : ''}
@@ -8750,6 +8752,21 @@ function renderResonance(){
         </div>
       ` : ''}
     </div>
+    ` : `
+    <div class="deep-sys-card" style="margin-top:14px;border:1px dashed var(--gold3);text-align:center;padding:26px 18px">
+      <div style="font-size:32px;margin-bottom:8px;opacity:.5">✦</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:15px;color:var(--gold);letter-spacing:1.5px;margin-bottom:8px">
+        ${isTh?'ยังไม่มีคะแนน Resonance':'No Resonance Score Yet'}
+      </div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--muted);line-height:1.7;max-width:420px;margin:0 auto">
+        ${isTh
+          ? 'Life Path Resonance วัดว่าสภาพแวดล้อมที่คุณเลือก (ประเทศ · สายอาชีพ · อุตสาหกรรม) เข้ากับดวงของคุณแค่ไหน · กรอกช่องด้านบนแม้แต่ช่องเดียว แล้วคะแนนจะปรากฏทันที'
+          : 'Life Path Resonance measures how well the environment you chose (country · career · industry) matches your chart. Fill even one field above and the scores will appear instantly.'}
+      </div>
+      <div style="margin-top:14px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase">
+        ↑ ${isTh?'เลื่อนขึ้นกรอกด้านบน':'Scroll up to fill in'}
+      </div>
+    </div>`}
 
     <!-- Reasoning: what your chart says about country/career -->
     <div class="deep-sys-card" style="margin-top:14px">
@@ -9087,7 +9104,43 @@ function renderCollection(){
     </div>
   `;
 
-  const entries = Object.entries(seen);
+  // Tier filter — remembered across sessions in localStorage.
+  const activeTier = localStorage.getItem('mth_coll_tier') || 'all';
+  // Build tier-pill bar (All + each tier in rarity order).
+  const tierPills = [
+    { name:'all', color:'var(--gold)', labelTH:'ทั้งหมด', labelEN:'All',
+      count: Object.keys(seen).length, total: totalGods }
+  ].concat(TIERS.map(T => ({
+    name: T.name, color: T.color,
+    labelTH: T.nameTH, labelEN: T.nameEN,
+    count: collectedByTier[T.name] || 0,
+    total: totalByTier[T.name] || 0,
+  })));
+  const tierBar = `
+    <div style="max-width:820px;margin:0 auto 18px;padding:0 4px">
+      <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">
+        ${tierPills.map(p => {
+          const on = p.name === activeTier;
+          const esc = p.name.replace(/'/g, "\\'");
+          const label = isTh ? p.labelTH : p.labelEN;
+          return `<button onclick="filterCollectionByTier('${esc}')"
+            style="font-family:'Cinzel Decorative',serif;font-size:10.5px;letter-spacing:1.8px;
+              padding:6px 13px;border-radius:14px;cursor:pointer;transition:all .2s;
+              background:${on?p.color:'var(--bg2)'};
+              color:${on?'#040407':p.color};
+              border:1px solid ${p.color};font-weight:${on?700:500}">
+            ${label} <span style="opacity:.7;font-size:9.5px;margin-left:3px">${p.count}${p.total?'/'+p.total:''}</span>
+          </button>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+  // Apply filter to the entries.
+  const allEntries = Object.entries(seen);
+  const entries = activeTier === 'all'
+    ? allEntries
+    : allEntries.filter(([,info]) => info.tier === activeTier);
+
   const gridHTML = entries.length
     ? entries.map(([name,info])=>{
         const T = TIERS.find(x => x.name === info.tier) || {color:'var(--gold)'};
@@ -9098,14 +9151,22 @@ function renderCollection(){
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:${T.color};letter-spacing:1px;margin-top:3px">${info.tier}</div>
         </div>`;
       }).join('')
-    : `<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);font-style:italic">${t('coll_empty')}</div>`;
+    : (allEntries.length
+        ? `<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);font-style:italic">${isTh?'ยังไม่มีเทพระดับนี้ในคลัง · ลองจั่วต่อ':'No gods of this tier yet — keep drawing'}</div>`
+        : `<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);font-style:italic">${t('coll_empty')}</div>`);
 
-  // Rewrite the full collection area: stats block, then grid.
-  grid.innerHTML = `${statsBlock}<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px">${gridHTML}</div>`;
+  // Rewrite the full collection area: stats block → tier filter pills → filtered grid.
+  grid.innerHTML = `${statsBlock}${tierBar}<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px">${gridHTML}</div>`;
   // Neutralise the host grid's own grid style so our nested layout renders clean.
   grid.style.display = 'block';
   grid.style.gridTemplateColumns = '';
   grid.style.gap = '';
+}
+
+// Tier filter for the God Collection grid. Persists across sessions.
+function filterCollectionByTier(tier){
+  try { localStorage.setItem('mth_coll_tier', tier); } catch(e){}
+  renderCollection();
 }
 
 // ── Pokédex entry modal: opens when user clicks a god in Collection ─
