@@ -532,6 +532,19 @@ main{max-width:820px;margin:0 auto;padding:22px 14px 60px;}
       </div>
     </div>
 
+    <!-- GIFT CODE — optional, unlocks premium tiers without payment during beta -->
+    <details id="entryGiftWrap" style="margin-bottom:12px;cursor:pointer">
+      <summary style="font-family:'Cormorant Garamond',serif;font-size:12px;color:var(--gold2);text-align:center;list-style:none;padding:4px 0;letter-spacing:0.3px" id="entryGiftToggle">
+        ✦ มีรหัสของขวัญ? / Have a gift code?
+      </summary>
+      <div style="margin-top:8px">
+        <input class="login-input" type="text" id="entryGift" placeholder="MYTH-XXXX"
+               autocapitalize="characters" autocomplete="off" spellcheck="false"
+               style="font-family:'Josefin Sans',sans-serif;font-size:14px;letter-spacing:2px;text-align:center;text-transform:uppercase">
+        <div id="entryGiftStatus" style="font-family:'Cormorant Garamond',serif;font-size:11.5px;color:var(--muted);margin-top:4px;text-align:center;min-height:16px;letter-spacing:0.3px"></div>
+      </div>
+    </details>
+
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:1px;line-height:1.5">
       <span style="color:var(--gold)">🔒</span>
       <span id="entryPrivacy">All data stays on your device — never sent to the cloud</span>
@@ -9581,6 +9594,17 @@ function showEntryOverlay(){
     minInp.value  = mm || '';
   }
   if (cSelect) cSelect.value = city;
+  // Pre-fill gift code if previously entered.
+  const giftInp = document.getElementById('entryGift');
+  const giftStatus = document.getElementById('entryGiftStatus');
+  const giftWrap = document.getElementById('entryGiftWrap');
+  const savedGift = localStorage.getItem('mth_gift') || '';
+  if (giftInp) giftInp.value = savedGift;
+  if (savedGift && giftWrap) giftWrap.open = true;
+  if (savedGift && giftStatus) {
+    giftStatus.textContent = (_entryLang === 'th') ? '✓ ใช้รหัสสำเร็จ' : '✓ Code active';
+    giftStatus.style.color = 'var(--gold)';
+  }
   // Populate gender select (uses chosen lang labels).
   _entryRefreshGender(gender);
   // Welcome-back pill.
@@ -9638,6 +9662,10 @@ function _entryRefreshLang(){
   if (nameI) nameI.placeholder = isTh ? 'ชื่อ / นามแฝง' : 'Name / nickname';
   const cityLbl = document.getElementById('entryCityLabel');
   if (cityLbl) cityLbl.textContent = isTh ? 'สถานที่เกิด' : 'Birth city';
+  const giftTog = document.getElementById('entryGiftToggle');
+  if (giftTog) giftTog.textContent = isTh ? '✦ มีรหัสของขวัญ?' : '✦ Have a gift code?';
+  const giftInp = document.getElementById('entryGift');
+  if (giftInp) giftInp.placeholder = isTh ? 'MYTH-XXXX (เลือกใส่ก็ได้)' : 'MYTH-XXXX (optional)';
   // Refresh welcome-back text if visible.
   const wb = document.getElementById('entryWelcomeBack');
   if (wb && wb.style.display !== 'none') {
@@ -9684,9 +9712,24 @@ function entryAccept(){
   const mm    = (document.getElementById('entryMinute')||{}).value;
   const gender = (document.getElementById('entryGender')||{}).value || 'ชาย';
   const city   = (document.getElementById('entryCity')||{}).value   || '13.75,100.5,7';
+  const giftRaw = ((document.getElementById('entryGift')||{}).value || '').trim().toUpperCase();
   if (!dob) {
     _entryError(isTh ? 'กรุณากรอกวันเกิด' : 'Please enter your date of birth');
     return;
+  }
+  // Gift code validation. Accepted codes unlock premium during beta (cosmetic
+  // only — no paywall is enforced in offline build yet, but the code is
+  // persisted so the online version and future paywall logic can read it).
+  const VALID_GIFT_CODES = ['MYTH-BETA','MYTH-IX','MYTH-VIP','MYTH-FRIEND','MYTH-PRESS','MYTH-TEST'];
+  const giftStatus = document.getElementById('entryGiftStatus');
+  if (giftRaw) {
+    if (VALID_GIFT_CODES.indexOf(giftRaw) < 0) {
+      _entryError(isTh ? 'รหัสของขวัญไม่ถูกต้อง · ลองใหม่หรือเว้นว่าง' : 'Invalid gift code · try again or leave blank');
+      if (giftStatus) { giftStatus.textContent = isTh ? '✗ รหัสไม่ถูกต้อง' : '✗ Code not recognised'; giftStatus.style.color = '#ff8080'; }
+      return;
+    }
+    localStorage.setItem('mth_gift', giftRaw);
+    if (giftStatus) { giftStatus.textContent = isTh ? '✓ ใช้รหัสสำเร็จ' : '✓ Code accepted'; giftStatus.style.color = 'var(--gold)'; }
   }
   // Optional time — default to 12:00 if blank.
   const time = (hh !== '' && hh != null)

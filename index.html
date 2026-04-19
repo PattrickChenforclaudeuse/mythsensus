@@ -234,6 +234,8 @@ main{max-width:820px;margin:0 auto;padding:22px 14px 60px;}
 
 <header>
   <div class="lang-toggle">
+    <a class="lang-btn" href="/blog" data-t="nav_library">Cosmic Library</a>
+    <a class="lang-btn" href="/pricing" data-t="nav_pricing">Pricing</a>
     <button class="lang-btn" onclick="toggleLang()" id="langBtn">EN</button>
     <a class="signin-btn" href="/beta/" id="signinBtn" data-t="nav_signin">Sign in</a>
   </div>
@@ -421,7 +423,7 @@ main{max-width:820px;margin:0 auto;padding:22px 14px 60px;}
   </div>
   <div class="chart-results" id="chartResults">
     <div class="chart-name" id="chartPersonName"></div>
-    <div class="chart-sub" data-t="chart_sub">10 Ancient Wisdom Systems · Free Reading</div>
+    <div class="chart-sub" data-t="chart_sub">26 Ancient Wisdom Systems · Free Reading</div>
     <div class="sys-grid" id="sysGrid"></div>
     <div id="lifeGuideContainer"></div>
     <div style="text-align:center;margin-top:12px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
@@ -432,6 +434,24 @@ main{max-width:820px;margin:0 auto;padding:22px 14px 60px;}
 </div>
 
 </main>
+
+<!-- ═══ FOOTER — site-wide links ═══ -->
+<footer style="border-top:1px solid var(--border);margin-top:40px;padding:24px 12px 32px;text-align:center;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.8px;color:var(--muted);text-transform:uppercase">
+  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-bottom:10px">
+    <a href="/" style="color:var(--muted);text-decoration:none" data-t="footer_home">Home</a>
+    <span style="opacity:.4">·</span>
+    <a href="/blog" style="color:var(--muted);text-decoration:none" data-t="footer_library">Cosmic Library</a>
+    <span style="opacity:.4">·</span>
+    <a href="/beta/" style="color:var(--muted);text-decoration:none" data-t="footer_app">Open App</a>
+    <span style="opacity:.4">·</span>
+    <a href="/privacy" style="color:var(--muted);text-decoration:none" data-t="footer_privacy">Privacy</a>
+    <span style="opacity:.4">·</span>
+    <a href="/disclaimer" style="color:var(--muted);text-decoration:none" data-t="footer_disclaimer">Disclaimer</a>
+    <span style="opacity:.4">·</span>
+    <a href="/support" style="color:var(--muted);text-decoration:none" data-t="footer_support">Support</a>
+  </div>
+  <div style="opacity:.55;font-size:9px" data-t="footer_copy">© 2026 MYTHSENSUS · Entertainment only · Not professional advice</div>
+</footer>
 
 <script>
 // ════════════════════════════════════════
@@ -464,6 +484,11 @@ en:{
   lg_love:"♡ Love",lg_pets:"🐾 Pets",lg_food:"🌾 Food",lg_fitness:"⚡ Fitness",
   lg_source:"Based on your chart",
   nav_signin:"Sign in",
+  nav_library:"Cosmic Library",
+  footer_home:"Home",footer_library:"Cosmic Library",footer_app:"Open App",
+  footer_privacy:"Privacy",footer_disclaimer:"Disclaimer",footer_support:"Support",
+  footer_copy:"© 2026 MYTHSENSUS · Entertainment only · Not professional advice",
+  nav_pricing:"Pricing",
 },
 th:{
   tagline:"ที่ที่ตำนานนับพันมาบรรจบกัน — เพื่อเล่าเรื่องของคุณ",
@@ -491,6 +516,11 @@ th:{
   lg_love:"♡ ความรัก",lg_pets:"🐾 สัตว์เลี้ยง",lg_food:"🌾 อาหาร",lg_fitness:"⚡ ออกกำลังกาย",
   lg_source:"วิเคราะห์จากดวงชะตาของคุณ",
   nav_signin:"เข้าสู่ระบบ",
+  nav_library:"ห้องสมุดจักรวาล",
+  footer_home:"หน้าแรก",footer_library:"ห้องสมุดจักรวาล",footer_app:"เปิดแอป",
+  footer_privacy:"ความเป็นส่วนตัว",footer_disclaimer:"ข้อจำกัด",footer_support:"ช่วยเหลือ",
+  footer_copy:"© 2026 MYTHSENSUS · เพื่อความบันเทิงเท่านั้น · ไม่ใช่คำแนะนำทางวิชาชีพ",
+  nav_pricing:"ราคา",
 }};
 let LANG='th';
 function t(k,...a){const v=TX[LANG][k];return typeof v==='function'?v(...a):v||k;}
