@@ -10349,17 +10349,121 @@ function renderLoginMgmt(){
 // ── Settings ────────────────────────────────────────────────
 function renderSettings(){
   const el = document.getElementById('settingsPanel');
+  const isTh = LANG === 'th';
+  const backupOn = localStorage.getItem('mth_backup_enabled') === '1';
   el.innerHTML = `
     <div class="deep-sys-card">
       <div class="deep-sys-title">${t('settings_language')}</div>
       <div class="deep-sys-origin">${t('settings_language_sub')}</div>
-      <button class="ghost-btn" onclick="toggleLang();renderSettings()">${LANG==='th'?'Switch to English':'เปลี่ยนเป็นภาษาไทย'}</button>
+      <button class="ghost-btn" onclick="toggleLang();renderSettings()">${isTh?'Switch to English':'เปลี่ยนเป็นภาษาไทย'}</button>
     </div>
+
+    <!-- ░░░ DATA & BACKUP ░░░ -->
+    <div class="deep-sys-card" style="margin-top:12px">
+      <div class="deep-sys-title">${isTh?'📦 ข้อมูลและสำรองข้อมูล':'📦 Data & Backup'}</div>
+      <div class="deep-sys-origin">${isTh?'ส่งออก/นำเข้าข้อมูลทั้งหมดของคุณเป็นไฟล์ JSON':'Export/import all your data as a JSON file'}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <button class="ghost-btn" onclick="exportUserData()">${isTh?'⬇ ส่งออกข้อมูล':'⬇ Export my data'}</button>
+        <button class="ghost-btn" onclick="document.getElementById('importFile').click()">${isTh?'⬆ นำเข้าข้อมูล':'⬆ Import data'}</button>
+        <input type="file" id="importFile" accept="application/json,.json" style="display:none" onchange="importUserData(event)">
+      </div>
+      <div style="margin-top:10px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:12.5px;color:var(--muted);line-height:1.55">
+        ${isTh
+          ? '💡 ส่งออกเก็บไว้เป็นสำรอง · เปลี่ยนเครื่องใหม่ใช้ปุ่มนำเข้าเพื่อกู้ข้อมูลเดิม · ไฟล์เก็บทุกอย่าง: ดวง, ประวัติเทพ, คำถาม, โปรไฟล์หลายคน, รหัสของขวัญ'
+          : '💡 Export to keep a backup · import on a new device to restore · the file contains everything — chart, blessing history, organum questions, multi-profile, gift code'}
+      </div>
+    </div>
+
+    <!-- ░░░ CLOUD BACKUP (placeholder — activate when backend ships) ░░░ -->
+    <div class="deep-sys-card" style="margin-top:12px;border-color:var(--border);opacity:.75">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div style="flex:1">
+          <div class="deep-sys-title">${isTh?'☁️ สำรองขึ้นคลาวด์ (เร็วๆ นี้)':'☁️ Cloud Backup & Sync (coming soon)'}</div>
+          <div class="deep-sys-origin">${isTh?'เมื่อพร้อม เปิดใช้งานเพื่อกู้ข้อมูลข้ามเครื่องได้โดยอัตโนมัติ':'When ready, enable to auto-sync between devices'}</div>
+        </div>
+        <button class="ghost-btn" onclick="_comingSoonBackup()" style="cursor:not-allowed;opacity:.6;position:relative;padding-right:30px">
+          <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;background:var(--border);color:var(--muted);padding:1px 6px;border-radius:10px">OFF</span>
+          ${isTh?'เปิดใช้งาน':'Enable'}
+        </button>
+      </div>
+      <div style="margin-top:10px;padding:10px 12px;background:rgba(200,164,90,.04);border-left:3px solid var(--gold3);border-radius:0 6px 6px 0;font-family:'Cormorant Garamond',serif;font-size:12.5px;color:var(--muted);line-height:1.6">
+        ${isTh
+          ? 'ระบบคลาวด์พร้อมเปิดตอนเราเริ่มรับชำระเงิน · ถึงตอนนั้น toggle นี้จะเชื่อมบัญชีของคุณ (Email / LINE / Google) กับข้อมูลในเครื่อง · ไม่ต้องย้ายด้วยมือ · ไม่ต้องกลัวข้อมูลหายเมื่อเคลียร์ browser'
+          : 'Cloud will activate when we launch paid tiers. At that point this toggle links your account (Email / LINE / Google) to your local data. No manual exports. No data loss if you clear your browser.'}
+      </div>
+    </div>
+
+    <!-- ░░░ DANGER ZONE ░░░ -->
     <div class="deep-sys-card" style="margin-top:12px">
       <div class="deep-sys-title">${t('settings_clear')}</div>
       <div class="deep-sys-origin">${t('settings_clear_sub')}</div>
       <button class="ghost-btn" onclick="if(confirm(t('settings_clear_confirm'))){localStorage.clear();location.reload();}" style="color:#ff6060;border-color:#ff606055">${t('settings_clear_btn')}</button>
     </div>`;
+}
+
+// ── Export / Import user data (works offline; true backup without server) ──
+function exportUserData(){
+  const isTh = LANG === 'th';
+  // Snapshot every mth_* / ms_* key — the app's full user-scoped storage.
+  const out = { _meta: { app: 'mythsensus', schema: 1, exportedAt: new Date().toISOString() } };
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k) continue;
+    if (k.startsWith('mth_') || k.startsWith('ms_')) out[k] = localStorage.getItem(k);
+  }
+  const blob = new Blob([JSON.stringify(out, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const ymd = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `mythsensus-backup-${ymd}.json`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function importUserData(e){
+  const isTh = LANG === 'th';
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (!data || data._meta?.app !== 'mythsensus') {
+        alert(isTh ? 'ไฟล์ไม่ถูกต้อง · ต้องเป็น Mythsensus backup' : 'Invalid file · expected a Mythsensus backup');
+        return;
+      }
+      if (!confirm(isTh
+        ? 'ยืนยันการนำเข้า? ข้อมูลปัจจุบันจะถูกเขียนทับ'
+        : 'Confirm import? Current data will be overwritten.')) return;
+      // Wipe existing mth_/ms_ keys and write imported ones.
+      const toClear = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith('mth_') || k.startsWith('ms_'))) toClear.push(k);
+      }
+      toClear.forEach(k => localStorage.removeItem(k));
+      for (const [k,v] of Object.entries(data)) {
+        if (k === '_meta') continue;
+        localStorage.setItem(k, v);
+      }
+      alert(isTh ? '✓ นำเข้าสำเร็จ · กำลังรีโหลด' : '✓ Imported · reloading');
+      location.reload();
+    } catch(err) {
+      alert((isTh ? 'อ่านไฟล์ไม่ได้: ' : 'Could not read file: ') + err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = ''; // allow re-selecting same file
+}
+
+// Stub for cloud-backup toggle — no-op until backend launches.
+// When DB + auth are ready, replace the alert with the enable flow.
+function _comingSoonBackup(){
+  const isTh = LANG === 'th';
+  alert(isTh
+    ? '☁️ Cloud Backup ยังไม่เปิดให้ใช้\n\nจะปลดล็อกเมื่อเราเปิดใช้งาน paid tiers · ระหว่างนี้ใช้ปุ่ม "ส่งออกข้อมูล" ด้านบนสำรองเก็บไว้เป็นไฟล์ JSON ได้'
+    : '☁️ Cloud Backup is not yet available.\n\nUnlocks when paid tiers launch. In the meantime, use the "Export my data" button above to keep a local JSON backup.');
 }
 
 function logoutUser(){ localStorage.removeItem('mth_user'); location.reload(); }
