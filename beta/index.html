@@ -1627,7 +1627,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
      style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(2,2,6,.85);backdrop-filter:blur(6px);padding:24px;overflow-y:auto;align-items:center;justify-content:center">
   <div id="godDetailBox" onclick="event.stopPropagation()"
        style="max-width:520px;width:100%;margin:auto;background:linear-gradient(180deg,#0d0d18,#07070c);border:1px solid var(--gold3);border-radius:12px;padding:28px 24px;position:relative;font-family:'Cormorant Garamond',serif;color:var(--text);box-shadow:0 20px 60px rgba(0,0,0,.6)">
-    <button onclick="closeGodDetail()" aria-label="Close"
+    <button onclick="closeGodDetail()" data-t-title="close" data-t-aria="close" title="Close" aria-label="Close"
             style="position:absolute;top:10px;right:14px;background:transparent;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px;line-height:1">×</button>
     <div id="gdTier" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;text-align:center;margin-bottom:8px"></div>
     <div id="gdSymbol" style="font-size:64px;text-align:center;line-height:1;margin-bottom:8px"></div>
@@ -6375,6 +6375,7 @@ en:{
   quick_load:"Load My Chart",
   web_nav_back:"← Back",
   web_share:"✦ Share",
+  close:"Close",
   share_native:"Share…",share_line:"LINE",share_twitter:"Twitter / X",
   share_fb:"Facebook",share_copy:"Copy link",
   life_guide_title:"YOUR LIFE GUIDE",
@@ -6546,6 +6547,7 @@ th:{
   quick_load:"โหลดแผนที่ชีวิต",
   web_nav_back:"← ย้อนกลับ",
   web_share:"✦ แชร์",
+  close:"ปิด",
   share_native:"แชร์…",share_line:"LINE",share_twitter:"Twitter / X",
   share_fb:"Facebook",share_copy:"คัดลอกลิงก์",
   life_guide_title:"คู่มือชีวิตของคุณ",
@@ -6573,6 +6575,7 @@ function applyLang(){
   document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.getAttribute('data-t')));
   document.querySelectorAll('[data-t-placeholder]').forEach(el=>el.placeholder=t(el.getAttribute('data-t-placeholder')));
   document.querySelectorAll('[data-t-title]').forEach(el=>el.title=t(el.getAttribute('data-t-title')));
+  document.querySelectorAll('[data-t-aria]').forEach(el=>el.setAttribute('aria-label', t(el.getAttribute('data-t-aria'))));
   // Static bilingual elements (panel intros, article-style blocks) use
   // data-en/data-th instead of a translation-key lookup. Swap them here
   // so they follow LANG just like data-t elements do.
@@ -8711,7 +8714,7 @@ function renderResonance(){
       <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px">
         <div class="form-group">
           <label style="display:block;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px">${isTh?'ประเทศที่คุณอยู่/ทำงาน':'Country you live / work in'}</label>
-          <input id="res_country" value="${country}" placeholder="Thailand, Japan, USA..." style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;font-family:inherit" onchange="localStorage.setItem('mth_country',this.value);renderResonance();_showResRegenHint()">
+          <input id="res_country" value="${country}" placeholder="${isTh?'เช่น ไทย, ญี่ปุ่น, อังกฤษ':'Thailand, Japan, USA...'}" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;font-family:inherit" onchange="localStorage.setItem('mth_country',this.value);renderResonance();_showResRegenHint()">
         </div>
         <div class="form-group">
           <label style="display:block;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px">${isTh?'สายอาชีพ / บทบาท':'Career / role'}</label>
@@ -10897,8 +10900,8 @@ function closeFamousCompareModal(){
 // Build the You-vs-Them modal: side-by-side 10 primary systems + commentary.
 // Both charts computed via MS26.calculate so all numbers are engine-real.
 function showFamousCompareModal(f){
-  if (!window.MS26) { alert('Engine not loaded yet'); return; }
   const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
+  if (!window.MS26) { alert(isTh ? 'เครื่องคำนวณยังโหลดไม่เสร็จ — รอสักครู่แล้วลองใหม่' : 'Engine not loaded yet'); return; }
   // Compute their chart.
   let theirs;
   try {
@@ -10908,7 +10911,7 @@ function showFamousCompareModal(f){
       lat: f.lat, lon: f.lon, timezone: f.tz,
     });
   } catch(e) {
-    alert('Could not compute chart for ' + f.name + ': ' + e.message);
+    alert((isTh ? 'ไม่สามารถคำนวณดวงของ ' : 'Could not compute chart for ') + f.name + ': ' + e.message);
     return;
   }
   // Compute YOUR chart from saved profile (or Cosmic Blueprint form).
@@ -13596,7 +13599,11 @@ function renderHistoryPanel() {
 }
 
 function clearAllHistory() {
-  if (!confirm('ลบประวัติทั้งหมดออกไหม? ยืนยันไม่สามารถกู้คืนได้')) return;
+  const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
+  const msg = isTh
+    ? 'ลบประวัติทั้งหมดออกไหม? การยืนยันไม่สามารถกู้คืนได้'
+    : 'Delete all history? This action cannot be undone.';
+  if (!confirm(msg)) return;
   localStorage.removeItem('mth_full_history');
   renderHistoryPanel();
 }
