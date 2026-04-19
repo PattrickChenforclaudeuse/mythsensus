@@ -1,10 +1,14 @@
-// Mythsensus service worker — minimal offline-first cache for the core app.
-// When the user visits once online, subsequent opens work without network.
-const CACHE = 'mythsensus-v1';
+// Mythsensus service worker v2.
+// Strategy:
+//   - HTML documents: NETWORK-FIRST (so deploys show up immediately, fall back
+//     to cache only when offline)
+//   - Static assets (SVG/CSS/JS/fonts/JSON): stale-while-revalidate
+// This fixes the v1 bug where cache-first HTML served stale app forever until
+// reload, making it look like "sign-in doesn't remember" after deploys.
+const CACHE = 'mythsensus-v2';
 const PRECACHE = [
   '/',
   '/beta/',
-  '/beta/index.html',
   '/manifest.webmanifest',
   '/favicon.svg',
   '/og-default.svg',
@@ -24,23 +28,43 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Stale-while-revalidate for same-origin GET requests; network-first for others.
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
+  const isDoc = req.mode === 'navigate' ||
+                req.destination === 'document' ||
+                req.headers.get('Accept')?.includes('text/html');
+
+  if (isDoc) {
+    // Network-first for HTML. Always try to serve a fresh document; fall back
+    // to cache if the network is unavailable (true offline).
+    event.respondWith(
+      fetch(req)
+        .then((resp) => {
+          if (resp && resp.ok) {
+            const clone = resp.clone();
+            caches.open(CACHE).then((c) => c.put(req, clone));
+          }
+          return resp;
+        })
+        .catch(() => caches.match(req).then((c) => c || caches.match('/')))
+    );
+    return;
+  }
+
+  // Static assets: stale-while-revalidate.
   event.respondWith(
     caches.open(CACHE).then((cache) =>
       cache.match(req).then((cached) => {
         const fetchPromise = fetch(req)
           .then((resp) => {
-            // Only cache successful, basic responses.
             if (resp && resp.ok && resp.type === 'basic') cache.put(req, resp.clone());
             return resp;
           })
-          .catch(() => cached); // offline fallback
+          .catch(() => cached);
         return cached || fetchPromise;
       })
     )
