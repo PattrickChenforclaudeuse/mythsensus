@@ -1,0 +1,12 @@
+# Mythsensus robots.txt
+# All content is public · sitemap lists every canonical URL
+User-agent: *
+Allow: /
+
+# Big static assets — no indexing needed but crawling is fine
+Disallow: /beta/index.html$
+Disallow: /_next/
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://mythsensus.com/sitemap.xml

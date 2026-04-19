@@ -1,0 +1,36 @@
+{
+  "name": "Mythsensus — 26 Ancient Systems, One Cosmic Score",
+  "short_name": "Mythsensus",
+  "description": "Your full cosmic blueprint from 26 ancient divination systems. Free beta — no signup, works offline.",
+  "start_url": "/beta/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#040407",
+  "theme_color": "#c8a45a",
+  "categories": ["lifestyle", "entertainment", "spirituality"],
+  "lang": "th",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-default.svg",
+      "sizes": "1200x630",
+      "type": "image/svg+xml",
+      "form_factor": "wide"
+    }
+  ]
+}
