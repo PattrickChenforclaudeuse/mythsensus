@@ -476,6 +476,15 @@ html[lang="th"] .panel-intro{font-family:'Leelawadee UI','Leelawadee','Tahoma','
   <meta name="twitter:title" content="Mythsensus — Daily Oracle">
   <meta name="twitter:description" content="Your full cosmic blueprint from 26 ancient divination systems. Free beta — works offline, no signup.">
   <meta name="twitter:image" content="https://mythsensus.com/og-default.svg">
+<!-- ═══ SUPABASE SDK ═══ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const _SB_URL = 'https://woamqrhifuxsscnihqco.supabase.co';
+const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvYW1xcmhpZnV4c3NjbmlocWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NjA1MzQsImV4cCI6MjA5MDQzNjUzNH0.idjUJce9t3tDrbNIFkWEtY49kexfWU3R8QABXpYVOo8';
+let _sb        = null;  // Supabase client — set in DOMContentLoaded
+let _sbSession = null;  // Current session (null = guest / not signed-in)
+let _authEmail = '';    // Email pending OTP verification
+</script>
 </head>
 <body>
 
@@ -939,6 +948,44 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     </button>
 
     <div id="entryError" style="display:none;text-align:center;margin-top:8px;font-family:'Cormorant Garamond',serif;font-size:12.5px;color:#ff8080"></div>
+  </div>
+</div>
+
+<!-- ═══ AUTH / LOGIN MODAL ═══ -->
+<div class="login-overlay" id="loginOverlay" style="display:none">
+  <div class="login-box" style="max-width:340px">
+    <div class="login-logo">MYTHSENSUS</div>
+    <div class="login-tagline-sm">SIGN IN · SYNC ACROSS DEVICES</div>
+
+    <!-- Step 1: Email input -->
+    <div id="authStep1">
+      <p style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.6" data-en="Sign in to save your charts and sync across devices" data-th="ลงชื่อเข้าใช้เพื่อบันทึกดวงและซิงค์ข้ามอุปกรณ์">ลงชื่อเข้าใช้เพื่อบันทึกดวงและซิงค์ข้ามอุปกรณ์</p>
+      <input id="loginEmailInput" type="email" class="login-input" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendAuthCode()">
+      <button class="login-confirm-btn" id="authSendBtn" onclick="sendAuthCode()" data-en="✉️ Send Code" data-th="✉️ ส่งรหัส OTP">✉️ ส่งรหัส OTP</button>
+      <div class="login-divider" style="margin:14px 0">
+        <span data-en="or continue without signing in" data-th="หรือดำเนินการโดยไม่ลงชื่อเข้าใช้">หรือดำเนินการโดยไม่ลงชื่อเข้าใช้</span>
+      </div>
+      <button class="login-guest-btn" onclick="_closeLoginOverlay()" data-en="Skip for now →" data-th="ข้ามไปก่อน →">ข้ามไปก่อน →</button>
+    </div>
+
+    <!-- Step 2: OTP code entry -->
+    <div id="authStep2" style="display:none">
+      <p style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--muted);margin-bottom:4px" data-en="Enter the 6-digit code sent to" data-th="กรอกรหัส 6 หลักที่ส่งไปยัง">กรอกรหัส 6 หลักที่ส่งไปยัง</p>
+      <p id="authEmailDisplay" style="color:var(--gold);font-size:12px;margin-bottom:16px;font-family:'Josefin Sans',sans-serif;letter-spacing:1px"></p>
+      <input id="loginOtpInput" type="text" class="login-input" placeholder="000000" maxlength="6" inputmode="numeric" style="text-align:center;letter-spacing:8px;font-size:24px;margin-bottom:12px" onkeydown="if(event.key==='Enter')verifyAuthCode()">
+      <button class="login-confirm-btn" id="authVerifyBtn" onclick="verifyAuthCode()" data-en="✦ Verify & Sign In" data-th="✦ ยืนยันและเข้าสู่ระบบ">✦ ยืนยันและเข้าสู่ระบบ</button>
+      <div style="display:flex;justify-content:space-between;margin-top:10px">
+        <button class="login-guest-btn" onclick="_authBack()" data-en="← Back" data-th="← ย้อนกลับ">← ย้อนกลับ</button>
+        <button class="login-guest-btn" onclick="sendAuthCode()" data-en="Resend code" data-th="ส่งรหัสใหม่">ส่งรหัสใหม่</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Success -->
+    <div id="authStep3" style="display:none;text-align:center">
+      <div style="font-size:40px;margin:8px 0 14px">✦</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:14px;color:var(--gold);margin-bottom:8px" data-en="Signed in!" data-th="เข้าสู่ระบบสำเร็จ!">เข้าสู่ระบบสำเร็จ!</div>
+      <p id="authWelcomeMsg" style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--muted);line-height:1.5"></p>
+    </div>
   </div>
 </div>
 
@@ -10351,6 +10398,8 @@ function renderSettings(){
   const el = document.getElementById('settingsPanel');
   const isTh = LANG === 'th';
   const backupOn = localStorage.getItem('mth_backup_enabled') === '1';
+  const hasSession = !!_sbSession;
+  const synced = hasSession && backupOn;
   el.innerHTML = `
     <div class="deep-sys-card">
       <div class="deep-sys-title">${t('settings_language')}</div>
@@ -10374,23 +10423,24 @@ function renderSettings(){
       </div>
     </div>
 
-    <!-- ░░░ CLOUD BACKUP (placeholder — activate when backend ships) ░░░ -->
-    <div class="deep-sys-card" style="margin-top:12px;border-color:var(--border);opacity:.75">
+    <!-- ░░░ CLOUD BACKUP ░░░ -->
+    <div class="deep-sys-card" style="margin-top:12px;border-color:${synced?'var(--gold3)':'var(--border)'}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
         <div style="flex:1">
-          <div class="deep-sys-title">${isTh?'☁️ สำรองขึ้นคลาวด์ (เร็วๆ นี้)':'☁️ Cloud Backup & Sync (coming soon)'}</div>
-          <div class="deep-sys-origin">${isTh?'เมื่อพร้อม เปิดใช้งานเพื่อกู้ข้อมูลข้ามเครื่องได้โดยอัตโนมัติ':'When ready, enable to auto-sync between devices'}</div>
+          <div class="deep-sys-title">${isTh?'☁️ สำรองขึ้นคลาวด์':'☁️ Cloud Backup & Sync'}</div>
+          <div class="deep-sys-origin">${hasSession
+            ?(isTh?`เชื่อมต่อแล้ว · ${_sbSession.user.email}`:`Connected · ${_sbSession.user.email}`)
+            :(isTh?'ลงชื่อเข้าใช้เพื่อเปิดใช้งาน':'Sign in to enable cross-device sync')
+          }</div>
         </div>
-        <button class="ghost-btn" onclick="_comingSoonBackup()" style="cursor:not-allowed;opacity:.6;position:relative;padding-right:30px">
-          <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;background:var(--border);color:var(--muted);padding:1px 6px;border-radius:10px">OFF</span>
-          ${isTh?'เปิดใช้งาน':'Enable'}
+        <button class="ghost-btn" onclick="${hasSession?'manualSync()':'showLoginOverlay()'}" style="position:relative;padding-right:30px">
+          <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10px;background:${synced?'rgba(74,186,80,.25)':'var(--border)'};color:${synced?'var(--green)':'var(--muted)'};padding:1px 6px;border-radius:10px">${synced?'ON':'OFF'}</span>
+          ${hasSession?(isTh?'ซิงค์เดี๋ยวนี้':'Sync Now'):(isTh?'เข้าสู่ระบบ':'Sign In')}
         </button>
       </div>
-      <div style="margin-top:10px;padding:10px 12px;background:rgba(200,164,90,.04);border-left:3px solid var(--gold3);border-radius:0 6px 6px 0;font-family:'Cormorant Garamond',serif;font-size:12.5px;color:var(--muted);line-height:1.6">
-        ${isTh
-          ? 'ระบบคลาวด์พร้อมเปิดตอนเราเริ่มรับชำระเงิน · ถึงตอนนั้น toggle นี้จะเชื่อมบัญชีของคุณ (Email / LINE / Google) กับข้อมูลในเครื่อง · ไม่ต้องย้ายด้วยมือ · ไม่ต้องกลัวข้อมูลหายเมื่อเคลียร์ browser'
-          : 'Cloud will activate when we launch paid tiers. At that point this toggle links your account (Email / LINE / Google) to your local data. No manual exports. No data loss if you clear your browser.'}
-      </div>
+      ${hasSession?`<div style="margin-top:10px;padding:10px 12px;background:rgba(74,186,80,.04);border-left:3px solid rgba(74,186,80,.35);border-radius:0 6px 6px 0;font-family:'Cormorant Garamond',serif;font-size:12.5px;color:var(--muted);line-height:1.6">
+        ${isTh?'ข้อมูลของคุณสำรองไว้บนคลาวด์ · เข้าถึงได้ทุกอุปกรณ์ · ล็อกอินในเครื่องใหม่ข้อมูลจะคืนมาอัตโนมัติ':'Your data is backed up to the cloud and accessible from any device. Sign in on a new device to restore automatically.'}
+      </div>`:''}
     </div>
 
     <!-- ░░░ DANGER ZONE ░░░ -->
@@ -10457,27 +10507,180 @@ function importUserData(e){
   e.target.value = ''; // allow re-selecting same file
 }
 
-// Stub for cloud-backup toggle — no-op until backend launches.
-// When DB + auth are ready, replace the alert with the enable flow.
-function _comingSoonBackup(){
-  const isTh = LANG === 'th';
-  alert(isTh
-    ? '☁️ Cloud Backup ยังไม่เปิดให้ใช้\n\nจะปลดล็อกเมื่อเราเปิดใช้งาน paid tiers · ระหว่างนี้ใช้ปุ่ม "ส่งออกข้อมูล" ด้านบนสำรองเก็บไว้เป็นไฟล์ JSON ได้'
-    : '☁️ Cloud Backup is not yet available.\n\nUnlocks when paid tiers launch. In the meantime, use the "Export my data" button above to keep a local JSON backup.');
+// ════════════════════════════════════════
+// SUPABASE CLOUD SYNC
+// ════════════════════════════════════════
+// Keys synced to cloud (session-only keys like mth_user/mth_guest_ok excluded)
+const _SYNC_KEYS = [
+  'mth_name','mth_dob','mth_time','mth_gender','mth_city',
+  'mth_country','mth_career','mth_industry','mth_lang','mth_gift',
+  'mth_bless_date','mth_bless_count','mth_bless_history','mth_full_history',
+  'mth_coll_tier','ms_profiles','ms_saved_reports','ms_last_group'
+];
+
+async function _sbPush(){
+  if(!_sb||!_sbSession)return;
+  const uid=_sbSession.user.id;
+  const data={};
+  _SYNC_KEYS.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)data[k]=v;});
+  await _sb.from('user_data').upsert({user_id:uid,data,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+}
+
+async function _sbPull(){
+  if(!_sb||!_sbSession)return null;
+  const{data:row}=await _sb.from('user_data')
+    .select('data').eq('user_id',_sbSession.user.id).maybeSingle();
+  return row?.data||null;
+}
+
+function _sbApply(cloudData){
+  _SYNC_KEYS.forEach(k=>{if(cloudData[k]!==undefined)localStorage.setItem(k,cloudData[k]);});
+  syncAllForms();
+  applyLang();
+}
+
+function _showSyncToast(msg){
+  let t=document.getElementById('syncToast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='syncToast';
+    t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);'
+      +'background:rgba(4,4,7,.92);color:#c8a45a;padding:8px 18px;border-radius:20px;'
+      +'font-family:"Josefin Sans",sans-serif;font-size:11px;letter-spacing:1px;'
+      +'z-index:9999;pointer-events:none;transition:opacity .5s';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._t); t._t=setTimeout(()=>t.style.opacity='0',2800);
+}
+
+async function _onSignIn(session){
+  _sbSession=session;
+  const email=session.user.email;
+  const name=localStorage.getItem('mth_name')||email.split('@')[0];
+  localStorage.setItem('mth_user',JSON.stringify({name,loginMethod:'email',email}));
+  localStorage.setItem('mth_backup_enabled','1');
+  // Restore cloud → local if local has no profile; otherwise push local → cloud
+  const localDob=localStorage.getItem('mth_dob');
+  const cloud=await _sbPull();
+  if(cloud&&cloud['mth_dob']&&!localDob){
+    _sbApply(cloud);
+    renderDate&&renderDate();
+    syncAllForms&&syncAllForms();
+    _showSyncToast('☁️ '+(LANG==='th'?'กู้ข้อมูลจากคลาวด์แล้ว':'Restored from cloud'));
+  } else if(localDob){
+    await _sbPush();
+  }
+  renderHeaderUser({name,loginMethod:'email',email});
+  const sp=document.getElementById('settingsPanel');
+  if(sp&&sp.children.length)renderSettings();
+}
+
+function _onSignOut(){
+  _sbSession=null;
+  localStorage.removeItem('mth_backup_enabled');
+}
+
+async function manualSync(){
+  if(!_sb||!_sbSession){showLoginOverlay();return;}
+  await _sbPush();
+  _showSyncToast('☁️ '+(LANG==='th'?'ซิงค์แล้ว ✓':'Synced ✓'));
+  renderSettings();
+}
+
+// ── Auth UI helpers ────────────────────────────────────────────
+async function sendAuthCode(){
+  const emailEl=document.getElementById('loginEmailInput');
+  const email=(emailEl?.value||'').trim();
+  if(!email||!email.includes('@')){
+    alert(LANG==='th'?'กรุณากรอก Email ที่ถูกต้อง':'Please enter a valid email address');
+    return;
+  }
+  _authEmail=email;
+  const btn=document.getElementById('authSendBtn');
+  if(btn){btn.disabled=true;btn.textContent=LANG==='th'?'กำลังส่ง…':'Sending…';}
+  const{error}=await _sb.auth.signInWithOtp({email,options:{shouldCreateUser:true}});
+  if(btn){btn.disabled=false;btn.textContent=LANG==='th'?'✉️ ส่งรหัส OTP':'✉️ Send Code';}
+  if(error){alert('Error: '+error.message);return;}
+  document.getElementById('authEmailDisplay').textContent=email;
+  document.getElementById('authStep1').style.display='none';
+  document.getElementById('authStep2').style.display='';
+  setTimeout(()=>document.getElementById('loginOtpInput')?.focus(),100);
+}
+
+async function verifyAuthCode(){
+  const token=(document.getElementById('loginOtpInput')?.value||'').trim();
+  if(token.length<6){
+    alert(LANG==='th'?'กรอกรหัส 6 หลัก':'Enter the 6-digit code');
+    return;
+  }
+  const btn=document.getElementById('authVerifyBtn');
+  if(btn){btn.disabled=true;btn.textContent=LANG==='th'?'กำลังยืนยัน…':'Verifying…';}
+  const{data,error}=await _sb.auth.verifyOtp({email:_authEmail,token,type:'email'});
+  if(btn){btn.disabled=false;btn.textContent=LANG==='th'?'✦ ยืนยันและเข้าสู่ระบบ':'✦ Verify & Sign In';}
+  if(error){
+    alert(LANG==='th'?'รหัสไม่ถูกต้องหรือหมดอายุ — ลองใหม่':'Invalid or expired code — please try again');
+    return;
+  }
+  document.getElementById('authStep2').style.display='none';
+  document.getElementById('authStep3').style.display='';
+  document.getElementById('authWelcomeMsg').textContent=LANG==='th'
+    ?`ยินดีต้อนรับ ${data.user.email} · ข้อมูลของคุณปลอดภัยบนคลาวด์ ✦`
+    :`Welcome, ${data.user.email} · Your data is safe in the cloud ✦`;
+  setTimeout(()=>{_closeLoginOverlay();_resetAuthSteps();},2200);
+}
+
+function _authBack(){
+  document.getElementById('authStep2').style.display='none';
+  document.getElementById('authStep1').style.display='';
+}
+
+function _closeLoginOverlay(){
+  const o=document.getElementById('loginOverlay');
+  if(o)o.style.display='none';
+}
+
+function _resetAuthSteps(){
+  ['authStep1','authStep2','authStep3'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    if(el)el.style.display=i===0?'':'none';
+  });
+  const ei=document.getElementById('loginEmailInput');
+  const oi=document.getElementById('loginOtpInput');
+  if(ei)ei.value='';
+  if(oi)oi.value='';
+  _authEmail='';
 }
 
 function logoutUser(){ localStorage.removeItem('mth_user'); location.reload(); }
-function showLoginOverlay(){ const o=document.getElementById('loginOverlay'); if(o)o.style.display='flex'; }
+function showLoginOverlay(){
+  const o=document.getElementById('loginOverlay');
+  if(o){_resetAuthSteps();o.style.display='flex';}
+}
 
 // ════════════════════════════════════════
 // INIT — entry overlay shown EVERY visit (mandatory lang + DOB)
 // ════════════════════════════════════════
-document.addEventListener('DOMContentLoaded',()=>{
-  // The mandatory entry overlay handles language + DOB before anything else
-  // renders. The rest of the app boots only after entryAccept(). This kills
-  // mid-session bilingual mixing because LANG is committed once.
+document.addEventListener('DOMContentLoaded', async ()=>{
+  // ── Init Supabase ──────────────────────────────────────────
+  _sb = supabase.createClient(_SB_URL, _SB_KEY, {
+    auth:{ autoRefreshToken:true, persistSession:true, detectSessionInUrl:true }
+  });
+  _sb.auth.onAuthStateChange((event, session)=>{
+    if(event==='SIGNED_IN'  && session) _onSignIn(session);
+    else if(event==='SIGNED_OUT')        _onSignOut();
+  });
+  // Restore existing session (returning user, token still valid)
+  const { data:{ session } } = await _sb.auth.getSession();
+  if(session){
+    _sbSession = session;
+    const email = session.user.email;
+    const name  = localStorage.getItem('mth_name') || email.split('@')[0];
+    localStorage.setItem('mth_user', JSON.stringify({name, loginMethod:'email', email}));
+    localStorage.setItem('mth_backup_enabled','1');
+  }
+  // ── Boot the mandatory entry overlay ─────────────────────
   showEntryOverlay();
-  // Initial chrome (these don't depend on LANG decision yet).
   renderFamousScroll();
   initBlessings();
   loadGods();
@@ -10491,6 +10694,10 @@ function _bootAfterEntry(){
   renderHistory();
   renderTodayBar();
   syncAllForms();
+  // Render header: Supabase session > saved user > guest
+  const user = getUser();
+  if(user) renderHeaderUser(user);
+  else     renderHeaderGuest();
   // Restore last-active group (or default to 'free').
   const savedGroup = localStorage.getItem('ms_last_group') || 'free';
   setGroup(savedGroup);
@@ -10692,6 +10899,8 @@ function entryAccept(){
   document.documentElement.lang = _entryLang;
   const ov = document.getElementById('entryOverlay');
   if (ov) ov.style.display = 'none';
+  // Auto-push updated profile to cloud if signed in
+  if(_sb && _sbSession) _sbPush().catch(()=>{});
   // Boot the rest of the app, then jump to Cosmic Blueprint with the form pre-filled.
   _bootAfterEntry();
   setGroup('premium');
@@ -10729,55 +10938,19 @@ function getUser(){
   try{return JSON.parse(localStorage.getItem('mth_user')||'null');}catch(e){return null;}
 }
 
-function mockLogin(method){
-  _loginMethod=method;
-  const labels={google:'Google',line:'LINE',facebook:'Facebook'};
-  document.getElementById('loginMethodLabel').textContent=
-    `เชื่อมต่อผ่าน ${labels[method]} — กรอกชื่อที่จะแสดงในแอป`;
-  document.getElementById('loginButtons').style.display='none';
-  document.getElementById('loginNameForm').classList.add('active');
-  setTimeout(()=>document.getElementById('loginNameInput').focus(),100);
-}
-
-function showLoginButtons(){
-  document.getElementById('loginButtons').style.display='block';
-  document.getElementById('loginNameForm').classList.remove('active');
-}
+// Legacy mock-login stubs — superseded by Supabase OTP auth (sendAuthCode / verifyAuthCode)
+function mockLogin(){ showLoginOverlay(); }
+function showLoginButtons(){}
 
 function confirmLogin(){
-  const name=(document.getElementById('loginNameInput').value.trim())||'Cosmic Traveler';
-  const dob=document.getElementById('loginDobInput').value||'';
-  const user={name,loginMethod:_loginMethod};
-  localStorage.setItem('mth_user',JSON.stringify(user));
-  localStorage.setItem('mth_name',name);
-  if(dob) localStorage.setItem('mth_dob',dob);
-  document.getElementById('loginOverlay').style.display='none';
-  renderHeaderUser(user);
-  syncAllForms();
-  // If they gave us DOB during login → jump straight to their Blueprint.
-  // Otherwise → show the onboarding overlay so we collect DOB before anything else.
-  if (dob) {
-    setGroup('premium');
-    showSubTab('blueprint');
-    setTimeout(() => {
-      const dobInp = document.getElementById('cb-f-dob');
-      const nameInp = document.getElementById('cb-f-name');
-      if (dobInp && !dobInp.value) dobInp.value = dob;
-      if (nameInp && !nameInp.value) nameInp.value = name;
-      _showOnboardCompleteHint();
-    }, 200);
-  } else {
-    maybeShowOnboarding();
-  }
+  // Kept for any residual onclick references; real auth now uses verifyAuthCode()
+  _closeLoginOverlay();
 }
 
 function continueAsGuest(){
   localStorage.setItem('mth_guest_ok','1');
-  document.getElementById('loginOverlay').style.display='none';
+  _closeLoginOverlay();
   renderHeaderGuest();
-  // First-visit onboarding: ask for DOB so we can show a real chart preview
-  // immediately, instead of dropping the user into "God Blessing" with no context.
-  maybeShowOnboarding();
 }
 
 // ── First-visit onboarding ─────────────────────────────────
@@ -10869,7 +11042,10 @@ function renderHeaderUser(user){
   const el=document.getElementById('headerUser');
   if(!el||!user) return;
   const initial=(user.name||'?')[0].toUpperCase();
-  const methodIcon={google:'🔵',line:'🟢',facebook:'🔷'}[user.loginMethod]||'✦';
+  const methodIcon={google:'🔵',line:'🟢',facebook:'🔷',email:'✉️'}[user.loginMethod]||'✦';
+  const emailLine=user.email
+    ?`<div style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:.5px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${user.email}</div>`
+    :'';
   el.innerHTML=`
     <div style="position:relative">
       <div class="user-avatar" onclick="toggleUserMenu()" title="${user.name}">${initial}</div>
@@ -10877,11 +11053,15 @@ function renderHeaderUser(user){
         <div class="user-menu-item" style="color:var(--gold);border-bottom:1px solid var(--border);pointer-events:none">
           ${methodIcon} ${user.name}
         </div>
-        <div class="user-menu-item" onclick="showTab('profile');toggleUserMenu()">👤 แก้ไขโปรไฟล์</div>
-        <div class="user-menu-item" onclick="logout()" style="color:#ff6060">🚪 ออกจากระบบ</div>
+        <div class="user-menu-item" onclick="showTab('profile');toggleUserMenu()">👤 ${LANG==='th'?'แก้ไขโปรไฟล์':'Edit Profile'}</div>
+        <div class="user-menu-item" onclick="manualSync();toggleUserMenu()">☁️ ${LANG==='th'?'ซิงค์ข้อมูล':'Sync now'}</div>
+        <div class="user-menu-item" onclick="logout()" style="color:#ff6060">🚪 ${LANG==='th'?'ออกจากระบบ':'Sign out'}</div>
       </div>
     </div>
-    <div class="user-display-name">${user.name}</div>`;
+    <div>
+      <div class="user-display-name">${user.name}</div>
+      ${emailLine}
+    </div>`;
 }
 
 function renderHeaderGuest(){
@@ -10902,8 +11082,9 @@ document.addEventListener('click',e=>{
     m.classList.remove('open');
 });
 
-function logout(){
-  ['mth_user','mth_guest_ok'].forEach(k=>localStorage.removeItem(k));
+async function logout(){
+  if(_sb) await _sb.auth.signOut().catch(()=>{});
+  ['mth_user','mth_guest_ok','mth_backup_enabled'].forEach(k=>localStorage.removeItem(k));
   location.reload();
 }
 
