@@ -449,6 +449,11 @@ body.is-web .web-share{display:inline-block;}
 .login-header-btn:hover{background:rgba(200,164,90,.1)}
 /* ── PROFILE PANEL EXTRA ── */
 .prof-saved-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(74,186,80,.1);border:1px solid rgba(74,186,80,.3);border-radius:12px;padding:3px 10px;font-family:'Josefin Sans',sans-serif;font-size:10px;color:#4aba50;letter-spacing:1px;margin-bottom:12px}
+/* ── Panel intro (short "what is this" blurb under each tab title) ── */
+.panel-intro{display:block;max-width:640px;box-sizing:border-box;margin:2px auto 22px;padding:2px 16px;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:14.5px;line-height:1.7;letter-spacing:.2px;color:var(--muted);text-align:center;overflow-wrap:anywhere;word-break:break-word;}
+@media (max-width:480px){.panel-intro{font-size:13.5px;padding:2px 10px;margin-bottom:18px;}}
+html[lang="th"] .panel-intro{font-family:'Leelawadee UI','Leelawadee','Tahoma','Segoe UI',sans-serif;font-style:normal;font-size:14px;line-height:1.75;}
+@media (max-width:480px){html[lang="th"] .panel-intro{font-size:13px;}}
 
 </style>
   <meta name="ms-meta-v1" content="1">
@@ -6559,6 +6564,13 @@ function applyLang(){
   document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.getAttribute('data-t')));
   document.querySelectorAll('[data-t-placeholder]').forEach(el=>el.placeholder=t(el.getAttribute('data-t-placeholder')));
   document.querySelectorAll('[data-t-title]').forEach(el=>el.title=t(el.getAttribute('data-t-title')));
+  // Static bilingual elements (panel intros, article-style blocks) use
+  // data-en/data-th instead of a translation-key lookup. Swap them here
+  // so they follow LANG just like data-t elements do.
+  document.querySelectorAll('[data-en][data-th]').forEach(el=>{
+    const v = (LANG === 'th') ? el.getAttribute('data-th') : el.getAttribute('data-en');
+    if (v != null) el.textContent = v;
+  });
   renderDate();updateBlessingStatus();
   if(_lastSkyCards)renderSkyCards(_lastSkyCards);
   if(_lastChartData){renderChart(_lastChartData);switchLifeTab(_lifeTab,null);}
