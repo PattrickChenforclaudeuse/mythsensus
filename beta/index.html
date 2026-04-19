@@ -436,8 +436,8 @@ body.is-web .web-nav{display:inline-block;}
 </head>
 <body>
 
-<!-- ═══ Back-to-home link (online only; JS enables .is-web class below) ═══ -->
-<a href="/" class="web-nav" id="webNav" data-t="web_nav_home">← Home</a>
+<!-- ═══ Back link (online only; JS enables .is-web class below) ═══ -->
+<a href="/" class="web-nav" id="webNav" onclick="return _webNavBack(event)" data-t="web_nav_back">← Back</a>
 
 <script>
 // Activate the web-nav link only when served from a real web host.
@@ -451,7 +451,22 @@ body.is-web .web-nav{display:inline-block;}
     if (isWeb && !isRoot) document.body.classList.add('is-web');
   } catch(e){}
 })();
-</script>
+// Smart back: if the user arrived from a same-origin page (e.g. /pricing,
+// /blog, /), pop history so we return to THAT page. Otherwise fall through
+// to the href="/" fallback (direct link, no history, external referrer).
+function _webNavBack(e) {
+  try {
+    if (document.referrer) {
+      const ref = new URL(document.referrer);
+      if (ref.hostname === location.hostname && ref.pathname !== location.pathname) {
+        e.preventDefault();
+        history.back();
+        return false;
+      }
+    }
+  } catch(err){}
+  return true; // follow href="/"
+}
 
 <!-- ═══ LOGIN MODAL ═══ -->
 <div class="login-overlay" id="loginOverlay" style="display:none">
@@ -5710,7 +5725,7 @@ en:{
   premium_unlock:"Full interpretation · available in premium report",
   tb_moon:"MOON",copy_chart:"📋 Copy My Reading",copy_done:"✓ Copied!",
   quick_load:"Load My Chart",
-  web_nav_home:"← Home",
+  web_nav_back:"← Back",
   life_guide_title:"YOUR LIFE GUIDE",
   lg_love:"♡ Love",lg_pets:"🐾 Pets",lg_food:"🌾 Food",lg_fitness:"⚡ Fitness",
   lg_source:"Based on your chart",
@@ -5878,7 +5893,7 @@ th:{
   premium_unlock:"การตีความเชิงลึก · ดูเพิ่มเติมใน premium report",
   tb_moon:"จันทร์",copy_chart:"📋 คัดลอกผลการดู",copy_done:"✓ คัดลอกแล้ว!",
   quick_load:"โหลดแผนที่ชีวิต",
-  web_nav_home:"← หน้าแรก",
+  web_nav_back:"← ย้อนกลับ",
   life_guide_title:"คู่มือชีวิตของคุณ",
   lg_love:"♡ ความรัก",lg_pets:"🐾 สัตว์เลี้ยง",lg_food:"🌾 อาหาร",lg_fitness:"⚡ ออกกำลังกาย",
   lg_source:"วิเคราะห์จากดวงชะตาของคุณ",
