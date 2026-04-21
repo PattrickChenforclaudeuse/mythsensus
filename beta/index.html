@@ -6013,7 +6013,7 @@ async function loadGods(){
   // in case a newer dataset is served when hosted online — but file://
   // runs will fall through immediately.
   try {
-    const r = await fetch("../data/mythsensus-gods.json");
+    const r = await fetch("../data/gods.json");
     if (r && r.ok) {
       const raw = await r.json();
       if (Array.isArray(raw) && raw.length > GODS_FULL.length) {
