@@ -52,8 +52,6 @@ function showEntryOverlay(){
   if (dob) {
     if (typeof LANG !== 'undefined') LANG = _entryLang;
     document.documentElement.lang = _entryLang;
-    const lb = document.getElementById('langBtn');
-    if (lb) lb.textContent = _entryLang === 'th' ? 'EN' : 'ไทย';
     if (ov) ov.style.display = 'none';
     _bootAfterEntry();
     return;

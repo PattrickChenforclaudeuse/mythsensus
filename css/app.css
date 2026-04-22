@@ -34,9 +34,9 @@ header{text-align:center;padding:28px 20px 0;position:relative;}
 .logo{font-family:'Cinzel Decorative',serif;font-size:clamp(18px,4vw,30px);color:var(--gold);letter-spacing:6px;}
 .tagline{font-family:'Josefin Sans',sans-serif;font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:4px;}
 .date-display{font-family:'Josefin Sans',sans-serif;font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:1px;}
-.lang-toggle{position:absolute;top:28px;right:16px;}
-.lang-btn{font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;padding:5px 10px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);cursor:pointer;border-radius:2px;transition:all .2s;}
-.lang-btn:hover{color:var(--gold);}
+.lang-toggle{position:fixed;bottom:1.8rem;right:1.8rem;display:flex;gap:0;border-radius:20px;overflow:hidden;border:1px solid rgba(200,164,90,0.35);z-index:200;}
+.lang-toggle button{background:transparent;border:none;padding:.4rem .9rem;font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.1em;color:#9a9088;cursor:pointer;transition:all .2s;}
+.lang-toggle button.active{background:rgba(200,164,90,0.18);color:#c8a45a;}
 nav{display:flex;justify-content:center;gap:3px;padding:18px 12px 0;flex-wrap:wrap;}
 .tab-btn{font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:9px 16px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);cursor:pointer;border-radius:2px;transition:all .3s;white-space:nowrap;}
 .tab-btn:hover{color:var(--gold);border-color:var(--gold3);}

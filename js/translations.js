@@ -332,11 +332,23 @@ th:{
 }};
 let LANG='th';
 function t(k,...a){const v=TX[LANG][k];return typeof v==='function'?v(...a):v||k;}
-function toggleLang(){LANG=LANG==='th'?'en':'th';document.getElementById('langBtn').textContent=LANG==='th'?'EN':'ไทย';document.documentElement.lang=LANG;applyLang();}
+function setLang(lang){
+  LANG=lang;
+  localStorage.setItem('mth_lang',lang);
+  document.documentElement.lang=lang;
+  const be=document.getElementById('btnEN'),bt=document.getElementById('btnTH');
+  if(be)be.classList.toggle('active',lang==='en');
+  if(bt)bt.classList.toggle('active',lang==='th');
+  applyLang();
+}
+function toggleLang(){setLang(LANG==='th'?'en':'th');}
 function applyLang(){
   document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.getAttribute('data-t')));
   document.querySelectorAll('[data-t-placeholder]').forEach(el=>el.placeholder=t(el.getAttribute('data-t-placeholder')));
   document.querySelectorAll('[data-t-title]').forEach(el=>el.title=t(el.getAttribute('data-t-title')));
+  const be=document.getElementById('btnEN'),bt=document.getElementById('btnTH');
+  if(be)be.classList.toggle('active',LANG==='en');
+  if(bt)bt.classList.toggle('active',LANG==='th');
   renderDate();updateBlessingStatus();
   if(_lastSkyCards)renderSkyCards(_lastSkyCards);
   if(_lastChartData){renderChart(_lastChartData);switchLifeTab(_lifeTab,null);}
