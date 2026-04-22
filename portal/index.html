@@ -92,6 +92,38 @@ footer a:hover{color:#c8a45a}
         <svg viewBox="0 0 24 24" fill="white"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.630 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.090-.51-.25l-2.443-3.317v2.940c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.630 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.590.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
         <span data-en="Sign in with LINE" data-th="เข้าสู่ระบบด้วย LINE">Sign in with LINE</span>
       </a>
+
+      <!-- Email + 8-digit code login -->
+      <div style="margin-top:1.2rem;border-top:1px solid rgba(200,164,90,0.15);padding-top:1.2rem">
+        <div id="emailStep">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:#9a9088;margin-bottom:.7rem;text-align:center" data-en="Or sign in with email" data-th="หรือเข้าสู่ระบบด้วยอีเมล">Or sign in with email</div>
+          <div style="display:flex;gap:.6rem">
+            <input id="emailInput" type="email" placeholder="your@email.com"
+              style="flex:1;padding:.7rem 1rem;background:#0d0d14;border:1px solid rgba(200,164,90,0.3);border-radius:6px;color:#e6e2d8;font-family:'Josefin Sans',sans-serif;font-size:.8rem;outline:none">
+            <button onclick="sendEmailCode()"
+              style="padding:.7rem 1.2rem;background:rgba(200,164,90,0.15);border:1px solid rgba(200,164,90,0.4);border-radius:6px;color:#c8a45a;font-family:'Josefin Sans',sans-serif;font-size:.75rem;letter-spacing:.1em;cursor:pointer;white-space:nowrap"
+              data-en="Send Code" data-th="ส่งรหัส">Send Code</button>
+          </div>
+          <div id="emailMsg" style="font-size:.75rem;color:#9a9088;margin-top:.5rem;text-align:center"></div>
+        </div>
+        <div id="codeStep" style="display:none">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:#c8a45a;margin-bottom:.7rem;text-align:center" id="codeSentLabel">Code sent — check your email</div>
+          <div style="display:flex;gap:.6rem">
+            <input id="codeInput" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="_ _ _ _ _ _ _ _"
+              style="flex:1;padding:.7rem 1rem;background:#0d0d14;border:1px solid rgba(200,164,90,0.4);border-radius:6px;color:#e6e2d8;font-family:'Josefin Sans',sans-serif;font-size:1.1rem;letter-spacing:.3em;outline:none;text-align:center"
+              oninput="if(this.value.length===8)verifyCode()">
+            <button onclick="verifyCode()"
+              style="padding:.7rem 1.2rem;background:#c8a45a;border:none;border-radius:6px;color:#040407;font-family:'Josefin Sans',sans-serif;font-size:.75rem;letter-spacing:.1em;font-weight:700;cursor:pointer"
+              data-en="Verify" data-th="ยืนยัน">Verify</button>
+          </div>
+          <div id="codeMsg" style="font-size:.75rem;color:#9a9088;margin-top:.5rem;text-align:center"></div>
+          <div style="text-align:center;margin-top:.5rem">
+            <button onclick="document.getElementById('codeStep').style.display='none';document.getElementById('emailStep').style.display='block'"
+              style="background:none;border:none;color:#9a9088;font-size:.72rem;cursor:pointer;font-family:'Josefin Sans',sans-serif"
+              data-en="← Change email" data-th="← เปลี่ยนอีเมล">← Change email</button>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="card-grid">
       <div class="action-card">
@@ -214,6 +246,41 @@ document.addEventListener('DOMContentLoaded',function(){
   if(lb)lb.addEventListener('click',function(e){e.preventDefault();localStorage.removeItem('ms_token');location.reload();});
 });
 
+var _emailForCode='';
+function sendEmailCode(){
+  var email=(document.getElementById('emailInput').value||'').trim();
+  if(!email||!email.includes('@')){document.getElementById('emailMsg').textContent='กรุณากรอกอีเมลที่ถูกต้อง';return;}
+  _emailForCode=email;
+  document.getElementById('emailMsg').textContent='กำลังส่ง...';
+  fetch('/api/auth/magic/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.ok){
+        document.getElementById('emailStep').style.display='none';
+        document.getElementById('codeStep').style.display='block';
+        document.getElementById('codeSentLabel').textContent='รหัส 8 หลักถูกส่งไปที่ '+email;
+        setTimeout(function(){document.getElementById('codeInput').focus();},100);
+      } else {
+        document.getElementById('emailMsg').textContent='เกิดข้อผิดพลาด กรุณาลองใหม่';
+      }
+    }).catch(function(){document.getElementById('emailMsg').textContent='เกิดข้อผิดพลาด กรุณาลองใหม่';});
+}
+function verifyCode(){
+  var code=(document.getElementById('codeInput').value||'').trim();
+  if(code.length!==8){document.getElementById('codeMsg').textContent='กรุณากรอกรหัส 8 หลัก';return;}
+  document.getElementById('codeMsg').textContent='กำลังตรวจสอบ...';
+  fetch('/api/auth/magic/verify-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:_emailForCode,code:code})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.ok&&d.token){
+        localStorage.setItem('ms_token',d.token);
+        location.reload();
+      } else {
+        var msg=d.error==='code_expired'?'รหัสหมดอายุแล้ว กรุณาขอรหัสใหม่':d.error==='invalid_code'?'รหัสไม่ถูกต้อง':'เกิดข้อผิดพลาด';
+        document.getElementById('codeMsg').textContent=msg;
+      }
+    }).catch(function(){document.getElementById('codeMsg').textContent='เกิดข้อผิดพลาด กรุณาลองใหม่';});
+}
 function showNotLoggedIn(){document.getElementById('notLoggedIn').style.display='block';document.getElementById('loggedIn').style.display='none';}
 function showLoggedIn(payload){
   document.getElementById('notLoggedIn').style.display='none';

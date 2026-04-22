@@ -2603,17 +2603,17 @@ function p_threeScores(c) {
           <div style="color:#7a5a40;margin-top:2px">Soul Frequency</div>
           <div style="color:#aa8050;font-size:12px;margin-top:4px">${score.total} = เกรด ${score.total >= 810 ? '95+' : score.total >= 730 ? '91' : score.total >= 650 ? 'diesel' : 'ชีวมวล'}</div>
         </div>
-        <div style="background:#1a1206;border-radius:6px;padding:10px;opacity:0.7">
+        <div style="background:#1a1206;border-radius:6px;padding:10px;${score.lifeTerrainScore > 0 ? '' : 'opacity:0.7'}">
           <div style="font-size:20px;margin-bottom:4px">⚙️</div>
           <div style="color:#aa8840;font-weight:600">เครื่องยนต์</div>
           <div style="color:#7a6030;margin-top:2px">Life Terrain</div>
-          <div style="color:#7a6030;font-size:12px;margin-top:4px">กรอกอาชีพ+ประเทศ</div>
+          <div style="color:${score.lifeTerrainScore > 0 ? '#c8a040' : '#7a6030'};font-size:12px;margin-top:4px;font-weight:${score.lifeTerrainScore > 0 ? '700' : '400'}">${score.lifeTerrainScore > 0 ? score.lifeTerrainScore : 'กรอกอาชีพ+ประเทศ'}</div>
         </div>
-        <div style="background:#0a1015;border-radius:6px;padding:10px;opacity:0.7">
+        <div style="background:#0a1015;border-radius:6px;padding:10px;${score.pathResonanceScore > 0 ? '' : 'opacity:0.7'}">
           <div style="font-size:20px;margin-bottom:4px">🔌</div>
           <div style="color:#408890;font-weight:600">ท่อเชื้อเพลิง</div>
           <div style="color:#306070;margin-top:2px">Path Resonance</div>
-          <div style="color:#306070;font-size:12px;margin-top:4px">กรอกสายงาน</div>
+          <div style="color:${score.pathResonanceScore > 0 ? '#40c0a0' : '#306070'};font-size:12px;margin-top:4px;font-weight:${score.pathResonanceScore > 0 ? '700' : '400'}">${score.pathResonanceScore > 0 ? score.pathResonanceScore : 'กรอกสายงาน'}</div>
         </div>
       </div>
     </div>
