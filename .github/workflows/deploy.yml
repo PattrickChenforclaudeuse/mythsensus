@@ -15,6 +15,6 @@ jobs:
         run: npm install -g vercel@latest
 
       - name: Deploy to Vercel
-        run: vercel --token ${{ secrets.VERCEL_TOKEN }} --yes --prod
+        run: vercel --token ${{ secrets.VCL_DEPLOY_TOKEN }} --yes --prod
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VCL_DEPLOY_TOKEN }}
