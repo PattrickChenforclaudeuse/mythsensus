@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     let userId = null;
 
     if (SUPABASE_URL && SUPABASE_SERVICE_KEY) {
-      const upsertResp = await fetch(SUPABASE_URL + '/rest/v1/users', {
+      const upsertResp = await fetch(SUPABASE_URL + '/rest/v1/users?on_conflict=facebook_user_id', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_SERVICE_KEY, 'Authorization': 'Bearer ' + SUPABASE_SERVICE_KEY, 'Prefer': 'resolution=merge-duplicates,return=representation' },
         body: JSON.stringify({ facebook_user_id: profile.id, display_name: profile.name, email: profile.email || null, picture_url: profile.picture?.data?.url || null, updated_at: new Date().toISOString() })

@@ -39,7 +39,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({ used: true })
       });
 
-      const upsertResp = await fetch(SUPABASE_URL + '/rest/v1/users', {
+      const upsertResp = await fetch(SUPABASE_URL + '/rest/v1/users?on_conflict=email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

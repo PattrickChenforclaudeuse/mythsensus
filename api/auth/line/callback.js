@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     let userId = null;
 
     if (SUPABASE_URL && SUPABASE_SERVICE_KEY) {
-      const upsertResp = await fetch(SUPABASE_URL + '/rest/v1/users', {
+      const upsertResp = await fetch(SUPABASE_URL + '/rest/v1/users?on_conflict=line_user_id', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_SERVICE_KEY, 'Authorization': 'Bearer ' + SUPABASE_SERVICE_KEY, 'Prefer': 'resolution=merge-duplicates,return=representation' },
         body: JSON.stringify({ line_user_id: profile.userId, display_name: profile.displayName, picture_url: profile.pictureUrl || null, updated_at: new Date().toISOString() })
