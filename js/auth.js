@@ -47,9 +47,17 @@ function showEntryOverlay(){
   if (!ov) { _bootAfterEntry(); return; }
   // Pre-select last used language (default Thai for Thai-first market).
   _entryLang = localStorage.getItem('mth_lang') || 'th';
-  _entryRefreshLang();
-  // Pre-fill from saved profile if any.
+  // Returning user with saved profile — skip overlay entirely and boot directly.
   const dob   = localStorage.getItem('mth_dob')   || '';
+  if (dob) {
+    if (typeof LANG !== 'undefined') LANG = _entryLang;
+    document.documentElement.lang = _entryLang;
+    if (ov) ov.style.display = 'none';
+    _bootAfterEntry();
+    return;
+  }
+  _entryRefreshLang();
+  // Pre-fill from saved profile if any (new user path below).
   const name  = localStorage.getItem('mth_name')  || '';
   const time  = localStorage.getItem('mth_time')  || '';
   const gender = localStorage.getItem('mth_gender') || 'ชาย';
