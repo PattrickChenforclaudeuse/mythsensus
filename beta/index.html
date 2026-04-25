@@ -107,8 +107,7 @@ main{max-width:820px;margin:0 auto;padding:22px 14px 60px;}
 .web-nav:hover{background:rgba(200,164,90,.15);color:var(--gold2);}
 body.is-web .web-nav{display:inline-block;}
 body.is-web .web-share{display:inline-block;}
-/* Push header-user right so the ← Back pill doesn't cover it */
-body.is-web .header-user{left:110px !important;}
+/* header-user is now on the right — no override needed */
 /* ── Starfield background ── */
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0}
 /* stars injected by initStarfield() */
@@ -430,7 +429,7 @@ body.nav-hidden .nav-toggle-btn{transform:rotate(180deg)}
 
 /* ── LOGIN MODAL ── */
 .login-overlay{position:fixed;inset:0;background:rgba(4,4,7,.94);backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px}
-.login-box{background:var(--bg2);border:1px solid var(--gold3);border-radius:8px;padding:32px 28px;max-width:400px;width:100%;text-align:center}
+.login-box{background:var(--bg2);border:1px solid var(--gold3);border-radius:8px;padding:32px 28px;max-width:400px;width:100%;text-align:center;overflow-y:auto;max-height:92vh}
 .login-logo{font-family:'Cinzel Decorative',serif;font-size:20px;color:var(--gold);letter-spacing:5px;margin-bottom:6px}
 .login-tagline-sm{font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:24px}
 .login-section-title{font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:14px}
@@ -448,7 +447,7 @@ body.nav-hidden .nav-toggle-btn{transform:rotate(180deg)}
 .login-confirm-btn:active{opacity:.85;transform:scale(.98)}
 .login-method-label{font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--gold3);letter-spacing:1px;margin-bottom:10px}
 /* ── HEADER USER STATE ── */
-.header-user{position:absolute;top:24px;left:16px;display:flex;align-items:center;gap:7px}
+.header-user{position:absolute;top:24px;right:16px;display:flex;align-items:center;gap:7px}
 .user-avatar{width:28px;height:28px;border-radius:50%;background:rgba(168,132,58,.3);color:var(--gold);font-family:'Josefin Sans',sans-serif;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--gold3);flex-shrink:0}
 .user-display-name{font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--gold3);letter-spacing:1px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .user-menu{position:absolute;top:34px;left:0;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:4px 0;min-width:140px;z-index:200;display:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
@@ -637,13 +636,41 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px">
       <input class="login-input" type="text" id="entryName"
              style="font-family:'Cormorant Garamond',serif;font-size:15px">
-      <input class="login-input" type="date" id="entryDob" min="1900-01-01" max="2100-12-31"
-             style="font-family:inherit;font-size:16px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <input class="login-input" type="number" id="entryHour" min="0" max="23" placeholder="HH"
-               style="font-family:inherit;font-size:15px;text-align:center">
-        <input class="login-input" type="number" id="entryMinute" min="0" max="59" placeholder="MM"
-               style="font-family:inherit;font-size:15px;text-align:center">
+      <!-- วันเกิด: DD | MM | YYYY + พ.ศ./ค.ศ. toggle -->
+      <div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:6px">
+          <input class="login-input" type="number" id="entryDay" min="1" max="31" placeholder="DD"
+                 style="font-family:inherit;font-size:15px;text-align:center">
+          <input class="login-input" type="number" id="entryMonth" min="1" max="12" placeholder="MM"
+                 style="font-family:inherit;font-size:15px;text-align:center">
+          <div style="display:flex;gap:4px">
+            <input class="login-input" type="number" id="entryYear" min="1" max="9999" placeholder="YYYY"
+                   style="font-family:inherit;font-size:15px;text-align:center;flex:1;min-width:0">
+            <select id="entryEra" class="login-input"
+                    style="width:62px;padding:8px 4px;font-size:12px;text-align:center;min-width:0;cursor:pointer">
+              <option value="be">พ.ศ.</option>
+              <option value="ce">ค.ศ.</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:6px;margin-top:3px;padding:0 1px">
+          <span style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:0.5px;text-align:center" id="entryLblDay">วัน / Day</span>
+          <span style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:0.5px;text-align:center" id="entryLblMonth">เดือน / Month</span>
+          <span style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:0.5px;text-align:center" id="entryLblYear">ปีเกิด / Year</span>
+        </div>
+      </div>
+      <!-- เวลาเกิด: HH | MM -->
+      <div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <input class="login-input" type="number" id="entryHour" min="0" max="23" placeholder="--"
+                 style="font-family:inherit;font-size:15px;text-align:center">
+          <input class="login-input" type="number" id="entryMinute" min="0" max="59" placeholder="--"
+                 style="font-family:inherit;font-size:15px;text-align:center">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:3px;padding:0 1px">
+          <span style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:0.5px;text-align:center" id="entryLblHour">ชม. / Hour (0–23)</span>
+          <span style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:0.5px;text-align:center" id="entryLblMin">นาที / Min (0–59)</span>
+        </div>
       </div>
       <select class="login-input" id="entryGender" style="font-family:'Cormorant Garamond',serif;font-size:15px">
         <!-- Defaults so iOS never shows "No Options" if JS is delayed or blocked.
@@ -953,16 +980,28 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <span id="entryPrivacy">All data stays on your device — never sent to the cloud</span>
     </div>
 
+    <!-- sign-in link — above CTA so always visible -->
+    <div style="text-align:center;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+      <span id="entrySignInLabel" style="font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px">มีบัญชีอยู่แล้ว?</span>
+      <button class="login-guest-btn" onclick="showLoginOverlay()" id="entrySignInBtn" style="margin-left:6px">ลงชื่อเข้าใช้เพื่อกู้ข้อมูล →</button>
+    </div>
+
     <button class="login-confirm-btn" onclick="entryAccept()" id="entryCta">
       ✦ Reveal my chart
     </button>
 
-    <div id="entryError" style="display:none;text-align:center;margin-top:8px;font-family:'Cormorant Garamond',serif;font-size:12.5px;color:#ff8080"></div>
-
-    <div style="text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
-      <span id="entrySignInLabel" style="font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px">มีบัญชีอยู่แล้ว?</span>
-      <button class="login-guest-btn" onclick="showLoginOverlay()" id="entrySignInBtn" style="margin-left:6px">ลงชื่อเข้าใช้เพื่อกู้ข้อมูล →</button>
+    <!-- No-account reassurance + hard bypass -->
+    <div id="entryGuestNote" style="text-align:center;margin-top:10px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:12px;color:var(--muted);line-height:1.55">
+      ไม่ต้องสมัครสมาชิก · ข้อมูลอยู่ในเครื่องคุณ
     </div>
+    <div style="text-align:center;margin-top:12px">
+      <button id="entrySkipBtn" onclick="entrySkip()"
+        style="background:transparent;border:none;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px 8px">
+        ข้ามไปก่อน — ลองดู Tab ต่างๆ โดยไม่ต้องกรอกข้อมูล
+      </button>
+    </div>
+
+    <div id="entryError" style="display:none;text-align:center;margin-top:8px;font-family:'Cormorant Garamond',serif;font-size:12.5px;color:#ff8080"></div>
   </div>
 </div>
 
@@ -970,32 +1009,49 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 <div class="login-overlay" id="loginOverlay" style="display:none">
   <div class="login-box" style="max-width:340px">
     <div class="login-logo">MYTHSENSUS</div>
-    <div class="login-tagline-sm">SIGN IN · SYNC ACROSS DEVICES</div>
+    <div class="login-tagline-sm" data-en="SIGN IN · SYNC ACROSS DEVICES" data-th="ลงชื่อเข้าใช้ · ซิงค์ข้ามอุปกรณ์">SIGN IN · SYNC ACROSS DEVICES</div>
 
     <!-- Step 1: Email input -->
     <div id="authStep1">
       <p style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.6" data-en="Sign in to save your charts and sync across devices" data-th="ลงชื่อเข้าใช้เพื่อบันทึกดวงและซิงค์ข้ามอุปกรณ์">ลงชื่อเข้าใช้เพื่อบันทึกดวงและซิงค์ข้ามอุปกรณ์</p>
       <input id="loginEmailInput" type="email" class="login-input" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendAuthCode()">
       <button class="login-confirm-btn" id="authSendBtn" onclick="sendAuthCode()" data-en="✉️ Send Code" data-th="✉️ ส่งรหัส">✉️ ส่งรหัส</button>
-      <div class="login-divider" style="margin:14px 0">
-        <span data-en="or continue without signing in" data-th="หรือดำเนินการโดยไม่ลงชื่อเข้าใช้">หรือดำเนินการโดยไม่ลงชื่อเข้าใช้</span>
+
+      <!-- Guest bypass — full-width, visually distinct from sign-in -->
+      <div style="margin-top:16px;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;text-align:center">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:8px" data-en="OR TRY FIRST, NO ACCOUNT NEEDED" data-th="หรือทดลองใช้ก่อน ไม่ต้องสมัคร">หรือทดลองใช้ก่อน ไม่ต้องสมัคร</div>
+        <button onclick="enterGuestMode()" style="width:100%;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;padding:12px 0;background:transparent;border:1px solid var(--gold3);color:var(--gold);cursor:pointer;border-radius:4px;transition:all .2s" onmouseover="this.style.background='rgba(200,164,90,.1)'" onmouseout="this.style.background='transparent'" data-en="🚀 Explore all tabs — no account" data-th="🚀 ลองใช้ทุก Tab — ไม่ต้องมีบัญชี">🚀 ลองใช้ทุก Tab — ไม่ต้องมีบัญชี</button>
+        <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.5" data-en="Data stays on your device · Sign in later to sync across devices" data-th="ข้อมูลอยู่ในเครื่องคุณ · login ทีหลังได้เพื่อ sync ข้ามอุปกรณ์">ข้อมูลอยู่ในเครื่องคุณ · login ทีหลังได้เพื่อ sync ข้ามอุปกรณ์</div>
       </div>
-      <button class="login-guest-btn" onclick="_closeLoginOverlay()" data-en="Skip for now →" data-th="ข้ามไปก่อน →">ข้ามไปก่อน →</button>
     </div>
 
-    <!-- Step 2: Enter OTP code (+ magic link fallback) -->
+    <!-- Step 2: Magic link primary + OTP secondary -->
     <div id="authStep2" style="display:none">
-      <p style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--muted);margin-bottom:4px;text-align:center" data-en="Enter the 6-digit code sent to" data-th="กรอกรหัส 6 หลักที่ส่งไปยัง">กรอกรหัส 6 หลักที่ส่งไปยัง</p>
-      <p id="authEmailDisplay" style="color:var(--gold);font-size:12px;margin-bottom:14px;font-family:'Josefin Sans',sans-serif;letter-spacing:1px;text-align:center"></p>
-      <input id="loginOtpInput" type="text" class="login-input" placeholder="000000" maxlength="6" inputmode="numeric" style="text-align:center;letter-spacing:8px;font-size:24px;margin-bottom:12px" onkeydown="if(event.key==='Enter')verifyAuthCode()">
-      <button class="login-confirm-btn" id="authVerifyBtn" onclick="verifyAuthCode()" data-en="✦ Verify & Sign In" data-th="✦ ยืนยันและเข้าสู่ระบบ">✦ ยืนยันและเข้าสู่ระบบ</button>
-      <!-- Fallback: clicked magic link in same browser -->
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);text-align:center">
-        <p style="font-family:'Cormorant Garamond',serif;font-size:12px;color:var(--muted);margin-bottom:8px" data-en="Clicked the link in this browser?" data-th="คลิกลิงก์ในเบราว์เซอร์นี้แล้วใช่ไหม?">คลิกลิงก์ในเบราว์เซอร์นี้แล้วใช่ไหม?</p>
-        <button class="ghost-btn" onclick="checkSession()" data-en="🔄 Check session" data-th="🔄 ตรวจสอบสถานะ">🔄 ตรวจสอบสถานะ</button>
+      <!-- Email sent confirmation -->
+      <div style="text-align:center;margin-bottom:14px">
+        <div style="font-size:28px;margin-bottom:6px">📧</div>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--muted);line-height:1.6;margin:0" data-en="We sent a sign-in link to" data-th="เราส่งลิงก์เข้าระบบไปที่">เราส่งลิงก์เข้าระบบไปที่</p>
+        <p id="authEmailDisplay" style="color:var(--gold);font-size:12px;margin:4px 0 0;font-family:'Josefin Sans',sans-serif;letter-spacing:1px"></p>
       </div>
-      <div style="display:flex;justify-content:space-between;margin-top:10px">
-        <button class="login-guest-btn" onclick="_authBack()" data-en="← Change email" data-th="← เปลี่ยน Email">← เปลี่ยน Email</button>
+
+      <!-- Primary: magic link -->
+      <div style="background:rgba(200,164,90,.06);border:1px solid var(--gold3);border-radius:6px;padding:14px 16px;margin-bottom:12px;text-align:center">
+        <p style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold);margin-bottom:8px" data-en="STEP 1 — OPEN EMAIL &amp; CLICK THE LINK" data-th="ขั้นที่ 1 — เปิดอีเมลแล้วคลิกลิงก์">ขั้นที่ 1 — เปิดอีเมลแล้วคลิกลิงก์</p>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:12.5px;color:var(--muted);margin-bottom:10px;line-height:1.55" data-en="Click the link in the email (same browser). Then come back here and press the button below." data-th="คลิกลิงก์ในอีเมล (เบราว์เซอร์เดียวกัน) แล้วกลับมากดปุ่มด้านล่าง">คลิกลิงก์ในอีเมล (เบราว์เซอร์เดียวกัน) แล้วกลับมากดปุ่มด้านล่าง</p>
+        <button class="login-confirm-btn" id="authCheckBtn" onclick="checkSession()" data-en="✦ I clicked the link — Sign me in" data-th="✦ คลิกแล้ว — เข้าระบบเลย">✦ คลิกแล้ว — เข้าระบบเลย</button>
+      </div>
+
+      <!-- Secondary: OTP code (if template has {{ .Token }}) -->
+      <details style="margin-bottom:4px">
+        <summary style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1px;color:var(--muted);cursor:pointer;list-style:none;text-align:center;padding:6px 0" data-en="Or enter the code from the email (6–8 digits)" data-th="หรือกรอกรหัสจากอีเมล (6–8 หลัก)">หรือกรอกรหัสจากอีเมล (6–8 หลัก)</summary>
+        <div style="margin-top:8px">
+          <input id="loginOtpInput" type="text" class="login-input" placeholder="00000000" maxlength="8" inputmode="numeric" style="text-align:center;letter-spacing:6px;font-size:22px;margin-bottom:8px" onkeydown="if(event.key==='Enter')verifyAuthCode()">
+          <button class="ghost-btn" id="authVerifyBtn" onclick="verifyAuthCode()" style="width:100%" data-en="✦ Verify code" data-th="✦ ยืนยันรหัส">✦ ยืนยันรหัส</button>
+        </div>
+      </details>
+
+      <div style="display:flex;justify-content:space-between;margin-top:8px">
+        <button class="login-guest-btn" onclick="_authBack()" data-en="← Change email" data-th="← เปลี่ยนอีเมล">← เปลี่ยนอีเมล</button>
         <button class="login-guest-btn" onclick="sendAuthCode()" data-en="Resend" data-th="ส่งใหม่">ส่งใหม่</button>
       </div>
     </div>
@@ -6503,7 +6559,7 @@ th:{
   sub_deep:"🔬 26 ศาสตร์",sub_mirror:"🪞 เทพกระจก",sub_pet:"🐾 สัตว์เลี้ยง",
   sub_companions:"🦄 เพื่อนคู่ใจ",sub_exercise:"⚡ ออกกำลัง",sub_food:"🍲 อาหาร",
   sub_product:"🛍️ สินค้า",sub_compat:"💑 ความเข้ากัน",
-  sub_me:"👤 ฉัน",sub_multi:"👥 หลายโปรไฟล์",sub_login:"🔐 Login",sub_settings:"⚙️ ตั้งค่า",
+  sub_me:"👤 ฉัน",sub_multi:"👥 หลายโปรไฟล์",sub_login:"🔐 เข้าสู่ระบบ",sub_settings:"⚙️ ตั้งค่า",
   // ── empty-profile hint
   no_profile_title:"ต้องกรอกข้อมูลเกิดก่อน",
   no_profile_desc:"ไปที่แท็บ Profile กรอกวัน-เวลา-สถานที่เกิด แล้วหน้านี้จะปลดล็อก",
@@ -6513,17 +6569,17 @@ th:{
   coll_hint:"เทพที่คุณได้พบเจอ · ทั้งหมด {{total}} องค์จาก 26 ศาสตร์",
   coll_empty:"ยังไม่มีเทพ — ลองจั่วในแท็บ God Blessing ก่อน",
   streak_title:"STREAK & ความถี่ปัจจุบัน",streak_hint:"นับจำนวนวันที่ใช้งานต่อเนื่อง · pattern ที่ซ้ำผิดปกติ",
-  streak_days:"วัน",streak_sub:"streak ปัจจุบัน",
-  streak_desc:"รักษา habit รายวัน — ยิ่งใช้ต่อเนื่อง Cosmic Score และ frequency alert ยิ่งแม่นยำขึ้น",
+  streak_days:"วัน",streak_sub:"Streak ปัจจุบัน",
+  streak_desc:"รักษาวินัยรายวัน — ยิ่งใช้ต่อเนื่อง Cosmic Score และ สัญญาณความถี่ ยิ่งแม่นยำขึ้น",
   // ── Premium
-  reports_title:"รายงาน Premium ของฉัน",reports_hint:"รายงาน 42 หน้าที่คุณเคย generate · เปิดดูซ้ำได้",
-  reports_empty_title:"ยังไม่มีรายงาน",reports_empty_desc:"กด Generate รายงานแรกในแท็บ Generate",
-  reports_empty_cta:"✨ ไป generate",
+  reports_title:"รายงาน Premium ของฉัน",reports_hint:"รายงาน 42 หน้าที่คุณเคยสร้าง · เปิดดูซ้ำได้",
+  reports_empty_title:"ยังไม่มีรายงาน",reports_empty_desc:"กด ✨ สร้างรายงาน เพื่อสร้างรายงานแรก",
+  reports_empty_cta:"✨ ไปสร้างรายงาน",
   // ── Subscription / Resonance
   res_title:"LIFE PATH RESONANCE — ที่อยู่ · อาชีพ · ความสอดคล้อง",
   res_hint:"วิเคราะห์ว่าที่ที่คุณอยู่และสิ่งที่คุณทำสอดคล้องกับดวงแค่ไหน",
-  res_your_chart_title:"ลายเซ็นดวงของคุณ",res_your_chart_sub:"3 จุดที่เราใช้วัด resonance",
-  res_lbl_element:"ธาตุ Day Master",res_lbl_direction:"ทิศนำโชค",res_lbl_lifepath:"Life Path",
+  res_your_chart_title:"ลายเซ็นดวงของคุณ",res_your_chart_sub:"3 จุดที่เราใช้วัด ความสอดคล้อง",
+  res_lbl_element:"ธาตุ Day Master",res_lbl_direction:"ทิศนำโชค",res_lbl_lifepath:"เส้นทางชีวิต",
   res_inputs_title:"บริบทชีวิตปัจจุบัน",res_inputs_sub:"บอกเราว่าคุณอยู่ที่ไหน ทำอะไร",
   res_lbl_country:"ประเทศที่อาศัย",res_lbl_career:"ตำแหน่งงาน",res_lbl_industry:"อุตสาหกรรม",
   res_ph_career:"เช่น Senior Engineer, Designer, Founder",
@@ -6535,7 +6591,7 @@ th:{
   res_current_career:"สิ่งที่คุณทำอยู่",
   res_closing:"เข็มทิศงานของคุณชี้ไปทาง {dir} และธาตุหลักคือ {el} — จับทั้งคู่ให้ตรง แล้วดวงจะหายใจโล่งขึ้น",
   // ── Monthly Brief
-  brief_title:"MONTHLY COSMIC BRIEF",brief_hint:"ธีมของเดือน · transit หลัก · event ที่ต้องจับตา",
+  brief_title:"MONTHLY COSMIC BRIEF — สรุปดาวประจำเดือน",brief_hint:"ธีมของเดือน · การเคลื่อนดาวหลัก · เหตุการณ์ที่ต้องจับตา",
   brief_month:"สรุปประจำเดือน",brief_sub:"ฟ้ากำลังผลักคุณไปทางไหนในเดือนนี้",
   brief_line_transit:"Jupiter transit",brief_line_bazi:"BaZi note",brief_line_vedic:"Vedic Mahadasha",
   // ── Frequency
@@ -6590,12 +6646,12 @@ th:{
   multi_count:"โปรไฟล์ที่บันทึก",multi_add:"เพิ่ม",
   multi_empty_title:"ยังไม่มีโปรไฟล์",
   multi_empty_desc:"กรอกที่แท็บ Me แล้วจะมาแสดงที่นี่",
-  login_mg_title:"LOGIN & ACCOUNT",login_method_label:"เข้าสู่ระบบผ่าน",
+  login_mg_title:"เข้าสู่ระบบ & บัญชี",login_method_label:"เข้าสู่ระบบผ่าน",
   login_session_desc:"Session นี้เก็บในเครื่องอย่างเดียว — offline mode ไม่ sync cloud",
   login_logout:"🚪 ออกจากระบบ",login_not_signed_in:"ยังไม่ได้ล็อกอิน",
   login_not_signed_desc:"ล็อกอินเพื่อ sync ข้อมูลระหว่างอุปกรณ์",
   login_signin_btn:"✦ ล็อกอิน",
-  settings_title:"SETTINGS",settings_language:"ภาษา",
+  settings_title:"การตั้งค่า",settings_language:"ภาษา",
   settings_language_sub:"สลับระหว่างไทย — อังกฤษ",
   settings_clear:"ล้างข้อมูลในเครื่อง",
   settings_clear_sub:"ลบโปรไฟล์ · ประวัติ · การตั้งค่าทั้งหมดจากเบราว์เซอร์",
@@ -6624,13 +6680,16 @@ th:{
   lg_love:"♡ ความรัก",lg_pets:"🐾 สัตว์เลี้ยง",lg_food:"🌾 อาหาร",lg_fitness:"⚡ ออกกำลังกาย",
   lg_source:"วิเคราะห์จากดวงชะตาของคุณ",
   hist_all:"✦ ทั้งหมด",hist_blessing:"🎴 จั่วไพ่",hist_organum:"🔮 คำถาม",
-  prof_title:"ข้อมูลของฉัน",prof_name:"ชื่อ / Name",prof_gender:"เพศ",
+  prof_title:"ข้อมูลของฉัน",prof_name:"ชื่อ",prof_gender:"เพศ",
   prof_dob:"วันเกิด *",prof_time:"เวลาเกิด",prof_time_hint:"ไม่บังคับ — เพิ่มความแม่นยำ 4 ศาสตร์",
   prof_city:"สถานที่เกิด",prof_save:"💾 บันทึกข้อมูล",
   prof_saved:"✓ บันทึกแล้ว — ข้อมูลจะ sync ทุกแท็บอัตโนมัติ",
 }};
 let LANG='th';
 function t(k,...a){const v=TX[LANG][k];return typeof v==='function'?v(...a):v||k;}
+// ── XSS safety helper ────────────────────────────────────────────
+// Use _esc() whenever inserting user-controlled strings into innerHTML.
+function _esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function toggleLang(){
   LANG = LANG === 'th' ? 'en' : 'th';
   // Persist so the choice survives reloads + matches the entry overlay convention.
@@ -7975,7 +8034,7 @@ function savePrefs(){
     localStorage.setItem('mth_gender',gender);
     localStorage.setItem('mth_city',city);
     localStorage.setItem('mth_lang',LANG);
-  }catch(e){}
+  }catch(e){ console.warn('[savePrefs] localStorage write failed:', e); }
 }
 
 function loadPrefs(){
@@ -8030,7 +8089,7 @@ function saveBlessings(){
       gMsg:h.god.messages||[]
     }));
     localStorage.setItem('mth_bless_history',JSON.stringify(slim));
-  }catch(e){}
+  }catch(e){ console.warn('[saveBlessings] localStorage write failed:', e); }
 }
 
 // ════════════════════════════════════════
@@ -10533,7 +10592,7 @@ function importUserData(e){
 // Keys synced to cloud (session-only keys like mth_user/mth_guest_ok excluded)
 const _SYNC_KEYS = [
   'mth_name','mth_dob','mth_time','mth_gender','mth_city',
-  'mth_country','mth_career','mth_industry','mth_lang','mth_gift',
+  'mth_country','mth_career','mth_industry','mth_lang','mth_gift','mth_gift_expiry',
   'mth_bless_date','mth_bless_count','mth_bless_history','mth_full_history',
   'mth_coll_tier','ms_profiles','ms_saved_reports','ms_last_group'
 ];
@@ -10632,16 +10691,16 @@ async function sendAuthCode(){
 
 async function verifyAuthCode(){
   const token=(document.getElementById('loginOtpInput')?.value||'').trim();
-  if(token.length<6){
-    alert(LANG==='th'?'กรอกรหัส 6 หลัก':'Enter the 6-digit code');
+  if(token.length<6||token.length>8){
+    alert(LANG==='th'?'กรอกรหัส 6–8 หลักจากอีเมล':'Enter the 6–8 digit code from the email');
     return;
   }
   const btn=document.getElementById('authVerifyBtn');
   if(btn){btn.disabled=true;btn.textContent=LANG==='th'?'กำลังยืนยัน…':'Verifying…';}
   const{data,error}=await _sb.auth.verifyOtp({email:_authEmail,token,type:'email'});
-  if(btn){btn.disabled=false;btn.textContent=LANG==='th'?'✦ ยืนยันและเข้าสู่ระบบ':'✦ Verify & Sign In';}
+  if(btn){btn.disabled=false;btn.textContent=LANG==='th'?'✦ ยืนยันรหัส':'✦ Verify code';}
   if(error){
-    alert(LANG==='th'?'รหัสไม่ถูกต้องหรือหมดอายุ — ลองใหม่':'Invalid or expired code — please try again');
+    alert((LANG==='th'?'รหัสไม่ถูกต้องหรือหมดอายุ\n':'Invalid or expired code\n')+error.message);
     return;
   }
   document.getElementById('authStep2').style.display='none';
@@ -10653,20 +10712,22 @@ async function verifyAuthCode(){
 }
 
 async function checkSession(){
-  // For magic-link users who clicked the link in the same browser.
-  // onAuthStateChange fires automatically, but this is a manual fallback.
-  const btn=document.querySelector('#authStep2 .ghost-btn');
-  if(btn){btn.disabled=true;btn.textContent='...';}
+  // Primary magic-link flow: user clicked the link in the same browser.
+  const btn=document.getElementById('authCheckBtn');
+  if(btn){btn.disabled=true;btn.textContent=LANG==='th'?'กำลังตรวจสอบ…':'Checking…';}
   const{data:{session}}=await _sb.auth.getSession();
-  if(btn){btn.disabled=false;btn.textContent=LANG==='th'?'🔄 ตรวจสอบสถานะ':'🔄 Check session';}
+  if(btn){
+    btn.disabled=false;
+    btn.textContent=LANG==='th'?'✦ คลิกแล้ว — เข้าระบบเลย':'✦ I clicked the link — Sign me in';
+  }
   if(session){
     await _onSignIn(session);
     _closeLoginOverlay();
     _resetAuthSteps();
   } else {
     alert(LANG==='th'
-      ?'ยังไม่พบ session\n\nถ้ารับเมลบนอุปกรณ์อื่น — กรุณากรอกรหัส 6 หลักจากอีเมลแทน'
-      :'No session found yet\n\nIf you checked email on another device — enter the 6-digit code from the email instead');
+      ?'ยังไม่พบ session\n\n• คลิกลิงก์ในอีเมลก่อน แล้วกดปุ่มนี้อีกครั้ง\n• ต้องใช้เบราว์เซอร์เดียวกัน (ห้ามเปิดในแอปอีเมล)\n• ถ้าอีเมลมีรหัส 6 หลัก กรอกใน "หรือกรอกรหัส 6 หลัก" แทน'
+      :'No session found yet\n\n• Click the link in the email first, then press this button again\n• Must use the same browser (don\'t open in email app directly)\n• If your email shows a 6-digit code, expand "Or enter the 6-digit code" below');
   }
 }
 
@@ -10743,7 +10804,24 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     if(event==='SIGNED_IN'  && session) _onSignIn(session);
     else if(event==='SIGNED_OUT')        _onSignOut();
   });
-  // Restore existing session (returning user, token still valid)
+  // Restore existing session (returning user, token still valid).
+  // If the URL contains ?code= it's a magic-link PKCE redirect — poll until
+  // Supabase has finished the code exchange (max 5s, 200ms intervals).
+  if(location.search.includes('code=')){
+    let _pkceResolved = false;
+    for(let _i=0; _i<25 && !_pkceResolved; _i++){
+      await new Promise(r=>setTimeout(r,200));
+      try{
+        const {data:{session:_s}} = await _sb.auth.getSession();
+        if(_s){ _pkceResolved = true; }
+      }catch(e){ console.warn('[PKCE] poll error:', e); }
+    }
+    // Clean up the ?code param so it doesn't confuse future page loads.
+    try{
+      const clean=location.href.replace(/[?&]code=[^&]*/,'').replace(/[?&]type=[^&]*/,'').replace(/\?$/,'').replace(/\?&/,'?');
+      history.replaceState(null,'',clean);
+    }catch(e){ console.warn('[PKCE] replaceState failed:', e); }
+  }
   const { data:{ session } } = await _sb.auth.getSession();
   if(session){
     _sbSession = session;
@@ -10804,13 +10882,12 @@ function showEntryOverlay(){
   const time  = localStorage.getItem('mth_time')  || '';
   const gender = localStorage.getItem('mth_gender') || 'ชาย';
   const city   = localStorage.getItem('mth_city')   || '13.75,100.5,7';
-  const dobInp = document.getElementById('entryDob');
   const nameInp = document.getElementById('entryName');
   const hourInp = document.getElementById('entryHour');
   const minInp  = document.getElementById('entryMinute');
   const gSelect = document.getElementById('entryGender');
   const cSelect = document.getElementById('entryCity');
-  if (dobInp)  dobInp.value = dob;
+  _setEntryDobFields(dob);
   if (nameInp) nameInp.value = name;
   if (time && hourInp && minInp) {
     const [hh,mm] = time.split(':');
@@ -10818,15 +10895,26 @@ function showEntryOverlay(){
     minInp.value  = mm || '';
   }
   if (cSelect) cSelect.value = city;
-  // Pre-fill gift code if previously entered.
-  const giftInp = document.getElementById('entryGift');
+  // Pre-fill gift code if previously entered — also expire it if past its date.
+  const giftInp    = document.getElementById('entryGift');
   const giftStatus = document.getElementById('entryGiftStatus');
-  const giftWrap = document.getElementById('entryGiftWrap');
-  const savedGift = localStorage.getItem('mth_gift') || '';
+  const giftWrap   = document.getElementById('entryGiftWrap');
+  let savedGift    = localStorage.getItem('mth_gift') || '';
+  const savedExpiry = localStorage.getItem('mth_gift_expiry') || '';
+  const todayStr   = new Date().toISOString().slice(0,10);
+  if (savedGift && savedExpiry && todayStr > savedExpiry) {
+    // Code expired since last visit — revoke silently
+    localStorage.removeItem('mth_gift');
+    localStorage.removeItem('mth_gift_expiry');
+    savedGift = '';
+  }
   if (giftInp) giftInp.value = savedGift;
   if (savedGift && giftWrap) giftWrap.open = true;
   if (savedGift && giftStatus) {
-    giftStatus.textContent = (_entryLang === 'th') ? '✓ ใช้รหัสสำเร็จ' : '✓ Code active';
+    const dLeft = savedExpiry ? Math.ceil((new Date(savedExpiry) - new Date(todayStr)) / 86400000) : null;
+    giftStatus.textContent = (_entryLang === 'th')
+      ? `✓ ใช้รหัสสำเร็จ${dLeft!==null?' · หมดอายุใน '+dLeft+' วัน':''}`
+      : `✓ Code active${dLeft!==null?' · '+dLeft+' day'+(dLeft!==1?'s':'')+ ' left':''}`;
     giftStatus.style.color = 'var(--gold)';
   }
   // Populate gender select (uses chosen lang labels).
@@ -10839,14 +10927,14 @@ function showEntryOverlay(){
     const isTh = _entryLang === 'th';
     wb.style.display = 'block';
     wbText.innerHTML = isTh
-      ? `ยินดีต้อนรับกลับ${name?` <strong>${name}</strong>`:''} · เกิด ${dob}`
-      : `Welcome back${name?` <strong>${name}</strong>`:''} · DOB ${dob}`;
+      ? `ยินดีต้อนรับกลับ${name?` <strong>${_esc(name)}</strong>`:''} · เกิด ${_esc(_formatDobDisplay(dob,true))}`
+      : `Welcome back${name?` <strong>${_esc(name)}</strong>`:''} · DOB ${_esc(_formatDobDisplay(dob,false))}`;
     if (useSaved) useSaved.textContent = isTh ? '✦ ใช้ข้อมูลเดิม' : '✦ Use saved data';
   } else if (wb) {
     wb.style.display = 'none';
   }
   ov.style.display = 'flex';
-  setTimeout(()=>{ const f = (dob ? null : dobInp) || dobInp; if (f) f.focus(); }, 100);
+  setTimeout(()=>{ const f = document.getElementById(dob?'entryName':'entryDay'); if(f) f.focus(); }, 100);
 }
 
 function entrySelectLang(lang){
@@ -10886,6 +10974,19 @@ function _entryRefreshLang(){
   if (nameI) nameI.placeholder = isTh ? 'ชื่อ / นามแฝง' : 'Name / nickname';
   const cityLbl = document.getElementById('entryCityLabel');
   if (cityLbl) cityLbl.textContent = isTh ? 'สถานที่เกิด' : 'Birth city';
+  // Date/time field labels
+  const lblDay = document.getElementById('entryLblDay');
+  const lblMon = document.getElementById('entryLblMonth');
+  const lblYr  = document.getElementById('entryLblYear');
+  const lblH   = document.getElementById('entryLblHour');
+  const lblM   = document.getElementById('entryLblMin');
+  const dayPh  = document.getElementById('entryDay');
+  const monPh  = document.getElementById('entryMonth');
+  if (lblDay) lblDay.textContent = isTh ? 'วัน' : 'Day';
+  if (lblMon) lblMon.textContent = isTh ? 'เดือน' : 'Month';
+  if (lblYr)  lblYr.textContent  = isTh ? 'ปีเกิด' : 'Year';
+  if (lblH)   lblH.textContent   = isTh ? 'ชม. (0–23)' : 'Hour (0–23)';
+  if (lblM)   lblM.textContent   = isTh ? 'นาที (0–59)' : 'Min (0–59)';
   const giftTog = document.getElementById('entryGiftToggle');
   if (giftTog) giftTog.textContent = isTh ? '✦ มีรหัสของขวัญ?' : '✦ Have a gift code?';
   const giftInp = document.getElementById('entryGift');
@@ -10898,8 +10999,8 @@ function _entryRefreshLang(){
     const wbText  = document.getElementById('entryWelcomeBackText');
     const useSaved = document.getElementById('entryUseSaved');
     if (wbText) wbText.innerHTML = isTh
-      ? `ยินดีต้อนรับกลับ${name?` <strong>${name}</strong>`:''} · เกิด ${dob}`
-      : `Welcome back${name?` <strong>${name}</strong>`:''} · DOB ${dob}`;
+      ? `ยินดีต้อนรับกลับ${name?` <strong>${_esc(name)}</strong>`:''} · เกิด ${_esc(_formatDobDisplay(dob,true))}`
+      : `Welcome back${name?` <strong>${_esc(name)}</strong>`:''} · DOB ${_esc(_formatDobDisplay(dob,false))}`;
     if (useSaved) useSaved.textContent = isTh ? '✦ ใช้ข้อมูลเดิม' : '✦ Use saved data';
   }
   // Sign-in link at bottom of entry overlay
@@ -10907,6 +11008,15 @@ function _entryRefreshLang(){
   const siBtn   = document.getElementById('entrySignInBtn');
   if (siLabel) siLabel.textContent = isTh ? 'มีบัญชีอยู่แล้ว?' : 'Have an account?';
   if (siBtn)   siBtn.textContent   = isTh ? 'ลงชื่อเข้าใช้เพื่อกู้ข้อมูล →' : 'Sign in to restore your data →';
+  // No-account note under CTA
+  const guestNote = document.getElementById('entryGuestNote');
+  if (guestNote) guestNote.textContent = isTh
+    ? 'ไม่ต้องสมัครสมาชิก · ข้อมูลอยู่ในเครื่องคุณ'
+    : 'No account needed · data stays on your device';
+  const skipBtn = document.getElementById('entrySkipBtn');
+  if (skipBtn) skipBtn.textContent = isTh
+    ? 'ข้ามไปก่อน — ลองดู Tab ต่างๆ โดยไม่ต้องกรอกข้อมูล'
+    : 'Skip for now — explore tabs without entering data';
 }
 
 function _entryRefreshGender(currentValue){
@@ -10921,6 +11031,46 @@ function _entryRefreshGender(currentValue){
   ).join('');
 }
 
+// ── Date helpers (custom DD/MM/YYYY + พ.ศ./ค.ศ. inputs) ──────────────
+function _getEntryDob(){
+  const d = parseInt(document.getElementById('entryDay')?.value||'0');
+  const m = parseInt(document.getElementById('entryMonth')?.value||'0');
+  let   y = parseInt(document.getElementById('entryYear')?.value||'0');
+  const era = document.getElementById('entryEra')?.value || 'be';
+  if (era === 'be') y = y - 543;          // พ.ศ. → ค.ศ.
+  if (!d||!m||!y||y<1900||y>2100||m<1||m>12||d<1||d>31) return '';
+  // Validate day exists in that month (catches Feb 30, Apr 31, etc.)
+  if (new Date(y, m-1, d).getDate() !== d) return '';
+  return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+function _setEntryDobFields(isoDate){
+  // isoDate = "YYYY-MM-DD" in ค.ศ.
+  if (!isoDate) return;
+  const parts = isoDate.split('-');
+  if (parts.length < 3) return;
+  const y = parseInt(parts[0]), m = parseInt(parts[1]), d = parseInt(parts[2]);
+  const dayEl  = document.getElementById('entryDay');
+  const monEl  = document.getElementById('entryMonth');
+  const yrEl   = document.getElementById('entryYear');
+  const eraEl  = document.getElementById('entryEra');
+  if (dayEl)  dayEl.value  = d;
+  if (monEl)  monEl.value  = m;
+  if (eraEl)  eraEl.value  = 'be';        // default display พ.ศ.
+  if (yrEl)   yrEl.value   = y + 543;     // ค.ศ. → พ.ศ. for display
+}
+function _formatDobDisplay(isoDate, isTh){
+  if (!isoDate) return isoDate;
+  const parts = isoDate.split('-');
+  if (parts.length < 3) return isoDate;
+  const y=parseInt(parts[0]), m=parseInt(parts[1]), d=parseInt(parts[2]);
+  if (isTh){
+    const thMo=['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    return `${d} ${thMo[m]||m} ${y+543} พ.ศ.`;
+  } else {
+    const enMo=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${d} ${enMo[m]||m} ${y}`;
+  }
+}
 function _entryError(msg){
   const e = document.getElementById('entryError');
   if (!e) return;
@@ -10935,7 +11085,7 @@ function _entryClearError(){
 function entryAccept(){
   _entryClearError();
   const isTh = _entryLang === 'th';
-  const dob   = (document.getElementById('entryDob')||{}).value || '';
+  const dob   = _getEntryDob();
   const name  = ((document.getElementById('entryName')||{}).value || '').trim();
   const hh    = (document.getElementById('entryHour')||{}).value;
   const mm    = (document.getElementById('entryMinute')||{}).value;
@@ -10946,19 +11096,41 @@ function entryAccept(){
     _entryError(isTh ? 'กรุณากรอกวันเกิด' : 'Please enter your date of birth');
     return;
   }
-  // Gift code validation. Accepted codes unlock premium during beta (cosmetic
-  // only — no paywall is enforced in offline build yet, but the code is
-  // persisted so the online version and future paywall logic can read it).
-  const VALID_GIFT_CODES = ['MYTH-BETA','MYTH-IX','MYTH-VIP','MYTH-FRIEND','MYTH-PRESS','MYTH-TEST'];
+  // Gift code validation — intentionally visible (easter egg for curious readers).
+  // Each code has an expiry date; expired codes are rejected with a friendly message.
+  // TODO: move to Supabase Edge Function when payment sprint is done.
+  const GIFT_CODES = {
+    'MYTH-BETA':   '2026-05-02', // 7 days
+    'MYTH-IX':     '2026-04-30', // 5 days
+    'MYTH-VIP':    '2026-05-02', // 7 days
+    'MYTH-FRIEND': '2026-04-30', // 5 days
+    'MYTH-PRESS':  '2026-04-28', // 3 days
+    'MYTH-TEST':   '2026-04-28', // 3 days
+  };
   const giftStatus = document.getElementById('entryGiftStatus');
   if (giftRaw) {
-    if (VALID_GIFT_CODES.indexOf(giftRaw) < 0) {
+    const expiry = GIFT_CODES[giftRaw];
+    if (!expiry) {
       _entryError(isTh ? 'รหัสของขวัญไม่ถูกต้อง · ลองใหม่หรือเว้นว่าง' : 'Invalid gift code · try again or leave blank');
       if (giftStatus) { giftStatus.textContent = isTh ? '✗ รหัสไม่ถูกต้อง' : '✗ Code not recognised'; giftStatus.style.color = '#ff8080'; }
       return;
     }
+    const today = new Date().toISOString().slice(0,10);
+    if (today > expiry) {
+      _entryError(isTh ? `รหัส ${giftRaw} หมดอายุแล้ว (${expiry})` : `Code ${giftRaw} expired on ${expiry}`);
+      if (giftStatus) { giftStatus.textContent = isTh ? '✗ รหัสหมดอายุ' : '✗ Code expired'; giftStatus.style.color = '#ff8080'; }
+      return;
+    }
+    // Show days remaining
+    const daysLeft = Math.ceil((new Date(expiry) - new Date(today)) / 86400000);
     localStorage.setItem('mth_gift', giftRaw);
-    if (giftStatus) { giftStatus.textContent = isTh ? '✓ ใช้รหัสสำเร็จ' : '✓ Code accepted'; giftStatus.style.color = 'var(--gold)'; }
+    localStorage.setItem('mth_gift_expiry', expiry);
+    if (giftStatus) {
+      giftStatus.textContent = isTh
+        ? `✓ ใช้รหัสสำเร็จ · หมดอายุใน ${daysLeft} วัน`
+        : `✓ Code accepted · expires in ${daysLeft} day${daysLeft!==1?'s':''}`;
+      giftStatus.style.color = 'var(--gold)';
+    }
   }
   // Optional time — default to 12:00 if blank.
   const time = (hh !== '' && hh != null)
@@ -11005,6 +11177,21 @@ function entryAcceptSaved(){
   entryAccept();
 }
 
+// Skip birth-data entry entirely — boots the app in guest/preview mode.
+// Readings that need DOB will show placeholder content.
+function entrySkip(){
+  LANG = _entryLang;
+  localStorage.setItem('mth_lang', _entryLang);
+  localStorage.setItem('mth_guest_ok', '1');
+  document.documentElement.lang = _entryLang;
+  const ov = document.getElementById('entryOverlay');
+  if (ov) ov.style.display = 'none';
+  _bootAfterEntry();
+  _showSyncToast(LANG==='th'
+    ? '👀 โหมดทดลอง — กรอกวันเกิดใน Profile เพื่อปลดล็อกดวง'
+    : '👀 Preview mode — add birth data in Profile to unlock readings');
+}
+
 // Legacy stubs — kept so older onclick handlers in remaining code don't crash.
 function initAuth(){ /* replaced by entry overlay */ }
 let _loginMethod='';
@@ -11029,6 +11216,18 @@ function continueAsGuest(){
   localStorage.setItem('mth_guest_ok','1');
   _closeLoginOverlay();
   renderHeaderGuest();
+}
+
+// "ลองใช้ทุก Tab — ไม่ต้องมีบัญชี"
+// Closes login overlay and shows a toast confirming guest mode.
+function enterGuestMode(){
+  localStorage.setItem('mth_guest_ok','1');
+  _closeLoginOverlay();
+  _resetAuthSteps();
+  renderHeaderGuest();
+  _showSyncToast(LANG==='th'
+    ?'🚀 โหมด Guest · ข้อมูลอยู่ในเครื่อง · login ทีหลังได้'
+    :'🚀 Guest mode · data stays on device · sign in anytime');
 }
 
 // ── First-visit onboarding ─────────────────────────────────
@@ -11122,14 +11321,14 @@ function renderHeaderUser(user){
   const initial=(user.name||'?')[0].toUpperCase();
   const methodIcon={google:'🔵',line:'🟢',facebook:'🔷',email:'✉️'}[user.loginMethod]||'✦';
   const emailLine=user.email
-    ?`<div style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:.5px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${user.email}</div>`
+    ?`<div style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:.5px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_esc(user.email)}</div>`
     :'';
   el.innerHTML=`
     <div style="position:relative">
-      <div class="user-avatar" onclick="toggleUserMenu()" title="${user.name}">${initial}</div>
+      <div class="user-avatar" onclick="toggleUserMenu()" title="${_esc(user.name)}">${_esc(initial)}</div>
       <div class="user-menu" id="userMenu">
         <div class="user-menu-item" style="color:var(--gold);border-bottom:1px solid var(--border);pointer-events:none">
-          ${methodIcon} ${user.name}
+          ${methodIcon} ${_esc(user.name)}
         </div>
         <div class="user-menu-item" onclick="showTab('profile');toggleUserMenu()">👤 ${LANG==='th'?'แก้ไขโปรไฟล์':'Edit Profile'}</div>
         <div class="user-menu-item" onclick="manualSync();toggleUserMenu()">☁️ ${LANG==='th'?'ซิงค์ข้อมูล':'Sync now'}</div>
@@ -11137,7 +11336,7 @@ function renderHeaderUser(user){
       </div>
     </div>
     <div>
-      <div class="user-display-name">${user.name}</div>
+      <div class="user-display-name">${_esc(user.name)}</div>
       ${emailLine}
     </div>`;
 }
@@ -11145,7 +11344,7 @@ function renderHeaderUser(user){
 function renderHeaderGuest(){
   const el=document.getElementById('headerUser');
   if(!el) return;
-  el.innerHTML=`<button class="login-header-btn" onclick="document.getElementById('loginOverlay').style.display='flex'">Login</button>`;
+  el.innerHTML=`<button class="login-header-btn" onclick="showLoginOverlay()" data-en="Login" data-th="เข้าสู่ระบบ">${LANG==='th'?'เข้าสู่ระบบ':'Login'}</button>`;
 }
 
 function toggleUserMenu(){
@@ -11435,25 +11634,14 @@ function filterFamous(cat, btn) {
 function renderFamousScroll() {
   const scroll = document.getElementById('cb-famed-scroll');
   if (!scroll) return;
-  const filtered = _famousCat === 'all' ? FAMOUS : FAMOUS.filter(f => f.cat === _famousCat);
-  // Use real MS26 engine scores when available; fall back to FAMOUS[].score
-  // (the legacy `calcScore(y,m,d,h)` is a fake placeholder kept for back-compat
-  //  but produces non-engine-aligned numbers — never use it for display).
-  const withScores = filtered.map(f => {
-    let sTotal = f.score || 700;
-    if (window.MS26 && typeof window.MS26.calculate === 'function') {
-      try {
-        const c = window.MS26.calculate({
-          name:f.name, gender:'M',
-          year:f.y, month:f.m, day:f.d, hour:f.h||12, minute:0,
-          lat:f.lat, lon:f.lon, timezone:f.tz,
-        });
-        sTotal = (c.score && (c.score.total||c.score)) || sTotal;
-      } catch(e) { /* fallback to f.score */ }
-    }
+  // Use shared cache from _getFamousWithScores() — avoids recomputing on every scroll render.
+  // Cache is populated lazily on first call (Blueprint open or filterFamous click).
+  const allWithScores = _getFamousWithScores().map(f => {
+    const sTotal = f._realScore;
     const tier = (typeof CB_TIERS !== 'undefined') ? (CB_TIERS.find(t=>sTotal>=t.min)||CB_TIERS[CB_TIERS.length-1]) : null;
     return {...f, _calcScore: sTotal, _tier: tier};
   });
+  const withScores = _famousCat === 'all' ? allWithScores : allWithScores.filter(f => f.cat === _famousCat);
   const sorted = [...withScores].sort((a,b) => b._calcScore - a._calcScore);
   scroll.innerHTML = '';
   sorted.forEach(f => {
@@ -11471,17 +11659,11 @@ function renderFamousScroll() {
   });
 }
 
-function showCompareScore(yourScoreRaw) {
-  const yourScore = (yourScoreRaw && typeof yourScoreRaw === 'object') ? yourScoreRaw.total : yourScoreRaw;
-  const box = document.getElementById('compareBox');
-  if (!box) return;
-  box.classList.add('active');
-  document.getElementById('compareYourScore').textContent = yourScore;
-
-  // Find where you rank.
-  // Use real MS26 engine scores when available; fall back to FAMOUS[].score.
-  // (The legacy calcScore(y,m,d,h) is a fake placeholder — never use it.)
-  const famousWithReal = FAMOUS.map(f => {
+// Cache famous-person MS26 scores so we don't recompute ~50 people on every Generate.
+let _famousScoresCache = null;
+function _getFamousWithScores() {
+  if (_famousScoresCache) return _famousScoresCache;
+  _famousScoresCache = FAMOUS.map(f => {
     let s = f.score || 700;
     if (window.MS26 && typeof window.MS26.calculate === 'function') {
       try {
@@ -11491,10 +11673,22 @@ function showCompareScore(yourScoreRaw) {
           lat:f.lat, lon:f.lon, timezone:f.tz,
         });
         s = (c.score && (c.score.total||c.score)) || s;
-      } catch(e) { /* fallback to f.score */ }
+      } catch(e) { console.warn('[FAMOUS] score calc failed for', f.name, e); }
     }
     return { ...f, _realScore: s };
   });
+  return _famousScoresCache;
+}
+
+function showCompareScore(yourScoreRaw) {
+  const yourScore = (yourScoreRaw && typeof yourScoreRaw === 'object') ? yourScoreRaw.total : yourScoreRaw;
+  const box = document.getElementById('compareBox');
+  if (!box) return;
+  box.classList.add('active');
+  document.getElementById('compareYourScore').textContent = yourScore;
+
+  // Use cached scores — computed once on first Blueprint generate.
+  const famousWithReal = _getFamousWithScores();
   const below = famousWithReal.filter(f => f._realScore < yourScore);
   const above = famousWithReal.filter(f => f._realScore > yourScore).sort((a,b) => b._realScore-a._realScore);
   const pctile = Math.round(below.length / FAMOUS.length * 100);
@@ -13728,24 +13922,41 @@ ${p1}${p3}${p4}${p5}${p6}${p7}${p8}${p9}${p10}${p11}${p12}${p13}${p14}${p15}${p1
 //  UI LOGIC
 // ═══════════════════════════════════════════════════════════════
 let cbCurrentHTML = '';
+let _cbGenerating = false;   // guard: prevents concurrent generate calls
 
 function cb_generate() {
-  // Grab form values — fall back to localStorage if form wasn't synced yet.
+  if (_cbGenerating) return; // double-click / rapid re-call guard
+  // ── 1. Read DOB: localStorage is ground truth; form is display layer ──
+  const storedDob = localStorage.getItem('mth_dob') || '';
+  const dobEl     = document.getElementById('cb-f-dob');
+  // If form not yet populated but localStorage has data → sync now.
+  if (storedDob && dobEl && !dobEl.value) {
+    try { syncAllForms && syncAllForms(); } catch(e) {}
+  }
   const p       = getStoredProfile ? getStoredProfile() : {};
-  const name    = document.getElementById('cb-f-name').value.trim() || p.name || 'ผู้ใช้';
-  const gender  = document.getElementById('cb-f-gender').value || p.gender || 'ชาย';
-  const dob     = document.getElementById('cb-f-dob').value     || p.dob   || '';
-  const cityVal = document.getElementById('cb-f-city').value    || p.city  || '13.75,100.5,7';
-  // Re-sync if form was empty (e.g. user navigated here from another group)
-  if (!document.getElementById('cb-f-dob').value && dob) syncAllForms();
+  const name    = (dobEl ? document.getElementById('cb-f-name')?.value?.trim() : '') || p.name || 'ผู้ใช้';
+  const gender  = document.getElementById('cb-f-gender')?.value || p.gender || 'ชาย';
+  const dob     = (dobEl ? dobEl.value : '') || storedDob || p.dob || '';
+  const cityVal = document.getElementById('cb-f-city')?.value   || p.city  || '13.75,100.5,7';
 
-  if (!dob) { alert(LANG === 'th' ? 'กรุณากรอกวันเกิดก่อน' : 'Please enter your date of birth first'); return; }
+  console.log('[CB] generate — dob:', dob, '| form:', dobEl?.value, '| stored:', storedDob);
+
+  if (!dob) {
+    alert(LANG === 'th'
+      ? 'กรุณากรอกวันเกิดก่อน\n\nหรือไปที่ tab Profile → Me เพื่อบันทึกข้อมูลเกิด'
+      : 'Please enter your date of birth first.\n\nOr go to Profile → Me to save your birth data.');
+    return;
+  }
   const parts = dob.split('-');
-  if (parts.length !== 3) { alert(LANG === 'th' ? 'รูปแบบวันเกิดไม่ถูกต้อง' : 'Invalid date format'); return; }
+  if (parts.length !== 3) { alert(LANG === 'th' ? 'รูปแบบวันเกิดไม่ถูกต้อง (ต้องการ YYYY-MM-DD)' : 'Invalid date format (need YYYY-MM-DD)'); return; }
 
   const [y, m, d] = [+parts[0], +parts[1], +parts[2]];
-  const h         = Math.min(23, Math.max(0, parseInt(document.getElementById('cb-f-time-h').value) || 12));
-  const mi        = Math.min(59, Math.max(0, parseInt(document.getElementById('cb-f-time-m').value) || 0));
+  if (!y || !m || !d || y < 1900 || y > 2100) {
+    alert(LANG === 'th' ? 'วันเกิดไม่ถูกต้อง: ' + dob : 'Invalid birth date: ' + dob);
+    return;
+  }
+  const h         = Math.min(23, Math.max(0, parseInt(document.getElementById('cb-f-time-h')?.value) || 12));
+  const mi        = Math.min(59, Math.max(0, parseInt(document.getElementById('cb-f-time-m')?.value) || 0));
   const [lat, lon, tz] = cityVal.split(',').map(Number);
 
   // Read Life Path Resonance context saved by the Subscription → Resonance panel.
@@ -13753,6 +13964,7 @@ function cb_generate() {
   const domain      = localStorage.getItem('mth_career')  || '';
   const industry    = localStorage.getItem('mth_industry')|| '';
 
+  _cbGenerating = true;
   document.getElementById('cb-form-section').style.display = 'none';
   document.getElementById('cb-loading').style.display = 'block';
 
@@ -13784,7 +13996,9 @@ function cb_generate() {
       document.getElementById('cb-loading').style.display = 'none';
       document.getElementById('cb-form-section').style.display = 'block';
       alert((LANG === 'th' ? 'เกิดข้อผิดพลาด: ' : 'Error: ') + err.message);
-      console.error(err);
+      console.error('[CB] generate error:', err);
+    } finally {
+      _cbGenerating = false; // always release guard
     }
   }, 200);
 }
