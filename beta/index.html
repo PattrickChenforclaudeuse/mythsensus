@@ -1716,35 +1716,12 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 </optgroup>
 </select></div>
       </div>
-      <!-- ── Life Path Resonance context (optional — improves Petroleum Grade) ── -->
-      <div style="margin-top:16px;padding:14px 16px;background:rgba(200,164,90,.04);border:1px dashed rgba(200,164,90,.25);border-radius:6px">
-        <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px" data-t="cb_lbl_context">⚙ Life Path Context — ปรับผล Petroleum Grade Analogy</div>
-        <div class="cb-row2" style="margin-bottom:10px">
-          <div class="cb-grp">
-            <label style="font-size:11px" data-t="cb_lbl_country">ประเทศที่ทำงาน / Work Country</label>
-            <input id="cb-f-country" type="text"
-              placeholder="เช่น ไทย, Japan, USA"
-              style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;font-family:inherit;font-size:13px"
-              oninput="localStorage.setItem('mth_country',this.value)"
-            >
-          </div>
-          <div class="cb-grp">
-            <label style="font-size:11px" data-t="cb_lbl_career">อาชีพ / Career Role</label>
-            <input id="cb-f-career" type="text"
-              placeholder="เช่น Engineer, Designer"
-              style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;font-family:inherit;font-size:13px"
-              oninput="localStorage.setItem('mth_career',this.value)"
-            >
-          </div>
+      <!-- ── Life Path Resonance — read-only status (editable in Subscription tab) ── -->
+      <div id="cb-resonance-status" style="margin-top:14px;padding:11px 14px;background:rgba(200,164,90,.03);border:1px solid rgba(200,164,90,.15);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:11px;color:var(--muted);line-height:1.6" id="cb-resonance-preview">
+          <!-- populated by syncAllForms() -->
         </div>
-        <div class="cb-grp">
-          <label style="font-size:11px" data-t="cb_lbl_industry">อุตสาหกรรม / Industry</label>
-          <input id="cb-f-industry" type="text"
-            placeholder="เช่น Tech, Finance, Healthcare"
-            style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;font-family:inherit;font-size:13px"
-            oninput="localStorage.setItem('mth_industry',this.value)"
-          >
-        </div>
+        <button onclick="switchToResonance()" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;padding:6px 14px;background:transparent;border:1px solid var(--gold3);color:var(--gold);border-radius:3px;cursor:pointer;white-space:nowrap;flex-shrink:0" data-t="cb_resonance_edit">⚙ กรอกใน Subscription</button>
       </div>
       <button class="cb-btn-go" onclick="cb_generate()" data-t="cb_btn_go">✦ สร้างรายงานดวงชะตา Premium ✦</button>
       <p class="cb-note" data-t="cb_note_top">คำนวณ 100% ใน Browser · ไม่ส่งข้อมูลออก · ทำงาน Offline ได้ · 26 ศาสตร์จาก 4 ทวีป</p>
@@ -7988,6 +7965,13 @@ function toggleAllRails() {
   }
 })();
 
+// Jump to Subscription → Life Resonance sub-tab from Blueprint form
+function switchToResonance() {
+  try { setGroup('subscription'); } catch(e) {}
+  try { showSubTab('resonance'); } catch(e) {}
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 // ════════════════════════════════════════
 // LOCAL STORAGE — PERSIST PREFS
 // ════════════════════════════════════════
@@ -8034,11 +8018,27 @@ function syncAllForms(){
     const[hh,mm]=p.time.split(':');
     set('cb-f-time-h',hh||'12');set('cb-f-time-m',mm||'0');
   }
-  // Life Path Resonance context (Petroleum Grade Analogy inputs)
-  const setIfEmpty=(id,v)=>{const el=document.getElementById(id);if(el&&v&&!el.value)el.value=v;};
-  setIfEmpty('cb-f-country', localStorage.getItem('mth_country')||'');
-  setIfEmpty('cb-f-career',  localStorage.getItem('mth_career') ||'');
-  setIfEmpty('cb-f-industry',localStorage.getItem('mth_industry')||'');
+  // Life Path Resonance — show read-only preview (editable only in Subscription tab)
+  const country  = localStorage.getItem('mth_country')  || '';
+  const career   = localStorage.getItem('mth_career')   || '';
+  const industry = localStorage.getItem('mth_industry') || '';
+  const prevEl   = document.getElementById('cb-resonance-preview');
+  if (prevEl) {
+    const isTh2 = (typeof LANG!=='undefined' && LANG==='th');
+    if (country || career || industry) {
+      const parts = [];
+      if (country)  parts.push((isTh2 ? '🌏 ประเทศ: ' : '🌏 Country: ') + country);
+      if (career)   parts.push((isTh2 ? '💼 อาชีพ: ' : '💼 Career: ') + career);
+      if (industry) parts.push((isTh2 ? '🏭 สาย: ' : '🏭 Industry: ') + industry);
+      prevEl.style.color = 'var(--text)';
+      prevEl.textContent = parts.join(' · ');
+    } else {
+      prevEl.style.color = 'var(--muted)';
+      prevEl.textContent = isTh2
+        ? '⚠ ยังไม่ได้กรอก Career/Country → Petroleum Grade จะไม่แสดงผล Life Terrain และ Path Resonance'
+        : '⚠ No career/country set → Life Terrain & Path Resonance will be empty';
+    }
+  }
   // show saved badge if DOB exists
   const badge=document.getElementById('profSavedBadge');
   if(badge)badge.style.display=p.dob?'block':'none';
