@@ -137,37 +137,60 @@ body.nav-hidden .nav-toggle-btn{transform:rotate(180deg)}
 /* ── Desktop side rails: only visible on wide viewports (>=1200px).
    Hidden on mobile/tablet so they never impact the core layout. ── */
 .desk-rail{display:none;}
+/* ── today-bar rail toggle button ── */
+.tb-rail-btn{
+  display:none;
+  font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;
+  padding:4px 10px;border:1px solid var(--border);border-radius:2px;
+  background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;
+  transition:color .2s,border-color .2s;margin-left:8px;
+}
+.tb-rail-btn:hover{color:var(--gold);border-color:var(--gold3);}
+.tb-rail-btn.hidden{color:var(--gold);border-color:var(--gold3);background:rgba(200,164,90,.06);}
 @media (min-width:1200px){
+  .tb-rail-btn{display:inline-flex;align-items:center;gap:5px;}
   .desk-rail{
     display:block;position:fixed;top:120px;width:220px;z-index:5;
     font-family:'Cormorant Garamond',serif;color:var(--text);
-    pointer-events:none;
+    pointer-events:none;transition:opacity .2s,transform .2s;
   }
   .desk-rail > *{pointer-events:auto;}
-  .desk-rail.left{left:calc((100vw - 820px)/2 - 240px);}
-  .desk-rail.right{right:calc((100vw - 820px)/2 - 240px);}
+  .desk-rail.left{left:calc((100vw - 820px)/2 - 242px);}
+  .desk-rail.right{right:calc((100vw - 820px)/2 - 242px);}
+  /* hidden state — slide off-screen */
+  .desk-rail.rail-hidden{opacity:0;pointer-events:none;}
+  .desk-rail.left.rail-hidden{transform:translateX(-20px);}
+  .desk-rail.right.rail-hidden{transform:translateX(20px);}
   .desk-rail-card{
     background:linear-gradient(180deg,rgba(200,164,90,.05),rgba(200,164,90,.01));
     border:1px solid var(--gold3);border-radius:10px;
-    padding:14px 13px;margin-bottom:14px;
+    padding:16px 14px;margin-bottom:14px;
   }
-  .desk-rail h4{font-family:'Cinzel Decorative',serif;font-size:10px;
+  .desk-rail h4{font-family:'Cinzel Decorative',serif;font-size:9px;
     color:var(--gold);letter-spacing:2.5px;text-transform:uppercase;
-    text-align:center;margin-bottom:10px;}
+    text-align:center;margin-bottom:12px;padding-bottom:8px;
+    border-bottom:1px solid rgba(200,164,90,.15);}
+  .desk-rail-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .desk-rail-icon{font-size:28px;line-height:1;flex-shrink:0;text-align:center;width:36px;}
+  .desk-rail-label{font-family:'Josefin Sans',sans-serif;font-size:9px;
+    letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+  .desk-rail-val{font-size:13px;color:var(--text);line-height:1.3;}
+  .desk-rail-meaning{font-size:11.5px;color:var(--muted);line-height:1.5;
+    margin-top:8px;padding-top:8px;border-top:1px solid rgba(200,164,90,.1);}
   .desk-rail p{font-size:12.5px;line-height:1.65;color:var(--text);}
-  .desk-rail .muted{color:var(--muted);font-size:11px;line-height:1.5;}
-  .desk-rail .big{font-size:22px;text-align:center;color:var(--gold);
-    font-family:'Cinzel Decorative',serif;letter-spacing:2px;}
   .desk-rail ul{list-style:none;padding:0;margin:0;}
-  .desk-rail li{padding:6px 0;border-bottom:1px solid var(--border);
-    font-size:12px;color:var(--muted);display:flex;gap:7px;align-items:baseline;}
+  .desk-rail li{padding:7px 0;border-bottom:1px solid var(--border);
+    font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center;}
   .desk-rail li:last-child{border-bottom:none;}
-  .desk-rail li .dot{color:var(--gold);flex-shrink:0;}
+  .desk-rail li .dot{font-size:14px;flex-shrink:0;}
+  .desk-rail li .stat-val{color:var(--text);font-weight:600;margin-left:auto;
+    font-family:'Josefin Sans',sans-serif;font-size:11px;}
+  .desk-rail-tip{font-size:12.5px;line-height:1.7;color:var(--text);font-style:italic;}
 }
 @media (min-width:1460px){
-  .desk-rail{width:260px;}
-  .desk-rail.left{left:calc((100vw - 820px)/2 - 290px);}
-  .desk-rail.right{right:calc((100vw - 820px)/2 - 290px);}
+  .desk-rail{width:250px;}
+  .desk-rail.left{left:calc((100vw - 820px)/2 - 272px);}
+  .desk-rail.right{right:calc((100vw - 820px)/2 - 272px);}
 }
 .section-title{font-family:'Cinzel Decorative',serif;font-size:12px;color:var(--gold);letter-spacing:3px;text-align:center;margin-bottom:18px;}
 
@@ -1096,33 +1119,71 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <div class="tb-pill"><span class="tb-label" data-t="tb_moon">MOON</span> <span id="tb-moon-sign">—</span></div>
   <span class="tb-dot">·</span>
   <div class="tb-pill"><span id="tb-day-icon">—</span><span id="tb-day-deity">—</span></div>
+  <button class="tb-rail-btn" id="railToggleAll" onclick="toggleAllRails()" title="Hide / show side panels">
+    <span id="railToggleIcon">⊟</span><span id="railToggleLabel"> Panels</span>
+  </button>
 </div>
 
 <!-- ═══ DESKTOP SIDE RAILS (viewport >= 1200px only) ═══ -->
 <aside class="desk-rail left" id="deskRailLeft" aria-hidden="true">
+  <!-- TODAY'S SKY -->
   <div class="desk-rail-card">
     <h4 id="railTodayTitle">✦ Today's Sky</h4>
-    <div class="big" id="railPhase">🌑</div>
-    <p style="text-align:center;margin-top:6px" id="railPhaseName">—</p>
-    <p class="muted" style="text-align:center;margin-top:4px" id="railMoonSign">—</p>
+    <div class="desk-rail-row">
+      <div class="desk-rail-icon" id="railPhase">🌑</div>
+      <div>
+        <div class="desk-rail-label" data-t="tb_moon">Moon Phase</div>
+        <div class="desk-rail-val" id="railPhaseName">—</div>
+      </div>
+    </div>
+    <div class="desk-rail-row">
+      <div class="desk-rail-icon">♌</div>
+      <div>
+        <div class="desk-rail-label">Moon Sign</div>
+        <div class="desk-rail-val" id="railMoonSign">—</div>
+      </div>
+    </div>
+    <div class="desk-rail-meaning" id="railSkyMeaning">—</div>
   </div>
+  <!-- DAY'S DEITY -->
   <div class="desk-rail-card">
     <h4 id="railDeityTitle">✦ Day's Deity</h4>
-    <p style="text-align:center;font-size:32px;line-height:1" id="railDeityIcon">—</p>
-    <p style="text-align:center;margin-top:8px" id="railDeityName">—</p>
+    <div class="desk-rail-row">
+      <div class="desk-rail-icon" id="railDeityIcon" style="font-size:32px">—</div>
+      <div>
+        <div class="desk-rail-label">Today</div>
+        <div class="desk-rail-val" id="railDeityName">—</div>
+      </div>
+    </div>
+    <div class="desk-rail-meaning" id="railDeityMeaning">—</div>
   </div>
 </aside>
 <aside class="desk-rail right" id="deskRailRight" aria-hidden="true">
+  <!-- COSMIC TIP -->
   <div class="desk-rail-card">
     <h4 id="railTipTitle">✦ Cosmic Tip</h4>
-    <p id="railTipBody">—</p>
+    <p class="desk-rail-tip" id="railTipBody">—</p>
+    <div class="desk-rail-meaning" id="railTipSource" style="font-size:10px;letter-spacing:1px;text-transform:uppercase;font-style:normal">—</div>
   </div>
+  <!-- YOUR JOURNEY -->
   <div class="desk-rail-card">
     <h4 id="railStatsTitle">✦ Your Journey</h4>
     <ul>
-      <li><span class="dot">🎴</span><span id="railStatBlessings">0 blessings drawn</span></li>
-      <li><span class="dot">🔮</span><span id="railStatOrganum">0 questions asked</span></li>
-      <li><span class="dot">📜</span><span id="railStatReports">0 reports viewed</span></li>
+      <li>
+        <span class="dot">🎴</span>
+        <span id="railStatBlessingsLabel">Blessings received</span>
+        <span class="stat-val" id="railStatBlessings">0</span>
+      </li>
+      <li>
+        <span class="dot">🔮</span>
+        <span id="railStatOrganumLabel">Oracles consulted</span>
+        <span class="stat-val" id="railStatOrganum">0</span>
+      </li>
+      <li>
+        <span class="dot">📜</span>
+        <span id="railStatReportsLabel">Reports generated</span>
+        <span class="stat-val" id="railStatReports">0</span>
+      </li>
     </ul>
   </div>
 </aside>
@@ -1654,6 +1715,36 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <option value="-17.73,168.32,11">Port Vila, Vanuatu</option>
 </optgroup>
 </select></div>
+      </div>
+      <!-- ── Life Path Resonance context (optional — improves Petroleum Grade) ── -->
+      <div style="margin-top:16px;padding:14px 16px;background:rgba(200,164,90,.04);border:1px dashed rgba(200,164,90,.25);border-radius:6px">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px" data-t="cb_lbl_context">⚙ Life Path Context — ปรับผล Petroleum Grade Analogy</div>
+        <div class="cb-row2" style="margin-bottom:10px">
+          <div class="cb-grp">
+            <label style="font-size:11px" data-t="cb_lbl_country">ประเทศที่ทำงาน / Work Country</label>
+            <input id="cb-f-country" type="text"
+              placeholder="เช่น ไทย, Japan, USA"
+              style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;font-family:inherit;font-size:13px"
+              oninput="localStorage.setItem('mth_country',this.value)"
+            >
+          </div>
+          <div class="cb-grp">
+            <label style="font-size:11px" data-t="cb_lbl_career">อาชีพ / Career Role</label>
+            <input id="cb-f-career" type="text"
+              placeholder="เช่น Engineer, Designer"
+              style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;font-family:inherit;font-size:13px"
+              oninput="localStorage.setItem('mth_career',this.value)"
+            >
+          </div>
+        </div>
+        <div class="cb-grp">
+          <label style="font-size:11px" data-t="cb_lbl_industry">อุตสาหกรรม / Industry</label>
+          <input id="cb-f-industry" type="text"
+            placeholder="เช่น Tech, Finance, Healthcare"
+            style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;font-family:inherit;font-size:13px"
+            oninput="localStorage.setItem('mth_industry',this.value)"
+          >
+        </div>
       </div>
       <button class="cb-btn-go" onclick="cb_generate()" data-t="cb_btn_go">✦ สร้างรายงานดวงชะตา Premium ✦</button>
       <p class="cb-note" data-t="cb_note_top">คำนวณ 100% ใน Browser · ไม่ส่งข้อมูลออก · ทำงาน Offline ได้ · 26 ศาสตร์จาก 4 ทวีป</p>
@@ -7780,24 +7871,81 @@ const _cosmicTipsEN = [
   'The Sun amplifies confidence — stand tall, breathe deep, proceed',
 ];
 
+// Moon-phase meanings for rail (brief, actionable)
+const _phaseMeaning = {
+  en: {
+    'New Moon':       'Plant seeds. Begin what you've been waiting on.',
+    'Waxing Crescent':'Take first steps. Momentum is building.',
+    'First Quarter':  'Push through resistance. Action beats hesitation.',
+    'Waxing Gibbous': 'Refine your effort. Almost there — persist.',
+    'Full Moon':      'Illuminate truth. Celebrate or release what no longer serves.',
+    'Waning Gibbous': 'Share what you've learned. Gratitude compounds.',
+    'Last Quarter':   'Let go gracefully. Clear space for what comes next.',
+    'Waning Crescent':'Rest and reflect. The next cycle is being prepared.',
+  },
+  th: {
+    'New Moon':       'ปลูกเมล็ดพันธุ์ใหม่ · วันเหมาะเริ่มสิ่งที่ยังค้างคา',
+    'Waxing Crescent':'ก้าวแรกมีพลัง · โมเมนตัมกำลังสะสม',
+    'First Quarter':  'ฝ่าแรงต้านและลงมือ · ดีกว่ารอ',
+    'Waxing Gibbous': 'ปรับและขัดเกลา · เส้นชัยใกล้แล้ว',
+    'Full Moon':      'เผยความจริง · เฉลิมฉลองหรือปล่อยวางสิ่งที่ไม่เป็นประโยชน์',
+    'Waning Gibbous': 'แบ่งปันสิ่งที่เรียนรู้ · ความกตัญญูสร้างผลทบทวี',
+    'Last Quarter':   'ปล่อยวางด้วยใจดี · เปิดพื้นที่ให้วงจรใหม่',
+    'Waning Crescent':'พักและสะท้อนตัวเอง · วงจรถัดไปกำลังถูกเตรียม',
+  }
+};
+// Deity domain descriptions by day
+const _deityDomain = {
+  en: ['Sunday — Sun · vitality, leadership, clarity of purpose',
+       'Monday — Moon · emotions, intuition, inner reflection',
+       'Tuesday — Mars · courage, drive, decisive action',
+       'Wednesday — Mercury · communication, learning, quick thinking',
+       'Thursday — Jupiter · expansion, wisdom, good fortune',
+       'Friday — Venus · beauty, relationships, creative flow',
+       'Saturday — Saturn · discipline, structure, long-term mastery'],
+  th: ['อาทิตย์ — พระอาทิตย์ · พลังชีวิต ความเป็นผู้นำ เป้าหมายที่ชัดเจน',
+       'จันทร์ — พระจันทร์ · อารมณ์ สัญชาตญาณ การสำรวจตนเอง',
+       'อังคาร — พระอังคาร · ความกล้า แรงขับ การตัดสินใจเด็ดขาด',
+       'พุธ — พระพุธ · การสื่อสาร การเรียนรู้ ความคิดว่องไว',
+       'พฤหัสบดี — พระพฤหัสฯ · การขยายตัว ปัญญา โชคดี',
+       'ศุกร์ — พระศุกร์ · ความงาม ความสัมพันธ์ กระแสสร้างสรรค์',
+       'เสาร์ — พระเสาร์ · วินัย โครงสร้าง การเชี่ยวชาญระยะยาว']
+};
+
 function renderDesktopRails(phase, moonSign, dow, dayIcons, dayNamesTH, dayNamesEN){
   const railLeft = document.getElementById('deskRailLeft');
   if (!railLeft) return;
   const isTh = (typeof LANG!=='undefined' && LANG==='th');
-  const set = (id, txt) => { const el = document.getElementById(id); if (el) txt!==undefined && (el.textContent = txt); };
-  set('railTodayTitle',  isTh ? '✦ ท้องฟ้าวันนี้' : "✦ Today's Sky");
-  set('railPhase',       phase.icon);
-  set('railPhaseName',   isTh ? phase.th : phase.en);
-  set('railMoonSign',    (isTh ? 'พระจันทร์อยู่ใน ' : 'Moon in ') + (isTh ? moonSign.th : moonSign.n));
-  set('railDeityTitle',  isTh ? '✦ เทพประจำวัน' : "✦ Day's Deity");
-  set('railDeityIcon',   dayIcons[dow]);
-  set('railDeityName',   isTh ? ('วัน'+dayNamesTH[dow]) : dayNamesEN[dow]+'day');
-  // Right rail
-  set('railTipTitle',    isTh ? '✦ คาถาของวันนี้' : '✦ Cosmic Tip');
+  const set = (id, txt) => { const el = document.getElementById(id); if (el && txt!==undefined) el.textContent = txt; };
+  // Left rail — Today's Sky
+  set('railTodayTitle', isTh ? '✦ ท้องฟ้าวันนี้' : "✦ Today's Sky");
+  set('railPhase',      phase.icon);
+  set('railPhaseName',  isTh ? phase.th : phase.en);
+  // Moon sign: strip "Moon in " prefix stored in moonSign.n
+  const moonLabel = isTh ? (moonSign.th || moonSign.n) : moonSign.n;
+  set('railMoonSign', moonLabel);
+  const phaseKey = phase.en || phase.th || '';
+  set('railSkyMeaning', isTh
+    ? (_phaseMeaning.th[phaseKey] || '')
+    : (_phaseMeaning.en[phaseKey] || ''));
+  // Left rail — Day's Deity
+  set('railDeityTitle', isTh ? '✦ เทพประจำวัน' : "✦ Day's Deity");
+  set('railDeityIcon',  dayIcons[dow]);
+  set('railDeityName',  isTh ? ('วัน' + dayNamesTH[dow]) : dayNamesEN[dow] + 'day');
+  set('railDeityMeaning', isTh ? (_deityDomain.th[dow] || '') : (_deityDomain.en[dow] || ''));
+  // Right rail — Cosmic Tip
+  set('railTipTitle', isTh ? '✦ คาถาของวันนี้' : '✦ Cosmic Tip');
   const tipIdx = (new Date().getDate() + dow) % _cosmicTipsTH.length;
-  set('railTipBody',     isTh ? _cosmicTipsTH[tipIdx] : _cosmicTipsEN[tipIdx]);
-  set('railStatsTitle',  isTh ? '✦ เส้นทางของคุณ' : '✦ Your Journey');
-  // Stats from full history
+  set('railTipBody',   isTh ? _cosmicTipsTH[tipIdx] : _cosmicTipsEN[tipIdx]);
+  const planetDay = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'][dow];
+  set('railTipSource', isTh
+    ? (planetDay + ' · ' + (moonSign.th || moonSign.n))
+    : (planetDay + ' · Moon in ' + moonSign.n));
+  // Right rail — Your Journey
+  set('railStatsTitle', isTh ? '✦ เส้นทางของคุณ' : '✦ Your Journey');
+  set('railStatBlessingsLabel', isTh ? 'รับพรแล้ว' : 'Blessings received');
+  set('railStatOrganumLabel',   isTh ? 'ถามโอเรกุรัม' : 'Oracles consulted');
+  set('railStatReportsLabel',   isTh ? 'สร้างรายงาน' : 'Reports generated');
   let blessings = 0, organum = 0, reports = 0;
   try {
     const hist = (typeof getFullHistory==='function') ? getFullHistory() : [];
@@ -7805,10 +7953,40 @@ function renderDesktopRails(phase, moonSign, dow, dayIcons, dayNamesTH, dayNames
     organum   = hist.filter(h=>h&&h.type==='organum').length;
     reports   = parseInt(localStorage.getItem('mth_reports_viewed')||'0',10)||0;
   } catch(e) {}
-  set('railStatBlessings', isTh ? (blessings+' ครั้งที่รับพร') : (blessings+' blessings drawn'));
-  set('railStatOrganum',   isTh ? (organum+' ครั้งที่ถามโอเรกุรัม') : (organum+' questions asked'));
-  set('railStatReports',   isTh ? (reports+' รายงานที่เปิด') : (reports+' reports viewed'));
+  set('railStatBlessings', String(blessings));
+  set('railStatOrganum',   String(organum));
+  set('railStatReports',   String(reports));
 }
+
+// ── DESKTOP RAIL TOGGLE (all 4 panels at once) ────────────────────────────
+function toggleAllRails() {
+  const rL = document.getElementById('deskRailLeft');
+  const rR = document.getElementById('deskRailRight');
+  const btn = document.getElementById('railToggleAll');
+  const icon = document.getElementById('railToggleIcon');
+  const lbl  = document.getElementById('railToggleLabel');
+  if (!rL || !rR) return;
+  // If either rail is visible → hide both; if both hidden → show both
+  const nowHidden = rL.classList.toggle('rail-hidden');
+  rR.classList.toggle('rail-hidden', nowHidden);
+  if (icon) icon.textContent = nowHidden ? '⊞' : '⊟';
+  if (lbl)  lbl.textContent  = nowHidden ? ' Panels' : ' Panels';
+  if (btn)  btn.classList.toggle('hidden', nowHidden);
+  try { localStorage.setItem('mth_rails_hidden', nowHidden ? '1' : '0'); } catch(e) {}
+}
+(function _initRails() {
+  // Restore hidden state on page load
+  if (localStorage.getItem('mth_rails_hidden') === '1') {
+    const rL = document.getElementById('deskRailLeft');
+    const rR = document.getElementById('deskRailRight');
+    const icon = document.getElementById('railToggleIcon');
+    const btn  = document.getElementById('railToggleAll');
+    if (rL) rL.classList.add('rail-hidden');
+    if (rR) rR.classList.add('rail-hidden');
+    if (icon) icon.textContent = '⊞';
+    if (btn)  btn.classList.add('hidden');
+  }
+})();
 
 // ════════════════════════════════════════
 // LOCAL STORAGE — PERSIST PREFS
@@ -7856,6 +8034,11 @@ function syncAllForms(){
     const[hh,mm]=p.time.split(':');
     set('cb-f-time-h',hh||'12');set('cb-f-time-m',mm||'0');
   }
+  // Life Path Resonance context (Petroleum Grade Analogy inputs)
+  const setIfEmpty=(id,v)=>{const el=document.getElementById(id);if(el&&v&&!el.value)el.value=v;};
+  setIfEmpty('cb-f-country', localStorage.getItem('mth_country')||'');
+  setIfEmpty('cb-f-career',  localStorage.getItem('mth_career') ||'');
+  setIfEmpty('cb-f-industry',localStorage.getItem('mth_industry')||'');
   // show saved badge if DOB exists
   const badge=document.getElementById('profSavedBadge');
   if(badge)badge.style.display=p.dob?'block':'none';
