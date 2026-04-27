@@ -11609,12 +11609,12 @@ function entryAccept(){
   // Each code has an expiry date; expired codes are rejected with a friendly message.
   // TODO: move to Supabase Edge Function when payment sprint is done.
   const GIFT_CODES = {
-    'MYTH-BETA':   '2026-05-02', // 7 days
-    'MYTH-IX':     '2026-04-30', // 5 days
-    'MYTH-VIP':    '2026-05-02', // 7 days
-    'MYTH-FRIEND': '2026-04-30', // 5 days
-    'MYTH-PRESS':  '2026-04-28', // 3 days
-    'MYTH-TEST':   '2026-04-28', // 3 days
+    'MYTH-BETA':   '2026-06-01', // 35 days
+    'MYTH-IX':     '2026-05-30', // 33 days
+    'MYTH-VIP':    '2026-06-01', // 35 days
+    'MYTH-FRIEND': '2026-05-30', // 33 days
+    'MYTH-PRESS':  '2026-05-28', // 31 days
+    'MYTH-TEST':   '2026-05-28', // 31 days
   };
   const giftStatus = document.getElementById('entryGiftStatus');
   if (giftRaw) {
