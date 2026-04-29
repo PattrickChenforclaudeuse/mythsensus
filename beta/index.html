@@ -11151,6 +11151,13 @@ async function _onSignIn(session){
   renderHeaderUser({name,loginMethod:'email',email});
   const sp=document.getElementById('settingsPanel');
   if(sp&&sp.children.length)renderSettings();
+  // If the entry overlay is still visible, refresh its sign-in row so the user
+  // sees their authenticated state immediately (prevents confusion that leads
+  // to re-trying expired OTP codes on next visit).
+  const _eov=document.getElementById('entryOverlay');
+  if(_eov&&getComputedStyle(_eov).display!=='none'&&typeof _entryRefreshLang==='function'){
+    try{_entryRefreshLang();}catch(_){}
+  }
 }
 
 function _onSignOut(){
@@ -11501,11 +11508,31 @@ function _entryRefreshLang(){
       : `Welcome back${name?` <strong>${_esc(name)}</strong>`:''} · DOB ${_esc(_formatDobDisplay(dob,false))}`;
     if (useSaved) useSaved.textContent = isTh ? '✦ ใช้ข้อมูลเดิม' : '✦ Use saved data';
   }
-  // Sign-in link at bottom of entry overlay
+  // Sign-in row — adapts to current auth state.
+  // If signed in: show "✓ Logged in as <email> · [Sign out]" so user knows
+  // they don't need to re-OTP. If not: show the email sign-in shortcut.
   const siLabel = document.getElementById('entrySignInLabel');
   const siBtn   = document.getElementById('entrySignInBtn');
-  if (siLabel) siLabel.textContent = isTh ? 'มีบัญชีอยู่แล้ว?' : 'Have an account?';
-  if (siBtn)   siBtn.textContent   = isTh ? '✉️ ลงชื่อเข้าใช้ด้วย Email →' : '✉️ Sign in with Email →';
+  if (_sbSession && _sbSession.user && _sbSession.user.email){
+    const em = _sbSession.user.email;
+    if (siLabel){
+      siLabel.textContent = isTh ? '✓ เข้าสู่ระบบ:' : '✓ Signed in:';
+      siLabel.style.color = 'var(--gold2)';
+    }
+    if (siBtn){
+      siBtn.innerHTML = `<span style="opacity:.85">${em}</span> &nbsp;·&nbsp; <span style="text-decoration:underline">${isTh?'ออกจากระบบ':'Sign out'}</span>`;
+      siBtn.setAttribute('onclick', 'logout()');
+    }
+  } else {
+    if (siLabel){
+      siLabel.textContent = isTh ? 'มีบัญชีอยู่แล้ว?' : 'Have an account?';
+      siLabel.style.color = '';
+    }
+    if (siBtn){
+      siBtn.textContent = isTh ? '✉️ ลงชื่อเข้าใช้ด้วย Email →' : '✉️ Sign in with Email →';
+      siBtn.setAttribute('onclick', 'showLoginOverlay()');
+    }
+  }
   // No-account note under CTA
   const guestNote = document.getElementById('entryGuestNote');
   if (guestNote) guestNote.textContent = isTh
