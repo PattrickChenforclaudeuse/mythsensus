@@ -122,15 +122,17 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opa
 .nav-toggle-btn:hover{background:rgba(200,164,90,.15);border-color:var(--gold)}
 body.nav-hidden .nav-groups,body.nav-hidden .nav-tabs{display:none!important}
 body.nav-hidden .nav-toggle-btn{transform:rotate(180deg)}
-.web-share{position:fixed;top:14px;right:14px;z-index:9000;display:none;
+/* Share button — sits LEFT of .header-user (which is at right:16px, ~110px wide
+   when logged in with email avatar) so the two no longer overlap. */
+.web-share{position:fixed;top:14px;right:140px;z-index:9000;display:none;
   font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2px;
   text-transform:uppercase;color:var(--gold);background:rgba(10,10,16,.75);
   border:1px solid var(--gold3);padding:7px 14px;border-radius:20px;
   text-decoration:none;backdrop-filter:blur(8px);cursor:pointer;transition:all .2s;}
 .web-share:hover{background:rgba(200,164,90,.15);color:var(--gold2);}
-@media (max-width:420px){ .web-nav,.web-share{font-size:10px;padding:5px 10px;} }
-/* Share menu popup */
-.share-menu{position:fixed;top:52px;right:14px;z-index:9100;display:none;
+@media (max-width:420px){ .web-nav,.web-share{font-size:10px;padding:5px 10px;} .web-share{right:96px;} }
+/* Share menu popup — anchored to the share button, not the viewport edge */
+.share-menu{position:fixed;top:52px;right:140px;z-index:9100;display:none;
   background:rgba(10,10,16,.95);border:1px solid var(--gold3);border-radius:10px;
   padding:10px;min-width:180px;backdrop-filter:blur(12px);
   box-shadow:0 8px 24px rgba(0,0,0,.5);}
@@ -153,7 +155,7 @@ body.nav-hidden .nav-toggle-btn{transform:rotate(180deg)}
 }
 .tb-rail-btn:hover{color:var(--gold);border-color:var(--gold3);}
 .tb-rail-btn.hidden{color:var(--gold);border-color:var(--gold3);background:rgba(200,164,90,.06);}
-@media (min-width:1200px){
+@media (min-width:1320px){
   .tb-rail-btn{display:inline-flex;align-items:center;gap:5px;}
   .desk-rail{
     display:block;position:fixed;top:120px;width:220px;z-index:5;
@@ -7185,6 +7187,8 @@ function showOrganumResult(wordCount,godContrib){
   const _top = entries[0];
   const _g1 = Object.values(godContrib).sort((a,b)=>b.total-a.total)[0];
   saveOrganumToHistory(_q, _top?_top[0]:'', _top?_top[1].count:0, _g1?_g1.god.name:'', _g1?_g1.god.symbol:'');
+  // Refresh the desktop rail counters so "ถามโอเรกุรัม" reflects the new ask.
+  if (typeof renderDesktopRails === 'function') { try { renderDesktopRails(); } catch(_){} }
 }
 
 function renderWordTabs(topEntries,wordCount){
