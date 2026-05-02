@@ -15,6 +15,79 @@
 
 
 
+// ── Bilingual primitives ────────────────────────────────────────
+// Single source of truth for translating Thai data fields to English.
+// Used by buildRichReading() and the per-system calc functions to keep
+// the 26 readings parallel without duplicating ternaries everywhere.
+// _reportLang is set by calculate() from BirthData.lang (line ~1810).
+const EL_TH_EN = {
+    'ไฟ': 'Fire', 'ไม้': 'Wood', 'น้ำ': 'Water', 'โลหะ': 'Metal', 'ดิน': 'Earth', 'ลม': 'Air',
+};
+const DIR_TH_EN = {
+    'เหนือ': 'North', 'ใต้': 'South', 'ตะวันออก': 'East', 'ตะวันตก': 'West',
+    'ตะวันออกเฉียงเหนือ': 'Northeast', 'ตะวันออกเฉียงใต้': 'Southeast',
+    'ตะวันตกเฉียงเหนือ': 'Northwest', 'ตะวันตกเฉียงใต้': 'Southwest',
+    'ตามปี': 'by year', 'ศูนย์กลาง': 'Centre',
+};
+const COLOR_TH_EN = {
+    'แดง': 'Red', 'ขาว': 'White', 'น้ำเงิน': 'Blue', 'เหลือง': 'Yellow', 'ดำ': 'Black',
+    'ดำ/น้ำตาล': 'Black/Brown', 'เขียว': 'Green', 'เขียวฟ้า': 'Cyan', 'ขาว/เงิน': 'White/Silver',
+    'แดง/ชมพู': 'Red/Pink', 'ขาว/เบจ': 'White/Beige', 'ม่วง/แดง': 'Purple/Red', 'ทอง': 'Gold',
+};
+const DAY_TH_EN = {
+    'วันอาทิตย์': 'Sunday', 'วันจันทร์': 'Monday', 'วันอังคาร': 'Tuesday', 'วันพุธ': 'Wednesday',
+    'วันพฤหัสบดี': 'Thursday', 'วันศุกร์': 'Friday', 'วันเสาร์': 'Saturday',
+};
+// Vedic / classical-astrology planets (Thai planet names → English).
+// Used by Celtic, Vedic, Mahadasha render paths.
+const PLANET_TH_EN = {
+    'ดวงอาทิตย์': 'Sun', 'พระอาทิตย์': 'Sun',
+    'ดวงจันทร์': 'Moon', 'พระจันทร์': 'Moon',
+    'ดาวพฤหัสฯ': 'Jupiter', 'ดาวพฤหัส': 'Jupiter', 'พฤหัสฯ': 'Jupiter', 'พฤหัส': 'Jupiter', 'พระพฤหัสบดี': 'Jupiter',
+    'ดาวเสาร์': 'Saturn', 'เสาร์': 'Saturn', 'พระเสาร์': 'Saturn',
+    'ดาวอังคาร': 'Mars', 'อังคาร': 'Mars', 'พระอังคาร': 'Mars',
+    'ดาวศุกร์': 'Venus', 'ศุกร์': 'Venus', 'พระศุกร์': 'Venus',
+    'ดาวพุธ': 'Mercury', 'พุธ': 'Mercury', 'พระพุธ': 'Mercury',
+    'ยูเรนัส': 'Uranus', 'เนปจูน': 'Neptune', 'พลูโต': 'Pluto',
+    'ราหู': 'Rahu', 'เคตุ': 'Ketu',
+};
+// Language picker for inline use in template literals. Reads _reportLang
+// declared further down (TS hoisting allows reference in function bodies).
+// Named with `t*` prefix to avoid collision with local `elEn`/`dirEn`
+// variables that exist inside several reading IIFEs.
+function tPick(th, en) {
+    return _reportLang === 'en' ? en : th;
+}
+// tEl/tDir/etc: pure translation helpers — always return EN if mapped, else
+// passthrough. Use these inside buildRichReading's strengthEn/practiceEn etc.
+// where the surrounding string is unconditionally English.
+// Token-aware translator: handles 'ไฟ' (single), 'ไม้ ดิน' (multi-element
+// space-joined), and falls through unchanged when not mapped.
+function _tMulti(th, map) {
+    if (!th)
+        return th;
+    if (map[th])
+        return map[th];
+    // Split on whitespace, translate each token, rejoin
+    const tokens = th.split(/(\s+)/);
+    if (tokens.length === 1)
+        return th;
+    return tokens.map(t => /\s/.test(t) ? t : (map[t] ?? t)).join('');
+}
+function tEl(th) { return _tMulti(th, EL_TH_EN); }
+function tDir(th) { return _tMulti(th, DIR_TH_EN); }
+function tColor(th) { return _tMulti(th, COLOR_TH_EN); }
+function tDay(th) { return DAY_TH_EN[th] ?? th; }
+function tPlanet(th) { return PLANET_TH_EN[th] ?? th; }
+// Lang-aware variants — return Thai when _reportLang='th', else English.
+// Use these when populating chart fields that flow through to page
+// renderers (lifePathName, starColor, etc.) so the stored value already
+// matches the user's chosen language.
+function pEl(th) { return _reportLang === 'en' ? tEl(th) : th; }
+function pDir(th) { return _reportLang === 'en' ? tDir(th) : th; }
+function pColor(th) { return _reportLang === 'en' ? tColor(th) : th; }
+function pDay(th) { return _reportLang === 'en' ? tDay(th) : th; }
+function pPlanet(th) { return _reportLang === 'en' ? tPlanet(th) : th; }
 // ============================================================
 // HELPERS
 // ============================================================
@@ -167,10 +240,14 @@ function calcWestern(d) {
 // ============================================================
 const STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
 const STEMS_TH = ['จ่ย ไม้หยาง', 'อี่ ไม้อ่อน', 'ปิ่ง ไฟหยาง', 'ติง ไฟอ่อน', 'อู่ ดินหยาง', 'จี่ ดินอ่อน', 'เกิง โลหะหยาง', 'ซิน โลหะอ่อน', 'เหริน น้ำหยาง', 'กุ้ย น้ำอ่อน'];
+const STEMS_EN = ['Jia (Yang Wood)', 'Yi (Yin Wood)', 'Bing (Yang Fire)', 'Ding (Yin Fire)', 'Wu (Yang Earth)', 'Ji (Yin Earth)', 'Geng (Yang Metal)', 'Xin (Yin Metal)', 'Ren (Yang Water)', 'Gui (Yin Water)'];
 const STEMS_EL = ['ไม้', 'ไม้', 'ไฟ', 'ไฟ', 'ดิน', 'ดิน', 'โลหะ', 'โลหะ', 'น้ำ', 'น้ำ'];
 const STEMS_POL = ['+', '-', '+', '-', '+', '-', '+', '-', '+', '-'];
 const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
 const BRANCHES_TH = ['ชวด (หนู)', 'ฉลู (วัว)', 'ขาล (เสือ)', 'เถาะ (กระต่าย)', 'มะโรง (มังกร)', 'มะเส็ง (งู)', 'มะเมีย (ม้า)', 'มะแม (แพะ)', 'วอก (ลิง)', 'ระกา (ไก่)', 'จอ (สุนัข)', 'กุน (หมู)'];
+const BRANCHES_EN = ['Zi (Rat)', 'Chou (Ox)', 'Yin (Tiger)', 'Mao (Rabbit)', 'Chen (Dragon)', 'Si (Snake)', 'Wu (Horse)', 'Wei (Goat)', 'Shen (Monkey)', 'You (Rooster)', 'Xu (Dog)', 'Hai (Pig)'];
+function pStem(idx) { return _reportLang === 'en' ? (STEMS_EN[idx] ?? '') : (STEMS_TH[idx] ?? ''); }
+function pBranch(idx) { return _reportLang === 'en' ? (BRANCHES_EN[idx] ?? '') : (BRANCHES_TH[idx] ?? ''); }
 // Month Pillar solar term boundaries (simplified - day of month Li Qi enters each month)
 const SOLAR_TERM_DAYS = [6, 4, 6, 5, 6, 6, 7, 7, 8, 8, 7, 7]; // approximate day when month pillar starts each month
 function yearPillar(y, m, d) {
@@ -300,13 +377,13 @@ function calcBazi(d) {
     const mpStemIdx = STEMS.indexOf(mp.stem);
     const baziScore = Math.max(400, Math.min(960, (BAZI_EL_BASE[STEMS_EL[dp.si]] ?? 700) + (hasSelfPunch ? 40 : 0) + (benMing ? 30 : 0) + ((dp.si * 13 + (mpStemIdx >= 0 ? mpStemIdx : 0) * 7) % 100) - 50));
     return {
-        yearStem: yp.stem, yearBranch: yp.branch, yearStemTh: yp.stemTh, yearBranchTh: yp.branchTh,
-        monthStem: mp.stem, monthBranch: mp.branch, monthStemTh: mp.stemTh, monthBranchTh: mp.branchTh,
-        dayStem: dp.stem, dayBranch: dp.branch, dayStemTh: dp.stemTh, dayBranchTh: dp.branchTh,
+        yearStem: yp.stem, yearBranch: yp.branch, yearStemTh: pStem(yp.si), yearBranchTh: pBranch(yp.bi),
+        monthStem: mp.stem, monthBranch: mp.branch, monthStemTh: pStem(mp.si), monthBranchTh: pBranch(mp.bi),
+        dayStem: dp.stem, dayBranch: dp.branch, dayStemTh: pStem(dp.si), dayBranchTh: pBranch(dp.bi),
         hourStem: hp.stem, hourBranch: hp.branch, hourStemTh: hp.stemTh, hourBranchTh: hp.branchTh,
-        dayMaster: dp.stem, dayMasterTh: dp.stemTh, dayMasterElement: dmElement, dayMasterPolarity: dmPolarity,
-        missingElement: missingEl, dominantElement: dominantEl,
-        luckyElement: luckyMap[dp.stem] ?? 'ดิน', avoidElement: avoidMap[dp.stem] ?? 'น้ำ',
+        dayMaster: dp.stem, dayMasterTh: pStem(dp.si), dayMasterElement: pEl(dmElement), dayMasterPolarity: dmPolarity,
+        missingElement: pEl(missingEl), dominantElement: pEl(dominantEl),
+        luckyElement: pEl(luckyMap[dp.stem] ?? 'ดิน'), avoidElement: pEl(avoidMap[dp.stem] ?? 'น้ำ'),
         currentLuckPillar: `${currentLP.stem}${currentLP.branch}`,
         currentLuckPillarTh: `${currentLP.stemTh} ${currentLP.branchTh} (${currentLP.period})`,
         benMingNian2026: benMing,
@@ -318,11 +395,11 @@ function calcBazi(d) {
             const luckyEl = luckyMap[dp.stem] ?? 'ดิน';
             const avoidEl = avoidMap[dp.stem] ?? 'น้ำ';
             const currentLuckPillar = `${currentLP.stem}${currentLP.branch}`;
-            const elEn = (dmEl === 'ไฟ' ? 'Fire' : dmEl === 'ไม้' ? 'Wood' : dmEl === 'น้ำ' ? 'Water' : dmEl === 'โลหะ' ? 'Metal' : 'Earth');
-            const missingEn = (missing === 'ไฟ' ? 'Fire' : missing === 'ไม้' ? 'Wood' : missing === 'น้ำ' ? 'Water' : missing === 'โลหะ' ? 'Metal' : missing === 'ดิน' ? 'Earth' : missing);
-            const dominantEn = (dominant === 'ไฟ' ? 'Fire' : dominant === 'ไม้' ? 'Wood' : dominant === 'น้ำ' ? 'Water' : dominant === 'โลหะ' ? 'Metal' : dominant === 'ดิน' ? 'Earth' : dominant);
-            const luckyEn = (luckyEl === 'ไฟ' ? 'Fire' : luckyEl === 'ไม้' ? 'Wood' : luckyEl === 'น้ำ' ? 'Water' : luckyEl === 'โลหะ' ? 'Metal' : 'Earth');
-            const avoidEn = (avoidEl === 'ไฟ' ? 'Fire' : avoidEl === 'ไม้' ? 'Wood' : avoidEl === 'น้ำ' ? 'Water' : avoidEl === 'โลหะ' ? 'Metal' : 'Earth');
+            const elEn = tEl(dmEl);
+            const missingEn = tEl(missing);
+            const dominantEn = tEl(dominant);
+            const luckyEn = tEl(luckyEl);
+            const avoidEn = tEl(avoidEl);
             const stemEn = ['Jia (Yang Wood)', 'Yi (Yin Wood)', 'Bing (Yang Fire)', 'Ding (Yin Fire)', 'Wu (Yang Earth)', 'Ji (Yin Earth)', 'Geng (Yang Metal)', 'Xin (Yin Metal)', 'Ren (Yang Water)', 'Gui (Yin Water)'][dp.si];
             return buildRichReading({
                 sysTh: 'BaZi สี่เสา (八字)',
@@ -380,6 +457,17 @@ const NSK_READINGS = {
     8: 'ดาว 8 ขาวดิน — มั่นคง อดทน มีวิสัยทัศน์ระยะยาว เหมาะกับการลงทุนในอสังหาริมทรัพย์ ปี 2026 เป็นปีที่ดีสำหรับการสะสมทรัพย์',
     9: 'ดาว 9 ม่วงไฟ — เป็นนักสร้างสรรค์และนักแสดง มีพลังงานสูง โดดเด่น ปี 2026 (Honmei-sei Kaiki) เป็นปีที่ทุกสิ่งขยายผล — ความสำเร็จและความเสี่ยงขยายตัวพร้อมกัน',
 };
+const NSK_READINGS_EN = {
+    1: 'Star 1 White Water — a brilliant, deep, adaptable communicator with sharp intuition. Suited to work demanding creativity and communication. In 2026 (Year of Fire Star 9) watch your health and avoid hasty decisions.',
+    2: 'Star 2 Black Earth — a caregiver and supporter, gifted at managing and nurturing, high endurance. 2026 is a challenging year — guard against stress and tend your health.',
+    3: 'Star 3 Bright Green Wood — a pioneer and leader, brave, full of new ideas, high energy. 2026 favours starting something new.',
+    4: 'Star 4 Soft Green Wood — excellent communication and relationship skills, loves travel and learning. In 2026 watch out for being deceived or making decision errors.',
+    5: 'Star 5 Yellow Earth — strong, complex energy at the centre. A pivotal role in your life. 2026 demands extra care across the board.',
+    6: 'Star 6 White Metal — a principled leader with honour and style. Suited to executive roles. 2026 favours expanding your network and influence.',
+    7: 'Star 7 Red Metal — magnetic charm, communication and sales skill, gifted with relationships. In 2026 watch overspending.',
+    8: 'Star 8 White Earth — steady, patient, long-range vision. Suited to real-estate investment. 2026 is a good year for accumulating wealth.',
+    9: 'Star 9 Purple Fire — a creator and performer, high energy, distinctive. In 2026 (Honmei-sei Kaiki) everything amplifies — success and risk grow together.',
+};
 function calcNineStar(d) {
     let y = d.year;
     // Before Risshun (~Feb 4): use previous year
@@ -391,16 +479,16 @@ function calcNineStar(d) {
     const data = NSK_DATA[star];
     const isHonmei = star === 9; // 2026 year star = 9
     const analysis2026 = isHonmei
-        ? 'Honmei-sei Kaiki 本命星回帰 — ดาวของคุณตรงกับดาวปี 2026 พอดี ทุกสิ่งขยายผลคูณสอง ทั้งโอกาสและความเสี่ยง ต้องใส่ใจทุกการกระทำ'
-        : `ปี 2026 (ดาวปี 9 ไฟ) กับดาว ${star} ของคุณ — ${data.dir}คือทิศนำโชค ใช้เสริมพลังงานการทำงานและการนอน`;
+        ? tPick('Honmei-sei Kaiki 本命星回帰 — ดาวของคุณตรงกับดาวปี 2026 พอดี ทุกสิ่งขยายผลคูณสอง ทั้งโอกาสและความเสี่ยง ต้องใส่ใจทุกการกระทำ', 'Honmei-sei Kaiki 本命星回帰 — your star matches the 2026 year star exactly. Everything amplifies twofold: both opportunity and risk. You must be mindful of every action.')
+        : tPick(`ปี 2026 (ดาวปี 9 ไฟ) กับดาว ${star} ของคุณ — ${data.dir}คือทิศนำโชค ใช้เสริมพลังงานการทำงานและการนอน`, `2026 (Year of Fire Star 9) with your Star ${star} — ${pDir(data.dir)} is your lucky direction; use it to support work and sleep energy.`);
     const NSK_BASE = { 1: 700, 2: 650, 3: 730, 4: 720, 5: 580, 6: 750, 7: 720, 8: 760, 9: 800 };
     const nskScore = Math.max(400, Math.min(960, (NSK_BASE[star] ?? 700) + (star === 9 ? 50 : 0) + ((d.day * 11 + d.month * 5) % 80) - 40));
     return {
         star, starName: data.name, starChinese: data.chinese,
-        starElement: data.el, starColor: data.color,
-        starDirection: data.dir, directionSleep: data.sleepDir,
+        starElement: pEl(data.el), starColor: pColor(data.color),
+        starDirection: pDir(data.dir), directionSleep: pDir(data.sleepDir),
         year2026Analysis: analysis2026,
-        auspicious2026: `สีนำโชค: ${data.color} | ทิศทำงาน: ${data.dir} | ทิศนอน: ${data.sleepDir}`,
+        auspicious2026: tPick(`สีนำโชค: ${data.color} | ทิศทำงาน: ${data.dir} | ทิศนอน: ${data.sleepDir}`, `Lucky colour: ${pColor(data.color)} | Work direction: ${pDir(data.dir)} | Sleep direction: ${pDir(data.sleepDir)}`),
         reading: buildRichReading({
             sysTh: 'ดาว 9 ดวง (Nine Star Ki)',
             sysEn: 'Nine Star Ki · 九星気学',
@@ -434,12 +522,25 @@ function calcNineStar(d) {
 // ============================================================
 // NUMEROLOGY
 // ============================================================
+// LP_NAMES is intentionally bilingual ("Thai — English") in TH mode for
+// users who want both labels at once. EN-only mode strips the Thai prefix
+// via `lpName()` so EN reports get just the English name.
 const LP_NAMES = {
     1: 'ผู้นำ — The Leader', 2: 'ผู้ร่วมมือ — The Cooperator', 3: 'ผู้สร้างสรรค์ — The Creator',
     4: 'ผู้สร้าง — The Builder', 5: 'ผู้แสวงหา — The Seeker', 6: 'ผู้รับใช้ — The Nurturer',
     7: 'นักปราชญ์ — The Wise', 8: 'นักบริหาร — The Executive', 9: 'นักมนุษยธรรม — The Humanitarian',
     11: 'แสงประภาคาร — Master Illuminator', 22: 'สถาปนิกหลัก — Master Builder', 33: 'ผู้รักษา — Master Healer',
 };
+// English-only versions of LP_NAMES (the part after "—" of LP_NAMES).
+const LP_NAMES_EN = {
+    1: 'The Leader', 2: 'The Cooperator', 3: 'The Creator',
+    4: 'The Builder', 5: 'The Seeker', 6: 'The Nurturer',
+    7: 'The Wise', 8: 'The Executive', 9: 'The Humanitarian',
+    11: 'Master Illuminator', 22: 'Master Builder', 33: 'Master Healer',
+};
+function lpName(n) {
+    return _reportLang === 'en' ? (LP_NAMES_EN[n] ?? `Life Path ${n}`) : (LP_NAMES[n] ?? `เลขชีวิต ${n}`);
+}
 const LP_READINGS = {
     1: 'เลขชีวิต 1 — คุณเกิดมาเพื่อเป็นผู้นำ มีความเป็นอิสระสูง กล้าตัดสินใจ เส้นทางชีวิตเรียกร้องให้คุณพัฒนาตัวเองอย่างต่อเนื่องและยืนหยัดในสิ่งที่ถูกต้อง',
     2: 'เลขชีวิต 2 — คุณเกิดมาเพื่อสร้างความสมดุลและสร้างสะพานเชื่อม มีสัญชาตญาณสูง รับรู้ความรู้สึกผู้อื่น เหมาะกับการทำงานที่ต้องใช้ความร่วมมือ',
@@ -454,6 +555,23 @@ const LP_READINGS = {
     22: 'เลขชีวิต 22 — สถาปนิกมหาบุรุษ คุณมีศักยภาพในการสร้างสิ่งที่ยิ่งใหญ่ที่จะอยู่ยาวนาน เชื่อมโยงวิสัยทัศน์กับการปฏิบัติได้อย่างสมดุล',
     33: 'เลขชีวิต 33 — ผู้รักษามหาบุรุษ คุณมีความรักที่ไม่มีเงื่อนไข มีพลังรักษาจิตใจผู้อื่น เป็นตัวแทนของความเมตตาในระดับสูงสุด',
 };
+const LP_READINGS_EN = {
+    1: 'Life Path 1 — you were born to lead. High independence, brave decisions. Your path demands continuous self-development and standing for what\'s right.',
+    2: 'Life Path 2 — you were born to bring balance and build bridges. High intuition, attuned to others\' feelings. Suited to cooperative work.',
+    3: 'Life Path 3 — you were born to create and communicate. Gifted in expression, art, and inspiration. Life is colourful.',
+    4: 'Life Path 4 — you were born to lay foundations. Orderly, patient, devoted. Your path is about building things that endure.',
+    5: 'Life Path 5 — you were born for experience. Free, change-loving, energetic. Your path is one of adventure.',
+    6: 'Life Path 6 — you were born to nurture and take responsibility. A serving heart. Your path involves family, community, and healing.',
+    7: 'Life Path 7 — you were born to seek truth. Deep mind, sharp analyst, strong intuition. Your path is wisdom and spirit.',
+    8: 'Life Path 8 — you were born to manage and build power. Gifted in business, finance, organisation. Your path is abundance.',
+    9: 'Life Path 9 — you were born for humanity. Wide heart, panoramic view. Your path is giving and serving at scale.',
+    11: 'Life Path 11 — Master Number. You are a bridge between the physical and spiritual worlds. Profound intuition, energy that affects others.',
+    22: 'Life Path 22 — Master Architect. You have the capacity to build something monumental and lasting. You connect vision with practice in balance.',
+    33: 'Life Path 33 — Master Healer. You carry unconditional love and the power to heal others\' minds. The highest expression of compassion.',
+};
+function lpReading(n) {
+    return _reportLang === 'en' ? (LP_READINGS_EN[n] ?? '') : (LP_READINGS[n] ?? '');
+}
 function reduceToSingle(n, master = true) {
     while (n > 9) {
         if (master && (n === 11 || n === 22 || n === 33))
@@ -504,6 +622,20 @@ const PY_MEANINGS = {
     8: 'ปีแห่งการเก็บเกี่ยว — ผลแห่งการทำงาน 7 ปีที่ผ่านมาปรากฏ โอกาสด้านการเงินและอาชีพ',
     9: 'ปีแห่งการสรุป — ปิดประตูเก่า เตรียมรับวงจรใหม่ ให้อภัยและปล่อยวาง',
 };
+const PY_MEANINGS_EN = {
+    1: 'Year of new beginnings — act on what you\'ve long intended; plant new seeds this year.',
+    2: 'Year of relationships — strengthen cooperation; beware hasty decisions.',
+    3: 'Year of communication — express, create, expand networks; strong social opportunities.',
+    4: 'Year of work — lay foundations, work hard; long-term results, not a year for fun.',
+    5: 'Year of change — new opportunities arrive with uncertainty; prepare for change.',
+    6: 'Year of family — focus on home, relationships, responsibility; good real-estate opportunities.',
+    7: 'Year of mental rest — time for reflection, learning, recharging.',
+    8: 'Year of harvest — the fruits of the past 7 years arrive; financial and career opportunities.',
+    9: 'Year of completion — close old doors, prepare for the new cycle; forgive and release.',
+};
+function pyMeaning(n) {
+    return _reportLang === 'en' ? (PY_MEANINGS_EN[n] ?? `Personal Year ${n}`) : (PY_MEANINGS[n] ?? `ปีส่วนตัว ${n}`);
+}
 function calcNumerology(d) {
     const lp = calcLifePath(d.year, d.month, d.day);
     const py = calcPersonalYear(d.year, d.month, d.day, 2026);
@@ -515,11 +647,11 @@ function calcNumerology(d) {
     const numScore = Math.max(400, Math.min(960, (LP_SCORE[lp] ?? 700) + ((d.year % 100 * 3 + d.day * 7) % 80) - 40));
     const thaiScoreVal = Math.max(400, Math.min(960, 700 + ((thai7[0] ?? 0) * 13 + (thai7[1] ?? 0) * 7) % 100 - 50));
     return {
-        lifePath: lp, lifePathName: LP_NAMES[lp] ?? `เลขชีวิต ${lp}`,
-        personalYear2026: py, personalYearMeaning: PY_MEANINGS[py] ?? `ปีส่วนตัว ${py}`,
-        pythagorean: pyt, pythagoreanName: LP_NAMES[pyt] ?? `เลข ${pyt}`,
+        lifePath: lp, lifePathName: lpName(lp),
+        personalYear2026: py, personalYearMeaning: pyMeaning(py),
+        pythagorean: pyt, pythagoreanName: lpName(pyt),
         thaiSeven: thai7,
-        thaiSevenReading: `เลข 7 ตัวของคุณ: ${thai7.join(' · ')} — ตำแหน่งที่ 4 (${thai7[3]}) บ่งบอกถึงพลังงานหลักในชีวิตปัจจุบัน`,
+        thaiSevenReading: tPick(`เลข 7 ตัวของคุณ: ${thai7.join(' · ')} — ตำแหน่งที่ 4 (${thai7[3]}) บ่งบอกถึงพลังงานหลักในชีวิตปัจจุบัน`, `Your 7-number sequence: ${thai7.join(' · ')} — position 4 (${thai7[3]}) signals your current life-energy core.`),
         destinyNumber: destiny,
         reading: buildRichReading({
             sysTh: 'เลขศาสตร์ Pythagorean + เลข ๗ ตัว ๙ ฐาน',
@@ -621,13 +753,22 @@ function calcVedic(d, w) {
         'Aquarius': ['ศาสตะโยคะ — ปัญญาและนวัตกรรม'],
         'Gemini': ['พุธ-อาทิตย์โยคะ — การสื่อสารและปัญญา'],
     };
-    const yogas = YOGAS[lagnaSign.en] ?? ['ดราวฺยะโยคะ — ทรัพย์สมบัติจากความพยายาม'];
+    const YOGAS_EN = {
+        'Leo': ['Raja Yoga — the Sun reinforces authority, fame, and leadership'],
+        'Capricorn': ['Kantaka Yoga — stability and a strong structural foundation'],
+        'Aries': ['Raja Yoga — courage and a powerful new beginning'],
+        'Scorpio': ['Pravraja Yoga — depth and profound transformation'],
+        'Aquarius': ['Shastra Yoga — wisdom and innovation'],
+        'Gemini': ['Mercury-Sun Yoga — communication and intellect'],
+    };
+    const yogas = (_reportLang === 'en' ? YOGAS_EN : YOGAS)[lagnaSign.en]
+        ?? [_reportLang === 'en' ? 'Dravya Yoga — wealth from effort' : 'ดราวฺยะโยคะ — ทรัพย์สมบัติจากความพยายาม'];
     const NAKSH_SCORES = { 'Ashwini': 800, 'Bharani': 700, 'Krittika': 780, 'Rohini': 800, 'Mrigashira': 760, 'Ardra': 710, 'Punarvasu': 790, 'Pushya': 820, 'Ashlesha': 710, 'Magha': 800, 'Purva Phalguni': 770, 'Uttara Phalguni': 780, 'Hasta': 790, 'Chitra': 770, 'Swati': 780, 'Vishakha': 760, 'Anuradha': 790, 'Jyeshtha': 730, 'Mula': 700, 'Purva Ashadha': 770, 'Uttara Ashadha': 780, 'Shravana': 780, 'Dhanishtha': 760, 'Shatabhisha': 750, 'Purva Bhadrapada': 730, 'Uttara Bhadrapada': 760, 'Revati': 780 };
     const vedicScore = Math.max(400, Math.min(960, (NAKSH_SCORES[nakshatra] ?? 700) + ((d.day * 9 + d.month * 13) % 80) - 40));
     return {
         lagna: lagnaSign.en, lagnaSign: lagnaSign.th,
         moonNakshatra: nakshatra, nakshatraLord: lord, nakshathraPada: pada,
-        mahadasha: currentDasha, mahadashaPeriod: `ถึง ${dashEnd}`, mahadashaEnd: dashEnd,
+        mahadasha: currentDasha, mahadashaPeriod: tPick(`ถึง ${dashEnd}`, `until ${dashEnd}`), mahadashaEnd: dashEnd,
         antardasha,
         yogas,
         reading: buildRichReading({
@@ -664,11 +805,11 @@ function calcVedic(d, w) {
 // HUMAN DESIGN (Simplified)
 // ============================================================
 const HD_TYPES = [
-    { type: 'Manifestor', typeTh: 'ผู้ริเริ่ม', strategy: 'แจ้งให้ผู้อื่นทราบก่อนลงมือ', pct: 9 },
-    { type: 'Generator', typeTh: 'ผู้สร้างพลังงาน', strategy: 'รอตอบสนองก่อนลงมือ', pct: 37 },
-    { type: 'Manifesting Generator', typeTh: 'MG ผู้สร้างและริเริ่ม', strategy: 'ตอบสนอง แล้วแจ้งก่อนลงมือ', pct: 33 },
-    { type: 'Projector', typeTh: 'ผู้นำทาง', strategy: 'รอคำเชิญก่อนลงมือ', pct: 20 },
-    { type: 'Reflector', typeTh: 'ผู้สะท้อน', strategy: 'รอ 28 วัน (รอบจันทร์)', pct: 1 },
+    { type: 'Manifestor', typeTh: 'ผู้ริเริ่ม', typeEn: 'Manifestor', strategy: 'แจ้งให้ผู้อื่นทราบก่อนลงมือ', strategyEn: 'Inform before acting', pct: 9 },
+    { type: 'Generator', typeTh: 'ผู้สร้างพลังงาน', typeEn: 'Generator', strategy: 'รอตอบสนองก่อนลงมือ', strategyEn: 'Wait to respond', pct: 37 },
+    { type: 'Manifesting Generator', typeTh: 'MG ผู้สร้างและริเริ่ม', typeEn: 'Manifesting Generator', strategy: 'ตอบสนอง แล้วแจ้งก่อนลงมือ', strategyEn: 'Respond, then inform', pct: 33 },
+    { type: 'Projector', typeTh: 'ผู้นำทาง', typeEn: 'Projector', strategy: 'รอคำเชิญก่อนลงมือ', strategyEn: 'Wait for the invitation', pct: 20 },
+    { type: 'Reflector', typeTh: 'ผู้สะท้อน', typeEn: 'Reflector', strategy: 'รอ 28 วัน (รอบจันทร์)', strategyEn: 'Wait 28 days (lunar cycle)', pct: 1 },
 ];
 // Each HD type has a SET of possible authorities — actual selection requires
 // defined-center analysis we don't compute here. Pick deterministically from
@@ -706,6 +847,23 @@ const PROFILE_DESC = {
     '6/2': 'Role Model/Hermit — ใช้ชีวิต 3 เฟส เป็นแบบอย่างโดยไม่ตั้งใจ',
     '6/3': 'Role Model/Martyr — ค้นพบตัวเองผ่านประสบการณ์ที่หลากหลาย',
 };
+const PROFILE_DESC_EN = {
+    '1/3': 'Foundation/Martyr — a researcher who learns by direct experience, strengthened by trial',
+    '1/4': 'Foundation/Opportunist — builds expertise and shares it through a personal network',
+    '2/4': 'Hermit/Opportunist — hidden gifts are discovered through trusted networks',
+    '2/5': 'Hermit/Heretic — gifted in ways others expect you to lead them',
+    '3/5': 'Martyr/Heretic — discovers truth through trial and delivers it as a workable solution',
+    '3/6': 'Martyr/Role Model — diverse life experience becomes role-model wisdom in adulthood',
+    '4/6': 'Opportunist/Role Model — creates impact through network and example',
+    '4/1': 'Opportunist/Investigator — stability through knowledge and relationships',
+    '5/1': 'Heretic/Investigator — comes to solve others\' problems, often heavily projected upon',
+    '5/2': 'Heretic/Hermit — has practical solutions but needs personal space',
+    '6/2': 'Role Model/Hermit — lives in 3 phases, becomes a role model without trying',
+    '6/3': 'Role Model/Martyr — finds self through diverse experience',
+};
+function profileDesc(p) {
+    return _reportLang === 'en' ? (PROFILE_DESC_EN[p] ?? `Profile ${p}`) : (PROFILE_DESC[p] ?? `บุคลิกภาพที่ไม่ซ้ำใคร`);
+}
 function calcHD(d, w) {
     // Determine type based on sun position (simplified)
     const sunSignIdx = Math.floor(w.sunDeg / 30);
@@ -731,8 +889,8 @@ function calcHD(d, w) {
     const hdScore = Math.max(400, Math.min(960, (TYPE_SCORE[hdType.type] ?? 700) + ((d.day * 7 + d.month * 11) % 80) - 40));
     const authority = pickHdAuthority(hdType.type, d, w.sunDeg);
     return {
-        type: hdType.type, typeTh: hdType.typeTh, strategy: hdType.strategy,
-        authority, profile, profileDesc: PROFILE_DESC[profile] ?? 'บุคลิกภาพที่ไม่ซ้ำใคร',
+        type: hdType.type, typeTh: tPick(hdType.typeTh, hdType.typeEn), strategy: tPick(hdType.strategy, hdType.strategyEn),
+        authority, profile, profileDesc: profileDesc(profile),
         definition, incarnationCross: cross,
         sunGate, earthGate, channels,
         reading: buildRichReading({
@@ -934,11 +1092,11 @@ function calcCeltic(d) {
             originEn: 'Celtic Tree Astrology was created by the Druids (Celtic priests) in Ireland and Wales over 2,000 years ago. They believed every tree had a spirit (Dryad), and that people born during a tree\'s power period inherited its qualities. The Druids divided the year into 13 periods (unlike Western astrology\'s 12 signs), based on the lunar cycle and tree growth. Each tree has a ruling planet, element, and gemstone. The system is still actively practised in Celtic Revival circles across Ireland, Scotland, and Wales today.',
             yearsOld: 2000,
             keyValue: `${found.th} (${found.name}) · ธาตุ${found.el} · ปกครองโดย${found.planet}`,
-            keyValueEn: `${found.name} · ${found.el === 'ไฟ' ? 'Fire' : found.el === 'น้ำ' ? 'Water' : found.el === 'ดิน' ? 'Earth' : 'Air'} element · ruled by ${found.planet === 'ยูเรนัส' ? 'Uranus' : found.planet === 'ดวงอาทิตย์' ? 'Sun' : found.planet === 'ดวงจันทร์' ? 'Moon' : found.planet === 'ดาวพฤหัสฯ' ? 'Jupiter' : found.planet}`,
+            keyValueEn: `${found.name} · ${tEl(found.el)} element · ruled by ${tPlanet(found.planet)}`,
             keyValueMeaning: `ต้นไม้ประจำวันเกิดของคุณคือ <strong>${found.th} (${found.name})</strong> ธาตุ<strong>${found.el}</strong> ปกครองโดย<strong>${found.planet}</strong> อัญมณีประจำคือ<strong>${found.gem}</strong> ในตำนานเซลติก ${found.name === 'Rowan' ? 'Rowan เป็นต้นไม้ศักดิ์สิทธิ์ที่สุดในบรรดา 13 ต้น — Druid ใช้ไม้ Rowan ทำไม้เท้าเวทมนตร์ ลูกเบอร์รี่สีแดงถือเป็น "อาหารของเทพ" ลูกคนที่เกิดใต้ Rowan จึงมีพลังปกป้องและ vision ที่ทะลุม่านของโลกกายภาพ' : found.name === 'Birch' ? 'Birch เป็นต้นแรกของปี — ต้นไม้ของ "การเริ่มต้นใหม่" และการชำระล้าง' : found.name === 'Oak' ? 'Oak เป็นต้นไม้ศักดิ์สิทธิ์สูงสุดของ Druid — ทุกต้น Oak ใหญ่ถือเป็น "ประตูแห่งโลกอื่น"' : found.name === 'Ash' ? 'Ash คือ "World Tree" ในตำนาน Norse เชื่อมสวรรค์ ดิน และนรก' : 'ต้นไม้ ' + found.name + 'มีความหมายเฉพาะในประเพณีเซลติก'}`,
-            keyValueMeaningEn: `Your birth-day tree is <strong>${found.name}</strong>, an element of <strong>${found.el === 'ไฟ' ? 'Fire' : found.el === 'น้ำ' ? 'Water' : found.el === 'ดิน' ? 'Earth' : 'Air'}</strong>, ruled by <strong>${found.planet === 'ยูเรนัส' ? 'Uranus' : found.planet === 'ดวงอาทิตย์' ? 'the Sun' : found.planet === 'ดวงจันทร์' ? 'the Moon' : found.planet === 'ดาวพฤหัสฯ' ? 'Jupiter' : found.planet}</strong>, with <strong>${found.gem}</strong> as its gemstone. In Celtic legend, ${found.name === 'Rowan' ? 'Rowan is the holiest of the 13 trees — Druids carved Rowan into magic staves; its red berries were "food of the gods". Those born under Rowan carry protection and vision that pierce the veil of the physical' : found.name === 'Birch' ? 'Birch is the first tree of the year — the tree of "new beginnings" and purification' : found.name === 'Oak' ? 'Oak is the Druids\' highest sacred tree — every great Oak is a "gateway to the other world"' : found.name === 'Ash' ? 'Ash is the "World Tree" of Norse legend, joining heaven, earth, and the underworld' : found.name + ' carries a unique meaning in Celtic tradition'}.`,
+            keyValueMeaningEn: `Your birth-day tree is <strong>${found.name}</strong>, an element of <strong>${tEl(found.el)}</strong>, ruled by <strong>${tPlanet(found.planet)}</strong>, with <strong>${found.gem}</strong> as its gemstone. In Celtic legend, ${found.name === 'Rowan' ? 'Rowan is the holiest of the 13 trees — Druids carved Rowan into magic staves; its red berries were "food of the gods". Those born under Rowan carry protection and vision that pierce the veil of the physical' : found.name === 'Birch' ? 'Birch is the first tree of the year — the tree of "new beginnings" and purification' : found.name === 'Oak' ? 'Oak is the Druids\' highest sacred tree — every great Oak is a "gateway to the other world"' : found.name === 'Ash' ? 'Ash is the "World Tree" of Norse legend, joining heaven, earth, and the underworld' : found.name + ' carries a unique meaning in Celtic tradition'}.`,
             strengthTh: `คนเกิดใต้ต้น ${found.th} มีคุณสมบัติพิเศษ — ${found.name === 'Rowan' ? 'Visionary — เห็นในสิ่งที่คนอื่นมองไม่เห็น มีสัญชาตญาณเรื่องคน และสามารถปกป้องตัวเองและคนที่รักจากพลังงานลบได้โดยธรรมชาติ Rowan people มักเป็นนักเขียน นักจิตวิทยา หรือ healer ที่ช่วยคนหาทางออกจากช่วงมืดของชีวิต' : found.name === 'Birch' ? 'Leader — นักริเริ่มและผู้นำที่สร้างสิ่งใหม่ Birch people มักประสบความสำเร็จในการสร้างธุรกิจหรือกระแสวัฒนธรรม' : found.name === 'Oak' ? 'Strength — ผู้ที่แข็งแกร่งและมั่นคง เหมือน Oak ที่อยู่รอดผ่านหลายศตวรรษ เป็นที่พึ่งของทั้งครอบครัว' : found.name === 'Ash' ? 'Wisdom — ผู้ที่เชื่อมหลายโลกเข้าด้วยกัน ศิลปิน นักปรัชญา หรือผู้ที่ทำงานเชื่อมวัฒนธรรม' : 'คุณสมบัติเฉพาะตัวของต้น ' + found.name} ธาตุ${found.el} เสริมด้วย${found.el === 'ไฟ' ? 'ความกล้าและความเป็นผู้นำ' : found.el === 'น้ำ' ? 'สัญชาตญาณและความเห็นอกเห็นใจ' : found.el === 'ดิน' ? 'ความมั่นคงและความอดทน' : 'ความยืดหยุ่นและการสื่อสาร'} ดาว${found.planet}เพิ่มมิติแห่ง${found.planet === 'ยูเรนัส' ? 'การเปลี่ยนแปลงและความคิดล้ำสมัย' : found.planet === 'ดวงอาทิตย์' ? 'ความเป็นผู้นำและเสน่ห์' : found.planet === 'ดวงจันทร์' ? 'สัญชาตญาณและความเห็นอกเห็นใจ' : found.planet === 'ดาวพฤหัสฯ' ? 'การขยายและความโชคดี' : 'พลังเฉพาะของดาวปกครอง'}`,
-            strengthEn: `People born under ${found.name} carry distinct gifts — ${found.name === 'Rowan' ? 'Visionary: you see what others miss, have sharp instinct about people, and naturally shield yourself and loved ones from negative energy. Rowans become writers, psychologists, or healers who help people find a way out of dark seasons' : found.name === 'Birch' ? 'Leader: initiator and trailblazer of the new. Birch people often build successful businesses or cultural movements' : found.name === 'Oak' ? 'Strength: durable and steady — like an Oak surviving centuries — the family bedrock' : found.name === 'Ash' ? 'Wisdom: a bridge between worlds. Artists, philosophers, or cross-cultural mediators' : 'the unique qualities of ' + found.name}. The ${found.el === 'ไฟ' ? 'Fire' : found.el === 'น้ำ' ? 'Water' : found.el === 'ดิน' ? 'Earth' : 'Air'} element adds ${found.el === 'ไฟ' ? 'courage and leadership' : found.el === 'น้ำ' ? 'intuition and empathy' : found.el === 'ดิน' ? 'stability and patience' : 'flexibility and communication'}. ${found.planet === 'ยูเรนัส' ? 'Uranus' : found.planet === 'ดวงอาทิตย์' ? 'The Sun' : found.planet === 'ดวงจันทร์' ? 'The Moon' : found.planet === 'ดาวพฤหัสฯ' ? 'Jupiter' : found.planet} adds a layer of ${found.planet === 'ยูเรนัส' ? 'change and avant-garde thinking' : found.planet === 'ดวงอาทิตย์' ? 'leadership and charisma' : found.planet === 'ดวงจันทร์' ? 'intuition and empathy' : found.planet === 'ดาวพฤหัสฯ' ? 'expansion and good fortune' : 'the ruling planet\'s specific gift'}.`,
+            strengthEn: `People born under ${found.name} carry distinct gifts — ${found.name === 'Rowan' ? 'Visionary: you see what others miss, have sharp instinct about people, and naturally shield yourself and loved ones from negative energy. Rowans become writers, psychologists, or healers who help people find a way out of dark seasons' : found.name === 'Birch' ? 'Leader: initiator and trailblazer of the new. Birch people often build successful businesses or cultural movements' : found.name === 'Oak' ? 'Strength: durable and steady — like an Oak surviving centuries — the family bedrock' : found.name === 'Ash' ? 'Wisdom: a bridge between worlds. Artists, philosophers, or cross-cultural mediators' : 'the unique qualities of ' + found.name}. The ${tEl(found.el)} element adds ${found.el === 'ไฟ' ? 'courage and leadership' : found.el === 'น้ำ' ? 'intuition and empathy' : found.el === 'ดิน' ? 'stability and patience' : 'flexibility and communication'}. ${tPlanet(found.planet)} adds a layer of ${found.planet === 'ยูเรนัส' ? 'change and avant-garde thinking' : found.planet === 'ดวงอาทิตย์' ? 'leadership and charisma' : found.planet === 'ดวงจันทร์' ? 'intuition and empathy' : found.planet === 'ดาวพฤหัสฯ' ? 'expansion and good fortune' : 'the ruling planet\'s specific gift'}.`,
             shadowTh: `เงาของต้น ${found.th} คือ ${found.name === 'Rowan' ? 'การแบกอารมณ์คนอื่นมากเกินไป — Rowan เป็น "ผู้ป้องกันผี" จึงมักรับพลังงานลบแทนผู้อื่น ต้องฝึกตั้งขอบเขต' : found.name === 'Birch' ? 'การเริ่มต้นใหม่บ่อยเกินไปจนไม่มีอะไรเสร็จ — Birch ต้องฝึกอดทน' : found.name === 'Oak' ? 'การแบกทุกภาระของทุกคนจนลืมดูแลตัวเอง' : found.name === 'Ash' ? 'การเชื่อมหลายโลกจนสับสนว่าตัวเองเป็นของโลกใด' : 'การใช้พลังของต้น ' + found.name + 'ในทางที่ผิดทิศ'} Druid แนะนำให้คน ${found.th} ทำพิธี "Grounding" ทุกสัปดาห์ — เดินเท้าเปล่าบนดินหรือนั่งพิงต้นไม้ใหญ่ 15 นาที`,
             shadowEn: `The shadow of ${found.name} is ${found.name === 'Rowan' ? 'carrying others\' emotions too heavily — Rowan is the "spirit shield" and tends to absorb negativity for others. Train yourself to set boundaries' : found.name === 'Birch' ? 'starting over too often, finishing nothing — Birch must train patience' : found.name === 'Oak' ? 'shouldering everyone\'s burdens until you forget yourself' : found.name === 'Ash' ? 'bridging too many worlds and losing track of which one is yours' : 'using ' + found.name + '\'s power off-direction'}. Druids prescribe a weekly "Grounding" ritual for ${found.name} people — walk barefoot on earth, or sit against a great tree, for 15 minutes.`,
             practiceTh: `การเชื่อมกับต้น ${found.th} รายวัน: (1) ถ้าเป็นไปได้ เก็บใบ กิ่ง หรือเปลือกของ ${found.th} ไว้ในบ้าน (ถ้าไม่มีในประเทศไทย ใช้รูปภาพ) (2) พก ${found.gem} เป็นเครื่องราง (3) ในวันสำคัญ จุดเทียนสีเขียวและอธิษฐานต่อ Dryad ของ ${found.th} (4) ทำสมาธิใต้ต้นไม้ใหญ่อย่างน้อยสัปดาห์ละครั้ง (5) เรียนรู้เรื่อง ${found.th} อย่างลึก — ชีววิทยา นิเวศ ประวัติศาสตร์ — ความรู้เกี่ยวกับต้นไม้ประจำคือความรู้เกี่ยวกับตัวคุณ`,
@@ -955,13 +1113,13 @@ function calcCeltic(d) {
 // THAI BRAHMIN
 // ============================================================
 const THAI_DAYS = [
-    { name: 'วันอาทิตย์', color: 'แดง', god: 'Surya', godTh: 'พระอาทิตย์', nakshatra: 'มิตรา', fortune: 'โชคลาภและชื่อเสียง' },
-    { name: 'วันจันทร์', color: 'เหลือง/ครีม', god: 'Chandra', godTh: 'พระจันทร์', nakshatra: 'โรหิณี', fortune: 'ความอ่อนโยนและเสน่ห์' },
-    { name: 'วันอังคาร', color: 'ชมพู/ม่วงแดง', god: 'Mangala', godTh: 'พระอังคาร', nakshatra: 'มฤคศิร', fortune: 'ความกล้าหาญและพลังงาน' },
-    { name: 'วันพุธ', color: 'เขียว', god: 'Budha', godTh: 'พระพุธ', nakshatra: 'เรวดี', fortune: 'ปัญญาและการสื่อสาร' },
-    { name: 'วันพฤหัสบดี', color: 'ส้ม/เหลือง', god: 'Brihaspati', godTh: 'พระพฤหัส', nakshatra: 'ปุษยะ', fortune: 'ความรู้และจิตวิญญาณ' },
-    { name: 'วันศุกร์', color: 'ฟ้า/ครีม', god: 'Shukra', godTh: 'พระศุกร์', nakshatra: 'ภรณี', fortune: 'ความงามและความรัก' },
-    { name: 'วันเสาร์', color: 'ม่วง/ดำ', god: 'Shani', godTh: 'พระเสาร์', nakshatra: 'อนุราธา', fortune: 'ความอดทนและรากฐาน' },
+    { name: 'วันอาทิตย์', nameEn: 'Sunday', color: 'แดง', colorEn: 'Red', god: 'Surya', godTh: 'พระอาทิตย์', nakshatra: 'มิตรา', fortune: 'โชคลาภและชื่อเสียง', fortuneEn: 'Fortune and fame' },
+    { name: 'วันจันทร์', nameEn: 'Monday', color: 'เหลือง/ครีม', colorEn: 'Yellow/Cream', god: 'Chandra', godTh: 'พระจันทร์', nakshatra: 'โรหิณี', fortune: 'ความอ่อนโยนและเสน่ห์', fortuneEn: 'Gentleness and charm' },
+    { name: 'วันอังคาร', nameEn: 'Tuesday', color: 'ชมพู/ม่วงแดง', colorEn: 'Pink/Magenta', god: 'Mangala', godTh: 'พระอังคาร', nakshatra: 'มฤคศิร', fortune: 'ความกล้าหาญและพลังงาน', fortuneEn: 'Courage and energy' },
+    { name: 'วันพุธ', nameEn: 'Wednesday', color: 'เขียว', colorEn: 'Green', god: 'Budha', godTh: 'พระพุธ', nakshatra: 'เรวดี', fortune: 'ปัญญาและการสื่อสาร', fortuneEn: 'Wisdom and communication' },
+    { name: 'วันพฤหัสบดี', nameEn: 'Thursday', color: 'ส้ม/เหลือง', colorEn: 'Orange/Yellow', god: 'Brihaspati', godTh: 'พระพฤหัส', nakshatra: 'ปุษยะ', fortune: 'ความรู้และจิตวิญญาณ', fortuneEn: 'Knowledge and spirit' },
+    { name: 'วันศุกร์', nameEn: 'Friday', color: 'ฟ้า/ครีม', colorEn: 'Sky-blue/Cream', god: 'Shukra', godTh: 'พระศุกร์', nakshatra: 'ภรณี', fortune: 'ความงามและความรัก', fortuneEn: 'Beauty and love' },
+    { name: 'วันเสาร์', nameEn: 'Saturday', color: 'ม่วง/ดำ', colorEn: 'Purple/Black', god: 'Shani', godTh: 'พระเสาร์', nakshatra: 'อนุราธา', fortune: 'ความอดทนและรากฐาน', fortuneEn: 'Endurance and foundation' },
 ];
 function calcThai(d) {
     const jd = toJD(d.year, d.month, d.day, 12);
@@ -970,8 +1128,8 @@ function calcThai(d) {
     const DAY_SCORES = { 'จันทร์': 750, 'อังคาร': 720, 'พุธ': 760, 'พฤหัสบดี': 800, 'ศุกร์': 780, 'เสาร์': 710, 'อาทิตย์': 790 };
     const thaiDayScore = Math.max(400, Math.min(960, (DAY_SCORES[day?.name ?? ''] ?? 700) + ((d.year % 100 + d.day * 7) % 80) - 40));
     return {
-        dayOfWeek: dow, dayName: day.name, dayColor: day.color,
-        dayGod: day.god, dayGodTh: day.godTh, nakshatra: day.nakshatra, fortuneDay: day.fortune,
+        dayOfWeek: dow, dayName: tPick(day.name, day.nameEn), dayColor: tPick(day.color, day.colorEn),
+        dayGod: day.god, dayGodTh: tPick(day.godTh, day.god), nakshatra: day.nakshatra, fortuneDay: tPick(day.fortune, day.fortuneEn),
         reading: buildRichReading({
             sysTh: 'โหราศาสตร์ไทยพราหมณ์',
             sysEn: 'Thai Brahmin Astrology',
@@ -1566,29 +1724,329 @@ const ADDON_PRODUCT_BY_ELEMENT = {
         brands: 'Chanel · Dior · Maison Margiela · Rick Owens'
     },
 };
+// ── English-language parallel maps (mirror Thai keys 'ไม้'/'ไฟ'/'ดิน'/'โลหะ'/'น้ำ') ──
+const ADDON_MIRROR_BY_ELEMENT_EN = {
+    'ไม้': {
+        icon: '🌿',
+        primary: 'Indra · พระอินทร์',
+        primaryDesc: 'God of storm and sky, leader of the devas — Wood element amplifies growth, flexibility, and leadership',
+        primaryStory: 'In the Vedas, Indra is the king of heaven who rides the elephant Airavata and wields the vajra (thunderbolt) to slay the demon Vritra and free the waters that nourish the parched earth. The key motif: he is humbled and falls many times through pride and recklessness, returning each time only by owning his mistakes — a fitting mirror for Wood Day Masters who lead and grow easily but must learn humility.',
+        secondary: 'Guanyin · เจ้าแม่กวนอิม',
+        secondaryDesc: 'Compassion, protection, service to others',
+        secondaryStory: 'Originally Avalokiteshvara of Mahayana Buddhism, she attained enlightenment but vowed not to enter Nirvana until every sentient being is free of suffering — the symbol of Wood that grows tall in order to shelter others.',
+        tertiary: 'Osiris · Egypt',
+        tertiaryDesc: 'God of regeneration and cycles',
+        tertiaryStory: 'Murdered by his brother Set and cut into 14 pieces, his wife Isis lovingly gathered the fragments and resurrected him. He became lord of the underworld and rebirth — the archetype of "die and rise again" that Wood understands through the shedding of leaves.',
+        shadow: 'Loki · god of mischief',
+        shadowDesc: 'When Wood is unbalanced, it shows up as impulsiveness or manipulation',
+        shadowStory: 'Thor\'s companion who betrayed the gods over and over — too clever, until his cunning fooled even himself. The shadow of Wood that bends so flexibly with circumstance it never sets down roots.',
+        mantra: 'ॐ शक्राय नमः (Om Shakraya Namah)'
+    },
+    'ไฟ': {
+        icon: '🔥',
+        primary: 'Surya · พระอาทิตย์',
+        primaryDesc: 'God of the sun, light, and energy — Fire element amplifies courage, leadership, and creative power',
+        primaryStory: 'Surya in the Vedas drives a chariot of seven horses across the heavens every day — a symbol of consistency and reliability. His children include Yama (lord of death), Saturn, and Karna of the Mahabharata — each a facet of light: justice, order, courageous sacrifice. Fire people are called to shine steadily, not just flare up.',
+        secondary: 'Apollo · Greece',
+        secondaryDesc: 'Art, music, light, and truth',
+        secondaryStory: 'God of Delphi — he speaks prophecy only through the priestess Pythia. He loved Daphne and chased her until she turned into a laurel tree to escape him — proof that even the god of light can be refused. The lesson for Fire: not everyone wants to be lit by your flame.',
+        tertiary: 'Ra · Egypt',
+        tertiaryDesc: 'Supreme sun god and creator',
+        tertiaryStory: 'Every night Ra battles the serpent Apep in the realm of darkness. He must win every single night for the sun to rise again — a reminder that Fire never rests, that you fight your inner darkness each night to give the dawn meaning.',
+        shadow: 'Prometheus · the boundary-crosser',
+        shadowDesc: 'When Fire is unbalanced, it shows up as arrogance or self-immolation',
+        shadowStory: 'He stole fire from heaven for humanity and was punished by Zeus to have his liver eaten by an eagle every day, regenerating each night. The shadow of Fire that wants to save everyone but forgets to tend itself — burnout is the price.',
+        mantra: 'ॐ सूर्याय नमः (Om Suryaya Namah)'
+    },
+    'ดิน': {
+        icon: '🌍',
+        primary: 'Gaia · พระแม่ธรณี',
+        primaryDesc: 'Mother goddess of earth, abundance, and foundation — Earth element amplifies stability, patience, and cultivation',
+        primaryStory: 'Gaia emerged from Chaos and became mother of all — mountains, oceans, the Titans, and finally the Olympian gods. When her son-husband Cronus devoured all their offspring, she conspired with grandson Zeus to overthrow him — the archetype of Earth that waits for the right moment, never passive.',
+        secondary: 'Lakshmi · พระลักษมี',
+        secondaryDesc: 'Wealth, beauty, fortune',
+        secondaryStory: 'Born from the churning of the milk ocean (samudra manthan) — a 1,000-year collaborative effort by gods and demons. The lesson: real wealth comes from sustained joint effort and patience, not random luck.',
+        tertiary: 'Demeter · Greece',
+        tertiaryDesc: 'Goddess of seasons and harvest',
+        tertiaryStory: 'When Hades abducted her daughter Persephone to the underworld, Demeter\'s grief froze every harvest on earth. She negotiated to have Persephone returned for half each year — spring is born every time mother and daughter reunite. Earth people sync with the cycle, never force the season.',
+        shadow: 'Cronos · the imprisoner',
+        shadowDesc: 'When Earth is unbalanced, it shows up as stubbornness or fear of change',
+        shadowStory: 'Cronos overthrew his father Ouranos and then devoured each of his own children to prevent the same fate. The shadow of Earth that hardens until it fears any shedding, hoarding everything until it suffocates itself.',
+        mantra: 'ॐ भूम्यै नमः (Om Bhumyai Namah)'
+    },
+    'โลหะ': {
+        icon: '⚔️',
+        primary: 'Brahma · พระพรหม',
+        primaryDesc: 'God of creation and wisdom — Metal element amplifies clarity, discipline, and excellence',
+        primaryStory: 'The creator god of the Trimurti (Brahma–Vishnu–Shiva), he has four faces to see all four directions at once and chants the four Vedas from those four mouths. The archetype of Metal that sees in all directions, thinks systematically, and builds from structure rather than passing emotion.',
+        secondary: 'Zeus / Odin',
+        secondaryDesc: 'Justice, authority, rightful rule',
+        secondaryStory: 'Odin sacrificed his right eye for wisdom from Mimir\'s well, then hung himself for nine days on Yggdrasil to discover the runes. Metal understands knowledge has a price — you pay for clarity and you do not negotiate the bill.',
+        tertiary: 'Ares · god of valor',
+        tertiaryDesc: 'Courage, decisiveness, the energy of metal',
+        tertiaryStory: 'The other gods scorned Ares for loving war too much — Aphrodite alone understood him. The lesson: decisiveness is often lonely; you need someone who sees the softer side beneath the blade.',
+        shadow: 'Ares · dark side',
+        shadowDesc: 'When Metal is unbalanced, it shows up as coldness or aggression',
+        shadowStory: 'In the Trojan War, Ares switched sides on whim and was always defeated by Athena (strategic warfare). The shadow of Metal that uses force without strategy — wins today, loses the long game.',
+        mantra: 'ॐ ब्रह्मणे नमः (Om Brahmane Namah)'
+    },
+    'น้ำ': {
+        icon: '🌊',
+        primary: 'Ganga · พระแม่คงคา',
+        primaryDesc: 'Goddess of rivers and purification — Water element amplifies intuition, depth, and adaptability',
+        primaryStory: 'Ganga originally flowed only in heaven. King Bhagiratha did 1,000 years of austerity to bring her down to purify his ancestors\' bones. Her descent would have shattered the earth — Shiva caught her in his matted hair before releasing her gently as the river. Great Water needs a mountain to receive it; Water people need an anchor or they wash away.',
+        secondary: 'Poseidon · Greece',
+        secondaryDesc: 'Vastness, depth, unstoppable force',
+        secondaryStory: 'He competed with Athena for Athens — Poseidon offered a saltwater spring, Athena offered the olive tree. The citizens chose utility, Athena won. Poseidon raged with storms and earthquakes. The lesson: Water power must be translated into something people can actually use.',
+        tertiary: 'Anubis · Egypt',
+        tertiaryDesc: 'Guide and guardian between worlds',
+        tertiaryStory: 'The black jackal-headed god weighs the heart of the dead against the feather of truth — a heart heavier than the feather is devoured forever. Water people carry that Anubis instinct: they know who is real and who is fake, deep down.',
+        shadow: 'Hades · the hoarder',
+        shadowDesc: 'When Water is unbalanced, it shows up as obsession or withdrawal',
+        shadowStory: 'Hades abducted Persephone to the underworld out of loneliness because no other god would visit him. The shadow of Water grown so deep it becomes a private well — pulling good things in but never letting them grow.',
+        mantra: 'ॐ गङ्गायै नमः (Om Gangayai Namah)'
+    }
+};
+const ADDON_COSMIC_BY_TIER_EN = {
+    'Transcendent': { name: 'Brahman · The Absolute', desc: 'All 26 systems converge — your personality reflects timeless cosmic principles' },
+    'Luminous': { name: 'Bodhisattva', desc: 'Generous energy, high wisdom, ready to lift those around you' },
+    'Resonant': { name: 'Tai Yi · 太乙', desc: 'Balance between yin and yang — harmonious, powerful energy' },
+    'Aligned': { name: 'Vayu', desc: 'Energy of change and movement — flexible and adaptive' },
+    'Seeking': { name: 'Arges', desc: 'Energy still finding itself — high potential awaiting release' },
+};
+const ADDON_COMPAT_BY_ELEMENT_EN = {
+    'ไม้': { best: ['น้ำ', 'ไม้'], good: ['ไฟ'], neutral: ['ดิน'], avoid: ['โลหะ'] },
+    'ไฟ': { best: ['ไม้', 'ไฟ'], good: ['ดิน'], neutral: ['โลหะ'], avoid: ['น้ำ'] },
+    'ดิน': { best: ['ไฟ', 'ดิน'], good: ['โลหะ'], neutral: ['น้ำ'], avoid: ['ไม้'] },
+    'โลหะ': { best: ['ดิน', 'โลหะ'], good: ['น้ำ'], neutral: ['ไม้'], avoid: ['ไฟ'] },
+    'น้ำ': { best: ['โลหะ', 'น้ำ'], good: ['ไม้'], neutral: ['ไฟ'], avoid: ['ดิน'] },
+};
+const ADDON_PET_BY_ELEMENT_EN = {
+    'ไม้': {
+        main: '🐱 Cat — Ragdoll / Siamese', mainEn: 'Cat — Ragdoll / Siamese',
+        why: 'Wood loves freedom, light touch, and non-invasive interaction. Cats mirror this energy perfectly.',
+        story: 'Cats were revered in ancient Egypt as symbols of Bastet — goddess of cool power and protection. In Japan, the Maneki-neko (beckoning cat) waves in money and customers. Chinese BaZi assigns cats to Wood because they sleep in daylight, rouse at fitting hours — a model of "flowing with rhythm."',
+        colors: 'Green · white · soft blue', timing: 'Spring · Thursday · early morning',
+        avoid: 'High-energy dog breeds — they drain Wood',
+        secondary: '🐦 Parrot / songbird', secWhy: 'Boost communication and playfulness',
+        secStory: 'A bird in the canopy = Wood energy reaching higher. In Celtic tradition the talking bird symbolised the druid oracle; in Mayan myth the green Quetzal was the god Kukulkan.',
+        care: 'Wood-bath: place plants near your pet\'s bed — both energies amplify together'
+    },
+    'ไฟ': {
+        main: '🐕 Dog — Shiba Inu / Golden Retriever', mainEn: 'Dog — Shiba / Golden',
+        why: 'Fire wants high energy, intensity, and loyalty. Active dogs make ideal exercise partners.',
+        story: 'Dogs have walked beside humans for 15,000+ years. In the Vedas, Yama (lord of death) keeps four-eyed dogs to guard the home. Celts believed dogs guided souls to the next world. In Thai-Chinese lore the Shiba carries the eye of the "Firebird" — solar, lifelong loyalty.',
+        colors: 'Red · orange · gold · white', timing: 'Summer · Tuesday · late afternoon',
+        avoid: 'Aquarium fish — opposite energy to Fire, can chill it',
+        secondary: '🐇 White or orange rabbit', secWhy: 'Adds gentleness to balance Fire',
+        secStory: 'The Chinese-Japanese moon rabbit pounds the elixir of immortality eternally — the symbol of cool patience inside heat. Vital for Fire types who burn themselves out.',
+        care: 'Joint exercise: burn Fire energy through your dog every morning to release accumulated stress'
+    },
+    'ดิน': {
+        main: '🐕 Dog — Labrador / Bulldog', mainEn: 'Dog — Labrador / Bulldog',
+        why: 'Earth wants stability, loyalty, home-love. Obedient breeds respond best.',
+        story: 'Labradors were bred by Newfoundland fishermen needing a partner who could endure rain and cold — the symbol of "deep roots, steady work." In Egypt, the jackal-headed Anubis guards tombs and steadies souls — fitting Earth\'s need for solid ground.',
+        colors: 'Yellow · brown · cream · soft orange', timing: 'Mid-year · Saturday · evening',
+        avoid: 'Free-flying birds — they create anxiety in calm-loving Earth',
+        secondary: '🐢 Land tortoise', secWhy: 'Adds stability and longevity, classically blessed for Earth',
+        secStory: 'A tortoise on a rock is the Feng Shui sign of the "Black Mountain" — the protector of the home\'s rear. In Chinese myth, the I Ching was first inscribed on a tortoise shell — the prototype of "a foundation that accumulates wisdom."',
+        care: 'Routine bonding: Earth thrives on rhythm — feed your pet at the same hour every day'
+    },
+    'โลหะ': {
+        main: '🐱 Cat — British Shorthair / Russian Blue', mainEn: 'Cat — British Shorthair',
+        why: 'Metal loves elegance, order, and personal space. These breeds have crisp personalities and zero invasiveness.',
+        story: 'The Russian Blue was bred in the Russian court of Ivan the Terrible — silver-blue fur reflecting moonlight, a mark of refined luxury. In Feng Shui, a silver cat in the western (Metal) zone draws wealth and honour.',
+        colors: 'White · grey · silver · black', timing: 'Autumn · Friday · evening',
+        avoid: 'Loud animals — they break the focus Metal needs',
+        secondary: '🐠 Koi in a marble tank', secWhy: 'Adds beauty and calm',
+        secStory: 'The Japanese koi is the samurai\'s emblem — it swims upstream all the way to the dragon gate and becomes a dragon. It matches Metal\'s belief in discipline and the long horizon.',
+        care: 'Clean spaces: Metal + cats demand orderly, immaculate space — clean the litter box daily'
+    },
+    'น้ำ': {
+        main: '🐟 Fish in a tank — Betta / Koi', mainEn: 'Fish — Betta / Koi',
+        why: 'Water loves flow, calm, and observation. Fish in water mirror the Water heart directly.',
+        story: 'In Japan-China, the Koi is a symbol of perseverance — the legend says a koi that swims upstream to the Dragon Gate (龍門) becomes a dragon. In Thailand the Betta was kept as a auspicious fish at major events. Keeping fish is keeping "living water" — a mirror of the deep, ever-changing Water mind.',
+        colors: 'Navy · black · silver · purple', timing: 'Winter · Monday · early morning',
+        avoid: 'High-energy dogs — they drain Water that needs rest',
+        secondary: '🐢 Aquatic turtle', secWhy: 'Reinforces Water energy and longevity symbolism',
+        secStory: 'In Chinese-Mayan tradition the water turtle is one of the four sacred guardians (dragon-phoenix-tortoise-unicorn) — a 10,000-year life in the water world. It is the prototype of depth and ceaseless flow.',
+        care: 'Water has power: change your tank\'s water on Mondays — recharges both you and the fish'
+    },
+};
+const ADDON_COMPANIONS_BY_ELEMENT_EN = {
+    'ไม้': {
+        creature: '🐉 Jade Dragon',
+        creatureDesc: 'The jade dragon is the Wood-element totem — wisdom, compassion, protection',
+        creatureStory: 'In the Forbidden City, the jade dragon ruled spring and the eastern direction — one of four sacred beasts (dragon, phoenix, tortoise, tiger) guarding the four corners of the world. Asian dragons are not the western beast to be slain but the bringer of rain and abundance. Wood people connecting with the jade dragon are tapping growth on an imperial scale.',
+        mantra: 'ॐ शक्राय नमः — chant 108 times on Thursday to amplify Wood',
+        places: 'Forest temples · botanical gardens · high mountains · Japanese bamboo groves',
+        music: 'Nature music · bamboo flute · forest sounds · Celtic harp',
+        crystal: 'Emerald · Jade · Green Aventurine — under your pillow or in your pocket',
+        color: 'Green #2d6a4f · soft blue #90e0ef'
+    },
+    'ไฟ': {
+        creature: '🦁 Solar Lion',
+        creatureDesc: 'The solar lion — courage, energy, leadership',
+        creatureStory: 'The lion symbolises Ra, Sekhmet, and Narasimha (avatar of Vishnu) — every culture uses the lion to mean "highest power, controlled." Egypt\'s Sekhmet is lion-headed: goddess of war and of healing both — a reminder that the fire that creates is the same that destroys. Fire people who choose Solar Lion as a spirit guide learn to use power in regal calm, not feral heat.',
+        mantra: 'ॐ सूर्याय नमः — chant at sunrise facing the sun to amplify Fire',
+        places: 'Deserts · volcanoes · sun-facing temples · evening beaches',
+        music: 'African drumming · epic orchestral · rock & soul',
+        crystal: 'Ruby · Red Jasper · Carnelian — wear as ring or pendant',
+        color: 'Red #c62828 · gold #f9a825 · orange #e65100'
+    },
+    'ดิน': {
+        creature: '🦬 Buffalo Spirit',
+        creatureDesc: 'Buffalo: abundance, strength, the steadiness of the earth',
+        creatureStory: 'The Lakota tradition tells of White Buffalo Calf Woman who brought the sacred pipe and seven rites to her people — the moment spirit "descended" to earth. In Thai-Lao culture the buffalo has tilled the rice paddies for thousands of years — the symbol of "quiet labour that feeds the whole nation." Buffalo Spirit teaches Earth people to wield power silently, without display.',
+        mantra: 'ॐ भूम्यै नमः — chant at evening with bare feet on soil',
+        places: 'Rice fields · farms · caves · agricultural land · grounded places',
+        music: 'Folk music · drum circle · earthly sounds · world music',
+        crystal: 'Jade · Tiger Eye · Smoky Quartz — place on your work desk',
+        color: 'Earth yellow #f9a825 · brown #4e342e · olive green'
+    },
+    'โลหะ': {
+        creature: '🦅 White Eagle',
+        creatureDesc: 'White eagle — wisdom, clarity, far-sight',
+        creatureStory: 'Across cultures, the eagle is the only animal said to stare into the sun without going blind — the symbol of the one who sees truth straight on. In India, Garuda is Vishnu\'s mount; in Greece, the eagle is Zeus\'s messenger; in Native American lore a fallen eagle feather is a gift from ancestral spirits. Metal people connect with White Eagle to learn altitude — seeing the big picture without losing themselves in detail.',
+        mantra: 'ॐ ब्रह्मणे नमः — chant Friday at dawn to amplify Metal',
+        places: 'Mountain peaks · monuments · stone temples · fortresses',
+        music: 'Classical · opera · Tibetan bowls · architectural music',
+        crystal: 'Clear quartz · White Topaz · Diamond (lab) — wear as pendant',
+        color: 'White · silver · grey · gold #ffd700'
+    },
+    'น้ำ': {
+        creature: '🐬 Dolphin Spirit',
+        creatureDesc: 'Dolphin: wisdom, depth, communication, cosmic connection',
+        creatureStory: 'The ancient Greeks believed dolphins were human souls returning in new form. Dionysus turned the pirates who kidnapped him into dolphins — punishment as a second chance, not destruction. Modern science confirms dolphins have signature whistles (their own names), learn other species\' languages, and instinctively rescue drowning humans. Water people who connect to Dolphin Spirit develop empathy across distance — they know who needs help before words are spoken.',
+        mantra: 'ॐ गङ्गायै नमः — chant near water or in a warm bath on Monday',
+        places: 'Ocean · rivers · waterfalls · bays · sacred springs',
+        music: 'Ambient ocean · whale songs · New Age · piano nocturnes',
+        crystal: 'Sapphire · Aquamarine · Moonstone — wear close to body always',
+        color: 'Navy #1565c0 · black · silver · water purple'
+    },
+};
+const ADDON_EXERCISE_BY_ELEMENT_EN = {
+    'ไม้': { sports: ['Yoga and stretching', 'Pilates', 'Climbing / bouldering', 'Light swimming', 'Tai chi and qigong'], bestTime: '06:00–08:00 · sunrise hours', avoid: 'Boxing or contact sports — they drain Wood', note: 'Wood loves smooth, consistent movement connected to nature — train outdoors in a garden or forest' },
+    'ไฟ': { sports: ['HIIT / Crossfit', 'Sprint running', 'Kickboxing / Muay Thai', 'Active cycling', 'Team sports'], bestTime: '10:00–12:00 · late afternoon', avoid: 'Slow solo sports — Fire needs high output', note: 'Fire loves intensity, high burn, and competition — recharge from the sun while training' },
+    'ดิน': { sports: ['Hiking and trekking', 'Weight training', 'Farming and gardening', 'Tai chi', 'Folk dance'], bestTime: '16:00–18:00 · sunset hours', avoid: 'Fast unpredictable sports — Earth wants firm routine', note: 'Earth loves grounded, strength-building movement that connects to soil — go barefoot on the earth' },
+    'โลหะ': { sports: ['Gymnastics', 'Archery / shooting', 'Golf', 'Disciplined martial arts (Kendo, Fencing)', 'Lap swimming'], bestTime: '07:00–09:00 · or 17:00–19:00', avoid: 'Disorderly sports — Metal needs precision and system', note: 'Metal loves precision, discipline, and high focus — train in a clean, orderly space' },
+    'น้ำ': { sports: ['Swimming', 'Surf / diving', 'Aqua yoga', 'Long solo travel', 'Meditation + Qi Gong'], bestTime: '07:00–08:00 · or 21:00–22:00 (moon hours)', avoid: 'Chaotic team sports — Water wants focus and quiet', note: 'Water loves smooth flow and connection to water or moon — train near water when possible' },
+};
+const ADDON_FOOD_BY_ELEMENT_EN = {
+    'ไม้': { eat: ['Dark leafy greens (spinach, lettuce)', 'Whole grains (oats, quinoa)', 'Soy and tofu', 'Sour fruit (lemon, kiwi)', 'Olive oil / avocado oil'], avoid: ['Heavy spicy food', 'Excess red meat', 'Greasy fried food'], flavor: 'Sour · bitter (supports the liver, the Wood organ)', timing: 'Big meals at breakfast and lunch · stop after 20:00', supplement: 'Chlorophyll · Spirulina · B-complex' },
+    'ไฟ': { eat: ['High protein (chicken, salmon)', 'Sweet red fruit (strawberries)', 'Bell peppers', 'Red beans', 'Whole-grain cereals'], avoid: ['Very cold food', 'Too much ice cream', 'Raw food at dinner'], flavor: 'Bitter · slightly sour (supports the heart, the Fire organ)', timing: 'Heavy meals at peak energy · avoid extreme intermittent fasting', supplement: 'CoQ10 · Iron · Vitamin B12' },
+    'ดิน': { eat: ['Root vegetables (potato, carrot, daikon)', 'Brown rice', 'Pumpkin', 'Mixed grains', 'Turmeric and ginger'], avoid: ['Cold and raw food', 'Excess white sugar', 'Strong coffee'], flavor: 'Sweet · mild (supports spleen and stomach, the Earth organs)', timing: 'Eat at consistent times · never skip meals', supplement: 'Probiotics · Fiber · Vitamin D' },
+    'โลหะ': { eat: ['Seafood (white fish, shellfish)', 'Daikon · taro', 'Pear · apple', 'Chicken and turkey', 'White beans'], avoid: ['Greasy heavy food', 'Excess red meat', 'Habitual very-spicy food'], flavor: 'Pungent · spicy (supports the lungs, the Metal organ)', timing: 'Small frequent meals · prioritise clean, pure food', supplement: 'Vitamin C · Zinc · Magnesium' },
+    'น้ำ': { eat: ['Fish and seafood', 'Dark fruit (blueberry, grape)', 'Black beans', 'Seaweed · kelp', 'Lots of water (3L/day)'], avoid: ['Very salty food', 'Excess alcohol', 'Dry crispy food'], flavor: 'Salty (supports the kidneys, the Water organ) · in moderation', timing: 'Eat slowly, chew thoroughly · listen for true hunger cues', supplement: 'Omega-3 · Potassium · Vitamin B6' },
+};
+const ADDON_FOOD_DASHA_ADJUST_EN = {
+    'พฤหัสฯ': 'Add turmeric · yellow foods · expand Jupiter energy',
+    'เสาร์': 'Reduce sugar · add fiber · smaller more frequent meals',
+    'อาทิตย์': 'Fully fresh food · Vitamin D from morning sunlight',
+    'จันทร์': 'Drink more water · moist food · avoid spicy',
+    'อังคาร': 'High protein · Iron · support metabolism',
+    'พุธ': 'Brain food · Omega-3 · nuts and seeds',
+    'ศุกร์': 'Beautiful food · sweet fruit · enjoy the experience',
+    'ราหู': 'Regular detox · cut processed · raw and fresh',
+    'เคตุ': 'Weekly fasts · keep precepts / no meat on Fridays',
+    Jupiter: 'Add turmeric · yellow foods · expand Jupiter energy',
+    Saturn: 'Reduce sugar · add fiber · smaller more frequent meals',
+    Sun: 'Fully fresh food · Vitamin D from morning sunlight',
+    Moon: 'Drink more water · moist food · avoid spicy',
+    Mars: 'High protein · Iron · support metabolism',
+    Mercury: 'Brain food · Omega-3 · nuts and seeds',
+    Venus: 'Beautiful food · sweet fruit · enjoy the experience',
+    Rahu: 'Regular detox · cut processed · raw and fresh',
+    Ketu: 'Weekly fasts · keep precepts / no meat on Fridays',
+};
+const ADDON_PRODUCT_BY_ELEMENT_EN = {
+    'ไม้': {
+        archetype: '🌿 Organic Seeker',
+        youAreLike: 'You\'re like <strong>the great tree in an Aesop yoga garden</strong> — alive, tactile, never shouting, yet charging the room with energy. People look your way without you trying — like Muji or Patagonia: no sharp logo, but everyone remembers.',
+        archetypeWhy: 'Your Wood element favours "quiet growth" — not flash-bang, but the patient organic accumulation that becomes a forest, never a single show-off tree.',
+        colors: 'Green #2d6a4f · soft blue · mint · natural white',
+        materials: 'Wood · organic cotton · bamboo · natural leather · linen',
+        style: 'Japandi / Wabi-sabi · Scandinavian · natural style',
+        boost: ['Natural-leather green bag', 'Wooden watch', 'Houseplants (Monstera / Pothos)', 'Luxury plant mister'],
+        avoid: ['Bright red · gaudy plastic items'],
+        aesthetic: 'Minimal · organic · no busy patterns',
+        brands: 'Muji · Aesop · Patagonia · The Body Shop'
+    },
+    'ไฟ': {
+        archetype: '🔥 Statement Maker',
+        youAreLike: 'You\'re like <strong>red Gucci shoes in a room of all-white sneakers</strong> — not because you crave attention, but because you were born to be the moment. You\'re the curator of fun, the host who makes a night memorable. Versace · Balenciaga · Nike Limited Edition flow into you naturally.',
+        archetypeWhy: 'Your Fire element favours "light and energy" — attention is fuel, not vanity. Flash isn\'t indulgence, it\'s how you metabolise.',
+        colors: 'Red #c62828 · orange · gold · vivid yellow',
+        materials: 'Metal · red leather · velvet · warm linen',
+        style: 'Bold & Dramatic · Art Deco · Maximalist Chic',
+        boost: ['Red sneakers', 'Gold watch', 'Statement leather bag', 'Wood-and-orange scented candle'],
+        avoid: ['Cool blues · overly plain design'],
+        aesthetic: 'Striking · bold · eye-magnetic',
+        brands: 'Gucci · Versace · Balenciaga · Nike (Limited)'
+    },
+    'ดิน': {
+        archetype: '🌍 Artisan Host',
+        youAreLike: 'You\'re like <strong>artisan ceramic drip coffee people drive across town for</strong> — not because it\'s expensive or fancy, but because there\'s soul in every piece. Loewe handcrafted bag · Marimekko woven print · Eileen Fisher tee that feels like home. You\'re the brand built by hand, not by factory.',
+        archetypeWhy: 'Your Earth element favours "deep roots — others before self." You don\'t want wow, you want right. Every piece must feel fitted, warm, comforting.',
+        colors: 'Earth yellow · brown · cream · olive green',
+        materials: 'Ceramic · handwoven cloth · skin-tone leather · clay · natural stone',
+        style: 'Rustic · Artisan · Slow fashion · Handmade',
+        boost: ['Artisan ceramic drip kit', 'Handwoven tote', 'Clay incense burner', 'Hand-loomed throw'],
+        avoid: ['Cold-design tech · too much metal'],
+        aesthetic: 'Cozy · warm · handcrafted · the touch of human hands',
+        brands: 'Loewe · Eileen Fisher · Marimekko · Local artisan'
+    },
+    'โลหะ': {
+        archetype: '⚔️ Precision Architect',
+        youAreLike: 'You\'re like <strong>a Montblanc pen on a clean desk</strong> — nothing extra, every line for a reason; words gain weight from the instrument. Apple Store · Bang & Olufsen · Aesop — the brands you favour don\'t boast, their precision speaks: "the user knows what they\'re doing."',
+        archetypeWhy: 'Your Metal element favours "order and standard" — not minimalist out of laziness, but because excess equals noise that blocks thinking. You want tools that pull their own weight.',
+        colors: 'White · silver · grey · glossy black',
+        materials: 'Stainless steel · glass · glossy leather · clear acrylic',
+        style: 'Minimalist · Precision · Tech Luxury · Clean lines',
+        boost: ['Apple products in white/silver', 'Stainless watch', 'Structured bag in white/grey', 'Premium pen'],
+        avoid: ['Loud patterns · multiple colours in one piece'],
+        aesthetic: 'Sharp · precise · flawless · luxury without showing off',
+        brands: 'Apple · Montblanc · Aesop · Bang & Olufsen'
+    },
+    'น้ำ': {
+        archetype: '🌊 Nocturnal Aesthete',
+        youAreLike: 'You\'re like <strong>a navy-bottle of Oud perfume on a black-wood vanity</strong> — a scent that doesn\'t announce itself, yet everyone passing turns. Vintage Chanel still selling · Rick Owens in black-and-silver · Maison Margiela tabi boots — you\'re neither minimal nor loud; you\'re "dark luxury" that asks to be decoded.',
+        archetypeWhy: 'Your Water element favours "depth and mystery" — what you choose doesn\'t reveal everything at first sight. There are layers to slowly unwrap; those who get it, get it deeply.',
+        colors: 'Deep navy · black · silver · water purple',
+        materials: 'Silk · satin · smooth leather · glass',
+        style: 'Mysterious · Elegant · Dark Luxury · Understated',
+        boost: ['Navy leather bag', 'Oud / aquatic fragrance', 'Dark silk shawl', 'Silver belt buckle'],
+        avoid: ['Bright colours · sweet patterns'],
+        aesthetic: 'Mysterious · graceful · intense · never superficial',
+        brands: 'Chanel · Dior · Maison Margiela · Rick Owens'
+    },
+};
 // Resolver: given a chart's element, score tier, and current Mahadasha,
 // return all 7 add-on content blocks. Kept deterministic so offline output
 // matches online AI-generated shape.
 function calcAddons(dmEl, tier, dasha) {
-    const safe = (dict) => dict[dmEl] || dict['ไม้'];
+    const isEn = _reportLang === 'en';
+    const pick = (th, en) => (isEn ? en : th)[dmEl] || (isEn ? en : th)['ไม้'];
     return {
         mirror: {
-            ...safe(ADDON_MIRROR_BY_ELEMENT),
-            cosmic: ADDON_COSMIC_BY_TIER[tier] || ADDON_COSMIC_BY_TIER['Resonant'],
+            ...pick(ADDON_MIRROR_BY_ELEMENT, ADDON_MIRROR_BY_ELEMENT_EN),
+            cosmic: (isEn ? ADDON_COSMIC_BY_TIER_EN : ADDON_COSMIC_BY_TIER)[tier]
+                || (isEn ? ADDON_COSMIC_BY_TIER_EN : ADDON_COSMIC_BY_TIER)['Resonant'],
             element: dmEl,
             tier,
         },
-        compat: { ...safe(ADDON_COMPAT_BY_ELEMENT), element: dmEl },
-        pet: { ...safe(ADDON_PET_BY_ELEMENT), element: dmEl },
-        companions: { ...safe(ADDON_COMPANIONS_BY_ELEMENT), element: dmEl },
-        exercise: { ...safe(ADDON_EXERCISE_BY_ELEMENT), element: dmEl },
+        compat: { ...pick(ADDON_COMPAT_BY_ELEMENT, ADDON_COMPAT_BY_ELEMENT_EN), element: dmEl },
+        pet: { ...pick(ADDON_PET_BY_ELEMENT, ADDON_PET_BY_ELEMENT_EN), element: dmEl },
+        companions: { ...pick(ADDON_COMPANIONS_BY_ELEMENT, ADDON_COMPANIONS_BY_ELEMENT_EN), element: dmEl },
+        exercise: { ...pick(ADDON_EXERCISE_BY_ELEMENT, ADDON_EXERCISE_BY_ELEMENT_EN), element: dmEl },
         food: {
-            ...safe(ADDON_FOOD_BY_ELEMENT),
+            ...pick(ADDON_FOOD_BY_ELEMENT, ADDON_FOOD_BY_ELEMENT_EN),
             element: dmEl,
             dasha: dasha || '',
-            dashaAdjust: (dasha && ADDON_FOOD_DASHA_ADJUST[dasha]) || 'สมดุลตามธาตุหลัก',
+            dashaAdjust: (dasha && (isEn ? ADDON_FOOD_DASHA_ADJUST_EN : ADDON_FOOD_DASHA_ADJUST)[dasha])
+                || (isEn ? 'balanced for primary element' : 'สมดุลตามธาตุหลัก'),
         },
-        product: { ...safe(ADDON_PRODUCT_BY_ELEMENT), element: dmEl },
+        product: { ...pick(ADDON_PRODUCT_BY_ELEMENT, ADDON_PRODUCT_BY_ELEMENT_EN), element: dmEl },
     };
 }
 function calculate(d) {
@@ -1687,15 +2145,15 @@ function calcSaju(d) {
         monthPillar: `${KO_STEMS[mp.stem] ?? mp.stem}${KO_BRANCHES[mp.branch] ?? mp.branch}`,
         dayPillar: `${KO_STEMS[dp.stem] ?? dp.stem}${KO_BRANCHES[dp.branch] ?? dp.branch}`,
         hourPillar: `${KO_STEMS[hp_val.stem] ?? hp_val.stem}${KO_BRANCHES[hp_val.branch] ?? hp_val.branch}`,
-        sajuElement: dmEl, kwarsal,
+        sajuElement: pEl(dmEl), kwarsal,
         dominantEnergy: _reportLang === 'en'
             ? (feeds ? '생조 — month feeds the day' : same ? '비겁 — same energy' : '극 — pressure')
             : (feeds ? '생조 — เดือนหนุนวัน' : same ? '비겁 — พลังงานเดียวกัน' : '극 — แรงกดดัน'),
         score,
         reading: (() => {
             const isEn = _reportLang === 'en';
-            const elEn = (dmEl === 'ไฟ' ? 'Fire' : dmEl === 'ไม้' ? 'Wood' : dmEl === 'น้ำ' ? 'Water' : dmEl === 'โลหะ' ? 'Metal' : 'Earth');
-            const monthElEn = (monthEl === 'ไฟ' ? 'Fire' : monthEl === 'ไม้' ? 'Wood' : monthEl === 'น้ำ' ? 'Water' : monthEl === 'โลหะ' ? 'Metal' : 'Earth');
+            const elEn = tEl(dmEl);
+            const monthElEn = tEl(monthEl);
             if (!isEn) {
                 return [
                     `<div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">ดวงเกาหลี (Saju · 사주) · <span style="color:#9a8a72;letter-spacing:1px">Saju · Korean Four Pillars</span></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px"><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">เกาหลี (รากจาก BaZi จีน)</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">อายุ</span><br><strong style="color:#d4aa50">~ 700 ปี</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ความนิยม</span><br><strong style="color:#d4aa50">คนเกาหลียังใช้จริงในการแต่งงาน · K-drama หยิบไปพูดถึงบ่อย</strong></div></div><div style="margin-top:10px;padding-top:10px;border-top:1px solid #2a2545"><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">จุดเด่น</span><br><span style="color:#e0d0b0">เน้นเสาวันเป็นศูนย์กลาง · ใช้ดู "궁합" (ความเข้ากันของคู่)</span></div></div>`,
@@ -1802,8 +2260,10 @@ function buildRichReading(args) {
 // ── TIBETAN ASTROLOGY (Mewa & Parkha) ─────────────────────────
 function calcTibetan(d) {
     const MEWA_NAMES = ['', 'น้ำขาว', 'ดินดำ', 'ไม้เขียว', 'ไม้เขียว', 'ดินเหลือง', 'โลหะขาว', 'โลหะแดง', 'ดินขาว', 'ไฟม่วง'];
+    const MEWA_NAMES_EN = ['', 'White Water', 'Black Earth', 'Green Wood', 'Green Wood', 'Yellow Earth', 'White Metal', 'Red Metal', 'White Earth', 'Purple Fire'];
     const MEWA_EL = ['', 'น้ำ', 'ดิน', 'ไม้', 'ไม้', 'ดิน', 'โลหะ', 'โลหะ', 'ดิน', 'ไฟ'];
     const MEWA_QUALITY = ['', 'สมดุล', 'ท้าทาย', 'เติบโต', 'เสริม', 'ท้าทายมาก', 'มั่นคง', 'กล้าหาญ', 'เข้มแข็ง', 'รุ่งเรือง'];
+    const MEWA_QUALITY_EN = ['', 'Balanced', 'Challenging', 'Growth', 'Supportive', 'Highly challenging', 'Stable', 'Courageous', 'Strong', 'Flourishing'];
     const MEWA_QUALITY_SCORE = [0, 700, 580, 730, 720, 560, 750, 720, 760, 800];
     // Mewa: birth year mewa (counting backwards from 9)
     const adjYear = (d.month < 2 || (d.month === 2 && d.day < 4)) ? d.year - 1 : d.year;
@@ -1812,14 +2272,15 @@ function calcTibetan(d) {
     const PARKHA = ['Khen', 'Zin', 'Kham', 'Zon', 'Khy', 'Dha', 'Gin', 'Li'];
     const PARKHA_EL = ['โลหะ', 'ดิน', 'ดิน', 'ไม้', 'ไม้', 'น้ำ', 'ไฟ', 'ไฟ'];
     const PARKHA_NAMES = ['Khen (ฟ้า)', 'Zin (ดิน)', 'Kham (น้ำ)', 'Zon (สายฟ้า)', 'Khy (ลม)', 'Dha (ทะเล)', 'Gin (ภูเขา)', 'Li (ไฟ)'];
+    const PARKHA_NAMES_EN = ['Khen (Heaven)', 'Zin (Earth)', 'Kham (Water)', 'Zon (Thunder)', 'Khy (Wind)', 'Dha (Lake)', 'Gin (Mountain)', 'Li (Fire)'];
     const parkhaIdx = ((adjYear - 1) % 8 + 8) % 8;
     const baseScore = MEWA_QUALITY_SCORE[mewa] ?? 700;
     const variation = (d.day * 3 + d.month * 7) % 80 - 40;
     const score = Math.max(420, Math.min(950, baseScore + variation));
     return {
-        mewa, mewaName: `Mewa ${mewa} — ${MEWA_NAMES[mewa]}`, mewaElement: MEWA_EL[mewa],
-        mewaQuality: MEWA_QUALITY[mewa],
-        parkha: PARKHA[parkhaIdx], parkhaElement: PARKHA_EL[parkhaIdx], parkhaName: PARKHA_NAMES[parkhaIdx],
+        mewa, mewaName: `Mewa ${mewa} — ${tPick(MEWA_NAMES[mewa], MEWA_NAMES_EN[mewa])}`, mewaElement: pEl(MEWA_EL[mewa]),
+        mewaQuality: tPick(MEWA_QUALITY[mewa], MEWA_QUALITY_EN[mewa]),
+        parkha: PARKHA[parkhaIdx], parkhaElement: pEl(PARKHA_EL[parkhaIdx]), parkhaName: tPick(PARKHA_NAMES[parkhaIdx], PARKHA_NAMES_EN[parkhaIdx]),
         score,
         reading: buildRichReading({
             sysTh: 'โหราศาสตร์ทิเบต (Mewa & Parkha)',
@@ -1836,13 +2297,13 @@ function calcTibetan(d) {
             keyValue: `Mewa ${mewa} (${MEWA_NAMES[mewa]}) · Parkha ${PARKHA_NAMES[parkhaIdx]}`,
             keyValueEn: `Mewa ${mewa} (${MEWA_NAMES[mewa]}) · Parkha ${PARKHA[parkhaIdx]}`,
             keyValueMeaning: `Mewa ${mewa} คือจัตุรัสเวทมนตร์ที่คุณเกิดในรอบของมัน — ธาตุหลักคือ <strong>${MEWA_EL[mewa]}</strong> และคุณภาพพลังงานปีเป็น <strong>${MEWA_QUALITY[mewa]}</strong> Parkha ของคุณคือ ${PARKHA_NAMES[parkhaIdx]} ซึ่งเพิ่มชั้นที่สองของความหมาย — ปรัชญาทิเบตเชื่อว่า Mewa บอก "ดินที่คุณปลูก" ในขณะที่ Parkha บอก "ลมที่พัดผ่านคุณ"`,
-            keyValueMeaningEn: `Mewa ${mewa} is the magic-grid square you were born into. Your primary element is <strong>${MEWA_EL[mewa] === 'ไฟ' ? 'Fire' : MEWA_EL[mewa] === 'น้ำ' ? 'Water' : MEWA_EL[mewa] === 'ไม้' ? 'Wood' : MEWA_EL[mewa] === 'โลหะ' ? 'Metal' : 'Earth'}</strong>; the year-energy quality is <strong>${MEWA_QUALITY[mewa] === 'สมดุล' ? 'balance' : MEWA_QUALITY[mewa] === 'ท้าทาย' ? 'challenge' : MEWA_QUALITY[mewa] === 'เติบโต' ? 'growth' : MEWA_QUALITY[mewa] === 'เสริม' ? 'support' : MEWA_QUALITY[mewa] === 'ท้าทายมาก' ? 'high challenge' : MEWA_QUALITY[mewa] === 'มั่นคง' ? 'stability' : MEWA_QUALITY[mewa] === 'กล้าหาญ' ? 'courage' : MEWA_QUALITY[mewa] === 'เข้มแข็ง' ? 'strength' : 'flourishing'}</strong>. Your Parkha is ${PARKHA[parkhaIdx]} (${PARKHA_NAMES[parkhaIdx].split('(')[1]?.replace(')', '') || ''}), adding a second layer of meaning. Tibetan philosophy says Mewa tells you the "soil you grow in" while Parkha tells you the "wind that blows through you".`,
+            keyValueMeaningEn: `Mewa ${mewa} is the magic-grid square you were born into. Your primary element is <strong>${tEl(MEWA_EL[mewa])}</strong>; the year-energy quality is <strong>${MEWA_QUALITY[mewa] === 'สมดุล' ? 'balance' : MEWA_QUALITY[mewa] === 'ท้าทาย' ? 'challenge' : MEWA_QUALITY[mewa] === 'เติบโต' ? 'growth' : MEWA_QUALITY[mewa] === 'เสริม' ? 'support' : MEWA_QUALITY[mewa] === 'ท้าทายมาก' ? 'high challenge' : MEWA_QUALITY[mewa] === 'มั่นคง' ? 'stability' : MEWA_QUALITY[mewa] === 'กล้าหาญ' ? 'courage' : MEWA_QUALITY[mewa] === 'เข้มแข็ง' ? 'strength' : 'flourishing'}</strong>. Your Parkha is ${PARKHA[parkhaIdx]} (${PARKHA_NAMES[parkhaIdx].split('(')[1]?.replace(')', '') || ''}), adding a second layer of meaning. Tibetan philosophy says Mewa tells you the "soil you grow in" while Parkha tells you the "wind that blows through you".`,
             strengthTh: `ด้วย Mewa ${mewa} ${MEWA_NAMES[mewa]} ${mewa === 9 ? 'คุณเป็น "ผู้ส่องสว่าง" ในสายทิเบต — มีพลังไฟและความเจริญรุ่งเรือง คนแบบ Mewa 9 มักเป็นผู้นำทางจิตวิญญาณ หรือศิลปินที่สร้างแรงบันดาลใจให้ผู้อื่นโดยธรรมชาติ' : mewa === 1 ? 'คุณเป็น "น้ำขาว" ที่ไหลลึกและสะท้อนแสง — มีปัญญาเข้าถึงข้อมูลที่ใช้เหตุผลอย่างเดียวอ่านไม่ได้' : mewa === 6 ? 'คุณเป็น "โลหะขาว" ในสายทิเบต — แข็งแกร่ง มีหลักการ เหมาะเป็นผู้พิพากษาหรือที่ปรึกษาอาวุโส' : mewa === 8 ? 'คุณเป็น "ดินขาว" ที่มั่นคงที่สุดใน 9 Mewa — คนแบบนี้สร้างฐานให้ครอบครัวและชุมชนไปหลายรุ่น' : 'คุณมีพลังธาตุ' + MEWA_EL[mewa] + 'เป็นฐานที่แข็งแรง — คนในทิเบตเชื่อว่ายิ่งคุณใช้ชีวิตสอดคล้องกับธาตุหลักของ Mewa ตัวเอง ชีวิตยิ่งราบรื่น'} ผสานกับ Parkha ${PARKHA_NAMES[parkhaIdx]} ทำให้คุณมีพรสวรรค์ด้าน${PARKHA_EL[parkhaIdx] === 'ไฟ' ? 'การจุดประกายและการแสดงออก' : PARKHA_EL[parkhaIdx] === 'น้ำ' ? 'การปรับตัวและการอ่านคน' : PARKHA_EL[parkhaIdx] === 'ไม้' ? 'การเติบโตอย่างมั่นคง' : PARKHA_EL[parkhaIdx] === 'ดิน' ? 'การบ่มเพาะและความอดทน' : 'การตัดสินใจเฉียบขาด'}`,
-            strengthEn: `With Mewa ${mewa} ${MEWA_NAMES[mewa]}, ${mewa === 9 ? 'you are an "illuminator" in the Tibetan tradition — fire energy and flourishing. Mewa 9 people often become spiritual leaders or artists who naturally inspire others' : mewa === 1 ? 'you are "White Water" — flowing deep and reflecting light. You have wisdom that reaches information pure reason can\'t access' : mewa === 6 ? 'you are "White Metal" in the Tibetan line — strong, principled, suited to judging or senior advisory roles' : mewa === 8 ? 'you are "White Earth" — the most stable of the 9 Mewa. People like you build foundations that serve family and community across generations' : 'you carry strong ' + (MEWA_EL[mewa] === 'ไฟ' ? 'Fire' : MEWA_EL[mewa] === 'น้ำ' ? 'Water' : MEWA_EL[mewa] === 'ไม้' ? 'Wood' : MEWA_EL[mewa] === 'โลหะ' ? 'Metal' : 'Earth') + ' element energy. Tibetans believe the more your life aligns with your Mewa\'s element, the smoother life flows'}. Combined with Parkha ${PARKHA[parkhaIdx]}, you carry a gift for ${PARKHA_EL[parkhaIdx] === 'ไฟ' ? 'igniting and self-expression' : PARKHA_EL[parkhaIdx] === 'น้ำ' ? 'adapting and reading people' : PARKHA_EL[parkhaIdx] === 'ไม้' ? 'steady growth' : PARKHA_EL[parkhaIdx] === 'ดิน' ? 'cultivation and patience' : 'sharp decision-making'}.`,
+            strengthEn: `With Mewa ${mewa} ${MEWA_NAMES[mewa]}, ${mewa === 9 ? 'you are an "illuminator" in the Tibetan tradition — fire energy and flourishing. Mewa 9 people often become spiritual leaders or artists who naturally inspire others' : mewa === 1 ? 'you are "White Water" — flowing deep and reflecting light. You have wisdom that reaches information pure reason can\'t access' : mewa === 6 ? 'you are "White Metal" in the Tibetan line — strong, principled, suited to judging or senior advisory roles' : mewa === 8 ? 'you are "White Earth" — the most stable of the 9 Mewa. People like you build foundations that serve family and community across generations' : 'you carry strong ' + (tEl(MEWA_EL[mewa])) + ' element energy. Tibetans believe the more your life aligns with your Mewa\'s element, the smoother life flows'}. Combined with Parkha ${PARKHA[parkhaIdx]}, you carry a gift for ${PARKHA_EL[parkhaIdx] === 'ไฟ' ? 'igniting and self-expression' : PARKHA_EL[parkhaIdx] === 'น้ำ' ? 'adapting and reading people' : PARKHA_EL[parkhaIdx] === 'ไม้' ? 'steady growth' : PARKHA_EL[parkhaIdx] === 'ดิน' ? 'cultivation and patience' : 'sharp decision-making'}.`,
             shadowTh: `ด้านมืดของ Mewa ${mewa} คือ${mewa === 5 ? '"ดินเหลือง" ซึ่งเป็นตำแหน่งกลางของ Lo Shu — พลังสูงสุดแต่ผันผวนที่สุด ต้องระวังอุบัติเหตุใหญ่และการตัดสินใจใต้อารมณ์ โหรทิเบตแนะนำให้บูชา Mañjuśrī ในปีที่รู้สึกผันผวน' : mewa === 2 ? '"ดินดำ" ซึ่งมีพลังท้าทายสูง — อาจเจอความสูญเสียที่เตรียมใจไม่ทัน โหรทิเบตแนะนำให้สวด Om Mani Padme Hum 108 จบเป็นประจำ' : 'การใช้พลังงานของ Mewa นี้ในทิศทางลบ — เมื่อธาตุ' + MEWA_EL[mewa] + 'แรงเกินไปโดยไม่มีธาตุเสริม จะกลายเป็นความเฉื่อยชา (ถ้าเป็นดิน) ความร้อนรุ่ม (ถ้าเป็นไฟ) ความโลเล (ถ้าเป็นน้ำ) ความแข็งกระด้าง (ถ้าเป็นโลหะ) หรือความหัวดื้อ (ถ้าเป็นไม้)'}`,
-            shadowEn: `The shadow of Mewa ${mewa} is ${mewa === 5 ? '"Yellow Earth" — the centre of the Lo Shu grid. Highest power, but the most volatile. Watch for major accidents and emotional decisions. Tibetan astrologers prescribe devotion to Mañjuśrī in volatile years' : mewa === 2 ? '"Black Earth" — high challenge energy. You may face unexpected loss. Lamas prescribe chanting Om Mani Padme Hum 108 times daily' : 'using this Mewa\'s energy in the wrong direction — when the ' + (MEWA_EL[mewa] === 'ไฟ' ? 'Fire' : MEWA_EL[mewa] === 'น้ำ' ? 'Water' : MEWA_EL[mewa] === 'ไม้' ? 'Wood' : MEWA_EL[mewa] === 'โลหะ' ? 'Metal' : 'Earth') + ' element runs unchecked, it becomes inertia (Earth), inflammation (Fire), wavering (Water), rigidity (Metal), or stubbornness (Wood)'}.`,
+            shadowEn: `The shadow of Mewa ${mewa} is ${mewa === 5 ? '"Yellow Earth" — the centre of the Lo Shu grid. Highest power, but the most volatile. Watch for major accidents and emotional decisions. Tibetan astrologers prescribe devotion to Mañjuśrī in volatile years' : mewa === 2 ? '"Black Earth" — high challenge energy. You may face unexpected loss. Lamas prescribe chanting Om Mani Padme Hum 108 times daily' : 'using this Mewa\'s energy in the wrong direction — when the ' + (tEl(MEWA_EL[mewa])) + ' element runs unchecked, it becomes inertia (Earth), inflammation (Fire), wavering (Water), rigidity (Metal), or stubbornness (Wood)'}.`,
             practiceTh: `การปฏิบัติที่พระลามะใช้จริง: (1) ตื่นเช้าสวด <em>Om Mani Padme Hum</em> 108 จบ เพื่อเปิด Parkha (2) ใน${mewa === 9 ? 'วันพุธและวันอาทิตย์' : mewa === 1 ? 'วันจันทร์และวันพุธ' : mewa === 6 || mewa === 7 ? 'วันศุกร์และวันเสาร์' : 'วันพฤหัสและวันเสาร์'} เป็นวันที่ ${MEWA_EL[mewa]}ของคุณแรงที่สุด ใช้วันเหล่านี้ตัดสินใจเรื่องสำคัญ (3) พกหินหรือสีที่ตรงกับธาตุ${MEWA_EL[mewa]}ไว้ใกล้ตัว — ${MEWA_EL[mewa] === 'ไฟ' ? 'ทับทิม โกเมน สีแดงม่วง' : MEWA_EL[mewa] === 'น้ำ' ? 'แอคความารีน มูนสโตน สีน้ำเงินเข้ม' : MEWA_EL[mewa] === 'ไม้' ? 'มรกต หยก สีเขียวสด' : MEWA_EL[mewa] === 'โลหะ' ? 'ควอตซ์ใส มุก สีขาวเงิน' : 'ซิทริน อำพัน สีเหลืองทอง'}`,
-            practiceEn: `Practices lamas actually use: (1) Wake and chant <em>Om Mani Padme Hum</em> 108 times to open the Parkha. (2) On ${mewa === 9 ? 'Wednesdays and Sundays' : mewa === 1 ? 'Mondays and Wednesdays' : mewa === 6 || mewa === 7 ? 'Fridays and Saturdays' : 'Thursdays and Saturdays'} your ${MEWA_EL[mewa] === 'ไฟ' ? 'Fire' : MEWA_EL[mewa] === 'น้ำ' ? 'Water' : MEWA_EL[mewa] === 'ไม้' ? 'Wood' : MEWA_EL[mewa] === 'โลหะ' ? 'Metal' : 'Earth'} energy is strongest — make important decisions on these days. (3) Carry stones or wear colours matched to your element — ${MEWA_EL[mewa] === 'ไฟ' ? 'Ruby, Garnet, deep red-violet' : MEWA_EL[mewa] === 'น้ำ' ? 'Aquamarine, Moonstone, deep blue' : MEWA_EL[mewa] === 'ไม้' ? 'Emerald, Jade, vivid green' : MEWA_EL[mewa] === 'โลหะ' ? 'Clear quartz, Pearl, silver-white' : 'Citrine, Amber, golden-yellow'}.`,
+            practiceEn: `Practices lamas actually use: (1) Wake and chant <em>Om Mani Padme Hum</em> 108 times to open the Parkha. (2) On ${mewa === 9 ? 'Wednesdays and Sundays' : mewa === 1 ? 'Mondays and Wednesdays' : mewa === 6 || mewa === 7 ? 'Fridays and Saturdays' : 'Thursdays and Saturdays'} your ${tEl(MEWA_EL[mewa])} energy is strongest — make important decisions on these days. (3) Carry stones or wear colours matched to your element — ${MEWA_EL[mewa] === 'ไฟ' ? 'Ruby, Garnet, deep red-violet' : MEWA_EL[mewa] === 'น้ำ' ? 'Aquamarine, Moonstone, deep blue' : MEWA_EL[mewa] === 'ไม้' ? 'Emerald, Jade, vivid green' : MEWA_EL[mewa] === 'โลหะ' ? 'Clear quartz, Pearl, silver-white' : 'Citrine, Amber, golden-yellow'}.`,
             currentYearTh: `ปี 2026 (ในปฏิทินทิเบต คือปีม้าไฟ) — ${MEWA_EL[mewa] === 'ไฟ' || MEWA_EL[mewa] === 'ดิน' ? 'ปีนี้จะหล่อเลี้ยงพลัง Mewa ของคุณ เหมาะสำหรับการก้าวไปข้างหน้าและการริเริ่ม' : MEWA_EL[mewa] === 'น้ำ' || MEWA_EL[mewa] === 'โลหะ' ? 'ปีนี้ท้าทายสำหรับ Mewa ของคุณ ควรโฟกัสที่การรักษาและการเรียนรู้ มากกว่าการขยาย' : 'ปีนี้ให้พลังสมดุล — ใช้ได้ทั้งรุกและรับตามสถานการณ์'} พระลามะแนะนำให้จัดพิธีเล็กๆ ในวันเกิดปี 2026 ของคุณเพื่อ "ทบทวน Parkha" ก่อนเริ่มปีใหม่`,
             currentYearEn: `2026 (Year of the Fire Horse in the Tibetan calendar) — ${MEWA_EL[mewa] === 'ไฟ' || MEWA_EL[mewa] === 'ดิน' ? 'this year nourishes your Mewa. A good year for stepping forward and initiating' : MEWA_EL[mewa] === 'น้ำ' || MEWA_EL[mewa] === 'โลหะ' ? 'this year is challenging for your Mewa. Focus on preservation and learning rather than expansion' : 'a balanced year — works for both offence and defence depending on the situation'}. Lamas recommend a small ceremony on your 2026 birthday to "review the Parkha" before the year truly begins.`,
             closingTh: `โหราศาสตร์ทิเบตไม่ได้ทำนายอนาคต — มันแสดงให้เห็นว่า "สายน้ำของคาร์มาไหลไปทิศไหน" เพื่อให้คุณว่ายตามได้อย่างมีสติ`,
@@ -1854,19 +2315,20 @@ function calcTibetan(d) {
 function calcZiWei(d) {
     // Simplified: Zi Wei (Purple Star) palace determined by birth month + day
     const PALACES_TH = ['', 'ชีวิต (命宮)', 'สี่เหลี่ยม (兄弟)', 'สามี/ภรรยา (夫妻)', 'บุตร (子女)', 'คนในครอบครัว (財帛)', 'สุขภาพ (疾厄)', 'การเดินทาง (遷移)', 'เพื่อน (交友)', 'วิชาชีพ (官祿)', 'อสังหา (田宅)', 'โชคชะตา (福德)', 'พ่อแม่ (父母)'];
+    const PALACES_EN = ['', 'Life (命宮)', 'Siblings (兄弟)', 'Spouse (夫妻)', 'Children (子女)', 'Wealth (財帛)', 'Health (疾厄)', 'Travel (遷移)', 'Friends (交友)', 'Career (官祿)', 'Property (田宅)', 'Fortune (福德)', 'Parents (父母)'];
     const STAR_MAP = {
-        1: { star: '紫微', starTh: 'ดาวม่วงจักรพรรดิ', quality: 'นำโชคสูง', baseScore: 820 },
-        2: { star: '天機', starTh: 'ดาวปัญญา', quality: 'สติปัญญาและกลยุทธ', baseScore: 760 },
-        3: { star: '太陽', starTh: 'ดาวพระอาทิตย์', quality: 'ชื่อเสียงและอำนาจ', baseScore: 790 },
-        4: { star: '武曲', starTh: 'ดาวโลหะแกร่ง', quality: 'มั่งคั่งและกล้าหาญ', baseScore: 770 },
-        5: { star: '天同', starTh: 'ดาวสวรรค์สมดุล', quality: 'ความสุขและศิลปะ', baseScore: 740 },
-        6: { star: '廉貞', starTh: 'ดาวศักดิ์ศรี', quality: 'ความซื่อสัตย์', baseScore: 730 },
-        7: { star: '天府', starTh: 'ดาวคลังสมบัติ', quality: 'ความมั่งคั่งสะสม', baseScore: 800 },
-        8: { star: '太陰', starTh: 'ดาวพระจันทร์', quality: 'ความงามและสัญชาตญาณ', baseScore: 755 },
-        9: { star: '貪狼', starTh: 'ดาวหมาป่า', quality: 'ความปรารถนาและความเป็นเจ้า', baseScore: 720 },
-        10: { star: '巨門', starTh: 'ดาวประตูยักษ์', quality: 'ปากกล้าและสื่อสาร', baseScore: 700 },
-        11: { star: '天相', starTh: 'ดาวมนตรี', quality: 'ที่ปรึกษาผู้ดี', baseScore: 740 },
-        12: { star: '天梁', starTh: 'ดาวคานฟ้า', quality: 'กุศลและการช่วยเหลือ', baseScore: 750 },
+        1: { star: '紫微', starTh: 'ดาวม่วงจักรพรรดิ', starEn: 'Purple Emperor Star', quality: 'นำโชคสูง', qualityEn: 'High fortune', baseScore: 820 },
+        2: { star: '天機', starTh: 'ดาวปัญญา', starEn: 'Wisdom Star', quality: 'สติปัญญาและกลยุทธ', qualityEn: 'Intellect and strategy', baseScore: 760 },
+        3: { star: '太陽', starTh: 'ดาวพระอาทิตย์', starEn: 'Sun Star', quality: 'ชื่อเสียงและอำนาจ', qualityEn: 'Fame and authority', baseScore: 790 },
+        4: { star: '武曲', starTh: 'ดาวโลหะแกร่ง', starEn: 'Strong Metal Star', quality: 'มั่งคั่งและกล้าหาญ', qualityEn: 'Wealth and courage', baseScore: 770 },
+        5: { star: '天同', starTh: 'ดาวสวรรค์สมดุล', starEn: 'Heavenly Balance Star', quality: 'ความสุขและศิลปะ', qualityEn: 'Happiness and art', baseScore: 740 },
+        6: { star: '廉貞', starTh: 'ดาวศักดิ์ศรี', starEn: 'Honour Star', quality: 'ความซื่อสัตย์', qualityEn: 'Integrity', baseScore: 730 },
+        7: { star: '天府', starTh: 'ดาวคลังสมบัติ', starEn: 'Treasury Star', quality: 'ความมั่งคั่งสะสม', qualityEn: 'Accumulating wealth', baseScore: 800 },
+        8: { star: '太陰', starTh: 'ดาวพระจันทร์', starEn: 'Moon Star', quality: 'ความงามและสัญชาตญาณ', qualityEn: 'Beauty and intuition', baseScore: 755 },
+        9: { star: '貪狼', starTh: 'ดาวหมาป่า', starEn: 'Wolf Star', quality: 'ความปรารถนาและความเป็นเจ้า', qualityEn: 'Desire and ownership', baseScore: 720 },
+        10: { star: '巨門', starTh: 'ดาวประตูยักษ์', starEn: 'Giant Gate Star', quality: 'ปากกล้าและสื่อสาร', qualityEn: 'Bold speech and communication', baseScore: 700 },
+        11: { star: '天相', starTh: 'ดาวมนตรี', starEn: 'Minister Star', quality: 'ที่ปรึกษาผู้ดี', qualityEn: 'Noble counsel', baseScore: 740 },
+        12: { star: '天梁', starTh: 'ดาวคานฟ้า', starEn: 'Heaven Beam Star', quality: 'กุศลและการช่วยเหลือ', qualityEn: 'Charity and helping', baseScore: 750 },
     };
     // Life palace: birth month determines starting palace, day determines Zi Wei position
     const lifepalace = ((d.month * 2 + d.day) % 12) + 1;
@@ -1875,8 +2337,8 @@ function calcZiWei(d) {
     const variation = (d.year % 100 + d.hour * 3) % 60 - 30;
     const score = Math.max(420, Math.min(960, star.baseScore + variation));
     return {
-        lifepalace, lifePalaceName: PALACES_TH[lifepalace] ?? 'ชีวิต',
-        mainStar: star.star, mainStarTh: star.starTh, palaceQuality: star.quality,
+        lifepalace, lifePalaceName: tPick(PALACES_TH[lifepalace] ?? 'ชีวิต', PALACES_EN[lifepalace] ?? 'Life'),
+        mainStar: star.star, mainStarTh: tPick(star.starTh, star.starEn), palaceQuality: tPick(star.quality, star.qualityEn),
         score,
         reading: buildRichReading({
             sysTh: 'ซื่อเว่ย (紫微斗數)',
@@ -1964,8 +2426,12 @@ function calcHellenistic(d) {
     // Sect: daytime birth (6:00-18:00) = day sect; favors Sun, Jupiter, Saturn
     const isDaySect = d.hour >= 6 && d.hour < 18;
     const sect = isDaySect ? 'Day Sect' : 'Night Sect';
-    const sectTh = isDaySect ? 'เกิดกลางวัน — Sun/Jupiter/Saturn หนุน' : 'เกิดกลางคืน — Moon/Venus/Mars หนุน';
-    const trigonLord = isDaySect ? 'Jupiter (การขยายตัว)' : 'Venus (ความสัมพันธ์)';
+    const sectTh = isDaySect
+        ? tPick('เกิดกลางวัน — Sun/Jupiter/Saturn หนุน', 'Day birth — Sun/Jupiter/Saturn favoured')
+        : tPick('เกิดกลางคืน — Moon/Venus/Mars หนุน', 'Night birth — Moon/Venus/Mars favoured');
+    const trigonLord = isDaySect
+        ? tPick('Jupiter (การขยายตัว)', 'Jupiter (expansion)')
+        : tPick('Venus (ความสัมพันธ์)', 'Venus (relationships)');
     // Lot of Fortune: ASC + Moon - Sun (day) or ASC + Sun - Moon (night)
     // Use simplified: derive from birth data
     const ASC_DEG = (d.lat * 2 + d.hour * 15 + d.minute / 4) % 360;
@@ -2064,11 +2530,11 @@ function calcNorseRune(d) {
             originEn: 'The Elder Futhark are the magical letters of the Vikings and Germanic peoples — about 1,800 years old, used both as a writing system and as divination. Norse legend says Odin, chief god, "hung himself nine nights on the world-tree Yggdrasil" to receive the runes\' knowledge — so every rune is at once a letter, a power, and a god.',
             yearsOld: 1800,
             keyValue: `${rune.r} ${rune.n} (${rune.th}) · ธาตุ${rune.el}`,
-            keyValueEn: `${rune.r} ${rune.n} · ${rune.kw === 'ความมั่งคั่ง' ? 'wealth' : rune.kw === 'ความแข็งแกร่ง' ? 'strength' : rune.kw === 'ความท้าทาย' ? 'challenge' : rune.kw === 'ปัญญาและสาร' ? 'wisdom and message' : rune.kw === 'เส้นทางชีวิต' ? 'life journey' : rune.kw === 'ความรู้' ? 'knowledge' : rune.kw === 'การแลกเปลี่ยน' ? 'exchange' : rune.kw === 'ความสำเร็จ' ? 'success' : rune.kw === 'การเปลี่ยนแปลง' ? 'change' : rune.kw === 'การเอาชีวิตรอด' ? 'survival' : rune.kw === 'การหยุดนิ่ง' ? 'stillness' : rune.kw === 'รางวัลแห่งแรงงาน' ? 'reward of labour' : rune.kw === 'ความอดทน' ? 'endurance' : rune.kw === 'ลึกลับและโชค' ? 'mystery and luck' : rune.kw === 'การปกป้อง' ? 'protection' : rune.kw === 'ชัยชนะ' ? 'victory' : rune.kw === 'ความกล้าหาญ' ? 'courage' : rune.kw === 'การเกิดใหม่' ? 'rebirth' : rune.kw === 'การเดินทาง' ? 'travel' : rune.kw === 'ตัวตนและชุมชน' ? 'self and community' : rune.kw === 'ความรู้สึกลึก' ? 'deep feeling' : rune.kw === 'ศักยภาพ' ? 'potential' : rune.kw === 'การตื่นรู้' ? 'awakening' : 'heritage and roots'} · ${rune.el === 'ไฟ' ? 'Fire' : rune.el === 'น้ำ' ? 'Water' : rune.el === 'ดิน' ? 'Earth' : 'Air'} element`,
+            keyValueEn: `${rune.r} ${rune.n} · ${rune.kw === 'ความมั่งคั่ง' ? 'wealth' : rune.kw === 'ความแข็งแกร่ง' ? 'strength' : rune.kw === 'ความท้าทาย' ? 'challenge' : rune.kw === 'ปัญญาและสาร' ? 'wisdom and message' : rune.kw === 'เส้นทางชีวิต' ? 'life journey' : rune.kw === 'ความรู้' ? 'knowledge' : rune.kw === 'การแลกเปลี่ยน' ? 'exchange' : rune.kw === 'ความสำเร็จ' ? 'success' : rune.kw === 'การเปลี่ยนแปลง' ? 'change' : rune.kw === 'การเอาชีวิตรอด' ? 'survival' : rune.kw === 'การหยุดนิ่ง' ? 'stillness' : rune.kw === 'รางวัลแห่งแรงงาน' ? 'reward of labour' : rune.kw === 'ความอดทน' ? 'endurance' : rune.kw === 'ลึกลับและโชค' ? 'mystery and luck' : rune.kw === 'การปกป้อง' ? 'protection' : rune.kw === 'ชัยชนะ' ? 'victory' : rune.kw === 'ความกล้าหาญ' ? 'courage' : rune.kw === 'การเกิดใหม่' ? 'rebirth' : rune.kw === 'การเดินทาง' ? 'travel' : rune.kw === 'ตัวตนและชุมชน' ? 'self and community' : rune.kw === 'ความรู้สึกลึก' ? 'deep feeling' : rune.kw === 'ศักยภาพ' ? 'potential' : rune.kw === 'การตื่นรู้' ? 'awakening' : 'heritage and roots'} · ${tEl(rune.el)} element`,
             keyValueMeaning: `รูนประจำวันเกิดของคุณคือ <strong>${rune.r} ${rune.n}</strong> ซึ่งแปลว่า "${rune.th}" และเกี่ยวข้องกับคำสำคัญ <strong>${rune.kw}</strong> ธาตุหลักคือ${rune.el} — ในทฤษฎีรูน แต่ละรูนเชื่อมโยงกับ Ættir (แถว 8 รูน) หนึ่งใน 3 แถว ซึ่งปกครองโดยเทพ Freyja Heimdall หรือ Tyr รูน ${rune.n} ของคุณปกครองโดย${rune.n === 'Fehu' || rune.n === 'Uruz' || rune.n === 'Thurisaz' || rune.n === 'Ansuz' || rune.n === 'Raidho' || rune.n === 'Kenaz' || rune.n === 'Gebo' || rune.n === 'Wunjo' ? 'Freyja (เทพีความรักและความมั่งคั่ง)' : rune.n === 'Hagalaz' || rune.n === 'Nauthiz' || rune.n === 'Isa' || rune.n === 'Jera' || rune.n === 'Eihwaz' || rune.n === 'Perthro' || rune.n === 'Algiz' || rune.n === 'Sowilo' ? 'Heimdall (เทพเฝ้าสะพานสายรุ้ง)' : 'Tyr (เทพแห่งความยุติธรรมและการต่อสู้)'}`,
-            keyValueMeaningEn: `Your birth-day rune is <strong>${rune.r} ${rune.n}</strong> — its core keyword is <strong>${rune.kw === 'ความมั่งคั่ง' ? 'wealth' : rune.kw === 'ความแข็งแกร่ง' ? 'strength' : rune.kw === 'ความท้าทาย' ? 'challenge' : rune.kw === 'ปัญญาและสาร' ? 'wisdom and message' : rune.kw === 'เส้นทางชีวิต' ? 'life journey' : rune.kw === 'ความรู้' ? 'knowledge' : rune.kw === 'การแลกเปลี่ยน' ? 'exchange' : rune.kw === 'ความสำเร็จ' ? 'success' : rune.kw === 'การเปลี่ยนแปลง' ? 'change' : rune.kw === 'การเอาชีวิตรอด' ? 'survival' : rune.kw === 'การหยุดนิ่ง' ? 'stillness' : rune.kw === 'รางวัลแห่งแรงงาน' ? 'reward of labour' : rune.kw === 'ความอดทน' ? 'endurance' : rune.kw === 'ลึกลับและโชค' ? 'mystery and luck' : rune.kw === 'การปกป้อง' ? 'protection' : rune.kw === 'ชัยชนะ' ? 'victory' : rune.kw === 'ความกล้าหาญ' ? 'courage' : rune.kw === 'การเกิดใหม่' ? 'rebirth' : rune.kw === 'การเดินทาง' ? 'travel' : rune.kw === 'ตัวตนและชุมชน' ? 'self and community' : rune.kw === 'ความรู้สึกลึก' ? 'deep feeling' : rune.kw === 'ศักยภาพ' ? 'potential' : rune.kw === 'การตื่นรู้' ? 'awakening' : 'heritage and roots'}</strong>, primary element ${rune.el === 'ไฟ' ? 'Fire' : rune.el === 'น้ำ' ? 'Water' : rune.el === 'ดิน' ? 'Earth' : 'Air'}. In rune theory, each rune belongs to one of three Ættir (rows of 8) ruled by Freyja, Heimdall, or Tyr. Your ${rune.n} is ruled by ${rune.n === 'Fehu' || rune.n === 'Uruz' || rune.n === 'Thurisaz' || rune.n === 'Ansuz' || rune.n === 'Raidho' || rune.n === 'Kenaz' || rune.n === 'Gebo' || rune.n === 'Wunjo' ? 'Freyja (goddess of love and wealth)' : rune.n === 'Hagalaz' || rune.n === 'Nauthiz' || rune.n === 'Isa' || rune.n === 'Jera' || rune.n === 'Eihwaz' || rune.n === 'Perthro' || rune.n === 'Algiz' || rune.n === 'Sowilo' ? 'Heimdall (guardian of the rainbow bridge)' : 'Tyr (god of justice and battle)'}.`,
+            keyValueMeaningEn: `Your birth-day rune is <strong>${rune.r} ${rune.n}</strong> — its core keyword is <strong>${rune.kw === 'ความมั่งคั่ง' ? 'wealth' : rune.kw === 'ความแข็งแกร่ง' ? 'strength' : rune.kw === 'ความท้าทาย' ? 'challenge' : rune.kw === 'ปัญญาและสาร' ? 'wisdom and message' : rune.kw === 'เส้นทางชีวิต' ? 'life journey' : rune.kw === 'ความรู้' ? 'knowledge' : rune.kw === 'การแลกเปลี่ยน' ? 'exchange' : rune.kw === 'ความสำเร็จ' ? 'success' : rune.kw === 'การเปลี่ยนแปลง' ? 'change' : rune.kw === 'การเอาชีวิตรอด' ? 'survival' : rune.kw === 'การหยุดนิ่ง' ? 'stillness' : rune.kw === 'รางวัลแห่งแรงงาน' ? 'reward of labour' : rune.kw === 'ความอดทน' ? 'endurance' : rune.kw === 'ลึกลับและโชค' ? 'mystery and luck' : rune.kw === 'การปกป้อง' ? 'protection' : rune.kw === 'ชัยชนะ' ? 'victory' : rune.kw === 'ความกล้าหาญ' ? 'courage' : rune.kw === 'การเกิดใหม่' ? 'rebirth' : rune.kw === 'การเดินทาง' ? 'travel' : rune.kw === 'ตัวตนและชุมชน' ? 'self and community' : rune.kw === 'ความรู้สึกลึก' ? 'deep feeling' : rune.kw === 'ศักยภาพ' ? 'potential' : rune.kw === 'การตื่นรู้' ? 'awakening' : 'heritage and roots'}</strong>, primary element ${tEl(rune.el)}. In rune theory, each rune belongs to one of three Ættir (rows of 8) ruled by Freyja, Heimdall, or Tyr. Your ${rune.n} is ruled by ${rune.n === 'Fehu' || rune.n === 'Uruz' || rune.n === 'Thurisaz' || rune.n === 'Ansuz' || rune.n === 'Raidho' || rune.n === 'Kenaz' || rune.n === 'Gebo' || rune.n === 'Wunjo' ? 'Freyja (goddess of love and wealth)' : rune.n === 'Hagalaz' || rune.n === 'Nauthiz' || rune.n === 'Isa' || rune.n === 'Jera' || rune.n === 'Eihwaz' || rune.n === 'Perthro' || rune.n === 'Algiz' || rune.n === 'Sowilo' ? 'Heimdall (guardian of the rainbow bridge)' : 'Tyr (god of justice and battle)'}.`,
             strengthTh: `${rune.kw} คือพลังที่คุณมีในตัวโดยไม่ต้องพยายาม ${rune.n === 'Fehu' ? 'คุณดึงดูดเงินและทรัพยากรโดยธรรมชาติ' : rune.n === 'Uruz' ? 'คุณมีพลังกายและความอดทนที่คนอื่นอิจฉา' : rune.n === 'Thurisaz' ? 'คุณกล้าเผชิญหน้ากับความขัดแย้งที่คนอื่นหลีกเลี่ยง' : rune.n === 'Ansuz' ? 'คำพูดของคุณมีน้ำหนัก คุณเป็นผู้นำพาสาร' : rune.n === 'Raidho' ? 'คุณมีจังหวะชีวิตที่ดี รู้ว่าเมื่อไหร่ควรเคลื่อน เมื่อไหร่ควรหยุด' : rune.n === 'Kenaz' ? 'คุณจุดไฟในห้องที่มืด — สร้างสรรค์และเห็นทางออก' : rune.n === 'Gebo' ? 'คุณสร้างพันธมิตรผ่านการให้และการรับที่สมดุล' : rune.n === 'Wunjo' ? 'คุณแพร่ความสุขให้คนรอบข้างโดยไม่รู้ตัว' : rune.n === 'Sowilo' ? 'คุณเหมือนแสงอาทิตย์ — พลังชีวิตสูง แต่ต้องระวังไม่ให้เผาคนอื่น' : 'คุณมีพลังเฉพาะตัวที่เกี่ยวข้องกับ ' + rune.kw} Ættir ของคุณให้พลังแห่ง${rune.el}ที่มั่นคงเป็นพื้นฐาน`,
-            strengthEn: `Your strength is what you carry without effort: ${rune.n === 'Fehu' ? 'you naturally attract money and resources' : rune.n === 'Uruz' ? 'physical power and endurance others envy' : rune.n === 'Thurisaz' ? 'the courage to face conflicts others avoid' : rune.n === 'Ansuz' ? 'your words carry weight — you are a messenger' : rune.n === 'Raidho' ? 'you have good timing — you know when to move and when to pause' : rune.n === 'Kenaz' ? 'you light fires in dark rooms — creative, you see the way out' : rune.n === 'Gebo' ? 'you build alliances through balanced giving and receiving' : rune.n === 'Wunjo' ? 'you spread joy around you without realising it' : rune.n === 'Sowilo' ? 'you are sun-like — high life force, but watch you don\'t scorch others' : 'a unique gift tied to your rune\'s keyword'}. Your Ættir gives a stable ${rune.el === 'ไฟ' ? 'Fire' : rune.el === 'น้ำ' ? 'Water' : rune.el === 'ดิน' ? 'Earth' : 'Air'} foundation.`,
+            strengthEn: `Your strength is what you carry without effort: ${rune.n === 'Fehu' ? 'you naturally attract money and resources' : rune.n === 'Uruz' ? 'physical power and endurance others envy' : rune.n === 'Thurisaz' ? 'the courage to face conflicts others avoid' : rune.n === 'Ansuz' ? 'your words carry weight — you are a messenger' : rune.n === 'Raidho' ? 'you have good timing — you know when to move and when to pause' : rune.n === 'Kenaz' ? 'you light fires in dark rooms — creative, you see the way out' : rune.n === 'Gebo' ? 'you build alliances through balanced giving and receiving' : rune.n === 'Wunjo' ? 'you spread joy around you without realising it' : rune.n === 'Sowilo' ? 'you are sun-like — high life force, but watch you don\'t scorch others' : 'a unique gift tied to your rune\'s keyword'}. Your Ættir gives a stable ${tEl(rune.el)} foundation.`,
             shadowTh: `ทุกรูนมี "Murkstave" (รูนกลับหัว) — ด้านเงาของมัน เงาของ ${rune.n} คือ${rune.n === 'Fehu' ? 'ความโลภและการเกาะเงินจนขาดอิสระ' : rune.n === 'Thurisaz' ? 'ความก้าวร้าวที่ไม่ตรงเป้า' : rune.n === 'Ansuz' ? 'การพูดมากเกินไปจนสูญค่า' : rune.n === 'Hagalaz' ? 'การรับแรงเปลี่ยนแปลงไม่ไหว' : 'การใช้พลังของรูนในทางที่ผิดเป้าหมาย'} — นักรูนโบราณแนะนำให้ถอยและไตร่ตรองเมื่อรู้สึกเข้าสู่โหมด Murkstave`,
             shadowEn: `Every rune has its "Murkstave" (the reversed reading) — its shadow side. The shadow of ${rune.n} is ${rune.n === 'Fehu' ? 'greed and clinging to money until you lose freedom' : rune.n === 'Thurisaz' ? 'aggression aimed off-target' : rune.n === 'Ansuz' ? 'talking too much, losing weight' : rune.n === 'Hagalaz' ? 'inability to bear the impact of change' : 'using the rune\'s power off-target'} — classical rune-readers say withdraw and reflect when you feel Murkstave creeping in.`,
             practiceTh: `การใช้รูนรายวัน: (1) เขียน ${rune.r} บนกระดาษเล็กใส่ในกระเป๋าเงินหรือที่ทำงาน (2) ในวันที่ต้องการพลังพิเศษ กล่าว "${rune.n}, help me with ${rune.kw}" 3 ครั้งเป็นการเรียกพลังรูน (3) ทำสมาธิ 5 นาทีโดยเพ่งที่รูป ${rune.r} แล้วให้พลัง ${rune.kw} ซึมเข้าร่างกาย`,
@@ -2119,11 +2585,11 @@ function calcOgham(d) {
             originEn: 'Ogham is a 1,500-year-old Irish script in which every letter represents a tree — hence the nickname "Tree Alphabet". Druids (Celtic priests) created the system to record ritual calendars and as a divinatory practice. Each tree has its day; similar to Celtic Tree Astrology, but Ogham foregrounds the letter and the tree\'s power rather than the birth date alone.',
             yearsOld: 1500,
             keyValue: `${og.o} ${og.tree} (${og.th}) · ${og.cls} ธาตุ${og.el}`,
-            keyValueEn: `${og.o} ${og.tree} · ${og.cls === 'ต้นใหม่' ? 'New tree' : og.cls === 'ต้นปกป้อง' ? 'Protector tree' : og.cls === 'ต้นเชื่อมโยง' ? 'Connector tree' : og.cls === 'ต้นผู้นำ' ? 'Leader tree' : og.cls === 'ต้นจันทร์' ? 'Moon tree' : og.cls === 'ต้นอุปสรรค' ? 'Obstacle tree' : og.cls === 'ต้นกษัตริย์' ? 'King tree' : og.cls === 'ต้นนักรบ' ? 'Warrior tree' : og.cls === 'ต้นปัญญา' ? 'Wisdom tree' : og.cls === 'ต้นมีสวรรค์' ? 'Heavenly tree' : og.cls === 'ต้นผู้แสวงหา' ? 'Seeker tree' : og.cls === 'ต้นผู้ส่งสาร' ? 'Messenger tree' : 'Magic tree'} · ${og.el === 'ไฟ' ? 'Fire' : og.el === 'น้ำ' ? 'Water' : og.el === 'ดิน' ? 'Earth' : 'Air'} element`,
+            keyValueEn: `${og.o} ${og.tree} · ${og.cls === 'ต้นใหม่' ? 'New tree' : og.cls === 'ต้นปกป้อง' ? 'Protector tree' : og.cls === 'ต้นเชื่อมโยง' ? 'Connector tree' : og.cls === 'ต้นผู้นำ' ? 'Leader tree' : og.cls === 'ต้นจันทร์' ? 'Moon tree' : og.cls === 'ต้นอุปสรรค' ? 'Obstacle tree' : og.cls === 'ต้นกษัตริย์' ? 'King tree' : og.cls === 'ต้นนักรบ' ? 'Warrior tree' : og.cls === 'ต้นปัญญา' ? 'Wisdom tree' : og.cls === 'ต้นมีสวรรค์' ? 'Heavenly tree' : og.cls === 'ต้นผู้แสวงหา' ? 'Seeker tree' : og.cls === 'ต้นผู้ส่งสาร' ? 'Messenger tree' : 'Magic tree'} · ${tEl(og.el)} element`,
             keyValueMeaning: `อักษร Ogham ประจำวันเกิดคือ <strong>${og.o}</strong> ที่แทนต้น <strong>${og.tree}</strong> (${og.th}) ในระบบ Ogham ต้นไม้ถูกแบ่งเป็น 3 class: <strong>${og.cls}</strong> — เป็นหมวดที่บอกว่าคุณคือต้นไม้ "ชนิดไหน" ในป่าชีวิต ต้น ${og.tree} ปกครองโดยธาตุ${og.el} และในตำนานเซลติกมีความเชื่อว่าทุกต้น ${og.tree} ที่ขึ้นใน Ireland มีวิญญาณ "Dryad" ประจำ ซึ่งเชื่อมโยงกับคนที่เกิดในช่วงนั้นผ่านสายสะดือจิตวิญญาณ`,
-            keyValueMeaningEn: `Your birth-day Ogham letter is <strong>${og.o}</strong>, representing the <strong>${og.tree}</strong> tree. In the Ogham system, trees are divided into 3 classes: yours is the <strong>${og.cls === 'ต้นใหม่' ? 'New tree (Birch)' : og.cls === 'ต้นปกป้อง' ? 'Protector tree' : og.cls === 'ต้นเชื่อมโยง' ? 'Connector tree' : og.cls === 'ต้นผู้นำ' ? 'Leader tree' : og.cls === 'ต้นจันทร์' ? 'Moon tree' : og.cls === 'ต้นอุปสรรค' ? 'Obstacle tree' : og.cls === 'ต้นกษัตริย์' ? 'King tree' : og.cls === 'ต้นนักรบ' ? 'Warrior tree' : og.cls === 'ต้นปัญญา' ? 'Wisdom tree' : og.cls === 'ต้นมีสวรรค์' ? 'Heavenly tree' : og.cls === 'ต้นผู้แสวงหา' ? 'Seeker tree' : og.cls === 'ต้นผู้ส่งสาร' ? 'Messenger tree' : 'Magic tree'}</strong> — telling you what kind of tree you are in the forest of life. ${og.tree} is ruled by the ${og.el === 'ไฟ' ? 'Fire' : og.el === 'น้ำ' ? 'Water' : og.el === 'ดิน' ? 'Earth' : 'Air'} element. Celtic legend says every ${og.tree} growing in Ireland has its own Dryad spirit, linked to those born in its season through a soul-cord.`,
+            keyValueMeaningEn: `Your birth-day Ogham letter is <strong>${og.o}</strong>, representing the <strong>${og.tree}</strong> tree. In the Ogham system, trees are divided into 3 classes: yours is the <strong>${og.cls === 'ต้นใหม่' ? 'New tree (Birch)' : og.cls === 'ต้นปกป้อง' ? 'Protector tree' : og.cls === 'ต้นเชื่อมโยง' ? 'Connector tree' : og.cls === 'ต้นผู้นำ' ? 'Leader tree' : og.cls === 'ต้นจันทร์' ? 'Moon tree' : og.cls === 'ต้นอุปสรรค' ? 'Obstacle tree' : og.cls === 'ต้นกษัตริย์' ? 'King tree' : og.cls === 'ต้นนักรบ' ? 'Warrior tree' : og.cls === 'ต้นปัญญา' ? 'Wisdom tree' : og.cls === 'ต้นมีสวรรค์' ? 'Heavenly tree' : og.cls === 'ต้นผู้แสวงหา' ? 'Seeker tree' : og.cls === 'ต้นผู้ส่งสาร' ? 'Messenger tree' : 'Magic tree'}</strong> — telling you what kind of tree you are in the forest of life. ${og.tree} is ruled by the ${tEl(og.el)} element. Celtic legend says every ${og.tree} growing in Ireland has its own Dryad spirit, linked to those born in its season through a soul-cord.`,
             strengthTh: `ต้น ${og.tree} ในภูมิปัญญา Druid สัญลักษณ์ของ${og.cls.includes('Noble') ? 'ความสูงส่ง — คุณถูกมองว่าเป็นผู้นำในกลุ่มโดยธรรมชาติ เป็นต้นไม้ที่ผู้คนพึ่งพิง' : og.cls.includes('Peasant') ? 'ความมั่นคง — คุณทำงานอย่างไม่หยุด สร้างรากฐานให้ครอบครัวและชุมชน เป็นที่พึ่งเงียบๆ' : og.cls.includes('Shrub') ? 'ความยืดหยุ่น — คุณปรับตัวได้ในทุกสภาพ อาจไม่ใหญ่โต แต่อยู่รอดได้ทุกที่' : 'ความเชื่อมโยง — คุณเชื่อมคนหลายกลุ่มเข้าด้วยกัน เหมือนเถาวัลย์ที่พันต้นไม้หลายต้น'} ธาตุ${og.el}ของคุณเสริมด้วย${og.el === 'ไฟ' ? 'ความเป็นผู้นำ การจุดประกาย' : og.el === 'น้ำ' ? 'สัญชาตญาณ ความอ่อนโยน' : og.el === 'ดิน' ? 'ความอดทน ความมั่นคง' : og.el === 'ลม' ? 'ความคิดเร็ว การสื่อสาร' : 'พลังเฉพาะตัว'}`,
-            strengthEn: `In Druidic wisdom, ${og.tree} symbolises ${og.cls === 'ต้นใหม่' ? 'fresh starts — you embody beginnings' : og.cls === 'ต้นปกป้อง' ? 'protection — others lean on you' : og.cls === 'ต้นเชื่อมโยง' ? 'connection — you bridge worlds' : og.cls === 'ต้นผู้นำ' ? 'leadership — natural authority' : og.cls === 'ต้นจันทร์' ? 'lunar intuition — you read what\'s hidden' : og.cls === 'ต้นอุปสรรค' ? 'navigating obstacles — you turn limits into teachers' : og.cls === 'ต้นกษัตริย์' ? 'royalty — others come to you for counsel' : og.cls === 'ต้นนักรบ' ? 'warrior energy — you fight for what matters' : og.cls === 'ต้นปัญญา' ? 'wisdom — your insight reaches deep' : og.cls === 'ต้นมีสวรรค์' ? 'heavenly grace — you bring beauty' : og.cls === 'ต้นผู้แสวงหา' ? 'seeking — you wander to learn' : og.cls === 'ต้นผู้ส่งสาร' ? 'messaging — you carry signals others miss' : 'magic — you shape unseen forces'}. Your ${og.el === 'ไฟ' ? 'Fire' : og.el === 'น้ำ' ? 'Water' : og.el === 'ดิน' ? 'Earth' : 'Air'} element adds ${og.el === 'ไฟ' ? 'leadership and spark' : og.el === 'น้ำ' ? 'intuition and softness' : og.el === 'ดิน' ? 'patience and stability' : og.el === 'ลม' ? 'quick thought and communication' : 'a unique power'}.`,
+            strengthEn: `In Druidic wisdom, ${og.tree} symbolises ${og.cls === 'ต้นใหม่' ? 'fresh starts — you embody beginnings' : og.cls === 'ต้นปกป้อง' ? 'protection — others lean on you' : og.cls === 'ต้นเชื่อมโยง' ? 'connection — you bridge worlds' : og.cls === 'ต้นผู้นำ' ? 'leadership — natural authority' : og.cls === 'ต้นจันทร์' ? 'lunar intuition — you read what\'s hidden' : og.cls === 'ต้นอุปสรรค' ? 'navigating obstacles — you turn limits into teachers' : og.cls === 'ต้นกษัตริย์' ? 'royalty — others come to you for counsel' : og.cls === 'ต้นนักรบ' ? 'warrior energy — you fight for what matters' : og.cls === 'ต้นปัญญา' ? 'wisdom — your insight reaches deep' : og.cls === 'ต้นมีสวรรค์' ? 'heavenly grace — you bring beauty' : og.cls === 'ต้นผู้แสวงหา' ? 'seeking — you wander to learn' : og.cls === 'ต้นผู้ส่งสาร' ? 'messaging — you carry signals others miss' : 'magic — you shape unseen forces'}. Your ${tEl(og.el)} element adds ${og.el === 'ไฟ' ? 'leadership and spark' : og.el === 'น้ำ' ? 'intuition and softness' : og.el === 'ดิน' ? 'patience and stability' : og.el === 'ลม' ? 'quick thought and communication' : 'a unique power'}.`,
             shadowTh: `เงาของต้น ${og.tree} คือ${og.cls.includes('Noble') ? 'การแบกภาระคนอื่นจนลืมตัวเอง — ต้นไม้ใหญ่ถ้าไม่พักจะล้ม' : og.cls.includes('Peasant') ? 'การทำงานหนักจนไม่เหลือเวลาให้ตัวเอง — ใช่ชีวิตแต่ไม่มีชีวิต' : 'การพยายามเป็นทุกอย่างให้ทุกคน — สุดท้ายไม่เป็นอะไรเลยในสายตาใคร'} Druid เตือนว่าต้นไม้ที่ลืมรากจะตาย — คืนสู่พื้นดิน คืนสู่ตัวเองเป็นระยะ`,
             shadowEn: `The shadow of ${og.tree} is trying to be everything for everyone — and ending up as nothing in everyone\'s eyes. Druids warn that a tree that forgets its roots dies. Return to the ground, return to yourself, regularly.`,
             practiceTh: `การทำพิธีกับ Ogham: (1) ถ้าหาใบหรือกิ่ง ${og.tree} ได้ เก็บไว้ในที่ทำงานหรือบ้าน (2) ในวันเกิด เดินใต้ต้น ${og.tree} (หรือต้นไม้ใหญ่ใกล้บ้าน) 3 รอบเพื่อ "ทวนรากเหง้า" (3) เขียน ${og.o} ลงบนหินก้อนเล็กพกเป็น talisman — Druid ใช้หินพวกนี้เป็นเครื่องรางป้องกันมาหลายพันปี`,
@@ -2286,11 +2752,11 @@ function calcZoroastrian(d) {
             originEn: 'Zoroastrianism is one of the world\'s oldest monotheisms — over 3,500 years old, founded by the prophet Zarathustra in Persia (modern Iran). Its core is the struggle between Ahura Mazda (light, truth) and Ahriman (darkness, lies). The Zoroastrian calendar has 30 days per month, each ruled by a different Yazata (guardian) — 30 Yazatas in all, each describing the day\'s qualities.',
             yearsOld: 3500,
             keyValue: `Yazata: ${yazata} · Amesha Spenta: ${amesha.th} (${amesha.el})`,
-            keyValueEn: `Yazata: ${yazata} · Amesha Spenta: ${amesha.n} (${amesha.el === 'ไฟ' ? 'Fire' : amesha.el === 'น้ำ' ? 'Water' : amesha.el === 'ดิน' ? 'Earth' : amesha.el === 'ไม้' ? 'Wood' : amesha.el === 'โลหะ' ? 'Metal' : 'Air'})`,
+            keyValueEn: `Yazata: ${yazata} · Amesha Spenta: ${amesha.n} (${tEl(amesha.el)})`,
             keyValueMeaning: `Yazata ประจำวันเกิดคุณคือ <strong>${yazata}</strong> และ Amesha Spenta (เทพสูงสุด 7 องค์) ที่ปกครองเดือนคือ <strong>${amesha.th}</strong> ธาตุของเดือน${amesha.el} ${harmony ? 'ตรงกับธาตุของ Yazata — นี่คือการบูรณาการที่สมบูรณ์ คุณจะรู้สึกว่า "เป็นตัวของตัวเอง" ได้โดยธรรมชาติ' : 'ต่างกับ Yazata — นี่คือโครงสร้างสร้างสมดุล คุณจะรู้สึกว่าตัวเองมี 2 ด้านที่ต้องบาลานซ์ตลอดเวลา'}`,
-            keyValueMeaningEn: `Your birth-day Yazata is <strong>${yazata}</strong>, and the Amesha Spenta (one of the seven highest divinities) ruling your birth month is <strong>${amesha.n}</strong>. The month\'s element is ${amesha.el === 'ไฟ' ? 'Fire' : amesha.el === 'น้ำ' ? 'Water' : amesha.el === 'ดิน' ? 'Earth' : amesha.el === 'ไม้' ? 'Wood' : amesha.el === 'โลหะ' ? 'Metal' : 'Air'}, ${harmony ? 'matching the Yazata\'s element — this is full integration. You\'ll feel "naturally yourself" by default' : 'differing from the Yazata — this is a balancing structure. You\'ll feel two sides of yourself that must be balanced constantly'}.`,
+            keyValueMeaningEn: `Your birth-day Yazata is <strong>${yazata}</strong>, and the Amesha Spenta (one of the seven highest divinities) ruling your birth month is <strong>${amesha.n}</strong>. The month\'s element is ${tEl(amesha.el)}, ${harmony ? 'matching the Yazata\'s element — this is full integration. You\'ll feel "naturally yourself" by default' : 'differing from the Yazata — this is a balancing structure. You\'ll feel two sides of yourself that must be balanced constantly'}.`,
             strengthTh: `Yazata ${yazata} ให้พรพิเศษ — คุณได้รับ "Khvarenah" (โอรัสแสง) ในด้านที่ Yazata ปกครอง โซโรแอสเตรียนเชื่อว่า Khvarenah คือ "แสงของโชค" ที่ติดตัวคนดีและหายไปจากคนชั่ว — ของคุณมั่นคงเพราะเกิดในวันที่ Yazata เข้มแข็ง Amesha Spenta ${amesha.th} เสริมด้วยธาตุ${amesha.el} ซึ่งเกี่ยวข้องกับ${amesha.el === 'ไฟ' ? 'ความบริสุทธิ์ ความกล้า การชำระจิต' : amesha.el === 'น้ำ' ? 'ความเมตตา การชำระกาย การไหล' : amesha.el === 'ดิน' ? 'ความมั่นคง การสร้างบ้าน การรักษาประเพณี' : 'การสื่อสาร การสอน การแพร่แสง'}`,
-            strengthEn: `Yazata ${yazata} grants a special blessing — you receive "Khvarenah" (the divine glow) in the domain that Yazata rules. Zoroastrians believe Khvarenah is the "light of fortune" that follows the righteous and fades from the wicked. Yours is stable because you were born on a day when this Yazata stands strong. Amesha Spenta ${amesha.n} adds the ${amesha.el === 'ไฟ' ? 'Fire' : amesha.el === 'น้ำ' ? 'Water' : amesha.el === 'ดิน' ? 'Earth' : amesha.el === 'ไม้' ? 'Wood' : amesha.el === 'โลหะ' ? 'Metal' : 'Air'} element, tied to ${amesha.el === 'ไฟ' ? 'purity, courage, mental cleansing' : amesha.el === 'น้ำ' ? 'mercy, bodily cleansing, flow' : amesha.el === 'ดิน' ? 'stability, building a home, preserving tradition' : 'communication, teaching, broadcasting light'}.`,
+            strengthEn: `Yazata ${yazata} grants a special blessing — you receive "Khvarenah" (the divine glow) in the domain that Yazata rules. Zoroastrians believe Khvarenah is the "light of fortune" that follows the righteous and fades from the wicked. Yours is stable because you were born on a day when this Yazata stands strong. Amesha Spenta ${amesha.n} adds the ${tEl(amesha.el)} element, tied to ${amesha.el === 'ไฟ' ? 'purity, courage, mental cleansing' : amesha.el === 'น้ำ' ? 'mercy, bodily cleansing, flow' : amesha.el === 'ดิน' ? 'stability, building a home, preserving tradition' : 'communication, teaching, broadcasting light'}.`,
             shadowTh: `โซโรแอสเตรียนมีคำเตือน: "ทุก Khvarenah มีราคา" — หากใช้พลังของ Yazata เพื่อตัวเองเท่านั้น จะกลายเป็นการเรียก Ahriman (ความมืด) เข้ามาสู่ชีวิตโดยไม่รู้ตัว สัญญาณที่แสดงว่า Khvarenah ของคุณกำลังหรี่คือ: รู้สึกเบื่อหน่ายเรื่องที่เคยรัก คนรอบข้างถอยห่าง โชคที่เคยดีเริ่มสะดุด — คำแก้คือการกลับมาทำ "Ashu" (การกระทำที่ตรงกับความจริง)`,
             shadowEn: `Zoroastrians warn: "Every Khvarenah has a price." If you use your Yazata\'s power only for yourself, you unknowingly summon Ahriman (darkness) into your life. The signs your Khvarenah is dimming: weariness with what you used to love, people quietly drifting away, your once-good fortune starting to stumble. The remedy is returning to "Ashu" — action aligned with truth.`,
             practiceTh: `หลักคำสอนโซโรแอสเตรียนประจำวัน: Humata (คิดดี) · Hukhta (พูดดี) · Hvarshta (ทำดี) — 3 หลักนี้คือสิ่งที่รักษา Khvarenah ไว้ พิธีเล็กๆ ที่ทำได้: (1) จุดเทียนในที่ทำงาน เทียนแทน "ไฟศักดิ์สิทธิ์" ของ Zoroaster (2) ในวันเกิดประจำปี สวดชื่อ Yazata ของคุณ 108 ครั้ง (3) ใส่สีขาวในวันที่ต้องการเสริมความบริสุทธิ์`,
@@ -2305,26 +2771,26 @@ function calcZoroastrian(d) {
 // ── AZTEC TONALPOHUALLI ────────────────────────────────────────
 function calcAztec(d) {
     const DAY_SIGNS = [
-        { s: 'Cipactli', th: 'จระเข้', q: 'การเริ่มต้น', score: 780 },
-        { s: 'Ehecatl', th: 'ลม', q: 'การสื่อสาร', score: 760 },
-        { s: 'Calli', th: 'บ้าน', q: 'ความมั่นคง', score: 740 },
-        { s: 'Cuetzpallin', th: 'จิ้งจก', q: 'ความยืดหยุ่น', score: 720 },
-        { s: 'Coatl', th: 'งู', q: 'การเปลี่ยนแปลง', score: 710 },
-        { s: 'Miquiztli', th: 'ความตาย', q: 'การเกิดใหม่', score: 650 },
-        { s: 'Mazatl', th: 'กวาง', q: 'ความสวยงาม', score: 760 },
-        { s: 'Tochtli', th: 'กระต่าย', q: 'ความอุดมสมบูรณ์', score: 770 },
-        { s: 'Atl', th: 'น้ำ', q: 'การชำระล้าง', score: 730 },
-        { s: 'Itzcuintli', th: 'สุนัข', q: 'ความซื่อสัตย์', score: 760 },
-        { s: 'Ozomatli', th: 'ลิง', q: 'ความสนุกสนาน', score: 780 },
-        { s: 'Malinalli', th: 'หญ้า', q: 'ความอดทน', score: 700 },
-        { s: 'Acatl', th: 'อ้อ', q: 'ความมุ่งมั่น', score: 780 },
-        { s: 'Ocelotl', th: 'เสือจากัวร์', q: 'พลังนักรบ', score: 800 },
-        { s: 'Cuauhtli', th: 'อินทรี', q: 'ปัญญาสูง', score: 820 },
-        { s: 'Cozcacuauhtli', th: 'แร้ง', q: 'อายุยืน', score: 750 },
-        { s: 'Ollin', th: 'การเคลื่อนไหว', q: 'ชะตากรรม', score: 760 },
-        { s: 'Tecpatl', th: 'หินเหล็กไฟ', q: 'ความเด็ดขาด', score: 770 },
-        { s: 'Quiahuitl', th: 'ฝน', q: 'การชำระล้าง', score: 730 },
-        { s: 'Xochitl', th: 'ดอกไม้', q: 'ความงามและศิลปะ', score: 790 },
+        { s: 'Cipactli', th: 'จระเข้', qTh: 'การเริ่มต้น', qEn: 'beginnings', score: 780 },
+        { s: 'Ehecatl', th: 'ลม', qTh: 'การสื่อสาร', qEn: 'communication', score: 760 },
+        { s: 'Calli', th: 'บ้าน', qTh: 'ความมั่นคง', qEn: 'stability', score: 740 },
+        { s: 'Cuetzpallin', th: 'จิ้งจก', qTh: 'ความยืดหยุ่น', qEn: 'flexibility', score: 720 },
+        { s: 'Coatl', th: 'งู', qTh: 'การเปลี่ยนแปลง', qEn: 'transformation', score: 710 },
+        { s: 'Miquiztli', th: 'ความตาย', qTh: 'การเกิดใหม่', qEn: 'rebirth', score: 650 },
+        { s: 'Mazatl', th: 'กวาง', qTh: 'ความสวยงาม', qEn: 'beauty', score: 760 },
+        { s: 'Tochtli', th: 'กระต่าย', qTh: 'ความอุดมสมบูรณ์', qEn: 'abundance', score: 770 },
+        { s: 'Atl', th: 'น้ำ', qTh: 'การชำระล้าง', qEn: 'purification', score: 730 },
+        { s: 'Itzcuintli', th: 'สุนัข', qTh: 'ความซื่อสัตย์', qEn: 'loyalty', score: 760 },
+        { s: 'Ozomatli', th: 'ลิง', qTh: 'ความสนุกสนาน', qEn: 'play', score: 780 },
+        { s: 'Malinalli', th: 'หญ้า', qTh: 'ความอดทน', qEn: 'endurance', score: 700 },
+        { s: 'Acatl', th: 'อ้อ', qTh: 'ความมุ่งมั่น', qEn: 'resolve', score: 780 },
+        { s: 'Ocelotl', th: 'เสือจากัวร์', qTh: 'พลังนักรบ', qEn: 'warrior power', score: 800 },
+        { s: 'Cuauhtli', th: 'อินทรี', qTh: 'ปัญญาสูง', qEn: 'high wisdom', score: 820 },
+        { s: 'Cozcacuauhtli', th: 'แร้ง', qTh: 'อายุยืน', qEn: 'longevity', score: 750 },
+        { s: 'Ollin', th: 'การเคลื่อนไหว', qTh: 'ชะตากรรม', qEn: 'destiny', score: 760 },
+        { s: 'Tecpatl', th: 'หินเหล็กไฟ', qTh: 'ความเด็ดขาด', qEn: 'decisiveness', score: 770 },
+        { s: 'Quiahuitl', th: 'ฝน', qTh: 'การชำระล้าง', qEn: 'purification', score: 730 },
+        { s: 'Xochitl', th: 'ดอกไม้', qTh: 'ความงามและศิลปะ', qEn: 'beauty and art', score: 790 },
     ];
     // Tonalpohualli: 260-day cycle. Use JDN from known anchor
     const refJD = Math.floor(toJD(1900, 1, 1, 12));
@@ -2337,8 +2803,8 @@ function calcAztec(d) {
     const variation = (d.year % 100 + d.hour * 5) % 60 - 30;
     const score = Math.max(430, Math.min(950, sign.score + variation));
     return {
-        daySign: sign.s, daySignTh: sign.th, toneNumber,
-        toneName: TONE_NAMES[toneNumber] ?? `${toneNumber}`, daySignQuality: sign.q,
+        daySign: sign.s, daySignTh: tPick(sign.th, sign.s), toneNumber,
+        toneName: TONE_NAMES[toneNumber] ?? `${toneNumber}`, daySignQuality: tPick(sign.qTh, sign.qEn),
         score,
         reading: buildRichReading({
             sysTh: 'โทนัลโปอัลลี (Aztec Tonalpohualli)',
@@ -2352,9 +2818,9 @@ function calcAztec(d) {
             originTh: 'Tonalpohualli คือปฏิทิน 260 วันของชาวแอซเทคและชนพื้นเมืองเม็กซิกัน ใช้คู่ขนานกับ Tzolkin มายันซึ่งเป็นระบบเดียวกันแต่ต่างภาษา ใช้มาราว 1,500-2,000 ปี ทุกวันประกอบด้วย 2 ส่วน: Trecena (เลข 1-13) และ Tonalli (20 สัญลักษณ์สัตว์/ธาตุ) คนในวัฒนธรรมแอซเทคเชื่อว่าวันเกิดกำหนด "Tonalli" (วิญญาณลมหายใจ) ของคนนั้น — ซึ่งส่งผลต่อบุคลิก อาชีพ และอายุขัย',
             originEn: 'Tonalpohualli is the 260-day calendar of the Aztecs and indigenous Mexicans, used in parallel with the Mayan Tzolk\'in (the same system in another language). About 1,500–2,000 years old. Each day combines two pieces: a Trecena (1–13) and a Tonalli (20 animal/element symbols). Aztecs believed your birth day determined your "Tonalli" (breath-soul) — shaping personality, career, and lifespan.',
             yearsOld: 1500,
-            keyValue: `${toneNumber}-${sign.s} (${sign.th}) · ${sign.q}`,
-            keyValueEn: `${toneNumber}-${sign.s} · ${sign.q === 'การเริ่มต้น' ? 'beginnings' : sign.q === 'การสื่อสาร' ? 'communication' : sign.q === 'ความมั่นคง' ? 'stability' : sign.q === 'ความยืดหยุ่น' ? 'flexibility' : sign.q === 'การเปลี่ยนแปลง' ? 'change' : sign.q === 'การเกิดใหม่' ? 'rebirth' : sign.q === 'ความสวยงาม' ? 'beauty' : sign.q === 'ความอุดมสมบูรณ์' ? 'abundance' : sign.q === 'การชำระล้าง' ? 'purification' : sign.q === 'ความซื่อสัตย์' ? 'loyalty' : sign.q === 'ความสนุกสนาน' ? 'play' : sign.q === 'ความอดทน' ? 'endurance' : sign.q === 'ความมุ่งมั่น' ? 'resolve' : sign.q === 'พลังนักรบ' ? 'warrior power' : sign.q === 'ปัญญาสูง' ? 'high wisdom' : sign.q === 'อายุยืน' ? 'longevity' : sign.q === 'ชะตากรรม' ? 'destiny' : sign.q === 'ความเด็ดขาด' ? 'decisiveness' : 'beauty and art'}`,
-            keyValueMeaning: `Tonalli ของคุณคือ <strong>${toneNumber}-${sign.s}</strong> หรือในภาษาไทยคือ "${sign.th}" โทนที่ ${toneNumber} บอกระดับพลังงาน — ${toneNumber <= 4 ? 'ต่ำ (1-4) คือ "ผู้วางรากฐาน" พลังสร้างสิ่งที่อยู่ทนนาน' : toneNumber <= 9 ? 'กลาง (5-9) คือ "ผู้พัฒนา" พลังขยายสิ่งที่มีอยู่ไปสู่ระดับถัดไป' : 'สูง (10-13) คือ "ผู้ส่งต่อ" พลังปิดวงจรเก่าและเปิดบทใหม่'} ส่วนสัญลักษณ์ ${sign.s} กำหนดคุณสมบัติ: ${sign.q}`,
+            keyValue: `${toneNumber}-${sign.s} (${sign.th}) · ${sign.qTh}`,
+            keyValueEn: `${toneNumber}-${sign.s} · ${sign.qEn}`,
+            keyValueMeaning: `Tonalli ของคุณคือ <strong>${toneNumber}-${sign.s}</strong> หรือในภาษาไทยคือ "${sign.th}" โทนที่ ${toneNumber} บอกระดับพลังงาน — ${toneNumber <= 4 ? 'ต่ำ (1-4) คือ "ผู้วางรากฐาน" พลังสร้างสิ่งที่อยู่ทนนาน' : toneNumber <= 9 ? 'กลาง (5-9) คือ "ผู้พัฒนา" พลังขยายสิ่งที่มีอยู่ไปสู่ระดับถัดไป' : 'สูง (10-13) คือ "ผู้ส่งต่อ" พลังปิดวงจรเก่าและเปิดบทใหม่'} ส่วนสัญลักษณ์ ${sign.s} กำหนดคุณสมบัติ: ${sign.qTh}`,
             keyValueMeaningEn: `Your Tonalli is <strong>${toneNumber}-${sign.s}</strong>. Tone ${toneNumber} tells your energy level: ${toneNumber <= 4 ? 'low (1-4) — "foundation-layer", building things that last' : toneNumber <= 9 ? 'middle (5-9) — "developer", taking what exists to the next level' : 'high (10-13) — "transmitter", closing old cycles and opening new chapters'}. The symbol ${sign.s} sets the quality.`,
             strengthTh: `ชาวแอซเทคเชื่อว่าคนที่มี Tonalli ${sign.s} ${toneNumber} มีพรเฉพาะ — ${sign.s === 'Cipactli' ? '"มังกรแดง" ผู้สร้าง การเริ่มต้นใหม่จะแข็งแกร่งในชีวิตของคุณ' : sign.s === 'Ocelotl' ? '"เสือจากัวร์" นักรบและผู้พิทักษ์ คุณปกป้องคนที่รักได้อย่างทรงพลัง' : sign.s === 'Cuauhtli' ? '"อินทรี" ผู้มองจากสูง คุณเห็นภาพใหญ่ได้ก่อนใคร' : sign.s === 'Ozomatli' ? '"ลิง" ผู้สร้างสรรค์ ความเล่น ความสนุก คือเครื่องมือของคุณ' : sign.s === 'Cozcacuauhtli' ? '"นกแร้ง" ผู้ถือความจริงที่ไม่มีใครอยากได้ยิน คุณพูดในสิ่งที่คนอื่นไม่กล้าพูด' : 'พลังเฉพาะตัวของสัญลักษณ์ ' + sign.s} รวมกับ Tonalli ${toneNumber} ซึ่งเป็นพลังงาน${toneNumber <= 4 ? 'สร้างรากฐาน' : toneNumber <= 9 ? 'พัฒนา' : 'ปิดวงจร'}`,
             strengthEn: `Aztecs believed people with Tonalli ${sign.s} ${toneNumber} carry distinct gifts — ${sign.s === 'Cipactli' ? '"Red Dragon", creator. New beginnings come to you with strength' : sign.s === 'Ocelotl' ? '"Jaguar", warrior and protector. You defend loved ones powerfully' : sign.s === 'Cuauhtli' ? '"Eagle", high-flying observer. You see the big picture before anyone' : sign.s === 'Ozomatli' ? '"Monkey", creator of play. Joy is your tool' : sign.s === 'Cozcacuauhtli' ? '"Vulture", carrier of truths nobody wants to hear. You speak what others won\'t' : 'the unique power of ' + sign.s} combined with Tone ${toneNumber}, which is ${toneNumber <= 4 ? 'foundation-laying' : toneNumber <= 9 ? 'developing' : 'cycle-closing'} energy.`,
@@ -2405,8 +2871,8 @@ function calcNativeAmerican(d) {
     const variation = (d.year % 100 + d.day * 7) % 60 - 30;
     const score = Math.max(440, Math.min(950, totem.score + variation));
     return {
-        birthTotem: totem.t, birthTotemTh: totem.th, moonCycle: totem.moon,
-        clansmother: totem.clan, element: totem.el,
+        birthTotem: totem.t, birthTotemTh: tPick(totem.th, totem.t), moonCycle: totem.moon,
+        clansmother: totem.clan, element: pEl(totem.el),
         score,
         reading: buildRichReading({
             sysTh: 'โทเท็มอินเดียนแดง (Native American)',
@@ -2421,11 +2887,11 @@ function calcNativeAmerican(d) {
             originEn: 'The Birth Totem system is the interpretation of several Native American tribes (Sioux, Lakota, Cherokee) dividing the year into 12 lunar segments. Each is ruled by a "Birth Totem" (your birth-day animal) and a "Clan" (one of 4 element families: Fire/Butterfly, Earth/Turtle, Air/Frog, Water/Thunderbird). Unlike European astrology which points to stars, this system points to animals — because Native peoples believed every person has a lifelong animal-spirit companion.',
             yearsOld: 1000,
             keyValue: `${totem.th} (${totem.t}) · ${totem.moon} · ${totem.clan} · ธาตุ${totem.el}`,
-            keyValueEn: `${totem.t} · ${totem.moon} · ${totem.clan} · ${totem.el === 'ไฟ' ? 'Fire' : totem.el === 'น้ำ' ? 'Water' : totem.el === 'ดิน' ? 'Earth' : 'Air'} element`,
+            keyValueEn: `${totem.t} · ${totem.moon} · ${totem.clan} · ${tEl(totem.el)} element`,
             keyValueMeaning: `Birth Totem ของคุณคือ <strong>${totem.th}</strong> ซึ่งในภาษาอินเดียนแดงคือ "${totem.t}" ช่วงเวลาเกิดตรงกับ "${totem.moon}" (ดวงจันทร์ของเดือนนั้น) และคุณเป็นส่วนหนึ่งของ <strong>${totem.clan}</strong> ซึ่งให้ธาตุ${totem.el} อินเดียนแดงเชื่อว่า Totem ไม่ใช่แค่สัญลักษณ์ — มันคือวิญญาณสัตว์ที่ "เดินข้าง" คุณตั้งแต่เกิดจนตาย ให้การปกป้อง ปัญญา และเตือนภัย`,
-            keyValueMeaningEn: `Your Birth Totem is <strong>${totem.t}</strong>, born during the "${totem.moon}". You belong to the <strong>${totem.clan}</strong>, granting the ${totem.el === 'ไฟ' ? 'Fire' : totem.el === 'น้ำ' ? 'Water' : totem.el === 'ดิน' ? 'Earth' : 'Air'} element. Native peoples teach that the Totem isn\'t merely a symbol — it\'s an animal spirit that "walks beside you" from birth until death, offering protection, wisdom, and warning.`,
+            keyValueMeaningEn: `Your Birth Totem is <strong>${totem.t}</strong>, born during the "${totem.moon}". You belong to the <strong>${totem.clan}</strong>, granting the ${tEl(totem.el)} element. Native peoples teach that the Totem isn\'t merely a symbol — it\'s an animal spirit that "walks beside you" from birth until death, offering protection, wisdom, and warning.`,
             strengthTh: `Totem ${totem.th} ${totem.th === 'หมาป่า' ? 'ให้คุณพรของการเป็นผู้นำฝูง — คุณปกป้องคนที่รักได้อย่างดุดัน และมี "Pack Loyalty" (ความจงรักต่อกลุ่ม) สูง' : totem.th === 'อินทรี' ? 'ให้คุณพรของการมองจากที่สูง — คุณเห็นภาพใหญ่ก่อนใคร และเป็นผู้สื่อสารกับ "Great Spirit" ในภูมิปัญญาอินเดียน' : totem.th === 'หมี' ? 'ให้คุณพรของความแข็งแกร่งและการเยียวยา — หมีเป็นสัตว์ที่ใช้เวลานอนในถ้ำเพื่อฟื้นฟู คุณก็มีจังหวะนี้' : totem.th === 'นาก' ? 'ให้คุณพรของการเล่นและการแก้ปัญหา — นากเป็นสัตว์ที่ "ใช้ชีวิตเล่นเป็นงาน" คุณก็มีพรนี้' : 'พลังเฉพาะตัวของ ' + totem.t} ${totem.clan} เสริมด้วยธาตุ${totem.el} ทำให้คุณมี${totem.el === 'ไฟ' ? 'ความเร่าร้อน ผู้จุดประกาย' : totem.el === 'ดิน' ? 'ความมั่นคง ผู้สร้าง' : totem.el === 'น้ำ' ? 'สัญชาตญาณ ผู้เยียวยา' : 'ความยืดหยุ่น ผู้สื่อสาร'}`,
-            strengthEn: `Totem ${totem.t} ${totem.t === 'Wolf' ? 'grants the gift of pack leadership — you defend loved ones fiercely and carry high "Pack Loyalty"' : totem.t === 'Falcon' ? 'grants the gift of high vision — you see the big picture before anyone, and you communicate with the "Great Spirit" in Native wisdom' : totem.t === 'Brown Bear' ? 'grants strength and healing — Bear retreats to a cave to renew, and you carry that rhythm too' : totem.t === 'Otter' ? 'grants the gift of play and problem-solving — Otters "make a living of play"; you have that gift' : 'a unique power tied to ' + totem.t}. The ${totem.clan} adds the ${totem.el === 'ไฟ' ? 'Fire' : totem.el === 'น้ำ' ? 'Water' : totem.el === 'ดิน' ? 'Earth' : 'Air'} element, making you ${totem.el === 'ไฟ' ? 'fiery, an igniter' : totem.el === 'ดิน' ? 'steady, a builder' : totem.el === 'น้ำ' ? 'intuitive, a healer' : 'flexible, a communicator'}.`,
+            strengthEn: `Totem ${totem.t} ${totem.t === 'Wolf' ? 'grants the gift of pack leadership — you defend loved ones fiercely and carry high "Pack Loyalty"' : totem.t === 'Falcon' ? 'grants the gift of high vision — you see the big picture before anyone, and you communicate with the "Great Spirit" in Native wisdom' : totem.t === 'Brown Bear' ? 'grants strength and healing — Bear retreats to a cave to renew, and you carry that rhythm too' : totem.t === 'Otter' ? 'grants the gift of play and problem-solving — Otters "make a living of play"; you have that gift' : 'a unique power tied to ' + totem.t}. The ${totem.clan} adds the ${tEl(totem.el)} element, making you ${totem.el === 'ไฟ' ? 'fiery, an igniter' : totem.el === 'ดิน' ? 'steady, a builder' : totem.el === 'น้ำ' ? 'intuitive, a healer' : 'flexible, a communicator'}.`,
             shadowTh: `ทุก Totem มี "Shadow Side" ที่ Shaman เตือน — ของ ${totem.th} คือ${totem.th === 'หมาป่า' ? 'การกลายเป็นหมาป่าโดดเดี่ยวที่ไม่ไว้ใจใคร' : totem.th === 'อินทรี' ? 'การมองจากสูงจนเย็นชา ขาดการเชื่อมกับคนที่เดินอยู่' : totem.th === 'หมี' ? 'การนอนในถ้ำนานเกินไปจนพลาดโอกาส' : 'การใช้พลังของ Totem ในทางที่ตัดขาดจากฝูงของตน'} อินเดียนแดงทำพิธี "Vision Quest" (การอดอาหารและสมาธิในป่า 3-7 วัน) เพื่อฟื้นฟูความเชื่อมกับ Totem เมื่อรู้สึกห่าง`,
             shadowEn: `Every Totem has a "Shadow Side" the Shaman warns about. For ${totem.t} it\'s ${totem.t === 'Wolf' ? 'becoming a lone wolf who trusts no one' : totem.t === 'Falcon' ? 'looking down from too high — turning cold, losing connection with the people walking on the ground' : totem.t === 'Brown Bear' ? 'staying in the cave too long, missing opportunities' : 'using your Totem\'s power in ways that cut you off from your tribe'}. Native Americans perform a "Vision Quest" (3–7 days of fasting and meditation in the wilderness) to restore connection with the Totem when they feel distant.`,
             practiceTh: `การเชื่อมกับ Totem รายวัน: (1) เก็บภาพหรือวัตถุของ ${totem.th} ไว้ในที่ทำงาน (2) ในวันที่ต้องการพลังของ Totem หลับตาและจินตนาการ ${totem.th} เดินข้างคุณ 5 นาที (3) เรียนรู้เรื่อง ${totem.th} จริงๆ — วิธีกินอยู่ ระบบสังคม ความสามารถ — ทุกความรู้ของ ${totem.th} คือความรู้เกี่ยวกับตัวคุณ (4) ในช่วง Full Moon ของเดือน ${totem.moon} เป็นช่วงพลังสูงสุดของปี`,
@@ -2440,30 +2906,30 @@ function calcNativeAmerican(d) {
 // ── IFA / YORUBA ─────────────────────────────────────────────────
 function calcIfaYoruba(d) {
     const ODU = [
-        { n: 'Ogbe', th: 'โอกเบ — แสงสว่าง', theme: 'ปัญญาและจิตวิญญาณ', fortune: 'เยี่ยมยอด', score: 820 },
-        { n: 'Oyeku', th: 'โอเยกุ — ความมืด', theme: 'การสิ้นสุดและการเริ่มต้นใหม่', fortune: 'ท้าทาย', score: 610 },
-        { n: 'Iwori', th: 'อิโวริ — หัวใจ', theme: 'จิตวิญญาณภายใน', fortune: 'ดี', score: 760 },
-        { n: 'Odi', th: 'โอดิ — มดลูก', theme: 'ความลึกลับและความอุดมสมบูรณ์', fortune: 'ดี', score: 750 },
-        { n: 'Irosun', th: 'อิโรซุน — เลือด', theme: 'ความสัมพันธ์และรัก', fortune: 'ดี', score: 760 },
-        { n: 'Owonrin', th: 'โอวอนริน — ลม', theme: 'การเปลี่ยนแปลง', fortune: 'ผสม', score: 710 },
-        { n: 'Obara', th: 'โอบารา — กษัตริย์', theme: 'ความภาคภูมิใจและความสำเร็จ', fortune: 'เยี่ยม', score: 800 },
-        { n: 'Okanran', th: 'โอกันรัน — ไฟ', theme: 'ความกล้าหาญ', fortune: 'ดี', score: 770 },
-        { n: 'Ogunda', th: 'โอกุนดา — เหล็ก', theme: 'เส้นทางการงาน', fortune: 'ดี', score: 780 },
-        { n: 'Osa', th: 'โอซา —嵐', theme: 'ความปั่นป่วนและการเปลี่ยนแปลง', fortune: 'ผสม', score: 690 },
-        { n: 'Ika', th: 'อิกา — กรัก', theme: 'ปัญหาและการแก้ไข', fortune: 'ท้าทาย', score: 650 },
-        { n: 'Oturupon', th: 'โอตูรูปอน — น้ำท่วม', theme: 'ความอุดมสมบูรณ์จากความยากลำบาก', fortune: 'ผสม', score: 720 },
-        { n: 'Otura', th: 'โอตูรา — ขวา', theme: 'ข้อตกลงอันศักดิ์สิทธิ์', fortune: 'ดี', score: 760 },
-        { n: 'Irete', th: 'อิเรเต — ก้าวใหม่', theme: 'วุฒิภาวะและปัญญา', fortune: 'ดี', score: 770 },
-        { n: 'Ose', th: 'โอเซ — ความสมบูรณ์', theme: 'ความงามและชัยชนะ', fortune: 'เยี่ยม', score: 800 },
-        { n: 'Ofun', th: 'โอฟุน — วงกลม', theme: 'ความสมบูรณ์แบบ', fortune: 'เยี่ยมสุด', score: 830 },
+        { n: 'Ogbe', th: 'โอกเบ — แสงสว่าง', thEn: 'Ogbe — Light', theme: 'ปัญญาและจิตวิญญาณ', themeEn: 'wisdom and spirit', fortune: 'เยี่ยมยอด', fortuneEn: 'excellent', score: 820 },
+        { n: 'Oyeku', th: 'โอเยกุ — ความมืด', thEn: 'Oyeku — Darkness', theme: 'การสิ้นสุดและการเริ่มต้นใหม่', themeEn: 'endings and new beginnings', fortune: 'ท้าทาย', fortuneEn: 'challenging', score: 610 },
+        { n: 'Iwori', th: 'อิโวริ — หัวใจ', thEn: 'Iwori — Heart', theme: 'จิตวิญญาณภายใน', themeEn: 'inner spirit', fortune: 'ดี', fortuneEn: 'good', score: 760 },
+        { n: 'Odi', th: 'โอดิ — มดลูก', thEn: 'Odi — Womb', theme: 'ความลึกลับและความอุดมสมบูรณ์', themeEn: 'mystery and abundance', fortune: 'ดี', fortuneEn: 'good', score: 750 },
+        { n: 'Irosun', th: 'อิโรซุน — เลือด', thEn: 'Irosun — Blood', theme: 'ความสัมพันธ์และรัก', themeEn: 'relationships and love', fortune: 'ดี', fortuneEn: 'good', score: 760 },
+        { n: 'Owonrin', th: 'โอวอนริน — ลม', thEn: 'Owonrin — Wind', theme: 'การเปลี่ยนแปลง', themeEn: 'change', fortune: 'ผสม', fortuneEn: 'mixed', score: 710 },
+        { n: 'Obara', th: 'โอบารา — กษัตริย์', thEn: 'Obara — King', theme: 'ความภาคภูมิใจและความสำเร็จ', themeEn: 'pride and success', fortune: 'เยี่ยม', fortuneEn: 'excellent', score: 800 },
+        { n: 'Okanran', th: 'โอกันรัน — ไฟ', thEn: 'Okanran — Fire', theme: 'ความกล้าหาญ', themeEn: 'courage', fortune: 'ดี', fortuneEn: 'good', score: 770 },
+        { n: 'Ogunda', th: 'โอกุนดา — เหล็ก', thEn: 'Ogunda — Iron', theme: 'เส้นทางการงาน', themeEn: 'career path', fortune: 'ดี', fortuneEn: 'good', score: 780 },
+        { n: 'Osa', th: 'โอซา —嵐', thEn: 'Osa — Storm', theme: 'ความปั่นป่วนและการเปลี่ยนแปลง', themeEn: 'turbulence and change', fortune: 'ผสม', fortuneEn: 'mixed', score: 690 },
+        { n: 'Ika', th: 'อิกา — กรัก', thEn: 'Ika — Trap', theme: 'ปัญหาและการแก้ไข', themeEn: 'problems and resolution', fortune: 'ท้าทาย', fortuneEn: 'challenging', score: 650 },
+        { n: 'Oturupon', th: 'โอตูรูปอน — น้ำท่วม', thEn: 'Oturupon — Flood', theme: 'ความอุดมสมบูรณ์จากความยากลำบาก', themeEn: 'abundance through hardship', fortune: 'ผสม', fortuneEn: 'mixed', score: 720 },
+        { n: 'Otura', th: 'โอตูรา — ขวา', thEn: 'Otura — Right', theme: 'ข้อตกลงอันศักดิ์สิทธิ์', themeEn: 'sacred agreements', fortune: 'ดี', fortuneEn: 'good', score: 760 },
+        { n: 'Irete', th: 'อิเรเต — ก้าวใหม่', thEn: 'Irete — New Step', theme: 'วุฒิภาวะและปัญญา', themeEn: 'maturity and wisdom', fortune: 'ดี', fortuneEn: 'good', score: 770 },
+        { n: 'Ose', th: 'โอเซ — ความสมบูรณ์', thEn: 'Ose — Wholeness', theme: 'ความงามและชัยชนะ', themeEn: 'beauty and victory', fortune: 'เยี่ยม', fortuneEn: 'excellent', score: 800 },
+        { n: 'Ofun', th: 'โอฟุน — วงกลม', thEn: 'Ofun — Circle', theme: 'ความสมบูรณ์แบบ', themeEn: 'completeness', fortune: 'เยี่ยมสุด', fortuneEn: 'highest', score: 830 },
     ];
     const oduNumber = ((d.year * 3 + d.month * 7 + d.day * 11) % 16 + 16) % 16;
     const odu = ODU[oduNumber];
     const variation = (d.day * 9 + d.hour * 13) % 80 - 40;
     const score = Math.max(420, Math.min(950, odu.score + variation));
     return {
-        odu: odu.n, oduTh: odu.th, oduNumber,
-        oduTheme: odu.theme, fortune: odu.fortune,
+        odu: odu.n, oduTh: tPick(odu.th, odu.thEn), oduNumber,
+        oduTheme: tPick(odu.theme, odu.themeEn), fortune: tPick(odu.fortune, odu.fortuneEn),
         score,
         reading: buildRichReading({
             sysTh: 'อิฟา-โยรูบา (Ifá)',
@@ -2497,26 +2963,26 @@ function calcIfaYoruba(d) {
 // ── ABORIGINAL DREAMTIME ──────────────────────────────────────
 function calcAboriginal(d) {
     const ANCESTORS = [
-        { a: 'Rainbow Serpent', th: 'งูรุ้ง', season: 'ฤดูฝน', clan: 'Water Clan', score: 800 },
-        { a: 'Bunjil Eagle', th: 'อินทรีบุนจิล', season: 'ฤดูใบไม้ผลิ', clan: 'Sky Clan', score: 820 },
-        { a: 'Wandjina', th: 'วันจินา', season: 'ฤดูมรสุม', clan: 'Cloud Clan', score: 790 },
-        { a: 'Baiame Sky Father', th: 'บาอิเอเม', season: 'ฤดูแล้ง', clan: 'Star Clan', score: 810 },
-        { a: 'Yowie Forest', th: 'โยวี่', season: 'ฤดูป่า', clan: 'Forest Clan', score: 730 },
-        { a: 'Mimi Rock Spirits', th: 'มิมิ', season: 'ฤดูหิน', clan: 'Rock Clan', score: 740 },
-        { a: 'Namarrkun Lightning', th: 'นามาร์กุน', season: 'ฤดูฟ้าร้อง', clan: 'Storm Clan', score: 760 },
-        { a: 'Altjira Dream Father', th: 'อัลตจิรา', season: 'ทุกฤดู', clan: 'Dream Clan', score: 780 },
-        { a: 'Tiddalik Frog', th: 'ทิดดาลิก', season: 'ฤดูน้ำท่วม', clan: 'Water Clan', score: 700 },
-        { a: 'Bunyip Water', th: 'บุนยิป', season: 'ฤดูหนาว', clan: 'Deep Water Clan', score: 710 },
-        { a: 'Quinkans Spirits', th: 'ควินกัน', season: 'ฤดูแห้ง', clan: 'Shadow Clan', score: 720 },
-        { a: 'Djang\'kawu Sisters', th: 'ดจ้างกาวู', season: 'ฤดูสร้าง', clan: 'Creation Clan', score: 800 },
+        { a: 'Rainbow Serpent', th: 'งูรุ้ง', season: 'ฤดูฝน', seasonEn: 'rainy season', clan: 'Water Clan', score: 800 },
+        { a: 'Bunjil Eagle', th: 'อินทรีบุนจิล', season: 'ฤดูใบไม้ผลิ', seasonEn: 'spring', clan: 'Sky Clan', score: 820 },
+        { a: 'Wandjina', th: 'วันจินา', season: 'ฤดูมรสุม', seasonEn: 'monsoon', clan: 'Cloud Clan', score: 790 },
+        { a: 'Baiame Sky Father', th: 'บาอิเอเม', season: 'ฤดูแล้ง', seasonEn: 'dry season', clan: 'Star Clan', score: 810 },
+        { a: 'Yowie Forest', th: 'โยวี่', season: 'ฤดูป่า', seasonEn: 'forest season', clan: 'Forest Clan', score: 730 },
+        { a: 'Mimi Rock Spirits', th: 'มิมิ', season: 'ฤดูหิน', seasonEn: 'rock season', clan: 'Rock Clan', score: 740 },
+        { a: 'Namarrkun Lightning', th: 'นามาร์กุน', season: 'ฤดูฟ้าร้อง', seasonEn: 'thunder season', clan: 'Storm Clan', score: 760 },
+        { a: 'Altjira Dream Father', th: 'อัลตจิรา', season: 'ทุกฤดู', seasonEn: 'all seasons', clan: 'Dream Clan', score: 780 },
+        { a: 'Tiddalik Frog', th: 'ทิดดาลิก', season: 'ฤดูน้ำท่วม', seasonEn: 'flood season', clan: 'Water Clan', score: 700 },
+        { a: 'Bunyip Water', th: 'บุนยิป', season: 'ฤดูหนาว', seasonEn: 'winter', clan: 'Deep Water Clan', score: 710 },
+        { a: 'Quinkans Spirits', th: 'ควินกัน', season: 'ฤดูแห้ง', seasonEn: 'dry season', clan: 'Shadow Clan', score: 720 },
+        { a: 'Djang\'kawu Sisters', th: 'ดจ้างกาวู', season: 'ฤดูสร้าง', seasonEn: 'creation season', clan: 'Creation Clan', score: 800 },
     ];
     const ancestorIdx = (d.month - 1) % 12;
     const a = ANCESTORS[ancestorIdx];
     const variation = (d.day * 11 + d.year % 100 * 3) % 60 - 30;
     const score = Math.max(430, Math.min(940, a.score + variation));
     return {
-        dreamingAncestor: a.a, dreamingTh: a.th,
-        season: a.season, clan: a.clan,
+        dreamingAncestor: a.a, dreamingTh: tPick(a.th, a.a),
+        season: tPick(a.season, a.seasonEn), clan: a.clan,
         score,
         reading: buildRichReading({
             sysTh: 'Dreamtime อะบอริจิน (Tjukurrpa)',
@@ -2600,22 +3066,22 @@ function calcBiorhythm(d) {
 // ── VEDIC MAHADASHA (extracted as separate system) ────────────────
 function calcVedicMahadasha(d, vedic) {
     const DASHA_QUALITY = {
-        'Sun': { quality: 'ความมีอำนาจและชื่อเสียง', el: 'ไฟ', score: 780 },
-        'Moon': { quality: 'อารมณ์และสัญชาตญาณ', el: 'น้ำ', score: 750 },
-        'Mars': { quality: 'พลังงานและความท้าทาย', el: 'ไฟ', score: 720 },
-        'Rahu': { quality: 'ความทะเยอทะยานและการเปลี่ยนแปลง', el: 'โลหะ', score: 700 },
-        'Jupiter': { quality: 'โชคลาภและปัญญา', el: 'ไม้', score: 820 },
-        'Saturn': { quality: 'ความอดทนและบทเรียน', el: 'โลหะ', score: 710 },
-        'Mercury': { quality: 'การสื่อสารและธุรกิจ', el: 'ดิน', score: 760 },
-        'Ketu': { quality: 'จิตวิญญาณและการปล่อยวาง', el: 'ดิน', score: 700 },
-        'Venus': { quality: 'ความรักและความสร้างสรรค์', el: 'โลหะ', score: 800 },
+        'Sun': { quality: 'ความมีอำนาจและชื่อเสียง', qualityEn: 'Authority and fame', el: 'ไฟ', score: 780 },
+        'Moon': { quality: 'อารมณ์และสัญชาตญาณ', qualityEn: 'Emotion and intuition', el: 'น้ำ', score: 750 },
+        'Mars': { quality: 'พลังงานและความท้าทาย', qualityEn: 'Energy and challenge', el: 'ไฟ', score: 720 },
+        'Rahu': { quality: 'ความทะเยอทะยานและการเปลี่ยนแปลง', qualityEn: 'Ambition and transformation', el: 'โลหะ', score: 700 },
+        'Jupiter': { quality: 'โชคลาภและปัญญา', qualityEn: 'Fortune and wisdom', el: 'ไม้', score: 820 },
+        'Saturn': { quality: 'ความอดทนและบทเรียน', qualityEn: 'Endurance and lessons', el: 'โลหะ', score: 710 },
+        'Mercury': { quality: 'การสื่อสารและธุรกิจ', qualityEn: 'Communication and business', el: 'ดิน', score: 760 },
+        'Ketu': { quality: 'จิตวิญญาณและการปล่อยวาง', qualityEn: 'Spirit and release', el: 'ดิน', score: 700 },
+        'Venus': { quality: 'ความรักและความสร้างสรรค์', qualityEn: 'Love and creativity', el: 'โลหะ', score: 800 },
     };
-    const dq = DASHA_QUALITY[vedic.mahadasha] ?? { quality: 'พลังงานปรับสมดุล', el: 'ดิน', score: 730 };
+    const dq = DASHA_QUALITY[vedic.mahadasha] ?? { quality: 'พลังงานปรับสมดุล', qualityEn: 'Balanced energy', el: 'ดิน', score: 730 };
     const variation = (d.day * 7 + d.month * 13) % 80 - 40;
     const score = Math.max(430, Math.min(950, dq.score + variation));
     return {
         currentDasha: vedic.mahadasha, currentDashaEnd: vedic.mahadashaEnd, antardasha: vedic.antardasha,
-        dashaQuality: dq.quality, dashaElement: dq.el,
+        dashaQuality: tPick(dq.quality, dq.qualityEn), dashaElement: pEl(dq.el),
         score,
         reading: buildRichReading({
             sysTh: 'มหาทศาวิมโชทตรี',
@@ -2699,86 +3165,29 @@ let _lang = 'th';
 // argument without context-switching files.
 const tr = (th, en) => _lang === 'en' ? en : th;
 // ── Data-field translator ───────────────────────────────────────
-// Many engine fields are Thai-only at the data layer (e.g. bazi.luckyElement
-// = 'ไฟ', ninestar.starColor = 'ขาว', thai.dayName = 'วันอาทิตย์'). When the
-// report renders in English mode we still pull those values; trDF maps the
-// known Thai vocabulary to English at display time so we don't have to
-// duplicate every engine field with an *En counterpart.
+// SLIM MAP after Phases A-B made the engine bilingual at the source.
+// The remaining entries handle:
+//   1. SCORE_WEIGHTS labels (system names baked into chart.score.breakdown
+//      use Thai-mixed names like 'BaZi สี่เสา' / 'ไทยพราหมณ์' — these flow
+//      directly to score-table renderers and need translation here).
+//   2. Tier label aliases (chart.score.tier vs tierEn).
+//   3. A handful of misc page-level fragments.
+// All ~150 chart-data Thai entries (elements, directions, colours, days,
+// stems, branches, totems, dreamings, aztec signs, celtic trees, ziwei
+// stars, gods, profile descs, py meanings) are now handled at calc.ts
+// via tPick/pEl/pDir/pColor/pDay — the chart object stores the
+// language-correct value at calculate time, so trDF doesn't need them.
 const _DF_MAP = {
-    // Five elements
-    'ไฟ': 'Fire', 'ไม้': 'Wood', 'น้ำ': 'Water', 'โลหะ': 'Metal', 'ดิน': 'Earth', 'ลม': 'Air',
-    // Compass
-    'เหนือ': 'North', 'ใต้': 'South', 'ตะวันออก': 'East', 'ตะวันตก': 'West',
-    'ตะวันออกเฉียงเหนือ': 'Northeast', 'ตะวันออกเฉียงใต้': 'Southeast',
-    'ตะวันตกเฉียงเหนือ': 'Northwest', 'ตะวันตกเฉียงใต้': 'Southwest',
-    'ตามปี': 'by year', 'ศูนย์กลาง': 'Centre',
-    // Colours
-    'แดง': 'Red', 'ขาว': 'White', 'น้ำเงิน': 'Blue', 'เหลือง': 'Yellow', 'ดำ': 'Black',
-    'ดำ/น้ำตาล': 'Black/Brown', 'เขียว': 'Green', 'เขียวฟ้า': 'Cyan', 'ขาว/เงิน': 'White/Silver',
-    'แดง/ชมพู': 'Red/Pink', 'ขาว/เบจ': 'White/Beige', 'ม่วง/แดง': 'Purple/Red', 'ทอง': 'Gold',
-    // Days of week
-    'วันอาทิตย์': 'Sunday', 'วันจันทร์': 'Monday', 'วันอังคาร': 'Tuesday', 'วันพุธ': 'Wednesday',
-    'วันพฤหัสบดี': 'Thursday', 'วันศุกร์': 'Friday', 'วันเสาร์': 'Saturday',
-    // Western signs (Thai → English)
-    'เมษ': 'Aries', 'พฤษภ': 'Taurus', 'เมถุน': 'Gemini', 'กรกฎ': 'Cancer', 'สิงห์': 'Leo',
-    'กันย์': 'Virgo', 'ตุลย์': 'Libra', 'พิจิก': 'Scorpio', 'ธนู': 'Sagittarius', 'มกร': 'Capricorn',
-    'กุมภ์': 'Aquarius', 'มีน': 'Pisces',
-    // BaZi/Saju element-quality phrases
-    '생조 — เดือนหนุนวัน': '생조 — month feeds the day',
-    '비겁 — พลังงานเดียวกัน': '비겁 — same energy',
-    '극 — แรงกดดัน': '극 — pressure',
-    // Thai sun/moon zodiac labels
-    'ราชสีห์แห่งดวงอาทิตย์': 'Lion of the Sun',
-    // Thai-Brahmin fortune labels
-    'โชคลาภและชื่อเสียง': 'Fortune and fame',
-    'ทรัพย์สมบัติจากความพยายาม': 'Wealth from effort',
-    'ปัญญาและการสื่อสาร': 'Wisdom and communication',
-    'ความรักและความสุข': 'Love and joy',
-    'อำนาจและตำแหน่ง': 'Power and position',
-    'ครอบครัวและบ้าน': 'Family and home',
-    'ความเข้มแข็งและการอดทน': 'Endurance and strength',
-    // Numerology PY meanings (short)
-    'ปีแห่งการเริ่มต้นใหม่ — ลงมือทำสิ่งที่ตั้งใจมานาน ปีนี้ปลูกเมล็ดพันธุ์ใหม่': 'Year of new beginnings — act on what you\'ve long intended; plant new seeds this year',
-    'ปีแห่งความสัมพันธ์ — เสริมสร้างความร่วมมือ ระวังการตัดสินใจรีบร้อน': 'Year of relationships — strengthen cooperation; avoid hasty decisions',
-    'ปีแห่งการสื่อสาร — แสดงออก สร้างสรรค์ ขยายเครือข่าย โอกาสดีด้านสังคม': 'Year of communication — express, create, expand networks; strong social opportunities',
-    'ปีแห่งการทำงาน — วางรากฐาน ทำงานหนัก ผลลัพธ์ระยะยาว ไม่ใช่ปีแห่งความสนุก': 'Year of work — lay foundations, work hard; long-term results, not a year for fun',
-    'ปีแห่งการเปลี่ยนแปลง — โอกาสใหม่มาพร้อมกับความไม่แน่นอน เตรียมรับความเปลี่ยนแปลง': 'Year of change — new opportunities arrive with uncertainty; prepare for change',
-    'ปีแห่งครอบครัว — โฟกัสที่บ้าน ความสัมพันธ์ และการรับผิดชอบ โอกาสดีด้านอสังหาฯ': 'Year of family — focus on home, relationships, responsibility; good real-estate opportunities',
-    'ปีแห่งการพักผ่อนจิตใจ — เวลาสำหรับการไตร่ตรอง เรียนรู้ และฟื้นฟูพลังงาน': 'Year of mental rest — time for reflection, learning, recharging',
-    'ปีแห่งการเก็บเกี่ยว — ผลแห่งการทำงาน 7 ปีที่ผ่านมาปรากฏ โอกาสด้านการเงินและอาชีพ': 'Year of harvest — the fruits of the past 7 years arrive; financial and career opportunities',
-    'ปีแห่งการสรุป — ปิดประตูเก่า เตรียมรับวงจรใหม่ ให้อภัยและปล่อยวาง': 'Year of completion — close old doors, prepare for the new cycle; forgive and release',
-    // System name labels (sysTh → sysEn) used in score breakdowns
+    // SCORE_WEIGHTS system labels (mixed Thai-English in calc.ts:1188-1219)
     'โหราศาสตร์ตะวันตก': 'Western Astrology',
-    'โหราศาสตร์ภารตะ': 'Vedic Astrology',
     'BaZi สี่เสา': 'BaZi · Four Pillars',
-    'ดาว 9 ดวง': 'Nine Star Ki',
     'เลขศาสตร์ Pythagorean': 'Pythagorean Numerology',
     'เลข ๗ ตัว ๙ ฐาน': 'Thai 7-Number System',
     'ระบบประเภทพลังงาน': 'Human Design',
-    'ปฏิทินมายัน': 'Mayan Tzolk\'in',
     'มายัน Tzolk\'in': 'Mayan Tzolk\'in',
-    'ต้นไม้เซลติก': 'Celtic Tree Astrology',
     'เซลติก Tree': 'Celtic Tree',
-    'โหราศาสตร์ไทยพราหมณ์': 'Thai Brahmin Astrology',
     'ไทยพราหมณ์': 'Thai Brahmin',
-    'โหราศาสตร์ทิเบต': 'Tibetan Astrology',
-    'Tibetan Astrology': 'Tibetan Astrology',
-    'ดวงเกาหลี': 'Korean Saju',
-    'ซื่อเว่ย': 'Zi Wei Dou Shu',
-    'อนเมียวโด': 'Onmyōdō',
-    'โหราศาสตร์เฮลเลนิสติก': 'Hellenistic Astrology',
-    'รูนไวกิ้ง': 'Norse Runes',
-    'อักษรโอแฮม': 'Ogham',
-    'จุดอาหรับ': 'Arabic Parts',
-    'คับบาลาห์': 'Kabbalah',
-    'โซโรแอสเตอร์': 'Zoroastrian',
-    'โทนัลโปอัลลี': 'Aztec Tonalpohualli',
-    'โทเท็มอินเดียนแดง': 'Native American Totems',
-    'อิฟา-โยรูบา': 'Ifá-Yoruba',
-    'Dreamtime อะบอริจิน': 'Aboriginal Dreamtime',
-    'ไบโอริธึม': 'Biorhythm',
-    'มหาทศาวิมโชทตรี': 'Vedic Mahadasha',
-    // Tier names (tierTh → tier)
+    // Tier labels (chart.score.tier still ships Thai-prefixed when not en-only)
     'ฟ้า — Celestial': 'Celestial',
     'แสง — Radiant': 'Radiant',
     'เปล่งประกาย — Luminous': 'Luminous',
@@ -2786,71 +3195,9 @@ const _DF_MAP = {
     'หยั่งราก — Grounded': 'Grounded',
     'แสวงหา — Seeking': 'Seeking',
     'แสงเริ่มต้น — Awakening': 'Awakening',
-    // BaZi STEMS_TH (10 stems)
-    'จ่ย ไม้หยาง': 'Jia (Yang Wood)', 'อี่ ไม้อ่อน': 'Yi (Yin Wood)', 'ปิ่ง ไฟหยาง': 'Bing (Yang Fire)',
-    'ติง ไฟอ่อน': 'Ding (Yin Fire)', 'อู่ ดินหยาง': 'Wu (Yang Earth)', 'จี่ ดินอ่อน': 'Ji (Yin Earth)',
-    'เกิง โลหะหยาง': 'Geng (Yang Metal)', 'ซิน โลหะอ่อน': 'Xin (Yin Metal)',
-    'เหริน น้ำหยาง': 'Ren (Yang Water)', 'กุ้ย น้ำอ่อน': 'Gui (Yin Water)',
-    // BaZi BRANCHES_TH (12 branches with animals)
-    'ชวด (หนู)': 'Zi (Rat)', 'ฉลู (วัว)': 'Chou (Ox)', 'ขาล (เสือ)': 'Yin (Tiger)',
-    'เถาะ (กระต่าย)': 'Mao (Rabbit)', 'มะโรง (มังกร)': 'Chen (Dragon)', 'มะเส็ง (งู)': 'Si (Snake)',
-    'มะเมีย (ม้า)': 'Wu (Horse)', 'มะแม (แพะ)': 'Wei (Goat)', 'วอก (ลิง)': 'Shen (Monkey)',
-    'ระกา (ไก่)': 'You (Rooster)', 'จอ (สุนัข)': 'Xu (Dog)', 'กุน (หมู)': 'Hai (Pig)',
-    // HD types
-    'ผู้ริเริ่ม': 'Manifestor', 'ผู้สร้างพลังงาน': 'Generator', 'MG ผู้สร้างและริเริ่ม': 'Manifesting Generator',
-    'ผู้นำทาง': 'Projector', 'ผู้สะท้อน': 'Reflector',
-    // HD strategies
-    'แจ้งให้ผู้อื่นทราบก่อนลงมือ': 'Inform before acting', 'รอตอบสนองก่อนลงมือ': 'Wait to respond',
-    'ตอบสนอง แล้วแจ้งก่อนลงมือ': 'Respond, then inform', 'รอคำเชิญก่อนลงมือ': 'Wait for the invitation',
-    'รอ 28 วัน (รอบจันทร์)': 'Wait 28 days (lunar cycle)',
-    // Tibetan Mewa quality
-    'สมดุล': 'Balanced', 'ท้าทาย': 'Challenging', 'เติบโต': 'Growth', 'เสริม': 'Supportive',
-    'ท้าทายมาก': 'Highly challenging', 'มั่นคง': 'Stable', 'กล้าหาญ': 'Courageous',
-    'เข้มแข็ง': 'Strong', 'รุ่งเรือง': 'Flourishing',
-    // Native American totems (Thai → English match)
-    'ห่านหิมะ': 'Snow Goose', 'นาก': 'Otter', 'หมาป่า': 'Wolf', 'เหยี่ยว': 'Falcon',
-    'บีเวอร์': 'Beaver', 'กวาง': 'Deer', 'นกหัวขวาน': 'Woodpecker', 'ปลาแซลมอน': 'Salmon',
-    'หมีน้ำตาล': 'Brown Bear', 'กา': 'Raven', 'งู': 'Snake', 'กวางใหญ่': 'Elk',
-    'ห่านหิมะ(2)': 'Snow Goose',
-    // Aboriginal Dreaming
-    'งูรุ้ง': 'Rainbow Serpent', 'อินทรีบุนจิล': 'Bunjil Eagle', 'วันจินา': 'Wandjina', 'บาอิเอเม': 'Baiame',
-    'โยวี่': 'Yowie', 'มิมิ': 'Mimi', 'นามาร์กุน': 'Namarrkun', 'อัลตจิรา': 'Altjira',
-    'ทิดดาลิก': 'Tiddalik', 'บุนยิป': 'Bunyip', 'ควินกัน': 'Quinkans', 'ดจ้างกาวู': 'Djang\'kawu',
-    // Aztec day-signs (Thai → English approximation)
-    // NOTE: 'ลม' and 'งู' deliberately omitted here — they're already in the
-    // Five-Elements / NA-Totem maps above. Aztec context disambiguates at
-    // display time via the surrounding "Aztec" prefix in the data field.
-    'จระเข้': 'Crocodile', 'บ้าน': 'House', 'จิ้งจก': 'Lizard',
-    'ความตาย': 'Death', 'กระต่าย': 'Rabbit', 'สุนัข': 'Dog', 'ลิง': 'Monkey', 'หญ้า': 'Grass',
-    'อ้อ': 'Reed', 'เสือจากัวร์': 'Jaguar', 'อินทรี': 'Eagle', 'แร้ง': 'Vulture',
-    'การเคลื่อนไหว': 'Movement', 'หินเหล็กไฟ': 'Flint', 'ฝน': 'Rain', 'ดอกไม้': 'Flower',
-    // Celtic trees
-    'เบิร์ช': 'Birch', 'โรวัน': 'Rowan', 'แอช': 'Ash', 'อัลเดอร์': 'Alder', 'วิลโลว์': 'Willow',
-    'ฮอว์ธอร์น': 'Hawthorn', 'โอ๊ก': 'Oak', 'ฮอลลี่': 'Holly', 'เฮเซล': 'Hazel', 'เถาองุ่น': 'Vine',
-    'ไอวี่': 'Ivy', 'กก': 'Reed', 'แบล็คธอร์น': 'Blackthorn',
-    // Saju dominant energy
-    '생조 — เดือนหนุนวัน  ': '생조 — month feeds the day',
-    // Western signs (already covered)
-    // Common short labels used in convergence
+    // Common short page-level fragments still surfacing in score breakdowns
     'เห็นด้วย': 'Agree', 'กลางๆ': 'Mixed', 'เสียงเตือน': 'Cautions',
     'ครบทุกธาตุ': 'all elements present',
-    // ZiWei stars (mainStarTh → main star)
-    'ดาวม่วงจักรพรรดิ': 'Purple Emperor Star', 'ดาวปัญญา': 'Wisdom Star',
-    'ดาวพระอาทิตย์': 'Sun Star', 'ดาวโลหะแกร่ง': 'Strong Metal Star',
-    'ดาวสวรรค์สมดุล': 'Heavenly Balance Star', 'ดาวศักดิ์ศรี': 'Honour Star',
-    'ดาวคลังสมบัติ': 'Treasury Star', 'ดาวพระจันทร์': 'Moon Star',
-    'ดาวหมาป่า': 'Wolf Star', 'ดาวประตูยักษ์': 'Giant Gate Star',
-    'ดาวมนตรี': 'Minister Star', 'ดาวคานฟ้า': 'Heaven Beam Star',
-    // Thai-Brahmin god names (godTh)
-    'พระอาทิตย์': 'Surya (Sun)', 'พระจันทร์': 'Chandra (Moon)', 'พระอังคาร': 'Mangala (Mars)',
-    'พระพุธ': 'Budha (Mercury)', 'พระพฤหัสบดี': 'Brihaspati (Jupiter)', 'พระศุกร์': 'Shukra (Venus)',
-    'พระเสาร์': 'Shani (Saturn)',
-    // Misc closing fragments seen in probe
-    'ผู้ปกป้องและนักทำนาย': 'Protector and seer',
-    'ดาวของคุณตรงกับดาวปี': 'Your star matches the year\'s star',
-    'ทุกสิ่งขยายผลคูณสอง': 'Everything amplifies twofold',
-    'ต้องใส่ใจทุกการกระทำ': 'You must be mindful of every action',
-    'ทั้งโอกาสและความเสี่ยง': 'both opportunity and risk',
 };
 // Translate a data-layer Thai string to English when in EN mode. Falls
 // through unchanged when (a) lang is Thai or (b) the string isn\'t in the

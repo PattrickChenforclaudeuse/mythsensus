@@ -52,86 +52,29 @@ let _lang = 'th';
 // argument without context-switching files.
 const tr = (th, en) => _lang === 'en' ? en : th;
 // ── Data-field translator ───────────────────────────────────────
-// Many engine fields are Thai-only at the data layer (e.g. bazi.luckyElement
-// = 'ไฟ', ninestar.starColor = 'ขาว', thai.dayName = 'วันอาทิตย์'). When the
-// report renders in English mode we still pull those values; trDF maps the
-// known Thai vocabulary to English at display time so we don't have to
-// duplicate every engine field with an *En counterpart.
+// SLIM MAP after Phases A-B made the engine bilingual at the source.
+// The remaining entries handle:
+//   1. SCORE_WEIGHTS labels (system names baked into chart.score.breakdown
+//      use Thai-mixed names like 'BaZi สี่เสา' / 'ไทยพราหมณ์' — these flow
+//      directly to score-table renderers and need translation here).
+//   2. Tier label aliases (chart.score.tier vs tierEn).
+//   3. A handful of misc page-level fragments.
+// All ~150 chart-data Thai entries (elements, directions, colours, days,
+// stems, branches, totems, dreamings, aztec signs, celtic trees, ziwei
+// stars, gods, profile descs, py meanings) are now handled at calc.ts
+// via tPick/pEl/pDir/pColor/pDay — the chart object stores the
+// language-correct value at calculate time, so trDF doesn't need them.
 const _DF_MAP = {
-    // Five elements
-    'ไฟ': 'Fire', 'ไม้': 'Wood', 'น้ำ': 'Water', 'โลหะ': 'Metal', 'ดิน': 'Earth', 'ลม': 'Air',
-    // Compass
-    'เหนือ': 'North', 'ใต้': 'South', 'ตะวันออก': 'East', 'ตะวันตก': 'West',
-    'ตะวันออกเฉียงเหนือ': 'Northeast', 'ตะวันออกเฉียงใต้': 'Southeast',
-    'ตะวันตกเฉียงเหนือ': 'Northwest', 'ตะวันตกเฉียงใต้': 'Southwest',
-    'ตามปี': 'by year', 'ศูนย์กลาง': 'Centre',
-    // Colours
-    'แดง': 'Red', 'ขาว': 'White', 'น้ำเงิน': 'Blue', 'เหลือง': 'Yellow', 'ดำ': 'Black',
-    'ดำ/น้ำตาล': 'Black/Brown', 'เขียว': 'Green', 'เขียวฟ้า': 'Cyan', 'ขาว/เงิน': 'White/Silver',
-    'แดง/ชมพู': 'Red/Pink', 'ขาว/เบจ': 'White/Beige', 'ม่วง/แดง': 'Purple/Red', 'ทอง': 'Gold',
-    // Days of week
-    'วันอาทิตย์': 'Sunday', 'วันจันทร์': 'Monday', 'วันอังคาร': 'Tuesday', 'วันพุธ': 'Wednesday',
-    'วันพฤหัสบดี': 'Thursday', 'วันศุกร์': 'Friday', 'วันเสาร์': 'Saturday',
-    // Western signs (Thai → English)
-    'เมษ': 'Aries', 'พฤษภ': 'Taurus', 'เมถุน': 'Gemini', 'กรกฎ': 'Cancer', 'สิงห์': 'Leo',
-    'กันย์': 'Virgo', 'ตุลย์': 'Libra', 'พิจิก': 'Scorpio', 'ธนู': 'Sagittarius', 'มกร': 'Capricorn',
-    'กุมภ์': 'Aquarius', 'มีน': 'Pisces',
-    // BaZi/Saju element-quality phrases
-    '생조 — เดือนหนุนวัน': '생조 — month feeds the day',
-    '비겁 — พลังงานเดียวกัน': '비겁 — same energy',
-    '극 — แรงกดดัน': '극 — pressure',
-    // Thai sun/moon zodiac labels
-    'ราชสีห์แห่งดวงอาทิตย์': 'Lion of the Sun',
-    // Thai-Brahmin fortune labels
-    'โชคลาภและชื่อเสียง': 'Fortune and fame',
-    'ทรัพย์สมบัติจากความพยายาม': 'Wealth from effort',
-    'ปัญญาและการสื่อสาร': 'Wisdom and communication',
-    'ความรักและความสุข': 'Love and joy',
-    'อำนาจและตำแหน่ง': 'Power and position',
-    'ครอบครัวและบ้าน': 'Family and home',
-    'ความเข้มแข็งและการอดทน': 'Endurance and strength',
-    // Numerology PY meanings (short)
-    'ปีแห่งการเริ่มต้นใหม่ — ลงมือทำสิ่งที่ตั้งใจมานาน ปีนี้ปลูกเมล็ดพันธุ์ใหม่': 'Year of new beginnings — act on what you\'ve long intended; plant new seeds this year',
-    'ปีแห่งความสัมพันธ์ — เสริมสร้างความร่วมมือ ระวังการตัดสินใจรีบร้อน': 'Year of relationships — strengthen cooperation; avoid hasty decisions',
-    'ปีแห่งการสื่อสาร — แสดงออก สร้างสรรค์ ขยายเครือข่าย โอกาสดีด้านสังคม': 'Year of communication — express, create, expand networks; strong social opportunities',
-    'ปีแห่งการทำงาน — วางรากฐาน ทำงานหนัก ผลลัพธ์ระยะยาว ไม่ใช่ปีแห่งความสนุก': 'Year of work — lay foundations, work hard; long-term results, not a year for fun',
-    'ปีแห่งการเปลี่ยนแปลง — โอกาสใหม่มาพร้อมกับความไม่แน่นอน เตรียมรับความเปลี่ยนแปลง': 'Year of change — new opportunities arrive with uncertainty; prepare for change',
-    'ปีแห่งครอบครัว — โฟกัสที่บ้าน ความสัมพันธ์ และการรับผิดชอบ โอกาสดีด้านอสังหาฯ': 'Year of family — focus on home, relationships, responsibility; good real-estate opportunities',
-    'ปีแห่งการพักผ่อนจิตใจ — เวลาสำหรับการไตร่ตรอง เรียนรู้ และฟื้นฟูพลังงาน': 'Year of mental rest — time for reflection, learning, recharging',
-    'ปีแห่งการเก็บเกี่ยว — ผลแห่งการทำงาน 7 ปีที่ผ่านมาปรากฏ โอกาสด้านการเงินและอาชีพ': 'Year of harvest — the fruits of the past 7 years arrive; financial and career opportunities',
-    'ปีแห่งการสรุป — ปิดประตูเก่า เตรียมรับวงจรใหม่ ให้อภัยและปล่อยวาง': 'Year of completion — close old doors, prepare for the new cycle; forgive and release',
-    // System name labels (sysTh → sysEn) used in score breakdowns
+    // SCORE_WEIGHTS system labels (mixed Thai-English in calc.ts:1188-1219)
     'โหราศาสตร์ตะวันตก': 'Western Astrology',
-    'โหราศาสตร์ภารตะ': 'Vedic Astrology',
     'BaZi สี่เสา': 'BaZi · Four Pillars',
-    'ดาว 9 ดวง': 'Nine Star Ki',
     'เลขศาสตร์ Pythagorean': 'Pythagorean Numerology',
     'เลข ๗ ตัว ๙ ฐาน': 'Thai 7-Number System',
     'ระบบประเภทพลังงาน': 'Human Design',
-    'ปฏิทินมายัน': 'Mayan Tzolk\'in',
     'มายัน Tzolk\'in': 'Mayan Tzolk\'in',
-    'ต้นไม้เซลติก': 'Celtic Tree Astrology',
     'เซลติก Tree': 'Celtic Tree',
-    'โหราศาสตร์ไทยพราหมณ์': 'Thai Brahmin Astrology',
     'ไทยพราหมณ์': 'Thai Brahmin',
-    'โหราศาสตร์ทิเบต': 'Tibetan Astrology',
-    'Tibetan Astrology': 'Tibetan Astrology',
-    'ดวงเกาหลี': 'Korean Saju',
-    'ซื่อเว่ย': 'Zi Wei Dou Shu',
-    'อนเมียวโด': 'Onmyōdō',
-    'โหราศาสตร์เฮลเลนิสติก': 'Hellenistic Astrology',
-    'รูนไวกิ้ง': 'Norse Runes',
-    'อักษรโอแฮม': 'Ogham',
-    'จุดอาหรับ': 'Arabic Parts',
-    'คับบาลาห์': 'Kabbalah',
-    'โซโรแอสเตอร์': 'Zoroastrian',
-    'โทนัลโปอัลลี': 'Aztec Tonalpohualli',
-    'โทเท็มอินเดียนแดง': 'Native American Totems',
-    'อิฟา-โยรูบา': 'Ifá-Yoruba',
-    'Dreamtime อะบอริจิน': 'Aboriginal Dreamtime',
-    'ไบโอริธึม': 'Biorhythm',
-    'มหาทศาวิมโชทตรี': 'Vedic Mahadasha',
-    // Tier names (tierTh → tier)
+    // Tier labels (chart.score.tier still ships Thai-prefixed when not en-only)
     'ฟ้า — Celestial': 'Celestial',
     'แสง — Radiant': 'Radiant',
     'เปล่งประกาย — Luminous': 'Luminous',
@@ -139,71 +82,9 @@ const _DF_MAP = {
     'หยั่งราก — Grounded': 'Grounded',
     'แสวงหา — Seeking': 'Seeking',
     'แสงเริ่มต้น — Awakening': 'Awakening',
-    // BaZi STEMS_TH (10 stems)
-    'จ่ย ไม้หยาง': 'Jia (Yang Wood)', 'อี่ ไม้อ่อน': 'Yi (Yin Wood)', 'ปิ่ง ไฟหยาง': 'Bing (Yang Fire)',
-    'ติง ไฟอ่อน': 'Ding (Yin Fire)', 'อู่ ดินหยาง': 'Wu (Yang Earth)', 'จี่ ดินอ่อน': 'Ji (Yin Earth)',
-    'เกิง โลหะหยาง': 'Geng (Yang Metal)', 'ซิน โลหะอ่อน': 'Xin (Yin Metal)',
-    'เหริน น้ำหยาง': 'Ren (Yang Water)', 'กุ้ย น้ำอ่อน': 'Gui (Yin Water)',
-    // BaZi BRANCHES_TH (12 branches with animals)
-    'ชวด (หนู)': 'Zi (Rat)', 'ฉลู (วัว)': 'Chou (Ox)', 'ขาล (เสือ)': 'Yin (Tiger)',
-    'เถาะ (กระต่าย)': 'Mao (Rabbit)', 'มะโรง (มังกร)': 'Chen (Dragon)', 'มะเส็ง (งู)': 'Si (Snake)',
-    'มะเมีย (ม้า)': 'Wu (Horse)', 'มะแม (แพะ)': 'Wei (Goat)', 'วอก (ลิง)': 'Shen (Monkey)',
-    'ระกา (ไก่)': 'You (Rooster)', 'จอ (สุนัข)': 'Xu (Dog)', 'กุน (หมู)': 'Hai (Pig)',
-    // HD types
-    'ผู้ริเริ่ม': 'Manifestor', 'ผู้สร้างพลังงาน': 'Generator', 'MG ผู้สร้างและริเริ่ม': 'Manifesting Generator',
-    'ผู้นำทาง': 'Projector', 'ผู้สะท้อน': 'Reflector',
-    // HD strategies
-    'แจ้งให้ผู้อื่นทราบก่อนลงมือ': 'Inform before acting', 'รอตอบสนองก่อนลงมือ': 'Wait to respond',
-    'ตอบสนอง แล้วแจ้งก่อนลงมือ': 'Respond, then inform', 'รอคำเชิญก่อนลงมือ': 'Wait for the invitation',
-    'รอ 28 วัน (รอบจันทร์)': 'Wait 28 days (lunar cycle)',
-    // Tibetan Mewa quality
-    'สมดุล': 'Balanced', 'ท้าทาย': 'Challenging', 'เติบโต': 'Growth', 'เสริม': 'Supportive',
-    'ท้าทายมาก': 'Highly challenging', 'มั่นคง': 'Stable', 'กล้าหาญ': 'Courageous',
-    'เข้มแข็ง': 'Strong', 'รุ่งเรือง': 'Flourishing',
-    // Native American totems (Thai → English match)
-    'ห่านหิมะ': 'Snow Goose', 'นาก': 'Otter', 'หมาป่า': 'Wolf', 'เหยี่ยว': 'Falcon',
-    'บีเวอร์': 'Beaver', 'กวาง': 'Deer', 'นกหัวขวาน': 'Woodpecker', 'ปลาแซลมอน': 'Salmon',
-    'หมีน้ำตาล': 'Brown Bear', 'กา': 'Raven', 'งู': 'Snake', 'กวางใหญ่': 'Elk',
-    'ห่านหิมะ(2)': 'Snow Goose',
-    // Aboriginal Dreaming
-    'งูรุ้ง': 'Rainbow Serpent', 'อินทรีบุนจิล': 'Bunjil Eagle', 'วันจินา': 'Wandjina', 'บาอิเอเม': 'Baiame',
-    'โยวี่': 'Yowie', 'มิมิ': 'Mimi', 'นามาร์กุน': 'Namarrkun', 'อัลตจิรา': 'Altjira',
-    'ทิดดาลิก': 'Tiddalik', 'บุนยิป': 'Bunyip', 'ควินกัน': 'Quinkans', 'ดจ้างกาวู': 'Djang\'kawu',
-    // Aztec day-signs (Thai → English approximation)
-    // NOTE: 'ลม' and 'งู' deliberately omitted here — they're already in the
-    // Five-Elements / NA-Totem maps above. Aztec context disambiguates at
-    // display time via the surrounding "Aztec" prefix in the data field.
-    'จระเข้': 'Crocodile', 'บ้าน': 'House', 'จิ้งจก': 'Lizard',
-    'ความตาย': 'Death', 'กระต่าย': 'Rabbit', 'สุนัข': 'Dog', 'ลิง': 'Monkey', 'หญ้า': 'Grass',
-    'อ้อ': 'Reed', 'เสือจากัวร์': 'Jaguar', 'อินทรี': 'Eagle', 'แร้ง': 'Vulture',
-    'การเคลื่อนไหว': 'Movement', 'หินเหล็กไฟ': 'Flint', 'ฝน': 'Rain', 'ดอกไม้': 'Flower',
-    // Celtic trees
-    'เบิร์ช': 'Birch', 'โรวัน': 'Rowan', 'แอช': 'Ash', 'อัลเดอร์': 'Alder', 'วิลโลว์': 'Willow',
-    'ฮอว์ธอร์น': 'Hawthorn', 'โอ๊ก': 'Oak', 'ฮอลลี่': 'Holly', 'เฮเซล': 'Hazel', 'เถาองุ่น': 'Vine',
-    'ไอวี่': 'Ivy', 'กก': 'Reed', 'แบล็คธอร์น': 'Blackthorn',
-    // Saju dominant energy
-    '생조 — เดือนหนุนวัน  ': '생조 — month feeds the day',
-    // Western signs (already covered)
-    // Common short labels used in convergence
+    // Common short page-level fragments still surfacing in score breakdowns
     'เห็นด้วย': 'Agree', 'กลางๆ': 'Mixed', 'เสียงเตือน': 'Cautions',
     'ครบทุกธาตุ': 'all elements present',
-    // ZiWei stars (mainStarTh → main star)
-    'ดาวม่วงจักรพรรดิ': 'Purple Emperor Star', 'ดาวปัญญา': 'Wisdom Star',
-    'ดาวพระอาทิตย์': 'Sun Star', 'ดาวโลหะแกร่ง': 'Strong Metal Star',
-    'ดาวสวรรค์สมดุล': 'Heavenly Balance Star', 'ดาวศักดิ์ศรี': 'Honour Star',
-    'ดาวคลังสมบัติ': 'Treasury Star', 'ดาวพระจันทร์': 'Moon Star',
-    'ดาวหมาป่า': 'Wolf Star', 'ดาวประตูยักษ์': 'Giant Gate Star',
-    'ดาวมนตรี': 'Minister Star', 'ดาวคานฟ้า': 'Heaven Beam Star',
-    // Thai-Brahmin god names (godTh)
-    'พระอาทิตย์': 'Surya (Sun)', 'พระจันทร์': 'Chandra (Moon)', 'พระอังคาร': 'Mangala (Mars)',
-    'พระพุธ': 'Budha (Mercury)', 'พระพฤหัสบดี': 'Brihaspati (Jupiter)', 'พระศุกร์': 'Shukra (Venus)',
-    'พระเสาร์': 'Shani (Saturn)',
-    // Misc closing fragments seen in probe
-    'ผู้ปกป้องและนักทำนาย': 'Protector and seer',
-    'ดาวของคุณตรงกับดาวปี': 'Your star matches the year\'s star',
-    'ทุกสิ่งขยายผลคูณสอง': 'Everything amplifies twofold',
-    'ต้องใส่ใจทุกการกระทำ': 'You must be mindful of every action',
-    'ทั้งโอกาสและความเสี่ยง': 'both opportunity and risk',
 };
 // Translate a data-layer Thai string to English when in EN mode. Falls
 // through unchanged when (a) lang is Thai or (b) the string isn\'t in the
