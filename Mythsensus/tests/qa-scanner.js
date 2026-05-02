@@ -11,7 +11,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 
-const BASE_URL = 'https://www.mythsensus.com';
+const BASE_URL = process.env.BASE_URL || 'https://www.mythsensus.com';
 const OUT_DIR = path.join(REPO_ROOT, 'qa-screenshots');
 const REPORT_PATH = path.join(REPO_ROOT, 'qa-report.html');
 
@@ -211,3 +211,25 @@ ${results.map(r => {
 fs.writeFileSync(REPORT_PATH, html);
 console.log(`\n✓ Report: ${REPORT_PATH}`);
 console.log(`✓ Screenshots: ${OUT_DIR}/`);
+
+// Hard-fail signals — fail the run on uncaught JS errors, broken pages, or raw-HTML leaks.
+// Plain console errors stay as warnings (third-party widgets log noise we don't own).
+const hardFails = results.filter(r =>
+  r.err ||
+  r.httpStatus >= 400 ||
+  r.consoleErrors.some(e => e.startsWith('[pageerror]')) ||
+  (r.checks?.rawHtmlLeaks?.length > 0)
+);
+if (hardFails.length) {
+  console.error(`\n✗ ${hardFails.length}/${results.length} runs FAILED (pageerror / HTTP ≥400 / raw HTML leak)`);
+  for (const r of hardFails) {
+    const reasons = [
+      r.err && `error: ${r.err}`,
+      r.httpStatus >= 400 && `HTTP ${r.httpStatus}`,
+      ...r.consoleErrors.filter(e => e.startsWith('[pageerror]')),
+      r.checks?.rawHtmlLeaks?.length && `${r.checks.rawHtmlLeaks.length} raw HTML leak(s)`,
+    ].filter(Boolean);
+    console.error(`  - ${r.key}: ${reasons.join(' | ')}`);
+  }
+  process.exitCode = 1;
+}
