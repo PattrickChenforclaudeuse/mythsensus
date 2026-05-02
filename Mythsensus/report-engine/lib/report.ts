@@ -503,15 +503,19 @@ function p03_convergence(c: ChartData): string {
     { sys:'Kabbalistic', label:'Kabbalistic '+kabbalistic.sephira },
     { sys:'Onmyōdō', label:'Onmyōdō '+onmyodo.rokuyo },
   ].forEach(({ sys, label }) => { const s = all26.find(b=>b.system.toLowerCase().includes(sys.toLowerCase()))?.score??0; if (s>=780) elVotes.push({ system:label, score:s }) })
-  themes.push({ icon:'🔥', theme:`ธาตุ${dmEl} — แกนพลังงานที่ทุกศาสตร์สะท้อน`,
+  themes.push({ icon:'🔥',
+    theme: tr(`ธาตุ${dmEl} — แกนพลังงานที่ทุกศาสตร์สะท้อน`, `${dmEl} Element — the energetic core every system reflects`),
     color:'#d48050', votes:elVotes,
-    msg:`Day Master ${bazi.dayStem} (${bazi.dayMasterTh}) + สีมงคล ${ninestar.starColor} + ทิศ ${ninestar.starDirection} — ธาตุ${dmEl}คือเส้นด้ายทอง` })
+    msg: tr(`Day Master ${bazi.dayStem} (${bazi.dayMasterTh}) + สีมงคล ${ninestar.starColor} + ทิศ ${ninestar.starDirection} — ธาตุ${dmEl}คือเส้นด้ายทอง`,
+            `Day Master ${bazi.dayStem} (${bazi.dayMasterTh}) + lucky colour ${ninestar.starColor} + direction ${ninestar.starDirection} — ${dmEl} is the golden thread.`) })
 
   // ─── 2. High-Score Consensus (ศาสตร์ที่เห็นภาพรวมดี) ───────────────────
   const highVotes: Vote[] = all26.filter(b => b.score >= 780).map(b => ({ system:b.system, score:b.score }))
-  themes.push({ icon:'🌟', theme:'High Consensus — ศาสตร์ที่เห็นภาพดีพร้อมกัน (คะแนน ≥780)',
+  themes.push({ icon:'🌟',
+    theme: tr('High Consensus — ศาสตร์ที่เห็นภาพดีพร้อมกัน (คะแนน ≥780)','High Consensus — systems agreeing on a strong picture (scores ≥780)'),
     color:'#c0a030', votes:highVotes,
-    msg:`${highVotes.length} ระบบให้คะแนนสูง — Top: ${highVotes.sort((a,b)=>b.score-a.score).slice(0,3).map(v=>v.system.split(' ')[0]).join(' · ')}` })
+    msg: tr(`${highVotes.length} ระบบให้คะแนนสูง — Top: ${highVotes.sort((a,b)=>b.score-a.score).slice(0,3).map(v=>v.system.split(' ')[0]).join(' · ')}`,
+            `${highVotes.length} systems score high — Top: ${highVotes.sort((a,b)=>b.score-a.score).slice(0,3).map(v=>v.system.split(' ')[0]).join(' · ')}`) })
 
   // ─── 3. Timing 2026 — ปีนี้มีพลังงานพิเศษ ────────────────────────────────
   const timeVotes: Vote[] = []
@@ -530,7 +534,8 @@ function p03_convergence(c: ChartData): string {
   if (sc('Aboriginal') >= 770) timeVotes.push({ system:'Aboriginal '+aboriginal.dreamingTh, score:sc('Aboriginal') })
   if (hi(sc('Saju'))) timeVotes.push({ system:'Saju '+saju.kwarsal, score:sc('Saju') })
   if (sc('Zi Wei') >= 770) timeVotes.push({ system:'Zi Wei '+ziwei.mainStarTh, score:sc('Zi Wei') })
-  themes.push({ icon:'⏰', theme:'ปี 2026 — หน้าต่างโอกาส',
+  themes.push({ icon:'⏰',
+    theme: tr('ปี 2026 — หน้าต่างโอกาส','2026 — Window of Opportunity'),
     color:'#50c050', votes:timeVotes,
     msg:`${bazi.benMingNian2026?'Ben Ming Nian + ':''} ${ninestar.star===9?'NSK Honmei + ':''} PY${numerology.personalYear2026} + ${vedicMahadasha.currentDasha} Dasha` })
 
@@ -546,7 +551,8 @@ function p03_convergence(c: ChartData): string {
   if (['Ogbe','Obara','Ogunda'].includes(ifaYoruba.odu)) strVotes.push({ system:'Ifa/Yoruba '+ifaYoruba.odu, score:sc('Ifa') })
   if (hi(sc('Native'))) strVotes.push({ system:'Native Am '+nativeAmerican.birthTotemTh, score:sc('Native') })
   if (hi(sc('Aztec'))) strVotes.push({ system:'Aztec '+aztec.daySignTh, score:sc('Aztec') })
-  themes.push({ icon:'👑', theme:'ความแข็งแกร่งและอำนาจ — พลังงานผู้นำ',
+  themes.push({ icon:'👑',
+    theme: tr('ความแข็งแกร่งและอำนาจ — พลังงานผู้นำ','Strength & Authority — Leadership Energy'),
     color:'#c0a030', votes:strVotes,
     msg:`${humandesign.typeTh} Profile ${humandesign.profile} + LP${numerology.lifePath} + NSK Star ${ninestar.star} + Zi Wei ${ziwei.mainStarTh}` })
 
@@ -569,9 +575,11 @@ function p03_convergence(c: ChartData): string {
   })
   if (['Jupiter','Venus','Sun'].includes(vedicMahadasha.currentDasha)) wlthVotes.push({ system:'Vedic '+vedicMahadasha.currentDasha+' Dasha', score:sc('Vedic M') })
   if ([8,4,22].includes(numerology.pythagorean)) wlthVotes.push({ system:'Pythagorean '+numerology.pythagorean, score:sc('Pythagorean') })
-  themes.push({ icon:'💎', theme:'ศักยภาพความมั่งคั่ง',
+  themes.push({ icon:'💎',
+    theme: tr('ศักยภาพความมั่งคั่ง','Wealth Potential'),
     color:'#50b080', votes:wlthVotes,
-    msg:`${wlthVotes.length} ระบบเห็นโอกาส — Arabic Parts ใน${arabicParts.fortuneSign} + ${vedicMahadasha.currentDasha} Dasha + Lucky Element ${bazi.luckyElement}` })
+    msg: tr(`${wlthVotes.length} ระบบเห็นโอกาส — Arabic Parts ใน${arabicParts.fortuneSign} + ${vedicMahadasha.currentDasha} Dasha + Lucky Element ${bazi.luckyElement}`,
+            `${wlthVotes.length} systems see opportunity — Arabic Parts in ${arabicParts.fortuneSign} + ${vedicMahadasha.currentDasha} Dasha + Lucky Element ${bazi.luckyElement}`) })
 
   // ─── 6. Spiritual / Inner Depth (ความลึกภายใน) ───────────────────────────
   const deptVotes: Vote[] = []
@@ -591,7 +599,8 @@ function p03_convergence(c: ChartData): string {
     }
   })
   if (['กรกฎ','พิจิก','มีน'].includes(western.moonSignTh)) deptVotes.push({ system:'Western Moon '+western.moonSignTh, score:sc('ตะวันตก') })
-  themes.push({ icon:'🔮', theme:'ความลึกภายใน — จิตวิญญาณและสัญชาตญาณ',
+  themes.push({ icon:'🔮',
+    theme: tr('ความลึกภายใน — จิตวิญญาณและสัญชาตญาณ','Inner Depth — Spirit & Intuition'),
     color:'#9060c0', votes:deptVotes,
     msg:`LP${numerology.lifePath} + ${kabbalistic.sephira} + ${aboriginal.dreamingTh} + Vedic Nakshatra ${vedic.moonNakshatra}` })
 
@@ -599,9 +608,11 @@ function p03_convergence(c: ChartData): string {
   const warnVotes: Vote[] = all26.filter(b => b.score < 650).map(b => ({ system:b.system+' ('+b.score+')', score:b.score }))
   if (bazi.missingElement && bazi.missingElement !== 'ครบทุกธาตุ') warnVotes.push({ system:'BaZi ขาดธาตุ'+bazi.missingElement, score:sc('BaZi') })
   if (['Rahu','Saturn','Ketu'].includes(vedicMahadasha.currentDasha)) warnVotes.push({ system:'Vedic Dasha '+vedicMahadasha.currentDasha, score:sc('Vedic M') })
-  themes.push({ icon:'⚡', theme:'จุดท้าทาย — พลังงานสร้างการเติบโต',
+  themes.push({ icon:'⚡',
+    theme: tr('จุดท้าทาย — พลังงานสร้างการเติบโต','Challenge Points — Energy that drives growth'),
     color:'#c05030', votes:warnVotes,
-    msg:`ระบบที่เห็นต่าง: ${warnVotes.slice(0,3).map(v=>v.system.split(' (')[0].split(' ')[0]).join(', ')} — ความขัดแย้งนี้เป็นแรงขับ ไม่ใช่ข้อบกพร่อง` })
+    msg: tr(`ระบบที่เห็นต่าง: ${warnVotes.slice(0,3).map(v=>v.system.split(' (')[0].split(' ')[0]).join(', ')} — ความขัดแย้งนี้เป็นแรงขับ ไม่ใช่ข้อบกพร่อง`,
+            `Dissenting systems: ${warnVotes.slice(0,3).map(v=>v.system.split(' (')[0].split(' ')[0]).join(', ')} — this friction is fuel, not a flaw.`) })
 
   // ─── 8. Relationship / Network ───────────────────────────────────────────
   const relVotes: Vote[] = []
@@ -619,7 +630,8 @@ function p03_convergence(c: ChartData): string {
     }
   })
   if (['ตุลย์','กรกฎ','มีน','พฤษภ'].includes(western.sunSignTh)) relVotes.push({ system:'Western Sun '+western.sunSignTh, score:sc('ตะวันตก') })
-  themes.push({ icon:'💞', theme:'พลังความสัมพันธ์ — เครือข่ายและการเชื่อมต่อ',
+  themes.push({ icon:'💞',
+    theme: tr('พลังความสัมพันธ์ — เครือข่ายและการเชื่อมต่อ','Relational Power — Networks & Connection'),
     color:'#c06080', votes:relVotes,
     msg:`HD Profile ${humandesign.profile} + ${kabbalistic.archangel} + ${nativeAmerican.clansmother} + ${ifaYoruba.oduTheme.slice(0,20)}` })
 
@@ -627,14 +639,30 @@ function p03_convergence(c: ChartData): string {
 
   // Generate narrative for each theme based on chart data
   const narratives: Record<string,string> = {
-    '🔥': `จาก ${c.score.breakdown.filter(b=>b.score>=780).length} ระบบที่ให้คะแนนสูง ธาตุ${dmEl}ปรากฏชัดเจนที่สุด — Day Master ${bazi.dayStem} (${bazi.dayMasterTh}) กำหนดวิธีที่คุณประมวลผลโลก ไม่ใช่แค่ "นิสัย" แต่คือโครงสร้างพื้นฐานของการตัดสินใจและพลังงานชีวิต ศาสตร์ทั้งในและตะวันตกต่างยืนยันสิ่งเดียวกันโดยไม่รู้จักกัน`,
-    '🌟': `เมื่อมีระบบจากหลายวัฒนธรรม (ตะวันออก ตะวันตก แอฟริกา อเมริกา โอเชียเนีย) ต่างให้คะแนนสูงพร้อมกัน — นั่นคือ consensus ที่แท้จริง ไม่ใช่แค่ระบบใดระบบหนึ่งชอบ แต่ "ดวงชาตา" นี้แข็งแกร่งข้ามวัฒนธรรม`,
-    '⏰': `ปี 2026 ไม่ใช่แค่ปีดีโดยบังเอิญ แต่มีกลไกทางโหราศาสตร์หลายชั้นเปิดพร้อมกัน — BaZi Ben Ming Nian หมายถึงพลังงานของคุณ "กลับบ้าน" ครบรอบ 12 ปี, NSK Star 9 Honmei Kaiki หมายถึงดาวเกิดตรงกับดาวปี, Vedic Dasha ชี้ช่วงปกครอง ${vedicMahadasha.currentDasha} — นี่คือ window ที่ควรลงมือ`,
-    '👑': `ลักษณะผู้นำในดวงชาตาไม่ได้มาจากความทะเยอทะยาน แต่มาจากโครงสร้างของพลังงาน — ${humandesign.typeTh} Strategy "${humandesign.strategy}" ประกอบกับ NSK Star ${ninestar.star} และ LP${numerology.lifePath} บ่งว่าคุณถูกออกแบบให้ "guide" มากกว่า "push"`,
-    '💎': `ศักยภาพทรัพย์ในดวงไม่ใช่การรับรองว่าจะรวย แต่คือ "ทิศทาง" ที่พลังงานไหลได้ดีที่สุด — Arabic Parts Fortune ใน${arabicParts.fortuneSign} ร่วมกับ ${vedicMahadasha.currentDasha} Dasha และ Lucky Element ${bazi.luckyElement} บ่งทิศ`,
-    '🔮': `ความลึกทางจิตวิญญาณใน LP${numerology.lifePath} + ${kabbalistic.sephira} + ${celtic.treeNameTh} บ่งว่าคุณมี "antenna" รับสัญญาณที่ละเอียดกว่าคนทั่วไป — สิ่งนี้อาจทำให้ตัดสินใจช้า แต่เมื่อตัดสินใจแล้วมักถูกต้อง`,
-    '⚡': `ทุกจุดท้าทายในดวงมีเหตุผล — ธาตุขาด${bazi.missingElement ? bazi.missingElement : 'ไม่มี'} คือพลังงานที่ต้องหามาจากภายนอก ระบบที่ score ต่ำกว่า median ไม่ได้บอกว่า "ดวงแย่" แต่บอกว่า "พลังงานนั้นไม่ใช่ทิศหลัก"`,
-    '💞': `พลังความสัมพันธ์ใน HD Profile ${humandesign.profile} + ${kabbalistic.archangel} + ${nativeAmerican.clansmother} บ่งว่าเครือข่ายมนุษย์คือ multiplier — คนเดียวได้ 1x แต่ผ่านคนที่ใช่ได้ 5-10x`,
+    '🔥': tr(
+      `จาก ${c.score.breakdown.filter(b=>b.score>=780).length} ระบบที่ให้คะแนนสูง ธาตุ${dmEl}ปรากฏชัดเจนที่สุด — Day Master ${bazi.dayStem} (${bazi.dayMasterTh}) กำหนดวิธีที่คุณประมวลผลโลก ไม่ใช่แค่ "นิสัย" แต่คือโครงสร้างพื้นฐานของการตัดสินใจและพลังงานชีวิต ศาสตร์ทั้งในและตะวันตกต่างยืนยันสิ่งเดียวกันโดยไม่รู้จักกัน`,
+      `Across the ${c.score.breakdown.filter(b=>b.score>=780).length} highest-scoring systems, the ${dmEl} element shows up most clearly. Day Master ${bazi.dayStem} (${bazi.dayMasterTh}) shapes how you process the world — not as "personality", but as the underlying structure of how you make decisions and where your life-force flows. Eastern and Western traditions, computed independently, both confirm the same signal.`),
+    '🌟': tr(
+      `เมื่อมีระบบจากหลายวัฒนธรรม (ตะวันออก ตะวันตก แอฟริกา อเมริกา โอเชียเนีย) ต่างให้คะแนนสูงพร้อมกัน — นั่นคือ consensus ที่แท้จริง ไม่ใช่แค่ระบบใดระบบหนึ่งชอบ แต่ "ดวงชาตา" นี้แข็งแกร่งข้ามวัฒนธรรม`,
+      `When systems from multiple cultures (East, West, Africa, the Americas, Oceania) score high simultaneously — that's true consensus. Not one tradition that happens to favour you, but a chart that holds up across cultural lenses.`),
+    '⏰': tr(
+      `ปี 2026 ไม่ใช่แค่ปีดีโดยบังเอิญ แต่มีกลไกทางโหราศาสตร์หลายชั้นเปิดพร้อมกัน — BaZi Ben Ming Nian หมายถึงพลังงานของคุณ "กลับบ้าน" ครบรอบ 12 ปี, NSK Star 9 Honmei Kaiki หมายถึงดาวเกิดตรงกับดาวปี, Vedic Dasha ชี้ช่วงปกครอง ${vedicMahadasha.currentDasha} — นี่คือ window ที่ควรลงมือ`,
+      `2026 is not just incidentally good — multiple astrological mechanisms open at once. BaZi Ben Ming Nian means your energy "comes home" on its 12-year cycle. NSK Star 9 Honmei Kaiki means your birth star aligns with the year-star. Vedic Dasha currently rules ${vedicMahadasha.currentDasha} — this is the window for action.`),
+    '👑': tr(
+      `ลักษณะผู้นำในดวงชาตาไม่ได้มาจากความทะเยอทะยาน แต่มาจากโครงสร้างของพลังงาน — ${humandesign.typeTh} Strategy "${humandesign.strategy}" ประกอบกับ NSK Star ${ninestar.star} และ LP${numerology.lifePath} บ่งว่าคุณถูกออกแบบให้ "guide" มากกว่า "push"`,
+      `The leadership signature in your chart isn't ambition — it's energetic structure. ${humandesign.typeTh} Strategy "${humandesign.strategy}" combined with NSK Star ${ninestar.star} and LP${numerology.lifePath} indicates you're designed to "guide" rather than "push".`),
+    '💎': tr(
+      `ศักยภาพทรัพย์ในดวงไม่ใช่การรับรองว่าจะรวย แต่คือ "ทิศทาง" ที่พลังงานไหลได้ดีที่สุด — Arabic Parts Fortune ใน${arabicParts.fortuneSign} ร่วมกับ ${vedicMahadasha.currentDasha} Dasha และ Lucky Element ${bazi.luckyElement} บ่งทิศ`,
+      `Wealth potential in a chart isn't a guarantee of riches — it's the direction your energy flows best. Arabic Parts Fortune in ${arabicParts.fortuneSign} combined with the ${vedicMahadasha.currentDasha} Dasha and Lucky Element ${bazi.luckyElement} marks that direction.`),
+    '🔮': tr(
+      `ความลึกทางจิตวิญญาณใน LP${numerology.lifePath} + ${kabbalistic.sephira} + ${celtic.treeNameTh} บ่งว่าคุณมี "antenna" รับสัญญาณที่ละเอียดกว่าคนทั่วไป — สิ่งนี้อาจทำให้ตัดสินใจช้า แต่เมื่อตัดสินใจแล้วมักถูกต้อง`,
+      `The spiritual depth across LP${numerology.lifePath} + ${kabbalistic.sephira} + ${celtic.treeNameTh} suggests you have a finer "antenna" for subtle signals than most people. This can make decisions slow — but when you do decide, you're usually right.`),
+    '⚡': tr(
+      `ทุกจุดท้าทายในดวงมีเหตุผล — ธาตุขาด${bazi.missingElement ? bazi.missingElement : 'ไม่มี'} คือพลังงานที่ต้องหามาจากภายนอก ระบบที่ score ต่ำกว่า median ไม่ได้บอกว่า "ดวงแย่" แต่บอกว่า "พลังงานนั้นไม่ใช่ทิศหลัก"`,
+      `Every challenge in your chart has a reason. The missing ${bazi.missingElement || 'no'} element is the energy you must source from outside. Systems scoring below median don't say "bad chart" — they say "this energy isn't your primary direction".`),
+    '💞': tr(
+      `พลังความสัมพันธ์ใน HD Profile ${humandesign.profile} + ${kabbalistic.archangel} + ${nativeAmerican.clansmother} บ่งว่าเครือข่ายมนุษย์คือ multiplier — คนเดียวได้ 1x แต่ผ่านคนที่ใช่ได้ 5-10x`,
+      `The relational signature in HD Profile ${humandesign.profile} + ${kabbalistic.archangel} + ${nativeAmerican.clansmother} indicates that human networks are your multiplier — solo you do 1x, but through the right people 5-10x.`),
   }
 
   return section(4, tr(`Grand Convergence — ${visible.length} themes จาก 26 ศาสตร์`, `Grand Convergence — ${visible.length} themes across 26 systems`), '🌐', `
@@ -1280,43 +1308,45 @@ function p17_weekly(c: ChartData): string {
   const dmEl = bazi.dayMasterElement
   // Day-of-week cosmology (Vedic / Hellenistic / ไทยพราหมณ์ — all agree on the 7-planet system)
   const daysData = [
-    { name:'จันทร์', planet:'จันทร์ · Moon',     element:'น้ำ',   color:'เหลือง',  energy:'สัญชาตญาณ · อารมณ์' },
-    { name:'อังคาร', planet:'อังคาร · Mars',     element:'ไฟ',    color:'ชมพู',   energy:'ลงมือ · ความกล้า · การแข่งขัน' },
-    { name:'พุธ',    planet:'พุธ · Mercury',     element:'ไม้',   color:'เขียว',  energy:'สื่อสาร · เจรจา · สอน' },
-    { name:'พฤหัสบดี', planet:'พฤหัส · Jupiter', element:'ไม้',   color:'ส้ม',     energy:'ขยายตัว · การเรียนรู้ · โชคลาภ' },
-    { name:'ศุกร์',  planet:'ศุกร์ · Venus',      element:'โลหะ',   color:'ฟ้าอ่อน', energy:'ความสัมพันธ์ · ศิลปะ · ความงาม' },
-    { name:'เสาร์',  planet:'เสาร์ · Saturn',    element:'ดิน',    color:'ดำ/ม่วง', energy:'วินัย · โครงสร้าง · ความอดทน' },
-    { name:'อาทิตย์',planet:'อาทิตย์ · Sun',     element:'ไฟ',    color:'แดง',    energy:'อัตตา · ความเป็นผู้นำ · ชื่อเสียง' },
+    { name: tr('จันทร์','Monday'),   planet: tr('จันทร์ · Moon','Moon'),       element: tr('น้ำ','Water'),  color: tr('เหลือง','Yellow'),     energy: tr('สัญชาตญาณ · อารมณ์','Intuition · Emotion') },
+    { name: tr('อังคาร','Tuesday'),  planet: tr('อังคาร · Mars','Mars'),       element: tr('ไฟ','Fire'),    color: tr('ชมพู','Pink'),         energy: tr('ลงมือ · ความกล้า · การแข่งขัน','Action · Courage · Competition') },
+    { name: tr('พุธ','Wednesday'),   planet: tr('พุธ · Mercury','Mercury'),    element: tr('ไม้','Wood'),   color: tr('เขียว','Green'),       energy: tr('สื่อสาร · เจรจา · สอน','Communication · Negotiation · Teaching') },
+    { name: tr('พฤหัสบดี','Thursday'), planet: tr('พฤหัส · Jupiter','Jupiter'), element: tr('ไม้','Wood'),   color: tr('ส้ม','Orange'),        energy: tr('ขยายตัว · การเรียนรู้ · โชคลาภ','Expansion · Learning · Fortune') },
+    { name: tr('ศุกร์','Friday'),    planet: tr('ศุกร์ · Venus','Venus'),      element: tr('โลหะ','Metal'), color: tr('ฟ้าอ่อน','Light Blue'), energy: tr('ความสัมพันธ์ · ศิลปะ · ความงาม','Relationships · Art · Beauty') },
+    { name: tr('เสาร์','Saturday'),  planet: tr('เสาร์ · Saturn','Saturn'),    element: tr('ดิน','Earth'),  color: tr('ดำ/ม่วง','Black/Purple'), energy: tr('วินัย · โครงสร้าง · ความอดทน','Discipline · Structure · Endurance') },
+    { name: tr('อาทิตย์','Sunday'),  planet: tr('อาทิตย์ · Sun','Sun'),        element: tr('ไฟ','Fire'),    color: tr('แดง','Red'),           energy: tr('อัตตา · ความเป็นผู้นำ · ชื่อเสียง','Self · Leadership · Renown') },
   ]
   // ศาสตร์ 5 ธาตุ: เสริม (SHENG) · ควบคุม (KE) · กลาง
   const SHENG: Record<string,string> = { 'น้ำ':'ไม้','ไม้':'ไฟ','ไฟ':'ดิน','ดิน':'โลหะ','โลหะ':'น้ำ' }
   const KE:    Record<string,string> = { 'น้ำ':'ไฟ', 'ไฟ':'โลหะ','โลหะ':'ไม้','ไม้':'ดิน','ดิน':'น้ำ' }
   const rate = (dayEl: string): {label:string; color:string; why:string} => {
-    if (dayEl === dmEl)       return { label:'☀️ พลังเท่าตัว',    color:'#c8a840', why:'ธาตุของวันตรงกับ Day Master — ดึงพลังของตัวเองมาใช้ได้ 100%' }
-    if (SHENG[dayEl] === dmEl) return { label:'🟢 วันที่หล่อเลี้ยง', color:'#60a060', why:`${dayEl} สร้าง ${dmEl} ในวงจร 5 ธาตุ — ได้รับการหล่อเลี้ยง` }
-    if (SHENG[dmEl] === dayEl) return { label:'🟡 วันที่คุณให้',    color:'#c0a060', why:`${dmEl} สร้าง ${dayEl} — คุณเป็นผู้ให้ รู้สึกภูมิใจแต่เหนื่อยง่าย` }
-    if (KE[dayEl]    === dmEl) return { label:'🔴 วันที่ต้องตั้งรับ',color:'#c06060', why:`${dayEl} ควบคุม ${dmEl} ใน 5 ธาตุ — ต้องยับยั้งชั่งใจ ไม่ฝืน` }
-    if (KE[dmEl]    === dayEl) return { label:'⚠️ วันที่ต้องระวังรีดพลัง', color:'#c08060', why:`${dmEl} ควบคุม ${dayEl} — คุณเอาชนะได้แต่ใช้พลังมาก` }
-    return { label:'· กลาง', color:'#9a8a72', why:'ธาตุไม่เชื่อมโยงกัน — วันปกติ ไม่เร่ง ไม่หยุด' }
+    if (dayEl === dmEl)       return { label: tr('☀️ พลังเท่าตัว','☀️ Full power'), color:'#c8a840', why: tr('ธาตุของวันตรงกับ Day Master — ดึงพลังของตัวเองมาใช้ได้ 100%','The day\'s element matches your Day Master — 100% of your native energy available.') }
+    if (SHENG[dayEl] === dmEl) return { label: tr('🟢 วันที่หล่อเลี้ยง','🟢 A nourishing day'), color:'#60a060', why: tr(`${dayEl} สร้าง ${dmEl} ในวงจร 5 ธาตุ — ได้รับการหล่อเลี้ยง`,`${dayEl} produces ${dmEl} in the 5-element cycle — you receive nourishment.`) }
+    if (SHENG[dmEl] === dayEl) return { label: tr('🟡 วันที่คุณให้','🟡 A day you give'), color:'#c0a060', why: tr(`${dmEl} สร้าง ${dayEl} — คุณเป็นผู้ให้ รู้สึกภูมิใจแต่เหนื่อยง่าย`,`${dmEl} produces ${dayEl} — you\'re the giver: proud but easily depleted.`) }
+    if (KE[dayEl]    === dmEl) return { label: tr('🔴 วันที่ต้องตั้งรับ','🔴 A day to play defence'), color:'#c06060', why: tr(`${dayEl} ควบคุม ${dmEl} ใน 5 ธาตุ — ต้องยับยั้งชั่งใจ ไม่ฝืน`,`${dayEl} controls ${dmEl} in the 5-element cycle — restraint over force.`) }
+    if (KE[dmEl]    === dayEl) return { label: tr('⚠️ วันที่ต้องระวังรีดพลัง','⚠️ A day that drains'), color:'#c08060', why: tr(`${dmEl} ควบคุม ${dayEl} — คุณเอาชนะได้แต่ใช้พลังมาก`,`${dmEl} controls ${dayEl} — you can win, but the cost is high.`) }
+    return { label: tr('· กลาง','· Neutral'), color:'#9a8a72', why: tr('ธาตุไม่เชื่อมโยงกัน — วันปกติ ไม่เร่ง ไม่หยุด','Elements unrelated — an ordinary day, neither pushing nor pausing.') }
   }
   const strategy = humandesign.strategy || 'Follow inner authority'
 
   return section(17, tr('Weekly Energy Plan — พลังงาน 7 วันต่อดวงของคุณ','Weekly Energy Plan — 7-day rhythm against your chart'), '📅', `
     <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
-      <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">Energy ของแต่ละวันคืออะไร</div>
+      <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">${tr('Energy ของแต่ละวันคืออะไร','What each weekday\'s energy means')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">
-        ปฏิทิน 7 วันของโลกไม่ใช่เรื่องบังเอิญ — <strong>ไทยพราหมณ์ · Hellenistic · Vedic</strong> ทั้ง 3 ศาสตร์ตกลงว่าแต่ละวันอยู่ใต้การปกครองของดาวคนละดวง
-        ซึ่งมีธาตุและพลังงานของมันเอง<br>
-        ตารางด้านล่างเทียบ <strong>ธาตุของวัน</strong> กับ <strong>Day Master ของคุณ (${esc(bazi.dayMasterTh)} · ธาตุ${esc(dmEl)})</strong> แล้วบอกว่าวันไหนหล่อเลี้ยง วันไหนรีดพลัง
+        ${tr(`ปฏิทิน 7 วันของโลกไม่ใช่เรื่องบังเอิญ — <strong>ไทยพราหมณ์ · Hellenistic · Vedic</strong> ทั้ง 3 ศาสตร์ตกลงว่าแต่ละวันอยู่ใต้การปกครองของดาวคนละดวง
+        ซึ่งมีธาตุและพลังงานของมันเอง`,
+        `The world's 7-day calendar is not coincidence — <strong>Thai Brahmin · Hellenistic · Vedic</strong> all agree that each day is ruled by a different planet, each with its own element and energy.`)}<br>
+        ${tr(`ตารางด้านล่างเทียบ <strong>ธาตุของวัน</strong> กับ <strong>Day Master ของคุณ (${esc(bazi.dayMasterTh)} · ธาตุ${esc(dmEl)})</strong> แล้วบอกว่าวันไหนหล่อเลี้ยง วันไหนรีดพลัง`,
+        `The table below compares <strong>each day's element</strong> against <strong>your Day Master (${esc(bazi.dayMasterTh)} · ${esc(dmEl)})</strong> and tells you which days nourish you and which drain you.`)}
       </div>
     </div>
 
     <table>
       <thead><tr>
-        <th>วัน / ดาว</th>
-        <th>ธาตุ</th>
-        <th>พลังงานเด่น</th>
-        <th>vs ดวงคุณ</th>
+        <th>${tr('วัน / ดาว','Day / Planet')}</th>
+        <th>${tr('ธาตุ','Element')}</th>
+        <th>${tr('พลังงานเด่น','Dominant Energy')}</th>
+        <th>${tr('vs ดวงคุณ','vs Your Chart')}</th>
       </tr></thead>
       <tbody>
         ${daysData.map((d) => {
@@ -1335,7 +1365,11 @@ function p17_weekly(c: ChartData): string {
       </tbody>
     </table>
 
-    ${box(`วันเกิดของคุณ = วัน${esc(thai.dayName)} ★`, `ในทางไทยพราหมณ์ วันเกิดคือวัน "ขอพร" — เทพประจำวัน${esc(thai.dayName)} (${esc(thai.dayGodTh||thai.dayGod||'—')}) เปิดรับคำขอพิเศษ ควรงดเนื้อสัตว์ / ทำบุญ / ตั้งจิตในวันนี้ทุกสัปดาห์<br><br>ส่วน <strong>Strategy Human Design</strong> ของคุณคือ "${esc(strategy)}" — ใช้ทุกวันเป็นแกนตัดสินใจ ไม่ใช่แค่วันเกิด`, 'gold')}
+    ${box(
+      tr(`วันเกิดของคุณ = วัน${esc(thai.dayName)} ★`, `Your Birth Weekday = ${esc(thai.dayName)} ★`),
+      tr(`ในทางไทยพราหมณ์ วันเกิดคือวัน "ขอพร" — เทพประจำวัน${esc(thai.dayName)} (${esc(thai.dayGodTh||thai.dayGod||'—')}) เปิดรับคำขอพิเศษ ควรงดเนื้อสัตว์ / ทำบุญ / ตั้งจิตในวันนี้ทุกสัปดาห์<br><br>ส่วน <strong>Strategy Human Design</strong> ของคุณคือ "${esc(strategy)}" — ใช้ทุกวันเป็นแกนตัดสินใจ ไม่ใช่แค่วันเกิด`,
+         `In Thai Brahmin tradition, your birth weekday is the day for <em>asking blessings</em> — your day-deity ${esc(thai.dayName)} (${esc(thai.dayGodTh||thai.dayGod||'—')}) is most receptive to special petitions. Consider abstaining from meat, making merit, and setting intentions on this weekday throughout the year.<br><br>Your <strong>Human Design Strategy</strong> is "${esc(strategy)}" — use it as your decision compass every day, not only on your birth weekday.`),
+      'gold')}
   `)
 }
 
@@ -1712,22 +1746,34 @@ function p23_forecast10yr(c: ChartData): string {
   const { bazi, numerology } = c
   return section(23, tr('พยากรณ์ 10 ปี 2026–2035','10-Year Forecast · 2026–2035'), '🔭', `
     <table>
-      <thead><tr><th>ปี</th><th>PY</th><th>NSK</th><th>แนวโน้ม</th></tr></thead>
+      <thead><tr><th>${tr('ปี','Year')}</th><th>PY</th><th>NSK</th><th>${tr('แนวโน้ม','Trend')}</th></tr></thead>
       <tbody>
         ${years.map(y => {
           const py = ((numerology.personalYear2026 - 1 + (y - 2026)) % 9) + 1
           const nsk = ((9 - (y - 2026)) % 9) || 9
           const good = py === 1||py===8||py===3 ? '🟢' : py===4||py===7 ? '🔴' : '🟡'
+          const meaning = py===1?tr('เริ่มต้นใหม่','New beginning')
+                        :py===2?tr('สร้างความสัมพันธ์','Build relationships')
+                        :py===3?tr('สื่อสารขยาย','Communicate & expand')
+                        :py===4?tr('ทำงานหนัก','Hard work')
+                        :py===5?tr('เปลี่ยนแปลง','Change')
+                        :py===6?tr('ครอบครัว','Family / care')
+                        :py===7?tr('พักฟื้น','Rest & restore')
+                        :py===8?tr('เก็บเกี่ยว','Harvest')
+                        :tr('สรุปปิดฉาก','Closing chapter')
           return `<tr>
             <td style="font-weight:600">${y}</td>
             <td style="color:#d4aa50">PY ${py}</td>
             <td style="font-size:11px;color:#9a8a72">Star ${nsk}</td>
-            <td>${good} ${py===1?'เริ่มต้นใหม่':py===2?'สร้างความสัมพันธ์':py===3?'สื่อสารขยาย':py===4?'ทำงานหนัก':py===5?'เปลี่ยนแปลง':py===6?'ครอบครัว':py===7?'พักฟื้น':py===8?'เก็บเกี่ยว':'สรุปปิดฉาก'}</td>
+            <td>${good} ${meaning}</td>
           </tr>`}).join('')}
       </tbody>
     </table>
-    <p style="font-size:11px;color:#6a5a42;margin-top:8px">PY = Personal Year | 🟢 ดี 🟡 ปานกลาง 🔴 ระวัง</p>
-    ${box('ช่วงทอง', `ปี ${years.filter((_,i) => {const py=((numerology.personalYear2026-1+i)%9)+1; return py===1||py===8||py===3}).slice(0,3).join(', ')} — Personal Year ที่ดีที่สุดในรอบ 10 ปี`, 'green')}
+    <p style="font-size:11px;color:#6a5a42;margin-top:8px">PY = Personal Year | 🟢 ${tr('ดี','Good')} 🟡 ${tr('ปานกลาง','Mixed')} 🔴 ${tr('ระวัง','Caution')}</p>
+    ${box(tr('ช่วงทอง','Golden Window'),
+      tr(`ปี ${years.filter((_,i) => {const py=((numerology.personalYear2026-1+i)%9)+1; return py===1||py===8||py===3}).slice(0,3).join(', ')} — Personal Year ที่ดีที่สุดในรอบ 10 ปี`,
+         `Years ${years.filter((_,i) => {const py=((numerology.personalYear2026-1+i)%9)+1; return py===1||py===8||py===3}).slice(0,3).join(', ')} — your strongest Personal Years in this 10-year window.`),
+      'green')}
   `)
 }
 
@@ -2013,7 +2059,7 @@ function consensusRow(icon: string, theme: string, systems: string[], msg: strin
   return `<div style="border-left:3px solid ${color};padding:10px 14px;margin:10px 0;background:#141210;border-radius:0 8px 8px 0">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
       <span style="font-size:14px;font-weight:700;color:${color}">${icon} ${esc(theme)}</span>
-      <span style="font-size:11px;color:${color};background:${color}22;padding:2px 10px;border-radius:10px;font-weight:600">${count} ศาสตร์ ${strength}</span>
+      <span style="font-size:11px;color:${color};background:${color}22;padding:2px 10px;border-radius:10px;font-weight:600">${count} ${tr('ศาสตร์','systems')} ${strength}</span>
     </div>
     <div style="margin-bottom:6px;line-height:1.8">${chips}</div>
     ${narrative ? `<div style="font-size:12px;color:#d4c89a;line-height:1.7;margin-bottom:6px;padding:8px;background:#1a1608;border-radius:6px">${esc(narrative)}</div>` : ''}
@@ -2040,8 +2086,8 @@ function p_saju(c: ChartData): string {
       ${row2('꽃살 Fortune Cycle 2026', s.kwarsal)}
       ${row2('พลังงานหลัก', s.dominantEnergy)}
     </tbody></table>
-    ${box('การตีความ Saju', s.reading, 'gold')}
-    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> Saju (사주) คือโหราศาสตร์เกาหลีที่ใช้ 4 เสา (ปี เดือน วัน ชั่วโมง) เหมือน BaZi แต่มีการตีความตามประเพณีเกาหลีที่เน้น 월주 (เดือนเกิด) เป็นหลัก มีอายุกว่า 1,000 ปี ยังใช้แพร่หลายในเกาหลีใต้ปัจจุบัน — มีแอปดูดวงหลายร้อยล้าน downloads ต่อปี</p>
+    ${box(tr('การตีความ Saju','Saju Reading'), s.reading, 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:','Origin:')}</strong> Saju (사주) คือโหราศาสตร์เกาหลีที่ใช้ 4 เสา (ปี เดือน วัน ชั่วโมง) เหมือน BaZi แต่มีการตีความตามประเพณีเกาหลีที่เน้น 월주 (เดือนเกิด) เป็นหลัก มีอายุกว่า 1,000 ปี ยังใช้แพร่หลายในเกาหลีใต้ปัจจุบัน — มีแอปดูดวงหลายร้อยล้าน downloads ต่อปี</p>
     <p style="font-size:11px;color:#6a5a42">Saju ใช้ระบบเสาสี่เดียวกับ BaZi แต่เน้นการตีความตามประเพณีเกาหลี — ความสัมพันธ์ระหว่างเดือนและวันสำคัญที่สุด</p>
   `)
 }
@@ -2059,8 +2105,8 @@ function p_tibetan(c: ChartData): string {
       ${row2('คุณภาพ Mewa', t.mewaQuality)}
       ${row2('Parkha (ตรีศูล)', t.parkhaName)} ${row2('ธาตุ Parkha', t.parkhaElement)}
     </tbody></table>
-    ${box('การตีความทิเบต', t.reading, 'purple')}
-    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> โหราศาสตร์ทิเบตผสมระบบ Mewa จากจีน + Parkha จาก Ba Gua + ประเพณีดั้งเดิม Bon + Vedic Jyotish เข้าด้วยกัน พัฒนาในทิเบตกว่า 1,500 ปี ยังใช้อย่างเป็นทางการในวัดทิเบตและโดย Dalai Lama สถาบัน — เน้น Mewa 9 ดวงเป็นแกนหลัก</p>
+    ${box(tr('การตีความทิเบต','Tibetan Reading'), t.reading, 'purple')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:','Origin:')}</strong> โหราศาสตร์ทิเบตผสมระบบ Mewa จากจีน + Parkha จาก Ba Gua + ประเพณีดั้งเดิม Bon + Vedic Jyotish เข้าด้วยกัน พัฒนาในทิเบตกว่า 1,500 ปี ยังใช้อย่างเป็นทางการในวัดทิเบตและโดย Dalai Lama สถาบัน — เน้น Mewa 9 ดวงเป็นแกนหลัก</p>
     <p style="font-size:11px;color:#6a5a42">Mewa สอดคล้องกับ Nine Star Ki แต่นับทวนเข็ม — Mewa ${t.mewa} หมายถึง${t.mewaQuality}ในชีวิต</p>
   `)
 }
@@ -2078,8 +2124,8 @@ function p_ziwei(c: ChartData): string {
       ${row2('วังชีวิต Life Palace', z.lifePalaceName)}
       ${row2('คุณภาพวัง Palace Quality', z.palaceQuality)}
     </tbody></table>
-    ${box('การตีความ 紫微', z.reading, 'purple')}
-    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> 紫微斗數 (Zi Wei Dou Shu) พัฒนาโดย Chen Tuan นักปราชญ์จีนในสมัย Song Dynasty (~1000 AD) ใช้ดาว 108 ดวงใน 12 palace — ซับซ้อนและแม่นยำกว่า BaZi ในการทำนายเส้นทางอาชีพ นิยมมากในไต้หวัน ฮ่องกง สิงคโปร์ สำหรับการตัดสินใจธุรกิจ</p>
+    ${box(tr('การตีความ 紫微','Zi Wei Reading (紫微)'), z.reading, 'purple')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:','Origin:')}</strong> 紫微斗數 (Zi Wei Dou Shu) พัฒนาโดย Chen Tuan นักปราชญ์จีนในสมัย Song Dynasty (~1000 AD) ใช้ดาว 108 ดวงใน 12 palace — ซับซ้อนและแม่นยำกว่า BaZi ในการทำนายเส้นทางอาชีพ นิยมมากในไต้หวัน ฮ่องกง สิงคโปร์ สำหรับการตัดสินใจธุรกิจ</p>
     <p style="font-size:11px;color:#6a5a42">紫微斗數 คือโหราศาสตร์จีนขั้นสูง — วังชีวิต (命宮) เป็นตำแหน่งสำคัญที่สุด ดาว${z.mainStarTh}ชี้นำเส้นทางชีวิต</p>
   `)
 }
@@ -2098,8 +2144,8 @@ function p_onmyodo(c: ChartData): string {
       ${row2('Onmyo Polarity', o.onmyoPolarity)}
       ${row2('Jūnishi Nakshatra', o.juniShiNakshatra)}
     </tbody></table>
-    ${box('การตีความ Onmyōdō', o.reading, o.rokuyoScore >= 780 ? 'green' : o.rokuyoScore >= 650 ? 'gold' : 'red')}
-    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> Onmyōdō (陰陽道) พัฒนาในญี่ปุ่นสมัย Nara (710-794 AD) โดย Abe no Seimei หมอดูในตำนาน รับอิทธิพลจาก Taoist เต๋าและ Chinese Cosmology ผสมกับความเชื่อ Shinto ใช้โดยราชสำนักญี่ปุ่นเป็นเวลาหลายร้อยปี ปัจจุบันยังมีสถาบัน Onmyōdō อย่างเป็นทางการ</p>
+    ${box(tr('การตีความ Onmyōdō','Onmyōdō Reading'), o.reading, o.rokuyoScore >= 780 ? 'green' : o.rokuyoScore >= 650 ? 'gold' : 'red')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:','Origin:')}</strong> Onmyōdō (陰陽道) พัฒนาในญี่ปุ่นสมัย Nara (710-794 AD) โดย Abe no Seimei หมอดูในตำนาน รับอิทธิพลจาก Taoist เต๋าและ Chinese Cosmology ผสมกับความเชื่อ Shinto ใช้โดยราชสำนักญี่ปุ่นเป็นเวลาหลายร้อยปี ปัจจุบันยังมีสถาบัน Onmyōdō อย่างเป็นทางการ</p>
 
     <div style="background:#13110e;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:8px">
       <div style="font-size:11px;color:#d4aa50;letter-spacing:1px;margin-bottom:6px">六曜 ROKUYO — ปฏิทินมงคล 6 วันของญี่ปุ่น</div>
@@ -2139,8 +2185,8 @@ function p_hellenistic(c: ChartData): string {
       ${row2('Lot of Fortune', `${h.lotOfFortune}° ใน ${h.lotSign}`)}
       
     </tbody></table>
-    ${box('การตีความ Hellenistic', h.reading, 'gold')}
-    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> Hellenistic Astrology พัฒนาโดยชาว Greek ใน Alexandria อียิปต์ (~300-100 ปีก่อน ค.ศ.) รวมระบบ Babylonian Horoscope + Greek Philosophy + Egyptian Lots เข้าด้วยกัน Ptolemy's Tetrabiblos เป็นรากฐานของ Western Astrology ทั้งหมด ปัจจุบัน Renaissance กลับมาแรงมากในวงการ Traditional Astrology</p>
+    ${box(tr('การตีความ Hellenistic','Hellenistic Reading'), h.reading, 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:','Origin:')}</strong> Hellenistic Astrology พัฒนาโดยชาว Greek ใน Alexandria อียิปต์ (~300-100 ปีก่อน ค.ศ.) รวมระบบ Babylonian Horoscope + Greek Philosophy + Egyptian Lots เข้าด้วยกัน Ptolemy's Tetrabiblos เป็นรากฐานของ Western Astrology ทั้งหมด ปัจจุบัน Renaissance กลับมาแรงมากในวงการ Traditional Astrology</p>
     <p style="font-size:11px;color:#6a5a42">Hellenistic ใช้ Lots (Arabic Parts) + Sect เพื่อดูโชค — Lot of Fortune ใน${h.lotSign}ชี้ทิศทางทรัพย์สิน</p>
   `)
 }
@@ -2158,8 +2204,8 @@ function p_norseRune(c: ChartData): string {
       ${row2('ธาตุ', n.runeElement)}
       ${row2('คำสำคัญ', n.runeKeyword)}
     </tbody></table>
-    ${box('การตีความรูน', n.reading, 'purple')}
-    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> Elder Futhark 24 Runes ใช้โดยชาว Germanic/Viking ราว 160 ปีก่อน ค.ศ. ถึง 1100 AD — ใช้ทั้งเป็นตัวอักษรและเป็นเครื่องมือ divination Rune casting เป็นหนึ่งใน oldest divination systems ในยุโรปเหนือ ปัจจุบัน Neo-Pagan / Heathen communities ยังใช้อย่างจริงจัง</p>
+    ${box(tr('การตีความรูน','Rune Reading'), n.reading, 'purple')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:','Origin:')}</strong> Elder Futhark 24 Runes ใช้โดยชาว Germanic/Viking ราว 160 ปีก่อน ค.ศ. ถึง 1100 AD — ใช้ทั้งเป็นตัวอักษรและเป็นเครื่องมือ divination Rune casting เป็นหนึ่งใน oldest divination systems ในยุโรปเหนือ ปัจจุบัน Neo-Pagan / Heathen communities ยังใช้อย่างจริงจัง</p>
     <p style="font-size:11px;color:#6a5a42">Elder Futhark มี 24 รูน แต่ละรูนครอบคลุม ~15 วัน ในปีแบบ runic calendar — ${n.rune} ${n.runeName} บ่งถึง${n.runeKeyword}</p>
   `)
 }
@@ -2177,8 +2223,8 @@ function p_ogham(c: ChartData): string {
       ${row2('กลุ่ม Ogham', o.oghamClass)}
       ${row2('ธาตุ', o.element)}
     </tbody></table>
-    ${box('การตีความ Ogham', o.reading, 'green')}
-    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> Ogham alphabet มีอายุราว 300-500 AD ค้นพบบนหินในไอร์แลนด์และเวลส์กว่า 400 แผ่น Celtic Druids ใช้เป็นทั้งตัวหนังสือและระบบ tree calendar ความลึกของ Ogham อยู่ที่ Beth-Luis-Nion calendar ที่แต่ละต้นไม้มีความหมายทางจิตวิญญาณ — Robert Graves นำมา popularize อีกครั้งในศตวรรษ 20</p>
+    ${box(tr('การตีความ Ogham','Ogham Reading'), o.reading, 'green')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:','Origin:')}</strong> Ogham alphabet มีอายุราว 300-500 AD ค้นพบบนหินในไอร์แลนด์และเวลส์กว่า 400 แผ่น Celtic Druids ใช้เป็นทั้งตัวหนังสือและระบบ tree calendar ความลึกของ Ogham อยู่ที่ Beth-Luis-Nion calendar ที่แต่ละต้นไม้มีความหมายทางจิตวิญญาณ — Robert Graves นำมา popularize อีกครั้งในศตวรรษ 20</p>
     <p style="font-size:11px;color:#6a5a42">Beth-Luis-Nion calendar มี 13 เดือนต้นไม้ — ${o.ogham} ${o.treeNameTh} (${o.oghamClass}) บ่งถึงพลังงานหลักจากธรรมชาติ</p>
   `)
 }
@@ -2195,8 +2241,8 @@ function p_arabicParts(c: ChartData): string {
       ${row2('Lot of Fortune', `${a.partOfFortune}° ใน ${a.fortuneSign}`)}
       ${row2('Lot of Spirit', `${a.partOfSpirit}° ใน ${a.spiritSign}`)}
     </tbody></table>
-    ${box('การตีความ Arabic Parts', a.reading, 'gold')}
-    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> Arabic Parts หรือ Lots of Fortune มีต้นกำเนิดใน Hellenistic Astrology แต่ Arab astrologers ใน Baghdad (~800-1200 AD) เป็นผู้รวบรวมและขยายให้ครบ 97 Lots Albumasar และ al-Qabisi เป็นผู้มีอิทธิพลสูงสุด Arabic Parts ถ่ายทอดมายังยุโรปผ่าน Crusades และ Spanish translation</p>
+    ${box(tr('การตีความ Arabic Parts','Arabic Parts Reading'), a.reading, 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:','Origin:')}</strong> Arabic Parts หรือ Lots of Fortune มีต้นกำเนิดใน Hellenistic Astrology แต่ Arab astrologers ใน Baghdad (~800-1200 AD) เป็นผู้รวบรวมและขยายให้ครบ 97 Lots Albumasar และ al-Qabisi เป็นผู้มีอิทธิพลสูงสุด Arabic Parts ถ่ายทอดมายังยุโรปผ่าน Crusades และ Spanish translation</p>
     <p style="font-size:11px;color:#6a5a42">Arabic Lots (Hellenistic Lots) คำนวณจาก ASC + Moon + Sun — Part of Fortune ใน${a.fortuneSign}ชี้ทิศทางโชคลาภทางวัตถุ</p>
   `)
 }
@@ -2215,8 +2261,8 @@ function p_kabbalistic(c: ChartData): string {
       ${row2('Hebrew Year', String(k.hebrewYear))}
       ${row2('Mazal (Zodiac)', k.mazalTh)}
     </tbody></table>
-    ${box('การตีความ Kabbalah', k.reading, 'purple')}
-    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> Kabbalah (קַבָּלָה) มีต้นกำเนิดในยิวโบราณ พัฒนาเต็มรูปแบบใน 12-13 ศตวรรษในสเปนและ Provence Sefer ha-Bahir (1180 AD) และ Sefer ha-Zohar (1290 AD) คือคัมภีร์หลัก Tree of Life มี 10 Sephirot และ 22 paths ตาม Hebrew alphabet ปัจจุบัน Madonna และ Hollywood stars ทำให้ Kabbalah เป็นที่รู้จักทั่วโลก</p>
+    ${box(tr('การตีความ Kabbalah','Kabbalistic Reading'), k.reading, 'purple')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:','Origin:')}</strong> Kabbalah (קַבָּלָה) มีต้นกำเนิดในยิวโบราณ พัฒนาเต็มรูปแบบใน 12-13 ศตวรรษในสเปนและ Provence Sefer ha-Bahir (1180 AD) และ Sefer ha-Zohar (1290 AD) คือคัมภีร์หลัก Tree of Life มี 10 Sephirot และ 22 paths ตาม Hebrew alphabet ปัจจุบัน Madonna และ Hollywood stars ทำให้ Kabbalah เป็นที่รู้จักทั่วโลก</p>
     <p style="font-size:11px;color:#6a5a42">Tree of Life มี 10 Sephirot — ${k.sephira} (${k.sephiraHebrew}) ปกครองโดย ${k.archangel} บ่งถึงแง่มุมจิตวิญญาณหลัก</p>
   `)
 }
@@ -2234,8 +2280,8 @@ function p_zoroastrian(c: ChartData): string {
       ${row2('Amesha เดือนเกิด', z.monthAmeshaTh)}
       ${row2('ความสอดคล้อง', z.harmony ? '✓ ธาตุสอดคล้อง — เสริมพลัง' : '○ ธาตุต่างกัน — สร้างสมดุล')}
     </tbody></table>
-    ${box('การตีความ Zoroastrian', z.reading, z.harmony ? 'green' : 'gold')}
-    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> Zoroastrianism เป็นหนึ่งในศาสนาที่เก่าแก่ที่สุดในโลก ก่อตั้งโดย Zarathustra (~1500-1000 ปีก่อน ค.ศ.) ในเปอร์เซีย (อิหร่านปัจจุบัน) ระบบ Yazata 30 วัน และ Amesha Spenta 6 เดือน สะท้อนปรัชญา Asha (ความจริง/ความดี) vs Druj (ความเท็จ) — มีอิทธิพลต่อ Judaism, Christianity และ Islam</p>
+    ${box(tr('การตีความ Zoroastrian','Zoroastrian Reading'), z.reading, z.harmony ? 'green' : 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:','Origin:')}</strong> Zoroastrianism เป็นหนึ่งในศาสนาที่เก่าแก่ที่สุดในโลก ก่อตั้งโดย Zarathustra (~1500-1000 ปีก่อน ค.ศ.) ในเปอร์เซีย (อิหร่านปัจจุบัน) ระบบ Yazata 30 วัน และ Amesha Spenta 6 เดือน สะท้อนปรัชญา Asha (ความจริง/ความดี) vs Druj (ความเท็จ) — มีอิทธิพลต่อ Judaism, Christianity และ Islam</p>
     <p style="font-size:11px;color:#6a5a42">Yazata คือสิ่งศักดิ์สิทธิ์ใน Zoroastrianism — แต่ละวันและเดือนมี Yazata/Amesha ปกครอง</p>
   `)
 }
@@ -2253,8 +2299,8 @@ function p_aztec(c: ChartData): string {
       ${row2('Tone Number', `${a.toneNumber} — ${a.toneName}`)}
       ${row2('Day Sign Quality', a.daySignQuality)}
     </tbody></table>
-    ${box('การตีความ Tonalpohualli', a.reading, 'gold')}
-    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> Tonalpohualli (260 วัน) เป็นปฏิทินศักดิ์สิทธิ์ของ Aztec เหมือน Mayan Tzolk'in แต่มีชื่อ Day Signs ต่างออกไป ใช้โดย tonalpouhqui (นักโหราศาสตร์) เพื่อกำหนดชะตาชีวิตตั้งแต่แรกเกิด Aztec เชื่อว่า Day Sign ณ วันเกิดกำหนด "patron deity" ของบุคคลนั้น — นิยมในเม็กซิโกและนักวิจัย Mesoamerican culture</p>
+    ${box(tr('การตีความ Tonalpohualli','Tonalpohualli Reading'), a.reading, 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:','Origin:')}</strong> Tonalpohualli (260 วัน) เป็นปฏิทินศักดิ์สิทธิ์ของ Aztec เหมือน Mayan Tzolk'in แต่มีชื่อ Day Signs ต่างออกไป ใช้โดย tonalpouhqui (นักโหราศาสตร์) เพื่อกำหนดชะตาชีวิตตั้งแต่แรกเกิด Aztec เชื่อว่า Day Sign ณ วันเกิดกำหนด "patron deity" ของบุคคลนั้น — นิยมในเม็กซิโกและนักวิจัย Mesoamerican culture</p>
     <p style="font-size:11px;color:#6a5a42">Tonalpohualli คือปฏิทิน 260 วัน (20 Day Signs × 13 Tones) ใช้ร่วมกับ Mayan Tzolk'in — ${a.daySignTh} Tone ${a.toneNumber} กำหนดพลังงาน</p>
   `)
 }
@@ -2273,8 +2319,8 @@ function p_nativeAmerican(c: ChartData): string {
       ${row2('Clan', n.clansmother)}
       ${row2('ธาตุ', n.element)}
     </tbody></table>
-    ${box('การตีความ Native American', n.reading, 'gold')}
-    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> Medicine Wheel เป็นระบบจักรวาลวิทยาของชนพื้นเมืองอเมริกาเหนือหลายเผ่า (Lakota, Ojibwe, Cherokee ฯลฯ) 13 Moon Calendar ใช้ lunar cycle 13 รอบต่อปี แต่ละ moon มี totem animal ประจำ ระบบนี้ถ่ายทอดผ่าน oral tradition กว่า 10,000 ปี Sun Bear popularize ผ่านหนังสือในทศวรรษ 1980</p>
+    ${box(tr('การตีความ Native American','Native American Reading'), n.reading, 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:','Origin:')}</strong> Medicine Wheel เป็นระบบจักรวาลวิทยาของชนพื้นเมืองอเมริกาเหนือหลายเผ่า (Lakota, Ojibwe, Cherokee ฯลฯ) 13 Moon Calendar ใช้ lunar cycle 13 รอบต่อปี แต่ละ moon มี totem animal ประจำ ระบบนี้ถ่ายทอดผ่าน oral tradition กว่า 10,000 ปี Sun Bear popularize ผ่านหนังสือในทศวรรษ 1980</p>
     <p style="font-size:11px;color:#6a5a42">Medicine Wheel มี 13 moon cycle — Birth Totem ${n.birthTotemTh} (${n.birthTotem}) ใน ${n.clansmother} บ่งถึงสัตว์นำทางทางจิตวิญญาณ</p>
   `)
 }
@@ -2292,8 +2338,8 @@ function p_ifaYoruba(c: ChartData): string {
       ${row2('Theme', i.oduTheme)}
       ${row2('Fortune', i.fortune)}
     </tbody></table>
-    ${box('การตีความ Ifa', i.reading, i.fortune.includes('เยี่ยม') ? 'green' : i.fortune.includes('ท้าทาย') ? 'red' : 'gold')}
-    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> Ifa divination เป็นระบบโหราศาสตร์ของชาว Yoruba ไนจีเรีย มีอายุกว่า 8,000 ปีตามตำนาน มี 256 Odù (corpus ความรู้) แต่ละ Odù มี poems, proverbs และ remedies UNESCO ประกาศให้ Ifa เป็น Intangible Cultural Heritage of Humanity ในปี 2005 Babalawo (นักพยากรณ์) ใช้เวลาเรียน 7-10 ปี</p>
+    ${box(tr('การตีความ Ifa','Ifá Reading'), i.reading, i.fortune.includes('เยี่ยม') ? 'green' : i.fortune.includes('ท้าทาย') ? 'red' : 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:','Origin:')}</strong> Ifa divination เป็นระบบโหราศาสตร์ของชาว Yoruba ไนจีเรีย มีอายุกว่า 8,000 ปีตามตำนาน มี 256 Odù (corpus ความรู้) แต่ละ Odù มี poems, proverbs และ remedies UNESCO ประกาศให้ Ifa เป็น Intangible Cultural Heritage of Humanity ในปี 2005 Babalawo (นักพยากรณ์) ใช้เวลาเรียน 7-10 ปี</p>
     <p style="font-size:11px;color:#6a5a42">Ifa มี 256 Odù (16×16) — ${i.odu} คือ Odù ที่ ${i.oduNumber} หนึ่งในระบบโชคชะตาของชาว Yoruba ไนจีเรีย/เบนิน</p>
   `)
 }
@@ -2311,8 +2357,8 @@ function p_aboriginal(c: ChartData): string {
       ${row2('Season', a.season)}
       ${row2('Clan', a.clan)}
     </tbody></table>
-    ${box('การตีความ Dreamtime', a.reading, 'gold')}
-    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> Dreamtime (Tjukurpa ในภาษา Anangu) เป็นปรัชญาและโลกทัศน์ของชาวอะบอริจินออสเตรเลีย อายุกว่า 65,000 ปี — เก่าแก่ที่สุดในโลก บรรพบุรุษ Dreaming สร้างภูมิทัศน์และกำหนดกฎทางสังคม ไม่ใช่แค่ "ตำนาน" แต่คือ living law ที่ยังใช้อยู่ในชุมชนอะบอริจินปัจจุบัน</p>
+    ${box(tr('การตีความ Dreamtime','Dreamtime Reading'), a.reading, 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:','Origin:')}</strong> Dreamtime (Tjukurpa ในภาษา Anangu) เป็นปรัชญาและโลกทัศน์ของชาวอะบอริจินออสเตรเลีย อายุกว่า 65,000 ปี — เก่าแก่ที่สุดในโลก บรรพบุรุษ Dreaming สร้างภูมิทัศน์และกำหนดกฎทางสังคม ไม่ใช่แค่ "ตำนาน" แต่คือ living law ที่ยังใช้อยู่ในชุมชนอะบอริจินปัจจุบัน</p>
     <p style="font-size:11px;color:#6a5a42">Dreamtime เป็นปรัชญาชาวอะบอริจินออสเตรเลีย — บรรพบุรุษ ${a.dreamingTh} ชี้แนะเส้นทางผ่านกฎธรรมชาติ</p>
   `)
 }
@@ -2368,7 +2414,7 @@ function p_vedicMahadasha(c: ChartData): string {
       ${row2('ธาตุ Dasha', v.dashaElement)}
     </tbody></table>
     ${box('การตีความ Mahadasha', v.reading, ['Jupiter','Venus','Sun'].includes(v.currentDasha) ? 'green' : ['Saturn','Rahu','Ketu'].includes(v.currentDasha) ? 'red' : 'gold')}
-    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> Vimshottari Dasha เป็นระบบ planetary periods ใน Vedic Jyotish รวม 120 ปี ประกอบด้วย 9 ดาว แต่ละดาวปกครอง 6-20 ปี คำนวณจาก Nakshatra ของดวงจันทร์ณ เวลาเกิด — ถือเป็นหนึ่งในเครื่องมือทำนาย timing ที่แม่นยำที่สุดใน Vedic system ยังใช้แพร่หลายในอินเดียสำหรับการตัดสินใจสำคัญ</p>
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:','Origin:')}</strong> Vimshottari Dasha เป็นระบบ planetary periods ใน Vedic Jyotish รวม 120 ปี ประกอบด้วย 9 ดาว แต่ละดาวปกครอง 6-20 ปี คำนวณจาก Nakshatra ของดวงจันทร์ณ เวลาเกิด — ถือเป็นหนึ่งในเครื่องมือทำนาย timing ที่แม่นยำที่สุดใน Vedic system ยังใช้แพร่หลายในอินเดียสำหรับการตัดสินใจสำคัญ</p>
     <p style="font-size:11px;color:#6a5a42">Vedic Mahadasha กำหนด "ช่วงเวลา" ที่ดาวแต่ละดวงปกครองชีวิต — ${v.currentDasha} (${v.dashaQuality}) ครองจนถึงปี ${v.currentDashaEnd}</p>
   `)
 }
