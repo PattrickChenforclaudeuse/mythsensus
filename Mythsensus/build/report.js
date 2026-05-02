@@ -1545,14 +1545,22 @@ function p20_colors(c) {
 }
 function p21_historicalFigures(c) {
     const FIGURE_POOL = [
-        { name: 'Steve Jobs', years: '1955–2011', element: 'ไฟ', lifePath: [1, 5, 7], nsk: [1, 4, 9], why: `ผู้บุกเบิกด้วยพลังงาน${c.bazi.dayMasterElement} + Life Path ${c.numerology.lifePath} + ความกล้าทำลายกรอบเดิม` },
-        { name: 'Albert Einstein', years: '1879–1955', element: 'ไม้', lifePath: [7, 11, 3], nsk: [3, 6, 9], why: `Life Path ${c.numerology.lifePath} สู่ความจริงอันลึกซึ้ง + ${c.western.sunSignTh}ที่ให้ปัญญาและสัญชาตญาณ` },
-        { name: 'Marie Curie', years: '1867–1934', element: 'น้ำ', lifePath: [7, 6, 9], nsk: [1, 8, 6], why: `ความลึกของ${c.bazi.dayMasterElement} + NSK ${c.ninestar.star} + ความอดทนสู่ความสำเร็จที่ยิ่งใหญ่` },
-        { name: 'Leonardo da Vinci', years: '1452–1519', element: 'ไม้', lifePath: [5, 11, 3], nsk: [3, 4, 9], why: `ครีเอทีฟสูงสุดจาก${c.bazi.dayMasterElement} + Celtic ${c.celtic.treeName} + ความอยากรู้ไม่สิ้นสุด` },
-        { name: 'Frida Kahlo', years: '1907–1954', element: 'ไฟ', lifePath: [3, 9, 6], nsk: [9, 3, 7], why: `พลังสร้างสรรค์จากภายใน + ธาตุ${c.bazi.dayMasterElement} + NSK ${c.ninestar.star} ที่โดดเด่น` },
-        { name: 'Nikola Tesla', years: '1856–1943', element: 'โลหะ', lifePath: [1, 7, 11], nsk: [1, 7, 4], why: `ดาว${c.ninestar.star} + ธาตุ${c.bazi.dayMasterElement} + Life Path ${c.numerology.lifePath} ผสานจินตนาการและวิทยาศาสตร์` },
-        { name: 'Coco Chanel', years: '1883–1971', element: 'ดิน', lifePath: [8, 4, 1], nsk: [8, 2, 6], why: `ธาตุ${c.bazi.dayMasterElement} + NSK ${c.ninestar.star} หนุนรสนิยมและการสร้างตัวตน` },
-        { name: 'Laozi (老子)', years: 'ราว 600 ปีก่อน ค.ศ.', element: 'น้ำ', lifePath: [7, 9, 4], nsk: [1, 6, 8], why: `ความลึกของน้ำธาตุ + ปัญญาที่เกิดจากการสังเกต — Life Path ${c.numerology.lifePath}` },
+        { name: 'Steve Jobs', years: '1955–2011', element: 'ไฟ', lifePath: [1, 5, 7], nsk: [1, 4, 9],
+            why: tr(`ผู้บุกเบิกด้วยพลังงาน${c.bazi.dayMasterElement} + Life Path ${c.numerology.lifePath} + ความกล้าทำลายกรอบเดิม`, `A pioneer fuelled by ${c.bazi.dayMasterElement} energy + Life Path ${c.numerology.lifePath} + the courage to break frames.`) },
+        { name: 'Albert Einstein', years: '1879–1955', element: 'ไม้', lifePath: [7, 11, 3], nsk: [3, 6, 9],
+            why: tr(`Life Path ${c.numerology.lifePath} สู่ความจริงอันลึกซึ้ง + ${c.western.sunSignTh}ที่ให้ปัญญาและสัญชาตญาณ`, `Life Path ${c.numerology.lifePath} drawn toward deep truth + ${c.western.sunSign} granting insight and intuition.`) },
+        { name: 'Marie Curie', years: '1867–1934', element: 'น้ำ', lifePath: [7, 6, 9], nsk: [1, 8, 6],
+            why: tr(`ความลึกของ${c.bazi.dayMasterElement} + NSK ${c.ninestar.star} + ความอดทนสู่ความสำเร็จที่ยิ่งใหญ่`, `The depth of ${c.bazi.dayMasterElement} + NSK ${c.ninestar.star} + the patience that compounds into monumental achievement.`) },
+        { name: 'Leonardo da Vinci', years: '1452–1519', element: 'ไม้', lifePath: [5, 11, 3], nsk: [3, 4, 9],
+            why: tr(`ครีเอทีฟสูงสุดจาก${c.bazi.dayMasterElement} + Celtic ${c.celtic.treeName} + ความอยากรู้ไม่สิ้นสุด`, `Peak creativity from ${c.bazi.dayMasterElement} + Celtic ${c.celtic.treeName} + an inexhaustible curiosity.`) },
+        { name: 'Frida Kahlo', years: '1907–1954', element: 'ไฟ', lifePath: [3, 9, 6], nsk: [9, 3, 7],
+            why: tr(`พลังสร้างสรรค์จากภายใน + ธาตุ${c.bazi.dayMasterElement} + NSK ${c.ninestar.star} ที่โดดเด่น`, `Creative force from within + ${c.bazi.dayMasterElement} element + a NSK ${c.ninestar.star} that stands out.`) },
+        { name: 'Nikola Tesla', years: '1856–1943', element: 'โลหะ', lifePath: [1, 7, 11], nsk: [1, 7, 4],
+            why: tr(`ดาว${c.ninestar.star} + ธาตุ${c.bazi.dayMasterElement} + Life Path ${c.numerology.lifePath} ผสานจินตนาการและวิทยาศาสตร์`, `Star ${c.ninestar.star} + ${c.bazi.dayMasterElement} element + Life Path ${c.numerology.lifePath} fusing imagination with science.`) },
+        { name: 'Coco Chanel', years: '1883–1971', element: 'ดิน', lifePath: [8, 4, 1], nsk: [8, 2, 6],
+            why: tr(`ธาตุ${c.bazi.dayMasterElement} + NSK ${c.ninestar.star} หนุนรสนิยมและการสร้างตัวตน`, `${c.bazi.dayMasterElement} element + NSK ${c.ninestar.star} backing taste and self-construction.`) },
+        { name: 'Laozi (老子)', years: tr('ราว 600 ปีก่อน ค.ศ.', 'c. 600 BCE'), element: 'น้ำ', lifePath: [7, 9, 4], nsk: [1, 6, 8],
+            why: tr(`ความลึกของน้ำธาตุ + ปัญญาที่เกิดจากการสังเกต — Life Path ${c.numerology.lifePath}`, `The depth of the water element + wisdom born of observation — Life Path ${c.numerology.lifePath}.`) },
     ];
     // Score each figure by matching: element match (+3), lifePath match (+2), nsk match (+2), base from chart
     const dm = c.bazi.dayMasterElement;
@@ -1583,36 +1591,53 @@ function p21_historicalFigures(c) {
 function p22_painPoints(c) {
     const dmEl = c.bazi.dayMasterElement;
     const missingEl = c.bazi.missingElement || (dmEl === 'ไม้' ? 'โลหะ' : dmEl === 'ไฟ' ? 'น้ำ' : dmEl === 'ดิน' ? 'ไม้' : dmEl === 'โลหะ' ? 'ไฟ' : 'ดิน');
+    // Element-conditional bits used in the strings below — calculate once so
+    // the bilingual strings can interpolate cleanly without long ternaries.
+    const dmEmotion = dmEl === 'โลหะ' ? tr('ชอบเก็บไว้ในใจ', 'tend to keep things internal')
+        : dmEl === 'ไฟ' ? tr('ระเบิดอารมณ์ง่าย', 'prone to emotional outbursts')
+            : dmEl === 'น้ำ' ? tr('ลึกและเปลี่ยนแปลง', 'deep and shifting')
+                : dmEl === 'ดิน' ? tr('มั่นคงแต่เปิดตัวช้า', 'steady but slow to open up')
+                    : tr('ยืดหยุ่นแต่เรียกร้องอิสระ', 'flexible but craving independence');
+    const missingTaste = missingEl === 'ไม้' ? tr('เปรี้ยว', 'sour')
+        : missingEl === 'ไฟ' ? tr('ขม', 'bitter')
+            : missingEl === 'ดิน' ? tr('หวานธรรมชาติ', 'naturally sweet')
+                : missingEl === 'โลหะ' ? tr('เผ็ดเบา', 'lightly pungent')
+                    : tr('เค็มเบา', 'lightly salty');
+    const missingActivity = missingEl === 'น้ำ' ? tr('ว่ายน้ำ/สมาธิ', 'swimming / meditation')
+        : missingEl === 'ไฟ' ? tr('ออกกำลังกลางแจ้ง', 'outdoor exercise')
+            : missingEl === 'ดิน' ? tr('เดินเท้าเปล่าบนดิน', 'walking barefoot on earth')
+                : missingEl === 'โลหะ' ? tr('หายใจลึก', 'deep breathing')
+                    : tr('ปลูกต้นไม้/เดินป่า', 'planting / forest walks');
     const points = [
-        { icon: '❤️', topic: 'ความรัก & ความสัมพันธ์',
+        { icon: '❤️', topic: tr('ความรัก & ความสัมพันธ์', 'Love & Relationships'),
             systems: ['Western (Moon)', 'BaZi (Day Master)', 'Human Design'],
-            why: `ดวงจันทร์ของคุณอยู่ใน<strong>${c.western.moonSignTh}</strong> — ต้องการความมั่นคงทางอารมณ์แบบเฉพาะ · Day Master <strong>${c.bazi.dayMasterTh}</strong> ธาตุ${dmEl}ทำให้การแสดงอารมณ์มีรูปแบบเฉพาะ — ${dmEl === 'โลหะ' ? 'ชอบเก็บไว้ในใจ' : dmEl === 'ไฟ' ? 'ระเบิดอารมณ์ง่าย' : dmEl === 'น้ำ' ? 'ลึกและเปลี่ยนแปลง' : dmEl === 'ดิน' ? 'มั่นคงแต่เปิดตัวช้า' : 'ยืดหยุ่นแต่เรียกร้องอิสระ'}`,
-            challenge: `การผสมของ ${c.western.moonSignTh} (Moon) + ธาตุ${dmEl} (BaZi) ทำให้คุณ <em>ต้องการความใกล้ชิดอย่างลึกซึ้ง</em> แต่ <em>แสดงออกยาก</em> — 3 ศาสตร์อิสระชี้แบบเดียวกัน`,
-            solution: `ฝึก "บอกความรู้สึกก่อนคู่ถาม" — กฎง่ายๆ: สิ่งที่รู้สึกวันนี้ บอกภายใน 48 ชม. · ใช้ HD Strategy ของคุณ (${c.humandesign.strategy}) เป็นตัวกรองว่าจะบอกเมื่อไหร่`
+            why: tr(`ดวงจันทร์ของคุณอยู่ใน<strong>${c.western.moonSignTh}</strong> — ต้องการความมั่นคงทางอารมณ์แบบเฉพาะ · Day Master <strong>${c.bazi.dayMasterTh}</strong> ธาตุ${dmEl}ทำให้การแสดงอารมณ์มีรูปแบบเฉพาะ — ${dmEmotion}`, `Your Moon sits in <strong>${c.western.moonSign}</strong> — needing a specific kind of emotional stability. Your Day Master <strong>${c.bazi.dayMasterTh}</strong> (${dmEl} element) shapes how you express feelings — you ${dmEmotion}.`),
+            challenge: tr(`การผสมของ ${c.western.moonSignTh} (Moon) + ธาตุ${dmEl} (BaZi) ทำให้คุณ <em>ต้องการความใกล้ชิดอย่างลึกซึ้ง</em> แต่ <em>แสดงออกยาก</em> — 3 ศาสตร์อิสระชี้แบบเดียวกัน`, `The blend of ${c.western.moonSign} Moon + ${dmEl} Day Master means you <em>crave deep intimacy</em> but <em>find it hard to express</em> — three independent traditions point the same way.`),
+            solution: tr(`ฝึก "บอกความรู้สึกก่อนคู่ถาม" — กฎง่ายๆ: สิ่งที่รู้สึกวันนี้ บอกภายใน 48 ชม. · ใช้ HD Strategy ของคุณ (${c.humandesign.strategy}) เป็นตัวกรองว่าจะบอกเมื่อไหร่`, `Practise the "speak first" rule — share what you feel today within 48 hours. Use your HD Strategy ("${c.humandesign.strategy}") as the filter for when to speak.`)
         },
-        { icon: '💼', topic: 'การงาน & พลังงานทำงาน',
+        { icon: '💼', topic: tr('การงาน & พลังงานทำงาน', 'Work & Work Energy'),
             systems: ['Human Design', 'BaZi', 'Nine Star Ki'],
-            why: `<strong>${c.humandesign.typeTh}</strong> + Authority <strong>${c.humandesign.authority}</strong> = คุณถูกออกแบบให้ตัดสินใจผ่าน <em>${c.humandesign.authority}</em> ไม่ใช่ mind · NSK ดาว ${c.ninestar.star} ${c.ninestar.starChinese || ''} บอกธีมพลังงานหลักของคุณที่ไม่ควรฝืน`,
-            challenge: `เมื่อบังคับให้ทำงานขัด Strategy "${c.humandesign.strategy}" คุณจะเหนื่อยเร็วกว่าคนอื่นที่ทำงานเท่ากัน — เป็น bug ของการ <em>บีบพลังงานที่ออกแบบมาต่าง</em> ไม่ใช่ bug ของความพยายาม`,
-            solution: `ทดลองใช้ Strategy "${c.humandesign.strategy}" อย่างตั้งใจ 90 วัน → สังเกตระดับพลังงานก่อนและหลัง · ถ้าดีขึ้น → วิธีตัดสินใจนี้คือของคุณตลอดชีวิต`
+            why: tr(`<strong>${c.humandesign.typeTh}</strong> + Authority <strong>${c.humandesign.authority}</strong> = คุณถูกออกแบบให้ตัดสินใจผ่าน <em>${c.humandesign.authority}</em> ไม่ใช่ mind · NSK ดาว ${c.ninestar.star} ${c.ninestar.starChinese || ''} บอกธีมพลังงานหลักของคุณที่ไม่ควรฝืน`, `<strong>${c.humandesign.typeTh}</strong> + <strong>${c.humandesign.authority}</strong> Authority = you\'re wired to decide through <em>${c.humandesign.authority}</em>, not the mind. NSK Star ${c.ninestar.star} ${c.ninestar.starChinese || ''} marks the dominant energy theme that resists being forced.`),
+            challenge: tr(`เมื่อบังคับให้ทำงานขัด Strategy "${c.humandesign.strategy}" คุณจะเหนื่อยเร็วกว่าคนอื่นที่ทำงานเท่ากัน — เป็น bug ของการ <em>บีบพลังงานที่ออกแบบมาต่าง</em> ไม่ใช่ bug ของความพยายาม`, `Forcing work against your "${c.humandesign.strategy}" strategy drains you faster than peers doing the same volume — it\'s a bug in <em>squeezing the wrong-shaped energy</em>, not a bug in your effort.`),
+            solution: tr(`ทดลองใช้ Strategy "${c.humandesign.strategy}" อย่างตั้งใจ 90 วัน → สังเกตระดับพลังงานก่อนและหลัง · ถ้าดีขึ้น → วิธีตัดสินใจนี้คือของคุณตลอดชีวิต`, `Run a 90-day experiment using "${c.humandesign.strategy}" deliberately → track your energy before vs after. If it improves, this decision style is yours for life.`)
         },
-        { icon: '🌿', topic: 'สุขภาพ & ธาตุที่ขาด',
+        { icon: '🌿', topic: tr('สุขภาพ & ธาตุที่ขาด', 'Health & Missing Element'),
             systems: ['BaZi (missing element)', 'TCM organ pairing', 'Biorhythm'],
-            why: `BaZi ของคุณขาดธาตุ <strong>${missingEl}</strong> — ธาตุที่ขาดในชาร์ตตาม TCM มักสัมพันธ์กับอวัยวะที่ต้องดูแลพิเศษ · ต่างจาก "โรคภัยทำนาย" — นี่คือ <em>จุดที่ต้องเติมอย่างสม่ำเสมอ</em> ในฐานะการป้องกัน`,
-            challenge: `เมื่อธาตุ${missingEl}ขาด ระบบที่เกี่ยวข้องจะเป็นจุดแรกที่ "บ่น" เวลาร่างกายตึงเครียด — ไม่ใช่ป่วยหนัก แต่ทำงานไม่เต็มประสิทธิภาพ`,
-            solution: `เสริมธาตุ${missingEl} 3 ทางพร้อมกัน — <strong>สี</strong> (ดูหน้าสีมงคล) · <strong>อาหาร</strong> (รส${missingEl === 'ไม้' ? 'เปรี้ยว' : missingEl === 'ไฟ' ? 'ขม' : missingEl === 'ดิน' ? 'หวานธรรมชาติ' : missingEl === 'โลหะ' ? 'เผ็ดเบา' : 'เค็มเบา'}) · <strong>กิจกรรม</strong> (${missingEl === 'น้ำ' ? 'ว่ายน้ำ/สมาธิ' : missingEl === 'ไฟ' ? 'ออกกำลังกลางแจ้ง' : missingEl === 'ดิน' ? 'เดินเท้าเปล่าบนดิน' : missingEl === 'โลหะ' ? 'หายใจลึก' : 'ปลูกต้นไม้/เดินป่า'})`
+            why: tr(`BaZi ของคุณขาดธาตุ <strong>${missingEl}</strong> — ธาตุที่ขาดในชาร์ตตาม TCM มักสัมพันธ์กับอวัยวะที่ต้องดูแลพิเศษ · ต่างจาก "โรคภัยทำนาย" — นี่คือ <em>จุดที่ต้องเติมอย่างสม่ำเสมอ</em> ในฐานะการป้องกัน`, `Your BaZi is missing the <strong>${missingEl}</strong> element. Per TCM, a missing element correlates with organ systems that need extra care. This isn\'t illness prediction — it\'s the <em>spot that needs steady supplementation</em> as prevention.`),
+            challenge: tr(`เมื่อธาตุ${missingEl}ขาด ระบบที่เกี่ยวข้องจะเป็นจุดแรกที่ "บ่น" เวลาร่างกายตึงเครียด — ไม่ใช่ป่วยหนัก แต่ทำงานไม่เต็มประสิทธิภาพ`, `When ${missingEl} is missing, the corresponding system is the first to "complain" under stress — not severe illness, but underperformance.`),
+            solution: tr(`เสริมธาตุ${missingEl} 3 ทางพร้อมกัน — <strong>สี</strong> (ดูหน้าสีมงคล) · <strong>อาหาร</strong> (รส${missingTaste}) · <strong>กิจกรรม</strong> (${missingActivity})`, `Supplement ${missingEl} on 3 channels at once — <strong>colour</strong> (see the lucky-colour page) · <strong>food</strong> (${missingTaste} flavours) · <strong>activity</strong> (${missingActivity}).`)
         },
-        { icon: '🤔', topic: 'การตัดสินใจ & แรงกดดันภายนอก',
+        { icon: '🤔', topic: tr('การตัดสินใจ & แรงกดดันภายนอก', 'Decisions & External Pressure'),
             systems: ['Human Design (Authority)', 'BaZi (Day Master)', 'Numerology (LP)'],
-            why: `<strong>${c.humandesign.authority}</strong> Authority + Life Path ${c.numerology.lifePath} → รูปแบบการตัดสินใจของคุณต้องใช้เวลาเฉพาะ (ไม่ใช่ "ช้า" — แต่ "ต้องรอสัญญาณภายในถูกต้อง") · สังคม modernity มักกดดันให้ "ตัดสินใจไว" ซึ่งเป็นของ Mental Authority แบบเดียวเท่านั้น`,
-            challenge: `เมื่อถูกเร่ง คุณจะตัดสินใจด้วย "mind" ซึ่งไม่ใช่ Authority ของคุณ → ผลลัพธ์มักทำให้เสียใจภายหลัง · นี่ไม่ใช่จุดอ่อน แต่เป็นการ <em>ใช้เครื่องมือผิดประเภท</em>`,
-            solution: `กฎ <strong>24/72/7</strong> — เรื่องเล็ก: รอ 24 ชม. · เรื่องกลาง: 72 ชม. · เรื่องใหญ่: 7 วัน · ภายในช่วงนั้น ${c.humandesign.authority} จะส่งสัญญาณชัด ไม่ต้องพยายามคิด`
+            why: tr(`<strong>${c.humandesign.authority}</strong> Authority + Life Path ${c.numerology.lifePath} → รูปแบบการตัดสินใจของคุณต้องใช้เวลาเฉพาะ (ไม่ใช่ "ช้า" — แต่ "ต้องรอสัญญาณภายในถูกต้อง") · สังคม modernity มักกดดันให้ "ตัดสินใจไว" ซึ่งเป็นของ Mental Authority แบบเดียวเท่านั้น`, `<strong>${c.humandesign.authority}</strong> Authority + Life Path ${c.numerology.lifePath} → your decision style needs specific timing — not "slow", but "wait for the right inner signal". Modern society pressures everyone to "decide fast", which is only correct for one type of authority (the mental kind).`),
+            challenge: tr(`เมื่อถูกเร่ง คุณจะตัดสินใจด้วย "mind" ซึ่งไม่ใช่ Authority ของคุณ → ผลลัพธ์มักทำให้เสียใจภายหลัง · นี่ไม่ใช่จุดอ่อน แต่เป็นการ <em>ใช้เครื่องมือผิดประเภท</em>`, `When rushed, you decide via "mind" — which isn\'t your authority. The result usually breeds regret. This isn\'t weakness — it\'s <em>using the wrong tool</em>.`),
+            solution: tr(`กฎ <strong>24/72/7</strong> — เรื่องเล็ก: รอ 24 ชม. · เรื่องกลาง: 72 ชม. · เรื่องใหญ่: 7 วัน · ภายในช่วงนั้น ${c.humandesign.authority} จะส่งสัญญาณชัด ไม่ต้องพยายามคิด`, `The <strong>24/72/7 rule</strong> — small matters: wait 24 hrs · medium: 72 hrs · big: 7 days. Within that window, your ${c.humandesign.authority} sends a clear signal — no forcing thought required.`)
         },
-        { icon: '🪞', topic: 'รู้จักตัวเอง & การเข้าสังคม',
+        { icon: '🪞', topic: tr('รู้จักตัวเอง & การเข้าสังคม', 'Self-Knowledge & Social Fit'),
             systems: ['Human Design (Profile)', 'Vedic (Nakshatra)', 'Mayan (Kin)'],
-            why: `Profile <strong>${c.humandesign.profile}</strong> + Nakshatra ${c.vedic.moonNakshatra} + Mayan Kin ${c.mayan.kin} — 3 ศาสตร์จาก 3 วัฒนธรรมบอกเรื่อง <em>วิธีที่จิตวิญญาณของคุณมาปรากฏในโลก</em> · มักไม่ตรงกับ "แม่แบบความสำเร็จมาตรฐาน"`,
-            challenge: `คุณจะรู้สึก <em>ไม่ fit</em> ในหลายสถานการณ์ ไม่ใช่เพราะผิดปกติ — แต่เพราะสังคมใช้ template เดียวในการวัดทุกคน ส่วนดวงของคุณเป็น template คนละแบบ`,
-            solution: `${esc(c.humandesign.profileDesc || 'ทำความเข้าใจ Profile ของตัวเองให้ลึก')} · ใช้ Profile เป็นกรอบอธิบายตัวเอง ไม่ใช่กรอบบังคับ`
+            why: tr(`Profile <strong>${c.humandesign.profile}</strong> + Nakshatra ${c.vedic.moonNakshatra} + Mayan Kin ${c.mayan.kin} — 3 ศาสตร์จาก 3 วัฒนธรรมบอกเรื่อง <em>วิธีที่จิตวิญญาณของคุณมาปรากฏในโลก</em> · มักไม่ตรงกับ "แม่แบบความสำเร็จมาตรฐาน"`, `Profile <strong>${c.humandesign.profile}</strong> + Nakshatra ${c.vedic.moonNakshatra} + Mayan Kin ${c.mayan.kin} — three traditions across three cultures point at <em>how your soul shows up in the world</em>. It rarely matches the "standard success template".`),
+            challenge: tr(`คุณจะรู้สึก <em>ไม่ fit</em> ในหลายสถานการณ์ ไม่ใช่เพราะผิดปกติ — แต่เพราะสังคมใช้ template เดียวในการวัดทุกคน ส่วนดวงของคุณเป็น template คนละแบบ`, `You\'ll feel <em>out of place</em> in many settings — not because something\'s wrong with you, but because society measures everyone by one template, and your chart runs on a different one.`),
+            solution: tr(`${esc(c.humandesign.profileDesc || 'ทำความเข้าใจ Profile ของตัวเองให้ลึก')} · ใช้ Profile เป็นกรอบอธิบายตัวเอง ไม่ใช่กรอบบังคับ`, `${esc(c.humandesign.profileDesc || 'Study your Profile deeply.')} Use your Profile as a frame for explaining yourself — not as a cage.`)
         },
     ];
     return section(22, tr('5 Pain Points — จุดที่ดวงชี้ให้ดูแลเป็นพิเศษ', '5 Pain Points — areas your chart says to nurture carefully'), '⚡', `
@@ -1675,36 +1700,78 @@ function p24_pets(c) {
     const missingEl = c.bazi.missingElement || '—';
     // Enrich each pet suggestion with the 5-element logic + which missing
     // element it supplies to make the suggestion traceable, not arbitrary.
+    // Element label helper for fills tag
+    const elL = (th, en) => tr(th, en);
     const petMap = {
         'ไฟ': [
-            { animal: '🐱 แมว', why: `แมวเป็นสัตว์ที่วัฒนธรรมอียิปต์-ตะวันออกจับคู่กับธาตุไฟ — อิสระ อุณหภูมิร่างกายสูง กลางคืนตื่นตัว · เสริม Day Master ${dmEl}ของคุณโดยตรง`, fills: 'ไฟ (หนุน)' },
-            { animal: '🦜 นกแก้ว', why: 'นกเป็นตัวแทนธาตุไม้ (เคลื่อนไหวในอากาศ-ต้นไม้) · ไม้สร้างไฟใน 5 ธาตุ → หล่อเลี้ยง Day Master ของคุณ', fills: 'ไม้ (สร้างไฟ)' },
-            { animal: '🐠 ปลา', why: `น้ำตรงข้ามกับไฟ แต่เสริมสมดุล — สำหรับคนไฟร้อนแรง ปลาช่วยลดความร้อนอาโวคาโด · ดีพิเศษถ้าขาดธาตุ${missingEl === 'น้ำ' ? 'น้ำ' : '—'}`, fills: missingEl === 'น้ำ' ? 'น้ำ (ขาด)' : 'น้ำ (สมดุล)' },
-            { animal: '🐇 กระต่าย', why: 'กระต่ายเป็นสัตว์ธาตุไม้ (เกี่ยวข้องกับพืช) + อ่อนโยน — สมดุลไฟที่อาจร้อนเกิน', fills: 'ไม้ (สร้างไฟ)' },
+            { animal: tr('🐱 แมว', '🐱 Cat'),
+                why: tr(`แมวเป็นสัตว์ที่วัฒนธรรมอียิปต์-ตะวันออกจับคู่กับธาตุไฟ — อิสระ อุณหภูมิร่างกายสูง กลางคืนตื่นตัว · เสริม Day Master ${dmEl}ของคุณโดยตรง`, `Cats are paired with Fire across Egyptian and Eastern traditions — independent, high body heat, nocturnally alert. They directly reinforce your ${dmEl} Day Master.`),
+                fills: elL('ไฟ (หนุน)', 'Fire (reinforces)') },
+            { animal: tr('🦜 นกแก้ว', '🦜 Parrot'),
+                why: tr('นกเป็นตัวแทนธาตุไม้ (เคลื่อนไหวในอากาศ-ต้นไม้) · ไม้สร้างไฟใน 5 ธาตุ → หล่อเลี้ยง Day Master ของคุณ', `Birds represent the Wood element (moving through air-and-tree). Wood feeds Fire in the 5-element cycle, nourishing your Day Master.`),
+                fills: elL('ไม้ (สร้างไฟ)', 'Wood (feeds Fire)') },
+            { animal: tr('🐠 ปลา', '🐠 Fish'),
+                why: tr(`น้ำตรงข้ามกับไฟ แต่เสริมสมดุล — สำหรับคนไฟร้อนแรง ปลาช่วยลดความร้อนอาโวคาโด · ดีพิเศษถ้าขาดธาตุ${missingEl === 'น้ำ' ? 'น้ำ' : '—'}`, `Water opposes Fire but creates balance — for hot Fire-types, fish cool the temperature${missingEl === 'น้ำ' ? '. Especially good if your missing element is Water' : ''}.`),
+                fills: missingEl === 'น้ำ' ? elL('น้ำ (ขาด)', 'Water (missing element)') : elL('น้ำ (สมดุล)', 'Water (balance)') },
+            { animal: tr('🐇 กระต่าย', '🐇 Rabbit'),
+                why: tr('กระต่ายเป็นสัตว์ธาตุไม้ (เกี่ยวข้องกับพืช) + อ่อนโยน — สมดุลไฟที่อาจร้อนเกิน', 'Rabbits are a Wood-element animal (associated with plants) and gentle — balancing Fire that might run too hot.'),
+                fills: elL('ไม้ (สร้างไฟ)', 'Wood (feeds Fire)') },
         ],
         'ไม้': [
-            { animal: '🐶 สุนัข', why: 'สุนัขเป็นสัตว์ธาตุดิน (ซื่อสัตย์ สัมพันธ์กับบ้าน) · ดินให้รากฐานกับไม้ให้ยึดได้', fills: 'ดิน (ให้รากกับไม้)' },
-            { animal: '🐠 ปลา', why: 'น้ำหล่อเลี้ยงไม้โดยตรงใน 5 ธาตุ — ตู้ปลาในบ้านจะเสริม Day Master ของคุณทุกวัน', fills: 'น้ำ (หล่อเลี้ยงไม้)' },
-            { animal: '🐢 เต่า', why: 'เต่าเป็นสัญลักษณ์ดิน+น้ำในพุทธและจีน — สองธาตุที่ค้ำจุนไม้', fills: 'ดิน+น้ำ' },
-            { animal: '🦜 นก', why: 'นกอยู่บนต้นไม้ = ขยายพลังงานไม้ในแนวสูง', fills: 'ไม้ (เหมือนกัน)' },
+            { animal: tr('🐶 สุนัข', '🐶 Dog'),
+                why: tr('สุนัขเป็นสัตว์ธาตุดิน (ซื่อสัตย์ สัมพันธ์กับบ้าน) · ดินให้รากฐานกับไม้ให้ยึดได้', 'Dogs are an Earth-element animal (loyal, home-oriented). Earth gives Wood the foundation it needs to root.'),
+                fills: elL('ดิน (ให้รากกับไม้)', 'Earth (roots Wood)') },
+            { animal: tr('🐠 ปลา', '🐠 Fish'),
+                why: tr('น้ำหล่อเลี้ยงไม้โดยตรงใน 5 ธาตุ — ตู้ปลาในบ้านจะเสริม Day Master ของคุณทุกวัน', 'Water directly nourishes Wood in the 5-element cycle — a home aquarium reinforces your Day Master every day.'),
+                fills: elL('น้ำ (หล่อเลี้ยงไม้)', 'Water (nourishes Wood)') },
+            { animal: tr('🐢 เต่า', '🐢 Turtle'),
+                why: tr('เต่าเป็นสัญลักษณ์ดิน+น้ำในพุทธและจีน — สองธาตุที่ค้ำจุนไม้', 'Turtles symbolise Earth + Water in Buddhist and Chinese traditions — two elements that uphold Wood.'),
+                fills: elL('ดิน+น้ำ', 'Earth + Water') },
+            { animal: tr('🦜 นก', '🦜 Bird'),
+                why: tr('นกอยู่บนต้นไม้ = ขยายพลังงานไม้ในแนวสูง', 'Birds live in trees = they extend Wood\'s energy upward.'),
+                fills: elL('ไม้ (เหมือนกัน)', 'Wood (same element)') },
         ],
         'น้ำ': [
-            { animal: '🐠 ตู้ปลา', why: 'ตู้ปลา = น้ำในบ้าน ขยายพลังของ Day Master โดยตรง · Feng Shui ใช้มาเป็นพันปี', fills: 'น้ำ (หนุน)' },
-            { animal: '🐢 เต่า', why: 'เต่ามีธาตุดิน — ดินควบคุมน้ำใน 5 ธาตุ ทำให้น้ำไม่ล้นหรือหายไปง่าย', fills: 'ดิน (สมดุลน้ำ)' },
-            { animal: '🐶 สุนัข', why: 'สุนัขเป็นธาตุดิน — ช่วย <em>ยึด</em> พลังงานน้ำไม่ให้ไหลเปลี่ยนแปลงเร็วเกินไป', fills: 'ดิน (ยึดน้ำ)' },
-            { animal: '🐱 แมว', why: 'แมวธาตุไฟ — ไฟสมดุลกับน้ำในทางพลังงาน (ขั้วตรงข้ามที่เติมเต็มกัน)', fills: 'ไฟ (สมดุล)' },
+            { animal: tr('🐠 ตู้ปลา', '🐠 Aquarium'),
+                why: tr('ตู้ปลา = น้ำในบ้าน ขยายพลังของ Day Master โดยตรง · Feng Shui ใช้มาเป็นพันปี', 'An aquarium = water in the home, directly amplifying your Day Master. Feng Shui has used this for thousands of years.'),
+                fills: elL('น้ำ (หนุน)', 'Water (reinforces)') },
+            { animal: tr('🐢 เต่า', '🐢 Turtle'),
+                why: tr('เต่ามีธาตุดิน — ดินควบคุมน้ำใน 5 ธาตุ ทำให้น้ำไม่ล้นหรือหายไปง่าย', 'Turtles carry the Earth element — Earth controls Water in the 5-element cycle, keeping it from overflowing or evaporating.'),
+                fills: elL('ดิน (สมดุลน้ำ)', 'Earth (balances Water)') },
+            { animal: tr('🐶 สุนัข', '🐶 Dog'),
+                why: tr('สุนัขเป็นธาตุดิน — ช่วย <em>ยึด</em> พลังงานน้ำไม่ให้ไหลเปลี่ยนแปลงเร็วเกินไป', 'Dogs are an Earth-element animal — they <em>anchor</em> Water energy so it doesn\'t shift too quickly.'),
+                fills: elL('ดิน (ยึดน้ำ)', 'Earth (anchors Water)') },
+            { animal: tr('🐱 แมว', '🐱 Cat'),
+                why: tr('แมวธาตุไฟ — ไฟสมดุลกับน้ำในทางพลังงาน (ขั้วตรงข้ามที่เติมเต็มกัน)', 'Cats are a Fire-element animal — Fire and Water complete each other (opposite poles that fill each other).'),
+                fills: elL('ไฟ (สมดุล)', 'Fire (balance)') },
         ],
         'โลหะ': [
-            { animal: '🐟 ปลา', why: 'น้ำเป็นผลผลิตของโลหะใน 5 ธาตุ — ปลาช่วยให้พลังงานโลหะของคุณไหลออกมาเป็นการสร้างสรรค์', fills: 'น้ำ (โลหะสร้าง)' },
-            { animal: '🐇 กระต่าย', why: 'ไม้ — โลหะตัดไม้ใน 5 ธาตุ ให้กระต่ายเป็นเป้าของความเข้มงวด เปลี่ยนเป็นความอ่อนโยน', fills: 'ไม้ (ควบคู่)' },
-            { animal: '🐹 แฮมสเตอร์', why: 'พลังงานเบา สะอาด โลหะชอบความเป็นระเบียบ — แฮมสเตอร์ตอบสนองดี', fills: 'โลหะ (เหมือน)' },
-            { animal: '🐱 แมว', why: 'ไฟหลอมโลหะ — แมวเปลี่ยน "โลหะแข็ง" ให้เป็น "โลหะมีชีวิต"', fills: 'ไฟ (ปรับโลหะ)' },
+            { animal: tr('🐟 ปลา', '🐟 Fish'),
+                why: tr('น้ำเป็นผลผลิตของโลหะใน 5 ธาตุ — ปลาช่วยให้พลังงานโลหะของคุณไหลออกมาเป็นการสร้างสรรค์', 'Water is what Metal produces in the 5-element cycle — fish help your Metal energy flow out as creativity.'),
+                fills: elL('น้ำ (โลหะสร้าง)', 'Water (Metal produces)') },
+            { animal: tr('🐇 กระต่าย', '🐇 Rabbit'),
+                why: tr('ไม้ — โลหะตัดไม้ใน 5 ธาตุ ให้กระต่ายเป็นเป้าของความเข้มงวด เปลี่ยนเป็นความอ่อนโยน', 'Wood — Metal cuts Wood in the 5-element cycle, so a rabbit becomes the target that softens your strictness into gentleness.'),
+                fills: elL('ไม้ (ควบคู่)', 'Wood (counterpart)') },
+            { animal: tr('🐹 แฮมสเตอร์', '🐹 Hamster'),
+                why: tr('พลังงานเบา สะอาด โลหะชอบความเป็นระเบียบ — แฮมสเตอร์ตอบสนองดี', 'Light, clean energy. Metal loves order — and hamsters thrive on that.'),
+                fills: elL('โลหะ (เหมือน)', 'Metal (same element)') },
+            { animal: tr('🐱 แมว', '🐱 Cat'),
+                why: tr('ไฟหลอมโลหะ — แมวเปลี่ยน "โลหะแข็ง" ให้เป็น "โลหะมีชีวิต"', 'Fire forges Metal — cats turn "rigid Metal" into "living Metal".'),
+                fills: elL('ไฟ (ปรับโลหะ)', 'Fire (forges Metal)') },
         ],
         'ดิน': [
-            { animal: '🐶 สุนัข', why: 'สุนัขเป็นธาตุดิน (ซื่อสัตย์ รักบ้าน) — เสริม Day Master ของคุณโดยตรง', fills: 'ดิน (หนุน)' },
-            { animal: '🐱 แมว', why: 'ไฟสร้างดินใน 5 ธาตุ — แมวเติมพลังให้ Day Master', fills: 'ไฟ (สร้างดิน)' },
-            { animal: '🌵 ไม้อวบน้ำ', why: 'แม้ไม่ใช่สัตว์ — แต่ไม้อวบน้ำมีทั้งธาตุไม้และน้ำเล็กน้อย · ช่วยป้องกันดินไม่ให้ "แห้ง" เกินไป', fills: 'ไม้ (ควบคุมดิน)' },
-            { animal: '🐢 เต่า', why: 'เต่าเป็นธาตุดิน+น้ำ — เพิ่มความเสถียรให้ Day Master', fills: 'ดิน (เหมือน)' },
+            { animal: tr('🐶 สุนัข', '🐶 Dog'),
+                why: tr('สุนัขเป็นธาตุดิน (ซื่อสัตย์ รักบ้าน) — เสริม Day Master ของคุณโดยตรง', 'Dogs are an Earth-element animal (loyal, home-loving) — directly reinforcing your Day Master.'),
+                fills: elL('ดิน (หนุน)', 'Earth (reinforces)') },
+            { animal: tr('🐱 แมว', '🐱 Cat'),
+                why: tr('ไฟสร้างดินใน 5 ธาตุ — แมวเติมพลังให้ Day Master', 'Fire produces Earth in the 5-element cycle — cats feed energy into your Day Master.'),
+                fills: elL('ไฟ (สร้างดิน)', 'Fire (produces Earth)') },
+            { animal: tr('🌵 ไม้อวบน้ำ', '🌵 Succulent'),
+                why: tr('แม้ไม่ใช่สัตว์ — แต่ไม้อวบน้ำมีทั้งธาตุไม้และน้ำเล็กน้อย · ช่วยป้องกันดินไม่ให้ "แห้ง" เกินไป', 'Not technically an animal — but succulents carry both Wood and a touch of Water, preventing your Earth from becoming "too dry".'),
+                fills: elL('ไม้ (ควบคุมดิน)', 'Wood (controls Earth)') },
+            { animal: tr('🐢 เต่า', '🐢 Turtle'),
+                why: tr('เต่าเป็นธาตุดิน+น้ำ — เพิ่มความเสถียรให้ Day Master', 'Turtles carry Earth + Water — adding stability to your Day Master.'),
+                fills: elL('ดิน (เหมือน)', 'Earth (same element)') },
         ],
     };
     const pets = petMap[dmEl] ?? petMap['ดิน'];
