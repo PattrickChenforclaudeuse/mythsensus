@@ -758,13 +758,31 @@ keyStrength: 'ระบบมหาทศา 120 ปีที่ทำนาย 
 // ============================================================
 // HUMAN DESIGN (Simplified)
 // ============================================================
-const HD_TYPES: Array<{ type: string; typeTh: string; strategy: string; authority: string; pct: number }> = [
-  { type: 'Manifestor', typeTh: 'ผู้ริเริ่ม', strategy: 'แจ้งให้ผู้อื่นทราบก่อนลงมือ', authority: 'อารมณ์/เจตนา', pct: 9 },
-  { type: 'Generator', typeTh: 'ผู้สร้างพลังงาน', strategy: 'รอตอบสนองก่อนลงมือ', authority: 'Sacral/อารมณ์', pct: 37 },
-  { type: 'Manifesting Generator', typeTh: 'MG ผู้สร้างและริเริ่ม', strategy: 'ตอบสนอง แล้วแจ้งก่อนลงมือ', authority: 'Sacral/อารมณ์', pct: 33 },
-  { type: 'Projector', typeTh: 'ผู้นำทาง', strategy: 'รอคำเชิญก่อนลงมือ', authority: 'อารมณ์/ปัญญา/ประสาทสัมผัส', pct: 20 },
-  { type: 'Reflector', typeTh: 'ผู้สะท้อน', strategy: 'รอ 28 วัน (รอบจันทร์)', authority: 'จันทร์', pct: 1 },
+const HD_TYPES: Array<{ type: string; typeTh: string; strategy: string; pct: number }> = [
+  { type: 'Manifestor', typeTh: 'ผู้ริเริ่ม', strategy: 'แจ้งให้ผู้อื่นทราบก่อนลงมือ', pct: 9 },
+  { type: 'Generator', typeTh: 'ผู้สร้างพลังงาน', strategy: 'รอตอบสนองก่อนลงมือ', pct: 37 },
+  { type: 'Manifesting Generator', typeTh: 'MG ผู้สร้างและริเริ่ม', strategy: 'ตอบสนอง แล้วแจ้งก่อนลงมือ', pct: 33 },
+  { type: 'Projector', typeTh: 'ผู้นำทาง', strategy: 'รอคำเชิญก่อนลงมือ', pct: 20 },
+  { type: 'Reflector', typeTh: 'ผู้สะท้อน', strategy: 'รอ 28 วัน (รอบจันทร์)', pct: 1 },
 ];
+
+// Each HD type has a SET of possible authorities — actual selection requires
+// defined-center analysis we don't compute here. Pick deterministically from
+// chart data so the report shows ONE concrete authority per person rather
+// than the slash-separated placeholder list (e.g. "อารมณ์/ปัญญา/ประสาทสัมผัส").
+const PROJECTOR_AUTHS = ['Splenic Authority', 'Emotional Authority', 'Self-Projected Authority', 'Mental Authority'];
+const GENERATOR_AUTHS = ['Sacral Authority', 'Emotional Authority'];
+const MANIFESTOR_AUTHS = ['Emotional Authority', 'Splenic Authority', 'Ego Authority'];
+
+function pickHdAuthority(type: string, d: BirthData, sunDeg: number): string {
+  const seed = Math.abs(Math.floor(sunDeg) + d.day * 7 + d.month * 11);
+  if (type === 'Projector')          return PROJECTOR_AUTHS[seed % PROJECTOR_AUTHS.length];
+  if (type === 'Generator' || type === 'Manifesting Generator')
+                                     return GENERATOR_AUTHS[seed % GENERATOR_AUTHS.length];
+  if (type === 'Manifestor')         return MANIFESTOR_AUTHS[seed % MANIFESTOR_AUTHS.length];
+  if (type === 'Reflector')          return 'Lunar Authority';
+  return 'Splenic Authority';
+}
 
 const HD_PROFILES = [
   '1/3', '1/4', '2/4', '2/5', '3/5', '3/6', '4/6', '4/1', '5/1', '5/2', '6/2', '6/3'
@@ -813,9 +831,10 @@ function calcHD(d: BirthData, w: WesternData): HDData {
 
   const TYPE_SCORE: Record<string,number> = {'Generator':760,'Manifesting Generator':790,'Projector':750,'Manifestor':780,'Reflector':720};
   const hdScore = Math.max(400, Math.min(960, (TYPE_SCORE[hdType.type]??700) + ((d.day*7+d.month*11)%80)-40));
+  const authority = pickHdAuthority(hdType.type, d, w.sunDeg);
   return {
     type: hdType.type, typeTh: hdType.typeTh, strategy: hdType.strategy,
-    authority: hdType.authority, profile, profileDesc: PROFILE_DESC[profile] ?? 'บุคลิกภาพที่ไม่ซ้ำใคร',
+    authority, profile, profileDesc: PROFILE_DESC[profile] ?? 'บุคลิกภาพที่ไม่ซ้ำใคร',
     definition, incarnationCross: cross,
     sunGate, earthGate, channels,
     reading: buildRichReading({
@@ -1705,8 +1724,13 @@ export function calculate(d: BirthData): ChartData {
   score.lifeTerrainDetail = lt.detail
   score.pathResonanceScore = pr.score
   score.pathResonanceDetail = pr.detail
-  // Cosmic Final = SF×40% + LT×30% + PR×30%
-  score.cosmicFinal = Math.round(score.soulFrequency * 0.4 + lt.score * 0.3 + pr.score * 0.3)
+  // Cosmic Final = SF×40% + LT×30% + PR×30%, but fall back to plain Soul
+  // Frequency when Life Terrain and Path Resonance are unavailable (user
+  // didn't fill in country/career/domain) — otherwise the formula collapses
+  // to 0.4×SF and produces a smaller, misleading number on the cover page.
+  score.cosmicFinal = (lt.score > 0 && pr.score > 0)
+    ? Math.round(score.soulFrequency * 0.4 + lt.score * 0.3 + pr.score * 0.3)
+    : score.soulFrequency
 
   // Add-on content blocks (all 7), filed under chart.addons so the offline
   // HTML can read chart.addons.{mirror,compat,pet,companions,exercise,food,product}
