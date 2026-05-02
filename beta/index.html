@@ -6823,6 +6823,18 @@ function applyLang(){
   if(_lastSkyCards)renderSkyCards(_lastSkyCards);
   if(_lastChartData){renderChart(_lastChartData);switchLifeTab(_lifeTab,null);}
   if(_lastWordData)renderWordTabs(null,_lastWordData);
+
+  // ── Per-panel re-render so all dynamically-rendered tabs follow LANG ──
+  // Many panels (resonance, deep readings, blueprint, all add-ons, profile
+  // sub-tabs) build their innerHTML at click time using `LANG === 'th' ? … : …`
+  // ternaries, then never re-read LANG. Toggling language used to leave them
+  // frozen in the previous language. We now also re-trigger the sub-tab bar
+  // (so its translated labels render) and the active panel's lazy renderer.
+  // Mapping mirrors the dispatcher inside showSubTab().
+  try {
+    if (typeof setGroup === 'function' && typeof CUR_GROUP === 'string') setGroup(CUR_GROUP);
+    if (typeof showSubTab === 'function' && typeof CUR_SUB === 'string') showSubTab(CUR_SUB);
+  } catch(_){}
 }
 function renderDate(){const d=new Date();document.getElementById('dateDisplay').textContent=d.toLocaleDateString(LANG==='th'?'th-TH':'en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
 // ════════════════════════════════════════
