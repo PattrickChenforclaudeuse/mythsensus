@@ -8510,15 +8510,16 @@ function _getMS26ChartFromProfile(){
   // Life Path Resonance context (saved by Subscription → Resonance panel).
   // Without these the chart's Path Resonance scoring runs against defaults
   // and the Premium report differs from the add-on panels.
-  const workCountry = localStorage.getItem('mth_country')  || '';
-  const domain      = localStorage.getItem('mth_career')   || '';
-  const industry    = localStorage.getItem('mth_industry') || '';
+  const workCountry = localStorage.getItem('mth_country')      || '';
+  const domain      = localStorage.getItem('mth_career')       || '';
+  const industry    = localStorage.getItem('mth_industry')     || '';
+  const careerLevel = localStorage.getItem('mth_careerLevel')  || '';
   try {
     return window.MS26.calculate({
       name, gender, year:y, month:m, day:d,
       hour:hh||12, minute:mm||0,
       lat:lat||13.75, lon:lon||100.5, timezone:tz||7,
-      workCountry, domain, industry,
+      workCountry, domain, industry, careerLevel,
     });
   } catch(e) { console.error(e); return null; }
 }
@@ -8770,6 +8771,133 @@ function _buildDeepAddon(chart, key){
   const cfg = CONFIG[key];
   if (!cfg) return `<div class="addon-deep-loading">${isTh?'ไม่พบข้อมูล':'No data'}</div>`;
 
+  // ── Tactical block — concrete actions per add-on, derived from chart data
+  // so users walk away with something to DO, not just understand. Addresses
+  // the "ยังไม่ละเอียด" feedback by translating chart insight → 7-day playbook.
+  const dmCore = (isTh ? _ELEMENT_TRAITS_TH : _ELEMENT_TRAITS_EN)[dmEl] || tr;
+  const TACTICAL = {
+    mirror: {
+      titleTh: '✦ บทเช็กตัวเองรายสัปดาห์',
+      titleEn: '✦ Weekly Identity Check',
+      actions: isTh ? [
+        `วันที่พลังกายต่ำ (Biorhythm กาย ${bp(bioPhys)}) — เลื่อนการตัดสินใจใหญ่ เน้นทบทวน`,
+        `เมื่อรู้สึก "ไม่เป็นตัวเอง" ใช้กลยุทธ์ HD: "${hdStrategy||'รอตอบสนอง'}" เป็น compass`,
+        `เขียน 1 ประโยคต่อวันที่เริ่มด้วย "${dmTh} ของฉันต้องการ…" — สะสม pattern ไว้ทบทวน`,
+      ] : [
+        `On low-physical days (today: ${bp(bioPhys)}) — defer big decisions, lean into reflection`,
+        `When you feel "not yourself", use your HD strategy "${hdStrategy||'wait to respond'}" as your compass`,
+        `Write one sentence per day starting with "My ${dmTh} self needs…" — collect the pattern`,
+      ],
+      avoidTh: `อย่าเปรียบเทียบความก้าวหน้าของตัวกับ Day Master ${dmTh!==dmTh?dmTh:'อื่น'} — ${dmCore?.core||''} วิ่งจังหวะของมันเอง`,
+      avoidEn: `Don't measure your pace against other Day Masters — ${dmCore?.core||''} runs on its own clock`,
+      mantraTh: `"${tr.core || dmCore.core || 'พลังของฉัน'}" คือคำเดียวที่อธิบายตัวฉันได้ — ทุกการตัดสินใจวันนี้กลับมาที่คำนี้`,
+      mantraEn: `"${tr.core || dmCore.core || 'My power'}" is the one word that defines me — every decision today returns to it`,
+    },
+    pet: {
+      titleTh: '✦ แผน 7 วันกับสัตว์เลี้ยงของคุณ',
+      titleEn: '✦ 7-Day Plan With Your Companion',
+      actions: isTh ? [
+        `วางที่นอน/กรงสัตว์เลี้ยงทิศ ${nskDir} — ตามทิศนำโชค NSK ของคุณ`,
+        `เลือกเวลาเล่นในช่วงที่ Biorhythm กายของคุณ ≥ 0% (ตอนนี้ ${bp(bioPhys)})`,
+        `${hdType.includes('Projector')||hdType.includes('โปรเจก')?'ตั้งกฎ "ไม่เล่นยาวเกิน 20 นาทีต่อรอบ" — Projector หมดพลังเร็ว':hdType.includes('Generator')||hdType.includes('เจเนอ')?'ใช้สัตว์เลี้ยงเป็น sacral test — ถ้าเล่นแล้วกระปรี้ คือใช่':'จับจังหวะ aura ของคุณกับสัตว์ — สัปดาห์ละครั้ง check ว่ายังเข้ากัน'}`,
+      ] : [
+        `Place pet bed/crate facing ${nskDir} — your NSK lucky direction`,
+        `Schedule play during physical biorhythm ≥ 0% (now ${bp(bioPhys)})`,
+        `${hdType==='Projector'?'Set a "no play longer than 20 min" rule — Projectors burn out':hdType==='Generator'?'Use the pet as a sacral test — if play feels alive, it is a yes':'Sync your aura weekly — check if you are still vibing'}`,
+      ],
+      avoidTh: `อย่าเลือกสัตว์ที่ขัดธาตุ${dmEl}ของคุณเพราะ "น่ารัก" — ความ stress จะสะสม`,
+      avoidEn: `Don't pick a pet that clashes with your ${dmEl} element just because "it's cute" — stress compounds`,
+      mantraTh: `สัตว์ที่เข้ากับฉันคือสัตว์ที่เคารพจังหวะของฉัน — ไม่ใช่สัตว์ที่สวยที่สุด`,
+      mantraEn: `The right companion respects my rhythm — not the prettiest one`,
+    },
+    companions: {
+      titleTh: '✦ พิธีกรรม 7 วันกับสัตว์ในตำนาน',
+      titleEn: '✦ 7-Day Ritual With Your Mythic Pantheon',
+      actions: isTh ? [
+        `ตอนตื่น: เรียกชื่อ Mayan Kin ${mayanKin} ในใจ 3 ครั้ง — เปิดวันด้วย archetype ของตัวเอง`,
+        `เที่ยง: หันหน้าทิศ ${nskDir} หายใจ 5 รอบ — ดูดพลัง NSK โดยตรง`,
+        `กลางคืน: เขียน 1 บรรทัดเกี่ยวกับ Celtic ${celticTree} หรือ Norse ${norseRune} — เก็บเป็น lineage journal`,
+      ] : [
+        `Morning: silently invoke Mayan Kin ${mayanKin} 3 times — open the day with your archetype`,
+        `Midday: face ${nskDir}, breathe 5 cycles — pull NSK current directly`,
+        `Night: write one line on Celtic ${celticTree} or Norse ${norseRune} — build a lineage journal`,
+      ],
+      avoidTh: `อย่าผสมสัตว์ตำนานจากหลายวัฒนธรรมในพิธีเดียวกัน — โฟกัส 1 ระบบต่อรอบ`,
+      avoidEn: `Don't blend mythic figures from many cultures in one ritual — focus on one system per cycle`,
+      mantraTh: `บรรพบุรุษทางจิตวิญญาณของฉันมีมากกว่าเชื้อชาติ — ทุกวัฒนธรรมที่เคารพคือบ้านได้`,
+      mantraEn: `My spiritual lineage is wider than my bloodline — every culture I honour can be home`,
+    },
+    exercise: {
+      titleTh: '✦ ตารางออกกำลัง 7 วัน',
+      titleEn: '✦ 7-Day Movement Split',
+      actions: isTh ? [
+        `${dmEl==='ไฟ'?'HIIT 3 ครั้ง/สัปดาห์ — ไฟต้องการ peak burst':dmEl==='ไม้'?'โยคะ + เทรล running — ไม้ต้องการการยืดและก้าว':dmEl==='ดิน'?'weight training สม่ำเสมอ — ดินสร้างความหนาแน่น':dmEl==='โลหะ'?'pilates / กังฟู — โลหะรักการแม่นยำ':'ว่ายน้ำ / cardio ยาว — น้ำต้องการ flow'}`,
+        `Biorhythm กายวันนี้ ${bp(bioPhys)} → ${bioPhys>=50?'เพิ่ม intensity ได้เต็มที่':bioPhys>=0?'workout ระดับปกติ':'ลด volume 30% หรือเปลี่ยนเป็น recovery'}`,
+        `${hdType.includes('Projector')||hdType.includes('โปรเจก')?'ออกกำลังครั้งละ ≤45 นาที — Projector ไม่ใช่ระบบ Sacral':hdType.includes('Generator')||hdType.includes('เจเนอ')?'อย่าออกตามตาราง — ฟัง sacral response ก่อนเริ่มทุกเซต':'ปรับตามจังหวะร่างกาย ไม่ใช่ตาม coach app'}`,
+      ] : [
+        `${dmEl==='ไฟ'?'HIIT 3×/week — Fire wants peak bursts':dmEl==='ไม้'?'Yoga + trail running — Wood needs stretch + stride':dmEl==='ดิน'?'Consistent weight training — Earth builds density':dmEl==='โลหะ'?'Pilates / kung fu — Metal loves precision':'Swimming / long cardio — Water needs flow'}`,
+        `Today's physical biorhythm ${bp(bioPhys)} → ${bioPhys>=50?'go full intensity':bioPhys>=0?'standard session':'cut volume 30% or pivot to recovery'}`,
+        `${hdType==='Projector'?'Sessions ≤45 min — Projectors are not Sacral beings':hdType==='Generator'?'Do not train by the calendar — sacral-check before every set':'Adjust by body cues, not coach-app schedule'}`,
+      ],
+      avoidTh: `อย่าตามตารางคนที่ Day Master ตรงข้าม — ${dmTh} ไม่ใช่ระบบเดียวกัน`,
+      avoidEn: `Don't copy the routine of someone with the opposite Day Master — ${dmTh} runs different`,
+      mantraTh: `ร่างกายของฉันบอกฉันมากกว่า fitness app บอก`,
+      mantraEn: `My body knows more than my fitness app does`,
+    },
+    food: {
+      titleTh: '✦ จานอาหาร 7 วัน',
+      titleEn: '✦ 7-Day Plate Guide',
+      actions: isTh ? [
+        `${dmEl==='ไฟ'?'อาหารเย็นชดเชย — แตงกวา/ผักใบ/ปลา · ลดเครื่องเทศ':dmEl==='ไม้'?'อาหารเขียวสด · ถั่ว · เห็ด · ลดน้ำตาล':dmEl==='ดิน'?'อาหารปรุงสุก ครีมมี · ลด raw food':dmEl==='โลหะ'?'อาหารแห้ง-คั่ว · ซีเรียล · ลดของหมัก':'อาหารน้ำเยอะ-ซุป-ปลา · อุณหภูมิอุ่น'}`,
+        `วัน Biorhythm อารมณ์ต่ำ (${bp(bioEmo)}) — เพิ่ม omega-3 + tryptophan (ปลา/อโวคาโด/ดาร์กช็อก)`,
+        `${dmCore.drains?`หลีก ${dmCore.drains} ในมื้อใหญ่`:'จดอาหารที่ทำให้ง่วง 1 สัปดาห์ — ตัดออก'}`,
+      ] : [
+        `${dmEl==='ไฟ'?'Cooling foods — cucumber/leafy greens/fish · less spice':dmEl==='ไม้'?'Fresh greens · legumes · mushrooms · less sugar':dmEl==='ดิน'?'Cooked, creamy meals · cut raw food':dmEl==='โลหะ'?'Dry, roasted, cereal · skip fermented':'Soups, fish, water-rich · keep warm'}`,
+        `Low emotional biorhythm (${bp(bioEmo)}) day — add omega-3 + tryptophan (fish/avocado/dark chocolate)`,
+        `${dmCore.drains?`Avoid ${dmCore.drains} at main meals`:'Log foods that cause sluggishness for 1 week — eliminate'}`,
+      ],
+      avoidTh: `อย่ากินตาม diet trend ที่ขัดกับธาตุ${dmEl} — keto/raw/vegan ไม่ใช่สำหรับทุกคน`,
+      avoidEn: `Don't follow diet trends against your ${dmEl} — keto/raw/vegan aren't for everyone`,
+      mantraTh: `อาหารของฉันต้อง resonate กับธาตุของฉัน ไม่ใช่ trend ของ Instagram`,
+      mantraEn: `My food has to resonate with my element, not Instagram's trend`,
+    },
+    product: {
+      titleTh: '✦ ตัวกรองการช้อปปิ้ง 7 วัน',
+      titleEn: '✦ 7-Day Buying Filter',
+      actions: isTh ? [
+        `ก่อนซื้อ: ถามว่า "ตรงกับ ${tr.core||dmTh}ของฉันไหม?" — ถ้าไม่ใช่ ปล่อย`,
+        `${dmEl==='ไฟ'?'ของสีแดง/ส้ม + วัสดุไฟ (ผ้า/หนัง) เสริมโชค':dmEl==='ไม้'?'ของสีเขียว + ไม้/ผ้าธรรมชาติ':dmEl==='ดิน'?'ของสีน้ำตาล/เหลือง + เซรามิก/หิน':dmEl==='โลหะ'?'ของสีขาว/เงิน + โลหะแท้':'ของสีน้ำเงิน/ดำ + แก้ว/น้ำธรรมชาติ'}`,
+        `ของชิ้นใหญ่ — ซื้อในวันที่ Biorhythm สมอง ≥ 0% (ตอนนี้ ${bp(bioInt)})`,
+      ] : [
+        `Before buying: ask "Does this match my ${tr.core||dmTh}?" — if not, skip`,
+        `${dmEl==='ไฟ'?'Red/orange items + fire materials (fabric/leather) boost luck':dmEl==='ไม้'?'Green + wood/natural fibres':dmEl==='ดิน'?'Brown/yellow + ceramic/stone':dmEl==='โลหะ'?'White/silver + real metal':'Blue/black + glass/spring water'}`,
+        `Big purchases — only on intellectual biorhythm ≥ 0% (now ${bp(bioInt)})`,
+      ],
+      avoidTh: `อย่าซื้อของในวัน Biorhythm สมองต่ำ — judgement ไม่ชัด`,
+      avoidEn: `Don't shop on low intellectual biorhythm days — judgement is fuzzy`,
+      mantraTh: `ของที่อยู่ในบ้านฉันต้องเสริมพลังของฉัน ไม่ใช่แค่ดูดี`,
+      mantraEn: `What I bring into my home must amplify my energy, not just look good`,
+    },
+    compat: {
+      titleTh: '✦ การ์ดตรวจความสัมพันธ์ 7 วัน',
+      titleEn: '✦ 7-Day Relationship Audit',
+      actions: isTh ? [
+        `เลือก 1 คนใกล้ตัว — เช็กว่าธาตุของเขาเสริม/ขัดธาตุ${dmEl}ของคุณยังไง`,
+        `วันที่ Biorhythm อารมณ์สูง (≥50%) ใช้คุยเรื่องที่ค้าง · วันต่ำ (≤-30%) เลื่อน`,
+        `${hdType.includes('Projector')||hdType.includes('โปรเจก')?'รอ "คำเชิญ" ก่อนให้คำแนะนำ — Projector ไม่ push':hdType.includes('Generator')||hdType.includes('เจเนอ')?'ตอบสนองด้วย "uh-huh"/"uh-uh" — ฟัง sacral ก่อนพูด':'ใช้กลยุทธ์ของคุณเป็นกฎ — '+hdStrategy}`,
+      ] : [
+        `Pick one close person — check how their element supports/clashes with your ${dmEl}`,
+        `High emotional biorhythm days (≥50%) → tackle pending talks · low (≤-30%) → postpone`,
+        `${hdType==='Projector'?'Wait for the invitation before giving advice — Projectors do not push':hdType==='Generator'?'Respond with uh-huh / uh-uh — sacral first':'Run your HD strategy as the rule — '+hdStrategy}`,
+      ],
+      avoidTh: `อย่าตั้งใจเข้ากันกับคนที่ขัดธาตุของคุณ — energy debt สะสม`,
+      avoidEn: `Don't force compatibility with someone who clashes your element — energy debt compounds`,
+      mantraTh: `ความสัมพันธ์ที่ดีคือที่ทั้งคู่ไม่ต้อง "ทำงาน" เพื่อรักกัน`,
+      mantraEn: `Real compatibility means neither of us has to "work" to love each other`,
+    },
+  };
+  const tac = TACTICAL[key];
+
   const rows = cfg.sys.map(s => `
     <div style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:14px 16px">
       <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px">
@@ -8795,6 +8923,27 @@ function _buildDeepAddon(chart, key){
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px">
         ${rows}
       </div>
+
+      ${tac ? `
+      <!-- Tactical block — translates the 26-system insight into a 7-day playbook
+           so the add-on output isn't only "what your chart says" but "what to DO". -->
+      <div style="margin-top:18px;background:rgba(0,0,0,0.18);border:1px solid var(--gold3);border-radius:8px;padding:14px 16px">
+        <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:var(--gold);letter-spacing:1px;margin-bottom:10px">${isTh?tac.titleTh:tac.titleEn}</div>
+        <ol style="margin:0;padding-left:22px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:13.5px;line-height:1.85">
+          ${tac.actions.map(a => `<li style="margin-bottom:4px">${a}</li>`).join('')}
+        </ol>
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr;gap:8px">
+          <div style="background:rgba(192,32,32,0.08);border-left:3px solid #c04040;padding:8px 12px;border-radius:0 6px 6px 0">
+            <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:#c08080;text-transform:uppercase;margin-bottom:3px">⚠ ${isTh?'หลีกเลี่ยง':'Avoid'}</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--text);line-height:1.6">${isTh?tac.avoidTh:tac.avoidEn}</div>
+          </div>
+          <div style="background:rgba(212,175,55,0.08);border-left:3px solid var(--gold);padding:8px 12px;border-radius:0 6px 6px 0">
+            <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold3);text-transform:uppercase;margin-bottom:3px">✦ ${isTh?'มันตราประจำสัปดาห์':'Weekly Mantra'}</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:13.5px;color:var(--gold2);line-height:1.6;font-style:italic">"${isTh?tac.mantraTh:tac.mantraEn}"</div>
+          </div>
+        </div>
+      </div>` : ''}
+
       <div style="margin-top:14px;padding:9px 14px;background:rgba(212,175,55,0.05);border-radius:6px;font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold3);text-align:center">
         ✦ ${isTh?'สังเคราะห์จากดวงชะตาของคุณ · Cosmic Score '+score+'/999':'Synthesised from your birth chart · Cosmic Score '+score+'/999'}
       </div>
@@ -9258,9 +9407,63 @@ function renderResonance(){
   const dmEl = chart.bazi.dayMasterElement || '-';
   const nskDir = chart.ninestar.starDirection || '-';
   const lpNum = chart.numerology.lifePath;
-  const country  = localStorage.getItem('mth_country')  || '';
-  const career   = localStorage.getItem('mth_career')   || '';
-  const industry = localStorage.getItem('mth_industry') || '';
+  const country     = localStorage.getItem('mth_country')      || '';
+  const career      = localStorage.getItem('mth_career')       || '';
+  const industry    = localStorage.getItem('mth_industry')     || '';
+  const careerLevel = localStorage.getItem('mth_careerLevel')  || '';
+
+  // ── Country / Career / Industry wheels ───────────────────────
+  // Predefined choices that match the lookup tables in calc.ts so a click
+  // always lands on a value the engine can score (free-text inputs used to
+  // miss-match silently and fall back to defaults).
+  const COUNTRIES = [
+    { name:'Thailand',  flag:'🇹🇭', el:'ไม้',   score:720 },
+    { name:'Japan',     flag:'🇯🇵', el:'โลหะ', score:750 },
+    { name:'Singapore', flag:'🇸🇬', el:'ไฟ',   score:755 },
+    { name:'USA',       flag:'🇺🇸', el:'ไฟ',   score:760 },
+    { name:'UK',        flag:'🇬🇧', el:'โลหะ', score:740 },
+    { name:'Germany',   flag:'🇩🇪', el:'ดิน',  score:735 },
+    { name:'France',    flag:'🇫🇷', el:'ไม้',   score:730 },
+    { name:'Australia', flag:'🇦🇺', el:'ดิน',  score:740 },
+    { name:'Canada',    flag:'🇨🇦', el:'น้ำ',   score:735 },
+    { name:'UAE',       flag:'🇦🇪', el:'ไฟ',   score:745 },
+    { name:'India',     flag:'🇮🇳', el:'ดิน',  score:725 },
+    { name:'China',     flag:'🇨🇳', el:'ดิน',  score:730 },
+    { name:'Korea',     flag:'🇰🇷', el:'โลหะ', score:740 },
+    { name:'Brazil',    flag:'🇧🇷', el:'ไม้',   score:715 },
+    { name:'Italy',     flag:'🇮🇹', el:'ไม้',   score:725 },
+    { name:'Russia',    flag:'🇷🇺', el:'น้ำ',   score:710 },
+  ];
+  const LEVELS = [
+    { name:'Junior',    icon:'🌱', bonus:-20, descTh:'1-3 ปีแรก',     descEn:'1-3 yrs' },
+    { name:'Mid',       icon:'🔧', bonus:0,   descTh:'มืออาชีพ',       descEn:'Pro' },
+    { name:'Senior',    icon:'🎯', bonus:30,  descTh:'นำทีม / lead',  descEn:'Team lead' },
+    { name:'Director',  icon:'🏛',  bonus:60,  descTh:'นำหลายทีม',     descEn:'Multi-team' },
+    { name:'Executive', icon:'👑', bonus:80,  descTh:'C-level / VP',  descEn:'C-level / VP' },
+  ];
+  // Domain groups by element so selection feels meaningful (Wuxing colour-coded).
+  const DOMAINS_BY_EL = {
+    'ไฟ':   ['Business Development','Sales','Marketing','Leadership','Consulting'],
+    'โลหะ': ['Engineering','Finance','Legal'],
+    'น้ำ':  ['Software','Data','Healthcare','Research'],
+    'ดิน':  ['Accounting','HR','Operations','Supply Chain','Management','Construction'],
+    'ไม้':  ['Art','Design','Architecture','Interior Construction','Education'],
+  };
+  const INDUSTRIES_BY_EL = {
+    'ไฟ':   ['Entertainment','Energy'],
+    'โลหะ': ['Finance','Banking','Investment','Manufacturing'],
+    'น้ำ':  ['Tech','Software','AI','Healthcare','Pharma'],
+    'ดิน':  ['Interior Construction','Construction','Real Estate','Retail','Food'],
+    'ไม้':  ['Education','Media','Hospitality'],
+  };
+  const EL_COLOR = { 'ไฟ':'#c66030', 'โลหะ':'#a8a098', 'น้ำ':'#3a7090', 'ดิน':'#a08040', 'ไม้':'#5a8a4a' };
+  const elDot = (el) => `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${EL_COLOR[el]||'#888'};vertical-align:middle;margin-right:4px"></span>`;
+  // Chip-style picker. Each chip: shows visual cue + sets localStorage on click.
+  // Active chip gets a gold border so the current selection is unambiguous.
+  const chipBtn = (key, value, isActive, content, extraStyle = '') =>
+    `<button onclick="localStorage.setItem('${key}','${String(value).replace(/'/g,'&apos;')}');renderResonance();_showResRegenHint()" style="cursor:pointer;background:${isActive?'rgba(212,175,55,0.12)':'var(--bg3)'};border:1px solid ${isActive?'var(--gold)':'var(--border)'};color:${isActive?'var(--gold)':'var(--text)'};border-radius:6px;padding:6px 10px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:.5px;transition:all .15s;${extraStyle}">${content}</button>`;
+  const clearBtn = (key) =>
+    `<button onclick="localStorage.removeItem('${key}');renderResonance();_showResRegenHint()" style="cursor:pointer;background:transparent;border:1px dashed var(--border);color:var(--muted);border-radius:6px;padding:6px 10px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase">${isTh?'ล้าง':'Clear'}</button>`;
 
   // Engine-computed scores (available because _getMS26ChartFromProfile passes
   // workCountry/domain/industry through to MS26.calculate).
@@ -9335,25 +9538,64 @@ function renderResonance(){
       </div>
     </div>
 
-    <!-- Inputs -->
+    <!-- Wheels — predefined choices that match calc.ts lookup tables.
+         Replaces free-text inputs that used to silently fall back to defaults
+         when the user typed something unrecognised (e.g. "thai" vs "Thailand"). -->
     <div class="deep-sys-card" style="margin-top:14px">
       <div class="deep-sys-title">${isTh?'บริบทชีวิตปัจจุบัน':'Your current life context'}</div>
-      <div class="deep-sys-origin">${isTh?'เปลี่ยนได้ทุกเมื่อ · ผลลัพธ์อัพเดททันที':'edit anytime · scores recompute instantly'}</div>
-      <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px">
-        <div class="form-group">
-          <label style="display:block;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px">${isTh?'ประเทศที่คุณอยู่/ทำงาน':'Country you live / work in'}</label>
-          <input id="res_country" value="${country}" placeholder="${isTh?'เช่น ไทย, ญี่ปุ่น, อังกฤษ':'Thailand, Japan, USA...'}" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;font-family:inherit" onchange="localStorage.setItem('mth_country',this.value);renderResonance();_showResRegenHint()">
+      <div class="deep-sys-origin">${isTh?'เลือกจากตัวเลือก · ผลลัพธ์อัพเดททันที':'pick from the wheels · scores recompute instantly'}</div>
+
+      <!-- COUNTRY WHEEL ---------------------------------------- -->
+      <div style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <label style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted)">🌍 ${isTh?'ประเทศที่คุณอยู่/ทำงาน':'Country you live / work in'}</label>
+          ${country ? clearBtn('mth_country') : ''}
         </div>
-        <div class="form-group">
-          <label style="display:block;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px">${isTh?'สายอาชีพ / บทบาท':'Career / role'}</label>
-          <input id="res_career" value="${career}" placeholder="${isTh?'เช่น Engineer, Designer, Teacher':'e.g. Engineer, Designer, Teacher'}" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;font-family:inherit" onchange="localStorage.setItem('mth_career',this.value);renderResonance();_showResRegenHint()">
-        </div>
-        <div class="form-group">
-          <label style="display:block;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px">${isTh?'อุตสาหกรรม':'Industry'}</label>
-          <input id="res_industry" value="${industry}" placeholder="${isTh?'เช่น Tech, Finance, Hospitality':'e.g. Tech, Finance, Hospitality'}" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;font-family:inherit" onchange="localStorage.setItem('mth_industry',this.value);renderResonance();_showResRegenHint()">
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${COUNTRIES.map(c => chipBtn('mth_country', c.name, country === c.name, `${c.flag} ${c.name} ${elDot(c.el)}<span style="opacity:.55;font-size:10px">${c.el}</span>`)).join('')}
         </div>
       </div>
-      ${!hasContext ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(212,175,55,0.06);border-left:3px solid var(--gold3);border-radius:0 6px 6px 0;font-size:12px;color:var(--muted);line-height:1.55">💡 ${isTh?'ถ้ายังไม่กรอก Life Terrain + Path Resonance จะเป็น 0 และ Cosmic Score จะใช้เฉพาะ Soul Frequency — กรอกเพื่อปลดล็อกคะแนนเพิ่ม':'If left blank, Life Terrain + Path Resonance = 0 and Cosmic Score uses Soul Frequency only — fill these to unlock the extra scoring layers'}</div>` : ''}
+
+      <!-- CAREER LEVEL WHEEL ----------------------------------- -->
+      <div style="margin-top:14px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <label style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted)">📈 ${isTh?'ระดับตำแหน่ง':'Career level'}</label>
+          ${careerLevel ? clearBtn('mth_careerLevel') : ''}
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${LEVELS.map(l => chipBtn('mth_careerLevel', l.name, careerLevel === l.name, `${l.icon} <strong>${l.name}</strong> <span style="opacity:.55;font-size:10px">${isTh?l.descTh:l.descEn} (${l.bonus>=0?'+':''}${l.bonus})</span>`)).join('')}
+        </div>
+      </div>
+
+      <!-- DOMAIN WHEEL (grouped by element) -------------------- -->
+      <div style="margin-top:14px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <label style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted)">💼 ${isTh?'สายอาชีพ / บทบาท':'Career / role (domain)'}</label>
+          ${career ? clearBtn('mth_career') : ''}
+        </div>
+        ${Object.entries(DOMAINS_BY_EL).map(([el, list]) => `
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
+            <span style="font-size:10px;color:${EL_COLOR[el]};letter-spacing:1px;min-width:32px;font-family:'Josefin Sans',sans-serif">${elDot(el)}${el}</span>
+            ${list.map(name => chipBtn('mth_career', name, career === name, name, `font-size:10.5px;padding:4px 8px`)).join('')}
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- INDUSTRY WHEEL (grouped by element) ------------------ -->
+      <div style="margin-top:14px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <label style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted)">🏭 ${isTh?'อุตสาหกรรม':'Industry'}</label>
+          ${industry ? clearBtn('mth_industry') : ''}
+        </div>
+        ${Object.entries(INDUSTRIES_BY_EL).map(([el, list]) => `
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
+            <span style="font-size:10px;color:${EL_COLOR[el]};letter-spacing:1px;min-width:32px;font-family:'Josefin Sans',sans-serif">${elDot(el)}${el}</span>
+            ${list.map(name => chipBtn('mth_industry', name, industry === name, name, `font-size:10.5px;padding:4px 8px`)).join('')}
+          </div>
+        `).join('')}
+      </div>
+
+      ${!hasContext ? `<div style="margin-top:14px;padding:8px 12px;background:rgba(212,175,55,0.06);border-left:3px solid var(--gold3);border-radius:0 6px 6px 0;font-size:12px;color:var(--muted);line-height:1.55">💡 ${isTh?'ถ้ายังไม่เลือก Life Terrain + Path Resonance จะเป็น 0 และ Cosmic Score จะใช้เฉพาะ Soul Frequency — เลือกเพื่อปลดล็อกคะแนนเพิ่ม':'If nothing is picked, Life Terrain + Path Resonance = 0 and Cosmic Score uses Soul Frequency only — pick to unlock the extra scoring layers'}</div>` : ''}
     </div>
 
     <!-- Live scores (engine-computed) — only shown once user has filled
@@ -11094,7 +11336,7 @@ function importUserData(e){
 // Keys synced to cloud (session-only keys like mth_user/mth_guest_ok excluded)
 const _SYNC_KEYS = [
   'mth_name','mth_dob','mth_time','mth_gender','mth_city',
-  'mth_country','mth_career','mth_industry','mth_lang','mth_gift','mth_gift_expiry',
+  'mth_country','mth_career','mth_careerLevel','mth_industry','mth_lang','mth_gift','mth_gift_expiry',
   'mth_bless_date','mth_bless_count','mth_bless_history','mth_full_history',
   'mth_coll_tier','ms_profiles','ms_saved_reports','ms_last_group'
 ];
