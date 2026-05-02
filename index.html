@@ -1135,7 +1135,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <span class="tb-dot">·</span>
   <div class="tb-pill"><span id="tb-day-icon">—</span><span id="tb-day-deity">—</span></div>
   <button class="tb-rail-btn" id="railToggleAll" onclick="toggleAllRails()" title="Hide / show side panels">
-    <span id="railToggleIcon">⊟</span><span id="railToggleLabel"> Panels</span>
+    <span id="railToggleIcon">⊟</span><span id="railToggleLabel" data-en=" Panels" data-th=" แผง"> Panels</span>
   </button>
 </div>
 
@@ -6668,7 +6668,7 @@ th:{
   sub_blessing:"🎴 จั่วไพ่",sub_organum:"🔮 โอเรกุรัม",sub_preview:"📊 ดูตัวอย่าง",
   sub_collection:"📚 สะสมเทพ",sub_library:"📖 คลังของฉัน",sub_streak:"🔥 Streak",sub_history7:"📜 7 วัน",
   sub_generate:"✨ สร้างรายงาน",sub_reports:"📁 รายงานของฉัน",
-  sub_sky:"🌌 ฟ้าวันนี้",sub_resonance:"🧭 Life Resonance",sub_organum_plus:"🔮 Organum ∞",
+  sub_sky:"🌌 ฟ้าวันนี้",sub_resonance:"🧭 ดวงกับสภาพแวดล้อม",sub_organum_plus:"🔮 โอเรกุรัมไม่จำกัด",
   sub_brief:"📰 สรุปเดือน",sub_freq:"📡 ความถี่",sub_history_all:"📜 ประวัติทั้งหมด",
   sub_deep:"🔬 26 ศาสตร์",sub_mirror:"🪞 เทพกระจก",sub_pet:"🐾 สัตว์เลี้ยง",
   sub_companions:"🦄 เพื่อนคู่ใจ",sub_exercise:"⚡ ออกกำลัง",sub_food:"🍲 อาหาร",
@@ -8011,7 +8011,7 @@ function toggleAllRails() {
   const nowHidden = rL.classList.toggle('rail-hidden');
   rR.classList.toggle('rail-hidden', nowHidden);
   if (icon) icon.textContent = nowHidden ? '⊞' : '⊟';
-  if (lbl)  lbl.textContent  = nowHidden ? ' Panels' : ' Panels';
+  if (lbl)  lbl.textContent  = (LANG === 'th') ? ' แผง' : ' Panels';
   if (btn)  btn.classList.toggle('hidden', nowHidden);
   try { localStorage.setItem('mth_rails_hidden', nowHidden ? '1' : '0'); } catch(e) {}
 }
@@ -9928,6 +9928,144 @@ function renderResonance(){
         ↑ ${isTh?'เลื่อนขึ้นกรอกด้านบน':'Scroll up to fill in'}
       </div>
     </div>`}
+
+    ${(() => {
+      // ── Compute Top-5 rankings client-side using the same Wuxing math
+      // calc.ts uses (Sheng cycle: ไม้→ไฟ→ดิน→โลหะ→น้ำ→ไม้). Lets us show
+      // "your best-fit countries / domains / industries" without 58 engine
+      // calls, and stays in lockstep with the engine because the lookup
+      // tables and rules are mirrored from calc.ts.
+      const SHENG = { 'ไม้':'ไฟ', 'ไฟ':'ดิน', 'ดิน':'โลหะ', 'โลหะ':'น้ำ', 'น้ำ':'ไม้' };
+      const align = (cEl, dmEl) => {
+        if (SHENG[cEl] === dmEl) return 60;        // env feeds you (best)
+        if (cEl === dmEl)         return 30;        // same element
+        if (SHENG[dmEl] === cEl)  return -15;       // you feed env (drain)
+        return 0;
+      };
+      const levelBonus = LEVELS.find(l => l.name === careerLevel)?.bonus || 0;
+
+      // 1. Country ranking
+      const countryRanked = COUNTRIES.map(c => ({
+        ...c,
+        match: align(c.el, dmEl),
+        total: Math.min(950, Math.max(400, c.score + levelBonus + align(c.el, dmEl))),
+      })).sort((a,b) => b.total - a.total);
+
+      // 2. Domain ranking (each domain element scored vs DM)
+      const domainList = [];
+      for (const [el, items] of Object.entries(DOMAINS_BY_EL)) for (const name of items) domainList.push({ name, el });
+      const domainRanked = domainList.map(d => {
+        let base = 700;
+        if (SHENG[dmEl] === d.el) base = 820;   // DM CREATES = best fit
+        else if (d.el === dmEl)   base = 780;   // SAME = good
+        else if (SHENG[d.el] === dmEl) base = 740;  // DM SUPPORTED
+        return { ...d, total: base };
+      }).sort((a,b) => b.total - a.total);
+
+      // 3. Industry ranking
+      const industryList = [];
+      for (const [el, items] of Object.entries(INDUSTRIES_BY_EL)) for (const name of items) industryList.push({ name, el });
+      const industryRanked = industryList.map(i => {
+        let base = 700;
+        if (SHENG[dmEl] === i.el) base = 800;
+        else if (i.el === dmEl)   base = 770;
+        else if (SHENG[i.el] === dmEl) base = 730;
+        return { ...i, total: base };
+      }).sort((a,b) => b.total - a.total);
+
+      const top = (arr, n) => arr.slice(0, n);
+      const isPicked = (val, current) => val === current;
+
+      const rankRow = (item, label, currentSel, key, sub) => `
+        <div onclick="localStorage.setItem('${key}','${item.name}');renderResonance();_showResRegenHint()" style="cursor:pointer;display:flex;align-items:center;gap:10px;padding:7px 10px;background:${isPicked(item.name,currentSel)?'rgba(212,175,55,0.1)':'var(--bg3)'};border:1px solid ${isPicked(item.name,currentSel)?'var(--gold)':'var(--border)'};border-radius:6px;margin-bottom:5px;transition:border-color .15s">
+          <span style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--gold3);letter-spacing:1px;min-width:22px;text-align:right">#${label}</span>
+          <span style="flex:1;font-family:'Cormorant Garamond',serif;font-size:13.5px;color:${isPicked(item.name,currentSel)?'var(--gold)':'var(--text)'};font-weight:${isPicked(item.name,currentSel)?'700':'400'}">${item.flag||''} ${item.name} <span style="opacity:.55;font-size:10.5px">${sub}</span></span>
+          <span style="font-family:'Josefin Sans',sans-serif;font-size:11px;color:${item.total>=800?'#60c060':item.total>=750?'#c8a840':item.total>=700?'#c8a040':'#c06060'};font-weight:600;min-width:42px;text-align:right">${item.total}</span>
+        </div>`;
+
+      // ── 3-year forecast — combine Mahadasha + Luck Pillar + NSK year
+      const currentYear = new Date().getFullYear();
+      const arcYears = [0, 1, 2].map(offset => {
+        const y = currentYear + offset;
+        // NSK year-star (same formula as calcNineStar)
+        let nsk = ((2 - (y - 2024)) % 9 + 9) % 9; if (nsk === 0) nsk = 9;
+        const NSK_TH = {1:'น้ำขาว · ปัญญา',2:'ดินดำ · ฟื้นฟู',3:'ไม้เขียว · เริ่มต้น',4:'ไม้สด · เดินทาง',5:'ดินศูนย์ · พลิก',6:'โลหะขาว · นำ',7:'โลหะแดง · เก็บเกี่ยว',8:'ดินขาว · เปลี่ยน',9:'ไฟม่วง · ชื่อเสียง'};
+        const NSK_EN = {1:'White Water · Wisdom',2:'Black Earth · Recovery',3:'Green Wood · Initiation',4:'Green Wood · Travel',5:'Yellow Earth · Pivot',6:'White Metal · Lead',7:'Red Metal · Harvest',8:'White Earth · Change',9:'Purple Fire · Renown'};
+        // Personal Year (Pythagorean): sum of (month + day + year digits) reduced
+        const personalYear = ((() => {
+          const dob = (localStorage.getItem('mth_dob')||'').split('-');
+          if (dob.length < 3) return null;
+          const m = parseInt(dob[1])||0, d = parseInt(dob[2])||0;
+          const sum = m + d + y;
+          let r = sum;
+          while (r > 9 && r !== 11 && r !== 22) r = String(r).split('').reduce((a,c)=>a+parseInt(c),0);
+          return r;
+        })()) ?? '—';
+        const PY_TH = {1:'เริ่มต้นวงจรใหม่',2:'ความสัมพันธ์ · รอจังหวะ',3:'แสดงออก · ครีเอทีฟ',4:'รากฐาน · งานหนัก',5:'เปลี่ยนแปลง · เดินทาง',6:'ความรับผิดชอบ · ครอบครัว',7:'สะท้อน · ปัญญา',8:'อำนาจ · เงิน',9:'ปิดวงจร · ปล่อยวาง'};
+        const PY_EN = {1:'New cycle starts',2:'Relationships · timing',3:'Express · creative',4:'Foundations · hard work',5:'Change · travel',6:'Responsibility · family',7:'Reflect · wisdom',8:'Power · money',9:'Closure · let go'};
+        return { y, nsk, nskTh: NSK_TH[nsk], nskEn: NSK_EN[nsk], py: personalYear, pyTh: PY_TH[personalYear]||'—', pyEn: PY_EN[personalYear]||'—', isNow: offset === 0 };
+      });
+
+      return `<!-- ── Resonance extra data layers (Top-5 + 3-year arc) ── -->
+    <!-- 🌍 Top 5 countries — ranked by your specific chart -->
+    <div class="deep-sys-card" style="margin-top:14px">
+      <div class="deep-sys-title">🌍 ${isTh?'5 ประเทศที่เข้ากับดวงคุณมากที่สุด':'Top 5 countries for your chart'}</div>
+      <div class="deep-sys-origin">${isTh?`คำนวณจากธาตุ${dmEl} × ระดับ${careerLevel||'Mid'}${levelBonus?` (${levelBonus>=0?'+':''}${levelBonus})`:''} · แตะเพื่อเลือก`:`Computed from your ${dmEl} element × ${careerLevel||'Mid'} level${levelBonus?` (${levelBonus>=0?'+':''}${levelBonus})`:''} · tap to pick`}</div>
+      <div style="margin-top:10px">
+        ${top(countryRanked,5).map((c,i) => rankRow(c, i+1, country, 'mth_country', `${c.el} ${c.match>0?'+':c.match<0?'':''}${c.match!==0?c.match:''}`)).join('')}
+      </div>
+      ${countryRanked.length > 5 ? `<details style="margin-top:6px"><summary style="cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">${isTh?'ดูที่เหลืออีก':'See remaining'} ${countryRanked.length-5}</summary><div style="margin-top:6px">${countryRanked.slice(5).map((c,i) => rankRow(c, i+6, country, 'mth_country', c.el)).join('')}</div></details>` : ''}
+    </div>
+
+    <!-- 💼 Top 5 domains — ranked by your specific chart -->
+    <div class="deep-sys-card" style="margin-top:14px">
+      <div class="deep-sys-title">💼 ${isTh?'5 สายอาชีพที่เหมาะกับธาตุคุณ':'Top 5 career domains for your element'}</div>
+      <div class="deep-sys-origin">${isTh?`ธาตุ${dmEl} ของคุณเข้ากับสายเหล่านี้ที่สุด · แตะเพื่อเลือก`:`Your ${dmEl} element fits these domains best · tap to pick`}</div>
+      <div style="margin-top:10px">
+        ${top(domainRanked,5).map((d,i) => rankRow(d, i+1, career, 'mth_career', d.el)).join('')}
+      </div>
+      <details style="margin-top:6px"><summary style="cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">${isTh?'ดูที่เหลือ':'See remaining'} ${domainRanked.length-5}</summary><div style="margin-top:6px">${domainRanked.slice(5).map((d,i) => rankRow(d, i+6, career, 'mth_career', d.el)).join('')}</div></details>
+    </div>
+
+    <!-- 🏭 Top 5 industries — ranked by your specific chart -->
+    <div class="deep-sys-card" style="margin-top:14px">
+      <div class="deep-sys-title">🏭 ${isTh?'5 อุตสาหกรรมที่หนุนพลังคุณ':'Top 5 industries that amplify you'}</div>
+      <div class="deep-sys-origin">${isTh?`ธาตุ${dmEl} ของคุณ resonate กับอุตสาหกรรมเหล่านี้ · แตะเพื่อเลือก`:`Your ${dmEl} element resonates with these · tap to pick`}</div>
+      <div style="margin-top:10px">
+        ${top(industryRanked,5).map((d,i) => rankRow(d, i+1, industry, 'mth_industry', d.el)).join('')}
+      </div>
+      <details style="margin-top:6px"><summary style="cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">${isTh?'ดูที่เหลือ':'See remaining'} ${industryRanked.length-5}</summary><div style="margin-top:6px">${industryRanked.slice(5).map((d,i) => rankRow(d, i+6, industry, 'mth_industry', d.el)).join('')}</div></details>
+    </div>
+
+    <!-- 📅 3-year forecast arc -->
+    <div class="deep-sys-card" style="margin-top:14px">
+      <div class="deep-sys-title">📅 ${isTh?'จังหวะ 3 ปีของคุณ':'Your 3-year arc'}</div>
+      <div class="deep-sys-origin">${isTh?'Nine Star Ki ปีต่อปี + Personal Year (Numerology) ของคุณ':'Year-by-year Nine Star Ki × Personal Year'}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:12px">
+        ${arcYears.map(a => `
+          <div style="background:${a.isNow?'rgba(212,175,55,0.08)':'var(--bg3)'};border:1px solid ${a.isNow?'var(--gold)':'var(--border)'};border-radius:8px;padding:12px 14px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+              <div style="font-family:'Cinzel Decorative',serif;font-size:18px;color:${a.isNow?'var(--gold)':'var(--text)'};font-weight:700">${a.y}</div>
+              ${a.isNow?`<span style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:var(--gold);background:rgba(212,175,55,0.15);padding:2px 7px;border-radius:8px">${isTh?'ปีนี้':'NOW'}</span>`:''}
+            </div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:12.5px;color:var(--text);line-height:1.55;margin-bottom:6px">
+              <strong style="color:var(--gold2)">NSK ${a.nsk}</strong> · ${isTh?a.nskTh:a.nskEn}
+            </div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:12.5px;color:var(--muted);line-height:1.55">
+              <strong style="color:#40c0a0">PY ${a.py}</strong> · ${isTh?a.pyTh:a.pyEn}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div style="margin-top:10px;padding:8px 12px;background:rgba(0,0,0,0.18);border-left:3px solid var(--gold3);border-radius:0 6px 6px 0;font-family:'Cormorant Garamond',serif;font-size:12.5px;color:var(--muted);line-height:1.65">
+        ${isTh
+          ? `เมื่อ NSK Year + PY ทั้งคู่ "เข้ากัน" (เช่น NSK 9 ไฟ + PY 8 อำนาจ) → ปีที่ลงมือใหญ่ได้ · เมื่อทั้งคู่ "ปิดวงจร" (NSK 7-9 + PY 9) → ปีปล่อยวาง · ใช้ดูเฉพาะปีที่จะตัดสินใจใหญ่`
+          : `When the NSK Year and Personal Year align (e.g. NSK 9 Fire + PY 8 Power) → big-action year · when both close cycles (NSK 7-9 + PY 9) → release year · use this only to time major decisions`}
+      </div>
+    </div>
+
+    `;
+    })()}
 
     <!-- Reasoning: what your chart says about country/career -->
     <div class="deep-sys-card" style="margin-top:14px">
