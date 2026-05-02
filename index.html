@@ -7033,7 +7033,19 @@ th:{
   prof_city:"สถานที่เกิด",prof_save:"💾 บันทึกข้อมูล",
   prof_saved:"✓ บันทึกแล้ว — ข้อมูลจะ sync ทุกแท็บอัตโนมัติ",
 }};
-let LANG='th';
+// Initialize from localStorage so the language preference is honoured BEFORE
+// any Cosmic Blueprint render (cb_generate uses `lang: LANG` to feed the
+// engine's bilingual switch). Previously LANG started at 'th' and was only
+// overridden later by loadPrefs() after the entry overlay was dismissed —
+// which meant a chart generated immediately on landing with mth_lang='en'
+// produced a Thai report. Reading localStorage at declaration fixes that
+// timing race and makes the EN report deterministic regardless of when the
+// user toggles language.
+let LANG = (function(){
+  try { return localStorage.getItem('mth_lang') === 'en' ? 'en' : 'th'; }
+  catch(_) { return 'th'; }
+})();
+try { document.documentElement.lang = LANG; } catch(_){}
 function t(k,...a){const v=TX[LANG][k];return typeof v==='function'?v(...a):v||k;}
 // ── XSS safety helper ────────────────────────────────────────────
 // Use _esc() whenever inserting user-controlled strings into innerHTML.
