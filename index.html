@@ -6816,6 +6816,12 @@ function applyLang(){
   if(_lastSkyCards)renderSkyCards(_lastSkyCards);
   if(_lastChartData){renderChart(_lastChartData);switchLifeTab(_lifeTab,null);}
   if(_lastWordData)renderWordTabs(null,_lastWordData);
+  // Side rails (Today's Sky / Day's Deity / Cosmic Tip / Your Journey) and
+  // the blessing history list bake Thai/English via `isTh` ternaries at
+  // render time. Without re-running them on language toggle they stay
+  // frozen in the language active at boot, producing a mixed UI.
+  try { if (typeof renderTodayBar === 'function') renderTodayBar(); } catch(_){}
+  try { if (typeof renderHistory === 'function') renderHistory(); } catch(_){}
 
   // ── Per-panel re-render so all dynamically-rendered tabs follow LANG ──
   // Many panels (resonance, deep readings, blueprint, all add-ons, profile
