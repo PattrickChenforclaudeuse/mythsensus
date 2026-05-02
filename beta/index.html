@@ -8546,6 +8546,155 @@ function _hasActiveGift(){
   return new Date().toISOString().slice(0,10) <= expiry;
 }
 
+// ── Per-input purchase model ──────────────────────────────
+// Pricing model decided 2026-05-02:
+//   • $19  one-time = Full Report 42-page PDF for ONE chart input
+//   • $5–9 add-ons  = utility add-ons (Mirror/Pet/Companions/Exercise/Food/
+//                     Product/Compat) — each tied to ONE chart input;
+//                     re-view free, change input → repurchase
+//   • $9   per deep system reading (×26 systems) — same per-input model
+//
+// We hash the chart input (DOB + time + gender + city + name) to a short
+// signature. A purchase is recorded as { item:hash } in mth_purchased and
+// grants permanent free re-views for THAT input. Changing any input field
+// produces a new hash → existing purchase no longer matches → user sees
+// the price + Buy CTA again. Compat keeps two hashes (own + partner).
+const PRICING = {
+  // Deep-system unlock — applies to all 26 in panel-deep
+  deep:        { usd: 9,  thb: 320 },
+  // Utility add-ons (mirror through compat) — tier varies per Master Brief
+  mirror:      { usd: 9,  thb: 320 },   // Divine Mirror — included in Full Report
+  pet:         { usd: 5,  thb: 180 },
+  companions:  { usd: 7,  thb: 250 },
+  exercise:    { usd: 7,  thb: 250 },
+  food:        { usd: 7,  thb: 250 },
+  product:     { usd: 5,  thb: 180 },
+  compat:      { usd: 9,  thb: 320 },
+  // Big bundle — Full Report 42-page PDF (NOT an add-on)
+  full_report: { usd: 19, thb: 650 },
+};
+
+// Stable, short hash of the chart inputs that drive a reading.
+// We hash a normalised string so trivial whitespace/casing doesn't invalidate
+// a purchase. If you change birth date / time / gender / city / name the hash
+// changes → previous purchase no longer matches → repurchase required.
+function _chartInputHash(){
+  try {
+    const dob    = (localStorage.getItem('mth_dob')    || '').trim();
+    const time   = (localStorage.getItem('mth_time')   || '').trim();
+    const gender = (localStorage.getItem('mth_gender') || '').trim();
+    const city   = (localStorage.getItem('mth_city')   || '').trim();
+    const name   = (localStorage.getItem('mth_name')   || '').trim().toLowerCase();
+    const raw = [dob, time, gender, city, name].join('|');
+    // FNV-1a 32-bit — short, deterministic, no crypto needed.
+    let h = 0x811c9dc5;
+    for (let i = 0; i < raw.length; i++) {
+      h ^= raw.charCodeAt(i);
+      h = Math.imul(h, 0x01000193) >>> 0;
+    }
+    return h.toString(16).padStart(8, '0');
+  } catch(_) { return '00000000'; }
+}
+
+// For Compat we also need the partner's hash.
+function _compatInputHash(partner){
+  try {
+    const own = _chartInputHash();
+    const p = (partner && typeof partner === 'object') ? partner : {};
+    const raw = [p.dob||'', p.time||'', p.gender||'', p.name||'']
+      .map(s => String(s).trim().toLowerCase()).join('|');
+    let h = 0x811c9dc5;
+    for (let i = 0; i < raw.length; i++) {
+      h ^= raw.charCodeAt(i);
+      h = Math.imul(h, 0x01000193) >>> 0;
+    }
+    return own + ':' + h.toString(16).padStart(8, '0');
+  } catch(_) { return _chartInputHash() + ':00000000'; }
+}
+
+function _readPurchases(){
+  try { return JSON.parse(localStorage.getItem('mth_purchased') || '{}') || {}; }
+  catch(_) { return {}; }
+}
+function _writePurchases(map){
+  try { localStorage.setItem('mth_purchased', JSON.stringify(map)); }
+  catch(_) {}
+}
+
+// Returns true if EITHER (a) user has an active beta gift code OR (b) the
+// specific item has been purchased for the current chart input.
+function _hasItemAccess(itemKey, hashOverride){
+  if (_hasActiveGift()) return true;
+  const hash = hashOverride || _chartInputHash();
+  const map  = _readPurchases();
+  return Boolean(map[itemKey + ':' + hash]);
+}
+
+// Stub for the Omise-backed buy flow. Today: pretend-purchase that just
+// records the unlock locally (so the UI can be verified end-to-end). Once
+// Omise account is approved (Task 2 in handoff) this will open the Omise
+// JS popup and only record the purchase after server-side charge success.
+function _purchaseItem(itemKey, opts){
+  const isTh = LANG === 'th';
+  // Compound keys like "deep_western" / "deep_bazi" all use the "deep" tier;
+  // fall back to the prefix lookup so each of the 26 systems shares one tag.
+  const price = PRICING[itemKey] || PRICING[String(itemKey).split('_')[0]];
+  if (!price) { console.warn('[purchase] unknown item', itemKey); return; }
+  const hash = (opts && opts.hash) || _chartInputHash();
+  const label = (opts && opts.label) || itemKey;
+  // TEMP: fake checkout via confirm() — replace with Omise.open() when live.
+  const ok = confirm(isTh
+    ? `เปิดอ่าน ${label}\n\nราคา $${price.usd} (~฿${price.thb}) สำหรับข้อมูลปัจจุบัน\n` +
+      `(ดูซ้ำได้ฟรีตราบใดที่ไม่เปลี่ยนข้อมูลเกิด/เวลา/เพศ/เมือง/ชื่อ)\n\n` +
+      `⚠ ระบบ Omise ยังไม่เปิด — ตอนนี้กด OK = unlock ฟรีเพื่อทดสอบ`
+    : `Unlock ${label}\n\n$${price.usd} (~฿${price.thb}) for the current chart input\n` +
+      `(re-view free as long as DOB/time/gender/city/name don't change)\n\n` +
+      `⚠ Omise checkout not live yet — clicking OK unlocks for free (test mode)`);
+  if (!ok) return false;
+  const map = _readPurchases();
+  map[itemKey + ':' + hash] = new Date().toISOString();
+  _writePurchases(map);
+  // Re-render whatever is visible so the lock disappears immediately.
+  try { if (typeof setGroup === 'function' && typeof CUR_GROUP === 'string') setGroup(CUR_GROUP); } catch(_){}
+  try { if (typeof showSubTab === 'function' && typeof CUR_SUB === 'string') showSubTab(CUR_SUB); } catch(_){}
+  return true;
+}
+
+// Renders the standard paywall card used everywhere a purchase gate appears.
+// Same look across deep / add-on tabs so users learn the pattern once.
+function _purchasePaywall(itemKey, opts){
+  const isTh = LANG === 'th';
+  const price = PRICING[itemKey] || PRICING[String(itemKey).split('_')[0]] || { usd: 9, thb: 320 };
+  const label   = (opts && opts.label)    || itemKey;
+  const blurb   = (opts && opts.blurb)    || (isTh
+    ? 'ดูดวงเชิงลึกสำหรับวันเกิดของคุณ · ดูซ้ำได้ฟรีจนกว่าจะเปลี่ยนข้อมูลเกิด'
+    : 'Deep reading for your specific birth chart · re-view free until you change inputs');
+  const benefits = (opts && opts.benefits) || [];
+  const itemArg = JSON.stringify(itemKey).replace(/"/g,'&quot;');
+  const labelArg = JSON.stringify(label).replace(/"/g,'&quot;');
+  return `
+    <div style="background:linear-gradient(135deg,rgba(212,175,55,0.06),rgba(212,175,55,0.02));border:1px solid var(--gold3);border-radius:10px;padding:18px 18px 16px;margin-top:14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:10px">
+        <div>
+          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:var(--gold);letter-spacing:1px;margin-bottom:2px">🔒 ${_esc(label)}</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--muted);line-height:1.55;max-width:520px">${blurb}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-family:'Cinzel Decorative',serif;font-size:22px;color:var(--gold);font-weight:700;line-height:1">$${price.usd}</div>
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:var(--muted);margin-top:2px">~฿${price.thb} ${isTh?'ต่อวันเกิด':'per chart'}</div>
+        </div>
+      </div>
+      ${benefits.length ? `<ul style="margin:10px 0 12px 18px;padding:0;font-family:'Cormorant Garamond',serif;font-size:12.5px;color:var(--text);line-height:1.7">${benefits.map(b=>`<li style="margin-bottom:2px">${b}</li>`).join('')}</ul>` : ''}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+        <button onclick="_purchaseItem(${itemArg},{label:${labelArg}})" style="cursor:pointer;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:var(--bg);font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:9px 16px;border-radius:6px;font-weight:700">✦ ${isTh?'ปลดล็อค $'+price.usd:'Unlock $'+price.usd}</button>
+        <button onclick="setGroup('profile');showSubTab('me')" style="cursor:pointer;background:transparent;border:1px solid var(--gold3);color:var(--gold);font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:1.5px;padding:9px 14px;border-radius:6px">${isTh?'ใส่รหัสของขวัญ':'Use Gift Code'}</button>
+      </div>
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(212,175,55,0.15);font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:var(--muted)">
+        ${isTh?'💡 จ่ายครั้งเดียว ดูซ้ำได้ตลอด · ถ้าเปลี่ยนวันเกิด/เวลา/เพศ/เมือง/ชื่อ → ต้องชำระใหม่':'💡 One-time payment, unlimited re-views · changing DOB / time / gender / city / name → re-purchase required'}
+      </div>
+    </div>`;
+}
+
 // ── Add-on Deep Generate (Premium) ────────────────────────
 // Each add-on panel has a "✦ อ่านลึก 26 ศาสตร์" button that calls this.
 // Checks gift-code gate → renders paywall or cross-system synthesis.
@@ -8555,19 +8704,32 @@ function generateDeepAddon(key){
   if (!el) return;
   const isTh = LANG === 'th';
 
-  if (!_hasActiveGift()){
-    el.innerHTML = `
-      <div class="tier-lock" style="margin-top:18px">
-        <div class="tier-lock-icon">🔒</div>
-        <div class="tier-lock-title">${isTh ? 'Premium Feature' : 'Premium Feature'}</div>
-        <div class="tier-lock-desc">${isTh
-          ? 'การอ่านลึก 26 ศาสตร์ต้องใช้ Gift Code หรือ Subscription<br>ใส่รหัสเพื่อเปิดใช้งาน'
-          : 'The 26-system deep synthesis requires a Gift Code or Subscription.<br>Enter your code to unlock.'
-        }</div>
-        <button class="ghost-btn" onclick="setGroup('profile');showSubTab('me')">
-          ${isTh ? '✦ ใส่รหัสของขวัญ' : '✦ Enter Gift Code'}
-        </button>
-      </div>`;
+  if (!_hasItemAccess(key)) {
+    const ADDON_LABELS = {
+      mirror:     isTh ? 'Divine Mirror — เทพกระจกตัวคุณ'         : 'Divine Mirror — your archetypal reflection',
+      pet:        isTh ? 'Compatible Pet — สัตว์ที่เข้ากับธาตุ'   : 'Compatible Pet — animal that fits your element',
+      companions: isTh ? 'Cosmic Companions — สัตว์ตำนานประจำคุณ'  : 'Cosmic Companions — mythic companions across cultures',
+      exercise:   isTh ? 'Exercise Plan — ตารางกายรายสัปดาห์'      : 'Exercise Plan — weekly movement split',
+      food:       isTh ? 'Food & Diet — จานอาหารตามธาตุ'           : 'Food & Diet — element-aligned plate guide',
+      product:    isTh ? 'Product Personality — สีและของที่เสริม'  : 'Product Personality — colours & items that amplify',
+      compat:     isTh ? 'Compatibility — เทียบดวงคู่/เพื่อน'      : 'Compatibility — partner / friend chart match',
+    };
+    const ADDON_BLURBS = {
+      mirror:     isTh ? 'การสังเคราะห์ตัวตนจาก 26 ศาสตร์ + 7-day playbook' : '26-system identity synthesis + 7-day playbook',
+      pet:        isTh ? 'สัตว์เลี้ยงที่ธาตุของคุณต้องการจริงๆ + 7-day plan' : 'The pet your element actually needs + 7-day plan',
+      companions: isTh ? 'สัตว์ตำนานจาก 26 วัฒนธรรม + พิธีกรรม 7 วัน' : 'Mythic companions across 26 cultures + 7-day ritual',
+      exercise:   isTh ? 'รูปแบบออกกำลังตามธาตุและ Biorhythm + ตารางสัปดาห์' : 'Movement by element + biorhythm + weekly split',
+      food:       isTh ? 'แนวอาหารเฉพาะธาตุของคุณ + อาหารห้าม' : 'Element-specific food + foods to avoid',
+      product:    isTh ? 'สีและวัสดุที่เสริมพลังของคุณ + ตัวกรองช้อปปิ้ง' : 'Colours & materials that amplify + buying filter',
+      compat:     isTh ? 'เทียบดวงคุณกับคู่/เพื่อน/พาร์ทเนอร์ธุรกิจ' : 'Compare your chart with a partner / friend / business associate',
+    };
+    el.innerHTML = _purchasePaywall(key, {
+      label: ADDON_LABELS[key] || key,
+      blurb: ADDON_BLURBS[key] || (isTh ? 'อ่านลึกสำหรับดวงของคุณ' : 'Deep reading for your chart'),
+      benefits: isTh
+        ? ['สังเคราะห์จาก 26 ศาสตร์', '✦ แผนปฏิบัติ 7 วัน', '⚠ สิ่งที่ควรหลีกเลี่ยง', '🪞 มันตราประจำสัปดาห์']
+        : ['26-system synthesis', '✦ 7-day action plan', '⚠ What to avoid', '🪞 Weekly mantra'],
+    });
     return;
   }
 
@@ -9316,10 +9478,12 @@ function renderDeepReadings(){
   if (!chart) { nav.innerHTML=''; _emptyDeepHint('deepSysPanel'); return; }
   // Primary nav only — secondary systems show as a compact grid below.
   const primary = DEEP_SYSTEMS.filter(([k]) => PRIMARY_KEYS.has(k));
-  nav.innerHTML = primary.map(([k,txKey,emoji])=>
-    `<button class="deep-sys-btn${k===_deepActive?' active':''}" data-k="${k}" ` +
-    `onclick="_showDeep('${k}')" data-t="${txKey}">${emoji} ${t(txKey)}</button>`
-  ).join('');
+  nav.innerHTML = primary.map(([k,txKey,emoji])=>{
+    const unlocked = _hasItemAccess('deep_' + k);
+    const badge = unlocked ? ' <span style="color:#8aba50;font-size:10px">✓</span>' : ` <span style="color:var(--gold3);font-size:9px">$${PRICING.deep.usd}</span>`;
+    return `<button class="deep-sys-btn${k===_deepActive?' active':''}" data-k="${k}" ` +
+      `onclick="_showDeep('${k}')" data-t="${txKey}">${emoji} ${t(txKey)}${badge}</button>`;
+  }).join('');
   // Guard: if previously selected key was a secondary system, snap to first primary.
   if (!PRIMARY_KEYS.has(_deepActive)) _deepActive = 'western';
   _showDeep(_deepActive);
@@ -9331,12 +9495,18 @@ function _showDeep(k){
   if (!chart) return;
   const entry = DEEP_SYSTEMS.find(x=>x[0]===k);
   if (!entry) return;
-  const [,,,getter] = entry;
+  const [,txKey,emoji,getter] = entry;
   let data;
   try { data = getter(chart); }
   catch(e){ data = {title:'—', origin:'', insight:'', reading:String(e), stats:[]}; }
 
   const isTh = LANG === 'th';
+  // Per-system gate — each of the 26 deep systems is its own purchase.
+  // Existing $19 Full Report does NOT include these (per pricing decision
+  // 2026-05-02 — Full Report is the 42-page PDF only). User unlocks each
+  // system at $9 per chart input.
+  const deepKey = 'deep_' + k;
+  const deepLocked = !_hasItemAccess(deepKey);
   const hasReading = data.reading && data.reading.trim().length > 20;
 
   // Build the secondary-systems compact grid (16 tiles, each with 1-liner insight).
@@ -9348,11 +9518,15 @@ function _showDeep(k){
     // Strip HTML from insight, keep first ~110 chars for compact view.
     const flat = String(s.insight||'').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
     const oneLine = flat.length > 110 ? flat.slice(0,107)+'…' : flat;
+    // Each tile is clickable — switches the primary slot above to this system,
+    // where the per-input purchase gate kicks in.
+    const secLocked = !_hasItemAccess('deep_' + sk);
     return `
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:13px 14px;display:flex;flex-direction:column;gap:5px">
+      <div onclick="_showDeep('${sk}');window.scrollTo({top:document.getElementById('deepSysPanel').offsetTop-80,behavior:'smooth'})" style="cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:13px 14px;display:flex;flex-direction:column;gap:5px;transition:border-color .15s,background .15s" onmouseover="this.style.borderColor='var(--gold3)';this.style.background='rgba(212,175,55,0.04)'" onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--bg3)'">
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:18px;flex-shrink:0">${emoji}</span>
-          <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase">${t(txKey)}</div>
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;flex:1">${t(txKey)}</div>
+          ${secLocked ? `<span style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--gold);background:rgba(212,175,55,0.1);border:1px solid var(--gold3);padding:1px 6px;border-radius:8px;letter-spacing:.5px">$${PRICING.deep.usd}</span>` : `<span style="font-size:11px;color:#8aba50">✓</span>`}
         </div>
         <div style="font-family:'Cormorant Garamond',serif;font-size:13.5px;color:var(--gold2);line-height:1.35">${s.title||'—'}</div>
         <div style="font-family:'Cormorant Garamond',serif;font-size:12.5px;color:var(--muted);line-height:1.45">${oneLine||'—'}</div>
@@ -9378,13 +9552,26 @@ function _showDeep(k){
          ).join('')}
        </div>
 
-       <!-- Key insight (1-2 line personalised summary) -->
+       <!-- Key insight (1-2 line personalised summary) — always free as teaser -->
        <div style="margin-top:14px;padding:12px 14px;background:rgba(212,175,55,0.05);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;font-family:'Cormorant Garamond',serif;font-size:14px;line-height:1.65;color:var(--text)">
          ${data.insight || '—'}
        </div>
 
-       <!-- Full analysis — shown in full for depth/value -->
-       ${hasReading ? `<div class="deep-sys-reading" style="margin-top:14px">${data.reading}</div>` : ''}
+       <!-- Full analysis — gated per system. Free until purchased OR while
+            beta gift code is active. After purchase tied to current chart
+            hash, re-views are free. Changing chart input invalidates the
+            unlock. -->
+       ${deepLocked
+          ? _purchasePaywall(deepKey, {
+              label: emoji + ' ' + (t(txKey) || k) + ' — ' + (isTh ? 'อ่านเชิงลึก' : 'Deep reading'),
+              blurb: isTh
+                ? `เนื้อหาฉบับเต็มของ${t(txKey)||k} ตามดวงของคุณ — ที่มา ตีความเฉพาะตัว ตารางข้อมูล และคำแนะนำ${data.origin?` · ${data.origin}`:''}`
+                : `Full ${t(txKey)||k} reading for your specific chart — origins, personalised interpretation, data tables, and guidance${data.origin?` · ${data.origin}`:''}`,
+              benefits: isTh
+                ? ['ตีความตามดวงเกิดของคุณ', 'ที่มา + ประวัติศาสตร์ของศาสตร์', 'ตารางคุณค่า + ข้อมูลเปรียบเทียบ', 'ดูซ้ำได้ฟรีจนกว่าจะเปลี่ยนข้อมูลเกิด']
+                : ['Personalised to your chart', 'Origin + historical context', 'Stats table + comparison data', 'Free re-views until you change inputs'],
+            })
+          : (hasReading ? `<div class="deep-sys-reading" style="margin-top:14px">${data.reading}</div>` : '')}
      </div>
 
      <!-- Secondary 16 systems — compact grid -->
@@ -11348,7 +11535,7 @@ function importUserData(e){
 // Keys synced to cloud (session-only keys like mth_user/mth_guest_ok excluded)
 const _SYNC_KEYS = [
   'mth_name','mth_dob','mth_time','mth_gender','mth_city',
-  'mth_country','mth_career','mth_careerLevel','mth_industry','mth_lang','mth_gift','mth_gift_expiry',
+  'mth_country','mth_career','mth_careerLevel','mth_industry','mth_lang','mth_gift','mth_gift_expiry','mth_purchased',
   'mth_bless_date','mth_bless_count','mth_bless_history','mth_full_history',
   'mth_coll_tier','ms_profiles','ms_saved_reports','ms_last_group'
 ];
