@@ -29,7 +29,7 @@ const TEST_CHART = {
   mth_lat:    '13.7563',
   mth_lon:    '100.5018',
   mth_tz:     '7',
-  mth_lang:   'th',  // Thai surfaces more multilingual content (CJK + Devanagari + Latin together)
+  mth_lang:   process.env.SCAN_LANG || 'th',  // override to 'en' to QA the English report
 };
 
 const VIEWPORTS = [

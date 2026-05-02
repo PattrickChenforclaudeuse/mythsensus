@@ -9553,29 +9553,51 @@ const DEEP_SYSTEMS = [
       [LANG==='th'?'ธาตุ':'Element', c.tibetan.mewaElement],
     ]
   })],
-  ['ziwei','ds_ziwei','👑',(c)=>({
-    title:`紫微斗數 — ${c.ziwei.lifePalaceName||c.ziwei.lifepalace}`,
-    origin: LANG==='th' ? 'จีน (จักรพรรดิ) · ~1,000 ปี' : 'China (imperial) · 1,000 yrs',
-    insight: LANG==='th'
-      ? `วังชีวิต: <strong>${c.ziwei.lifePalaceName||c.ziwei.lifepalace}</strong> · ดาวหลัก: <strong>${c.ziwei.mainStar||'—'}</strong><br>ระบบดาราศาสตร์จักรพรรดิจีน — ซับซ้อนที่สุดในศาสตร์จีน`
-      : `Life Palace: <strong>${c.ziwei.lifePalaceName||c.ziwei.lifepalace}</strong> · Main Star: <strong>${c.ziwei.mainStar||'—'}</strong><br>China's imperial astrology — the most complex Chinese divination system`,
-    reading: c.ziwei.reading||'',
-    stats:[
-      [LANG==='th'?'วังชีวิต':'Life Palace', c.ziwei.lifePalaceName||c.ziwei.lifepalace],
-      [LANG==='th'?'ดาวหลัก':'Main Star', c.ziwei.mainStar||'-'],
-    ]
-  })],
-  ['onmyodo','ds_onmyodo','⛩️',(c)=>({
-    title:`陰陽道 — ${c.onmyodo.rokuyoTh||c.onmyodo.rokuyo}`,
-    origin: LANG==='th' ? 'ญี่ปุ่น · ~1,200 ปี' : 'Japan · 1,200 yrs',
-    insight: LANG==='th'
-      ? `Rokuyo: <strong>${c.onmyodo.rokuyoTh||c.onmyodo.rokuyo}</strong><br>Onmyōdō ผสมหยิน-หยาง ธาตุ 5 และดาว 7 — รหัสจักรวาลญี่ปุ่นสำหรับฤกษ์งามยามดี`
-      : `Rokuyo: <strong>${c.onmyodo.rokuyoTh||c.onmyodo.rokuyo}</strong><br>Onmyōdō blends yin-yang, five elements and seven stars — the ancient Japanese code for auspicious timing`,
-    reading: c.onmyodo.reading||'',
-    stats:[
-      ['Rokuyo', c.onmyodo.rokuyoTh||c.onmyodo.rokuyo],
-    ]
-  })],
+  ['ziwei','ds_ziwei','👑',(c)=>{
+    // Zi Wei palace numbers map to Thai names in the engine; for EN we expose
+    // the canonical Western label so the title reads cleanly in either lang.
+    const ZIWEI_PALACE_EN = ['','Life','Siblings','Spouse','Children','Wealth','Health','Travel','Friends','Career','Property','Fortune','Parents'];
+    const palace = LANG==='th' ? (c.ziwei.lifePalaceName||c.ziwei.lifepalace) : (ZIWEI_PALACE_EN[c.ziwei.lifepalace]||c.ziwei.lifePalaceName||c.ziwei.lifepalace);
+    return {
+      title:`紫微斗數 — ${palace}`,
+      origin: LANG==='th' ? 'จีน (จักรพรรดิ) · ~1,000 ปี' : 'China (imperial) · 1,000 yrs',
+      insight: LANG==='th'
+        ? `วังชีวิต: <strong>${palace}</strong> · ดาวหลัก: <strong>${c.ziwei.mainStar||'—'}</strong><br>ระบบดาราศาสตร์จักรพรรดิจีน — ซับซ้อนที่สุดในศาสตร์จีน`
+        : `Life Palace: <strong>${palace}</strong> · Main Star: <strong>${c.ziwei.mainStar||'—'}</strong><br>China's imperial astrology — the most complex Chinese divination system`,
+      reading: c.ziwei.reading||'',
+      stats:[
+        [LANG==='th'?'วังชีวิต':'Life Palace', palace],
+        [LANG==='th'?'ดาวหลัก':'Main Star', c.ziwei.mainStar||'-'],
+      ]
+    };
+  }],
+  ['onmyodo','ds_onmyodo','⛩️',(c)=>{
+    // Onmyōdō six-day cycle: Thai engine returns rokuyoTh as a Thai phrase.
+    // For EN we display the romaji + brief English meaning so the title isn't
+    // a Thai sentence sitting next to 陰陽道.
+    const ROKUYO_EN = {
+      '大安':'Taian (most auspicious)',
+      '友引':'Tomobiki (good, avoid funerals)',
+      '先勝':'Senshō (morning good, afternoon poor)',
+      '先負':'Senpu (morning poor, afternoon good)',
+      '赤口':'Shakkō (caution, midday only)',
+      '仏滅':'Butsumetsu (most inauspicious)'
+    };
+    const rokuyoLabel = LANG==='th'
+      ? (c.onmyodo.rokuyoTh||c.onmyodo.rokuyo)
+      : (ROKUYO_EN[c.onmyodo.rokuyo] || c.onmyodo.rokuyo);
+    return {
+      title:`陰陽道 — ${rokuyoLabel}`,
+      origin: LANG==='th' ? 'ญี่ปุ่น · ~1,200 ปี' : 'Japan · 1,200 yrs',
+      insight: LANG==='th'
+        ? `Rokuyo: <strong>${rokuyoLabel}</strong><br>Onmyōdō ผสมหยิน-หยาง ธาตุ 5 และดาว 7 — รหัสจักรวาลญี่ปุ่นสำหรับฤกษ์งามยามดี`
+        : `Rokuyo: <strong>${rokuyoLabel}</strong><br>Onmyōdō blends yin-yang, five elements and seven stars — the ancient Japanese code for auspicious timing`,
+      reading: c.onmyodo.reading||'',
+      stats:[
+        ['Rokuyo', rokuyoLabel],
+      ]
+    };
+  }],
   ['hellenistic','ds_hellenistic','🌿',(c)=>({
     title:`Hellenistic — ${c.hellenistic.sectTh||c.hellenistic.sect}`,
     origin: LANG==='th' ? 'กรีก/โรมัน · ~2,200 ปี' : 'Greece / Rome · 2,200 yrs',
