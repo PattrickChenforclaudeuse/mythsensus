@@ -1848,6 +1848,13 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   </div>
 </div>
 
+<!-- ═══ PROFILE ─ Library (every paid reading the user owns) ═══ -->
+<div class="panel" id="panel-library">
+  <div class="section-title" data-en="MY LIBRARY — readings you own" data-th="ห้องสมุดของฉัน — ดวงที่คุณซื้อแล้ว">MY LIBRARY — readings you own</div>
+  <p class="panel-intro" data-en="Every reading you've unlocked, ready to re-view as long as the chart inputs match. Tied to one chart input each — change the inputs and the entry stays here as history." data-th="ทุกดวงที่คุณปลดล็อคแล้ว · ดูซ้ำได้ฟรีตราบใดที่ข้อมูลเกิดยังตรง · เปลี่ยนข้อมูลแล้ว เอนทรีนี้จะอยู่ในประวัติ">Every reading you've unlocked, ready to re-view as long as the chart inputs match.</p>
+  <div id="libraryContent" style="max-width:780px;margin:0 auto"></div>
+</div>
+
 <!-- ═══ FREE TIER ─ Streak & Frequency Alerts (current only) ═══ -->
 <div class="panel" id="panel-streak">
   <div class="section-title" data-t="streak_title">STREAK & FREQUENCY ALERTS</div>
@@ -6493,7 +6500,7 @@ en:{
   group_addon:"🎁 Add-ons",group_profile:"👤 Profile",
   // ── sub-tabs
   sub_blessing:"🎴 Blessing",sub_organum:"🔮 Organum",sub_preview:"📊 Preview",
-  sub_collection:"📚 Collection",sub_streak:"🔥 Streak",sub_history7:"📜 7-day",
+  sub_collection:"📚 Collection",sub_library:"📖 Library",sub_streak:"🔥 Streak",sub_history7:"📜 7-day",
   sub_generate:"✨ Generate",sub_reports:"📁 My Reports",
   sub_sky:"🌌 Daily Sky",sub_resonance:"🧭 Life Resonance",sub_organum_plus:"🔮 Organum ∞",
   sub_brief:"📰 Monthly Brief",sub_freq:"📡 Frequency",sub_history_all:"📜 Full History",
@@ -6659,7 +6666,7 @@ th:{
   group_addon:"🎁 แอดออน",group_profile:"👤 โปรไฟล์",
   // ── sub-tabs
   sub_blessing:"🎴 จั่วไพ่",sub_organum:"🔮 โอเรกุรัม",sub_preview:"📊 ดูตัวอย่าง",
-  sub_collection:"📚 สะสมเทพ",sub_streak:"🔥 Streak",sub_history7:"📜 7 วัน",
+  sub_collection:"📚 สะสมเทพ",sub_library:"📖 คลังของฉัน",sub_streak:"🔥 Streak",sub_history7:"📜 7 วัน",
   sub_generate:"✨ สร้างรายงาน",sub_reports:"📁 รายงานของฉัน",
   sub_sky:"🌌 ฟ้าวันนี้",sub_resonance:"🧭 Life Resonance",sub_organum_plus:"🔮 Organum ∞",
   sub_brief:"📰 สรุปเดือน",sub_freq:"📡 ความถี่",sub_history_all:"📜 ประวัติทั้งหมด",
@@ -6889,6 +6896,7 @@ const GROUPS = {
     default: 'collection',
     tabs: [
       ['collection', 'collection', 'sub_collection', false],
+      ['library',    'library',    'sub_library',    false],
       ['streak',     'streak',     'sub_streak',     false],
       ['me',         'profile',    'sub_me',         false],
       ['multi',      'multi',      'sub_multi',      false],
@@ -6951,6 +6959,7 @@ function showSubTab(subKey) {
   if (panelId === 'brief')            renderMonthlyBrief();
   if (panelId === 'freq')             renderFreqHistory();
   if (panelId === 'collection')       renderCollection();
+  if (panelId === 'library')          renderLibrary();
   if (panelId === 'streak')           renderStreak();
   if (panelId === 'premium-reports')  renderSavedReports();
   if (panelId === 'mirror')           renderMirror();
@@ -8621,6 +8630,71 @@ function _writePurchases(map){
   catch(_) {}
 }
 
+// ── Library — every purchase is also recorded as a profile-side entry
+// so the user can see what they own, even if they later change DOB/time
+// (the unlock won't apply to the new chart, but the library remembers
+// the historical purchase). Clicking an entry deep-links straight to
+// the original tab so the user re-views without hunting.
+function _readLibrary(){
+  try { return JSON.parse(localStorage.getItem('mth_library') || '[]') || []; }
+  catch(_) { return []; }
+}
+function _writeLibrary(list){
+  try { localStorage.setItem('mth_library', JSON.stringify(list)); }
+  catch(_) {}
+}
+// Mapping: item key prefix → which (group, tab) the user should land on
+// when they click the entry from the library.
+const _ITEM_NAV = {
+  deep_:       ['addon', 'deep'],
+  mirror:      ['addon', 'mirror'],
+  pet:         ['addon', 'pet'],
+  companions:  ['addon', 'companions'],
+  exercise:    ['addon', 'exercise'],
+  food:        ['addon', 'food'],
+  product:     ['addon', 'product'],
+  compat:      ['addon', 'compat'],
+  full_report: ['premium', 'reports'],
+};
+function _navForItem(itemKey){
+  if (_ITEM_NAV[itemKey]) return _ITEM_NAV[itemKey];
+  for (const prefix of Object.keys(_ITEM_NAV)) {
+    if (itemKey.startsWith(prefix)) return _ITEM_NAV[prefix];
+  }
+  return ['addon', 'deep'];
+}
+// Capture a small chart fingerprint at purchase time so the library
+// row can show "based on DOB 1991-02-03 / Bangkok / male" even if the
+// user later edits their profile.
+function _chartSummaryNow(){
+  return {
+    name:   localStorage.getItem('mth_name')   || '',
+    dob:    localStorage.getItem('mth_dob')    || '',
+    time:   localStorage.getItem('mth_time')   || '',
+    gender: localStorage.getItem('mth_gender') || '',
+    city:   localStorage.getItem('mth_city')   || '',
+  };
+}
+function _addToLibrary(itemKey, opts){
+  const hash    = (opts && opts.hash)  || _chartInputHash();
+  const label   = (opts && opts.label) || itemKey;
+  const list    = _readLibrary();
+  // De-dup: if exactly the same itemKey:hash already in library, skip.
+  const compoundKey = itemKey + ':' + hash;
+  if (list.some(e => e.key === compoundKey)) return;
+  list.unshift({
+    key:        compoundKey,
+    itemKey,
+    hash,
+    label,
+    unlockedAt: new Date().toISOString(),
+    chart:      _chartSummaryNow(),
+  });
+  // Cap to 200 rows so localStorage doesn't grow unbounded over years.
+  if (list.length > 200) list.length = 200;
+  _writeLibrary(list);
+}
+
 // Returns true if EITHER (a) user has an active beta gift code OR (b) the
 // specific item has been purchased for the current chart input.
 function _hasItemAccess(itemKey, hashOverride){
@@ -8654,6 +8728,10 @@ function _purchaseItem(itemKey, opts){
   const map = _readPurchases();
   map[itemKey + ':' + hash] = new Date().toISOString();
   _writePurchases(map);
+  // Also stash a profile-side library row so the user can find this
+  // reading again from Profile → Library without remembering which
+  // tab originally hosted it.
+  _addToLibrary(itemKey, { hash, label });
   // Re-render whatever is visible so the lock disappears immediately.
   try { if (typeof setGroup === 'function' && typeof CUR_GROUP === 'string') setGroup(CUR_GROUP); } catch(_){}
   try { if (typeof showSubTab === 'function' && typeof CUR_SUB === 'string') showSubTab(CUR_SUB); } catch(_){}
@@ -10306,15 +10384,127 @@ function closeGodDetail(e){
 function _gdKeyHandler(e){ if (e.key === 'Escape') closeGodDetail(); }
 
 // ── Streak & current Frequency Alerts (current only, free) ─
+// Library row click → navigate to the right tab and open the reading.
+// Splits "deep_xxx" → showDeep('xxx'); add-ons → generateDeepAddon('xxx');
+// full_report → just lands on Premium → Reports.
+function _libraryOpen(itemKey){
+  const [grp, tab] = _navForItem(itemKey);
+  try { setGroup(grp); showSubTab(tab); } catch(_){}
+  setTimeout(() => {
+    try {
+      if (itemKey.startsWith('deep_')) {
+        const k = itemKey.replace('deep_', '');
+        if (typeof _showDeep === 'function') _showDeep(k);
+      } else if (itemKey !== 'full_report' && typeof generateDeepAddon === 'function') {
+        generateDeepAddon(itemKey);
+      }
+    } catch(_){}
+  }, 100);
+}
+
+function renderLibrary(){
+  const el = document.getElementById('libraryContent');
+  if (!el) return;
+  const isTh = LANG === 'th';
+  const list = _readLibrary();
+  const currentHash = _chartInputHash();
+  if (!list.length) {
+    el.innerHTML = `
+      <div class="tier-lock" style="border-color:var(--border);text-align:center;padding:36px 20px">
+        <div class="tier-lock-icon" style="font-size:42px">📖</div>
+        <div class="tier-lock-title">${isTh?'ยังไม่มีดวงที่ปลดล็อค':'No unlocked readings yet'}</div>
+        <div class="tier-lock-desc" style="max-width:440px;margin:8px auto 14px">${isTh
+          ? 'เลือกศาสตร์ที่สนใจจาก Add-ons → Deep Readings หรือ add-on ใดก็ได้ ปลดล็อคแล้วจะเก็บไว้ที่นี่ · ดูซ้ำได้ตลอด'
+          : 'Pick any system from Add-ons → Deep Readings or any add-on. Unlocked items appear here for unlimited re-views.'}</div>
+        <button class="ghost-btn" onclick="setGroup('addon');showSubTab('deep')">${isTh?'✦ ไปดูศาสตร์ทั้งหมด':'✦ Browse all systems'}</button>
+      </div>`;
+    return;
+  }
+  // Group library entries by chart hash so the user sees each "person/chart"
+  // they've ever read for as a separate section. Current chart shown first.
+  const byHash = {};
+  for (const e of list) (byHash[e.hash] = byHash[e.hash] || []).push(e);
+  const orderedHashes = Object.keys(byHash).sort((a,b) => a===currentHash ? -1 : b===currentHash ? 1 : 0);
+
+  const fmtDate = (iso) => {
+    try {
+      const d = new Date(iso);
+      return d.toLocaleDateString(isTh?'th-TH':'en-US', {year:'numeric',month:'short',day:'numeric'});
+    } catch(_){ return iso || '—'; }
+  };
+  const chartLabel = (chart) => {
+    const bits = [];
+    if (chart.name)   bits.push(chart.name);
+    if (chart.dob)    bits.push(chart.dob);
+    if (chart.gender) bits.push(chart.gender);
+    return bits.join(' · ') || (isTh?'ดวงไม่ระบุ':'Unknown chart');
+  };
+
+  el.innerHTML = orderedHashes.map(h => {
+    const entries = byHash[h];
+    const chart   = entries[0].chart || {};
+    const isCurrent = h === currentHash;
+    return `
+      <div style="background:var(--bg2);border:1px solid ${isCurrent?'var(--gold3)':'var(--border)'};border-radius:10px;padding:14px 16px;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+          <div>
+            <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:var(--gold);letter-spacing:1px">${_esc(chartLabel(chart))}</div>
+            <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.2px;color:var(--muted);margin-top:3px;text-transform:uppercase">hash ${h} · ${entries.length} ${isTh?'รายการ':'items'}</div>
+          </div>
+          ${isCurrent
+            ? `<span style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:#8aba50;background:rgba(138,186,80,0.1);border:1px solid #4a8a30;padding:3px 8px;border-radius:10px">✓ ${isTh?'ดวงปัจจุบัน · ดูได้':'CURRENT CHART · UNLOCKED'}</span>`
+            : `<span style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:var(--muted);background:rgba(255,255,255,0.04);border:1px solid var(--border);padding:3px 8px;border-radius:10px">${isTh?'ดวงเก่า · เปลี่ยนข้อมูลกลับเพื่อดู':'PAST CHART · revert inputs to view'}</span>`}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
+          ${entries.map(e => {
+            const [grp, tab] = _navForItem(e.itemKey);
+            const navDisabled = !isCurrent;
+            // Build the onclick handler. Use a global helper to avoid quote-
+            // escaping nightmares inside the template literal.
+            const itemKeyJs = JSON.stringify(e.itemKey).replace(/"/g,'&quot;');
+            const onclick = navDisabled ? '' : `onclick="_libraryOpen(${itemKeyJs})"`;
+            return `<div ${onclick} style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;${navDisabled?'opacity:.6':'cursor:pointer'}">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold2);font-weight:600;line-height:1.3;margin-bottom:4px">${_esc(e.label)}</div>
+              <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:var(--muted)">${fmtDate(e.unlockedAt)}${navDisabled?'':' · '+(isTh?'แตะเพื่อดู':'tap to open')}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
 function renderStreak(){
   const el = document.getElementById('streakContent');
   const hist = getFullHistory ? getFullHistory() : [];
-  const days = new Set(hist.map(h=>(h.at||h.timestamp||'').slice(0,10)).filter(Boolean));
+  // Pull a date key from EVERY shape we've used over time:
+  //   • current saver (saveToFullHistory) writes `ts: Date.now()` (number)
+  //   • older shapes used `at` or `timestamp` ISO strings
+  //   • some legacy entries also have a Thai display `date`
+  // Without this normalisation renderStreak always read undefined and the
+  // Set ended up empty, so the headline counter was permanently stuck at 0.
+  const days = new Set(
+    hist.map(h => {
+      if (typeof h.ts === 'number')        return new Date(h.ts).toISOString().slice(0,10);
+      if (typeof h.at === 'string')        return h.at.slice(0,10);
+      if (typeof h.timestamp === 'string') return h.timestamp.slice(0,10);
+      if (typeof h.timestamp === 'number') return new Date(h.timestamp).toISOString().slice(0,10);
+      return '';
+    }).filter(Boolean)
+  );
   const streak = days.size;
+  // Compute the "current consecutive run" too — more meaningful than total
+  // unique days for a streak counter. Walk backwards from today.
+  let consec = 0;
+  const today = new Date(); today.setHours(0,0,0,0);
+  for (let d = 0; d < 365; d++) {
+    const probe = new Date(today.getTime() - d * 86400000).toISOString().slice(0,10);
+    if (days.has(probe)) consec++;
+    else if (d > 0) break;  // gap → run broken (allow today to be empty)
+  }
   el.innerHTML = `
     <div class="deep-sys-card" style="text-align:center">
-      <div class="deep-sys-title">${streak} ${t('streak_days')}</div>
-      <div class="deep-sys-origin">${t('streak_sub')}</div>
+      <div class="deep-sys-title">${consec} ${t('streak_days')}</div>
+      <div class="deep-sys-origin">${t('streak_sub')} · ${days.size} ${LANG==='th'?'วันใช้งานทั้งหมด':'total active days'}</div>
       <div class="deep-sys-reading" style="font-size:13px">${t('streak_desc')}</div>
     </div>`;
 }
