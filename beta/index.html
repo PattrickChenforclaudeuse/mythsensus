@@ -11341,6 +11341,16 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   }
   // ── Boot the mandatory entry overlay ─────────────────────
   showEntryOverlay();
+  // Deep-link from the root /login page: ?login=1 → auto-open the email OTP
+  // overlay so mobile users coming from the landing page don't have to click
+  // "มีบัญชีอยู่แล้ว?" first.
+  if (location.search.includes('login=1') && !_sbSession) {
+    setTimeout(() => { try { showLoginOverlay(); } catch(_){} }, 50);
+    try {
+      const clean = location.href.replace(/[?&]login=1\b/, '').replace(/\?$/, '').replace(/\?&/, '?');
+      history.replaceState(null, '', clean);
+    } catch(_){}
+  }
   renderFamousScroll();
   initBlessings();
   loadGods();
@@ -11900,6 +11910,14 @@ document.addEventListener('click',e=>{
 });
 
 async function logout(){
+  // Confirm before signing out — every logout requires a fresh OTP via email
+  // to come back, which is friction users complain about. This guard prevents
+  // accidental taps (e.g. from the entry-overlay sign-out shortcut).
+  const isTh = (LANG === 'th');
+  const msg = isTh
+    ? 'ออกจากระบบ?\n\nคุณจะต้องขอรหัส OTP ใหม่ทางอีเมลเมื่อกลับเข้าใช้งาน\n(session ปกติคงอยู่หลายสัปดาห์อยู่แล้ว — ปิดแท็บแล้วกลับมาได้โดยไม่ต้อง logout)'
+    : 'Sign out?\n\nYou will need a new OTP code by email to sign back in.\n(Sessions persist for weeks — you can close the tab and return without logging out.)';
+  if (!confirm(msg)) return;
   if(_sb) await _sb.auth.signOut().catch(()=>{});
   ['mth_user','mth_guest_ok','mth_backup_enabled'].forEach(k=>localStorage.removeItem(k));
   location.reload();

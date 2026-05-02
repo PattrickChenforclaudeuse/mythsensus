@@ -27,6 +27,12 @@
       <button class="login-btn" onclick="mockLogin('facebook')">
         <span style="font-size:16px">🔷</span> Continue with Facebook
       </button>
+      <!-- Email OTP — uses the existing flow inside /beta/, jump straight there.
+           Without this option, mobile users with no Google/LINE/Facebook session
+           in their browser had no way to sign in from the public landing. -->
+      <button class="login-btn" onclick="window.location.href='/beta/?login=1'" data-t="login_email">
+        <span style="font-size:16px">✉️</span> Continue with Email
+      </button>
       <div class="login-divider" data-t="login_or">หรือ</div>
       <button class="login-guest-btn" onclick="continueAsGuest()" data-t="login_guest">ใช้งานแบบไม่ล็อกอิน →</button>
     </div>
