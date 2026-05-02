@@ -1,0 +1,652 @@
+[
+  {
+    "vp": "desktop",
+    "group": "_initial",
+    "screenshot": "visual-qa-screenshots\\desktop-00-initial.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "free",
+    "screenshot": "desktop-01-free.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "premium",
+    "screenshot": "desktop-02-premium.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "subscription",
+    "screenshot": "desktop-03-subscription.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "addon",
+    "screenshot": "desktop-04-addon.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [
+      {
+        "scripts": [
+          "cjk",
+          "thai"
+        ],
+        "text": "紫微斗數 — เพื่อน (交友)",
+        "tag": "DIV",
+        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
+        "x": 510,
+        "y": 1225,
+        "hasInternalBr": false
+      },
+      {
+        "scripts": [
+          "cjk",
+          "thai"
+        ],
+        "text": "วังชีวิต: เพื่อน (交友) · ดาวหลัก: 貪狼 · ระบบดาราศาสตร์จักรพรรดิจีน — ซับซ้อนที่สุดในศาสตร์จีน",
+        "tag": "DIV",
+        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
+        "x": 510,
+        "y": 1248,
+        "hasInternalBr": false
+      },
+      {
+        "scripts": [
+          "cjk",
+          "thai"
+        ],
+        "text": "陰陽道 — พระพุทธเจ้าสิ้น-ระวัง",
+        "tag": "DIV",
+        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
+        "x": 740,
+        "y": 1225,
+        "hasInternalBr": false
+      }
+    ],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "profile",
+    "screenshot": "desktop-05-profile.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "premium/blueprint",
+    "screenshot": "desktop-sub-premium-blueprint.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "premium/reports",
+    "screenshot": "desktop-sub-premium-reports.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "premium/history",
+    "screenshot": "desktop-sub-premium-history.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "premium/me",
+    "screenshot": "desktop-sub-premium-me.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "subscription/sky",
+    "screenshot": "desktop-sub-subscription-sky.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "subscription/resonance",
+    "screenshot": "desktop-sub-subscription-resonance.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "subscription/organum",
+    "screenshot": "desktop-sub-subscription-organum.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "subscription/brief",
+    "screenshot": "desktop-sub-subscription-brief.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "subscription/freq",
+    "screenshot": "desktop-sub-subscription-freq.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "subscription/history",
+    "screenshot": "desktop-sub-subscription-history.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "subscription/blueprint",
+    "screenshot": "desktop-sub-subscription-blueprint.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "subscription/me",
+    "screenshot": "desktop-sub-subscription-me.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "addon/deep",
+    "screenshot": "desktop-sub-addon-deep.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [
+      {
+        "scripts": [
+          "cjk",
+          "thai"
+        ],
+        "text": "紫微斗數 — เพื่อน (交友)",
+        "tag": "DIV",
+        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
+        "x": 510,
+        "y": 1225,
+        "hasInternalBr": false
+      },
+      {
+        "scripts": [
+          "cjk",
+          "thai"
+        ],
+        "text": "วังชีวิต: เพื่อน (交友) · ดาวหลัก: 貪狼 · ระบบดาราศาสตร์จักรพรรดิจีน — ซับซ้อนที่สุดในศาสตร์จีน",
+        "tag": "DIV",
+        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
+        "x": 510,
+        "y": 1248,
+        "hasInternalBr": false
+      },
+      {
+        "scripts": [
+          "cjk",
+          "thai"
+        ],
+        "text": "陰陽道 — พระพุทธเจ้าสิ้น-ระวัง",
+        "tag": "DIV",
+        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
+        "x": 740,
+        "y": 1225,
+        "hasInternalBr": false
+      }
+    ],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "addon/mirror",
+    "screenshot": "desktop-sub-addon-mirror.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "addon/pet",
+    "screenshot": "desktop-sub-addon-pet.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "addon/companions",
+    "screenshot": "desktop-sub-addon-companions.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [
+      {
+        "scripts": [
+          "thai",
+          "deva"
+        ],
+        "text": "ॐ सूर्याय नमः — สวดในยามเช้าเผชิญดวงอาทิตย์เพื่อเสริมพลังไฟ",
+        "tag": "DIV",
+        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
+        "x": 423,
+        "y": 1310,
+        "hasInternalBr": false
+      }
+    ],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "addon/exercise",
+    "screenshot": "desktop-sub-addon-exercise.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "addon/food",
+    "screenshot": "desktop-sub-addon-food.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "addon/product",
+    "screenshot": "desktop-sub-addon-product.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "group": "addon/compat",
+    "screenshot": "desktop-sub-addon-compat.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "desktop",
+    "_pageErrors": []
+  },
+  {
+    "vp": "mobile",
+    "group": "_initial",
+    "screenshot": "visual-qa-screenshots\\mobile-00-initial.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "free",
+    "screenshot": "mobile-01-free.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "premium",
+    "screenshot": "mobile-02-premium.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "subscription",
+    "screenshot": "mobile-03-subscription.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "addon",
+    "screenshot": "mobile-04-addon.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [
+      {
+        "scripts": [
+          "cjk",
+          "thai"
+        ],
+        "text": "紫微斗數 — เพื่อน (交友)",
+        "tag": "DIV",
+        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
+        "x": 29,
+        "y": 1665,
+        "hasInternalBr": false
+      },
+      {
+        "scripts": [
+          "cjk",
+          "thai"
+        ],
+        "text": "วังชีวิต: เพื่อน (交友) · ดาวหลัก: 貪狼 · ระบบดาราศาสตร์จักรพรรดิจีน — ซับซ้อนที่สุดในศาสตร์จีน",
+        "tag": "DIV",
+        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
+        "x": 29,
+        "y": 1688,
+        "hasInternalBr": false
+      },
+      {
+        "scripts": [
+          "cjk",
+          "thai"
+        ],
+        "text": "陰陽道 — พระพุทธเจ้าสิ้น-ระวัง",
+        "tag": "DIV",
+        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
+        "x": 29,
+        "y": 1809,
+        "hasInternalBr": false
+      }
+    ],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "profile",
+    "screenshot": "mobile-05-profile.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "premium/blueprint",
+    "screenshot": "mobile-sub-premium-blueprint.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "premium/reports",
+    "screenshot": "mobile-sub-premium-reports.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "premium/history",
+    "screenshot": "mobile-sub-premium-history.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "premium/me",
+    "screenshot": "mobile-sub-premium-me.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "subscription/sky",
+    "screenshot": "mobile-sub-subscription-sky.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "subscription/resonance",
+    "screenshot": "mobile-sub-subscription-resonance.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "subscription/organum",
+    "screenshot": "mobile-sub-subscription-organum.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "subscription/brief",
+    "screenshot": "mobile-sub-subscription-brief.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "subscription/freq",
+    "screenshot": "mobile-sub-subscription-freq.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "subscription/history",
+    "screenshot": "mobile-sub-subscription-history.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "subscription/blueprint",
+    "screenshot": "mobile-sub-subscription-blueprint.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "subscription/me",
+    "screenshot": "mobile-sub-subscription-me.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "addon/deep",
+    "screenshot": "mobile-sub-addon-deep.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [
+      {
+        "scripts": [
+          "cjk",
+          "thai"
+        ],
+        "text": "紫微斗數 — เพื่อน (交友)",
+        "tag": "DIV",
+        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
+        "x": 29,
+        "y": 1665,
+        "hasInternalBr": false
+      },
+      {
+        "scripts": [
+          "cjk",
+          "thai"
+        ],
+        "text": "วังชีวิต: เพื่อน (交友) · ดาวหลัก: 貪狼 · ระบบดาราศาสตร์จักรพรรดิจีน — ซับซ้อนที่สุดในศาสตร์จีน",
+        "tag": "DIV",
+        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
+        "x": 29,
+        "y": 1688,
+        "hasInternalBr": false
+      },
+      {
+        "scripts": [
+          "cjk",
+          "thai"
+        ],
+        "text": "陰陽道 — พระพุทธเจ้าสิ้น-ระวัง",
+        "tag": "DIV",
+        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
+        "x": 29,
+        "y": 1809,
+        "hasInternalBr": false
+      }
+    ],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "addon/mirror",
+    "screenshot": "mobile-sub-addon-mirror.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "addon/pet",
+    "screenshot": "mobile-sub-addon-pet.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "addon/companions",
+    "screenshot": "mobile-sub-addon-companions.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [
+      {
+        "scripts": [
+          "thai",
+          "deva"
+        ],
+        "text": "ॐ सूर्याय नमः — สวดในยามเช้าเผชิญดวงอาทิตย์เพื่อเสริมพลังไฟ",
+        "tag": "DIV",
+        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
+        "x": 37,
+        "y": 1617,
+        "hasInternalBr": false
+      }
+    ],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "addon/exercise",
+    "screenshot": "mobile-sub-addon-exercise.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "addon/food",
+    "screenshot": "mobile-sub-addon-food.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "addon/product",
+    "screenshot": "mobile-sub-addon-product.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "group": "addon/compat",
+    "screenshot": "mobile-sub-addon-compat.png",
+    "overlaps": [],
+    "fontDrift": [],
+    "mixedScripts": [],
+    "clipped": []
+  },
+  {
+    "vp": "mobile",
+    "_pageErrors": []
+  }
+]
