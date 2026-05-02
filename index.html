@@ -87,6 +87,14 @@ nav{display:flex;justify-content:center;gap:3px;padding:18px 12px 0;flex-wrap:wr
 .deep-sys-title{font-family:'Cinzel Decorative',serif;font-size:18px;color:var(--gold);letter-spacing:2px;margin-bottom:4px;}
 .deep-sys-origin{font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
 .deep-sys-reading{font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:17px;line-height:1.85;color:var(--text);margin-bottom:14px;}
+/* Restore paragraph spacing inside deep readings — the global `*{margin:0}`
+ * reset at the top kills <p> margins, which makes buildRichReading()'s 6
+ * paragraph blocks (your-chart / strength / shadow / practice / this-year /
+ * closing) render as one wall of text. Give each <p> real breathing room
+ * + style the leading <strong> label so the section header stands out. */
+.deep-sys-reading p{margin:0 0 14px 0}
+.deep-sys-reading p:last-child{margin-bottom:0}
+.deep-sys-reading p strong:first-child{display:block;font-size:13px;letter-spacing:1px;color:var(--gold2);margin-bottom:3px;text-transform:uppercase;font-family:'Josefin Sans',sans-serif;font-weight:600}
 .deep-sys-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px;}
 .deep-sys-stat{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;}
 .deep-sys-stat-lbl{font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
@@ -1055,6 +1063,50 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <input id="loginEmailInput" type="email" class="login-input" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendAuthCode()">
       <button class="login-confirm-btn" id="authSendBtn" onclick="sendAuthCode()" data-en="✉️ Send Code" data-th="✉️ ส่งรหัส">✉️ ส่งรหัส</button>
 
+      <!-- ═══ SOCIAL SIGN-IN ROW ═══════════════════════════════════════════════
+           Each button calls _socialSignIn(provider). The provider must be
+           configured in the Supabase dashboard (Auth → Providers) with the
+           callback URL https://<project>.supabase.co/auth/v1/callback before
+           the button will succeed; otherwise the user gets a "provider not
+           configured" toast and can fall back to email.
+           ─────────────────────────────────────────────────────────────────── -->
+      <div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted)" data-en="OR SIGN IN WITH" data-th="หรือลงชื่อเข้าใช้ด้วย">หรือลงชื่อเข้าใช้ด้วย</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <!-- LINE — Supabase provider name: "line"; scopes: profile openid email;
+             callback URL: https://<project>.supabase.co/auth/v1/callback;
+             register at https://developers.line.biz/console/ → LINE Login channel. -->
+        <button type="button" class="social-signin-btn" data-provider="line" onclick="_socialSignIn('line')"
+                style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px;background:#06c755;border:1px solid #06c755;border-radius:4px;color:#fff;font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;cursor:pointer;transition:opacity .2s">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#fff" d="M19.365 9.89c.5 0 .906.41.906.91 0 .5-.406.91-.906.91h-1.273v.819h1.273c.5 0 .906.41.906.91s-.406.91-.906.91h-2.183a.91.91 0 0 1-.906-.91V8.07a.91.91 0 0 1 .906-.91h2.183a.91.91 0 0 1 0 1.82h-1.273v.91h1.273zM15.55 13.34a.91.91 0 0 1-1.638.55l-2.184-2.972v2.422a.91.91 0 1 1-1.821 0V8.07a.91.91 0 0 1 1.62-.55l2.183 2.972V8.07a.91.91 0 1 1 1.82 0v5.27zM9.187 13.35a.91.91 0 1 1-1.821 0V8.07a.91.91 0 1 1 1.821 0v5.28zM6.54 14.26H4.36a.91.91 0 0 1-.91-.91V8.07a.91.91 0 1 1 1.82 0v4.37H6.54a.91.91 0 0 1 0 1.82M24 10.314C24 4.943 18.616.572 12 .572S0 4.943 0 10.314c0 4.815 4.269 8.846 10.035 9.61.39.084.923.258 1.057.591.121.302.079.776.039 1.082l-.171 1.025c-.053.302-.242 1.182 1.035.645 1.276-.537 6.875-4.045 9.379-6.929 1.731-1.897 2.62-3.819 2.62-6.024"/></svg>
+          <span data-en="LINE" data-th="LINE">LINE</span>
+        </button>
+
+        <!-- Facebook — Supabase provider name: "facebook"; scopes: email, public_profile;
+             callback URL: https://<project>.supabase.co/auth/v1/callback;
+             register at https://developers.facebook.com/ → create Meta app, add
+             "Facebook Login" product, paste App ID + App Secret in Supabase. -->
+        <button type="button" class="social-signin-btn" data-provider="facebook" onclick="_socialSignIn('facebook')"
+                style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px;background:#1877f2;border:1px solid #1877f2;border-radius:4px;color:#fff;font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;cursor:pointer;transition:opacity .2s">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#fff" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073"/></svg>
+          <span data-en="Facebook" data-th="Facebook">Facebook</span>
+        </button>
+
+        <!-- Google — Supabase provider name: "google"; scopes: openid email profile;
+             authorised redirect URI: https://<project>.supabase.co/auth/v1/callback;
+             register at https://console.cloud.google.com/ → APIs & Services →
+             OAuth 2.0 Client ID (Web application). Paste Client ID + secret in Supabase. -->
+        <button type="button" class="social-signin-btn" data-provider="google" onclick="_socialSignIn('google')"
+                style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px;background:#fff;border:1px solid #dadce0;border-radius:4px;color:#3c4043;font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;cursor:pointer;transition:opacity .2s">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A10.997 10.997 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.997 10.997 0 0 0 1 12c0 1.77.42 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          <span data-en="Google" data-th="Google">Google</span>
+        </button>
+      </div>
+
       <!-- Guest bypass — full-width, visually distinct from sign-in -->
       <div style="margin-top:16px;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;text-align:center">
         <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:8px" data-en="OR TRY FIRST, NO ACCOUNT NEEDED" data-th="หรือทดลองใช้ก่อน ไม่ต้องสมัคร">หรือทดลองใช้ก่อน ไม่ต้องสมัคร</div>
@@ -1065,9 +1117,10 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 
     <!-- Step 2: Magic link primary + OTP secondary -->
     <div id="authStep2" style="display:none">
-      <!-- Email sent confirmation -->
+      <!-- Email sent confirmation — small UX upgrade: explicit "Check your inbox" headline -->
       <div style="text-align:center;margin-bottom:14px">
         <div style="font-size:28px;margin-bottom:6px">📧</div>
+        <div style="font-family:'Cinzel Decorative',serif;font-size:14px;color:var(--gold);letter-spacing:2px;margin-bottom:6px" data-en="CHECK YOUR INBOX" data-th="ตรวจกล่องอีเมลของคุณ">ตรวจกล่องอีเมลของคุณ</div>
         <p style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14px;color:var(--muted);line-height:1.6;margin:0" data-en="We sent a sign-in link to" data-th="เราส่งลิงก์เข้าระบบไปที่">เราส่งลิงก์เข้าระบบไปที่</p>
         <p id="authEmailDisplay" style="color:var(--gold);font-size:12px;margin:4px 0 0;font-family:'Josefin Sans',sans-serif;letter-spacing:1px"></p>
       </div>
@@ -2603,12 +2656,31 @@ function calcVedic(d, w) {
 // HUMAN DESIGN (Simplified)
 // ============================================================
 const HD_TYPES = [
-    { type: 'Manifestor', typeTh: 'ผู้ริเริ่ม', strategy: 'แจ้งให้ผู้อื่นทราบก่อนลงมือ', authority: 'อารมณ์/เจตนา', pct: 9 },
-    { type: 'Generator', typeTh: 'ผู้สร้างพลังงาน', strategy: 'รอตอบสนองก่อนลงมือ', authority: 'Sacral/อารมณ์', pct: 37 },
-    { type: 'Manifesting Generator', typeTh: 'MG ผู้สร้างและริเริ่ม', strategy: 'ตอบสนอง แล้วแจ้งก่อนลงมือ', authority: 'Sacral/อารมณ์', pct: 33 },
-    { type: 'Projector', typeTh: 'ผู้นำทาง', strategy: 'รอคำเชิญก่อนลงมือ', authority: 'อารมณ์/ปัญญา/ประสาทสัมผัส', pct: 20 },
-    { type: 'Reflector', typeTh: 'ผู้สะท้อน', strategy: 'รอ 28 วัน (รอบจันทร์)', authority: 'จันทร์', pct: 1 },
+    { type: 'Manifestor', typeTh: 'ผู้ริเริ่ม', strategy: 'แจ้งให้ผู้อื่นทราบก่อนลงมือ', pct: 9 },
+    { type: 'Generator', typeTh: 'ผู้สร้างพลังงาน', strategy: 'รอตอบสนองก่อนลงมือ', pct: 37 },
+    { type: 'Manifesting Generator', typeTh: 'MG ผู้สร้างและริเริ่ม', strategy: 'ตอบสนอง แล้วแจ้งก่อนลงมือ', pct: 33 },
+    { type: 'Projector', typeTh: 'ผู้นำทาง', strategy: 'รอคำเชิญก่อนลงมือ', pct: 20 },
+    { type: 'Reflector', typeTh: 'ผู้สะท้อน', strategy: 'รอ 28 วัน (รอบจันทร์)', pct: 1 },
 ];
+// Each HD type has a SET of possible authorities — actual selection requires
+// defined-center analysis we don't compute here. Pick deterministically from
+// chart data so the report shows ONE concrete authority per person rather
+// than the slash-separated placeholder list (e.g. "อารมณ์/ปัญญา/ประสาทสัมผัส").
+const PROJECTOR_AUTHS = ['Splenic Authority', 'Emotional Authority', 'Self-Projected Authority', 'Mental Authority'];
+const GENERATOR_AUTHS = ['Sacral Authority', 'Emotional Authority'];
+const MANIFESTOR_AUTHS = ['Emotional Authority', 'Splenic Authority', 'Ego Authority'];
+function pickHdAuthority(type, d, sunDeg) {
+    const seed = Math.abs(Math.floor(sunDeg) + d.day * 7 + d.month * 11);
+    if (type === 'Projector')
+        return PROJECTOR_AUTHS[seed % PROJECTOR_AUTHS.length];
+    if (type === 'Generator' || type === 'Manifesting Generator')
+        return GENERATOR_AUTHS[seed % GENERATOR_AUTHS.length];
+    if (type === 'Manifestor')
+        return MANIFESTOR_AUTHS[seed % MANIFESTOR_AUTHS.length];
+    if (type === 'Reflector')
+        return 'Lunar Authority';
+    return 'Splenic Authority';
+}
 const HD_PROFILES = [
     '1/3', '1/4', '2/4', '2/5', '3/5', '3/6', '4/6', '4/1', '5/1', '5/2', '6/2', '6/3'
 ];
@@ -2649,9 +2721,10 @@ function calcHD(d, w) {
     const cross = crosses[(d.month + d.day) % crosses.length];
     const TYPE_SCORE = { 'Generator': 760, 'Manifesting Generator': 790, 'Projector': 750, 'Manifestor': 780, 'Reflector': 720 };
     const hdScore = Math.max(400, Math.min(960, (TYPE_SCORE[hdType.type] ?? 700) + ((d.day * 7 + d.month * 11) % 80) - 40));
+    const authority = pickHdAuthority(hdType.type, d, w.sunDeg);
     return {
         type: hdType.type, typeTh: hdType.typeTh, strategy: hdType.strategy,
-        authority: hdType.authority, profile, profileDesc: PROFILE_DESC[profile] ?? 'บุคลิกภาพที่ไม่ซ้ำใคร',
+        authority, profile, profileDesc: PROFILE_DESC[profile] ?? 'บุคลิกภาพที่ไม่ซ้ำใคร',
         definition, incarnationCross: cross,
         sunGate, earthGate, channels,
         reading: buildRichReading({
@@ -3508,8 +3581,13 @@ function calculate(d) {
     score.lifeTerrainDetail = lt.detail;
     score.pathResonanceScore = pr.score;
     score.pathResonanceDetail = pr.detail;
-    // Cosmic Final = SF×40% + LT×30% + PR×30%
-    score.cosmicFinal = Math.round(score.soulFrequency * 0.4 + lt.score * 0.3 + pr.score * 0.3);
+    // Cosmic Final = SF×40% + LT×30% + PR×30%, but fall back to plain Soul
+    // Frequency when Life Terrain and Path Resonance are unavailable (user
+    // didn't fill in country/career/domain) — otherwise the formula collapses
+    // to 0.4×SF and produces a smaller, misleading number on the cover page.
+    score.cosmicFinal = (lt.score > 0 && pr.score > 0)
+        ? Math.round(score.soulFrequency * 0.4 + lt.score * 0.3 + pr.score * 0.3)
+        : score.soulFrequency;
     // Add-on content blocks (all 7), filed under chart.addons so the offline
     // HTML can read chart.addons.{mirror,compat,pet,companions,exercise,food,product}
     // instead of maintaining parallel tables. See ADDON_* constants above.
@@ -4148,9 +4226,9 @@ function calcNativeAmerican(d) {
             keyStrength: 'สัตว์โทเท็มประจำวันเกิด + Clan 4 ธาตุ (Fire/Earth/Water/Air)',
             originTh: 'ระบบ Birth Totem เป็นการตีความของชนเผ่าอินเดียนแดงหลายเผ่า (Sioux, Lakota, Cherokee) ที่แบ่งปีเป็น 12 ช่วงตามวงจรจันทร์ แต่ละช่วงปกครองโดย "Birth Totem" (สัตว์โทเท็มประจำเกิด) และ "Clan" (ตระกูลธาตุ 4: Fire/Butterfly, Earth/Turtle, Air/Frog, Water/Thunderbird) ต่างจากโหราศาสตร์ยุโรปที่ชี้ดาว ระบบนี้ชี้สัตว์ — เพราะอินเดียนแดงเชื่อว่าทุกคนมีวิญญาณสัตว์คู่ชีวิต',
             yearsOld: 1000,
-            keyValue: `${totem.th} (${totem.t}) · ${totem.moon} · ${totem.clan} Clan · ธาตุ${totem.el}`,
-            keyValueMeaning: `Birth Totem ของคุณคือ <strong>${totem.th}</strong> ซึ่งในภาษาอินเดียนแดงคือ "${totem.t}" ช่วงเวลาเกิดตรงกับ "${totem.moon}" (ดวงจันทร์ของเดือนนั้น) และคุณเป็นส่วนหนึ่งของ <strong>${totem.clan} Clan</strong> ซึ่งให้ธาตุ${totem.el} อินเดียนแดงเชื่อว่า Totem ไม่ใช่แค่สัญลักษณ์ — มันคือวิญญาณสัตว์ที่ "เดินข้าง" คุณตั้งแต่เกิดจนตาย ให้การปกป้อง ปัญญา และเตือนภัย`,
-            strengthTh: `Totem ${totem.th} ${totem.th === 'หมาป่า' ? 'ให้คุณพรของการเป็นผู้นำฝูง — คุณปกป้องคนที่รักได้อย่างดุดัน และมี "Pack Loyalty" (ความจงรักต่อกลุ่ม) สูง' : totem.th === 'อินทรี' ? 'ให้คุณพรของการมองจากที่สูง — คุณเห็นภาพใหญ่ก่อนใคร และเป็นผู้สื่อสารกับ "Great Spirit" ในภูมิปัญญาอินเดียน' : totem.th === 'หมี' ? 'ให้คุณพรของความแข็งแกร่งและการเยียวยา — หมีเป็นสัตว์ที่ใช้เวลานอนในถ้ำเพื่อฟื้นฟู คุณก็มีจังหวะนี้' : totem.th === 'นาก' ? 'ให้คุณพรของการเล่นและการแก้ปัญหา — นากเป็นสัตว์ที่ "ใช้ชีวิตเล่นเป็นงาน" คุณก็มีพรนี้' : 'พลังเฉพาะตัวของ ' + totem.t} ${totem.clan} Clan เสริมด้วยธาตุ${totem.el} ทำให้คุณมี${totem.el === 'ไฟ' ? 'ความเร่าร้อน ผู้จุดประกาย' : totem.el === 'ดิน' ? 'ความมั่นคง ผู้สร้าง' : totem.el === 'น้ำ' ? 'สัญชาตญาณ ผู้เยียวยา' : 'ความยืดหยุ่น ผู้สื่อสาร'}`,
+            keyValue: `${totem.th} (${totem.t}) · ${totem.moon} · ${totem.clan} · ธาตุ${totem.el}`,
+            keyValueMeaning: `Birth Totem ของคุณคือ <strong>${totem.th}</strong> ซึ่งในภาษาอินเดียนแดงคือ "${totem.t}" ช่วงเวลาเกิดตรงกับ "${totem.moon}" (ดวงจันทร์ของเดือนนั้น) และคุณเป็นส่วนหนึ่งของ <strong>${totem.clan}</strong> ซึ่งให้ธาตุ${totem.el} อินเดียนแดงเชื่อว่า Totem ไม่ใช่แค่สัญลักษณ์ — มันคือวิญญาณสัตว์ที่ "เดินข้าง" คุณตั้งแต่เกิดจนตาย ให้การปกป้อง ปัญญา และเตือนภัย`,
+            strengthTh: `Totem ${totem.th} ${totem.th === 'หมาป่า' ? 'ให้คุณพรของการเป็นผู้นำฝูง — คุณปกป้องคนที่รักได้อย่างดุดัน และมี "Pack Loyalty" (ความจงรักต่อกลุ่ม) สูง' : totem.th === 'อินทรี' ? 'ให้คุณพรของการมองจากที่สูง — คุณเห็นภาพใหญ่ก่อนใคร และเป็นผู้สื่อสารกับ "Great Spirit" ในภูมิปัญญาอินเดียน' : totem.th === 'หมี' ? 'ให้คุณพรของความแข็งแกร่งและการเยียวยา — หมีเป็นสัตว์ที่ใช้เวลานอนในถ้ำเพื่อฟื้นฟู คุณก็มีจังหวะนี้' : totem.th === 'นาก' ? 'ให้คุณพรของการเล่นและการแก้ปัญหา — นากเป็นสัตว์ที่ "ใช้ชีวิตเล่นเป็นงาน" คุณก็มีพรนี้' : 'พลังเฉพาะตัวของ ' + totem.t} ${totem.clan} เสริมด้วยธาตุ${totem.el} ทำให้คุณมี${totem.el === 'ไฟ' ? 'ความเร่าร้อน ผู้จุดประกาย' : totem.el === 'ดิน' ? 'ความมั่นคง ผู้สร้าง' : totem.el === 'น้ำ' ? 'สัญชาตญาณ ผู้เยียวยา' : 'ความยืดหยุ่น ผู้สื่อสาร'}`,
             shadowTh: `ทุก Totem มี "Shadow Side" ที่ Shaman เตือน — ของ ${totem.th} คือ${totem.th === 'หมาป่า' ? 'การกลายเป็นหมาป่าโดดเดี่ยวที่ไม่ไว้ใจใคร' : totem.th === 'อินทรี' ? 'การมองจากสูงจนเย็นชา ขาดการเชื่อมกับคนที่เดินอยู่' : totem.th === 'หมี' ? 'การนอนในถ้ำนานเกินไปจนพลาดโอกาส' : 'การใช้พลังของ Totem ในทางที่ตัดขาดจากฝูงของตน'} อินเดียนแดงทำพิธี "Vision Quest" (การอดอาหารและสมาธิในป่า 3-7 วัน) เพื่อฟื้นฟูความเชื่อมกับ Totem เมื่อรู้สึกห่าง`,
             practiceTh: `การเชื่อมกับ Totem รายวัน: (1) เก็บภาพหรือวัตถุของ ${totem.th} ไว้ในที่ทำงาน (2) ในวันที่ต้องการพลังของ Totem หลับตาและจินตนาการ ${totem.th} เดินข้างคุณ 5 นาที (3) เรียนรู้เรื่อง ${totem.th} จริงๆ — วิธีกินอยู่ ระบบสังคม ความสามารถ — ทุกความรู้ของ ${totem.th} คือความรู้เกี่ยวกับตัวคุณ (4) ในช่วง Full Moon ของเดือน ${totem.moon} เป็นช่วงพลังสูงสุดของปี`,
             currentYearTh: `ปี 2026 ในปฏิทินอินเดียนแดง (Wheel of the Year) — Summer Solstice (21 มิ.ย.) และ Winter Solstice (21 ธ.ค.) เป็นจุดพลังสำหรับ ${totem.th} Clan ${totem.clan} จะเข้าสู่ช่วงที่ Medicine Wheel เปิดในทิศ${totem.el === 'ไฟ' ? 'ใต้' : totem.el === 'ดิน' ? 'เหนือ' : totem.el === 'น้ำ' ? 'ตะวันตก' : 'ตะวันออก'} ใช้ทิศนี้เป็นทิศโชคประจำปี`,
@@ -4236,9 +4314,9 @@ function calcAboriginal(d) {
             keyStrength: 'เก่าแก่ที่สุดในโลก (65,000 ปี) · ใช้ "Songlines" แทนแผนที่',
             originTh: 'Dreamtime (Tjukurrpa) เป็นระบบความเชื่อของชนพื้นเมืองออสเตรเลีย อายุประมาณ 65,000 ปี — เก่าแก่ที่สุดในโลก แก่นของศาสตร์คือ "บรรพบุรุษ Dreaming" — วิญญาณสัตว์ที่ "เดินออกจากดิน" และสร้างภูมิทัศน์ทุกอย่างที่เห็น บรรพบุรุษเหล่านี้ยังคงอยู่ในรูปของ "Songlines" (เส้นทางเพลง) และทุกคนที่เกิดในดินแดนนั้นจะเชื่อมต่อกับ Dreaming เฉพาะผ่านวันเกิด',
             yearsOld: 65000,
-            keyValue: `${a.th} Dreaming (${a.a}) · ${a.clan} Clan · ${a.season}`,
+            keyValue: `${a.th} Dreaming (${a.a}) · ${a.clan} · ${a.season}`,
             keyValueMeaning: `Dreaming Ancestor ของคุณคือ <strong>${a.th}</strong> (ภาษาออสเตรเลียพื้นเมืองคือ "${a.a}") Clan ของคุณคือ <strong>${a.clan}</strong> และฤดูเกิดของคุณในปฏิทิน Aboriginal คือ <strong>${a.season}</strong> — ต่างจากปฏิทินตะวันตกที่มี 4 ฤดู Aboriginal มีถึง 6 ฤดูกาลที่อิงจากพฤติกรรมสัตว์และพืช บรรพบุรุษ ${a.th} ยังคง "เดิน" อยู่บนดิน และสามารถปรากฏในความฝันหรือเสียง "Didgeridoo" เมื่อคุณต้องการความช่วยเหลือ`,
-            strengthTh: `${a.th} Dreaming ${a.th === 'อินทรีบุนจิล' ? 'ให้คุณพรของ "ผู้สร้าง" — Bunjil เป็นบรรพบุรุษผู้สร้างสรรพสิ่ง คุณมีพลังเริ่มต้นและภาพใหญ่' : a.th === 'จิงโจ้' ? 'ให้คุณพรของการเคลื่อนไหวและการกระโดดข้ามอุปสรรค — จิงโจ้ไม่ถอยหลัง เพียงแต่กระโดดไปข้างหน้า' : a.th === 'เต่าน้อย' ? 'ให้คุณพรของความอดทนและความเชื่อมกับบ้าน — เต่าแบกบ้านไปด้วยทุกที่' : 'พลังเฉพาะตัวของ ' + a.a} ${a.clan} Clan เสริมด้วย "Skin Name" (ชื่อผิว) ที่บอกตำแหน่งในสังคมเผ่า — คุณเหมาะกับบทบาท${a.clan === 'Sky' ? 'ผู้เชื่อมสวรรค์กับดิน' : a.clan === 'Water' ? 'ผู้รักษาและเยียวยา' : a.clan === 'Earth' ? 'ผู้ดูแลดินแดนและประเพณี' : 'ผู้ส่งสารระหว่างเผ่า'}`,
+            strengthTh: `${a.th} Dreaming ${a.th === 'อินทรีบุนจิล' ? 'ให้คุณพรของ "ผู้สร้าง" — Bunjil เป็นบรรพบุรุษผู้สร้างสรรพสิ่ง คุณมีพลังเริ่มต้นและภาพใหญ่' : a.th === 'จิงโจ้' ? 'ให้คุณพรของการเคลื่อนไหวและการกระโดดข้ามอุปสรรค — จิงโจ้ไม่ถอยหลัง เพียงแต่กระโดดไปข้างหน้า' : a.th === 'เต่าน้อย' ? 'ให้คุณพรของความอดทนและความเชื่อมกับบ้าน — เต่าแบกบ้านไปด้วยทุกที่' : 'พลังเฉพาะตัวของ ' + a.a} · ${a.clan} เสริมด้วย "Skin Name" (ชื่อผิว) ที่บอกตำแหน่งในสังคมเผ่า — คุณเหมาะกับบทบาท${a.clan === 'Sky Clan' ? 'ผู้เชื่อมสวรรค์กับดิน' : a.clan === 'Water Clan' || a.clan === 'Deep Water Clan' ? 'ผู้รักษาและเยียวยา' : a.clan === 'Forest Clan' || a.clan === 'Rock Clan' ? 'ผู้ดูแลดินแดนและประเพณี' : 'ผู้ส่งสารระหว่างเผ่า'}`,
             shadowTh: `Aboriginal Elders เตือนว่า "การตัดขาดจาก Songlines คือโรคจิตวิญญาณ" — แปลว่าถ้าคุณใช้ชีวิตโดยไม่รู้ว่า ${a.th} คือใคร ไม่เชื่อมกับดินแดน ไม่สนใจประเพณี พลังของ Dreaming จะหาย — คนเผ่าเห็นอาการนี้ชัดในคนเมืองยุคใหม่ คำแก้คือ "Walk on Country" — เดินบนดินจริงอย่างน้อยสัปดาห์ละครั้ง`,
             practiceTh: `การเชื่อมกับ Dreaming: (1) "Welcome to Country" — เมื่อเข้าสถานที่ใหม่ กล่าวขอบคุณต่อบรรพบุรุษของดินแดนนั้นอย่างเงียบๆ 1 นาที (2) เดินเท้าเปล่าบนดินอย่างน้อย 10 นาทีทุกสัปดาห์ (3) ใน "Dreamtime" ก่อนนอน ให้จินตนาการ ${a.th} เดินเข้ามาในความฝันและพูดคุย (4) วาดรูป ${a.th} หรือรูป Songline ของคุณด้วยจุด (Dot Painting) เป็นการทำสมาธิ`,
             currentYearTh: `ปี 2026 ในปฏิทิน Aboriginal ตรงกับช่วงที่ "Pleiades" (ดาวฤกษ์ 7 ดวง) ขึ้นก่อนอรุณ ซึ่ง Aboriginal หลายเผ่าถือเป็น "Seven Sisters" — บรรพบุรุษหญิง ๗ คนที่หนีจากชายชั่ว ช่วงนี้เป็นช่วงที่ Dreaming หญิงเปิดกว้าง — ใช้ทำพิธีและการเรียนรู้`,
@@ -4334,6 +4412,17 @@ function calcVedicMahadasha(d, vedic) {
 // ============================================================
 // ── helpers ──────────────────────────────────────────────────
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+// Strip HTML tags + collapse whitespace. Use for fields whose templates contain
+// <strong>/<div>/<br> markup before truncating with substring(): cutting through
+// a tag boundary leaves a broken open tag that the page renders as raw text.
+const stripHtml = (s) => String(s ?? '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+// Truncate a string with an ellipsis when it actually overflows. Prefer this
+// over bare .slice(0,N) for badge-style labels — bare slice silently drops
+// the suffix (e.g. "เดือนความจริง-ไฟ" → "เดือนความจริง-ไ" looks broken).
+const trunc = (s, n) => {
+    const v = String(s ?? '');
+    return v.length > n ? v.slice(0, Math.max(1, n - 1)) + '…' : v;
+};
 function bar(score, color) {
     const pct = Math.round((score - 300) / 7);
     return `<div style="background:#2a2010;border-radius:4px;height:10px;overflow:hidden;margin-top:4px">
@@ -4357,6 +4446,13 @@ let _totalPages = 42;
 // Language for the currently-generating report. Set once by generateReport()
 // from chart.input.lang so page headers/footers respect the user's choice.
 let _lang = 'th';
+// Translation helper. Use everywhere a Thai string is rendered into the
+// report: tr('ดวงชะตา', 'destiny chart'). Returns Thai when _lang is 'th'
+// (the default for the Thai-first market), English otherwise. Designed for
+// inline use in template literals so the original Thai stays readable in
+// source — translators / brand reviewers can still scan the English second
+// argument without context-switching files.
+const tr = (th, en) => _lang === 'en' ? en : th;
 function section(_num, title, icon, content) {
     _pageNum++;
     const isEn = _lang === 'en';
@@ -4460,12 +4556,31 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
   .lbl{background:#f0ede8}
 }`;
 // ── PAGES ─────────────────────────────────────────────────────
+// dd/mm/yyyy is ambiguous in international audiences (3/2 = March 2 or Feb 3?).
+// Render with localized month name to remove the ambiguity.
+const MONTHS_TH = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+const MONTHS_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const formatDob = (input) => {
+    const months = input.lang === 'en' ? MONTHS_EN : MONTHS_TH;
+    const m = months[Math.max(0, Math.min(11, input.month - 1))];
+    return `${input.day} ${m} ${input.year}`;
+};
 function p01_cover(c) {
     const { score, bazi, western, ninestar, numerology, input } = c;
-    const dobStr = `${input.day}/${input.month}/${input.year}`;
-    const timeStr = `${String(input.hour).padStart(2, '0')}:${String(input.minute).padStart(2, '0')} น.`;
+    const dobStr = formatDob({ ...input, lang: _lang });
+    const timeStr = _lang === 'en'
+        ? `${String(input.hour).padStart(2, '0')}:${String(input.minute).padStart(2, '0')}`
+        : `${String(input.hour).padStart(2, '0')}:${String(input.minute).padStart(2, '0')} น.`;
     const pctBar = Math.round((score.total - 400) / 6);
-    return section(1, 'Cosmic Blueprint — ภาพรวม', '✦', `
+    // Tier label is only available in Thai from the engine. When rendering EN,
+    // prefer score.tierEn (already English) and skip the secondary "TierEn ·"
+    // line since it would duplicate. In TH we keep both to give the reader
+    // both languages on the same row.
+    const tierMain = _lang === 'en' ? esc(score.tierEn || score.tier) : esc(score.tier);
+    const tierSub = _lang === 'en'
+        ? `${esc(score.percentile)} ${tr('ของโลก', 'globally')}`
+        : `${esc(score.tierEn)} · ${esc(score.percentile)} ${tr('ของโลก', 'globally')}`;
+    return section(1, tr('Cosmic Blueprint — ภาพรวม', 'Cosmic Blueprint — Overview'), '✦', `
     <div style="text-align:center;margin-bottom:16px">
       <div style="font-size:10px;color:#6a5a42;letter-spacing:4px;margin-bottom:6px">✦ MYTHSENSUS — PREMIUM EDITION ✦</div>
       <div style="font-size:22px;font-weight:700;color:#d4aa50;margin-bottom:4px">Cosmic Blueprint · 26 Ancient Systems</div>
@@ -4476,17 +4591,18 @@ function p01_cover(c) {
     <div style="background:#1a1510;border:2px solid #d4aa50;border-radius:14px;padding:20px;margin:12px 0">
       <div style="display:flex;gap:20px;align-items:center">
         <div style="text-align:center;min-width:90px">
-          <div style="font-size:60px;font-weight:700;color:#d4aa50;line-height:1">${score.total}</div>
+          <div style="font-size:60px;font-weight:700;color:#d4aa50;line-height:1">${score.cosmicFinal}</div>
           <div style="font-size:10px;color:#6a5a42;letter-spacing:1px">COSMIC SCORE</div>
+          <div style="font-size:8px;color:#6a5a42;letter-spacing:.5px;margin-top:2px">${score.cosmicFinal === score.total ? 'Soul Frequency' : 'SF×40% + LT×30% + PR×30%'}</div>
         </div>
         <div style="flex:1">
-          <div style="font-size:20px;font-weight:700;color:#f0e8d0">${esc(score.tier)}</div>
-          <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">${esc(score.tierEn)} · ${esc(score.percentile)} ของโลก</div>
+          <div style="font-size:20px;font-weight:700;color:#f0e8d0">${tierMain}</div>
+          <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">${tierSub}</div>
           <div style="background:#2a2010;border-radius:6px;height:10px;overflow:hidden">
             <div style="width:${pctBar}%;height:10px;background:linear-gradient(90deg,#5a3810,#d4aa50)"></div>
           </div>
           <div style="font-size:10px;color:#6a5a42;margin-top:4px">
-            Median 26 ศาสตร์ · Mean ${score.mean} · Modal ${score.modalBin}–${score.modalBin + 49}
+            ${tr('Median 26 ศาสตร์', 'Median 26 systems')} · Mean ${score.mean} · Modal ${score.modalBin}–${score.modalBin + 49}
           </div>
         </div>
       </div>
@@ -4510,20 +4626,20 @@ function p01_cover(c) {
         <div style="background:#151a10;border:1px solid #4a6a20;border-radius:8px;padding:12px;text-align:center">
           <div style="font-size:10px;color:#6a8a40;letter-spacing:1px;margin-bottom:4px">SOUL FREQUENCY</div>
           <div style="font-size:28px;font-weight:700;color:#8aba50">${score.soulFrequency}</div>
-          <div style="font-size:10px;color:#6a8a40">Born chart · น้ำมันเกรดไหน</div>
+          <div style="font-size:10px;color:#6a8a40">${tr('Born chart · น้ำมันเกรดไหน', 'Born chart · petroleum grade')}</div>
         </div>
         <!-- Life Terrain -->
         <div style="background:#1a1510;border:1px solid ${score.lifeTerrainScore > 0 ? '#8a6030' : '#3a2010'};border-radius:8px;padding:12px;text-align:center">
           <div style="font-size:10px;color:#8a6030;letter-spacing:1px;margin-bottom:4px">LIFE TERRAIN</div>
           <div style="font-size:28px;font-weight:700;color:${score.lifeTerrainScore > 0 ? '#d4a040' : '#6a4020'}">${score.lifeTerrainScore > 0 ? score.lifeTerrainScore : '—'}</div>
-          <div style="font-size:10px;color:#8a6030">${score.lifeTerrainScore > 0 ? 'Work environment' : 'กรอกอาชีพ+ประเทศ'}</div>
+          <div style="font-size:10px;color:#8a6030">${score.lifeTerrainScore > 0 ? 'Work environment' : tr('กรอกอาชีพ+ประเทศ', 'Add career + country')}</div>
           ${score.lifeTerrainDetail ? `<div style="font-size:9px;color:#6a4020;margin-top:3px">${esc(score.lifeTerrainDetail.split('|')[0])}</div>` : ''}
         </div>
         <!-- Path Resonance -->
         <div style="background:#10151a;border:1px solid ${score.pathResonanceScore > 0 ? '#205a5a' : '#103030'};border-radius:8px;padding:12px;text-align:center">
           <div style="font-size:10px;color:#408080;letter-spacing:1px;margin-bottom:4px">PATH RESONANCE</div>
           <div style="font-size:28px;font-weight:700;color:${score.pathResonanceScore > 0 ? '#40c0a0' : '#206050'}">${score.pathResonanceScore > 0 ? score.pathResonanceScore : '—'}</div>
-          <div style="font-size:10px;color:#408080">${score.pathResonanceScore > 0 ? 'Domain fit' : 'กรอกสายงาน'}</div>
+          <div style="font-size:10px;color:#408080">${score.pathResonanceScore > 0 ? 'Domain fit' : tr('กรอกสายงาน', 'Add domain')}</div>
           ${score.pathResonanceDetail ? `<div style="font-size:9px;color:#205050;margin-top:3px">${esc(score.pathResonanceDetail.split('|')[0])}</div>` : ''}
         </div>
       </div>
@@ -4531,7 +4647,7 @@ function p01_cover(c) {
       <div style="background:#1a1510;border-radius:8px;padding:10px;margin-top:8px;display:flex;align-items:center;justify-content:space-between">
         <div style="font-size:11px;color:#9a8a72">
           Cosmic Final = SF×40% + LT×30% + PR×30%
-          ${score.lifeTerrainScore === 0 ? ' · (LT/PR ยังไม่กรอกข้อมูล)' : ''}
+          ${score.lifeTerrainScore === 0 ? ' · ' + tr('(LT/PR ยังไม่กรอกข้อมูล)', '(LT/PR not filled yet)') : ''}
         </div>
         <div style="font-size:24px;font-weight:700;color:#d4aa50">${score.cosmicFinal}</div>
       </div>
@@ -4542,23 +4658,23 @@ function p01_cover(c) {
       ${[
         ['🔥 Day Master', `${bazi.dayStem} ${bazi.dayMasterElement}`],
         ['⭐ Nine Star Ki', ninestar.star + ' ' + ninestar.starName],
-        ['☀️ Western', western.sunSignTh],
+        [tr('☀️ Western', '☀️ Western Sun'), _lang === 'en' ? western.sunSign || western.sunSignTh : western.sunSignTh],
         ['🕉️ Vedic Lagna', c.vedic.lagnaSign],
-        ['⚡ พลังงาน', c.humandesign.typeTh],
+        [tr('⚡ พลังงาน', '⚡ Energy Type'), _lang === 'en' ? c.humandesign.type || c.humandesign.typeTh : c.humandesign.typeTh],
         ['🔢 Life Path', `${numerology.lifePath}`],
     ].map(([l, v]) => `<div class="stat-card"><div class="lbl">${esc(l)}</div><div style="font-size:13px;font-weight:600;color:#d4aa50;margin-top:3px">${esc(v)}</div></div>`).join('')}
     </div>
 
     ${bazi.benMingNian2026 ? `
     <div class="warn">
-      <strong>⚠️ Ben Ming Nian 2569</strong> — เกิดปีม้า ตรงปี 2569 = ทุกสิ่งขยายผล ต้องใส่สีแดง 1 ชิ้น/วัน
+      <strong>⚠️ ${tr('Ben Ming Nian 2569', 'Ben Ming Nian (2026)')}</strong> — ${tr('เกิดปีม้า ตรงปี 2569 = ทุกสิ่งขยายผล ต้องใส่สีแดง 1 ชิ้น/วัน', 'Year of the Horse coincides with 2026 — everything amplifies. Wear at least one red item per day to balance.')}
     </div>` : ''}
 
     <div style="background:#0e0a16;border:1px solid #5a3a8a;border-radius:8px;padding:12px;margin:10px 0;display:flex;gap:12px;align-items:center">
       <div style="font-size:24px">✨</div>
       <div>
         <div style="font-size:13px;color:#c0a0e0;font-weight:600">${esc(score.cosmicEntity)}</div>
-        <div style="font-size:11px;color:#7a6a9a;margin-top:2px">สัญลักษณ์จักรวาล · ${esc(score.primaryGod)} &amp; ${esc(score.secondaryGod)}</div>
+        <div style="font-size:11px;color:#7a6a9a;margin-top:2px">${tr('สัญลักษณ์จักรวาล', 'Cosmic symbol')} · ${esc(score.primaryGod)} &amp; ${esc(score.secondaryGod)}</div>
       </div>
     </div>
   `);
@@ -4575,10 +4691,10 @@ function p_threeScores(c) {
     const countryEl = 'ไม้'; // Thailand = Wood (tropical, agricultural)
     const feedsDm = SHENG[EL_EN[countryEl] ?? ''] === dmElEn;
     const domainFit = SHENG[EL_EN[bdEl] ?? ''] === EL_EN[industryEl] ? 'ธาตุงานเสริมกัน ✓' : 'ธาตุงานต่างกัน';
-    return section(2, 'Soul Frequency — คุณเป็นใครตั้งแต่เกิด', '🔥', `
+    return section(2, tr('Soul Frequency — คุณเป็นใครตั้งแต่เกิด', 'Soul Frequency — Who You Are From Birth'), '🔥', `
     <div style="font-size:12px;color:#7a8a60;margin-bottom:16px;line-height:1.6">
-      Soul Frequency คือ <strong style="color:#c0d080">คุณภาพดวงชะตาพื้นฐาน</strong> — ไม่เปลี่ยนแปลง เหมือนเกรดน้ำมัน<br>
-      คำนวณจาก Median ของ 26 ศาสตร์โบราณ (equal weight) เทียบกับ dataset n=1,211
+      ${tr('Soul Frequency คือ', 'Soul Frequency is')} <strong style="color:#c0d080">${tr('คุณภาพดวงชะตาพื้นฐาน', 'your fundamental chart quality')}</strong> — ${tr('ไม่เปลี่ยนแปลง เหมือนเกรดน้ำมัน', 'unchanging, like the grade of petroleum')}<br>
+      ${tr('คำนวณจาก Median ของ 26 ศาสตร์โบราณ (equal weight) เทียบกับ dataset n=1,211', 'Calculated from the median of 26 ancient systems (equal weight) against a dataset of n=1,211')}
     </div>
 
     <!-- Soul Frequency big display -->
@@ -4589,8 +4705,8 @@ function p_threeScores(c) {
           <div style="font-size:11px;color:#5a8a30;letter-spacing:2px">SOUL FREQUENCY</div>
         </div>
         <div style="flex:1">
-          <div style="font-size:16px;font-weight:600;color:#c0e080">${esc(score.tier)}</div>
-          <div style="font-size:12px;color:#7a9a50;margin:4px 0">${esc(score.percentile)} ใน dataset n=1,211</div>
+          <div style="font-size:16px;font-weight:600;color:#c0e080">${_lang === 'en' ? esc(score.tierEn || score.tier) : esc(score.tier)}</div>
+          <div style="font-size:12px;color:#7a9a50;margin:4px 0">${esc(score.percentile)} ${tr('ใน dataset n=1,211', 'in dataset n=1,211')}</div>
           <div style="background:#0a1205;border-radius:4px;height:8px;overflow:hidden;margin:8px 0">
             <div style="width:${Math.round((score.total - 400) / 6)}%;height:8px;background:linear-gradient(90deg,#2a5010,#8aba50)"></div>
           </div>
@@ -4609,28 +4725,28 @@ function p_threeScores(c) {
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;font-size:11px">
         <div style="background:#1a0e06;border-radius:6px;padding:10px">
           <div style="font-size:20px;margin-bottom:4px">🛢️</div>
-          <div style="color:#d4aa50;font-weight:600">น้ำมัน</div>
+          <div style="color:#d4aa50;font-weight:600">${tr('น้ำมัน', 'Petroleum')}</div>
           <div style="color:#7a5a40;margin-top:2px">Soul Frequency</div>
-          <div style="color:#aa8050;font-size:12px;margin-top:4px">${score.total} = เกรด ${score.total >= 810 ? '95+' : score.total >= 730 ? '91' : score.total >= 650 ? 'diesel' : 'ชีวมวล'}</div>
+          <div style="color:#aa8050;font-size:12px;margin-top:4px">${score.total} ${tr('= เกรด', '= grade')} ${score.total >= 810 ? '95+' : score.total >= 730 ? '91' : score.total >= 650 ? 'diesel' : tr('ชีวมวล', 'biofuel')}</div>
         </div>
         <div style="background:#1a1206;border-radius:6px;padding:10px;opacity:0.7">
           <div style="font-size:20px;margin-bottom:4px">⚙️</div>
-          <div style="color:#aa8840;font-weight:600">เครื่องยนต์</div>
+          <div style="color:#aa8840;font-weight:600">${tr('เครื่องยนต์', 'Engine')}</div>
           <div style="color:#7a6030;margin-top:2px">Life Terrain</div>
-          <div style="color:#7a6030;font-size:12px;margin-top:4px">กรอกอาชีพ+ประเทศ</div>
+          <div style="color:#7a6030;font-size:12px;margin-top:4px">${tr('กรอกอาชีพ+ประเทศ', 'Add career + country')}</div>
         </div>
         <div style="background:#0a1015;border-radius:6px;padding:10px;opacity:0.7">
           <div style="font-size:20px;margin-bottom:4px">🔌</div>
-          <div style="color:#408890;font-weight:600">ท่อเชื้อเพลิง</div>
+          <div style="color:#408890;font-weight:600">${tr('ท่อเชื้อเพลิง', 'Fuel Line')}</div>
           <div style="color:#306070;margin-top:2px">Path Resonance</div>
-          <div style="color:#306070;font-size:12px;margin-top:4px">กรอกสายงาน</div>
+          <div style="color:#306070;font-size:12px;margin-top:4px">${tr('กรอกสายงาน', 'Add domain')}</div>
         </div>
       </div>
     </div>
 
     <!-- Top contributors -->
     <div style="margin-bottom:14px">
-      <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">ระบบที่ให้คะแนนสูงสุด (Top 5)</div>
+      <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">${tr('ระบบที่ให้คะแนนสูงสุด (Top 5)', 'Top-5 highest-scoring systems')}</div>
       ${c.score.breakdown.slice().sort((a, b) => b.score - a.score).slice(0, 5).map(b => `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 10px;background:#1a1510;border-radius:6px">
           <span style="font-size:12px;color:#c8b890">${esc(b.system)}</span>
           <span style="font-size:13px;font-weight:700;color:#d4aa50">${b.score}</span>
@@ -4841,7 +4957,7 @@ function p03_convergence(c) {
                 'Ifa': 'Ifa ' + ifaYoruba.fortune, 'Zi Wei': 'Zi Wei ' + ziwei.palaceQuality, 'Kabbalistic': 'Kabbalistic ' + kabbalistic.sephira,
                 'Norse': 'Norse Rune ' + norseRune.runeName, 'Ogham': 'Ogham ' + ogham.treeNameTh, 'Aztec': 'Aztec ' + aztec.daySignQuality,
                 'Native': 'Native Am ' + nativeAmerican.birthTotemTh, 'Aboriginal': 'Aboriginal ' + aboriginal.dreamingTh,
-                'Zoroastrian': 'Zoroastrian ' + zoroastrian.dayYazataTh.slice(0, 15), 'Tibetan': 'Tibetan Mewa ' + tibetan.mewa,
+                'Zoroastrian': 'Zoroastrian ' + trunc(zoroastrian.dayYazataTh, 20), 'Tibetan': 'Tibetan Mewa ' + tibetan.mewa,
                 'Onmyōdō': 'Onmyōdō ' + onmyodo.rokuyo, 'Saju': 'Saju ' + saju.kwarsal,
             };
             wlthVotes.push({ system: labels[name] ?? name, score: s });
@@ -4867,7 +4983,7 @@ function p03_convergence(c) {
                 'Kabbalistic': 'Kabbalistic ' + kabbalistic.sephira, 'Aboriginal': 'Aboriginal ' + aboriginal.dreamingTh,
                 'Ifa': 'Ifa/Yoruba ' + ifaYoruba.oduTheme.slice(0, 15), 'Norse': 'Norse Rune ' + norseRune.runeKeyword,
                 'Ogham': 'Ogham ' + ogham.oghamClass, 'Tibetan': 'Tibetan Mewa ' + tibetan.mewaQuality,
-                'Aztec': 'Aztec ' + aztec.daySignQuality, 'Zoroastrian': 'Zoroastrian ' + zoroastrian.monthAmeshaTh.slice(0, 15),
+                'Aztec': 'Aztec ' + aztec.daySignQuality, 'Zoroastrian': 'Zoroastrian ' + trunc(zoroastrian.monthAmeshaTh, 22),
                 'Native': 'Native Am ' + nativeAmerican.clansmother,
             };
             deptVotes.push({ system: lbl[name] ?? name, score: s });
@@ -4896,7 +5012,7 @@ function p03_convergence(c) {
         if (s >= 760) {
             const lbl = {
                 'Ifa': 'Ifa/Yoruba ' + ifaYoruba.oduTheme.slice(0, 12), 'Aboriginal': 'Aboriginal ' + aboriginal.clan,
-                'Native': 'Native Am ' + nativeAmerican.clansmother, 'Zoroastrian': 'Zoroastrian ' + zoroastrian.dayYazataTh.slice(0, 12),
+                'Native': 'Native Am ' + nativeAmerican.clansmother, 'Zoroastrian': 'Zoroastrian ' + trunc(zoroastrian.dayYazataTh, 20),
                 'Kabbalistic': 'Kabbalistic ' + kabbalistic.archangel, 'Ogham': 'Ogham ' + ogham.treeName,
                 'Norse': 'Norse Rune ' + norseRune.runeName,
             };
@@ -5683,8 +5799,13 @@ function p19_decade(c) {
         const ageEnd = parseInt(d.age.split('–')[1] || '999');
         const lp = lps.find(lp => lp.ageEnd >= ageStart && lp.ageStart <= ageEnd) || lps[Math.min(i, lps.length - 1)];
         const isNow = currentAge >= ageStart && currentAge <= ageEnd;
-        const nskStar = ((9 - ((ageStart + c.input.year - 1 - 1) % 9)) % 9) + 1;
         const decadeStartYear = c.input.year + ageStart;
+        // Use the same NSK year formula as calcNineStar() so this matches the
+        // year-star shown elsewhere (the prior formula derived from age+birth
+        // year produced a different cycle and contradicted the headline NSK).
+        let nskStar = ((2 - (decadeStartYear - 2024)) % 9 + 9) % 9;
+        if (nskStar === 0)
+            nskStar = 9;
         const py = pyForYear(decadeStartYear);
         const dashaOverlap = vedicMahadasha.currentDashaEnd >= decadeStartYear;
         const mahadashaLabel = dashaOverlap
@@ -5988,15 +6109,15 @@ function p25_summary(c) {
     const { score, bazi, numerology, ninestar, western } = c;
     return section(25, 'สรุปภาพรวมและคำส่งท้าย', '✨', `
     <div style="text-align:center;margin-bottom:20px">
-      <div style="font-size:48px;font-weight:700;color:#d4aa50">${score.total}</div>
+      <div style="font-size:48px;font-weight:700;color:#d4aa50">${score.cosmicFinal}</div>
       <div style="font-size:16px;color:#f0e8d0;margin-top:4px">${esc(score.tier)}</div>
       <div style="font-size:12px;color:#9a8a72">${esc(score.percentile)} ของโลก</div>
     </div>
 
     ${box('จุดแข็งหลัก', [
-        `• ธาตุ${bazi.dayMasterElement} Day Master ${bazi.dayStem} — ${bazi.reading.substring(0, 60)}...`,
-        `• ${ninestar.starChinese} — ${ninestar.reading.substring(0, 50)}...`,
-        `• Life Path ${numerology.lifePath} — ${numerology.lifePathName}`,
+        `• ธาตุ${esc(bazi.dayMasterElement)} Day Master ${esc(bazi.dayStem)} — ${esc(stripHtml(bazi.reading).substring(0, 60))}…`,
+        `• ${esc(ninestar.starChinese)} — ${esc(stripHtml(ninestar.reading).substring(0, 50))}…`,
+        `• Life Path ${esc(numerology.lifePath)} — ${esc(numerology.lifePathName)}`,
     ].join('<br>'), 'gold')}
 
     ${box('ความท้าทายหลัก', [
@@ -6088,16 +6209,10 @@ function generateReport(c) {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cosmic Blueprint — ${esc(c.input.name)}</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
-<style>${CSS}
-.panel-intro{max-width:640px;margin:0 auto 22px;padding:0 14px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-style:italic;font-size:14.5px;line-height:1.7;color:var(--muted);text-align:center;border-left:0;letter-spacing:.2px}
-</style>
+<style>${CSS}</style>
 </head>
 <body>
 ${pages}
-  <div class="site-disclaimer-v1" style="max-width:780px;margin:0 auto;padding:18px 16px;border-top:1px solid rgba(200,164,90,.18);text-align:center;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.4px;color:rgba(200,164,90,.55);line-height:1.7;text-transform:none">
-    <span data-en="Mythsensus content is generated by AI for entertainment, self-exploration, and personal reflection. It is not medical, legal, financial, or psychological advice. The stars may illuminate the path — the steps remain yours alone." data-th="เนื้อหา Mythsensus สร้างโดย AI เพื่อความบันเทิง การสำรวจตนเอง และการใคร่ครวญส่วนบุคคล ไม่ใช่คำแนะนำทางการแพทย์ กฎหมาย การเงิน หรือจิตวิทยา ดวงดาวอาจส่องทาง — ก้าวเดินเป็นของคุณ">Mythsensus content is generated by AI for entertainment, self-exploration, and personal reflection. It is not medical, legal, financial, or psychological advice. The stars may illuminate the path — the steps remain yours alone.</span>
-    <br><a href="/disclaimer" style="color:var(--gold,#c8a45a);text-decoration:underline;opacity:.8" data-en="Read the full disclaimer →" data-th="อ่านข้อจำกัดฉบับเต็ม →">Read the full disclaimer →</a>
-  </div>
 </body>
 </html>`;
 }
@@ -6213,7 +6328,28 @@ function p_onmyodo(c) {
     </tbody></table>
     ${box('การตีความ Onmyōdō', o.reading, o.rokuyoScore >= 780 ? 'green' : o.rokuyoScore >= 650 ? 'gold' : 'red')}
     <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> Onmyōdō (陰陽道) พัฒนาในญี่ปุ่นสมัย Nara (710-794 AD) โดย Abe no Seimei หมอดูในตำนาน รับอิทธิพลจาก Taoist เต๋าและ Chinese Cosmology ผสมกับความเชื่อ Shinto ใช้โดยราชสำนักญี่ปุ่นเป็นเวลาหลายร้อยปี ปัจจุบันยังมีสถาบัน Onmyōdō อย่างเป็นทางการ</p>
-    <p style="font-size:11px;color:#6a5a42">六曜 เป็นวัฏจักรโชคในศาสตร์ญี่ปุ่น — ${o.rokuyo} (${o.rokuyoTh}) คือพลังงานวันเกิดของคุณ ส่งผลต่อลักษณะการตัดสินใจ</p>
+
+    <div style="background:#13110e;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:8px">
+      <div style="font-size:11px;color:#d4aa50;letter-spacing:1px;margin-bottom:6px">六曜 ROKUYO — ปฏิทินมงคล 6 วันของญี่ปุ่น</div>
+      <div style="font-size:11.5px;color:#c8c0a8;line-height:1.7">
+        Rokuyo (六曜) เป็นวัฏจักรโชค <strong>6 วันที่หมุนเวียนกัน</strong>ในปฏิทินญี่ปุ่น
+        ใช้เลือก "วันดี" สำหรับงานแต่ง การประกอบธุรกิจ การเดินทาง — ปัจจุบันยังพิมพ์อยู่บนปฏิทินญี่ปุ่นทุกเล่ม
+        แต่ละวันให้พลังงานต่างกัน:
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;font-size:10.5px">
+        <div style="background:#0a1a0e;border-left:3px solid #5aaa3a;padding:5px 8px"><strong>大安 Taian</strong> · วันมงคลที่สุด · ทำได้ทุกอย่าง</div>
+        <div style="background:#0a1612;border-left:3px solid #4a8a4a;padding:5px 8px"><strong>友引 Tomobiki</strong> · ดี (ยกเว้นงานศพ)</div>
+        <div style="background:#1a1510;border-left:3px solid #c8a840;padding:5px 8px"><strong>先勝 Senshō</strong> · เช้าดี บ่ายร้าย</div>
+        <div style="background:#1a1510;border-left:3px solid #c8a840;padding:5px 8px"><strong>先負 Senpu</strong> · เช้าร้าย บ่ายดี</div>
+        <div style="background:#1a1010;border-left:3px solid #aa6030;padding:5px 8px"><strong>赤口 Shakkō</strong> · ระวัง · ดีเฉพาะกลางวัน</div>
+        <div style="background:#1a0a0a;border-left:3px solid #c01020;padding:5px 8px"><strong>仏滅 Butsumetsu</strong> · "พระพุทธเจ้าสิ้น" · วันอัปมงคลที่สุด</div>
+      </div>
+      <div style="font-size:11px;color:#9a8a72;margin-top:8px;line-height:1.6">
+        วันเกิดของคุณตรงกับ <strong style="color:#d4aa50">${esc(o.rokuyo)} (${esc(o.rokuyoTh)})</strong>
+        — ${o.rokuyo === '仏滅' ? 'นี่คือสาเหตุที่คะแนน Onmyōdō ในรายงานต่ำ ไม่ใช่คะแนนคุณภาพชีวิตหรือบุคลิก แต่คือ "พลังงานปฏิทินวันเกิด" เท่านั้น · ในประเพณีญี่ปุ่นวันนี้แปลตรงตัวว่า "พระพุทธเจ้าสิ้น" ถือว่าหลีกเลี่ยงงานสำคัญ — แต่หลายธุรกิจญี่ปุ่นใช้เป็นวันสะท้อนตัวและรีเซ็ต' : o.rokuyo === '大安' ? 'นี่คือวันที่ดีที่สุดในปฏิทิน Rokuyo — คะแนนของคุณสูงเพราะวันเกิดให้พลังงานเปิดทาง' : 'แปลความได้ตามตารางด้านบน · คะแนนสะท้อนพลังงานของวันเกิดเฉพาะในศาสตร์นี้ ไม่ใช่ตัวคุณ'}
+      </div>
+    </div>
+    <p style="font-size:11px;color:#6a5a42">六曜 เป็นเพียง <em>1 ใน 26 ศาสตร์</em>ของรายงาน — ใช้ประกอบมุมมองเรื่องจังหวะ ไม่ใช่คำตัดสินคุณภาพชีวิต</p>
   `);
 }
 function p_hellenistic(c) {
@@ -6457,6 +6593,7 @@ function p_vedicMahadasha(c) {
 })(typeof window !== "undefined" ? window : globalThis);
 
 /* MS26_BUNDLE_END */
+
 // ════════════════════════════════════════
 // BILINGUAL
 // ════════════════════════════════════════
@@ -12036,6 +12173,61 @@ function logoutUser(){ localStorage.removeItem('mth_user'); location.reload(); }
 function showLoginOverlay(){
   const o=document.getElementById('loginOverlay');
   if(o){_resetAuthSteps();o.style.display='flex';}
+}
+
+// ── Social OAuth sign-in (LINE / Facebook / Google) ────────────────────────
+// Calls Supabase signInWithOAuth which redirects to the provider, then back to
+// origin + '/?login=1'. The existing ?login=1 deep-link handler in the
+// DOMContentLoaded boot block re-opens the entry overlay; the auth
+// onAuthStateChange listener picks up SIGNED_IN automatically.
+//
+// IMPORTANT — for these buttons to actually sign users in, the provider must
+// be enabled and configured in the Supabase dashboard:
+//   Auth -> Providers -> {LINE | Facebook | Google} -> toggle on, paste
+//   Client ID + Client Secret, save.
+//   Callback URL (paste into provider console):
+//     https://<project-ref>.supabase.co/auth/v1/callback
+//   Site URL / additional redirect URL (in Supabase -> Auth -> URL Config):
+//     https://mythsensus.com  (and https://mythsensus.com/?login=1)
+//   Scopes required:
+//     LINE     -> profile openid email
+//     Facebook -> email, public_profile
+//     Google   -> openid email profile
+// Until the dashboard is wired, the buttons fail with a toast and the user
+// can fall back to email.
+async function _socialSignIn(provider){
+  if(!_sb){
+    _showSyncToast(LANG==='th'
+      ? 'ระบบยังไม่พร้อม — โปรดลองใหม่'
+      : 'Auth not ready — please retry');
+    return;
+  }
+  const btn=document.querySelector('.social-signin-btn[data-provider="'+provider+'"]');
+  if(btn){btn.disabled=true;btn.style.opacity='.6';}
+  try{
+    const { error } = await _sb.auth.signInWithOAuth({
+      provider,
+      options:{
+        redirectTo: location.origin + '/?login=1',
+        // PKCE-friendly query so the boot handler can clean up and re-open overlay.
+        queryParams:{ prompt:'select_account' }
+      }
+    });
+    if(error){
+      console.warn('[social-signin]', provider, error);
+      _showSyncToast(LANG==='th'
+        ? 'เข้าสู่ระบบไม่สำเร็จ — โปรดลองอีกวิธี'
+        : 'Sign-in failed — please try another method');
+      if(btn){btn.disabled=false;btn.style.opacity='1';}
+    }
+    // On success the page redirects to the provider; nothing else to do here.
+  }catch(e){
+    console.warn('[social-signin] exception', provider, e);
+    _showSyncToast(LANG==='th'
+      ? 'เข้าสู่ระบบไม่สำเร็จ — โปรดลองอีกวิธี'
+      : 'Sign-in failed — please try another method');
+    if(btn){btn.disabled=false;btn.style.opacity='1';}
+  }
 }
 
 // ════════════════════════════════════════

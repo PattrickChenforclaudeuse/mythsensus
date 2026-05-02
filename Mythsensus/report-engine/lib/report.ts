@@ -44,6 +44,13 @@ let _totalPages = 42
 // Language for the currently-generating report. Set once by generateReport()
 // from chart.input.lang so page headers/footers respect the user's choice.
 let _lang: 'th' | 'en' = 'th'
+// Translation helper. Use everywhere a Thai string is rendered into the
+// report: tr('ดวงชะตา', 'destiny chart'). Returns Thai when _lang is 'th'
+// (the default for the Thai-first market), English otherwise. Designed for
+// inline use in template literals so the original Thai stays readable in
+// source — translators / brand reviewers can still scan the English second
+// argument without context-switching files.
+const tr = (th: string, en: string) => _lang === 'en' ? en : th
 function section(_num: number, title: string, icon: string, content: string) {
   _pageNum++
   const isEn = _lang === 'en'
@@ -164,11 +171,21 @@ const formatDob = (input: { day: number; month: number; year: number; lang?: 'th
 
 function p01_cover(c: ChartData): string {
   const { score, bazi, western, ninestar, numerology, input } = c
-  const dobStr = formatDob(input)
-  const timeStr = `${String(input.hour).padStart(2,'0')}:${String(input.minute).padStart(2,'0')} น.`
+  const dobStr = formatDob({ ...input, lang: _lang })
+  const timeStr = _lang === 'en'
+    ? `${String(input.hour).padStart(2,'0')}:${String(input.minute).padStart(2,'0')}`
+    : `${String(input.hour).padStart(2,'0')}:${String(input.minute).padStart(2,'0')} น.`
   const pctBar = Math.round((score.total - 400) / 6)
+  // Tier label is only available in Thai from the engine. When rendering EN,
+  // prefer score.tierEn (already English) and skip the secondary "TierEn ·"
+  // line since it would duplicate. In TH we keep both to give the reader
+  // both languages on the same row.
+  const tierMain = _lang === 'en' ? esc(score.tierEn || score.tier) : esc(score.tier)
+  const tierSub  = _lang === 'en'
+    ? `${esc(score.percentile)} ${tr('ของโลก','globally')}`
+    : `${esc(score.tierEn)} · ${esc(score.percentile)} ${tr('ของโลก','globally')}`
 
-  return section(1, 'Cosmic Blueprint — ภาพรวม', '✦', `
+  return section(1, tr('Cosmic Blueprint — ภาพรวม', 'Cosmic Blueprint — Overview'), '✦', `
     <div style="text-align:center;margin-bottom:16px">
       <div style="font-size:10px;color:#6a5a42;letter-spacing:4px;margin-bottom:6px">✦ MYTHSENSUS — PREMIUM EDITION ✦</div>
       <div style="font-size:22px;font-weight:700;color:#d4aa50;margin-bottom:4px">Cosmic Blueprint · 26 Ancient Systems</div>
@@ -184,13 +201,13 @@ function p01_cover(c: ChartData): string {
           <div style="font-size:8px;color:#6a5a42;letter-spacing:.5px;margin-top:2px">${score.cosmicFinal === score.total ? 'Soul Frequency' : 'SF×40% + LT×30% + PR×30%'}</div>
         </div>
         <div style="flex:1">
-          <div style="font-size:20px;font-weight:700;color:#f0e8d0">${esc(score.tier)}</div>
-          <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">${esc(score.tierEn)} · ${esc(score.percentile)} ของโลก</div>
+          <div style="font-size:20px;font-weight:700;color:#f0e8d0">${tierMain}</div>
+          <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">${tierSub}</div>
           <div style="background:#2a2010;border-radius:6px;height:10px;overflow:hidden">
             <div style="width:${pctBar}%;height:10px;background:linear-gradient(90deg,#5a3810,#d4aa50)"></div>
           </div>
           <div style="font-size:10px;color:#6a5a42;margin-top:4px">
-            Median 26 ศาสตร์ · Mean ${score.mean} · Modal ${score.modalBin}–${score.modalBin+49}
+            ${tr('Median 26 ศาสตร์','Median 26 systems')} · Mean ${score.mean} · Modal ${score.modalBin}–${score.modalBin+49}
           </div>
         </div>
       </div>
@@ -214,20 +231,20 @@ function p01_cover(c: ChartData): string {
         <div style="background:#151a10;border:1px solid #4a6a20;border-radius:8px;padding:12px;text-align:center">
           <div style="font-size:10px;color:#6a8a40;letter-spacing:1px;margin-bottom:4px">SOUL FREQUENCY</div>
           <div style="font-size:28px;font-weight:700;color:#8aba50">${score.soulFrequency}</div>
-          <div style="font-size:10px;color:#6a8a40">Born chart · น้ำมันเกรดไหน</div>
+          <div style="font-size:10px;color:#6a8a40">${tr('Born chart · น้ำมันเกรดไหน','Born chart · petroleum grade')}</div>
         </div>
         <!-- Life Terrain -->
         <div style="background:#1a1510;border:1px solid ${score.lifeTerrainScore > 0 ? '#8a6030' : '#3a2010'};border-radius:8px;padding:12px;text-align:center">
           <div style="font-size:10px;color:#8a6030;letter-spacing:1px;margin-bottom:4px">LIFE TERRAIN</div>
           <div style="font-size:28px;font-weight:700;color:${score.lifeTerrainScore > 0 ? '#d4a040' : '#6a4020'}">${score.lifeTerrainScore > 0 ? score.lifeTerrainScore : '—'}</div>
-          <div style="font-size:10px;color:#8a6030">${score.lifeTerrainScore > 0 ? 'Work environment' : 'กรอกอาชีพ+ประเทศ'}</div>
+          <div style="font-size:10px;color:#8a6030">${score.lifeTerrainScore > 0 ? 'Work environment' : tr('กรอกอาชีพ+ประเทศ','Add career + country')}</div>
           ${score.lifeTerrainDetail ? `<div style="font-size:9px;color:#6a4020;margin-top:3px">${esc(score.lifeTerrainDetail.split('|')[0])}</div>` : ''}
         </div>
         <!-- Path Resonance -->
         <div style="background:#10151a;border:1px solid ${score.pathResonanceScore > 0 ? '#205a5a' : '#103030'};border-radius:8px;padding:12px;text-align:center">
           <div style="font-size:10px;color:#408080;letter-spacing:1px;margin-bottom:4px">PATH RESONANCE</div>
           <div style="font-size:28px;font-weight:700;color:${score.pathResonanceScore > 0 ? '#40c0a0' : '#206050'}">${score.pathResonanceScore > 0 ? score.pathResonanceScore : '—'}</div>
-          <div style="font-size:10px;color:#408080">${score.pathResonanceScore > 0 ? 'Domain fit' : 'กรอกสายงาน'}</div>
+          <div style="font-size:10px;color:#408080">${score.pathResonanceScore > 0 ? 'Domain fit' : tr('กรอกสายงาน','Add domain')}</div>
           ${score.pathResonanceDetail ? `<div style="font-size:9px;color:#205050;margin-top:3px">${esc(score.pathResonanceDetail.split('|')[0])}</div>` : ''}
         </div>
       </div>
@@ -235,7 +252,7 @@ function p01_cover(c: ChartData): string {
       <div style="background:#1a1510;border-radius:8px;padding:10px;margin-top:8px;display:flex;align-items:center;justify-content:space-between">
         <div style="font-size:11px;color:#9a8a72">
           Cosmic Final = SF×40% + LT×30% + PR×30%
-          ${score.lifeTerrainScore === 0 ? ' · (LT/PR ยังไม่กรอกข้อมูล)' : ''}
+          ${score.lifeTerrainScore === 0 ? ' · ' + tr('(LT/PR ยังไม่กรอกข้อมูล)','(LT/PR not filled yet)') : ''}
         </div>
         <div style="font-size:24px;font-weight:700;color:#d4aa50">${score.cosmicFinal}</div>
       </div>
@@ -246,23 +263,23 @@ function p01_cover(c: ChartData): string {
       ${[
         ['🔥 Day Master', `${bazi.dayStem} ${bazi.dayMasterElement}`],
         ['⭐ Nine Star Ki', ninestar.star+' '+ninestar.starName],
-        ['☀️ Western', western.sunSignTh],
+        [tr('☀️ Western','☀️ Western Sun'), _lang==='en' ? (western as any).sunSign || western.sunSignTh : western.sunSignTh],
         ['🕉️ Vedic Lagna', c.vedic.lagnaSign],
-        ['⚡ พลังงาน', c.humandesign.typeTh],
+        [tr('⚡ พลังงาน','⚡ Energy Type'), _lang==='en' ? (c.humandesign as any).type || c.humandesign.typeTh : c.humandesign.typeTh],
         ['🔢 Life Path', `${numerology.lifePath}`],
       ].map(([l,v]) => `<div class="stat-card"><div class="lbl">${esc(l)}</div><div style="font-size:13px;font-weight:600;color:#d4aa50;margin-top:3px">${esc(v)}</div></div>`).join('')}
     </div>
 
     ${bazi.benMingNian2026 ? `
     <div class="warn">
-      <strong>⚠️ Ben Ming Nian 2569</strong> — เกิดปีม้า ตรงปี 2569 = ทุกสิ่งขยายผล ต้องใส่สีแดง 1 ชิ้น/วัน
+      <strong>⚠️ ${tr('Ben Ming Nian 2569','Ben Ming Nian (2026)')}</strong> — ${tr('เกิดปีม้า ตรงปี 2569 = ทุกสิ่งขยายผล ต้องใส่สีแดง 1 ชิ้น/วัน','Year of the Horse coincides with 2026 — everything amplifies. Wear at least one red item per day to balance.')}
     </div>` : ''}
 
     <div style="background:#0e0a16;border:1px solid #5a3a8a;border-radius:8px;padding:12px;margin:10px 0;display:flex;gap:12px;align-items:center">
       <div style="font-size:24px">✨</div>
       <div>
         <div style="font-size:13px;color:#c0a0e0;font-weight:600">${esc(score.cosmicEntity)}</div>
-        <div style="font-size:11px;color:#7a6a9a;margin-top:2px">สัญลักษณ์จักรวาล · ${esc(score.primaryGod)} &amp; ${esc(score.secondaryGod)}</div>
+        <div style="font-size:11px;color:#7a6a9a;margin-top:2px">${tr('สัญลักษณ์จักรวาล','Cosmic symbol')} · ${esc(score.primaryGod)} &amp; ${esc(score.secondaryGod)}</div>
       </div>
     </div>
   `)
@@ -281,10 +298,10 @@ function p_threeScores(c: ChartData): string {
   const feedsDm = SHENG[EL_EN[countryEl]??''] === dmElEn
   const domainFit = SHENG[EL_EN[bdEl]??''] === EL_EN[industryEl] ? 'ธาตุงานเสริมกัน ✓' : 'ธาตุงานต่างกัน'
 
-  return section(2, 'Soul Frequency — คุณเป็นใครตั้งแต่เกิด', '🔥', `
+  return section(2, tr('Soul Frequency — คุณเป็นใครตั้งแต่เกิด', 'Soul Frequency — Who You Are From Birth'), '🔥', `
     <div style="font-size:12px;color:#7a8a60;margin-bottom:16px;line-height:1.6">
-      Soul Frequency คือ <strong style="color:#c0d080">คุณภาพดวงชะตาพื้นฐาน</strong> — ไม่เปลี่ยนแปลง เหมือนเกรดน้ำมัน<br>
-      คำนวณจาก Median ของ 26 ศาสตร์โบราณ (equal weight) เทียบกับ dataset n=1,211
+      ${tr('Soul Frequency คือ', 'Soul Frequency is')} <strong style="color:#c0d080">${tr('คุณภาพดวงชะตาพื้นฐาน', 'your fundamental chart quality')}</strong> — ${tr('ไม่เปลี่ยนแปลง เหมือนเกรดน้ำมัน', 'unchanging, like the grade of petroleum')}<br>
+      ${tr('คำนวณจาก Median ของ 26 ศาสตร์โบราณ (equal weight) เทียบกับ dataset n=1,211', 'Calculated from the median of 26 ancient systems (equal weight) against a dataset of n=1,211')}
     </div>
 
     <!-- Soul Frequency big display -->
@@ -295,8 +312,8 @@ function p_threeScores(c: ChartData): string {
           <div style="font-size:11px;color:#5a8a30;letter-spacing:2px">SOUL FREQUENCY</div>
         </div>
         <div style="flex:1">
-          <div style="font-size:16px;font-weight:600;color:#c0e080">${esc(score.tier)}</div>
-          <div style="font-size:12px;color:#7a9a50;margin:4px 0">${esc(score.percentile)} ใน dataset n=1,211</div>
+          <div style="font-size:16px;font-weight:600;color:#c0e080">${_lang === 'en' ? esc(score.tierEn || score.tier) : esc(score.tier)}</div>
+          <div style="font-size:12px;color:#7a9a50;margin:4px 0">${esc(score.percentile)} ${tr('ใน dataset n=1,211', 'in dataset n=1,211')}</div>
           <div style="background:#0a1205;border-radius:4px;height:8px;overflow:hidden;margin:8px 0">
             <div style="width:${Math.round((score.total-400)/6)}%;height:8px;background:linear-gradient(90deg,#2a5010,#8aba50)"></div>
           </div>
@@ -315,28 +332,28 @@ function p_threeScores(c: ChartData): string {
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;font-size:11px">
         <div style="background:#1a0e06;border-radius:6px;padding:10px">
           <div style="font-size:20px;margin-bottom:4px">🛢️</div>
-          <div style="color:#d4aa50;font-weight:600">น้ำมัน</div>
+          <div style="color:#d4aa50;font-weight:600">${tr('น้ำมัน', 'Petroleum')}</div>
           <div style="color:#7a5a40;margin-top:2px">Soul Frequency</div>
-          <div style="color:#aa8050;font-size:12px;margin-top:4px">${score.total} = เกรด ${score.total >= 810 ? '95+' : score.total >= 730 ? '91' : score.total >= 650 ? 'diesel' : 'ชีวมวล'}</div>
+          <div style="color:#aa8050;font-size:12px;margin-top:4px">${score.total} ${tr('= เกรด', '= grade')} ${score.total >= 810 ? '95+' : score.total >= 730 ? '91' : score.total >= 650 ? 'diesel' : tr('ชีวมวล', 'biofuel')}</div>
         </div>
         <div style="background:#1a1206;border-radius:6px;padding:10px;opacity:0.7">
           <div style="font-size:20px;margin-bottom:4px">⚙️</div>
-          <div style="color:#aa8840;font-weight:600">เครื่องยนต์</div>
+          <div style="color:#aa8840;font-weight:600">${tr('เครื่องยนต์', 'Engine')}</div>
           <div style="color:#7a6030;margin-top:2px">Life Terrain</div>
-          <div style="color:#7a6030;font-size:12px;margin-top:4px">กรอกอาชีพ+ประเทศ</div>
+          <div style="color:#7a6030;font-size:12px;margin-top:4px">${tr('กรอกอาชีพ+ประเทศ', 'Add career + country')}</div>
         </div>
         <div style="background:#0a1015;border-radius:6px;padding:10px;opacity:0.7">
           <div style="font-size:20px;margin-bottom:4px">🔌</div>
-          <div style="color:#408890;font-weight:600">ท่อเชื้อเพลิง</div>
+          <div style="color:#408890;font-weight:600">${tr('ท่อเชื้อเพลิง', 'Fuel Line')}</div>
           <div style="color:#306070;margin-top:2px">Path Resonance</div>
-          <div style="color:#306070;font-size:12px;margin-top:4px">กรอกสายงาน</div>
+          <div style="color:#306070;font-size:12px;margin-top:4px">${tr('กรอกสายงาน', 'Add domain')}</div>
         </div>
       </div>
     </div>
 
     <!-- Top contributors -->
     <div style="margin-bottom:14px">
-      <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">ระบบที่ให้คะแนนสูงสุด (Top 5)</div>
+      <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">${tr('ระบบที่ให้คะแนนสูงสุด (Top 5)', 'Top-5 highest-scoring systems')}</div>
       ${c.score.breakdown.slice().sort((a,b)=>b.score-a.score).slice(0,5).map(b =>
         `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 10px;background:#1a1510;border-radius:6px">
           <span style="font-size:12px;color:#c8b890">${esc(b.system)}</span>
