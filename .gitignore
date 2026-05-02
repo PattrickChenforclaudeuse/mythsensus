@@ -1,2 +1,8 @@
 .vercel
 .claude/
+node_modules/
+# QA + simulator artifacts (regenerated on demand)
+qa-screenshots/
+qa-report.html
+user-sim-screenshots/
+user-sim-report.html
