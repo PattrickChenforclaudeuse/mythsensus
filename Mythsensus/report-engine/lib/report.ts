@@ -51,6 +51,169 @@ let _lang: 'th' | 'en' = 'th'
 // source — translators / brand reviewers can still scan the English second
 // argument without context-switching files.
 const tr = (th: string, en: string) => _lang === 'en' ? en : th
+
+// ── Data-field translator ───────────────────────────────────────
+// Many engine fields are Thai-only at the data layer (e.g. bazi.luckyElement
+// = 'ไฟ', ninestar.starColor = 'ขาว', thai.dayName = 'วันอาทิตย์'). When the
+// report renders in English mode we still pull those values; trDF maps the
+// known Thai vocabulary to English at display time so we don't have to
+// duplicate every engine field with an *En counterpart.
+const _DF_MAP: Record<string,string> = {
+  // Five elements
+  'ไฟ':'Fire','ไม้':'Wood','น้ำ':'Water','โลหะ':'Metal','ดิน':'Earth','ลม':'Air',
+  // Compass
+  'เหนือ':'North','ใต้':'South','ตะวันออก':'East','ตะวันตก':'West',
+  'ตะวันออกเฉียงเหนือ':'Northeast','ตะวันออกเฉียงใต้':'Southeast',
+  'ตะวันตกเฉียงเหนือ':'Northwest','ตะวันตกเฉียงใต้':'Southwest',
+  'ตามปี':'by year','ศูนย์กลาง':'Centre',
+  // Colours
+  'แดง':'Red','ขาว':'White','น้ำเงิน':'Blue','เหลือง':'Yellow','ดำ':'Black',
+  'ดำ/น้ำตาล':'Black/Brown','เขียว':'Green','เขียวฟ้า':'Cyan','ขาว/เงิน':'White/Silver',
+  'แดง/ชมพู':'Red/Pink','ขาว/เบจ':'White/Beige','ม่วง/แดง':'Purple/Red','ทอง':'Gold',
+  // Days of week
+  'วันอาทิตย์':'Sunday','วันจันทร์':'Monday','วันอังคาร':'Tuesday','วันพุธ':'Wednesday',
+  'วันพฤหัสบดี':'Thursday','วันศุกร์':'Friday','วันเสาร์':'Saturday',
+  // Western signs (Thai → English)
+  'เมษ':'Aries','พฤษภ':'Taurus','เมถุน':'Gemini','กรกฎ':'Cancer','สิงห์':'Leo',
+  'กันย์':'Virgo','ตุลย์':'Libra','พิจิก':'Scorpio','ธนู':'Sagittarius','มกร':'Capricorn',
+  'กุมภ์':'Aquarius','มีน':'Pisces',
+  // BaZi/Saju element-quality phrases
+  '생조 — เดือนหนุนวัน':'생조 — month feeds the day',
+  '비겁 — พลังงานเดียวกัน':'비겁 — same energy',
+  '극 — แรงกดดัน':'극 — pressure',
+  // Thai sun/moon zodiac labels
+  'ราชสีห์แห่งดวงอาทิตย์':'Lion of the Sun',
+  // Thai-Brahmin fortune labels
+  'โชคลาภและชื่อเสียง':'Fortune and fame',
+  'ทรัพย์สมบัติจากความพยายาม':'Wealth from effort',
+  'ปัญญาและการสื่อสาร':'Wisdom and communication',
+  'ความรักและความสุข':'Love and joy',
+  'อำนาจและตำแหน่ง':'Power and position',
+  'ครอบครัวและบ้าน':'Family and home',
+  'ความเข้มแข็งและการอดทน':'Endurance and strength',
+  // Numerology PY meanings (short)
+  'ปีแห่งการเริ่มต้นใหม่ — ลงมือทำสิ่งที่ตั้งใจมานาน ปีนี้ปลูกเมล็ดพันธุ์ใหม่':'Year of new beginnings — act on what you\'ve long intended; plant new seeds this year',
+  'ปีแห่งความสัมพันธ์ — เสริมสร้างความร่วมมือ ระวังการตัดสินใจรีบร้อน':'Year of relationships — strengthen cooperation; avoid hasty decisions',
+  'ปีแห่งการสื่อสาร — แสดงออก สร้างสรรค์ ขยายเครือข่าย โอกาสดีด้านสังคม':'Year of communication — express, create, expand networks; strong social opportunities',
+  'ปีแห่งการทำงาน — วางรากฐาน ทำงานหนัก ผลลัพธ์ระยะยาว ไม่ใช่ปีแห่งความสนุก':'Year of work — lay foundations, work hard; long-term results, not a year for fun',
+  'ปีแห่งการเปลี่ยนแปลง — โอกาสใหม่มาพร้อมกับความไม่แน่นอน เตรียมรับความเปลี่ยนแปลง':'Year of change — new opportunities arrive with uncertainty; prepare for change',
+  'ปีแห่งครอบครัว — โฟกัสที่บ้าน ความสัมพันธ์ และการรับผิดชอบ โอกาสดีด้านอสังหาฯ':'Year of family — focus on home, relationships, responsibility; good real-estate opportunities',
+  'ปีแห่งการพักผ่อนจิตใจ — เวลาสำหรับการไตร่ตรอง เรียนรู้ และฟื้นฟูพลังงาน':'Year of mental rest — time for reflection, learning, recharging',
+  'ปีแห่งการเก็บเกี่ยว — ผลแห่งการทำงาน 7 ปีที่ผ่านมาปรากฏ โอกาสด้านการเงินและอาชีพ':'Year of harvest — the fruits of the past 7 years arrive; financial and career opportunities',
+  'ปีแห่งการสรุป — ปิดประตูเก่า เตรียมรับวงจรใหม่ ให้อภัยและปล่อยวาง':'Year of completion — close old doors, prepare for the new cycle; forgive and release',
+  // System name labels (sysTh → sysEn) used in score breakdowns
+  'โหราศาสตร์ตะวันตก':'Western Astrology',
+  'โหราศาสตร์ภารตะ':'Vedic Astrology',
+  'BaZi สี่เสา':'BaZi · Four Pillars',
+  'ดาว 9 ดวง':'Nine Star Ki',
+  'เลขศาสตร์ Pythagorean':'Pythagorean Numerology',
+  'เลข ๗ ตัว ๙ ฐาน':'Thai 7-Number System',
+  'ระบบประเภทพลังงาน':'Human Design',
+  'ปฏิทินมายัน':'Mayan Tzolk\'in',
+  'มายัน Tzolk\'in':'Mayan Tzolk\'in',
+  'ต้นไม้เซลติก':'Celtic Tree Astrology',
+  'เซลติก Tree':'Celtic Tree',
+  'โหราศาสตร์ไทยพราหมณ์':'Thai Brahmin Astrology',
+  'ไทยพราหมณ์':'Thai Brahmin',
+  'โหราศาสตร์ทิเบต':'Tibetan Astrology',
+  'Tibetan Astrology':'Tibetan Astrology',
+  'ดวงเกาหลี':'Korean Saju',
+  'ซื่อเว่ย':'Zi Wei Dou Shu',
+  'อนเมียวโด':'Onmyōdō',
+  'โหราศาสตร์เฮลเลนิสติก':'Hellenistic Astrology',
+  'รูนไวกิ้ง':'Norse Runes',
+  'อักษรโอแฮม':'Ogham',
+  'จุดอาหรับ':'Arabic Parts',
+  'คับบาลาห์':'Kabbalah',
+  'โซโรแอสเตอร์':'Zoroastrian',
+  'โทนัลโปอัลลี':'Aztec Tonalpohualli',
+  'โทเท็มอินเดียนแดง':'Native American Totems',
+  'อิฟา-โยรูบา':'Ifá-Yoruba',
+  'Dreamtime อะบอริจิน':'Aboriginal Dreamtime',
+  'ไบโอริธึม':'Biorhythm',
+  'มหาทศาวิมโชทตรี':'Vedic Mahadasha',
+  // Tier names (tierTh → tier)
+  'ฟ้า — Celestial':'Celestial',
+  'แสง — Radiant':'Radiant',
+  'เปล่งประกาย — Luminous':'Luminous',
+  'สั่นพ้อง — Resonant':'Resonant',
+  'หยั่งราก — Grounded':'Grounded',
+  'แสวงหา — Seeking':'Seeking',
+  'แสงเริ่มต้น — Awakening':'Awakening',
+  // BaZi STEMS_TH (10 stems)
+  'จ่ย ไม้หยาง':'Jia (Yang Wood)','อี่ ไม้อ่อน':'Yi (Yin Wood)','ปิ่ง ไฟหยาง':'Bing (Yang Fire)',
+  'ติง ไฟอ่อน':'Ding (Yin Fire)','อู่ ดินหยาง':'Wu (Yang Earth)','จี่ ดินอ่อน':'Ji (Yin Earth)',
+  'เกิง โลหะหยาง':'Geng (Yang Metal)','ซิน โลหะอ่อน':'Xin (Yin Metal)',
+  'เหริน น้ำหยาง':'Ren (Yang Water)','กุ้ย น้ำอ่อน':'Gui (Yin Water)',
+  // BaZi BRANCHES_TH (12 branches with animals)
+  'ชวด (หนู)':'Zi (Rat)','ฉลู (วัว)':'Chou (Ox)','ขาล (เสือ)':'Yin (Tiger)',
+  'เถาะ (กระต่าย)':'Mao (Rabbit)','มะโรง (มังกร)':'Chen (Dragon)','มะเส็ง (งู)':'Si (Snake)',
+  'มะเมีย (ม้า)':'Wu (Horse)','มะแม (แพะ)':'Wei (Goat)','วอก (ลิง)':'Shen (Monkey)',
+  'ระกา (ไก่)':'You (Rooster)','จอ (สุนัข)':'Xu (Dog)','กุน (หมู)':'Hai (Pig)',
+  // HD types
+  'ผู้ริเริ่ม':'Manifestor','ผู้สร้างพลังงาน':'Generator','MG ผู้สร้างและริเริ่ม':'Manifesting Generator',
+  'ผู้นำทาง':'Projector','ผู้สะท้อน':'Reflector',
+  // HD strategies
+  'แจ้งให้ผู้อื่นทราบก่อนลงมือ':'Inform before acting','รอตอบสนองก่อนลงมือ':'Wait to respond',
+  'ตอบสนอง แล้วแจ้งก่อนลงมือ':'Respond, then inform','รอคำเชิญก่อนลงมือ':'Wait for the invitation',
+  'รอ 28 วัน (รอบจันทร์)':'Wait 28 days (lunar cycle)',
+  // Tibetan Mewa quality
+  'สมดุล':'Balanced','ท้าทาย':'Challenging','เติบโต':'Growth','เสริม':'Supportive',
+  'ท้าทายมาก':'Highly challenging','มั่นคง':'Stable','กล้าหาญ':'Courageous',
+  'เข้มแข็ง':'Strong','รุ่งเรือง':'Flourishing',
+  // Native American totems (Thai → English match)
+  'ห่านหิมะ':'Snow Goose','นาก':'Otter','หมาป่า':'Wolf','เหยี่ยว':'Falcon',
+  'บีเวอร์':'Beaver','กวาง':'Deer','นกหัวขวาน':'Woodpecker','ปลาแซลมอน':'Salmon',
+  'หมีน้ำตาล':'Brown Bear','กา':'Raven','งู':'Snake','กวางใหญ่':'Elk',
+  'ห่านหิมะ(2)':'Snow Goose',
+  // Aboriginal Dreaming
+  'งูรุ้ง':'Rainbow Serpent','อินทรีบุนจิล':'Bunjil Eagle','วันจินา':'Wandjina','บาอิเอเม':'Baiame',
+  'โยวี่':'Yowie','มิมิ':'Mimi','นามาร์กุน':'Namarrkun','อัลตจิรา':'Altjira',
+  'ทิดดาลิก':'Tiddalik','บุนยิป':'Bunyip','ควินกัน':'Quinkans','ดจ้างกาวู':'Djang\'kawu',
+  // Aztec day-signs (Thai → English approximation)
+  // NOTE: 'ลม' and 'งู' deliberately omitted here — they're already in the
+  // Five-Elements / NA-Totem maps above. Aztec context disambiguates at
+  // display time via the surrounding "Aztec" prefix in the data field.
+  'จระเข้':'Crocodile','บ้าน':'House','จิ้งจก':'Lizard',
+  'ความตาย':'Death','กระต่าย':'Rabbit','สุนัข':'Dog','ลิง':'Monkey','หญ้า':'Grass',
+  'อ้อ':'Reed','เสือจากัวร์':'Jaguar','อินทรี':'Eagle','แร้ง':'Vulture',
+  'การเคลื่อนไหว':'Movement','หินเหล็กไฟ':'Flint','ฝน':'Rain','ดอกไม้':'Flower',
+  // Celtic trees
+  'เบิร์ช':'Birch','โรวัน':'Rowan','แอช':'Ash','อัลเดอร์':'Alder','วิลโลว์':'Willow',
+  'ฮอว์ธอร์น':'Hawthorn','โอ๊ก':'Oak','ฮอลลี่':'Holly','เฮเซล':'Hazel','เถาองุ่น':'Vine',
+  'ไอวี่':'Ivy','กก':'Reed','แบล็คธอร์น':'Blackthorn',
+  // Saju dominant energy
+  '생조 — เดือนหนุนวัน  ':'생조 — month feeds the day',
+  // Western signs (already covered)
+  // Common short labels used in convergence
+  'เห็นด้วย':'Agree','กลางๆ':'Mixed','เสียงเตือน':'Cautions',
+  'ครบทุกธาตุ':'all elements present',
+  // ZiWei stars (mainStarTh → main star)
+  'ดาวม่วงจักรพรรดิ':'Purple Emperor Star','ดาวปัญญา':'Wisdom Star',
+  'ดาวพระอาทิตย์':'Sun Star','ดาวโลหะแกร่ง':'Strong Metal Star',
+  'ดาวสวรรค์สมดุล':'Heavenly Balance Star','ดาวศักดิ์ศรี':'Honour Star',
+  'ดาวคลังสมบัติ':'Treasury Star','ดาวพระจันทร์':'Moon Star',
+  'ดาวหมาป่า':'Wolf Star','ดาวประตูยักษ์':'Giant Gate Star',
+  'ดาวมนตรี':'Minister Star','ดาวคานฟ้า':'Heaven Beam Star',
+  // Thai-Brahmin god names (godTh)
+  'พระอาทิตย์':'Surya (Sun)','พระจันทร์':'Chandra (Moon)','พระอังคาร':'Mangala (Mars)',
+  'พระพุธ':'Budha (Mercury)','พระพฤหัสบดี':'Brihaspati (Jupiter)','พระศุกร์':'Shukra (Venus)',
+  'พระเสาร์':'Shani (Saturn)',
+  // Misc closing fragments seen in probe
+  'ผู้ปกป้องและนักทำนาย':'Protector and seer',
+  'ดาวของคุณตรงกับดาวปี':'Your star matches the year\'s star',
+  'ทุกสิ่งขยายผลคูณสอง':'Everything amplifies twofold',
+  'ต้องใส่ใจทุกการกระทำ':'You must be mindful of every action',
+  'ทั้งโอกาสและความเสี่ยง':'both opportunity and risk',
+}
+// Translate a data-layer Thai string to English when in EN mode. Falls
+// through unchanged when (a) lang is Thai or (b) the string isn\'t in the
+// map — so untranslated strings remain visible (and traceable) instead of
+// silently dropping.
+const trDF = (s: string): string => {
+  if (_lang !== 'en' || !s) return s
+  return _DF_MAP[s] ?? s
+}
 function section(_num: number, title: string, icon: string, content: string) {
   _pageNum++
   const isEn = _lang === 'en'
@@ -356,7 +519,7 @@ function p_threeScores(c: ChartData): string {
       <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">${tr('ระบบที่ให้คะแนนสูงสุด (Top 5)', 'Top-5 highest-scoring systems')}</div>
       ${c.score.breakdown.slice().sort((a,b)=>b.score-a.score).slice(0,5).map(b =>
         `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 10px;background:#1a1510;border-radius:6px">
-          <span style="font-size:12px;color:#c8b890">${esc(b.system)}</span>
+          <span style="font-size:12px;color:#c8b890">${esc(trDF(b.system))}</span>
           <span style="font-size:13px;font-weight:700;color:#d4aa50">${b.score}</span>
         </div>`
       ).join('')}
@@ -367,7 +530,7 @@ function p_threeScores(c: ChartData): string {
       <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">${tr('ระบบที่ให้คะแนนต่ำสุด (Bottom 3) — ดาบสองคม', 'Bottom-3 lowest-scoring systems — double-edged sword')}</div>
       ${c.score.breakdown.slice().sort((a,b)=>a.score-b.score).slice(0,3).map(b =>
         `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 10px;background:#1a1008;border-radius:6px;border-left:2px solid #6a3010">
-          <span style="font-size:12px;color:#a87050">${esc(b.system)}</span>
+          <span style="font-size:12px;color:#a87050">${esc(trDF(b.system))}</span>
           <div style="text-align:right">
             <span style="font-size:13px;font-weight:700;color:#d07040">${b.score}</span>
             <div style="font-size:10px;color:#7a5030">${esc(b.finding.slice(0,40))}</div>
@@ -391,7 +554,7 @@ function p02_scoreBreakdown(c: ChartData): string {
   const systemRow = (b: typeof sorted[0], icon: string) => `
     <div style="display:flex;align-items:center;gap:8px;margin:3px 0;padding:5px 8px;background:#141210;border-radius:6px">
       <span style="min-width:20px;text-align:center">${icon}</span>
-      <span style="flex:1;font-size:12px;color:#c8b890">${esc(b.system)}</span>
+      <span style="flex:1;font-size:12px;color:#c8b890">${esc(trDF(b.system))}</span>
       <span style="font-size:12px;font-weight:600;color:#d4aa50;min-width:34px;text-align:right">${b.score}</span>
       <div style="width:80px;background:#1a1510;border-radius:3px;height:6px;overflow:hidden">
         <div style="width:${Math.round((b.score-400)/6)}%;height:6px;background:${b.color}"></div>
@@ -504,10 +667,10 @@ function p03_convergence(c: ChartData): string {
     { sys:'Onmyōdō', label:'Onmyōdō '+onmyodo.rokuyo },
   ].forEach(({ sys, label }) => { const s = all26.find(b=>b.system.toLowerCase().includes(sys.toLowerCase()))?.score??0; if (s>=780) elVotes.push({ system:label, score:s }) })
   themes.push({ icon:'🔥',
-    theme: tr(`ธาตุ${dmEl} — แกนพลังงานที่ทุกศาสตร์สะท้อน`, `${dmEl} Element — the energetic core every system reflects`),
+    theme: tr(`ธาตุ${dmEl} — แกนพลังงานที่ทุกศาสตร์สะท้อน`, `${trDF(dmEl)} Element — the energetic core every system reflects`),
     color:'#d48050', votes:elVotes,
     msg: tr(`Day Master ${bazi.dayStem} (${bazi.dayMasterTh}) + สีมงคล ${ninestar.starColor} + ทิศ ${ninestar.starDirection} — ธาตุ${dmEl}คือเส้นด้ายทอง`,
-            `Day Master ${bazi.dayStem} (${bazi.dayMasterTh}) + lucky colour ${ninestar.starColor} + direction ${ninestar.starDirection} — ${dmEl} is the golden thread.`) })
+            `Day Master ${bazi.dayStem} (${trDF(bazi.dayMasterTh)}) + lucky colour ${trDF(ninestar.starColor)} + direction ${trDF(ninestar.starDirection)} — ${trDF(dmEl)} is the golden thread.`) })
 
   // ─── 2. High-Score Consensus (ศาสตร์ที่เห็นภาพรวมดี) ───────────────────
   const highVotes: Vote[] = all26.filter(b => b.score >= 780).map(b => ({ system:b.system, score:b.score }))
@@ -554,7 +717,7 @@ function p03_convergence(c: ChartData): string {
   themes.push({ icon:'👑',
     theme: tr('ความแข็งแกร่งและอำนาจ — พลังงานผู้นำ','Strength & Authority — Leadership Energy'),
     color:'#c0a030', votes:strVotes,
-    msg:`${humandesign.typeTh} Profile ${humandesign.profile} + LP${numerology.lifePath} + NSK Star ${ninestar.star} + Zi Wei ${ziwei.mainStarTh}` })
+    msg:`${trDF(humandesign.typeTh)} Profile ${humandesign.profile} + LP${numerology.lifePath} + NSK Star ${ninestar.star} + Zi Wei ${trDF(ziwei.mainStarTh)}` })
 
   // ─── 5. Wealth / Material (ศักยภาพทรัพย์) ────────────────────────────────
   const wlthVotes: Vote[] = []
@@ -579,7 +742,7 @@ function p03_convergence(c: ChartData): string {
     theme: tr('ศักยภาพความมั่งคั่ง','Wealth Potential'),
     color:'#50b080', votes:wlthVotes,
     msg: tr(`${wlthVotes.length} ระบบเห็นโอกาส — Arabic Parts ใน${arabicParts.fortuneSign} + ${vedicMahadasha.currentDasha} Dasha + Lucky Element ${bazi.luckyElement}`,
-            `${wlthVotes.length} systems see opportunity — Arabic Parts in ${arabicParts.fortuneSign} + ${vedicMahadasha.currentDasha} Dasha + Lucky Element ${bazi.luckyElement}`) })
+            `${wlthVotes.length} systems see opportunity — Arabic Parts in ${trDF(arabicParts.fortuneSign)} + ${vedicMahadasha.currentDasha} Dasha + Lucky Element ${trDF(bazi.luckyElement)}`) })
 
   // ─── 6. Spiritual / Inner Depth (ความลึกภายใน) ───────────────────────────
   const deptVotes: Vote[] = []
@@ -602,7 +765,7 @@ function p03_convergence(c: ChartData): string {
   themes.push({ icon:'🔮',
     theme: tr('ความลึกภายใน — จิตวิญญาณและสัญชาตญาณ','Inner Depth — Spirit & Intuition'),
     color:'#9060c0', votes:deptVotes,
-    msg:`LP${numerology.lifePath} + ${kabbalistic.sephira} + ${aboriginal.dreamingTh} + Vedic Nakshatra ${vedic.moonNakshatra}` })
+    msg:`LP${numerology.lifePath} + ${kabbalistic.sephira} + ${trDF(aboriginal.dreamingTh)} + Vedic Nakshatra ${vedic.moonNakshatra}` })
 
   // ─── 7. Tension / Challenge (จุดท้าทาย) ───────────────────────────────────
   const warnVotes: Vote[] = all26.filter(b => b.score < 650).map(b => ({ system:b.system+' ('+b.score+')', score:b.score }))
@@ -633,7 +796,7 @@ function p03_convergence(c: ChartData): string {
   themes.push({ icon:'💞',
     theme: tr('พลังความสัมพันธ์ — เครือข่ายและการเชื่อมต่อ','Relational Power — Networks & Connection'),
     color:'#c06080', votes:relVotes,
-    msg:`HD Profile ${humandesign.profile} + ${kabbalistic.archangel} + ${nativeAmerican.clansmother} + ${ifaYoruba.oduTheme.slice(0,20)}` })
+    msg:`HD Profile ${humandesign.profile} + ${kabbalistic.archangel} + ${nativeAmerican.clansmother} + ${trDF(ifaYoruba.oduTheme.slice(0,20))}` })
 
   const visible = themes.filter(t => t.votes.length >= 3).sort((a,b) => b.votes.length - a.votes.length)
 
@@ -641,7 +804,7 @@ function p03_convergence(c: ChartData): string {
   const narratives: Record<string,string> = {
     '🔥': tr(
       `จาก ${c.score.breakdown.filter(b=>b.score>=780).length} ระบบที่ให้คะแนนสูง ธาตุ${dmEl}ปรากฏชัดเจนที่สุด — Day Master ${bazi.dayStem} (${bazi.dayMasterTh}) กำหนดวิธีที่คุณประมวลผลโลก ไม่ใช่แค่ "นิสัย" แต่คือโครงสร้างพื้นฐานของการตัดสินใจและพลังงานชีวิต ศาสตร์ทั้งในและตะวันตกต่างยืนยันสิ่งเดียวกันโดยไม่รู้จักกัน`,
-      `Across the ${c.score.breakdown.filter(b=>b.score>=780).length} highest-scoring systems, the ${dmEl} element shows up most clearly. Day Master ${bazi.dayStem} (${bazi.dayMasterTh}) shapes how you process the world — not as "personality", but as the underlying structure of how you make decisions and where your life-force flows. Eastern and Western traditions, computed independently, both confirm the same signal.`),
+      `Across the ${c.score.breakdown.filter(b=>b.score>=780).length} highest-scoring systems, the ${trDF(dmEl)} element shows up most clearly. Day Master ${bazi.dayStem} (${trDF(bazi.dayMasterTh)}) shapes how you process the world — not as "personality", but as the underlying structure of how you make decisions and where your life-force flows. Eastern and Western traditions, computed independently, both confirm the same signal.`),
     '🌟': tr(
       `เมื่อมีระบบจากหลายวัฒนธรรม (ตะวันออก ตะวันตก แอฟริกา อเมริกา โอเชียเนีย) ต่างให้คะแนนสูงพร้อมกัน — นั่นคือ consensus ที่แท้จริง ไม่ใช่แค่ระบบใดระบบหนึ่งชอบ แต่ "ดวงชาตา" นี้แข็งแกร่งข้ามวัฒนธรรม`,
       `When systems from multiple cultures (East, West, Africa, the Americas, Oceania) score high simultaneously — that's true consensus. Not one tradition that happens to favour you, but a chart that holds up across cultural lenses.`),
@@ -650,16 +813,16 @@ function p03_convergence(c: ChartData): string {
       `2026 is not just incidentally good — multiple astrological mechanisms open at once. BaZi Ben Ming Nian means your energy "comes home" on its 12-year cycle. NSK Star 9 Honmei Kaiki means your birth star aligns with the year-star. Vedic Dasha currently rules ${vedicMahadasha.currentDasha} — this is the window for action.`),
     '👑': tr(
       `ลักษณะผู้นำในดวงชาตาไม่ได้มาจากความทะเยอทะยาน แต่มาจากโครงสร้างของพลังงาน — ${humandesign.typeTh} Strategy "${humandesign.strategy}" ประกอบกับ NSK Star ${ninestar.star} และ LP${numerology.lifePath} บ่งว่าคุณถูกออกแบบให้ "guide" มากกว่า "push"`,
-      `The leadership signature in your chart isn't ambition — it's energetic structure. ${humandesign.typeTh} Strategy "${humandesign.strategy}" combined with NSK Star ${ninestar.star} and LP${numerology.lifePath} indicates you're designed to "guide" rather than "push".`),
+      `The leadership signature in your chart isn't ambition — it's energetic structure. ${trDF(humandesign.typeTh)} Strategy "${trDF(humandesign.strategy)}" combined with NSK Star ${ninestar.star} and LP${numerology.lifePath} indicates you're designed to "guide" rather than "push".`),
     '💎': tr(
       `ศักยภาพทรัพย์ในดวงไม่ใช่การรับรองว่าจะรวย แต่คือ "ทิศทาง" ที่พลังงานไหลได้ดีที่สุด — Arabic Parts Fortune ใน${arabicParts.fortuneSign} ร่วมกับ ${vedicMahadasha.currentDasha} Dasha และ Lucky Element ${bazi.luckyElement} บ่งทิศ`,
-      `Wealth potential in a chart isn't a guarantee of riches — it's the direction your energy flows best. Arabic Parts Fortune in ${arabicParts.fortuneSign} combined with the ${vedicMahadasha.currentDasha} Dasha and Lucky Element ${bazi.luckyElement} marks that direction.`),
+      `Wealth potential in a chart isn't a guarantee of riches — it's the direction your energy flows best. Arabic Parts Fortune in ${trDF(arabicParts.fortuneSign)} combined with the ${vedicMahadasha.currentDasha} Dasha and Lucky Element ${trDF(bazi.luckyElement)} marks that direction.`),
     '🔮': tr(
       `ความลึกทางจิตวิญญาณใน LP${numerology.lifePath} + ${kabbalistic.sephira} + ${celtic.treeNameTh} บ่งว่าคุณมี "antenna" รับสัญญาณที่ละเอียดกว่าคนทั่วไป — สิ่งนี้อาจทำให้ตัดสินใจช้า แต่เมื่อตัดสินใจแล้วมักถูกต้อง`,
-      `The spiritual depth across LP${numerology.lifePath} + ${kabbalistic.sephira} + ${celtic.treeNameTh} suggests you have a finer "antenna" for subtle signals than most people. This can make decisions slow — but when you do decide, you're usually right.`),
+      `The spiritual depth across LP${numerology.lifePath} + ${kabbalistic.sephira} + ${trDF(celtic.treeNameTh)} suggests you have a finer "antenna" for subtle signals than most people. This can make decisions slow — but when you do decide, you're usually right.`),
     '⚡': tr(
       `ทุกจุดท้าทายในดวงมีเหตุผล — ธาตุขาด${bazi.missingElement ? bazi.missingElement : 'ไม่มี'} คือพลังงานที่ต้องหามาจากภายนอก ระบบที่ score ต่ำกว่า median ไม่ได้บอกว่า "ดวงแย่" แต่บอกว่า "พลังงานนั้นไม่ใช่ทิศหลัก"`,
-      `Every challenge in your chart has a reason. The missing ${bazi.missingElement || 'no'} element is the energy you must source from outside. Systems scoring below median don't say "bad chart" — they say "this energy isn't your primary direction".`),
+      `Every challenge in your chart has a reason. The missing ${trDF(bazi.missingElement) || 'no'} element is the energy you must source from outside. Systems scoring below median don't say "bad chart" — they say "this energy isn't your primary direction".`),
     '💞': tr(
       `พลังความสัมพันธ์ใน HD Profile ${humandesign.profile} + ${kabbalistic.archangel} + ${nativeAmerican.clansmother} บ่งว่าเครือข่ายมนุษย์คือ multiplier — คนเดียวได้ 1x แต่ผ่านคนที่ใช่ได้ 5-10x`,
       `The relational signature in HD Profile ${humandesign.profile} + ${kabbalistic.archangel} + ${nativeAmerican.clansmother} indicates that human networks are your multiplier — solo you do 1x, but through the right people 5-10x.`),
@@ -675,22 +838,22 @@ function p03_convergence(c: ChartData): string {
 
 function p_new16systems(c: ChartData): string {
   const systems = [
-    { name:'Saju (Korean)', icon:'🇰🇷', data: `${c.saju.yearPillar} ${c.saju.monthPillar} ${c.saju.dayPillar} ${c.saju.hourPillar}`, detail: c.saju.dominantEnergy, score: c.saju.score },
+    { name:'Saju (Korean)', icon:'🇰🇷', data: `${c.saju.yearPillar} ${c.saju.monthPillar} ${c.saju.dayPillar} ${c.saju.hourPillar}`, detail: trDF(c.saju.dominantEnergy), score: c.saju.score },
     { name:'Tibetan Mewa', icon:'☸️', data: `Mewa ${c.tibetan.mewa} ${c.tibetan.mewaName}`, detail: c.tibetan.parkhaName, score: c.tibetan.score },
-    { name:'Zi Wei (紫微)', icon:'🌌', data: c.ziwei.mainStarTh, detail: c.ziwei.lifePalaceName, score: c.ziwei.score },
+    { name:'Zi Wei (紫微)', icon:'🌌', data: trDF(c.ziwei.mainStarTh), detail: c.ziwei.lifePalaceName, score: c.ziwei.score },
     { name:'Onmyōdō', icon:'⛩️', data: `${c.onmyodo.rokuyo} ${c.onmyodo.rokuyoTh}`, detail: c.onmyodo.onmyoPolarity, score: c.onmyodo.score },
-    { name:'Hellenistic', icon:'🏛️', data: `${c.hellenistic.sect}`, detail: `Fortune ใน ${c.hellenistic.lotSign}`, score: c.hellenistic.score },
-    { name:'Norse Rune', icon:'ᚱ', data: `${c.norseRune.rune} ${c.norseRune.runeName}`, detail: c.norseRune.runeKeyword, score: c.norseRune.score },
-    { name:'Ogham', icon:'🌿', data: `${c.ogham.ogham} ${c.ogham.treeName}`, detail: c.ogham.oghamClass, score: c.ogham.score },
-    { name:'Arabic Parts', icon:'⭐', data: `Fortune ใน ${c.arabicParts.fortuneSign}`, detail: `Spirit ใน ${c.arabicParts.spiritSign}`, score: c.arabicParts.score },
+    { name:'Hellenistic', icon:'🏛️', data: `${c.hellenistic.sect}`, detail: `${tr('Fortune ใน','Fortune in')} ${trDF(c.hellenistic.lotSign)}`, score: c.hellenistic.score },
+    { name:'Norse Rune', icon:'ᚱ', data: `${c.norseRune.rune} ${c.norseRune.runeName}`, detail: trDF(c.norseRune.runeKeyword), score: c.norseRune.score },
+    { name:'Ogham', icon:'🌿', data: `${c.ogham.ogham} ${c.ogham.treeName}`, detail: trDF(c.ogham.oghamClass), score: c.ogham.score },
+    { name:'Arabic Parts', icon:'⭐', data: `${tr('Fortune ใน','Fortune in')} ${trDF(c.arabicParts.fortuneSign)}`, detail: `${tr('Spirit ใน','Spirit in')} ${trDF(c.arabicParts.spiritSign)}`, score: c.arabicParts.score },
     { name:'Kabbalistic', icon:'✡️', data: c.kabbalistic.sephira, detail: c.kabbalistic.archangel, score: c.kabbalistic.score },
-    { name:'Zoroastrian', icon:'🔥', data: c.zoroastrian.dayYazataTh.slice(0,20), detail: c.zoroastrian.monthAmeshaTh.slice(0,20), score: c.zoroastrian.score },
-    { name:'Aztec', icon:'🦅', data: `${c.aztec.daySignTh} ${c.aztec.toneNumber}`, detail: c.aztec.daySignQuality, score: c.aztec.score },
-    { name:'Native American', icon:'🦅', data: c.nativeAmerican.birthTotemTh, detail: c.nativeAmerican.clansmother, score: c.nativeAmerican.score },
-    { name:'Ifa/Yoruba', icon:'🥁', data: `Odù ${c.ifaYoruba.odu}`, detail: c.ifaYoruba.fortune, score: c.ifaYoruba.score },
-    { name:'Aboriginal', icon:'🌈', data: c.aboriginal.dreamingTh, detail: c.aboriginal.clan, score: c.aboriginal.score },
-    { name:'Biorhythm', icon:'📈', data: `P:${c.biorhythm.physical}% E:${c.biorhythm.emotional}%`, detail: c.biorhythm.intellectualPhase, score: c.biorhythm.score },
-    { name:'Vedic Mahadasha', icon:'🕉️', data: `${c.vedicMahadasha.currentDasha} Dasha`, detail: `ถึงปี ${c.vedicMahadasha.currentDashaEnd}`, score: c.vedicMahadasha.score },
+    { name:'Zoroastrian', icon:'🔥', data: c.zoroastrian.dayYazataTh.slice(0,20), detail: trDF(c.zoroastrian.monthAmeshaTh.slice(0,20)), score: c.zoroastrian.score },
+    { name:'Aztec', icon:'🦅', data: `${trDF(c.aztec.daySignTh)} ${c.aztec.toneNumber}`, detail: trDF(c.aztec.daySignQuality), score: c.aztec.score },
+    { name:'Native American', icon:'🦅', data: trDF(c.nativeAmerican.birthTotemTh), detail: c.nativeAmerican.clansmother, score: c.nativeAmerican.score },
+    { name:'Ifa/Yoruba', icon:'🥁', data: `Odù ${c.ifaYoruba.odu}`, detail: trDF(c.ifaYoruba.fortune), score: c.ifaYoruba.score },
+    { name:'Aboriginal', icon:'🌈', data: trDF(c.aboriginal.dreamingTh), detail: c.aboriginal.clan, score: c.aboriginal.score },
+    { name:'Biorhythm', icon:'📈', data: `P:${c.biorhythm.physical}% E:${c.biorhythm.emotional}%`, detail: trDF(c.biorhythm.intellectualPhase), score: c.biorhythm.score },
+    { name:'Vedic Mahadasha', icon:'🕉️', data: `${c.vedicMahadasha.currentDasha} Dasha`, detail: `${tr('ถึงปี','until')} ${c.vedicMahadasha.currentDashaEnd}`, score: c.vedicMahadasha.score },
   ]
   return section(5, tr('16 ระบบเพิ่มเติม — ภาพรวม', '16 Additional Systems — Overview'), '🌍', `
     <div style="font-size:11px;color:#7a6a52;margin-bottom:12px">
@@ -1208,26 +1371,68 @@ function p16_activation(c: ChartData): string {
 
   // Pull positive actions from all 26 systems — ranked by how many systems endorse
   const positives: {icon:string;pts:number;title:string;body:string;systems:string[]}[] = [
-    { icon:'🧭', pts:0, title:`หันหัวทิศ${ninestar.directionSleep}นอน`, body:`NSK Star ${ninestar.star}: ทิศนอน${ninestar.directionSleep} ยืนยันโดย Feng Shui พื้นฐาน`, systems:['Nine Star Ki','BaZi Feng Shui'] },
-    { icon:'🎯', title:`ทำตาม Strategy "${humandesign.strategy}"`, pts:0, body:`Energy Type ${humandesign.typeTh}: หัวใจของ Human Design — ฝืนแล้วเหนื่อยเปล่า`, systems:['Energy Type System','Kabbalistic (${kabbalistic.archangel})'] },
-    { icon:'🔥', title:`เสริมธาตุ${bazi.luckyElement}ทุกวัน`, pts:0, body:`BaZi: ธาตุมงคล${bazi.luckyElement} หนุน Day Master ${bazi.dayMasterTh}`, systems:['BaZi','Saju (Korean)','Tibetan Mewa'] },
-    { icon:'🎨', title:`ใส่สี${ninestar.starColor}เป็น accent`, pts:0, body:`NSK ${ninestar.starChinese} + ไทยพราหมณ์วัน${thai.dayName}: สี${ninestar.starColor}/${thai.dayColor}`, systems:['Nine Star Ki','ไทยพราหมณ์','Celtic'] },
-    { icon:'📝', title:`Journal ทุกเช้า — ตั้งเจตนา`, pts:0, body:`Life Path ${numerology.lifePath} + Kabbalistic ${kabbalistic.sephira}: ความชัดเจนในความคิดเป็นพลังงาน`, systems:['Numerology','Kabbalistic','Zoroastrian'] },
-    { icon:'🙏', title:`ทำพิธีกรรมวัน${thai.dayName}`, pts:0, body:`ไทยพราหมณ์ + Zoroastrian ${zoroastrian.dayYazataTh}: สักการะในวันเกิดของสัปดาห์`, systems:['ไทยพราหมณ์','Zoroastrian','Onmyōdō'] },
-    { icon:'🌿', title:`ออกกำลังกาย 3x/สัปดาห์`, pts:0, body:`Biorhythm Physical ${biorhythm.physical}% (${biorhythm.physicalPhase}) + ${celtic.treeNameTh} ธาตุ${celtic.element}`, systems:['Biorhythm','Celtic','Native American'] },
-    { icon:'💬', title:`รอ Response ก่อนลงมือ`, pts:0, body:`${humandesign.typeTh} Authority ${humandesign.authority}: ตัดสินใจตาม inner response`, systems:['Energy Type System','Norse Rune (${norseRune.runeName})'] },
-    { icon:'🗺️', title:`วางแผนทิศ${ninestar.starDirection}`, pts:0, body:`NSK ทิศโชค${ninestar.starDirection} ปี 2026: ใช้ทิศนี้ในการเดินทางและจัดโต๊ะทำงาน`, systems:['Nine Star Ki','Arabic Parts (${arabicParts.fortuneSign})'] },
-    { icon:'🌟', title:`เชื่อมกับ Odù ${ifaYoruba.odu}`, pts:0, body:`Ifa/Yoruba: ${ifaYoruba.oduTh} — ${ifaYoruba.oduTheme}`, systems:['Ifa/Yoruba','Aboriginal (${aboriginal.dreamingTh})'] },
+    { icon:'🧭', pts:0,
+      title: tr(`หันหัวทิศ${ninestar.directionSleep}นอน`, `Sleep with your head pointing ${trDF(ninestar.directionSleep)}`),
+      body: tr(`NSK Star ${ninestar.star}: ทิศนอน${ninestar.directionSleep} ยืนยันโดย Feng Shui พื้นฐาน`, `NSK Star ${ninestar.star}: sleep direction ${trDF(ninestar.directionSleep)}, confirmed by core Feng Shui`),
+      systems:['Nine Star Ki','BaZi Feng Shui'] },
+    { icon:'🎯', pts:0,
+      title: tr(`ทำตาม Strategy "${humandesign.strategy}"`, `Follow your Strategy "${trDF(humandesign.strategy)}"`),
+      body: tr(`Energy Type ${humandesign.typeTh}: หัวใจของ Human Design — ฝืนแล้วเหนื่อยเปล่า`, `Energy Type ${trDF(humandesign.typeTh)}: heart of Human Design — fight it and you exhaust yourself`),
+      systems:['Energy Type System','Kabbalistic'] },
+    { icon:'🔥', pts:0,
+      title: tr(`เสริมธาตุ${bazi.luckyElement}ทุกวัน`, `Reinforce the ${trDF(bazi.luckyElement)} element daily`),
+      body: tr(`BaZi: ธาตุมงคล${bazi.luckyElement} หนุน Day Master ${bazi.dayMasterTh}`, `BaZi: lucky element ${trDF(bazi.luckyElement)} supports Day Master ${trDF(bazi.dayMasterTh)}`),
+      systems:['BaZi','Saju (Korean)','Tibetan Mewa'] },
+    { icon:'🎨', pts:0,
+      title: tr(`ใส่สี${ninestar.starColor}เป็น accent`, `Wear ${trDF(ninestar.starColor)} as an accent colour`),
+      body: tr(`NSK ${ninestar.starChinese} + ไทยพราหมณ์วัน${thai.dayName}: สี${ninestar.starColor}/${thai.dayColor}`, `NSK ${ninestar.starChinese} + Thai-Brahmin ${trDF(thai.dayName)}: ${trDF(ninestar.starColor)} / ${trDF(thai.dayColor)}`),
+      systems:['Nine Star Ki','Thai Brahmin','Celtic'] },
+    { icon:'📝', pts:0,
+      title: tr(`Journal ทุกเช้า — ตั้งเจตนา`, `Journal every morning — set intentions`),
+      body: tr(`Life Path ${numerology.lifePath} + Kabbalistic ${kabbalistic.sephira}: ความชัดเจนในความคิดเป็นพลังงาน`, `Life Path ${numerology.lifePath} + Kabbalistic ${kabbalistic.sephira}: clarity of thought IS energy`),
+      systems:['Numerology','Kabbalistic','Zoroastrian'] },
+    { icon:'🙏', pts:0,
+      title: tr(`ทำพิธีกรรมวัน${thai.dayName}`, `Perform a ritual on ${trDF(thai.dayName)}`),
+      body: tr(`ไทยพราหมณ์ + Zoroastrian ${zoroastrian.dayYazataTh}: สักการะในวันเกิดของสัปดาห์`, `Thai-Brahmin + Zoroastrian ${zoroastrian.dayYazataTh}: honour the deity on your birth-weekday`),
+      systems:['Thai Brahmin','Zoroastrian','Onmyōdō'] },
+    { icon:'🌿', pts:0,
+      title: tr(`ออกกำลังกาย 3x/สัปดาห์`, `Exercise 3× per week`),
+      body: tr(`Biorhythm Physical ${biorhythm.physical}% (${biorhythm.physicalPhase}) + ${celtic.treeNameTh} ธาตุ${celtic.element}`, `Biorhythm Physical ${biorhythm.physical}% (${trDF(biorhythm.physicalPhase)}) + Celtic ${trDF(celtic.treeNameTh)} (${trDF(celtic.element)})`),
+      systems:['Biorhythm','Celtic','Native American'] },
+    { icon:'💬', pts:0,
+      title: tr(`รอ Response ก่อนลงมือ`, `Wait for the inner response before acting`),
+      body: tr(`${humandesign.typeTh} Authority ${humandesign.authority}: ตัดสินใจตาม inner response`, `${trDF(humandesign.typeTh)} Authority ${humandesign.authority}: decide via inner response`),
+      systems:['Energy Type System','Norse Rune'] },
+    { icon:'🗺️', pts:0,
+      title: tr(`วางแผนทิศ${ninestar.starDirection}`, `Plan around the ${trDF(ninestar.starDirection)} direction`),
+      body: tr(`NSK ทิศโชค${ninestar.starDirection} ปี 2026: ใช้ทิศนี้ในการเดินทางและจัดโต๊ะทำงาน`, `NSK lucky direction ${trDF(ninestar.starDirection)} for 2026: use it for travel and work-desk orientation`),
+      systems:['Nine Star Ki','Arabic Parts'] },
+    { icon:'🌟', pts:0,
+      title: tr(`เชื่อมกับ Odù ${ifaYoruba.odu}`, `Connect with Odù ${ifaYoruba.odu}`),
+      body: tr(`Ifa/Yoruba: ${ifaYoruba.oduTh} — ${ifaYoruba.oduTheme}`, `Ifa/Yoruba: ${ifaYoruba.odu} — ${trDF(ifaYoruba.oduTheme)}`),
+      systems:['Ifa/Yoruba','Aboriginal'] },
   ]
 
   // Pull negative inputs (things to avoid) from low-scoring systems + BaZi avoidance
   const negatives: {icon:string;title:string;body:string;source:string}[] = [
-    { icon:'🚫', title:`หลีกเลี่ยงธาตุ${bazi.avoidElement}`, body:`BaZi: ธาตุ${bazi.avoidElement}กดพลังงาน Day Master — ลดสีและอาหารที่สอดคล้อง`, source:'BaZi' },
-    { icon:'⚠️', title:`ระวัง Self-Punishment 午午`, body:`BaZi: ${bazi.dayStem}${bazi.dayBranch} + ${bazi.yearStem}${bazi.yearBranch} มีแรงกดดันตัวเอง — อย่า overthink`, source:'BaZi Self-Punch' },
+    { icon:'🚫',
+      title: tr(`หลีกเลี่ยงธาตุ${bazi.avoidElement}`, `Avoid the ${trDF(bazi.avoidElement)} element`),
+      body: tr(`BaZi: ธาตุ${bazi.avoidElement}กดพลังงาน Day Master — ลดสีและอาหารที่สอดคล้อง`, `BaZi: ${trDF(bazi.avoidElement)} suppresses your Day Master — reduce matching colours and foods`),
+      source:'BaZi' },
+    { icon:'⚠️',
+      title: tr(`ระวัง Self-Punishment 午午`, `Watch for Self-Punishment 午午`),
+      body: tr(`BaZi: ${bazi.dayStem}${bazi.dayBranch} + ${bazi.yearStem}${bazi.yearBranch} มีแรงกดดันตัวเอง — อย่า overthink`, `BaZi: ${bazi.dayStem}${bazi.dayBranch} + ${bazi.yearStem}${bazi.yearBranch} carries self-pressure — don't overthink`),
+      source:'BaZi Self-Punch' },
     ...(c.score.breakdown.filter(b => b.score < 650).map(b => ({
-      icon: '⚠️', title: `ระวัง: ${b.system}`, body: b.finding, source: b.system
+      icon: '⚠️',
+      title: tr(`ระวัง: ${b.system}`, `Watch: ${trDF(b.system)}`),
+      body: trDF(b.finding),
+      source: trDF(b.system)
     }))),
-    { icon:'🔴', title:`${onmyodo.rokuyo} Birth Day — ระวังสิ่งนี้`, body:`Onmyōdō ${onmyodo.rokuyoTh}: วันเกิดมีพลังงาน${onmyodo.rokuyo} — ระมัดระวังในวันเดียวกันของสัปดาห์`, source:'Onmyōdō' },
+    { icon:'🔴',
+      title: tr(`${onmyodo.rokuyo} Birth Day — ระวังสิ่งนี้`, `${onmyodo.rokuyo} Birth Day — be aware`),
+      body: tr(`Onmyōdō ${onmyodo.rokuyoTh}: วันเกิดมีพลังงาน${onmyodo.rokuyo} — ระมัดระวังในวันเดียวกันของสัปดาห์`, `Onmyōdō ${onmyodo.rokuyo}: your birth day carries ${onmyodo.rokuyo} energy — be cautious on the same weekday`),
+      source:'Onmyōdō' },
   ]
 
   // Score by system count (systems array length)
@@ -2250,7 +2455,13 @@ function extractSignals(c: ChartData, topic: 'health'|'finance'|'timing'|'elemen
 function consensusRow(icon: string, theme: string, systems: string[], msg: string, count: number, color = '#d4aa50', narrative = ''): string {
   const strength = count >= 10 ? '██████' : count >= 7 ? '████' : count >= 4 ? '██' : '█'
   // Show ALL systems as chips — no truncation
-  const chips = systems.map(s => `<span style="display:inline-block;background:${color}18;color:${color};border:1px solid ${color}44;border-radius:4px;padding:1px 7px;font-size:10px;margin:2px">${esc(s.split('(')[0].trim())}</span>`).join('')
+  const chips = systems.map(s => {
+    // Translate any embedded Thai data fields in the chip label.
+    // System labels are constructed like 'Tibetan Mewa 5' or 'Aboriginal งูรุ้ง'
+    // — split-and-translate on whitespace so Thai tokens get hit by trDF.
+    const label = s.split('(')[0].trim().split(/\s+/).map(tok => trDF(tok)).join(' ')
+    return `<span style="display:inline-block;background:${color}18;color:${color};border:1px solid ${color}44;border-radius:4px;padding:1px 7px;font-size:10px;margin:2px">${esc(label)}</span>`
+  }).join('')
   return `<div style="border-left:3px solid ${color};padding:10px 14px;margin:10px 0;background:#141210;border-radius:0 8px 8px 0">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
       <span style="font-size:14px;font-weight:700;color:${color}">${icon} ${esc(theme)}</span>

@@ -1765,9 +1765,14 @@ function buildRichReading(args) {
         ? `${(args.yearsOld / 1000).toFixed(args.yearsOld % 1000 ? 1 : 0)} ${L.yearsThousandsPlural}`
         : `${args.yearsOld} ${L.yearsUnit}`;
     // Metadata header — single source of truth for origin/age/popularity/strength.
+    // In Thai mode: show "{sysTh} · {sysEn}" (Thai primary, EN sub).
+    // In English mode: show only {sysEn} so the Thai sysTh doesn't leak.
+    const titleHTML = isEn
+        ? args.sysEn
+        : `${args.sysTh} · <span style="color:#9a8a72;letter-spacing:1px">${args.sysEn}</span>`;
     const metaHeader = (originCountry || popularity || keyStrength)
         ? `<div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
-         <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">${args.sysTh} · <span style="color:#9a8a72;letter-spacing:1px">${args.sysEn}</span></div>
+         <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">${titleHTML}</div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
            ${originCountry ? `<div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">${L.origin}</span><br><strong style="color:#d4aa50">${originCountry}</strong></div>` : ''}
            <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">${L.age}</span><br><strong style="color:#d4aa50">~ ${yearsText}</strong></div>
