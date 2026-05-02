@@ -8826,9 +8826,20 @@ function _addToLibrary(itemKey, opts){
   _writeLibrary(list);
 }
 
-// Returns true if EITHER (a) user has an active beta gift code OR (b) the
-// specific item has been purchased for the current chart input.
+// During soft-launch beta the Omise gateway is still pending approval, so
+// we cannot actually charge anyone. Gating the deep readings + add-ons +
+// full report behind paywalls during this window leaves users (especially
+// on mobile) staring at "Unlock $9" buttons they can never satisfy. Open
+// access until Omise goes live, then flip this back to false to re-enable
+// the per-input pricing model. The pricing UI (banner + price tags) stays
+// visible so users see the future price; only the access gate is relaxed.
+const _BETA_ALL_UNLOCKED = true;
+
+// Returns true if EITHER (a) Beta soft-launch mode is on (no charging
+// possible until Omise approves), OR (b) user has an active beta gift
+// code, OR (c) the specific item has been purchased for the current chart.
 function _hasItemAccess(itemKey, hashOverride){
+  if (_BETA_ALL_UNLOCKED) return true;
   if (_hasActiveGift()) return true;
   const hash = hashOverride || _chartInputHash();
   const map  = _readPurchases();
