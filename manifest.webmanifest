@@ -2,7 +2,7 @@
   "name": "Mythsensus — 26 Ancient Systems, One Cosmic Score",
   "short_name": "Mythsensus",
   "description": "Your full cosmic blueprint from 26 ancient divination systems. Free beta — no signup, works offline.",
-  "start_url": "/beta/",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",

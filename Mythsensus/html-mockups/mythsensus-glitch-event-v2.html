@@ -1,0 +1,744 @@
+<!-- FIX: SEC-L02 — Removed internal architecture comments, replaced with minimal production comment -->
+<!-- Mythsensus — Glitch Event Experience -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- FIX: SEC-H06 — Added Content Security Policy meta tag for production security -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>God Blessing Draw</title>
+<style>
+  :root {
+    --bg: #040407;
+    --gold: #c9a84c;
+    --gold-light: #f0d78c;
+    --gold-dark: #8a6d2b;
+    --card-size: min(320px, 80vw);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: #fff;
+    font-family: 'Georgia', serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ====== DEMO TRIGGER ====== */
+  #demo-btn {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    background: transparent;
+    border: 1px solid rgba(201, 168, 76, 0.4);
+    color: rgba(201, 168, 76, 0.7);
+    padding: 12px 32px;
+    font-family: 'Georgia', serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+  }
+  #demo-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: 0 0 20px rgba(201, 168, 76, 0.15);
+  }
+  #demo-btn.hidden { display: none; }
+
+  /* ====== MAIN CONTAINER ====== */
+  #scene {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ====== CARD ====== */
+  #card {
+    width: var(--card-size);
+    height: calc(var(--card-size) * 1.45);
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    background: linear-gradient(160deg, #0a0a12 0%, #080810 50%, #0a0a14 100%);
+    position: relative;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.6s, transform 0.6s;
+    overflow: hidden;
+  }
+  #card.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+  #card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 14px;
+    background: conic-gradient(from var(--card-angle, 0deg), transparent, var(--gold), transparent, var(--gold-light), transparent);
+    z-index: -1;
+    opacity: 0.6;
+    animation: cardSpin 3s linear infinite;
+  }
+  @keyframes cardSpin {
+    to { --card-angle: 360deg; }
+  }
+  @property --card-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  /* Inner card glow */
+  #card-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  /* Spinning symbol inside card */
+  #card-symbol {
+    font-size: 64px;
+    color: var(--gold);
+    opacity: 0.7;
+    animation: symbolPulse 1.5s ease-in-out infinite;
+  }
+  @keyframes symbolPulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); filter: blur(0px); }
+    50% { opacity: 0.9; transform: scale(1.05); filter: blur(1px); }
+  }
+
+  #card-text {
+    margin-top: 20px;
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--gold-dark);
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  /* Card reveal ring */
+  #card-ring {
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    border: 1px solid rgba(201, 168, 76, 0.2);
+    border-radius: 50%;
+    animation: ringExpand 2s ease-out infinite;
+  }
+  @keyframes ringExpand {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+
+  /* ====== NOISE CANVAS ====== */
+  #noise-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    mix-blend-mode: screen;
+  }
+
+  /* ====== GLITCH OVERLAY ====== */
+  #glitch-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    pointer-events: none;
+    opacity: 0;
+  }
+  .glitch-line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.08);
+    transform: scaleX(0);
+  }
+
+  /* ====== RANDOM CHARACTERS ====== */
+  #char-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    pointer-events: none;
+    opacity: 0;
+    font-family: monospace;
+    color: rgba(255, 255, 255, 0.15);
+    overflow: hidden;
+  }
+
+  /* ====== BLACKOUT ====== */
+  #blackout {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 500;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+  }
+  #blackout.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* ====== MESSAGE ====== */
+  #message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 600;
+    font-family: 'Courier New', monospace;
+    font-size: clamp(16px, 4vw, 28px);
+    color: #fff;
+    letter-spacing: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+  }
+  #message.visible {
+    opacity: 1;
+  }
+
+  /* ====== CLOSE BUTTON ====== */
+  #close-btn {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    z-index: 700;
+    background: none;
+    border: none;
+    color: #fff;
+    font-family: monospace;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s;
+    padding: 8px;
+    line-height: 1;
+  }
+  #close-btn.visible {
+    opacity: 0.3;
+    pointer-events: all;
+  }
+  #close-btn:hover {
+    opacity: 0.6;
+  }
+
+  /* ====== WHITE FLASH ====== */
+  #flash {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    z-index: 800;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.08s;
+  }
+  #flash.active {
+    opacity: 1;
+  }
+
+  /* ====== RESET SCREEN ====== */
+  #reset-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    background: var(--bg);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 30px;
+  }
+  #reset-screen.visible {
+    display: flex;
+  }
+  #reset-screen button {
+    background: transparent;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    color: rgba(201, 168, 76, 0.6);
+    padding: 14px 40px;
+    font-family: 'Georgia', serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.3s;
+  }
+  #reset-screen button:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* ====== FLICKER UTILITY ====== */
+  .screen-flicker {
+    animation: flicker 0.1s steps(2) infinite;
+  }
+  @keyframes flicker {
+    0% { opacity: 1; }
+    50% { opacity: 0.85; }
+    100% { opacity: 1; }
+  }
+
+  /* ====== GLITCH CARD EFFECT ====== */
+  #card.glitching {
+    animation: cardGlitch 0.15s steps(2) infinite;
+  }
+  @keyframes cardGlitch {
+    0% { transform: translate(0, 0) skewX(0deg); border-color: var(--gold); }
+    25% { transform: translate(-3px, 1px) skewX(-1deg); border-color: #ff003c; }
+    50% { transform: translate(2px, -1px) skewX(0.5deg); border-color: #00ffcc; }
+    75% { transform: translate(-1px, 2px) skewX(-0.5deg); border-color: var(--gold); }
+    100% { transform: translate(1px, -1px) skewX(0deg); border-color: #ff003c; }
+  }
+
+  /* ====== DISSOLVE ====== */
+  #card.dissolving {
+    animation: dissolve 1.5s forwards;
+  }
+  @keyframes dissolve {
+    0% { opacity: 1; filter: none; transform: scale(1); }
+    30% { opacity: 0.7; filter: blur(2px) brightness(2); transform: scale(1.02) skewX(5deg); }
+    60% { opacity: 0.3; filter: blur(8px) brightness(0.5); transform: scale(0.95) skewY(-3deg); }
+    100% { opacity: 0; filter: blur(20px) brightness(0); transform: scale(0.5); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Demo trigger -->
+<button id="demo-btn" onclick="startSequence()">Begin Draw</button>
+
+<!-- Main scene -->
+<div id="scene">
+  <div id="card">
+    <div id="card-inner">
+      <div id="card-ring"></div>
+      <div id="card-symbol"></div>
+      <div id="card-text">Revealing</div>
+    </div>
+  </div>
+</div>
+
+<!-- Layers -->
+<canvas id="noise-canvas"></canvas>
+<div id="glitch-overlay"></div>
+<div id="char-layer"></div>
+<div id="blackout"></div>
+<div id="message"></div>
+<button id="close-btn" onclick="exitSequence()">&times;</button>
+<div id="flash"></div>
+<div id="reset-screen">
+  <button onclick="resetAll()">Draw Again</button>
+</div>
+
+<script>
+// ====== ELEMENTS ======
+const card = document.getElementById('card');
+const cardSymbol = document.getElementById('card-symbol');
+const cardText = document.getElementById('card-text');
+const noiseCanvas = document.getElementById('noise-canvas');
+const noiseCtx = noiseCanvas.getContext('2d');
+const glitchOverlay = document.getElementById('glitch-overlay');
+const charLayer = document.getElementById('char-layer');
+const blackout = document.getElementById('blackout');
+const message = document.getElementById('message');
+const closeBtn = document.getElementById('close-btn');
+const flash = document.getElementById('flash');
+const resetScreen = document.getElementById('reset-screen');
+const demoBtn = document.getElementById('demo-btn');
+const scene = document.getElementById('scene');
+
+// ====== NOISE SETUP ======
+function resizeNoise() {
+  // Use lower resolution for performance
+  noiseCanvas.width = Math.floor(window.innerWidth / 3);
+  noiseCanvas.height = Math.floor(window.innerHeight / 3);
+  noiseCanvas.style.imageRendering = 'pixelated';
+}
+resizeNoise();
+window.addEventListener('resize', resizeNoise);
+
+let noiseOpacity = 0;
+let noiseActive = false;
+
+function drawNoise() {
+  if (!noiseActive) return;
+  const w = noiseCanvas.width;
+  const h = noiseCanvas.height;
+  const imageData = noiseCtx.createImageData(w, h);
+  const data = imageData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    const v = Math.random() * 255;
+    data[i] = v;
+    data[i+1] = v;
+    data[i+2] = v;
+    data[i+3] = 40;
+  }
+  noiseCtx.putImageData(imageData, 0, 0);
+  noiseCanvas.style.opacity = noiseOpacity;
+  requestAnimationFrame(drawNoise);
+}
+
+// ====== RANDOM CHARACTERS ======
+const glitchChars = '\u0E01\u0E02\u0E03\u0E04\u0E05\u0E06\u0E07\u0E08\u0E09\u0E0A\u16A0\u16A1\u16A2\u16A3\u16A4\u16A5\u16A6\u16A7\u16A8\u4E00\u4E01\u4E03\u4E07\u4E08\u2620\u2625\u2638\u263A\u2640\u2642\u2660\u2663\u2665\u2666\u2669\u266B\u2716\u2717\u0024\u00A5\u20AC\u03A3\u03A9\u03B1\u03B4\u03C0\u0394\u03A6\u2200\u2203\u2207\u221E\u2248\u2260\u2261\u25B2\u25BC\u25CF\u2588\u2591\u2592\u2593';
+
+let charInterval = null;
+function startCharFlood() {
+  charLayer.style.opacity = '1';
+  charInterval = setInterval(() => {
+    if (charLayer.children.length > 120) {
+      // Remove oldest
+      for (let i = 0; i < 10 && charLayer.firstChild; i++) {
+        charLayer.removeChild(charLayer.firstChild);
+      }
+    }
+    const span = document.createElement('span');
+    span.textContent = glitchChars[Math.floor(Math.random() * glitchChars.length)];
+    span.style.cssText = `
+      position: absolute;
+      left: ${Math.random() * 100}%;
+      top: ${Math.random() * 100}%;
+      font-size: ${12 + Math.random() * 36}px;
+      opacity: ${0.05 + Math.random() * 0.25};
+      color: ${Math.random() > 0.85 ? '#ff003c' : Math.random() > 0.7 ? '#00ffcc' : '#fff'};
+      pointer-events: none;
+      transform: rotate(${Math.random() * 360}deg);
+    `;
+    charLayer.appendChild(span);
+    // Fade out and remove
+    setTimeout(() => {
+      span.style.transition = 'opacity 0.3s';
+      span.style.opacity = '0';
+      setTimeout(() => span.remove(), 300);
+    }, 100 + Math.random() * 400);
+  }, 30);
+}
+
+function stopCharFlood() {
+  if (charInterval) clearInterval(charInterval);
+  charLayer.style.opacity = '0';
+  /* FIX: SEC-M07 — Replace innerHTML clear with removeChild loop for consistency */
+  while (charLayer.firstChild) {
+    charLayer.removeChild(charLayer.firstChild);
+  }
+}
+
+// ====== GLITCH LINES ======
+function spawnGlitchLines() {
+  /* FIX: SEC-M07 — Replace innerHTML clear with removeChild loop for consistency */
+  while (glitchOverlay.firstChild) {
+    glitchOverlay.removeChild(glitchOverlay.firstChild);
+  }
+  glitchOverlay.style.opacity = '1';
+  for (let i = 0; i < 15; i++) {
+    const line = document.createElement('div');
+    line.className = 'glitch-line';
+    line.style.top = Math.random() * 100 + '%';
+    line.style.height = (1 + Math.random() * 4) + 'px';
+    line.style.background = `rgba(255,255,255,${0.03 + Math.random() * 0.1})`;
+    line.style.animation = `lineGlitch ${0.05 + Math.random() * 0.15}s steps(2) ${Math.random() * 0.5}s infinite`;
+    glitchOverlay.appendChild(line);
+  }
+}
+
+// Inject line animation
+const lineStyle = document.createElement('style');
+lineStyle.textContent = `
+  @keyframes lineGlitch {
+    0% { transform: scaleX(0) translateX(-50%); }
+    50% { transform: scaleX(1) translateX(${Math.random() > 0.5 ? '' : '-'}${Math.random()*10}%); }
+    100% { transform: scaleX(0) translateX(50%); }
+  }
+`;
+document.head.appendChild(lineStyle);
+
+// ====== WEB AUDIO HUM ======
+let audioCtx = null;
+let oscillator = null;
+let gainNode = null;
+
+function startHum() {
+  try {
+    /* FIX: SEC-M07 — Guard to reuse existing AudioContext instead of creating new ones */
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    oscillator = audioCtx.createOscillator();
+    gainNode = audioCtx.createGain();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(42, audioCtx.currentTime);
+    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscillator.start();
+    // Fade in
+    gainNode.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 2);
+  } catch(e) { /* audio not available */ }
+}
+
+function swellHum() {
+  if (!gainNode || !audioCtx) return;
+  gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 1.5);
+  oscillator.frequency.linearRampToValueAtTime(28, audioCtx.currentTime + 2);
+}
+
+function killHum() {
+  if (!gainNode || !audioCtx) return;
+  gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+  setTimeout(() => {
+    try { oscillator.stop(); audioCtx.close(); } catch(e) {}
+    audioCtx = null;
+    oscillator = null;
+    gainNode = null;
+  }, 600);
+}
+
+/* FIX: SEC-M07 — Add beforeunload listener for proper AudioContext cleanup */
+window.addEventListener('beforeunload', killHum);
+
+// ====== CARD SYMBOLS ======
+const revealSymbols = ['\u2726', '\u2727', '\u2729', '\u272A', '\u2736', '\u2737', '\u2738', '\u2739', '\u273A', '\u2741', '\u2742', '\u269D', '\u2694', '\u2695', '\u269A'];
+let symbolInterval = null;
+
+function startSymbolCycle() {
+  let idx = 0;
+  cardSymbol.textContent = revealSymbols[0];
+  symbolInterval = setInterval(() => {
+    idx = (idx + 1) % revealSymbols.length;
+    cardSymbol.textContent = revealSymbols[idx];
+  }, 200);
+}
+function stopSymbolCycle() {
+  if (symbolInterval) clearInterval(symbolInterval);
+}
+
+// ====== TEXT SCRAMBLE ======
+function scrambleText(el, duration) {
+  const original = el.textContent;
+  const chars = glitchChars;
+  const end = Date.now() + duration;
+  const interval = setInterval(() => {
+    if (Date.now() > end) {
+      clearInterval(interval);
+      el.textContent = '';
+      return;
+    }
+    let result = '';
+    for (let i = 0; i < original.length + Math.floor(Math.random()*4); i++) {
+      result += chars[Math.floor(Math.random() * chars.length)];
+    }
+    el.textContent = result;
+  }, 60);
+}
+
+// ====== SCREEN FLICKER ======
+let flickerTimeout = null;
+function startFlicker(intensity) {
+  scene.classList.add('screen-flicker');
+  const style = document.querySelector('.screen-flicker') ? null : null;
+  // Vary with random opacity hits
+  if (intensity === 'heavy') {
+    flickerTimeout = setInterval(() => {
+      scene.style.opacity = Math.random() > 0.3 ? '1' : (0.1 + Math.random() * 0.4).toString();
+    }, 50);
+  }
+}
+function stopFlicker() {
+  scene.classList.remove('screen-flicker');
+  if (flickerTimeout) clearInterval(flickerTimeout);
+  scene.style.opacity = '1';
+}
+
+// ====== THE MESSAGE ======
+async function typeMessage(text) {
+  message.textContent = '';
+  message.classList.add('visible');
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+
+    // Sometimes show a wrong character first
+    if (char !== ' ' && Math.random() > 0.55) {
+      const wrongChar = glitchChars[Math.floor(Math.random() * glitchChars.length)];
+      message.textContent += wrongChar;
+      await sleep(40 + Math.random() * 60);
+      message.textContent = message.textContent.slice(0, -1) + char;
+    } else {
+      message.textContent += char;
+    }
+
+    await sleep(50 + Math.random() * 100);
+  }
+}
+
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+// ====== MAIN SEQUENCE ======
+let running = false;
+
+async function startSequence() {
+  if (running) return;
+  running = true;
+  demoBtn.classList.add('hidden');
+  resetScreen.classList.remove('visible');
+
+  // Reset everything
+  card.className = '';
+  card.style = '';
+  cardSymbol.style = '';
+  cardText.textContent = 'Revealing';
+  noiseCanvas.style.opacity = '0';
+  glitchOverlay.style.opacity = '0';
+  /* FIX: SEC-M07 — Replace innerHTML clear with removeChild loop for consistency */
+  while (glitchOverlay.firstChild) {
+    glitchOverlay.removeChild(glitchOverlay.firstChild);
+  }
+  charLayer.style.opacity = '0';
+  /* FIX: SEC-M07 — Replace innerHTML clear with removeChild loop for consistency */
+  while (charLayer.firstChild) {
+    charLayer.removeChild(charLayer.firstChild);
+  }
+  blackout.classList.remove('active');
+  message.classList.remove('visible');
+  message.textContent = '';
+  closeBtn.classList.remove('visible');
+  flash.classList.remove('active');
+  scene.style.opacity = '1';
+
+  // ===== PHASE 1: Normal Draw (0-2s) =====
+  card.classList.add('visible');
+  startSymbolCycle();
+  startHum();
+  await sleep(2000);
+
+  // ===== PHASE 2: Glitch Begins (2-4s) =====
+  scene.classList.add('screen-flicker');
+  noiseActive = true;
+  noiseOpacity = 0.15;
+  drawNoise();
+  card.classList.add('glitching');
+  scrambleText(cardText, 2000);
+
+  // Intensify over 2 seconds
+  await sleep(800);
+  noiseOpacity = 0.3;
+  await sleep(600);
+  spawnGlitchLines();
+  noiseOpacity = 0.5;
+  swellHum();
+  await sleep(600);
+
+  // ===== PHASE 3: Full Corruption (4-7s) =====
+  startFlicker('heavy');
+  startCharFlood();
+  noiseOpacity = 0.7;
+  card.classList.remove('glitching');
+  card.classList.add('dissolving');
+  stopSymbolCycle();
+
+  await sleep(1000);
+  noiseOpacity = 0.9;
+
+  // Intense black flashes
+  for (let i = 0; i < 6; i++) {
+    blackout.style.opacity = Math.random() > 0.4 ? '1' : '0';
+    await sleep(100 + Math.random() * 200);
+    blackout.style.opacity = '0';
+    await sleep(50 + Math.random() * 100);
+  }
+
+  await sleep(500);
+
+  // More chaotic
+  for (let i = 0; i < 8; i++) {
+    blackout.style.opacity = Math.random() > 0.3 ? '1' : '0';
+    noiseOpacity = Math.random();
+    await sleep(50 + Math.random() * 150);
+  }
+
+  await sleep(500);
+
+  // ===== PHASE 4: The Void (7-10s) =====
+  stopFlicker();
+  stopCharFlood();
+  noiseActive = false;
+  noiseCanvas.style.opacity = '0';
+  glitchOverlay.style.opacity = '0';
+  killHum();
+
+  blackout.style.transition = 'opacity 0.3s';
+  blackout.style.opacity = '1';
+  blackout.classList.add('active');
+
+  // Pure darkness - hold 2.5 seconds
+  await sleep(2500);
+
+  // ===== PHASE 5: The Message (10-15s) =====
+  await typeMessage('YOUR DESTINY HAS CHANGED');
+
+  // ===== PHASE 6: Exit (after 5s) =====
+  await sleep(5000);
+  closeBtn.classList.add('visible');
+}
+
+function exitSequence() {
+  // White flash
+  flash.classList.add('active');
+
+  setTimeout(() => {
+    // Clean up everything
+    blackout.classList.remove('active');
+    blackout.style = '';
+    message.classList.remove('visible');
+    closeBtn.classList.remove('visible');
+    card.className = '';
+    noiseActive = false;
+    stopCharFlood();
+
+    setTimeout(() => {
+      flash.classList.remove('active');
+      resetScreen.classList.add('visible');
+      running = false;
+    }, 150);
+  }, 120);
+}
+
+function resetAll() {
+  resetScreen.classList.remove('visible');
+  demoBtn.classList.remove('hidden');
+  running = false;
+  // Full state reset
+  card.className = '';
+  card.style = '';
+  scene.style.opacity = '1';
+}
+</script>
+</body>
+</html>

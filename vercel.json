@@ -14,6 +14,16 @@
       "has": [{ "type": "host", "value": "www.mythsensus.com" }],
       "destination": "https://mythsensus.com/:path*",
       "permanent": true
+    },
+    {
+      "source": "/beta",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/beta/:path*",
+      "destination": "/:path*",
+      "permanent": true
     }
   ],
   "functions": {

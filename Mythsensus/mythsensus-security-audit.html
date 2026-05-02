@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mythsensus Security Audit Report — 2026-03-29</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a14;--bg2:#0f0f1e;--bg3:#161628;
+  --gold:#d4a853;--gold-dark:#b08a3a;
+  --text:#c8c8d8;--text-dim:#8888a0;
+  --critical:#ff2d55;--high:#ff6b35;--medium:#ffc107;--low:#4fc3f7;--info:#8888a0;
+  --green:#4aba50;--red:#ff4060;
+  --font:'Segoe UI','Helvetica Neue',Arial,sans-serif;
+}
+html{font-size:15px;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.7}
+a{color:var(--gold);text-decoration:none}
+::selection{background:var(--gold-dark);color:#fff}
+
+/* Layout */
+.container{max-width:1100px;margin:0 auto;padding:24px}
+
+/* Header */
+.header{text-align:center;padding:48px 24px 32px;border-bottom:1px solid rgba(212,168,83,.15)}
+.header h1{font-size:2rem;color:#e8e8f0;font-weight:700;margin-bottom:8px}
+.header .sub{font-size:1rem;color:var(--text-dim);margin-bottom:16px}
+.header .meta{font-size:.82rem;color:var(--text-dim)}
+.badge-row{display:flex;justify-content:center;gap:12px;margin-top:20px;flex-wrap:wrap}
+
+/* Severity badges */
+.sev{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:10px;font-weight:700;font-size:.85rem}
+.sev .num{font-size:1.6rem;line-height:1}
+.sev-critical{background:rgba(255,45,85,.12);color:var(--critical);border:1px solid rgba(255,45,85,.3)}
+.sev-high{background:rgba(255,107,53,.12);color:var(--high);border:1px solid rgba(255,107,53,.3)}
+.sev-medium{background:rgba(255,193,7,.1);color:var(--medium);border:1px solid rgba(255,193,7,.25)}
+.sev-low{background:rgba(79,195,247,.1);color:var(--low);border:1px solid rgba(79,195,247,.25)}
+.sev-info{background:rgba(136,136,160,.1);color:var(--info);border:1px solid rgba(136,136,160,.2)}
+
+/* Score ring */
+.score-ring-section{text-align:center;margin:32px 0}
+.score-ring{display:inline-block;position:relative;width:160px;height:160px}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring .label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-ring .label .num{font-size:2.4rem;font-weight:800;color:#e8e8f0}
+.score-ring .label .txt{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px}
+
+/* Section titles */
+.section-title{font-size:1.3rem;color:var(--gold);font-weight:700;margin:40px 0 20px;padding-bottom:8px;border-bottom:2px solid rgba(212,168,83,.2);display:flex;align-items:center;gap:10px}
+.section-title .icon{font-size:1.4rem}
+
+/* Finding cards */
+.finding{background:var(--bg2);border-radius:14px;margin-bottom:16px;overflow:hidden;border:1px solid rgba(255,255,255,.04);transition:border-color .3s}
+.finding:hover{border-color:rgba(212,168,83,.15)}
+.finding-head{display:flex;align-items:flex-start;gap:14px;padding:18px 20px;cursor:pointer;user-select:none}
+.finding-sev{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:8px}
+.finding-sev.critical{background:var(--critical)}
+.finding-sev.high{background:var(--high)}
+.finding-sev.medium{background:var(--medium)}
+.finding-sev.low{background:var(--low)}
+.finding-sev.info{background:var(--info)}
+.finding-info{flex:1}
+.finding-id{font-size:.7rem;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
+.finding-title{font-size:.95rem;color:#e8e8f0;font-weight:600;margin:2px 0}
+.finding-file{font-size:.75rem;color:var(--text-dim);font-family:monospace}
+.finding-tag{font-size:.65rem;font-weight:700;padding:3px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.tag-critical{background:rgba(255,45,85,.15);color:var(--critical)}
+.tag-high{background:rgba(255,107,53,.15);color:var(--high)}
+.tag-medium{background:rgba(255,193,7,.12);color:var(--medium)}
+.tag-low{background:rgba(79,195,247,.12);color:var(--low)}
+.tag-info{background:rgba(136,136,160,.1);color:var(--info)}
+.finding-body{display:none;padding:0 20px 20px 42px;font-size:.88rem;line-height:1.8}
+.finding.open .finding-body{display:block}
+.finding-body h4{color:var(--gold);font-size:.8rem;text-transform:uppercase;letter-spacing:1px;margin:12px 0 4px}
+.finding-body h4:first-child{margin-top:0}
+.finding-body p{color:var(--text);margin-bottom:6px}
+.finding-body code{background:rgba(212,168,83,.08);color:var(--gold);padding:2px 6px;border-radius:4px;font-size:.82rem}
+.finding-body .fix-box{background:rgba(74,186,80,.06);border:1px solid rgba(74,186,80,.15);border-radius:8px;padding:12px 16px;margin-top:8px}
+.finding-body .fix-box p{color:#a0d8a0}
+.finding-body pre{background:#050510;border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:12px 16px;overflow-x:auto;font-size:.78rem;line-height:1.6;color:#c0c0d0;margin:8px 0}
+
+/* Checklist */
+.checklist{margin:20px 0}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;background:var(--bg2);border-radius:10px;margin-bottom:8px;border:1px solid rgba(255,255,255,.03)}
+.check-icon{font-size:1rem;flex-shrink:0;margin-top:2px}
+.check-pass{color:var(--green)}
+.check-fail{color:var(--red)}
+.check-warn{color:var(--medium)}
+.check-text{flex:1;font-size:.88rem}
+.check-text strong{color:#e8e8f0}
+
+/* Priority table */
+.priority-table{width:100%;border-collapse:collapse;margin:20px 0}
+.priority-table th{background:var(--bg3);color:var(--gold);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:10px 14px;text-align:left;font-weight:600}
+.priority-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.03);font-size:.85rem;vertical-align:top}
+.priority-table tr:hover td{background:rgba(212,168,83,.03)}
+
+/* Footer */
+.footer{text-align:center;padding:32px;border-top:1px solid rgba(212,168,83,.1);margin-top:48px;color:var(--text-dim);font-size:.78rem}
+
+/* Toggle arrow */
+.toggle-arrow{color:var(--text-dim);font-size:.7rem;transition:transform .3s;flex-shrink:0;margin-top:6px}
+.finding.open .toggle-arrow{transform:rotate(180deg)}
+
+/* Summary cards */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:24px 0}
+.summary-card{background:var(--bg2);border:1px solid rgba(255,255,255,.04);border-radius:12px;padding:18px;text-align:center}
+.summary-card .label{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.summary-card .value{font-size:1.8rem;font-weight:800;color:#e8e8f0}
+.summary-card .sub{font-size:.75rem;color:var(--text-dim);margin-top:4px}
+
+@media(max-width:600px){
+  .container{padding:16px}
+  .finding-head{flex-wrap:wrap;gap:8px}
+  .badge-row{gap:8px}
+  .summary-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- ============ HEADER ============ -->
+<div class="header">
+  <h1>&#128737; Mythsensus Security Audit</h1>
+  <div class="sub">Comprehensive security review of all project artifacts</div>
+  <div class="meta">Audit Date: 2026-03-29 &bull; Auditor: Claude Security Agent &bull; Scope: Schema, Frontend, Backend, PDPA</div>
+  <div class="badge-row">
+    <div class="sev sev-critical"><span class="num">4</span> Critical</div>
+    <div class="sev sev-high"><span class="num">6</span> High</div>
+    <div class="sev sev-medium"><span class="num">7</span> Medium</div>
+    <div class="sev sev-low"><span class="num">5</span> Low</div>
+  </div>
+</div>
+
+<!-- ============ SCORE ============ -->
+<div class="score-ring-section">
+  <div class="score-ring">
+    <svg width="160" height="160">
+      <circle cx="80" cy="80" r="68" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="10"/>
+      <circle cx="80" cy="80" r="68" fill="none" stroke="url(#grad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="427" stroke-dashoffset="188"/>
+      <defs><linearGradient id="grad"><stop offset="0%" stop-color="#ff6b35"/><stop offset="100%" stop-color="#ffc107"/></linearGradient></defs>
+    </svg>
+    <div class="label"><span class="num">56</span><span class="txt">Security Score</span></div>
+  </div>
+  <p style="font-size:.82rem;color:var(--text-dim);margin-top:8px">56/100 — Needs significant hardening before production launch</p>
+</div>
+
+<!-- ============ SUMMARY CARDS ============ -->
+<div class="summary-grid">
+  <div class="summary-card"><div class="label">Files Audited</div><div class="value">8</div><div class="sub">SQL, JSON, HTML, Python</div></div>
+  <div class="summary-card"><div class="label">Total Findings</div><div class="value">22</div><div class="sub">4 critical, 6 high</div></div>
+  <div class="summary-card"><div class="label">RLS Coverage</div><div class="value" style="color:var(--green)">100%</div><div class="sub">All 8 tables covered</div></div>
+  <div class="summary-card"><div class="label">XSS Vectors</div><div class="value" style="color:var(--high)">9+</div><div class="sub">innerHTML without sanitization</div></div>
+  <div class="summary-card"><div class="label">PDPA Status</div><div class="value" style="color:var(--critical)">&#10060;</div><div class="sub">Multiple gaps found</div></div>
+</div>
+
+<!-- ============ FINDINGS: CRITICAL ============ -->
+<div class="section-title"><span class="icon">&#128680;</span> Critical Findings</div>
+
+<!-- C1 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev critical"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-C01 &bull; PDPA Compliance</div>
+      <div class="finding-title">No PDPA Consent Mechanism for Sensitive Personal Data</div>
+      <div class="finding-file">mythsensus-schema.sql &bull; mythsensus-interactive.html</div>
+    </div>
+    <span class="finding-tag tag-critical">Critical</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>Mythsensus collects <code>name</code>, <code>dob</code>, <code>birth_time</code>, <code>birth_place</code>, and <code>gender</code>. Under Thailand's PDPA (Personal Data Protection Act), birth date and astrological/religious-belief-related data may qualify as <strong>sensitive personal data</strong> (Section 26) which requires <strong>explicit consent</strong> before collection.</p>
+    <p>Currently the schema has no <code>consent_given_at</code> timestamp, no consent version tracking, and the HTML mockup has no consent checkbox or privacy notice before data collection.</p>
+    <h4>Impact</h4>
+    <p>PDPA violations carry fines up to <strong>5 million THB</strong> and potential criminal penalties. Users in Thailand have the right to withdraw consent, request data deletion, and file complaints with the PDPC. Without a consent mechanism, the entire user data collection flow is non-compliant.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>1. Add <code>consent_given_at timestamptz</code> and <code>consent_version text</code> columns to the <code>users</code> table.</p>
+      <p>2. Add a <code>privacy_consents</code> table tracking purpose, consent date, withdrawal date.</p>
+      <p>3. Implement a mandatory consent checkbox + privacy notice before birth data form submission.</p>
+      <p>4. Add a "Delete My Data" feature (Right to Erasure) in user settings.</p>
+      <p>5. Create a public Privacy Policy in Thai and English.</p>
+    </div>
+  </div>
+</div>
+
+<!-- C2 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev critical"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-C02 &bull; Data Exposure</div>
+      <div class="finding-title">PDF Reports (pdf_url) Potentially Accessible Without Auth</div>
+      <div class="finding-file">mythsensus-schema.sql &bull; reports table</div>
+    </div>
+    <span class="finding-tag tag-critical">Critical</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>The <code>reports</code> table stores <code>pdf_url</code> as a plain text URL. If PDFs are stored in Supabase Storage or a public CDN bucket, the URL alone may grant access to anyone who has it. PDF reports contain <strong>full PII</strong>: name, birth date, birth time, birth place, gender, and detailed personality analysis.</p>
+    <p>There is no indication of signed URLs, expiration tokens, or access control on the storage level.</p>
+    <h4>Impact</h4>
+    <p>If a PDF URL is leaked, shared, or indexed by search engines, <strong>any person in the world</strong> could view another user's birth chart report containing all their personal data. This constitutes a data breach under PDPA.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>1. Store PDFs in a <strong>private</strong> Supabase Storage bucket (not public).</p>
+      <p>2. Generate <strong>signed URLs with expiration</strong> (e.g., 1-hour TTL) via an authenticated API endpoint.</p>
+      <p>3. Add RLS on the storage bucket so only the profile owner can access their PDFs.</p>
+      <p>4. Never store the raw public URL in the database &mdash; store the storage path instead.</p>
+    </div>
+    <pre>-- Example: Store path, not URL
+ALTER TABLE public.reports
+  RENAME COLUMN pdf_url TO pdf_storage_path;
+-- Then generate signed URLs in the API layer:
+-- supabase.storage.from('reports').createSignedUrl(path, 3600)</pre>
+  </div>
+</div>
+
+<!-- C3 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev critical"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-C03 &bull; Data Retention</div>
+      <div class="finding-title">No Data Retention Policy or Automated Deletion</div>
+      <div class="finding-file">mythsensus-schema.sql &bull; All tables</div>
+    </div>
+    <span class="finding-tag tag-critical">Critical</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>The FAQ states "Birth data is used solely for report generation and is not retained beyond the session." However, the schema <strong>permanently stores</strong> all PII in the <code>profiles</code> table with no TTL, no auto-deletion, and no data lifecycle management.</p>
+    <p>This contradicts the stated privacy commitment and violates PDPA's data minimization principle.</p>
+    <h4>Impact</h4>
+    <p>Users trust that their data won't be retained. If breached, the entire historical database of birth data would be exposed. This is also a legal liability &mdash; the stated policy doesn't match actual practice.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>1. Decide: either <strong>update the FAQ to honestly state data is retained</strong> for service delivery, or <strong>implement actual session-only processing</strong>.</p>
+      <p>2. If retaining: add <code>data_retention_until</code> column, implement a cron job to purge expired data.</p>
+      <p>3. Implement a "Right to Be Forgotten" API endpoint that cascades through profiles, reports, god_draws, etc.</p>
+      <p>4. Encrypt PII columns at rest using Supabase Vault or pgcrypto.</p>
+    </div>
+  </div>
+</div>
+
+<!-- C4 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev critical"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-C04 &bull; XSS</div>
+      <div class="finding-title">Widespread innerHTML Usage Without Sanitization</div>
+      <div class="finding-file">mythsensus-interactive.html &bull; Lines 564-642</div>
+    </div>
+    <span class="finding-tag tag-critical">Critical</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>The interactive homepage uses <code>innerHTML +=</code> extensively to render dynamic content including systems grid, score bars, feature cards, pricing cards, benefits, and FAQ items. While the current data is hardcoded in JavaScript constants, this pattern is dangerous because:</p>
+    <p>1. If any of this data is ever loaded from Supabase or an API (e.g., dynamic pricing, user-generated content), it becomes a <strong>Stored XSS vector</strong>.</p>
+    <p>2. The <code>FEATURES</code> array already contains raw HTML in the <code>body</code> field, which is injected directly via innerHTML.</p>
+    <p>3. The promo code input value is not sanitized before potential server-side processing.</p>
+    <h4>Impact</h4>
+    <p>An attacker who can modify any data source (e.g., compromised CMS, API MITM, or god blessing text from JSON) could inject malicious scripts that steal session tokens, redirect to phishing pages, or mine cryptocurrency in the user's browser.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>1. Replace <code>innerHTML</code> with <code>textContent</code> for any user-facing data.</p>
+      <p>2. Use <code>document.createElement()</code> + <code>textContent</code> for dynamic DOM construction.</p>
+      <p>3. If HTML rendering is necessary, use <strong>DOMPurify</strong> to sanitize all input.</p>
+      <p>4. Add Content Security Policy (CSP) headers to block inline scripts.</p>
+    </div>
+    <pre>&lt;!-- Add DOMPurify --&gt;
+&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"
+  integrity="sha384-..." crossorigin="anonymous"&gt;&lt;/script&gt;
+
+// Then sanitize:
+g.innerHTML += DOMPurify.sanitize(htmlString);</pre>
+  </div>
+</div>
+
+<!-- ============ FINDINGS: HIGH ============ -->
+<div class="section-title"><span class="icon">&#9888;&#65039;</span> High Findings</div>
+
+<!-- H1 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev high"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-H01 &bull; Access Control</div>
+      <div class="finding-title">Missing users INSERT Policy &mdash; Registration May Fail or Be Exploitable</div>
+      <div class="finding-file">mythsensus-schema.sql &bull; Line 148-151</div>
+    </div>
+    <span class="finding-tag tag-high">High</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>The <code>users</code> table has <code>SELECT</code> and <code>UPDATE</code> RLS policies but <strong>no INSERT policy</strong>. The <code>fn_handle_new_user()</code> trigger uses <code>SECURITY DEFINER</code> which bypasses RLS for the trigger, but any direct client-side insert attempts would be blocked.</p>
+    <p>More critically, there is <strong>no DELETE policy</strong> on <code>users</code>, meaning users cannot delete their own accounts (PDPA Right to Erasure issue).</p>
+    <h4>Impact</h4>
+    <p>Account deletion flow will fail silently. If a user requests data deletion under PDPA, the system has no mechanism to comply.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>Add a DELETE policy for users to delete their own account. Use CASCADE to clean up related data.</p>
+    </div>
+    <pre>CREATE POLICY users_delete ON public.users
+  FOR DELETE USING (auth.uid() = id);</pre>
+  </div>
+</div>
+
+<!-- H2 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev high"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-H02 &bull; Rate Limiting</div>
+      <div class="finding-title">No Rate Limiting on God Draws or Organum Sessions</div>
+      <div class="finding-file">mythsensus-schema.sql &bull; god_draws, organum_sessions</div>
+    </div>
+    <span class="finding-tag tag-high">High</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>The <code>god_draws</code> table has an INSERT policy but <strong>no rate limit constraint</strong>. A user could rapidly insert thousands of draws to farm all 200 gods, bypassing the intended "1 draw per day" free tier limit. The same applies to <code>organum_sessions</code> (intended: 5/day for free users).</p>
+    <p>There are no database-level constraints, no application-level middleware, and no Supabase Edge Function rate limiters defined.</p>
+    <h4>Impact</h4>
+    <p>Paid features (unlimited draws for subscribers) become worthless if free users can bypass limits. Revenue impact for a product monetized on engagement limits.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>1. Add a database function that checks draw count before INSERT.</p>
+      <p>2. Alternatively, use Supabase Edge Functions with rate limiting middleware.</p>
+      <p>3. Add a unique index on (user_id, drawn_at::date) for god_draws to enforce 1 per day at DB level.</p>
+    </div>
+    <pre>-- Enforce 1 god draw per day at DB level
+CREATE UNIQUE INDEX idx_god_draws_daily
+  ON public.god_draws (user_id, (drawn_at::date));
+
+-- For organum: create a check function
+CREATE OR REPLACE FUNCTION check_organum_limit()
+RETURNS TRIGGER AS $$
+DECLARE
+  today_count int;
+  user_plan text;
+BEGIN
+  SELECT plan INTO user_plan FROM public.users WHERE id = NEW.user_id;
+  IF user_plan = 'free' THEN
+    SELECT count(*) INTO today_count FROM public.organum_sessions
+    WHERE user_id = NEW.user_id AND asked_at::date = CURRENT_DATE;
+    IF today_count >= 5 THEN
+      RAISE EXCEPTION 'Daily organum limit reached';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;</pre>
+  </div>
+</div>
+
+<!-- H3 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev high"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-H03 &bull; PII Encryption</div>
+      <div class="finding-title">PII Stored as Plaintext &mdash; No Encryption at Rest</div>
+      <div class="finding-file">mythsensus-schema.sql &bull; profiles table</div>
+    </div>
+    <span class="finding-tag tag-high">High</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>All PII fields (<code>name</code>, <code>dob</code>, <code>birth_time</code>, <code>birth_place</code>, <code>gender</code>) are stored as plaintext. While Supabase uses encrypted disks at the infrastructure level, there is no application-level encryption, meaning anyone with database access (admin, backup leak, SQL injection) sees all PII in the clear.</p>
+    <h4>Impact</h4>
+    <p>A database compromise exposes all user birth data in cleartext. Birth date + name + birthplace is sufficient for identity theft in many jurisdictions.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>1. Use <strong>Supabase Vault</strong> (pgsodium) to encrypt PII columns.</p>
+      <p>2. At minimum, use <code>pgcrypto</code> to encrypt birth_time, birth_place, and name.</p>
+      <p>3. Implement envelope encryption &mdash; encrypt data with a DEK, encrypt DEK with a KEK stored in Vault.</p>
+    </div>
+  </div>
+</div>
+
+<!-- H4 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev high"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-H04 &bull; CDN Integrity</div>
+      <div class="finding-title">Google Fonts CDN Loaded Without Subresource Integrity (SRI)</div>
+      <div class="finding-file">mythsensus-interactive.html &bull; Lines 7-9</div>
+    </div>
+    <span class="finding-tag tag-high">High</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>Three Google Fonts resources are loaded without <code>integrity</code> hashes or <code>crossorigin</code> attributes on the CSS link tag. If Google's CDN is compromised or a DNS hijack occurs, malicious CSS (or even JS via CSS expressions in older browsers) could be injected.</p>
+    <h4>Impact</h4>
+    <p>Supply-chain attack vector. A compromised CDN could inject CSS-based data exfiltration (e.g., reading input values via attribute selectors and background-image URLs).</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>1. Self-host the fonts (you already have Sarabun embedded as base64 &mdash; do the same for Cinzel, Cormorant, Josefin Sans).</p>
+      <p>2. If using CDN, add <code>integrity="sha384-..."</code> and <code>crossorigin="anonymous"</code>.</p>
+      <p>3. Implement CSP with <code>style-src</code> that whitelists only specific origins.</p>
+    </div>
+  </div>
+</div>
+
+<!-- H5 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev high"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-H05 &bull; SECURITY DEFINER</div>
+      <div class="finding-title">SECURITY DEFINER Functions May Bypass RLS Unexpectedly</div>
+      <div class="finding-file">mythsensus-schema.sql &bull; Lines 218-230, 246-261</div>
+    </div>
+    <span class="finding-tag tag-high">High</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>Two functions use <code>SECURITY DEFINER</code>: <code>fn_update_longest_streak()</code> and <code>fn_handle_new_user()</code>. SECURITY DEFINER functions run with the permissions of the function <em>creator</em> (typically superuser), bypassing all RLS policies.</p>
+    <p>While <code>fn_handle_new_user()</code> correctly sets <code>search_path = public</code>, <code>fn_update_longest_streak()</code> does <strong>not set search_path</strong>, making it vulnerable to search path injection attacks.</p>
+    <h4>Impact</h4>
+    <p>An attacker could create a malicious <code>streaks</code> table or function in a different schema that gets resolved before <code>public.streaks</code>, potentially escalating privileges.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>Add <code>SET search_path = public</code> to <code>fn_update_longest_streak()</code>. Also review if SECURITY DEFINER is truly necessary &mdash; consider SECURITY INVOKER where possible.</p>
+    </div>
+    <pre>CREATE OR REPLACE FUNCTION public.fn_update_longest_streak()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public  -- ADD THIS
+AS $$
+...</pre>
+  </div>
+</div>
+
+<!-- H6 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev high"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-H06 &bull; CSP Missing</div>
+      <div class="finding-title">No Content Security Policy Headers Defined</div>
+      <div class="finding-file">All HTML files &bull; Vercel deployment config</div>
+    </div>
+    <span class="finding-tag tag-high">High</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>None of the HTML files include CSP meta tags, and there is no <code>vercel.json</code> or server config defining CSP response headers. Without CSP, any XSS vulnerability can execute arbitrary JavaScript, load external scripts, or exfiltrate data.</p>
+    <h4>Impact</h4>
+    <p>CSP is the last line of defense against XSS. Without it, even a single innerHTML injection can fully compromise the user session.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>Add CSP headers in Vercel deployment config:</p>
+    </div>
+    <pre>// vercel.json
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        }
+      ]
+    }
+  ]
+}</pre>
+  </div>
+</div>
+
+<!-- ============ FINDINGS: MEDIUM ============ -->
+<div class="section-title"><span class="icon">&#9888;</span> Medium Findings</div>
+
+<!-- M1 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev medium"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-M01 &bull; Input Validation</div>
+      <div class="finding-title">Promo Code Input Has No Server-Side Validation</div>
+      <div class="finding-file">mythsensus-interactive.html &bull; Lines 662-668</div>
+    </div>
+    <span class="finding-tag tag-medium">Medium</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>The promo code form currently accepts any non-empty string and shows "Code Activated!" regardless of input. While this is a mockup, it sets a dangerous pattern. The input has <code>maxlength="20"</code> but no character whitelist, no CSRF token, and no server-side validation.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>1. Add regex validation: <code>/^[A-Z0-9-]{4,20}$/</code></p>
+      <p>2. Validate promo codes server-side via a Supabase Edge Function.</p>
+      <p>3. Add CSRF protection and rate limiting (max 5 attempts per hour).</p>
+    </div>
+  </div>
+</div>
+
+<!-- M2 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev medium"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-M02 &bull; Template Injection</div>
+      <div class="finding-title">Python Render Script Uses f-strings for HTML Generation</div>
+      <div class="finding-file">cosmic-blueprint-fix/output/mythsensus-render-fixed.py</div>
+    </div>
+    <span class="finding-tag tag-medium">Medium</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>The <code>pillar()</code>, <code>bar()</code>, and <code>wrap_html()</code> functions construct HTML using Python f-strings without HTML-escaping user-provided values (name, birth place, etc.). If user data contains HTML special characters like <code>&lt;</code> or <code>"</code>, it could break the PDF layout or inject content.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>Use <code>html.escape()</code> for all user-provided values before interpolation.</p>
+    </div>
+    <pre>import html
+name_safe = html.escape(user_name)
+place_safe = html.escape(birth_place)</pre>
+  </div>
+</div>
+
+<!-- M3 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev medium"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-M03 &bull; JSON Data</div>
+      <div class="finding-title">God Blessing Text Rendered via innerHTML &mdash; Stored XSS Risk</div>
+      <div class="finding-file">mythsensus-gods.json &bull; 200 entries</div>
+    </div>
+    <span class="finding-tag tag-medium">Medium</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>The <code>mythsensus-gods.json</code> contains 200 god entries, each with a <code>blessing</code> text field. Currently the text is clean, but if this JSON is ever managed via a CMS, admin panel, or external contributor, malicious HTML/JS could be inserted into the blessing text and rendered unsanitized in the frontend.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>1. Always render blessing text using <code>textContent</code>, never <code>innerHTML</code>.</p>
+      <p>2. Add JSON schema validation that rejects HTML tags in text fields.</p>
+      <p>3. If rich text is needed, use DOMPurify before rendering.</p>
+    </div>
+  </div>
+</div>
+
+<!-- M4 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev medium"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-M04 &bull; Payment Security</div>
+      <div class="finding-title">No Payment Webhook Signature Verification Defined</div>
+      <div class="finding-file">Architecture &bull; Lemon Squeezy integration</div>
+    </div>
+    <span class="finding-tag tag-medium">Medium</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>The project plans to use Lemon Squeezy for payments ($19 one-time, $5/mo subscription). There is no webhook handler code, no signature verification logic, and no idempotency checks.</p>
+    <h4>Impact</h4>
+    <p>Without webhook signature verification, an attacker could forge payment confirmation requests to get free reports. Without idempotency, duplicate webhook deliveries could create duplicate orders.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>1. Implement Lemon Squeezy webhook signature verification using HMAC.</p>
+      <p>2. Add an <code>orders</code> table with idempotency keys to prevent duplicate processing.</p>
+      <p>3. Never trust client-side payment status &mdash; always verify server-side.</p>
+    </div>
+  </div>
+</div>
+
+<!-- M5 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev medium"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-M05 &bull; Auth</div>
+      <div class="finding-title">No Email Verification Required Before Data Access</div>
+      <div class="finding-file">mythsensus-schema.sql &bull; fn_handle_new_user()</div>
+    </div>
+    <span class="finding-tag tag-medium">Medium</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>The <code>fn_handle_new_user()</code> trigger creates a user row immediately on signup. There is no check for email verification status. An attacker could create accounts with fake emails and access free-tier features. Since Supabase Auth supports email verification, it should be enforced.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>1. Enable <strong>Confirm email</strong> in Supabase Auth settings.</p>
+      <p>2. Add an <code>email_verified</code> check in RLS policies or application logic before allowing data creation.</p>
+    </div>
+  </div>
+</div>
+
+<!-- M6 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev medium"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-M06 &bull; Plan Escalation</div>
+      <div class="finding-title">Users Can UPDATE Their Own Plan Column</div>
+      <div class="finding-file">mythsensus-schema.sql &bull; users_update policy</div>
+    </div>
+    <span class="finding-tag tag-medium">Medium</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>The <code>users_update</code> RLS policy allows users to update <strong>any column</strong> in their own row, including <code>plan</code>. A user could change their plan from <code>'free'</code> to <code>'subscriber'</code> using the Supabase client directly, bypassing payment entirely.</p>
+    <h4>Impact</h4>
+    <p>Complete revenue bypass. Any free user can self-upgrade to subscriber by running a single Supabase client call.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>1. Restrict the UPDATE policy to only allow updating <code>display_name</code>.</p>
+      <p>2. Move <code>plan</code> changes to a SECURITY DEFINER function that verifies payment status.</p>
+    </div>
+    <pre>-- Restrict update to display_name only
+CREATE POLICY users_update ON public.users
+  FOR UPDATE
+  USING (auth.uid() = id)
+  WITH CHECK (
+    auth.uid() = id
+    AND plan = (SELECT plan FROM public.users WHERE id = auth.uid())
+  );</pre>
+  </div>
+</div>
+
+<!-- M7 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev medium"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-M07 &bull; Web Audio</div>
+      <div class="finding-title">Glitch Event Uses Web Audio Without User Interaction Gate</div>
+      <div class="finding-file">mythsensus-glitch-event.html &bull; Line 482-496</div>
+    </div>
+    <span class="finding-tag tag-medium">Medium</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>The <code>startHum()</code> function creates an AudioContext within the sequence (triggered by button click, which is fine), but lacks proper cleanup on page unload. Multiple rapid calls could create orphaned AudioContext instances, consuming system resources.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>1. Reuse a single AudioContext instance.</p>
+      <p>2. Add <code>window.addEventListener('beforeunload', killHum)</code> for cleanup.</p>
+      <p>3. Limit to one concurrent AudioContext.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FINDINGS: LOW ============ -->
+<div class="section-title"><span class="icon">&#128712;</span> Low Findings</div>
+
+<!-- L1 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev low"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-L01 &bull; Clickjacking</div>
+      <div class="finding-title">No X-Frame-Options or frame-ancestors CSP</div>
+      <div class="finding-file">All HTML files</div>
+    </div>
+    <span class="finding-tag tag-low">Low</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>No anti-clickjacking headers are set. The site could be embedded in an iframe on a malicious site, tricking users into clicking buttons they don't intend to.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>Add <code>X-Frame-Options: DENY</code> and <code>Content-Security-Policy: frame-ancestors 'none'</code> in Vercel headers config.</p>
+    </div>
+  </div>
+</div>
+
+<!-- L2 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev low"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-L02 &bull; Information Disclosure</div>
+      <div class="finding-title">HTML Comments Reveal Internal Architecture Details</div>
+      <div class="finding-file">mythsensus-glitch-event.html &bull; Lines 1-7</div>
+    </div>
+    <span class="finding-tag tag-low">Low</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>The glitch event HTML begins with a comment revealing: probability (<code>0.000001</code>), Supabase flag name (<code>draw_overflow_flag</code>), and design intent. This tells attackers how to trigger rare events and what backend flags to look for.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>Strip all developer comments from production builds. Use a build step to remove HTML comments.</p>
+    </div>
+  </div>
+</div>
+
+<!-- L3 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev low"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-L03 &bull; CORS</div>
+      <div class="finding-title">No CORS Policy Documentation for API Endpoints</div>
+      <div class="finding-file">Architecture level</div>
+    </div>
+    <span class="finding-tag tag-low">Low</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>While Supabase handles CORS by default, there is no explicit CORS configuration for any custom API endpoints (Edge Functions, Railway backend). Overly permissive CORS could allow any website to make authenticated API calls on behalf of a logged-in Mythsensus user.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>Explicitly configure CORS to only allow requests from <code>mythsensus.com</code> and <code>localhost</code> (for development).</p>
+    </div>
+  </div>
+</div>
+
+<!-- L4 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev low"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-L04 &bull; Orphaned Data</div>
+      <div class="finding-title">frequency_alerts and streaks May Accumulate Without Cleanup</div>
+      <div class="finding-file">mythsensus-schema.sql</div>
+    </div>
+    <span class="finding-tag tag-low">Low</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>While <code>ON DELETE CASCADE</code> handles user deletion, the <code>frequency_alerts</code> table has no TTL or auto-cleanup. Over time, historical alerts accumulate and could become a performance issue and data privacy concern.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>Add a periodic cleanup job to delete frequency_alerts older than 90 days.</p>
+    </div>
+  </div>
+</div>
+
+<!-- L5 -->
+<div class="finding" onclick="this.classList.toggle('open')">
+  <div class="finding-head">
+    <div class="finding-sev low"></div>
+    <div class="finding-info">
+      <div class="finding-id">SEC-L05 &bull; Error Handling</div>
+      <div class="finding-title">Python Render Script Exposes Stack Traces on Error</div>
+      <div class="finding-file">cosmic-blueprint-fix/output/mythsensus-render-fixed.py</div>
+    </div>
+    <span class="finding-tag tag-low">Low</span>
+    <span class="toggle-arrow">&#9660;</span>
+  </div>
+  <div class="finding-body">
+    <h4>Description</h4>
+    <p>The <code>main()</code> function catches exceptions with <code>print(f"Error: {e}")</code>. If this runs as an API endpoint, error messages could leak file paths, library versions, or internal logic to users.</p>
+    <h4>Recommended Fix</h4>
+    <div class="fix-box">
+      <p>Log full errors server-side, return generic error messages to users. Use structured logging.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============ PDPA COMPLIANCE CHECKLIST ============ -->
+<div class="section-title"><span class="icon">&#128220;</span> PDPA Compliance Checklist</div>
+
+<div class="checklist">
+  <div class="check-item">
+    <span class="check-icon check-fail">&#10060;</span>
+    <div class="check-text"><strong>Consent Collection (Section 19)</strong> &mdash; No explicit consent mechanism before collecting birth data. Must add consent checkbox with clear purpose statement.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-fail">&#10060;</span>
+    <div class="check-text"><strong>Sensitive Data (Section 26)</strong> &mdash; Birth date + astrology/belief data may be classified as sensitive personal data. Requires explicit consent with additional safeguards.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-fail">&#10060;</span>
+    <div class="check-text"><strong>Privacy Policy (Section 23)</strong> &mdash; No privacy policy document found. Must create one in Thai (primary) and English, detailing purpose, retention, rights, and contact info for DPO.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-fail">&#10060;</span>
+    <div class="check-text"><strong>Right to Erasure (Section 33)</strong> &mdash; No delete mechanism for users. Must implement "Delete My Data" feature that cascades through all tables.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-fail">&#10060;</span>
+    <div class="check-text"><strong>Data Retention (Section 37)</strong> &mdash; FAQ claims data is session-only but schema retains permanently. Must align stated policy with actual practice.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-warn">&#9888;&#65039;</span>
+    <div class="check-text"><strong>Data Minimization (Section 22)</strong> &mdash; Gender field is optional (nullable) &mdash; good. But consider if birth_place is strictly necessary for all 10 systems.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-fail">&#10060;</span>
+    <div class="check-text"><strong>Right to Access (Section 30)</strong> &mdash; No user-facing feature to export their personal data. Must add "Download My Data" feature.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-fail">&#10060;</span>
+    <div class="check-text"><strong>Data Breach Notification (Section 37(4))</strong> &mdash; No incident response plan or breach notification procedure. Must document and implement within 72 hours of discovery.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-pass">&#9989;</span>
+    <div class="check-text"><strong>RLS Enforcement</strong> &mdash; All 8 tables have Row Level Security enabled with user-scoped policies. Users cannot access other users' data through the database.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-pass">&#9989;</span>
+    <div class="check-text"><strong>Foreign Key Cascades</strong> &mdash; All child tables use <code>ON DELETE CASCADE</code>, preventing orphaned PII when a user or profile is deleted.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-pass">&#9989;</span>
+    <div class="check-text"><strong>Plan Validation</strong> &mdash; The <code>plan</code> column has a CHECK constraint limiting values to 'free', 'one_time', 'subscriber'. (But see SEC-M06 for update vulnerability.)</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-pass">&#9989;</span>
+    <div class="check-text"><strong>Glitch Event Security</strong> &mdash; The glitch event HTML uses <code>textContent</code> (not innerHTML) for message rendering. No external data loaded. Canvas operations are self-contained.</div>
+  </div>
+</div>
+
+<!-- ============ PRIORITY FIX TABLE ============ -->
+<div class="section-title"><span class="icon">&#128736;</span> Recommended Fix Priority Order</div>
+
+<table class="priority-table">
+  <thead>
+    <tr>
+      <th style="width:5%">#</th>
+      <th style="width:8%">ID</th>
+      <th style="width:10%">Severity</th>
+      <th style="width:35%">Fix</th>
+      <th style="width:15%">Effort</th>
+      <th style="width:27%">Why First</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>SEC-M06</td>
+      <td><span class="finding-tag tag-medium">Medium</span></td>
+      <td>Lock down <code>plan</code> column updates &mdash; prevent free users from self-upgrading</td>
+      <td>30 minutes</td>
+      <td>Direct revenue loss &mdash; can be exploited trivially right now</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>SEC-C02</td>
+      <td><span class="finding-tag tag-critical">Critical</span></td>
+      <td>Make PDF storage private, use signed URLs with expiration</td>
+      <td>2&ndash;3 hours</td>
+      <td>PII data breach risk &mdash; reports contain all personal data</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>SEC-C01</td>
+      <td><span class="finding-tag tag-critical">Critical</span></td>
+      <td>Implement PDPA consent flow + privacy policy</td>
+      <td>1&ndash;2 days</td>
+      <td>Legal requirement before collecting any user data in Thailand</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>SEC-H02</td>
+      <td><span class="finding-tag tag-high">High</span></td>
+      <td>Add rate limiting for god_draws and organum_sessions</td>
+      <td>2&ndash;3 hours</td>
+      <td>Protects monetization model &mdash; free users can bypass limits</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>SEC-C04</td>
+      <td><span class="finding-tag tag-critical">Critical</span></td>
+      <td>Replace innerHTML with safe DOM methods + add DOMPurify</td>
+      <td>3&ndash;4 hours</td>
+      <td>XSS is the most common web vulnerability &mdash; defense-in-depth</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>SEC-H06</td>
+      <td><span class="finding-tag tag-high">High</span></td>
+      <td>Add CSP + security headers in Vercel config</td>
+      <td>1 hour</td>
+      <td>Mitigates XSS even if other defenses are missed</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>SEC-H05</td>
+      <td><span class="finding-tag tag-high">High</span></td>
+      <td>Fix SECURITY DEFINER search_path on streak function</td>
+      <td>15 minutes</td>
+      <td>Quick fix, prevents privilege escalation</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>SEC-C03</td>
+      <td><span class="finding-tag tag-critical">Critical</span></td>
+      <td>Define data retention policy + implement deletion mechanism</td>
+      <td>1 day</td>
+      <td>PDPA compliance + matches stated privacy commitment</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>SEC-H03</td>
+      <td><span class="finding-tag tag-high">High</span></td>
+      <td>Encrypt PII at rest using Supabase Vault</td>
+      <td>4&ndash;6 hours</td>
+      <td>Defense-in-depth for database compromise scenarios</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>SEC-H01</td>
+      <td><span class="finding-tag tag-high">High</span></td>
+      <td>Add DELETE policy on users table</td>
+      <td>15 minutes</td>
+      <td>Required for PDPA Right to Erasure</td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td>SEC-M04</td>
+      <td><span class="finding-tag tag-medium">Medium</span></td>
+      <td>Implement payment webhook verification</td>
+      <td>3&ndash;4 hours</td>
+      <td>Must be in place before accepting real payments</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>SEC-H04</td>
+      <td><span class="finding-tag tag-high">High</span></td>
+      <td>Self-host fonts or add SRI hashes</td>
+      <td>1&ndash;2 hours</td>
+      <td>Supply chain protection</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============ WHAT'S GOOD ============ -->
+<div class="section-title"><span class="icon">&#9989;</span> What's Already Done Well</div>
+
+<div class="checklist">
+  <div class="check-item">
+    <span class="check-icon check-pass">&#9989;</span>
+    <div class="check-text"><strong>Full RLS coverage</strong> &mdash; All 8 tables have RLS enabled with appropriate user-scoped policies. This is excellent and prevents cross-user data access.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-pass">&#9989;</span>
+    <div class="check-text"><strong>CASCADE deletes</strong> &mdash; All foreign keys use ON DELETE CASCADE, ensuring clean data removal when parent records are deleted.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-pass">&#9989;</span>
+    <div class="check-text"><strong>UUID primary keys</strong> &mdash; Using <code>gen_random_uuid()</code> prevents sequential ID enumeration attacks.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-pass">&#9989;</span>
+    <div class="check-text"><strong>CHECK constraints</strong> &mdash; Plan values and gender values are constrained to valid options at the DB level.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-pass">&#9989;</span>
+    <div class="check-text"><strong>Glitch event uses textContent</strong> &mdash; The glitch event HTML correctly uses <code>textContent</code> for text rendering, avoiding XSS in that file.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-pass">&#9989;</span>
+    <div class="check-text"><strong>God JSON is clean</strong> &mdash; All 200 blessing texts reviewed &mdash; no HTML tags, script injections, or malicious payloads found.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-pass">&#9989;</span>
+    <div class="check-text"><strong>No hardcoded secrets</strong> &mdash; No API keys, Supabase URLs, or credentials found in any source files. Environment variables are referenced in documentation only.</div>
+  </div>
+  <div class="check-item">
+    <span class="check-icon check-pass">&#9989;</span>
+    <div class="check-text"><strong>Proper search_path on auth hook</strong> &mdash; <code>fn_handle_new_user()</code> correctly sets <code>search_path = public</code>.</div>
+  </div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<div class="footer">
+  <p>Mythsensus Security Audit Report &bull; Generated 2026-03-29 &bull; Claude Security Agent</p>
+  <p style="margin-top:6px">This audit covers static analysis of provided artifacts. A production deployment audit with penetration testing is recommended before launch.</p>
+  <p style="margin-top:12px;color:var(--gold);font-size:.85rem">Total estimated effort to fix all findings: <strong>4&ndash;5 working days</strong></p>
+</div>
+
+</div><!-- /container -->
+
+</body>
+</html>

@@ -1,0 +1,628 @@
+{
+  "systems": {
+    "version": "v7_26_systems",
+    "n_systems": 26,
+    "equal_weight": 0.0385,
+    "systems": [
+      "BaZi (四柱)",
+      "Nine Star Ki",
+      "Western Astrology",
+      "Vedic Jyotish",
+      "Pythagorean Numerology",
+      "Human Design",
+      "Mayan Tzolk'in",
+      "Celtic Tree Astrology",
+      "ไทยพราหมณ์",
+      "เลข 7 ตัว 9 ฐาน",
+      "Korean Saju (사주)",
+      "Tibetan Astrology",
+      "Norse Rune",
+      "Native American Totem",
+      "Aztec Tonalpohualli",
+      "Arabic Parts (Part of Fortune)",
+      "Biorhythm",
+      "Ifa/Yoruba",
+      "Hellenistic Astrology",
+      "Kabbalistic Numerology",
+      "Zoroastrian Astrology",
+      "Vedic Mahadasha",
+      "Aboriginal Dreamtime",
+      "Onmyōdō (陰陽道)",
+      "Zi Wei Dou Shu (紫微斗數)",
+      "Ogham (Druidic)"
+    ],
+    "regions": [
+      "East Asia",
+      "Japan",
+      "Europe/Global",
+      "South Asia",
+      "Global",
+      "Modern/Global",
+      "Latin America",
+      "Europe",
+      "Southeast Asia",
+      "Thailand",
+      "Korea",
+      "Central Asia",
+      "Scandinavia",
+      "North America",
+      "Mexico",
+      "Middle East",
+      "Global/Modern",
+      "West Africa",
+      "Ancient Greece/Rome",
+      "Middle East/Jewish",
+      "Iran/Persia",
+      "South Asia",
+      "Oceania/Australia",
+      "Japan/Shinto",
+      "Chinese diaspora",
+      "Ireland/Celtic"
+    ],
+    "coverage": "~92% world population (missing: Central Africa, full Aboriginal)",
+    "pattrick_consensus": {
+      "mean": 76.4,
+      "n": 26,
+      "above_80": 16,
+      "above_70": 20,
+      "below_60": 2,
+      "level": "strong"
+    }
+  },
+  "distribution": {
+    "version": "distribution_v1",
+    "n_total": 1211,
+    "n_user_base": 1171,
+    "datasets": {
+      "famous": 968,
+      "criminal": 40,
+      "non_famous": 78,
+      "middle_class": 83,
+      "film_crew": 42
+    },
+    "stats": {
+      "all": {
+        "mean": 687,
+        "sd": 91,
+        "p5": 475,
+        "p25": 650,
+        "p50": 695,
+        "p75": 750,
+        "p95": 810
+      },
+      "famous": {
+        "mean": 686
+      },
+      "non_famous": {
+        "mean": 688
+      },
+      "criminal": {
+        "mean": 688
+      }
+    },
+    "tier_boundaries": {
+      "old": {
+        "Celestial": 920,
+        "Radiant": 840,
+        "Luminous": 760,
+        "Resonant": 680,
+        "Grounded": 600,
+        "Seeking": 500,
+        "Emerging": 0
+      },
+      "new_combined": {
+        "Celestial": 855,
+        "Radiant": 810,
+        "Luminous": 775,
+        "Resonant": 730,
+        "Grounded": 685,
+        "Seeking": 650,
+        "Emerging": 440
+      },
+      "new_user_base": {
+        "Celestial": 860,
+        "Radiant": 810,
+        "Luminous": 780,
+        "Resonant": 730,
+        "Grounded": 685,
+        "Seeking": 650,
+        "Emerging": 440
+      },
+      "recommended": {
+        "Celestial": 860,
+        "Radiant": 810,
+        "Luminous": 780,
+        "Resonant": 730,
+        "Grounded": 685,
+        "Seeking": 650,
+        "Emerging": 440
+      }
+    },
+    "key_findings": {
+      "sf_famous_vs_criminal_gap": -2,
+      "sf_magnitude_not_direction": true,
+      "pattrick_top_pct_user_base": 11.1,
+      "celestial_actually_exists": true
+    }
+  },
+  "tiers": {
+    "tiers": {
+      "Celestial": {
+        "range": [
+          920,
+          1000
+        ],
+        "th": "ฟ้า",
+        "user_pct": "top 1%",
+        "world_pct": "top 0.1%"
+      },
+      "Radiant": {
+        "range": [
+          840,
+          919
+        ],
+        "th": "แสง",
+        "user_pct": "top 5%",
+        "world_pct": "top 2%"
+      },
+      "Luminous": {
+        "range": [
+          760,
+          839
+        ],
+        "th": "เปล่งประกาย",
+        "user_pct": "top 15%",
+        "world_pct": "top 10%"
+      },
+      "Resonant": {
+        "range": [
+          680,
+          759
+        ],
+        "th": "สั่นพ้อง",
+        "user_pct": "top 35%",
+        "world_pct": "top 25%"
+      },
+      "Grounded": {
+        "range": [
+          600,
+          679
+        ],
+        "th": "หยั่งราก",
+        "user_pct": "top 55%",
+        "world_pct": "top 40%"
+      },
+      "Seeking": {
+        "range": [
+          500,
+          599
+        ],
+        "th": "แสวงหา",
+        "user_pct": "top 75%",
+        "world_pct": "top 60%"
+      },
+      "Emerging": {
+        "range": [
+          0,
+          499
+        ],
+        "th": "กำลังก่อตัว",
+        "user_pct": "bottom 25%",
+        "world_pct": "top 80%"
+      }
+    },
+    "narratives": {
+      "Celestial": {
+        "th": "ฟ้า — หนึ่งในล้าน",
+        "headline": "chart นี้หาได้ยากมากในบรรดาผู้ใช้ Mythsensus ทั้งหมด",
+        "context": "คุณอยู่ใน top 1% ของผู้ที่เข้ามาดูดวงกับเรา และ top 0.1% ของประชากรโลก",
+        "caution": "potential สูงมาก = ความรับผิดชอบสูงมาก direction ของคุณสำคัญมากกว่าคนทั่วไป"
+      },
+      "Radiant": {
+        "th": "แสง — ทรงพลังผิดธรรมดา",
+        "headline": "chart ที่ทรงพลังผิดปกติ — อยู่ใน top 5% ของ Mythsensus users",
+        "context": "คุณมี potential ที่คนส่วนใหญ่ไม่มี คำถามคือ terrain และ behavior จะ unlock มันได้ไหม",
+        "caution": "chart แบบนี้มักมาพร้อม intensity สูง ระวัง burnout และ overcommit"
+      },
+      "Luminous": {
+        "th": "เปล่งประกาย — โดดเด่นชัดเจน",
+        "headline": "chart ที่มีจุดแข็งชัดเจน — top 15% ของ Mythsensus users",
+        "context": "คุณมี natural advantage บางส่วนที่คนอื่นต้องพยายามมากกว่า แต่ยังต้องการ right terrain และ right timing",
+        "caution": "จุดแข็งที่ชัดอาจทำให้ underestimate จุดอ่อน"
+      },
+      "Resonant": {
+        "th": "สั่นพ้อง — foundation แข็งแกร่ง",
+        "headline": "chart ที่สมดุลและแข็งแกร่ง — top 35% ของ Mythsensus users",
+        "context": "คุณอยู่เหนือค่าเฉลี่ยของผู้ใช้ Mythsensus และเหนือ top 25% ของประชากรโลก — นี่คือ baseline ที่ดีมากแล้ว",
+        "caution": "อย่า compare กับ outlier — compare กับ version ดีกว่าของตัวเอง"
+      },
+      "Grounded": {
+        "th": "หยั่งราก — มั่นคงและเติบโตได้",
+        "headline": "chart ที่มั่นคง — คุณอยู่เหนือ 40% ของประชากรโลกแล้ว",
+        "context": "การที่คุณมาดูดวงกับ Mythsensus ได้ แสดงว่าคุณอยู่ใน top 30-40% ของโลกอยู่แล้ว chart นี้ = solid foundation",
+        "caution": "Environment และ timing มีผลมากกว่า chart สำหรับ tier นี้"
+      },
+      "Seeking": {
+        "th": "แสวงหา — กำลังค้นหาทิศทาง",
+        "headline": "chart ที่กำลังค้นหา — terrain และ behavior สำคัญที่สุด",
+        "context": "SF อาจไม่สูง แต่ Life Terrain และ Path Resonance เปลี่ยนได้ทั้งคู่ — นี่คือ leverage point ของคุณ",
+        "caution": "อย่า focus ที่ SF ที่เปลี่ยนไม่ได้ focus ที่ terrain และ behavior"
+      },
+      "Emerging": {
+        "th": "กำลังก่อตัว — ทุกอย่างเปิดกว้าง",
+        "headline": "chart ที่กำลังก่อตัว — Life Terrain คือกุญแจสำคัญ",
+        "context": "ประวัติศาสตร์มีหลายคนที่ SF ต่ำแต่ reach สูงมาก ด้วย terrain ที่ถูกและ behavior ที่ดี (El Chapo ทำได้ แต่เลือกทิศผิด)",
+        "caution": "Terrain upgrade คือ priority #1 สำหรับ chart นี้"
+      }
+    }
+  },
+  "scoring": {
+    "version": "v6_user_calibrated",
+    "date_updated": "2026-04-14",
+    "description": "Mythsensus scoring framework — calibrated to user base (top 30-40% global)",
+    "philosophy": {
+      "sf_is_magnitude_not_direction": true,
+      "user_prior": "Users of Mythsensus = top 30-40% global by default (smartphone + money + time)",
+      "score_meaning": "Magnitude of potential, not moral judgment or guaranteed outcome",
+      "consensus_model": "10 systems each give signal; score = weighted consensus, not truth",
+      "behavior_role": "Determines direction of potential, not magnitude",
+      "evolving_model": "Weights evolve as user outcome data accumulates"
+    },
+    "three_scores": {
+      "soul_frequency": {
+        "name_en": "Soul Frequency",
+        "name_th": "ความถี่วิญญาณ",
+        "subtitle_th": "คุณเป็นใครตั้งแต่เกิด",
+        "max": 1000,
+        "fixed": true,
+        "weight_in_cosmic": 0.4,
+        "components": {
+          "bazi_structure": {
+            "max": 200,
+            "basis": "peach_blossom+noble_star"
+          },
+          "nsk_base": {
+            "max": 200,
+            "basis": "nine_star_ki_birth_star"
+          },
+          "nsk_lp_interact": {
+            "max": 200,
+            "basis": "volatile_stable_combo_r=0.149"
+          },
+          "lp_base": {
+            "max": 200,
+            "basis": "life_path_numerology"
+          },
+          "western_vedic": {
+            "max": 200,
+            "basis": "sun_sign+nakshatra_proxy"
+          }
+        },
+        "penalties": {
+          "nsk_star5": -20,
+          "volatile_combo_NSK2345_LP19": -35,
+          "star5_lp9_extra": -15,
+          "star3_lp1_extra": -15
+        }
+      },
+      "life_terrain": {
+        "name_en": "Life Terrain",
+        "name_th": "ภูมิประเทศชีวิต",
+        "subtitle_th": "ภูมิประเทศที่คุณยืนอยู่",
+        "max": 1000,
+        "fixed": false,
+        "weight_in_cosmic": 0.3,
+        "v2_timing_layer": true,
+        "formula": "country_tier×0.40 + alignment×0.25 + level×0.20 + era×0.15",
+        "timing_modifier": "year_quality×0.60 + nsk_year×0.40 → ±8-18%"
+      },
+      "path_resonance": {
+        "name_en": "Path Resonance",
+        "name_th": "เส้นทางสั่นพ้อง",
+        "subtitle_th": "เส้นทางนี้สั่นพ้องกับวิญญาณคุณไหม",
+        "max": 1000,
+        "fixed": false,
+        "weight_in_cosmic": 0.3,
+        "wuxing_insight": {
+          "for_task": "我生 (DM creates) = destiny output — best for TASK domain",
+          "for_terrain": "生我 (feeds DM) = best for COUNTRY/ENVIRONMENT",
+          "peer": "比劫 (SAME) = comfortable but not destiny"
+        }
+      },
+      "cosmic_formula": "SF×0.40 + LT×0.30 + PR×0.30"
+    },
+    "tiers_user_calibrated": {
+      "context": "Calibrated to Mythsensus users (top 30-40% global)",
+      "Celestial": {
+        "range": [
+          920,
+          1000
+        ],
+        "th": "ฟ้า",
+        "user_pct": "top 1%",
+        "world_pct": "top 0.1%"
+      },
+      "Radiant": {
+        "range": [
+          840,
+          919
+        ],
+        "th": "แสง",
+        "user_pct": "top 5%",
+        "world_pct": "top 2%"
+      },
+      "Luminous": {
+        "range": [
+          760,
+          839
+        ],
+        "th": "เปล่งประกาย",
+        "user_pct": "top 15%",
+        "world_pct": "top 10%"
+      },
+      "Resonant": {
+        "range": [
+          680,
+          759
+        ],
+        "th": "สั่นพ้อง",
+        "user_pct": "top 35%",
+        "world_pct": "top 25%"
+      },
+      "Grounded": {
+        "range": [
+          600,
+          679
+        ],
+        "th": "หยั่งราก",
+        "user_pct": "top 55%",
+        "world_pct": "top 40%"
+      },
+      "Seeking": {
+        "range": [
+          500,
+          599
+        ],
+        "th": "แสวงหา",
+        "user_pct": "top 75%",
+        "world_pct": "top 60%"
+      },
+      "Emerging": {
+        "range": [
+          0,
+          499
+        ],
+        "th": "กำลังก่อตัว",
+        "user_pct": "bottom 25%",
+        "world_pct": "top 80%"
+      }
+    },
+    "distribution": {
+      "famous_dataset_n": 1136,
+      "criminal_dataset_n": 35,
+      "famous_sf_mean": 687,
+      "criminal_sf_mean": 689,
+      "gen_pop_sf_mean": 672,
+      "gen_pop_sf_sd": 77,
+      "user_base_floor": 580,
+      "user_base_center": 680,
+      "key_finding": "SF does not discriminate criminals from famous — gap only 2-16 pts. SF = magnitude, not direction."
+    },
+    "behavior_system": {
+      "type": "event_based_observable",
+      "tab": "Behavior Mirror — separate from score, not modifying SF",
+      "hard_penalties_observable": {
+        "murder_proven": -200,
+        "genocide": -200,
+        "serial_crime": -150,
+        "drug_addiction_unresolved": -60,
+        "gambling_addiction": -70,
+        "fraud_systematic": -70,
+        "integrity_compromise": -70,
+        "accountability_avoid": -65,
+        "echo_chamber": -55,
+        "burnout_pattern": -30
+      },
+      "hard_bonuses_observable": {
+        "major_adversity_overcame": 60,
+        "career_resurrection": 50,
+        "addiction_recovery_5yr": 40,
+        "scandal_apology_recovered": 40
+      },
+      "resolution_multiplier": {
+        "addiction_sobriety_2yr": 0.3,
+        "prison_served_rebuilt": 0.2,
+        "financial_repaid": 0.4
+      },
+      "dm_resolution_patterns": {
+        "Wood": "83% resolve — grows back (Jay-Z, Lula, Elton)",
+        "Metal": "60% resolve — rebuilds systematically (Downey, Hopkins)",
+        "Water": "38% resolve — hides, slow to resurface (Tiger, Pete Rose)",
+        "Fire": "36% resolve — highest flame risk (Whitney, Amy)",
+        "Earth": "50% — holds on too long"
+      }
+    },
+    "wuxing_task_theory": {
+      "for_task_domain": "我生 DM_creates = best (data: Fire→Earth 75% success)",
+      "for_terrain_country": "生我 FEEDS_DM = best terrain",
+      "peer_domain": "比劫 SAME = comfortable not destiny",
+      "per_dm_best_task": {
+        "Fire": "Earth domain (construction/ops) — Fire creates Earth ash",
+        "Wood": "Fire domain (media/leadership) — Wood creates Fire",
+        "Water": "Wood domain (education/NGO) — Water creates Wood",
+        "Metal": "Water domain (strategy/data) — Metal creates Water",
+        "Earth": "Metal domain (fintech/precision) — Earth creates Metal"
+      },
+      "per_dm_best_terrain": {
+        "Fire": "Wood country (THA/IRL/NZL) — Wood feeds Fire",
+        "Wood": "Water country (NOR/FIN/DNK) — Water feeds Wood",
+        "Water": "Metal country (JPN/DEU/SGP) — Metal feeds Water",
+        "Metal": "Earth country (CAN/AUS) — Earth feeds Metal",
+        "Earth": "Fire country (USA/GBR/FRA) — Fire feeds Earth"
+      }
+    },
+    "migration_insights": {
+      "transformed_avg_tier_delta": 36,
+      "tier_jump_40plus_transform_rate": "75%",
+      "key_finding": "Tier jump necessary but not sufficient — needs domain_fit + chart_quality + timing",
+      "year_timing_added": true,
+      "year_timing_accuracy": "9/13 = 69% retroactive"
+    },
+    "pattrick_v6": {
+      "dob": "1991-02-03",
+      "four_pillars": "庚午 丁丑 丙午 辛卯",
+      "day_master": "丙 Yang Fire",
+      "nsk_star": 9,
+      "life_path": 7,
+      "scores": {
+        "soul_frequency": 790,
+        "life_terrain": 800,
+        "path_resonance": 739,
+        "cosmic": 773
+      },
+      "tier_old": "Distinctive",
+      "tier_new": "Luminous",
+      "tier_new_th": "เปล่งประกาย",
+      "user_context": "top 15% ของ Mythsensus users",
+      "world_context": "top 10% ประชากรโลก",
+      "current_lp": "辛巳 Metal+Fire (age 31-40) quality=67",
+      "best_years": {
+        "2026": "GO — Honmei year",
+        "2027": "Good",
+        "2028-2030": "Wait",
+        "2034-2035": "Next peak"
+      },
+      "best_task": "Earth domain (CEO/Founder Yoohui) — 我生",
+      "best_terrain": "THA (Wood feeds Fire) — current is already optimal alignment",
+      "best_country_if_move": "Ireland (Wood+Tier1) > USA (Fire+Tier1)"
+    }
+  },
+  "plain_language": {
+    "version": "plain_language_v1",
+    "unified_outcome_scale": {
+      "10": {
+        "label": "World-defining",
+        "th": "เปลี่ยนโลก",
+        "criteria": "Changed civilization permanently. Known globally 50+ years after death."
+      },
+      "8": {
+        "label": "Generation-defining",
+        "th": "นิยามรุ่น",
+        "criteria": "Top of field globally. Known by most people alive today."
+      },
+      "6": {
+        "label": "Field-leading",
+        "th": "นำในสาขา",
+        "criteria": "Top of field nationally/regionally. Peers know the name."
+      },
+      "4": {
+        "label": "Professionally established",
+        "th": "มั่นคงในอาชีพ",
+        "criteria": "Good career, comfortable life, respected in community."
+      },
+      "2": {
+        "label": "Building/Emerging",
+        "th": "กำลังสร้าง",
+        "criteria": "Career started, outcome not yet clear."
+      },
+      "1": {
+        "label": "Stalled/Failed",
+        "th": "หยุดชะงัก",
+        "criteria": "Career didn't develop. Below potential or expected outcome."
+      }
+    },
+    "dm_strengths": {
+      "Fire": [
+        "ความกล้า",
+        "การแสดงออก",
+        "ความเป็นผู้นำ",
+        "พลังงาน"
+      ],
+      "Wood": [
+        "การเติบโต",
+        "ความอดทน",
+        "การสร้าง",
+        "ความยืดหยุ่น"
+      ],
+      "Water": [
+        "ความลึก",
+        "สติปัญญา",
+        "การปรับตัว",
+        "ความเข้าใจ"
+      ],
+      "Metal": [
+        "ความแม่นยำ",
+        "วินัย",
+        "มาตรฐาน",
+        "การตัดสินใจ"
+      ],
+      "Earth": [
+        "ความมั่นคง",
+        "ความน่าเชื่อถือ",
+        "การสะสม",
+        "ความอดทน"
+      ]
+    },
+    "dm_lacking": {
+      "Fire": "น้ำ",
+      "Wood": "โลหะ",
+      "Earth": "ไม้",
+      "Metal": "ไฟ",
+      "Water": "ดิน"
+    },
+    "dm_risk": {
+      "Fire": "ระวัง overcommit และ burn out — ไฟที่ลุกแรงต้องการเชื้อเพลิงสม่ำเสมอ",
+      "Wood": "ระวัง overextend — ต้นไม้ที่โตเร็วเกินรากจะล้มในพายุ",
+      "Water": "ระวัง paralysis by analysis — น้ำที่ไม่ไหลจะขัง",
+      "Metal": "ระวัง perfectionism paralysis — รอ perfect แล้วไม่เริ่ม",
+      "Earth": "ระวัง stubbornness — ดินที่แข็งเกินรับน้ำไม่ได้"
+    },
+    "nsk_plain": {
+      "1": "ดาวน้ำขาว — ความลึกและสติปัญญา",
+      "5": "ดาวดินเหลือง — ระวัง อย่าตัดสินใจใหญ่",
+      "8": "ดาวดินขาว — ความมั่นคงสูงสุด",
+      "9": "ดาวไฟม่วง — พลังงานสูง วิสัยทัศน์ชัด"
+    },
+    "example_pattrick": {
+      "sf": {
+        "tier": "Luminous",
+        "tier_th": "เปล่งประกาย",
+        "score": 790,
+        "headline": "แก่นวิญญาณของคุณ = เปล่งประกาย",
+        "core_strength": "จุดแข็งที่เกิดมาพร้อม: ความกล้า และ การแสดงออก",
+        "dm_nature": "ธาตุFire — ความกล้า",
+        "lacking_element": "ธาตุที่ต้องเสริม: น้ำ",
+        "risk": "ระวัง overcommit และ burn out — ไฟที่ลุกแรงต้องการเชื้อเพลิงสม่ำเสมอ",
+        "nsk": "ดาวไฟม่วง — พลังงานสูง วิสัยทัศน์ชัด ปีแห่งโอกาส",
+        "lp": "คุณถูกสร้างมาเพื่อวิเคราะห์ — depth คือ advantage",
+        "context_line": "คุณอยู่ใน top 15% ของผู้ใช้ Mythsensus"
+      },
+      "lt": {
+        "score": 840,
+        "engine": "เครื่องยนต์ระดับ BMW",
+        "year_message": "ปีนี้ลมพัดตามหลัง — ออกแรงแล้วไปได้ไกลกว่าปกติ",
+        "action": "engine ดีแล้ว — ถึงเวลาเหยียบคันเร่ง"
+      },
+      "cs": {
+        "score": 785,
+        "level": "high",
+        "message": "ดวงบอกว่านี่คือเวลาที่ใช่ — เปลี่ยนได้เลย",
+        "one_liner": "ทุก system บอกตรงกัน — ปีนี้คือปีของคุณ"
+      }
+    }
+  },
+  "_meta": {
+    "merged_from": [
+      "mythsensus_26systems_v1.json",
+      "mythsensus_distribution_v1.json",
+      "mythsensus_tiers_v6.json",
+      "mythsensus_scoring_v5_flat.json",
+      "mythsensus_plain_language_v1.json"
+    ],
+    "dropped_superseded": [
+      "mythsensus_scoring_v4_calibration.json",
+      "mythsensus_scoring_v4_final.json"
+    ],
+    "version": "2026-04-14"
+  }
+}

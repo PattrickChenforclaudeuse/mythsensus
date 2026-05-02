@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Garuda","Loma","TH Sarabun New",serif;font-size:10pt;color:#1a1510;line-height:1.78}
+.page{padding:12mm 15mm 13mm}
+h1{font-size:18pt;color:#8a6820;text-align:center;font-weight:bold;margin-bottom:3pt}
+h2{font-size:12.5pt;color:#8a6820;font-weight:bold;border-bottom:1.5pt solid #c8a840;padding-bottom:3pt;margin:14pt 0 7pt}
+h3{font-size:10.5pt;color:#2a1808;font-weight:bold;margin:9pt 0 4pt}
+p{color:#3a2e1a;margin-bottom:5pt;font-size:9.5pt}
+.eyebrow{font-size:8pt;color:#9a8a72;text-align:center;letter-spacing:3px;margin-bottom:3pt}
+.birthinfo{font-size:9pt;color:#9a8a72;text-align:center;margin-bottom:9pt}
+hr{border:none;border-top:0.5pt solid #ddd8cc;margin:5pt 0}
+table{width:100%;border-collapse:collapse;margin-bottom:7pt;font-size:9pt}
+th{background:#1a1510;color:#f5f0e8;padding:5pt 7pt;text-align:left;font-weight:bold}
+td{padding:4pt 7pt;border-bottom:0.5pt solid #e0d8c8;vertical-align:top}
+tr:nth-child(even) td{background:#f8f5f0}
+.lbl{background:#f0ede8!important;color:#7a6a52;font-weight:bold;width:22%}
+.nb{border-radius:5pt;padding:8pt 12pt;margin:6pt 0;page-break-inside:avoid}
+.nb-dark{background:#1a1510;color:#f0e8d0;border-radius:6pt;padding:9pt 13pt;margin:7pt 0}
+.nb-gold{background:#fdf8ee;border:1pt solid #c8a840}
+.nb-green{background:#f0fff8;border:1.5pt solid #1a8a3a}
+.nb-red{background:#fff8f8;border:2pt solid #c01020;border-radius:5pt;padding:9pt 12pt;margin:7pt 0}
+.nb-blue{background:#f0f4ff;border:1pt solid #3a5aaa}
+.convergence{border-left:3pt solid #d4aa50;padding:6pt 10pt;margin-bottom:6pt;background:#fffdf5;page-break-inside:avoid}
+.convergence-title{font-weight:bold;font-size:10.5pt;color:#8a6820;margin-bottom:3pt}
+.convergence-systems{font-size:7.5pt;color:#9a8a72;margin-bottom:4pt}
+.convergence-body{font-size:9.5pt;color:#3a2e1a;line-height:1.72}
+.vs-box{display:table;width:100%;margin-bottom:8pt;border:1.5pt solid #e0c0c0;border-radius:6pt;overflow:hidden}
+.vs-left{display:table-cell;width:50%;padding:9pt 12pt;background:#fff0f0;vertical-align:top}
+.vs-right{display:table-cell;width:50%;padding:9pt 12pt;background:#f0fff8;vertical-align:top;border-left:1.5pt solid #e0c0c0}
+.vs-title{font-size:11pt;font-weight:bold;margin-bottom:5pt}
+.vs-item{font-size:9pt;color:#4a3a2a;padding:2pt 0;border-bottom:0.5pt solid rgba(0,0,0,.06)}
+.action-box{border:1pt solid #ddd8cc;border-radius:5pt;padding:7pt 10pt;margin-bottom:6pt;page-break-inside:avoid}
+.action-head{display:table;width:100%;margin-bottom:4pt}
+.action-icon{display:table-cell;width:24pt;font-size:16pt;vertical-align:middle}
+.action-title{display:table-cell;font-weight:bold;font-size:10.5pt;vertical-align:middle}
+.action-tag{display:table-cell;text-align:right;vertical-align:middle}
+.tag{display:inline-block;border-radius:3pt;padding:1pt 6pt;font-size:8pt;font-weight:bold}
+.tag-easy{background:#e0f8e8;color:#1a6a2a}
+.tag-medium{background:#fdf0d8;color:#8a5010}
+.tag-long{background:#e8e8f8;color:#3a3a7a}
+.science-note{font-size:8.5pt;color:#5a5a5a;font-style:italic;border-left:2pt solid #c8c0b0;padding:3pt 7pt;margin-top:4pt}
+.phase-row{display:table;width:100%;margin-bottom:5pt;border:0.5pt solid #ddd;border-radius:4pt;overflow:hidden}
+.phase-num{display:table-cell;width:36pt;background:#2a1808;color:#d4aa50;font-size:14pt;font-weight:bold;text-align:center;vertical-align:middle;padding:8pt 0}
+.phase-content{display:table-cell;padding:6pt 10pt;vertical-align:top}
+.phase-title{font-weight:bold;font-size:10pt;color:#1a1510}
+.phase-body{font-size:9pt;color:#4a3a2a;margin-top:2pt;line-height:1.65}
+.warn-red{color:#a01010;font-weight:bold}
+.win-green{color:#1a6a2a;font-weight:bold}
+.footer{text-align:center;font-size:7.5pt;color:#9a8a72;margin-top:11pt;border-top:0.5pt solid #ddd;padding-top:5pt}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body><div class="page">
+
+<div class="eyebrow">✦ COSMIC FINANCE COACHING ✦</div>
+<h1>แผนการเงิน การออม และการลงทุน</h1>
+<div class="birthinfo">
+ชาย A · 3 กุมภาพันธ์ 2534 · 06:05 น. · กรุงเทพมหานคร<br>
+Day Master 丙午 Yang Fire Horse · Life Path 7 · Luck Pillar 乙亥 PEAK · Saturn Mahadasha
+</div>
+<hr>
+
+<!-- ════════════════════ DISCLAIMER ════════════════════ -->
+<div class="nb-red">
+  <div style="font-size:11pt;font-weight:bold;color:#a01010;margin-bottom:5pt;">⚠️ อ่านก่อน — สำคัญมาก</div>
+  <p style="font-size:9.5pt;color:#5a1010;line-height:1.75;">
+  รายงานนี้<strong>ไม่ใช่คำแนะนำทางการเงินหรือการลงทุน</strong> ไม่ใช่การรับประกันผลตอบแทน
+  และไม่สามารถนำไปใช้แทนการปรึกษาผู้เชี่ยวชาญทางการเงินที่มีใบอนุญาตได้
+  <br><br>
+  ดวงชะตาบอกได้เพียง<strong>"แนวโน้มและรูปแบบพฤติกรรม"</strong>ของแต่ละคน
+  ไม่ใช่การทำนายว่าหุ้นตัวไหนจะขึ้น กองทุนไหนจะดี หรือเวลาไหนจะรวย
+  <br><br>
+  <strong>ทุกการลงทุนต้องศึกษาข้อมูลด้วยตัวเองก่อนเสมอ</strong>
+  และยอมรับความเสี่ยงที่อาจเกิดขึ้นได้ทุกกรณี
+  </p>
+</div>
+
+<!-- ════════════════════ GAMBLING VS INVESTING ════════════════════ -->
+<h2>การลงทุน ≠ การพนัน — ต่างกันอย่างสิ้นเชิง</h2>
+
+<div class="vs-box">
+  <div class="vs-left">
+    <div class="vs-title" style="color:#a01010;">🎲 การพนัน</div>
+    <div class="vs-item">ผลลัพธ์ขึ้นอยู่กับโชคเป็นหลัก ควบคุมไม่ได้</div>
+    <div class="vs-item">คาดการณ์ผลล่วงหน้าได้น้อยมาก</div>
+    <div class="vs-item">ข้อมูลและการศึกษาไม่ช่วยลดความเสี่ยง</div>
+    <div class="vs-item">ผลตอบแทนสูงมาก → ความเสี่ยงสูงมากเสมอ</div>
+    <div class="vs-item">เงินที่เสียไปมักหายไปทั้งก้อน</div>
+    <div class="vs-item">สร้าง dependency และอาจนำไปสู่การติด</div>
+    <div class="vs-item" style="border:none;">ตัวอย่าง: หวย คาสิโน Forex ที่ไม่เข้าใจ Crypto เก็งกำไร</div>
+  </div>
+  <div class="vs-right">
+    <div class="vs-title" style="color:#1a6a2a;">📈 การลงทุน</div>
+    <div class="vs-item">ผลลัพธ์อิงจากปัจจัยพื้นฐานที่วิเคราะห์ได้</div>
+    <div class="vs-item">ยิ่งศึกษามากยิ่งลดความเสี่ยงได้มากขึ้น</div>
+    <div class="vs-item">มีข้อมูลที่ตรวจสอบได้ก่อนตัดสินใจ</div>
+    <div class="vs-item">ผลตอบแทนสมเหตุสมผลตามเวลาและความเสี่ยง</div>
+    <div class="vs-item">การกระจายความเสี่ยงลดการสูญเสียได้</div>
+    <div class="vs-item">สร้างความมั่งคั่งระยะยาวได้จริง</div>
+    <div class="vs-item" style="border:none;">ตัวอย่าง: หุ้น ETF กองทุนรวม อสังหาฯ พันธบัตร</div>
+  </div>
+</div>
+
+<div class="nb nb-red" style="border-width:1pt;">
+  <strong style="color:#8a1010;">เส้นแบ่งที่ชัดเจน:</strong>
+  ถ้ายังไม่เข้าใจว่าเงินทำงานอย่างไรในสิ่งที่กำลังจะลงทุน — นั่นยังไม่ใช่การลงทุน แต่คือการเดา
+  ไม่ว่าจะเรียกว่าอะไร ดวงไม่สามารถชดเชยการขาดความรู้ได้
+</div>
+
+<!-- ════════════════════ CONVERGENCE ════════════════════ -->
+<h2>สิ่งที่ทุกศาสตร์เห็นตรงกันเกี่ยวกับการเงินของคุณ</h2>
+
+<div class="convergence">
+  <div class="convergence-title">💎 เงินมาจากปัญญา ไม่ใช่โชค</div>
+  <div class="convergence-systems">BaZi ธาตุทรัพย์=น้ำ (ปัญญา ข้อมูล) · Vedic Pushya Nakshatra (ความรู้สร้างทรัพย์) · LP7 The Seeker (ยิ่งรู้มากยิ่งได้เปรียบ) · HD Gate 13 (ข้อมูลลึก) · Western Saturn (ผลจากความพยายาม) · Mayan Oc Tone 7 (ปัญญาสร้างทรัพย์)</div>
+  <div class="convergence-body">
+  ทุก 6 ศาสตร์ชี้ตรงกัน — ชาร์ตนี้ถูกออกแบบมาให้สร้างความมั่งคั่งจากความรู้และการวิเคราะห์
+  ไม่ใช่จากโชคหรือการเสี่ยง
+  <br><br>
+  BaZi: ธาตุทรัพย์ของ 丙 ไฟยางคือน้ำ (壬癸) ซึ่งในแพทย์จีนแทน "ปัญญาและข้อมูล"
+  LP7: คนที่มี Life Path 7 ได้เปรียบทางการเงินมากที่สุดเมื่อ<em>รู้มากกว่าคนอื่น</em>ในสิ่งที่ลงทุน
+  Saturn Mahadasha: เสาร์ให้รางวัลแก่ความพยายามสะสม ไม่ใช่ความโชคดีชั่วคราว
+  <br><br>
+  <strong>ผลที่ได้: ยิ่งศึกษาก่อนลงทุนมาก คุณได้เปรียบมากกว่าคนทั่วไป ไม่ใช่แค่ "ปลอดภัยกว่า"</strong>
+  </div>
+</div>
+
+<div class="convergence">
+  <div class="convergence-title">🐢 สะสมช้าและแน่นอนชนะการเสี่ยงเร็ว</div>
+  <div class="convergence-systems">BaZi Luck Pillar 乙亥 (ไม้+น้ำ สะสม) · Vedic Saturn Mahadasha 19 ปี · Western Saturn conjunct Sun · LP7 (ลึกและสม่ำเสมอ) · Ben Ming Nian 2026 (ห้ามเสี่ยง) · HD Wait to Respond (รอสัญญาณก่อน)</div>
+  <div class="convergence-body">
+  6 ศาสตร์เตือนเรื่องเดียวกัน — ชาร์ตนี้ไม่ใช่ชาร์ตที่รวยเร็ว แต่เป็นชาร์ตที่ <em>รวยจริงและยั่งยืน</em>
+  Saturn Mahadasha 19 ปีทำงานแบบ compounding ไม่ใช่ linear — ปีแรก 1% ปีที่ 10 อาจ 5x
+  Luck Pillar 乙亥 PEAK ที่กำลังเกิดขึ้นตอนนี้ = ทุกที่ที่ลงทุนอย่างมีความรู้มีผลทวีคูณ
+  <br><br>
+  <strong>Warren Buffett สร้างความมั่งคั่ง 90% หลังอายุ 50 — ชาร์ตที่คล้ายกันนี้ทำงานแบบเดียวกัน</strong>
+  </div>
+</div>
+
+<div class="convergence">
+  <div class="convergence-title">⚡ Double Horse = ความเสี่ยงหลักทางการเงิน</div>
+  <div class="convergence-systems">BaZi 午午 Self-Punishment · Ben Ming Nian 2026 · HD Sacral (ต้องรอก่อน) · Western Saturn (ผลกรรมจากการตัดสินใจเร็ว) · LP7 (ต้องการข้อมูลก่อน)</div>
+  <div class="convergence-body">
+  5 ศาสตร์ warning เรื่องเดียวกัน — ความเสียหายทางการเงินที่ใหญ่ที่สุดในชีวิตมักมาจากการตัดสินใจลงทุนหุนหันพลันแล่นในช่วงที่อารมณ์สูง
+  Double Horse 午午 = Self-Punishment ทางการเงิน = ลงทุนในสิ่งที่ยังไม่เข้าใจ เพราะ FOMO หรือเพราะคนอื่นบอกว่าดี
+  <br><br>
+  <strong>กฎ 24 ชม. ใช้กับการตัดสินใจทางการเงินทุกครั้งที่เกิน 10,000 บาท — ไม่มีข้อยกเว้น</strong>
+  </div>
+</div>
+
+
+<!-- ════════════════════ SAVING PLAN ════════════════════ -->
+<h2>แผนการออม — รากฐานก่อนการลงทุน</h2>
+
+<div class="nb nb-gold" style="margin-bottom:8pt;">
+  <strong>หลักการ: ออมก่อนลงทุนเสมอ</strong><br>
+  ก่อนจะพูดถึงการลงทุน ต้องมีฐานที่มั่นคงก่อน เพราะการลงทุนโดยไม่มีเงินสำรองฉุกเฉิน
+  = ถูกบังคับขายในเวลาที่แย่ที่สุด ซึ่งขัดกับทุกศาสตร์ที่บอกให้ "รอจังหวะที่ใช่"
+</div>
+
+<div class="action-box">
+<div class="action-head">
+  <div class="action-icon">🏦</div>
+  <div class="action-title">ขั้นที่ 1 — เงินสำรองฉุกเฉิน 6 เดือน</div>
+  <div class="action-tag"><span class="tag tag-long">ทำก่อนลงทุน</span></div>
+</div>
+<table><tbody>
+<tr><td class="lbl">เป้าหมาย</td><td>มีเงินเท่ากับรายจ่าย 6 เดือนในบัญชีออมทรัพย์ที่เข้าถึงได้ทันที · ไม่แตะต้องสำหรับอะไรทั้งนั้น นอกจากฉุกเฉินจริงๆ</td></tr>
+<tr><td class="lbl">ทำไมสำคัญ</td><td>BaZi Ben Ming Nian 2026: ปีที่ไม่คาดคิดเกิดบ่อย เงินสำรองทำให้ไม่ต้องขายการลงทุนในราคาแย่ · Saturn Mahadasha: เสาร์ทดสอบด้วยเหตุการณ์ไม่คาดฝัน คนที่มีเงินสำรองผ่านการทดสอบได้ง่ายกว่ามาก</td></tr>
+<tr><td class="lbl">วิธีสะสม</td><td>ตั้ง auto-transfer 10–20% ของรายได้ทุกเดือนวันที่รับเงินเดือน → บัญชีแยกต่างหากที่ไม่มีบัตร ATM · ใช้บัญชีออมทรัพย์ดอกเบี้ยสูง เช่น บัญชีฝากประจำแบบถอนได้ หรือ Money Market Fund</td></tr>
+</tbody></table>
+</div>
+
+<div class="action-box">
+<div class="action-head">
+  <div class="action-icon">📊</div>
+  <div class="action-title">ขั้นที่ 2 — ระบบ 50/30/20</div>
+  <div class="action-tag"><span class="tag tag-easy">เริ่มได้เลย</span></div>
+</div>
+<table><tbody>
+<tr><td class="lbl">50% รายจ่ายจำเป็น</td><td>บ้าน อาหาร ค่าเดินทาง ค่าประกัน สิ่งที่ขาดไม่ได้ในชีวิตประจำวัน</td></tr>
+<tr><td class="lbl">30% รายจ่ายต้องการ</td><td>ความบันเทิง ท่องเที่ยว ของที่อยากได้ — แต่ตั้ง hard limit ไม่เกิน 30%</td></tr>
+<tr><td class="lbl">20% ออมและลงทุน</td><td>แบ่งออกเป็น: 10% เงินสำรอง (จนครบ 6 เดือน) + 10% ลงทุนระยะยาว</td></tr>
+</tbody></table>
+<div class="nb-green" style="padding:6pt 9pt;margin-top:3pt;">
+  <strong>เชื่อมกับดวง:</strong> Saturn Mahadasha ให้รางวัลแก่ระบบ ไม่ใช่ความตั้งใจ
+  การตั้ง auto-transfer ตัดปัญหา 丙 ไฟยางที่ใช้เงินตามอารมณ์ได้เลย
+  เสาร์สอนว่า "ทำซ้ำสม่ำเสมอ 19 ปี" สำคัญกว่า "ทำมากในปีเดียว"
+  <div class="science-note">คนที่ใช้ระบบ auto-saving สะสมเงินได้มากกว่าคนที่พยายามประหยัดด้วย willpower ถึง 3 เท่า (Behavioral Economics, Thaler & Sunstein)</div>
+</div>
+</div>
+
+
+<!-- ════════════════════ INVESTMENT PLAN ════════════════════ -->
+<h2>แผนการลงทุน — ตามชาร์ตและระดับความรู้</h2>
+
+<div class="nb nb-blue" style="margin-bottom:8pt;">
+  <strong>กฎเหล็กก่อนลงทุนทุกครั้ง:</strong><br>
+  ถามตัวเองให้ได้คำตอบก่อนเสมอ:<br>
+  1. ฉันเข้าใจว่าเงินทำงานอย่างไรในสิ่งนี้?<br>
+  2. ฉันรู้ความเสี่ยงที่แย่ที่สุดที่อาจเกิดขึ้นได้?<br>
+  3. ถ้าเสียเงินก้อนนี้ทั้งหมด ชีวิตยังไปต่อได้ปกติไหม?<br>
+  ถ้าตอบไม่ได้แม้แต่ข้อเดียว — ยังไม่พร้อมลงทุนในสิ่งนั้น
+</div>
+
+<div class="action-box">
+<div class="action-head">
+  <div class="action-icon">🌱</div>
+  <div class="action-title">ระดับ 1 — ผู้เริ่มต้น: กองทุนรวมและ ETF</div>
+  <div class="action-tag"><span class="tag tag-easy">ความเสี่ยงต่ำ-กลาง</span></div>
+</div>
+<table><tbody>
+<tr><td class="lbl">คืออะไร</td><td>กองทุนรวมคือการรวมเงินหลายคนให้ผู้จัดการกองทุนที่มีความเชี่ยวชาญดูแล · ETF คือกองทุนที่ลงทุนตามดัชนีตลาด เช่น SET50 หรือ S&P500 ซื้อขายได้เหมือนหุ้น</td></tr>
+<tr><td class="lbl">เหมาะกับชาร์ตนี้</td><td>Saturn + LP7: ยิ่งรู้มากยิ่งดี กองทุน Index ไม่ต้องการความรู้ลึกมาก เริ่มได้ทันที · BaZi: ลงทุนสม่ำเสมอ (DCA) เหมือน "น้ำหยดทะลวงหิน" ตรงกับธาตุน้ำที่ขาด</td></tr>
+<tr><td class="lbl">วิธีเริ่ม</td><td>เลือก Index Fund ที่ติดตาม SET50 หรือ S&P500 · ลงทุนด้วย DCA (Dollar-Cost Averaging) เช่น 2,000 บาท/เดือน ทุกวันที่ 25 อัตโนมัติ · ไม่ดูราคาทุกวัน ตั้งเป้าอย่างน้อย 5–10 ปี</td></tr>
+<tr><td class="lbl">ต้องศึกษาก่อน</td><td>อ่าน "หนังสือชี้ชวนกองทุน" ทุกหน้า · เข้าใจค่าธรรมเนียม (TER) ว่าเก็บเท่าไหร่ · รู้ว่ากองทุนลงทุนในอะไรบ้าง</td></tr>
+</tbody></table>
+<div class="science-note">การลงทุนแบบ DCA ใน Index Fund 30 ปีให้ผลเฉลี่ย 7–10% ต่อปี ซึ่งดีกว่าผู้จัดการกองทุน 80% ในระยะยาว (Vanguard Research, 2023)</div>
+</div>
+
+<div class="action-box">
+<div class="action-head">
+  <div class="action-icon">📈</div>
+  <div class="action-title">ระดับ 2 — ผู้มีประสบการณ์: หุ้นรายตัว</div>
+  <div class="action-tag"><span class="tag tag-medium">ความเสี่ยงกลาง-สูง</span></div>
+</div>
+<table><tbody>
+<tr><td class="lbl">คืออะไร</td><td>การซื้อหุ้นของบริษัทที่ศึกษาแล้วว่ามีพื้นฐานดี มีรายได้เติบโต มีกำไรสม่ำเสมอ และราคายังไม่แพงเกินไป</td></tr>
+<tr><td class="lbl">เหมาะกับชาร์ตนี้</td><td>LP7: ยิ่งศึกษาธุรกิจลึก ยิ่งได้เปรียบ · BaZi 丙: มีสัญชาตญาณการมองเห็นโอกาสที่ดี แต่ต้องใช้กับข้อมูลจริง ไม่ใช่แค่ความรู้สึก · Luck Pillar 乙亥 PEAK: ช่วงนี้การตัดสินใจที่มีข้อมูลดีมีผลทวีคูณ</td></tr>
+<tr><td class="lbl">ต้องศึกษาก่อน</td><td>งบการเงิน 5 ปีย้อนหลัง · P/E, P/BV, ROE ของบริษัท · อุตสาหกรรมที่บริษัทอยู่ · คู่แข่งและ moat ของธุรกิจ · <strong>ถ้าอ่านงบการเงินไม่ออก ยังไม่ควรซื้อหุ้นรายตัว</strong></td></tr>
+<tr><td class="lbl">กฎการลงทุน</td><td>ไม่ลงทุนในบริษัทที่ไม่เข้าใจธุรกิจ · กระจายใน 5–10 บริษัท ไม่ทั้งหมดในที่เดียว · ตั้งใจถือ 3–5 ปี ไม่ใช่ 3–5 เดือน</td></tr>
+</tbody></table>
+</div>
+
+<div class="action-box">
+<div class="action-head">
+  <div class="action-icon">🏠</div>
+  <div class="action-title">ระดับ 3 — อสังหาริมทรัพย์</div>
+  <div class="action-tag"><span class="tag tag-long">ความเสี่ยงกลาง ระยะยาว</span></div>
+</div>
+<table><tbody>
+<tr><td class="lbl">คืออะไร</td><td>การซื้อที่ดิน คอนโด หรืออสังหาฯ เพื่อให้เช่าหรือถือครองระยะยาว ไม่ใช่ flip เพื่อกำไรระยะสั้น</td></tr>
+<tr><td class="lbl">เหมาะกับชาร์ตนี้</td><td>Saturn Mahadasha + BaZi Earth element = ชาร์ตที่ได้ประโยชน์จากการถือครองทรัพย์สินจริงระยะยาว · LP7: ยิ่งศึกษาทำเล ราคา กฎหมาย ยิ่งได้เปรียบ · Western Capricorn ASC: ชอบความมั่นคงที่จับต้องได้</td></tr>
+<tr><td class="lbl">ต้องศึกษาก่อน</td><td>กฎหมายอสังหาฯ · ค่าใช้จ่ายที่ซ่อนอยู่ (ค่าโอน ภาษี ค่าบำรุงรักษา) · Yield ที่แท้จริงหลังหักค่าใช้จ่ายทั้งหมด · ทำเลที่มี demand จริง ไม่ใช่แค่หน้าตาสวย</td></tr>
+</tbody></table>
+</div>
+
+<!-- ════════════════════ WHAT TO AVOID ════════════════════ -->
+<h2>สิ่งที่ชาร์ตนี้ควรหลีกเลี่ยง — และทำไม</h2>
+
+<table>
+<thead><tr><th>สิ่งที่หลีกเลี่ยง</th><th>ทำไมชาร์ตนี้เสี่ยงกว่าคนทั่วไป</th><th>ทางเลือกที่ดีกว่า</th></tr></thead>
+<tbody>
+<tr>
+  <td><strong class="warn-red">Forex / Day Trading</strong></td>
+  <td>Double Horse 午午 + ไฟสูง = ตัดสินใจจากอารมณ์ในขณะนั้น · LP7 ต้องการข้อมูลลึก แต่ Forex เร็วเกินกว่าจะวิเคราะห์ได้ · 80% ของนักเทรดรายย่อยขาดทุนในระยะยาว</td>
+  <td>Index Fund DCA ที่ไม่ต้องดูทุกวัน</td>
+</tr>
+<tr>
+  <td><strong class="warn-red">Crypto เก็งกำไร</strong></td>
+  <td>Ben Ming Nian 2026 ห้ามเสี่ยงสูง · ความผันผวนสูงมากขัดกับ Saturn ที่ต้องการความแน่นอน · FOMO ทำให้ 丙 ไฟยางซื้อตอนสูงและขาดทุนตอนตกใจ</td>
+  <td>ถ้าสนใจ crypto ให้จัดสรรไม่เกิน 5% ของพอร์ต และต้องเข้าใจ technology ก่อน</td>
+</tr>
+<tr>
+  <td><strong class="warn-red">ลงทุนตามคำแนะนำในกลุ่ม LINE</strong></td>
+  <td>ขัดตรงกับ LP7 ที่ต้องการศึกษาเอง · 丙 ที่เชื่อคนง่ายอาจตกเป็นเหยื่อของ scam · ข้อมูลมือสองไม่มีทางดีกว่าการศึกษาเอง</td>
+  <td>ศึกษาจากแหล่งข้อมูลที่น่าเชื่อถือ ตรวจสอบเองก่อนเสมอ</td>
+</tr>
+<tr>
+  <td><strong class="warn-red">กู้เงินลงทุน (Leverage)</strong></td>
+  <td>Saturn Mahadasha = ช่วงที่ผิดพลาดมีผลระยะยาว · ถ้าลงทุนด้วย leverage แล้วราคาลง = forced liquidation ที่เลือกเวลาไม่ได้</td>
+  <td>ลงทุนด้วยเงินที่มีเท่านั้น ไม่ใช้เงินกู้ในการลงทุน</td>
+</tr>
+<tr>
+  <td><strong class="warn-red">ลงทุนทั้งก้อนในครั้งเดียว</strong></td>
+  <td>Double Horse = มีแนวโน้ม all-in เมื่ออารมณ์สูง · ถ้าผิดเวลา = สูญเสียครั้งใหญ่ที่ยากฟื้น</td>
+  <td>DCA แบ่งซื้อเป็นงวดๆ ทุกเดือน ลด timing risk</td>
+</tr>
+</tbody>
+</table>
+
+
+<!-- ════════════════════ TIMING ════════════════════ -->
+<h2>จังหวะเวลา — ดวงบอกว่าเมื่อไหร่ควรระวัง</h2>
+
+<div class="phase-row">
+  <div class="phase-num">!</div>
+  <div class="phase-content">
+    <div class="phase-title">🔴 ปี 2569 (2026) — Ben Ming Nian: ชะลอการเสี่ยง</div>
+    <div class="phase-body">
+      BaZi 午午 Self-Punishment + Ben Ming Nian = ปีที่ความเสี่ยงส่วนตัวสูงสุด
+      ไม่ใช่ว่าห้ามลงทุน แต่ห้ามลงทุนในสิ่งที่ยังไม่เข้าใจหรือยังไม่พร้อม
+      <strong>ทำได้:</strong> DCA สม่ำเสมอตามแผนที่วางไว้ · เพิ่มเงินสำรอง · ศึกษาสิ่งที่อยากลงทุนในอนาคต
+      <strong>หลีกเลี่ยง:</strong> เริ่มลงทุนในสิ่งใหม่ที่ยังไม่เข้าใจ · ลงทุนก้อนใหญ่ครั้งเดียว · ลงทุนตามกระแส
+    </div>
+  </div>
+</div>
+
+<div class="phase-row">
+  <div class="phase-num" style="background:#1a6a2a;">✓</div>
+  <div class="phase-content">
+    <div class="phase-title">🟢 ปี 2570–2573 (2027–2030) — Luck Pillar PEAK เต็มที่</div>
+    <div class="phase-body">
+      乙亥 Luck Pillar ยังคงอยู่ถึงอายุ 42 = ช่วงที่การตัดสินใจที่มีข้อมูลดีมีผลทวีคูณ
+      Personal Year 7 (2570) = ปีแห่งการวิเคราะห์และความเชี่ยวชาญ เหมาะสำหรับลงทุนในสิ่งที่ศึกษาแล้ว
+      Personal Year 8 (2571) = ปีแห่งอำนาจและการเงิน เหมาะสำหรับขยายพอร์ตที่มีอยู่
+    </div>
+  </div>
+</div>
+
+<div class="phase-row">
+  <div class="phase-num" style="background:#3a5a80;">→</div>
+  <div class="phase-content">
+    <div class="phase-title">🔵 ปี 2574–2582 (2031–2039) — Luck Pillar 甲戌 เก็บเกี่ยว</div>
+    <div class="phase-body">
+      甲戌 = ไม้ยาง+จอ = Output phase สำหรับ 丙 · ไม้หนุนไฟ = ปีที่ความพยายามสะสมออกผล
+      สิ่งที่ลงทุนด้วยความรู้ในช่วง 2569–2573 จะเริ่มเห็นผลชัดเจนในช่วงนี้
+      Saturn Mahadasha ยังคงดำเนินต่อ = ระบบและวินัยที่สร้างตอนนี้ยังทำงานอยู่
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════ PRACTICAL STEPS ════════════════════ -->
+<h2>ขั้นตอนที่ทำได้เลยตอนนี้</h2>
+
+<div class="action-box" style="background:#f8f5f0;">
+<div style="font-size:10.5pt;font-weight:bold;color:#8a6820;margin-bottom:8pt;">เรียงตามลำดับความสำคัญ</div>
+<table><tbody>
+<tr>
+  <td style="width:24pt;font-weight:bold;color:#c01020;font-size:13pt;text-align:center;">1</td>
+  <td><strong>ตรวจสอบรายรับ-รายจ่ายจริงๆ ในเดือนที่ผ่านมา</strong><br>
+  <span style="font-size:9pt;color:#5a4a3a;">ไม่มีแผนการเงินที่ดีได้โดยไม่รู้ตัวเลขจริง Download statement บัญชีและบัตรเครดิตทุกใบ แล้วหาว่าเงินออกไปไหน</span></td>
+</tr>
+<tr>
+  <td style="font-weight:bold;color:#c01020;font-size:13pt;text-align:center;">2</td>
+  <td><strong>ตั้ง auto-transfer เงินออม 20% ทุกวันที่รับเงินเดือน</strong><br>
+  <span style="font-size:9pt;color:#5a4a3a;">ทำวันนี้ เดี๋ยวนี้ ก่อนที่จะหาเหตุผลเลื่อน — Saturn Mahadasha ตอบแทนระบบ ไม่ใช่ความตั้งใจ</span></td>
+</tr>
+<tr>
+  <td style="font-weight:bold;color:#8a6820;font-size:13pt;text-align:center;">3</td>
+  <td><strong>อ่านหนังสือการลงทุนอย่างน้อย 1 เล่มก่อนลงทุนอะไรทั้งนั้น</strong><br>
+  <span style="font-size:9pt;color:#5a4a3a;">แนะนำ: "The Little Book of Common Sense Investing" (John Bogle) หรือ "นักลงทุนผู้ชาญฉลาด" (Benjamin Graham ฉบับไทย) · LP7 ยิ่งอ่านมาก ยิ่งได้เปรียบจริงๆ</span></td>
+</tr>
+<tr>
+  <td style="font-weight:bold;color:#8a6820;font-size:13pt;text-align:center;">4</td>
+  <td><strong>เปิดบัญชีกองทุนรวมและเริ่ม DCA เดือนละ 1,000–5,000 บาท</strong><br>
+  <span style="font-size:9pt;color:#5a4a3a;">หลังจากมีเงินสำรอง 3 เดือนแล้ว · เลือก Index Fund ค่าธรรมเนียมต่ำ · ตั้งใจถือ 5 ปีขึ้นไป · ไม่ดูราคาทุกวัน</span></td>
+</tr>
+<tr>
+  <td style="font-weight:bold;color:#3a5a80;font-size:13pt;text-align:center;">5</td>
+  <td><strong>ปรึกษาที่ปรึกษาการเงินที่มีใบอนุญาต (ถ้าพอร์ตใหญ่กว่า 500,000 บาท)</strong><br>
+  <span style="font-size:9pt;color:#5a4a3a;">ไม่ใช่หมอดู ไม่ใช่คนขายประกัน แต่คือผู้เชี่ยวชาญที่มี CFP หรือ IC License ที่ทำงานเพื่อประโยชน์ของคุณ ไม่ใช่ค่า commission</span></td>
+</tr>
+</tbody></table>
+</div>
+
+<div class="nb-dark">
+  <div style="font-size:11pt;color:#d4aa50;font-weight:bold;margin-bottom:6pt;">✦ Bottom Line — การเงินตามดวงชาร์ตนี้</div>
+  <p style="color:#d0c8b0;line-height:1.85;">
+    ชาร์ต 丙午 + LP7 + Saturn Mahadasha ไม่ได้ออกแบบมาให้รวยเร็ว
+    แต่ออกแบบมาให้ <strong style="color:#d4aa50;">รวยจริงและยั่งยืน</strong> จากความรู้และวินัยที่สะสม
+    <br><br>
+    ทุกบาทที่ลงทุนด้วยความรู้ในช่วง Luck Pillar PEAK นี้มีผลทวีคูณ
+    ทุกบาทที่เสียไปจากการตัดสินใจหุนหันก็มีผลทวีคูณเช่นกัน
+    <br><br>
+    <strong style="color:#d4aa50;">ดวงไม่สามารถชดเชยการขาดความรู้ได้
+    แต่ความรู้สามารถทำให้ดวงทำงานได้เต็มประสิทธิภาพ</strong>
+    <br><br>
+    <span style="color:#a09070;font-size:8.5pt;">รายงานนี้ไม่ใช่คำแนะนำทางการเงิน ปรึกษาผู้เชี่ยวชาญที่มีใบอนุญาตก่อนตัดสินใจลงทุนทุกครั้ง</span>
+  </p>
+</div>
+
+<div class="footer">
+Cosmic Finance Coaching · ชาย A · 3 กุมภาพันธ์ 2534 · BaZi · Vedic · Western · LP7 · HD · Thai · Mayan<br>
+ไม่ใช่คำแนะนำทางการเงิน · ทุกการลงทุนมีความเสี่ยง · ศึกษาข้อมูลก่อนตัดสินใจเสมอ
+</div>
+
+</div></body></html>

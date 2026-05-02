@@ -1,0 +1,101 @@
+{
+  "version": "v2_fixed_bazi",
+  "four_pillars": {
+    "year": "庚午",
+    "month": "丁丑",
+    "day": "丙午",
+    "hour": "辛卯",
+    "day_master": "丙",
+    "dm_element": "Fire"
+  },
+  "luck_pillars": [
+    {
+      "age_start": 1,
+      "age_end": 10,
+      "stem": "戊",
+      "branch": "寅",
+      "pillar": "戊寅",
+      "stem_element": "Earth",
+      "branch_element": "Wood"
+    },
+    {
+      "age_start": 11,
+      "age_end": 20,
+      "stem": "己",
+      "branch": "卯",
+      "pillar": "己卯",
+      "stem_element": "Earth",
+      "branch_element": "Wood"
+    },
+    {
+      "age_start": 21,
+      "age_end": 30,
+      "stem": "庚",
+      "branch": "辰",
+      "pillar": "庚辰",
+      "stem_element": "Metal",
+      "branch_element": "Earth"
+    },
+    {
+      "age_start": 31,
+      "age_end": 40,
+      "stem": "辛",
+      "branch": "巳",
+      "pillar": "辛巳",
+      "stem_element": "Metal",
+      "branch_element": "Fire"
+    },
+    {
+      "age_start": 41,
+      "age_end": 50,
+      "stem": "壬",
+      "branch": "午",
+      "pillar": "壬午",
+      "stem_element": "Water",
+      "branch_element": "Fire"
+    },
+    {
+      "age_start": 51,
+      "age_end": 60,
+      "stem": "癸",
+      "branch": "未",
+      "pillar": "癸未",
+      "stem_element": "Water",
+      "branch_element": "Earth"
+    },
+    {
+      "age_start": 61,
+      "age_end": 70,
+      "stem": "甲",
+      "branch": "申",
+      "pillar": "甲申",
+      "stem_element": "Wood",
+      "branch_element": "Metal"
+    },
+    {
+      "age_start": 71,
+      "age_end": 80,
+      "stem": "乙",
+      "branch": "酉",
+      "pillar": "乙酉",
+      "stem_element": "Wood",
+      "branch_element": "Metal"
+    }
+  ],
+  "luck_pillar_start_age": 1,
+  "direction": "forward",
+  "active_pillar": {
+    "age_start": 31,
+    "age_end": 40,
+    "stem": "辛",
+    "branch": "巳",
+    "pillar": "辛巳",
+    "stem_element": "Metal",
+    "branch_element": "Fire"
+  },
+  "narratives": {
+    "soul_frequency": "แก่นวิญญาณที่โดดเด่น — คุณมี potential ที่ไม่ธรรมดา รอการ manifest 丙 Yang Fire ของคุณหมายความว่าคุณ light up ห้องโดยธรรมชาติ — คนรู้สึกพลังงานคุณก่อนที่คุณจะพูดอะไร",
+    "life_terrain": "เครื่องยนต์ที่ดี — มี capacity เพียงพอ แต่ยังมีช่องว่างให้ upgrade",
+    "path_resonance": "เส้นทางที่เหมาะสม — comfortable แต่ไม่ใช่ peak alignment"
+  }
+}

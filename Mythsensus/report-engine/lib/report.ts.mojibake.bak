@@ -1,0 +1,1883 @@
+﻿// ============================================================
+//  MYTHSENSUS â€” Report HTML Generator
+//  Generates full 25-section report from ChartData.
+//  Structure-first version: all sections with real calculated data.
+//  Expand prose text per section in future iterations.
+// ============================================================
+import { ChartData } from './calc'
+
+// â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const esc = (s: string | number) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+
+function bar(score: number, color: string) {
+  const pct = Math.round((score - 300) / 7)
+  return `<div style="background:#2a2010;border-radius:4px;height:10px;overflow:hidden;margin-top:4px">
+    <div style="width:${pct}%;height:10px;border-radius:4px;background:${esc(color)}"></div></div>`
+}
+
+function scoreColor(s: number) {
+  if (s >= 850) return '#d4aa50'
+  if (s >= 750) return '#1a8a3a'
+  if (s >= 650) return '#3a5a80'
+  return '#9a8a72'
+}
+
+function pill(text: string, bg = '#2a2010', color = '#d4aa50') {
+  return `<span style="display:inline-block;background:${bg};color:${color};border-radius:20px;padding:2px 10px;font-size:11px;margin:2px">${esc(text)}</span>`
+}
+
+// Auto-incrementing page counter (reset per report generation)
+let _pageNum = 0
+let _totalPages = 42
+function section(_num: number, title: string, icon: string, content: string) {
+  _pageNum++
+  const isEven = _pageNum % 2 === 0
+  return `
+<div class="page" style="${isEven ? 'background:#0e0c08' : 'background:#110f0a'}">
+  <div class="page-header">
+    <span class="page-icon">${icon}</span>
+    <span class="page-title">${esc(title)}</span>
+    <span class="page-num">à¸«à¸™à¹‰à¸² ${_pageNum} / ${_totalPages}</span>
+  </div>
+  <div class="page-body">
+    ${content}
+  </div>
+  <div class="page-footer">âœ¦ MYTHSENSUS COSMIC BLUEPRINT âœ¦ à¸£à¸²à¸¢à¸‡à¸²à¸™à¸ªà¸£à¹‰à¸²à¸‡à¹‚à¸”à¸¢ AI à¸§à¸´à¹€à¸„à¸£à¸²à¸°à¸«à¹Œà¸ˆà¸²à¸ 26 à¸¨à¸²à¸ªà¸•à¸£à¹Œà¹‚à¸šà¸£à¸²à¸“ à¹€à¸žà¸·à¹ˆà¸­à¸à¸²à¸£à¸ªà¸³à¸£à¸§à¸ˆà¸•à¸™à¹€à¸­à¸‡ à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¸„à¸³à¹à¸™à¸°à¸™à¸³à¸§à¸´à¸Šà¸²à¸Šà¸µà¸ž âœ¦</div>
+</div>`
+}
+
+function row2(label: string, value: string) {
+  return `<tr><td class="lbl">${esc(label)}</td><td>${esc(value)}</td></tr>`
+}
+
+function box(title: string, body: string, type: 'gold' | 'green' | 'red' | 'dark' | 'purple' = 'gold') {
+  const styles: Record<string, string> = {
+    gold:   'background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0',
+    green:  'background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0',
+    red:    'background:#1a0a0a;border:2px solid #c01020;border-radius:8px;padding:14px;margin:8px 0',
+    dark:   'background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:14px;margin:8px 0',
+    purple: 'background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0',
+  }
+  return `<div style="${styles[type]}"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">${esc(title)}</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">${body}</div></div>`
+}
+
+// â”€â”€ CSS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const CSS = `
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sarabun','Noto Sans Thai',sans-serif;background:#0e0c08;color:#f0e8d0}
+.page{min-height:297mm;padding:14mm 16mm 12mm;page-break-after:always;position:relative}
+.page-header{display:flex;align-items:center;gap:10px;border-bottom:1px solid #3a3020;padding-bottom:10px;margin-bottom:18px}
+.page-icon{font-size:22px}
+.page-title{font-size:16px;font-weight:700;color:#d4aa50;flex:1;letter-spacing:1px}
+.page-num{font-size:11px;color:#6a5a42}
+.page-body{font-size:13px;line-height:1.8;color:#c8c0a8}
+.page-footer{position:absolute;bottom:8mm;left:16mm;right:16mm;text-align:center;font-size:9px;color:#4a3a2a;border-top:1px solid #2a2010;padding-top:6px}
+h2{font-size:15px;color:#d4aa50;font-weight:700;margin:16px 0 8px;border-left:3px solid #d4aa50;padding-left:10px}
+h3{font-size:13px;color:#c8a840;font-weight:600;margin:12px 0 6px}
+p{margin-bottom:8px;color:#c8c0a8}
+table{width:100%;border-collapse:collapse;margin:10px 0}
+th{background:#1a1510;color:#d4aa50;padding:8px 10px;text-align:left;font-size:12px}
+td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-align:top}
+.lbl{color:#9a8a72;font-weight:600;width:30%;background:#151210}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0}
+.stat-card{background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px;text-align:center}
+.stat-card .val{font-size:28px;font-weight:700;color:#d4aa50}
+.stat-card .lbl{font-size:11px;color:#9a8a72;width:auto;background:transparent;padding:0;margin-top:4px}
+.pillar{background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px;text-align:center}
+.pillar.dm{border-color:#d4aa50;background:#1e1a0e}
+.pillar .stem{font-size:32px;font-weight:700;color:#d4aa50}
+.pillar .branch{font-size:22px;color:#c8a840;margin-top:4px}
+.pillar .sublabel{font-size:10px;color:#6a5a42;margin-top:2px}
+.conv{border-left:3px solid #d4aa50;padding:8px 12px;margin:8px 0;background:#1a1510}
+.conv.med{border-left-color:#6a5a42;background:#151210}
+.warn{background:#1a0a0a;border:2px solid #c01020;border-radius:8px;padding:12px;margin:8px 0;color:#f0c8b0}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;margin:2px}
+@media print{
+  .page{page-break-after:always;min-height:0}
+  body{background:#fff;color:#1a1510}
+  .page{background:#fff!important}
+  h2{color:#8a6820}
+  .page-title{color:#8a6820}
+  .stat-card,.pillar{background:#f8f5f0;border-color:#ccc}
+  td{border-color:#ddd}
+  .lbl{background:#f0ede8}
+}`
+
+// â”€â”€ PAGES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+function p01_cover(c: ChartData): string {
+  const { score, bazi, western, ninestar, numerology, input } = c
+  const dobStr = `${input.day}/${input.month}/${input.year}`
+  const timeStr = `${String(input.hour).padStart(2,'0')}:${String(input.minute).padStart(2,'0')} à¸™.`
+  const pctBar = Math.round((score.total - 400) / 6)
+
+  return section(1, 'Cosmic Blueprint â€” à¸ à¸²à¸žà¸£à¸§à¸¡', 'âœ¦', `
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:10px;color:#6a5a42;letter-spacing:4px;margin-bottom:6px">âœ¦ MYTHSENSUS â€” PREMIUM EDITION âœ¦</div>
+      <div style="font-size:22px;font-weight:700;color:#d4aa50;margin-bottom:4px">Cosmic Blueprint Â· 26 Ancient Systems</div>
+      <div style="font-size:12px;color:#9a8a72">${esc(input.gender)} ${esc(input.name)} Â· ${dobStr} Â· ${timeStr}</div>
+    </div>
+
+    <!-- Cosmic Score -->
+    <div style="background:#1a1510;border:2px solid #d4aa50;border-radius:14px;padding:20px;margin:12px 0">
+      <div style="display:flex;gap:20px;align-items:center">
+        <div style="text-align:center;min-width:90px">
+          <div style="font-size:60px;font-weight:700;color:#d4aa50;line-height:1">${score.total}</div>
+          <div style="font-size:10px;color:#6a5a42;letter-spacing:1px">COSMIC SCORE</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:20px;font-weight:700;color:#f0e8d0">${esc(score.tier)}</div>
+          <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">${esc(score.tierEn)} Â· ${esc(score.percentile)} à¸‚à¸­à¸‡à¹‚à¸¥à¸</div>
+          <div style="background:#2a2010;border-radius:6px;height:10px;overflow:hidden">
+            <div style="width:${pctBar}%;height:10px;background:linear-gradient(90deg,#5a3810,#d4aa50)"></div>
+          </div>
+          <div style="font-size:10px;color:#6a5a42;margin-top:4px">
+            Median 26 à¸¨à¸²à¸ªà¸•à¸£à¹Œ Â· Mean ${score.mean} Â· Modal ${score.modalBin}â€“${score.modalBin+49}
+          </div>
+        </div>
+      </div>
+      <!-- Consensus bar -->
+      <div style="display:flex;gap:6px;margin-top:14px;align-items:center">
+        <div style="font-size:11px;color:#9a8a72;min-width:60px">Consensus:</div>
+        <div style="background:#1a3a10;border-radius:4px;padding:3px 10px;font-size:12px;font-weight:600;color:#4aaa4a">ðŸŒŸ ${score.starCount}/26</div>
+        <div style="background:#2a2a10;border-radius:4px;padding:3px 10px;font-size:12px;color:#aaa84a">ã€° ${score.midCount}/26</div>
+        <div style="background:#3a1510;border-radius:4px;padding:3px 10px;font-size:12px;color:#aa5a4a">âš  ${score.warnCount}/26</div>
+        <div style="flex:1;font-size:10px;color:#6a5a42;text-align:right">
+          ${score.starCount >= 18 ? 'Strong consensus' : score.starCount >= 12 ? 'Moderate consensus' : score.starCount >= 8 ? 'Mixed signals' : 'Rare split chart'}
+        </div>
+      </div>
+    </div>
+
+    <!-- 3-Score Framework -->
+    <div style="margin:14px 0">
+      <div style="font-size:12px;color:#9a8a72;margin-bottom:8px;letter-spacing:2px">THE 3-SCORE FRAMEWORK</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <!-- Soul Frequency -->
+        <div style="background:#151a10;border:1px solid #4a6a20;border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:#6a8a40;letter-spacing:1px;margin-bottom:4px">SOUL FREQUENCY</div>
+          <div style="font-size:28px;font-weight:700;color:#8aba50">${score.soulFrequency}</div>
+          <div style="font-size:10px;color:#6a8a40">Born chart Â· à¸™à¹‰à¸³à¸¡à¸±à¸™à¹€à¸à¸£à¸”à¹„à¸«à¸™</div>
+        </div>
+        <!-- Life Terrain -->
+        <div style="background:#1a1510;border:1px solid ${score.lifeTerrainScore > 0 ? '#8a6030' : '#3a2010'};border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:#8a6030;letter-spacing:1px;margin-bottom:4px">LIFE TERRAIN</div>
+          <div style="font-size:28px;font-weight:700;color:${score.lifeTerrainScore > 0 ? '#d4a040' : '#6a4020'}">${score.lifeTerrainScore > 0 ? score.lifeTerrainScore : 'â€”'}</div>
+          <div style="font-size:10px;color:#8a6030">${score.lifeTerrainScore > 0 ? 'Work environment' : 'à¸à¸£à¸­à¸à¸­à¸²à¸Šà¸µà¸ž+à¸›à¸£à¸°à¹€à¸—à¸¨'}</div>
+          ${score.lifeTerrainDetail ? `<div style="font-size:9px;color:#6a4020;margin-top:3px">${esc(score.lifeTerrainDetail.split('|')[0])}</div>` : ''}
+        </div>
+        <!-- Path Resonance -->
+        <div style="background:#10151a;border:1px solid ${score.pathResonanceScore > 0 ? '#205a5a' : '#103030'};border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:#408080;letter-spacing:1px;margin-bottom:4px">PATH RESONANCE</div>
+          <div style="font-size:28px;font-weight:700;color:${score.pathResonanceScore > 0 ? '#40c0a0' : '#206050'}">${score.pathResonanceScore > 0 ? score.pathResonanceScore : 'â€”'}</div>
+          <div style="font-size:10px;color:#408080">${score.pathResonanceScore > 0 ? 'Domain fit' : 'à¸à¸£à¸­à¸à¸ªà¸²à¸¢à¸‡à¸²à¸™'}</div>
+          ${score.pathResonanceDetail ? `<div style="font-size:9px;color:#205050;margin-top:3px">${esc(score.pathResonanceDetail.split('|')[0])}</div>` : ''}
+        </div>
+      </div>
+      <!-- Cosmic Final -->
+      <div style="background:#1a1510;border-radius:8px;padding:10px;margin-top:8px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:11px;color:#9a8a72">
+          Cosmic Final = SFÃ—40% + LTÃ—30% + PRÃ—30%
+          ${score.lifeTerrainScore === 0 ? ' Â· (LT/PR à¸¢à¸±à¸‡à¹„à¸¡à¹ˆà¸à¸£à¸­à¸à¸‚à¹‰à¸­à¸¡à¸¹à¸¥)' : ''}
+        </div>
+        <div style="font-size:24px;font-weight:700;color:#d4aa50">${score.cosmicFinal}</div>
+      </div>
+    </div>
+
+    <!-- Key signals -->
+    <div class="grid-3" style="margin:12px 0">
+      ${[
+        ['ðŸ”¥ Day Master', `${bazi.dayStem} ${bazi.dayMasterElement}`],
+        ['â­ Nine Star Ki', ninestar.star+' '+ninestar.starName],
+        ['â˜€ï¸ Western', western.sunSignTh],
+        ['ðŸ•‰ï¸ Vedic Lagna', c.vedic.lagnaSign],
+        ['âš¡ à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™', c.humandesign.typeTh],
+        ['ðŸ”¢ Life Path', `${numerology.lifePath}`],
+      ].map(([l,v]) => `<div class="stat-card"><div class="lbl">${esc(l)}</div><div style="font-size:13px;font-weight:600;color:#d4aa50;margin-top:3px">${esc(v)}</div></div>`).join('')}
+    </div>
+
+    ${bazi.benMingNian2026 ? `
+    <div class="warn">
+      <strong>âš ï¸ Ben Ming Nian 2569</strong> â€” à¹€à¸à¸´à¸”à¸›à¸µà¸¡à¹‰à¸² à¸•à¸£à¸‡à¸›à¸µ 2569 = à¸—à¸¸à¸à¸ªà¸´à¹ˆà¸‡à¸‚à¸¢à¸²à¸¢à¸œà¸¥ à¸•à¹‰à¸­à¸‡à¹ƒà¸ªà¹ˆà¸ªà¸µà¹à¸”à¸‡ 1 à¸Šà¸´à¹‰à¸™/à¸§à¸±à¸™
+    </div>` : ''}
+
+    <div style="background:#0e0a16;border:1px solid #5a3a8a;border-radius:8px;padding:12px;margin:10px 0;display:flex;gap:12px;align-items:center">
+      <div style="font-size:24px">âœ¨</div>
+      <div>
+        <div style="font-size:13px;color:#c0a0e0;font-weight:600">${esc(score.cosmicEntity)}</div>
+        <div style="font-size:11px;color:#7a6a9a;margin-top:2px">à¸ªà¸±à¸à¸¥à¸±à¸à¸©à¸“à¹Œà¸ˆà¸±à¸à¸£à¸§à¸²à¸¥ Â· ${esc(score.primaryGod)} &amp; ${esc(score.secondaryGod)}</div>
+      </div>
+    </div>
+  `)
+}
+
+// â”€â”€ 3-SCORE DETAIL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function p_threeScores(c: ChartData): string {
+  const { bazi, score } = c
+  const SHENG: Record<string,string> = {Wood:'Fire',Fire:'Earth',Earth:'Metal',Metal:'Water',Water:'Wood'}
+  const EL_EN: Record<string,string> = {'à¹„à¸¡à¹‰':'Wood','à¹„à¸Ÿ':'Fire','à¸”à¸´à¸™':'Earth','à¹‚à¸¥à¸«à¸°':'Metal','à¸™à¹‰à¸³':'Water'}
+  const dmElEn = EL_EN[bazi.dayMasterElement] ?? 'Fire'
+  // Domain example: Interior BD (construction = Earth, BD = Fire domain â†’ Fire creates Earth â†’ DM_CREATES)
+  const bdEl = 'à¹„à¸Ÿ' // BD domain = fire (persuasion, leadership)
+  const industryEl = 'à¸”à¸´à¸™' // interior/construction = earth
+  const countryEl = 'à¹„à¸¡à¹‰' // Thailand = Wood (tropical, agricultural)
+  const feedsDm = SHENG[EL_EN[countryEl]??''] === dmElEn
+  const domainFit = SHENG[EL_EN[bdEl]??''] === EL_EN[industryEl] ? 'à¸˜à¸²à¸•à¸¸à¸‡à¸²à¸™à¹€à¸ªà¸£à¸´à¸¡à¸à¸±à¸™ âœ“' : 'à¸˜à¸²à¸•à¸¸à¸‡à¸²à¸™à¸•à¹ˆà¸²à¸‡à¸à¸±à¸™'
+
+  return section(2, 'Soul Frequency â€” à¸„à¸¸à¸“à¹€à¸›à¹‡à¸™à¹ƒà¸„à¸£à¸•à¸±à¹‰à¸‡à¹à¸•à¹ˆà¹€à¸à¸´à¸”', 'ðŸ”¥', `
+    <div style="font-size:12px;color:#7a8a60;margin-bottom:16px;line-height:1.6">
+      Soul Frequency à¸„à¸·à¸­ <strong style="color:#c0d080">à¸„à¸¸à¸“à¸ à¸²à¸žà¸”à¸§à¸‡à¸Šà¸°à¸•à¸²à¸žà¸·à¹‰à¸™à¸à¸²à¸™</strong> â€” à¹„à¸¡à¹ˆà¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¹à¸›à¸¥à¸‡ à¹€à¸«à¸¡à¸·à¸­à¸™à¹€à¸à¸£à¸”à¸™à¹‰à¸³à¸¡à¸±à¸™<br>
+      à¸„à¸³à¸™à¸§à¸“à¸ˆà¸²à¸ Median à¸‚à¸­à¸‡ 26 à¸¨à¸²à¸ªà¸•à¸£à¹Œà¹‚à¸šà¸£à¸²à¸“ (equal weight) à¹€à¸—à¸µà¸¢à¸šà¸à¸±à¸š dataset n=1,211
+    </div>
+
+    <!-- Soul Frequency big display -->
+    <div style="background:linear-gradient(135deg,#0e1a08,#1a2810);border:2px solid #4a7a20;border-radius:12px;padding:20px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:20px">
+        <div style="text-align:center">
+          <div style="font-size:64px;font-weight:700;color:#8aba50;line-height:1">${score.total}</div>
+          <div style="font-size:11px;color:#5a8a30;letter-spacing:2px">SOUL FREQUENCY</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:16px;font-weight:600;color:#c0e080">${esc(score.tier)}</div>
+          <div style="font-size:12px;color:#7a9a50;margin:4px 0">${esc(score.percentile)} à¹ƒà¸™ dataset n=1,211</div>
+          <div style="background:#0a1205;border-radius:4px;height:8px;overflow:hidden;margin:8px 0">
+            <div style="width:${Math.round((score.total-400)/6)}%;height:8px;background:linear-gradient(90deg,#2a5010,#8aba50)"></div>
+          </div>
+          <div style="display:flex;gap:8px;font-size:11px;color:#5a7a40">
+            <span>Median: <strong style="color:#8aba50">${score.total}</strong></span>
+            <span>Mean: ${score.mean}</span>
+            <span>Modal: ${score.modalBin}â€“${score.modalBin+49}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Petroleum analogy -->
+    <div style="background:#120a06;border:1px solid #5a3010;border-radius:8px;padding:14px;margin-bottom:14px">
+      <div style="font-size:12px;color:#9a6040;margin-bottom:8px;font-weight:600">ðŸ›¢ï¸ Petroleum Grade Analogy</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;font-size:11px">
+        <div style="background:#1a0e06;border-radius:6px;padding:10px">
+          <div style="font-size:20px;margin-bottom:4px">ðŸ›¢ï¸</div>
+          <div style="color:#d4aa50;font-weight:600">à¸™à¹‰à¸³à¸¡à¸±à¸™</div>
+          <div style="color:#7a5a40;margin-top:2px">Soul Frequency</div>
+          <div style="color:#aa8050;font-size:12px;margin-top:4px">${score.total} = à¹€à¸à¸£à¸” ${score.total >= 810 ? '95+' : score.total >= 730 ? '91' : score.total >= 650 ? 'diesel' : 'à¸Šà¸µà¸§à¸¡à¸§à¸¥'}</div>
+        </div>
+        <div style="background:#1a1206;border-radius:6px;padding:10px;opacity:0.7">
+          <div style="font-size:20px;margin-bottom:4px">âš™ï¸</div>
+          <div style="color:#aa8840;font-weight:600">à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡à¸¢à¸™à¸•à¹Œ</div>
+          <div style="color:#7a6030;margin-top:2px">Life Terrain</div>
+          <div style="color:#7a6030;font-size:12px;margin-top:4px">à¸à¸£à¸­à¸à¸­à¸²à¸Šà¸µà¸ž+à¸›à¸£à¸°à¹€à¸—à¸¨</div>
+        </div>
+        <div style="background:#0a1015;border-radius:6px;padding:10px;opacity:0.7">
+          <div style="font-size:20px;margin-bottom:4px">ðŸ”Œ</div>
+          <div style="color:#408890;font-weight:600">à¸—à¹ˆà¸­à¹€à¸Šà¸·à¹‰à¸­à¹€à¸žà¸¥à¸´à¸‡</div>
+          <div style="color:#306070;margin-top:2px">Path Resonance</div>
+          <div style="color:#306070;font-size:12px;margin-top:4px">à¸à¸£à¸­à¸à¸ªà¸²à¸¢à¸‡à¸²à¸™</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top contributors -->
+    <div style="margin-bottom:14px">
+      <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">à¸£à¸°à¸šà¸šà¸—à¸µà¹ˆà¹ƒà¸«à¹‰à¸„à¸°à¹à¸™à¸™à¸ªà¸¹à¸‡à¸ªà¸¸à¸” (Top 5)</div>
+      ${c.score.breakdown.slice().sort((a,b)=>b.score-a.score).slice(0,5).map(b =>
+        `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 10px;background:#1a1510;border-radius:6px">
+          <span style="font-size:12px;color:#c8b890">${esc(b.system)}</span>
+          <span style="font-size:13px;font-weight:700;color:#d4aa50">${b.score}</span>
+        </div>`
+      ).join('')}
+    </div>
+
+    <!-- Bottom contributors -->
+    <div>
+      <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">à¸£à¸°à¸šà¸šà¸—à¸µà¹ˆà¹ƒà¸«à¹‰à¸„à¸°à¹à¸™à¸™à¸•à¹ˆà¸³à¸ªà¸¸à¸” (Bottom 3) â€” à¸”à¸²à¸šà¸ªà¸­à¸‡à¸„à¸¡</div>
+      ${c.score.breakdown.slice().sort((a,b)=>a.score-b.score).slice(0,3).map(b =>
+        `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 10px;background:#1a1008;border-radius:6px;border-left:2px solid #6a3010">
+          <span style="font-size:12px;color:#a87050">${esc(b.system)}</span>
+          <div style="text-align:right">
+            <span style="font-size:13px;font-weight:700;color:#d07040">${b.score}</span>
+            <div style="font-size:10px;color:#7a5030">${esc(b.finding.slice(0,40))}</div>
+          </div>
+        </div>`
+      ).join('')}
+      <div style="font-size:10px;color:#5a4030;margin-top:6px">
+        â“˜ à¸„à¸°à¹à¸™à¸™à¸•à¹ˆà¸³ â‰  à¹à¸¢à¹ˆ â€” à¹à¸ªà¸”à¸‡à¸§à¹ˆà¸²à¸£à¸°à¸šà¸šà¸™à¸±à¹‰à¸™à¹€à¸«à¹‡à¸™à¸•à¹ˆà¸²à¸‡ à¸«à¸£à¸·à¸­à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸™à¸±à¹‰à¸™à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¸—à¸´à¸¨à¸—à¸²à¸‡à¸«à¸¥à¸±à¸à¸‚à¸­à¸‡à¸„à¸¸à¸“
+      </div>
+    </div>
+  `)
+}
+
+function p02_scoreBreakdown(c: ChartData): string {
+  // Group into ðŸŒŸ â‰¥780 / ã€° 650-779 / âš  <650
+  const sorted = c.score.breakdown.slice().sort((a,b) => b.score - a.score)
+  const stars = sorted.filter(b => b.score >= 780)
+  const mids  = sorted.filter(b => b.score >= 650 && b.score < 780)
+  const warns = sorted.filter(b => b.score < 650)
+
+  const systemRow = (b: typeof sorted[0], icon: string) => `
+    <div style="display:flex;align-items:center;gap:8px;margin:3px 0;padding:5px 8px;background:#141210;border-radius:6px">
+      <span style="min-width:20px;text-align:center">${icon}</span>
+      <span style="flex:1;font-size:12px;color:#c8b890">${esc(b.system)}</span>
+      <span style="font-size:12px;font-weight:600;color:#d4aa50;min-width:34px;text-align:right">${b.score}</span>
+      <div style="width:80px;background:#1a1510;border-radius:3px;height:6px;overflow:hidden">
+        <div style="width:${Math.round((b.score-400)/6)}%;height:6px;background:${b.color}"></div>
+      </div>
+    </div>`
+
+  return section(3, '26-System Consensus â€” à¸—à¸¸à¸à¸¨à¸²à¸ªà¸•à¸£à¹Œà¹€à¸«à¹‡à¸™à¸­à¸°à¹„à¸£', 'ðŸŒ', `
+    <div style="font-size:11px;color:#7a6a52;margin-bottom:12px;line-height:1.6">
+      Equal weight Â· à¹à¸•à¹ˆà¸¥à¸°à¸£à¸°à¸šà¸š 3.8% Â· à¸„à¸°à¹à¸™à¸™ Median = <strong style="color:#d4aa50">${c.score.total}</strong>
+      Â· Mean = ${c.score.mean} Â· Modal range = ${c.score.modalBin}â€“${c.score.modalBin+49}
+    </div>
+
+    <!-- Stars -->
+    <div style="margin-bottom:12px">
+      <div style="font-size:13px;font-weight:600;color:#4aaa4a;margin-bottom:6px">
+        ðŸŒŸ à¹€à¸«à¹‡à¸™à¸”à¹‰à¸§à¸¢ â€” ${stars.length} à¸£à¸°à¸šà¸š (à¸„à¸°à¹à¸™à¸™ â‰¥780)
+      </div>
+      ${stars.map(b => systemRow(b,'ðŸŒŸ')).join('')}
+    </div>
+
+    <!-- Mids -->
+    <div style="margin-bottom:12px">
+      <div style="font-size:13px;font-weight:600;color:#aaaa4a;margin-bottom:6px">
+        ã€° à¸à¸¥à¸²à¸‡à¹† â€” ${mids.length} à¸£à¸°à¸šà¸š (650â€“779)
+      </div>
+      ${mids.map(b => systemRow(b,'ã€°')).join('')}
+    </div>
+
+    <!-- Warns -->
+    ${warns.length > 0 ? `
+    <div style="margin-bottom:12px">
+      <div style="font-size:13px;font-weight:600;color:#aa6a4a;margin-bottom:6px">
+        âš  à¹€à¸ªà¸µà¸¢à¸‡à¹€à¸•à¸·à¸­à¸™ â€” ${warns.length} à¸£à¸°à¸šà¸š (à¸•à¹ˆà¸³à¸à¸§à¹ˆà¸² 650)
+      </div>
+      ${warns.map(b => systemRow(b,'âš ')).join('')}
+      <div style="font-size:10px;color:#7a5040;margin-top:6px">
+        â“˜ à¹€à¸ªà¸µà¸¢à¸‡à¹€à¸•à¸·à¸­à¸™ = à¸£à¸°à¸šà¸šà¸™à¸µà¹‰à¸¡à¸­à¸‡à¹€à¸«à¹‡à¸™à¸„à¸§à¸²à¸¡à¸—à¹‰à¸²à¸—à¸²à¸¢ à¸«à¸£à¸·à¸­à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸™à¸±à¹‰à¸™à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¸—à¸´à¸¨à¸«à¸¥à¸±à¸à¸‚à¸­à¸‡à¸„à¸¸à¸“ à¹„à¸¡à¹ˆà¹„à¸”à¹‰à¹à¸›à¸¥à¸§à¹ˆà¸² "à¹à¸¢à¹ˆ"
+      </div>
+    </div>` : ''}
+
+    <!-- Stats summary -->
+    <div style="background:#1a1510;border-radius:8px;padding:12px;margin-top:12px">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">
+        ${[
+          ['Median', c.score.total, '#d4aa50'],
+          ['Mean', c.score.mean, '#b09040'],
+          ['à¸•à¹ˆà¸³à¸ªà¸¸à¸”', Math.min(...c.score.breakdown.map(b=>b.score)), '#c07050'],
+          ['à¸ªà¸¹à¸‡à¸ªà¸¸à¸”', Math.max(...c.score.breakdown.map(b=>b.score)), '#70c070'],
+        ].map(([l,v,col]) => `<div><div style="font-size:18px;font-weight:700;color:${col}">${v}</div><div style="font-size:10px;color:#6a5a42">${l}</div></div>`).join('')}
+      </div>
+    </div>
+  `)
+}
+
+function p03_convergence(c: ChartData): string {
+  const all26 = c.score.breakdown  // all 26 systems with scores
+  const medianScore = c.score.total
+  const hi = (s: number) => s >= medianScore  // "votes yes" if at or above median
+
+  // Helper: get system score by name fragment
+  const sc = (nameFragment: string) =>
+    all26.find(b => b.system.includes(nameFragment))?.score ?? 0
+
+  const { bazi, western, ninestar, numerology, vedic, humandesign, mayan, celtic, thai,
+          saju, tibetan, ziwei, onmyodo, hellenistic, norseRune, ogham, arabicParts,
+          kabbalistic, zoroastrian, aztec, nativeAmerican, ifaYoruba, aboriginal,
+          biorhythm, vedicMahadasha } = c
+  const dmEl = bazi.dayMasterElement
+
+  // â”€â”€ RULE: Every system votes IF its score >= median AND it has relevant signal â”€â”€
+  // This ensures all 26 systems participate in SOME theme
+
+  type Vote = { system: string; score: number }
+  type Theme = { icon: string; theme: string; color: string; votes: Vote[]; msg: string }
+  const themes: Theme[] = []
+
+  // â”€â”€â”€ 1. Element Resonance (à¸˜à¸²à¸•à¸¸ Day Master à¹à¸œà¹ˆà¸‹à¸¶à¸¡à¸—à¸¸à¸à¸¨à¸²à¸ªà¸•à¸£à¹Œ) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Vote: system score â‰¥ median + element/energy aligns with DM
+  const ELEM_EL_MAP: Record<string,string> = {'à¹„à¸¡à¹‰':'Wood','à¹„à¸Ÿ':'Fire','à¸”à¸´à¸™':'Earth','à¹‚à¸¥à¸«à¸°':'Metal','à¸™à¹‰à¸³':'Water','à¸¥à¸¡':'Wood','Air':'Wood'}
+  const SHENG: Record<string,string> = {Wood:'Fire',Fire:'Earth',Earth:'Metal',Metal:'Water',Water:'Wood'}
+  const dmElEn = ELEM_EL_MAP[dmEl] ?? 'Fire'
+  const elVotes: Vote[] = []
+  // BaZi â€” always votes for its own DM
+  elVotes.push({ system:'BaZi Day Master', score:sc('BaZi') })
+  // Systems that directly echo the same element
+  if (ninestar.starElement === dmEl) elVotes.push({ system:'Nine Star Ki ('+ninestar.starName+')', score:sc('Nine Star') })
+  if (saju.sajuElement === dmEl) elVotes.push({ system:'Saju Korean', score:sc('Saju') })
+  if (norseRune.runeElement === dmEl) elVotes.push({ system:'Norse Rune '+norseRune.rune+' '+norseRune.runeName, score:sc('Norse') })
+  if (ogham.element === dmEl) elVotes.push({ system:'Ogham '+ogham.ogham+' '+ogham.treeName, score:sc('Ogham') })
+  // Systems that produce dmEl's element OR compatible element
+  if (celtic.element === dmEl || SHENG[ELEM_EL_MAP[celtic.element]??''] === dmElEn)
+    elVotes.push({ system:'Celtic '+celtic.treeNameTh+' ('+celtic.element+')', score:sc('à¹€à¸‹à¸¥à¸•à¸´à¸') })
+  if (tibetan.mewaElement === dmEl || SHENG[ELEM_EL_MAP[tibetan.mewaElement]??''] === dmElEn)
+    elVotes.push({ system:'Tibetan Mewa '+tibetan.mewa+' ('+tibetan.mewaElement+')', score:sc('Tibetan') })
+  if (nativeAmerican.element === dmEl || SHENG[ELEM_EL_MAP[nativeAmerican.element]??''] === dmElEn)
+    elVotes.push({ system:'Native American '+nativeAmerican.birthTotemTh, score:sc('Native') })
+  // High-scoring systems that support the DM element path
+  if (hi(sc('Vedic')) && vedicMahadasha.dashaElement === dmEl)
+    elVotes.push({ system:'Vedic Dasha '+vedicMahadasha.currentDasha, score:sc('Vedic M') })
+  if (hi(sc('Zoroastrian')) && zoroastrian.harmony)
+    elVotes.push({ system:'Zoroastrian (harmony)', score:sc('Zoroastrian') })
+  if (hi(sc('Hellenistic')) && hellenistic.sect === 'Day Sect' && dmEl === 'à¹„à¸Ÿ')
+    elVotes.push({ system:'Hellenistic Day Sect', score:sc('Hellenistic') })
+  // All high-scoring systems implicitly resonate with the chart's energy
+  ;[
+    { sys:'Aztec', label:'Aztec '+aztec.daySignTh },
+    { sys:'Ifa', label:'Ifa/Yoruba '+ifaYoruba.odu },
+    { sys:'Aboriginal', label:'Aboriginal '+aboriginal.dreamingTh },
+    { sys:'Kabbalistic', label:'Kabbalistic '+kabbalistic.sephira },
+    { sys:'OnmyÅdÅ', label:'OnmyÅdÅ '+onmyodo.rokuyo },
+  ].forEach(({ sys, label }) => { const s = all26.find(b=>b.system.toLowerCase().includes(sys.toLowerCase()))?.score??0; if (s>=780) elVotes.push({ system:label, score:s }) })
+  themes.push({ icon:'ðŸ”¥', theme:`à¸˜à¸²à¸•à¸¸${dmEl} â€” à¹à¸à¸™à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸—à¸µà¹ˆà¸—à¸¸à¸à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸ªà¸°à¸—à¹‰à¸­à¸™`,
+    color:'#d48050', votes:elVotes,
+    msg:`Day Master ${bazi.dayStem} (${bazi.dayMasterTh}) + à¸ªà¸µà¸¡à¸‡à¸„à¸¥ ${ninestar.starColor} + à¸—à¸´à¸¨ ${ninestar.starDirection} â€” à¸˜à¸²à¸•à¸¸${dmEl}à¸„à¸·à¸­à¹€à¸ªà¹‰à¸™à¸”à¹‰à¸²à¸¢à¸—à¸­à¸‡` })
+
+  // â”€â”€â”€ 2. High-Score Consensus (à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸—à¸µà¹ˆà¹€à¸«à¹‡à¸™à¸ à¸²à¸žà¸£à¸§à¸¡à¸”à¸µ) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const highVotes: Vote[] = all26.filter(b => b.score >= 780).map(b => ({ system:b.system, score:b.score }))
+  themes.push({ icon:'ðŸŒŸ', theme:'High Consensus â€” à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸—à¸µà¹ˆà¹€à¸«à¹‡à¸™à¸ à¸²à¸žà¸”à¸µà¸žà¸£à¹‰à¸­à¸¡à¸à¸±à¸™ (à¸„à¸°à¹à¸™à¸™ â‰¥780)',
+    color:'#c0a030', votes:highVotes,
+    msg:`${highVotes.length} à¸£à¸°à¸šà¸šà¹ƒà¸«à¹‰à¸„à¸°à¹à¸™à¸™à¸ªà¸¹à¸‡ â€” Top: ${highVotes.sort((a,b)=>b.score-a.score).slice(0,3).map(v=>v.system.split(' ')[0]).join(' Â· ')}` })
+
+  // â”€â”€â”€ 3. Timing 2026 â€” à¸›à¸µà¸™à¸µà¹‰à¸¡à¸µà¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸žà¸´à¹€à¸¨à¸© â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const timeVotes: Vote[] = []
+  if (bazi.benMingNian2026) timeVotes.push({ system:'BaZi Ben Ming Nian à¸¡à¹‰à¸²', score:sc('BaZi') })
+  if (ninestar.star === 9) timeVotes.push({ system:'NSK Star 9 Honmei Kaiki', score:sc('Nine Star') })
+  if ([1,3,8,9].includes(numerology.personalYear2026)) timeVotes.push({ system:'Numerology PY'+numerology.personalYear2026, score:sc('Pythagorean') })
+  if (['Jupiter','Sun','Venus'].includes(vedicMahadasha.currentDasha)) timeVotes.push({ system:'Vedic '+vedicMahadasha.currentDasha+' Dasha', score:sc('Vedic M') })
+  if (biorhythm.intellectual > 20 || biorhythm.emotional > 20) timeVotes.push({ system:'Biorhythm (peak '+Math.max(biorhythm.intellectual,biorhythm.emotional)+'%)', score:sc('Biorhythm') })
+  if (!['à¸£à¸¸à¹ˆà¸‡à¹€à¸£à¸·à¸­à¸‡','à¹€à¸‚à¹‰à¸¡à¹à¸‚à¹‡à¸‡','à¸¡à¸±à¹ˆà¸™à¸„à¸‡','à¹€à¸•à¸´à¸šà¹‚à¸•'].every(q => !tibetan.mewaQuality.includes(q))) timeVotes.push({ system:'Tibetan Mewa '+tibetan.mewa+' ('+tibetan.mewaQuality+')', score:sc('Tibetan') })
+  if (['å¤§å®‰','å‹å¼•'].includes(onmyodo.rokuyo)) timeVotes.push({ system:'OnmyÅdÅ '+onmyodo.rokuyo, score:sc('OnmyÅdÅ') })
+  if (zoroastrian.harmony) timeVotes.push({ system:'Zoroastrian harmony', score:sc('Zoroastrian') })
+  if (['Ogbe','Ose','Obara','Otura'].includes(ifaYoruba.odu)) timeVotes.push({ system:'Ifa/Yoruba '+ifaYoruba.odu+' ('+ifaYoruba.fortune+')', score:sc('Ifa') })
+  if (hi(sc('Hellenistic'))) timeVotes.push({ system:'Hellenistic Fortune '+hellenistic.lotSign, score:sc('Hellenistic') })
+  if (['Fehu','Jera','Dagaz','Sowilo'].includes(norseRune.runeName)) timeVotes.push({ system:'Norse Rune '+norseRune.runeName, score:sc('Norse') })
+  if (sc('Aztec') >= 780) timeVotes.push({ system:'Aztec '+aztec.daySignTh+' Tone '+aztec.toneNumber, score:sc('Aztec') })
+  if (sc('Aboriginal') >= 770) timeVotes.push({ system:'Aboriginal '+aboriginal.dreamingTh, score:sc('Aboriginal') })
+  if (hi(sc('Saju'))) timeVotes.push({ system:'Saju '+saju.kwarsal, score:sc('Saju') })
+  if (sc('Zi Wei') >= 770) timeVotes.push({ system:'Zi Wei '+ziwei.mainStarTh, score:sc('Zi Wei') })
+  themes.push({ icon:'â°', theme:'à¸›à¸µ 2026 â€” à¸«à¸™à¹‰à¸²à¸•à¹ˆà¸²à¸‡à¹‚à¸­à¸à¸²à¸ª',
+    color:'#50c050', votes:timeVotes,
+    msg:`${bazi.benMingNian2026?'Ben Ming Nian + ':''} ${ninestar.star===9?'NSK Honmei + ':''} PY${numerology.personalYear2026} + ${vedicMahadasha.currentDasha} Dasha` })
+
+  // â”€â”€â”€ 4. Strength / Authority (à¸„à¸§à¸²à¸¡à¹à¸‚à¹‡à¸‡à¹à¸à¸£à¹ˆà¸‡) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const strVotes: Vote[] = []
+  ;[sc('BaZi'),sc('Nine Star'),sc('Saju'),sc('Zi Wei'),sc('Tibetan'),sc('Norse'),sc('Kabbalistic')].forEach((s,i) => {
+    const labels = ['BaZi '+bazi.dayMasterTh,'NSK Star '+ninestar.star,'Saju '+saju.dominantEnergy,'Zi Wei '+ziwei.mainStarTh,'Tibetan Mewa '+tibetan.mewa,'Norse '+norseRune.runeName,'Kabbalistic '+kabbalistic.sephira]
+    if (s >= 780) strVotes.push({ system:labels[i], score:s })
+  })
+  if (['Projector','Manifesting Generator','Manifestor'].includes(humandesign.type)) strVotes.push({ system:'Energy Type '+humandesign.typeTh, score:sc('à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™') })
+  if ([1,8,11,22,33].includes(numerology.lifePath)||numerology.lifePath>=7) strVotes.push({ system:'Life Path '+numerology.lifePath+' '+numerology.lifePathName.split('â€”')[0], score:sc('Pythagorean') })
+  if (hi(sc('Hellenistic'))) strVotes.push({ system:'Hellenistic '+hellenistic.trigonLord.split('(')[0], score:sc('Hellenistic') })
+  if (['Ogbe','Obara','Ogunda'].includes(ifaYoruba.odu)) strVotes.push({ system:'Ifa/Yoruba '+ifaYoruba.odu, score:sc('Ifa') })
+  if (hi(sc('Native'))) strVotes.push({ system:'Native Am '+nativeAmerican.birthTotemTh, score:sc('Native') })
+  if (hi(sc('Aztec'))) strVotes.push({ system:'Aztec '+aztec.daySignTh, score:sc('Aztec') })
+  themes.push({ icon:'ðŸ‘‘', theme:'à¸„à¸§à¸²à¸¡à¹à¸‚à¹‡à¸‡à¹à¸à¸£à¹ˆà¸‡à¹à¸¥à¸°à¸­à¸³à¸™à¸²à¸ˆ â€” à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸œà¸¹à¹‰à¸™à¸³',
+    color:'#c0a030', votes:strVotes,
+    msg:`${humandesign.typeTh} Profile ${humandesign.profile} + LP${numerology.lifePath} + NSK Star ${ninestar.star} + Zi Wei ${ziwei.mainStarTh}` })
+
+  // â”€â”€â”€ 5. Wealth / Material (à¸¨à¸±à¸à¸¢à¸ à¸²à¸žà¸—à¸£à¸±à¸žà¸¢à¹Œ) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const wlthVotes: Vote[] = []
+  if (hi(sc('Arabic'))) wlthVotes.push({ system:'Arabic Parts Fortune '+arabicParts.fortuneSign, score:sc('Arabic') })
+  if (hi(sc('Hellenistic'))) wlthVotes.push({ system:'Hellenistic '+hellenistic.sect, score:sc('Hellenistic') })
+  ;['Ifa','Zi Wei','Kabbalistic','Norse','Ogham','Aztec','Native','Aboriginal','Zoroastrian','Tibetan','OnmyÅdÅ','Saju'].forEach(name => {
+    const s = all26.find(b=>b.system.toLowerCase().includes(name.toLowerCase()))?.score??0
+    if (s>=780) {
+      const labels: Record<string,string> = {
+        'Ifa':'Ifa '+ifaYoruba.fortune,'Zi Wei':'Zi Wei '+ziwei.palaceQuality,'Kabbalistic':'Kabbalistic '+kabbalistic.sephira,
+        'Norse':'Norse Rune '+norseRune.runeName,'Ogham':'Ogham '+ogham.treeNameTh,'Aztec':'Aztec '+aztec.daySignQuality,
+        'Native':'Native Am '+nativeAmerican.birthTotemTh,'Aboriginal':'Aboriginal '+aboriginal.dreamingTh,
+        'Zoroastrian':'Zoroastrian '+zoroastrian.dayYazataTh.slice(0,15),'Tibetan':'Tibetan Mewa '+tibetan.mewa,
+        'OnmyÅdÅ':'OnmyÅdÅ '+onmyodo.rokuyo,'Saju':'Saju '+saju.kwarsal,
+      }
+      wlthVotes.push({ system:labels[name]??name, score:s })
+    }
+  })
+  if (['Jupiter','Venus','Sun'].includes(vedicMahadasha.currentDasha)) wlthVotes.push({ system:'Vedic '+vedicMahadasha.currentDasha+' Dasha', score:sc('Vedic M') })
+  if ([8,4,22].includes(numerology.pythagorean)) wlthVotes.push({ system:'Pythagorean '+numerology.pythagorean, score:sc('Pythagorean') })
+  themes.push({ icon:'ðŸ’Ž', theme:'à¸¨à¸±à¸à¸¢à¸ à¸²à¸žà¸„à¸§à¸²à¸¡à¸¡à¸±à¹ˆà¸‡à¸„à¸±à¹ˆà¸‡',
+    color:'#50b080', votes:wlthVotes,
+    msg:`${wlthVotes.length} à¸£à¸°à¸šà¸šà¹€à¸«à¹‡à¸™à¹‚à¸­à¸à¸²à¸ª â€” Arabic Parts à¹ƒà¸™${arabicParts.fortuneSign} + ${vedicMahadasha.currentDasha} Dasha + Lucky Element ${bazi.luckyElement}` })
+
+  // â”€â”€â”€ 6. Spiritual / Inner Depth (à¸„à¸§à¸²à¸¡à¸¥à¸¶à¸à¸ à¸²à¸¢à¹ƒà¸™) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const deptVotes: Vote[] = []
+  if ([7,9,11,33].includes(numerology.lifePath)) deptVotes.push({ system:'Life Path '+numerology.lifePath, score:sc('Pythagorean') })
+  if (humandesign.profile.startsWith('6')||humandesign.profile.startsWith('5')) deptVotes.push({ system:'HD Profile '+humandesign.profile, score:sc('à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™') })
+  ;['Kabbalistic','Aboriginal','Ifa','Norse','Ogham','Tibetan','Aztec','Zoroastrian','Native'].forEach(name => {
+    const s = all26.find(b=>b.system.toLowerCase().includes(name.toLowerCase()))?.score??0
+    if (s>=760) {
+      const lbl: Record<string,string> = {
+        'Kabbalistic':'Kabbalistic '+kabbalistic.sephira,'Aboriginal':'Aboriginal '+aboriginal.dreamingTh,
+        'Ifa':'Ifa/Yoruba '+ifaYoruba.oduTheme.slice(0,15),'Norse':'Norse Rune '+norseRune.runeKeyword,
+        'Ogham':'Ogham '+ogham.oghamClass,'Tibetan':'Tibetan Mewa '+tibetan.mewaQuality,
+        'Aztec':'Aztec '+aztec.daySignQuality,'Zoroastrian':'Zoroastrian '+zoroastrian.monthAmeshaTh.slice(0,15),
+        'Native':'Native Am '+nativeAmerican.clansmother,
+      }
+      deptVotes.push({ system:lbl[name]??name, score:s })
+    }
+  })
+  if (['à¸à¸£à¸à¸Ž','à¸žà¸´à¸ˆà¸´à¸','à¸¡à¸µà¸™'].includes(western.moonSignTh)) deptVotes.push({ system:'Western Moon '+western.moonSignTh, score:sc('à¸•à¸°à¸§à¸±à¸™à¸•à¸') })
+  themes.push({ icon:'ðŸ”®', theme:'à¸„à¸§à¸²à¸¡à¸¥à¸¶à¸à¸ à¸²à¸¢à¹ƒà¸™ â€” à¸ˆà¸´à¸•à¸§à¸´à¸à¸à¸²à¸“à¹à¸¥à¸°à¸ªà¸±à¸à¸Šà¸²à¸•à¸à¸²à¸“',
+    color:'#9060c0', votes:deptVotes,
+    msg:`LP${numerology.lifePath} + ${kabbalistic.sephira} + ${aboriginal.dreamingTh} + Vedic Nakshatra ${vedic.moonNakshatra}` })
+
+  // â”€â”€â”€ 7. Tension / Challenge (à¸ˆà¸¸à¸”à¸—à¹‰à¸²à¸—à¸²à¸¢) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const warnVotes: Vote[] = all26.filter(b => b.score < 650).map(b => ({ system:b.system+' ('+b.score+')', score:b.score }))
+  if (bazi.missingElement && bazi.missingElement !== 'à¸„à¸£à¸šà¸—à¸¸à¸à¸˜à¸²à¸•à¸¸') warnVotes.push({ system:'BaZi à¸‚à¸²à¸”à¸˜à¸²à¸•à¸¸'+bazi.missingElement, score:sc('BaZi') })
+  if (['Rahu','Saturn','Ketu'].includes(vedicMahadasha.currentDasha)) warnVotes.push({ system:'Vedic Dasha '+vedicMahadasha.currentDasha, score:sc('Vedic M') })
+  themes.push({ icon:'âš¡', theme:'à¸ˆà¸¸à¸”à¸—à¹‰à¸²à¸—à¸²à¸¢ â€” à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸ªà¸£à¹‰à¸²à¸‡à¸à¸²à¸£à¹€à¸•à¸´à¸šà¹‚à¸•',
+    color:'#c05030', votes:warnVotes,
+    msg:`à¸£à¸°à¸šà¸šà¸—à¸µà¹ˆà¹€à¸«à¹‡à¸™à¸•à¹ˆà¸²à¸‡: ${warnVotes.slice(0,3).map(v=>v.system.split(' (')[0].split(' ')[0]).join(', ')} â€” à¸„à¸§à¸²à¸¡à¸‚à¸±à¸”à¹à¸¢à¹‰à¸‡à¸™à¸µà¹‰à¹€à¸›à¹‡à¸™à¹à¸£à¸‡à¸‚à¸±à¸š à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¸‚à¹‰à¸­à¸šà¸à¸žà¸£à¹ˆà¸­à¸‡` })
+
+  // â”€â”€â”€ 8. Relationship / Network â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const relVotes: Vote[] = []
+  if (humandesign.profile.includes('4')||humandesign.profile.includes('6')) relVotes.push({ system:'HD Profile '+humandesign.profile, score:sc('à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™') })
+  ;['Ifa','Aboriginal','Native','Zoroastrian','Kabbalistic','Ogham','Norse'].forEach(name => {
+    const s = all26.find(b=>b.system.toLowerCase().includes(name.toLowerCase()))?.score??0
+    if (s>=760) {
+      const lbl: Record<string,string> = {
+        'Ifa':'Ifa/Yoruba '+ifaYoruba.oduTheme.slice(0,12),'Aboriginal':'Aboriginal '+aboriginal.clan,
+        'Native':'Native Am '+nativeAmerican.clansmother,'Zoroastrian':'Zoroastrian '+zoroastrian.dayYazataTh.slice(0,12),
+        'Kabbalistic':'Kabbalistic '+kabbalistic.archangel,'Ogham':'Ogham '+ogham.treeName,
+        'Norse':'Norse Rune '+norseRune.runeName,
+      }
+      relVotes.push({ system:lbl[name]??name, score:s })
+    }
+  })
+  if (['à¸•à¸¸à¸¥à¸¢à¹Œ','à¸à¸£à¸à¸Ž','à¸¡à¸µà¸™','à¸žà¸¤à¸©à¸ '].includes(western.sunSignTh)) relVotes.push({ system:'Western Sun '+western.sunSignTh, score:sc('à¸•à¸°à¸§à¸±à¸™à¸•à¸') })
+  themes.push({ icon:'ðŸ’ž', theme:'à¸žà¸¥à¸±à¸‡à¸„à¸§à¸²à¸¡à¸ªà¸±à¸¡à¸žà¸±à¸™à¸˜à¹Œ â€” à¹€à¸„à¸£à¸·à¸­à¸‚à¹ˆà¸²à¸¢à¹à¸¥à¸°à¸à¸²à¸£à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­',
+    color:'#c06080', votes:relVotes,
+    msg:`HD Profile ${humandesign.profile} + ${kabbalistic.archangel} + ${nativeAmerican.clansmother} + ${ifaYoruba.oduTheme.slice(0,20)}` })
+
+  const visible = themes.filter(t => t.votes.length >= 3).sort((a,b) => b.votes.length - a.votes.length)
+
+  // Generate narrative for each theme based on chart data
+  const narratives: Record<string,string> = {
+    'ðŸ”¥': `à¸ˆà¸²à¸ ${c.score.breakdown.filter(b=>b.score>=780).length} à¸£à¸°à¸šà¸šà¸—à¸µà¹ˆà¹ƒà¸«à¹‰à¸„à¸°à¹à¸™à¸™à¸ªà¸¹à¸‡ à¸˜à¸²à¸•à¸¸${dmEl}à¸›à¸£à¸²à¸à¸à¸Šà¸±à¸”à¹€à¸ˆà¸™à¸—à¸µà¹ˆà¸ªà¸¸à¸” â€” Day Master ${bazi.dayStem} (${bazi.dayMasterTh}) à¸à¸³à¸«à¸™à¸”à¸§à¸´à¸˜à¸µà¸—à¸µà¹ˆà¸„à¸¸à¸“à¸›à¸£à¸°à¸¡à¸§à¸¥à¸œà¸¥à¹‚à¸¥à¸ à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¹à¸„à¹ˆ "à¸™à¸´à¸ªà¸±à¸¢" à¹à¸•à¹ˆà¸„à¸·à¸­à¹‚à¸„à¸£à¸‡à¸ªà¸£à¹‰à¸²à¸‡à¸žà¸·à¹‰à¸™à¸à¸²à¸™à¸‚à¸­à¸‡à¸à¸²à¸£à¸•à¸±à¸”à¸ªà¸´à¸™à¹ƒà¸ˆà¹à¸¥à¸°à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸Šà¸µà¸§à¸´à¸• à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸—à¸±à¹‰à¸‡à¹ƒà¸™à¹à¸¥à¸°à¸•à¸°à¸§à¸±à¸™à¸•à¸à¸•à¹ˆà¸²à¸‡à¸¢à¸·à¸™à¸¢à¸±à¸™à¸ªà¸´à¹ˆà¸‡à¹€à¸”à¸µà¸¢à¸§à¸à¸±à¸™à¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¸£à¸¹à¹‰à¸ˆà¸±à¸à¸à¸±à¸™`,
+    'ðŸŒŸ': `à¹€à¸¡à¸·à¹ˆà¸­à¸¡à¸µà¸£à¸°à¸šà¸šà¸ˆà¸²à¸à¸«à¸¥à¸²à¸¢à¸§à¸±à¸’à¸™à¸˜à¸£à¸£à¸¡ (à¸•à¸°à¸§à¸±à¸™à¸­à¸­à¸ à¸•à¸°à¸§à¸±à¸™à¸•à¸ à¹à¸­à¸Ÿà¸£à¸´à¸à¸² à¸­à¹€à¸¡à¸£à¸´à¸à¸² à¹‚à¸­à¹€à¸Šà¸µà¸¢à¹€à¸™à¸µà¸¢) à¸•à¹ˆà¸²à¸‡à¹ƒà¸«à¹‰à¸„à¸°à¹à¸™à¸™à¸ªà¸¹à¸‡à¸žà¸£à¹‰à¸­à¸¡à¸à¸±à¸™ â€” à¸™à¸±à¹ˆà¸™à¸„à¸·à¸­ consensus à¸—à¸µà¹ˆà¹à¸—à¹‰à¸ˆà¸£à¸´à¸‡ à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¹à¸„à¹ˆà¸£à¸°à¸šà¸šà¹ƒà¸”à¸£à¸°à¸šà¸šà¸«à¸™à¸¶à¹ˆà¸‡à¸Šà¸­à¸š à¹à¸•à¹ˆ "à¸”à¸§à¸‡à¸Šà¸²à¸•à¸²" à¸™à¸µà¹‰à¹à¸‚à¹‡à¸‡à¹à¸à¸£à¹ˆà¸‡à¸‚à¹‰à¸²à¸¡à¸§à¸±à¸’à¸™à¸˜à¸£à¸£à¸¡`,
+    'â°': `à¸›à¸µ 2026 à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¹à¸„à¹ˆà¸›à¸µà¸”à¸µà¹‚à¸”à¸¢à¸šà¸±à¸‡à¹€à¸­à¸´à¸ à¹à¸•à¹ˆà¸¡à¸µà¸à¸¥à¹„à¸à¸—à¸²à¸‡à¹‚à¸«à¸£à¸²à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸«à¸¥à¸²à¸¢à¸Šà¸±à¹‰à¸™à¹€à¸›à¸´à¸”à¸žà¸£à¹‰à¸­à¸¡à¸à¸±à¸™ â€” BaZi Ben Ming Nian à¸«à¸¡à¸²à¸¢à¸–à¸¶à¸‡à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸‚à¸­à¸‡à¸„à¸¸à¸“ "à¸à¸¥à¸±à¸šà¸šà¹‰à¸²à¸™" à¸„à¸£à¸šà¸£à¸­à¸š 12 à¸›à¸µ, NSK Star 9 Honmei Kaiki à¸«à¸¡à¸²à¸¢à¸–à¸¶à¸‡à¸”à¸²à¸§à¹€à¸à¸´à¸”à¸•à¸£à¸‡à¸à¸±à¸šà¸”à¸²à¸§à¸›à¸µ, Vedic Dasha à¸Šà¸µà¹‰à¸Šà¹ˆà¸§à¸‡à¸›à¸à¸„à¸£à¸­à¸‡ ${vedicMahadasha.currentDasha} â€” à¸™à¸µà¹ˆà¸„à¸·à¸­ window à¸—à¸µà¹ˆà¸„à¸§à¸£à¸¥à¸‡à¸¡à¸·à¸­`,
+    'ðŸ‘‘': `à¸¥à¸±à¸à¸©à¸“à¸°à¸œà¸¹à¹‰à¸™à¸³à¹ƒà¸™à¸”à¸§à¸‡à¸Šà¸²à¸•à¸²à¹„à¸¡à¹ˆà¹„à¸”à¹‰à¸¡à¸²à¸ˆà¸²à¸à¸„à¸§à¸²à¸¡à¸—à¸°à¹€à¸¢à¸­à¸—à¸°à¸¢à¸²à¸™ à¹à¸•à¹ˆà¸¡à¸²à¸ˆà¸²à¸à¹‚à¸„à¸£à¸‡à¸ªà¸£à¹‰à¸²à¸‡à¸‚à¸­à¸‡à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™ â€” ${humandesign.typeTh} Strategy "${humandesign.strategy}" à¸›à¸£à¸°à¸à¸­à¸šà¸à¸±à¸š NSK Star ${ninestar.star} à¹à¸¥à¸° LP${numerology.lifePath} à¸šà¹ˆà¸‡à¸§à¹ˆà¸²à¸„à¸¸à¸“à¸–à¸¹à¸à¸­à¸­à¸à¹à¸šà¸šà¹ƒà¸«à¹‰ "guide" à¸¡à¸²à¸à¸à¸§à¹ˆà¸² "push"`,
+    'ðŸ’Ž': `à¸¨à¸±à¸à¸¢à¸ à¸²à¸žà¸—à¸£à¸±à¸žà¸¢à¹Œà¹ƒà¸™à¸”à¸§à¸‡à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¸à¸²à¸£à¸£à¸±à¸šà¸£à¸­à¸‡à¸§à¹ˆà¸²à¸ˆà¸°à¸£à¸§à¸¢ à¹à¸•à¹ˆà¸„à¸·à¸­ "à¸—à¸´à¸¨à¸—à¸²à¸‡" à¸—à¸µà¹ˆà¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¹„à¸«à¸¥à¹„à¸”à¹‰à¸”à¸µà¸—à¸µà¹ˆà¸ªà¸¸à¸” â€” Arabic Parts Fortune à¹ƒà¸™${arabicParts.fortuneSign} à¸£à¹ˆà¸§à¸¡à¸à¸±à¸š ${vedicMahadasha.currentDasha} Dasha à¹à¸¥à¸° Lucky Element ${bazi.luckyElement} à¸šà¹ˆà¸‡à¸—à¸´à¸¨`,
+    'ðŸ”®': `à¸„à¸§à¸²à¸¡à¸¥à¸¶à¸à¸—à¸²à¸‡à¸ˆà¸´à¸•à¸§à¸´à¸à¸à¸²à¸“à¹ƒà¸™ LP${numerology.lifePath} + ${kabbalistic.sephira} + ${celtic.treeNameTh} à¸šà¹ˆà¸‡à¸§à¹ˆà¸²à¸„à¸¸à¸“à¸¡à¸µ "antenna" à¸£à¸±à¸šà¸ªà¸±à¸à¸à¸²à¸“à¸—à¸µà¹ˆà¸¥à¸°à¹€à¸­à¸µà¸¢à¸”à¸à¸§à¹ˆà¸²à¸„à¸™à¸—à¸±à¹ˆà¸§à¹„à¸› â€” à¸ªà¸´à¹ˆà¸‡à¸™à¸µà¹‰à¸­à¸²à¸ˆà¸—à¸³à¹ƒà¸«à¹‰à¸•à¸±à¸”à¸ªà¸´à¸™à¹ƒà¸ˆà¸Šà¹‰à¸² à¹à¸•à¹ˆà¹€à¸¡à¸·à¹ˆà¸­à¸•à¸±à¸”à¸ªà¸´à¸™à¹ƒà¸ˆà¹à¸¥à¹‰à¸§à¸¡à¸±à¸à¸–à¸¹à¸à¸•à¹‰à¸­à¸‡`,
+    'âš¡': `à¸—à¸¸à¸à¸ˆà¸¸à¸”à¸—à¹‰à¸²à¸—à¸²à¸¢à¹ƒà¸™à¸”à¸§à¸‡à¸¡à¸µà¹€à¸«à¸•à¸¸à¸œà¸¥ â€” à¸˜à¸²à¸•à¸¸à¸‚à¸²à¸”${bazi.missingElement ? bazi.missingElement : 'à¹„à¸¡à¹ˆà¸¡à¸µ'} à¸„à¸·à¸­à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸—à¸µà¹ˆà¸•à¹‰à¸­à¸‡à¸«à¸²à¸¡à¸²à¸ˆà¸²à¸à¸ à¸²à¸¢à¸™à¸­à¸ à¸£à¸°à¸šà¸šà¸—à¸µà¹ˆ score à¸•à¹ˆà¸³à¸à¸§à¹ˆà¸² median à¹„à¸¡à¹ˆà¹„à¸”à¹‰à¸šà¸­à¸à¸§à¹ˆà¸² "à¸”à¸§à¸‡à¹à¸¢à¹ˆ" à¹à¸•à¹ˆà¸šà¸­à¸à¸§à¹ˆà¸² "à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸™à¸±à¹‰à¸™à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¸—à¸´à¸¨à¸«à¸¥à¸±à¸"`,
+    'ðŸ’ž': `à¸žà¸¥à¸±à¸‡à¸„à¸§à¸²à¸¡à¸ªà¸±à¸¡à¸žà¸±à¸™à¸˜à¹Œà¹ƒà¸™ HD Profile ${humandesign.profile} + ${kabbalistic.archangel} + ${nativeAmerican.clansmother} à¸šà¹ˆà¸‡à¸§à¹ˆà¸²à¹€à¸„à¸£à¸·à¸­à¸‚à¹ˆà¸²à¸¢à¸¡à¸™à¸¸à¸©à¸¢à¹Œà¸„à¸·à¸­ multiplier â€” à¸„à¸™à¹€à¸”à¸µà¸¢à¸§à¹„à¸”à¹‰ 1x à¹à¸•à¹ˆà¸œà¹ˆà¸²à¸™à¸„à¸™à¸—à¸µà¹ˆà¹ƒà¸Šà¹ˆà¹„à¸”à¹‰ 5-10x`,
+  }
+
+  return section(4, `Grand Convergence â€” ${visible.length} themes à¸ˆà¸²à¸ 26 à¸¨à¸²à¸ªà¸•à¸£à¹Œ`, 'ðŸŒ', `
+    <div style="font-size:11px;color:#7a6a52;margin-bottom:12px;line-height:1.6">
+      à¸—à¸¸à¸ 26 à¸£à¸°à¸šà¸š cast votes à¹ƒà¸™à¹à¸•à¹ˆà¸¥à¸° theme â€” score-based Â· à¸Šà¸·à¹ˆà¸­à¸£à¸°à¸šà¸šà¹à¸ªà¸”à¸‡à¸„à¸£à¸šà¸—à¸¸à¸à¸•à¸±à¸§ Â· narrative à¸„à¸·à¸­ AI à¸ªà¸±à¸‡à¹€à¸„à¸£à¸²à¸°à¸«à¹Œà¸ˆà¸²à¸à¸”à¸§à¸‡à¸ˆà¸£à¸´à¸‡
+    </div>
+    ${visible.map(t => consensusRow(t.icon, t.theme, t.votes.map(v=>v.system), t.msg, t.votes.length, t.color, narratives[t.icon]??'')).join('')}
+  `)
+}
+
+function p_new16systems(c: ChartData): string {
+  const systems = [
+    { name:'Saju (Korean)', icon:'ðŸ‡°ðŸ‡·', data: `${c.saju.yearPillar} ${c.saju.monthPillar} ${c.saju.dayPillar} ${c.saju.hourPillar}`, detail: c.saju.dominantEnergy, score: c.saju.score },
+    { name:'Tibetan Mewa', icon:'â˜¸ï¸', data: `Mewa ${c.tibetan.mewa} ${c.tibetan.mewaName}`, detail: c.tibetan.parkhaName, score: c.tibetan.score },
+    { name:'Zi Wei (ç´«å¾®)', icon:'ðŸŒŒ', data: c.ziwei.mainStarTh, detail: c.ziwei.lifePalaceName, score: c.ziwei.score },
+    { name:'OnmyÅdÅ', icon:'â›©ï¸', data: `${c.onmyodo.rokuyo} ${c.onmyodo.rokuyoTh}`, detail: c.onmyodo.onmyoPolarity, score: c.onmyodo.score },
+    { name:'Hellenistic', icon:'ðŸ›ï¸', data: `${c.hellenistic.sect}`, detail: `Fortune à¹ƒà¸™ ${c.hellenistic.lotSign}`, score: c.hellenistic.score },
+    { name:'Norse Rune', icon:'áš±', data: `${c.norseRune.rune} ${c.norseRune.runeName}`, detail: c.norseRune.runeKeyword, score: c.norseRune.score },
+    { name:'Ogham', icon:'ðŸŒ¿', data: `${c.ogham.ogham} ${c.ogham.treeName}`, detail: c.ogham.oghamClass, score: c.ogham.score },
+    { name:'Arabic Parts', icon:'â­', data: `Fortune à¹ƒà¸™ ${c.arabicParts.fortuneSign}`, detail: `Spirit à¹ƒà¸™ ${c.arabicParts.spiritSign}`, score: c.arabicParts.score },
+    { name:'Kabbalistic', icon:'âœ¡ï¸', data: c.kabbalistic.sephira, detail: c.kabbalistic.archangel, score: c.kabbalistic.score },
+    { name:'Zoroastrian', icon:'ðŸ”¥', data: c.zoroastrian.dayYazataTh.slice(0,20), detail: c.zoroastrian.monthAmeshaTh.slice(0,20), score: c.zoroastrian.score },
+    { name:'Aztec', icon:'ðŸ¦…', data: `${c.aztec.daySignTh} ${c.aztec.toneNumber}`, detail: c.aztec.daySignQuality, score: c.aztec.score },
+    { name:'Native American', icon:'ðŸ¦…', data: c.nativeAmerican.birthTotemTh, detail: c.nativeAmerican.clansmother, score: c.nativeAmerican.score },
+    { name:'Ifa/Yoruba', icon:'ðŸ¥', data: `OdÃ¹ ${c.ifaYoruba.odu}`, detail: c.ifaYoruba.fortune, score: c.ifaYoruba.score },
+    { name:'Aboriginal', icon:'ðŸŒˆ', data: c.aboriginal.dreamingTh, detail: c.aboriginal.clan, score: c.aboriginal.score },
+    { name:'Biorhythm', icon:'ðŸ“ˆ', data: `P:${c.biorhythm.physical}% E:${c.biorhythm.emotional}%`, detail: c.biorhythm.intellectualPhase, score: c.biorhythm.score },
+    { name:'Vedic Mahadasha', icon:'ðŸ•‰ï¸', data: `${c.vedicMahadasha.currentDasha} Dasha`, detail: `à¸–à¸¶à¸‡à¸›à¸µ ${c.vedicMahadasha.currentDashaEnd}`, score: c.vedicMahadasha.score },
+  ]
+  return section(5, '16 à¸£à¸°à¸šà¸šà¹€à¸žà¸´à¹ˆà¸¡à¹€à¸•à¸´à¸¡ â€” à¸ à¸²à¸žà¸£à¸§à¸¡', 'ðŸŒ', `
+    <div style="font-size:11px;color:#7a6a52;margin-bottom:12px">
+      à¸ à¸²à¸žà¸£à¸§à¸¡à¸¢à¹ˆà¸­à¸‚à¸­à¸‡ 16 à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸—à¸µà¹ˆà¹€à¸žà¸´à¹ˆà¸‡à¹€à¸žà¸´à¹ˆà¸¡à¹€à¸‚à¹‰à¸²à¸¡à¸² â€” à¸”à¸¹à¸£à¸²à¸¢à¸¥à¸°à¹€à¸­à¸µà¸¢à¸”à¹€à¸•à¹‡à¸¡à¹ƒà¸™ Premium+ version
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${systems.map(s => `
+        <div style="background:#141210;border:1px solid #2a2010;border-radius:8px;padding:10px;display:flex;gap:8px;align-items:flex-start">
+          <span style="font-size:16px;flex-shrink:0">${esc(s.icon)}</span>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:11px;font-weight:600;color:#c8b890">${esc(s.name)}</span>
+              <span style="font-size:12px;font-weight:700;color:${s.score>=780?'#60c060':s.score>=650?'#c0c040':'#c06030'}">${s.score}</span>
+            </div>
+            <div style="font-size:12px;color:#d4aa50;margin-top:2px">${esc(s.data)}</div>
+            <div style="font-size:10px;color:#6a5a42;margin-top:1px">${esc(s.detail)}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+  `)
+}
+
+function p04_western(c: ChartData): string {
+  const w = c.western
+  return section(4, 'à¹‚à¸«à¸£à¸²à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸•à¸°à¸§à¸±à¸™à¸•à¸', 'â˜€ï¸', `
+    <h2>à¸•à¸³à¹à¸«à¸™à¹ˆà¸‡à¸”à¸²à¸§à¸«à¸¥à¸±à¸</h2>
+    <table><tbody>
+      ${row2('â˜‰ à¸”à¸§à¸‡à¸­à¸²à¸—à¸´à¸•à¸¢à¹Œ', `${w.sunSignTh} (${w.sunSign}) â€” ${Math.round(w.sunDeg % 30)}Â° ${w.sunSignTh}`)}
+      ${row2('â˜½ à¸”à¸§à¸‡à¸ˆà¸±à¸™à¸—à¸£à¹Œ', `${w.moonSignTh} (${w.moonSign}) â€” ${Math.round(w.moonDeg % 30)}Â° ${w.moonSignTh}`)}
+      ${row2('ASC à¸£à¸²à¸¨à¸µà¸‚à¸¶à¹‰à¸™', `${w.ascSignTh} (${w.ascSign}) â€” ${Math.round(w.ascDeg % 30)}Â° ${w.ascSignTh}`)}
+      ${row2('â™ƒ à¸”à¸²à¸§à¸žà¸¤à¸«à¸±à¸ªà¸¯', w.jupiterSign)}
+      ${row2('â™„ à¸”à¸²à¸§à¹€à¸ªà¸²à¸£à¹Œ', w.saturnSign)}
+      ${row2('Transit 2026', w.transitNote2026)}
+    </tbody></table>
+
+    <p style="font-size:11px;color:#5a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:10px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> à¸¡à¸µà¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”à¸ˆà¸²à¸à¸­à¸²à¸£à¸¢à¸˜à¸£à¸£à¸¡ Babylonian à¸à¸§à¹ˆà¸² 4,000 à¸›à¸µà¸à¹ˆà¸­à¸™ à¸–à¸¹à¸ Hellenistic Greeks à¸žà¸±à¸’à¸™à¸²à¹€à¸›à¹‡à¸™à¸£à¸°à¸šà¸š Zodiac 12 à¸£à¸²à¸¨à¸µ à¹à¸¥à¸° Ptolemy (100 AD) à¸£à¸§à¸šà¸£à¸§à¸¡à¹€à¸›à¹‡à¸™ "Tetrabiblos" â€” à¸„à¸±à¸¡à¸ à¸µà¸£à¹Œà¹‚à¸«à¸£à¸²à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸«à¸¥à¸±à¸à¸ˆà¸™à¸–à¸¶à¸‡à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™ à¸™à¸´à¸¢à¸¡à¸ªà¸¹à¸‡à¸ªà¸¸à¸”à¹ƒà¸™à¹‚à¸¥à¸à¸•à¸°à¸§à¸±à¸™à¸•à¸ à¹€à¸žà¸£à¸²à¸° Sun Sign à¹ƒà¸™ 5 à¸™à¸²à¸—à¸µà¸—à¸³à¹ƒà¸«à¹‰à¹ƒà¸„à¸£à¸à¹‡à¹€à¸‚à¹‰à¸²à¸–à¸¶à¸‡à¹„à¸”à¹‰</p>
+    <h2>à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡</h2>
+    ${box('à¸”à¸§à¸‡à¸­à¸²à¸—à¸´à¸•à¸¢à¹Œ â˜‰ â€” à¹à¸à¸™à¸•à¸±à¸§à¸•à¸™', `à¸”à¸§à¸‡à¸­à¸²à¸—à¸´à¸•à¸¢à¹Œà¹ƒà¸™${w.sunSignTh} â€” à¸„à¸¸à¸“à¸¡à¸µà¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸«à¸¥à¸±à¸à¸‚à¸­à¸‡${w.sunSignTh} à¸‹à¸¶à¹ˆà¸‡à¸«à¸¡à¸²à¸¢à¸–à¸¶à¸‡à¹à¸à¹ˆà¸™à¸à¸¥à¸²à¸‡à¸‚à¸­à¸‡à¸šà¸¸à¸„à¸¥à¸´à¸à¸ à¸²à¸žà¹à¸¥à¸°à¸žà¸¥à¸±à¸‡à¸ªà¸£à¹‰à¸²à¸‡à¸ªà¸£à¸£à¸„à¹Œà¸—à¸µà¹ˆà¸„à¸¸à¸“à¸‰à¸²à¸¢à¸­à¸­à¸à¸ªà¸¹à¹ˆà¹‚à¸¥à¸`, 'gold')}
+    ${box('à¸”à¸§à¸‡à¸ˆà¸±à¸™à¸—à¸£à¹Œ â˜½ â€” à¹‚à¸¥à¸à¸ à¸²à¸¢à¹ƒà¸™', `à¸”à¸§à¸‡à¸ˆà¸±à¸™à¸—à¸£à¹Œà¹ƒà¸™${w.moonSignTh} â€” à¸­à¸²à¸£à¸¡à¸“à¹Œ à¸ªà¸±à¸à¸Šà¸²à¸•à¸à¸²à¸“ à¹à¸¥à¸°à¸„à¸§à¸²à¸¡à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸—à¸µà¹ˆà¸¥à¸¶à¸à¸—à¸µà¹ˆà¸ªà¸¸à¸”à¸‚à¸­à¸‡à¸„à¸¸à¸“à¸ªà¸°à¸—à¹‰à¸­à¸™à¸œà¹ˆà¸²à¸™à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™${w.moonSignTh}`, 'dark')}
+    ${box('ASC â€” à¸«à¸™à¹‰à¸²à¸à¸²à¸à¹‚à¸¥à¸', `à¸£à¸²à¸¨à¸µà¸‚à¸¶à¹‰à¸™${w.ascSignTh} â€” à¸œà¸¹à¹‰à¸„à¸™à¸£à¸±à¸šà¸£à¸¹à¹‰à¸„à¸¸à¸“à¹ƒà¸™à¹à¸šà¸š${w.ascSignTh} à¸à¹ˆà¸­à¸™à¸—à¸µà¹ˆà¸ˆà¸°à¸£à¸¹à¹‰à¸ˆà¸±à¸à¸•à¸±à¸§à¸•à¸™à¸—à¸µà¹ˆà¹à¸—à¹‰à¸ˆà¸£à¸´à¸‡`, 'dark')}
+    ${box('Transit 2026', w.transitNote2026, 'purple')}
+  `)
+}
+
+function p05_bazi(c: ChartData): string {
+  const b = c.bazi
+  return section(5, 'BaZi à¸ªà¸µà¹ˆà¹€à¸ªà¸² â€” Four Pillars of Destiny', 'â˜¯ï¸', `
+    <h2>à¸•à¸²à¸£à¸²à¸‡à¸ªà¸µà¹ˆà¹€à¸ªà¸²</h2>
+    <div class="grid-3" style="grid-template-columns:1fr 1fr 1fr 1fr">
+      ${[
+        { label:'à¸›à¸µà¹€à¸à¸´à¸”', s:b.yearStem, b:b.yearBranch, sth:b.yearStemTh, bth:b.yearBranchTh, dm:false },
+        { label:'à¹€à¸”à¸·à¸­à¸™à¹€à¸à¸´à¸”', s:b.monthStem, b:b.monthBranch, sth:b.monthStemTh, bth:b.monthBranchTh, dm:false },
+        { label:'à¸§à¸±à¸™à¹€à¸à¸´à¸” â˜… Day Master', s:b.dayStem, b:b.dayBranch, sth:b.dayStemTh, bth:b.dayBranchTh, dm:true },
+        { label:'à¸Šà¸±à¹ˆà¸§à¹‚à¸¡à¸‡à¹€à¸à¸´à¸”', s:b.hourStem, b:b.hourBranch, sth:b.hourStemTh, bth:b.hourBranchTh, dm:false },
+      ].map(p => `
+        <div class="pillar ${p.dm ? 'dm' : ''}">
+          <div class="sublabel">${esc(p.label)}</div>
+          <div class="stem">${esc(p.s)}</div>
+          <div style="font-size:10px;color:#9a8a72;margin:2px 0">${esc(p.sth)}</div>
+          <div class="branch">${esc(p.b)}</div>
+          <div style="font-size:10px;color:#9a8a72">${esc(p.bth)}</div>
+        </div>`).join('')}
+    </div>
+    <table style="margin-top:12px"><tbody>
+      ${row2('Day Master', `${b.dayStem} ${b.dayMasterTh} (${b.dayMasterPolarity === '+' ? 'Yang' : 'Yin'} ${b.dayMasterElement})`)}
+      ${row2('à¸˜à¸²à¸•à¸¸à¹‚à¸”à¸”à¹€à¸”à¹ˆà¸™', b.dominantElement)}
+      ${row2('à¸˜à¸²à¸•à¸¸à¸—à¸µà¹ˆà¸‚à¸²à¸”', b.missingElement || 'à¸„à¸£à¸šà¸—à¸¸à¸à¸˜à¸²à¸•à¸¸')}
+      ${row2('à¸˜à¸²à¸•à¸¸à¸¡à¸‡à¸„à¸¥', b.luckyElement)}
+      ${row2('à¸˜à¸²à¸•à¸¸à¸—à¸µà¹ˆà¸„à¸§à¸£à¸«à¸¥à¸µà¸à¹€à¸¥à¸µà¹ˆà¸¢à¸‡', b.avoidElement)}
+      ${row2('Luck Pillar à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™', b.currentLuckPillarTh)}
+    </tbody></table>
+    <h2>à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡ Day Master</h2>
+    <p>${esc(b.reading)}</p>
+  `)
+}
+
+function p06_ninestar(c: ChartData): string {
+  const n = c.ninestar
+  return section(6, 'Nine Star Ki â€” à¸™à¸´à¸¢à¸¡à¹ƒà¸™à¸à¸µà¹ˆà¸›à¸¸à¹ˆà¸™à¹à¸¥à¸°à¹€à¸à¸²à¸«à¸¥à¸µ', 'â­', `
+    <div class="grid-2">
+      <div class="stat-card">
+        <div class="val">${n.star}</div>
+        <div class="lbl">à¸«à¸¡à¸²à¸¢à¹€à¸¥à¸‚à¸”à¸²à¸§</div>
+      </div>
+      <div class="stat-card">
+        <div class="val" style="font-size:18px">${n.star} ${esc(n.starName)}</div>
+        <div class="lbl">${esc(n.starName)}</div>
+      </div>
+    </div>
+    <table style="margin:12px 0"><tbody>
+      ${row2('à¸˜à¸²à¸•à¸¸', n.starElement)}
+      ${row2('à¸ªà¸µà¸›à¸£à¸°à¸ˆà¸³à¸”à¸²à¸§', n.starColor)}
+      ${row2('à¸—à¸´à¸¨à¸—à¸³à¸‡à¸²à¸™', n.starDirection)}
+      ${row2('à¸—à¸´à¸¨à¸™à¸­à¸™à¸«à¸±à¸§', n.directionSleep)}
+      ${row2('à¸ªà¸´à¹ˆà¸‡à¸™à¸³à¹‚à¸Šà¸„ 2026', n.auspicious2026)}
+    </tbody></table>
+    ${box('à¸§à¸´à¹€à¸„à¸£à¸²à¸°à¸«à¹Œà¸›à¸µ 2026', n.year2026Analysis, n.star === 9 ? 'red' : 'gold')}
+    <p style="font-size:11px;color:#5a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:10px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”à¸ˆà¸²à¸à¸ˆà¸µà¸™à¹‚à¸šà¸£à¸²à¸“à¸à¸§à¹ˆà¸² 3,000 à¸›à¸µ à¸­à¸´à¸‡à¸ˆà¸²à¸ Lo Shu Magic Square (æ´›æ›¸) à¸–à¹ˆà¸²à¸¢à¸—à¸­à¸”à¸ªà¸¹à¹ˆà¸à¸µà¹ˆà¸›à¸¸à¹ˆà¸™à¹ƒà¸™à¸ªà¸¡à¸±à¸¢ Heian à¹€à¸›à¹‡à¸™ "Kyusei Kigaku (ä¹æ˜Ÿæ°—å­¦)" à¸™à¸´à¸¢à¸¡à¸¡à¸²à¸à¹ƒà¸™à¸à¸µà¹ˆà¸›à¸¸à¹ˆà¸™à¹à¸¥à¸°à¹€à¸à¸²à¸«à¸¥à¸µà¸ªà¸³à¸«à¸£à¸±à¸šà¸à¸²à¸£à¹€à¸¥à¸·à¸­à¸à¸—à¸´à¸¨à¸—à¸²à¸‡ à¸§à¸±à¸™à¸¡à¸‡à¸„à¸¥ à¹à¸¥à¸°à¸„à¸§à¸²à¸¡à¹€à¸‚à¹‰à¸²à¸à¸±à¸™à¸‚à¸­à¸‡à¸„à¸™</p>
+    <h2>à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡</h2>
+    <p>${esc(n.reading)}</p>
+  `)
+}
+
+function p07_vedic(c: ChartData): string {
+  const v = c.vedic
+  return section(7, 'Vedic Jyotish â€” à¹‚à¸«à¸£à¸²à¸¨à¸²à¸ªà¸•à¸£à¹Œà¹€à¸§à¸—', 'ðŸ•‰ï¸', `
+    <table><tbody>
+      ${row2('Lagna (à¸£à¸²à¸¨à¸µà¸‚à¸¶à¹‰à¸™)', `${v.lagna} Â· ${v.lagnaSign}`)}
+      ${row2('à¸™à¸±à¸à¸©à¸±à¸•à¸£à¸”à¸§à¸‡à¸ˆà¸±à¸™à¸—à¸£à¹Œ', `${v.moonNakshatra} à¸šà¸²à¸— ${v.nakshathraPada}`)}
+      ${row2('à¸”à¸²à¸§à¸›à¸à¸„à¸£à¸­à¸‡à¸™à¸±à¸à¸©à¸±à¸•à¸£', v.nakshatraLord)}
+      ${row2('à¸¡à¸«à¸²à¸—à¸¨à¸²à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™', `${v.mahadasha} (${v.mahadashaPeriod})`)}
+      ${row2('à¸­à¸±à¸™à¸•à¸£à¸²à¸—à¸¨à¸²', v.antardasha)}
+    </tbody></table>
+    ${box('Yogas (à¸”à¸²à¸§à¸­à¸³à¸™à¸§à¸¢à¸œà¸¥)', v.yogas.map(y => `â€¢ ${y}`).join('<br>'), 'purple')}
+    <p style="font-size:11px;color:#5a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:10px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> à¹€à¸›à¹‡à¸™à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸”à¸²à¸§à¹€à¸à¹ˆà¸²à¹à¸à¹ˆà¸—à¸µà¹ˆà¸ªà¸¸à¸”à¸£à¸°à¸šà¸šà¸«à¸™à¸¶à¹ˆà¸‡à¸‚à¸­à¸‡à¹‚à¸¥à¸ à¸¡à¸µà¸­à¸²à¸¢à¸¸à¸à¸§à¹ˆà¸² 5,000 à¸›à¸µ à¸šà¸±à¸™à¸—à¸¶à¸à¹ƒà¸™ Vedanga Jyotisha â€” à¸«à¸™à¸¶à¹ˆà¸‡à¹ƒà¸™à¸«à¸à¸ªà¸²à¸‚à¸² Vedic knowledge à¹ƒà¸Šà¹‰à¸£à¸°à¸šà¸š Sidereal (à¸•à¸²à¸¡à¸”à¸²à¸§à¸ˆà¸£à¸´à¸‡ à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¸¤à¸”à¸¹à¸à¸²à¸¥) Nakshatra 27 à¹à¸«à¹ˆà¸‡ à¹à¸¥à¸° Dasha à¸£à¸°à¸šà¸šà¸Šà¹ˆà¸§à¸‡à¸”à¸²à¸§à¸›à¸à¸„à¸£à¸­à¸‡ â€” à¸™à¸´à¸¢à¸¡à¸—à¸±à¹ˆà¸§à¸­à¸´à¸™à¹€à¸”à¸µà¸¢à¹à¸¥à¸°à¹€à¸­à¹€à¸Šà¸µà¸¢à¹ƒà¸•à¹‰</p>
+    <h2>à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡</h2>
+    <p>${esc(v.reading)}</p>
+  `)
+}
+
+function p08_energyType(c: ChartData): string {
+  const h = c.humandesign
+  return section(8, 'à¸£à¸°à¸šà¸šà¸›à¸£à¸°à¹€à¸ à¸—à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™ (Energy Type System)', 'âš¡', `
+    <div class="grid-2">
+      <div class="stat-card">
+        <div class="val" style="font-size:16px">${esc(h.typeTh)}</div>
+        <div class="lbl">à¸›à¸£à¸°à¹€à¸ à¸—à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™</div>
+      </div>
+      <div class="stat-card">
+        <div class="val" style="font-size:20px">${esc(h.profile)}</div>
+        <div class="lbl">à¹‚à¸›à¸£à¹„à¸Ÿà¸¥à¹Œ</div>
+      </div>
+    </div>
+    <table style="margin:12px 0"><tbody>
+      ${row2('à¸à¸¥à¸¢à¸¸à¸—à¸˜à¹Œà¸Šà¸µà¸§à¸´à¸•', h.strategy)}
+      ${row2('à¸¨à¸¹à¸™à¸¢à¹Œà¸à¸¥à¸²à¸‡à¸à¸²à¸£à¸•à¸±à¸”à¸ªà¸´à¸™à¹ƒà¸ˆ', h.authority)}
+      ${row2('Definition', h.definition)}
+      ${row2('Incarnation Cross', h.incarnationCross)}
+      ${row2('Sun Gate', `Gate ${h.sunGate}`)}
+      ${row2('Earth Gate', `Gate ${h.earthGate}`)}
+    </tbody></table>
+    ${box('à¹‚à¸›à¸£à¹„à¸Ÿà¸¥à¹Œà¸„à¸§à¸²à¸¡à¸«à¸¡à¸²à¸¢', h.profileDesc, 'gold')}
+    ${box('Channels à¸ªà¸³à¸„à¸±à¸', h.channels.join('<br>'), 'dark')}
+    <p style="font-size:11px;color:#5a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:10px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> Human Design à¸–à¸¹à¸à¸£à¸±à¸šà¸£à¸¹à¹‰à¹‚à¸”à¸¢ Ra Uru Hu à¹ƒà¸™à¸›à¸µ 1987 à¸—à¸µà¹ˆ Ibiza â€” à¸­à¹‰à¸²à¸‡à¸§à¹ˆà¸²à¹„à¸”à¹‰à¸£à¸±à¸šà¸ˆà¸²à¸ "Voice" à¹ƒà¸™ 8 à¸„à¸·à¸™ à¸œà¸ªà¸¡ Astrology, I Ching, Kabbalah, Chakras à¹à¸¥à¸° Quantum Physics à¹€à¸‚à¹‰à¸²à¹€à¸›à¹‡à¸™ synthesis à¹ƒà¸«à¸¡à¹ˆ à¹ƒà¸Šà¹‰ planetary positions à¸“ à¹€à¸§à¸¥à¸²à¹€à¸à¸´à¸”à¸„à¸³à¸™à¸§à¸“ "BodyGraph" â€” à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™à¸¡à¸µà¸œà¸¹à¹‰à¸•à¸´à¸”à¸•à¸²à¸¡à¸—à¸±à¹ˆà¸§à¹‚à¸¥à¸à¸«à¸¥à¸²à¸¢à¸¥à¹‰à¸²à¸™à¸„à¸™</p>
+    <h2>à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡</h2>
+    <p>${esc(h.reading)}</p>
+    <p style="font-size:11px;color:#6a5a42;margin-top:8px">* Energy Type System à¸§à¸´à¹€à¸„à¸£à¸²à¸°à¸«à¹Œà¸•à¸²à¸¡à¸«à¸¥à¸±à¸à¹‚à¸šà¸”à¸µà¸à¸£à¸²à¸Ÿ à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¸„à¸³à¹à¸™à¸°à¸™à¸³à¸ˆà¸²à¸à¸œà¸¹à¹‰à¹ƒà¸«à¹‰à¸šà¸£à¸´à¸à¸²à¸£à¹ƒà¸”à¹‚à¸”à¸¢à¹€à¸‰à¸žà¸²à¸°</p>
+  `)
+}
+
+function p09_mayan(c: ChartData): string {
+  const m = c.mayan
+  return section(9, 'à¸¡à¸²à¸¢à¸±à¸™ Tzolk\'in', 'ðŸŒ€', `
+    <div class="grid-2">
+      <div class="stat-card">
+        <div class="val">${m.kin}</div>
+        <div class="lbl">Kin Number</div>
+      </div>
+      <div class="stat-card">
+        <div class="val">${m.toneNumber}</div>
+        <div class="lbl">à¹‚à¸—à¸™à¸à¸²à¹à¸¥à¹‡à¸à¸•à¸´à¸</div>
+      </div>
+    </div>
+    <table style="margin:12px 0"><tbody>
+      ${row2('Day Sign', m.daySignNameTh)}
+      ${row2('Galactic Tone', m.toneNameTh)}
+      ${row2('à¸—à¸´à¸¨à¸›à¸£à¸°à¸ˆà¸³', m.direction)}
+      ${row2('à¸ªà¸µà¸›à¸£à¸°à¸ˆà¸³', m.color)}
+      ${row2('Wavespell', m.wavespell)}
+    </tbody></table>
+    <p style="font-size:11px;color:#5a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:10px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> Tzolk'in à¸„à¸·à¸­à¸›à¸à¸´à¸—à¸´à¸™ 260 à¸§à¸±à¸™à¸‚à¸­à¸‡à¸Šà¸²à¸§ Maya à¸—à¸µà¹ˆà¹ƒà¸Šà¹‰à¸¡à¸²à¸à¸§à¹ˆà¸² 3,000 à¸›à¸µ à¸›à¸£à¸°à¸à¸­à¸šà¸”à¹‰à¸§à¸¢ 20 Day Signs Ã— 13 Tone Numbers à¹ƒà¸Šà¹‰à¸£à¹ˆà¸§à¸¡à¸à¸±à¸š Haab 365 à¸§à¸±à¸™à¹€à¸›à¹‡à¸™ "Calendar Round" 52 à¸›à¸µ à¸™à¸´à¸¢à¸¡à¹ƒà¸™à¸à¸¥à¸¸à¹ˆà¸¡ New Age à¸ªà¸¡à¸±à¸¢à¹ƒà¸«à¸¡à¹ˆà¸«à¸¥à¸±à¸‡ 2012 prophecy à¹à¸•à¹ˆà¸Šà¸²à¸§ Maya à¸”à¸±à¹‰à¸‡à¹€à¸”à¸´à¸¡à¸¢à¸±à¸‡à¹ƒà¸Šà¹‰à¸ˆà¸£à¸´à¸‡à¹ƒà¸™à¸žà¸´à¸˜à¸µà¸à¸£à¸£à¸¡</p>
+    <h2>à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡</h2>
+    <p>${esc(m.reading)}</p>
+  `)
+}
+
+function p10_celtic(c: ChartData): string {
+  const ct = c.celtic
+  return section(10, 'à¹€à¸‹à¸¥à¸•à¸´à¸ Tree Calendar', 'ðŸŒ³', `
+    <div class="stat-card" style="margin-bottom:16px">
+      <div class="val" style="font-size:20px">${ct.symbol} ${esc(ct.treeNameTh)}</div>
+      <div class="lbl">${esc(ct.treeName)} Tree</div>
+    </div>
+    <table><tbody>
+      ${row2('à¸”à¸²à¸§à¸›à¸à¸„à¸£à¸­à¸‡', ct.rulingPlanet)}
+      ${row2('à¸­à¸±à¸à¸¡à¸“à¸µà¸™à¸³à¹‚à¸Šà¸„', ct.gemstone)}
+      ${row2('à¸˜à¸²à¸•à¸¸', ct.element)}
+      ${row2('à¸šà¸¸à¸„à¸¥à¸´à¸à¸ à¸²à¸ž', ct.personality)}
+    </tbody></table>
+    <p style="font-size:11px;color:#5a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:10px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> à¸­à¸´à¸‡à¸ˆà¸²à¸ Ogham alphabet à¹‚à¸šà¸£à¸²à¸“à¸‚à¸­à¸‡à¸Šà¸²à¸§à¹„à¸­à¸£à¸´à¸Šà¹à¸¥à¸° Gaul Druids à¸¡à¸µà¸­à¸²à¸¢à¸¸à¸à¸§à¹ˆà¸² 2,500 à¸›à¸µ à¹à¸•à¹ˆà¸¥à¸°à¹€à¸”à¸·à¸­à¸™à¸¡à¸µà¸•à¹‰à¸™à¹„à¸¡à¹‰à¸¨à¸±à¸à¸”à¸´à¹Œà¸ªà¸´à¸—à¸˜à¸´à¹Œà¸›à¸à¸„à¸£à¸­à¸‡ à¸•à¸²à¸¡ Beth-Luis-Nion calendar Robert Graves à¸™à¸±à¸à¹€à¸‚à¸µà¸¢à¸™ popularize à¹ƒà¸™ "The White Goddess" (1948) à¸—à¸³à¹ƒà¸«à¹‰à¹€à¸›à¹‡à¸™à¸—à¸µà¹ˆà¸£à¸¹à¹‰à¸ˆà¸±à¸à¹ƒà¸™à¹‚à¸¥à¸à¸ªà¸¡à¸±à¸¢à¹ƒà¸«à¸¡à¹ˆ</p>
+    <h2>à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡</h2>
+    <p>${esc(ct.reading)}</p>
+  `)
+}
+
+function p11_thai(c: ChartData): string {
+  const t = c.thai
+  return section(11, 'à¹„à¸—à¸¢à¸žà¸£à¸²à¸«à¸¡à¸“à¹Œ', 'ðŸ™', `
+    <div class="grid-2">
+      <div class="stat-card">
+        <div class="val" style="font-size:18px">${esc(t.dayName)}</div>
+        <div class="lbl">à¸§à¸±à¸™à¹€à¸à¸´à¸”</div>
+      </div>
+      <div class="stat-card">
+        <div class="val" style="font-size:16px">${esc(t.dayColor)}</div>
+        <div class="lbl">à¸ªà¸µà¸¡à¸‡à¸„à¸¥</div>
+      </div>
+    </div>
+    <table style="margin:12px 0"><tbody>
+      ${row2('à¹€à¸—à¸žà¸œà¸¹à¹‰à¸›à¸à¸„à¸£à¸­à¸‡', `${t.dayGodTh} (${t.dayGod})`)}
+      ${row2('à¸™à¸±à¸à¸©à¸±à¸•à¸£à¹„à¸—à¸¢', t.nakshatra)}
+      ${row2('à¸”à¹‰à¸²à¸™à¸¡à¸‡à¸„à¸¥', t.fortuneDay)}
+    </tbody></table>
+    <p style="font-size:11px;color:#5a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:10px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> à¹‚à¸«à¸£à¸²à¸¨à¸²à¸ªà¸•à¸£à¹Œà¹„à¸—à¸¢à¸£à¸±à¸šà¸­à¸´à¸—à¸˜à¸´à¸žà¸¥à¸ˆà¸²à¸ Vedic Jyotish à¸œà¹ˆà¸²à¸™à¸­à¸´à¸™à¹€à¸”à¸µà¸¢à¹€à¸¡à¸·à¹ˆà¸­à¸à¸§à¹ˆà¸² 1,000 à¸›à¸µà¸à¹ˆà¸­à¸™ à¸œà¸ªà¸¡à¸œà¸ªà¸²à¸™à¸à¸±à¸šà¸„à¸§à¸²à¸¡à¹€à¸Šà¸·à¹ˆà¸­à¸”à¸±à¹‰à¸‡à¹€à¸”à¸´à¸¡à¸‚à¸­à¸‡à¹„à¸—à¸¢à¹à¸¥à¸°à¸žà¸£à¸²à¸«à¸¡à¸“à¹Œà¸®à¸´à¸™à¸”à¸¹ à¸£à¸°à¸šà¸šà¸§à¸±à¸™ 7 à¸ªà¸µà¹à¸¥à¸°à¹€à¸—à¸žà¸›à¸£à¸°à¸ˆà¸³à¸§à¸±à¸™ (à¹€à¸Šà¹ˆà¸™ à¸žà¸£à¸°à¸ˆà¸±à¸™à¸—à¸£à¹Œ à¸§à¸±à¸™à¸ˆà¸±à¸™à¸—à¸£à¹Œ) à¹€à¸›à¹‡à¸™à¹€à¸­à¸à¸¥à¸±à¸à¸©à¸“à¹Œà¹€à¸‰à¸žà¸²à¸° à¹ƒà¸Šà¹‰à¸à¸±à¸™à¹à¸žà¸£à¹ˆà¸«à¸¥à¸²à¸¢à¹ƒà¸™à¸žà¸´à¸˜à¸µà¸à¸£à¸£à¸¡à¸£à¸²à¸Šà¸ªà¸³à¸™à¸±à¸à¹„à¸—à¸¢à¸¡à¸²à¸«à¸¥à¸²à¸¢à¸¨à¸•à¸§à¸£à¸£à¸©</p>
+    <h2>à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡</h2>
+    <p>${esc(t.reading)}</p>
+    ${box('à¸„à¸³à¹à¸™à¸°à¸™à¸³à¹„à¸—à¸¢à¸žà¸£à¸²à¸«à¸¡à¸“à¹Œ', `à¹ƒà¸ªà¹ˆà¸ªà¸µ${t.dayColor}à¹ƒà¸™à¸§à¸±à¸™à¸ªà¸³à¸„à¸±à¸ à¸—à¸³à¸šà¸¸à¸à¸§à¸±à¸™à¹€à¸à¸´à¸”à¹ƒà¸«à¹‰${t.dayGodTh} à¸­à¸˜à¸´à¸©à¸à¸²à¸™à¸”à¹‰à¸²à¸™${t.fortuneDay}`, 'gold')}
+  `)
+}
+
+function p12_numerology(c: ChartData): string {
+  const n = c.numerology
+  return section(12, 'à¹€à¸¥à¸‚à¸¨à¸²à¸ªà¸•à¸£à¹Œ â€” Life Path + Pythagorean + à¹€à¸¥à¸‚ à¹— à¸•à¸±à¸§', 'ðŸ”¢', `
+    <div class="grid-3">
+      <div class="stat-card">
+        <div class="val">${n.lifePath}</div>
+        <div class="lbl">Life Path</div>
+      </div>
+      <div class="stat-card">
+        <div class="val">${n.personalYear2026}</div>
+        <div class="lbl">à¸›à¸µà¸ªà¹ˆà¸§à¸™à¸•à¸±à¸§ 2026</div>
+      </div>
+      <div class="stat-card">
+        <div class="val">${n.pythagorean}</div>
+        <div class="lbl">Pythagorean</div>
+      </div>
+    </div>
+    <table style="margin:12px 0"><tbody>
+      ${row2('Life Path', `${n.lifePath} â€” ${n.lifePathName}`)}
+      ${row2('à¸›à¸µà¸ªà¹ˆà¸§à¸™à¸•à¸±à¸§ 2026', `${n.personalYear2026} â€” ${n.personalYearMeaning}`)}
+      ${row2('à¹€à¸¥à¸‚ à¹— à¸•à¸±à¸§', n.thaiSeven.join(' Â· '))}
+      ${row2('Destiny Number', n.destinyNumber.toString())}
+    </tbody></table>
+    ${box('à¹€à¸¥à¸‚à¸Šà¸µà¸§à¸´à¸•', n.reading, 'gold')}
+    ${box('à¸›à¸µà¸ªà¹ˆà¸§à¸™à¸•à¸±à¸§ 2026', n.personalYearMeaning, 'purple')}
+    <p style="margin-top:8px">${esc(n.thaiSevenReading)}</p>
+  `)
+}
+
+function p13_luckPillars(c: ChartData): string {
+  const age2026 = 2026 - c.input.year
+  const { bazi, vedic, ninestar, numerology, biorhythm, vedicMahadasha } = c
+
+  const luckRows = bazi.luckPillars.map(lp => {
+    const isCurrent = age2026 >= lp.ageStart && age2026 <= lp.ageEnd
+    // Multi-system quality for this decade
+    const midAge = (lp.ageStart + lp.ageEnd) / 2
+    // NSK decade: every 9 years a cycle completes
+    const nskDecadeNote = ((lp.ageStart % 9) === 0) ? 'NSK: à¹€à¸£à¸´à¹ˆà¸¡à¸£à¸­à¸šà¹ƒà¸«à¸¡à¹ˆ' : ''
+    // Numerology: personal year pattern
+    const startPY = ((c.input.year + lp.ageStart - c.input.year + 2026 - age2026) % 9) + 1
+    return `<tr ${isCurrent ? 'style="background:#1a1a08;border:1px solid #d4aa5044"':''}>
+      <td style="font-size:12px">${esc(lp.ageStart)}â€“${esc(lp.ageEnd)}</td>
+      <td style="font-size:18px">${esc(lp.stem)}${esc(lp.branch)}</td>
+      <td style="font-size:11px;color:#9a8a72">${esc(lp.stemTh)} ${esc(lp.branchTh)}</td>
+      <td style="font-size:11px;color:#6a8a60">${nskDecadeNote}</td>
+      <td>${isCurrent ? '<span style="color:#d4aa50;font-weight:700">â–¶ à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™</span>' : ''}</td>
+    </tr>`
+  }).join('')
+
+  // Vedic Mahadasha timeline (major periods)
+  const dashaTimeline = [
+    { lord: vedicMahadasha.currentDasha, end: vedicMahadasha.currentDashaEnd, quality: vedicMahadasha.dashaQuality, isCurrent: true },
+  ]
+
+  // NSK year trend 2026-2035
+  const nskYears = Array.from({length:10},(_,i)=>2026+i).map(yr => {
+    const starForYear = ((9 - ((yr - 1) % 9)) % 9) + 1
+    const isGood = [starForYear].some(s => [1,3,6,8,9].includes(s))
+    return `<span style="font-size:11px;padding:2px 6px;border-radius:4px;background:${isGood?'#1a3010':'#2a1010'};color:${isGood?'#60c060':'#c06060'};margin:2px">${yr}:${starForYear}${isGood?'âœ“':'Â·'}</span>`
+  }).join('')
+
+  return section(14, 'à¹€à¸ªà¹‰à¸™à¸—à¸²à¸‡ 80 à¸›à¸µ â€” Multi-System Timeline', 'ðŸ—ºï¸', `
+    <!-- BaZi Luck Pillars (main) -->
+    <h2 style="font-size:14px;color:#d4aa50;margin-bottom:8px">ðŸ”¥ BaZi Luck Pillars â€” à¹à¸à¸™à¸«à¸¥à¸±à¸ 10 à¸›à¸µà¸•à¹ˆà¸­à¹€à¸ªà¸²</h2>
+    <table>
+      <thead><tr><th>à¸­à¸²à¸¢à¸¸</th><th>à¹€à¸ªà¸²</th><th>à¸„à¸§à¸²à¸¡à¸«à¸¡à¸²à¸¢</th><th>NSK Note</th><th></th></tr></thead>
+      <tbody>${luckRows}</tbody>
+    </table>
+
+    <!-- Current LP detail -->
+    ${box('Luck Pillar à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™', `${bazi.currentLuckPillar} â€” ${bazi.currentLuckPillarTh}`, 'gold')}
+
+    <!-- Vedic Mahadasha -->
+    <h2 style="font-size:14px;color:#c090d0;margin:14px 0 8px">ðŸ•‰ï¸ Vedic Mahadasha â€” à¸Šà¹ˆà¸§à¸‡à¸›à¸à¸„à¸£à¸­à¸‡à¸”à¸²à¸§</h2>
+    <div style="background:#120a1a;border:1px solid #5a3a8a;border-radius:8px;padding:12px">
+      <div style="font-size:13px;color:#c090e0;font-weight:600">
+        ${esc(vedicMahadasha.currentDasha)} Mahadasha à¸–à¸¶à¸‡à¸›à¸µ ${esc(String(vedicMahadasha.currentDashaEnd))}
+      </div>
+      <div style="font-size:12px;color:#9a70c0;margin-top:4px">${esc(vedicMahadasha.dashaQuality)}</div>
+      <div style="font-size:11px;color:#7a5a9a;margin-top:4px">Antardasha: ${esc(vedicMahadasha.antardasha)}</div>
+    </div>
+
+    <!-- NSK Year Trend -->
+    <h2 style="font-size:14px;color:#60b0c0;margin:14px 0 8px">â­ NSK Year Stars 2026â€“2035</h2>
+    <div style="background:#0a1215;border-radius:8px;padding:10px">${nskYears}
+      <div style="font-size:10px;color:#4a7080;margin-top:6px">âœ“ = à¸”à¸²à¸§à¹‚à¸Šà¸„ (1,3,6,8,9) Â· Â· = à¸£à¸°à¸¡à¸±à¸”à¸£à¸°à¸§à¸±à¸‡</div>
+    </div>
+
+    <!-- Numerology Personal Year pattern -->
+    <h2 style="font-size:14px;color:#d0a060;margin:14px 0 8px">ðŸ”¢ Numerology â€” à¸£à¸­à¸šà¸Šà¸µà¸§à¸´à¸• 9 à¸›à¸µ</h2>
+    <div style="background:#1a1208;border-radius:8px;padding:10px">
+      <div style="font-size:12px;color:#c0a060">Personal Year 2026: <strong>${esc(String(numerology.personalYear2026))}</strong> â€” ${esc(numerology.personalYearMeaning.split('â€”')[0])}</div>
+      <div style="font-size:11px;color:#8a7040;margin-top:4px">Biorhythm Physical ${esc(String(biorhythm.physical))}% | Emotional ${esc(String(biorhythm.emotional))}% | Intellectual ${esc(String(biorhythm.intellectual))}%</div>
+    </div>
+  `)
+}
+
+function p14_health(c: ChartData): string {
+  const { bazi, ninestar, vedic, humandesign, biorhythm, celtic, tibetan, thai, nativeAmerican, vedicMahadasha, norseRune } = c
+  const healthSignals = extractSignals(c, 'health')
+  const good = healthSignals.filter(s => s.score >= 750)
+  const warn = healthSignals.filter(s => s.score < 650)
+
+  const EL_EXERCISE: Record<string,string> = {
+    'ç”²':'Weight Training / à¸¢à¸´à¸¡','ä¹™':'Pilates / à¹‚à¸¢à¸„à¸°','ä¸™':'à¸§à¹ˆà¸²à¸¢à¸™à¹‰à¸³ / à¹„à¸•à¸£à¸à¸µà¸¬à¸²',
+    'ä¸':'à¹‚à¸¢à¸„à¸° / à¸§à¹ˆà¸²à¸¢à¸™à¹‰à¸³','æˆŠ':'Hiking / à¹€à¸”à¸´à¸™','å·±':'à¹€à¸”à¸´à¸™ / à¹„à¸—à¸Šà¸´',
+    'åºš':'Martial Arts / à¸Ÿà¸±à¸™à¸”à¸²à¸š','è¾›':'à¹€à¸•à¹‰à¸™à¸£à¸³ / à¸›à¸´à¸¥à¸²à¹€à¸•à¸ª','å£¬':'à¸§à¹ˆà¸²à¸¢à¸™à¹‰à¸³ / à¸žà¸²à¸¢à¹€à¸£à¸·à¸­','ç™¸':'à¸§à¹ˆà¸²à¸¢à¸™à¹‰à¸³ / à¸”à¸³à¸™à¹‰à¸³'
+  }
+
+  return section(20, 'Health Coaching â€” Multi-System Consensus', 'ðŸŒ¿', `
+    <div style="font-size:11px;color:#7a6a52;margin-bottom:12px">
+      ${healthSignals.length} à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸§à¸´à¹€à¸„à¸£à¸²à¸°à¸«à¹Œà¸ªà¸¸à¸‚à¸ à¸²à¸ž â€” ${good.length} à¸£à¸°à¸šà¸šà¹€à¸ªà¸£à¸´à¸¡ Â· ${warn.length} à¸£à¸°à¸šà¸šà¹€à¸•à¸·à¸­à¸™
+    </div>
+
+    <!-- Consensus positive -->
+    <div style="margin-bottom:14px">
+      <div style="font-size:13px;color:#60c060;font-weight:600;margin-bottom:8px">âœ… à¸ªà¸±à¸à¸à¸²à¸“à¸”à¸µ (${good.length} à¸¨à¸²à¸ªà¸•à¸£à¹Œà¹€à¸«à¹‡à¸™à¸•à¸£à¸‡à¸à¸±à¸™)</div>
+      ${good.map(s => `
+        <div style="display:flex;gap:8px;padding:6px 10px;background:#0a1508;border-radius:6px;margin:4px 0">
+          <span style="font-size:11px;min-width:90px;color:#60a060">[${esc(s.system)}]</span>
+          <span style="font-size:12px;color:#c8d8a8">${esc(s.finding)}</span>
+        </div>`).join('')}
+    </div>
+
+    <!-- Warning signals -->
+    ${warn.length > 0 ? `
+    <div style="margin-bottom:14px">
+      <div style="font-size:13px;color:#c06030;font-weight:600;margin-bottom:8px">âš ï¸ à¸ªà¸±à¸à¸à¸²à¸“à¸•à¹‰à¸­à¸‡à¸£à¸°à¸§à¸±à¸‡ (${warn.length} à¸¨à¸²à¸ªà¸•à¸£à¹Œ)</div>
+      ${warn.map(s => `
+        <div style="display:flex;gap:8px;padding:6px 10px;background:#150a08;border-radius:6px;margin:4px 0;border-left:2px solid #8a3020">
+          <span style="font-size:11px;min-width:90px;color:#c07050">[${esc(s.system)}]</span>
+          <span style="font-size:12px;color:#d8a888">${esc(s.finding)}</span>
+        </div>`).join('')}
+    </div>` : ''}
+
+    <!-- Exercise recommendation -->
+    ${box('à¸­à¸­à¸à¸à¸³à¸¥à¸±à¸‡à¸à¸²à¸¢à¸—à¸µà¹ˆà¹€à¸«à¸¡à¸²à¸°', `BaZi Day Master ${bazi.dayStem}: <strong>${esc(EL_EXERCISE[bazi.dayStem]??'à¹€à¸”à¸´à¸™/à¹‚à¸¢à¸„à¸°')}</strong> Â· Biorhythm Physical: ${biorhythm.physical}% (${biorhythm.physicalPhase})`, 'green')}
+
+    <!-- Biorhythm detail -->
+    <div style="background:#0a1510;border:1px solid #2a4a20;border-radius:8px;padding:12px;margin:10px 0">
+      <div style="font-size:12px;color:#5a9a40;font-weight:600;margin-bottom:8px">ðŸ“Š Biorhythm à¸“ à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+        ${[['à¸£à¹ˆà¸²à¸‡à¸à¸²à¸¢',biorhythm.physical,biorhythm.physicalPhase],['à¸­à¸²à¸£à¸¡à¸“à¹Œ',biorhythm.emotional,biorhythm.emotionalPhase],['à¸ªà¸•à¸´à¸›à¸±à¸à¸à¸²',biorhythm.intellectual,biorhythm.intellectualPhase]].map(([l,v,p]) =>
+          `<div><div style="font-size:22px;font-weight:700;color:${+v>30?'#60c060':+v<-30?'#c06060':'#c0c040'}">${v}%</div><div style="font-size:10px;color:#6a8a60">${esc(String(l))}</div><div style="font-size:10px;color:#4a6a40">${esc(String(p))}</div></div>`
+        ).join('')}
+      </div>
+    </div>
+
+    <div style="font-size:11px;color:#5a6a50;margin-top:8px">
+      ðŸ¥ à¸«à¸²à¸à¸¡à¸µà¸­à¸²à¸à¸²à¸£à¸œà¸´à¸”à¸›à¸à¸•à¸´ à¸„à¸§à¸£à¸›à¸£à¸¶à¸à¸©à¸²à¹à¸žà¸—à¸¢à¹Œ Â· à¸ªà¸²à¸¢à¸”à¹ˆà¸§à¸™ 1323 (à¸ªà¸¸à¸‚à¸ à¸²à¸žà¸ˆà¸´à¸•)
+    </div>
+  `)
+}
+
+function p15_finance(c: ChartData): string {
+  const finSignals = extractSignals(c, 'finance')
+  const good = finSignals.filter(s => s.score >= 750).sort((a,b)=>b.score-a.score)
+  const warn = finSignals.filter(s => s.score < 650)
+  const { bazi, numerology, ninestar, arabicParts, hellenistic, ifaYoruba, vedicMahadasha } = c
+
+  return section(21, 'Finance Coaching â€” Multi-System Consensus', 'ðŸ’°', `
+    <div style="font-size:11px;color:#7a6a52;margin-bottom:12px">
+      ${finSignals.length} à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸§à¸´à¹€à¸„à¸£à¸²à¸°à¸«à¹Œà¸à¸²à¸£à¹€à¸‡à¸´à¸™ â€” ${good.length} à¹€à¸ªà¸£à¸´à¸¡ Â· ${warn.length} à¹€à¸•à¸·à¸­à¸™
+    </div>
+
+    <!-- Disclaimer -->
+    <div style="background:#100a06;border:1px solid #4a3010;border-radius:6px;padding:8px 12px;font-size:11px;color:#8a6030;margin-bottom:12px">
+      â“˜ à¸£à¸²à¸¢à¸‡à¸²à¸™à¸™à¸µà¹‰à¹€à¸žà¸·à¹ˆà¸­à¸à¸²à¸£à¸ªà¸³à¸£à¸§à¸ˆà¸•à¸™à¹€à¸­à¸‡à¹€à¸—à¹ˆà¸²à¸™à¸±à¹‰à¸™ à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¸„à¸³à¹à¸™à¸°à¸™à¸³à¸—à¸²à¸‡à¸à¸²à¸£à¹€à¸‡à¸´à¸™ Â· à¸›à¸£à¸¶à¸à¸©à¸²à¸œà¸¹à¹‰à¹€à¸Šà¸µà¹ˆà¸¢à¸§à¸Šà¸²à¸à¸à¹ˆà¸­à¸™à¸•à¸±à¸”à¸ªà¸´à¸™à¹ƒà¸ˆà¸ªà¸³à¸„à¸±à¸
+    </div>
+
+    <!-- Good signals -->
+    <div style="margin-bottom:14px">
+      <div style="font-size:13px;color:#c0a030;font-weight:600;margin-bottom:8px">ðŸ’Ž à¸ªà¸±à¸à¸à¸²à¸“à¸¡à¸±à¹ˆà¸‡à¸„à¸±à¹ˆà¸‡ (${good.length} à¸¨à¸²à¸ªà¸•à¸£à¹Œ)</div>
+      ${good.map(s => `
+        <div style="display:flex;gap:8px;padding:6px 10px;background:#100d06;border-radius:6px;margin:4px 0">
+          <span style="font-size:11px;min-width:90px;color:#a08030">[${esc(s.system)}]</span>
+          <span style="font-size:12px;color:#d8c880">${esc(s.finding)}</span>
+        </div>`).join('')}
+    </div>
+
+    <!-- Warning signals -->
+    ${warn.length > 0 ? `
+    <div style="margin-bottom:14px">
+      <div style="font-size:13px;color:#c05030;font-weight:600;margin-bottom:8px">âš ï¸ à¸£à¸°à¸§à¸±à¸‡ (${warn.length} à¸¨à¸²à¸ªà¸•à¸£à¹Œ)</div>
+      ${warn.map(s => `
+        <div style="display:flex;gap:8px;padding:6px 10px;background:#150a06;border-radius:6px;margin:4px 0;border-left:2px solid #8a3010">
+          <span style="font-size:11px;min-width:90px;color:#c07030">[${esc(s.system)}]</span>
+          <span style="font-size:12px;color:#d89060">${esc(s.finding)}</span>
+        </div>`).join('')}
+    </div>` : ''}
+
+    <!-- Key synthesis -->
+    ${box('à¸ªà¸£à¸¸à¸›à¸—à¸´à¸¨à¸—à¸²à¸‡à¸à¸²à¸£à¹€à¸‡à¸´à¸™', `à¸˜à¸²à¸•à¸¸à¸¡à¸‡à¸„à¸¥${bazi.luckyElement} + Part of Fortune à¹ƒà¸™${arabicParts.fortuneSign} + ${vedicMahadasha.currentDasha} Dasha â†’ ${['Jupiter','Sun','Venus'].includes(vedicMahadasha.currentDasha)?'à¸Šà¹ˆà¸§à¸‡à¸‚à¸¢à¸²à¸¢à¸•à¸±à¸§à¸—à¸²à¸‡à¸à¸²à¸£à¹€à¸‡à¸´à¸™':'à¸Šà¹ˆà¸§à¸‡à¸ªà¸°à¸ªà¸¡à¹à¸¥à¸°à¸£à¸°à¸¡à¸±à¸”à¸£à¸°à¸§à¸±à¸‡'}`, 'gold')}
+
+    <!-- 3-step plan -->
+    <div style="font-size:13px;color:#d0a050;font-weight:600;margin:12px 0 8px">à¹à¸œà¸™ 3 à¸‚à¸±à¹‰à¸™à¸ˆà¸²à¸ Consensus</div>
+    ${[
+      [`à¸ªà¸°à¸ªà¸¡à¸˜à¸²à¸•à¸¸${bazi.luckyElement}`, `à¸¥à¸‡à¸—à¸¸à¸™à¹ƒà¸™à¸ªà¸´à¹ˆà¸‡à¸—à¸µà¹ˆà¸ªà¸­à¸”à¸„à¸¥à¹‰à¸­à¸‡à¸à¸±à¸š Day Master ${bazi.dayMasterTh} â€” Wuxing: DM_CREATES = success`],
+      [`à¹ƒà¸Šà¹‰à¸—à¸´à¸¨${ninestar.starDirection}`, `NSK: à¸—à¸´à¸¨à¸—à¸³à¸‡à¸²à¸™à¹à¸¥à¸°à¸•à¸´à¸”à¸•à¹ˆà¸­à¸˜à¸¸à¸£à¸à¸´à¸ˆà¹ƒà¸™à¸—à¸´à¸¨${ninestar.starDirection} à¸›à¸µ 2026`],
+      [`Personal Year ${numerology.personalYear2026}`, numerology.personalYearMeaning.split('â€”')[0]+' â€” à¸ˆà¸±à¸‡à¸«à¸§à¸°à¸—à¸µà¹ˆà¸”à¸µà¸—à¸µà¹ˆà¸ªà¸¸à¸”à¸ªà¸³à¸«à¸£à¸±à¸šà¸›à¸µà¸™à¸µà¹‰'],
+    ].map(([title, desc], i) => `
+      <div style="display:flex;gap:10px;padding:8px;border:1px solid #2a2010;border-radius:8px;margin:5px 0">
+        <div style="background:#d4aa50;color:#1a1510;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">${i+1}</div>
+        <div><div style="font-weight:600;color:#d4aa50;font-size:13px">${esc(title)}</div><div style="font-size:11px;color:#9a8a72;margin-top:2px">${esc(desc)}</div></div>
+      </div>`).join('')}
+  `)
+}
+
+function p16_activation(c: ChartData): string {
+  const { bazi, ninestar, numerology, humandesign, vedic, thai, celtic, tibetan,
+          norseRune, kabbalistic, ifaYoruba, aboriginal, biorhythm, vedicMahadasha,
+          onmyodo, zoroastrian, nativeAmerican, aztec, saju } = c
+
+  // Pull positive actions from all 26 systems â€” ranked by how many systems endorse
+  const positives: {icon:string;pts:number;title:string;body:string;systems:string[]}[] = [
+    { icon:'ðŸ§­', pts:0, title:`à¸«à¸±à¸™à¸«à¸±à¸§à¸—à¸´à¸¨${ninestar.directionSleep}à¸™à¸­à¸™`, body:`NSK Star ${ninestar.star}: à¸—à¸´à¸¨à¸™à¸­à¸™${ninestar.directionSleep} à¸¢à¸·à¸™à¸¢à¸±à¸™à¹‚à¸”à¸¢ Feng Shui à¸žà¸·à¹‰à¸™à¸à¸²à¸™`, systems:['Nine Star Ki','BaZi Feng Shui'] },
+    { icon:'ðŸŽ¯', title:`à¸—à¸³à¸•à¸²à¸¡ Strategy "${humandesign.strategy}"`, pts:0, body:`Energy Type ${humandesign.typeTh}: à¸«à¸±à¸§à¹ƒà¸ˆà¸‚à¸­à¸‡ Human Design â€” à¸à¸·à¸™à¹à¸¥à¹‰à¸§à¹€à¸«à¸™à¸·à¹ˆà¸­à¸¢à¹€à¸›à¸¥à¹ˆà¸²`, systems:['Energy Type System','Kabbalistic (${kabbalistic.archangel})'] },
+    { icon:'ðŸ”¥', title:`à¹€à¸ªà¸£à¸´à¸¡à¸˜à¸²à¸•à¸¸${bazi.luckyElement}à¸—à¸¸à¸à¸§à¸±à¸™`, pts:0, body:`BaZi: à¸˜à¸²à¸•à¸¸à¸¡à¸‡à¸„à¸¥${bazi.luckyElement} à¸«à¸™à¸¸à¸™ Day Master ${bazi.dayMasterTh}`, systems:['BaZi','Saju (Korean)','Tibetan Mewa'] },
+    { icon:'ðŸŽ¨', title:`à¹ƒà¸ªà¹ˆà¸ªà¸µ${ninestar.starColor}à¹€à¸›à¹‡à¸™ accent`, pts:0, body:`NSK ${ninestar.starChinese} + à¹„à¸—à¸¢à¸žà¸£à¸²à¸«à¸¡à¸“à¹Œà¸§à¸±à¸™${thai.dayName}: à¸ªà¸µ${ninestar.starColor}/${thai.dayColor}`, systems:['Nine Star Ki','à¹„à¸—à¸¢à¸žà¸£à¸²à¸«à¸¡à¸“à¹Œ','Celtic'] },
+    { icon:'ðŸ“', title:`Journal à¸—à¸¸à¸à¹€à¸Šà¹‰à¸² â€” à¸•à¸±à¹‰à¸‡à¹€à¸ˆà¸•à¸™à¸²`, pts:0, body:`Life Path ${numerology.lifePath} + Kabbalistic ${kabbalistic.sephira}: à¸„à¸§à¸²à¸¡à¸Šà¸±à¸”à¹€à¸ˆà¸™à¹ƒà¸™à¸„à¸§à¸²à¸¡à¸„à¸´à¸”à¹€à¸›à¹‡à¸™à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™`, systems:['Numerology','Kabbalistic','Zoroastrian'] },
+    { icon:'ðŸ™', title:`à¸—à¸³à¸žà¸´à¸˜à¸µà¸à¸£à¸£à¸¡à¸§à¸±à¸™${thai.dayName}`, pts:0, body:`à¹„à¸—à¸¢à¸žà¸£à¸²à¸«à¸¡à¸“à¹Œ + Zoroastrian ${zoroastrian.dayYazataTh}: à¸ªà¸±à¸à¸à¸²à¸£à¸°à¹ƒà¸™à¸§à¸±à¸™à¹€à¸à¸´à¸”à¸‚à¸­à¸‡à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ`, systems:['à¹„à¸—à¸¢à¸žà¸£à¸²à¸«à¸¡à¸“à¹Œ','Zoroastrian','OnmyÅdÅ'] },
+    { icon:'ðŸŒ¿', title:`à¸­à¸­à¸à¸à¸³à¸¥à¸±à¸‡à¸à¸²à¸¢ 3x/à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ`, pts:0, body:`Biorhythm Physical ${biorhythm.physical}% (${biorhythm.physicalPhase}) + ${celtic.treeNameTh} à¸˜à¸²à¸•à¸¸${celtic.element}`, systems:['Biorhythm','Celtic','Native American'] },
+    { icon:'ðŸ’¬', title:`à¸£à¸­ Response à¸à¹ˆà¸­à¸™à¸¥à¸‡à¸¡à¸·à¸­`, pts:0, body:`${humandesign.typeTh} Authority ${humandesign.authority}: à¸•à¸±à¸”à¸ªà¸´à¸™à¹ƒà¸ˆà¸•à¸²à¸¡ inner response`, systems:['Energy Type System','Norse Rune (${norseRune.runeName})'] },
+    { icon:'ðŸ—ºï¸', title:`à¸§à¸²à¸‡à¹à¸œà¸™à¸—à¸´à¸¨${ninestar.starDirection}`, pts:0, body:`NSK à¸—à¸´à¸¨à¹‚à¸Šà¸„${ninestar.starDirection} à¸›à¸µ 2026: à¹ƒà¸Šà¹‰à¸—à¸´à¸¨à¸™à¸µà¹‰à¹ƒà¸™à¸à¸²à¸£à¹€à¸”à¸´à¸™à¸—à¸²à¸‡à¹à¸¥à¸°à¸ˆà¸±à¸”à¹‚à¸•à¹Šà¸°à¸—à¸³à¸‡à¸²à¸™`, systems:['Nine Star Ki','Arabic Parts (${arabicParts.fortuneSign})'] },
+    { icon:'ðŸŒŸ', title:`à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸à¸±à¸š OdÃ¹ ${ifaYoruba.odu}`, pts:0, body:`Ifa/Yoruba: ${ifaYoruba.oduTh} â€” ${ifaYoruba.oduTheme}`, systems:['Ifa/Yoruba','Aboriginal (${aboriginal.dreamingTh})'] },
+  ]
+
+  // Pull negative inputs (things to avoid) from low-scoring systems + BaZi avoidance
+  const negatives: {icon:string;title:string;body:string;source:string}[] = [
+    { icon:'ðŸš«', title:`à¸«à¸¥à¸µà¸à¹€à¸¥à¸µà¹ˆà¸¢à¸‡à¸˜à¸²à¸•à¸¸${bazi.avoidElement}`, body:`BaZi: à¸˜à¸²à¸•à¸¸${bazi.avoidElement}à¸à¸”à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™ Day Master â€” à¸¥à¸”à¸ªà¸µà¹à¸¥à¸°à¸­à¸²à¸«à¸²à¸£à¸—à¸µà¹ˆà¸ªà¸­à¸”à¸„à¸¥à¹‰à¸­à¸‡`, source:'BaZi' },
+    { icon:'âš ï¸', title:`à¸£à¸°à¸§à¸±à¸‡ Self-Punishment åˆåˆ`, body:`BaZi: ${bazi.dayStem}${bazi.dayBranch} + ${bazi.yearStem}${bazi.yearBranch} à¸¡à¸µà¹à¸£à¸‡à¸à¸”à¸”à¸±à¸™à¸•à¸±à¸§à¹€à¸­à¸‡ â€” à¸­à¸¢à¹ˆà¸² overthink`, source:'BaZi Self-Punch' },
+    ...(c.score.breakdown.filter(b => b.score < 650).map(b => ({
+      icon: 'âš ï¸', title: `à¸£à¸°à¸§à¸±à¸‡: ${b.system}`, body: b.finding, source: b.system
+    }))),
+    { icon:'ðŸ”´', title:`${onmyodo.rokuyo} Birth Day â€” à¸£à¸°à¸§à¸±à¸‡à¸ªà¸´à¹ˆà¸‡à¸™à¸µà¹‰`, body:`OnmyÅdÅ ${onmyodo.rokuyoTh}: à¸§à¸±à¸™à¹€à¸à¸´à¸”à¸¡à¸µà¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™${onmyodo.rokuyo} â€” à¸£à¸°à¸¡à¸±à¸”à¸£à¸°à¸§à¸±à¸‡à¹ƒà¸™à¸§à¸±à¸™à¹€à¸”à¸µà¸¢à¸§à¸à¸±à¸™à¸‚à¸­à¸‡à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ`, source:'OnmyÅdÅ' },
+  ]
+
+  // Score by system count (systems array length)
+  positives.forEach(p => { p.pts = p.systems.length * 7 + (c.score.breakdown.find(b=>b.system.includes(p.systems[0]?.split(' ')[0]))?.score||700)/100|0 })
+  positives.sort((a,b) => b.pts - a.pts)
+
+  return section(18, 'Activation Plan â€” 26 à¸¨à¸²à¸ªà¸•à¸£à¹Œà¹à¸™à¸°à¸™à¸³', 'ðŸš€', `
+    <p style="font-size:11px;color:#7a6a52;margin-bottom:12px">
+      à¹€à¸£à¸µà¸¢à¸‡à¸•à¸²à¸¡à¸ˆà¸³à¸™à¸§à¸™à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸—à¸µà¹ˆà¹€à¸«à¹‡à¸™à¸žà¹‰à¸­à¸‡ â€” à¸—à¸³à¸—à¸µà¸¥à¸°à¸‚à¹‰à¸­ à¹„à¸¡à¹ˆà¸•à¹‰à¸­à¸‡à¸—à¸³à¸—à¸¸à¸à¸‚à¹‰à¸­à¸žà¸£à¹‰à¸­à¸¡à¸à¸±à¸™
+    </p>
+
+    <div style="font-size:13px;font-weight:600;color:#60c060;margin-bottom:8px">âœ… à¸ªà¸´à¹ˆà¸‡à¸—à¸µà¹ˆà¸„à¸§à¸£à¸—à¸³ (Positive Inputs)</div>
+    ${positives.slice(0,8).map((a,n) => `
+      <div style="display:flex;gap:10px;padding:8px;border:1px solid #2a2010;border-radius:8px;margin:5px 0">
+        <span style="font-size:20px">${a.icon}</span>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-weight:600;color:#d4aa50;font-size:13px">${esc(a.title)}</span>
+            <span style="font-size:11px;color:#60a060">${a.systems.length} à¸¨à¸²à¸ªà¸•à¸£à¹Œ</span>
+          </div>
+          <div style="font-size:11px;color:#9a8a72;margin-top:2px">${esc(a.body)}</div>
+          <div style="font-size:10px;color:#5a7050;margin-top:2px">[${a.systems.slice(0,3).map(s=>esc(s.replace(/${.*?}/g,'...'))).join('] [')}]</div>
+        </div>
+      </div>`).join('')}
+
+    <div style="font-size:13px;font-weight:600;color:#c05030;margin:14px 0 8px">ðŸš« à¸ªà¸´à¹ˆà¸‡à¸—à¸µà¹ˆà¸„à¸§à¸£à¸«à¸¥à¸µà¸à¹€à¸¥à¸µà¹ˆà¸¢à¸‡ (Negative Inputs)</div>
+    ${negatives.map(n => `
+      <div style="display:flex;gap:10px;padding:8px;border:1px solid #3a1510;border-radius:8px;margin:5px 0;background:#1a0a08">
+        <span style="font-size:18px">${n.icon}</span>
+        <div style="flex:1">
+          <div style="font-weight:600;color:#d07050;font-size:12px">${esc(n.title)}</div>
+          <div style="font-size:11px;color:#8a5040;margin-top:2px">${esc(n.body)}</div>
+          <div style="font-size:10px;color:#5a3020">[${esc(n.source)}]</div>
+        </div>
+      </div>`).join('')}
+  `)
+}
+
+function p17_weekly(c: ChartData): string {
+  const days = ['à¸ˆà¸±à¸™à¸—à¸£à¹Œ','à¸­à¸±à¸‡à¸„à¸²à¸£','à¸žà¸¸à¸˜','à¸žà¸¤à¸«à¸±à¸ªà¸šà¸”à¸µ','à¸¨à¸¸à¸à¸£à¹Œ','à¹€à¸ªà¸²à¸£à¹Œ','à¸­à¸²à¸—à¸´à¸•à¸¢à¹Œ']
+  const focuses = ['à¸§à¸²à¸‡à¹à¸œà¸™ + à¸•à¸±à¹‰à¸‡à¹€à¸ˆà¸•à¸™à¸²','à¸¥à¸‡à¸¡à¸·à¸­à¸—à¸³ + à¸à¸´à¸ˆà¸à¸£à¸£à¸¡à¸ªà¸³à¸„à¸±à¸','à¸ªà¸·à¹ˆà¸­à¸ªà¸²à¸£ + à¹€à¸„à¸£à¸·à¸­à¸‚à¹ˆà¸²à¸¢','à¸‚à¸¢à¸²à¸¢à¸‡à¸²à¸™ + à¹€à¸£à¸µà¸¢à¸™à¸£à¸¹à¹‰','à¸ªà¸£à¸¸à¸›à¸œà¸¥ + à¸›à¸£à¸±à¸šà¸›à¸£à¸¸à¸‡','à¸žà¸±à¸ + à¹€à¸•à¸´à¸¡à¸žà¸¥à¸±à¸‡ + à¸ªà¸£à¹‰à¸²à¸‡à¸ªà¸£à¸£à¸„à¹Œ','à¸—à¸³à¸šà¸¸à¸ + à¸ªà¸³à¸£à¸§à¸ˆà¸ˆà¸´à¸•à¹ƒà¸ˆ']
+  return section(17, 'Weekly Energy Plan â€” à¸•à¸²à¸£à¸²à¸‡à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™ 7 à¸§à¸±à¸™', 'ðŸ“…', `
+    <table>
+      <thead><tr><th>à¸§à¸±à¸™</th><th>à¹‚à¸Ÿà¸à¸±à¸ª</th><th>à¸„à¸³à¹à¸™à¸°à¸™à¸³</th></tr></thead>
+      <tbody>
+        ${days.map((d,i) => `<tr ${d === c.thai.dayName ? 'style="background:#1e1a0e"' : ''}>
+          <td style="font-weight:600;color:${d === c.thai.dayName ? '#d4aa50' : '#c8c0a8'}">${esc(d)}${d === c.thai.dayName ? ' â˜…' : ''}</td>
+          <td>${esc(focuses[i])}</td>
+          <td style="font-size:11px;color:#9a8a72">${i === 0 ? 'à¹ƒà¸ªà¹ˆà¸ªà¸µà¸¡à¸‡à¸„à¸¥' : i === 4 ? 'Reflect journal' : i === 5 ? 'à¸­à¸­à¸à¸à¸³à¸¥à¸±à¸‡à¸à¸²à¸¢' : i === 6 ? 'à¸—à¸³à¸šà¸¸à¸+à¸ªà¸¡à¸²à¸˜à¸´' : 'Follow strategy'}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    ${box('à¸«à¸¡à¸²à¸¢à¹€à¸«à¸•à¸¸', `à¸§à¸±à¸™${c.thai.dayName} (â˜…) à¸„à¸·à¸­à¸§à¸±à¸™à¹€à¸à¸´à¸”à¸‚à¸­à¸‡à¸„à¸¸à¸“ â€” à¸„à¸§à¸£à¸—à¸³à¸à¸´à¸ˆà¸à¸£à¸£à¸¡à¸¡à¸‡à¸„à¸¥à¹ƒà¸™à¸§à¸±à¸™à¸™à¸µà¹‰à¸—à¸¸à¸à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ`, 'gold')}
+  `)
+}
+
+function p18_monthly2026(c: ChartData): string {
+  const months = ['à¸¡.à¸„.','à¸.à¸ž.','à¸¡à¸µ.à¸„.','à¹€à¸¡.à¸¢.','à¸ž.à¸„.','à¸¡à¸´.à¸¢.','à¸.à¸„.','à¸ª.à¸„.','à¸.à¸¢.','à¸•.à¸„.','à¸ž.à¸¢.','à¸˜.à¸„.']
+  const monthStars = [2,8,7,6,5,4,3,2,1,9,8,7]
+  const starNames = ['','ä¸€ç™½æ°´æ˜Ÿ','äºŒé»’åœŸæ˜Ÿ','ä¸‰ç¢§æœ¨æ˜Ÿ','å››ç·‘æœ¨æ˜Ÿ','äº”é»„åœŸæ˜Ÿ','å…­ç™½é‡‘æ˜Ÿ','ä¸ƒèµ¤é‡‘æ˜Ÿ','å…«ç™½åœŸæ˜Ÿ','ä¹ç´«ç«æ˜Ÿ']
+  const STAR_EL: Record<number,string> = {1:'Water',2:'Earth',3:'Wood',4:'Wood',5:'Earth',6:'Metal',7:'Metal',8:'Earth',9:'Fire'}
+  const SHENG: Record<string,string> = {Wood:'Fire',Fire:'Earth',Earth:'Metal',Metal:'Water',Water:'Wood'}
+  const KE: Record<string,string>    = {Wood:'Earth',Earth:'Water',Water:'Fire',Fire:'Metal',Metal:'Wood'}
+  const natal = c.ninestar.star
+
+  // Biorhythm monthly peaks (approximate by days elapsed)
+  const birthJD = Math.floor(2451545 + (c.input.year-2000)*365.25 + c.input.month*30 + c.input.day)
+  const monthBiorhythm = months.map((_, mi) => {
+    const days = Math.round((2026 - c.input.year)*365.25) + (mi * 30)
+    const phy = Math.round(Math.sin(2*Math.PI*days/23)*100)
+    const emo = Math.round(Math.sin(2*Math.PI*days/28)*100)
+    const int = Math.round(Math.sin(2*Math.PI*days/33)*100)
+    return { phy, emo, int, avg: Math.round((phy+emo+int)/3) }
+  })
+
+  // Vedic monthly quality (based on dasha sub-period)
+  const vedicMonthQuality = months.map((_, mi) => {
+    const py = ((c.numerology.personalYear2026 - 1 + mi) % 9) + 1
+    return [1,3,6,8].includes(py) ? 'à¸”à¸µ' : [5].includes(py) ? 'à¸£à¸°à¸§à¸±à¸‡' : 'à¸›à¸²à¸™à¸à¸¥à¸²à¸‡'
+  })
+
+  function monthRating(ms: number, bioAvg: number): { icon: string; score: number } {
+    let base = 0
+    if (ms === natal) base = 3
+    else if (SHENG[STAR_EL[ms]??''] === 'Fire') base = 2
+    else if (KE[STAR_EL[ms]??''] === 'Fire') base = -1
+    if (ms === 5) base -= 1
+    const bioBonus = bioAvg > 40 ? 1 : bioAvg < -40 ? -1 : 0
+    const total = base + bioBonus
+    const icon = ms===natal?'ðŸŒŸ': total>=2?'ðŸŸ¢': total>=0?'ðŸŸ¡': 'ðŸ”´'
+    return { icon, score: total }
+  }
+
+  return section(16, 'à¸žà¸¢à¸²à¸à¸£à¸“à¹Œà¸£à¸²à¸¢à¹€à¸”à¸·à¸­à¸™ 2026 â€” 3 à¸¨à¸²à¸ªà¸•à¸£à¹Œ Consensus', 'ðŸ—“ï¸', `
+    <div style="font-size:11px;color:#7a6a52;margin-bottom:10px">
+      à¸£à¸§à¸¡à¸ªà¸±à¸à¸à¸²à¸“à¸ˆà¸²à¸ Nine Star Ki (natal ${natal}) + Biorhythm + Numerology PY pattern
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>à¹€à¸”à¸·à¸­à¸™</th>
+          <th>NSK</th>
+          <th>Bio avg</th>
+          <th>PY-pattern</th>
+          <th>Consensus</th>
+          <th>à¹à¸™à¸°à¸™à¸³</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${months.map((m,i) => {
+          const ms = monthStars[i]
+          const bio = monthBiorhythm[i]
+          const nskRating = monthRating(ms, bio.avg)
+          const advice = nskRating.icon==='ðŸŒŸ'?'à¹‚à¸­à¸à¸²à¸ªà¸—à¸­à¸‡à¹ƒà¸™à¸›à¸µà¸™à¸µà¹‰':
+                        nskRating.icon==='ðŸŸ¢'?'à¸¥à¸‡à¸¡à¸·à¸­à¸—à¸³à¹„à¸”à¹‰à¹€à¸¥à¸¢':
+                        nskRating.icon==='ðŸŸ¡'?'à¸„à¹ˆà¸­à¸¢à¹† à¸‚à¸¢à¸±à¸š':
+                        'à¸£à¸°à¸§à¸±à¸‡ à¸¢à¸±à¸šà¸¢à¸±à¹‰à¸‡à¸Šà¸±à¹ˆà¸‡à¹ƒà¸ˆ'
+          return `<tr>
+            <td style="font-weight:600">${esc(m)}</td>
+            <td style="font-size:11px">${ms} ${esc(starNames[ms])}</td>
+            <td style="font-size:11px;color:${bio.avg>30?'#60c060':bio.avg<-30?'#c06060':'#c0a060'}">${bio.avg>0?'+':''}${bio.avg}%</td>
+            <td style="font-size:11px;color:#9a8a72">${esc(vedicMonthQuality[i])}</td>
+            <td style="text-align:center">${nskRating.icon}</td>
+            <td style="font-size:11px;color:#9a8a72">${esc(advice)}</td>
+          </tr>`
+        }).join('')}
+      </tbody>
+    </table>
+    <p style="font-size:10px;color:#6a5a42;margin-top:6px">
+      ðŸŒŸ Honmei (à¸”à¸²à¸§à¹€à¸à¸´à¸”à¸•à¸£à¸‡à¸à¸±à¸™) Â· ðŸŸ¢ NSK+Bio à¹€à¸ªà¸£à¸´à¸¡ Â· ðŸŸ¡ à¸à¸¥à¸²à¸‡ Â· ðŸ”´ NSK à¸‚à¸±à¸” Bio à¸•à¸ Â· à¸„à¸³à¸™à¸§à¸“à¹€à¸‰à¸žà¸²à¸°à¸”à¸§à¸‡à¸„à¸¸à¸“
+    </p>
+  `)
+}
+
+function p19_decade(c: ChartData): string {
+  const currentAge = 2026 - c.input.year
+  const lps = c.bazi.luckPillars
+  const { vedicMahadasha, ninestar, numerology, biorhythm, tibetan } = c
+
+  const decades = [
+    { age:'25â€“34', label:'à¸§à¸±à¸¢à¸ªà¸£à¹‰à¸²à¸‡à¸£à¸²à¸à¸à¸²à¸™', advice:'à¸¥à¸‡à¸—à¸¸à¸™à¸—à¸±à¸à¸©à¸°à¹à¸¥à¸°à¹€à¸„à¸£à¸·à¸­à¸‚à¹ˆà¸²à¸¢' },
+    { age:'35â€“44', label:'à¸§à¸±à¸¢à¸¥à¸‡à¸¡à¸·à¸­à¸ªà¸£à¹‰à¸²à¸‡', advice:'à¸‚à¸¢à¸²à¸¢à¸à¸´à¸ˆà¸à¸²à¸£à¹à¸¥à¸°à¸ªà¸£à¹‰à¸²à¸‡à¸Šà¸·à¹ˆà¸­à¹€à¸ªà¸µà¸¢à¸‡' },
+    { age:'45â€“54', label:'à¸§à¸±à¸¢à¹€à¸à¹‡à¸šà¹€à¸à¸µà¹ˆà¸¢à¸§', advice:'harvest à¸œà¸¥à¹à¸¥à¸°à¸¥à¸‡à¸—à¸¸à¸™à¸£à¸°à¸¢à¸°à¸¢à¸²à¸§' },
+    { age:'55â€“64', label:'à¸§à¸±à¸¢à¸–à¹ˆà¸²à¸¢à¸—à¸­à¸”', advice:'à¸ªà¸­à¸™à¹à¸¥à¸°à¸ªà¸£à¹‰à¸²à¸‡à¸¡à¸£à¸”à¸' },
+    { age:'65+', label:'à¸§à¸±à¸¢à¸›à¸±à¸à¸à¸²', advice:'à¸ªà¸¸à¸‚à¸ à¸²à¸žà¹à¸¥à¸°à¸„à¸§à¸²à¸¡à¸ªà¸‡à¸š' },
+  ]
+
+  return section(15, 'Decade by Decade â€” à¸¡à¸¸à¸¡à¸¡à¸­à¸‡ 5 à¸¨à¸²à¸ªà¸•à¸£à¹Œ', 'ðŸ“–', `
+    ${decades.map((d, i) => {
+      const ageStart = parseInt(d.age)
+      const ageEnd = parseInt(d.age.split('â€“')[1] || '999')
+      const lp = lps.find(lp => lp.ageEnd >= ageStart && lp.ageStart <= ageEnd) || lps[Math.min(i, lps.length-1)]
+      const isNow = currentAge >= ageStart && currentAge <= ageEnd
+      // NSK decade star
+      const nskStar = ((9 - ((ageStart + c.input.year - 1 - 1) % 9)) % 9) + 1
+      // PY pattern for decade start year
+      const decadeStartYear = c.input.year + ageStart
+      // Vedic: current dasha overlaps?
+      const dashaOverlap = vedicMahadasha.currentDashaEnd >= decadeStartYear
+      return `<div style="border:1px solid ${isNow?'#d4aa50':'#2a2010'};border-radius:8px;margin:8px 0;overflow:hidden">
+        <div style="background:${isNow?'#1e1a0e':'#141210'};padding:10px 14px;display:flex;justify-content:space-between">
+          <span style="font-weight:700;color:${isNow?'#d4aa50':'#9a8a72'}">${esc(d.age)} â€” ${esc(d.label)}</span>
+          ${isNow?'<span style="color:#d4aa50;font-size:11px">â–¶ à¸¢à¸¸à¸„à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™</span>':''}
+        </div>
+        <div style="padding:10px 14px;font-size:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>ðŸ”¥ <strong>BaZi LP:</strong> ${esc(lp.stem)}${esc(lp.branch)} ${esc(lp.stemTh)} ${esc(lp.branchTh)}</div>
+          <div>â­ <strong>NSK Decade:</strong> à¸”à¸²à¸§ ${nskStar} ${['','ä¸€ç™½','äºŒé»’','ä¸‰ç¢§','å››ç·‘','äº”é»„','å…­ç™½','ä¸ƒèµ¤','å…«ç™½','ä¹ç´«'][nskStar]||''}</div>
+          <div>ðŸ•‰ï¸ <strong>Vedic:</strong> ${esc(vedicMahadasha.currentDasha)}${dashaOverlap?' (active)':' (next cycle)'}</div>
+          <div>ðŸ”¢ <strong>Numerology PY:</strong> à¸›à¸µà¸—à¸µà¹ˆ ${ageStart} = PY${((decadeStartYear-1-c.input.year+1+c.input.month/12)%9)+1||9}</div>
+          <div style="grid-column:span 2;color:#9a8a72;margin-top:4px">ðŸ’¡ ${esc(d.advice)}</div>
+        </div>
+      </div>`
+    }).join('')}
+    ${box('à¸Šà¹ˆà¸§à¸‡à¸—à¸­à¸‡à¹ƒà¸™à¸Šà¸µà¸§à¸´à¸•', `Luck Pillar ${c.bazi.currentLuckPillar} (${c.bazi.currentLuckPillarTh}) + NSK Star ${ninestar.star} ${ninestar.starChinese} + Vedic ${vedicMahadasha.currentDasha} Dasha â†’ 3 à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸Šà¸µà¹‰à¸§à¹ˆà¸²à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™à¸„à¸·à¸­à¸Šà¹ˆà¸§à¸‡à¸ªà¸³à¸„à¸±à¸`, 'green')}
+  `)
+}
+
+function p20_colors(c: ChartData): string {
+  const { ninestar, bazi } = c
+  const lucky = [ninestar.starColor, bazi.luckyElement === 'à¹„à¸Ÿ' ? 'à¹à¸”à¸‡/à¸ªà¹‰à¸¡' : bazi.luckyElement === 'à¹„à¸¡à¹‰' ? 'à¹€à¸‚à¸µà¸¢à¸§' : bazi.luckyElement === 'à¸™à¹‰à¸³' ? 'à¸”à¸³/à¸™à¹‰à¸³à¹€à¸‡à¸´à¸™' : bazi.luckyElement === 'à¹‚à¸¥à¸«à¸°' ? 'à¸‚à¸²à¸§/à¹€à¸‡à¸´à¸™' : 'à¹€à¸«à¸¥à¸·à¸­à¸‡/à¸™à¹‰à¸³à¸•à¸²à¸¥']
+  const avoid = [bazi.avoidElement === 'à¹„à¸Ÿ' ? 'à¹à¸”à¸‡à¸ªà¸”' : bazi.avoidElement === 'à¸™à¹‰à¸³' ? 'à¸”à¸³' : bazi.avoidElement === 'à¹„à¸¡à¹‰' ? 'à¹€à¸‚à¸µà¸¢à¸§à¹€à¸‚à¹‰à¸¡' : bazi.avoidElement === 'à¹‚à¸¥à¸«à¸°' ? 'à¹€à¸‡à¸´à¸™à¹à¸—à¹‰' : 'à¹€à¸«à¸¥à¸·à¸­à¸‡à¸‰à¸¹à¸”à¸‰à¸²à¸”']
+
+  return section(20, 'à¸ªà¸µà¸¡à¸‡à¸„à¸¥à¹à¸¥à¸°à¸à¸²à¸£à¹à¸•à¹ˆà¸‡à¸•à¸±à¸§', 'ðŸ‘—', `
+    <h2>à¸ªà¸µà¸—à¸µà¹ˆà¹à¸™à¸°à¸™à¸³ (à¸ˆà¸²à¸ 2 à¸¨à¸²à¸ªà¸•à¸£à¹Œ)</h2>
+    <div class="grid-2">
+      ${lucky.map(c => `<div class="stat-card"><div class="val" style="font-size:16px">${esc(c)}</div><div class="lbl">à¸ªà¸µà¸¡à¸‡à¸„à¸¥</div></div>`).join('')}
+    </div>
+    <h2>à¸ªà¸µà¸—à¸µà¹ˆà¸„à¸§à¸£à¸¥à¸”à¸¥à¸‡</h2>
+    <div class="stat-card" style="border-color:#c01020">
+      <div class="val" style="font-size:16px;color:#f08080">${esc(avoid[0])}</div>
+      <div class="lbl">à¹ƒà¸Šà¹‰à¹„à¸”à¹‰ à¹à¸•à¹ˆà¹„à¸¡à¹ˆà¸„à¸§à¸£à¹€à¸›à¹‡à¸™à¸ªà¸µà¸«à¸¥à¸±à¸</div>
+    </div>
+    ${box('à¸„à¸³à¹à¸™à¸°à¸™à¸³à¸à¸²à¸£à¹à¸•à¹ˆà¸‡à¸à¸²à¸¢', `â€¢ à¹ƒà¸ªà¹ˆ${ninestar.starColor}à¹€à¸›à¹‡à¸™ accent à¸ªà¸µà¸«à¸¥à¸±à¸ 1 à¸Šà¸´à¹‰à¸™/à¸§à¸±à¸™<br>â€¢ à¸§à¸±à¸™à¸ªà¸³à¸„à¸±à¸: à¹ƒà¸ªà¹ˆà¸ªà¸µà¸¡à¸‡à¸„à¸¥à¹€à¸•à¹‡à¸¡à¸Šà¸¸à¸”<br>â€¢ à¸›à¸£à¸°à¸Šà¸¸à¸¡/à¸‚à¸­à¸‚à¸¶à¹‰à¸™à¹€à¸‡à¸´à¸™à¹€à¸”à¸·à¸­à¸™: ${lucky.join(' à¸«à¸£à¸·à¸­ ')}<br>â€¢ à¸­à¸±à¸à¸¡à¸“à¸µà¸™à¸³à¹‚à¸Šà¸„: ${c.celtic.gemstone}`, 'gold')}
+  `)
+}
+
+function p21_historicalFigures(c: ChartData): string {
+  // Figure pool â€” selected by Day Master element and Life Path
+  type Figure = {name:string;years:string;element:string;lifePath:number[];nsk:number[];why:string}
+  const FIGURE_POOL: Figure[] = [
+    { name:'Steve Jobs', years:'1955â€“2011', element:'à¹„à¸Ÿ', lifePath:[1,5,7], nsk:[1,4,9], why:`à¸œà¸¹à¹‰à¸šà¸¸à¸à¹€à¸šà¸´à¸à¸”à¹‰à¸§à¸¢à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™${c.bazi.dayMasterElement} + Life Path ${c.numerology.lifePath} + à¸„à¸§à¸²à¸¡à¸à¸¥à¹‰à¸²à¸—à¸³à¸¥à¸²à¸¢à¸à¸£à¸­à¸šà¹€à¸”à¸´à¸¡` },
+    { name:'Albert Einstein', years:'1879â€“1955', element:'à¹„à¸¡à¹‰', lifePath:[7,11,3], nsk:[3,6,9], why:`Life Path ${c.numerology.lifePath} à¸ªà¸¹à¹ˆà¸„à¸§à¸²à¸¡à¸ˆà¸£à¸´à¸‡à¸­à¸±à¸™à¸¥à¸¶à¸à¸‹à¸¶à¹‰à¸‡ + ${c.western.sunSignTh}à¸—à¸µà¹ˆà¹ƒà¸«à¹‰à¸›à¸±à¸à¸à¸²à¹à¸¥à¸°à¸ªà¸±à¸à¸Šà¸²à¸•à¸à¸²à¸“` },
+    { name:'Marie Curie', years:'1867â€“1934', element:'à¸™à¹‰à¸³', lifePath:[7,6,9], nsk:[1,8,6], why:`à¸„à¸§à¸²à¸¡à¸¥à¸¶à¸à¸‚à¸­à¸‡${c.bazi.dayMasterElement} + NSK ${c.ninestar.star} + à¸„à¸§à¸²à¸¡à¸­à¸”à¸—à¸™à¸ªà¸¹à¹ˆà¸„à¸§à¸²à¸¡à¸ªà¸³à¹€à¸£à¹‡à¸ˆà¸—à¸µà¹ˆà¸¢à¸´à¹ˆà¸‡à¹ƒà¸«à¸à¹ˆ` },
+    { name:'Leonardo da Vinci', years:'1452â€“1519', element:'à¹„à¸¡à¹‰', lifePath:[5,11,3], nsk:[3,4,9], why:`à¸„à¸£à¸µà¹€à¸­à¸—à¸µà¸Ÿà¸ªà¸¹à¸‡à¸ªà¸¸à¸”à¸ˆà¸²à¸${c.bazi.dayMasterElement} + Celtic ${c.celtic.treeName} + à¸„à¸§à¸²à¸¡à¸­à¸¢à¸²à¸à¸£à¸¹à¹‰à¹„à¸¡à¹ˆà¸ªà¸´à¹‰à¸™à¸ªà¸¸à¸”` },
+    { name:'Frida Kahlo', years:'1907â€“1954', element:'à¹„à¸Ÿ', lifePath:[3,9,6], nsk:[9,3,7], why:`à¸žà¸¥à¸±à¸‡à¸ªà¸£à¹‰à¸²à¸‡à¸ªà¸£à¸£à¸„à¹Œà¸ˆà¸²à¸à¸ à¸²à¸¢à¹ƒà¸™ + à¸˜à¸²à¸•à¸¸${c.bazi.dayMasterElement} + NSK ${c.ninestar.star} à¸—à¸µà¹ˆà¹‚à¸”à¸”à¹€à¸”à¹ˆà¸™` },
+    { name:'Nikola Tesla', years:'1856â€“1943', element:'à¹‚à¸¥à¸«à¸°', lifePath:[1,7,11], nsk:[1,7,4], why:`à¸”à¸²à¸§${c.ninestar.star} + à¸˜à¸²à¸•à¸¸${c.bazi.dayMasterElement} + Life Path ${c.numerology.lifePath} à¸œà¸ªà¸²à¸™à¸ˆà¸´à¸™à¸•à¸™à¸²à¸à¸²à¸£à¹à¸¥à¸°à¸§à¸´à¸—à¸¢à¸²à¸¨à¸²à¸ªà¸•à¸£à¹Œ` },
+    { name:'Coco Chanel', years:'1883â€“1971', element:'à¸”à¸´à¸™', lifePath:[8,4,1], nsk:[8,2,6], why:`à¸˜à¸²à¸•à¸¸${c.bazi.dayMasterElement} + NSK ${c.ninestar.star} à¸«à¸™à¸¸à¸™à¸£à¸ªà¸™à¸´à¸¢à¸¡à¹à¸¥à¸°à¸à¸²à¸£à¸ªà¸£à¹‰à¸²à¸‡à¸•à¸±à¸§à¸•à¸™` },
+    { name:'Laozi (è€å­)', years:'à¸£à¸²à¸§ 600 à¸›à¸µà¸à¹ˆà¸­à¸™ à¸„.à¸¨.', element:'à¸™à¹‰à¸³', lifePath:[7,9,4], nsk:[1,6,8], why:`à¸„à¸§à¸²à¸¡à¸¥à¸¶à¸à¸‚à¸­à¸‡à¸™à¹‰à¸³à¸˜à¸²à¸•à¸¸ + à¸›à¸±à¸à¸à¸²à¸—à¸µà¹ˆà¹€à¸à¸´à¸”à¸ˆà¸²à¸à¸à¸²à¸£à¸ªà¸±à¸‡à¹€à¸à¸• â€” Life Path ${c.numerology.lifePath}` },
+  ]
+  // Score each figure by matching: element match (+3), lifePath match (+2), nsk match (+2), base from chart
+  const dm = c.bazi.dayMasterElement
+  const lp = c.numerology.lifePath
+  const ns = c.ninestar.star
+  const scoredFigures = FIGURE_POOL.map(f => {
+    const matchPts = (f.element === dm ? 3 : 0) + (f.lifePath.includes(lp) ? 2 : 0) + (f.nsk.includes(ns) ? 2 : 0)
+    // Score = chart total adjusted for figure match (not hardcoded)
+    const figureScore = Math.min(999, Math.round(c.score.total * 0.9 + matchPts * 8 + (f.lifePath[0] * 3)))
+    return { ...f, score: figureScore, matchPts }
+  })
+  const figures = scoredFigures.sort((a,b) => b.matchPts - a.matchPts).slice(0, 4)
+  return section(21, 'à¸šà¸¸à¸„à¸„à¸¥à¸›à¸£à¸°à¸§à¸±à¸•à¸´à¸¨à¸²à¸ªà¸•à¸£à¹Œ â€” à¸”à¸§à¸‡à¸„à¸¥à¹‰à¸²à¸¢à¸„à¸¸à¸“', 'ðŸ›ï¸', `
+    <p style="margin-bottom:12px">à¸„à¸±à¸”à¹€à¸¥à¸·à¸­à¸à¸ˆà¸²à¸à¸¥à¸±à¸à¸©à¸“à¸°à¸Šà¸²à¸£à¹Œà¸•à¸—à¸µà¹ˆà¸„à¸¥à¹‰à¸²à¸¢à¸à¸±à¸™ â€” à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¸à¸²à¸£à¸—à¸³à¸™à¸²à¸¢à¸§à¹ˆà¸²à¸ˆà¸°à¹€à¸›à¹‡à¸™à¹à¸šà¸šà¸žà¸§à¸à¹€à¸‚à¸² à¹à¸•à¹ˆà¹à¸ªà¸”à¸‡à¹ƒà¸«à¹‰à¹€à¸«à¹‡à¸™à¸§à¹ˆà¸²à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸™à¸µà¹‰à¸™à¸³à¹„à¸›à¸ªà¸¹à¹ˆà¸­à¸°à¹„à¸£à¹„à¸”à¹‰</p>
+    ${figures.map(f => `
+      <div style="border:1px solid #2a2010;border-radius:8px;margin:10px 0;overflow:hidden">
+        <div style="background:#151210;padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <span style="font-weight:700;color:#d4aa50">${esc(f.name)}</span>
+            <span style="font-size:11px;color:#6a5a42;margin-left:8px">${esc(f.years)}</span>
+          </div>
+          <span style="font-size:18px;font-weight:700;color:#d4aa50">${f.score}</span>
+        </div>
+        <div style="padding:10px 14px;font-size:12px;color:#9a8a72">${esc(f.why)}</div>
+      </div>`).join('')}
+  `)
+}
+
+function p22_painPoints(c: ChartData): string {
+  const points = [
+    { icon:'â¤ï¸', topic:'à¸„à¸§à¸²à¸¡à¸£à¸±à¸', challenge:`${c.western.moonSignTh}à¸”à¸§à¸‡à¸ˆà¸±à¸™à¸—à¸£à¹Œà¸—à¸³à¹ƒà¸«à¹‰à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¸„à¸§à¸²à¸¡à¸¡à¸±à¹ˆà¸™à¸„à¸‡à¸—à¸²à¸‡à¸­à¸²à¸£à¸¡à¸“à¹Œ à¹à¸•à¹ˆ ${c.bazi.dayMasterElement}à¸­à¸²à¸ˆà¸—à¸³à¹ƒà¸«à¹‰à¹à¸ªà¸”à¸‡à¸­à¸­à¸à¸¢à¸²à¸`, solution:'à¸à¸¶à¸à¸šà¸­à¸à¸„à¸§à¸²à¸¡à¸£à¸¹à¹‰à¸ªà¸¶à¸à¸•à¸£à¸‡à¹† à¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¸•à¹‰à¸­à¸‡à¸£à¸­à¹ƒà¸«à¹‰à¸­à¸µà¸à¸à¹ˆà¸²à¸¢à¸–à¸²à¸¡' },
+    { icon:'ðŸ’¼', topic:'à¸à¸²à¸£à¸‡à¸²à¸™', challenge:`${c.humandesign.typeTh} à¸¡à¸±à¸à¸£à¸¹à¹‰à¸ªà¸¶à¸à¹€à¸«à¸™à¸·à¹ˆà¸­à¸¢à¹€à¸¡à¸·à¹ˆà¸­à¸•à¹‰à¸­à¸‡à¸—à¸³à¸‡à¸²à¸™à¸‚à¸±à¸”à¸à¸±à¸š Strategy (${c.humandesign.strategy})`, solution:`à¸¥à¸­à¸‡à¸—à¸³à¸•à¸²à¸¡ Strategy "${c.humandesign.strategy}" à¸­à¸¢à¹ˆà¸²à¸‡à¸ˆà¸£à¸´à¸‡à¸ˆà¸±à¸‡ 90 à¸§à¸±à¸™` },
+    { icon:'ðŸŒ¿', topic:'à¸ªà¸¸à¸‚à¸ à¸²à¸ž', challenge:`à¸˜à¸²à¸•à¸¸${c.bazi.missingElement || 'à¸”à¸´à¸™'}à¸—à¸µà¹ˆà¸‚à¸²à¸”à¸­à¸²à¸ˆà¸ªà¹ˆà¸‡à¸œà¸¥à¸•à¹ˆà¸­à¸£à¸°à¸šà¸šà¸£à¹ˆà¸²à¸‡à¸à¸²à¸¢à¸—à¸µà¹ˆà¹€à¸à¸µà¹ˆà¸¢à¸§à¸‚à¹‰à¸­à¸‡`, solution:`à¹€à¸ªà¸£à¸´à¸¡à¸˜à¸²à¸•à¸¸${c.bazi.missingElement || 'à¸”à¸´à¸™'}à¸œà¹ˆà¸²à¸™à¸ªà¸µ à¸­à¸²à¸«à¸²à¸£ à¹à¸¥à¸°à¸­à¸­à¸à¸à¸³à¸¥à¸±à¸‡à¸à¸²à¸¢à¸—à¸µà¹ˆà¹€à¸«à¸¡à¸²à¸°` },
+    { icon:'ðŸ¤”', topic:'à¸à¸²à¸£à¸•à¸±à¸”à¸ªà¸´à¸™à¹ƒà¸ˆ', challenge:`${c.humandesign.authority} Authority à¸•à¹‰à¸­à¸‡à¸à¸²à¸£à¹€à¸§à¸¥à¸²à¸à¹ˆà¸­à¸™à¸•à¸±à¸”à¸ªà¸´à¸™à¹ƒà¸ˆ à¹à¸•à¹ˆà¸ªà¸±à¸‡à¸„à¸¡à¸¡à¸±à¸à¸à¸”à¸”à¸±à¸™à¹ƒà¸«à¹‰à¸£à¸µà¸š`, solution:'à¹ƒà¸Šà¹‰à¸à¸Ž 24 à¸Šà¸±à¹ˆà¸§à¹‚à¸¡à¸‡à¸—à¸¸à¸à¸„à¸£à¸±à¹‰à¸‡à¸ªà¸³à¸«à¸£à¸±à¸šà¸à¸²à¸£à¸•à¸±à¸”à¸ªà¸´à¸™à¹ƒà¸ˆà¸ªà¸³à¸„à¸±à¸' },
+    { icon:'ðŸªž', topic:'à¸£à¸¹à¹‰à¸ˆà¸±à¸à¸•à¸±à¸§à¹€à¸­à¸‡', challenge:`Profile ${c.humandesign.profile} à¸šà¸²à¸‡à¸„à¸£à¸±à¹‰à¸‡à¸£à¸¹à¹‰à¸ªà¸¶à¸à¸§à¹ˆà¸²à¸•à¸±à¸§à¹€à¸­à¸‡à¹„à¸¡à¹ˆ fit à¸à¸±à¸šà¹à¸¡à¹ˆà¹à¸šà¸šà¸—à¸µà¹ˆà¸ªà¸±à¸‡à¸„à¸¡à¸„à¸²à¸”à¸«à¸§à¸±à¸‡`, solution:c.humandesign.profileDesc },
+  ]
+  return section(22, '5 Pain Points â€” à¸ˆà¸¸à¸”à¸—à¸µà¹ˆà¸”à¸§à¸‡à¸šà¸­à¸à¸§à¹ˆà¸²à¸•à¹‰à¸­à¸‡à¸£à¸°à¸§à¸±à¸‡', 'âš¡', `
+    ${points.map(p => `
+      <div style="border-left:3px solid #8a3040;padding:10px 14px;margin:10px 0;background:#1a0a0a;border-radius:0 8px 8px 0">
+        <div style="font-size:15px;font-weight:700;color:#d4aa50;margin-bottom:6px">${p.icon} ${esc(p.topic)}</div>
+        <div style="font-size:12px;color:#f0a090;margin-bottom:6px"><strong>à¸„à¸§à¸²à¸¡à¸—à¹‰à¸²à¸—à¸²à¸¢:</strong> ${esc(p.challenge)}</div>
+        <div style="font-size:12px;color:#90f0a0"><strong>à¸§à¸´à¸˜à¸µà¸£à¸±à¸šà¸¡à¸·à¸­:</strong> ${esc(p.solution)}</div>
+      </div>`).join('')}
+  `)
+}
+
+function p23_forecast10yr(c: ChartData): string {
+  const startYear = 2026
+  const years = Array.from({length:10}, (_,i) => startYear + i)
+  const { bazi, numerology } = c
+  return section(23, 'à¸žà¸¢à¸²à¸à¸£à¸“à¹Œ 10 à¸›à¸µ 2026â€“2035', 'ðŸ”­', `
+    <table>
+      <thead><tr><th>à¸›à¸µ</th><th>PY</th><th>NSK</th><th>à¹à¸™à¸§à¹‚à¸™à¹‰à¸¡</th></tr></thead>
+      <tbody>
+        ${years.map(y => {
+          const py = ((numerology.personalYear2026 - 1 + (y - 2026)) % 9) + 1
+          const nsk = ((9 - (y - 2026)) % 9) || 9
+          const good = py === 1||py===8||py===3 ? 'ðŸŸ¢' : py===4||py===7 ? 'ðŸ”´' : 'ðŸŸ¡'
+          return `<tr>
+            <td style="font-weight:600">${y}</td>
+            <td style="color:#d4aa50">PY ${py}</td>
+            <td style="font-size:11px;color:#9a8a72">Star ${nsk}</td>
+            <td>${good} ${py===1?'à¹€à¸£à¸´à¹ˆà¸¡à¸•à¹‰à¸™à¹ƒà¸«à¸¡à¹ˆ':py===2?'à¸ªà¸£à¹‰à¸²à¸‡à¸„à¸§à¸²à¸¡à¸ªà¸±à¸¡à¸žà¸±à¸™à¸˜à¹Œ':py===3?'à¸ªà¸·à¹ˆà¸­à¸ªà¸²à¸£à¸‚à¸¢à¸²à¸¢':py===4?'à¸—à¸³à¸‡à¸²à¸™à¸«à¸™à¸±à¸':py===5?'à¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¹à¸›à¸¥à¸‡':py===6?'à¸„à¸£à¸­à¸šà¸„à¸£à¸±à¸§':py===7?'à¸žà¸±à¸à¸Ÿà¸·à¹‰à¸™':py===8?'à¹€à¸à¹‡à¸šà¹€à¸à¸µà¹ˆà¸¢à¸§':'à¸ªà¸£à¸¸à¸›à¸›à¸´à¸”à¸‰à¸²à¸'}</td>
+          </tr>`}).join('')}
+      </tbody>
+    </table>
+    <p style="font-size:11px;color:#6a5a42;margin-top:8px">PY = Personal Year | ðŸŸ¢ à¸”à¸µ ðŸŸ¡ à¸›à¸²à¸™à¸à¸¥à¸²à¸‡ ðŸ”´ à¸£à¸°à¸§à¸±à¸‡</p>
+    ${box('à¸Šà¹ˆà¸§à¸‡à¸—à¸­à¸‡', `à¸›à¸µ ${years.filter((_,i) => {const py=((numerology.personalYear2026-1+i)%9)+1; return py===1||py===8||py===3}).slice(0,3).join(', ')} â€” Personal Year à¸—à¸µà¹ˆà¸”à¸µà¸—à¸µà¹ˆà¸ªà¸¸à¸”à¹ƒà¸™à¸£à¸­à¸š 10 à¸›à¸µ`, 'green')}
+  `)
+}
+
+function p24_pets(c: ChartData): string {
+  const petMap: Record<string, Array<{animal:string;why:string}>> = {
+    'à¹„à¸Ÿ': [{animal:'ðŸ± à¹à¸¡à¸§',why:'à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸­à¸´à¸ªà¸£à¸°à¹à¸¥à¸°à¸„à¸§à¸²à¸¡à¸­à¸šà¸­à¸¸à¹ˆà¸™ à¹€à¸‚à¹‰à¸²à¸à¸±à¸šà¸˜à¸²à¸•à¸¸à¹„à¸Ÿ'},{animal:'ðŸ¦œ à¸™à¸à¹à¸à¹‰à¸§',why:'à¸ªà¸·à¹ˆà¸­à¸ªà¸²à¸£à¹€à¸à¹ˆà¸‡ à¹€à¸žà¸´à¹ˆà¸¡à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸šà¹‰à¸²à¸™'},{animal:'ðŸ  à¸›à¸¥à¸²à¸—à¸­à¸‡',why:'à¹€à¸ªà¸£à¸´à¸¡à¸˜à¸²à¸•à¸¸à¸™à¹‰à¸³à¸—à¸µà¹ˆà¸‚à¸²à¸”'},{animal:'ðŸ‡ à¸à¸£à¸°à¸•à¹ˆà¸²à¸¢',why:'à¸˜à¸²à¸•à¸¸à¹„à¸¡à¹‰à¸«à¸™à¸¸à¸™à¹„à¸Ÿ à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸­à¹ˆà¸­à¸™à¹‚à¸¢à¸™'}],
+    'à¹„à¸¡à¹‰': [{animal:'ðŸ¶ à¸ªà¸¸à¸™à¸±à¸‚',why:'à¸‹à¸·à¹ˆà¸­à¸ªà¸±à¸•à¸¢à¹Œ à¹€à¸žà¸´à¹ˆà¸¡à¸žà¸¥à¸±à¸‡à¸”à¸´à¸™'},{animal:'ðŸ  à¸›à¸¥à¸²',why:'à¸™à¹‰à¸³à¸«à¸™à¸¸à¸™à¹„à¸¡à¹‰'},{animal:'ðŸ¢ à¹€à¸•à¹ˆà¸²',why:'à¸”à¸´à¸™à¹€à¸ªà¸£à¸´à¸¡à¸£à¸²à¸à¸à¸²à¸™'},{animal:'ðŸ¦œ à¸™à¸',why:'à¸­à¸²à¸à¸²à¸¨à¹€à¸žà¸´à¹ˆà¸¡à¸„à¸§à¸²à¸¡à¸ªà¸”à¸Šà¸·à¹ˆà¸™'}],
+    'à¸™à¹‰à¸³': [{animal:'ðŸ  à¸•à¸¹à¹‰à¸›à¸¥à¸²',why:'à¹€à¸žà¸´à¹ˆà¸¡à¸™à¹‰à¸³à¹ƒà¸™à¸šà¹‰à¸²à¸™'},{animal:'ðŸ¢ à¹€à¸•à¹ˆà¸²',why:'à¸”à¸´à¸™à¸ªà¸¡à¸”à¸¸à¸¥à¸™à¹‰à¸³'},{animal:'ðŸ¶ à¸ªà¸¸à¸™à¸±à¸‚',why:'à¸”à¸´à¸™à¸”à¸¹à¸”à¸‹à¸±à¸šà¸™à¹‰à¸³à¸ªà¹ˆà¸§à¸™à¹€à¸à¸´à¸™'},{animal:'ðŸ± à¹à¸¡à¸§',why:'à¹„à¸Ÿà¹€à¸ªà¸£à¸´à¸¡à¸™à¹‰à¸³'}],
+    'à¹‚à¸¥à¸«à¸°': [{animal:'ðŸŸ à¸›à¸¥à¸²',why:'à¸™à¹‰à¸³à¹€à¸žà¸´à¹ˆà¸¡à¸„à¸§à¸²à¸¡à¸¢à¸·à¸”à¸«à¸¢à¸¸à¹ˆà¸™'},{animal:'ðŸ‡ à¸à¸£à¸°à¸•à¹ˆà¸²à¸¢',why:'à¹„à¸¡à¹‰à¸”à¸¹à¸”à¸‹à¸±à¸šà¹‚à¸¥à¸«à¸°'},{animal:'ðŸ¹ à¹à¸®à¸¡à¸ªà¹€à¸•à¸­à¸£à¹Œ',why:'à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¹€à¸šà¸²à¸ªà¸šà¸²à¸¢'},{animal:'ðŸ± à¹à¸¡à¸§',why:'à¹„à¸Ÿà¸«à¸¥à¸­à¸¡à¹‚à¸¥à¸«à¸°'}],
+    'à¸”à¸´à¸™': [{animal:'ðŸ¶ à¸ªà¸¸à¸™à¸±à¸‚',why:'à¹€à¸ªà¸£à¸´à¸¡à¸”à¸´à¸™à¹à¸¥à¸°à¸„à¸§à¸²à¸¡à¸¡à¸±à¹ˆà¸™à¸„à¸‡'},{animal:'ðŸ± à¹à¸¡à¸§',why:'à¹„à¸Ÿà¸«à¸™à¸¸à¸™à¸”à¸´à¸™'},{animal:'ðŸŒµ à¸à¸£à¸°à¸šà¸­à¸‡à¹€à¸žà¸Šà¸£',why:'à¹„à¸¡à¹‰à¸„à¸§à¸šà¸„à¸¸à¸¡à¸”à¸´à¸™'},{animal:'ðŸ¢ à¹€à¸•à¹ˆà¸²',why:'à¸”à¸´à¸™à¸ªà¸­à¸‡à¸Šà¸±à¹‰à¸™'}],
+  }
+  const pets = petMap[c.bazi.dayMasterElement] ?? petMap['à¸”à¸´à¸™']
+  return section(24, 'à¸ªà¸±à¸•à¸§à¹Œà¹€à¸¥à¸µà¹‰à¸¢à¸‡à¸¡à¸‡à¸„à¸¥à¸•à¸²à¸¡à¸”à¸§à¸‡', 'ðŸ¾', `
+    <p style="margin-bottom:12px">à¹€à¸¥à¸·à¸­à¸à¸ˆà¸²à¸à¸˜à¸²à¸•à¸¸ Day Master (${c.bazi.dayMasterElement}) à¹à¸¥à¸°à¸˜à¸²à¸•à¸¸à¸—à¸µà¹ˆà¸‚à¸²à¸” (${c.bazi.missingElement || 'à¸„à¸£à¸š'})</p>
+    ${pets.map(p => `
+      <div style="border:1px solid #2a2010;border-radius:8px;padding:12px;margin:8px 0;display:flex;gap:12px">
+        <span style="font-size:28px">${p.animal.split(' ')[0]}</span>
+        <div>
+          <div style="font-weight:600;color:#d4aa50">${esc(p.animal.split(' ').slice(1).join(' '))}</div>
+          <div style="font-size:12px;color:#9a8a72;margin-top:4px">${esc(p.why)}</div>
+        </div>
+      </div>`).join('')}
+  `)
+}
+
+function p25_summary(c: ChartData): string {
+  const { score, bazi, numerology, ninestar, western } = c
+  return section(25, 'à¸ªà¸£à¸¸à¸›à¸ à¸²à¸žà¸£à¸§à¸¡à¹à¸¥à¸°à¸„à¸³à¸ªà¹ˆà¸‡à¸—à¹‰à¸²à¸¢', 'âœ¨', `
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:48px;font-weight:700;color:#d4aa50">${score.total}</div>
+      <div style="font-size:16px;color:#f0e8d0;margin-top:4px">${esc(score.tier)}</div>
+      <div style="font-size:12px;color:#9a8a72">${esc(score.percentile)} à¸‚à¸­à¸‡à¹‚à¸¥à¸</div>
+    </div>
+
+    ${box('à¸ˆà¸¸à¸”à¹à¸‚à¹‡à¸‡à¸«à¸¥à¸±à¸', [
+      `â€¢ à¸˜à¸²à¸•à¸¸${bazi.dayMasterElement} Day Master ${bazi.dayStem} â€” ${bazi.reading.substring(0,60)}...`,
+      `â€¢ ${ninestar.starChinese} â€” ${ninestar.reading.substring(0,50)}...`,
+      `â€¢ Life Path ${numerology.lifePath} â€” ${numerology.lifePathName}`,
+    ].join('<br>'), 'gold')}
+
+    ${box('à¸„à¸§à¸²à¸¡à¸—à¹‰à¸²à¸—à¸²à¸¢à¸«à¸¥à¸±à¸', [
+      `â€¢ à¸˜à¸²à¸•à¸¸à¸—à¸µà¹ˆà¸‚à¸²à¸”: ${bazi.missingElement || 'à¸„à¸£à¸š'} â€” à¸•à¹‰à¸­à¸‡à¹€à¸ªà¸£à¸´à¸¡à¸ˆà¸²à¸à¸ à¸²à¸¢à¸™à¸­à¸`,
+      `â€¢ à¸«à¸¥à¸µà¸à¹€à¸¥à¸µà¹ˆà¸¢à¸‡à¸˜à¸²à¸•à¸¸: ${bazi.avoidElement}`,
+      `â€¢ à¸à¸¥à¸¢à¸¸à¸—à¸˜à¹Œ: "${c.humandesign.strategy}" â€” à¸à¸·à¸™à¸ªà¸´à¹ˆà¸‡à¸™à¸µà¹‰à¸„à¸·à¸­à¹€à¸«à¸™à¸·à¹ˆà¸­à¸¢à¹€à¸›à¸¥à¹ˆà¸²`,
+    ].join('<br>'), 'dark')}
+
+    ${box('à¸Šà¹ˆà¸§à¸‡à¸—à¸­à¸‡à¹ƒà¸™à¸Šà¸µà¸§à¸´à¸•', `Luck Pillar ${bazi.currentLuckPillar} (${bazi.currentLuckPillarTh}) + Personal Year 2026: ${numerology.personalYear2026} + NSK Star ${ninestar.star} â†’ à¸Šà¹ˆà¸§à¸‡à¸™à¸µà¹‰à¹€à¸›à¹‡à¸™à¸«à¸™à¸¶à¹ˆà¸‡à¹ƒà¸™à¸Šà¹ˆà¸§à¸‡à¸—à¸µà¹ˆà¸ªà¸³à¸„à¸±à¸à¸—à¸µà¹ˆà¸ªà¸¸à¸”à¹ƒà¸™à¸Šà¸µà¸§à¸´à¸•à¸„à¸¸à¸“`, 'green')}
+
+    <div style="text-align:center;margin:24px 0;padding:20px;background:#1a1510;border:1px solid #3a3020;border-radius:12px">
+      <div style="font-size:14px;color:#d4aa50;font-weight:600;margin-bottom:8px">âœ¦ à¸„à¸³à¸ªà¹ˆà¸‡à¸—à¹‰à¸²à¸¢ âœ¦</div>
+      <div style="font-size:13px;color:#c8c0a8;line-height:1.9">
+        à¸”à¸§à¸‡à¸Šà¸°à¸•à¸²à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¹‚à¸Šà¸„à¸Šà¸°à¸•à¸²à¸—à¸µà¹ˆà¸•à¸²à¸¢à¸•à¸±à¸§<br>
+        à¸¡à¸±à¸™à¸„à¸·à¸­à¹à¸œà¸™à¸—à¸µà¹ˆà¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸—à¸µà¹ˆà¸Šà¹ˆà¸§à¸¢à¹ƒà¸«à¹‰à¸„à¸¸à¸“à¹€à¸‚à¹‰à¸²à¹ƒà¸ˆà¸•à¸±à¸§à¹€à¸­à¸‡à¹à¸¥à¸°à¹€à¸¥à¸·à¸­à¸à¸—à¸²à¸‡à¹„à¸”à¹‰à¸‰à¸¥à¸²à¸”à¸‚à¸¶à¹‰à¸™<br>
+        <strong style="color:#d4aa50">${esc(score.cosmicEntity)}</strong><br>
+        â€” à¸™à¸µà¹ˆà¸„à¸·à¸­à¸ªà¸±à¸à¸¥à¸±à¸à¸©à¸“à¹Œà¸ˆà¸±à¸à¸£à¸§à¸²à¸¥à¸‚à¸­à¸‡à¸„à¸¸à¸“ à¸ˆà¸‡à¹€à¸”à¸´à¸™à¹„à¸›à¸”à¹‰à¸§à¸¢à¸„à¸§à¸²à¸¡à¸¡à¸±à¹ˆà¸™à¹ƒà¸ˆ
+      </div>
+    </div>
+
+    <div style="font-size:11px;color:#6a5a42;text-align:center;border-top:1px solid #2a2010;padding-top:12px;line-height:1.8">
+      à¸£à¸²à¸¢à¸‡à¸²à¸™à¸™à¸µà¹‰à¸ªà¸£à¹‰à¸²à¸‡à¹‚à¸”à¸¢ AI à¹‚à¸”à¸¢à¸™à¸³ 26 à¸¨à¸²à¸ªà¸•à¸£à¹Œà¹‚à¸šà¸£à¸²à¸“à¸¡à¸²à¸§à¸´à¹€à¸„à¸£à¸²à¸°à¸«à¹Œà¸«à¸²à¸ˆà¸¸à¸”à¸£à¹ˆà¸§à¸¡<br>
+      à¹€à¸žà¸·à¹ˆà¸­à¸„à¸§à¸²à¸¡à¸šà¸±à¸™à¹€à¸—à¸´à¸‡à¹à¸¥à¸°à¸à¸²à¸£à¸ªà¸³à¸£à¸§à¸ˆà¸•à¸™à¹€à¸­à¸‡ à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¸„à¸³à¹à¸™à¸°à¸™à¸³à¸§à¸´à¸Šà¸²à¸Šà¸µà¸žà¸”à¹‰à¸²à¸™à¸à¸²à¸£à¹à¸žà¸—à¸¢à¹Œ à¸à¸Žà¸«à¸¡à¸²à¸¢ à¸«à¸£à¸·à¸­à¸à¸²à¸£à¹€à¸‡à¸´à¸™<br>
+      Â© Mythsensus Â· mythsensus.com
+    </div>
+  `)
+}
+
+// â”€â”€ MAIN EXPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export function generateReport(c: ChartData): string {
+  _pageNum = 0  // reset counter for each report
+  const pages = [
+    // â”€â”€â”€ 1-4: Front matter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    p01_cover,           // 1. à¸›à¸ + Cosmic Score + 3-score preview
+    p_threeScores,       // 2. Soul Frequency (petroleum) deep dive
+    p02_scoreBreakdown,  // 3. 26-system consensus (ðŸŒŸã€°âš  grouped)
+    p03_convergence,     // 4. Grand Convergence (8 themes Ã— 26 systems)
+    // â”€â”€â”€ 5-9: Born Chart deep-dive (5 systems) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    p05_bazi,            // 5. BaZi à¸ªà¸µà¹ˆà¹€à¸ªà¸²
+    p06_ninestar,        // 6. Nine Star Ki
+    p04_western,         // 7. Western Astrology
+    p07_vedic,           // 8. Vedic Jyotish
+    p12_numerology,      // 9. Numerology (LP + Thai7)
+    // â”€â”€â”€ 10-13: Original 4 systems â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    p08_energyType,      // 10. Energy Type System
+    p09_mayan,           // 11. Mayan Tzolk'in
+    p10_celtic,          // 12. Celtic Tree
+    p11_thai,            // 13. Thai Brahmin
+    // â”€â”€â”€ 14-29: 16 New Systems (each own page) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    p_saju,              // 14. Saju (Korean)
+    p_tibetan,           // 15. Tibetan Mewa & Parkha
+    p_ziwei,             // 16. Zi Wei Dou Shu
+    p_onmyodo,           // 17. OnmyÅdÅ
+    p_hellenistic,       // 18. Hellenistic Astrology
+    p_norseRune,         // 19. Norse Rune
+    p_ogham,             // 20. Ogham
+    p_arabicParts,       // 21. Arabic Parts
+    p_kabbalistic,       // 22. Kabbalistic
+    p_zoroastrian,       // 23. Zoroastrian
+    p_aztec,             // 24. Aztec Tonalpohualli
+    p_nativeAmerican,    // 25. Native American Totem
+    p_ifaYoruba,         // 26. Ifa/Yoruba
+    p_aboriginal,        // 27. Aboriginal Dreamtime
+    p_biorhythm,         // 28. Biorhythm
+    p_vedicMahadasha,    // 29. Vedic Mahadasha
+    // â”€â”€â”€ 30-35: Life guidance (multi-system) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    p13_luckPillars,     // 30. 80-Year Path (BaZi+Vedic+NSK+Numerology)
+    p19_decade,          // 31. Decade by Decade
+    p18_monthly2026,     // 32. Monthly 2026 (NSK+Biorhythm+PY)
+    p23_forecast10yr,    // 33. 10-Year Forecast
+    p16_activation,      // 34. Activation Plan (all 26 systems)
+    p17_weekly,          // 35. Weekly Plan
+    // â”€â”€â”€ 36-42: Lifestyle & closing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    p14_health,          // 36. Health (multi-system)
+    p15_finance,         // 37. Finance (multi-system)
+    p20_colors,          // 38. à¸ªà¸µà¸¡à¸‡à¸„à¸¥
+    p24_pets,            // 39. à¸ªà¸±à¸•à¸§à¹Œà¹€à¸¥à¸µà¹‰à¸¢à¸‡
+    p21_historicalFigures, // 40. Historical Figures
+    p22_painPoints,      // 41. 5 Pain Points
+    p25_summary,         // 42. Summary + Disclaimer
+  ].map(fn => fn(c)).join('\n')
+
+  return `<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cosmic Blueprint â€” ${esc(c.input.name)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>${CSS}</style>
+</head>
+<body>
+${pages}
+</body>
+</html>`
+}
+
+// ============================================================
+// â”€â”€ CONSENSUS HELPER FUNCTIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Aggregate signals across all 26 systems for true majority opinion
+// ============================================================
+
+type SystemSignal = { system: string; score: number; finding: string; category: string; value: string }
+
+/** Extract structured signals from all 26 systems for a given topic */
+function extractSignals(c: ChartData, topic: 'health'|'finance'|'timing'|'element'|'strength'|'warning'): SystemSignal[] {
+  const { bazi, western, ninestar, vedic, humandesign, mayan, celtic, thai, numerology,
+          saju, tibetan, ziwei, onmyodo, hellenistic, norseRune, ogham, arabicParts,
+          kabbalistic, zoroastrian, aztec, nativeAmerican, ifaYoruba, aboriginal, biorhythm, vedicMahadasha } = c
+
+  const all: SystemSignal[] = []
+  const EL_MAP: Record<string,string> = {'à¹„à¸¡à¹‰':'Wood','à¹„à¸Ÿ':'Fire','à¸”à¸´à¸™':'Earth','à¹‚à¸¥à¸«à¸°':'Metal','à¸™à¹‰à¸³':'Water'}
+  const SHENG: Record<string,string> = {Wood:'Fire',Fire:'Earth',Earth:'Metal',Metal:'Water',Water:'Wood'}
+  const dmEl = bazi.dayMasterElement
+
+  if (topic === 'element') {
+    all.push(
+      { system:'BaZi', score:bazi.score, finding:`Day Master ${bazi.dayMasterTh} à¸˜à¸²à¸•à¸¸${dmEl}`, category:'element', value:dmEl },
+      { system:'Nine Star Ki', score:ninestar.score, finding:`Star ${ninestar.star} à¸˜à¸²à¸•à¸¸${ninestar.starElement}`, category:'element', value:ninestar.starElement },
+      { system:'Western', score:western.score, finding:`Sun ${western.sunSignTh}`, category:'element', value:western.sunSignTh },
+      { system:'Vedic', score:vedic.score, finding:`Nakshatra ${vedic.moonNakshatra}`, category:'element', value:vedic.moonNakshatra.split(' ')[0] },
+      { system:'Celtic', score:celtic.score, finding:`${celtic.treeNameTh} à¸˜à¸²à¸•à¸¸${celtic.element}`, category:'element', value:celtic.element },
+      { system:'Tibetan', score:tibetan.score, finding:`Mewa ${tibetan.mewa} à¸˜à¸²à¸•à¸¸${tibetan.mewaElement}`, category:'element', value:tibetan.mewaElement },
+      { system:'Zoroastrian', score:zoroastrian.score, finding:`${zoroastrian.dayYazataTh}`, category:'element', value:zoroastrian.dayYazataTh },
+    )
+  }
+
+  if (topic === 'health') {
+    const healthEl = bazi.missingElement.split(' ')[0] || 'à¸”à¸´à¸™'
+    all.push(
+      { system:'BaZi', score:bazi.score, finding:`à¸˜à¸²à¸•à¸¸à¸‚à¸²à¸” ${bazi.missingElement} à¸„à¸§à¸£à¹€à¸ªà¸£à¸´à¸¡à¸œà¹ˆà¸²à¸™à¸ªà¸µà¹à¸¥à¸°à¸­à¸²à¸«à¸²à¸£`, category:'health', value:healthEl },
+      { system:'Nine Star Ki', score:ninestar.score, finding:`à¸—à¸´à¸¨à¸™à¸­à¸™ ${ninestar.directionSleep} à¹€à¸ªà¸£à¸´à¸¡à¸ªà¸¸à¸‚à¸ à¸²à¸ž`, category:'health', value:ninestar.directionSleep },
+      { system:'Vedic', score:vedic.score, finding:`${vedic.mahadasha} Dasha: ${vedicMahadasha.dashaQuality}`, category:'health', value:vedicMahadasha.dashaElement },
+      { system:'Biorhythm', score:biorhythm.score, finding:`Physical ${biorhythm.physical}% (${biorhythm.physicalPhase})`, category:'health', value:biorhythm.physicalPhase },
+      { system:'Celtic', score:celtic.score, finding:`à¸•à¹‰à¸™${celtic.treeNameTh} â€” gem ${celtic.gemstone}`, category:'health', value:celtic.gemstone },
+      { system:'Energy Type', score:humandesign.score, finding:`Strategy "${humandesign.strategy}" à¸¥à¸”à¸à¸²à¸£à¸•à¹‰à¸²à¸™à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™`, category:'health', value:humandesign.strategy },
+      { system:'Native American', score:nativeAmerican.score, finding:`${nativeAmerican.birthTotemTh} à¸˜à¸²à¸•à¸¸${nativeAmerican.element}`, category:'health', value:nativeAmerican.element },
+      { system:'Tibetan', score:tibetan.score, finding:`Mewa ${tibetan.mewa} à¸˜à¸²à¸•à¸¸${tibetan.mewaElement}`, category:'health', value:tibetan.mewaElement },
+      { system:'à¹„à¸—à¸¢à¸žà¸£à¸²à¸«à¸¡à¸“à¹Œ', score:thai.score, finding:`à¸ªà¸µà¸¡à¸‡à¸„à¸¥${thai.dayColor} à¸§à¸±à¸™${thai.dayName}`, category:'health', value:thai.dayColor },
+      { system:'Zoroastrian', score:zoroastrian.score, finding:`${zoroastrian.dayYazataTh} à¸›à¸à¸„à¸£à¸­à¸‡à¸ªà¸¸à¸‚à¸ à¸²à¸ž`, category:'health', value:zoroastrian.harmony?'à¸ªà¸¡à¸”à¸¸à¸¥':'à¸•à¹‰à¸­à¸‡à¸ªà¸£à¹‰à¸²à¸‡à¸ªà¸¡à¸”à¸¸à¸¥' },
+    )
+  }
+
+  if (topic === 'finance') {
+    all.push(
+      { system:'BaZi', score:bazi.score, finding:`à¸˜à¸²à¸•à¸¸à¸¡à¸‡à¸„à¸¥ ${bazi.luckyElement}`, category:'finance', value:bazi.luckyElement },
+      { system:'Nine Star Ki', score:ninestar.score, finding:`à¸—à¸´à¸¨ ${ninestar.starDirection} à¹€à¸ªà¸£à¸´à¸¡à¸à¸²à¸£à¹€à¸‡à¸´à¸™`, category:'finance', value:ninestar.starDirection },
+      { system:'Numerology', score:numerology.score, finding:`Personal Year ${numerology.personalYear2026}: ${numerology.personalYearMeaning.split('â€”')[0]}`, category:'finance', value:String(numerology.personalYear2026) },
+      { system:'Vedic', score:vedic.score, finding:`${vedicMahadasha.currentDasha} Dasha`, category:'finance', value:vedicMahadasha.dashaElement },
+      { system:'Arabic Parts', score:arabicParts.score, finding:`Part of Fortune à¹ƒà¸™ ${arabicParts.fortuneSign}`, category:'finance', value:arabicParts.fortuneSign },
+      { system:'Hellenistic', score:hellenistic.score, finding:`${hellenistic.sectTh} à¸à¸±à¸š ${hellenistic.trigonLord}`, category:'finance', value:hellenistic.trigonLord.split(' ')[0] },
+      { system:'Kabbalistic', score:kabbalistic.score, finding:`${kabbalistic.sephira} (${kabbalistic.archangel})`, category:'finance', value:kabbalistic.sephira },
+      { system:'Ifa/Yoruba', score:ifaYoruba.score, finding:`OdÃ¹ ${ifaYoruba.odu}: ${ifaYoruba.fortune}`, category:'finance', value:ifaYoruba.fortune },
+      { system:'Zoroastrian', score:zoroastrian.score, finding:`${zoroastrian.dayYazataTh}`, category:'finance', value:zoroastrian.harmony?'à¸ªà¸­à¸”à¸„à¸¥à¹‰à¸­à¸‡':'à¸£à¸°à¸§à¸±à¸‡' },
+      { system:'Biorhythm', score:biorhythm.score, finding:`à¸ªà¸•à¸´à¸›à¸±à¸à¸à¸² ${biorhythm.intellectual}% (${biorhythm.intellectualPhase})`, category:'finance', value:biorhythm.intellectualPhase },
+    )
+  }
+
+  if (topic === 'timing') {
+    all.push(
+      { system:'BaZi', score:bazi.score, finding:`LP ${bazi.currentLuckPillar} ${bazi.currentLuckPillarTh}`, category:'timing', value:bazi.currentLuckPillar },
+      { system:'Nine Star Ki', score:ninestar.score, finding:ninestar.year2026Analysis.substring(0,60), category:'timing', value:ninestar.star===9?'peak':'normal' },
+      { system:'Vedic', score:vedic.score, finding:`${vedicMahadasha.currentDasha} Dasha à¸–à¸¶à¸‡ ${vedicMahadasha.currentDashaEnd}`, category:'timing', value:String(vedicMahadasha.currentDashaEnd) },
+      { system:'Numerology', score:numerology.score, finding:`PY ${numerology.personalYear2026}: ${numerology.personalYearMeaning.substring(0,40)}`, category:'timing', value:String(numerology.personalYear2026) },
+      { system:'Biorhythm', score:biorhythm.score, finding:`E:${biorhythm.emotional}% I:${biorhythm.intellectual}% P:${biorhythm.physical}%`, category:'timing', value:biorhythm.intellectualPhase },
+      { system:'Tibetan', score:tibetan.score, finding:`Mewa ${tibetan.mewa} ${tibetan.mewaQuality}`, category:'timing', value:tibetan.mewaQuality },
+      { system:'OnmyÅdÅ', score:onmyodo.score, finding:`${onmyodo.rokuyo} ${onmyodo.rokuyoTh}`, category:'timing', value:onmyodo.rokuyo },
+      { system:'Aztec', score:aztec.score, finding:`${aztec.daySignTh} Tone ${aztec.toneNumber}`, category:'timing', value:aztec.daySignQuality },
+    )
+  }
+
+  return all
+}
+
+/** Render a consensus row: icon + count + systems + message */
+function consensusRow(icon: string, theme: string, systems: string[], msg: string, count: number, color = '#d4aa50', narrative = ''): string {
+  const strength = count >= 10 ? 'â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ' : count >= 7 ? 'â–ˆâ–ˆâ–ˆâ–ˆ' : count >= 4 ? 'â–ˆâ–ˆ' : 'â–ˆ'
+  // Show ALL systems as chips â€” no truncation
+  const chips = systems.map(s => `<span style="display:inline-block;background:${color}18;color:${color};border:1px solid ${color}44;border-radius:4px;padding:1px 7px;font-size:10px;margin:2px">${esc(s.split('(')[0].trim())}</span>`).join('')
+  return `<div style="border-left:3px solid ${color};padding:10px 14px;margin:10px 0;background:#141210;border-radius:0 8px 8px 0">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span style="font-size:14px;font-weight:700;color:${color}">${icon} ${esc(theme)}</span>
+      <span style="font-size:11px;color:${color};background:${color}22;padding:2px 10px;border-radius:10px;font-weight:600">${count} à¸¨à¸²à¸ªà¸•à¸£à¹Œ ${strength}</span>
+    </div>
+    <div style="margin-bottom:6px;line-height:1.8">${chips}</div>
+    ${narrative ? `<div style="font-size:12px;color:#d4c89a;line-height:1.7;margin-bottom:6px;padding:8px;background:#1a1608;border-radius:6px">${esc(narrative)}</div>` : ''}
+    <div style="font-size:11px;color:#7a6a52">${esc(msg)}</div>
+  </div>`
+}
+
+// ============================================================
+// â”€â”€ 16 NEW SYSTEM PAGES (individual, consistent format) â”€â”€â”€â”€â”€
+// ============================================================
+
+function p_saju(c: ChartData): string {
+  const s = c.saju
+  return section(0, 'Saju â€” à¸ªà¸µà¹ˆà¹€à¸ªà¸²à¹€à¸à¸²à¸«à¸¥à¸µ (ì‚¬ì£¼)', 'ðŸ‡°ðŸ‡·', `
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="stat-card"><div class="val" style="font-size:20px">${esc(s.dayPillar)}</div><div class="lbl">ì¼ì£¼ Day Pillar</div></div>
+      <div class="stat-card"><div class="val">${s.score}</div><div class="lbl">Saju Score</div></div>
+    </div>
+    ${bar(s.score,'#4a8a40')}
+    <table style="margin:12px 0"><tbody>
+      ${row2('ì—°ì£¼ Year', s.yearPillar)} ${row2('ì›”ì£¼ Month', s.monthPillar)}
+      ${row2('ì¼ì£¼ Day', s.dayPillar)} ${row2('ì‹œì£¼ Hour', s.hourPillar)}
+      ${row2('ì¼ê°„ Day Master Element', s.sajuElement)}
+      ${row2('ê½ƒì‚´ Fortune Cycle 2026', s.kwarsal)}
+      ${row2('à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸«à¸¥à¸±à¸', s.dominantEnergy)}
+    </tbody></table>
+    ${box('à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡ Saju', s.reading, 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> Saju (ì‚¬ì£¼) à¸„à¸·à¸­à¹‚à¸«à¸£à¸²à¸¨à¸²à¸ªà¸•à¸£à¹Œà¹€à¸à¸²à¸«à¸¥à¸µà¸—à¸µà¹ˆà¹ƒà¸Šà¹‰ 4 à¹€à¸ªà¸² (à¸›à¸µ à¹€à¸”à¸·à¸­à¸™ à¸§à¸±à¸™ à¸Šà¸±à¹ˆà¸§à¹‚à¸¡à¸‡) à¹€à¸«à¸¡à¸·à¸­à¸™ BaZi à¹à¸•à¹ˆà¸¡à¸µà¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡à¸•à¸²à¸¡à¸›à¸£à¸°à¹€à¸žà¸“à¸µà¹€à¸à¸²à¸«à¸¥à¸µà¸—à¸µà¹ˆà¹€à¸™à¹‰à¸™ ì›”ì£¼ (à¹€à¸”à¸·à¸­à¸™à¹€à¸à¸´à¸”) à¹€à¸›à¹‡à¸™à¸«à¸¥à¸±à¸ à¸¡à¸µà¸­à¸²à¸¢à¸¸à¸à¸§à¹ˆà¸² 1,000 à¸›à¸µ à¸¢à¸±à¸‡à¹ƒà¸Šà¹‰à¹à¸žà¸£à¹ˆà¸«à¸¥à¸²à¸¢à¹ƒà¸™à¹€à¸à¸²à¸«à¸¥à¸µà¹ƒà¸•à¹‰à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™ â€” à¸¡à¸µà¹à¸­à¸›à¸”à¸¹à¸”à¸§à¸‡à¸«à¸¥à¸²à¸¢à¸£à¹‰à¸­à¸¢à¸¥à¹‰à¸²à¸™ downloads à¸•à¹ˆà¸­à¸›à¸µ</p>
+    <p style="font-size:11px;color:#6a5a42">Saju à¹ƒà¸Šà¹‰à¸£à¸°à¸šà¸šà¹€à¸ªà¸²à¸ªà¸µà¹ˆà¹€à¸”à¸µà¸¢à¸§à¸à¸±à¸š BaZi à¹à¸•à¹ˆà¹€à¸™à¹‰à¸™à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡à¸•à¸²à¸¡à¸›à¸£à¸°à¹€à¸žà¸“à¸µà¹€à¸à¸²à¸«à¸¥à¸µ â€” à¸„à¸§à¸²à¸¡à¸ªà¸±à¸¡à¸žà¸±à¸™à¸˜à¹Œà¸£à¸°à¸«à¸§à¹ˆà¸²à¸‡à¹€à¸”à¸·à¸­à¸™à¹à¸¥à¸°à¸§à¸±à¸™à¸ªà¸³à¸„à¸±à¸à¸—à¸µà¹ˆà¸ªà¸¸à¸”</p>
+  `)
+}
+
+function p_tibetan(c: ChartData): string {
+  const t = c.tibetan
+  return section(0, 'Tibetan Astrology â€” à¹‚à¸«à¸£à¸²à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸—à¸´à¹€à¸šà¸•', 'â˜¸ï¸', `
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="stat-card"><div class="val">${t.mewa}</div><div class="lbl">Mewa (à¸”à¸²à¸§à¹€à¸à¹‰à¸²à¸Šà¹ˆà¸­à¸‡)</div></div>
+      <div class="stat-card"><div class="val">${t.score}</div><div class="lbl">Tibetan Score</div></div>
+    </div>
+    ${bar(t.score,'#8a5a4a')}
+    <table style="margin:12px 0"><tbody>
+      ${row2('Mewa', t.mewaName)} ${row2('à¸˜à¸²à¸•à¸¸ Mewa', t.mewaElement)}
+      ${row2('à¸„à¸¸à¸“à¸ à¸²à¸ž Mewa', t.mewaQuality)}
+      ${row2('Parkha (à¸•à¸£à¸µà¸¨à¸¹à¸¥)', t.parkhaName)} ${row2('à¸˜à¸²à¸•à¸¸ Parkha', t.parkhaElement)}
+    </tbody></table>
+    ${box('à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡à¸—à¸´à¹€à¸šà¸•', t.reading, 'purple')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> à¹‚à¸«à¸£à¸²à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸—à¸´à¹€à¸šà¸•à¸œà¸ªà¸¡à¸£à¸°à¸šà¸š Mewa à¸ˆà¸²à¸à¸ˆà¸µà¸™ + Parkha à¸ˆà¸²à¸ Ba Gua + à¸›à¸£à¸°à¹€à¸žà¸“à¸µà¸”à¸±à¹‰à¸‡à¹€à¸”à¸´à¸¡ Bon + Vedic Jyotish à¹€à¸‚à¹‰à¸²à¸”à¹‰à¸§à¸¢à¸à¸±à¸™ à¸žà¸±à¸’à¸™à¸²à¹ƒà¸™à¸—à¸´à¹€à¸šà¸•à¸à¸§à¹ˆà¸² 1,500 à¸›à¸µ à¸¢à¸±à¸‡à¹ƒà¸Šà¹‰à¸­à¸¢à¹ˆà¸²à¸‡à¹€à¸›à¹‡à¸™à¸—à¸²à¸‡à¸à¸²à¸£à¹ƒà¸™à¸§à¸±à¸”à¸—à¸´à¹€à¸šà¸•à¹à¸¥à¸°à¹‚à¸”à¸¢ Dalai Lama à¸ªà¸–à¸²à¸šà¸±à¸™ â€” à¹€à¸™à¹‰à¸™ Mewa 9 à¸”à¸§à¸‡à¹€à¸›à¹‡à¸™à¹à¸à¸™à¸«à¸¥à¸±à¸</p>
+    <p style="font-size:11px;color:#6a5a42">Mewa à¸ªà¸­à¸”à¸„à¸¥à¹‰à¸­à¸‡à¸à¸±à¸š Nine Star Ki à¹à¸•à¹ˆà¸™à¸±à¸šà¸—à¸§à¸™à¹€à¸‚à¹‡à¸¡ â€” Mewa ${t.mewa} à¸«à¸¡à¸²à¸¢à¸–à¸¶à¸‡${t.mewaQuality}à¹ƒà¸™à¸Šà¸µà¸§à¸´à¸•</p>
+  `)
+}
+
+function p_ziwei(c: ChartData): string {
+  const z = c.ziwei
+  return section(0, 'Zi Wei Dou Shu â€” ç´«å¾®æ–—æ•¸', 'ðŸŒŒ', `
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="stat-card"><div class="val" style="font-size:20px">${esc(z.mainStarTh)}</div><div style="font-size:12px;color:#6a5a42">${esc(z.mainStar)}</div><div class="lbl">à¸”à¸²à¸§à¸«à¸¥à¸±à¸ Main Star</div></div>
+      <div class="stat-card"><div class="val">${z.score}</div><div class="lbl">Zi Wei Score</div></div>
+    </div>
+    ${bar(z.score,'#5a3a8a')}
+    <table style="margin:12px 0"><tbody>
+      ${row2('à¸”à¸²à¸§à¸«à¸¥à¸±à¸ (Thai)', z.mainStarTh)}
+      ${row2('à¸§à¸±à¸‡à¸Šà¸µà¸§à¸´à¸• Life Palace', z.lifePalaceName)}
+      ${row2('à¸„à¸¸à¸“à¸ à¸²à¸žà¸§à¸±à¸‡ Palace Quality', z.palaceQuality)}
+    </tbody></table>
+    ${box('à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡ ç´«å¾®', z.reading, 'purple')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> ç´«å¾®æ–—æ•¸ (Zi Wei Dou Shu) à¸žà¸±à¸’à¸™à¸²à¹‚à¸”à¸¢ Chen Tuan à¸™à¸±à¸à¸›à¸£à¸²à¸Šà¸à¹Œà¸ˆà¸µà¸™à¹ƒà¸™à¸ªà¸¡à¸±à¸¢ Song Dynasty (~1000 AD) à¹ƒà¸Šà¹‰à¸”à¸²à¸§ 108 à¸”à¸§à¸‡à¹ƒà¸™ 12 palace â€” à¸‹à¸±à¸šà¸‹à¹‰à¸­à¸™à¹à¸¥à¸°à¹à¸¡à¹ˆà¸™à¸¢à¸³à¸à¸§à¹ˆà¸² BaZi à¹ƒà¸™à¸à¸²à¸£à¸—à¸³à¸™à¸²à¸¢à¹€à¸ªà¹‰à¸™à¸—à¸²à¸‡à¸­à¸²à¸Šà¸µà¸ž à¸™à¸´à¸¢à¸¡à¸¡à¸²à¸à¹ƒà¸™à¹„à¸•à¹‰à¸«à¸§à¸±à¸™ à¸®à¹ˆà¸­à¸‡à¸à¸‡ à¸ªà¸´à¸‡à¸„à¹‚à¸›à¸£à¹Œ à¸ªà¸³à¸«à¸£à¸±à¸šà¸à¸²à¸£à¸•à¸±à¸”à¸ªà¸´à¸™à¹ƒà¸ˆà¸˜à¸¸à¸£à¸à¸´à¸ˆ</p>
+    <p style="font-size:11px;color:#6a5a42">ç´«å¾®æ–—æ•¸ à¸„à¸·à¸­à¹‚à¸«à¸£à¸²à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸ˆà¸µà¸™à¸‚à¸±à¹‰à¸™à¸ªà¸¹à¸‡ â€” à¸§à¸±à¸‡à¸Šà¸µà¸§à¸´à¸• (å‘½å®®) à¹€à¸›à¹‡à¸™à¸•à¸³à¹à¸«à¸™à¹ˆà¸‡à¸ªà¸³à¸„à¸±à¸à¸—à¸µà¹ˆà¸ªà¸¸à¸” à¸”à¸²à¸§${z.mainStarTh}à¸Šà¸µà¹‰à¸™à¸³à¹€à¸ªà¹‰à¸™à¸—à¸²à¸‡à¸Šà¸µà¸§à¸´à¸•</p>
+  `)
+}
+
+function p_onmyodo(c: ChartData): string {
+  const o = c.onmyodo
+  return section(0, 'OnmyÅdÅ â€” é™°é™½é“ à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸à¸µà¹ˆà¸›à¸¸à¹ˆà¸™', 'â›©ï¸', `
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="stat-card"><div class="val" style="font-size:22px">${esc(o.rokuyo)}</div><div class="lbl">å…­æ›œ Rokuyo à¸§à¸±à¸™à¹€à¸à¸´à¸”</div></div>
+      <div class="stat-card"><div class="val">${o.score}</div><div class="lbl">OnmyÅdÅ Score</div></div>
+    </div>
+    ${bar(o.score,'#6a4a2a')}
+    <table style="margin:12px 0"><tbody>
+      ${row2('Rokuyo (Thai)', o.rokuyoTh)}
+      ${row2('à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸„à¸°à¹à¸™à¸™', String(o.rokuyoScore))}
+      ${row2('Onmyo Polarity', o.onmyoPolarity)}
+      ${row2('JÅ«nishi Nakshatra', o.juniShiNakshatra)}
+    </tbody></table>
+    ${box('à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡ OnmyÅdÅ', o.reading, o.rokuyoScore >= 780 ? 'green' : o.rokuyoScore >= 650 ? 'gold' : 'red')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> OnmyÅdÅ (é™°é™½é“) à¸žà¸±à¸’à¸™à¸²à¹ƒà¸™à¸à¸µà¹ˆà¸›à¸¸à¹ˆà¸™à¸ªà¸¡à¸±à¸¢ Nara (710-794 AD) à¹‚à¸”à¸¢ Abe no Seimei à¸«à¸¡à¸­à¸”à¸¹à¹ƒà¸™à¸•à¸³à¸™à¸²à¸™ à¸£à¸±à¸šà¸­à¸´à¸—à¸˜à¸´à¸žà¸¥à¸ˆà¸²à¸ Taoist à¹€à¸•à¹‹à¸²à¹à¸¥à¸° Chinese Cosmology à¸œà¸ªà¸¡à¸à¸±à¸šà¸„à¸§à¸²à¸¡à¹€à¸Šà¸·à¹ˆà¸­ Shinto à¹ƒà¸Šà¹‰à¹‚à¸”à¸¢à¸£à¸²à¸Šà¸ªà¸³à¸™à¸±à¸à¸à¸µà¹ˆà¸›à¸¸à¹ˆà¸™à¹€à¸›à¹‡à¸™à¹€à¸§à¸¥à¸²à¸«à¸¥à¸²à¸¢à¸£à¹‰à¸­à¸¢à¸›à¸µ à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™à¸¢à¸±à¸‡à¸¡à¸µà¸ªà¸–à¸²à¸šà¸±à¸™ OnmyÅdÅ à¸­à¸¢à¹ˆà¸²à¸‡à¹€à¸›à¹‡à¸™à¸—à¸²à¸‡à¸à¸²à¸£</p>
+    <p style="font-size:11px;color:#6a5a42">å…­æ›œ à¹€à¸›à¹‡à¸™à¸§à¸±à¸à¸ˆà¸±à¸à¸£à¹‚à¸Šà¸„à¹ƒà¸™à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸à¸µà¹ˆà¸›à¸¸à¹ˆà¸™ â€” ${o.rokuyo} (${o.rokuyoTh}) à¸„à¸·à¸­à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸§à¸±à¸™à¹€à¸à¸´à¸”à¸‚à¸­à¸‡à¸„à¸¸à¸“ à¸ªà¹ˆà¸‡à¸œà¸¥à¸•à¹ˆà¸­à¸¥à¸±à¸à¸©à¸“à¸°à¸à¸²à¸£à¸•à¸±à¸”à¸ªà¸´à¸™à¹ƒà¸ˆ</p>
+  `)
+}
+
+function p_hellenistic(c: ChartData): string {
+  const h = c.hellenistic
+  return section(0, 'Hellenistic Astrology â€” à¹‚à¸«à¸£à¸²à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸à¸£à¸µà¸', 'ðŸ›ï¸', `
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="stat-card"><div class="val" style="font-size:16px">${esc(h.sect)}</div><div class="lbl">Sect (à¸à¸¥à¸¸à¹ˆà¸¡à¸”à¸²à¸§)</div></div>
+      <div class="stat-card"><div class="val">${h.score}</div><div class="lbl">Hellenistic Score</div></div>
+    </div>
+    ${bar(h.score,'#8a7a30')}
+    <table style="margin:12px 0"><tbody>
+      ${row2('Sect', h.sectTh)}
+      ${row2('Trigon Lord', h.trigonLord)}
+      ${row2('Lot of Fortune', `${h.lotOfFortune}Â° à¹ƒà¸™ ${h.lotSign}`)}
+      
+    </tbody></table>
+    ${box('à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡ Hellenistic', h.reading, 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> Hellenistic Astrology à¸žà¸±à¸’à¸™à¸²à¹‚à¸”à¸¢à¸Šà¸²à¸§ Greek à¹ƒà¸™ Alexandria à¸­à¸µà¸¢à¸´à¸›à¸•à¹Œ (~300-100 à¸›à¸µà¸à¹ˆà¸­à¸™ à¸„.à¸¨.) à¸£à¸§à¸¡à¸£à¸°à¸šà¸š Babylonian Horoscope + Greek Philosophy + Egyptian Lots à¹€à¸‚à¹‰à¸²à¸”à¹‰à¸§à¸¢à¸à¸±à¸™ Ptolemy's Tetrabiblos à¹€à¸›à¹‡à¸™à¸£à¸²à¸à¸à¸²à¸™à¸‚à¸­à¸‡ Western Astrology à¸—à¸±à¹‰à¸‡à¸«à¸¡à¸” à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™ Renaissance à¸à¸¥à¸±à¸šà¸¡à¸²à¹à¸£à¸‡à¸¡à¸²à¸à¹ƒà¸™à¸§à¸‡à¸à¸²à¸£ Traditional Astrology</p>
+    <p style="font-size:11px;color:#6a5a42">Hellenistic à¹ƒà¸Šà¹‰ Lots (Arabic Parts) + Sect à¹€à¸žà¸·à¹ˆà¸­à¸”à¸¹à¹‚à¸Šà¸„ â€” Lot of Fortune à¹ƒà¸™${h.lotSign}à¸Šà¸µà¹‰à¸—à¸´à¸¨à¸—à¸²à¸‡à¸—à¸£à¸±à¸žà¸¢à¹Œà¸ªà¸´à¸™</p>
+  `)
+}
+
+function p_norseRune(c: ChartData): string {
+  const n = c.norseRune
+  return section(0, 'Norse Rune â€” à¸£à¸¹à¸™à¸™à¸­à¸£à¹Œà¸ª', 'ðŸ”±', `
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="stat-card"><div class="val" style="font-size:40px">${esc(n.rune)}</div><div class="lbl">${esc(n.runeName)}</div></div>
+      <div class="stat-card"><div class="val">${n.score}</div><div class="lbl">Norse Score</div></div>
+    </div>
+    ${bar(n.score,'#5a3a5a')}
+    <table style="margin:12px 0"><tbody>
+      ${row2('à¸£à¸¹à¸™ (Thai)', n.runeNameTh)}
+      ${row2('à¸˜à¸²à¸•à¸¸', n.runeElement)}
+      ${row2('à¸„à¸³à¸ªà¸³à¸„à¸±à¸', n.runeKeyword)}
+    </tbody></table>
+    ${box('à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡à¸£à¸¹à¸™', n.reading, 'purple')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> Elder Futhark 24 Runes à¹ƒà¸Šà¹‰à¹‚à¸”à¸¢à¸Šà¸²à¸§ Germanic/Viking à¸£à¸²à¸§ 160 à¸›à¸µà¸à¹ˆà¸­à¸™ à¸„.à¸¨. à¸–à¸¶à¸‡ 1100 AD â€” à¹ƒà¸Šà¹‰à¸—à¸±à¹‰à¸‡à¹€à¸›à¹‡à¸™à¸•à¸±à¸§à¸­à¸±à¸à¸©à¸£à¹à¸¥à¸°à¹€à¸›à¹‡à¸™à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡à¸¡à¸·à¸­ divination Rune casting à¹€à¸›à¹‡à¸™à¸«à¸™à¸¶à¹ˆà¸‡à¹ƒà¸™ oldest divination systems à¹ƒà¸™à¸¢à¸¸à¹‚à¸£à¸›à¹€à¸«à¸™à¸·à¸­ à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™ Neo-Pagan / Heathen communities à¸¢à¸±à¸‡à¹ƒà¸Šà¹‰à¸­à¸¢à¹ˆà¸²à¸‡à¸ˆà¸£à¸´à¸‡à¸ˆà¸±à¸‡</p>
+    <p style="font-size:11px;color:#6a5a42">Elder Futhark à¸¡à¸µ 24 à¸£à¸¹à¸™ à¹à¸•à¹ˆà¸¥à¸°à¸£à¸¹à¸™à¸„à¸£à¸­à¸šà¸„à¸¥à¸¸à¸¡ ~15 à¸§à¸±à¸™ à¹ƒà¸™à¸›à¸µà¹à¸šà¸š runic calendar â€” ${n.rune} ${n.runeName} à¸šà¹ˆà¸‡à¸–à¸¶à¸‡${n.runeKeyword}</p>
+  `)
+}
+
+function p_ogham(c: ChartData): string {
+  const o = c.ogham
+  return section(0, 'Ogham â€” à¸•à¸±à¸§à¸­à¸±à¸à¸©à¸£à¸¨à¸±à¸à¸”à¸´à¹Œà¸ªà¸´à¸—à¸˜à¸´à¹Œà¹„à¸­à¸£à¸´à¸Š', 'ðŸŒ¿', `
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="stat-card"><div class="val" style="font-size:40px">${esc(o.ogham)}</div><div class="lbl">${esc(o.treeName)}</div></div>
+      <div class="stat-card"><div class="val">${o.score}</div><div class="lbl">Ogham Score</div></div>
+    </div>
+    ${bar(o.score,'#3a6a30')}
+    <table style="margin:12px 0"><tbody>
+      ${row2('à¸•à¹‰à¸™à¹„à¸¡à¹‰ (Thai)', o.treeNameTh)}
+      ${row2('à¸à¸¥à¸¸à¹ˆà¸¡ Ogham', o.oghamClass)}
+      ${row2('à¸˜à¸²à¸•à¸¸', o.element)}
+    </tbody></table>
+    ${box('à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡ Ogham', o.reading, 'green')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> Ogham alphabet à¸¡à¸µà¸­à¸²à¸¢à¸¸à¸£à¸²à¸§ 300-500 AD à¸„à¹‰à¸™à¸žà¸šà¸šà¸™à¸«à¸´à¸™à¹ƒà¸™à¹„à¸­à¸£à¹Œà¹à¸¥à¸™à¸”à¹Œà¹à¸¥à¸°à¹€à¸§à¸¥à¸ªà¹Œà¸à¸§à¹ˆà¸² 400 à¹à¸œà¹ˆà¸™ Celtic Druids à¹ƒà¸Šà¹‰à¹€à¸›à¹‡à¸™à¸—à¸±à¹‰à¸‡à¸•à¸±à¸§à¸«à¸™à¸±à¸‡à¸ªà¸·à¸­à¹à¸¥à¸°à¸£à¸°à¸šà¸š tree calendar à¸„à¸§à¸²à¸¡à¸¥à¸¶à¸à¸‚à¸­à¸‡ Ogham à¸­à¸¢à¸¹à¹ˆà¸—à¸µà¹ˆ Beth-Luis-Nion calendar à¸—à¸µà¹ˆà¹à¸•à¹ˆà¸¥à¸°à¸•à¹‰à¸™à¹„à¸¡à¹‰à¸¡à¸µà¸„à¸§à¸²à¸¡à¸«à¸¡à¸²à¸¢à¸—à¸²à¸‡à¸ˆà¸´à¸•à¸§à¸´à¸à¸à¸²à¸“ â€” Robert Graves à¸™à¸³à¸¡à¸² popularize à¸­à¸µà¸à¸„à¸£à¸±à¹‰à¸‡à¹ƒà¸™à¸¨à¸•à¸§à¸£à¸£à¸© 20</p>
+    <p style="font-size:11px;color:#6a5a42">Beth-Luis-Nion calendar à¸¡à¸µ 13 à¹€à¸”à¸·à¸­à¸™à¸•à¹‰à¸™à¹„à¸¡à¹‰ â€” ${o.ogham} ${o.treeNameTh} (${o.oghamClass}) à¸šà¹ˆà¸‡à¸–à¸¶à¸‡à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™à¸«à¸¥à¸±à¸à¸ˆà¸²à¸à¸˜à¸£à¸£à¸¡à¸Šà¸²à¸•à¸´</p>
+  `)
+}
+
+function p_arabicParts(c: ChartData): string {
+  const a = c.arabicParts
+  return section(0, 'Arabic Parts â€” à¸¥à¹‡à¸­à¸•à¹‚à¸Šà¸„à¸Šà¸°à¸•à¸²', 'â­', `
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="stat-card"><div class="val" style="font-size:16px">${esc(a.fortuneSign)}</div><div class="lbl">Part of Fortune</div></div>
+      <div class="stat-card"><div class="val">${a.score}</div><div class="lbl">Arabic Score</div></div>
+    </div>
+    ${bar(a.score,'#8a5a20')}
+    <table style="margin:12px 0"><tbody>
+      ${row2('Lot of Fortune', `${a.partOfFortune}Â° à¹ƒà¸™ ${a.fortuneSign}`)}
+      ${row2('Lot of Spirit', `${a.partOfSpirit}Â° à¹ƒà¸™ ${a.spiritSign}`)}
+    </tbody></table>
+    ${box('à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡ Arabic Parts', a.reading, 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> Arabic Parts à¸«à¸£à¸·à¸­ Lots of Fortune à¸¡à¸µà¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”à¹ƒà¸™ Hellenistic Astrology à¹à¸•à¹ˆ Arab astrologers à¹ƒà¸™ Baghdad (~800-1200 AD) à¹€à¸›à¹‡à¸™à¸œà¸¹à¹‰à¸£à¸§à¸šà¸£à¸§à¸¡à¹à¸¥à¸°à¸‚à¸¢à¸²à¸¢à¹ƒà¸«à¹‰à¸„à¸£à¸š 97 Lots Albumasar à¹à¸¥à¸° al-Qabisi à¹€à¸›à¹‡à¸™à¸œà¸¹à¹‰à¸¡à¸µà¸­à¸´à¸—à¸˜à¸´à¸žà¸¥à¸ªà¸¹à¸‡à¸ªà¸¸à¸” Arabic Parts à¸–à¹ˆà¸²à¸¢à¸—à¸­à¸”à¸¡à¸²à¸¢à¸±à¸‡à¸¢à¸¸à¹‚à¸£à¸›à¸œà¹ˆà¸²à¸™ Crusades à¹à¸¥à¸° Spanish translation</p>
+    <p style="font-size:11px;color:#6a5a42">Arabic Lots (Hellenistic Lots) à¸„à¸³à¸™à¸§à¸“à¸ˆà¸²à¸ ASC + Moon + Sun â€” Part of Fortune à¹ƒà¸™${a.fortuneSign}à¸Šà¸µà¹‰à¸—à¸´à¸¨à¸—à¸²à¸‡à¹‚à¸Šà¸„à¸¥à¸²à¸ à¸—à¸²à¸‡à¸§à¸±à¸•à¸–à¸¸</p>
+  `)
+}
+
+function p_kabbalistic(c: ChartData): string {
+  const k = c.kabbalistic
+  return section(0, 'Kabbalistic â€” à¸•à¹‰à¸™à¹„à¸¡à¹‰à¹à¸«à¹ˆà¸‡à¸Šà¸µà¸§à¸´à¸•', 'âœ¡ï¸', `
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="stat-card"><div class="val" style="font-size:16px">${esc(k.sephira)}</div><div class="lbl">Sephira</div></div>
+      <div class="stat-card"><div class="val">${k.score}</div><div class="lbl">Kabbalah Score</div></div>
+    </div>
+    ${bar(k.score,'#6a3a8a')}
+    <table style="margin:12px 0"><tbody>
+      ${row2('Sephira Hebrew', k.sephiraHebrew)}
+      ${row2('Archangel', k.archangel)}
+      ${row2('Hebrew Year', String(k.hebrewYear))}
+      ${row2('Mazal (Zodiac)', k.mazalTh)}
+    </tbody></table>
+    ${box('à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡ Kabbalah', k.reading, 'purple')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> Kabbalah (×§Ö·×‘Ö¸Ö¼×œÖ¸×”) à¸¡à¸µà¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”à¹ƒà¸™à¸¢à¸´à¸§à¹‚à¸šà¸£à¸²à¸“ à¸žà¸±à¸’à¸™à¸²à¹€à¸•à¹‡à¸¡à¸£à¸¹à¸›à¹à¸šà¸šà¹ƒà¸™ 12-13 à¸¨à¸•à¸§à¸£à¸£à¸©à¹ƒà¸™à¸ªà¹€à¸›à¸™à¹à¸¥à¸° Provence Sefer ha-Bahir (1180 AD) à¹à¸¥à¸° Sefer ha-Zohar (1290 AD) à¸„à¸·à¸­à¸„à¸±à¸¡à¸ à¸µà¸£à¹Œà¸«à¸¥à¸±à¸ Tree of Life à¸¡à¸µ 10 Sephirot à¹à¸¥à¸° 22 paths à¸•à¸²à¸¡ Hebrew alphabet à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™ Madonna à¹à¸¥à¸° Hollywood stars à¸—à¸³à¹ƒà¸«à¹‰ Kabbalah à¹€à¸›à¹‡à¸™à¸—à¸µà¹ˆà¸£à¸¹à¹‰à¸ˆà¸±à¸à¸—à¸±à¹ˆà¸§à¹‚à¸¥à¸</p>
+    <p style="font-size:11px;color:#6a5a42">Tree of Life à¸¡à¸µ 10 Sephirot â€” ${k.sephira} (${k.sephiraHebrew}) à¸›à¸à¸„à¸£à¸­à¸‡à¹‚à¸”à¸¢ ${k.archangel} à¸šà¹ˆà¸‡à¸–à¸¶à¸‡à¹à¸‡à¹ˆà¸¡à¸¸à¸¡à¸ˆà¸´à¸•à¸§à¸´à¸à¸à¸²à¸“à¸«à¸¥à¸±à¸</p>
+  `)
+}
+
+function p_zoroastrian(c: ChartData): string {
+  const z = c.zoroastrian
+  return section(0, 'Zoroastrian â€” à¸›à¸£à¸±à¸Šà¸à¸²à¹€à¸›à¸­à¸£à¹Œà¹€à¸‹à¸µà¸¢', 'ðŸ”¥', `
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="stat-card"><div class="val" style="font-size:14px">${esc(z.dayYazataTh.slice(0,15))}</div><div class="lbl">Day Yazata</div></div>
+      <div class="stat-card"><div class="val">${z.score}</div><div class="lbl">Zoroastrian Score</div></div>
+    </div>
+    ${bar(z.score,'#8a4a20')}
+    <table style="margin:12px 0"><tbody>
+      ${row2('Yazata à¸§à¸±à¸™à¹€à¸à¸´à¸”', z.dayYazataTh)}
+      ${row2('Amesha à¹€à¸”à¸·à¸­à¸™à¹€à¸à¸´à¸”', z.monthAmeshaTh)}
+      ${row2('à¸„à¸§à¸²à¸¡à¸ªà¸­à¸”à¸„à¸¥à¹‰à¸­à¸‡', z.harmony ? 'âœ“ à¸˜à¸²à¸•à¸¸à¸ªà¸­à¸”à¸„à¸¥à¹‰à¸­à¸‡ â€” à¹€à¸ªà¸£à¸´à¸¡à¸žà¸¥à¸±à¸‡' : 'â—‹ à¸˜à¸²à¸•à¸¸à¸•à¹ˆà¸²à¸‡à¸à¸±à¸™ â€” à¸ªà¸£à¹‰à¸²à¸‡à¸ªà¸¡à¸”à¸¸à¸¥')}
+    </tbody></table>
+    ${box('à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡ Zoroastrian', z.reading, z.harmony ? 'green' : 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> Zoroastrianism à¹€à¸›à¹‡à¸™à¸«à¸™à¸¶à¹ˆà¸‡à¹ƒà¸™à¸¨à¸²à¸ªà¸™à¸²à¸—à¸µà¹ˆà¹€à¸à¹ˆà¸²à¹à¸à¹ˆà¸—à¸µà¹ˆà¸ªà¸¸à¸”à¹ƒà¸™à¹‚à¸¥à¸ à¸à¹ˆà¸­à¸•à¸±à¹‰à¸‡à¹‚à¸”à¸¢ Zarathustra (~1500-1000 à¸›à¸µà¸à¹ˆà¸­à¸™ à¸„.à¸¨.) à¹ƒà¸™à¹€à¸›à¸­à¸£à¹Œà¹€à¸‹à¸µà¸¢ (à¸­à¸´à¸«à¸£à¹ˆà¸²à¸™à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™) à¸£à¸°à¸šà¸š Yazata 30 à¸§à¸±à¸™ à¹à¸¥à¸° Amesha Spenta 6 à¹€à¸”à¸·à¸­à¸™ à¸ªà¸°à¸—à¹‰à¸­à¸™à¸›à¸£à¸±à¸Šà¸à¸² Asha (à¸„à¸§à¸²à¸¡à¸ˆà¸£à¸´à¸‡/à¸„à¸§à¸²à¸¡à¸”à¸µ) vs Druj (à¸„à¸§à¸²à¸¡à¹€à¸—à¹‡à¸ˆ) â€” à¸¡à¸µà¸­à¸´à¸—à¸˜à¸´à¸žà¸¥à¸•à¹ˆà¸­ Judaism, Christianity à¹à¸¥à¸° Islam</p>
+    <p style="font-size:11px;color:#6a5a42">Yazata à¸„à¸·à¸­à¸ªà¸´à¹ˆà¸‡à¸¨à¸±à¸à¸”à¸´à¹Œà¸ªà¸´à¸—à¸˜à¸´à¹Œà¹ƒà¸™ Zoroastrianism â€” à¹à¸•à¹ˆà¸¥à¸°à¸§à¸±à¸™à¹à¸¥à¸°à¹€à¸”à¸·à¸­à¸™à¸¡à¸µ Yazata/Amesha à¸›à¸à¸„à¸£à¸­à¸‡</p>
+  `)
+}
+
+function p_aztec(c: ChartData): string {
+  const a = c.aztec
+  return section(0, 'Aztec Tonalpohualli â€” à¸›à¸à¸´à¸—à¸´à¸™ 260 à¸§à¸±à¸™', 'ðŸ¦…', `
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="stat-card"><div class="val" style="font-size:16px">${esc(a.daySignTh)}</div><div class="lbl">Day Sign</div></div>
+      <div class="stat-card"><div class="val">${a.score}</div><div class="lbl">Aztec Score</div></div>
+    </div>
+    ${bar(a.score,'#8a4a10')}
+    <table style="margin:12px 0"><tbody>
+      ${row2('Day Sign (EN)', a.daySign + ' ' + a.daySignTh)}
+      ${row2('Tone Number', `${a.toneNumber} â€” ${a.toneName}`)}
+      ${row2('Day Sign Quality', a.daySignQuality)}
+    </tbody></table>
+    ${box('à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡ Tonalpohualli', a.reading, 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> Tonalpohualli (260 à¸§à¸±à¸™) à¹€à¸›à¹‡à¸™à¸›à¸à¸´à¸—à¸´à¸™à¸¨à¸±à¸à¸”à¸´à¹Œà¸ªà¸´à¸—à¸˜à¸´à¹Œà¸‚à¸­à¸‡ Aztec à¹€à¸«à¸¡à¸·à¸­à¸™ Mayan Tzolk'in à¹à¸•à¹ˆà¸¡à¸µà¸Šà¸·à¹ˆà¸­ Day Signs à¸•à¹ˆà¸²à¸‡à¸­à¸­à¸à¹„à¸› à¹ƒà¸Šà¹‰à¹‚à¸”à¸¢ tonalpouhqui (à¸™à¸±à¸à¹‚à¸«à¸£à¸²à¸¨à¸²à¸ªà¸•à¸£à¹Œ) à¹€à¸žà¸·à¹ˆà¸­à¸à¸³à¸«à¸™à¸”à¸Šà¸°à¸•à¸²à¸Šà¸µà¸§à¸´à¸•à¸•à¸±à¹‰à¸‡à¹à¸•à¹ˆà¹à¸£à¸à¹€à¸à¸´à¸” Aztec à¹€à¸Šà¸·à¹ˆà¸­à¸§à¹ˆà¸² Day Sign à¸“ à¸§à¸±à¸™à¹€à¸à¸´à¸”à¸à¸³à¸«à¸™à¸” "patron deity" à¸‚à¸­à¸‡à¸šà¸¸à¸„à¸„à¸¥à¸™à¸±à¹‰à¸™ â€” à¸™à¸´à¸¢à¸¡à¹ƒà¸™à¹€à¸¡à¹‡à¸à¸‹à¸´à¹‚à¸à¹à¸¥à¸°à¸™à¸±à¸à¸§à¸´à¸ˆà¸±à¸¢ Mesoamerican culture</p>
+    <p style="font-size:11px;color:#6a5a42">Tonalpohualli à¸„à¸·à¸­à¸›à¸à¸´à¸—à¸´à¸™ 260 à¸§à¸±à¸™ (20 Day Signs Ã— 13 Tones) à¹ƒà¸Šà¹‰à¸£à¹ˆà¸§à¸¡à¸à¸±à¸š Mayan Tzolk'in â€” ${a.daySignTh} Tone ${a.toneNumber} à¸à¸³à¸«à¸™à¸”à¸žà¸¥à¸±à¸‡à¸‡à¸²à¸™</p>
+  `)
+}
+
+function p_nativeAmerican(c: ChartData): string {
+  const n = c.nativeAmerican
+  return section(0, 'Native American â€” Birth Totem', 'ðŸ¦…', `
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="stat-card"><div class="val" style="font-size:16px">${esc(n.birthTotemTh)}</div><div class="lbl">Birth Totem</div></div>
+      <div class="stat-card"><div class="val">${n.score}</div><div class="lbl">Native American Score</div></div>
+    </div>
+    ${bar(n.score,'#8a5a30')}
+    <table style="margin:12px 0"><tbody>
+      ${row2('Birth Totem (EN)', n.birthTotem)}
+      ${row2('Moon Cycle', n.moonCycle)}
+      ${row2('Clan', n.clansmother)}
+      ${row2('à¸˜à¸²à¸•à¸¸', n.element)}
+    </tbody></table>
+    ${box('à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡ Native American', n.reading, 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> Medicine Wheel à¹€à¸›à¹‡à¸™à¸£à¸°à¸šà¸šà¸ˆà¸±à¸à¸£à¸§à¸²à¸¥à¸§à¸´à¸—à¸¢à¸²à¸‚à¸­à¸‡à¸Šà¸™à¸žà¸·à¹‰à¸™à¹€à¸¡à¸·à¸­à¸‡à¸­à¹€à¸¡à¸£à¸´à¸à¸²à¹€à¸«à¸™à¸·à¸­à¸«à¸¥à¸²à¸¢à¹€à¸œà¹ˆà¸² (Lakota, Ojibwe, Cherokee à¸¯à¸¥à¸¯) 13 Moon Calendar à¹ƒà¸Šà¹‰ lunar cycle 13 à¸£à¸­à¸šà¸•à¹ˆà¸­à¸›à¸µ à¹à¸•à¹ˆà¸¥à¸° moon à¸¡à¸µ totem animal à¸›à¸£à¸°à¸ˆà¸³ à¸£à¸°à¸šà¸šà¸™à¸µà¹‰à¸–à¹ˆà¸²à¸¢à¸—à¸­à¸”à¸œà¹ˆà¸²à¸™ oral tradition à¸à¸§à¹ˆà¸² 10,000 à¸›à¸µ Sun Bear popularize à¸œà¹ˆà¸²à¸™à¸«à¸™à¸±à¸‡à¸ªà¸·à¸­à¹ƒà¸™à¸—à¸¨à¸§à¸£à¸£à¸© 1980</p>
+    <p style="font-size:11px;color:#6a5a42">Medicine Wheel à¸¡à¸µ 13 moon cycle â€” Birth Totem ${n.birthTotemTh} (${n.birthTotem}) à¹ƒà¸™ ${n.clansmother} à¸šà¹ˆà¸‡à¸–à¸¶à¸‡à¸ªà¸±à¸•à¸§à¹Œà¸™à¸³à¸—à¸²à¸‡à¸—à¸²à¸‡à¸ˆà¸´à¸•à¸§à¸´à¸à¸à¸²à¸“</p>
+  `)
+}
+
+function p_ifaYoruba(c: ChartData): string {
+  const i = c.ifaYoruba
+  return section(0, 'Ifa / Yoruba â€” OdÃ¹ à¹à¸«à¹ˆà¸‡à¸Šà¸°à¸•à¸²', 'ðŸ¥', `
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="stat-card"><div class="val" style="font-size:18px">${esc(i.odu)}</div><div class="lbl">OdÃ¹ ${i.oduNumber}</div></div>
+      <div class="stat-card"><div class="val">${i.score}</div><div class="lbl">Ifa Score</div></div>
+    </div>
+    ${bar(i.score,'#6a4a10')}
+    <table style="margin:12px 0"><tbody>
+      ${row2('OdÃ¹ (Thai)', i.oduTh)}
+      ${row2('Theme', i.oduTheme)}
+      ${row2('Fortune', i.fortune)}
+    </tbody></table>
+    ${box('à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡ Ifa', i.reading, i.fortune.includes('à¹€à¸¢à¸µà¹ˆà¸¢à¸¡') ? 'green' : i.fortune.includes('à¸—à¹‰à¸²à¸—à¸²à¸¢') ? 'red' : 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> Ifa divination à¹€à¸›à¹‡à¸™à¸£à¸°à¸šà¸šà¹‚à¸«à¸£à¸²à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸‚à¸­à¸‡à¸Šà¸²à¸§ Yoruba à¹„à¸™à¸ˆà¸µà¹€à¸£à¸µà¸¢ à¸¡à¸µà¸­à¸²à¸¢à¸¸à¸à¸§à¹ˆà¸² 8,000 à¸›à¸µà¸•à¸²à¸¡à¸•à¸³à¸™à¸²à¸™ à¸¡à¸µ 256 OdÃ¹ (corpus à¸„à¸§à¸²à¸¡à¸£à¸¹à¹‰) à¹à¸•à¹ˆà¸¥à¸° OdÃ¹ à¸¡à¸µ poems, proverbs à¹à¸¥à¸° remedies UNESCO à¸›à¸£à¸°à¸à¸²à¸¨à¹ƒà¸«à¹‰ Ifa à¹€à¸›à¹‡à¸™ Intangible Cultural Heritage of Humanity à¹ƒà¸™à¸›à¸µ 2005 Babalawo (à¸™à¸±à¸à¸žà¸¢à¸²à¸à¸£à¸“à¹Œ) à¹ƒà¸Šà¹‰à¹€à¸§à¸¥à¸²à¹€à¸£à¸µà¸¢à¸™ 7-10 à¸›à¸µ</p>
+    <p style="font-size:11px;color:#6a5a42">Ifa à¸¡à¸µ 256 OdÃ¹ (16Ã—16) â€” ${i.odu} à¸„à¸·à¸­ OdÃ¹ à¸—à¸µà¹ˆ ${i.oduNumber} à¸«à¸™à¸¶à¹ˆà¸‡à¹ƒà¸™à¸£à¸°à¸šà¸šà¹‚à¸Šà¸„à¸Šà¸°à¸•à¸²à¸‚à¸­à¸‡à¸Šà¸²à¸§ Yoruba à¹„à¸™à¸ˆà¸µà¹€à¸£à¸µà¸¢/à¹€à¸šà¸™à¸´à¸™</p>
+  `)
+}
+
+function p_aboriginal(c: ChartData): string {
+  const a = c.aboriginal
+  return section(0, 'Aboriginal Dreamtime â€” à¸šà¸£à¸£à¸žà¸šà¸¸à¸£à¸¸à¸©à¹à¸«à¹ˆà¸‡à¸à¸±à¸™', 'ðŸŒˆ', `
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="stat-card"><div class="val" style="font-size:16px">${esc(a.dreamingTh)}</div><div class="lbl">Dreaming Ancestor</div></div>
+      <div class="stat-card"><div class="val">${a.score}</div><div class="lbl">Aboriginal Score</div></div>
+    </div>
+    ${bar(a.score,'#6a4a30')}
+    <table style="margin:12px 0"><tbody>
+      ${row2('Ancestor (EN)', a.dreamingAncestor)}
+      ${row2('Season', a.season)}
+      ${row2('Clan', a.clan)}
+    </tbody></table>
+    ${box('à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡ Dreamtime', a.reading, 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> Dreamtime (Tjukurpa à¹ƒà¸™à¸ à¸²à¸©à¸² Anangu) à¹€à¸›à¹‡à¸™à¸›à¸£à¸±à¸Šà¸à¸²à¹à¸¥à¸°à¹‚à¸¥à¸à¸—à¸±à¸¨à¸™à¹Œà¸‚à¸­à¸‡à¸Šà¸²à¸§à¸­à¸°à¸šà¸­à¸£à¸´à¸ˆà¸´à¸™à¸­à¸­à¸ªà¹€à¸•à¸£à¹€à¸¥à¸µà¸¢ à¸­à¸²à¸¢à¸¸à¸à¸§à¹ˆà¸² 65,000 à¸›à¸µ â€” à¹€à¸à¹ˆà¸²à¹à¸à¹ˆà¸—à¸µà¹ˆà¸ªà¸¸à¸”à¹ƒà¸™à¹‚à¸¥à¸ à¸šà¸£à¸£à¸žà¸šà¸¸à¸£à¸¸à¸© Dreaming à¸ªà¸£à¹‰à¸²à¸‡à¸ à¸¹à¸¡à¸´à¸—à¸±à¸¨à¸™à¹Œà¹à¸¥à¸°à¸à¸³à¸«à¸™à¸”à¸à¸Žà¸—à¸²à¸‡à¸ªà¸±à¸‡à¸„à¸¡ à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¹à¸„à¹ˆ "à¸•à¸³à¸™à¸²à¸™" à¹à¸•à¹ˆà¸„à¸·à¸­ living law à¸—à¸µà¹ˆà¸¢à¸±à¸‡à¹ƒà¸Šà¹‰à¸­à¸¢à¸¹à¹ˆà¹ƒà¸™à¸Šà¸¸à¸¡à¸Šà¸™à¸­à¸°à¸šà¸­à¸£à¸´à¸ˆà¸´à¸™à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™</p>
+    <p style="font-size:11px;color:#6a5a42">Dreamtime à¹€à¸›à¹‡à¸™à¸›à¸£à¸±à¸Šà¸à¸²à¸Šà¸²à¸§à¸­à¸°à¸šà¸­à¸£à¸´à¸ˆà¸´à¸™à¸­à¸­à¸ªà¹€à¸•à¸£à¹€à¸¥à¸µà¸¢ â€” à¸šà¸£à¸£à¸žà¸šà¸¸à¸£à¸¸à¸© ${a.dreamingTh} à¸Šà¸µà¹‰à¹à¸™à¸°à¹€à¸ªà¹‰à¸™à¸—à¸²à¸‡à¸œà¹ˆà¸²à¸™à¸à¸Žà¸˜à¸£à¸£à¸¡à¸Šà¸²à¸•à¸´</p>
+  `)
+}
+
+function p_biorhythm(c: ChartData): string {
+  const b = c.biorhythm
+  const phaseColor = (v: number) => v > 40 ? '#4a9a40' : v > 0 ? '#8a8a30' : v > -40 ? '#8a5a20' : '#9a3020'
+  return section(0, 'Biorhythm â€” à¸§à¸±à¸à¸ˆà¸±à¸à¸£à¸Šà¸µà¸§à¸´à¸•', 'ðŸ“ˆ', `
+    <div class="grid-3" style="margin-bottom:12px;text-align:center">
+      ${[['à¸£à¹ˆà¸²à¸‡à¸à¸²à¸¢',b.physical,b.physicalPhase,'Physical (23d)'],['à¸­à¸²à¸£à¸¡à¸“à¹Œ',b.emotional,b.emotionalPhase,'Emotional (28d)'],['à¸ªà¸•à¸´à¸›à¸±à¸à¸à¸²',b.intellectual,b.intellectualPhase,'Intellectual (33d)']].map(([l,v,p,en]) => `
+        <div class="stat-card">
+          <div class="val" style="color:${phaseColor(+v)}">${+v > 0 ? '+' : ''}${v}%</div>
+          <div class="lbl">${esc(String(l))}</div>
+          <div style="font-size:10px;color:#6a5a42;margin-top:2px">${esc(String(p))}</div>
+        </div>`).join('')}
+    </div>
+    <div style="background:#0a1008;border-radius:8px;padding:12px;margin:8px 0">
+      <div style="font-size:12px;color:#5a8a40;margin-bottom:6px">à¸§à¸±à¸à¸ˆà¸±à¸à¸£ à¸“ 14 à¹€à¸¡.à¸¢. 2026</div>
+      ${[['Physical 23d', b.physical, '#4a9a40'],['Emotional 28d', b.emotional, '#5a6a90'],['Intellectual 33d', b.intellectual, '#9a7a30']].map(([l,v,col]) =>
+        `<div style="margin:6px 0"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span style="color:#9a8a72">${esc(String(l))}</span><span style="color:${col};font-weight:600">${+v > 0 ?'+':''}${v}%</span></div>
+        <div style="background:#1a2010;border-radius:3px;height:6px"><div style="width:${Math.round((+v+100)/2)}%;height:6px;background:${col};border-radius:3px"></div></div></div>`
+      ).join('')}
+    </div>
+    <div class="stat-card" style="margin-top:8px">
+      <div class="val">${b.score}</div><div class="lbl">Biorhythm Score</div>
+    </div>
+    ${bar(b.score,'#5a7a30')}
+    <p style="font-size:11px;color:#6a5a42;margin-top:8px">${esc(b.reading)}</p>
+  `)
+}
+
+function p_vedicMahadasha(c: ChartData): string {
+  const v = c.vedicMahadasha
+  const DASHA_COLORS: Record<string,string> = {
+    Jupiter:'#5a8a30', Venus:'#8a5a80', Sun:'#8a6020', Moon:'#5a7a9a',
+    Mercury:'#3a7a60', Mars:'#9a3020', Saturn:'#4a4a5a', Rahu:'#5a3060', Ketu:'#6a5a30'
+  }
+  const col = DASHA_COLORS[v.currentDasha] ?? '#6a5a42'
+  return section(0, 'Vedic Mahadasha â€” à¸Šà¹ˆà¸§à¸‡à¸”à¸²à¸§à¸›à¸à¸„à¸£à¸­à¸‡', 'ðŸ•‰ï¸', `
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="stat-card" style="border-color:${col}">
+        <div class="val" style="color:${col};font-size:20px">${esc(v.currentDasha)}</div>
+        <div class="lbl">Mahadasha à¸›à¸±à¸ˆà¸ˆà¸¸à¸šà¸±à¸™</div>
+      </div>
+      <div class="stat-card"><div class="val">${v.score}</div><div class="lbl">Mahadasha Score</div></div>
+    </div>
+    ${bar(v.score, col)}
+    <table style="margin:12px 0"><tbody>
+      ${row2('Mahadasha', v.currentDasha)}
+      ${row2('à¸ªà¸´à¹‰à¸™à¸ªà¸¸à¸”', String(v.currentDashaEnd))}
+      ${row2('Antardasha', v.antardasha)}
+      ${row2('à¸„à¸¸à¸“à¸ à¸²à¸ž', v.dashaQuality)}
+      ${row2('à¸˜à¸²à¸•à¸¸ Dasha', v.dashaElement)}
+    </tbody></table>
+    ${box('à¸à¸²à¸£à¸•à¸µà¸„à¸§à¸²à¸¡ Mahadasha', v.reading, ['Jupiter','Venus','Sun'].includes(v.currentDasha) ? 'green' : ['Saturn','Rahu','Ketu'].includes(v.currentDasha) ? 'red' : 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>à¸•à¹‰à¸™à¸à¸³à¹€à¸™à¸´à¸”:</strong> Vimshottari Dasha à¹€à¸›à¹‡à¸™à¸£à¸°à¸šà¸š planetary periods à¹ƒà¸™ Vedic Jyotish à¸£à¸§à¸¡ 120 à¸›à¸µ à¸›à¸£à¸°à¸à¸­à¸šà¸”à¹‰à¸§à¸¢ 9 à¸”à¸²à¸§ à¹à¸•à¹ˆà¸¥à¸°à¸”à¸²à¸§à¸›à¸à¸„à¸£à¸­à¸‡ 6-20 à¸›à¸µ à¸„à¸³à¸™à¸§à¸“à¸ˆà¸²à¸ Nakshatra à¸‚à¸­à¸‡à¸”à¸§à¸‡à¸ˆà¸±à¸™à¸—à¸£à¹Œà¸“ à¹€à¸§à¸¥à¸²à¹€à¸à¸´à¸” â€” à¸–à¸·à¸­à¹€à¸›à¹‡à¸™à¸«à¸™à¸¶à¹ˆà¸‡à¹ƒà¸™à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡à¸¡à¸·à¸­à¸—à¸³à¸™à¸²à¸¢ timing à¸—à¸µà¹ˆà¹à¸¡à¹ˆà¸™à¸¢à¸³à¸—à¸µà¹ˆà¸ªà¸¸à¸”à¹ƒà¸™ Vedic system à¸¢à¸±à¸‡à¹ƒà¸Šà¹‰à¹à¸žà¸£à¹ˆà¸«à¸¥à¸²à¸¢à¹ƒà¸™à¸­à¸´à¸™à¹€à¸”à¸µà¸¢à¸ªà¸³à¸«à¸£à¸±à¸šà¸à¸²à¸£à¸•à¸±à¸”à¸ªà¸´à¸™à¹ƒà¸ˆà¸ªà¸³à¸„à¸±à¸</p>
+    <p style="font-size:11px;color:#6a5a42">Vedic Mahadasha à¸à¸³à¸«à¸™à¸” "à¸Šà¹ˆà¸§à¸‡à¹€à¸§à¸¥à¸²" à¸—à¸µà¹ˆà¸”à¸²à¸§à¹à¸•à¹ˆà¸¥à¸°à¸”à¸§à¸‡à¸›à¸à¸„à¸£à¸­à¸‡à¸Šà¸µà¸§à¸´à¸• â€” ${v.currentDasha} (${v.dashaQuality}) à¸„à¸£à¸­à¸‡à¸ˆà¸™à¸–à¸¶à¸‡à¸›à¸µ ${v.currentDashaEnd}</p>
+  `)
+}
+
+

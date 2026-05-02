@@ -1,0 +1,150 @@
+/* ============================================================
+   globals.css — Base styles & CSS custom properties
+   All design tokens live in lib/theme.ts (TypeScript).
+   Use CSS variables here for things that can't be in TS
+   (animations, media queries, print styles, font imports).
+   ============================================================ */
+
+/* ── CSS Custom Properties (mirrors lib/theme.ts) ────────────
+   Update BOTH if you change colors. The TS version is the
+   source of truth for components; these are for plain CSS. */
+:root {
+  --bg-page:    #050403;
+  --bg-surface: #0a0806;
+  --bg-raised:  #111009;
+  --bg-card:    #1a1510;
+
+  --border-subtle:  #1a1510;
+  --border-default: #2a2010;
+  --border-strong:  #3a3020;
+
+  --gold:       #d4aa50;
+  --gold-dim:   #9a7830;
+
+  --text-primary:   #f0e8d0;
+  --text-secondary: #c8c0a8;
+  --text-muted:     #9a8a72;
+  --text-faint:     #6a5a42;
+  --text-disabled:  #4a3a2a;
+
+  --font-body:    'Sarabun', 'Noto Sans Thai', sans-serif;
+  --font-heading: 'Cinzel', serif;
+}
+
+/* ── Reset ────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background:  var(--bg-page);
+  color:       var(--text-primary);
+  min-height:  100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Form elements — base reset ──────────────────────────────── */
+input, select, textarea, button {
+  font-family: inherit;
+  font-size:   inherit;
+}
+
+a { color: inherit; }
+
+/* ── Utility CSS classes ─────────────────────────────────────── */
+/* (prefer lib/theme.ts in components — use these only for
+   layouts that can't take inline styles, e.g. print) */
+
+/* Form layout helpers (used in onboarding/page.tsx) */
+.form-group {
+  display:        flex;
+  flex-direction: column;
+  gap:            6px;
+}
+
+.form-group label {
+  font-size:      12px;
+  color:          var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background:    var(--bg-surface);
+  border:        1px solid var(--border-strong);
+  border-radius: 8px;
+  color:         var(--text-primary);
+  padding:       10px 14px;
+  outline:       none;
+  transition:    border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--gold);
+}
+
+.form-group select option { background: var(--bg-card); }
+
+/* Card utility */
+.card {
+  background:   var(--bg-card);
+  border:       1px solid var(--border-default);
+  border-radius: 14px;
+  padding:      24px;
+}
+
+/* ── Animations ──────────────────────────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes glitch {
+  0%   { clip-path: inset(40% 0 61% 0); transform: translate(-2px, 2px); }
+  20%  { clip-path: inset(92% 0 1% 0);  transform: translate(2px, -2px); }
+  40%  { clip-path: inset(43% 0 1% 0);  transform: translate(-2px, 0); }
+  60%  { clip-path: inset(25% 0 58% 0); transform: translate(2px, 2px); }
+  80%  { clip-path: inset(54% 0 7% 0);  transform: translate(-2px, -2px); }
+  100% { clip-path: inset(58% 0 43% 0); transform: translate(0); }
+}
+
+.animate-spin   { animation: spin 2s linear infinite; }
+.animate-pulse  { animation: pulse 1.5s ease-in-out infinite; }
+.animate-glitch { animation: glitch 0.3s steps(1) infinite; }
+
+/* ── Report viewer layout ────────────────────────────────────── */
+.report-toolbar {
+  position:   fixed;
+  top: 0; left: 0; right: 0;
+  z-index:    100;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-strong);
+  display:    flex;
+  align-items:center;
+  justify-content: space-between;
+  padding:    12px 24px;
+}
+
+.report-frame-wrap {
+  padding-top: 56px;
+  height:      100vh;
+}
+
+.report-frame-wrap iframe {
+  width: 100%; height: calc(100vh - 56px); border: none;
+}
+
+/* ── Print styles ────────────────────────────────────────────── */
+@media print {
+  .report-toolbar    { display: none !important; }
+  .report-frame-wrap { padding-top: 0; height: auto; }
+}

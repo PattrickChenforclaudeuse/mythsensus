@@ -3,8 +3,7 @@
 User-agent: *
 Allow: /
 
-# Big static assets — no indexing needed but crawling is fine
-Disallow: /beta/index.html$
+# /beta/ → / (merged 2026-05-02). 301 redirect handled by vercel.json.
 Disallow: /_next/
 Disallow: /api/
 

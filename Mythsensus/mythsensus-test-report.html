@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mythsensus Mock Run Test Report</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a0f; color: #e0e0e0; padding: 24px; }
+.container { max-width: 1200px; margin: 0 auto; }
+h1 { font-size: 28px; margin-bottom: 8px; color: #fff; }
+.subtitle { color: #888; margin-bottom: 24px; font-size: 14px; }
+.summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+.summary-card { background: #151520; border-radius: 12px; padding: 20px; text-align: center; border: 1px solid #252530; }
+.summary-card .number { font-size: 36px; font-weight: bold; }
+.summary-card .label { font-size: 13px; color: #888; margin-top: 4px; }
+.pass .number { color: #4ade80; }
+.fail .number { color: #f87171; }
+.warn .number { color: #fbbf24; }
+.total .number { color: #818cf8; }
+.category { margin-bottom: 24px; }
+.category-header { font-size: 18px; font-weight: 600; padding: 12px 16px; background: #151520; border-radius: 8px 8px 0 0; border: 1px solid #252530; border-bottom: none; display: flex; justify-content: space-between; align-items: center; }
+.category-stats { font-size: 12px; color: #888; }
+table { width: 100%; border-collapse: collapse; background: #111118; border: 1px solid #252530; border-radius: 0 0 8px 8px; overflow: hidden; }
+th { text-align: left; padding: 10px 14px; background: #1a1a25; font-size: 12px; text-transform: uppercase; color: #888; letter-spacing: 0.5px; }
+td { padding: 10px 14px; border-top: 1px solid #1e1e2a; font-size: 13px; vertical-align: top; }
+.status { font-weight: 600; font-size: 12px; padding: 3px 10px; border-radius: 12px; display: inline-block; }
+.status-PASS { background: #052e16; color: #4ade80; }
+.status-FAIL { background: #450a0a; color: #f87171; }
+.status-WARNING { background: #422006; color: #fbbf24; }
+.detail { color: #999; font-size: 12px; max-width: 500px; word-break: break-all; }
+.file-col { color: #93c5fd; font-size: 12px; font-family: 'Fira Code', monospace, monospace; }
+tr:hover { background: #15151f; }
+.footer { margin-top: 32px; text-align: center; color: #555; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Mythsensus Mock Run Test Report</h1>
+<p class="subtitle">Generated: 2026-04-07 12:24:14 &mdash; Project: Mythsensus</p>
+
+<div class="summary">
+<div class="summary-card total"><div class="number">181</div><div class="label">Total Tests</div></div>
+<div class="summary-card pass"><div class="number">168</div><div class="label">Passed</div></div>
+<div class="summary-card fail"><div class="number">0</div><div class="label">Failed</div></div>
+<div class="summary-card warn"><div class="number">13</div><div class="label">Warnings</div></div>
+</div>
+
+<div class="category">
+<div class="category-header">
+    <span>SQL</span>
+    <span class="category-stats">29 pass / 0 fail / 1 warn</span>
+</div>
+<table>
+<tr><th>File</th><th>Test</th><th>Status</th><th>Detail</th></tr>
+<tr>
+    <td class="file-col">mythsensus-schema-v2.sql</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-schema-v2.sql</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">21954 chars</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-schema-v2.sql</td>
+    <td>sqlparse parse</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">89 statements parsed</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-schema-v2.sql</td>
+    <td>Balanced quotes</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-schema-v2.sql</td>
+    <td>Semicolons present</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">151 semicolons</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-schema-v2.sql</td>
+    <td>SQL keywords found</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">CREATE, ALTER, INSERT</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-pdpa-consent.sql</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-pdpa-consent.sql</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">8522 chars</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-pdpa-consent.sql</td>
+    <td>sqlparse parse</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">26 statements parsed</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-pdpa-consent.sql</td>
+    <td>Balanced quotes</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-pdpa-consent.sql</td>
+    <td>Semicolons present</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">42 semicolons</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-pdpa-consent.sql</td>
+    <td>SQL keywords found</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">CREATE, ALTER, INSERT</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-supabase-config.sql</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-supabase-config.sql</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">6390 chars</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-supabase-config.sql</td>
+    <td>sqlparse parse</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">13 statements parsed</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-supabase-config.sql</td>
+    <td>Balanced quotes</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-supabase-config.sql</td>
+    <td>Semicolons present</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">16 semicolons</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-supabase-config.sql</td>
+    <td>SQL keywords found</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">CREATE, INSERT, GRANT, REVOKE</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-schema.sql</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-schema.sql</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">11181 chars</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-schema.sql</td>
+    <td>sqlparse parse</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">60 statements parsed</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-schema.sql</td>
+    <td>Balanced quotes</td>
+    <td><span class="status status-WARNING">WARNING</span></td>
+    <td class="detail">Odd number of single quotes (67)</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-schema.sql</td>
+    <td>Semicolons present</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">67 semicolons</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-schema.sql</td>
+    <td>SQL keywords found</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">CREATE, ALTER, INSERT</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-all-schemas-combined.sql</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-all-schemas-combined.sql</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">22376 chars</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-all-schemas-combined.sql</td>
+    <td>sqlparse parse</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">102 statements parsed</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-all-schemas-combined.sql</td>
+    <td>Balanced quotes</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-all-schemas-combined.sql</td>
+    <td>Semicolons present</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">179 semicolons</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-all-schemas-combined.sql</td>
+    <td>SQL keywords found</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">CREATE, ALTER, INSERT, GRANT, REVOKE</td>
+</tr>
+</table></div>
+<div class="category">
+<div class="category-header">
+    <span>HTML</span>
+    <span class="category-stats">90 pass / 0 fail / 0 warn</span>
+</div>
+<table>
+<tr><th>File</th><th>Test</th><th>Status</th><th>Detail</th></tr>
+<tr>
+    <td class="file-col">mythsensus-interactive-v2.html</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-interactive-v2.html</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">51133 chars</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-interactive-v2.html</td>
+    <td>HTML structure</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">html=True, head=True, body=True</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-interactive-v2.html</td>
+    <td>Balanced &lt;div&gt; tags</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">59 pairs</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-interactive-v2.html</td>
+    <td>JS syntax (acorn)</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">1 script(s) parsed OK</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-interactive-v2.html</td>
+    <td>Charset declaration</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-glitch-event-v2.html</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-glitch-event-v2.html</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">20520 chars</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-glitch-event-v2.html</td>
+    <td>HTML structure</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">html=True, head=True, body=True</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-glitch-event-v2.html</td>
+    <td>Balanced &lt;div&gt; tags</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">12 pairs</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-glitch-event-v2.html</td>
+    <td>JS syntax (acorn)</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">1 script(s) parsed OK</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-glitch-event-v2.html</td>
+    <td>Charset declaration</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-privacy-policy-th.html</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-privacy-policy-th.html</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">7160 chars</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-privacy-policy-th.html</td>
+    <td>HTML structure</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">html=True, head=True, body=True</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-privacy-policy-th.html</td>
+    <td>Balanced &lt;div&gt; tags</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">13 pairs</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-privacy-policy-th.html</td>
+    <td>JS syntax (acorn)</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">No inline scripts</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-privacy-policy-th.html</td>
+    <td>Charset declaration</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-security-audit.html</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-security-audit.html</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">52959 chars</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-security-audit.html</td>
+    <td>HTML structure</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">html=True, head=True, body=True</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-security-audit.html</td>
+    <td>Balanced &lt;div&gt; tags</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">281 pairs</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-security-audit.html</td>
+    <td>JS syntax (acorn)</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">No inline scripts</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-security-audit.html</td>
+    <td>Charset declaration</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-interactive-v2.html</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-interactive-v2.html</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">51133 chars</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-interactive-v2.html</td>
+    <td>HTML structure</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">html=True, head=True, body=True</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-interactive-v2.html</td>
+    <td>Balanced &lt;div&gt; tags</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">59 pairs</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-interactive-v2.html</td>
+    <td>JS syntax (acorn)</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">1 script(s) parsed OK</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-interactive-v2.html</td>
+    <td>Charset declaration</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-glitch-event-v2.html</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-glitch-event-v2.html</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">20520 chars</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-glitch-event-v2.html</td>
+    <td>HTML structure</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">html=True, head=True, body=True</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-glitch-event-v2.html</td>
+    <td>Balanced &lt;div&gt; tags</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">12 pairs</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-glitch-event-v2.html</td>
+    <td>JS syntax (acorn)</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">1 script(s) parsed OK</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-glitch-event-v2.html</td>
+    <td>Charset declaration</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-privacy-policy-th.html</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-privacy-policy-th.html</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">7160 chars</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-privacy-policy-th.html</td>
+    <td>HTML structure</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">html=True, head=True, body=True</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-privacy-policy-th.html</td>
+    <td>Balanced &lt;div&gt; tags</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">13 pairs</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-privacy-policy-th.html</td>
+    <td>JS syntax (acorn)</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">No inline scripts</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-privacy-policy-th.html</td>
+    <td>Charset declaration</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-app-offline.html</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-app-offline.html</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">119582 chars</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-app-offline.html</td>
+    <td>HTML structure</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">html=True, head=True, body=True</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-app-offline.html</td>
+    <td>Balanced &lt;div&gt; tags</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">171 pairs</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-app-offline.html</td>
+    <td>JS syntax (acorn)</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">1 script(s) parsed OK</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-app-offline.html</td>
+    <td>Charset declaration</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-security-audit.html</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-security-audit.html</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">52959 chars</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-security-audit.html</td>
+    <td>HTML structure</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">html=True, head=True, body=True</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-security-audit.html</td>
+    <td>Balanced &lt;div&gt; tags</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">281 pairs</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-security-audit.html</td>
+    <td>JS syntax (acorn)</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">No inline scripts</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-security-audit.html</td>
+    <td>Charset declaration</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/assets/report-template.html</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/assets/report-template.html</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">276252 chars</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/assets/report-template.html</td>
+    <td>HTML structure</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">html=True, head=True, body=True</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/assets/report-template.html</td>
+    <td>Balanced &lt;div&gt; tags</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">588 pairs</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/assets/report-template.html</td>
+    <td>JS syntax (acorn)</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">No inline scripts</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/assets/report-template.html</td>
+    <td>Charset declaration</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/output/mythsensus-template-fixed.html</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/output/mythsensus-template-fixed.html</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">276252 chars</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/output/mythsensus-template-fixed.html</td>
+    <td>HTML structure</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">html=True, head=True, body=True</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/output/mythsensus-template-fixed.html</td>
+    <td>Balanced &lt;div&gt; tags</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">588 pairs</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/output/mythsensus-template-fixed.html</td>
+    <td>JS syntax (acorn)</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">No inline scripts</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/output/mythsensus-template-fixed.html</td>
+    <td>Charset declaration</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/modules/coaching-template.html</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/modules/coaching-template.html</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">22499 chars</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/modules/coaching-template.html</td>
+    <td>HTML structure</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">html=True, head=True, body=True</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/modules/coaching-template.html</td>
+    <td>Balanced &lt;div&gt; tags</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">66 pairs</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/modules/coaching-template.html</td>
+    <td>JS syntax (acorn)</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">No inline scripts</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/modules/coaching-template.html</td>
+    <td>Charset declaration</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/modules/finance-template.html</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/modules/finance-template.html</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">21606 chars</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/modules/finance-template.html</td>
+    <td>HTML structure</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">html=True, head=True, body=True</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/modules/finance-template.html</td>
+    <td>Balanced &lt;div&gt; tags</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">87 pairs</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/modules/finance-template.html</td>
+    <td>JS syntax (acorn)</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">No inline scripts</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/modules/finance-template.html</td>
+    <td>Charset declaration</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/cosmic-blueprint-offline.html</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/cosmic-blueprint-offline.html</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">212799 chars</td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/cosmic-blueprint-offline.html</td>
+    <td>HTML structure</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">html=True, head=True, body=True</td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/cosmic-blueprint-offline.html</td>
+    <td>Balanced &lt;div&gt; tags</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">277 pairs</td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/cosmic-blueprint-offline.html</td>
+    <td>JS syntax (acorn)</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">1 script(s) parsed OK</td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/cosmic-blueprint-offline.html</td>
+    <td>Charset declaration</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/sample-report-male-3feb1991.html</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/sample-report-male-3feb1991.html</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">148253 chars</td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/sample-report-male-3feb1991.html</td>
+    <td>HTML structure</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">html=True, head=True, body=True</td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/sample-report-male-3feb1991.html</td>
+    <td>Balanced &lt;div&gt; tags</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">907 pairs</td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/sample-report-male-3feb1991.html</td>
+    <td>JS syntax (acorn)</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">No inline scripts</td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/sample-report-male-3feb1991.html</td>
+    <td>Charset declaration</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+</table></div>
+<div class="category">
+<div class="category-header">
+    <span>JSON</span>
+    <span class="category-stats">14 pass / 0 fail / 0 warn</span>
+</div>
+<table>
+<tr><th>File</th><th>Test</th><th>Status</th><th>Detail</th></tr>
+<tr>
+    <td class="file-col">mythsensus-vercel-headers.json</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-vercel-headers.json</td>
+    <td>Valid JSON</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-vercel-headers.json</td>
+    <td>Has &#x27;headers&#x27; key</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">3 header rules</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-gods.json</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-gods.json</td>
+    <td>Valid JSON</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-gods.json</td>
+    <td>Count = 999</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">Actual count: 999</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-gods.json</td>
+    <td>Tier distribution</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">common: 380, epic: 120, legendary: 50, mythic: 19, rare: 180, uncommon: 250</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-gods.json</td>
+    <td>No ???/transcendent tiers</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-gods.json</td>
+    <td>No empty fields</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-gods.json</td>
+    <td>No duplicate IDs</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">999 unique IDs</td>
+</tr>
+<tr>
+    <td class="file-col">mythsensus-gods.json</td>
+    <td>No XSS in content</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/vercel.json</td>
+    <td>Valid JSON</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/package.json</td>
+    <td>Valid JSON</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">name=mythsensus-report-engine</td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/tsconfig.json</td>
+    <td>Valid JSON</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+</table></div>
+<div class="category">
+<div class="category-header">
+    <span>PDF</span>
+    <span class="category-stats">6 pass / 0 fail / 0 warn</span>
+</div>
+<table>
+<tr><th>File</th><th>Test</th><th>Status</th><th>Detail</th></tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/output/mythsensus-blueprint.pdf</td>
+    <td>File exists &amp; non-empty</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">183,368 bytes</td>
+</tr>
+<tr>
+    <td class="file-col">reference-pdfs/cosmic-B-1990-02-27.pdf</td>
+    <td>File exists &amp; non-empty</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">255,758 bytes</td>
+</tr>
+<tr>
+    <td class="file-col">reference-pdfs/cosmic-C-1995-07-01.pdf</td>
+    <td>File exists &amp; non-empty</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">256,877 bytes</td>
+</tr>
+<tr>
+    <td class="file-col">reference-pdfs/cosmic-E-1990-11-29.pdf</td>
+    <td>File exists &amp; non-empty</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">261,947 bytes</td>
+</tr>
+<tr>
+    <td class="file-col">reference-pdfs/cosmic-premium-3feb1991.pdf</td>
+    <td>File exists &amp; non-empty</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">317,599 bytes</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/test-output.pdf</td>
+    <td>File exists &amp; non-empty</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">188,795 bytes</td>
+</tr>
+</table></div>
+<div class="category">
+<div class="category-header">
+    <span>PDF/Python</span>
+    <span class="category-stats">4 pass / 0 fail / 0 warn</span>
+</div>
+<table>
+<tr><th>File</th><th>Test</th><th>Status</th><th>Detail</th></tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/assets/render_report.py</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/assets/render_report.py</td>
+    <td>py_compile syntax</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/output/mythsensus-render-fixed.py</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/output/mythsensus-render-fixed.py</td>
+    <td>py_compile syntax</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+</table></div>
+<div class="category">
+<div class="category-header">
+    <span>CSS/Fonts</span>
+    <span class="category-stats">10 pass / 0 fail / 1 warn</span>
+</div>
+<table>
+<tr><th>File</th><th>Test</th><th>Status</th><th>Detail</th></tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/assets/sarabun-embedded.css</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/assets/sarabun-embedded.css</td>
+    <td>@font-face declarations</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">12 font-face rules</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/assets/sarabun-embedded.css</td>
+    <td>Base64 embedded fonts</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">Fonts are base64 embedded</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/output/mythsensus-sarabun-embedded.css</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/output/mythsensus-sarabun-embedded.css</td>
+    <td>@font-face declarations</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">12 font-face rules</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/output/mythsensus-sarabun-embedded.css</td>
+    <td>Base64 embedded fonts</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">Fonts are base64 embedded</td>
+</tr>
+<tr>
+    <td class="file-col">sarabun-embedded.css</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">sarabun-embedded.css</td>
+    <td>@font-face declarations</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">12 font-face rules</td>
+</tr>
+<tr>
+    <td class="file-col">sarabun-embedded.css</td>
+    <td>Base64 embedded fonts</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">Fonts are base64 embedded</td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/app/globals.css</td>
+    <td>File exists</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/app/globals.css</td>
+    <td>@font-face declarations</td>
+    <td><span class="status status-WARNING">WARNING</span></td>
+    <td class="detail">No @font-face found</td>
+</tr>
+</table></div>
+<div class="category">
+<div class="category-header">
+    <span>PDF/Template</span>
+    <span class="category-stats">2 pass / 0 fail / 0 warn</span>
+</div>
+<table>
+<tr><th>File</th><th>Test</th><th>Status</th><th>Detail</th></tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/assets/report-template.html</td>
+    <td>Template syntax</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">No template placeholders found — static HTML</td>
+</tr>
+<tr>
+    <td class="file-col">cosmic-blueprint-fix/output/mythsensus-template-fixed.html</td>
+    <td>Template syntax</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">No template placeholders found — static HTML</td>
+</tr>
+</table></div>
+<div class="category">
+<div class="category-header">
+    <span>Security</span>
+    <span class="category-stats">3 pass / 0 fail / 11 warn</span>
+</div>
+<table>
+<tr><th>File</th><th>Test</th><th>Status</th><th>Detail</th></tr>
+<tr>
+    <td class="file-col">mythsensus-interactive-v2.html</td>
+    <td>innerHTML without sanitization</td>
+    <td><span class="status status-WARNING">WARNING</span></td>
+    <td class="detail">mythsensus-interactive-v2.html: icon.innerHTML=f.icon;</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-app-offline.html</td>
+    <td>innerHTML without sanitization</td>
+    <td><span class="status status-WARNING">WARNING</span></td>
+    <td class="detail">html-mockups/mythsensus-app-offline.html: if(!entries.length){barsEl.innerHTML=&#x27;&#x27;;return;}</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-app-offline.html</td>
+    <td>innerHTML without sanitization</td>
+    <td><span class="status status-WARNING">WARNING</span></td>
+    <td class="detail">html-mockups/mythsensus-app-offline.html: barsEl.innerHTML=entries.map(([w,d])=&gt;{</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-app-offline.html</td>
+    <td>innerHTML without sanitization</td>
+    <td><span class="status status-WARNING">WARNING</span></td>
+    <td class="detail">html-mockups/mythsensus-app-offline.html: document.getElementById(&#x27;atBars&#x27;).innerHTML=&#x27;&#x27;;</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-app-offline.html</td>
+    <td>innerHTML without sanitization</td>
+    <td><span class="status status-WARNING">WARNING</span></td>
+    <td class="detail">html-mockups/mythsensus-app-offline.html: document.getElementById(&#x27;typeTabs&#x27;).innerHTML=entries.map(([w,d])=&gt;{</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-app-offline.html</td>
+    <td>innerHTML without sanitization</td>
+    <td><span class="status status-WARNING">WARNING</span></td>
+    <td class="detail">html-mockups/mythsensus-app-offline.html: document.getElementById(&#x27;godChipList&#x27;).innerHTML=uniq.map(g=&gt;`&lt;div class=&quot;god-chip&quot;&gt;${g.symbol||&#x27;✦&#x27;}</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-app-offline.html</td>
+    <td>innerHTML without sanitization</td>
+    <td><span class="status status-WARNING">WARNING</span></td>
+    <td class="detail">html-mockups/mythsensus-app-offline.html: document.getElementById(&#x27;planetStrip&#x27;).innerHTML=cards.map(c=&gt;{</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-app-offline.html</td>
+    <td>innerHTML without sanitization</td>
+    <td><span class="status status-WARNING">WARNING</span></td>
+    <td class="detail">html-mockups/mythsensus-app-offline.html: document.getElementById(&#x27;sysGrid&#x27;).innerHTML=consensusHtml+systems.map(s=&gt;`</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-app-offline.html</td>
+    <td>innerHTML without sanitization</td>
+    <td><span class="status status-WARNING">WARNING</span></td>
+    <td class="detail">html-mockups/mythsensus-app-offline.html: document.getElementById(&#x27;lifeGuideContainer&#x27;).innerHTML=renderLifeGuide(data);</td>
+</tr>
+<tr>
+    <td class="file-col">html-mockups/mythsensus-app-offline.html</td>
+    <td>innerHTML without sanitization</td>
+    <td><span class="status status-WARNING">WARNING</span></td>
+    <td class="detail">html-mockups/mythsensus-app-offline.html: hint.innerHTML=`✦ ${LANG===&#x27;th&#x27;?&#x27;พบข้อมูลเดิม&#x27;:&#x27;Previous entry found&#x27;} — &lt;button onclick=&quot;calcChart(</td>
+</tr>
+<tr>
+    <td class="file-col">Multiple files</td>
+    <td>innerHTML total</td>
+    <td><span class="status status-WARNING">WARNING</span></td>
+    <td class="detail">12 total occurrences</td>
+</tr>
+<tr>
+    <td class="file-col">All files</td>
+    <td>Hardcoded secrets</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">No hardcoded secrets found</td>
+</tr>
+<tr>
+    <td class="file-col">All files</td>
+    <td>eval() usage</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">No eval() calls found</td>
+</tr>
+<tr>
+    <td class="file-col">All files</td>
+    <td>document.write() usage</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">No document.write() calls found</td>
+</tr>
+</table></div>
+<div class="category">
+<div class="category-header">
+    <span>TypeScript</span>
+    <span class="category-stats">10 pass / 0 fail / 0 warn</span>
+</div>
+<table>
+<tr><th>File</th><th>Test</th><th>Status</th><th>Detail</th></tr>
+<tr>
+    <td class="file-col">report-engine/next-env.d.ts</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">201 chars</td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/next-env.d.ts</td>
+    <td>Balanced braces</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/lib/calc.ts</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">46779 chars</td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/lib/calc.ts</td>
+    <td>Balanced braces</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/lib/report.ts</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">43019 chars</td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/lib/report.ts</td>
+    <td>Balanced braces</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/app/layout.tsx</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">738 chars</td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/app/layout.tsx</td>
+    <td>Balanced braces</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/app/page.tsx</td>
+    <td>File readable</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail">5956 chars</td>
+</tr>
+<tr>
+    <td class="file-col">report-engine/app/page.tsx</td>
+    <td>Balanced braces</td>
+    <td><span class="status status-PASS">PASS</span></td>
+    <td class="detail"></td>
+</tr>
+</table></div>
+<div class="footer">Mythsensus QA &mdash; Mock Run Test Suite &mdash; 2026-04-07 12:24:14</div>
+</div>
+</body>
+</html>

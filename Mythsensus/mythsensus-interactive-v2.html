@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- FIX: SEC-H06 — Add Content Security Policy meta tag -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co;">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mythsensus — Where Myriad Myths Reach Consensus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- FIX: SEC-H04 — Add crossorigin attribute to Google Fonts link. Note: Google Fonts dynamically serves different CSS based on user agent, so SRI hashes are not practical. -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Josefin+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
+<style>
+/* ===== RESET & BASE ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a14;--bg2:#0f0f1e;--bg3:#161628;--bg4:#1c1c36;
+  --gold:#d4a853;--gold-light:#e8c97a;--gold-dark:#b08a3a;
+  --silver:#c8c8d4;--silver-light:#e0e0ea;--text:#b8b8c8;
+  --accent:#6e4fcf;--accent2:#4a8fe7;
+  --common:#888;--uncommon:#4CAF50;--rare:#2196F3;--epic:#9C27B0;
+  --legendary:#FF9800;--mythic:#d4a853;--mystery:#1a1a2e;
+  --font-display:'Cinzel Decorative',serif;
+  --font-body:'Cormorant Garamond',serif;
+  --font-ui:'Josefin Sans',sans-serif;
+  --nav-h:64px;
+  --max-w:1200px;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.7;overflow-x:hidden}
+a{color:var(--gold);text-decoration:none;transition:color .3s}
+a:hover{color:var(--gold-light)}
+img{max-width:100%;display:block}
+::selection{background:var(--gold-dark);color:#fff}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--gold-dark)}
+
+/* ===== STARS BACKGROUND ===== */
+.stars-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--dur) ease-in-out infinite alternate}
+@keyframes twinkle{0%{opacity:.1;transform:scale(.8)}100%{opacity:var(--max-o);transform:scale(1.2)}}
+
+/* ===== NAV ===== */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:rgba(10,10,20,.92);backdrop-filter:blur(16px);z-index:1000;display:flex;align-items:center;padding:0 24px;border-bottom:1px solid rgba(212,168,83,.15);transition:box-shadow .4s}
+.nav.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.5)}
+.nav-logo{font-family:var(--font-display);font-size:1.3rem;color:var(--gold);letter-spacing:2px;white-space:nowrap;cursor:pointer}
+.nav-logo span{color:var(--silver-light);font-size:.7em;opacity:.6;margin-left:6px;font-family:var(--font-ui);letter-spacing:0;font-weight:300}
+.nav-tabs{display:flex;gap:4px;margin-left:auto}
+.nav-tab{font-family:var(--font-ui);font-size:.75rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--silver);background:transparent;border:none;padding:8px 16px;cursor:pointer;position:relative;transition:color .3s}
+.nav-tab::after{content:'';position:absolute;bottom:0;left:50%;width:0;height:2px;background:var(--gold);transition:all .3s;transform:translateX(-50%)}
+.nav-tab:hover{color:var(--gold-light)}
+.nav-tab.active{color:var(--gold)}
+.nav-tab.active::after{width:70%}
+.mobile-menu-btn{display:none;background:none;border:none;color:var(--gold);font-size:1.5rem;cursor:pointer;padding:8px}
+
+/* ===== PAGE SECTIONS ===== */
+.page{display:none;min-height:100vh;padding-top:var(--nav-h);position:relative;z-index:1}
+.page.active{display:block;animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.section{max-width:var(--max-w);margin:0 auto;padding:60px 24px}
+
+/* ===== HERO ===== */
+.hero{text-align:center;padding:100px 24px 60px;position:relative}
+.hero::before{content:'';position:absolute;top:50%;left:50%;width:600px;height:600px;background:radial-gradient(circle,rgba(212,168,83,.06) 0%,transparent 70%);transform:translate(-50%,-50%);pointer-events:none}
+.hero-badge{font-family:var(--font-ui);font-size:.7rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);display:inline-block;padding:6px 20px;border:1px solid rgba(212,168,83,.3);border-radius:40px;margin-bottom:24px;opacity:0;animation:slideUp .8s .2s ease forwards}
+.hero h1{font-family:var(--font-display);font-size:clamp(2.2rem,5vw,3.8rem);color:var(--silver-light);line-height:1.2;margin-bottom:16px;opacity:0;animation:slideUp .8s .4s ease forwards}
+.hero h1 em{font-style:normal;color:var(--gold);display:block;font-size:.5em;margin-top:8px;font-family:var(--font-body);font-weight:400;letter-spacing:1px}
+.hero-tagline{font-family:var(--font-body);font-size:clamp(1.1rem,2vw,1.4rem);color:var(--silver);font-style:italic;max-width:600px;margin:0 auto 40px;opacity:0;animation:slideUp .8s .6s ease forwards}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.hero-cta{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;opacity:0;animation:slideUp .8s .8s ease forwards}
+.btn{font-family:var(--font-ui);font-size:.85rem;font-weight:600;letter-spacing:1px;padding:14px 32px;border-radius:50px;cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:8px;border:none}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:var(--bg);box-shadow:0 4px 20px rgba(212,168,83,.3)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(212,168,83,.45)}
+.btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold-dark);padding:13px 31px}
+.btn-outline:hover{background:rgba(212,168,83,.1);transform:translateY(-2px)}
+
+/* ===== COSMIC SCORE PREVIEW ===== */
+.score-preview{max-width:700px;margin:60px auto 0;background:var(--bg2);border:1px solid rgba(212,168,83,.15);border-radius:20px;padding:40px 30px 30px;position:relative;overflow:hidden}
+.score-preview::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.score-preview h3{font-family:var(--font-display);color:var(--gold);text-align:center;font-size:1.1rem;margin-bottom:8px}
+.score-number{text-align:center;font-family:var(--font-display);font-size:3.5rem;color:var(--silver-light);margin-bottom:24px}
+.score-number span{color:var(--gold);font-size:.4em;vertical-align:middle;margin-left:4px}
+.score-bars{display:flex;flex-direction:column;gap:10px}
+.score-bar-row{display:flex;align-items:center;gap:12px}
+.score-bar-label{font-family:var(--font-ui);font-size:.65rem;letter-spacing:1px;color:var(--silver);width:120px;text-align:right;white-space:nowrap;text-transform:uppercase}
+.score-bar-track{flex:1;height:8px;background:var(--bg);border-radius:4px;overflow:hidden;position:relative}
+.score-bar-fill{height:100%;border-radius:4px;width:0;transition:width 1.5s cubic-bezier(.22,1,.36,1)}
+.score-bar-val{font-family:var(--font-ui);font-size:.7rem;color:var(--silver);width:32px;text-align:right}
+
+/* ===== ABOUT BRIEF ===== */
+.about-brief{max-width:800px;margin:60px auto 0;text-align:center}
+.about-brief h2{font-family:var(--font-display);color:var(--silver-light);font-size:1.6rem;margin-bottom:16px}
+.about-brief p{font-size:1.15rem;color:var(--text);max-width:680px;margin:0 auto 24px;line-height:1.8}
+.about-brief .highlight{color:var(--gold);font-weight:600}
+
+/* ===== SYSTEMS TABLE ===== */
+.systems-section{max-width:900px;margin:60px auto 0}
+.systems-section h2{font-family:var(--font-display);color:var(--silver-light);font-size:1.5rem;text-align:center;margin-bottom:32px}
+.systems-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.system-card{background:var(--bg2);border:1px solid rgba(212,168,83,.1);border-radius:12px;padding:20px;transition:all .3s;position:relative;overflow:hidden}
+.system-card:hover{border-color:rgba(212,168,83,.3);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.system-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity .3s}
+.system-card:hover::before{opacity:1}
+.system-num{font-family:var(--font-ui);font-size:.6rem;letter-spacing:2px;color:var(--gold-dark);text-transform:uppercase;margin-bottom:4px}
+.system-name{font-family:var(--font-display);font-size:.95rem;color:var(--silver-light);margin-bottom:6px}
+.system-origin{font-family:var(--font-ui);font-size:.7rem;color:var(--text);opacity:.7}
+
+/* ===== FEATURES TAB ===== */
+.features-grid{display:grid;grid-template-columns:1fr;gap:20px;max-width:900px;margin:0 auto}
+.feature-card{background:var(--bg2);border:1px solid rgba(212,168,83,.1);border-radius:16px;overflow:hidden;transition:all .3s}
+.feature-card:hover{border-color:rgba(212,168,83,.25)}
+.feature-header{display:flex;align-items:center;gap:16px;padding:24px;cursor:pointer;user-select:none}
+.feature-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.feature-header-text{flex:1}
+.feature-header-text h3{font-family:var(--font-display);font-size:1rem;color:var(--silver-light);margin-bottom:4px}
+.feature-header-text p{font-family:var(--font-ui);font-size:.75rem;color:var(--text);opacity:.7}
+.feature-toggle{width:32px;height:32px;border-radius:50%;border:1px solid rgba(212,168,83,.3);display:flex;align-items:center;justify-content:center;color:var(--gold);transition:all .3s;font-size:.8rem;flex-shrink:0}
+.feature-card.open .feature-toggle{transform:rotate(180deg);background:rgba(212,168,83,.1)}
+.feature-body{max-height:0;overflow:hidden;transition:max-height .5s ease}
+.feature-body-inner{padding:0 24px 24px;border-top:1px solid rgba(212,168,83,.08)}
+.feature-body-inner p{margin-top:16px;font-size:1.05rem;line-height:1.8}
+
+/* Rarity badges */
+.rarity-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.rarity-badge{font-family:var(--font-ui);font-size:.7rem;font-weight:600;letter-spacing:1px;padding:6px 14px;border-radius:20px;text-transform:uppercase}
+.rarity-common{background:rgba(136,136,136,.15);color:#aaa;border:1px solid rgba(136,136,136,.3)}
+.rarity-uncommon{background:rgba(76,175,80,.12);color:#66BB6A;border:1px solid rgba(76,175,80,.3)}
+.rarity-rare{background:rgba(33,150,243,.12);color:#42A5F5;border:1px solid rgba(33,150,243,.3)}
+.rarity-epic{background:rgba(156,39,176,.12);color:#BA68C8;border:1px solid rgba(156,39,176,.3)}
+.rarity-legendary{background:rgba(255,152,0,.12);color:#FFA726;border:1px solid rgba(255,152,0,.3)}
+.rarity-mythic{background:rgba(212,168,83,.15);color:var(--gold);border:1px solid rgba(212,168,83,.4)}
+.rarity-mystery{background:rgba(20,20,40,.8);color:#fff;border:1px solid rgba(255,255,255,.2);box-shadow:0 0 12px rgba(100,100,255,.3);animation:mysteryGlow 2s ease-in-out infinite alternate}
+@keyframes mysteryGlow{0%{box-shadow:0 0 8px rgba(100,100,255,.2)}100%{box-shadow:0 0 18px rgba(180,120,255,.5)}}
+
+/* Sub-tabs for Daily Star Chart */
+.sub-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px}
+.sub-tab{font-family:var(--font-ui);font-size:.7rem;font-weight:600;letter-spacing:1px;padding:8px 16px;border-radius:8px;background:var(--bg);border:1px solid rgba(212,168,83,.15);color:var(--silver);cursor:pointer;transition:all .3s;text-transform:uppercase}
+.sub-tab:hover,.sub-tab.active{background:rgba(212,168,83,.1);border-color:var(--gold-dark);color:var(--gold)}
+
+/* ===== PRICING ===== */
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;max-width:1100px;margin:0 auto}
+.price-card{background:var(--bg2);border:1px solid rgba(212,168,83,.12);border-radius:20px;padding:32px 24px;text-align:center;transition:all .4s;position:relative;overflow:hidden}
+.price-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.price-card.featured{border-color:var(--gold-dark);box-shadow:0 0 40px rgba(212,168,83,.1)}
+.price-card.featured::before{content:'MOST POPULAR';position:absolute;top:16px;right:-30px;background:var(--gold);color:var(--bg);font-family:var(--font-ui);font-size:.6rem;font-weight:700;letter-spacing:1px;padding:4px 40px;transform:rotate(45deg)}
+.price-tag{font-family:var(--font-ui);font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.price-name{font-family:var(--font-display);font-size:1.3rem;color:var(--silver-light);margin-bottom:8px}
+.price-amount{font-family:var(--font-display);font-size:2.5rem;color:var(--gold)}
+.price-amount small{font-size:.4em;color:var(--text);font-family:var(--font-ui);font-weight:300}
+.price-desc{font-size:.95rem;color:var(--text);margin:16px 0 24px;min-height:50px}
+.price-features{list-style:none;text-align:left;margin-bottom:24px}
+.price-features li{font-family:var(--font-ui);font-size:.78rem;color:var(--silver);padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:flex-start;gap:8px}
+.price-features li::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-top:6px;flex-shrink:0}
+
+/* Add-ons */
+.addons-section{max-width:800px;margin:48px auto 0}
+.addons-section h3{font-family:var(--font-display);color:var(--silver-light);font-size:1.2rem;text-align:center;margin-bottom:24px}
+.addon-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(212,168,83,.08)}
+.addon-name{font-family:var(--font-ui);font-size:.85rem;color:var(--silver)}
+.addon-price{font-family:var(--font-display);font-size:1rem;color:var(--gold)}
+
+/* LTV Box */
+.ltv-box{max-width:600px;margin:40px auto 0;background:var(--bg3);border:1px solid rgba(212,168,83,.15);border-radius:16px;padding:24px;text-align:center}
+.ltv-box h4{font-family:var(--font-display);color:var(--gold);font-size:1rem;margin-bottom:8px}
+.ltv-box p{font-size:.95rem;color:var(--text)}
+.ltv-box .big-num{font-family:var(--font-display);font-size:2rem;color:var(--gold-light);display:block;margin:8px 0}
+
+/* ===== HOW IT WORKS ===== */
+.steps{display:flex;gap:32px;max-width:900px;margin:0 auto;flex-wrap:wrap;justify-content:center}
+.step{flex:1;min-width:240px;max-width:320px;background:var(--bg2);border:1px solid rgba(212,168,83,.12);border-radius:20px;padding:32px 24px;text-align:center;position:relative;transition:all .3s}
+.step:hover{transform:translateY(-4px);border-color:rgba(212,168,83,.25)}
+.step-num{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--gold-dark),var(--gold));color:var(--bg);font-family:var(--font-display);font-size:1.3rem;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.step h3{font-family:var(--font-display);font-size:1rem;color:var(--silver-light);margin-bottom:8px}
+.step p{font-size:.95rem;color:var(--text)}
+.step-arrow{color:var(--gold-dark);font-size:1.5rem;display:flex;align-items:center;flex-shrink:0}
+
+/* Synthesis explanation */
+.synthesis{max-width:800px;margin:60px auto 0;text-align:center}
+.synthesis h2{font-family:var(--font-display);color:var(--silver-light);font-size:1.5rem;margin-bottom:20px}
+.synthesis p{font-size:1.1rem;line-height:1.9;margin-bottom:16px}
+.synthesis .gold{color:var(--gold);font-weight:600}
+
+/* Disclaimer box */
+.disclaimer-box{max-width:800px;margin:48px auto 0;background:var(--bg3);border-left:3px solid var(--gold-dark);border-radius:0 12px 12px 0;padding:24px 28px}
+.disclaimer-box h4{font-family:var(--font-ui);font-size:.75rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.disclaimer-box p{font-size:.92rem;color:var(--text);line-height:1.8;font-style:italic}
+
+/* ===== EARLY ACCESS ===== */
+.early-access-hero{text-align:center;padding-top:40px}
+.early-access-hero h2{font-family:var(--font-display);font-size:clamp(1.6rem,3vw,2.4rem);color:var(--silver-light);margin-bottom:12px}
+.early-access-hero p{font-size:1.1rem;color:var(--text);max-width:600px;margin:0 auto}
+.promo-form{max-width:480px;margin:40px auto;background:var(--bg2);border:1px solid rgba(212,168,83,.2);border-radius:20px;padding:32px;text-align:center;position:relative;overflow:hidden}
+.promo-form h3{font-family:var(--font-display);font-size:1.1rem;color:var(--gold);margin-bottom:16px}
+.promo-input-row{display:flex;gap:8px}
+.promo-input{flex:1;font-family:var(--font-ui);font-size:.9rem;padding:14px 20px;border-radius:12px;border:1px solid rgba(212,168,83,.2);background:var(--bg);color:var(--silver-light);outline:none;transition:border-color .3s;letter-spacing:2px;text-transform:uppercase}
+.promo-input:focus{border-color:var(--gold)}
+.promo-input::placeholder{color:rgba(184,184,200,.3);letter-spacing:1px;text-transform:none}
+.promo-submit{font-family:var(--font-ui);font-size:.8rem;font-weight:600;letter-spacing:1px;padding:14px 24px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:var(--bg);border:none;cursor:pointer;transition:all .3s;white-space:nowrap}
+.promo-submit:hover{transform:scale(1.02);box-shadow:0 4px 16px rgba(212,168,83,.3)}
+.promo-error{display:none;color:#ff6b6b;font-family:var(--font-ui);font-size:.8rem;margin-top:8px}
+.promo-error.show{display:block}
+.promo-success{display:none;padding:20px;text-align:center}
+.promo-success.show{display:block;animation:fadeIn .5s ease}
+.promo-success .check{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:var(--bg);font-size:1.8rem;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;animation:popIn .5s cubic-bezier(.17,.67,.3,1.33)}
+@keyframes popIn{0%{transform:scale(0)}100%{transform:scale(1)}}
+.promo-success h4{font-family:var(--font-display);color:var(--gold);font-size:1rem;margin-bottom:4px}
+.promo-success p{font-size:.9rem;color:var(--text)}
+
+/* Beta benefits */
+.beta-benefits{max-width:700px;margin:48px auto 0}
+.beta-benefits h3{font-family:var(--font-display);color:var(--silver-light);font-size:1.2rem;text-align:center;margin-bottom:24px}
+.benefit-item{display:flex;align-items:flex-start;gap:16px;padding:16px 0;border-bottom:1px solid rgba(212,168,83,.06)}
+.benefit-icon{width:36px;height:36px;border-radius:10px;background:rgba(212,168,83,.1);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;color:var(--gold)}
+.benefit-text h4{font-family:var(--font-ui);font-size:.85rem;color:var(--silver-light);margin-bottom:4px}
+.benefit-text p{font-size:.88rem;color:var(--text)}
+
+/* FAQ */
+.faq-section{max-width:700px;margin:48px auto 0}
+.faq-section h3{font-family:var(--font-display);color:var(--silver-light);font-size:1.2rem;text-align:center;margin-bottom:24px}
+.faq-item{border-bottom:1px solid rgba(212,168,83,.08);padding:0}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:18px 0;cursor:pointer;font-family:var(--font-ui);font-size:.9rem;color:var(--silver-light);font-weight:600;user-select:none}
+.faq-q .arrow{color:var(--gold);transition:transform .3s;font-size:.7rem}
+.faq-item.open .faq-q .arrow{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.faq-a-inner{padding:0 0 18px;font-size:.95rem;color:var(--text);line-height:1.8}
+
+/* ===== FOOTER ===== */
+.footer{background:var(--bg2);border-top:1px solid rgba(212,168,83,.1);padding:40px 24px 24px;position:relative;z-index:1}
+.footer-inner{max-width:var(--max-w);margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:24px}
+.footer-brand{max-width:400px}
+.footer-brand h4{font-family:var(--font-display);color:var(--gold);font-size:1rem;margin-bottom:8px}
+.footer-brand p{font-size:.82rem;color:var(--text);line-height:1.7;font-style:italic}
+.footer-links{display:flex;gap:40px}
+.footer-col h5{font-family:var(--font-ui);font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.footer-col a{display:block;font-family:var(--font-ui);font-size:.8rem;color:var(--text);padding:4px 0;transition:color .3s}
+.footer-col a:hover{color:var(--gold)}
+.footer-bottom{max-width:var(--max-w);margin:24px auto 0;padding-top:20px;border-top:1px solid rgba(212,168,83,.06);text-align:center;font-family:var(--font-ui);font-size:.7rem;color:rgba(184,184,200,.4);letter-spacing:1px}
+
+/* ===== SCROLL ANIMATIONS ===== */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ===== MOBILE ===== */
+@media(max-width:768px){
+  .nav-tabs{position:fixed;top:var(--nav-h);left:0;right:0;background:rgba(10,10,20,.96);backdrop-filter:blur(16px);flex-direction:column;padding:16px;gap:0;transform:translateY(-120%);transition:transform .3s ease;border-bottom:1px solid rgba(212,168,83,.15);z-index:999}
+  .nav-tabs.open{transform:translateY(0)}
+  .nav-tab{padding:14px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.03)}
+  .mobile-menu-btn{display:block}
+  .steps{flex-direction:column;align-items:center}
+  .step-arrow{transform:rotate(90deg)}
+  .hero h1{font-size:2rem}
+  .score-bar-label{width:80px;font-size:.55rem}
+  .pricing-grid{grid-template-columns:1fr}
+  .footer-inner{flex-direction:column}
+  .footer-links{flex-direction:column;gap:24px}
+}
+</style>
+</head>
+<body>
+
+<!-- STARS -->
+<div class="stars-container" id="stars"></div>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="nav-logo" onclick="switchTab('home')">MYTHSENSUS <span>beta</span></div>
+  <button class="mobile-menu-btn" id="menuBtn" aria-label="Menu">&#9776;</button>
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-tab="home">Home</button>
+    <button class="nav-tab" data-tab="features">Features</button>
+    <button class="nav-tab" data-tab="pricing">Pricing</button>
+    <button class="nav-tab" data-tab="how">How It Works</button>
+    <button class="nav-tab" data-tab="early">Early Access</button>
+  </div>
+</nav>
+
+<!-- ===================== HOME ===================== -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-badge">26 Ancient Systems &middot; AI-Synthesized &middot; 1 Cosmic Score</div>
+    <h1>Mythsensus <em>"Where myriad myths reach consensus &mdash; about you."</em></h1>
+    <p class="hero-tagline">No single system has the complete picture. When 26 independent ancient traditions agree &mdash; synthesized by AI from a handful of birth details &mdash; that consensus becomes your signal.</p>
+    <div class="hero-cta">
+      <button class="btn btn-gold" onclick="switchTab('pricing')">Get Your Report &mdash; $19</button>
+      <button class="btn btn-outline" onclick="switchTab('features')">Try Free Features</button>
+    </div>
+  </div>
+
+  <!-- Cosmic Score Preview -->
+  <div class="section">
+    <div class="score-preview reveal">
+      <h3>Your Cosmic Score</h3>
+      <div class="score-number"><span class="counter" data-target="847">0</span> <span>/ 1,000</span></div>
+      <div class="score-bars" id="scoreBars"></div>
+    </div>
+
+    <!-- About Brief -->
+    <div class="about-brief reveal">
+      <h2>What is Mythsensus?</h2>
+      <p><span class="highlight">Mythsensus</span> synthesizes ten of the world's most enduring divination systems into a single, unified reading. Each system independently analyzes your birth data; when multiple traditions converge on the same insight, that consensus becomes your signal.</p>
+      <p>We offer <span class="highlight">a mirror, not a verdict</span>. Every reading is designed for self-reflection and personal exploration &mdash; never prescription.</p>
+    </div>
+
+    <!-- 10 Systems -->
+    <div class="systems-section reveal">
+      <h2>The 26 Systems &mdash; 10 Primary + 16 Secondary</h2>
+      <div class="systems-grid" id="systemsGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== FEATURES ===================== -->
+<div class="page" id="page-features">
+  <div class="section">
+    <div style="text-align:center;margin-bottom:48px" class="reveal">
+      <h2 style="font-family:var(--font-display);font-size:clamp(1.6rem,3vw,2.2rem);color:var(--silver-light);margin-bottom:12px">Features</h2>
+      <p style="font-size:1.05rem;color:var(--text);max-width:600px;margin:0 auto">From daily guidance to deep personality insights &mdash; explore the cosmos your way.</p>
+    </div>
+    <div class="features-grid" id="featuresGrid"></div>
+  </div>
+</div>
+
+<!-- ===================== PRICING ===================== -->
+<div class="page" id="page-pricing">
+  <div class="section">
+    <div style="text-align:center;margin-bottom:48px" class="reveal">
+      <h2 style="font-family:var(--font-display);font-size:clamp(1.6rem,3vw,2.2rem);color:var(--silver-light);margin-bottom:12px">Simple, Transparent Pricing</h2>
+      <p style="font-size:1.05rem;color:var(--text);max-width:580px;margin:0 auto">Start free. Go deeper when you're ready.</p>
+    </div>
+    <div class="pricing-grid reveal" id="pricingGrid"></div>
+    <div class="addons-section reveal" id="addonsSection"></div>
+    <div class="ltv-box reveal">
+      <h4>Lifetime Value Example</h4>
+      <p>An engaged user who buys a report, subscribes, and adds two companion reports over a year:</p>
+      <span class="big-num">~$94</span>
+      <p style="font-size:.82rem;opacity:.7">$19 (full report) + ($5 &times; 12 mo subscription) + $14.99 add-on bundle</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== HOW IT WORKS ===================== -->
+<div class="page" id="page-how">
+  <div class="section">
+    <div style="text-align:center;margin-bottom:48px" class="reveal">
+      <h2 style="font-family:var(--font-display);font-size:clamp(1.6rem,3vw,2.2rem);color:var(--silver-light);margin-bottom:12px">How It Works</h2>
+      <p style="font-size:1.05rem;color:var(--text);max-width:580px;margin:0 auto">Three steps to your unified cosmic reading.</p>
+    </div>
+    <div class="steps reveal">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Enter Birth Data</h3>
+        <p>Provide your name, date, time, and place of birth. We calculate precise planetary positions, element balances, and numerological keys.</p>
+      </div>
+      <div class="step-arrow">&rarr;</div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>See Your Cosmic Score</h3>
+        <p>Ten systems independently analyze your data. Areas where multiple systems agree receive higher consensus scores, surfacing your strongest themes.</p>
+      </div>
+      <div class="step-arrow">&rarr;</div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Draw Your First God Blessing</h3>
+        <p>Receive a daily message from one of 1,069 deities across world mythologies. Collect them all &mdash; from Common to the elusive ??? tier.</p>
+      </div>
+    </div>
+
+    <div class="synthesis reveal">
+      <h2>The Power of Consensus</h2>
+      <p>Each of the 26 systems was developed independently &mdash; on different continents, across thousands of years, using different mathematics. <span class="gold">When they converge on the same trait or timing, it's not coincidence; it's consensus.</span></p>
+      <p>Mythsensus doesn't average scores. It identifies <span class="gold">convergence zones</span> &mdash; the specific life themes where three, five, or even all 26 systems point in the same direction. These zones form your unique Cosmic Score.</p>
+    </div>
+
+    <div class="disclaimer-box reveal">
+      <h4>Disclaimer</h4>
+      <p>Mythsensus reports are generated by artificial intelligence, synthesizing interpretations from ten ancient wisdom traditions. All readings are intended for entertainment, self-reflection, and personal exploration only. They do not constitute professional advice of any kind &mdash; including medical, psychological, financial, or legal. Birth data is used solely for report generation and is not retained beyond the session. By purchasing or using Mythsensus, you acknowledge that all interpretations are subjective and should not replace qualified professional guidance.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== EARLY ACCESS ===================== -->
+<div class="page" id="page-early">
+  <div class="section">
+    <div class="early-access-hero reveal">
+      <h2>Join the Early Access</h2>
+      <p>Be among the first to experience the full Mythsensus platform. Enter your promo code below to unlock beta benefits.</p>
+    </div>
+
+    <div class="promo-form reveal" id="promoForm">
+      <h3>Enter Promo Code</h3>
+      <div class="promo-input-row" id="promoInputRow">
+        <input type="text" class="promo-input" id="promoInput" placeholder="Enter code..." maxlength="20" autocomplete="off">
+        <button class="promo-submit" id="promoBtn">Activate</button>
+      </div>
+      <div class="promo-error" id="promoError"></div>
+      <div class="promo-success" id="promoSuccess">
+        <div class="check">&#10003;</div>
+        <h4>Code Activated!</h4>
+        <p>Welcome to the Mythsensus beta. Your early-access benefits are now unlocked.</p>
+      </div>
+    </div>
+
+    <div class="beta-benefits reveal">
+      <h3>Beta Tester Benefits</h3>
+      <div id="betaBenefits"></div>
+    </div>
+
+    <div class="faq-section reveal">
+      <h3>Frequently Asked Questions</h3>
+      <div id="faqList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <h4>Mythsensus</h4>
+      <p>Mythsensus reports are generated by AI, synthesizing interpretations from ten ancient wisdom traditions. All readings are for entertainment and self-reflection only.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a href="#" onclick="switchTab('features');return false">Features</a>
+        <a href="#" onclick="switchTab('pricing');return false">Pricing</a>
+        <a href="#" onclick="switchTab('how');return false">How It Works</a>
+      </div>
+      <div class="footer-col">
+        <h5>Connect</h5>
+        <a href="#">Twitter / X</a>
+        <a href="#">Instagram</a>
+        <a href="#">Discord</a>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Disclaimer</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">&copy; 2026 Mythsensus. All rights reserved. &mdash; We offer a mirror, not a verdict.</div>
+</footer>
+
+<!-- FIX: SEC-C04 — Add DOMPurify for safe HTML rendering of features body -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.4/purify.min.js" crossorigin="anonymous"></script>
+
+<script>
+/* ===== DATA ===== */
+const SYSTEMS = [
+  // ── Primary 10 (full deep readings in the report) ────────────
+  {name:'Western Astrology',origin:'Mesopotamia / Greece',age:'~2,500 years',color:'#6e4fcf',tier:'P'},
+  {name:'BaZi Four Pillars',origin:'China',age:'~1,400 years',color:'#e74c3c',tier:'P'},
+  {name:'Vedic Jyotish',origin:'India',age:'~3,000 years',color:'#f39c12',tier:'P'},
+  {name:'Nine Star Ki',origin:'Japan / Korea',age:'~1,200 years',color:'#1abc9c',tier:'P'},
+  {name:'Pythagorean Numerology',origin:'Greece',age:'~2,500 years',color:'#2ecc71',tier:'P'},
+  {name:'Human Design',origin:'Ibiza (Modern Synthesis)',age:'~37 years',color:'#3498db',tier:'P'},
+  {name:'Mayan Tzolk\'in',origin:'Mesoamerica',age:'~2,000 years',color:'#c0392b',tier:'P'},
+  {name:'Thai Brahmin Astrology',origin:'Thailand / India',age:'~800 years',color:'#e67e22',tier:'P'},
+  {name:'Saju (Korean Pillars)',origin:'Korea',age:'~700 years',color:'#9b59b6',tier:'P'},
+  {name:'Celtic Tree Astrology',origin:'British Isles',age:'~2,000 years',color:'#27ae60',tier:'P'},
+  // ── Secondary 16 (brief readings + appendix) ─────────────────
+  {name:'Tibetan Astrology',origin:'Tibet',age:'~1,300 years',color:'#7f5af0',tier:'S'},
+  {name:'Zi Wei Dou Shu',origin:'China (Imperial)',age:'~1,000 years',color:'#a83279',tier:'S'},
+  {name:'Onmyōdō',origin:'Japan',age:'~1,200 years',color:'#16a085',tier:'S'},
+  {name:'Hellenistic Astrology',origin:'Alexandria',age:'~2,200 years',color:'#7d6e83',tier:'S'},
+  {name:'Norse Runes',origin:'Scandinavia',age:'~1,800 years',color:'#5d4037',tier:'S'},
+  {name:'Ogham Tree Alphabet',origin:'Ireland',age:'~1,500 years',color:'#558b2f',tier:'S'},
+  {name:'Arabic Parts',origin:'Persia / Arabia',age:'~1,300 years',color:'#bf8c40',tier:'S'},
+  {name:'Kabbalistic Astrology',origin:'Jewish Mysticism',age:'~800 years',color:'#5e60ce',tier:'S'},
+  {name:'Zoroastrian Yazata',origin:'Persia',age:'~3,500 years',color:'#dd6b20',tier:'S'},
+  {name:'Aztec Tonalpohualli',origin:'Aztec / Mexico',age:'~1,500 years',color:'#b34a3c',tier:'S'},
+  {name:'Native American Totems',origin:'North America',age:'~1,000 years',color:'#a16207',tier:'S'},
+  {name:'Ifá / Yoruba',origin:'West Africa',age:'~2,000 years',color:'#15803d',tier:'S'},
+  {name:'Aboriginal Dreamtime',origin:'Australia',age:'~65,000 years',color:'#7c2d12',tier:'S'},
+  {name:'Biorhythm',origin:'Vienna (Modern)',age:'~120 years',color:'#0891b2',tier:'S'},
+  {name:'Vedic Mahadasha',origin:'India (Vedic)',age:'~3,000 years',color:'#c2410c',tier:'S'},
+  {name:'Thai 7-Number System',origin:'Thailand',age:'~700 years',color:'#9b59b6',tier:'S'}
+];
+
+// Score Preview only shows the Primary 10 — secondary systems contribute to the
+// full report but the hero "score bars" stays clean (10 bars, not 26).
+const SCORE_DATA = SYSTEMS.filter(s => s.tier === 'P').map((s,i) => ({
+  label: s.name.split(' ').slice(0,2).join(' '),
+  value: [78,92,85,70,88,65,73,80,68,82][i],
+  color: s.color
+}));
+
+const FEATURES = [
+  {icon:'&#9733;',color:'#d4a853',title:'Daily Star Chart',sub:'5 themed tabs updated every day',
+   body:'<p>Your daily cosmic weather, organized into five life dimensions. Each tab synthesizes all 26 systems for that day\'s planetary positions relative to your birth chart.</p><div class="sub-tabs"><span class="sub-tab active">Career</span><span class="sub-tab">Finance</span><span class="sub-tab">Love</span><span class="sub-tab">Health</span><span class="sub-tab">Growth</span></div><p style="margin-top:12px;font-size:.88rem;color:var(--text)">No "good day / bad day" predictions. Instead, you see which themes are active today &mdash; helping you lean into natural rhythms rather than fight them.</p>'},
+  {icon:'&#9883;',color:'#9C27B0',title:'God Blessing',sub:'1,069 deities across 7 rarity tiers',
+   body:'<p>Draw one divine message daily from a pool of <strong>1,069 deities</strong> spanning 26 ancient wisdom traditions — Greek, Norse, Hindu, Egyptian, Chinese, Japanese, Mayan, Celtic, Yoruba, Aboriginal, and more. Each deity carries a unique message calibrated to your chart.</p><div class="rarity-grid"><span class="rarity-badge rarity-common">Common</span><span class="rarity-badge rarity-uncommon">Uncommon</span><span class="rarity-badge rarity-rare">Rare</span><span class="rarity-badge rarity-epic">Epic</span><span class="rarity-badge rarity-legendary">Legendary</span><span class="rarity-badge rarity-mythic">Mythic</span><span class="rarity-badge rarity-mystery">???</span></div><p style="margin-top:12px;font-size:.88rem;color:var(--text)">Collect them all in your personal grid. Build streaks for bonus draws. Share rare pulls with friends.</p>'},
+  {icon:'&#8734;',color:'#4a8fe7',title:'108 Organum',sub:'Daily wisdom from 108 cosmic principles',
+   body:'<p>108 universal principles drawn from the intersection of all 26 systems. Ask a question, receive a principle &mdash; with interpretation personalized to your Cosmic Score. Free users get 5 draws per day; subscribers get unlimited.</p>'},
+  {icon:'&#9826;',color:'#e74c3c',title:'Divine Mirror',sub:'Deep personality analysis from 10 angles',
+   body:'<p>A comprehensive personality portrait synthesized from all 26 systems. See where traditions agree on your core traits, hidden strengths, shadow patterns, and life purpose themes. Included in the $19 full report.</p>'},
+  {icon:'&#9829;',color:'#e67e22',title:'Cosmic Companions',sub:'Compatibility across all 26 systems',
+   body:'<p>Compare your chart with a partner, friend, or colleague across all 26 systems. See convergence zones in your compatibility, including communication style, values alignment, growth potential, and challenge areas. Available as a $9 add-on.</p>'},
+  {icon:'&#9872;',color:'#27ae60',title:'Frequency Alert',sub:'Know when rare cosmic events affect your chart',
+   body:'<p>Get notified when unusual planetary alignments or rare cyclical events interact with your birth chart. These aren\'t daily horoscopes &mdash; they\'re infrequent signals when the cosmos has something significant to say.</p>'},
+  {icon:'&#10070;',color:'#1abc9c',title:'Cosmic Alias Generator',sub:'Your mythical name across traditions',
+   body:'<p>Generate unique aliases derived from your chart\'s archetypes across all 26 systems. Perfect for usernames, creative projects, or just fun. $2 for a 5-pack, $5 for unlimited generation.</p>'},
+  {icon:'&#9775;',color:'#f39c12',title:'Multi-Profile & Gamification',sub:'Manage profiles + earn achievements',
+   body:'<p>Create profiles for family and friends (each full report is $19). Track your daily streaks, collection progress, and unlock achievements. The more you engage, the more cosmic insights you unlock.</p>'}
+];
+
+const PRICING = [
+  {tag:'Start Here',name:'Free',price:'$0',period:'forever',desc:'Explore the cosmos with daily features.',featured:false,
+   features:['God Blessing &mdash; 1 draw per day','108 Organum &mdash; 5 draws per day','Cosmic Score preview','7-day history','Collection grid & streaks','Basic profile']},
+  {tag:'Most Popular',name:'Full Report',price:'$19',period:'one-time',desc:'Your complete 42-page cosmic reading.',featured:true,
+   features:['All 26 systems fully analyzed','10 Primary Deep Readings + 16 Secondary','Cosmic Score (300&ndash;999)','Divine Mirror personality portrait','12-month forecasts','Life coaching insights','42-page premium PDF (A4)','Shareable cosmic card']},
+  {tag:'Power User',name:'Subscription',price:'$5',period:'/month',desc:'Daily guidance and unlimited access.',featured:false,
+   features:['Daily Star Chart (5 tabs)','Unlimited 108 Organum','Full history access','Monthly cosmic brief','Frequency Alerts','Early access to new features','$4/mo billed annually']},
+  {tag:'Best Value',name:'Add-on Bundle',price:'$14.99',period:'all 7',desc:'All add-ons unlocked &mdash; saves ~50% vs buying separately.',featured:false,
+   features:['Divine Mirror &mdash; $3.99','Compatibility Report &mdash; $4.99/pair','Cosmic Companions &mdash; $2.99','Compatible Pet &mdash; $2.99','Exercise Plan &mdash; $1.99','Food & Diet &mdash; $1.99','Product Personality &mdash; $1.99']}
+];
+
+const ADDONS = [
+  {name:'Compatibility Report (2 profiles)',price:'$4.99'},
+  {name:'Divine Mirror &mdash; Gods that mirror you',price:'$3.99'},
+  {name:'Cosmic Companions Report',price:'$2.99'},
+  {name:'Compatible Pet Analysis',price:'$2.99'},
+  {name:'Personalized Exercise Plan',price:'$1.99'},
+  {name:'Food & Diet Recommendations',price:'$1.99'},
+  {name:'Product Personality Match',price:'$1.99'},
+  {name:'&starf; All-7 Bundle (best value)',price:'$14.99'}
+];
+
+const BENEFITS = [
+  {icon:'&#127873;',title:'Free Full Report',desc:'Your first 25-page Cosmic Score report is on us.'},
+  {icon:'&#9733;',title:'Founding Member Badge',desc:'Permanent badge on your profile and shareable card.'},
+  {icon:'&#128172;',title:'Direct Feedback Channel',desc:'Shape the product with direct access to the development team.'},
+  {icon:'&#9201;',title:'Early Feature Access',desc:'Try new features weeks before public release.'},
+  {icon:'&#128176;',title:'Lifetime Discount',desc:'20% off all future purchases and subscriptions.'}
+];
+
+const FAQS = [
+  {q:'Is Mythsensus scientifically validated?',a:'Mythsensus synthesizes ancient wisdom traditions using AI. It is designed for entertainment, self-reflection, and personal exploration &mdash; not scientific prediction. We are transparent about this in every report.'},
+  {q:'What birth data do you need?',a:'Full name, date of birth, exact time of birth (if known), and place of birth. More precise data yields more detailed readings. If birth time is unknown, we provide the best analysis possible with available data.'},
+  {q:'Is my birth data stored?',a:'Birth data is used solely for report generation and is not retained beyond the session. We do not sell or share personal data with third parties.'},
+  {q:'Can I buy reports for other people?',a:'Yes! Multi-Profile lets you create reports for family, friends, or anyone whose birth data you have. Each profile\'s full report is $19.'},
+  {q:'What makes Mythsensus different from a horoscope app?',a:'Most apps use a single system (usually Western Astrology sun signs). Mythsensus cross-references ten independent systems, identifying convergence zones that no single system can reveal alone.'},
+  {q:'How does the Cosmic Score work?',a:'Each of the 26 systems contributes observations about different life themes. When multiple systems agree on the same trait or timing, those convergence points receive higher scores. Your total Cosmic Score (300&ndash;999) reflects the overall strength of consensus across all systems.'}
+];
+
+/* ===== STARS ===== */
+(function(){
+  const c=document.getElementById('stars');
+  for(let i=0;i<120;i++){
+    const s=document.createElement('div');s.className='star';
+    const size=Math.random()*2+1;
+    Object.assign(s.style,{
+      width:size+'px',height:size+'px',
+      top:Math.random()*100+'%',left:Math.random()*100+'%',
+      '--dur':(Math.random()*3+2)+'s',
+      '--max-o':Math.random()*.6+.2,
+      animationDelay:Math.random()*4+'s'
+    });
+    c.appendChild(s);
+  }
+})();
+
+/* ===== TAB SWITCHING ===== */
+const tabs=document.querySelectorAll('.nav-tab');
+const pages=document.querySelectorAll('.page');
+function switchTab(id){
+  tabs.forEach(t=>{t.classList.toggle('active',t.dataset.tab===id)});
+  pages.forEach(p=>{p.classList.toggle('active',p.id==='page-'+id)});
+  window.scrollTo({top:0,behavior:'smooth'});
+  document.getElementById('navTabs').classList.remove('open');
+  if(id==='home') animateScoreBars();
+}
+tabs.forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.tab)));
+document.getElementById('menuBtn').addEventListener('click',()=>{
+  document.getElementById('navTabs').classList.toggle('open');
+});
+
+/* ===== NAV SCROLL SHADOW ===== */
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>20);
+});
+
+/* ===== RENDER SYSTEMS ===== */
+/* FIX: SEC-C04 — Replace innerHTML with safe DOM construction */
+(function(){
+  const g=document.getElementById('systemsGrid');
+  SYSTEMS.forEach((s,i)=>{
+    const card=document.createElement('div');
+    card.className='system-card';
+    card.style.setProperty('--delay',i*0.05+'s');
+
+    const num=document.createElement('div');
+    num.className='system-num';
+    // Tier prefix: P-01..P-10 for primary, S-01..S-16 for secondary
+    const tierLabel = s.tier === 'P' ? 'Primary' : 'Secondary';
+    const tierIdx   = SYSTEMS.slice(0, i+1).filter(x => x.tier === s.tier).length;
+    num.textContent = tierLabel + ' ' + String(tierIdx).padStart(2,'0');
+    card.appendChild(num);
+
+    const name=document.createElement('div');
+    name.className='system-name';
+    name.textContent=s.name;
+    card.appendChild(name);
+
+    const origin=document.createElement('div');
+    origin.className='system-origin';
+    origin.textContent=s.origin+' \u00b7 '+s.age;
+    card.appendChild(origin);
+
+    // Dim secondary cards slightly so the primary 10 visually lead.
+    if (s.tier === 'S') card.style.opacity = '0.78';
+
+    g.appendChild(card);
+  });
+})();
+
+/* ===== COSMIC SCORE BARS ===== */
+/* FIX: SEC-C04 — Replace innerHTML with safe DOM construction */
+(function(){
+  const c=document.getElementById('scoreBars');
+  SCORE_DATA.forEach(d=>{
+    const row=document.createElement('div');
+    row.className='score-bar-row';
+
+    const label=document.createElement('span');
+    label.className='score-bar-label';
+    label.textContent=d.label;
+    row.appendChild(label);
+
+    const track=document.createElement('div');
+    track.className='score-bar-track';
+    const fill=document.createElement('div');
+    fill.className='score-bar-fill';
+    fill.setAttribute('data-width',d.value);
+    fill.style.background=d.color;
+    track.appendChild(fill);
+    row.appendChild(track);
+
+    const val=document.createElement('span');
+    val.className='score-bar-val';
+    val.textContent=d.value+'%';
+    row.appendChild(val);
+
+    c.appendChild(row);
+  });
+})();
+
+function animateScoreBars(){
+  document.querySelectorAll('.score-bar-fill').forEach((b,i)=>{
+    b.style.width='0';
+    setTimeout(()=>{b.style.width=b.dataset.width+'%'},200+i*100);
+  });
+  // counter
+  const el=document.querySelector('.counter');
+  if(!el) return;
+  let current=0;const target=parseInt(el.dataset.target);
+  el.textContent='0';
+  const step=Math.ceil(target/60);
+  const iv=setInterval(()=>{
+    current+=step;
+    if(current>=target){current=target;clearInterval(iv)}
+    el.textContent=current;
+  },25);
+}
+setTimeout(animateScoreBars,600);
+
+/* ===== RENDER FEATURES ===== */
+/* FIX: SEC-C04 — Replace innerHTML with safe DOM construction, using DOMPurify for HTML body */
+(function(){
+  const g=document.getElementById('featuresGrid');
+  FEATURES.forEach((f,i)=>{
+    const card=document.createElement('div');
+    card.className='feature-card';
+    card.setAttribute('data-idx',i);
+
+    const header=document.createElement('div');
+    header.className='feature-header';
+    header.onclick=function(){toggleFeature(this)};
+
+    const icon=document.createElement('div');
+    icon.className='feature-icon';
+    icon.style.background=f.color+'22';
+    icon.style.color=f.color;
+    icon.innerHTML=f.icon;
+    header.appendChild(icon);
+
+    const headerText=document.createElement('div');
+    headerText.className='feature-header-text';
+    const title=document.createElement('h3');
+    title.textContent=f.title;
+    const sub=document.createElement('p');
+    sub.textContent=f.sub;
+    headerText.appendChild(title);
+    headerText.appendChild(sub);
+    header.appendChild(headerText);
+
+    const toggle=document.createElement('div');
+    toggle.className='feature-toggle';
+    toggle.textContent='\u2304';
+    header.appendChild(toggle);
+
+    card.appendChild(header);
+
+    const body=document.createElement('div');
+    body.className='feature-body';
+    const bodyInner=document.createElement('div');
+    bodyInner.className='feature-body-inner';
+    bodyInner.innerHTML=DOMPurify.sanitize(f.body);
+    body.appendChild(bodyInner);
+    card.appendChild(body);
+
+    g.appendChild(card);
+  });
+})();
+
+function toggleFeature(el){
+  const card=el.parentElement;
+  const body=card.querySelector('.feature-body');
+  const inner=card.querySelector('.feature-body-inner');
+  const isOpen=card.classList.contains('open');
+  // close all
+  document.querySelectorAll('.feature-card.open').forEach(c=>{
+    c.classList.remove('open');
+    c.querySelector('.feature-body').style.maxHeight='0';
+  });
+  if(!isOpen){
+    card.classList.add('open');
+    body.style.maxHeight=inner.scrollHeight+40+'px';
+  }
+}
+
+/* ===== RENDER PRICING ===== */
+/* FIX: SEC-C04 — Replace innerHTML with safe DOM construction */
+(function(){
+  const g=document.getElementById('pricingGrid');
+  PRICING.forEach(p=>{
+    const card=document.createElement('div');
+    card.className='price-card'+(p.featured?' featured':'');
+
+    const tag=document.createElement('div');
+    tag.className='price-tag';
+    tag.textContent=p.tag;
+    card.appendChild(tag);
+
+    const name=document.createElement('div');
+    name.className='price-name';
+    name.textContent=p.name;
+    card.appendChild(name);
+
+    const amount=document.createElement('div');
+    amount.className='price-amount';
+    amount.innerHTML=p.price+' <small>'+p.period+'</small>';
+    card.appendChild(amount);
+
+    const desc=document.createElement('p');
+    desc.className='price-desc';
+    desc.textContent=p.desc;
+    card.appendChild(desc);
+
+    const ul=document.createElement('ul');
+    ul.className='price-features';
+    p.features.forEach(f=>{
+      const li=document.createElement('li');
+      li.textContent=f;
+      ul.appendChild(li);
+    });
+    card.appendChild(ul);
+
+    const btn=document.createElement('button');
+    btn.className='btn '+(p.featured?'btn-gold':'btn-outline');
+    btn.style.width='100%';
+    btn.style.justifyContent='center';
+    btn.textContent=p.price==='$0'?'Start Free':'Choose Plan';
+    card.appendChild(btn);
+
+    g.appendChild(card);
+  });
+
+  // addons
+  const a=document.getElementById('addonsSection');
+  const h3=document.createElement('h3');
+  h3.textContent='Add-on Reports';
+  a.appendChild(h3);
+
+  ADDONS.forEach(d=>{
+    const row=document.createElement('div');
+    row.className='addon-row';
+
+    const addonName=document.createElement('span');
+    addonName.className='addon-name';
+    addonName.textContent=d.name;
+    row.appendChild(addonName);
+
+    const addonPrice=document.createElement('span');
+    addonPrice.className='addon-price';
+    addonPrice.textContent=d.price;
+    row.appendChild(addonPrice);
+
+    a.appendChild(row);
+  });
+})();
+
+/* ===== RENDER BENEFITS ===== */
+/* FIX: SEC-C04 — Replace innerHTML with safe DOM construction */
+(function(){
+  const c=document.getElementById('betaBenefits');
+  BENEFITS.forEach(b=>{
+    const item=document.createElement('div');
+    item.className='benefit-item';
+
+    const iconDiv=document.createElement('div');
+    iconDiv.className='benefit-icon';
+    iconDiv.innerHTML=b.icon;
+    item.appendChild(iconDiv);
+
+    const text=document.createElement('div');
+    text.className='benefit-text';
+    const h4=document.createElement('h4');
+    h4.textContent=b.title;
+    const p=document.createElement('p');
+    p.textContent=b.desc;
+    text.appendChild(h4);
+    text.appendChild(p);
+    item.appendChild(text);
+
+    c.appendChild(item);
+  });
+})();
+
+/* ===== RENDER FAQ ===== */
+/* FIX: SEC-C04 — Replace innerHTML with safe DOM construction */
+(function(){
+  const c=document.getElementById('faqList');
+  FAQS.forEach((f,i)=>{
+    const faqItem=document.createElement('div');
+    faqItem.className='faq-item';
+
+    const q=document.createElement('div');
+    q.className='faq-q';
+    q.onclick=function(){toggleFaq(this)};
+    const qText=document.createElement('span');
+    qText.textContent=f.q;
+    q.appendChild(qText);
+    const arrow=document.createElement('span');
+    arrow.className='arrow';
+    arrow.textContent='\u2304';
+    q.appendChild(arrow);
+    faqItem.appendChild(q);
+
+    const a=document.createElement('div');
+    a.className='faq-a';
+    const aInner=document.createElement('div');
+    aInner.className='faq-a-inner';
+    aInner.textContent=f.a;
+    a.appendChild(aInner);
+    faqItem.appendChild(a);
+
+    c.appendChild(faqItem);
+  });
+})();
+
+function toggleFaq(el){
+  const item=el.parentElement;
+  const a=item.querySelector('.faq-a');
+  const inner=item.querySelector('.faq-a-inner');
+  const isOpen=item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i=>{
+    i.classList.remove('open');
+    i.querySelector('.faq-a').style.maxHeight='0';
+  });
+  if(!isOpen){
+    item.classList.add('open');
+    a.style.maxHeight=inner.scrollHeight+20+'px';
+  }
+}
+
+/* ===== PROMO CODE ===== */
+/* FIX: SEC-M01 — Add input validation for promo codes */
+document.getElementById('promoBtn').addEventListener('click',()=>{
+  const input=document.getElementById('promoInput');
+  const v=input.value.trim().toUpperCase();
+  const errorEl=document.getElementById('promoError');
+
+  // SEC-M01: Validate promo code format
+  const promoRegex=/^[A-Z0-9-]{4,20}$/;
+  if(!v){
+    errorEl.textContent='Please enter a promo code';
+    errorEl.classList.add('show');
+    return;
+  }
+  if(!promoRegex.test(v)){
+    errorEl.textContent='Invalid promo code format (alphanumeric and hyphens, 4-20 characters)';
+    errorEl.classList.add('show');
+    return;
+  }
+
+  // Code is valid, proceed
+  errorEl.classList.remove('show');
+  document.getElementById('promoInputRow').style.display='none';
+  const s=document.getElementById('promoSuccess');
+  s.classList.add('show');
+});
+
+document.getElementById('promoInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter') document.getElementById('promoBtn').click();
+});
+
+/* ===== SCROLL REVEAL ===== */
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target)}});
+},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+// Re-observe when switching tabs
+const mo=new MutationObserver(()=>{
+  document.querySelectorAll('.reveal:not(.visible)').forEach(el=>observer.observe(el));
+});
+pages.forEach(p=>mo.observe(p,{attributes:true,attributeFilter:['class']}));
+</script>
+</body>
+</html>

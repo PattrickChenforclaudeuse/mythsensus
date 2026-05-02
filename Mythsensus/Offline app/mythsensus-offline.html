@@ -47,18 +47,18 @@ header{text-align:center;padding:28px 20px 0;position:relative;}
 .lang-btn{font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;padding:5px 10px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);cursor:pointer;border-radius:2px;transition:all .2s;}
 .lang-btn:hover{color:var(--gold);}
 nav{display:flex;justify-content:center;gap:3px;padding:18px 12px 0;flex-wrap:wrap;}
-.tab-btn{font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:9px 16px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);cursor:pointer;border-radius:2px;transition:all .3s;white-space:nowrap;}
+.tab-btn{font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:9px 16px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);cursor:pointer;border-radius:2px;transition:all .3s;white-space:nowrap;}
 .tab-btn:hover{color:var(--gold);border-color:var(--gold3);}
 .tab-btn.active{color:var(--gold);border-color:var(--gold);background:rgba(200,164,90,.08);}
 
 /* ── 2-level navigation: Tier Groups + Sub-tabs ───────────── */
 .nav-groups{padding:16px 12px 0;}
-.group-btn{font-family:'Cinzel Decorative',serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;padding:11px 20px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;transition:all .3s;white-space:nowrap;}
+.group-btn{font-family:'Cinzel Decorative',serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:11px 20px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;transition:all .3s;white-space:nowrap;}
 .group-btn:hover{color:var(--gold2);}
 .group-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
 .nav-subs{padding:10px 12px 0;border-top:1px solid var(--border);margin-top:8px;min-height:40px;}
 .nav-subs:empty{display:none;}
-.sub-btn{font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2px;padding:8px 14px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);cursor:pointer;border-radius:18px;transition:all .25s;white-space:nowrap;}
+.sub-btn{font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;padding:7px 13px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);cursor:pointer;border-radius:18px;transition:all .25s;white-space:nowrap;}
 .sub-btn:hover{color:var(--gold);border-color:var(--gold3);}
 .sub-btn.active{color:var(--gold);border-color:var(--gold);background:rgba(200,164,90,.10);}
 .sub-btn.locked{opacity:.55;position:relative;}
@@ -86,17 +86,11 @@ nav{display:flex;justify-content:center;gap:3px;padding:18px 12px 0;flex-wrap:wr
 .deep-sys-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:22px 20px;max-width:720px;margin:0 auto;}
 .deep-sys-title{font-family:'Cinzel Decorative',serif;font-size:18px;color:var(--gold);letter-spacing:2px;margin-bottom:4px;}
 .deep-sys-origin{font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
-.deep-sys-reading{font-family:'Cormorant Garamond',serif;font-size:17px;line-height:1.85;color:var(--text);margin-bottom:14px;}
+.deep-sys-reading{font-family:'Cormorant Garamond',serif;font-size:15px;line-height:1.85;color:var(--text);margin-bottom:14px;}
 .deep-sys-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px;}
 .deep-sys-stat{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;}
 .deep-sys-stat-lbl{font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
 .deep-sys-stat-val{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gold2);font-weight:600;}
-/* ── Add-on Deep Generate button (Premium) ───────────────── */
-.addon-deep-bar{max-width:640px;margin:18px auto 0;text-align:center;}
-.addon-deep-btn{font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:11px 24px;border:1px solid rgba(212,175,55,0.35);border-radius:4px;background:rgba(212,175,55,0.04);color:var(--gold2);cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:9px;}
-.addon-deep-btn:hover{border-color:var(--gold);background:rgba(212,175,55,0.12);color:var(--gold);}
-.addon-deep-lock{font-size:10px;color:var(--muted);background:rgba(200,164,90,0.1);padding:2px 8px;border-radius:10px;letter-spacing:0.5px;}
-.addon-deep-loading{text-align:center;padding:24px;color:var(--muted);font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;}
 main{max-width:820px;margin:0 auto;padding:22px 14px 60px;}
 /* Widen main column a touch on larger screens so the app doesn't feel
    phone-cramped on desktop while keeping mobile single-column intact. */
@@ -122,17 +116,15 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opa
 .nav-toggle-btn:hover{background:rgba(200,164,90,.15);border-color:var(--gold)}
 body.nav-hidden .nav-groups,body.nav-hidden .nav-tabs{display:none!important}
 body.nav-hidden .nav-toggle-btn{transform:rotate(180deg)}
-/* Share button — sits LEFT of .header-user (which is at right:16px, ~110px wide
-   when logged in with email avatar) so the two no longer overlap. */
-.web-share{position:fixed;top:14px;right:140px;z-index:9000;display:none;
+.web-share{position:fixed;top:14px;right:14px;z-index:9000;display:none;
   font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2px;
   text-transform:uppercase;color:var(--gold);background:rgba(10,10,16,.75);
   border:1px solid var(--gold3);padding:7px 14px;border-radius:20px;
   text-decoration:none;backdrop-filter:blur(8px);cursor:pointer;transition:all .2s;}
 .web-share:hover{background:rgba(200,164,90,.15);color:var(--gold2);}
-@media (max-width:420px){ .web-nav,.web-share{font-size:10px;padding:5px 10px;} .web-share{right:96px;} }
-/* Share menu popup — anchored to the share button, not the viewport edge */
-.share-menu{position:fixed;top:52px;right:140px;z-index:9100;display:none;
+@media (max-width:420px){ .web-nav,.web-share{font-size:10px;padding:5px 10px;} }
+/* Share menu popup */
+.share-menu{position:fixed;top:52px;right:14px;z-index:9100;display:none;
   background:rgba(10,10,16,.95);border:1px solid var(--gold3);border-radius:10px;
   padding:10px;min-width:180px;backdrop-filter:blur(12px);
   box-shadow:0 8px 24px rgba(0,0,0,.5);}
@@ -145,60 +137,37 @@ body.nav-hidden .nav-toggle-btn{transform:rotate(180deg)}
 /* ── Desktop side rails: only visible on wide viewports (>=1200px).
    Hidden on mobile/tablet so they never impact the core layout. ── */
 .desk-rail{display:none;}
-/* ── today-bar rail toggle button ── */
-.tb-rail-btn{
-  display:none;
-  font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;
-  padding:4px 10px;border:1px solid var(--border);border-radius:2px;
-  background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;
-  transition:color .2s,border-color .2s;margin-left:8px;
-}
-.tb-rail-btn:hover{color:var(--gold);border-color:var(--gold3);}
-.tb-rail-btn.hidden{color:var(--gold);border-color:var(--gold3);background:rgba(200,164,90,.06);}
-@media (min-width:1320px){
-  .tb-rail-btn{display:inline-flex;align-items:center;gap:5px;}
+@media (min-width:1200px){
   .desk-rail{
     display:block;position:fixed;top:120px;width:220px;z-index:5;
     font-family:'Cormorant Garamond',serif;color:var(--text);
-    pointer-events:none;transition:opacity .2s,transform .2s;
+    pointer-events:none;
   }
   .desk-rail > *{pointer-events:auto;}
-  .desk-rail.left{left:calc((100vw - 820px)/2 - 242px);}
-  .desk-rail.right{right:calc((100vw - 820px)/2 - 242px);}
-  /* hidden state — slide off-screen */
-  .desk-rail.rail-hidden{opacity:0;pointer-events:none;}
-  .desk-rail.left.rail-hidden{transform:translateX(-20px);}
-  .desk-rail.right.rail-hidden{transform:translateX(20px);}
+  .desk-rail.left{left:calc((100vw - 820px)/2 - 240px);}
+  .desk-rail.right{right:calc((100vw - 820px)/2 - 240px);}
   .desk-rail-card{
     background:linear-gradient(180deg,rgba(200,164,90,.05),rgba(200,164,90,.01));
     border:1px solid var(--gold3);border-radius:10px;
-    padding:16px 14px;margin-bottom:14px;
+    padding:14px 13px;margin-bottom:14px;
   }
-  .desk-rail h4{font-family:'Cinzel Decorative',serif;font-size:9px;
+  .desk-rail h4{font-family:'Cinzel Decorative',serif;font-size:10px;
     color:var(--gold);letter-spacing:2.5px;text-transform:uppercase;
-    text-align:center;margin-bottom:12px;padding-bottom:8px;
-    border-bottom:1px solid rgba(200,164,90,.15);}
-  .desk-rail-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-  .desk-rail-icon{font-size:28px;line-height:1;flex-shrink:0;text-align:center;width:36px;}
-  .desk-rail-label{font-family:'Josefin Sans',sans-serif;font-size:9px;
-    letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
-  .desk-rail-val{font-size:13px;color:var(--text);line-height:1.3;}
-  .desk-rail-meaning{font-size:11.5px;color:var(--muted);line-height:1.5;
-    margin-top:8px;padding-top:8px;border-top:1px solid rgba(200,164,90,.1);}
+    text-align:center;margin-bottom:10px;}
   .desk-rail p{font-size:12.5px;line-height:1.65;color:var(--text);}
+  .desk-rail .muted{color:var(--muted);font-size:11px;line-height:1.5;}
+  .desk-rail .big{font-size:22px;text-align:center;color:var(--gold);
+    font-family:'Cinzel Decorative',serif;letter-spacing:2px;}
   .desk-rail ul{list-style:none;padding:0;margin:0;}
-  .desk-rail li{padding:7px 0;border-bottom:1px solid var(--border);
-    font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center;}
+  .desk-rail li{padding:6px 0;border-bottom:1px solid var(--border);
+    font-size:12px;color:var(--muted);display:flex;gap:7px;align-items:baseline;}
   .desk-rail li:last-child{border-bottom:none;}
-  .desk-rail li .dot{font-size:14px;flex-shrink:0;}
-  .desk-rail li .stat-val{color:var(--text);font-weight:600;margin-left:auto;
-    font-family:'Josefin Sans',sans-serif;font-size:11px;}
-  .desk-rail-tip{font-size:12.5px;line-height:1.7;color:var(--text);font-style:italic;}
+  .desk-rail li .dot{color:var(--gold);flex-shrink:0;}
 }
 @media (min-width:1460px){
-  .desk-rail{width:250px;}
-  .desk-rail.left{left:calc((100vw - 820px)/2 - 272px);}
-  .desk-rail.right{right:calc((100vw - 820px)/2 - 272px);}
+  .desk-rail{width:260px;}
+  .desk-rail.left{left:calc((100vw - 820px)/2 - 290px);}
+  .desk-rail.right{right:calc((100vw - 820px)/2 - 290px);}
 }
 .section-title{font-family:'Cinzel Decorative',serif;font-size:12px;color:var(--gold);letter-spacing:3px;text-align:center;margin-bottom:18px;}
 
@@ -294,7 +263,7 @@ body.nav-hidden .nav-toggle-btn{transform:rotate(180deg)}
 .sky-dom-btn{font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:7px 13px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);cursor:pointer;border-radius:18px;transition:all .25s;}
 .sky-dom-btn:hover{color:var(--gold);border-color:var(--gold3);}
 .sky-dom-btn.active{color:var(--gold);border-color:var(--gold);background:rgba(200,164,90,.10);}
-.sky-dom-hint{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--muted);text-align:center;margin:4px 0 16px;line-height:1.5;}
+.sky-dom-hint{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:12px;color:var(--muted);text-align:center;margin:4px 0 16px;line-height:1.5;}
 @media(max-width:520px){
   .sky-dom-btn{padding:5px 9px;font-size:9px;letter-spacing:1px;}
 }
@@ -490,10 +459,10 @@ body.nav-hidden .nav-toggle-btn{transform:rotate(180deg)}
 /* ── PROFILE PANEL EXTRA ── */
 .prof-saved-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(74,186,80,.1);border:1px solid rgba(74,186,80,.3);border-radius:12px;padding:3px 10px;font-family:'Josefin Sans',sans-serif;font-size:10px;color:#4aba50;letter-spacing:1px;margin-bottom:12px}
 /* ── Panel intro (short "what is this" blurb under each tab title) ── */
-.panel-intro{display:block;max-width:640px;box-sizing:border-box;margin:2px auto 22px;padding:2px 16px;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:16px;line-height:1.75;letter-spacing:.2px;color:var(--muted);text-align:center;overflow-wrap:anywhere;word-break:break-word;}
-@media (max-width:480px){.panel-intro{font-size:15px;padding:2px 10px;margin-bottom:18px;}}
-html[lang="th"] .panel-intro{font-family:'Leelawadee UI','Leelawadee','Tahoma','Segoe UI',sans-serif;font-style:normal;font-size:15.5px;line-height:1.8;}
-@media (max-width:480px){html[lang="th"] .panel-intro{font-size:14.5px;}}
+.panel-intro{display:block;max-width:640px;box-sizing:border-box;margin:2px auto 22px;padding:2px 16px;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:14.5px;line-height:1.7;letter-spacing:.2px;color:var(--muted);text-align:center;overflow-wrap:anywhere;word-break:break-word;}
+@media (max-width:480px){.panel-intro{font-size:13.5px;padding:2px 10px;margin-bottom:18px;}}
+html[lang="th"] .panel-intro{font-family:'Leelawadee UI','Leelawadee','Tahoma','Segoe UI',sans-serif;font-style:normal;font-size:14px;line-height:1.75;}
+@media (max-width:480px){html[lang="th"] .panel-intro{font-size:13px;}}
 
 </style>
   <meta name="ms-meta-v1" content="1">
@@ -654,12 +623,6 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       Pick a language · enter your birth date to unlock 26 ancient systems
     </div>
 
-    <!-- RETURNING USER — sign-in shortcut (top of form so always visible on mobile) -->
-    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;padding:10px 14px;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:6px">
-      <span id="entrySignInLabel" style="font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px">มีบัญชีอยู่แล้ว?</span>
-      <button class="login-guest-btn" onclick="showLoginOverlay()" id="entrySignInBtn">✉️ ลงชื่อเข้าใช้ด้วย Email →</button>
-    </div>
-
     <!-- WELCOME BACK PILL (shown when returning user has saved profile) -->
     <div id="entryWelcomeBack" style="display:none;text-align:center;margin-bottom:12px;padding:8px 14px;background:rgba(200,164,90,.06);border:1px solid var(--gold3);border-radius:8px;font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold2);line-height:1.5">
       <div id="entryWelcomeBackText"></div>
@@ -675,32 +638,25 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
              style="font-family:'Cormorant Garamond',serif;font-size:15px">
       <!-- วันเกิด: DD | MM | YYYY + พ.ศ./ค.ศ. toggle -->
       <div>
-        <!-- Labels ROW — above the inputs -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:6px;margin-bottom:4px;padding:0 1px">
-          <span style="font-family:'Josefin Sans',sans-serif;font-size:11px;color:var(--gold);letter-spacing:1px;text-align:center" id="entryLblDay">วัน · DD</span>
-          <span style="font-family:'Josefin Sans',sans-serif;font-size:11px;color:var(--gold);letter-spacing:1px;text-align:center" id="entryLblMonth">เดือน · MM</span>
-          <span style="font-family:'Josefin Sans',sans-serif;font-size:11px;color:var(--gold);letter-spacing:1px;text-align:center" id="entryLblYear">ปีเกิด · YYYY</span>
-        </div>
-        <!-- Inputs ROW -->
         <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:6px">
-          <input class="login-input" type="number" id="entryDay" min="1" max="31" placeholder="15"
-                 style="font-family:inherit;font-size:16px;text-align:center">
-          <input class="login-input" type="number" id="entryMonth" min="1" max="12" placeholder="4"
-                 style="font-family:inherit;font-size:16px;text-align:center">
+          <input class="login-input" type="number" id="entryDay" min="1" max="31" placeholder="DD"
+                 style="font-family:inherit;font-size:15px;text-align:center">
+          <input class="login-input" type="number" id="entryMonth" min="1" max="12" placeholder="MM"
+                 style="font-family:inherit;font-size:15px;text-align:center">
           <div style="display:flex;gap:4px">
-            <input class="login-input" type="number" id="entryYear" min="1" max="9999" placeholder="2548"
-                   style="font-family:inherit;font-size:16px;text-align:center;flex:1;min-width:0">
+            <input class="login-input" type="number" id="entryYear" min="1" max="9999" placeholder="YYYY"
+                   style="font-family:inherit;font-size:15px;text-align:center;flex:1;min-width:0">
             <select id="entryEra" class="login-input"
-                    onchange="_entryEraChanged(this.value)"
-                    style="width:68px;padding:8px 4px;font-size:13px;font-weight:700;text-align:center;min-width:0;cursor:pointer;color:var(--gold);border-color:var(--gold3)">
+                    style="width:62px;padding:8px 4px;font-size:12px;text-align:center;min-width:0;cursor:pointer">
               <option value="be">พ.ศ.</option>
               <option value="ce">ค.ศ.</option>
             </select>
           </div>
         </div>
-        <!-- Era hint -->
-        <div id="entryEraHint" style="font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);text-align:right;margin-top:4px;letter-spacing:0.5px">
-          พ.ศ. = ค.ศ. + 543 &nbsp;·&nbsp; เช่น ปี 2548 พ.ศ. = 2005 ค.ศ.
+        <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:6px;margin-top:3px;padding:0 1px">
+          <span style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:0.5px;text-align:center" id="entryLblDay">วัน / Day</span>
+          <span style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:0.5px;text-align:center" id="entryLblMonth">เดือน / Month</span>
+          <span style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:0.5px;text-align:center" id="entryLblYear">ปีเกิด / Year</span>
         </div>
       </div>
       <!-- เวลาเกิด: HH | MM -->
@@ -1024,6 +980,12 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <span id="entryPrivacy">All data stays on your device — never sent to the cloud</span>
     </div>
 
+    <!-- sign-in link — above CTA so always visible -->
+    <div style="text-align:center;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+      <span id="entrySignInLabel" style="font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px">มีบัญชีอยู่แล้ว?</span>
+      <button class="login-guest-btn" onclick="showLoginOverlay()" id="entrySignInBtn" style="margin-left:6px">ลงชื่อเข้าใช้เพื่อกู้ข้อมูล →</button>
+    </div>
+
     <button class="login-confirm-btn" onclick="entryAccept()" id="entryCta">
       ✦ Reveal my chart
     </button>
@@ -1134,71 +1096,33 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <div class="tb-pill"><span class="tb-label" data-t="tb_moon">MOON</span> <span id="tb-moon-sign">—</span></div>
   <span class="tb-dot">·</span>
   <div class="tb-pill"><span id="tb-day-icon">—</span><span id="tb-day-deity">—</span></div>
-  <button class="tb-rail-btn" id="railToggleAll" onclick="toggleAllRails()" title="Hide / show side panels">
-    <span id="railToggleIcon">⊟</span><span id="railToggleLabel"> Panels</span>
-  </button>
 </div>
 
 <!-- ═══ DESKTOP SIDE RAILS (viewport >= 1200px only) ═══ -->
 <aside class="desk-rail left" id="deskRailLeft" aria-hidden="true">
-  <!-- TODAY'S SKY -->
   <div class="desk-rail-card">
     <h4 id="railTodayTitle">✦ Today's Sky</h4>
-    <div class="desk-rail-row">
-      <div class="desk-rail-icon" id="railPhase">🌑</div>
-      <div>
-        <div class="desk-rail-label" data-t="tb_moon">Moon Phase</div>
-        <div class="desk-rail-val" id="railPhaseName">—</div>
-      </div>
-    </div>
-    <div class="desk-rail-row">
-      <div class="desk-rail-icon">♌</div>
-      <div>
-        <div class="desk-rail-label">Moon Sign</div>
-        <div class="desk-rail-val" id="railMoonSign">—</div>
-      </div>
-    </div>
-    <div class="desk-rail-meaning" id="railSkyMeaning">—</div>
+    <div class="big" id="railPhase">🌑</div>
+    <p style="text-align:center;margin-top:6px" id="railPhaseName">—</p>
+    <p class="muted" style="text-align:center;margin-top:4px" id="railMoonSign">—</p>
   </div>
-  <!-- DAY'S DEITY -->
   <div class="desk-rail-card">
     <h4 id="railDeityTitle">✦ Day's Deity</h4>
-    <div class="desk-rail-row">
-      <div class="desk-rail-icon" id="railDeityIcon" style="font-size:32px">—</div>
-      <div>
-        <div class="desk-rail-label">Today</div>
-        <div class="desk-rail-val" id="railDeityName">—</div>
-      </div>
-    </div>
-    <div class="desk-rail-meaning" id="railDeityMeaning">—</div>
+    <p style="text-align:center;font-size:32px;line-height:1" id="railDeityIcon">—</p>
+    <p style="text-align:center;margin-top:8px" id="railDeityName">—</p>
   </div>
 </aside>
 <aside class="desk-rail right" id="deskRailRight" aria-hidden="true">
-  <!-- COSMIC TIP -->
   <div class="desk-rail-card">
     <h4 id="railTipTitle">✦ Cosmic Tip</h4>
-    <p class="desk-rail-tip" id="railTipBody">—</p>
-    <div class="desk-rail-meaning" id="railTipSource" style="font-size:10px;letter-spacing:1px;text-transform:uppercase;font-style:normal">—</div>
+    <p id="railTipBody">—</p>
   </div>
-  <!-- YOUR JOURNEY -->
   <div class="desk-rail-card">
     <h4 id="railStatsTitle">✦ Your Journey</h4>
     <ul>
-      <li>
-        <span class="dot">🎴</span>
-        <span id="railStatBlessingsLabel">Blessings received</span>
-        <span class="stat-val" id="railStatBlessings">0</span>
-      </li>
-      <li>
-        <span class="dot">🔮</span>
-        <span id="railStatOrganumLabel">Oracles consulted</span>
-        <span class="stat-val" id="railStatOrganum">0</span>
-      </li>
-      <li>
-        <span class="dot">📜</span>
-        <span id="railStatReportsLabel">Reports generated</span>
-        <span class="stat-val" id="railStatReports">0</span>
-      </li>
+      <li><span class="dot">🎴</span><span id="railStatBlessings">0 blessings drawn</span></li>
+      <li><span class="dot">🔮</span><span id="railStatOrganum">0 questions asked</span></li>
+      <li><span class="dot">📜</span><span id="railStatReports">0 reports viewed</span></li>
     </ul>
   </div>
 </aside>
@@ -1731,13 +1655,6 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 </optgroup>
 </select></div>
       </div>
-      <!-- ── Life Path Resonance — read-only status (editable in Subscription tab) ── -->
-      <div id="cb-resonance-status" style="margin-top:14px;padding:11px 14px;background:rgba(200,164,90,.03);border:1px solid rgba(200,164,90,.15);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-        <div style="font-family:'Josefin Sans',sans-serif;font-size:11px;color:var(--muted);line-height:1.6" id="cb-resonance-preview">
-          <!-- populated by syncAllForms() -->
-        </div>
-        <button onclick="switchToResonance()" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;padding:6px 14px;background:transparent;border:1px solid var(--gold3);color:var(--gold);border-radius:3px;cursor:pointer;white-space:nowrap;flex-shrink:0" data-t="cb_resonance_edit">⚙ กรอกใน Subscription</button>
-      </div>
       <button class="cb-btn-go" onclick="cb_generate()" data-t="cb_btn_go">✦ สร้างรายงานดวงชะตา Premium ✦</button>
       <p class="cb-note" data-t="cb_note_top">คำนวณ 100% ใน Browser · ไม่ส่งข้อมูลออก · ทำงาน Offline ได้ · 26 ศาสตร์จาก 4 ทวีป</p>
       <p class="cb-note" style="margin-top:8px">
@@ -1848,13 +1765,6 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   </div>
 </div>
 
-<!-- ═══ PROFILE ─ Library (every paid reading the user owns) ═══ -->
-<div class="panel" id="panel-library">
-  <div class="section-title" data-en="MY LIBRARY — readings you own" data-th="ห้องสมุดของฉัน — ดวงที่คุณซื้อแล้ว">MY LIBRARY — readings you own</div>
-  <p class="panel-intro" data-en="Every reading you've unlocked, ready to re-view as long as the chart inputs match. Tied to one chart input each — change the inputs and the entry stays here as history." data-th="ทุกดวงที่คุณปลดล็อคแล้ว · ดูซ้ำได้ฟรีตราบใดที่ข้อมูลเกิดยังตรง · เปลี่ยนข้อมูลแล้ว เอนทรีนี้จะอยู่ในประวัติ">Every reading you've unlocked, ready to re-view as long as the chart inputs match.</p>
-  <div id="libraryContent" style="max-width:780px;margin:0 auto"></div>
-</div>
-
 <!-- ═══ FREE TIER ─ Streak & Frequency Alerts (current only) ═══ -->
 <div class="panel" id="panel-streak">
   <div class="section-title" data-t="streak_title">STREAK & FREQUENCY ALERTS</div>
@@ -1910,10 +1820,6 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <p class="panel-intro" data-en="Every person has a deity who mirrors their shadow and their gift. This add-on names yours and tells their story." data-th="ทุกคนมีเทพประจำตัวที่สะท้อนทั้งด้านมืดและของขวัญในตัว · แอดออนนี้เฉลยว่าเทพของคุณคือใคร พร้อมตำนานของท่าน">Every person has a deity who mirrors their shadow and their gift. This add-on names yours and tells their story.</p>
   <div class="sky-dom-hint" data-t="ao_mirror_desc">ค้นหาเทพที่เป็นกระจกสะท้อนตัวตนของคุณ — Primary · Secondary · Tertiary · Cosmic Entity · Shadow</div>
   <div id="mirrorContent" style="max-width:640px;margin:0 auto"></div>
-  <div class="addon-deep-bar">
-    <button class="addon-deep-btn" onclick="generateDeepAddon('mirror')">✦ อ่านลึก 26 ศาสตร์ <span class="addon-deep-lock">🔒 Premium</span></button>
-  </div>
-  <div id="mirrorDeepContent" style="max-width:640px;margin:0 auto"></div>
 </div>
 
 <!-- ═══ ADD-ON ─ Compatible Pet ═══ -->
@@ -1922,10 +1828,6 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <p class="panel-intro" data-en="Which animal companion actually thrives with your energy — and which ones will drain you. Grounded in your elemental type." data-th="สัตว์เลี้ยงชนิดไหนเข้ากับพลังของคุณจริงๆ · และชนิดไหนจะดูดพลังแทนที่จะเสริม ดูจากธาตุในดวง">Which animal companion actually thrives with your energy — and which ones will drain you. Grounded in your elemental type.</p>
   <div class="sky-dom-hint" data-t="ao_pet_desc">แนะนำสัตว์เลี้ยงที่เข้ากับธาตุ · สี · ช่วงเวลาที่เหมาะ</div>
   <div id="petContent" style="max-width:640px;margin:0 auto"></div>
-  <div class="addon-deep-bar">
-    <button class="addon-deep-btn" onclick="generateDeepAddon('pet')">✦ อ่านลึก 26 ศาสตร์ <span class="addon-deep-lock">🔒 Premium</span></button>
-  </div>
-  <div id="petDeepContent" style="max-width:640px;margin:0 auto"></div>
 </div>
 
 <!-- ═══ ADD-ON ─ Cosmic Companions ═══ -->
@@ -1934,10 +1836,6 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <p class="panel-intro" data-en="The mythic creatures — dragons, phoenixes, spirits — aligned with your chart. Each one represents a facet you can call on." data-th="สัตว์ในตำนานที่สอดคล้องกับดวงของคุณ · มังกร หงส์ ฟีนิกซ์ วิญญาณ แต่ละตัวคือมุมหนึ่งในตัวเราที่พร้อมถูกเรียกใช้">The mythic creatures — dragons, phoenixes, spirits — aligned with your chart. Each one represents a facet you can call on.</p>
   <div class="sky-dom-hint" data-t="ao_comp_desc">สัตว์ในตำนาน · มนตรา · สถานที่ศักดิ์สิทธิ์ · ธีมดนตรี</div>
   <div id="companionsContent" style="max-width:640px;margin:0 auto"></div>
-  <div class="addon-deep-bar">
-    <button class="addon-deep-btn" onclick="generateDeepAddon('companions')">✦ อ่านลึก 26 ศาสตร์ <span class="addon-deep-lock">🔒 Premium</span></button>
-  </div>
-  <div id="companionsDeepContent" style="max-width:640px;margin:0 auto"></div>
 </div>
 
 <!-- ═══ ADD-ON ─ Exercise Plan ═══ -->
@@ -1946,10 +1844,6 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <p class="panel-intro" data-en="Movement patterns tuned to your elemental type. Fire and Metal move differently than Water and Earth — this tells you how." data-th="ออกกำลังแบบไหนเหมาะกับธาตุในดวงคุณ · ธาตุไฟ ธาตุโลหะ เคลื่อนคนละอย่างกับธาตุน้ำ ธาตุดิน แอดออนนี้บอกละเอียด">Movement patterns tuned to your elemental type. Fire and Metal move differently than Water and Earth — this tells you how.</p>
   <div class="sky-dom-hint" data-t="ao_ex_desc">กีฬาที่เหมาะกับธาตุและ Biorhythm · ช่วงเวลาที่เผาผลาญดีที่สุด</div>
   <div id="exerciseContent" style="max-width:640px;margin:0 auto"></div>
-  <div class="addon-deep-bar">
-    <button class="addon-deep-btn" onclick="generateDeepAddon('exercise')">✦ อ่านลึก 26 ศาสตร์ <span class="addon-deep-lock">🔒 Premium</span></button>
-  </div>
-  <div id="exerciseDeepContent" style="max-width:640px;margin:0 auto"></div>
 </div>
 
 <!-- ═══ ADD-ON ─ Food & Diet ═══ -->
@@ -1958,10 +1852,6 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <p class="panel-intro" data-en="What to put in your body, per your chart. Integrates your element, your current Mahadasha period, and your body's seasonal cycle." data-th="กินอะไรดีตามดวงของคุณ · คำนวณจากธาตุประจำตัว ช่วงมหาทศที่กำลังเดิน และจังหวะร่างกายตามฤดู">What to put in your body, per your chart. Integrates your element, your current Mahadasha period, and your body's seasonal cycle.</p>
   <div class="sky-dom-hint" data-t="ao_food_desc">อาหารเสริมธาตุ · รสชาติที่ควรเน้น · ของที่ควรเลี่ยงตาม Mahadasha</div>
   <div id="foodContent" style="max-width:640px;margin:0 auto"></div>
-  <div class="addon-deep-bar">
-    <button class="addon-deep-btn" onclick="generateDeepAddon('food')">✦ อ่านลึก 26 ศาสตร์ <span class="addon-deep-lock">🔒 Premium</span></button>
-  </div>
-  <div id="foodDeepContent" style="max-width:640px;margin:0 auto"></div>
 </div>
 
 <!-- ═══ ADD-ON ─ Product Personality ═══ -->
@@ -1970,10 +1860,6 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <p class="panel-intro" data-en="Colors, fabrics, archetypes you resonate with. Practical guidance for shopping, dressing, or designing a space that feels like home." data-th="สี เนื้อผ้า สไตล์ที่ &quot;ใช่&quot; สำหรับคุณ · ใช้จริงได้ทั้งช็อปปิ้ง แต่งตัว หรือจัดห้องให้รู้สึกเป็นที่ของเรา">Colors, fabrics, archetypes you resonate with. Practical guidance for shopping, dressing, or designing a space that feels like home.</p>
   <div class="sky-dom-hint" data-t="ao_prod_desc">สี · วัสดุ · สไตล์ · ของที่เสริมพลัง · ของที่ควรเลี่ยง</div>
   <div id="productContent" style="max-width:640px;margin:0 auto"></div>
-  <div class="addon-deep-bar">
-    <button class="addon-deep-btn" onclick="generateDeepAddon('product')">✦ อ่านลึก 26 ศาสตร์ <span class="addon-deep-lock">🔒 Premium</span></button>
-  </div>
-  <div id="productDeepContent" style="max-width:640px;margin:0 auto"></div>
 </div>
 
 <!-- ═══ ADD-ON ─ Compatibility ═══ -->
@@ -6500,7 +6386,7 @@ en:{
   group_addon:"🎁 Add-ons",group_profile:"👤 Profile",
   // ── sub-tabs
   sub_blessing:"🎴 Blessing",sub_organum:"🔮 Organum",sub_preview:"📊 Preview",
-  sub_collection:"📚 Collection",sub_library:"📖 Library",sub_streak:"🔥 Streak",sub_history7:"📜 7-day",
+  sub_collection:"📚 Collection",sub_streak:"🔥 Streak",sub_history7:"📜 7-day",
   sub_generate:"✨ Generate",sub_reports:"📁 My Reports",
   sub_sky:"🌌 Daily Sky",sub_resonance:"🧭 Life Resonance",sub_organum_plus:"🔮 Organum ∞",
   sub_brief:"📰 Monthly Brief",sub_freq:"📡 Frequency",sub_history_all:"📜 Full History",
@@ -6666,7 +6552,7 @@ th:{
   group_addon:"🎁 แอดออน",group_profile:"👤 โปรไฟล์",
   // ── sub-tabs
   sub_blessing:"🎴 จั่วไพ่",sub_organum:"🔮 โอเรกุรัม",sub_preview:"📊 ดูตัวอย่าง",
-  sub_collection:"📚 สะสมเทพ",sub_library:"📖 คลังของฉัน",sub_streak:"🔥 Streak",sub_history7:"📜 7 วัน",
+  sub_collection:"📚 สะสมเทพ",sub_streak:"🔥 Streak",sub_history7:"📜 7 วัน",
   sub_generate:"✨ สร้างรายงาน",sub_reports:"📁 รายงานของฉัน",
   sub_sky:"🌌 ฟ้าวันนี้",sub_resonance:"🧭 Life Resonance",sub_organum_plus:"🔮 Organum ∞",
   sub_brief:"📰 สรุปเดือน",sub_freq:"📡 ความถี่",sub_history_all:"📜 ประวัติทั้งหมด",
@@ -6830,18 +6716,6 @@ function applyLang(){
   if(_lastSkyCards)renderSkyCards(_lastSkyCards);
   if(_lastChartData){renderChart(_lastChartData);switchLifeTab(_lifeTab,null);}
   if(_lastWordData)renderWordTabs(null,_lastWordData);
-
-  // ── Per-panel re-render so all dynamically-rendered tabs follow LANG ──
-  // Many panels (resonance, deep readings, blueprint, all add-ons, profile
-  // sub-tabs) build their innerHTML at click time using `LANG === 'th' ? … : …`
-  // ternaries, then never re-read LANG. Toggling language used to leave them
-  // frozen in the previous language. We now also re-trigger the sub-tab bar
-  // (so its translated labels render) and the active panel's lazy renderer.
-  // Mapping mirrors the dispatcher inside showSubTab().
-  try {
-    if (typeof setGroup === 'function' && typeof CUR_GROUP === 'string') setGroup(CUR_GROUP);
-    if (typeof showSubTab === 'function' && typeof CUR_SUB === 'string') showSubTab(CUR_SUB);
-  } catch(_){}
 }
 function renderDate(){const d=new Date();document.getElementById('dateDisplay').textContent=d.toLocaleDateString(LANG==='th'?'th-TH':'en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
 // ════════════════════════════════════════
@@ -6896,7 +6770,6 @@ const GROUPS = {
     default: 'collection',
     tabs: [
       ['collection', 'collection', 'sub_collection', false],
-      ['library',    'library',    'sub_library',    false],
       ['streak',     'streak',     'sub_streak',     false],
       ['me',         'profile',    'sub_me',         false],
       ['multi',      'multi',      'sub_multi',      false],
@@ -6959,7 +6832,6 @@ function showSubTab(subKey) {
   if (panelId === 'brief')            renderMonthlyBrief();
   if (panelId === 'freq')             renderFreqHistory();
   if (panelId === 'collection')       renderCollection();
-  if (panelId === 'library')          renderLibrary();
   if (panelId === 'streak')           renderStreak();
   if (panelId === 'premium-reports')  renderSavedReports();
   if (panelId === 'mirror')           renderMirror();
@@ -7003,7 +6875,7 @@ async function loadGods(){
   // in case a newer dataset is served when hosted online — but file://
   // runs will fall through immediately.
   try {
-    const r = await fetch("../data/gods.json");
+    const r = await fetch("../data/mythsensus-gods.json");
     if (r && r.ok) {
       const raw = await r.json();
       if (Array.isArray(raw) && raw.length > GODS_FULL.length) {
@@ -7208,8 +7080,6 @@ function showOrganumResult(wordCount,godContrib){
   const _top = entries[0];
   const _g1 = Object.values(godContrib).sort((a,b)=>b.total-a.total)[0];
   saveOrganumToHistory(_q, _top?_top[0]:'', _top?_top[1].count:0, _g1?_g1.god.name:'', _g1?_g1.god.symbol:'');
-  // Refresh the desktop rail counters so "ถามโอเรกุรัม" reflects the new ask.
-  if (typeof renderDesktopRails === 'function') { try { renderDesktopRails(); } catch(_){} }
 }
 
 function renderWordTabs(topEntries,wordCount){
@@ -7910,81 +7780,24 @@ const _cosmicTipsEN = [
   'The Sun amplifies confidence — stand tall, breathe deep, proceed',
 ];
 
-// Moon-phase meanings for rail (brief, actionable)
-const _phaseMeaning = {
-  en: {
-    'New Moon':       "Plant seeds. Begin what you've been waiting on.",
-    'Waxing Crescent':'Take first steps. Momentum is building.',
-    'First Quarter':  'Push through resistance. Action beats hesitation.',
-    'Waxing Gibbous': 'Refine your effort. Almost there — persist.',
-    'Full Moon':      'Illuminate truth. Celebrate or release what no longer serves.',
-    'Waning Gibbous': "Share what you've learned. Gratitude compounds.",
-    'Last Quarter':   'Let go gracefully. Clear space for what comes next.',
-    'Waning Crescent':'Rest and reflect. The next cycle is being prepared.',
-  },
-  th: {
-    'New Moon':       'ปลูกเมล็ดพันธุ์ใหม่ · วันเหมาะเริ่มสิ่งที่ยังค้างคา',
-    'Waxing Crescent':'ก้าวแรกมีพลัง · โมเมนตัมกำลังสะสม',
-    'First Quarter':  'ฝ่าแรงต้านและลงมือ · ดีกว่ารอ',
-    'Waxing Gibbous': 'ปรับและขัดเกลา · เส้นชัยใกล้แล้ว',
-    'Full Moon':      'เผยความจริง · เฉลิมฉลองหรือปล่อยวางสิ่งที่ไม่เป็นประโยชน์',
-    'Waning Gibbous': 'แบ่งปันสิ่งที่เรียนรู้ · ความกตัญญูสร้างผลทบทวี',
-    'Last Quarter':   'ปล่อยวางด้วยใจดี · เปิดพื้นที่ให้วงจรใหม่',
-    'Waning Crescent':'พักและสะท้อนตัวเอง · วงจรถัดไปกำลังถูกเตรียม',
-  }
-};
-// Deity domain descriptions by day
-const _deityDomain = {
-  en: ['Sunday — Sun · vitality, leadership, clarity of purpose',
-       'Monday — Moon · emotions, intuition, inner reflection',
-       'Tuesday — Mars · courage, drive, decisive action',
-       'Wednesday — Mercury · communication, learning, quick thinking',
-       'Thursday — Jupiter · expansion, wisdom, good fortune',
-       'Friday — Venus · beauty, relationships, creative flow',
-       'Saturday — Saturn · discipline, structure, long-term mastery'],
-  th: ['อาทิตย์ — พระอาทิตย์ · พลังชีวิต ความเป็นผู้นำ เป้าหมายที่ชัดเจน',
-       'จันทร์ — พระจันทร์ · อารมณ์ สัญชาตญาณ การสำรวจตนเอง',
-       'อังคาร — พระอังคาร · ความกล้า แรงขับ การตัดสินใจเด็ดขาด',
-       'พุธ — พระพุธ · การสื่อสาร การเรียนรู้ ความคิดว่องไว',
-       'พฤหัสบดี — พระพฤหัสฯ · การขยายตัว ปัญญา โชคดี',
-       'ศุกร์ — พระศุกร์ · ความงาม ความสัมพันธ์ กระแสสร้างสรรค์',
-       'เสาร์ — พระเสาร์ · วินัย โครงสร้าง การเชี่ยวชาญระยะยาว']
-};
-
 function renderDesktopRails(phase, moonSign, dow, dayIcons, dayNamesTH, dayNamesEN){
   const railLeft = document.getElementById('deskRailLeft');
   if (!railLeft) return;
   const isTh = (typeof LANG!=='undefined' && LANG==='th');
-  const set = (id, txt) => { const el = document.getElementById(id); if (el && txt!==undefined) el.textContent = txt; };
-  // Left rail — Today's Sky
-  set('railTodayTitle', isTh ? '✦ ท้องฟ้าวันนี้' : "✦ Today's Sky");
-  set('railPhase',      phase.icon);
-  set('railPhaseName',  isTh ? phase.th : phase.en);
-  // Moon sign: strip "Moon in " prefix stored in moonSign.n
-  const moonLabel = isTh ? (moonSign.th || moonSign.n) : moonSign.n;
-  set('railMoonSign', moonLabel);
-  const phaseKey = phase.en || phase.th || '';
-  set('railSkyMeaning', isTh
-    ? (_phaseMeaning.th[phaseKey] || '')
-    : (_phaseMeaning.en[phaseKey] || ''));
-  // Left rail — Day's Deity
-  set('railDeityTitle', isTh ? '✦ เทพประจำวัน' : "✦ Day's Deity");
-  set('railDeityIcon',  dayIcons[dow]);
-  set('railDeityName',  isTh ? ('วัน' + dayNamesTH[dow]) : dayNamesEN[dow] + 'day');
-  set('railDeityMeaning', isTh ? (_deityDomain.th[dow] || '') : (_deityDomain.en[dow] || ''));
-  // Right rail — Cosmic Tip
-  set('railTipTitle', isTh ? '✦ คาถาของวันนี้' : '✦ Cosmic Tip');
+  const set = (id, txt) => { const el = document.getElementById(id); if (el) txt!==undefined && (el.textContent = txt); };
+  set('railTodayTitle',  isTh ? '✦ ท้องฟ้าวันนี้' : "✦ Today's Sky");
+  set('railPhase',       phase.icon);
+  set('railPhaseName',   isTh ? phase.th : phase.en);
+  set('railMoonSign',    (isTh ? 'พระจันทร์อยู่ใน ' : 'Moon in ') + (isTh ? moonSign.th : moonSign.n));
+  set('railDeityTitle',  isTh ? '✦ เทพประจำวัน' : "✦ Day's Deity");
+  set('railDeityIcon',   dayIcons[dow]);
+  set('railDeityName',   isTh ? ('วัน'+dayNamesTH[dow]) : dayNamesEN[dow]+'day');
+  // Right rail
+  set('railTipTitle',    isTh ? '✦ คาถาของวันนี้' : '✦ Cosmic Tip');
   const tipIdx = (new Date().getDate() + dow) % _cosmicTipsTH.length;
-  set('railTipBody',   isTh ? _cosmicTipsTH[tipIdx] : _cosmicTipsEN[tipIdx]);
-  const planetDay = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'][dow];
-  set('railTipSource', isTh
-    ? (planetDay + ' · ' + (moonSign.th || moonSign.n))
-    : (planetDay + ' · Moon in ' + moonSign.n));
-  // Right rail — Your Journey
-  set('railStatsTitle', isTh ? '✦ เส้นทางของคุณ' : '✦ Your Journey');
-  set('railStatBlessingsLabel', isTh ? 'รับพรแล้ว' : 'Blessings received');
-  set('railStatOrganumLabel',   isTh ? 'ถามโอเรกุรัม' : 'Oracles consulted');
-  set('railStatReportsLabel',   isTh ? 'สร้างรายงาน' : 'Reports generated');
+  set('railTipBody',     isTh ? _cosmicTipsTH[tipIdx] : _cosmicTipsEN[tipIdx]);
+  set('railStatsTitle',  isTh ? '✦ เส้นทางของคุณ' : '✦ Your Journey');
+  // Stats from full history
   let blessings = 0, organum = 0, reports = 0;
   try {
     const hist = (typeof getFullHistory==='function') ? getFullHistory() : [];
@@ -7992,46 +7805,9 @@ function renderDesktopRails(phase, moonSign, dow, dayIcons, dayNamesTH, dayNames
     organum   = hist.filter(h=>h&&h.type==='organum').length;
     reports   = parseInt(localStorage.getItem('mth_reports_viewed')||'0',10)||0;
   } catch(e) {}
-  set('railStatBlessings', String(blessings));
-  set('railStatOrganum',   String(organum));
-  set('railStatReports',   String(reports));
-}
-
-// ── DESKTOP RAIL TOGGLE (all 4 panels at once) ────────────────────────────
-function toggleAllRails() {
-  const rL = document.getElementById('deskRailLeft');
-  const rR = document.getElementById('deskRailRight');
-  const btn = document.getElementById('railToggleAll');
-  const icon = document.getElementById('railToggleIcon');
-  const lbl  = document.getElementById('railToggleLabel');
-  if (!rL || !rR) return;
-  // If either rail is visible → hide both; if both hidden → show both
-  const nowHidden = rL.classList.toggle('rail-hidden');
-  rR.classList.toggle('rail-hidden', nowHidden);
-  if (icon) icon.textContent = nowHidden ? '⊞' : '⊟';
-  if (lbl)  lbl.textContent  = nowHidden ? ' Panels' : ' Panels';
-  if (btn)  btn.classList.toggle('hidden', nowHidden);
-  try { localStorage.setItem('mth_rails_hidden', nowHidden ? '1' : '0'); } catch(e) {}
-}
-(function _initRails() {
-  // Restore hidden state on page load
-  if (localStorage.getItem('mth_rails_hidden') === '1') {
-    const rL = document.getElementById('deskRailLeft');
-    const rR = document.getElementById('deskRailRight');
-    const icon = document.getElementById('railToggleIcon');
-    const btn  = document.getElementById('railToggleAll');
-    if (rL) rL.classList.add('rail-hidden');
-    if (rR) rR.classList.add('rail-hidden');
-    if (icon) icon.textContent = '⊞';
-    if (btn)  btn.classList.add('hidden');
-  }
-})();
-
-// Jump to Subscription → Life Resonance sub-tab from Blueprint form
-function switchToResonance() {
-  try { setGroup('subscription'); } catch(e) {}
-  try { showSubTab('resonance'); } catch(e) {}
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  set('railStatBlessings', isTh ? (blessings+' ครั้งที่รับพร') : (blessings+' blessings drawn'));
+  set('railStatOrganum',   isTh ? (organum+' ครั้งที่ถามโอเรกุรัม') : (organum+' questions asked'));
+  set('railStatReports',   isTh ? (reports+' รายงานที่เปิด') : (reports+' reports viewed'));
 }
 
 // ════════════════════════════════════════
@@ -8079,27 +7855,6 @@ function syncAllForms(){
   if(p.time){
     const[hh,mm]=p.time.split(':');
     set('cb-f-time-h',hh||'12');set('cb-f-time-m',mm||'0');
-  }
-  // Life Path Resonance — show read-only preview (editable only in Subscription tab)
-  const country  = localStorage.getItem('mth_country')  || '';
-  const career   = localStorage.getItem('mth_career')   || '';
-  const industry = localStorage.getItem('mth_industry') || '';
-  const prevEl   = document.getElementById('cb-resonance-preview');
-  if (prevEl) {
-    const isTh2 = (typeof LANG!=='undefined' && LANG==='th');
-    if (country || career || industry) {
-      const parts = [];
-      if (country)  parts.push((isTh2 ? '🌏 ประเทศ: ' : '🌏 Country: ') + country);
-      if (career)   parts.push((isTh2 ? '💼 อาชีพ: ' : '💼 Career: ') + career);
-      if (industry) parts.push((isTh2 ? '🏭 สาย: ' : '🏭 Industry: ') + industry);
-      prevEl.style.color = 'var(--text)';
-      prevEl.textContent = parts.join(' · ');
-    } else {
-      prevEl.style.color = 'var(--muted)';
-      prevEl.textContent = isTh2
-        ? '⚠ ยังไม่ได้กรอก Career/Country → Petroleum Grade จะไม่แสดงผล Life Terrain และ Path Resonance'
-        : '⚠ No career/country set → Life Terrain & Path Resonance will be empty';
-    }
   }
   // show saved badge if DOB exists
   const badge=document.getElementById('profSavedBadge');
@@ -8531,675 +8286,17 @@ function _getMS26ChartFromProfile(){
   // Life Path Resonance context (saved by Subscription → Resonance panel).
   // Without these the chart's Path Resonance scoring runs against defaults
   // and the Premium report differs from the add-on panels.
-  const workCountry = localStorage.getItem('mth_country')      || '';
-  const domain      = localStorage.getItem('mth_career')       || '';
-  const industry    = localStorage.getItem('mth_industry')     || '';
-  const careerLevel = localStorage.getItem('mth_careerLevel')  || '';
+  const workCountry = localStorage.getItem('mth_country')  || '';
+  const domain      = localStorage.getItem('mth_career')   || '';
+  const industry    = localStorage.getItem('mth_industry') || '';
   try {
     return window.MS26.calculate({
       name, gender, year:y, month:m, day:d,
       hour:hh||12, minute:mm||0,
       lat:lat||13.75, lon:lon||100.5, timezone:tz||7,
-      workCountry, domain, industry, careerLevel,
+      workCountry, domain, industry,
     });
   } catch(e) { console.error(e); return null; }
-}
-
-// ── Subscription / Gift-code gate ─────────────────────────
-// Returns true if the user has a non-expired gift code stored in localStorage.
-// Once Supabase + Omise payments land, expand this to also check mth_sub_tier.
-function _hasActiveGift(){
-  const code   = localStorage.getItem('mth_gift') || '';
-  const expiry = localStorage.getItem('mth_gift_expiry') || '';
-  if (!code || !expiry) return false;
-  return new Date().toISOString().slice(0,10) <= expiry;
-}
-
-// ── Per-input purchase model ──────────────────────────────
-// Pricing model decided 2026-05-02:
-//   • $19  one-time = Full Report 42-page PDF for ONE chart input
-//   • $5–9 add-ons  = utility add-ons (Mirror/Pet/Companions/Exercise/Food/
-//                     Product/Compat) — each tied to ONE chart input;
-//                     re-view free, change input → repurchase
-//   • $9   per deep system reading (×26 systems) — same per-input model
-//
-// We hash the chart input (DOB + time + gender + city + name) to a short
-// signature. A purchase is recorded as { item:hash } in mth_purchased and
-// grants permanent free re-views for THAT input. Changing any input field
-// produces a new hash → existing purchase no longer matches → user sees
-// the price + Buy CTA again. Compat keeps two hashes (own + partner).
-const PRICING = {
-  // Deep-system unlock — applies to all 26 in panel-deep
-  deep:        { usd: 9,  thb: 320 },
-  // Utility add-ons (mirror through compat) — tier varies per Master Brief
-  mirror:      { usd: 9,  thb: 320 },   // Divine Mirror — included in Full Report
-  pet:         { usd: 5,  thb: 180 },
-  companions:  { usd: 7,  thb: 250 },
-  exercise:    { usd: 7,  thb: 250 },
-  food:        { usd: 7,  thb: 250 },
-  product:     { usd: 5,  thb: 180 },
-  compat:      { usd: 9,  thb: 320 },
-  // Big bundle — Full Report 42-page PDF (NOT an add-on)
-  full_report: { usd: 19, thb: 650 },
-};
-
-// Stable, short hash of the chart inputs that drive a reading.
-// We hash a normalised string so trivial whitespace/casing doesn't invalidate
-// a purchase. If you change birth date / time / gender / city / name the hash
-// changes → previous purchase no longer matches → repurchase required.
-function _chartInputHash(){
-  try {
-    const dob    = (localStorage.getItem('mth_dob')    || '').trim();
-    const time   = (localStorage.getItem('mth_time')   || '').trim();
-    const gender = (localStorage.getItem('mth_gender') || '').trim();
-    const city   = (localStorage.getItem('mth_city')   || '').trim();
-    const name   = (localStorage.getItem('mth_name')   || '').trim().toLowerCase();
-    const raw = [dob, time, gender, city, name].join('|');
-    // FNV-1a 32-bit — short, deterministic, no crypto needed.
-    let h = 0x811c9dc5;
-    for (let i = 0; i < raw.length; i++) {
-      h ^= raw.charCodeAt(i);
-      h = Math.imul(h, 0x01000193) >>> 0;
-    }
-    return h.toString(16).padStart(8, '0');
-  } catch(_) { return '00000000'; }
-}
-
-// For Compat we also need the partner's hash.
-function _compatInputHash(partner){
-  try {
-    const own = _chartInputHash();
-    const p = (partner && typeof partner === 'object') ? partner : {};
-    const raw = [p.dob||'', p.time||'', p.gender||'', p.name||'']
-      .map(s => String(s).trim().toLowerCase()).join('|');
-    let h = 0x811c9dc5;
-    for (let i = 0; i < raw.length; i++) {
-      h ^= raw.charCodeAt(i);
-      h = Math.imul(h, 0x01000193) >>> 0;
-    }
-    return own + ':' + h.toString(16).padStart(8, '0');
-  } catch(_) { return _chartInputHash() + ':00000000'; }
-}
-
-function _readPurchases(){
-  try { return JSON.parse(localStorage.getItem('mth_purchased') || '{}') || {}; }
-  catch(_) { return {}; }
-}
-function _writePurchases(map){
-  try { localStorage.setItem('mth_purchased', JSON.stringify(map)); }
-  catch(_) {}
-}
-
-// ── Library — every purchase is also recorded as a profile-side entry
-// so the user can see what they own, even if they later change DOB/time
-// (the unlock won't apply to the new chart, but the library remembers
-// the historical purchase). Clicking an entry deep-links straight to
-// the original tab so the user re-views without hunting.
-function _readLibrary(){
-  try { return JSON.parse(localStorage.getItem('mth_library') || '[]') || []; }
-  catch(_) { return []; }
-}
-function _writeLibrary(list){
-  try { localStorage.setItem('mth_library', JSON.stringify(list)); }
-  catch(_) {}
-}
-// Mapping: item key prefix → which (group, tab) the user should land on
-// when they click the entry from the library.
-const _ITEM_NAV = {
-  deep_:       ['addon', 'deep'],
-  mirror:      ['addon', 'mirror'],
-  pet:         ['addon', 'pet'],
-  companions:  ['addon', 'companions'],
-  exercise:    ['addon', 'exercise'],
-  food:        ['addon', 'food'],
-  product:     ['addon', 'product'],
-  compat:      ['addon', 'compat'],
-  full_report: ['premium', 'reports'],
-};
-function _navForItem(itemKey){
-  if (_ITEM_NAV[itemKey]) return _ITEM_NAV[itemKey];
-  for (const prefix of Object.keys(_ITEM_NAV)) {
-    if (itemKey.startsWith(prefix)) return _ITEM_NAV[prefix];
-  }
-  return ['addon', 'deep'];
-}
-// Capture a small chart fingerprint at purchase time so the library
-// row can show "based on DOB 1991-02-03 / Bangkok / male" even if the
-// user later edits their profile.
-function _chartSummaryNow(){
-  return {
-    name:   localStorage.getItem('mth_name')   || '',
-    dob:    localStorage.getItem('mth_dob')    || '',
-    time:   localStorage.getItem('mth_time')   || '',
-    gender: localStorage.getItem('mth_gender') || '',
-    city:   localStorage.getItem('mth_city')   || '',
-  };
-}
-function _addToLibrary(itemKey, opts){
-  const hash    = (opts && opts.hash)  || _chartInputHash();
-  const label   = (opts && opts.label) || itemKey;
-  const list    = _readLibrary();
-  // De-dup: if exactly the same itemKey:hash already in library, skip.
-  const compoundKey = itemKey + ':' + hash;
-  if (list.some(e => e.key === compoundKey)) return;
-  list.unshift({
-    key:        compoundKey,
-    itemKey,
-    hash,
-    label,
-    unlockedAt: new Date().toISOString(),
-    chart:      _chartSummaryNow(),
-  });
-  // Cap to 200 rows so localStorage doesn't grow unbounded over years.
-  if (list.length > 200) list.length = 200;
-  _writeLibrary(list);
-}
-
-// Returns true if EITHER (a) user has an active beta gift code OR (b) the
-// specific item has been purchased for the current chart input.
-function _hasItemAccess(itemKey, hashOverride){
-  if (_hasActiveGift()) return true;
-  const hash = hashOverride || _chartInputHash();
-  const map  = _readPurchases();
-  return Boolean(map[itemKey + ':' + hash]);
-}
-
-// Stub for the Omise-backed buy flow. Today: pretend-purchase that just
-// records the unlock locally (so the UI can be verified end-to-end). Once
-// Omise account is approved (Task 2 in handoff) this will open the Omise
-// JS popup and only record the purchase after server-side charge success.
-function _purchaseItem(itemKey, opts){
-  const isTh = LANG === 'th';
-  // Compound keys like "deep_western" / "deep_bazi" all use the "deep" tier;
-  // fall back to the prefix lookup so each of the 26 systems shares one tag.
-  const price = PRICING[itemKey] || PRICING[String(itemKey).split('_')[0]];
-  if (!price) { console.warn('[purchase] unknown item', itemKey); return; }
-  const hash = (opts && opts.hash) || _chartInputHash();
-  const label = (opts && opts.label) || itemKey;
-  // TEMP: fake checkout via confirm() — replace with Omise.open() when live.
-  const ok = confirm(isTh
-    ? `เปิดอ่าน ${label}\n\nราคา $${price.usd} (~฿${price.thb}) สำหรับข้อมูลปัจจุบัน\n` +
-      `(ดูซ้ำได้ฟรีตราบใดที่ไม่เปลี่ยนข้อมูลเกิด/เวลา/เพศ/เมือง/ชื่อ)\n\n` +
-      `⚠ ระบบ Omise ยังไม่เปิด — ตอนนี้กด OK = unlock ฟรีเพื่อทดสอบ`
-    : `Unlock ${label}\n\n$${price.usd} (~฿${price.thb}) for the current chart input\n` +
-      `(re-view free as long as DOB/time/gender/city/name don't change)\n\n` +
-      `⚠ Omise checkout not live yet — clicking OK unlocks for free (test mode)`);
-  if (!ok) return false;
-  const map = _readPurchases();
-  map[itemKey + ':' + hash] = new Date().toISOString();
-  _writePurchases(map);
-  // Also stash a profile-side library row so the user can find this
-  // reading again from Profile → Library without remembering which
-  // tab originally hosted it.
-  _addToLibrary(itemKey, { hash, label });
-  // Re-render whatever is visible so the lock disappears immediately.
-  try { if (typeof setGroup === 'function' && typeof CUR_GROUP === 'string') setGroup(CUR_GROUP); } catch(_){}
-  try { if (typeof showSubTab === 'function' && typeof CUR_SUB === 'string') showSubTab(CUR_SUB); } catch(_){}
-  return true;
-}
-
-// Renders the standard paywall card used everywhere a purchase gate appears.
-// Same look across deep / add-on tabs so users learn the pattern once.
-function _purchasePaywall(itemKey, opts){
-  const isTh = LANG === 'th';
-  const price = PRICING[itemKey] || PRICING[String(itemKey).split('_')[0]] || { usd: 9, thb: 320 };
-  const label   = (opts && opts.label)    || itemKey;
-  const blurb   = (opts && opts.blurb)    || (isTh
-    ? 'ดูดวงเชิงลึกสำหรับวันเกิดของคุณ · ดูซ้ำได้ฟรีจนกว่าจะเปลี่ยนข้อมูลเกิด'
-    : 'Deep reading for your specific birth chart · re-view free until you change inputs');
-  const benefits = (opts && opts.benefits) || [];
-  const itemArg = JSON.stringify(itemKey).replace(/"/g,'&quot;');
-  const labelArg = JSON.stringify(label).replace(/"/g,'&quot;');
-  return `
-    <div style="background:linear-gradient(135deg,rgba(212,175,55,0.06),rgba(212,175,55,0.02));border:1px solid var(--gold3);border-radius:10px;padding:18px 18px 16px;margin-top:14px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:10px">
-        <div>
-          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:var(--gold);letter-spacing:1px;margin-bottom:2px">🔒 ${_esc(label)}</div>
-          <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--muted);line-height:1.55;max-width:520px">${blurb}</div>
-        </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div style="font-family:'Cinzel Decorative',serif;font-size:22px;color:var(--gold);font-weight:700;line-height:1">$${price.usd}</div>
-          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:var(--muted);margin-top:2px">~฿${price.thb} ${isTh?'ต่อวันเกิด':'per chart'}</div>
-        </div>
-      </div>
-      ${benefits.length ? `<ul style="margin:10px 0 12px 18px;padding:0;font-family:'Cormorant Garamond',serif;font-size:12.5px;color:var(--text);line-height:1.7">${benefits.map(b=>`<li style="margin-bottom:2px">${b}</li>`).join('')}</ul>` : ''}
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
-        <button onclick="_purchaseItem(${itemArg},{label:${labelArg}})" style="cursor:pointer;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:var(--bg);font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:9px 16px;border-radius:6px;font-weight:700">✦ ${isTh?'ปลดล็อค $'+price.usd:'Unlock $'+price.usd}</button>
-        <button onclick="setGroup('profile');showSubTab('me')" style="cursor:pointer;background:transparent;border:1px solid var(--gold3);color:var(--gold);font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:1.5px;padding:9px 14px;border-radius:6px">${isTh?'ใส่รหัสของขวัญ':'Use Gift Code'}</button>
-      </div>
-      <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(212,175,55,0.15);font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:var(--muted)">
-        ${isTh?'💡 จ่ายครั้งเดียว ดูซ้ำได้ตลอด · ถ้าเปลี่ยนวันเกิด/เวลา/เพศ/เมือง/ชื่อ → ต้องชำระใหม่':'💡 One-time payment, unlimited re-views · changing DOB / time / gender / city / name → re-purchase required'}
-      </div>
-    </div>`;
-}
-
-// ── Add-on Deep Generate (Premium) ────────────────────────
-// Each add-on panel has a "✦ อ่านลึก 26 ศาสตร์" button that calls this.
-// Checks gift-code gate → renders paywall or cross-system synthesis.
-function generateDeepAddon(key){
-  const elId = key + 'DeepContent';
-  const el   = document.getElementById(elId);
-  if (!el) return;
-  const isTh = LANG === 'th';
-
-  if (!_hasItemAccess(key)) {
-    const ADDON_LABELS = {
-      mirror:     isTh ? 'Divine Mirror — เทพกระจกตัวคุณ'         : 'Divine Mirror — your archetypal reflection',
-      pet:        isTh ? 'Compatible Pet — สัตว์ที่เข้ากับธาตุ'   : 'Compatible Pet — animal that fits your element',
-      companions: isTh ? 'Cosmic Companions — สัตว์ตำนานประจำคุณ'  : 'Cosmic Companions — mythic companions across cultures',
-      exercise:   isTh ? 'Exercise Plan — ตารางกายรายสัปดาห์'      : 'Exercise Plan — weekly movement split',
-      food:       isTh ? 'Food & Diet — จานอาหารตามธาตุ'           : 'Food & Diet — element-aligned plate guide',
-      product:    isTh ? 'Product Personality — สีและของที่เสริม'  : 'Product Personality — colours & items that amplify',
-      compat:     isTh ? 'Compatibility — เทียบดวงคู่/เพื่อน'      : 'Compatibility — partner / friend chart match',
-    };
-    const ADDON_BLURBS = {
-      mirror:     isTh ? 'การสังเคราะห์ตัวตนจาก 26 ศาสตร์ + 7-day playbook' : '26-system identity synthesis + 7-day playbook',
-      pet:        isTh ? 'สัตว์เลี้ยงที่ธาตุของคุณต้องการจริงๆ + 7-day plan' : 'The pet your element actually needs + 7-day plan',
-      companions: isTh ? 'สัตว์ตำนานจาก 26 วัฒนธรรม + พิธีกรรม 7 วัน' : 'Mythic companions across 26 cultures + 7-day ritual',
-      exercise:   isTh ? 'รูปแบบออกกำลังตามธาตุและ Biorhythm + ตารางสัปดาห์' : 'Movement by element + biorhythm + weekly split',
-      food:       isTh ? 'แนวอาหารเฉพาะธาตุของคุณ + อาหารห้าม' : 'Element-specific food + foods to avoid',
-      product:    isTh ? 'สีและวัสดุที่เสริมพลังของคุณ + ตัวกรองช้อปปิ้ง' : 'Colours & materials that amplify + buying filter',
-      compat:     isTh ? 'เทียบดวงคุณกับคู่/เพื่อน/พาร์ทเนอร์ธุรกิจ' : 'Compare your chart with a partner / friend / business associate',
-    };
-    el.innerHTML = _purchasePaywall(key, {
-      label: ADDON_LABELS[key] || key,
-      blurb: ADDON_BLURBS[key] || (isTh ? 'อ่านลึกสำหรับดวงของคุณ' : 'Deep reading for your chart'),
-      benefits: isTh
-        ? ['สังเคราะห์จาก 26 ศาสตร์', '✦ แผนปฏิบัติ 7 วัน', '⚠ สิ่งที่ควรหลีกเลี่ยง', '🪞 มันตราประจำสัปดาห์']
-        : ['26-system synthesis', '✦ 7-day action plan', '⚠ What to avoid', '🪞 Weekly mantra'],
-    });
-    return;
-  }
-
-  const chart = _getMS26ChartFromProfile();
-  if (!chart){ _emptyDeepHint(elId); return; }
-
-  el.innerHTML = `<div class="addon-deep-loading">✦ ${isTh ? 'กำลังสังเคราะห์จาก 26 ศาสตร์…' : 'Synthesising from 26 systems…'}</div>`;
-  setTimeout(function(){ el.innerHTML = _buildDeepAddon(chart, key); }, 300);
-}
-
-// Builds the cross-system synthesis card for a given add-on key.
-// Called by generateDeepAddon() after the subscription gate is passed.
-function _buildDeepAddon(chart, key){
-  const isTh = LANG === 'th';
-  const dmEl  = chart.bazi?.dayMasterElement || 'ไม้';
-  const dmTh  = chart.bazi?.dayMasterTh      || '—';
-  const lp    = chart.numerology?.lifePath   || '—';
-  const nskStar = chart.ninestar?.star            || '—';
-  const nskDir  = chart.ninestar?.starDirection   || '—';
-  const nskEl   = chart.ninestar?.starElement     || '—';
-  const sunEn   = chart.western?.sunSign          || '—';
-  const sunTh   = chart.western?.sunSignTh        || sunEn;
-  const moonNak = chart.vedic?.moonNakshatra      || '—';
-  const mahadasha = chart.vedicMahadasha?.currentDasha || '—';
-  const hdType  = chart.humandesign?.typeTh || chart.humandesign?.type || '—';
-  const hdAuth  = chart.humandesign?.authority || '—';
-  const mayanKin  = chart.mayan?.kin      || '—';
-  const mayanSign = chart.mayan?.daySign  || '—';
-  const celticTree = chart.celtic?.tree   || '—';
-  const norseRune  = chart.norseRune?.rune || chart.norseRune?.name || '—';
-  const tibMewa    = chart.tibetan?.mewa  || '—';
-  const bioPhys = chart.biorhythm?.physical|0;
-  const bioEmo  = chart.biorhythm?.emotional|0;
-  const bioInt  = chart.biorhythm?.intellectual|0;
-  const score   = chart.score?.total || 0;
-  const tr = (isTh ? _ELEMENT_TRAITS_TH : _ELEMENT_TRAITS_EN)[dmEl] || {core:'—', drains:'—'};
-  const bp = v => (v>=0?'+':'')+v+'%';
-
-  const CONFIG = {
-    mirror:{
-      titleTh:'✦ การสังเคราะห์ตัวตนจาก 26 ศาสตร์',
-      titleEn:'✦ Identity Synthesis from 26 Systems',
-      subtTh:'แต่ละศาสตร์มองคุณในมุมต่างกัน · นี่คือภาพรวมที่ 26 ศาสตร์เห็นพ้องกัน',
-      subtEn:'Each system sees you differently · Here is the cross-system consensus',
-      sys:[
-        {lbl:'BaZi Day Master',icon:'☲',vTh:dmTh,vEn:dmTh,
-         iTh:`Day Master ${dmTh} (${dmEl}) — archetype รากของตัวตน พลังงานที่ฝังอยู่ในจิตใจลึกสุด`,
-         iEn:`Day Master ${dmTh} (${dmEl}) — the root archetype, energy embedded deepest in your psyche`},
-        {lbl:'Western Sun',icon:'☀',vTh:sunTh,vEn:sunEn,
-         iTh:`Sun ${sunTh} — บุคลิกที่โลกมองเห็น ด้านที่คุณสื่อสารออกไปภายนอก`,
-         iEn:`Sun ${sunEn} — how the world perceives you, the face you project outward`},
-        {lbl:'Vedic Nakshatra',icon:'✦',vTh:moonNak,vEn:moonNak,
-         iTh:`Nakshatra ${moonNak} — ชั้นจิตใต้สำนึก แรงจูงใจลึกที่ตัวเองอาจไม่ทันสังเกต`,
-         iEn:`Nakshatra ${moonNak} — your subconscious layer, deep motivations you may not consciously notice`},
-        {lbl:'Numerology LP',icon:'◎',vTh:'LP '+lp,vEn:'LP '+lp,
-         iTh:`Life Path ${lp} — บทบาทที่วิญญาณมาเรียนในชีวิตนี้ เส้นทางหลักที่ดวงชะตาออกแบบไว้`,
-         iEn:`Life Path ${lp} — the role your soul came to master, the core trajectory life designed for you`},
-        {lbl:'Nine Star Ki',icon:'★',vTh:nskStar+' · '+nskEl,vEn:nskStar+' · '+nskEl,
-         iTh:`NSK ดาว ${nskStar} (${nskEl}) — วิธีที่คุณส่งพลังงานออกสู่โลกรอบข้าง`,
-         iEn:`NSK Star ${nskStar} (${nskEl}) — how your energy radiates outward into the surrounding world`},
-        {lbl:'Human Design',icon:'◈',vTh:hdType,vEn:hdType,
-         iTh:`HD Type ${hdType} — กลยุทธ์การดำเนินชีวิตที่สอดคล้องกับ aura เฉพาะตัวของคุณ`,
-         iEn:`HD Type ${hdType} — the life strategy aligned with your unique aura`},
-        {lbl:'Mayan Tzolkʼin',icon:'☉',vTh:'Kin '+mayanKin,vEn:'Kin '+mayanKin,
-         iTh:`Mayan Kin ${mayanKin} — ภาพจักรวาลที่ Tzolkʼin มอบให้คุณ archetype ตาม 260-day cycle`,
-         iEn:`Mayan Kin ${mayanKin} — your cosmic archetype in the 260-day Tzolkʼin wheel`},
-        {lbl:'Vedic Mahadasha',icon:'☾',vTh:mahadasha+' Dasha',vEn:mahadasha+' Dasha',
-         iTh:`${mahadasha} Dasha — บทชีวิตที่กำลังดำเนินอยู่ตอนนี้ ปรับ archetype ให้เหมาะยุคสมัย`,
-         iEn:`${mahadasha} Dasha — the current chapter, colouring your archetype right now`},
-      ]
-    },
-    pet:{
-      titleTh:'✦ ความเข้ากันของสัตว์เลี้ยงจาก 26 ศาสตร์',
-      titleEn:'✦ Pet Compatibility Across 26 Systems',
-      subtTh:'26 ศาสตร์ต่างมีคำแนะนำเรื่องสัตว์ประจำตัว · สังเคราะห์รวมกันได้ข้อสรุปเหล่านี้',
-      subtEn:'26 systems each hold wisdom on companion animals · Here is the cross-system synthesis',
-      sys:[
-        {lbl:'BaZi 5-Element',icon:'☲',vTh:dmTh+' ('+dmEl+')',vEn:dmTh+' ('+dmEl+')',
-         iTh:`วงจร 5 ธาตุ: ${dmEl} ต้องการสัตว์ที่นำ ${tr.core} — เสริมสมดุลพลังงานในชีวิต`,
-         iEn:`5-element cycle: ${dmEl} needs an animal that brings ${tr.core} — balancing your life energy`},
-        {lbl:'Nine Star Direction',icon:'★',vTh:'ทิศ '+nskDir,vEn:nskDir+' direction',
-         iTh:`ทิศ NSK ${nskDir} — วางที่นอนสัตว์เลี้ยงทิศนี้เพื่อให้ chi ไหลเสริมพลังงานของคุณ`,
-         iEn:`NSK direction ${nskDir} — position the pet bed this way for optimal chi flow`},
-        {lbl:'Vedic Nakshatra',icon:'✦',vTh:moonNak,vEn:moonNak,
-         iTh:`Nakshatra ${moonNak} มีสัตว์ประจำ Nakshatra ที่ bond ลึกเป็นพิเศษกับดวงจันทร์ของคุณ`,
-         iEn:`Nakshatra ${moonNak} carries a sacred animal that bonds deepest with your lunar chart`},
-        {lbl:'Biorhythm Today',icon:'〰',vTh:'กาย '+bp(bioPhys)+' · อารมณ์ '+bp(bioEmo),vEn:'Physical '+bp(bioPhys)+' · Emotional '+bp(bioEmo),
-         iTh:bioPhys>=0?'พลังกายบวกวันนี้ — เหมาะพาสัตว์ออกกำลังหรือเริ่มเลี้ยงใหม่':'พลังกายลบ — พักผ่อนเงียบๆ กับสัตว์เลี้ยงคืนนี้',
-         iEn:bioPhys>=0?'Positive physical cycle — good day for active pet time or adoption':'Low physical day — rest quietly with your pet tonight'},
-        {lbl:'Human Design',icon:'◈',vTh:hdType,vEn:hdType,
-         iTh:`HD ${hdType}: ${hdType.includes('Projector')||hdType.includes('โปรเจก')?'เลือกสัตว์ที่ไม่ขอพลังงานตลอดเวลา':hdType.includes('Generator')||hdType.includes('เจเนอ')?'สัตว์พลังงานสูงเสริม sacral response ได้':hdType.includes('Manifestor')||hdType.includes('แมนิเฟส')?'เลือกสัตว์ที่เป็นอิสระ ไม่เกาะติด':'สัตว์ที่ปรับตัวตามจังหวะชีวิตคุณ'}`,
-         iEn:`HD ${hdType}: ${hdType==='Projector'?'choose animals that don\'t demand constant energy':hdType==='Generator'?'high-energy animals boost your sacral response':hdType==='Manifestor'?'choose independent animals that respect your space':'flexible animals that adapt to your rhythm'}`},
-        {lbl:'Numerology LP',icon:'◎',vTh:'LP '+lp,vEn:'LP '+lp,
-         iTh:`LP ${lp}: ${lp<=3?'สัตว์ร่าเริง เข้ากับพลังเปิดเผยของคุณ':lp<=6?'สัตว์ที่เลี้ยงดูได้ เสริมธรรมชาติผู้ดูแล':lp<=8?'สัตว์สง่า ตอบสนองมาตรฐานสูงของคุณ':'สัตว์ที่มีบุคลิกลึก เอกลักษณ์เฉพาะตัว'}`,
-         iEn:`LP ${lp}: ${lp<=3?'playful animals match your expressive energy':lp<=6?'nurturing animals amplify your caretaker nature':lp<=8?'dignified animals match your high standards':'unique-spirited animals resonate with depth-seeker LP '+lp}`},
-      ]
-    },
-    companions:{
-      titleTh:'✦ สัตว์ในตำนานจาก 26 วัฒนธรรม',
-      titleEn:'✦ Mythological Companions Across 26 Cultures',
-      subtTh:'แต่ละอารยธรรมให้สัตว์ประจำตัวที่แตกต่างกัน · รวมกันเป็นกลุ่มพลังของคุณ',
-      subtEn:'Each civilisation gives you a different mythic companion · Together they form your pantheon',
-      sys:[
-        {lbl:'Native American',icon:'🦅',vTh:chart.nativeAmerican?.totem||'—',vEn:chart.nativeAmerican?.totem||'—',
-         iTh:'Totem สัตว์ประจำตัวตามปฏิทิน Native American — พลังหลักที่ดูแลคุณ',
-         iEn:'Your Native American totem — the primary guardian spirit that walks with you'},
-        {lbl:'Chinese Zodiac',icon:'🐲',vTh:chart.bazi?.zodiacTh||chart.bazi?.zodiac||'—',vEn:chart.bazi?.zodiac||'—',
-         iTh:`นักษัตรจีน ${chart.bazi?.zodiacTh||'—'} — สัตว์ประจำปีเกิดตาม 12-year cycle`,
-         iEn:`Chinese Zodiac ${chart.bazi?.zodiac||'—'} — your birth year guardian animal in the 12-year cycle`},
-        {lbl:'Celtic Tree Familiar',icon:'🌿',vTh:celticTree,vEn:celticTree,
-         iTh:`ต้นไม้ Celtic ${celticTree} มีสัตว์ประจำต้นไม้ — สัตว์ดรุอิดผู้คุ้มกันของคุณ`,
-         iEn:`Celtic tree ${celticTree} carries its own familiar — your Druidic guardian animal`},
-        {lbl:'Norse Rune',icon:'ᚱ',vTh:norseRune,vEn:norseRune,
-         iTh:`Rune ${norseRune} มีสัตว์ประจำใน Norse cosmology — อาณาจักรของ Odin และ Freya`,
-         iEn:`Rune ${norseRune} has its own animal spirit in Norse cosmology — realm of Odin and Freya`},
-        {lbl:"Mayan Tzolkʼin",icon:'☉',vTh:'Kin '+mayanKin,vEn:'Kin '+mayanKin,
-         iTh:`Mayan Kin ${mayanKin} — สัตว์ประจำ Day Sign ${mayanSign} ในจักรวาลวิทยา Maya`,
-         iEn:`Mayan Kin ${mayanKin} — the sacred animal of Day Sign ${mayanSign}`},
-        {lbl:'Tibetan Mewa',icon:'🧿',vTh:tibMewa?'Mewa '+tibMewa:'—',vEn:tibMewa?'Mewa '+tibMewa:'—',
-         iTh:`Tibetan Mewa ${tibMewa} มีสัตว์มงคลตาม Geomancy ทิเบต — ใช้ปกป้องพลัง`,
-         iEn:`Tibetan Mewa ${tibMewa} carries a protective animal in Tibetan geomancy tradition`},
-        {lbl:'Vedic Nakshatra',icon:'✦',vTh:moonNak,vEn:moonNak,
-         iTh:`Nakshatra ${moonNak} — สัตว์ศักดิ์สิทธิ์ประจำ Nakshatra ในโหราศาสตร์ฮินดู`,
-         iEn:`Nakshatra ${moonNak} — its sacred animal in the Vedic Jyotish tradition`},
-        {lbl:'Aboriginal Dreamtime',icon:'🌀',vTh:chart.aboriginal?.dream||'—',vEn:chart.aboriginal?.dream||'—',
-         iTh:'Dreamtime สัตว์จากตำนานออสเตรเลียดั้งเดิม — สัตว์ประจำ dreaming track ของคุณ',
-         iEn:'Your Aboriginal Dreamtime creature — the animal of your ancestral dreaming track'},
-      ]
-    },
-    exercise:{
-      titleTh:'✦ แผนออกกำลังจาก 26 ศาสตร์',
-      titleEn:'✦ Exercise Plan from 26 Systems',
-      subtTh:'26 ศาสตร์มองการเคลื่อนไหวของร่างกายต่างกัน · สังเคราะห์เป็นแผนที่เหมาะสมที่สุดสำหรับคุณ',
-      subtEn:'26 systems each carry movement principles · Synthesised into your optimal training plan',
-      sys:[
-        {lbl:'BaZi Element',icon:'☲',vTh:dmTh+' ('+dmEl+')',vEn:dmTh+' ('+dmEl+')',
-         iTh:`ธาตุ ${dmEl}: ${dmEl==='ไม้'?'ยืดหยุ่น โยคะ ไทชิ ว่ายน้ำ':dmEl==='ไฟ'?'HIIT ระบำ ออกกำลังสูงเกิน 70% MHR':dmEl==='ดิน'?'เดิน ปีนเขา ออกกลางแจ้ง stability training':dmEl==='โลหะ'?'วิ่ง Weight training ทำสม่ำเสมอ':dmEl==='น้ำ'?'ว่ายน้ำ โยคะ qigong ลมปราณ':'ออกกำลังตามธาตุ'}`,
-         iEn:`${dmEl} element: ${dmEl==='ไม้'?'stretching, yoga, tai chi, swimming':dmEl==='ไฟ'?'HIIT, dance, high-intensity above 70% MHR':dmEl==='ดิน'?'walking, hiking, outdoor, stability training':dmEl==='โลหะ'?'running, weight training, consistent routines':dmEl==='น้ำ'?'swimming, yoga, qigong, flow-based movement':'element-aligned movement'}`},
-        {lbl:'Biorhythm Today',icon:'〰',vTh:'กาย '+bp(bioPhys)+' · ปัญญา '+bp(bioInt),vEn:'Physical '+bp(bioPhys)+' · Intellectual '+bp(bioInt),
-         iTh:bioPhys>=20?'พลังกายสูง — เหมาะ HIIT หรือ workout หนัก':bioPhys>=0?'พลังกายปานกลาง — moderate session เหมาะสุด':'พลังกายต่ำ — ยืดเหยียด เดิน หรือนั่งสมาธิแทน',
-         iEn:bioPhys>=20?'High physical day — perfect for HIIT or heavy workout':bioPhys>=0?'Moderate physical — steady moderate session best':'Low physical day — stretch, walk, or meditate instead'},
-        {lbl:'Nine Star Ki',icon:'★',vTh:nskStar+' '+nskEl,vEn:nskStar+' '+nskEl,
-         iTh:`NSK ดาว ${nskStar}: ออกกำลังหันหน้าทิศ ${nskDir} เพื่อสะสม chi ได้ดีที่สุด`,
-         iEn:`NSK Star ${nskStar}: face ${nskDir} direction while exercising for optimal chi accumulation`},
-        {lbl:'Vedic Mahadasha',icon:'✦',vTh:mahadasha+' Dasha',vEn:mahadasha+' Dasha',
-         iTh:`${mahadasha} Dasha: ${mahadasha==='Mars'?'พลังงานสูง — ออกกำลังหนักได้':mahadasha==='Saturn'?'มี discipline สูง — ออกกำลังต่อเนื่องสม่ำเสมอ':mahadasha==='Venus'?'เบาพลิ้ว — ระบำ stretching':mahadasha==='Sun'?'Cardio สูง — วิ่ง ว่ายน้ำ':mahadasha==='Moon'?'ตามอารมณ์ — โยคะ เดิน':mahadasha==='Rahu'||mahadasha==='Ketu'?'นิ่ง — สมาธิ โยคะ ไม่หักโหม':'ออกสม่ำเสมอ ตามจังหวะ Dasha'}`,
-         iEn:`${mahadasha} Dasha: ${mahadasha==='Mars'?'high energy — heavy training ideal':mahadasha==='Saturn'?'discipline — steady endurance training':mahadasha==='Venus'?'light elegant — dance, stretching':mahadasha==='Sun'?'cardio — running, swimming':mahadasha==='Moon'?'intuitive — yoga, walking':mahadasha==='Rahu'||mahadasha==='Ketu'?'still — meditation, yoga, no excess':'steady rhythm matching the dasha'}`},
-        {lbl:'Human Design',icon:'◈',vTh:hdType,vEn:hdType,
-         iTh:`HD ${hdType}: ${hdType.includes('Generator')||hdType.includes('เจเนอ')?'ออกกำลังตาม sacral response — ร่างกายต้องอยากทำ':hdType.includes('Projector')||hdType.includes('โปรเจก')?'ออกกำลังน้อยกว่า Generator พักฟื้นสำคัญกว่า':hdType.includes('Manifestor')||hdType.includes('แมนิเฟส')?'ออกตามแรงบันดาลใจ ไม่สม่ำเสมอก็โอเค':hdType.includes('Reflector')||hdType.includes('รีเฟลก')?'ออกกำลังตามจันทร์ ยืดหยุ่นสูง':'ออกตามจังหวะตัวเอง'}`,
-         iEn:`HD ${hdType}: ${hdType==='Generator'?'exercise only when the sacral says yes':hdType==='Projector'?'less exercise than Generators, recovery is crucial':hdType==='Manifestor'?'burst-mode training when inspired, inconsistency is fine':hdType==='Reflector'?'lunar-cycle exercise, maximise flexibility':'exercise at your own rhythm'}`},
-        {lbl:'Numerology LP',icon:'◎',vTh:'LP '+lp,vEn:'LP '+lp,
-         iTh:`LP ${lp}: ${lp===1||lp===8?'ออกกำลังคนเดียว ชอบ compete กับตัวเอง':lp===2||lp===6?'ออกกำลังกับเพื่อน class ต่างๆ':lp===3?'สนุก ระบำ กีฬาสร้างสรรค์':lp===4||lp===7?'มีระเบียบ training plan ชัดเจน':lp===5?'หลากหลาย ไม่ซ้ำจำเจ':'community fitness เสริมแรงจูงใจ'}`,
-         iEn:`LP ${lp}: ${lp===1||lp===8?'solo exercise, compete with yourself':lp===2||lp===6?'group classes, workout with friends':lp===3?'fun playful movement, dance, creative sports':lp===4||lp===7?'structured training plans, clear schedule':lp===5?'variety is key, never repeat the same routine':'community fitness for motivation'}`},
-      ]
-    },
-    food:{
-      titleTh:'✦ อาหารและโภชนาการจาก 26 ศาสตร์',
-      titleEn:'✦ Diet & Nutrition from 26 Systems',
-      subtTh:'วิทยาศาสตร์โหราศาสตร์ทุกสำนักมีความเชื่อเรื่องอาหารตามดวง · นี่คือภาพรวมสังเคราะห์',
-      subtEn:'Every astrological tradition holds nutritional principles · Here is the synthesis',
-      sys:[
-        {lbl:'BaZi 5-Element Diet',icon:'☲',vTh:dmTh+' ('+dmEl+')',vEn:dmTh+' ('+dmEl+')',
-         iTh:`ธาตุ ${dmEl}: ${dmEl==='ไม้'?'รสเปรี้ยว ผักใบเขียว หน่อไม้ ธัญพืช เสริมตับ':dmEl==='ไฟ'?'รสขม ขิง พริก อาหารร้อน เสริมหัวใจ':dmEl==='ดิน'?'รสหวาน ฟักทอง มัน เห็ด เสริมม้าม':dmEl==='โลหะ'?'รสเผ็ดฉุน กระเทียม หัวหอม เสริมปอด':dmEl==='น้ำ'?'รสเค็ม อาหารทะเล ถั่วดำ เสริมไต':'อาหารตามธาตุ'}`,
-         iEn:`${dmEl} element: ${dmEl==='ไม้'?'sour flavour, green vegetables, sprouts, grains, liver support':dmEl==='ไฟ'?'bitter flavour, ginger, chilli, warm foods, heart support':dmEl==='ดิน'?'sweet flavour, pumpkin, yam, mushrooms, spleen support':dmEl==='โลหะ'?'spicy pungent, garlic, onion, radish, lung support':dmEl==='น้ำ'?'salty flavour, seafood, black beans, kidney support':'element-aligned diet'}`},
-        {lbl:'Vedic Mahadasha',icon:'✦',vTh:mahadasha+' Dasha',vEn:mahadasha+' Dasha',
-         iTh:`${mahadasha} Dasha: ${mahadasha==='Sun'?'ผลไม้ตระกูลส้ม ข้าวสาลี พลังงานสูง':mahadasha==='Moon'?'นม โยเกิร์ต อาหารสีขาว บำรุงอารมณ์':mahadasha==='Mars'?'โปรตีนสูง เนื้อแดง เมล็ดพันธุ์':mahadasha==='Mercury'?'ผัก สลัด ธัญพืชหลากหลาย light diet':mahadasha==='Jupiter'?'ไขมันดี ถั่ว อะโวคาโด อุดมสมบูรณ์':mahadasha==='Venus'?'ผลไม้รสหวาน อาหารไขมันต่ำ':mahadasha==='Saturn'?'มื้อน้อย ปลา ผัก ถั่ว discipline':mahadasha==='Rahu'?'อาหาร exotic เผ็ดจัด ลองสิ่งใหม่':mahadasha==='Ketu'?'intermittent fasting สมาธิก่อนกิน':'อาหารตามธรรมชาติ'}`,
-         iEn:`${mahadasha} Dasha: ${mahadasha==='Sun'?'citrus, wheat, energising foods':mahadasha==='Moon'?'dairy, yogurt, white nurturing foods':mahadasha==='Mars'?'high protein, red meat, seeds':mahadasha==='Mercury'?'vegetables, salads, variety, light':mahadasha==='Jupiter'?'healthy fats, nuts, avocado, abundance':mahadasha==='Venus'?'sweet fruits, gentle low-fat flavours':mahadasha==='Saturn'?'minimal, fish, vegetables, seeds, discipline':mahadasha==='Rahu'?'exotic spicy unusual cuisines':mahadasha==='Ketu'?'fasting, mindful eating, intermittent':'natural whole foods'}`},
-        {lbl:'Biorhythm Today',icon:'〰',vTh:'กาย '+bp(bioPhys)+' · อารมณ์ '+bp(bioEmo),vEn:'Physical '+bp(bioPhys)+' · Emotional '+bp(bioEmo),
-         iTh:bioPhys>=0?'ร่างกายดูดซึมดีวันนี้ — เหมาะกินอาหารมื้อสำคัญ':'ร่างกายย่อยช้า — เน้นอาหารเบา หลีกเลี่ยงมื้อหนัก',
-         iEn:bioPhys>=0?'Strong absorption today — good day for nutrient-dense meals':'Slow digestion — eat light, avoid heavy meals'},
-        {lbl:'Nine Star Element',icon:'★',vTh:nskStar+' · '+nskEl,vEn:nskStar+' · '+nskEl,
-         iTh:`NSK ธาตุ ${nskEl}: ${nskEl==='น้ำ'?'อาหารทะเล สาหร่าย ถั่ว':nskEl==='ไม้'?'ผักใบเขียว หน่อไม้ ขิง':nskEl==='ไฟ'?'เครื่องเทศร้อน ผลไม้ aura สูง':nskEl==='ดิน'?'รากและหัว ผัก earthy':nskEl==='โลหะ'?'ข้าว ธัญพืช ผลไม้แห้ง':'อาหารตามฤดูกาล'}`,
-         iEn:`NSK ${nskEl} element: ${nskEl==='น้ำ'?'seafood, seaweed, legumes':nskEl==='ไม้'?'green leaves, sprouts, ginger':nskEl==='ไฟ'?'warm-energy spices, high-aura fruits':nskEl==='ดิน'?'root vegetables, earthy grounding foods':nskEl==='โลหะ'?'rice, grains, dried fruits':'seasonal foods'}`},
-        {lbl:'Western Sun',icon:'☀',vTh:sunTh,vEn:sunEn,
-         iTh:`Sun ${sunTh} — อวัยวะที่ราศีดูแล: ${sunEn.includes('Aries')?'สมองและหัว ระวังไมเกรน':sunEn.includes('Taurus')?'ลำคอ ต่อมไทรอยด์':sunEn.includes('Gemini')?'ปอด ระบบหายใจ':sunEn.includes('Cancer')?'กระเพาะ ย่อยอาหาร':sunEn.includes('Leo')?'หัวใจ ไขมันดี':sunEn.includes('Virgo')?'ลำไส้ y fiber':sunEn.includes('Libra')?'ไต สมดุลน้ำ':sunEn.includes('Scorpio')?'ขับถ่าย detox':sunEn.includes('Sagittarius')?'ตับ ไขมัน':sunEn.includes('Capricorn')?'กระดูก แคลเซียม':sunEn.includes('Aquarius')?'ไหลเวียนเลือด':'เท้า omega-3'}`,
-         iEn:`Sun ${sunEn} — organs this sign governs: ${sunEn.includes('Aries')?'head and brain, watch headaches':sunEn.includes('Taurus')?'throat and thyroid':sunEn.includes('Gemini')?'lungs and breathing':sunEn.includes('Cancer')?'stomach and digestion':sunEn.includes('Leo')?'heart, healthy fats':sunEn.includes('Virgo')?'intestines, fibre, digestion':sunEn.includes('Libra')?'kidneys and fluid balance':sunEn.includes('Scorpio')?'elimination and detox':sunEn.includes('Sagittarius')?'liver and lymph':sunEn.includes('Capricorn')?'bones, joints, calcium':sunEn.includes('Aquarius')?'circulation and fluids':'feet, lymph, omega-3'}`},
-        {lbl:'Numerology LP',icon:'◎',vTh:'LP '+lp,vEn:'LP '+lp,
-         iTh:`LP ${lp}: ${lp===1?'อาหารพลังงานสูง protein':lp===2?'สมดุล บำรุงอารมณ์':lp===3?'สีสันหลากหลาย สนุก':lp===4?'clean เป็นระเบียบ ทาน discipline':lp===5?'ลองสิ่งใหม่เสมอ diverse':lp===6?'home-cooked บำรุงครอบครัว':lp===7?'mindful conscious eating':lp===8?'power diet performance':lp===9?'multicultural world foods':'อาหารตามธรรมชาติ'}`,
-         iEn:`LP ${lp}: ${lp===1?'high-energy protein-heavy':lp===2?'balanced emotionally nurturing':lp===3?'colourful varied fun foods':lp===4?'clean disciplined routine eating':lp===5?'variety, always try new cuisines':lp===6?'home-cooked nourishing family meals':lp===7?'mindful conscious eating':lp===8?'high-performance power diet':lp===9?'multicultural world foods':'natural whole foods'}`},
-      ]
-    },
-    product:{
-      titleTh:'✦ สไตล์และผลิตภัณฑ์จาก 26 ศาสตร์',
-      titleEn:'✦ Style & Products from 26 Systems',
-      subtTh:'แต่ละศาสตร์แนะนำสี วัสดุ และพลังงานต่างกัน · รวมกันเป็น palette เฉพาะตัวของคุณ',
-      subtEn:'Every tradition recommends different colours, materials, and energies · Combined into your personal palette',
-      sys:[
-        {lbl:'BaZi Lucky Colours',icon:'☲',vTh:dmTh+' ('+dmEl+')',vEn:dmTh+' ('+dmEl+')',
-         iTh:`ธาตุ ${dmEl}: ${dmEl==='ไม้'?'สีเขียว น้ำตาลอ่อน ไม้ธรรมชาติ':dmEl==='ไฟ'?'สีแดง ส้ม ชมพูสด':dmEl==='ดิน'?'สีเหลือง น้ำตาล ครีม':dmEl==='โลหะ'?'สีขาว เทา เงิน ทอง':dmEl==='น้ำ'?'สีน้ำเงิน ดำ ม่วงเข้ม':'—'}`,
-         iEn:`${dmEl} element boosting colours: ${dmEl==='ไม้'?'green, light brown, natural wood':dmEl==='ไฟ'?'red, orange, hot pink':dmEl==='ดิน'?'yellow, brown, cream':dmEl==='โลหะ'?'white, grey, silver, gold':dmEl==='น้ำ'?'blue, black, deep purple':'—'}`},
-        {lbl:'Western Sun Aesthetic',icon:'☀',vTh:sunTh,vEn:sunEn,
-         iTh:`Sun ${sunTh}: ${sunEn.includes('Aries')?'bold statement ตัดสายตา สีแดงแซม':sunEn.includes('Taurus')?'luxury ของดี ผ้านุ่ม earthy':sunEn.includes('Gemini')?'colorful eclecticมีชีวิตชีวา':sunEn.includes('Cancer')?'cozy home สีขาว ครีม ฝ้ายนุ่ม':sunEn.includes('Leo')?'dramatic สีทองเหลือง ประดับประดา':sunEn.includes('Virgo')?'minimal functional earthy tones':sunEn.includes('Libra')?'สมดุล pastel สวยงาม':sunEn.includes('Scorpio')?'dark intense ดำ เบอร์กันดี':sunEn.includes('Sagittarius')?'adventure ethnic world textiles':sunEn.includes('Capricorn')?'classic tailored navy charcoal':sunEn.includes('Aquarius')?'avant-garde electric silver':'ethereal dreamy lavender'}`,
-         iEn:`Sun ${sunEn}: ${sunEn.includes('Aries')?'bold statement pieces, red accents':sunEn.includes('Taurus')?'luxury tactile quality, natural greens':sunEn.includes('Gemini')?'colourful eclectic lively':sunEn.includes('Cancer')?'cozy home whites, creams, soft cotton':sunEn.includes('Leo')?'dramatic gold yellow embellishment':sunEn.includes('Virgo')?'minimal functional earthy':sunEn.includes('Libra')?'balanced pastel beautiful':sunEn.includes('Scorpio')?'dark intense black burgundy':sunEn.includes('Sagittarius')?'adventure global ethnic textiles':sunEn.includes('Capricorn')?'classic tailored navy charcoal':sunEn.includes('Aquarius')?'electric avant-garde silver':'ethereal dreamy lavender seafoam'}`},
-        {lbl:'Vedic Nakshatra Gem',icon:'✦',vTh:moonNak,vEn:moonNak,
-         iTh:`Nakshatra ${moonNak} มีพลอยและเครื่องประดับมงคลประจำ — ใส่เสริมพลังงาน Nakshatra ในชีวิตประจำวัน`,
-         iEn:`Nakshatra ${moonNak} has its own gemstone and auspicious jewellery — wearing it daily amplifies your natal nakshatra energy`},
-        {lbl:'Nine Star Direction',icon:'★',vTh:nskStar+' · ทิศ '+nskDir,vEn:nskStar+' · '+nskDir,
-         iTh:`NSK ดาว ${nskStar}: ทิศ ${nskDir} — วางหัวนอน โต๊ะทำงาน หันไปทิศนี้เพื่อให้ chi เสริม`,
-         iEn:`NSK Star ${nskStar}: direction ${nskDir} — align your bed head and desk this way for chi support`},
-        {lbl:'Norse Rune Symbol',icon:'ᚱ',vTh:norseRune,vEn:norseRune,
-         iTh:`Rune ${norseRune}: ใส่สัญลักษณ์นี้ในเสื้อผ้า เครื่องประดับ ของใช้ — talisman ตาม cosmology Norse`,
-         iEn:`Rune ${norseRune}: incorporate this symbol in clothing, jewellery, or objects — a Norse cosmological talisman`},
-        {lbl:'Numerology LP Colour',icon:'◎',vTh:'LP '+lp,vEn:'LP '+lp,
-         iTh:`LP ${lp} สีมงคล: ${lp===1?'แดง ส้มแดง — พลังผู้นำ':lp===2?'ส้ม ทอง — ความสัมพันธ์':lp===3?'เหลือง — สร้างสรรค์':lp===4?'เขียว — มั่นคง':lp===5?'ฟ้าอ่อน — เสรีภาพ':lp===6?'น้ำเงิน — ดูแลรัก':lp===7?'ม่วง — ปัญญา':lp===8?'ทอง เงิน — ความสำเร็จ':lp===9?'น้ำตาลแดง — มนุษยธรรม':'ทอง'}`,
-         iEn:`LP ${lp} auspicious colours: ${lp===1?'red, bold orange — leadership':lp===2?'orange, gold — relationships':lp===3?'yellow — creativity':lp===4?'green — stability':lp===5?'light blue — freedom':lp===6?'blue — love and care':lp===7?'purple — wisdom':lp===8?'gold, silver — success':lp===9?'burnt red — humanity':'gold'}`},
-        {lbl:'Celtic Tree Material',icon:'🌿',vTh:celticTree,vEn:celticTree,
-         iTh:`ต้นไม้ Celtic ${celticTree}: วัสดุ ไม้ ผ้า สีที่สอดคล้องกับต้นไม้ประจำตัวคุณตามประเพณีดรุอิด`,
-         iEn:`Celtic tree ${celticTree}: materials, woods, and colours aligned with your tree in the Druidic tradition`},
-      ]
-    },
-  };
-
-  const cfg = CONFIG[key];
-  if (!cfg) return `<div class="addon-deep-loading">${isTh?'ไม่พบข้อมูล':'No data'}</div>`;
-
-  // ── Tactical block — concrete actions per add-on, derived from chart data
-  // so users walk away with something to DO, not just understand. Addresses
-  // the "ยังไม่ละเอียด" feedback by translating chart insight → 7-day playbook.
-  const dmCore = (isTh ? _ELEMENT_TRAITS_TH : _ELEMENT_TRAITS_EN)[dmEl] || tr;
-  const TACTICAL = {
-    mirror: {
-      titleTh: '✦ บทเช็กตัวเองรายสัปดาห์',
-      titleEn: '✦ Weekly Identity Check',
-      actions: isTh ? [
-        `วันที่พลังกายต่ำ (Biorhythm กาย ${bp(bioPhys)}) — เลื่อนการตัดสินใจใหญ่ เน้นทบทวน`,
-        `เมื่อรู้สึก "ไม่เป็นตัวเอง" ใช้กลยุทธ์ HD: "${hdStrategy||'รอตอบสนอง'}" เป็น compass`,
-        `เขียน 1 ประโยคต่อวันที่เริ่มด้วย "${dmTh} ของฉันต้องการ…" — สะสม pattern ไว้ทบทวน`,
-      ] : [
-        `On low-physical days (today: ${bp(bioPhys)}) — defer big decisions, lean into reflection`,
-        `When you feel "not yourself", use your HD strategy "${hdStrategy||'wait to respond'}" as your compass`,
-        `Write one sentence per day starting with "My ${dmTh} self needs…" — collect the pattern`,
-      ],
-      avoidTh: `อย่าเปรียบเทียบความก้าวหน้าของตัวกับ Day Master ${dmTh!==dmTh?dmTh:'อื่น'} — ${dmCore?.core||''} วิ่งจังหวะของมันเอง`,
-      avoidEn: `Don't measure your pace against other Day Masters — ${dmCore?.core||''} runs on its own clock`,
-      mantraTh: `"${tr.core || dmCore.core || 'พลังของฉัน'}" คือคำเดียวที่อธิบายตัวฉันได้ — ทุกการตัดสินใจวันนี้กลับมาที่คำนี้`,
-      mantraEn: `"${tr.core || dmCore.core || 'My power'}" is the one word that defines me — every decision today returns to it`,
-    },
-    pet: {
-      titleTh: '✦ แผน 7 วันกับสัตว์เลี้ยงของคุณ',
-      titleEn: '✦ 7-Day Plan With Your Companion',
-      actions: isTh ? [
-        `วางที่นอน/กรงสัตว์เลี้ยงทิศ ${nskDir} — ตามทิศนำโชค NSK ของคุณ`,
-        `เลือกเวลาเล่นในช่วงที่ Biorhythm กายของคุณ ≥ 0% (ตอนนี้ ${bp(bioPhys)})`,
-        `${hdType.includes('Projector')||hdType.includes('โปรเจก')?'ตั้งกฎ "ไม่เล่นยาวเกิน 20 นาทีต่อรอบ" — Projector หมดพลังเร็ว':hdType.includes('Generator')||hdType.includes('เจเนอ')?'ใช้สัตว์เลี้ยงเป็น sacral test — ถ้าเล่นแล้วกระปรี้ คือใช่':'จับจังหวะ aura ของคุณกับสัตว์ — สัปดาห์ละครั้ง check ว่ายังเข้ากัน'}`,
-      ] : [
-        `Place pet bed/crate facing ${nskDir} — your NSK lucky direction`,
-        `Schedule play during physical biorhythm ≥ 0% (now ${bp(bioPhys)})`,
-        `${hdType==='Projector'?'Set a "no play longer than 20 min" rule — Projectors burn out':hdType==='Generator'?'Use the pet as a sacral test — if play feels alive, it is a yes':'Sync your aura weekly — check if you are still vibing'}`,
-      ],
-      avoidTh: `อย่าเลือกสัตว์ที่ขัดธาตุ${dmEl}ของคุณเพราะ "น่ารัก" — ความ stress จะสะสม`,
-      avoidEn: `Don't pick a pet that clashes with your ${dmEl} element just because "it's cute" — stress compounds`,
-      mantraTh: `สัตว์ที่เข้ากับฉันคือสัตว์ที่เคารพจังหวะของฉัน — ไม่ใช่สัตว์ที่สวยที่สุด`,
-      mantraEn: `The right companion respects my rhythm — not the prettiest one`,
-    },
-    companions: {
-      titleTh: '✦ พิธีกรรม 7 วันกับสัตว์ในตำนาน',
-      titleEn: '✦ 7-Day Ritual With Your Mythic Pantheon',
-      actions: isTh ? [
-        `ตอนตื่น: เรียกชื่อ Mayan Kin ${mayanKin} ในใจ 3 ครั้ง — เปิดวันด้วย archetype ของตัวเอง`,
-        `เที่ยง: หันหน้าทิศ ${nskDir} หายใจ 5 รอบ — ดูดพลัง NSK โดยตรง`,
-        `กลางคืน: เขียน 1 บรรทัดเกี่ยวกับ Celtic ${celticTree} หรือ Norse ${norseRune} — เก็บเป็น lineage journal`,
-      ] : [
-        `Morning: silently invoke Mayan Kin ${mayanKin} 3 times — open the day with your archetype`,
-        `Midday: face ${nskDir}, breathe 5 cycles — pull NSK current directly`,
-        `Night: write one line on Celtic ${celticTree} or Norse ${norseRune} — build a lineage journal`,
-      ],
-      avoidTh: `อย่าผสมสัตว์ตำนานจากหลายวัฒนธรรมในพิธีเดียวกัน — โฟกัส 1 ระบบต่อรอบ`,
-      avoidEn: `Don't blend mythic figures from many cultures in one ritual — focus on one system per cycle`,
-      mantraTh: `บรรพบุรุษทางจิตวิญญาณของฉันมีมากกว่าเชื้อชาติ — ทุกวัฒนธรรมที่เคารพคือบ้านได้`,
-      mantraEn: `My spiritual lineage is wider than my bloodline — every culture I honour can be home`,
-    },
-    exercise: {
-      titleTh: '✦ ตารางออกกำลัง 7 วัน',
-      titleEn: '✦ 7-Day Movement Split',
-      actions: isTh ? [
-        `${dmEl==='ไฟ'?'HIIT 3 ครั้ง/สัปดาห์ — ไฟต้องการ peak burst':dmEl==='ไม้'?'โยคะ + เทรล running — ไม้ต้องการการยืดและก้าว':dmEl==='ดิน'?'weight training สม่ำเสมอ — ดินสร้างความหนาแน่น':dmEl==='โลหะ'?'pilates / กังฟู — โลหะรักการแม่นยำ':'ว่ายน้ำ / cardio ยาว — น้ำต้องการ flow'}`,
-        `Biorhythm กายวันนี้ ${bp(bioPhys)} → ${bioPhys>=50?'เพิ่ม intensity ได้เต็มที่':bioPhys>=0?'workout ระดับปกติ':'ลด volume 30% หรือเปลี่ยนเป็น recovery'}`,
-        `${hdType.includes('Projector')||hdType.includes('โปรเจก')?'ออกกำลังครั้งละ ≤45 นาที — Projector ไม่ใช่ระบบ Sacral':hdType.includes('Generator')||hdType.includes('เจเนอ')?'อย่าออกตามตาราง — ฟัง sacral response ก่อนเริ่มทุกเซต':'ปรับตามจังหวะร่างกาย ไม่ใช่ตาม coach app'}`,
-      ] : [
-        `${dmEl==='ไฟ'?'HIIT 3×/week — Fire wants peak bursts':dmEl==='ไม้'?'Yoga + trail running — Wood needs stretch + stride':dmEl==='ดิน'?'Consistent weight training — Earth builds density':dmEl==='โลหะ'?'Pilates / kung fu — Metal loves precision':'Swimming / long cardio — Water needs flow'}`,
-        `Today's physical biorhythm ${bp(bioPhys)} → ${bioPhys>=50?'go full intensity':bioPhys>=0?'standard session':'cut volume 30% or pivot to recovery'}`,
-        `${hdType==='Projector'?'Sessions ≤45 min — Projectors are not Sacral beings':hdType==='Generator'?'Do not train by the calendar — sacral-check before every set':'Adjust by body cues, not coach-app schedule'}`,
-      ],
-      avoidTh: `อย่าตามตารางคนที่ Day Master ตรงข้าม — ${dmTh} ไม่ใช่ระบบเดียวกัน`,
-      avoidEn: `Don't copy the routine of someone with the opposite Day Master — ${dmTh} runs different`,
-      mantraTh: `ร่างกายของฉันบอกฉันมากกว่า fitness app บอก`,
-      mantraEn: `My body knows more than my fitness app does`,
-    },
-    food: {
-      titleTh: '✦ จานอาหาร 7 วัน',
-      titleEn: '✦ 7-Day Plate Guide',
-      actions: isTh ? [
-        `${dmEl==='ไฟ'?'อาหารเย็นชดเชย — แตงกวา/ผักใบ/ปลา · ลดเครื่องเทศ':dmEl==='ไม้'?'อาหารเขียวสด · ถั่ว · เห็ด · ลดน้ำตาล':dmEl==='ดิน'?'อาหารปรุงสุก ครีมมี · ลด raw food':dmEl==='โลหะ'?'อาหารแห้ง-คั่ว · ซีเรียล · ลดของหมัก':'อาหารน้ำเยอะ-ซุป-ปลา · อุณหภูมิอุ่น'}`,
-        `วัน Biorhythm อารมณ์ต่ำ (${bp(bioEmo)}) — เพิ่ม omega-3 + tryptophan (ปลา/อโวคาโด/ดาร์กช็อก)`,
-        `${dmCore.drains?`หลีก ${dmCore.drains} ในมื้อใหญ่`:'จดอาหารที่ทำให้ง่วง 1 สัปดาห์ — ตัดออก'}`,
-      ] : [
-        `${dmEl==='ไฟ'?'Cooling foods — cucumber/leafy greens/fish · less spice':dmEl==='ไม้'?'Fresh greens · legumes · mushrooms · less sugar':dmEl==='ดิน'?'Cooked, creamy meals · cut raw food':dmEl==='โลหะ'?'Dry, roasted, cereal · skip fermented':'Soups, fish, water-rich · keep warm'}`,
-        `Low emotional biorhythm (${bp(bioEmo)}) day — add omega-3 + tryptophan (fish/avocado/dark chocolate)`,
-        `${dmCore.drains?`Avoid ${dmCore.drains} at main meals`:'Log foods that cause sluggishness for 1 week — eliminate'}`,
-      ],
-      avoidTh: `อย่ากินตาม diet trend ที่ขัดกับธาตุ${dmEl} — keto/raw/vegan ไม่ใช่สำหรับทุกคน`,
-      avoidEn: `Don't follow diet trends against your ${dmEl} — keto/raw/vegan aren't for everyone`,
-      mantraTh: `อาหารของฉันต้อง resonate กับธาตุของฉัน ไม่ใช่ trend ของ Instagram`,
-      mantraEn: `My food has to resonate with my element, not Instagram's trend`,
-    },
-    product: {
-      titleTh: '✦ ตัวกรองการช้อปปิ้ง 7 วัน',
-      titleEn: '✦ 7-Day Buying Filter',
-      actions: isTh ? [
-        `ก่อนซื้อ: ถามว่า "ตรงกับ ${tr.core||dmTh}ของฉันไหม?" — ถ้าไม่ใช่ ปล่อย`,
-        `${dmEl==='ไฟ'?'ของสีแดง/ส้ม + วัสดุไฟ (ผ้า/หนัง) เสริมโชค':dmEl==='ไม้'?'ของสีเขียว + ไม้/ผ้าธรรมชาติ':dmEl==='ดิน'?'ของสีน้ำตาล/เหลือง + เซรามิก/หิน':dmEl==='โลหะ'?'ของสีขาว/เงิน + โลหะแท้':'ของสีน้ำเงิน/ดำ + แก้ว/น้ำธรรมชาติ'}`,
-        `ของชิ้นใหญ่ — ซื้อในวันที่ Biorhythm สมอง ≥ 0% (ตอนนี้ ${bp(bioInt)})`,
-      ] : [
-        `Before buying: ask "Does this match my ${tr.core||dmTh}?" — if not, skip`,
-        `${dmEl==='ไฟ'?'Red/orange items + fire materials (fabric/leather) boost luck':dmEl==='ไม้'?'Green + wood/natural fibres':dmEl==='ดิน'?'Brown/yellow + ceramic/stone':dmEl==='โลหะ'?'White/silver + real metal':'Blue/black + glass/spring water'}`,
-        `Big purchases — only on intellectual biorhythm ≥ 0% (now ${bp(bioInt)})`,
-      ],
-      avoidTh: `อย่าซื้อของในวัน Biorhythm สมองต่ำ — judgement ไม่ชัด`,
-      avoidEn: `Don't shop on low intellectual biorhythm days — judgement is fuzzy`,
-      mantraTh: `ของที่อยู่ในบ้านฉันต้องเสริมพลังของฉัน ไม่ใช่แค่ดูดี`,
-      mantraEn: `What I bring into my home must amplify my energy, not just look good`,
-    },
-    compat: {
-      titleTh: '✦ การ์ดตรวจความสัมพันธ์ 7 วัน',
-      titleEn: '✦ 7-Day Relationship Audit',
-      actions: isTh ? [
-        `เลือก 1 คนใกล้ตัว — เช็กว่าธาตุของเขาเสริม/ขัดธาตุ${dmEl}ของคุณยังไง`,
-        `วันที่ Biorhythm อารมณ์สูง (≥50%) ใช้คุยเรื่องที่ค้าง · วันต่ำ (≤-30%) เลื่อน`,
-        `${hdType.includes('Projector')||hdType.includes('โปรเจก')?'รอ "คำเชิญ" ก่อนให้คำแนะนำ — Projector ไม่ push':hdType.includes('Generator')||hdType.includes('เจเนอ')?'ตอบสนองด้วย "uh-huh"/"uh-uh" — ฟัง sacral ก่อนพูด':'ใช้กลยุทธ์ของคุณเป็นกฎ — '+hdStrategy}`,
-      ] : [
-        `Pick one close person — check how their element supports/clashes with your ${dmEl}`,
-        `High emotional biorhythm days (≥50%) → tackle pending talks · low (≤-30%) → postpone`,
-        `${hdType==='Projector'?'Wait for the invitation before giving advice — Projectors do not push':hdType==='Generator'?'Respond with uh-huh / uh-uh — sacral first':'Run your HD strategy as the rule — '+hdStrategy}`,
-      ],
-      avoidTh: `อย่าตั้งใจเข้ากันกับคนที่ขัดธาตุของคุณ — energy debt สะสม`,
-      avoidEn: `Don't force compatibility with someone who clashes your element — energy debt compounds`,
-      mantraTh: `ความสัมพันธ์ที่ดีคือที่ทั้งคู่ไม่ต้อง "ทำงาน" เพื่อรักกัน`,
-      mantraEn: `Real compatibility means neither of us has to "work" to love each other`,
-    },
-  };
-  const tac = TACTICAL[key];
-
-  const rows = cfg.sys.map(s => `
-    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:14px 16px">
-      <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px">
-        <span style="font-size:17px;line-height:1">${s.icon}</span>
-        <div>
-          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">${s.lbl}</div>
-          <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold2);font-weight:600;margin-top:2px">${isTh?s.vTh:s.vEn}</div>
-        </div>
-      </div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--text);line-height:1.65">${isTh?s.iTh:s.iEn}</div>
-    </div>`).join('');
-
-  return `
-    <div class="deep-sys-card" style="margin-top:18px;border-color:rgba(212,175,55,0.4);background:rgba(212,175,55,0.025)">
-      <div style="display:flex;align-items:center;gap:9px;margin-bottom:7px">
-        <span style="font-size:20px">🔮</span>
-        <div>
-          <div style="font-family:'Cinzel Decorative',serif;font-size:14px;color:var(--gold);letter-spacing:1px">${isTh?cfg.titleTh:cfg.titleEn}</div>
-          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-top:3px;text-transform:uppercase">Premium · 26 Systems Cross-Synthesis</div>
-        </div>
-      </div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(212,175,55,0.15)">${isTh?cfg.subtTh:cfg.subtEn}</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px">
-        ${rows}
-      </div>
-
-      ${tac ? `
-      <!-- Tactical block — translates the 26-system insight into a 7-day playbook
-           so the add-on output isn't only "what your chart says" but "what to DO". -->
-      <div style="margin-top:18px;background:rgba(0,0,0,0.18);border:1px solid var(--gold3);border-radius:8px;padding:14px 16px">
-        <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:var(--gold);letter-spacing:1px;margin-bottom:10px">${isTh?tac.titleTh:tac.titleEn}</div>
-        <ol style="margin:0;padding-left:22px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:13.5px;line-height:1.85">
-          ${tac.actions.map(a => `<li style="margin-bottom:4px">${a}</li>`).join('')}
-        </ol>
-        <div style="margin-top:12px;display:grid;grid-template-columns:1fr;gap:8px">
-          <div style="background:rgba(192,32,32,0.08);border-left:3px solid #c04040;padding:8px 12px;border-radius:0 6px 6px 0">
-            <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:#c08080;text-transform:uppercase;margin-bottom:3px">⚠ ${isTh?'หลีกเลี่ยง':'Avoid'}</div>
-            <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--text);line-height:1.6">${isTh?tac.avoidTh:tac.avoidEn}</div>
-          </div>
-          <div style="background:rgba(212,175,55,0.08);border-left:3px solid var(--gold);padding:8px 12px;border-radius:0 6px 6px 0">
-            <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold3);text-transform:uppercase;margin-bottom:3px">✦ ${isTh?'มันตราประจำสัปดาห์':'Weekly Mantra'}</div>
-            <div style="font-family:'Cormorant Garamond',serif;font-size:13.5px;color:var(--gold2);line-height:1.6;font-style:italic">"${isTh?tac.mantraTh:tac.mantraEn}"</div>
-          </div>
-        </div>
-      </div>` : ''}
-
-      <div style="margin-top:14px;padding:9px 14px;background:rgba(212,175,55,0.05);border-radius:6px;font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold3);text-align:center">
-        ✦ ${isTh?'สังเคราะห์จากดวงชะตาของคุณ · Cosmic Score '+score+'/999':'Synthesised from your birth chart · Cosmic Score '+score+'/999'}
-      </div>
-    </div>`;
 }
 
 function _emptyDeepHint(id){
@@ -9556,12 +8653,10 @@ function renderDeepReadings(){
   if (!chart) { nav.innerHTML=''; _emptyDeepHint('deepSysPanel'); return; }
   // Primary nav only — secondary systems show as a compact grid below.
   const primary = DEEP_SYSTEMS.filter(([k]) => PRIMARY_KEYS.has(k));
-  nav.innerHTML = primary.map(([k,txKey,emoji])=>{
-    const unlocked = _hasItemAccess('deep_' + k);
-    const badge = unlocked ? ' <span style="color:#8aba50;font-size:10px">✓</span>' : ` <span style="color:var(--gold3);font-size:9px">$${PRICING.deep.usd}</span>`;
-    return `<button class="deep-sys-btn${k===_deepActive?' active':''}" data-k="${k}" ` +
-      `onclick="_showDeep('${k}')" data-t="${txKey}">${emoji} ${t(txKey)}${badge}</button>`;
-  }).join('');
+  nav.innerHTML = primary.map(([k,txKey,emoji])=>
+    `<button class="deep-sys-btn${k===_deepActive?' active':''}" data-k="${k}" ` +
+    `onclick="_showDeep('${k}')" data-t="${txKey}">${emoji} ${t(txKey)}</button>`
+  ).join('');
   // Guard: if previously selected key was a secondary system, snap to first primary.
   if (!PRIMARY_KEYS.has(_deepActive)) _deepActive = 'western';
   _showDeep(_deepActive);
@@ -9573,18 +8668,12 @@ function _showDeep(k){
   if (!chart) return;
   const entry = DEEP_SYSTEMS.find(x=>x[0]===k);
   if (!entry) return;
-  const [,txKey,emoji,getter] = entry;
+  const [,,,getter] = entry;
   let data;
   try { data = getter(chart); }
   catch(e){ data = {title:'—', origin:'', insight:'', reading:String(e), stats:[]}; }
 
   const isTh = LANG === 'th';
-  // Per-system gate — each of the 26 deep systems is its own purchase.
-  // Existing $19 Full Report does NOT include these (per pricing decision
-  // 2026-05-02 — Full Report is the 42-page PDF only). User unlocks each
-  // system at $9 per chart input.
-  const deepKey = 'deep_' + k;
-  const deepLocked = !_hasItemAccess(deepKey);
   const hasReading = data.reading && data.reading.trim().length > 20;
 
   // Build the secondary-systems compact grid (16 tiles, each with 1-liner insight).
@@ -9596,15 +8685,11 @@ function _showDeep(k){
     // Strip HTML from insight, keep first ~110 chars for compact view.
     const flat = String(s.insight||'').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
     const oneLine = flat.length > 110 ? flat.slice(0,107)+'…' : flat;
-    // Each tile is clickable — switches the primary slot above to this system,
-    // where the per-input purchase gate kicks in.
-    const secLocked = !_hasItemAccess('deep_' + sk);
     return `
-      <div onclick="_showDeep('${sk}');window.scrollTo({top:document.getElementById('deepSysPanel').offsetTop-80,behavior:'smooth'})" style="cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:13px 14px;display:flex;flex-direction:column;gap:5px;transition:border-color .15s,background .15s" onmouseover="this.style.borderColor='var(--gold3)';this.style.background='rgba(212,175,55,0.04)'" onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--bg3)'">
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:13px 14px;display:flex;flex-direction:column;gap:5px">
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:18px;flex-shrink:0">${emoji}</span>
-          <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;flex:1">${t(txKey)}</div>
-          ${secLocked ? `<span style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--gold);background:rgba(212,175,55,0.1);border:1px solid var(--gold3);padding:1px 6px;border-radius:8px;letter-spacing:.5px">$${PRICING.deep.usd}</span>` : `<span style="font-size:11px;color:#8aba50">✓</span>`}
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase">${t(txKey)}</div>
         </div>
         <div style="font-family:'Cormorant Garamond',serif;font-size:13.5px;color:var(--gold2);line-height:1.35">${s.title||'—'}</div>
         <div style="font-family:'Cormorant Garamond',serif;font-size:12.5px;color:var(--muted);line-height:1.45">${oneLine||'—'}</div>
@@ -9630,26 +8715,13 @@ function _showDeep(k){
          ).join('')}
        </div>
 
-       <!-- Key insight (1-2 line personalised summary) — always free as teaser -->
+       <!-- Key insight (1-2 line personalised summary) -->
        <div style="margin-top:14px;padding:12px 14px;background:rgba(212,175,55,0.05);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;font-family:'Cormorant Garamond',serif;font-size:14px;line-height:1.65;color:var(--text)">
          ${data.insight || '—'}
        </div>
 
-       <!-- Full analysis — gated per system. Free until purchased OR while
-            beta gift code is active. After purchase tied to current chart
-            hash, re-views are free. Changing chart input invalidates the
-            unlock. -->
-       ${deepLocked
-          ? _purchasePaywall(deepKey, {
-              label: emoji + ' ' + (t(txKey) || k) + ' — ' + (isTh ? 'อ่านเชิงลึก' : 'Deep reading'),
-              blurb: isTh
-                ? `เนื้อหาฉบับเต็มของ${t(txKey)||k} ตามดวงของคุณ — ที่มา ตีความเฉพาะตัว ตารางข้อมูล และคำแนะนำ${data.origin?` · ${data.origin}`:''}`
-                : `Full ${t(txKey)||k} reading for your specific chart — origins, personalised interpretation, data tables, and guidance${data.origin?` · ${data.origin}`:''}`,
-              benefits: isTh
-                ? ['ตีความตามดวงเกิดของคุณ', 'ที่มา + ประวัติศาสตร์ของศาสตร์', 'ตารางคุณค่า + ข้อมูลเปรียบเทียบ', 'ดูซ้ำได้ฟรีจนกว่าจะเปลี่ยนข้อมูลเกิด']
-                : ['Personalised to your chart', 'Origin + historical context', 'Stats table + comparison data', 'Free re-views until you change inputs'],
-            })
-          : (hasReading ? `<div class="deep-sys-reading" style="margin-top:14px">${data.reading}</div>` : '')}
+       <!-- Full analysis — shown in full for depth/value -->
+       ${hasReading ? `<div class="deep-sys-reading" style="margin-top:14px">${data.reading}</div>` : ''}
      </div>
 
      <!-- Secondary 16 systems — compact grid -->
@@ -9684,63 +8756,9 @@ function renderResonance(){
   const dmEl = chart.bazi.dayMasterElement || '-';
   const nskDir = chart.ninestar.starDirection || '-';
   const lpNum = chart.numerology.lifePath;
-  const country     = localStorage.getItem('mth_country')      || '';
-  const career      = localStorage.getItem('mth_career')       || '';
-  const industry    = localStorage.getItem('mth_industry')     || '';
-  const careerLevel = localStorage.getItem('mth_careerLevel')  || '';
-
-  // ── Country / Career / Industry wheels ───────────────────────
-  // Predefined choices that match the lookup tables in calc.ts so a click
-  // always lands on a value the engine can score (free-text inputs used to
-  // miss-match silently and fall back to defaults).
-  const COUNTRIES = [
-    { name:'Thailand',  flag:'🇹🇭', el:'ไม้',   score:720 },
-    { name:'Japan',     flag:'🇯🇵', el:'โลหะ', score:750 },
-    { name:'Singapore', flag:'🇸🇬', el:'ไฟ',   score:755 },
-    { name:'USA',       flag:'🇺🇸', el:'ไฟ',   score:760 },
-    { name:'UK',        flag:'🇬🇧', el:'โลหะ', score:740 },
-    { name:'Germany',   flag:'🇩🇪', el:'ดิน',  score:735 },
-    { name:'France',    flag:'🇫🇷', el:'ไม้',   score:730 },
-    { name:'Australia', flag:'🇦🇺', el:'ดิน',  score:740 },
-    { name:'Canada',    flag:'🇨🇦', el:'น้ำ',   score:735 },
-    { name:'UAE',       flag:'🇦🇪', el:'ไฟ',   score:745 },
-    { name:'India',     flag:'🇮🇳', el:'ดิน',  score:725 },
-    { name:'China',     flag:'🇨🇳', el:'ดิน',  score:730 },
-    { name:'Korea',     flag:'🇰🇷', el:'โลหะ', score:740 },
-    { name:'Brazil',    flag:'🇧🇷', el:'ไม้',   score:715 },
-    { name:'Italy',     flag:'🇮🇹', el:'ไม้',   score:725 },
-    { name:'Russia',    flag:'🇷🇺', el:'น้ำ',   score:710 },
-  ];
-  const LEVELS = [
-    { name:'Junior',    icon:'🌱', bonus:-20, descTh:'1-3 ปีแรก',     descEn:'1-3 yrs' },
-    { name:'Mid',       icon:'🔧', bonus:0,   descTh:'มืออาชีพ',       descEn:'Pro' },
-    { name:'Senior',    icon:'🎯', bonus:30,  descTh:'นำทีม / lead',  descEn:'Team lead' },
-    { name:'Director',  icon:'🏛',  bonus:60,  descTh:'นำหลายทีม',     descEn:'Multi-team' },
-    { name:'Executive', icon:'👑', bonus:80,  descTh:'C-level / VP',  descEn:'C-level / VP' },
-  ];
-  // Domain groups by element so selection feels meaningful (Wuxing colour-coded).
-  const DOMAINS_BY_EL = {
-    'ไฟ':   ['Business Development','Sales','Marketing','Leadership','Consulting'],
-    'โลหะ': ['Engineering','Finance','Legal'],
-    'น้ำ':  ['Software','Data','Healthcare','Research'],
-    'ดิน':  ['Accounting','HR','Operations','Supply Chain','Management','Construction'],
-    'ไม้':  ['Art','Design','Architecture','Interior Construction','Education'],
-  };
-  const INDUSTRIES_BY_EL = {
-    'ไฟ':   ['Entertainment','Energy'],
-    'โลหะ': ['Finance','Banking','Investment','Manufacturing'],
-    'น้ำ':  ['Tech','Software','AI','Healthcare','Pharma'],
-    'ดิน':  ['Interior Construction','Construction','Real Estate','Retail','Food'],
-    'ไม้':  ['Education','Media','Hospitality'],
-  };
-  const EL_COLOR = { 'ไฟ':'#c66030', 'โลหะ':'#a8a098', 'น้ำ':'#3a7090', 'ดิน':'#a08040', 'ไม้':'#5a8a4a' };
-  const elDot = (el) => `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${EL_COLOR[el]||'#888'};vertical-align:middle;margin-right:4px"></span>`;
-  // Chip-style picker. Each chip: shows visual cue + sets localStorage on click.
-  // Active chip gets a gold border so the current selection is unambiguous.
-  const chipBtn = (key, value, isActive, content, extraStyle = '') =>
-    `<button onclick="localStorage.setItem('${key}','${String(value).replace(/'/g,'&apos;')}');renderResonance();_showResRegenHint()" style="cursor:pointer;background:${isActive?'rgba(212,175,55,0.12)':'var(--bg3)'};border:1px solid ${isActive?'var(--gold)':'var(--border)'};color:${isActive?'var(--gold)':'var(--text)'};border-radius:6px;padding:6px 10px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:.5px;transition:all .15s;${extraStyle}">${content}</button>`;
-  const clearBtn = (key) =>
-    `<button onclick="localStorage.removeItem('${key}');renderResonance();_showResRegenHint()" style="cursor:pointer;background:transparent;border:1px dashed var(--border);color:var(--muted);border-radius:6px;padding:6px 10px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase">${isTh?'ล้าง':'Clear'}</button>`;
+  const country  = localStorage.getItem('mth_country')  || '';
+  const career   = localStorage.getItem('mth_career')   || '';
+  const industry = localStorage.getItem('mth_industry') || '';
 
   // Engine-computed scores (available because _getMS26ChartFromProfile passes
   // workCountry/domain/industry through to MS26.calculate).
@@ -9815,64 +8833,25 @@ function renderResonance(){
       </div>
     </div>
 
-    <!-- Wheels — predefined choices that match calc.ts lookup tables.
-         Replaces free-text inputs that used to silently fall back to defaults
-         when the user typed something unrecognised (e.g. "thai" vs "Thailand"). -->
+    <!-- Inputs -->
     <div class="deep-sys-card" style="margin-top:14px">
       <div class="deep-sys-title">${isTh?'บริบทชีวิตปัจจุบัน':'Your current life context'}</div>
-      <div class="deep-sys-origin">${isTh?'เลือกจากตัวเลือก · ผลลัพธ์อัพเดททันที':'pick from the wheels · scores recompute instantly'}</div>
-
-      <!-- COUNTRY WHEEL ---------------------------------------- -->
-      <div style="margin-top:12px">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-          <label style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted)">🌍 ${isTh?'ประเทศที่คุณอยู่/ทำงาน':'Country you live / work in'}</label>
-          ${country ? clearBtn('mth_country') : ''}
+      <div class="deep-sys-origin">${isTh?'เปลี่ยนได้ทุกเมื่อ · ผลลัพธ์อัพเดททันที':'edit anytime · scores recompute instantly'}</div>
+      <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px">
+        <div class="form-group">
+          <label style="display:block;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px">${isTh?'ประเทศที่คุณอยู่/ทำงาน':'Country you live / work in'}</label>
+          <input id="res_country" value="${country}" placeholder="${isTh?'เช่น ไทย, ญี่ปุ่น, อังกฤษ':'Thailand, Japan, USA...'}" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;font-family:inherit" onchange="localStorage.setItem('mth_country',this.value);renderResonance();_showResRegenHint()">
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px">
-          ${COUNTRIES.map(c => chipBtn('mth_country', c.name, country === c.name, `${c.flag} ${c.name} ${elDot(c.el)}<span style="opacity:.55;font-size:10px">${c.el}</span>`)).join('')}
+        <div class="form-group">
+          <label style="display:block;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px">${isTh?'สายอาชีพ / บทบาท':'Career / role'}</label>
+          <input id="res_career" value="${career}" placeholder="${isTh?'เช่น Engineer, Designer, Teacher':'e.g. Engineer, Designer, Teacher'}" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;font-family:inherit" onchange="localStorage.setItem('mth_career',this.value);renderResonance();_showResRegenHint()">
         </div>
-      </div>
-
-      <!-- CAREER LEVEL WHEEL ----------------------------------- -->
-      <div style="margin-top:14px">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-          <label style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted)">📈 ${isTh?'ระดับตำแหน่ง':'Career level'}</label>
-          ${careerLevel ? clearBtn('mth_careerLevel') : ''}
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px">
-          ${LEVELS.map(l => chipBtn('mth_careerLevel', l.name, careerLevel === l.name, `${l.icon} <strong>${l.name}</strong> <span style="opacity:.55;font-size:10px">${isTh?l.descTh:l.descEn} (${l.bonus>=0?'+':''}${l.bonus})</span>`)).join('')}
+        <div class="form-group">
+          <label style="display:block;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px">${isTh?'อุตสาหกรรม':'Industry'}</label>
+          <input id="res_industry" value="${industry}" placeholder="${isTh?'เช่น Tech, Finance, Hospitality':'e.g. Tech, Finance, Hospitality'}" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;font-family:inherit" onchange="localStorage.setItem('mth_industry',this.value);renderResonance();_showResRegenHint()">
         </div>
       </div>
-
-      <!-- DOMAIN WHEEL (grouped by element) -------------------- -->
-      <div style="margin-top:14px">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-          <label style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted)">💼 ${isTh?'สายอาชีพ / บทบาท':'Career / role (domain)'}</label>
-          ${career ? clearBtn('mth_career') : ''}
-        </div>
-        ${Object.entries(DOMAINS_BY_EL).map(([el, list]) => `
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
-            <span style="font-size:10px;color:${EL_COLOR[el]};letter-spacing:1px;min-width:32px;font-family:'Josefin Sans',sans-serif">${elDot(el)}${el}</span>
-            ${list.map(name => chipBtn('mth_career', name, career === name, name, `font-size:10.5px;padding:4px 8px`)).join('')}
-          </div>
-        `).join('')}
-      </div>
-
-      <!-- INDUSTRY WHEEL (grouped by element) ------------------ -->
-      <div style="margin-top:14px">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-          <label style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted)">🏭 ${isTh?'อุตสาหกรรม':'Industry'}</label>
-          ${industry ? clearBtn('mth_industry') : ''}
-        </div>
-        ${Object.entries(INDUSTRIES_BY_EL).map(([el, list]) => `
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
-            <span style="font-size:10px;color:${EL_COLOR[el]};letter-spacing:1px;min-width:32px;font-family:'Josefin Sans',sans-serif">${elDot(el)}${el}</span>
-            ${list.map(name => chipBtn('mth_industry', name, industry === name, name, `font-size:10.5px;padding:4px 8px`)).join('')}
-          </div>
-        `).join('')}
-      </div>
-
-      ${!hasContext ? `<div style="margin-top:14px;padding:8px 12px;background:rgba(212,175,55,0.06);border-left:3px solid var(--gold3);border-radius:0 6px 6px 0;font-size:12px;color:var(--muted);line-height:1.55">💡 ${isTh?'ถ้ายังไม่เลือก Life Terrain + Path Resonance จะเป็น 0 และ Cosmic Score จะใช้เฉพาะ Soul Frequency — เลือกเพื่อปลดล็อกคะแนนเพิ่ม':'If nothing is picked, Life Terrain + Path Resonance = 0 and Cosmic Score uses Soul Frequency only — pick to unlock the extra scoring layers'}</div>` : ''}
+      ${!hasContext ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(212,175,55,0.06);border-left:3px solid var(--gold3);border-radius:0 6px 6px 0;font-size:12px;color:var(--muted);line-height:1.55">💡 ${isTh?'ถ้ายังไม่กรอก Life Terrain + Path Resonance จะเป็น 0 และ Cosmic Score จะใช้เฉพาะ Soul Frequency — กรอกเพื่อปลดล็อกคะแนนเพิ่ม':'If left blank, Life Terrain + Path Resonance = 0 and Cosmic Score uses Soul Frequency only — fill these to unlock the extra scoring layers'}</div>` : ''}
     </div>
 
     <!-- Live scores (engine-computed) — only shown once user has filled
@@ -10384,127 +9363,15 @@ function closeGodDetail(e){
 function _gdKeyHandler(e){ if (e.key === 'Escape') closeGodDetail(); }
 
 // ── Streak & current Frequency Alerts (current only, free) ─
-// Library row click → navigate to the right tab and open the reading.
-// Splits "deep_xxx" → showDeep('xxx'); add-ons → generateDeepAddon('xxx');
-// full_report → just lands on Premium → Reports.
-function _libraryOpen(itemKey){
-  const [grp, tab] = _navForItem(itemKey);
-  try { setGroup(grp); showSubTab(tab); } catch(_){}
-  setTimeout(() => {
-    try {
-      if (itemKey.startsWith('deep_')) {
-        const k = itemKey.replace('deep_', '');
-        if (typeof _showDeep === 'function') _showDeep(k);
-      } else if (itemKey !== 'full_report' && typeof generateDeepAddon === 'function') {
-        generateDeepAddon(itemKey);
-      }
-    } catch(_){}
-  }, 100);
-}
-
-function renderLibrary(){
-  const el = document.getElementById('libraryContent');
-  if (!el) return;
-  const isTh = LANG === 'th';
-  const list = _readLibrary();
-  const currentHash = _chartInputHash();
-  if (!list.length) {
-    el.innerHTML = `
-      <div class="tier-lock" style="border-color:var(--border);text-align:center;padding:36px 20px">
-        <div class="tier-lock-icon" style="font-size:42px">📖</div>
-        <div class="tier-lock-title">${isTh?'ยังไม่มีดวงที่ปลดล็อค':'No unlocked readings yet'}</div>
-        <div class="tier-lock-desc" style="max-width:440px;margin:8px auto 14px">${isTh
-          ? 'เลือกศาสตร์ที่สนใจจาก Add-ons → Deep Readings หรือ add-on ใดก็ได้ ปลดล็อคแล้วจะเก็บไว้ที่นี่ · ดูซ้ำได้ตลอด'
-          : 'Pick any system from Add-ons → Deep Readings or any add-on. Unlocked items appear here for unlimited re-views.'}</div>
-        <button class="ghost-btn" onclick="setGroup('addon');showSubTab('deep')">${isTh?'✦ ไปดูศาสตร์ทั้งหมด':'✦ Browse all systems'}</button>
-      </div>`;
-    return;
-  }
-  // Group library entries by chart hash so the user sees each "person/chart"
-  // they've ever read for as a separate section. Current chart shown first.
-  const byHash = {};
-  for (const e of list) (byHash[e.hash] = byHash[e.hash] || []).push(e);
-  const orderedHashes = Object.keys(byHash).sort((a,b) => a===currentHash ? -1 : b===currentHash ? 1 : 0);
-
-  const fmtDate = (iso) => {
-    try {
-      const d = new Date(iso);
-      return d.toLocaleDateString(isTh?'th-TH':'en-US', {year:'numeric',month:'short',day:'numeric'});
-    } catch(_){ return iso || '—'; }
-  };
-  const chartLabel = (chart) => {
-    const bits = [];
-    if (chart.name)   bits.push(chart.name);
-    if (chart.dob)    bits.push(chart.dob);
-    if (chart.gender) bits.push(chart.gender);
-    return bits.join(' · ') || (isTh?'ดวงไม่ระบุ':'Unknown chart');
-  };
-
-  el.innerHTML = orderedHashes.map(h => {
-    const entries = byHash[h];
-    const chart   = entries[0].chart || {};
-    const isCurrent = h === currentHash;
-    return `
-      <div style="background:var(--bg2);border:1px solid ${isCurrent?'var(--gold3)':'var(--border)'};border-radius:10px;padding:14px 16px;margin-bottom:14px">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-          <div>
-            <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:var(--gold);letter-spacing:1px">${_esc(chartLabel(chart))}</div>
-            <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.2px;color:var(--muted);margin-top:3px;text-transform:uppercase">hash ${h} · ${entries.length} ${isTh?'รายการ':'items'}</div>
-          </div>
-          ${isCurrent
-            ? `<span style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:#8aba50;background:rgba(138,186,80,0.1);border:1px solid #4a8a30;padding:3px 8px;border-radius:10px">✓ ${isTh?'ดวงปัจจุบัน · ดูได้':'CURRENT CHART · UNLOCKED'}</span>`
-            : `<span style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:var(--muted);background:rgba(255,255,255,0.04);border:1px solid var(--border);padding:3px 8px;border-radius:10px">${isTh?'ดวงเก่า · เปลี่ยนข้อมูลกลับเพื่อดู':'PAST CHART · revert inputs to view'}</span>`}
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
-          ${entries.map(e => {
-            const [grp, tab] = _navForItem(e.itemKey);
-            const navDisabled = !isCurrent;
-            // Build the onclick handler. Use a global helper to avoid quote-
-            // escaping nightmares inside the template literal.
-            const itemKeyJs = JSON.stringify(e.itemKey).replace(/"/g,'&quot;');
-            const onclick = navDisabled ? '' : `onclick="_libraryOpen(${itemKeyJs})"`;
-            return `<div ${onclick} style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;${navDisabled?'opacity:.6':'cursor:pointer'}">
-              <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold2);font-weight:600;line-height:1.3;margin-bottom:4px">${_esc(e.label)}</div>
-              <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:var(--muted)">${fmtDate(e.unlockedAt)}${navDisabled?'':' · '+(isTh?'แตะเพื่อดู':'tap to open')}</div>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>`;
-  }).join('');
-}
-
 function renderStreak(){
   const el = document.getElementById('streakContent');
   const hist = getFullHistory ? getFullHistory() : [];
-  // Pull a date key from EVERY shape we've used over time:
-  //   • current saver (saveToFullHistory) writes `ts: Date.now()` (number)
-  //   • older shapes used `at` or `timestamp` ISO strings
-  //   • some legacy entries also have a Thai display `date`
-  // Without this normalisation renderStreak always read undefined and the
-  // Set ended up empty, so the headline counter was permanently stuck at 0.
-  const days = new Set(
-    hist.map(h => {
-      if (typeof h.ts === 'number')        return new Date(h.ts).toISOString().slice(0,10);
-      if (typeof h.at === 'string')        return h.at.slice(0,10);
-      if (typeof h.timestamp === 'string') return h.timestamp.slice(0,10);
-      if (typeof h.timestamp === 'number') return new Date(h.timestamp).toISOString().slice(0,10);
-      return '';
-    }).filter(Boolean)
-  );
+  const days = new Set(hist.map(h=>(h.at||h.timestamp||'').slice(0,10)).filter(Boolean));
   const streak = days.size;
-  // Compute the "current consecutive run" too — more meaningful than total
-  // unique days for a streak counter. Walk backwards from today.
-  let consec = 0;
-  const today = new Date(); today.setHours(0,0,0,0);
-  for (let d = 0; d < 365; d++) {
-    const probe = new Date(today.getTime() - d * 86400000).toISOString().slice(0,10);
-    if (days.has(probe)) consec++;
-    else if (d > 0) break;  // gap → run broken (allow today to be empty)
-  }
   el.innerHTML = `
     <div class="deep-sys-card" style="text-align:center">
-      <div class="deep-sys-title">${consec} ${t('streak_days')}</div>
-      <div class="deep-sys-origin">${t('streak_sub')} · ${days.size} ${LANG==='th'?'วันใช้งานทั้งหมด':'total active days'}</div>
+      <div class="deep-sys-title">${streak} ${t('streak_days')}</div>
+      <div class="deep-sys-origin">${t('streak_sub')}</div>
       <div class="deep-sys-reading" style="font-size:13px">${t('streak_desc')}</div>
     </div>`;
 }
@@ -11725,7 +10592,7 @@ function importUserData(e){
 // Keys synced to cloud (session-only keys like mth_user/mth_guest_ok excluded)
 const _SYNC_KEYS = [
   'mth_name','mth_dob','mth_time','mth_gender','mth_city',
-  'mth_country','mth_career','mth_careerLevel','mth_industry','mth_lang','mth_gift','mth_gift_expiry','mth_purchased',
+  'mth_country','mth_career','mth_industry','mth_lang','mth_gift','mth_gift_expiry',
   'mth_bless_date','mth_bless_count','mth_bless_history','mth_full_history',
   'mth_coll_tier','ms_profiles','ms_saved_reports','ms_last_group'
 ];
@@ -11786,13 +10653,6 @@ async function _onSignIn(session){
   renderHeaderUser({name,loginMethod:'email',email});
   const sp=document.getElementById('settingsPanel');
   if(sp&&sp.children.length)renderSettings();
-  // If the entry overlay is still visible, refresh its sign-in row so the user
-  // sees their authenticated state immediately (prevents confusion that leads
-  // to re-trying expired OTP codes on next visit).
-  const _eov=document.getElementById('entryOverlay');
-  if(_eov&&getComputedStyle(_eov).display!=='none'&&typeof _entryRefreshLang==='function'){
-    try{_entryRefreshLang();}catch(_){}
-  }
 }
 
 function _onSignOut(){
@@ -11972,16 +10832,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   }
   // ── Boot the mandatory entry overlay ─────────────────────
   showEntryOverlay();
-  // Deep-link from the root /login page: ?login=1 → auto-open the email OTP
-  // overlay so mobile users coming from the landing page don't have to click
-  // "มีบัญชีอยู่แล้ว?" first.
-  if (location.search.includes('login=1') && !_sbSession) {
-    setTimeout(() => { try { showLoginOverlay(); } catch(_){} }, 50);
-    try {
-      const clean = location.href.replace(/[?&]login=1\b/, '').replace(/\?$/, '').replace(/\?&/, '?');
-      history.replaceState(null, '', clean);
-    } catch(_){}
-  }
   renderFamousScroll();
   initBlessings();
   loadGods();
@@ -12153,31 +11003,11 @@ function _entryRefreshLang(){
       : `Welcome back${name?` <strong>${_esc(name)}</strong>`:''} · DOB ${_esc(_formatDobDisplay(dob,false))}`;
     if (useSaved) useSaved.textContent = isTh ? '✦ ใช้ข้อมูลเดิม' : '✦ Use saved data';
   }
-  // Sign-in row — adapts to current auth state.
-  // If signed in: show "✓ Logged in as <email> · [Sign out]" so user knows
-  // they don't need to re-OTP. If not: show the email sign-in shortcut.
+  // Sign-in link at bottom of entry overlay
   const siLabel = document.getElementById('entrySignInLabel');
   const siBtn   = document.getElementById('entrySignInBtn');
-  if (_sbSession && _sbSession.user && _sbSession.user.email){
-    const em = _sbSession.user.email;
-    if (siLabel){
-      siLabel.textContent = isTh ? '✓ เข้าสู่ระบบ:' : '✓ Signed in:';
-      siLabel.style.color = 'var(--gold2)';
-    }
-    if (siBtn){
-      siBtn.innerHTML = `<span style="opacity:.85">${em}</span> &nbsp;·&nbsp; <span style="text-decoration:underline">${isTh?'ออกจากระบบ':'Sign out'}</span>`;
-      siBtn.setAttribute('onclick', 'logout()');
-    }
-  } else {
-    if (siLabel){
-      siLabel.textContent = isTh ? 'มีบัญชีอยู่แล้ว?' : 'Have an account?';
-      siLabel.style.color = '';
-    }
-    if (siBtn){
-      siBtn.textContent = isTh ? '✉️ ลงชื่อเข้าใช้ด้วย Email →' : '✉️ Sign in with Email →';
-      siBtn.setAttribute('onclick', 'showLoginOverlay()');
-    }
-  }
+  if (siLabel) siLabel.textContent = isTh ? 'มีบัญชีอยู่แล้ว?' : 'Have an account?';
+  if (siBtn)   siBtn.textContent   = isTh ? 'ลงชื่อเข้าใช้เพื่อกู้ข้อมูล →' : 'Sign in to restore your data →';
   // No-account note under CTA
   const guestNote = document.getElementById('entryGuestNote');
   if (guestNote) guestNote.textContent = isTh
@@ -12252,17 +11082,6 @@ function _entryClearError(){
   if (e) { e.style.display='none'; e.textContent=''; }
 }
 
-// Called when user switches between พ.ศ. / ค.ศ. in the era selector.
-// Updates the year placeholder and the hint text below the inputs.
-function _entryEraChanged(era){
-  const yrEl   = document.getElementById('entryYear');
-  const hintEl = document.getElementById('entryEraHint');
-  if (yrEl)   yrEl.placeholder = (era === 'be') ? '2548' : '2005';
-  if (hintEl) hintEl.textContent = (era === 'be')
-    ? 'พ.ศ. = ค.ศ. + 543  ·  เช่น ปี 2548 พ.ศ. = 2005 ค.ศ.'
-    : 'ค.ศ.  ·  เช่น ปี 2005 ค.ศ. = 2548 พ.ศ.';
-}
-
 function entryAccept(){
   _entryClearError();
   const isTh = _entryLang === 'th';
@@ -12281,12 +11100,12 @@ function entryAccept(){
   // Each code has an expiry date; expired codes are rejected with a friendly message.
   // TODO: move to Supabase Edge Function when payment sprint is done.
   const GIFT_CODES = {
-    'MYTH-BETA':   '2026-06-01', // 35 days
-    'MYTH-IX':     '2026-05-30', // 33 days
-    'MYTH-VIP':    '2026-06-01', // 35 days
-    'MYTH-FRIEND': '2026-05-30', // 33 days
-    'MYTH-PRESS':  '2026-05-28', // 31 days
-    'MYTH-TEST':   '2026-05-28', // 31 days
+    'MYTH-BETA':   '2026-05-02', // 7 days
+    'MYTH-IX':     '2026-04-30', // 5 days
+    'MYTH-VIP':    '2026-05-02', // 7 days
+    'MYTH-FRIEND': '2026-04-30', // 5 days
+    'MYTH-PRESS':  '2026-04-28', // 3 days
+    'MYTH-TEST':   '2026-04-28', // 3 days
   };
   const giftStatus = document.getElementById('entryGiftStatus');
   if (giftRaw) {
@@ -12541,14 +11360,6 @@ document.addEventListener('click',e=>{
 });
 
 async function logout(){
-  // Confirm before signing out — every logout requires a fresh OTP via email
-  // to come back, which is friction users complain about. This guard prevents
-  // accidental taps (e.g. from the entry-overlay sign-out shortcut).
-  const isTh = (LANG === 'th');
-  const msg = isTh
-    ? 'ออกจากระบบ?\n\nคุณจะต้องขอรหัส OTP ใหม่ทางอีเมลเมื่อกลับเข้าใช้งาน\n(session ปกติคงอยู่หลายสัปดาห์อยู่แล้ว — ปิดแท็บแล้วกลับมาได้โดยไม่ต้อง logout)'
-    : 'Sign out?\n\nYou will need a new OTP code by email to sign back in.\n(Sessions persist for weeks — you can close the tab and return without logging out.)';
-  if (!confirm(msg)) return;
   if(_sb) await _sb.auth.signOut().catch(()=>{});
   ['mth_user','mth_guest_ok','mth_backup_enabled'].forEach(k=>localStorage.removeItem(k));
   location.reload();

@@ -1,0 +1,1539 @@
+{
+  "life_terrain": {
+    "version": "v2.1",
+    "fix": "DM_FEEDS in timing context = OUTPUT year (65) not drain (45)",
+    "accuracy": "v1=69%, v2=?% (see test)",
+    "pattrick_timing": {
+      "2026": "SAME+Honmei = Good window, act now before LP changes",
+      "2027": "OUTPUT year (我生) = produce results",
+      "2028-2033": "Challenging — Metal/Earth suppress Fire DM",
+      "2034-2035": "FEEDS_DM returns — peak alignment"
+    }
+  },
+  "dual_chart": {
+    "version": "v4_dual_chart",
+    "formula": {
+      "born_weight": 0.45,
+      "oppo_weight": 0.55,
+      "born_score": "petroleum grade (NSK×LP×BaZi structure)",
+      "oppo_score": "country_tier(30%) + era(25%) + lp_timing(15%) + terrain(15%) + family(15%)"
+    },
+    "country_tiers": {
+      "USA": 100,
+      "GBR": 100,
+      "DEU": 100,
+      "FRA": 100,
+      "CHE": 100,
+      "NOR": 100,
+      "SWE": 100,
+      "JPN": 100,
+      "AUS": 100,
+      "CAN": 100,
+      "SGP": 100,
+      "NLD": 100,
+      "BEL": 100,
+      "AUT": 100,
+      "DNK": 100,
+      "FIN": 100,
+      "ISL": 100,
+      "LUX": 100,
+      "KOR": 80,
+      "TWN": 80,
+      "ISR": 80,
+      "NZL": 80,
+      "IRL": 80,
+      "ITA": 80,
+      "ESP": 80,
+      "PRT": 75,
+      "GRC": 75,
+      "CZE": 75,
+      "POL": 70,
+      "HUN": 70,
+      "SVK": 70,
+      "HRV": 70,
+      "SVN": 75,
+      "BRA": 60,
+      "MEX": 60,
+      "ARG": 65,
+      "ZAF": 55,
+      "TUR": 60,
+      "MYS": 65,
+      "THA": 60,
+      "CHN": 55,
+      "RUS": 55,
+      "UAE": 75,
+      "SAU": 65,
+      "KWT": 70,
+      "QAT": 80,
+      "OMN": 65,
+      "LBY": 45,
+      "IND": 40,
+      "IDN": 40,
+      "PHL": 40,
+      "VNM": 40,
+      "EGY": 40,
+      "IRN": 45,
+      "NGA": 35,
+      "KEN": 35,
+      "GHA": 35,
+      "SEN": 35,
+      "CMR": 30,
+      "UGA": 30,
+      "TZA": 30,
+      "MAR": 40,
+      "TUN": 45,
+      "DZA": 40,
+      "IRQ": 35,
+      "SYR": 30,
+      "JOR": 45,
+      "LBN": 45,
+      "PAK": 35,
+      "BGD": 30,
+      "LKA": 40,
+      "NPL": 25,
+      "MMR": 30,
+      "KHM": 25,
+      "LAO": 25,
+      "BOL": 35,
+      "PER": 45,
+      "COL": 50,
+      "VEN": 45,
+      "CHL": 60,
+      "URY": 60,
+      "ECU": 40,
+      "PRY": 35,
+      "ETH": 20,
+      "SDN": 20,
+      "ZWE": 20,
+      "YEM": 15,
+      "COD": 15,
+      "AFG": 15,
+      "SOM": 10,
+      "HTI": 20,
+      "MWI": 20,
+      "MOZ": 20,
+      "MDG": 25,
+      "BFA": 20,
+      "MLI": 15,
+      "NER": 15,
+      "TCD": 15,
+      "CAF": 10,
+      "SLE": 15,
+      "LBR": 15,
+      "GIN": 20,
+      "BDI": 15,
+      "RWA": 20,
+      "ERI": 15,
+      "DJI": 25,
+      "COM": 20,
+      "?": 40
+    },
+    "pattrick": {
+      "born": 900,
+      "oppo": 670,
+      "combined": 774
+    }
+  },
+  "triple_terrain": {
+    "version": "v4_triple_terrain_fixed",
+    "description": "Born(45%) + Triple Terrain Opportunity(55%): T1 birthplace(25%) + T2 work country(40%) + T3 work domain(35%)",
+    "weights": {
+      "born": 0.45,
+      "oppo": 0.55,
+      "T1": 0.25,
+      "T2": 0.4,
+      "T3": 0.35
+    },
+    "pattrick": {
+      "born_score": 900,
+      "oppo": 726,
+      "combined": 804,
+      "tier": "Distinctive",
+      "detail": {
+        "dme": "Fire",
+        "T1_birth_score": 680,
+        "T1_country": "THA",
+        "T1_country_el": "Wood",
+        "T1_align": "feeds_dm",
+        "T1_country_tier": 60,
+        "T2_work_score": 682,
+        "T2_country": "THA",
+        "T2_country_el": "Wood",
+        "T2_align": "feeds_dm",
+        "T2_country_tier": 60,
+        "T3_domain_score": 810,
+        "T3_domain": "BD",
+        "T3_domain_el": "Fire",
+        "T3_align": "same",
+        "oppo_total": 726
+      }
+    },
+    "domain_element_map": {
+      "bd": "Fire",
+      "business_dev": "Fire",
+      "sales": "Fire",
+      "marketing": "Fire",
+      "politics": "Fire",
+      "leadership": "Fire",
+      "media": "Fire",
+      "entertainment": "Fire",
+      "music": "Fire",
+      "performance": "Fire",
+      "fashion": "Fire",
+      "luxury": "Fire",
+      "acting": "Fire",
+      "comedy": "Fire",
+      "broadcasting": "Fire",
+      "pr": "Fire",
+      "hospitality": "Fire",
+      "tech": "Metal",
+      "software": "Metal",
+      "engineering": "Metal",
+      "finance": "Metal",
+      "banking": "Metal",
+      "law": "Metal",
+      "healthcare": "Metal",
+      "medicine": "Metal",
+      "military": "Metal",
+      "pharma": "Metal",
+      "biotech": "Metal",
+      "accounting": "Metal",
+      "architecture": "Metal",
+      "sports": "Metal",
+      "precision": "Metal",
+      "research": "Water",
+      "strategy": "Water",
+      "philosophy": "Water",
+      "analysis": "Water",
+      "consulting": "Water",
+      "science": "Water",
+      "academia": "Water",
+      "psychology": "Water",
+      "data": "Water",
+      "construction": "Earth",
+      "real_estate": "Earth",
+      "operations": "Earth",
+      "management": "Earth",
+      "logistics": "Earth",
+      "retail": "Earth",
+      "food": "Earth",
+      "manufacturing": "Earth",
+      "agriculture": "Earth",
+      "energy": "Earth",
+      "oil": "Earth",
+      "construction_interior": "Earth",
+      "interior": "Earth",
+      "art": "Wood",
+      "design": "Wood",
+      "writing": "Wood",
+      "education": "Wood",
+      "environment": "Wood",
+      "ngo": "Wood",
+      "social": "Wood",
+      "literature": "Wood",
+      "photography": "Wood",
+      "journalism": "Wood",
+      "activism": "Wood"
+    },
+    "country_element_map": {
+      "JPN": "Metal",
+      "KOR": "Metal",
+      "CHN": "Earth",
+      "THA": "Wood",
+      "IND": "Wood",
+      "VNM": "Wood",
+      "IDN": "Wood",
+      "SGP": "Metal",
+      "TWN": "Metal",
+      "USA": "Fire",
+      "GBR": "Fire",
+      "DEU": "Metal",
+      "FRA": "Fire",
+      "RUS": "Earth",
+      "BRA": "Wood",
+      "ARG": "Water",
+      "AUS": "Fire",
+      "ITA": "Fire",
+      "ESP": "Fire",
+      "MEX": "Fire",
+      "ZAF": "Fire",
+      "EGY": "Earth",
+      "IRN": "Fire",
+      "NGA": "Wood",
+      "CHE": "Metal",
+      "ISR": "Fire",
+      "CAN": "Earth",
+      "MYS": "Wood",
+      "TUR": "Earth",
+      "POL": "Earth",
+      "NLD": "Metal",
+      "SWE": "Metal",
+      "NOR": "Water",
+      "FIN": "Water",
+      "DNK": "Water",
+      "IRL": "Wood",
+      "PRT": "Fire",
+      "GRC": "Fire",
+      "HUN": "Earth",
+      "BEL": "Metal",
+      "CZE": "Earth",
+      "AUT": "Metal",
+      "HRV": "Earth",
+      "ETH": "Wood",
+      "KEN": "Wood",
+      "GHA": "Wood",
+      "TZA": "Wood",
+      "MAR": "Earth",
+      "SAU": "Fire",
+      "ARE": "Fire",
+      "NZL": "Wood",
+      "PHL": "Wood",
+      "PAK": "Earth",
+      "BGD": "Water",
+      "LKA": "Wood"
+    }
+  },
+  "wuxing_task": {
+    "theory": "wuxing_role_for_task_vs_terrain",
+    "finding": {
+      "for_TASK_domain": "我生 (DM creates) = best — domain is your OUTPUT",
+      "for_TERRAIN_country": "生我 (feeds DM)   = best — terrain FUELS you",
+      "peer_SAME": "比劫 = comfortable, but not destiny work",
+      "mastery_DM_controls": "我克 = can master, but draining",
+      "avoid_DM_pressured": "克我 = hardest path, maximum friction"
+    },
+    "fire_dm_pattrick": {
+      "best_task": "Earth domain (construction/ops/RE) — Fire creates Earth",
+      "best_terrain": "Wood country (THA/IRL) — Wood feeds Fire",
+      "current_BD": "Fire domain (比劫) — comfortable, not destiny",
+      "yoohui_CEO": "Earth domain (我生) — THIS is the output role ★"
+    },
+    "per_dm_matrix": {
+      "Fire": {
+        "should_DO": [
+          "Earth",
+          "我生",
+          "Fire creates Earth (ash/structure)"
+        ],
+        "best_WHERE": [
+          "Wood",
+          "生我",
+          "Wood feeds Fire = supportive terrain"
+        ],
+        "natural_PEER": [
+          "Fire",
+          "比劫",
+          "Fire = expression, performance, BD"
+        ],
+        "can_MASTER": [
+          "Metal",
+          "我克",
+          "Fire melts Metal = finance/tech possible"
+        ],
+        "avoid": [
+          "Water",
+          "克我",
+          "Water kills Fire = data science, analytics"
+        ],
+        "examples_output": [
+          "Construction CEO",
+          "Real Estate",
+          "Operations director",
+          "System builder",
+          "Manufacturing"
+        ],
+        "examples_terrain": [
+          "Thailand",
+          "Ireland",
+          "Brazil",
+          "Malaysia"
+        ]
+      },
+      "Wood": {
+        "should_DO": [
+          "Fire",
+          "我生",
+          "Wood creates Fire (light/expression)"
+        ],
+        "best_WHERE": [
+          "Water",
+          "生我",
+          "Water feeds Wood = supportive terrain"
+        ],
+        "natural_PEER": [
+          "Wood",
+          "比劫",
+          "Wood = education, writing, art"
+        ],
+        "can_MASTER": [
+          "Earth",
+          "我克",
+          "Wood controls Earth = construction, land"
+        ],
+        "avoid": [
+          "Metal",
+          "克我",
+          "Metal cuts Wood = law, military, finance"
+        ],
+        "examples_output": [
+          "Media founder",
+          "Entertainment CEO",
+          "Marketing director",
+          "Broadcaster",
+          "Public speaker",
+          "Political leader"
+        ],
+        "examples_terrain": [
+          "Norway",
+          "Finland",
+          "Denmark",
+          "Germany",
+          "Japan"
+        ]
+      },
+      "Water": {
+        "should_DO": [
+          "Wood",
+          "我生",
+          "Water creates Wood (growth/life)"
+        ],
+        "best_WHERE": [
+          "Metal",
+          "生我",
+          "Metal feeds Water = supportive terrain"
+        ],
+        "natural_PEER": [
+          "Water",
+          "比劫",
+          "Water = strategy, research, data"
+        ],
+        "can_MASTER": [
+          "Fire",
+          "我克",
+          "Water controls Fire = creative dir, media mgmt"
+        ],
+        "avoid": [
+          "Earth",
+          "克我",
+          "Earth blocks Water = construction, RE"
+        ],
+        "examples_output": [
+          "Education founder",
+          "NGO leader",
+          "Environmental work",
+          "Content creator",
+          "Coach/Mentor"
+        ],
+        "examples_terrain": [
+          "Japan",
+          "Germany",
+          "Switzerland",
+          "Singapore",
+          "Netherlands"
+        ]
+      },
+      "Metal": {
+        "should_DO": [
+          "Water",
+          "我生",
+          "Metal creates Water (clarity/flow)"
+        ],
+        "best_WHERE": [
+          "Earth",
+          "生我",
+          "Earth feeds Metal = supportive terrain"
+        ],
+        "natural_PEER": [
+          "Metal",
+          "比劫",
+          "Metal = tech, engineering, law, finance"
+        ],
+        "can_MASTER": [
+          "Wood",
+          "我克",
+          "Metal cuts Wood = design, publishing, education"
+        ],
+        "avoid": [
+          "Fire",
+          "克我",
+          "Fire melts Metal = entertainment, pure sales"
+        ],
+        "examples_output": [
+          "Strategy consultant",
+          "Data/AI founder",
+          "Fund manager",
+          "Intelligence work",
+          "Philosopher"
+        ],
+        "examples_terrain": [
+          "Canada",
+          "USA",
+          "UK",
+          "France",
+          "Australia"
+        ]
+      },
+      "Earth": {
+        "should_DO": [
+          "Metal",
+          "我生",
+          "Earth creates Metal (minerals/resources)"
+        ],
+        "best_WHERE": [
+          "Fire",
+          "生我",
+          "Fire feeds Earth = supportive terrain"
+        ],
+        "natural_PEER": [
+          "Earth",
+          "比劫",
+          "Earth = management, operations, construction"
+        ],
+        "can_MASTER": [
+          "Water",
+          "我克",
+          "Earth controls Water = finance, banking, strategy"
+        ],
+        "avoid": [
+          "Wood",
+          "克我",
+          "Wood breaks Earth = education, NGO"
+        ],
+        "examples_output": [
+          "FinTech founder",
+          "Hedge fund",
+          "Engineering firm",
+          "Precision manufacturing",
+          "Systems architect"
+        ],
+        "examples_terrain": [
+          "USA",
+          "UK",
+          "France",
+          "Australia",
+          "Ireland"
+        ]
+      }
+    },
+    "revised_align_scores": {
+      "我生_DM_creates_domain": 90,
+      "生我_FEEDS_DM": 85,
+      "SAME_比劫": 60,
+      "我克_DM_controls": 70,
+      "DM_FEEDS_我生_inverse": 45,
+      "克我_CLASHES": 25
+    }
+  },
+  "behavior_system": {
+    "behavior_system": {
+      "POSITIVE_BEHAVIORS": {
+        "deliberate_practice": {
+          "label": "ฝึกซ้อมอย่างมีเป้าหมายทุกวัน (deliberate practice)",
+          "question": "คุณมีกิจวัตรการพัฒนาตัวเองที่ทำต่อเนื่องทุกวันไหม?",
+          "score": 50,
+          "evidence": "Federer, Djokovic, Kobe — ทุกคนใน GOAT list มีสิ่งนี้",
+          "affects": "Life Terrain +50"
+        },
+        "long_term_thinking": {
+          "label": "คิดระยะยาว ไม่ trade short-term gain",
+          "question": "คุณตัดสินใจโดยคิดถึง 5–10 ปีข้างหน้าเป็นหลักไหม?",
+          "score": 45,
+          "evidence": "Buffett, Mandela, Lee Kuan Yew — ชนะด้วย patience",
+          "affects": "Path Resonance +45"
+        },
+        "continuous_learning": {
+          "label": "เรียนรู้ต่อเนื่อง (อ่าน/course/mentor ≥1hr/day)",
+          "question": "คุณลงทุนเวลากับการเรียนรู้ใหม่อย่างน้อย 1 ชั่วโมงต่อวันไหม?",
+          "score": 40,
+          "evidence": "Buffett อ่าน 500 หน้า/วัน, Gates อ่าน 50 หนังสือ/ปี",
+          "affects": "Soul Frequency ×1.05 (multiplier)"
+        },
+        "mission_clarity": {
+          "label": "มี mission/purpose ชัดที่ drive ทุกอย่าง",
+          "question": "คุณสามารถอธิบาย 'ทำไมคุณทำสิ่งนี้' ในประโยคเดียวได้ไหม?",
+          "score": 40,
+          "evidence": "Mandela, MLK, Musk — purpose = fuel ที่ไม่หมด",
+          "affects": "Path Resonance +40"
+        },
+        "resilience_recovery": {
+          "label": "ฟื้นตัวเร็วจากความล้มเหลว ไม่จมนาน",
+          "question": "เมื่อล้มเหลว คุณใช้เวลาน้อยกว่า 1 สัปดาห์แล้วกลับมา act ได้ไหม?",
+          "score": 35,
+          "evidence": "Lula (ติดคุกแล้วกลับมาเป็นประธานาธิบดี), Jobs (ถูกไล่ออก Apple กลับมา)",
+          "affects": "Soul Frequency +35"
+        },
+        "network_investment": {
+          "label": "ลงทุนสร้าง network อย่างสม่ำเสมอ",
+          "question": "คุณ actively nurture ความสัมพันธ์กับคนที่ดีกว่าคุณอย่างน้อย 1 คน/เดือนไหม?",
+          "score": 30,
+          "evidence": "Fire DM ที่ดีที่สุดล้วน leverage human network",
+          "affects": "Life Terrain +30"
+        },
+        "health_discipline": {
+          "label": "ดูแลสุขภาพ (นอน/ออกกำลัง/อาหาร) อย่างจริงจัง",
+          "question": "คุณนอน 7hr+, ออกกำลังกาย 3×/week, กินอาหารดีเป็นกิจวัตรไหม?",
+          "score": 25,
+          "evidence": "Djokovic เปลี่ยนอาหาร → Grand Slam เพิ่มขึ้น",
+          "affects": "Soul Frequency +25 (base capacity)"
+        },
+        "feedback_seeking": {
+          "label": "ขอ feedback จริงๆ และเปลี่ยนจากมัน",
+          "question": "คุณ actively ขอคำวิจารณ์จากคนที่คุณเชื่อถือและนำไปปรับพฤติกรรมไหม?",
+          "score": 25,
+          "evidence": "คน iterate เร็ว = compound เร็วกว่า",
+          "affects": "Path Resonance +25"
+        },
+        "financial_discipline": {
+          "label": "มี financial discipline (save/invest ก่อนใช้)",
+          "question": "คุณออม/ลงทุนก่อนใช้ และไม่มีหนี้ที่ไม่ก่อรายได้ไหม?",
+          "score": 20,
+          "evidence": "Quiet rich pattern — Metal DM + financial discipline",
+          "affects": "Life Terrain +20"
+        },
+        "journaling_reflection": {
+          "label": "Journal/reflect ประจำสัปดาห์",
+          "question": "คุณมีเวลา reflect ตัวเองเป็นประจำ (journal, meditation, หรือเทียบเท่า)?",
+          "score": 20,
+          "evidence": "LP7 ที่ excel มักมีสิ่งนี้ทุกคน",
+          "affects": "Soul Frequency +20"
+        }
+      },
+      "NEGATIVE_BEHAVIORS": {
+        "substance_dependency": {
+          "label": "พึ่งพา substance (alcohol/drugs) เป็นประจำ",
+          "question": "คุณใช้ alcohol/substance เพื่อ cope กับ stress บ่อยๆ ไหม?",
+          "score": -80,
+          "evidence": "27 Club: Cobain, Winehouse, Morrison — flame accelerant",
+          "affects": "Soul Frequency -80 (direct capacity loss)"
+        },
+        "accountability_avoidance": {
+          "label": "หลีกเลี่ยงความรับผิดชอบ โทษคนอื่นก่อนเสมอ",
+          "question": "เมื่อสิ่งผิดพลาด คุณ default ไปโทษ environment/คนอื่นก่อนไหม?",
+          "score": -65,
+          "evidence": "Nixon, Johnson, Yeltsin — scandal ทุกคนมีสิ่งนี้",
+          "affects": "Path Resonance -65"
+        },
+        "echo_chamber": {
+          "label": "ล้อมรอบตัวด้วยคนที่เห็นด้วยเสมอ",
+          "question": "คนรอบข้างคุณส่วนใหญ่เห็นด้วยกับคุณเสมอ ไม่มีใคร pushback ไหม?",
+          "score": -55,
+          "evidence": "Fuld/Kalanick/Neumann — ego bubble → blind spot → collapse",
+          "affects": "Life Terrain -55 (cuts off signal)"
+        },
+        "short_term_exploitation": {
+          "label": "ใช้ประโยชน์จากคนอื่นเพื่อ gain ระยะสั้น",
+          "question": "คุณเคย/มักเลือก short-term gain โดยรู้ว่าจะทำลาย relationship ระยะยาวไหม?",
+          "score": -60,
+          "evidence": "Weinstein, Holmes — burned bridges = burned future",
+          "affects": "Path Resonance -60"
+        },
+        "chronic_procrastination": {
+          "label": "เลื่อนงานสำคัญออกไปเรื่อยๆ",
+          "question": "คุณมี project/decision สำคัญที่ค้างมานานกว่า 3 เดือนโดยไม่มีเหตุผลชัดไหม?",
+          "score": -45,
+          "evidence": "LP7 weakness — overthink → no act → potential not manifest",
+          "affects": "Life Terrain -45"
+        },
+        "addiction_behavior": {
+          "label": "ติดพฤติกรรมที่ drain energy (social media/gambling/etc)",
+          "question": "คุณใช้เวลากับ addictive behavior (social media/gambling/gaming) มากกว่า 3hr/day ไหม?",
+          "score": -40,
+          "evidence": "ทำลาย compounding time — 3hr/day = 1,095hr/year ที่หายไป",
+          "affects": "Soul Frequency -40 (capacity drain)"
+        },
+        "integrity_compromise": {
+          "label": "ยอม compromise integrity เพื่อผลประโยชน์",
+          "question": "คุณเคยโกหก/ซ่อนข้อมูล/ทำสิ่งที่ผิดจริยธรรมเพื่อ gain ส่วนตัวไหม?",
+          "score": -70,
+          "evidence": "Holmes/Armstrong/Fuld — integrity collapse = reputational death",
+          "affects": "Path Resonance -70 (reputation = terrain element)"
+        },
+        "victim_mindset": {
+          "label": "มี victim mindset — โลกไม่ยุติธรรมกับฉัน",
+          "question": "คุณรู้สึกบ่อยๆ ว่าสถานการณ์ภายนอกเป็นเหตุหลักที่ทำให้คุณไม่ก้าวหน้าไหม?",
+          "score": -35,
+          "evidence": "Blocks agency — คนที่ succeed มักมี internal locus of control",
+          "affects": "Path Resonance -35"
+        },
+        "burnout_pattern": {
+          "label": "เผาไหม้ตัวเองซ้ำๆ โดยไม่ recover",
+          "question": "คุณมีรูปแบบ work hard → crash → slow start → repeat โดยไม่แก้ไขไหม?",
+          "score": -30,
+          "evidence": "Fire DM specific risk — 午午 self-punishment pattern",
+          "affects": "Soul Frequency -30 (reduces base capacity over time)"
+        },
+        "no_boundaries": {
+          "label": "ไม่มี boundary กับเวลา/พลังงาน",
+          "question": "คนอื่นสามารถ interrupt คุณได้ตลอดเวลา และคุณมักตอบสนองทุก request ไหม?",
+          "score": -25,
+          "evidence": "Neumann/Kalanick — ไม่รู้จัก no = ทำลาย depth",
+          "affects": "Life Terrain -25"
+        }
+      }
+    },
+    "architecture": {
+      "sf_modifier": "discipline, health, learning, resilience behaviors",
+      "lt_modifier": "network, financial, boundary, procrastination behaviors",
+      "pr_modifier": "mission, feedback, integrity, accountability behaviors",
+      "cap": "each adjusted score capped 200–1000",
+      "cosmic_formula": "SF_adj×0.40 + LT_adj×0.30 + PR_adj×0.30"
+    },
+    "pattrick_base": {
+      "sf": 790,
+      "lt": 800,
+      "pr": 739,
+      "cosmic": 778
+    }
+  },
+  "behavior_events": {
+    "version": "1.0",
+    "total": 32,
+    "cases": [
+      {
+        "name": "Michael Jordan",
+        "dob": "1963-02-17",
+        "bp": "USA",
+        "event": "gambling",
+        "resolved": true,
+        "detail": "เดิมพัน golf/cards หลายล้าน, ถูกสอบสวน NBA 1992",
+        "outcome_shift": "maintained — NBA ไม่แบน แต่ชื่อเสีย",
+        "dm_note": "Earth DM — ชอบ control + risk",
+        "dm": "Water",
+        "nsk": 9,
+        "lp": 11
+      },
+      {
+        "name": "Charles Barkley",
+        "dob": "1963-02-20",
+        "bp": "USA",
+        "event": "gambling",
+        "resolved": false,
+        "detail": "แพ้ casino $10M+ ยอมรับตัวเอง เป็น gambling addict",
+        "outcome_shift": "career ok แต่ reputation dented ตลอด",
+        "dm_note": "Earth DM — สะสมแล้วสูญ",
+        "dm": "Fire",
+        "nsk": 9,
+        "lp": 5
+      },
+      {
+        "name": "Pete Rose",
+        "dob": "1941-04-14",
+        "bp": "USA",
+        "event": "gambling",
+        "resolved": false,
+        "detail": "แทงพนันบอล including ทีมตัวเอง MLB ban for life",
+        "outcome_shift": "Hall of Fame denied ตลอดชีวิต",
+        "dm_note": "Water DM — รู้แต่ยังทำ = self-sabotage",
+        "dm": "Wood",
+        "nsk": 4,
+        "lp": 6
+      },
+      {
+        "name": "Paul Merson",
+        "dob": "1968-03-20",
+        "bp": "GBR",
+        "event": "gambling",
+        "resolved": true,
+        "detail": "ติดการพนัน + alcohol + cocaine พร้อมกัน",
+        "outcome_shift": "recovered ได้ กลายเป็น addiction advocate",
+        "dm_note": "Metal DM — rebuild systematically",
+        "dm": "Metal",
+        "nsk": 4,
+        "lp": 11
+      },
+      {
+        "name": "Tiger Woods",
+        "dob": "1975-12-30",
+        "bp": "USA",
+        "event": "sex_addiction",
+        "resolved": "partial",
+        "detail": "120+ extramarital affairs, marriage ended",
+        "outcome_shift": "career collapsed 2009, partial comeback 2019",
+        "dm_note": "Water DM — secretive, compartmentalize",
+        "dm": "Water",
+        "nsk": 6,
+        "lp": 1
+      },
+      {
+        "name": "Bill Clinton",
+        "dob": "1946-08-19",
+        "bp": "USA",
+        "event": "sex_scandal",
+        "resolved": true,
+        "detail": "Monica Lewinsky + multiple affairs as president",
+        "outcome_shift": "impeached but acquitted, legacy damaged not destroyed",
+        "dm_note": "Fire DM — charisma becomes liability",
+        "dm": "Fire",
+        "nsk": 8,
+        "lp": 11
+      },
+      {
+        "name": "Arnold Schwarzenegger",
+        "dob": "1947-07-30",
+        "bp": "AUT",
+        "event": "sex_scandal",
+        "resolved": "partial",
+        "detail": "Secret child with housekeeper 14yr, disclosed 2011",
+        "outcome_shift": "marriage ended, career setback แต่ recovered",
+        "dm_note": "Earth DM — kept secret = control pattern",
+        "dm": "Water",
+        "nsk": 7,
+        "lp": 4
+      },
+      {
+        "name": "Jude Law",
+        "dob": "1972-12-29",
+        "bp": "GBR",
+        "event": "sex_scandal",
+        "resolved": true,
+        "detail": "Affair with nanny while engaged",
+        "outcome_shift": "brief career dip แต่ career continued",
+        "dm_note": "Metal DM — reputation matters → fixed it",
+        "dm": "Fire",
+        "nsk": 9,
+        "lp": 33
+      },
+      {
+        "name": "Mick Jagger",
+        "dob": "1943-07-26",
+        "bp": "GBR",
+        "event": "serial_relationships",
+        "resolved": false,
+        "detail": "8+ children by 5 women, affairs throughout career",
+        "outcome_shift": "no career impact — Fire DM 'charmed' through it",
+        "dm_note": "Fire DM — relationships = fuel consumption",
+        "dm": "Fire",
+        "nsk": 2,
+        "lp": 5
+      },
+      {
+        "name": "Hugh Grant",
+        "dob": "1960-09-09",
+        "bp": "GBR",
+        "event": "sex_scandal",
+        "resolved": true,
+        "detail": "Arrested with prostitute 1995 at career peak",
+        "outcome_shift": "brief dip แต่ career recovered — honesty helped",
+        "dm_note": "Wood DM — honest apology = Forest regrows",
+        "dm": "Water",
+        "nsk": 3,
+        "lp": 7
+      },
+      {
+        "name": "Mike Tyson",
+        "dob": "1966-06-30",
+        "bp": "USA",
+        "event": "financial_ruin",
+        "resolved": "partial",
+        "detail": "$400M ไป — tigers, mansions, entourage, bad advisors",
+        "outcome_shift": "bankruptcy 2003, rebuilt via brand/podcast",
+        "dm_note": "Water DM — flow without boundaries",
+        "dm": "Water",
+        "nsk": 6,
+        "lp": 4
+      },
+      {
+        "name": "50 Cent",
+        "dob": "1975-07-06",
+        "bp": "USA",
+        "event": "bankruptcy",
+        "resolved": true,
+        "detail": "Chapter 11 2015 แต่ restructure ไม่ใช่ broke จริง",
+        "outcome_shift": "strategic bankruptcy, kept assets, recovered",
+        "dm_note": "Fire DM — strategic burn to rebuild",
+        "dm": "Wood",
+        "nsk": 6,
+        "lp": 8
+      },
+      {
+        "name": "Nicolas Cage",
+        "dob": "1964-01-07",
+        "bp": "USA",
+        "event": "financial_ruin",
+        "resolved": "partial",
+        "detail": "ใช้เงิน $150M — castles, dinosaur skull, sharks",
+        "outcome_shift": "owed IRS $14M, had to take every movie role",
+        "dm_note": "Water DM — no structure = water floods",
+        "dm": "Fire",
+        "nsk": 9,
+        "lp": 1
+      },
+      {
+        "name": "MC Hammer",
+        "dob": "1962-03-30",
+        "bp": "USA",
+        "event": "financial_ruin",
+        "resolved": false,
+        "detail": "$33M → bankruptcy 1996 — 200 staff, gold plumbing",
+        "outcome_shift": "never fully recovered professionally",
+        "dm_note": "Water DM + LP8 misused = accumulated too fast",
+        "dm": "Earth",
+        "nsk": 1,
+        "lp": 6
+      },
+      {
+        "name": "Allen Iverson",
+        "dob": "1975-06-07",
+        "bp": "USA",
+        "event": "financial_ruin",
+        "resolved": false,
+        "detail": "$200M+ career earnings → broke, Reebok trust fund only thing left",
+        "outcome_shift": "career ended in Europe, financial struggles",
+        "dm_note": "Fire DM — spend = expression of Fire",
+        "dm": "Fire",
+        "nsk": 6,
+        "lp": 8
+      },
+      {
+        "name": "Evander Holyfield",
+        "dob": "1962-10-19",
+        "bp": "USA",
+        "event": "financial_ruin",
+        "resolved": false,
+        "detail": "$250M → debt, 11 children, home foreclosed",
+        "outcome_shift": "kept fighting past prime for money",
+        "dm_note": "Earth DM — didn't know when to stop",
+        "dm": "Water",
+        "nsk": 1,
+        "lp": 11
+      },
+      {
+        "name": "Bjorn Borg",
+        "dob": "1956-06-06",
+        "bp": "SWE",
+        "event": "financial_ruin",
+        "resolved": true,
+        "detail": "Invested in 1980s fashion brand → bankruptcy",
+        "outcome_shift": "rebuilt through licensing deals quietly",
+        "dm_note": "Fire DM LP5 — burned then rebuilt",
+        "dm": "Fire",
+        "nsk": 7,
+        "lp": 33
+      },
+      {
+        "name": "Robert Downey Jr",
+        "dob": "1965-04-04",
+        "bp": "USA",
+        "event": "drug_addiction",
+        "resolved": true,
+        "detail": "Prison, multiple arrests, career destroyed by 2001",
+        "outcome_shift": "Iron Man 2008 = biggest comeback in Hollywood",
+        "dm_note": "Metal DM — forged under fire",
+        "dm": "Metal",
+        "nsk": 7,
+        "lp": 11
+      },
+      {
+        "name": "Anthony Hopkins",
+        "dob": "1937-12-31",
+        "bp": "GBR",
+        "event": "alcoholism",
+        "resolved": true,
+        "detail": "Blackout drinking, career stalling 1970s",
+        "outcome_shift": "Sober 1975, Silence of the Lambs, Oscar at 83",
+        "dm_note": "Earth DM + LP8 = rebuilt systematically",
+        "dm": "Wood",
+        "nsk": 8,
+        "lp": 9
+      },
+      {
+        "name": "Whitney Houston",
+        "dob": "1963-08-09",
+        "bp": "USA",
+        "event": "drug_addiction",
+        "resolved": false,
+        "detail": "Crack cocaine + Bobby Brown relationship",
+        "outcome_shift": "Voice destroyed, died 2012",
+        "dm_note": "Fire DM LP1 = flame pattern confirmed",
+        "dm": "Fire",
+        "nsk": 9,
+        "lp": 9
+      },
+      {
+        "name": "Amy Winehouse",
+        "dob": "1983-09-14",
+        "bp": "GBR",
+        "event": "alcoholism",
+        "resolved": false,
+        "detail": "Refused rehab, spiral, died 27",
+        "outcome_shift": "27 Club",
+        "dm_note": "Fire DM LP9 + NSK3 = triple volatile",
+        "dm": "Fire",
+        "nsk": 7,
+        "lp": 8
+      },
+      {
+        "name": "Eminem",
+        "dob": "1972-10-17",
+        "bp": "USA",
+        "event": "drug_addiction",
+        "resolved": true,
+        "detail": "Overdose 2007 — Vicodin + Ambien, near death",
+        "outcome_shift": "Recovery album 2009, continued success",
+        "dm_note": "Water DM — went deep then surfaced",
+        "dm": "Water",
+        "nsk": 9,
+        "lp": 1
+      },
+      {
+        "name": "Elton John",
+        "dob": "1947-03-25",
+        "bp": "GBR",
+        "event": "drug_addiction",
+        "resolved": true,
+        "detail": "Cocaine + alcohol 1970s-80s, bulimia",
+        "outcome_shift": "Sober 1990, career extended 30+ more years",
+        "dm_note": "Metal DM — rebuilt systematically after reset",
+        "dm": "Wood",
+        "nsk": 7,
+        "lp": 4
+      },
+      {
+        "name": "Nelson Mandela",
+        "dob": "1918-07-18",
+        "bp": "ZAF",
+        "event": "prison",
+        "resolved": true,
+        "detail": "27 years Robben Island",
+        "outcome_shift": "President, Nobel, global icon",
+        "dm_note": "Earth DM — patience + accumulation",
+        "dm": "Earth",
+        "nsk": 9,
+        "lp": 8
+      },
+      {
+        "name": "Lula da Silva",
+        "dob": "1945-10-27",
+        "bp": "BRA",
+        "event": "prison",
+        "resolved": true,
+        "detail": "580 days jail, corruption charges",
+        "outcome_shift": "Re-elected president 2022",
+        "dm_note": "Wood DM LP11 — master builder pattern",
+        "dm": "Metal",
+        "nsk": 9,
+        "lp": 11
+      },
+      {
+        "name": "Jay-Z",
+        "dob": "1969-12-04",
+        "bp": "USA",
+        "event": "drug_dealing",
+        "resolved": true,
+        "detail": "Drug dealer before rap career",
+        "outcome_shift": "Turned completely, billionaire",
+        "dm_note": "Wood DM — grew from dark soil",
+        "dm": "Wood",
+        "nsk": 3,
+        "lp": 5
+      },
+      {
+        "name": "Tim Allen",
+        "dob": "1953-06-13",
+        "bp": "USA",
+        "event": "prison",
+        "resolved": true,
+        "detail": "2yr prison drug trafficking conviction",
+        "outcome_shift": "Home Improvement, Toy Story, major career",
+        "dm_note": "Water DM — prison as reset",
+        "dm": "Fire",
+        "nsk": 1,
+        "lp": 1
+      },
+      {
+        "name": "Martha Stewart",
+        "dob": "1941-08-03",
+        "bp": "USA",
+        "event": "prison",
+        "resolved": true,
+        "detail": "5 months insider trading conviction",
+        "outcome_shift": "Rebuilt brand fully, TV comeback",
+        "dm_note": "Earth DM LP8 — structured comeback",
+        "dm": "Wood",
+        "nsk": 4,
+        "lp": 8
+      },
+      {
+        "name": "OJ Simpson",
+        "dob": "1947-07-09",
+        "bp": "USA",
+        "event": "prison",
+        "resolved": false,
+        "detail": "Acquitted murder, later imprisoned robbery",
+        "outcome_shift": "Legacy destroyed, died 2024 in obscurity",
+        "dm_note": "Fire DM LP9 = flame pattern",
+        "dm": "Metal",
+        "nsk": 7,
+        "lp": 1
+      },
+      {
+        "name": "Chris Brown",
+        "dob": "1989-05-05",
+        "bp": "USA",
+        "event": "domestic_violence",
+        "resolved": false,
+        "detail": "Rihanna assault 2009, multiple incidents since",
+        "outcome_shift": "Career damaged but not ended — music still sells",
+        "dm_note": "Earth DM — control issues",
+        "dm": "Fire",
+        "nsk": 1,
+        "lp": 1
+      },
+      {
+        "name": "Mel Gibson",
+        "dob": "1956-01-03",
+        "bp": "USA",
+        "event": "antisemitic_rant_DUI",
+        "resolved": "partial",
+        "detail": "Drunk driving, antisemitic rant 2006",
+        "outcome_shift": "Hollywood blacklist 10yr, comeback as director",
+        "dm_note": "Water DM — what's hidden surfaces",
+        "dm": "Metal",
+        "nsk": 8,
+        "lp": 7
+      },
+      {
+        "name": "Mike Tyson",
+        "dob": "1966-06-30",
+        "bp": "USA",
+        "event": "rape_conviction",
+        "resolved": "partial",
+        "detail": "3yr prison 1992",
+        "outcome_shift": "Came back as fighter, chaotic but maintained brand",
+        "dm_note": "Water DM — force without direction",
+        "dm": "Water",
+        "nsk": 6,
+        "lp": 4
+      }
+    ]
+  },
+  "speech_behavior": {
+    "speech_cases": [
+      {
+        "name": "Steve Jobs",
+        "dm": "Fire",
+        "lp": 11,
+        "nsk": 4,
+        "speech_style": "visionary declaration",
+        "famous_lines": [
+          "One more thing...",
+          "Here's to the crazy ones",
+          "Stay hungry, stay foolish"
+        ],
+        "pattern": "ประกาศ vision ไม่ถาม, ไม่อธิบาย — สั่ง universe",
+        "outcome": "all_success",
+        "aligned": true,
+        "note": "Fire speaking Fire = ignites others"
+      },
+      {
+        "name": "Martin Luther King",
+        "dm": "Fire",
+        "lp": 9,
+        "nsk": 1,
+        "speech_style": "rhythmic repetition + moral urgency",
+        "famous_lines": [
+          "I have a dream",
+          "Now is the time",
+          "We cannot wait"
+        ],
+        "pattern": "เพิ่ม heat ทีละชั้น — จบด้วย flame ที่ผู้ฟังรู้สึก",
+        "outcome": "all_success",
+        "aligned": true,
+        "note": "LP9+Fire = maximum flame speech"
+      },
+      {
+        "name": "Donald Trump",
+        "dm": "Metal",
+        "lp": 4,
+        "nsk": 8,
+        "speech_style": "repetition + superlative + enemy naming",
+        "famous_lines": [
+          "Believe me",
+          "Tremendous",
+          "Fake news",
+          "Loser"
+        ],
+        "pattern": "Metal speaking like Fire — borrowed fire พลัง สั้น ดังไม่มีรายละเอียด",
+        "outcome": "controversial",
+        "aligned": false,
+        "note": "Metal DM using Fire speech = effective but divisive"
+      },
+      {
+        "name": "Barack Obama",
+        "dm": "Water",
+        "lp": 9,
+        "nsk": 9,
+        "speech_style": "narrative arc + intellectual + emotional close",
+        "famous_lines": [
+          "Yes we can",
+          "Hope",
+          "The audacity of hope"
+        ],
+        "pattern": "Water DM building slowly, แต่ LP9+NSK9 = Fire สุดท้าย",
+        "outcome": "all_success",
+        "aligned": true,
+        "note": "Water thinks, Fire speaks — hybrid ที่ทรงพลัง"
+      },
+      {
+        "name": "Charlie Sheen",
+        "dm": "Water",
+        "lp": 4,
+        "nsk": 5,
+        "speech_style": "grandiose self-proclamation",
+        "famous_lines": [
+          "Winning!",
+          "Tiger blood",
+          "Adonis DNA",
+          "I am on a drug — it's called Charlie Sheen"
+        ],
+        "pattern": "พยายามพูดแบบ Fire แต่ Water DM = delusion ไม่ใช่ vision",
+        "outcome": "flame",
+        "aligned": false,
+        "note": "Water trying to speak Fire = ฟังดู psychotic ไม่ใช่ charismatic"
+      },
+      {
+        "name": "Elizabeth Holmes",
+        "dm": "Earth",
+        "lp": 11,
+        "nsk": 1,
+        "speech_style": "fake authority + visionary mimicry",
+        "famous_lines": [
+          "This will change healthcare",
+          "Edison",
+          "Patients first"
+        ],
+        "pattern": "Earth DM mimicking Fire speech = โกหกได้ชั่วคราว แต่ไม่มีไฟจริง",
+        "outcome": "fraud",
+        "aligned": false,
+        "note": "Earth pretending to be Fire — คนรู้สึกได้ว่า something off"
+      },
+      {
+        "name": "Warren Buffett",
+        "dm": "Wood",
+        "lp": 8,
+        "nsk": 2,
+        "speech_style": "homespun wisdom + patience + understatement",
+        "famous_lines": [
+          "Be fearful when others are greedy",
+          "Rule 1: never lose money",
+          "Price is what you pay, value is what you get"
+        ],
+        "pattern": "Wood DM พูดแบบ Water — ช้า ลึก อดทน",
+        "outcome": "all_success",
+        "aligned": true,
+        "note": "Wood ที่ถูก watered = patience speech"
+      },
+      {
+        "name": "Elon Musk",
+        "dm": "Fire",
+        "lp": 1,
+        "nsk": 1,
+        "speech_style": "first principles + absurd humor + provocation",
+        "famous_lines": [
+          "If something is important enough, even if the odds are against you",
+          "I will put a car in space",
+          "The problem is you're asking the wrong question"
+        ],
+        "pattern": "Fire DM + LP1 = provocative, unpredictable — sometimes genius sometimes bizarre",
+        "outcome": "all_success",
+        "aligned": "partial",
+        "note": "Fire LP1 = volatile speech แต่ authentic จึงยังไปได้"
+      },
+      {
+        "name": "Vladimir Putin",
+        "dm": "Water",
+        "lp": 2,
+        "nsk": 5,
+        "speech_style": "cold precision + veiled threat + historical reference",
+        "famous_lines": [
+          "Russia never bluffs",
+          "There is no such thing as a former KGB man"
+        ],
+        "pattern": "Water DM speaking water = calculated, reveal nothing, maximum effect",
+        "outcome": "authoritarian",
+        "aligned": true,
+        "note": "Water aligned แต่ used destructively"
+      },
+      {
+        "name": "Angela Merkel",
+        "dm": "Fire",
+        "lp": 1,
+        "nsk": 7,
+        "speech_style": "careful, data-referenced, no rhetoric",
+        "famous_lines": [
+          "We can do this",
+          "Step by step"
+        ],
+        "pattern": "Fire DM พูดแบบ Metal = ไม่มีไฟ แต่ trusted = Germany trusts precision",
+        "outcome": "all_success",
+        "aligned": false,
+        "note": "Fire adapting to Metal culture = effective in Germany"
+      },
+      {
+        "name": "Jeff Bezos",
+        "dm": "Water",
+        "lp": 4,
+        "nsk": 1,
+        "speech_style": "customer obsession + long term + memo over slides",
+        "famous_lines": [
+          "It's always Day 1",
+          "Work backwards from customer",
+          "Disagree and commit"
+        ],
+        "pattern": "Water DM พูดแบบ Metal (systems, structure) = Amazon culture",
+        "outcome": "all_success",
+        "aligned": true,
+        "note": "Water+Metal speech = builds moat"
+      },
+      {
+        "name": "Oprah Winfrey",
+        "dm": "Earth",
+        "lp": 5,
+        "nsk": 1,
+        "speech_style": "personal story + vulnerability + universal theme",
+        "famous_lines": [
+          "You get a car!",
+          "What I know for sure",
+          "Turn wounds into wisdom"
+        ],
+        "pattern": "Earth DM พูดแบบ Wood = ปลูกในใจคน grow ไปด้วยกัน",
+        "outcome": "all_success",
+        "aligned": true,
+        "note": "Earth feeding Wood speech = nurturing not commanding"
+      },
+      {
+        "name": "Nelson Mandela",
+        "dm": "Earth",
+        "lp": 8,
+        "nsk": 9,
+        "speech_style": "forgiveness narrative + long-arc dignity",
+        "famous_lines": [
+          "Education is the most powerful weapon",
+          "It always seems impossible until it's done"
+        ],
+        "pattern": "Earth DM LP8 = ยาว ลึก สะสม ไม่มีความโกรธ",
+        "outcome": "all_success",
+        "aligned": true,
+        "note": "Earth LP8 = most stable speech — impossible to discredit"
+      },
+      {
+        "name": "Howard Dean",
+        "dm": "Water",
+        "lp": 5,
+        "nsk": 7,
+        "speech_style": "normally strategic Water — one famous outlier",
+        "famous_lines": [
+          "BYAAAAH! (Dean Scream 2004)"
+        ],
+        "pattern": "Water DM ที่พยายาม Fire speech ในช่วงผิด = career ended that moment",
+        "outcome": "failed",
+        "aligned": false,
+        "note": "1 Fire moment from Water DM = ended presidential campaign"
+      },
+      {
+        "name": "Kanye West",
+        "dm": "Metal",
+        "lp": 1,
+        "nsk": 5,
+        "speech_style": "stream of consciousness + grandiosity + contradiction",
+        "famous_lines": [
+          "I am a God",
+          "George Bush doesn't care about Black people",
+          "Slavery was a choice"
+        ],
+        "pattern": "Metal DM LP1 + NSK5 = maximum volatility speech — genius ปนเพี้ยน",
+        "outcome": "declined",
+        "aligned": false,
+        "note": "Metal DM ที่ไม่ anchor = precision ที่ไม่มีทิศ"
+      },
+      {
+        "name": "Adam Neumann",
+        "dm": "Wood",
+        "lp": 1,
+        "nsk": 5,
+        "speech_style": "cult leader Fire mimicry",
+        "famous_lines": [
+          "Elevate the world's consciousness",
+          "We are a community company",
+          "Our valuation is in the trillions"
+        ],
+        "pattern": "Wood DM ที่โตเร็วเกิน fire speech ที่ไม่มีรากฐาน = WeWork collapse",
+        "outcome": "collapsed",
+        "aligned": false,
+        "note": "Wood without roots + Fire speech = mushroom not tree"
+      }
+    ],
+    "behavior_alignment": {
+      "Fire": {
+        "natural_behaviors": [
+          "ตื่นเต้นกับ idea ใหม่ — พูดก่อนคิดเสร็จ",
+          "ดึงดูดคน ห้องเงียบพอ Fire เข้าก็มีพลังงาน",
+          "ตัดสินใจเร็ว intuition-based",
+          "เบื่อรายละเอียด ต้องการคนจัดการให้",
+          "ต้องการ recognition และ audience"
+        ],
+        "aligned_success": [
+          "Jobs: ประกาศ vision ดึงคนเข้ามา → Apple",
+          "MLK: ปลุกไฟคน → Civil Rights",
+          "Mick Jagger: เป็นไฟบนเวที 60 ปี"
+        ],
+        "misaligned_failure": [
+          "Charlie Sheen: Tiger Blood = Fire ที่ไม่มีทิศ → burned self",
+          "Whitney: ไฟที่ดับจากข้างใน → addiction",
+          "Amy Winehouse: ไม่มีใครช่วย contain ไฟ → 27 Club"
+        ],
+        "warning_signs": [
+          "พูดใหญ่โดยไม่มีแผนรองรับ",
+          "ต้องการ spotlight ตลอดเวลา — ถ้าไม่ได้ = unstable",
+          "Burn bridges เร็ว เพราะ Fire ลืม ash",
+          "Overcommit ทุก opportunity ที่มีพลังงาน"
+        ],
+        "how_to_contain": [
+          "Wood support (คนที่ feed ไม่ใช่คนที่ compete)",
+          "Earth output (ให้มีงาน build อะไรสักอย่าง)",
+          "Water balance (คู่ หรือ mentor ที่ cool down ได้)"
+        ]
+      },
+      "Water": {
+        "natural_behaviors": [
+          "สังเกตก่อนพูด ชั่งน้ำหนักทุกคำ",
+          "เข้าใจ subtext ที่คนอื่นไม่เห็น",
+          "ปรับตัวได้กับทุก environment",
+          "เก็บไว้ข้างใน แสดงน้อยกว่าที่รู้สึก",
+          "Strategy ระยะยาว — เดินตาหมากล่วงหน้า"
+        ],
+        "aligned_success": [
+          "Obama: คิดแบบ Water พูดแบบ Fire = perfect combo",
+          "Putin: Water pure — calculated, never shows hand",
+          "Bezos: Water speech builds Amazon culture"
+        ],
+        "misaligned_failure": [
+          "Tiger Woods: Water ที่ compartmentalize = hid affair ได้นาน แต่ collapse ใหญ่",
+          "Nixon: Water strategy ที่ overreach = paranoia → Watergate",
+          "Pete Rose: Water รู้ความเสี่ยง แต่ยังทำ = self-aware self-destruction"
+        ],
+        "warning_signs": [
+          "Paralysis by analysis — คิดมากจน window หาย",
+          "เก็บความโกรธ/ความเจ็บปวดไว้นานเกิน — น้ำที่ขัง",
+          "Manipulative when cornered — Water ที่ถูกกดดัน",
+          "Secret keeping becomes lying ได้โดยไม่รู้ตัว"
+        ],
+        "how_to_contain": [
+          "Metal channel (ให้มี system/structure ที่ direct พลังงาน)",
+          "Deadline forcing (Water ไม่ flow ถ้าไม่มีแรงดัน)",
+          "Wood output (ให้ grow อะไรสักอย่าง ไม่ใช่แค่ think)"
+        ]
+      },
+      "Wood": {
+        "natural_behaviors": [
+          "Growth mindset จริงๆ — เชื่อว่าทุกอย่างดีขึ้นได้",
+          "Patient accumulator — รอได้นานกว่าคนอื่น",
+          "ใส่ใจ people development — อยากเห็นคนอื่นโต",
+          "ยืดหยุ่นในวิธีแต่ไม่ยืดหยุ่นในคุณค่า",
+          "สร้าง legacy ไม่ใช่แค่ wealth"
+        ],
+        "aligned_success": [
+          "Mandela: Wood patience + Earth stability = 27yr prison ไม่หัก",
+          "Jay-Z: Wood grows from dark soil — drug dealer → billionaire",
+          "Lula: Wood ที่ถูกตัด (คุก) แล้วงอกใหม่",
+          "Elton John: Wood recover from addiction = grows back stronger"
+        ],
+        "misaligned_failure": [
+          "Adam Neumann: Wood without roots = WeWork mushroom",
+          "Pete Rose: Wood ที่ถูก Metal cut (rules) แล้วไม่ยอมรับ"
+        ],
+        "warning_signs": [
+          "Overextend — Wood ที่โตเร็วเกินราก = falls in storm",
+          "Naive optimism — เชื่อคนง่ายเพราะ Wood เชื่อใน growth ของทุกคน",
+          "ไม่ยอมหยุด — Wood คิดว่าต้องโตตลอด = burnout",
+          "Avoid conflict — Wood ต้องการ harmony อาจหลีกเลี่ยงการเผชิญหน้า"
+        ],
+        "how_to_contain": [
+          "Metal pruning (accept criticism, external check)",
+          "Water nourishment (ต้องมี input พอๆ กับ output)",
+          "Fire direction (ต้องมี goal ที่ clear ไม่ใช่แค่ grow ไปเรื่อยๆ)"
+        ]
+      },
+      "Metal": {
+        "natural_behaviors": [
+          "ต้องการ precision — ทนไม่ได้กับความไม่ชัดเจน",
+          "Systematic approach — มี process ทุกอย่าง",
+          "High standards สำหรับตัวเองและคนอื่น",
+          "ไม่ waste — ทั้งเวลา ทรัพยากร คำพูด",
+          "ตัดสินใจจาก logic ไม่ใช่ emotion"
+        ],
+        "aligned_success": [
+          "Roger Federer: Metal precision = most elegant GOAT",
+          "Merkel: Metal culture (Germany) + Metal behavior = perfect fit",
+          "Jensen Huang: Metal precision in Metal country = NVIDIA",
+          "Robert Downey Jr: Metal rebuild systematically after destruction"
+        ],
+        "misaligned_failure": [
+          "OJ Simpson: Metal DM LP1 = precision ที่ใช้ cover crime",
+          "Kanye West: Metal ที่ไม่มี structure = noise ไม่ใช่ precision",
+          "Carly Fiorina: Metal DM ใน HP (Metal culture) แต่ SAME = no differentiation"
+        ],
+        "warning_signs": [
+          "Perfectionism paralysis — รอจน perfect แล้วไม่เริ่ม",
+          "Cold to the point of alienating — Metal ที่ไม่มี human touch",
+          "Inflexible when wrong — Metal ไม่ยอม bend = breaks instead",
+          "Ruthless efficiency = cut people, not just processes"
+        ],
+        "how_to_contain": [
+          "Water output (Metal creates Water = ให้ flow ออก ไม่ใช่แค่ refine)",
+          "Fire temper (ต้องมีความร้อนบ้าง ไม่ใช่ cold all the time)",
+          "Earth grounding (Metal ที่ไม่มีรากฐานจะ cut ตัวเอง)"
+        ]
+      },
+      "Earth": {
+        "natural_behaviors": [
+          "Stability seeker — ต้องการ foundation ที่มั่นคงก่อนขยับ",
+          "Care giver — อยากให้คนรอบข้างดี",
+          "Long memory — จำทั้งดีและแย่นาน",
+          "ทำงานหนักอย่างเงียบๆ ไม่ต้องการ spotlight",
+          "Accumulate slowly but surely"
+        ],
+        "aligned_success": [
+          "Mandela: Earth patience accumulated over 27yr = เปลี่ยนประเทศ",
+          "Oprah: Earth nourishing Wood speech = ปลูกใน audience",
+          "Martha Stewart: Earth rebuild after prison = systematic brand recovery",
+          "Anthony Hopkins: Wood sobriety (watered Earth) = 83yr old Oscar"
+        ],
+        "misaligned_failure": [
+          "Evander Holyfield: Earth ที่ไม่รู้จักหยุด = kept fighting for money",
+          "MC Hammer: Earth ที่สะสม (200 staff) โดยไม่มี Metal structure",
+          "Elizabeth Holmes: Earth mimicking Fire = fraud"
+        ],
+        "warning_signs": [
+          "Stubbornness = Earth ที่ hardened = cannot receive (water/nutrients)",
+          "Over-nurturing = enable คนที่ควรจะ fail",
+          "Fear of change — Earth ต้องการ stability จนกลัว necessary disruption",
+          "Accumulation without direction — ของเยอะแต่ไม่ก่อรายได้"
+        ],
+        "how_to_contain": [
+          "Wood breaking (ต้องมีคนท้าทาย Earth ไม่อย่างนั้น hardened)",
+          "Fire input (Earth ต้องการ enthusiasm/inspiration จากภายนอก)",
+          "Metal output (Earth ที่ไม่มี Metal = สะสมแต่ไม่ refine = hoarding)"
+        ]
+      }
+    },
+    "key_findings": {
+      "aligned_speech_success_rate": "7/8",
+      "misaligned_failure_rate": "5/7",
+      "key_insight": "Misaligned speech CAN work if authentic (Musk, Obama) but when forced = collapse (Dean Scream, Holmes)",
+      "fire_dm_risk": "LP7+Fire = thinks deep but may not speak up = biggest risk"
+    }
+  },
+  "_meta": {
+    "merged_from": [
+      "mythsensus_life_terrain_v2.json",
+      "mythsensus_dual_chart_framework.json",
+      "mythsensus_triple_terrain.json",
+      "mythsensus_wuxing_task_theory.json",
+      "mythsensus_behavior_system.json",
+      "mythsensus_behavior_events.json",
+      "mythsensus_speech_behavior.json"
+    ],
+    "version": "2026-04-14"
+  }
+}

@@ -5,10 +5,11 @@
 //   - Static assets (SVG/CSS/JS/fonts/JSON): stale-while-revalidate
 // This fixes the v1 bug where cache-first HTML served stale app forever until
 // reload, making it look like "sign-in doesn't remember" after deploys.
-const CACHE = 'mythsensus-v2';
+// v3: app moved from /beta/ to / on 2026-05-02. New cache name forces clients
+// to re-fetch; old /beta/ entry removed because the route now 301-redirects.
+const CACHE = 'mythsensus-v3';
 const PRECACHE = [
   '/',
-  '/beta/',
   '/manifest.webmanifest',
   '/favicon.svg',
   '/og-default.svg',
