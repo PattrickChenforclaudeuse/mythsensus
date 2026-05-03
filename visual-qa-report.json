@@ -41,44 +41,7 @@
     "screenshot": "desktop-04-addon.png",
     "overlaps": [],
     "fontDrift": [],
-    "mixedScripts": [
-      {
-        "scripts": [
-          "cjk",
-          "thai"
-        ],
-        "text": "紫微斗數 — เพื่อน (交友)",
-        "tag": "DIV",
-        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
-        "x": 510,
-        "y": 1225,
-        "hasInternalBr": false
-      },
-      {
-        "scripts": [
-          "cjk",
-          "thai"
-        ],
-        "text": "วังชีวิต: เพื่อน (交友) · ดาวหลัก: 貪狼 · ระบบดาราศาสตร์จักรพรรดิจีน — ซับซ้อนที่สุดในศาสตร์จีน",
-        "tag": "DIV",
-        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
-        "x": 510,
-        "y": 1248,
-        "hasInternalBr": false
-      },
-      {
-        "scripts": [
-          "cjk",
-          "thai"
-        ],
-        "text": "陰陽道 — พระพุทธเจ้าสิ้น-ระวัง",
-        "tag": "DIV",
-        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
-        "x": 740,
-        "y": 1225,
-        "hasInternalBr": false
-      }
-    ],
+    "mixedScripts": [],
     "clipped": []
   },
   {
@@ -112,15 +75,6 @@
     "vp": "desktop",
     "group": "premium/history",
     "screenshot": "desktop-sub-premium-history.png",
-    "overlaps": [],
-    "fontDrift": [],
-    "mixedScripts": [],
-    "clipped": []
-  },
-  {
-    "vp": "desktop",
-    "group": "premium/me",
-    "screenshot": "desktop-sub-premium-me.png",
     "overlaps": [],
     "fontDrift": [],
     "mixedScripts": [],
@@ -191,57 +145,11 @@
   },
   {
     "vp": "desktop",
-    "group": "subscription/me",
-    "screenshot": "desktop-sub-subscription-me.png",
-    "overlaps": [],
-    "fontDrift": [],
-    "mixedScripts": [],
-    "clipped": []
-  },
-  {
-    "vp": "desktop",
     "group": "addon/deep",
     "screenshot": "desktop-sub-addon-deep.png",
     "overlaps": [],
     "fontDrift": [],
-    "mixedScripts": [
-      {
-        "scripts": [
-          "cjk",
-          "thai"
-        ],
-        "text": "紫微斗數 — เพื่อน (交友)",
-        "tag": "DIV",
-        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
-        "x": 510,
-        "y": 1225,
-        "hasInternalBr": false
-      },
-      {
-        "scripts": [
-          "cjk",
-          "thai"
-        ],
-        "text": "วังชีวิต: เพื่อน (交友) · ดาวหลัก: 貪狼 · ระบบดาราศาสตร์จักรพรรดิจีน — ซับซ้อนที่สุดในศาสตร์จีน",
-        "tag": "DIV",
-        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
-        "x": 510,
-        "y": 1248,
-        "hasInternalBr": false
-      },
-      {
-        "scripts": [
-          "cjk",
-          "thai"
-        ],
-        "text": "陰陽道 — พระพุทธเจ้าสิ้น-ระวัง",
-        "tag": "DIV",
-        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
-        "x": 740,
-        "y": 1225,
-        "hasInternalBr": false
-      }
-    ],
+    "mixedScripts": [],
     "clipped": []
   },
   {
@@ -278,7 +186,7 @@
         "tag": "DIV",
         "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
         "x": 423,
-        "y": 1310,
+        "y": 1300,
         "hasInternalBr": false
       }
     ],
@@ -366,44 +274,7 @@
     "screenshot": "mobile-04-addon.png",
     "overlaps": [],
     "fontDrift": [],
-    "mixedScripts": [
-      {
-        "scripts": [
-          "cjk",
-          "thai"
-        ],
-        "text": "紫微斗數 — เพื่อน (交友)",
-        "tag": "DIV",
-        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
-        "x": 29,
-        "y": 1665,
-        "hasInternalBr": false
-      },
-      {
-        "scripts": [
-          "cjk",
-          "thai"
-        ],
-        "text": "วังชีวิต: เพื่อน (交友) · ดาวหลัก: 貪狼 · ระบบดาราศาสตร์จักรพรรดิจีน — ซับซ้อนที่สุดในศาสตร์จีน",
-        "tag": "DIV",
-        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
-        "x": 29,
-        "y": 1688,
-        "hasInternalBr": false
-      },
-      {
-        "scripts": [
-          "cjk",
-          "thai"
-        ],
-        "text": "陰陽道 — พระพุทธเจ้าสิ้น-ระวัง",
-        "tag": "DIV",
-        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
-        "x": 29,
-        "y": 1809,
-        "hasInternalBr": false
-      }
-    ],
+    "mixedScripts": [],
     "clipped": []
   },
   {
@@ -437,15 +308,6 @@
     "vp": "mobile",
     "group": "premium/history",
     "screenshot": "mobile-sub-premium-history.png",
-    "overlaps": [],
-    "fontDrift": [],
-    "mixedScripts": [],
-    "clipped": []
-  },
-  {
-    "vp": "mobile",
-    "group": "premium/me",
-    "screenshot": "mobile-sub-premium-me.png",
     "overlaps": [],
     "fontDrift": [],
     "mixedScripts": [],
@@ -516,57 +378,11 @@
   },
   {
     "vp": "mobile",
-    "group": "subscription/me",
-    "screenshot": "mobile-sub-subscription-me.png",
-    "overlaps": [],
-    "fontDrift": [],
-    "mixedScripts": [],
-    "clipped": []
-  },
-  {
-    "vp": "mobile",
     "group": "addon/deep",
     "screenshot": "mobile-sub-addon-deep.png",
     "overlaps": [],
     "fontDrift": [],
-    "mixedScripts": [
-      {
-        "scripts": [
-          "cjk",
-          "thai"
-        ],
-        "text": "紫微斗數 — เพื่อน (交友)",
-        "tag": "DIV",
-        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
-        "x": 29,
-        "y": 1665,
-        "hasInternalBr": false
-      },
-      {
-        "scripts": [
-          "cjk",
-          "thai"
-        ],
-        "text": "วังชีวิต: เพื่อน (交友) · ดาวหลัก: 貪狼 · ระบบดาราศาสตร์จักรพรรดิจีน — ซับซ้อนที่สุดในศาสตร์จีน",
-        "tag": "DIV",
-        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
-        "x": 29,
-        "y": 1688,
-        "hasInternalBr": false
-      },
-      {
-        "scripts": [
-          "cjk",
-          "thai"
-        ],
-        "text": "陰陽道 — พระพุทธเจ้าสิ้น-ระวัง",
-        "tag": "DIV",
-        "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
-        "x": 29,
-        "y": 1809,
-        "hasInternalBr": false
-      }
-    ],
+    "mixedScripts": [],
     "clipped": []
   },
   {
@@ -603,7 +419,7 @@
         "tag": "DIV",
         "font": "\"Cormorant Garamond\", \"Songti SC\", \"PingFang SC\", \"Microsoft YaHei\", Sarabun, serif",
         "x": 37,
-        "y": 1617,
+        "y": 1598,
         "hasInternalBr": false
       }
     ],
