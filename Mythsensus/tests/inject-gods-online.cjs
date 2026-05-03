@@ -28,7 +28,10 @@ function escapeRegex(s) {
 for (const f of targets) {
   let html = fs.readFileSync(f, 'utf8');
   const before = html.length;
-  const re = new RegExp(escapeRegex(START) + '[\\s\\S]*?' + escapeRegex(END) + '\\n?', 'g');
+  // No `g` flag: we want a single replace, and `g`-flagged regexes carry
+  // `lastIndex` state across .test() / .replace() calls which would surprise
+  // anyone reusing this regex in a loop later.
+  const re = new RegExp(escapeRegex(START) + '[\\s\\S]*?' + escapeRegex(END) + '\\n?');
   if (!re.test(html)) {
     console.error('[skip]', f, '— markers not found');
     continue;

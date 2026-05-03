@@ -22,17 +22,28 @@ const json = JSON.parse(fs.readFileSync(JSON_PATH, 'utf8'));
 // the GODS_FULL block injected into the canonical index.html (the sub-agent's
 // bilingual work was injected there but never committed back to gods-inline.js).
 const HTML_PATH = path.join(REPO, 'index.html');
+
+// Parse the array literal out of `const GODS_FULL = [...];`. We use a regex
+// + JSON.parse rather than eval — both because eval is a smell and because
+// it makes drift visible: if the file shape changes (e.g. the array gets
+// wrapped in an IIFE), the regex fails loudly instead of silently
+// re-executing whatever else lives in the file.
+function parseGodsArray(body) {
+  const m = body.match(/const\s+GODS_FULL\s*=\s*(\[[\s\S]*?\])\s*;?\s*$/);
+  if (!m) throw new Error('Could not find `const GODS_FULL = [...]` literal');
+  return JSON.parse(m[1]);
+}
+
 function readFrom(srcPath, label) {
   const src = fs.readFileSync(srcPath, 'utf8');
-  let body = src;
   if (label === 'index.html') {
     const start = '/* GODS_FULL_START — auto-injected, do not edit */';
     const end = '/* GODS_FULL_END */';
     const i0 = src.indexOf(start), i1 = src.indexOf(end);
     if (i0 < 0 || i1 < 0) throw new Error('GODS_FULL markers not found in index.html');
-    body = src.slice(i0 + start.length, i1).trim();
+    return parseGodsArray(src.slice(i0 + start.length, i1).trim());
   }
-  return eval('(function(){' + body + '; return GODS_FULL; })()');
+  return parseGodsArray(src);
 }
 
 let arr = readFrom(INLINE_PATH, 'gods-inline.js');
