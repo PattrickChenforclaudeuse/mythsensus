@@ -737,17 +737,29 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
           พ.ศ. = ค.ศ. + 543 &nbsp;·&nbsp; เช่น ปี 2548 พ.ศ. = 2005 ค.ศ.
         </div>
       </div>
-      <!-- เวลาเกิด: HH | MM -->
+      <!-- เวลาเกิด: HH | MM (default 12:00 — many users don't have birth time) -->
       <div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <input class="login-input" type="number" id="entryHour" min="0" max="23" placeholder="--"
+          <input class="login-input" type="number" id="entryHour" min="0" max="23" value="12"
                  style="font-family:inherit;font-size:15px;text-align:center">
-          <input class="login-input" type="number" id="entryMinute" min="0" max="59" placeholder="--"
+          <input class="login-input" type="number" id="entryMinute" min="0" max="59" value="0"
                  style="font-family:inherit;font-size:15px;text-align:center">
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:3px;padding:0 1px">
           <span style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:0.5px;text-align:center" id="entryLblHour">ชม. / Hour (0–23)</span>
           <span style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:0.5px;text-align:center" id="entryLblMin">นาที / Min (0–59)</span>
+        </div>
+        <!-- "Don't know birth time" affordance — toggling sets time to 12:00 and
+             shows an accuracy disclaimer so users who skip this field know
+             what they're trading off. Without this, the original empty
+             placeholders silently coerced to 12:00 anyway, hiding the
+             accuracy implication. -->
+        <label id="entryUnknownTimeLabel" style="display:flex;align-items:center;gap:6px;margin-top:8px;font-family:'Josefin Sans',sans-serif;font-size:11px;color:var(--muted);cursor:pointer;letter-spacing:0.3px">
+          <input type="checkbox" id="entryUnknownTime" style="margin:0;cursor:pointer" onchange="_entryToggleUnknownTime()">
+          <span id="entryUnknownTimeText">ไม่ทราบเวลาเกิด / Birth time unknown</span>
+        </label>
+        <div id="entryUnknownTimeWarn" style="display:none;font-family:'Josefin Sans',sans-serif;font-size:10px;color:#c8a040;margin-top:4px;line-height:1.4">
+          <span id="entryUnknownTimeWarnText">⚠ ไม่ทราบเวลาเกิด — ความแม่นของ BaZi/Vedic จะลดประมาณ 30% (Hour Pillar คาดเดาไม่ได้)</span>
         </div>
       </div>
       <select class="login-input" id="entryGender" style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:15px">
@@ -7748,12 +7760,12 @@ en:{
   sub_blessing:"🎴 Blessing",sub_organum:"🔮 Organum",sub_preview:"📊 Preview",
   sub_collection:"📚 Collection",sub_library:"📖 Library",sub_streak:"🔥 Streak",sub_history7:"📜 7-day",
   sub_generate:"✨ Generate",sub_reports:"📁 My Reports",
-  sub_sky:"🌌 Daily Sky",sub_resonance:"🧭 Life Resonance",sub_organum_plus:"🔮 Organum ∞",
-  sub_brief:"📰 Monthly Brief",sub_freq:"📡 Frequency",sub_history_all:"📜 Full History",
+  sub_sky:"🌌 Daily Sky",sub_resonance:"🧭 Resonance",sub_organum_plus:"🔮 Organum ∞",
+  sub_brief:"📰 Monthly",sub_freq:"📡 Frequency",sub_history_all:"📜 History",
   sub_deep:"🔬 26 Systems",sub_mirror:"🪞 Mirror",sub_pet:"🐾 Pet",
   sub_companions:"🦄 Cosmic Companions",sub_exercise:"⚡ Exercise",sub_food:"🍲 Food",
   sub_product:"🛍️ Product",sub_compat:"💑 Compat",
-  sub_me:"👤 Me",sub_multi:"👥 Multi-Profile",sub_login:"🔐 Login",sub_settings:"⚙️ Settings",
+  sub_me:"👤 Me",sub_multi:"👥 Profiles",sub_login:"🔐 Login",sub_settings:"⚙️",
   // ── empty-profile hint (shared by several panels)
   no_profile_title:"Need your birth data first",
   no_profile_desc:"Enter your date, time and city of birth in Profile to unlock this reading.",
@@ -7912,7 +7924,7 @@ th:{
   sub_deep:"🔬 26 ศาสตร์",sub_mirror:"🪞 เทพกระจก",sub_pet:"🐾 สัตว์เลี้ยง",
   sub_companions:"🦄 เพื่อนคู่ใจ",sub_exercise:"⚡ ออกกำลัง",sub_food:"🍲 อาหาร",
   sub_product:"🛍️ สินค้า",sub_compat:"💑 ความเข้ากัน",
-  sub_me:"👤 ฉัน",sub_multi:"👥 หลายโปรไฟล์",sub_login:"🔐 เข้าสู่ระบบ",sub_settings:"⚙️ ตั้งค่า",
+  sub_me:"👤 ฉัน",sub_multi:"👥 ดวงอื่น",sub_login:"🔐 เข้าสู่ระบบ",sub_settings:"⚙️",
   // ── empty-profile hint
   no_profile_title:"ต้องกรอกข้อมูลเกิดก่อน",
   no_profile_desc:"ไปที่แท็บ Profile กรอกวัน-เวลา-สถานที่เกิด แล้วหน้านี้จะปลดล็อก",
@@ -11831,11 +11843,16 @@ function renderCollection(){
     const label = isTh ? T.nameTH : T.nameEN;
     const on    = activeTier === T.name;
     const esc   = T.name.replace(/'/g, "\\'");
+    // Hidden tier ("???") is the 1-in-a-million Easter egg row — reduce its
+    // visual weight so first-time visitors don't read 0/0 as "broken empty
+    // state". Opacity dims it without removing it (see review L2).
+    const isHidden = T.name === 'Hidden';
+    const dim = isHidden ? 'opacity:0.55;' : '';
     // Box is click-to-filter. Active tier gets a thicker border + gentle bg.
     return `
       <div onclick="filterCollectionByTier('${esc}')"
            title="${isTh?'คลิกเพื่อกรองแสดงเฉพาะระดับนี้':'Click to filter to this tier'}"
-           style="background:${on?('rgba(200,164,90,.08)'):('var(--bg2)')};border:1px solid ${on?T.color:'var(--border)'};border-left:3px solid ${T.color};border-radius:6px;padding:10px 12px;cursor:pointer;transition:all .15s"
+           style="${dim}background:${on?('rgba(200,164,90,.08)'):('var(--bg2)')};border:1px solid ${on?T.color:'var(--border)'};border-left:3px solid ${T.color};border-radius:6px;padding:10px 12px;cursor:pointer;transition:all .15s"
            onmouseover="this.style.background='rgba(200,164,90,.05)';this.style.borderColor='${T.color}'"
            onmouseout="this.style.background='${on?'rgba(200,164,90,.08)':'var(--bg2)'}';this.style.borderColor='${on?T.color:'var(--border)'}';this.style.borderLeftColor='${T.color}'">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px">
@@ -13790,9 +13807,19 @@ function showEntryOverlay(){
   if (nameInp) nameInp.value = name;
   if (time && hourInp && minInp) {
     const [hh,mm] = time.split(':');
-    hourInp.value = hh || '';
-    minInp.value  = mm || '';
+    hourInp.value = hh || '12';
+    minInp.value  = mm || '0';
   }
+  // Restore "Birth time unknown" toggle (set previously) — drives disabled
+  // styling + the 30%-accuracy warning. Default off (user typed a time).
+  try {
+    const unknownFlag = localStorage.getItem('mth_time_unknown') === '1';
+    const unknownCb   = document.getElementById('entryUnknownTime');
+    if (unknownCb) {
+      unknownCb.checked = unknownFlag;
+      _entryToggleUnknownTime();
+    }
+  } catch(_){}
   if (cSelect) cSelect.value = city;
   // Pre-fill gift code if previously entered — also expire it if past its date.
   const giftInp    = document.getElementById('entryGift');
@@ -13886,6 +13913,13 @@ function _entryRefreshLang(){
   if (lblYr)  lblYr.textContent  = isTh ? 'ปีเกิด' : 'Year';
   if (lblH)   lblH.textContent   = isTh ? 'ชม. (0–23)' : 'Hour (0–23)';
   if (lblM)   lblM.textContent   = isTh ? 'นาที (0–59)' : 'Min (0–59)';
+  // "Don't know birth time" affordance — bilingual label + warning
+  const unknownTxt  = document.getElementById('entryUnknownTimeText');
+  const unknownWarn = document.getElementById('entryUnknownTimeWarnText');
+  if (unknownTxt)  unknownTxt.textContent  = isTh ? 'ไม่ทราบเวลาเกิด' : 'Birth time unknown';
+  if (unknownWarn) unknownWarn.textContent = isTh
+    ? '⚠ ไม่ทราบเวลาเกิด — ความแม่นของ BaZi/Vedic จะลดประมาณ 30% (Hour Pillar คาดเดาไม่ได้)'
+    : '⚠ Birth time unknown — BaZi/Vedic accuracy drops ~30% (Hour Pillar can\'t be inferred)';
   const giftTog = document.getElementById('entryGiftToggle');
   if (giftTog) giftTog.textContent = isTh ? '✦ มีรหัสของขวัญ?' : '✦ Have a gift code?';
   const giftInp = document.getElementById('entryGift');
@@ -13999,6 +14033,24 @@ function _entryError(msg){
 function _entryClearError(){
   const e = document.getElementById('entryError');
   if (e) { e.style.display='none'; e.textContent=''; }
+}
+
+// Toggle "ไม่ทราบเวลาเกิด" — disables the time inputs and clamps them to 12:00
+// (BaZi noon Wu hour, the conventional fallback). The accuracy warning makes
+// the trade-off visible so users don't silently submit a chart with a 30%-
+// less-accurate Hour Pillar without realizing.
+function _entryToggleUnknownTime(){
+  const cb    = document.getElementById('entryUnknownTime');
+  const hour  = document.getElementById('entryHour');
+  const min   = document.getElementById('entryMinute');
+  const warn  = document.getElementById('entryUnknownTimeWarn');
+  if (!cb) return;
+  const off = cb.checked;
+  if (hour) { hour.disabled = off; if (off) hour.value = '12'; hour.style.opacity = off ? '0.5' : '1'; }
+  if (min)  { min.disabled  = off; if (off) min.value  = '0';  min.style.opacity  = off ? '0.5' : '1'; }
+  if (warn) warn.style.display = off ? 'block' : 'none';
+  // Persist so the toggle survives a re-entry (auto-skip path uses this flag too).
+  try { localStorage.setItem('mth_time_unknown', off ? '1' : '0'); } catch(_){}
 }
 
 // Called when user switches between พ.ศ. / ค.ศ. in the era selector.
