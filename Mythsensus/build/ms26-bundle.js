@@ -105,16 +105,14 @@ function toJD(year, month, day, hour = 12) {
 }
 function mod360(v) { return ((v % 360) + 360) % 360; }
 function lonToSign(lon) {
-    const SIGNS = [
-        { en: 'Aries', th: 'เมษ' }, { en: 'Taurus', th: 'พฤษภ' },
-        { en: 'Gemini', th: 'เมถุน' }, { en: 'Cancer', th: 'กรกฎ' },
-        { en: 'Leo', th: 'สิงห์' }, { en: 'Virgo', th: 'กันย์' },
-        { en: 'Libra', th: 'ตุลย์' }, { en: 'Scorpio', th: 'พิจิก' },
-        { en: 'Sagittarius', th: 'ธนู' }, { en: 'Capricorn', th: 'มกร' },
-        { en: 'Aquarius', th: 'กุมภ์' }, { en: 'Pisces', th: 'มีน' },
-    ];
+    // `th` field is lang-aware: returns Thai when _reportLang='th', English
+    // otherwise. This way every consumer of `sign.th` (Vedic lagna, Western
+    // sun/moon/asc, Jupiter/Saturn etc.) gets the right language without
+    // each call site needing to remember to wrap in tPick.
+    const SIGNS_TH_NAMES = ['เมษ', 'พฤษภ', 'เมถุน', 'กรกฎ', 'สิงห์', 'กันย์', 'ตุลย์', 'พิจิก', 'ธนู', 'มกร', 'กุมภ์', 'มีน'];
+    const SIGNS_EN_NAMES = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
     const idx = Math.floor(mod360(lon) / 30);
-    return { ...SIGNS[idx], idx };
+    return { en: SIGNS_EN_NAMES[idx], th: tPick(SIGNS_TH_NAMES[idx], SIGNS_EN_NAMES[idx]), idx };
 }
 // ============================================================
 // ASTRONOMY — Sun / Moon / Rising
@@ -184,7 +182,7 @@ function calcWestern(d) {
         10: 'ดาวพฤหัสฯ ในราศีกุมภ์ 2026 — นวัตกรรมและเครือข่ายสังคมรุ่งเรือง',
         11: 'ดาวพฤหัสฯ ในราศีมีน — จิตวิญญาณและความเชื่อมโยงลึกซึ้งขึ้น',
     };
-    const transitNote = TRANSIT[jup.idx] ?? `ดาวพฤหัสบดีใน${jup.th} 2026 — โอกาสขยายตัวในด้านที่เกี่ยวข้องกับราศีนี้`;
+    const transitNote = tPick(TRANSIT[jup.idx] ?? `ดาวพฤหัสบดีใน${jup.th} 2026 — โอกาสขยายตัวในด้านที่เกี่ยวข้องกับราศีนี้`, { 1: 'Jupiter in Taurus 2026 — finance, sensual security, and material abundance expand', 2: 'Jupiter in Gemini — communication, learning, and short trips bring opportunity', 3: 'Jupiter in Cancer — emotional security, family, and home base flourish', 4: 'Jupiter in Leo — creativity, romance, and self-expression amplify', 5: 'Jupiter in Virgo — work and health receive a powerful boost', 6: 'Jupiter in Libra — relationships and partnerships flourish', 9: 'Jupiter in Capricorn — career and reputation expand', 10: 'Jupiter in Aquarius 2026 — innovation and social networks rise', 11: 'Jupiter in Pisces — spirituality and deep connection deepen' }[jup.idx] ?? `Jupiter in ${jup.en} 2026 — expansion in matters tied to this sign`);
     const SUN_FORTUNE = { Aries: 770, Taurus: 780, Gemini: 750, Cancer: 710, Leo: 810, Virgo: 720, Libra: 790, Scorpio: 720, Sagittarius: 800, Capricorn: 730, Aquarius: 760, Pisces: 730 };
     const wScore = Math.max(400, Math.min(960, (SUN_FORTUNE[sun.en] ?? 700) + (d.hour >= 6 && d.hour < 18 ? 20 : 0) + ((d.day * 7 + d.month * 3) % 60) - 30));
     const transitNoteEn = {
@@ -257,7 +255,9 @@ function yearPillar(y, m, d) {
         yr--;
     const si = ((yr - 4) % 10 + 10) % 10;
     const bi = ((yr - 4) % 12 + 12) % 12;
-    return { stem: STEMS[si], branch: BRANCHES[bi], stemTh: STEMS_TH[si], branchTh: BRANCHES_TH[bi], si, bi };
+    // stemTh/branchTh: lang-aware via pStem/pBranch so EN reports get
+    // 'Jia (Yang Wood) Zi (Rat)' instead of 'จ่ย ไม้หยาง ชวด (หนู)'.
+    return { stem: STEMS[si], branch: BRANCHES[bi], stemTh: pStem(si), branchTh: pBranch(bi), si, bi };
 }
 function monthPillar(y, m, d) {
     // Solar term: if before threshold day, use previous month
@@ -272,7 +272,7 @@ function monthPillar(y, m, d) {
     const westernStemIdx = ((y - 4) % 10 + 10) % 10;
     const baseMonthStem = (westernStemIdx % 5) * 2;
     const si = (baseMonthStem + bi) % 10;
-    return { stem: STEMS[si], branch: BRANCHES[bi], stemTh: STEMS_TH[si], branchTh: BRANCHES_TH[bi], si, bi };
+    return { stem: STEMS[si], branch: BRANCHES[bi], stemTh: pStem(si), branchTh: pBranch(bi), si, bi };
 }
 function dayPillar(year, month, day) {
     // Anchor: Jan 1, 1900 = 丙子 (cycle index 12, not 0)
@@ -283,7 +283,7 @@ function dayPillar(year, month, day) {
     const cycle = ((diff + 12) % 60 + 60) % 60;
     const si = cycle % 10;
     const bi = cycle % 12;
-    return { stem: STEMS[si], branch: BRANCHES[bi], stemTh: STEMS_TH[si], branchTh: BRANCHES_TH[bi], si, bi };
+    return { stem: STEMS[si], branch: BRANCHES[bi], stemTh: pStem(si), branchTh: pBranch(bi), si, bi };
 }
 function hourPillar(h, dayStemIdx) {
     // Traditional alignment: 子=23:00-01:00, 丑=01:00-03:00, 寅=03:00-05:00, 卯=05:00-07:00 ...
@@ -291,7 +291,7 @@ function hourPillar(h, dayStemIdx) {
     const bi = HOUR_BRANCH[h];
     const baseHourStem = (dayStemIdx % 5) * 2;
     const si = (baseHourStem + bi) % 10;
-    return { stem: STEMS[si], branch: BRANCHES[bi], stemTh: STEMS_TH[si], branchTh: BRANCHES_TH[bi] };
+    return { stem: STEMS[si], branch: BRANCHES[bi], stemTh: pStem(si), branchTh: pBranch(bi) };
 }
 function calcLuckPillars(yearStemIdx, yearBranchIdx, gender, year, month, day) {
     // Direction: Yang year + Male or Yin year + Female → forward; else backward
@@ -308,7 +308,7 @@ function calcLuckPillars(yearStemIdx, yearBranchIdx, gender, year, month, day) {
         const age = startAge + i * 10;
         pillars.push({
             stem: STEMS[si_base], branch: BRANCHES[bi],
-            stemTh: STEMS_TH[si_base], branchTh: BRANCHES_TH[bi],
+            stemTh: pStem(si_base), branchTh: pBranch(bi),
             ageStart: age, ageEnd: age + 9,
             period: `${year + age}–${year + age + 9}`,
         });
@@ -927,41 +927,41 @@ function calcHD(d, w) {
 // MAYAN TZOLK'IN
 // ============================================================
 const MAYAN_SIGNS = [
-    { en: 'Imix', th: 'อิมิกซ์ — มังกรแดง', dir: 'ตะวันออก', color: 'แดง' },
-    { en: 'Ik', th: 'อิก — ลมขาว', dir: 'เหนือ', color: 'ขาว' },
-    { en: 'Akbal', th: 'อัคบัล — ราตรีน้ำเงิน', dir: 'ตะวันตก', color: 'น้ำเงิน' },
-    { en: 'Kan', th: 'คาน — เมล็ดพันธุ์เหลือง', dir: 'ใต้', color: 'เหลือง' },
-    { en: 'Chichan', th: 'ชิชาน — งูแดง', dir: 'ตะวันออก', color: 'แดง' },
-    { en: 'Cimi', th: 'ซิมิ — สะพานขาว', dir: 'เหนือ', color: 'ขาว' },
-    { en: 'Manik', th: 'มานิก — มือน้ำเงิน', dir: 'ตะวันตก', color: 'น้ำเงิน' },
-    { en: 'Lamat', th: 'ลามัต — ดาวเหลือง', dir: 'ใต้', color: 'เหลือง' },
-    { en: 'Muluc', th: 'มูลุค — ดวงจันทร์แดง', dir: 'ตะวันออก', color: 'แดง' },
-    { en: 'Oc', th: 'โอค — สุนัขขาว', dir: 'เหนือ', color: 'ขาว' },
-    { en: 'Chuen', th: 'ชูเอน — ลิงน้ำเงิน', dir: 'ตะวันตก', color: 'น้ำเงิน' },
-    { en: 'Eb', th: 'เอ็บ — เส้นทางเหลือง', dir: 'ใต้', color: 'เหลือง' },
-    { en: 'Ben', th: 'เบน — กกแดง', dir: 'ตะวันออก', color: 'แดง' },
-    { en: 'Ix', th: 'อิกซ์ — พ่อมดขาว', dir: 'เหนือ', color: 'ขาว' },
-    { en: 'Men', th: 'เมน — นกอินทรีน้ำเงิน', dir: 'ตะวันตก', color: 'น้ำเงิน' },
-    { en: 'Cib', th: 'ซิบ — นักรบเหลือง', dir: 'ใต้', color: 'เหลือง' },
-    { en: 'Caban', th: 'คาบาน — แผ่นดินแดง', dir: 'ตะวันออก', color: 'แดง' },
-    { en: 'Etznab', th: 'เอตซ์นาบ — กระจกขาว', dir: 'เหนือ', color: 'ขาว' },
-    { en: 'Cauac', th: 'คาอัก — พายุน้ำเงิน', dir: 'ตะวันตก', color: 'น้ำเงิน' },
-    { en: 'Ahau', th: 'อาฮาว — ดวงอาทิตย์เหลือง', dir: 'ใต้', color: 'เหลือง' },
+    { en: 'Imix', th: 'อิมิกซ์ — มังกรแดง', thEn: 'Imix — Red Dragon', dir: 'ตะวันออก', color: 'แดง' },
+    { en: 'Ik', th: 'อิก — ลมขาว', thEn: 'Ik — White Wind', dir: 'เหนือ', color: 'ขาว' },
+    { en: 'Akbal', th: 'อัคบัล — ราตรีน้ำเงิน', thEn: 'Akbal — Blue Night', dir: 'ตะวันตก', color: 'น้ำเงิน' },
+    { en: 'Kan', th: 'คาน — เมล็ดพันธุ์เหลือง', thEn: 'Kan — Yellow Seed', dir: 'ใต้', color: 'เหลือง' },
+    { en: 'Chichan', th: 'ชิชาน — งูแดง', thEn: 'Chichan — Red Serpent', dir: 'ตะวันออก', color: 'แดง' },
+    { en: 'Cimi', th: 'ซิมิ — สะพานขาว', thEn: 'Cimi — White Worldbridger', dir: 'เหนือ', color: 'ขาว' },
+    { en: 'Manik', th: 'มานิก — มือน้ำเงิน', thEn: 'Manik — Blue Hand', dir: 'ตะวันตก', color: 'น้ำเงิน' },
+    { en: 'Lamat', th: 'ลามัต — ดาวเหลือง', thEn: 'Lamat — Yellow Star', dir: 'ใต้', color: 'เหลือง' },
+    { en: 'Muluc', th: 'มูลุค — ดวงจันทร์แดง', thEn: 'Muluc — Red Moon', dir: 'ตะวันออก', color: 'แดง' },
+    { en: 'Oc', th: 'โอค — สุนัขขาว', thEn: 'Oc — White Dog', dir: 'เหนือ', color: 'ขาว' },
+    { en: 'Chuen', th: 'ชูเอน — ลิงน้ำเงิน', thEn: 'Chuen — Blue Monkey', dir: 'ตะวันตก', color: 'น้ำเงิน' },
+    { en: 'Eb', th: 'เอ็บ — เส้นทางเหลือง', thEn: 'Eb — Yellow Human', dir: 'ใต้', color: 'เหลือง' },
+    { en: 'Ben', th: 'เบน — กกแดง', thEn: 'Ben — Red Skywalker', dir: 'ตะวันออก', color: 'แดง' },
+    { en: 'Ix', th: 'อิกซ์ — พ่อมดขาว', thEn: 'Ix — White Wizard', dir: 'เหนือ', color: 'ขาว' },
+    { en: 'Men', th: 'เมน — นกอินทรีน้ำเงิน', thEn: 'Men — Blue Eagle', dir: 'ตะวันตก', color: 'น้ำเงิน' },
+    { en: 'Cib', th: 'ซิบ — นักรบเหลือง', thEn: 'Cib — Yellow Warrior', dir: 'ใต้', color: 'เหลือง' },
+    { en: 'Caban', th: 'คาบาน — แผ่นดินแดง', thEn: 'Caban — Red Earth', dir: 'ตะวันออก', color: 'แดง' },
+    { en: 'Etznab', th: 'เอตซ์นาบ — กระจกขาว', thEn: 'Etznab — White Mirror', dir: 'เหนือ', color: 'ขาว' },
+    { en: 'Cauac', th: 'คาอัก — พายุน้ำเงิน', thEn: 'Cauac — Blue Storm', dir: 'ตะวันตก', color: 'น้ำเงิน' },
+    { en: 'Ahau', th: 'อาฮาว — ดวงอาทิตย์เหลือง', thEn: 'Ahau — Yellow Sun', dir: 'ใต้', color: 'เหลือง' },
 ];
 const MAYAN_TONES = [
-    { n: 1, name: 'Magnetic', th: 'แม่เหล็ก — จุดประสงค์' },
-    { n: 2, name: 'Lunar', th: 'จันทร์ — ความท้าทาย' },
-    { n: 3, name: 'Electric', th: 'ไฟฟ้า — บริการ' },
-    { n: 4, name: 'Self-Existing', th: 'ดำรงตนเอง — รูปแบบ' },
-    { n: 5, name: 'Overtone', th: 'โอเวอร์โทน — อำนาจ' },
-    { n: 6, name: 'Rhythmic', th: 'ไรธมิก — สมดุล' },
-    { n: 7, name: 'Resonant', th: 'เรโซแนนท์ — การสั้น' },
-    { n: 8, name: 'Galactic', th: 'กาแล็กติก — ความสมบูรณ์' },
-    { n: 9, name: 'Solar', th: 'โซลาร์ — ความตั้งใจ' },
-    { n: 10, name: 'Planetary', th: 'ดาวเคราะห์ — การสำแดง' },
-    { n: 11, name: 'Spectral', th: 'สเปคทรัล — การปลดปล่อย' },
-    { n: 12, name: 'Crystal', th: 'คริสตัล — ความร่วมมือ' },
-    { n: 13, name: 'Cosmic', th: 'คอสมิก — การเคลื่อนที่' },
+    { n: 1, name: 'Magnetic', th: 'แม่เหล็ก — จุดประสงค์', thEn: 'Magnetic — Purpose' },
+    { n: 2, name: 'Lunar', th: 'จันทร์ — ความท้าทาย', thEn: 'Lunar — Challenge' },
+    { n: 3, name: 'Electric', th: 'ไฟฟ้า — บริการ', thEn: 'Electric — Service' },
+    { n: 4, name: 'Self-Existing', th: 'ดำรงตนเอง — รูปแบบ', thEn: 'Self-Existing — Form' },
+    { n: 5, name: 'Overtone', th: 'โอเวอร์โทน — อำนาจ', thEn: 'Overtone — Authority' },
+    { n: 6, name: 'Rhythmic', th: 'ไรธมิก — สมดุล', thEn: 'Rhythmic — Balance' },
+    { n: 7, name: 'Resonant', th: 'เรโซแนนท์ — การสั้น', thEn: 'Resonant — Attunement' },
+    { n: 8, name: 'Galactic', th: 'กาแล็กติก — ความสมบูรณ์', thEn: 'Galactic — Integrity' },
+    { n: 9, name: 'Solar', th: 'โซลาร์ — ความตั้งใจ', thEn: 'Solar — Intention' },
+    { n: 10, name: 'Planetary', th: 'ดาวเคราะห์ — การสำแดง', thEn: 'Planetary — Manifestation' },
+    { n: 11, name: 'Spectral', th: 'สเปคทรัล — การปลดปล่อย', thEn: 'Spectral — Release' },
+    { n: 12, name: 'Crystal', th: 'คริสตัล — ความร่วมมือ', thEn: 'Crystal — Cooperation' },
+    { n: 13, name: 'Cosmic', th: 'คอสมิก — การเคลื่อนที่', thEn: 'Cosmic — Movement' },
 ];
 function calcMayan(d) {
     // Anchor: Jan 1, 2000 = Kin 1 (1 Imix)
@@ -979,10 +979,10 @@ function calcMayan(d) {
     const SIGN_SCORE_M = { 'Imix': 760, 'Ik': 780, 'Akbal': 750, 'Kan': 790, 'Chikchan': 770, 'Kimi': 680, 'Manik': 780, 'Lamat': 790, 'Muluk': 760, 'Ok': 780, 'Chuen': 790, 'Eb': 740, 'Ben': 800, 'Ix': 810, 'Men': 800, 'Kib': 740, 'Kaban': 760, 'Etznab': 750, 'Kawak': 730, 'Ahau': 830 };
     const mayanScore = Math.max(400, Math.min(960, (SIGN_SCORE_M[MAYAN_SIGNS[signIdx]?.en ?? ''] ?? 700) + ((d.year % 100 + d.hour * 7) % 60) - 30));
     return {
-        kin: kin + 1, daySign: signIdx + 1, daySignName: sign.en, daySignNameTh: sign.th,
-        toneNumber: toneIdx + 1, toneName: tone.name, toneNameTh: tone.th,
-        wavespell: `Wavespell ของ${wavespellSign.th}`,
-        direction: sign.dir, color: sign.color,
+        kin: kin + 1, daySign: signIdx + 1, daySignName: sign.en, daySignNameTh: tPick(sign.th, sign.thEn),
+        toneNumber: toneIdx + 1, toneName: tone.name, toneNameTh: tPick(tone.th, tone.thEn),
+        wavespell: tPick(`Wavespell ของ${wavespellSign.th}`, `Wavespell of ${wavespellSign.thEn}`),
+        direction: pDir(sign.dir), color: pColor(sign.color),
         reading: buildRichReading({
             sysTh: 'ปฏิทินมายัน Tzolk\'in',
             sysEn: 'Mayan Tzolk\'in · Dreamspell',
@@ -1046,6 +1046,24 @@ const CELTIC_PERSONALITY = {
     'Reed': 'ผู้แสวงหาความจริงลึกล้ำ มีพลังงานซ่อนเร้น',
     'Elder': 'ผู้ปิดและเปิดวงจร มีภูมิปัญญาเชิงลึก รอบคอบ',
 };
+const CELTIC_PERSONALITY_EN = {
+    'Birch': 'A brave pioneer — initiates the new, with high ambition and energy',
+    'Rowan': 'Protector and seer — sharp intuition, profound understanding',
+    'Ash': 'Connector of worlds — broad-minded, sees links others miss',
+    'Alder': 'Strong leader — courageous, advancing with confidence',
+    'Willow': 'Intuitive and deep-feeling — connected to nature\'s cycles',
+    'Hawthorn': 'Penetrates to the truth — adaptable, magical',
+    'Oak': 'Strong guardian — loyal, the one others lean on',
+    'Holly': 'Ruler with honour — high resolve, never quits',
+    'Hazel': 'Sage who accumulates knowledge — keen intuition',
+    'Vine': 'Connoisseur of life — refined taste, understands beauty',
+    'Ivy': 'Persistent — flexible and adaptive',
+    'Reed': 'Seeker of deep truths — has hidden power',
+    'Elder': 'Closer and opener of cycles — deep wisdom, careful',
+};
+function celticPersonality(name) {
+    return _reportLang === 'en' ? (CELTIC_PERSONALITY_EN[name] ?? 'A magnetic, unique personality') : (CELTIC_PERSONALITY[name] ?? 'บุคลิกภาพที่มีเสน่ห์และไม่ซ้ำใคร');
+}
 function calcCeltic(d) {
     const m = d.month, day = d.day;
     let found = CELTIC_TREES[0];
@@ -1078,7 +1096,7 @@ function calcCeltic(d) {
     return {
         treeName: found.name, treeNameTh: found.th,
         symbol: `🌳`, rulingPlanet: found.planet, gemstone: found.gem, element: found.el,
-        personality: CELTIC_PERSONALITY[found.name] ?? 'บุคลิกภาพที่มีเสน่ห์และไม่ซ้ำใคร',
+        personality: celticPersonality(found.name),
         reading: buildRichReading({
             sysTh: 'ต้นไม้เซลติก (Celtic Tree Astrology)',
             sysEn: 'Celtic Tree Astrology · Druid Ogham',
@@ -1143,17 +1161,17 @@ function calcThai(d) {
             originEn: 'Thai-Brahmin astrology fuses ancient Indian Brahmin wisdom with local Thai belief — a synthesis over 800 years old, dating to the Sukhothai era. Its core is the "day of birth" — which determines which deity rules you (one of seven daily deities) and which qualities are yours from birth. The system is still actively used in Thailand to choose wedding days, housewarming dates, traditional rites of passage, and other important ceremonies — especially among senior professionals and tradition-keeping families.',
             yearsOld: 800,
             keyValue: `เกิด${day.name} · ปกครองโดย${day.godTh} · สีมงคล${day.color}`,
-            keyValueEn: `Born ${day.name === 'วันอาทิตย์' ? 'Sunday' : day.name === 'วันจันทร์' ? 'Monday' : day.name === 'วันอังคาร' ? 'Tuesday' : day.name === 'วันพุธ' ? 'Wednesday' : day.name === 'วันพฤหัสบดี' ? 'Thursday' : day.name === 'วันศุกร์' ? 'Friday' : 'Saturday'} · ruled by ${day.god} · lucky colour ${day.color}`,
+            keyValueEn: `Born ${day.nameEn} · ruled by ${day.god} · lucky colour ${day.colorEn}`,
             keyValueMeaning: `คุณเกิด<strong>${day.name}</strong> ซึ่งในระบบไทยพราหมณ์ ปกครองโดย<strong>${day.godTh}</strong> (${day.god}) นักษัตรประจำวันคือ${day.nakshatra} และสีมงคลของคุณคือ<strong>${day.color}</strong> ไทยพราหมณ์เชื่อว่าในขณะเกิด วิญญาณของคุณได้รับ "พรแรก" จากเทพประจำวัน — พรนี้ติดตัวไปตลอดและใช้งานได้ผ่านการบูชาและการใช้สีที่ตรงกับเทพ โชคชะตาของคุณคือ<strong>${day.fortune}</strong> ซึ่งคือ "ทิศทางพลังงาน" ที่จักรวาลเปิดให้คุณโดยธรรมชาติ`,
-            keyValueMeaningEn: `You were born on <strong>${day.name === 'วันอาทิตย์' ? 'Sunday' : day.name === 'วันจันทร์' ? 'Monday' : day.name === 'วันอังคาร' ? 'Tuesday' : day.name === 'วันพุธ' ? 'Wednesday' : day.name === 'วันพฤหัสบดี' ? 'Thursday' : day.name === 'วันศุกร์' ? 'Friday' : 'Saturday'}</strong>, ruled in the Thai-Brahmin system by <strong>${day.god}</strong>. The day\'s nakshatra is ${day.nakshatra}; your lucky colour is <strong>${day.color}</strong>. Thai-Brahmin teaches that at the moment of birth, your soul receives a "first blessing" from the day-deity — a blessing that travels with you for life and is activated through devotion and the right colour. Your fortune is <strong>${day.fortune}</strong> — the "energy direction" the cosmos naturally opens for you.`,
+            keyValueMeaningEn: `You were born on <strong>${day.nameEn}</strong>, ruled in the Thai-Brahmin system by <strong>${day.god}</strong>. The day\'s nakshatra is ${day.nakshatra}; your lucky colour is <strong>${day.colorEn}</strong>. Thai-Brahmin teaches that at the moment of birth, your soul receives a "first blessing" from the day-deity — a blessing that travels with you for life and is activated through devotion and the right colour. Your fortune is <strong>${day.fortuneEn}</strong> — the "energy direction" the cosmos naturally opens for you.`,
             strengthTh: `ผู้เกิด${day.name} ได้รับพรของ${day.godTh} — ${day.name === 'วันอาทิตย์' ? 'พระอาทิตย์ประทานพลังผู้นำและเสน่ห์โดยธรรมชาติ คนเกิดวันอาทิตย์มักเป็นผู้นำในกลุ่มโดยไม่ต้องพยายาม มีความกล้าตัดสินใจและแสงออร่าที่ดึงดูดคน' : day.name === 'วันจันทร์' ? 'พระจันทร์ประทานสัญชาตญาณและความอ่อนโยน คนเกิดวันจันทร์มักเป็นคนที่มี "ใจ" เข้าถึงความรู้สึกผู้อื่นได้ลึก เหมาะงานดูแล ศิลปะ และการให้คำปรึกษา' : day.name === 'วันอังคาร' ? 'พระอังคารประทานพลังกล้าหาญและความคล่องตัว คนเกิดวันอังคารลงมือได้เร็ว ไม่กลัวความเสี่ยง และมีแรงขับดันสูง เหมาะงานบุกเบิก' : day.name === 'วันพุธ' ? 'พระพุธประทานปัญญาและการสื่อสาร คนเกิดวันพุธเก่งเรียน เก่งพูด เก่งคิด เหมาะงานการศึกษา การขาย การเจรจา' : day.name === 'วันพฤหัสบดี' ? 'พระพฤหัสประทานปัญญาและศีลธรรม คนเกิดวันพฤหัสเป็นที่ปรึกษาโดยธรรมชาติ มีความรู้ลึกและใจดี เหมาะอาชีพครู ที่ปรึกษา และงานบุญ' : day.name === 'วันศุกร์' ? 'พระศุกร์ประทานเสน่ห์และความรัก คนเกิดวันศุกร์มีเสน่ห์ผิดธรรมดา รักความงาม ดึงดูดความรักและความมั่งคั่งได้ง่าย' : 'พระเสาร์ประทานความอดทนและความลึกซึ้ง คนเกิดวันเสาร์อาจประสบความยากลำบากในวัยเยาว์ แต่บ้านปลายชีวิตมักมั่นคงที่สุดในบรรดา 7 วัน เหมาะงานที่ต้องใช้ความอดทนระยะยาว'} นักษัตร${day.nakshatra} ให้คุณคุณสมบัติเฉพาะของนักษัตรประจำวัน`,
-            strengthEn: `Those born on ${day.name === 'วันอาทิตย์' ? 'Sunday' : day.name === 'วันจันทร์' ? 'Monday' : day.name === 'วันอังคาร' ? 'Tuesday' : day.name === 'วันพุธ' ? 'Wednesday' : day.name === 'วันพฤหัสบดี' ? 'Thursday' : day.name === 'วันศุกร์' ? 'Friday' : 'Saturday'} carry the blessing of ${day.god} — ${day.name === 'วันอาทิตย์' ? 'Surya grants natural leadership and charisma. Sunday-born often lead a group effortlessly, decide bravely, and carry an aura that draws people in' : day.name === 'วันจันทร์' ? 'Chandra grants intuition and gentleness. Monday-born have "heart" — they read others\' feelings deeply. Suited to caregiving, art, and counselling' : day.name === 'วันอังคาร' ? 'Mangala grants courage and agility. Tuesday-born act fast, fear no risk, carry high drive. Suited to pioneering work' : day.name === 'วันพุธ' ? 'Budha grants intellect and communication. Wednesday-born excel at learning, speaking, thinking. Suited to education, sales, negotiation' : day.name === 'วันพฤหัสบดี' ? 'Brihaspati grants wisdom and morality. Thursday-born are natural counsellors with deep knowledge and kindness. Suited to teaching, advising, charitable work' : day.name === 'วันศุกร์' ? 'Shukra grants charm and love. Friday-born are unusually charming, drawn to beauty, and easily attract love and abundance' : 'Shani grants endurance and depth. Saturday-born may face hardship early in life, but late-life is often the most stable of the seven. Suited to work demanding long-term endurance'}. Nakshatra ${day.nakshatra} adds the day-nakshatra\'s specific qualities.`,
+            strengthEn: `Those born on ${day.nameEn} carry the blessing of ${day.god} — ${day.god === 'Surya' ? 'Surya grants natural leadership and charisma. Sunday-born often lead a group effortlessly, decide bravely, and carry an aura that draws people in' : day.god === 'Chandra' ? 'Chandra grants intuition and gentleness. Monday-born have "heart" — they read others\' feelings deeply. Suited to caregiving, art, and counselling' : day.god === 'Mangala' ? 'Mangala grants courage and agility. Tuesday-born act fast, fear no risk, carry high drive. Suited to pioneering work' : day.god === 'Budha' ? 'Budha grants intellect and communication. Wednesday-born excel at learning, speaking, thinking. Suited to education, sales, negotiation' : day.god === 'Brihaspati' ? 'Brihaspati grants wisdom and morality. Thursday-born are natural counsellors with deep knowledge and kindness. Suited to teaching, advising, charitable work' : day.god === 'Shukra' ? 'Shukra grants charm and love. Friday-born are unusually charming, drawn to beauty, and easily attract love and abundance' : 'Shani grants endurance and depth. Saturday-born may face hardship early in life, but late-life is often the most stable of the seven. Suited to work demanding long-term endurance'}. Nakshatra ${day.nakshatra} adds the day-nakshatra\'s specific qualities.`,
             shadowTh: `เงาของผู้เกิด${day.name} คือ ${day.name === 'วันอาทิตย์' ? 'ความหยิ่งและไม่ฟังใคร — แสงที่แรงเกินไปก็เผาได้' : day.name === 'วันจันทร์' ? 'ความอ่อนไหวเกินไปและเก็บอารมณ์ไว้นาน — จันทร์เต็มกับข้างแรมสลับกันในใจคุณ' : day.name === 'วันอังคาร' ? 'ความใจร้อนและโกรธง่าย — อังคารพลังมากต้องควบคุม' : day.name === 'วันพุธ' ? 'การพูดเยอะจนเสียน้ำหนัก — พุธเก่งคำ แต่ต้องเลือกใช้' : day.name === 'วันพฤหัสบดี' ? 'การเป็น "ครู" ที่สอนคนอื่นแต่ไม่ฟังตัวเอง' : day.name === 'วันศุกร์' ? 'การหลงในความสวยงามและความสบาย' : 'ความเศร้าและการแบกอารมณ์หนัก — เสาร์เป็นครูของชีวิตที่สอนผ่านความลำบาก'} ไทยพราหมณ์แนะนำว่าในวันที่รู้สึกเงาของคุณครอบงำ ให้บูชา${day.godTh}ด้วยดอกไม้สี${day.color}และอธิษฐานขอพรใหม่`,
-            shadowEn: `The shadow of those born on ${day.name === 'วันอาทิตย์' ? 'Sunday' : day.name === 'วันจันทร์' ? 'Monday' : day.name === 'วันอังคาร' ? 'Tuesday' : day.name === 'วันพุธ' ? 'Wednesday' : day.name === 'วันพฤหัสบดี' ? 'Thursday' : day.name === 'วันศุกร์' ? 'Friday' : 'Saturday'} is ${day.name === 'วันอาทิตย์' ? 'pride and refusing to listen — too-bright light also burns' : day.name === 'วันจันทร์' ? 'over-sensitivity, holding emotions too long — the full and waning Moon alternate inside you' : day.name === 'วันอังคาร' ? 'impatience and quick anger — Mangala\'s power must be controlled' : day.name === 'วันพุธ' ? 'talking too much and losing weight in the words — Mercury\'s skill demands editing' : day.name === 'วันพฤหัสบดี' ? 'becoming a "teacher" who instructs others but doesn\'t listen to self' : day.name === 'วันศุกร์' ? 'getting lost in beauty and comfort' : 'sadness and carrying heavy emotions — Saturn is the life-teacher who teaches through hardship'}. Thai-Brahmin advises: when shadow overwhelms you, offer worship to ${day.god} with ${day.color} flowers and pray for renewed blessing.`,
+            shadowEn: `The shadow of those born on ${day.nameEn} is ${day.god === 'Surya' ? 'pride and refusing to listen — too-bright light also burns' : day.god === 'Chandra' ? 'over-sensitivity, holding emotions too long — the full and waning Moon alternate inside you' : day.god === 'Mangala' ? 'impatience and quick anger — Mangala\'s power must be controlled' : day.god === 'Budha' ? 'talking too much and losing weight in the words — Mercury\'s skill demands editing' : day.god === 'Brihaspati' ? 'becoming a "teacher" who instructs others but doesn\'t listen to self' : day.god === 'Shukra' ? 'getting lost in beauty and comfort' : 'sadness and carrying heavy emotions — Saturn is the life-teacher who teaches through hardship'}. Thai-Brahmin advises: when shadow overwhelms you, offer worship to ${day.god} with ${day.colorEn} flowers and pray for renewed blessing.`,
             practiceTh: `การปฏิบัติไทยพราหมณ์: (1) ใส่เสื้อหรือเครื่องประดับสี<strong>${day.color}</strong> ทุก${day.name} — เป็น "วันของคุณ" ที่พลังงานตรงที่สุด (2) บูชา${day.godTh}ด้วยธูป 3 ดอก (หรือ 9 ดอกในวันสำคัญ) ในวัน${day.name} (3) ในพิธีมงคล (แต่งงาน ขึ้นบ้านใหม่) เลือก${day.name}เป็นวันจัด (4) สวดมนต์ประจำเทพ: "โอม อิติปิโสภะคะวา อรหังสัมมาสัมพุทโธ" 9 จบ (5) ในวันพระของเดือนทุกเดือน ถวายดอกไม้สี${day.color}ที่วัดใกล้บ้าน`,
-            practiceEn: `Daily Thai-Brahmin practice: (1) Wear <strong>${day.color}</strong> clothing or jewellery every ${day.name === 'วันอาทิตย์' ? 'Sunday' : day.name === 'วันจันทร์' ? 'Monday' : day.name === 'วันอังคาร' ? 'Tuesday' : day.name === 'วันพุธ' ? 'Wednesday' : day.name === 'วันพฤหัสบดี' ? 'Thursday' : day.name === 'วันศุกร์' ? 'Friday' : 'Saturday'} — your day, when energy lands directly. (2) Worship ${day.god} with 3 sticks of incense (9 on special days) on your day. (3) For auspicious ceremonies (weddings, housewarmings), choose your day. (4) Chant the day-deity\'s mantra: "Om Itipiso bhagava arahan sammasamphuttho" 9 times. (5) On every monthly Buddhist holy day, offer ${day.color} flowers at a nearby temple.`,
+            practiceEn: `Daily Thai-Brahmin practice: (1) Wear <strong>${day.colorEn}</strong> clothing or jewellery every ${day.nameEn} — your day, when energy lands directly. (2) Worship ${day.god} with 3 sticks of incense (9 on special days) on your day. (3) For auspicious ceremonies (weddings, housewarmings), choose your day. (4) Chant the day-deity\'s mantra: "Om Itipiso bhagava arahan sammasamphuttho" 9 times. (5) On every monthly Buddhist holy day, offer ${day.colorEn} flowers at a nearby temple.`,
             currentYearTh: `ปี 2026 ในปฏิทินจันทรคติไทย เป็นปีม้า (ปีมะเมีย) ซึ่งเป็นปีของ<strong>${day.name === 'วันอาทิตย์' ? 'พลังเสริมสำหรับคุณ — อาทิตย์ส่องม้า ปีแห่งโอกาส' : day.name === 'วันอังคาร' ? 'พลังเสริมสำหรับคุณ — อังคาร ปกครองม้า ปีแห่งการลงมือ' : 'ปีที่ต้องปรับตัว — ม้าไฟแรงให้คุณต้องใช้พลังอย่างฉลาด'}</strong> วันพิเศษสำหรับคุณในปีนี้คือวัน${day.name}ที่ 1 ของเดือนเกิด ให้เป็นวัน "ตั้งเจตนาประจำปี" — เขียนสิ่งที่อยากสำเร็จลงกระดาษสี${day.color}แล้วเก็บใส่ตู้พระ`,
-            currentYearEn: `2026 in the Thai lunar calendar is the Year of the Horse — a year of <strong>${day.name === 'วันอาทิตย์' ? 'support for you: Sun shining on Horse, a year of opportunity' : day.name === 'วันอังคาร' ? 'support for you: Mars rules Horse, a year for action' : 'adjustment: Fire Horse runs strong, asking you to use your power wisely'}</strong>. Your special day this year is the first ${day.name === 'วันอาทิตย์' ? 'Sunday' : day.name === 'วันจันทร์' ? 'Monday' : day.name === 'วันอังคาร' ? 'Tuesday' : day.name === 'วันพุธ' ? 'Wednesday' : day.name === 'วันพฤหัสบดี' ? 'Thursday' : day.name === 'วันศุกร์' ? 'Friday' : 'Saturday'} of your birth month — make it your "annual intention day". Write what you want to achieve on ${day.color} paper and place it on your shrine.`,
+            currentYearEn: `2026 in the Thai lunar calendar is the Year of the Horse — a year of <strong>${day.god === 'Surya' ? 'support for you: Sun shining on Horse, a year of opportunity' : day.god === 'Mangala' ? 'support for you: Mars rules Horse, a year for action' : 'adjustment: Fire Horse runs strong, asking you to use your power wisely'}</strong>. Your special day this year is the first ${day.nameEn} of your birth month — make it your "annual intention day". Write what you want to achieve on ${day.colorEn} paper and place it on your shrine.`,
             closingTh: 'ไทยพราหมณ์สอนว่า "วันเกิดไม่ใช่แค่วันที่เกิด — คือวันที่เทพสัญญาจะเดินกับคุณทั้งชีวิต" — บูชาเทพประจำวัน คุณจะไม่เดินคนเดียว',
             closingEn: 'Thai-Brahmin teaches: "Your birthday isn\'t just the day you were born — it\'s the day a deity promised to walk with you for life." Honour your day-deity, and you\'ll never walk alone.',
         }),
@@ -2373,12 +2391,12 @@ function calcZiWei(d) {
 function calcOnmyodo(d) {
     // Rokuyo (六曜): (month + day) % 6 — birth day fortune
     const ROKUYO = [
-        { name: '大安', th: 'มหาสิริมงคล', score: 860 },
-        { name: '友引', th: 'ดึงโชคเพื่อน', score: 780 },
-        { name: '先勝', th: 'ชนะในเช้า', score: 720 },
-        { name: '先負', th: 'ชนะในเย็น', score: 690 },
-        { name: '赤口', th: 'ปากแดง-ระวัง', score: 620 },
-        { name: '仏滅', th: 'พระพุทธเจ้าสิ้น-ระวัง', score: 560 },
+        { name: '大安', th: 'มหาสิริมงคล', thEn: 'Great Peace', score: 860 },
+        { name: '友引', th: 'ดึงโชคเพื่อน', thEn: 'Pulling Friends', score: 780 },
+        { name: '先勝', th: 'ชนะในเช้า', thEn: 'Early Victory', score: 720 },
+        { name: '先負', th: 'ชนะในเย็น', thEn: 'Late Victory', score: 690 },
+        { name: '赤口', th: 'ปากแดง-ระวัง', thEn: 'Red Mouth — caution', score: 620 },
+        { name: '仏滅', th: 'พระพุทธเจ้าสิ้น-ระวัง', thEn: 'Buddha\'s passing — caution', score: 560 },
     ];
     const JUSHI_NAKSHATRA = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
     const rokuyoIdx = ((d.month + d.day) % 6 + 6) % 6;
@@ -2388,8 +2406,8 @@ function calcOnmyodo(d) {
     const variation = (d.day * 5 + d.month * 9) % 80 - 40;
     const score = Math.max(420, Math.min(950, rokuyo.score + variation));
     return {
-        rokuyo: rokuyo.name, rokuyoTh: rokuyo.th, rokuyoScore: rokuyo.score,
-        onmyoPolarity: isYang ? 'หยาง (陽)' : 'หยิน (陰)',
+        rokuyo: rokuyo.name, rokuyoTh: tPick(rokuyo.th, rokuyo.thEn), rokuyoScore: rokuyo.score,
+        onmyoPolarity: tPick(isYang ? 'หยาง (陽)' : 'หยิน (陰)', isYang ? 'Yang (陽)' : 'Yin (陰)'),
         juniShiNakshatra: JUSHI_NAKSHATRA[d.month % 12],
         score,
         reading: buildRichReading({
@@ -2714,18 +2732,18 @@ function calcZoroastrian(d) {
     ];
     const DAY_YAZATA_SCORE = [820, 800, 810, 790, 780, 810, 800, 700, 800, 790, 800, 780, 760, 750, 720, 800, 790, 790, 770, 800, 780, 760, 770, 800, 780, 810, 780, 790, 820, 700];
     const MONTH_AMESHA = [
-        { n: 'Farvardin (Fravashi)', th: 'เดือนวิญญาณบรรพบุรุษ', el: 'ดิน' },
-        { n: 'Ardibehesht (Asha)', th: 'เดือนความจริง-ไฟ', el: 'ไฟ' },
-        { n: 'Khordad (Haurvatat)', th: 'เดือนความสมบูรณ์', el: 'น้ำ' },
-        { n: 'Tir (Tishtrya)', th: 'เดือนดาวฝน', el: 'น้ำ' },
-        { n: 'Mordad (Ameretat)', th: 'เดือนความเป็นอมตะ', el: 'ไม้' },
-        { n: 'Shahrivar (Khshathra)', th: 'เดือนอำนาจดี', el: 'โลหะ' },
-        { n: 'Mehr (Mithra)', th: 'เดือนพันธสัญญา', el: 'ไฟ' },
-        { n: 'Aban (Anahita)', th: 'เดือนน้ำ', el: 'น้ำ' },
-        { n: 'Azar (Atar)', th: 'เดือนไฟ', el: 'ไฟ' },
-        { n: 'Dey (Dae)', th: 'เดือนผู้สร้าง', el: 'ดิน' },
-        { n: 'Bahman (Vohu Manah)', th: 'เดือนจิตใจดี', el: 'ลม' },
-        { n: 'Esfand (Spenta Armaiti)', th: 'เดือนพระแม่ดิน', el: 'ดิน' },
+        { n: 'Farvardin (Fravashi)', th: 'เดือนวิญญาณบรรพบุรุษ', thEn: 'Month of ancestor spirits', el: 'ดิน' },
+        { n: 'Ardibehesht (Asha)', th: 'เดือนความจริง-ไฟ', thEn: 'Month of truth-fire', el: 'ไฟ' },
+        { n: 'Khordad (Haurvatat)', th: 'เดือนความสมบูรณ์', thEn: 'Month of wholeness', el: 'น้ำ' },
+        { n: 'Tir (Tishtrya)', th: 'เดือนดาวฝน', thEn: 'Month of the rain star', el: 'น้ำ' },
+        { n: 'Mordad (Ameretat)', th: 'เดือนความเป็นอมตะ', thEn: 'Month of immortality', el: 'ไม้' },
+        { n: 'Shahrivar (Khshathra)', th: 'เดือนอำนาจดี', thEn: 'Month of good power', el: 'โลหะ' },
+        { n: 'Mehr (Mithra)', th: 'เดือนพันธสัญญา', thEn: 'Month of covenant', el: 'ไฟ' },
+        { n: 'Aban (Anahita)', th: 'เดือนน้ำ', thEn: 'Month of water', el: 'น้ำ' },
+        { n: 'Azar (Atar)', th: 'เดือนไฟ', thEn: 'Month of fire', el: 'ไฟ' },
+        { n: 'Dey (Dae)', th: 'เดือนผู้สร้าง', thEn: 'Month of the Creator', el: 'ดิน' },
+        { n: 'Bahman (Vohu Manah)', th: 'เดือนจิตใจดี', thEn: 'Month of good mind', el: 'ลม' },
+        { n: 'Esfand (Spenta Armaiti)', th: 'เดือนพระแม่ดิน', thEn: 'Month of the Earth Mother', el: 'ดิน' },
     ];
     const dayIdx = (d.day - 1) % 30;
     const monthIdx = (d.month - 1) % 12;
@@ -2737,7 +2755,7 @@ function calcZoroastrian(d) {
     const score = Math.max(430, Math.min(950, base + variation + (harmony ? 30 : 0)));
     return {
         dayYazata: yazata, dayYazataTh: yazata,
-        monthAmesha: amesha.n, monthAmeshaTh: amesha.th,
+        monthAmesha: amesha.n, monthAmeshaTh: tPick(amesha.th, amesha.thEn),
         harmony, score,
         reading: buildRichReading({
             sysTh: 'โซโรแอสเตอร์ (Zoroastrian)',
@@ -5133,13 +5151,13 @@ function extractSignals(c, topic) {
     }
     if (topic === 'health') {
         const healthEl = bazi.missingElement.split(' ')[0] || 'ดิน';
-        all.push({ system: 'BaZi', score: bazi.score, finding: `ธาตุขาด ${bazi.missingElement} ควรเสริมผ่านสีและอาหาร`, category: 'health', value: healthEl }, { system: 'Nine Star Ki', score: ninestar.score, finding: `ทิศนอน ${ninestar.directionSleep} เสริมสุขภาพ`, category: 'health', value: ninestar.directionSleep }, { system: 'Vedic', score: vedic.score, finding: `${vedic.mahadasha} Dasha: ${vedicMahadasha.dashaQuality}`, category: 'health', value: vedicMahadasha.dashaElement }, { system: 'Biorhythm', score: biorhythm.score, finding: `Physical ${biorhythm.physical}% (${biorhythm.physicalPhase})`, category: 'health', value: biorhythm.physicalPhase }, { system: 'Celtic', score: celtic.score, finding: `ต้น${celtic.treeNameTh} — gem ${celtic.gemstone}`, category: 'health', value: celtic.gemstone }, { system: 'Energy Type', score: humandesign.score, finding: `Strategy "${humandesign.strategy}" ลดการต้านพลังงาน`, category: 'health', value: humandesign.strategy }, { system: 'Native American', score: nativeAmerican.score, finding: `${nativeAmerican.birthTotemTh} ธาตุ${nativeAmerican.element}`, category: 'health', value: nativeAmerican.element }, { system: 'Tibetan', score: tibetan.score, finding: `Mewa ${tibetan.mewa} ธาตุ${tibetan.mewaElement}`, category: 'health', value: tibetan.mewaElement }, { system: 'ไทยพราหมณ์', score: thai.score, finding: `สีมงคล${thai.dayColor} วัน${thai.dayName}`, category: 'health', value: thai.dayColor }, { system: 'Zoroastrian', score: zoroastrian.score, finding: `${zoroastrian.dayYazataTh} ปกครองสุขภาพ`, category: 'health', value: zoroastrian.harmony ? 'สมดุล' : 'ต้องสร้างสมดุล' });
+        all.push({ system: 'BaZi', score: bazi.score, finding: tr(`ธาตุขาด ${bazi.missingElement} ควรเสริมผ่านสีและอาหาร`, `Missing ${bazi.missingElement} element — reinforce via colour and food`), category: 'health', value: healthEl }, { system: 'Nine Star Ki', score: ninestar.score, finding: tr(`ทิศนอน ${ninestar.directionSleep} เสริมสุขภาพ`, `Sleep direction ${ninestar.directionSleep} supports health`), category: 'health', value: ninestar.directionSleep }, { system: 'Vedic', score: vedic.score, finding: `${vedic.mahadasha} Dasha: ${vedicMahadasha.dashaQuality}`, category: 'health', value: vedicMahadasha.dashaElement }, { system: 'Biorhythm', score: biorhythm.score, finding: `Physical ${biorhythm.physical}% (${biorhythm.physicalPhase})`, category: 'health', value: biorhythm.physicalPhase }, { system: 'Celtic', score: celtic.score, finding: tr(`ต้น${celtic.treeNameTh} — gem ${celtic.gemstone}`, `${celtic.treeName} — gem ${celtic.gemstone}`), category: 'health', value: celtic.gemstone }, { system: 'Energy Type', score: humandesign.score, finding: tr(`Strategy "${humandesign.strategy}" ลดการต้านพลังงาน`, `Strategy "${humandesign.strategy}" reduces energetic resistance`), category: 'health', value: humandesign.strategy }, { system: 'Native American', score: nativeAmerican.score, finding: tr(`${nativeAmerican.birthTotemTh} ธาตุ${nativeAmerican.element}`, `${nativeAmerican.birthTotem} (${nativeAmerican.element} element)`), category: 'health', value: nativeAmerican.element }, { system: 'Tibetan', score: tibetan.score, finding: tr(`Mewa ${tibetan.mewa} ธาตุ${tibetan.mewaElement}`, `Mewa ${tibetan.mewa} (${tibetan.mewaElement} element)`), category: 'health', value: tibetan.mewaElement }, { system: tr('ไทยพราหมณ์', 'Thai Brahmin'), score: thai.score, finding: tr(`สีมงคล${thai.dayColor} วัน${thai.dayName}`, `Lucky colour ${thai.dayColor} on ${thai.dayName}`), category: 'health', value: thai.dayColor }, { system: 'Zoroastrian', score: zoroastrian.score, finding: tr(`${zoroastrian.dayYazataTh} ปกครองสุขภาพ`, `${zoroastrian.dayYazataTh} rules health`), category: 'health', value: tr(zoroastrian.harmony ? 'สมดุล' : 'ต้องสร้างสมดุล', zoroastrian.harmony ? 'balanced' : 'needs balance') });
     }
     if (topic === 'finance') {
-        all.push({ system: 'BaZi', score: bazi.score, finding: `ธาตุมงคล ${bazi.luckyElement}`, category: 'finance', value: bazi.luckyElement }, { system: 'Nine Star Ki', score: ninestar.score, finding: `ทิศ ${ninestar.starDirection} เสริมการเงิน`, category: 'finance', value: ninestar.starDirection }, { system: 'Numerology', score: numerology.score, finding: `Personal Year ${numerology.personalYear2026}: ${numerology.personalYearMeaning.split('—')[0]}`, category: 'finance', value: String(numerology.personalYear2026) }, { system: 'Vedic', score: vedic.score, finding: `${vedicMahadasha.currentDasha} Dasha`, category: 'finance', value: vedicMahadasha.dashaElement }, { system: 'Arabic Parts', score: arabicParts.score, finding: `Part of Fortune ใน ${arabicParts.fortuneSign}`, category: 'finance', value: arabicParts.fortuneSign }, { system: 'Hellenistic', score: hellenistic.score, finding: `${hellenistic.sectTh} กับ ${hellenistic.trigonLord}`, category: 'finance', value: hellenistic.trigonLord.split(' ')[0] }, { system: 'Kabbalistic', score: kabbalistic.score, finding: `${kabbalistic.sephira} (${kabbalistic.archangel})`, category: 'finance', value: kabbalistic.sephira }, { system: 'Ifa/Yoruba', score: ifaYoruba.score, finding: `Odù ${ifaYoruba.odu}: ${ifaYoruba.fortune}`, category: 'finance', value: ifaYoruba.fortune }, { system: 'Zoroastrian', score: zoroastrian.score, finding: `${zoroastrian.dayYazataTh}`, category: 'finance', value: zoroastrian.harmony ? 'สอดคล้อง' : 'ระวัง' }, { system: 'Biorhythm', score: biorhythm.score, finding: `สติปัญญา ${biorhythm.intellectual}% (${biorhythm.intellectualPhase})`, category: 'finance', value: biorhythm.intellectualPhase });
+        all.push({ system: 'BaZi', score: bazi.score, finding: tr(`ธาตุมงคล ${bazi.luckyElement}`, `Lucky element ${bazi.luckyElement}`), category: 'finance', value: bazi.luckyElement }, { system: 'Nine Star Ki', score: ninestar.score, finding: tr(`ทิศ ${ninestar.starDirection} เสริมการเงิน`, `Direction ${ninestar.starDirection} supports finance`), category: 'finance', value: ninestar.starDirection }, { system: 'Numerology', score: numerology.score, finding: `Personal Year ${numerology.personalYear2026}: ${numerology.personalYearMeaning.split('—')[0]}`, category: 'finance', value: String(numerology.personalYear2026) }, { system: 'Vedic', score: vedic.score, finding: `${vedicMahadasha.currentDasha} Dasha`, category: 'finance', value: vedicMahadasha.dashaElement }, { system: 'Arabic Parts', score: arabicParts.score, finding: tr(`Part of Fortune ใน ${arabicParts.fortuneSign}`, `Part of Fortune in ${arabicParts.fortuneSign}`), category: 'finance', value: arabicParts.fortuneSign }, { system: 'Hellenistic', score: hellenistic.score, finding: tr(`${hellenistic.sectTh} กับ ${hellenistic.trigonLord}`, `${hellenistic.sectTh} with ${hellenistic.trigonLord}`), category: 'finance', value: hellenistic.trigonLord.split(' ')[0] }, { system: 'Kabbalistic', score: kabbalistic.score, finding: `${kabbalistic.sephira} (${kabbalistic.archangel})`, category: 'finance', value: kabbalistic.sephira }, { system: 'Ifa/Yoruba', score: ifaYoruba.score, finding: `Odù ${ifaYoruba.odu}: ${ifaYoruba.fortune}`, category: 'finance', value: ifaYoruba.fortune }, { system: 'Zoroastrian', score: zoroastrian.score, finding: `${zoroastrian.dayYazataTh}`, category: 'finance', value: tr(zoroastrian.harmony ? 'สอดคล้อง' : 'ระวัง', zoroastrian.harmony ? 'aligned' : 'caution') }, { system: 'Biorhythm', score: biorhythm.score, finding: tr(`สติปัญญา ${biorhythm.intellectual}% (${biorhythm.intellectualPhase})`, `Intellect ${biorhythm.intellectual}% (${biorhythm.intellectualPhase})`), category: 'finance', value: biorhythm.intellectualPhase });
     }
     if (topic === 'timing') {
-        all.push({ system: 'BaZi', score: bazi.score, finding: `LP ${bazi.currentLuckPillar} ${bazi.currentLuckPillarTh}`, category: 'timing', value: bazi.currentLuckPillar }, { system: 'Nine Star Ki', score: ninestar.score, finding: ninestar.year2026Analysis.substring(0, 60), category: 'timing', value: ninestar.star === 9 ? 'peak' : 'normal' }, { system: 'Vedic', score: vedic.score, finding: `${vedicMahadasha.currentDasha} Dasha ถึง ${vedicMahadasha.currentDashaEnd}`, category: 'timing', value: String(vedicMahadasha.currentDashaEnd) }, { system: 'Numerology', score: numerology.score, finding: `PY ${numerology.personalYear2026}: ${numerology.personalYearMeaning.substring(0, 40)}`, category: 'timing', value: String(numerology.personalYear2026) }, { system: 'Biorhythm', score: biorhythm.score, finding: `E:${biorhythm.emotional}% I:${biorhythm.intellectual}% P:${biorhythm.physical}%`, category: 'timing', value: biorhythm.intellectualPhase }, { system: 'Tibetan', score: tibetan.score, finding: `Mewa ${tibetan.mewa} ${tibetan.mewaQuality}`, category: 'timing', value: tibetan.mewaQuality }, { system: 'Onmyōdō', score: onmyodo.score, finding: `${onmyodo.rokuyo} ${onmyodo.rokuyoTh}`, category: 'timing', value: onmyodo.rokuyo }, { system: 'Aztec', score: aztec.score, finding: `${aztec.daySignTh} Tone ${aztec.toneNumber}`, category: 'timing', value: aztec.daySignQuality });
+        all.push({ system: 'BaZi', score: bazi.score, finding: `LP ${bazi.currentLuckPillar} ${bazi.currentLuckPillarTh}`, category: 'timing', value: bazi.currentLuckPillar }, { system: 'Nine Star Ki', score: ninestar.score, finding: ninestar.year2026Analysis.substring(0, 60), category: 'timing', value: ninestar.star === 9 ? 'peak' : 'normal' }, { system: 'Vedic', score: vedic.score, finding: tr(`${vedicMahadasha.currentDasha} Dasha ถึง ${vedicMahadasha.currentDashaEnd}`, `${vedicMahadasha.currentDasha} Dasha until ${vedicMahadasha.currentDashaEnd}`), category: 'timing', value: String(vedicMahadasha.currentDashaEnd) }, { system: 'Numerology', score: numerology.score, finding: `PY ${numerology.personalYear2026}: ${numerology.personalYearMeaning.substring(0, 40)}`, category: 'timing', value: String(numerology.personalYear2026) }, { system: 'Biorhythm', score: biorhythm.score, finding: `E:${biorhythm.emotional}% I:${biorhythm.intellectual}% P:${biorhythm.physical}%`, category: 'timing', value: biorhythm.intellectualPhase }, { system: 'Tibetan', score: tibetan.score, finding: `Mewa ${tibetan.mewa} ${tibetan.mewaQuality}`, category: 'timing', value: tibetan.mewaQuality }, { system: 'Onmyōdō', score: onmyodo.score, finding: `${onmyodo.rokuyo} ${onmyodo.rokuyoTh}`, category: 'timing', value: onmyodo.rokuyo }, { system: 'Aztec', score: aztec.score, finding: `${aztec.daySignTh} Tone ${aztec.toneNumber}`, category: 'timing', value: aztec.daySignQuality });
     }
     return all;
 }

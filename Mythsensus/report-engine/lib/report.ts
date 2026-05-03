@@ -2288,31 +2288,31 @@ function extractSignals(c: ChartData, topic: 'health'|'finance'|'timing'|'elemen
   if (topic === 'health') {
     const healthEl = bazi.missingElement.split(' ')[0] || 'ดิน'
     all.push(
-      { system:'BaZi', score:bazi.score, finding:`ธาตุขาด ${bazi.missingElement} ควรเสริมผ่านสีและอาหาร`, category:'health', value:healthEl },
-      { system:'Nine Star Ki', score:ninestar.score, finding:`ทิศนอน ${ninestar.directionSleep} เสริมสุขภาพ`, category:'health', value:ninestar.directionSleep },
+      { system:'BaZi', score:bazi.score, finding:tr(`ธาตุขาด ${bazi.missingElement} ควรเสริมผ่านสีและอาหาร`,`Missing ${bazi.missingElement} element — reinforce via colour and food`), category:'health', value:healthEl },
+      { system:'Nine Star Ki', score:ninestar.score, finding:tr(`ทิศนอน ${ninestar.directionSleep} เสริมสุขภาพ`,`Sleep direction ${ninestar.directionSleep} supports health`), category:'health', value:ninestar.directionSleep },
       { system:'Vedic', score:vedic.score, finding:`${vedic.mahadasha} Dasha: ${vedicMahadasha.dashaQuality}`, category:'health', value:vedicMahadasha.dashaElement },
       { system:'Biorhythm', score:biorhythm.score, finding:`Physical ${biorhythm.physical}% (${biorhythm.physicalPhase})`, category:'health', value:biorhythm.physicalPhase },
-      { system:'Celtic', score:celtic.score, finding:`ต้น${celtic.treeNameTh} — gem ${celtic.gemstone}`, category:'health', value:celtic.gemstone },
-      { system:'Energy Type', score:humandesign.score, finding:`Strategy "${humandesign.strategy}" ลดการต้านพลังงาน`, category:'health', value:humandesign.strategy },
-      { system:'Native American', score:nativeAmerican.score, finding:`${nativeAmerican.birthTotemTh} ธาตุ${nativeAmerican.element}`, category:'health', value:nativeAmerican.element },
-      { system:'Tibetan', score:tibetan.score, finding:`Mewa ${tibetan.mewa} ธาตุ${tibetan.mewaElement}`, category:'health', value:tibetan.mewaElement },
-      { system:'ไทยพราหมณ์', score:thai.score, finding:`สีมงคล${thai.dayColor} วัน${thai.dayName}`, category:'health', value:thai.dayColor },
-      { system:'Zoroastrian', score:zoroastrian.score, finding:`${zoroastrian.dayYazataTh} ปกครองสุขภาพ`, category:'health', value:zoroastrian.harmony?'สมดุล':'ต้องสร้างสมดุล' },
+      { system:'Celtic', score:celtic.score, finding:tr(`ต้น${celtic.treeNameTh} — gem ${celtic.gemstone}`,`${celtic.treeName} — gem ${celtic.gemstone}`), category:'health', value:celtic.gemstone },
+      { system:'Energy Type', score:humandesign.score, finding:tr(`Strategy "${humandesign.strategy}" ลดการต้านพลังงาน`,`Strategy "${humandesign.strategy}" reduces energetic resistance`), category:'health', value:humandesign.strategy },
+      { system:'Native American', score:nativeAmerican.score, finding:tr(`${nativeAmerican.birthTotemTh} ธาตุ${nativeAmerican.element}`,`${nativeAmerican.birthTotem} (${nativeAmerican.element} element)`), category:'health', value:nativeAmerican.element },
+      { system:'Tibetan', score:tibetan.score, finding:tr(`Mewa ${tibetan.mewa} ธาตุ${tibetan.mewaElement}`,`Mewa ${tibetan.mewa} (${tibetan.mewaElement} element)`), category:'health', value:tibetan.mewaElement },
+      { system:tr('ไทยพราหมณ์','Thai Brahmin'), score:thai.score, finding:tr(`สีมงคล${thai.dayColor} วัน${thai.dayName}`,`Lucky colour ${thai.dayColor} on ${thai.dayName}`), category:'health', value:thai.dayColor },
+      { system:'Zoroastrian', score:zoroastrian.score, finding:tr(`${zoroastrian.dayYazataTh} ปกครองสุขภาพ`,`${zoroastrian.dayYazataTh} rules health`), category:'health', value:tr(zoroastrian.harmony?'สมดุล':'ต้องสร้างสมดุล', zoroastrian.harmony?'balanced':'needs balance') },
     )
   }
 
   if (topic === 'finance') {
     all.push(
-      { system:'BaZi', score:bazi.score, finding:`ธาตุมงคล ${bazi.luckyElement}`, category:'finance', value:bazi.luckyElement },
-      { system:'Nine Star Ki', score:ninestar.score, finding:`ทิศ ${ninestar.starDirection} เสริมการเงิน`, category:'finance', value:ninestar.starDirection },
+      { system:'BaZi', score:bazi.score, finding:tr(`ธาตุมงคล ${bazi.luckyElement}`,`Lucky element ${bazi.luckyElement}`), category:'finance', value:bazi.luckyElement },
+      { system:'Nine Star Ki', score:ninestar.score, finding:tr(`ทิศ ${ninestar.starDirection} เสริมการเงิน`,`Direction ${ninestar.starDirection} supports finance`), category:'finance', value:ninestar.starDirection },
       { system:'Numerology', score:numerology.score, finding:`Personal Year ${numerology.personalYear2026}: ${numerology.personalYearMeaning.split('—')[0]}`, category:'finance', value:String(numerology.personalYear2026) },
       { system:'Vedic', score:vedic.score, finding:`${vedicMahadasha.currentDasha} Dasha`, category:'finance', value:vedicMahadasha.dashaElement },
-      { system:'Arabic Parts', score:arabicParts.score, finding:`Part of Fortune ใน ${arabicParts.fortuneSign}`, category:'finance', value:arabicParts.fortuneSign },
-      { system:'Hellenistic', score:hellenistic.score, finding:`${hellenistic.sectTh} กับ ${hellenistic.trigonLord}`, category:'finance', value:hellenistic.trigonLord.split(' ')[0] },
+      { system:'Arabic Parts', score:arabicParts.score, finding:tr(`Part of Fortune ใน ${arabicParts.fortuneSign}`,`Part of Fortune in ${arabicParts.fortuneSign}`), category:'finance', value:arabicParts.fortuneSign },
+      { system:'Hellenistic', score:hellenistic.score, finding:tr(`${hellenistic.sectTh} กับ ${hellenistic.trigonLord}`,`${hellenistic.sectTh} with ${hellenistic.trigonLord}`), category:'finance', value:hellenistic.trigonLord.split(' ')[0] },
       { system:'Kabbalistic', score:kabbalistic.score, finding:`${kabbalistic.sephira} (${kabbalistic.archangel})`, category:'finance', value:kabbalistic.sephira },
       { system:'Ifa/Yoruba', score:ifaYoruba.score, finding:`Odù ${ifaYoruba.odu}: ${ifaYoruba.fortune}`, category:'finance', value:ifaYoruba.fortune },
-      { system:'Zoroastrian', score:zoroastrian.score, finding:`${zoroastrian.dayYazataTh}`, category:'finance', value:zoroastrian.harmony?'สอดคล้อง':'ระวัง' },
-      { system:'Biorhythm', score:biorhythm.score, finding:`สติปัญญา ${biorhythm.intellectual}% (${biorhythm.intellectualPhase})`, category:'finance', value:biorhythm.intellectualPhase },
+      { system:'Zoroastrian', score:zoroastrian.score, finding:`${zoroastrian.dayYazataTh}`, category:'finance', value:tr(zoroastrian.harmony?'สอดคล้อง':'ระวัง', zoroastrian.harmony?'aligned':'caution') },
+      { system:'Biorhythm', score:biorhythm.score, finding:tr(`สติปัญญา ${biorhythm.intellectual}% (${biorhythm.intellectualPhase})`,`Intellect ${biorhythm.intellectual}% (${biorhythm.intellectualPhase})`), category:'finance', value:biorhythm.intellectualPhase },
     )
   }
 
@@ -2320,7 +2320,7 @@ function extractSignals(c: ChartData, topic: 'health'|'finance'|'timing'|'elemen
     all.push(
       { system:'BaZi', score:bazi.score, finding:`LP ${bazi.currentLuckPillar} ${bazi.currentLuckPillarTh}`, category:'timing', value:bazi.currentLuckPillar },
       { system:'Nine Star Ki', score:ninestar.score, finding:ninestar.year2026Analysis.substring(0,60), category:'timing', value:ninestar.star===9?'peak':'normal' },
-      { system:'Vedic', score:vedic.score, finding:`${vedicMahadasha.currentDasha} Dasha ถึง ${vedicMahadasha.currentDashaEnd}`, category:'timing', value:String(vedicMahadasha.currentDashaEnd) },
+      { system:'Vedic', score:vedic.score, finding:tr(`${vedicMahadasha.currentDasha} Dasha ถึง ${vedicMahadasha.currentDashaEnd}`,`${vedicMahadasha.currentDasha} Dasha until ${vedicMahadasha.currentDashaEnd}`), category:'timing', value:String(vedicMahadasha.currentDashaEnd) },
       { system:'Numerology', score:numerology.score, finding:`PY ${numerology.personalYear2026}: ${numerology.personalYearMeaning.substring(0,40)}`, category:'timing', value:String(numerology.personalYear2026) },
       { system:'Biorhythm', score:biorhythm.score, finding:`E:${biorhythm.emotional}% I:${biorhythm.intellectual}% P:${biorhythm.physical}%`, category:'timing', value:biorhythm.intellectualPhase },
       { system:'Tibetan', score:tibetan.score, finding:`Mewa ${tibetan.mewa} ${tibetan.mewaQuality}`, category:'timing', value:tibetan.mewaQuality },
