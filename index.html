@@ -1311,6 +1311,26 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <p class="panel-intro" data-en="Ask a question. 108 gods will vote on the words they want you to hear. The consensus — not a single god — is your answer." data-th="ตั้งคำถามหนึ่งคำ ให้เทพ 108 องค์ช่วยกันโหวตคำที่อยากให้คุณได้ยิน · คำตอบคือฉันทามติจากทั้งหมด ไม่ใช่เสียงเทพองค์เดียว">Ask a question. 108 gods will vote on the words they want you to hear. The consensus — not a single god — is your answer.</p>
   <div class="q-area">
     <textarea id="questionInput" rows="3" data-t-placeholder="organum_ph"></textarea>
+    <!-- Question quality nudge: examples encourage cosmic-grade questions
+         instead of trivia like "วันนี้จะเลิกกี่โมง". Three click-to-fill
+         examples cover the three Organum sweet spots: decision, direction,
+         self-reflection. -->
+    <div id="organumExamples" style="margin:8px 0 4px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+      <span style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase"
+            data-en="Try asking:" data-th="ลองถามแบบนี้:">Try asking:</span>
+      <button type="button" class="organum-eg" onclick="_organumFillEg(0)"
+              style="font-size:11px;padding:4px 10px;background:rgba(200,164,90,0.07);border:1px solid var(--gold3);border-radius:14px;color:var(--gold2);cursor:pointer;font-family:'Cormorant Garamond',serif"
+              data-en='"Should I take this opportunity?"' data-th='"ฉันควรรับโอกาสนี้ไหม?"'>"ฉันควรรับโอกาสนี้ไหม?"</button>
+      <button type="button" class="organum-eg" onclick="_organumFillEg(1)"
+              style="font-size:11px;padding:4px 10px;background:rgba(200,164,90,0.07);border:1px solid var(--gold3);border-radius:14px;color:var(--gold2);cursor:pointer;font-family:'Cormorant Garamond',serif"
+              data-en='"What should I focus on this month?"' data-th='"เดือนนี้ฉันควรโฟกัสเรื่องอะไร?"'>"เดือนนี้ฉันควรโฟกัสเรื่องอะไร?"</button>
+      <button type="button" class="organum-eg" onclick="_organumFillEg(2)"
+              style="font-size:11px;padding:4px 10px;background:rgba(200,164,90,0.07);border:1px solid var(--gold3);border-radius:14px;color:var(--gold2);cursor:pointer;font-family:'Cormorant Garamond',serif"
+              data-en='"What am I missing about this situation?"' data-th='"สถานการณ์นี้ฉันมองข้ามอะไรอยู่?"'>"สถานการณ์นี้ฉันมองข้ามอะไรอยู่?"</button>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:8px;font-style:italic"
+         data-en="✦ The 108 vote on themes — not yes/no. Frame your question around direction, choice, or self-knowledge."
+         data-th="✦ เทพ 108 องค์ไม่ตอบใช่/ไม่ใช่ — ตอบเป็น "ธีม" ที่ควรพิจารณา · คำถามที่ดีจึงเป็นเรื่องทิศทาง การเลือก หรือการรู้จักตัวเอง">✦ เทพ 108 องค์ไม่ตอบใช่/ไม่ใช่ — ตอบเป็น "ธีม"</div>
     <button class="ghost-btn" onclick="runOrganum()" id="oracleBtn" data-t="organum_ask">Ask the 108 Gods</button>
   </div>
 
@@ -8189,7 +8209,27 @@ const TIERS=[
 ];
 function pickTier(){const r=Math.random()*100;let c=0;for(const T of TIERS){c+=T.weight;if(r<c)return T;}return TIERS[0];}
 function godsOfTier(T){const g=GODS.filter(g=>g.tier===T.name);return g.length?g:GODS;}
-function randMsg(g){const m=g.messages||[];return m.length?m[Math.floor(Math.random()*m.length)]:'—';}
+function randMsg(g){
+  // Bilingual deity blessings — prefer the new structured fields when
+  // available, fall back to legacy single-string fields, fall back to
+  // the GODS_FULL `messages` array. This matrix lets us migrate the
+  // dataset gradually without breaking older browsers/caches.
+  const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
+  // 1) New bilingual fields (added by Phase F sub-agent translation pass)
+  if (g.blessing_th && isTh) return g.blessing_th;
+  if (g.blessing_en && !isTh) return g.blessing_en;
+  // 2) Legacy single-blessing field — works if it happens to be in the
+  //    user's chosen language (e.g. Gabriel was Thai, lucky for TH users)
+  if (g.blessing) {
+    const blessingIsThai = /[฀-๿]/.test(g.blessing);
+    if (blessingIsThai === isTh) return g.blessing;
+    // Cross-language fallback: better to show *something* than '—'
+    return g.blessing;
+  }
+  // 3) GODS_FULL inline format (English messages array)
+  const m = g.messages || [];
+  return m.length ? m[Math.floor(Math.random() * m.length)] : '—';
+}
 
 // ════════════════════════════════════════
 // GOD BLESSING
@@ -8230,7 +8270,26 @@ function renderBlessingRecentPreview(){
 async function drawBlessing(){
   if(draws>=MAX_DRAWS)return;
   await loadGods();
-  const T=pickTier(),pool=godsOfTier(T),god=pool[Math.floor(Math.random()*pool.length)];draws++;
+  const T=pickTier();
+  // Build the candidate pool, then exclude deities the user has already
+  // drawn in the last 7 days. This stops "Nanna Sumerian" landing twice
+  // in a single week with an identical message — looked spammy and broke
+  // the sense of cosmic novelty.
+  let pool=godsOfTier(T);
+  try {
+    const cutoff = Date.now() - 7 * 86400_000;
+    const recent = (typeof getFullHistory==='function' ? getFullHistory() : [])
+      .filter(h => h && h.type === 'blessing' && h.timestamp >= cutoff)
+      .map(h => h.god?.name)
+      .filter(Boolean);
+    const recentSet = new Set(recent);
+    const filtered = pool.filter(g => !recentSet.has(g.name));
+    // Only apply the filter if it leaves a viable pool. Tiny tiers
+    // (e.g. Hidden = 1-in-a-million) might empty out — fall back to the
+    // unfiltered pool rather than block the draw entirely.
+    if (filtered.length >= 3) pool = filtered;
+  } catch(_) { /* fall through with original pool */ }
+  const god=pool[Math.floor(Math.random()*pool.length)];draws++;
   const card=document.getElementById('godCard');card.classList.remove('revealed');void card.offsetWidth;
   document.getElementById('tierBadge').textContent=LANG==='th'?T.nameTH:T.nameEN;
   document.getElementById('tierBadge').style.cssText=`background:${T.color}22;color:${T.color};border:1px solid ${T.color}55`;
@@ -9157,6 +9216,21 @@ function renderDesktopRails(phase, moonSign, dow, dayIcons, dayNamesTH, dayNames
   set('railStatBlessings', String(blessings));
   set('railStatOrganum',   String(organum));
   set('railStatReports',   String(reports));
+}
+
+// ── Organum example-question helpers ──────────────────────────────────────
+// Click an example → fill the textarea with that question (in current LANG).
+// data-en/data-th already swap the visible label via applyLang(); we read
+// the active attribute so the input matches what the user sees.
+function _organumFillEg(idx){
+  const buttons = document.querySelectorAll('#organumExamples .organum-eg');
+  const btn = buttons[idx]; if (!btn) return;
+  const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
+  const txt = btn.getAttribute(isTh ? 'data-th' : 'data-en') || btn.textContent.trim();
+  // Strip the surrounding quotation marks shown decoratively in the chip
+  const cleaned = txt.replace(/^["'""]+|["'""]+$/g, '');
+  const ta = document.getElementById('questionInput');
+  if (ta) { ta.value = cleaned; ta.focus(); }
 }
 
 // ── Rail card click-through routing ───────────────────────────────────────
