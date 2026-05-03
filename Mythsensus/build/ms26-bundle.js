@@ -3494,25 +3494,25 @@ function p_threeScores(c) {
 
     <!-- Petroleum analogy -->
     <div style="background:#120a06;border:1px solid #5a3010;border-radius:8px;padding:14px;margin-bottom:14px">
-      <div style="font-size:12px;color:#9a6040;margin-bottom:8px;font-weight:600">🛢️ Petroleum Grade Analogy</div>
+      <div style="font-size:12px;color:#9a6040;margin-bottom:8px;font-weight:600">🛢️ ${tr('ดวงเหมือนการเดินทาง', 'Cosmic Journey')}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;font-size:11px">
         <div style="background:#1a0e06;border-radius:6px;padding:10px">
           <div style="font-size:20px;margin-bottom:4px">🛢️</div>
-          <div style="color:#d4aa50;font-weight:600">${tr('น้ำมัน', 'Petroleum')}</div>
+          <div style="color:#d4aa50;font-weight:600">${tr('น้ำมัน', 'Fuel')}</div>
           <div style="color:#7a5a40;margin-top:2px">Soul Frequency</div>
-          <div style="color:#aa8050;font-size:12px;margin-top:4px">${score.total} ${tr('= เกรด', '= grade')} ${score.total >= 810 ? '95+' : score.total >= 730 ? '91' : score.total >= 650 ? 'diesel' : tr('ชีวมวล', 'biofuel')}</div>
+          <div style="color:#aa8050;font-size:12px;margin-top:4px">${score.total} = ${score.total >= 850 ? tr('เครื่องบินเจ็ท', 'Jet fuel') : score.total >= 760 ? tr('เบนซิน 95+', '95+ premium') : score.total >= 700 ? tr('เบนซิน 91', '91 regular') : tr('ดีเซล', 'Diesel')}</div>
         </div>
         <div style="background:#1a1206;border-radius:6px;padding:10px;opacity:${score.lifeTerrainScore > 0 ? '1' : '0.7'}">
-          <div style="font-size:20px;margin-bottom:4px">⚙️</div>
-          <div style="color:#aa8840;font-weight:600">${tr('เครื่องยนต์', 'Engine')}</div>
+          <div style="font-size:20px;margin-bottom:4px">${score.lifeTerrainScore >= 850 ? '✈️' : score.lifeTerrainScore >= 760 ? '🏎️' : score.lifeTerrainScore >= 700 ? '🚗' : score.lifeTerrainScore > 0 ? '🚙' : '🚗'}</div>
+          <div style="color:#aa8840;font-weight:600">${tr('พาหนะ', 'Vehicle')}</div>
           <div style="color:#7a6030;margin-top:2px">Life Terrain</div>
-          <div style="color:${score.lifeTerrainScore > 0 ? '#d4a040' : '#7a6030'};font-size:12px;margin-top:4px;font-weight:${score.lifeTerrainScore > 0 ? '700' : '400'}">${score.lifeTerrainScore > 0 ? score.lifeTerrainScore + tr(' = เครื่อง', ' = engine ') + (score.lifeTerrainScore >= 820 ? 'V8' : score.lifeTerrainScore >= 760 ? 'V6' : score.lifeTerrainScore >= 700 ? 'I4' : tr('เก่า', 'old')) : tr('กรอกอาชีพ+ประเทศ', 'Add career + country')}</div>
+          <div style="color:${score.lifeTerrainScore > 0 ? '#d4a040' : '#7a6030'};font-size:12px;margin-top:4px;font-weight:${score.lifeTerrainScore > 0 ? '700' : '400'}">${score.lifeTerrainScore > 0 ? score.lifeTerrainScore + ' = ' + (score.lifeTerrainScore >= 850 ? tr('เครื่องบิน', 'Airplane') : score.lifeTerrainScore >= 760 ? tr('รถสปอร์ต', 'Sports car') : score.lifeTerrainScore >= 700 ? tr('ซีดาน', 'Sedan') : tr('รถเก่า', 'Old car')) : tr('กรอกอาชีพ+ประเทศ', 'Add career + country')}</div>
         </div>
         <div style="background:#0a1015;border-radius:6px;padding:10px;opacity:${score.pathResonanceScore > 0 ? '1' : '0.7'}">
-          <div style="font-size:20px;margin-bottom:4px">🔌</div>
-          <div style="color:#408890;font-weight:600">${tr('ท่อเชื้อเพลิง', 'Fuel Line')}</div>
+          <div style="font-size:20px;margin-bottom:4px">${score.pathResonanceScore >= 850 ? '🌌' : score.pathResonanceScore >= 760 ? '🛣️' : score.pathResonanceScore >= 700 ? '🛤️' : score.pathResonanceScore > 0 ? '🪨' : '🛣️'}</div>
+          <div style="color:#408890;font-weight:600">${tr('เส้นทาง', 'Road')}</div>
           <div style="color:#306070;margin-top:2px">Path Resonance</div>
-          <div style="color:${score.pathResonanceScore > 0 ? '#40c0a0' : '#306070'};font-size:12px;margin-top:4px;font-weight:${score.pathResonanceScore > 0 ? '700' : '400'}">${score.pathResonanceScore > 0 ? score.pathResonanceScore + tr(' = ท่อ', ' = ') + (score.pathResonanceScore >= 820 ? tr('ดี', 'optimal') : score.pathResonanceScore >= 760 ? tr('โอเค', 'good') : score.pathResonanceScore >= 700 ? tr('ใช้ได้', 'usable') : tr('ตัน', 'restricted')) : tr('กรอกสายงาน', 'Add domain')}</div>
+          <div style="color:${score.pathResonanceScore > 0 ? '#40c0a0' : '#306070'};font-size:12px;margin-top:4px;font-weight:${score.pathResonanceScore > 0 ? '700' : '400'}">${score.pathResonanceScore > 0 ? score.pathResonanceScore + ' = ' + (score.pathResonanceScore >= 850 ? tr('ท้องฟ้าเปิด', 'Open sky') : score.pathResonanceScore >= 760 ? tr('ทางด่วน', 'Highway') : score.pathResonanceScore >= 700 ? tr('ถนนหลัก', 'Main road') : tr('ทางลูกรัง', 'Dirt road')) : tr('กรอกสายงาน', 'Add domain')}</div>
         </div>
       </div>
     </div>
