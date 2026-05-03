@@ -4199,6 +4199,25 @@ function calcAddons(dmEl, tier, dasha) {
     };
 }
 function calculate(d) {
+    // Reject impossible Gregorian dates BEFORE any system computes pillars.
+    // JavaScript's Date constructor silently rolls invalid dates over to the
+    // next valid date (Feb 29 / 2023 → Mar 1; Apr 31 → May 1) — the engine
+    // would compute BaZi pillars from the rolled date while chart.input still
+    // carries the user's invalid value, producing a report that disagrees
+    // with itself. Throw a clear error so the UI's catch path can surface it
+    // ("เกิดข้อผิดพลาด: …") instead of silently rendering misleading data.
+    const probe = new Date(d.year, d.month - 1, d.day);
+    if (probe.getFullYear() !== d.year || probe.getMonth() !== d.month - 1 || probe.getDate() !== d.day) {
+        throw new Error(`Invalid birth date: ${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')} does not exist on the calendar`);
+    }
+    // Defensive bounds on hour/minute too — these come from <input type="number">
+    // and could be NaN if the form sends an empty value through parseInt.
+    if (!Number.isFinite(d.hour) || d.hour < 0 || d.hour > 23) {
+        throw new Error(`Invalid birth hour: ${d.hour} (expected 0-23)`);
+    }
+    if (!Number.isFinite(d.minute) || d.minute < 0 || d.minute > 59) {
+        throw new Error(`Invalid birth minute: ${d.minute} (expected 0-59)`);
+    }
     // Propagate user's chosen language to the module-local _reportLang BEFORE
     // any calc* runs — every system bakes its bilingual `reading` HTML at
     // calculate time, so _setReportLang must happen first or all readings
