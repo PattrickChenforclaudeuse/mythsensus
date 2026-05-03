@@ -148,6 +148,34 @@ for (const vp of VIEWPORTS) {
       redirected = finalUrl.replace(/\/$/, '') !== url.replace(/\/$/, '');
       await page.screenshot({ path: shotPath, fullPage: true });
       checks = await page.evaluate(collectChecks);
+
+      // Defense-in-depth smoke test: click a couple of known onclick triggers on the
+      // pages that have heavy inline <script> blocks. Any uncaught error from a click
+      // (e.g. ReferenceError when the script failed to parse) lands in consoleErrors
+      // via the pageerror listener above and is then promoted to a hard fail below.
+      if (pg.name === 'landing' || pg.name === 'beta-app') {
+        // Pick triggers that are safe to invoke against production: a modal-open
+        // (no side effects) and a UI tab switch (no API calls). Anything that
+        // hits the generation backend or writes data is intentionally excluded.
+        const triggers = [
+          '[onclick*="showLoginOverlay"]',
+          '[onclick*="setGroup"]',
+        ];
+        for (const sel of triggers) {
+          const btn = await page.$(sel).catch(() => null);
+          if (!btn) continue;
+          try {
+            await btn.click({ timeout: 1000, trial: false });
+            await page.waitForTimeout(250);
+            // Dismiss anything that might block the next click.
+            await page.keyboard.press('Escape').catch(() => {});
+          } catch {
+            // Click itself failing (overlay, off-screen, etc.) is not a hard fail —
+            // we only care whether the click triggered an uncaught JS error, which
+            // the pageerror listener already records.
+          }
+        }
+      }
     } catch (e) {
       err = e.message;
     }
