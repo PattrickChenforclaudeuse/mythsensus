@@ -1865,6 +1865,15 @@ const LEVEL_BONUS = {
     'Junior': -20, 'Mid': 0, 'Senior': 30, 'Director': 60, 'Executive': 80,
 };
 function calcLifeTerrain(d, dmElement) {
+    // Gate on EXPLICIT user-provided context. birthCountry alone is too weak —
+    // most users have moved by adulthood, and a Thailand-default score for an
+    // empty form would render a Vehicle tier that's misleading (see review H1).
+    // Returning 0 here makes the renderer's `score > 0` guard meaningful again,
+    // so the Cosmic Journey panel correctly shows the "Add career + country"
+    // placeholder when the user has provided no working context.
+    if (!d.workCountry && !d.careerLevel) {
+        return { score: 0, detail: '' };
+    }
     const SHENG = { Wood: 'Fire', Fire: 'Earth', Earth: 'Metal', Metal: 'Water', Water: 'Wood' };
     const EL_EN = { 'ไม้': 'Wood', 'ไฟ': 'Fire', 'ดิน': 'Earth', 'โลหะ': 'Metal', 'น้ำ': 'Water' };
     const dmElEn = EL_EN[dmElement] ?? 'Fire';
@@ -1907,6 +1916,13 @@ const INDUSTRY_ELEMENT = {
     'Energy': 'Fire', 'Manufacturing': 'Metal',
 };
 function calcPathResonance(d, dmElement) {
+    // Gate on EXPLICIT user-provided domain or industry — neither defaulting to
+    // "Business Development × Interior Construction" silently because the
+    // resulting Path Resonance score would have no relationship to the user's
+    // actual career. See review H1.
+    if (!d.domain && !d.industry) {
+        return { score: 0, detail: '' };
+    }
     const SHENG = { Wood: 'Fire', Fire: 'Earth', Earth: 'Metal', Metal: 'Water', Water: 'Wood' };
     const EL_EN = { 'ไม้': 'Wood', 'ไฟ': 'Fire', 'ดิน': 'Earth', 'โลหะ': 'Metal', 'น้ำ': 'Water' };
     const dmElEn = EL_EN[dmElement] ?? 'Fire';
@@ -3949,6 +3965,53 @@ function p01_cover(c) {
     </div>
   `);
 }
+const JOURNEY_TIERS = [
+    { min: 850, fuel: { th: 'เครื่องบินเจ็ท', en: 'Jet fuel' }, vehicle: { th: 'เครื่องบิน', en: 'Airplane', icon: '✈️' }, road: { th: 'ท้องฟ้าเปิด', en: 'Open sky', icon: '🌌' } },
+    { min: 760, fuel: { th: 'เบนซิน 95+', en: '95+ premium' }, vehicle: { th: 'รถสปอร์ต', en: 'Sports car', icon: '🏎️' }, road: { th: 'ทางด่วน', en: 'Highway', icon: '🛣️' } },
+    { min: 700, fuel: { th: 'เบนซิน 91', en: '91 regular' }, vehicle: { th: 'ซีดาน', en: 'Sedan', icon: '🚗' }, road: { th: 'ถนนหลัก', en: 'Main road', icon: '🛤️' } },
+    { min: 0, fuel: { th: 'ดีเซล', en: 'Diesel' }, vehicle: { th: 'รถเก่า', en: 'Old car', icon: '🚙' }, road: { th: 'ทางลูกรัง', en: 'Dirt road', icon: '🪨' } },
+];
+// Resolve a score to its tier. Always returns a tier (last entry has min:0
+// so any non-negative score lands somewhere). Caller is responsible for
+// gating on score > 0 before calling — score=0 still maps to "Diesel/Old car"
+// which would be misleading; we use it only as a typed fallback.
+const _journeyTier = (score) => JOURNEY_TIERS.find(t => score >= t.min);
+// Render the three-card Cosmic Journey panel. Cards 2-3 (Vehicle, Road) are
+// gated on score > 0 — empty score means the user hasn't provided
+// career/country/domain context, so we render the placeholder CTA instead of
+// inventing a tier from default fallbacks (see review H1).
+function _renderCosmicJourney(score) {
+    const fuelTier = _journeyTier(score.total);
+    const ltFilled = score.lifeTerrainScore > 0;
+    const prFilled = score.pathResonanceScore > 0;
+    const ltTier = ltFilled ? _journeyTier(score.lifeTerrainScore) : null;
+    const prTier = prFilled ? _journeyTier(score.pathResonanceScore) : null;
+    return `
+    <!-- Cosmic Journey analogy -->
+    <div style="background:#120a06;border:1px solid #5a3010;border-radius:8px;padding:14px;margin-bottom:14px">
+      <div style="font-size:12px;color:#9a6040;margin-bottom:8px;font-weight:600">🛢️ ${tr('ดวงเหมือนการเดินทาง', 'Cosmic Journey')}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;font-size:11px">
+        <div style="background:#1a0e06;border-radius:6px;padding:10px">
+          <div style="font-size:20px;margin-bottom:4px">🛢️</div>
+          <div style="color:#d4aa50;font-weight:600">${tr('น้ำมัน', 'Fuel')}</div>
+          <div style="color:#7a5a40;margin-top:2px">Soul Frequency</div>
+          <div style="color:#aa8050;font-size:12px;margin-top:4px">${score.total} = ${tr(fuelTier.fuel.th, fuelTier.fuel.en)}</div>
+        </div>
+        <div style="background:#1a1206;border-radius:6px;padding:10px;opacity:${ltFilled ? '1' : '0.7'}">
+          <div style="font-size:20px;margin-bottom:4px">${ltTier ? ltTier.vehicle.icon : '🚗'}</div>
+          <div style="color:#aa8840;font-weight:600">${tr('พาหนะ', 'Vehicle')}</div>
+          <div style="color:#7a6030;margin-top:2px">Life Terrain</div>
+          <div style="color:${ltFilled ? '#d4a040' : '#7a6030'};font-size:12px;margin-top:4px;font-weight:${ltFilled ? '700' : '400'}">${ltTier ? `${score.lifeTerrainScore} = ${tr(ltTier.vehicle.th, ltTier.vehicle.en)}` : tr('กรอกอาชีพ+ประเทศ', 'Add career + country')}</div>
+        </div>
+        <div style="background:#0a1015;border-radius:6px;padding:10px;opacity:${prFilled ? '1' : '0.7'}">
+          <div style="font-size:20px;margin-bottom:4px">${prTier ? prTier.road.icon : '🛣️'}</div>
+          <div style="color:#408890;font-weight:600">${tr('เส้นทาง', 'Road')}</div>
+          <div style="color:#306070;margin-top:2px">Path Resonance</div>
+          <div style="color:${prFilled ? '#40c0a0' : '#306070'};font-size:12px;margin-top:4px;font-weight:${prFilled ? '700' : '400'}">${prTier ? `${score.pathResonanceScore} = ${tr(prTier.road.th, prTier.road.en)}` : tr('กรอกสายงาน', 'Add domain')}</div>
+        </div>
+      </div>
+    </div>`;
+}
 // ── 3-SCORE DETAIL ─────────────────────────────────────────────
 function p_threeScores(c) {
     const { bazi, score } = c;
@@ -3989,30 +4052,7 @@ function p_threeScores(c) {
       </div>
     </div>
 
-    <!-- Petroleum analogy -->
-    <div style="background:#120a06;border:1px solid #5a3010;border-radius:8px;padding:14px;margin-bottom:14px">
-      <div style="font-size:12px;color:#9a6040;margin-bottom:8px;font-weight:600">🛢️ ${tr('ดวงเหมือนการเดินทาง', 'Cosmic Journey')}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;font-size:11px">
-        <div style="background:#1a0e06;border-radius:6px;padding:10px">
-          <div style="font-size:20px;margin-bottom:4px">🛢️</div>
-          <div style="color:#d4aa50;font-weight:600">${tr('น้ำมัน', 'Fuel')}</div>
-          <div style="color:#7a5a40;margin-top:2px">Soul Frequency</div>
-          <div style="color:#aa8050;font-size:12px;margin-top:4px">${score.total} = ${score.total >= 850 ? tr('เครื่องบินเจ็ท', 'Jet fuel') : score.total >= 760 ? tr('เบนซิน 95+', '95+ premium') : score.total >= 700 ? tr('เบนซิน 91', '91 regular') : tr('ดีเซล', 'Diesel')}</div>
-        </div>
-        <div style="background:#1a1206;border-radius:6px;padding:10px;opacity:${score.lifeTerrainScore > 0 ? '1' : '0.7'}">
-          <div style="font-size:20px;margin-bottom:4px">${score.lifeTerrainScore >= 850 ? '✈️' : score.lifeTerrainScore >= 760 ? '🏎️' : score.lifeTerrainScore >= 700 ? '🚗' : score.lifeTerrainScore > 0 ? '🚙' : '🚗'}</div>
-          <div style="color:#aa8840;font-weight:600">${tr('พาหนะ', 'Vehicle')}</div>
-          <div style="color:#7a6030;margin-top:2px">Life Terrain</div>
-          <div style="color:${score.lifeTerrainScore > 0 ? '#d4a040' : '#7a6030'};font-size:12px;margin-top:4px;font-weight:${score.lifeTerrainScore > 0 ? '700' : '400'}">${score.lifeTerrainScore > 0 ? score.lifeTerrainScore + ' = ' + (score.lifeTerrainScore >= 850 ? tr('เครื่องบิน', 'Airplane') : score.lifeTerrainScore >= 760 ? tr('รถสปอร์ต', 'Sports car') : score.lifeTerrainScore >= 700 ? tr('ซีดาน', 'Sedan') : tr('รถเก่า', 'Old car')) : tr('กรอกอาชีพ+ประเทศ', 'Add career + country')}</div>
-        </div>
-        <div style="background:#0a1015;border-radius:6px;padding:10px;opacity:${score.pathResonanceScore > 0 ? '1' : '0.7'}">
-          <div style="font-size:20px;margin-bottom:4px">${score.pathResonanceScore >= 850 ? '🌌' : score.pathResonanceScore >= 760 ? '🛣️' : score.pathResonanceScore >= 700 ? '🛤️' : score.pathResonanceScore > 0 ? '🪨' : '🛣️'}</div>
-          <div style="color:#408890;font-weight:600">${tr('เส้นทาง', 'Road')}</div>
-          <div style="color:#306070;margin-top:2px">Path Resonance</div>
-          <div style="color:${score.pathResonanceScore > 0 ? '#40c0a0' : '#306070'};font-size:12px;margin-top:4px;font-weight:${score.pathResonanceScore > 0 ? '700' : '400'}">${score.pathResonanceScore > 0 ? score.pathResonanceScore + ' = ' + (score.pathResonanceScore >= 850 ? tr('ท้องฟ้าเปิด', 'Open sky') : score.pathResonanceScore >= 760 ? tr('ทางด่วน', 'Highway') : score.pathResonanceScore >= 700 ? tr('ถนนหลัก', 'Main road') : tr('ทางลูกรัง', 'Dirt road')) : tr('กรอกสายงาน', 'Add domain')}</div>
-        </div>
-      </div>
-    </div>
+    ${_renderCosmicJourney(score)}
 
     <!-- Top contributors -->
     <div style="margin-bottom:14px">

@@ -1567,6 +1567,15 @@ const LEVEL_BONUS: Record<string,number> = {
 }
 
 export function calcLifeTerrain(d: BirthData, dmElement: string): { score: number; detail: string } {
+  // Gate on EXPLICIT user-provided context. birthCountry alone is too weak —
+  // most users have moved by adulthood, and a Thailand-default score for an
+  // empty form would render a Vehicle tier that's misleading (see review H1).
+  // Returning 0 here makes the renderer's `score > 0` guard meaningful again,
+  // so the Cosmic Journey panel correctly shows the "Add career + country"
+  // placeholder when the user has provided no working context.
+  if (!d.workCountry && !d.careerLevel) {
+    return { score: 0, detail: '' }
+  }
   const SHENG: Record<string,string> = {Wood:'Fire',Fire:'Earth',Earth:'Metal',Metal:'Water',Water:'Wood'}
   const EL_EN: Record<string,string> = {'ไม้':'Wood','ไฟ':'Fire','ดิน':'Earth','โลหะ':'Metal','น้ำ':'Water'}
   const dmElEn = EL_EN[dmElement] ?? 'Fire'
@@ -1610,6 +1619,13 @@ const INDUSTRY_ELEMENT: Record<string,string> = {
 }
 
 export function calcPathResonance(d: BirthData, dmElement: string): { score: number; detail: string } {
+  // Gate on EXPLICIT user-provided domain or industry — neither defaulting to
+  // "Business Development × Interior Construction" silently because the
+  // resulting Path Resonance score would have no relationship to the user's
+  // actual career. See review H1.
+  if (!d.domain && !d.industry) {
+    return { score: 0, detail: '' }
+  }
   const SHENG: Record<string,string> = {Wood:'Fire',Fire:'Earth',Earth:'Metal',Metal:'Water',Water:'Wood'}
   const EL_EN: Record<string,string> = {'ไม้':'Wood','ไฟ':'Fire','ดิน':'Earth','โลหะ':'Metal','น้ำ':'Water'}
   const dmElEn = EL_EN[dmElement] ?? 'Fire'
