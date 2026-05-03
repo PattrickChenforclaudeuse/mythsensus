@@ -183,6 +183,16 @@ body.nav-hidden .nav-toggle-btn{transform:rotate(180deg)}
      user's own toggle preference (mth_rails_hidden) for non-report views. */
   body.cb-report-active .desk-rail.left  { opacity:0; pointer-events:none; transform:translateX(-20px); }
   body.cb-report-active .desk-rail.right { opacity:0; pointer-events:none; transform:translateX( 20px); }
+  /* Clickable rail cards — hover lifts + reveals CTA arrow at the bottom */
+  .rail-clickable{cursor:pointer;transition:border-color .2s,transform .2s,background .2s;}
+  .rail-clickable:hover{border-color:var(--gold)!important;transform:translateY(-2px);background:linear-gradient(180deg,rgba(200,164,90,.10),rgba(200,164,90,.02))!important;}
+  .rail-clickable:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  .rail-cta{
+    margin-top:12px;padding-top:10px;border-top:1px solid var(--gold3);
+    font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;
+    color:var(--gold3);text-align:center;opacity:.55;transition:opacity .2s,color .2s,letter-spacing .2s;
+  }
+  .rail-clickable:hover .rail-cta{opacity:1;color:var(--gold);letter-spacing:2.5px;}
   .desk-rail-card{
     background:linear-gradient(180deg,rgba(200,164,90,.05),rgba(200,164,90,.01));
     border:1px solid var(--gold3);border-radius:10px;
@@ -1198,10 +1208,11 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   </button>
 </div>
 
-<!-- ═══ DESKTOP SIDE RAILS (viewport >= 1200px only) ═══ -->
+<!-- ═══ DESKTOP SIDE RAILS (viewport >= 1200px only) ═══
+     Each card is fully clickable — see _railJump() for routing. -->
 <aside class="desk-rail left" id="deskRailLeft" aria-hidden="true">
-  <!-- TODAY'S SKY -->
-  <div class="desk-rail-card">
+  <!-- TODAY'S SKY → Subscription → Sky (full transit panel) -->
+  <div class="desk-rail-card rail-clickable" onclick="_railJump('sky')" role="button" tabindex="0" title="Open today's full sky panel">
     <h4 id="railTodayTitle">✦ Today's Sky</h4>
     <div class="desk-rail-row">
       <div class="desk-rail-icon" id="railPhase">🌑</div>
@@ -1218,9 +1229,10 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       </div>
     </div>
     <div class="desk-rail-meaning" id="railSkyMeaning">—</div>
+    <div class="rail-cta" id="railSkyCta" data-en="OPEN FULL SKY →" data-th="ดูท้องฟ้าเต็ม →">OPEN FULL SKY →</div>
   </div>
-  <!-- DAY'S DEITY -->
-  <div class="desk-rail-card">
+  <!-- DAY'S DEITY → Addon → Deep (Thai-Brahmin reading section) -->
+  <div class="desk-rail-card rail-clickable" onclick="_railJump('deity')" role="button" tabindex="0" title="Open Thai-Brahmin deep reading">
     <h4 id="railDeityTitle">✦ Day's Deity</h4>
     <div class="desk-rail-row">
       <div class="desk-rail-icon" id="railDeityIcon" style="font-size:32px">—</div>
@@ -1230,17 +1242,19 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       </div>
     </div>
     <div class="desk-rail-meaning" id="railDeityMeaning">—</div>
+    <div class="rail-cta" id="railDeityCta" data-en="DEEP READING →" data-th="อ่านลึก →">DEEP READING →</div>
   </div>
 </aside>
 <aside class="desk-rail right" id="deskRailRight" aria-hidden="true">
-  <!-- COSMIC TIP -->
-  <div class="desk-rail-card">
+  <!-- COSMIC TIP → click cycles to next tip; long-press / 2nd click = save -->
+  <div class="desk-rail-card rail-clickable" onclick="_railRotateTip()" role="button" tabindex="0" title="Click for next tip">
     <h4 id="railTipTitle">✦ Cosmic Tip</h4>
     <p class="desk-rail-tip" id="railTipBody">—</p>
     <div class="desk-rail-meaning" id="railTipSource" style="font-size:10px;letter-spacing:1px;text-transform:uppercase;font-style:normal">—</div>
+    <div class="rail-cta" id="railTipCta" data-en="✦ NEXT TIP →" data-th="✦ คำใหม่ →">✦ NEXT TIP →</div>
   </div>
-  <!-- YOUR JOURNEY -->
-  <div class="desk-rail-card">
+  <!-- YOUR JOURNEY → Subscription → History (full timeline) -->
+  <div class="desk-rail-card rail-clickable" onclick="_railJump('journey')" role="button" tabindex="0" title="View full history">
     <h4 id="railStatsTitle">✦ Your Journey</h4>
     <ul>
       <li>
@@ -1259,6 +1273,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         <span class="stat-val" id="railStatReports">0</span>
       </li>
     </ul>
+    <div class="rail-cta" id="railJourneyCta" data-en="VIEW FULL HISTORY →" data-th="ดูประวัติเต็ม →">VIEW FULL HISTORY →</div>
   </div>
 </aside>
 
@@ -9144,6 +9159,58 @@ function renderDesktopRails(phase, moonSign, dow, dayIcons, dayNamesTH, dayNames
   set('railStatReports',   String(reports));
 }
 
+// ── Rail card click-through routing ───────────────────────────────────────
+// Each side-rail card is now clickable. _railJump(target) routes to a
+// destination panel based on the card type. We route to the most-specific
+// existing panel rather than opening modals — keeps the URL path predictable
+// (via setGroup/showSubTab dispatcher) and reuses panels users already know.
+function _railJump(target){
+  try {
+    if (target === 'sky') {
+      // Today's Sky card → Subscription → Sky (full transit panel with all planets)
+      setGroup('subscription');
+      showSubTab('sky');
+    } else if (target === 'deity') {
+      // Day's Deity card → Add-ons → Deep Reading (Thai-Brahmin section is part of 26 systems)
+      setGroup('addon');
+      showSubTab('deep');
+    } else if (target === 'journey') {
+      // Your Journey card → Subscription → History (full all-time history)
+      // Falls back to Free → History if subscription tier is locked.
+      setGroup('subscription');
+      showSubTab('history');
+    }
+    // Scroll to top so the destination panel is visible
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch(e) { console.warn('[rail] jump failed:', e); }
+}
+
+// Cosmic Tip rotation — click cycles to the next tip in the array.
+// State persists in-memory only; refresh resets to today's deterministic
+// (date+dow)%7 default. Last-shown index is also stamped into a tiny
+// localStorage entry so a follow-up "save tip" feature can reference which
+// tip the user last interacted with.
+let _railTipIdx = null;
+function _railRotateTip(){
+  try {
+    const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
+    if (_railTipIdx === null) {
+      // First click — initialise from current tip index
+      const dow = new Date().getDay();
+      _railTipIdx = (new Date().getDate() + dow) % _cosmicTipsTH.length;
+    }
+    _railTipIdx = (_railTipIdx + 1) % _cosmicTipsTH.length;
+    const body = document.getElementById('railTipBody');
+    if (body) body.textContent = isTh ? _cosmicTipsTH[_railTipIdx] : _cosmicTipsEN[_railTipIdx];
+    try { localStorage.setItem('mth_last_tip_idx', String(_railTipIdx)); } catch(_){}
+    // Subtle micro-animation so the click feels acknowledged
+    if (body) {
+      body.style.opacity = '0.5';
+      setTimeout(() => { body.style.transition = 'opacity .25s'; body.style.opacity = '1'; }, 30);
+    }
+  } catch(e) { console.warn('[rail] tip rotate failed:', e); }
+}
+
 // ── DESKTOP RAIL TOGGLE (all 4 panels at once) ────────────────────────────
 function toggleAllRails() {
   const rL = document.getElementById('deskRailLeft');
@@ -13405,6 +13472,34 @@ let _entryLang = 'th';      // captured choice; commits to global LANG on accept
 function showEntryOverlay(){
   const ov = document.getElementById('entryOverlay');
   if (!ov) { _bootAfterEntry(); return; }
+  // ── Returning-user fast path ─────────────────────────────────
+  // If saved DOB + lang already exist, skip the overlay entirely and
+  // boot straight into the app. Re-prompt only on key events:
+  //   1. ?reset=1 in URL (manual reset / link from Profile → Edit data)
+  //   2. mth_force_entry flag (set when user signs out or wipes data)
+  //   3. Last visit older than 180 days (freshness re-confirm)
+  // The user can always edit DOB later via Profile → Edit Birth Data.
+  try {
+    const savedDob   = localStorage.getItem('mth_dob');
+    const savedLang  = localStorage.getItem('mth_lang');
+    const lastVisit  = parseInt(localStorage.getItem('mth_last_visit') || '0', 10);
+    const daysSince  = lastVisit ? Math.floor((Date.now() - lastVisit) / 86400000) : Infinity;
+    const forceEntry = localStorage.getItem('mth_force_entry') === '1'
+                    || location.search.includes('reset=1');
+    if (savedDob && savedLang && !forceEntry && daysSince < 180) {
+      // Honour saved language immediately.
+      LANG = savedLang === 'en' ? 'en' : 'th';
+      document.documentElement.lang = LANG;
+      // Stamp the visit so the 180-day freshness check counts from now.
+      localStorage.setItem('mth_last_visit', String(Date.now()));
+      ov.style.display = 'none';
+      _bootAfterEntry();
+      return;
+    }
+    // Clear the force flag — next visit gets the fast path again.
+    if (forceEntry) localStorage.removeItem('mth_force_entry');
+  } catch (_) { /* localStorage unavailable — fall through to overlay */ }
+
   // Pre-select last used language (default Thai for Thai-first market).
   _entryLang = localStorage.getItem('mth_lang') || 'th';
   _entryRefreshLang();
@@ -13707,6 +13802,9 @@ function entryAccept(){
   localStorage.setItem('mth_time',   time);
   localStorage.setItem('mth_gender', gender);
   localStorage.setItem('mth_city',   city);
+  // Stamp visit so the next visit's fast-path skip-the-overlay check
+  // (showEntryOverlay → 180-day freshness gate) starts ticking.
+  localStorage.setItem('mth_last_visit', String(Date.now()));
   // Commit LANG globally and dismiss overlay.
   if (typeof LANG !== 'undefined' && LANG !== _entryLang) LANG = _entryLang;
   document.documentElement.lang = _entryLang;
