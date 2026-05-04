@@ -17135,7 +17135,17 @@ function cb_generate() {
   }
   const h         = Math.min(23, Math.max(0, parseInt(document.getElementById('cb-f-time-h')?.value) || 12));
   const mi        = Math.min(59, Math.max(0, parseInt(document.getElementById('cb-f-time-m')?.value) || 0));
-  const [lat, lon, tz] = cityVal.split(',').map(Number);
+  // City `<select>` always emits "lat,lon,tz". A corrupted localStorage
+  // (older schema, sync glitch, dev-tools edit) can leak a non-numeric value
+  // through and the engine then crashes deep inside with "Cannot read
+  // properties of undefined (reading 'type')". Coerce silently to the
+  // Bangkok default rather than alert — chart still generates, just from a
+  // safe fallback location. Same defensive pattern as the hour/minute clamps
+  // above.
+  let [lat, lon, tz] = cityVal.split(',').map(Number);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || !Number.isFinite(tz)) {
+    [lat, lon, tz] = [13.75, 100.5, 7];
+  }
 
   // Read Life Path Resonance context saved by the Subscription → Resonance panel.
   const workCountry = localStorage.getItem('mth_country') || '';
