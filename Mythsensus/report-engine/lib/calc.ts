@@ -942,8 +942,8 @@ function calcVedic(d: BirthData, w: WesternData): VedicData {
   return {
     lagna: lagnaSign.en, lagnaSign: lagnaSign.th,
     moonNakshatra: nakshatra, nakshatraLord: lord, nakshathraPada: pada,
-    mahadasha: currentDasha, mahadashaPeriod: tPick(`ถึง ${dashEnd}`, `until ${dashEnd}`), mahadashaEnd: dashEnd,
-    antardasha,
+    mahadasha: pPlanet(currentDasha), mahadashaPeriod: tPick(`ถึง ${dashEnd}`, `until ${dashEnd}`), mahadashaEnd: dashEnd,
+    antardasha: pPlanet(antardasha),
     yogas,
     reading: buildRichReading({
       sysTh: 'โหราศาสตร์ภารตะ (Vedic Jyotish)',
@@ -1277,7 +1277,9 @@ function calcCeltic(d: BirthData): CelticData {
   const celticScore = Math.max(400, Math.min(960, (TREE_SCORE[found?.name??'']??700) + ((d.day*13+d.month*5)%60)-30));
   return {
     treeName: found.name, treeNameTh: found.th,
-    symbol: `🌳`, rulingPlanet: found.planet, gemstone: found.gem, element: found.el,
+    // Apply LANG-aware translators so Resonance/Mirror/Product tabs render
+    // English in EN mode without each renderer having to wrap the field.
+    symbol: `🌳`, rulingPlanet: pPlanet(found.planet), gemstone: found.gem, element: pEl(found.el),
     personality: celticPersonality(found.name),
     reading: buildRichReading({
       sysTh: 'ต้นไม้เซลติก (Celtic Tree Astrology)',
@@ -1819,7 +1821,7 @@ const ADDON_COMPANIONS_BY_ELEMENT: Record<string, any> = {
     creature:'🐉 มังกร Jade Dragon',
     creatureDesc:'มังกรหยกเป็นสัญลักษณ์ธาตุไม้ — ปัญญา ความเมตตา และการปกป้อง',
     creatureStory:'ในพระราชวังต้องห้ามจีน มังกรหยกปกครองฤดูใบไม้ผลิและทิศตะวันออก · เป็น 1 ใน 4 sacred beasts (มังกร-ฟีนิกซ์-เต่า-เสือ) ที่ปกป้อง 4 ทิศของโลก · มังกรเอเชียต่างจากมังกรตะวันตก — ไม่ใช่สัตว์ร้ายที่ต้องปราบ แต่คือผู้ให้ฝนและความอุดมสมบูรณ์ · เมื่อคุณธาตุไม้เชื่อมกับมังกรหยก คุณกำลัง tap พลังแห่งการเติบโตในระดับจักรวรรดิ',
-    mantra:'ॐ शक्राय नमः — สวด 108 ครั้งวันพฤหัสบดีเพื่อเสริมธาตุไม้',
+    mantra:'ॐ शक्राय नमः (Om Shakraya Namah) — สวด 108 ครั้งวันพฤหัสบดีเพื่อเสริมธาตุไม้',
     places:'วัดในป่า · สวนพฤกษศาสตร์ · เขาสูง · ป่าไผ่ญี่ปุ่น',
     music:'ดนตรีธรรมชาติ · ขลุ่ยไม้ไผ่ · Forest sounds · Celtic harp',
     crystal:'มรกต · Jade · Green Aventurine — วางใต้หมอนหรือในกระเป๋า',
@@ -1829,7 +1831,7 @@ const ADDON_COMPANIONS_BY_ELEMENT: Record<string, any> = {
     creature:'🦁 สิงห์ไฟ Solar Lion',
     creatureDesc:'ราชสีห์แห่งดวงอาทิตย์ — ความกล้าหาญ พลังงาน และความเป็นผู้นำ',
     creatureStory:'สิงโตเป็นสัญลักษณ์ของ Ra · Sekhmet · และ Narasimha (อวตารของ Vishnu) — ทุกวัฒนธรรมใช้สิงโตแทน "พลังสูงสุดที่ควบคุมได้" · Sekhmet อียิปต์มีหัวเป็นสิงโตตัวเมีย เป็นเทพีของสงครามแต่ก็ของการรักษาด้วย — เตือนว่าไฟที่สร้างคือไฟเดียวกับที่ทำลาย · คนธาตุไฟที่เลือก Solar Lion เป็น spirit guide จะเรียนรู้การใช้พลังแบบสงบ (regal) ไม่ใช่แบบอารมณ์ (feral)',
-    mantra:'ॐ सूर्याय नमः — สวดในยามเช้าเผชิญดวงอาทิตย์เพื่อเสริมพลังไฟ',
+    mantra:'ॐ सूर्याय नमः (Om Suryaya Namah) — สวดในยามเช้าเผชิญดวงอาทิตย์เพื่อเสริมพลังไฟ',
     places:'ทะเลทราย · ภูเขาไฟ · วิหารกลางแดด · หาดทรายยามเย็น',
     music:'ดนตรีอัฟริกัน · Drums · Epic orchestral · Rock & Soul',
     crystal:'ทับทิม · Red Jasper · Carnelian — สวมเป็นแหวนหรือจี้',
@@ -1839,7 +1841,7 @@ const ADDON_COMPANIONS_BY_ELEMENT: Record<string, any> = {
     creature:'🦬 Buffalo Spirit ควายศักดิ์สิทธิ์',
     creatureDesc:'Buffalo สัญลักษณ์แห่งความอุดมสมบูรณ์ ความแข็งแกร่ง และความมั่นคงของแผ่นดิน',
     creatureStory:'Native American Lakota เชื่อว่า White Buffalo Calf Woman นำ sacred pipe และคำสอน 7 rites มาให้เผ่า — เป็นโมเมนต์ที่จิตวิญญาณ "ลง" มาบนโลก · ในไทย-ลาว ควายคือเพื่อนที่ไถนาร่วมกับชาวนาหลายพันปี เป็นสัญลักษณ์ของ "แรงงานที่ไม่ดัง แต่เลี้ยงคนทั้งประเทศ" · Buffalo Spirit สอนให้คนธาตุดินใช้พลังอย่างเงียบ ไม่ต้องอวด',
-    mantra:'ॐ भूम्यै नमः — สวดในยามเย็นเท้าเหยียบดินเปล่า',
+    mantra:'ॐ भूम्यै नमः (Om Bhumyai Namah) — สวดในยามเย็นเท้าเหยียบดินเปล่า',
     places:'ทุ่งข้าว · สวนเกษตร · ถ้ำ · ฟาร์ม · สถานที่บนดิน',
     music:'ดนตรีพื้นเมือง · Drum circle · Earthly sounds · World music',
     crystal:'หยก · Tiger Eye · Smoky Quartz — วางบนโต๊ะทำงาน',
@@ -1849,7 +1851,7 @@ const ADDON_COMPANIONS_BY_ELEMENT: Record<string, any> = {
     creature:'🦅 White Eagle พญาอินทรีขาว',
     creatureDesc:'อินทรีขาวสัญลักษณ์แห่งปัญญา ความชัดเจน และการมองการณ์ไกล',
     creatureStory:'ในหลายวัฒนธรรม Eagle คือสัตว์เดียวที่จ้องดวงอาทิตย์ได้โดยไม่บอด — สัญลักษณ์ของคนที่มองความจริงตรงได้ · ในอินเดีย Garuda เป็นพาหนะของ Vishnu · ในกรีก นกอินทรีเป็น messenger ของ Zeus · Native American กล่าวว่าเมื่อ Eagle Feather ร่วงลงใต้ เป็นของขวัญจากวิญญาณบรรพบุรุษ · คนธาตุโลหะเชื่อมกับ White Eagle เพื่อเรียน "ความสูงของมุมมอง" — เห็นภาพใหญ่โดยไม่หลงอยู่กับรายละเอียด',
-    mantra:'ॐ ब्रह्मणे नमः — สวดในยามรุ่งเช้าวันศุกร์เพื่อเสริมธาตุโลหะ',
+    mantra:'ॐ ब्रह्मणे नमः (Om Brahmane Namah) — สวดในยามรุ่งเช้าวันศุกร์เพื่อเสริมธาตุโลหะ',
     places:'ยอดเขา · อนุสรณ์สถาน · วิหารหิน · ป้อมปราการ',
     music:'Classical · Opera · Tibetan bowls · สถาปัตยกรรมดนตรี',
     crystal:'คริสตัลใส · White Topaz · Diamond (จำลอง) — สวมเป็นจี้',
@@ -1859,7 +1861,7 @@ const ADDON_COMPANIONS_BY_ELEMENT: Record<string, any> = {
     creature:'🐬 Dolphin Spirit โลมาจิต',
     creatureDesc:'โลมาสัญลักษณ์แห่งสติปัญญา ความลึก การสื่อสาร และความเชื่อมโยงจักรวาล',
     creatureStory:'กรีกโบราณเชื่อว่าโลมาคือวิญญาณมนุษย์ที่กลับมาในร่างใหม่ · Dionysus เปลี่ยนโจรสลัดที่ลักพาตัวเขาให้กลายเป็นโลมา — ลงโทษด้วยการให้โอกาสใหม่ไม่ใช่ทำลาย · วิทยาศาสตร์สมัยใหม่ยืนยันว่าโลมามีชื่อเรียกเฉพาะตัว (signature whistles) · เรียนรู้ภาษาของเผ่าพันธุ์อื่น · ช่วยคนจมน้ำโดยสัญชาตญาณ · คนน้ำที่เชื่อมกับ Dolphin Spirit จะพัฒนาความสามารถใน "empathy ข้ามระยะทาง" — รู้ว่าใครต้องการความช่วยเหลือก่อนพูด',
-    mantra:'ॐ गङ्गायै नमः — สวดริมน้ำหรือในอ่างน้ำอุ่นวันจันทร์',
+    mantra:'ॐ गङ्गायै नमः (Om Gangayai Namah) — สวดริมน้ำหรือในอ่างน้ำอุ่นวันจันทร์',
     places:'ทะเล · แม่น้ำ · น้ำตก · อ่าว · แหล่งน้ำศักดิ์สิทธิ์',
     music:'Ambient ocean · Whale songs · New Age · Piano nocturnes',
     crystal:'ไพลิน · Aquamarine · Moonstone — สวมใส่ติดตัวเสมอ',
@@ -1973,10 +1975,10 @@ const ADDON_PRODUCT_BY_ELEMENT: Record<string, any> = {
 const ADDON_MIRROR_BY_ELEMENT_EN: Record<string, any> = {
   'ไม้': {
     icon:'🌿',
-    primary:'Indra · พระอินทร์',
+    primary:'Indra · King of the Devas',
     primaryDesc:'God of storm and sky, leader of the devas — Wood element amplifies growth, flexibility, and leadership',
     primaryStory:'In the Vedas, Indra is the king of heaven who rides the elephant Airavata and wields the vajra (thunderbolt) to slay the demon Vritra and free the waters that nourish the parched earth. The key motif: he is humbled and falls many times through pride and recklessness, returning each time only by owning his mistakes — a fitting mirror for Wood Day Masters who lead and grow easily but must learn humility.',
-    secondary:'Guanyin · เจ้าแม่กวนอิม',
+    secondary:'Guanyin · Goddess of Compassion',
     secondaryDesc:'Compassion, protection, service to others',
     secondaryStory:'Originally Avalokiteshvara of Mahayana Buddhism, she attained enlightenment but vowed not to enter Nirvana until every sentient being is free of suffering — the symbol of Wood that grows tall in order to shelter others.',
     tertiary:'Osiris · Egypt',
@@ -1989,7 +1991,7 @@ const ADDON_MIRROR_BY_ELEMENT_EN: Record<string, any> = {
   },
   'ไฟ': {
     icon:'🔥',
-    primary:'Surya · พระอาทิตย์',
+    primary:'Surya · Sun God',
     primaryDesc:'God of the sun, light, and energy — Fire element amplifies courage, leadership, and creative power',
     primaryStory:'Surya in the Vedas drives a chariot of seven horses across the heavens every day — a symbol of consistency and reliability. His children include Yama (lord of death), Saturn, and Karna of the Mahabharata — each a facet of light: justice, order, courageous sacrifice. Fire people are called to shine steadily, not just flare up.',
     secondary:'Apollo · Greece',
@@ -2005,10 +2007,10 @@ const ADDON_MIRROR_BY_ELEMENT_EN: Record<string, any> = {
   },
   'ดิน': {
     icon:'🌍',
-    primary:'Gaia · พระแม่ธรณี',
+    primary:'Gaia · Mother Earth',
     primaryDesc:'Mother goddess of earth, abundance, and foundation — Earth element amplifies stability, patience, and cultivation',
     primaryStory:'Gaia emerged from Chaos and became mother of all — mountains, oceans, the Titans, and finally the Olympian gods. When her son-husband Cronus devoured all their offspring, she conspired with grandson Zeus to overthrow him — the archetype of Earth that waits for the right moment, never passive.',
-    secondary:'Lakshmi · พระลักษมี',
+    secondary:'Lakshmi · Goddess of Fortune',
     secondaryDesc:'Wealth, beauty, fortune',
     secondaryStory:'Born from the churning of the milk ocean (samudra manthan) — a 1,000-year collaborative effort by gods and demons. The lesson: real wealth comes from sustained joint effort and patience, not random luck.',
     tertiary:'Demeter · Greece',
@@ -2021,7 +2023,7 @@ const ADDON_MIRROR_BY_ELEMENT_EN: Record<string, any> = {
   },
   'โลหะ': {
     icon:'⚔️',
-    primary:'Brahma · พระพรหม',
+    primary:'Brahma · Creator God',
     primaryDesc:'God of creation and wisdom — Metal element amplifies clarity, discipline, and excellence',
     primaryStory:'The creator god of the Trimurti (Brahma–Vishnu–Shiva), he has four faces to see all four directions at once and chants the four Vedas from those four mouths. The archetype of Metal that sees in all directions, thinks systematically, and builds from structure rather than passing emotion.',
     secondary:'Zeus / Odin',
@@ -2037,7 +2039,7 @@ const ADDON_MIRROR_BY_ELEMENT_EN: Record<string, any> = {
   },
   'น้ำ': {
     icon:'🌊',
-    primary:'Ganga · พระแม่คงคา',
+    primary:'Ganga · River Goddess',
     primaryDesc:'Goddess of rivers and purification — Water element amplifies intuition, depth, and adaptability',
     primaryStory:'Ganga originally flowed only in heaven. King Bhagiratha did 1,000 years of austerity to bring her down to purify his ancestors\' bones. Her descent would have shattered the earth — Shiva caught her in his matted hair before releasing her gently as the river. Great Water needs a mountain to receive it; Water people need an anchor or they wash away.',
     secondary:'Poseidon · Greece',
@@ -2062,11 +2064,11 @@ const ADDON_COSMIC_BY_TIER_EN: Record<string, any> = {
 };
 
 const ADDON_COMPAT_BY_ELEMENT_EN: Record<string, any> = {
-  'ไม้':  { best:['น้ำ','ไม้'], good:['ไฟ'],  neutral:['ดิน'],  avoid:['โลหะ'] },
-  'ไฟ':  { best:['ไม้','ไฟ'], good:['ดิน'],  neutral:['โลหะ'], avoid:['น้ำ']  },
-  'ดิน': { best:['ไฟ','ดิน'], good:['โลหะ'], neutral:['น้ำ'],  avoid:['ไม้']  },
-  'โลหะ':{ best:['ดิน','โลหะ'],good:['น้ำ'],  neutral:['ไม้'],  avoid:['ไฟ']  },
-  'น้ำ': { best:['โลหะ','น้ำ'],good:['ไม้'],  neutral:['ไฟ'],   avoid:['ดิน']  },
+  'ไม้':  { best:['Water','Wood'],  good:['Fire'],  neutral:['Earth'], avoid:['Metal'] },
+  'ไฟ':  { best:['Wood','Fire'],   good:['Earth'], neutral:['Metal'], avoid:['Water'] },
+  'ดิน': { best:['Fire','Earth'],  good:['Metal'], neutral:['Water'], avoid:['Wood']  },
+  'โลหะ':{ best:['Earth','Metal'], good:['Water'], neutral:['Wood'],  avoid:['Fire']  },
+  'น้ำ': { best:['Metal','Water'], good:['Wood'],  neutral:['Fire'],  avoid:['Earth'] },
 };
 
 const ADDON_PET_BY_ELEMENT_EN: Record<string, any> = {
@@ -2127,7 +2129,7 @@ const ADDON_COMPANIONS_BY_ELEMENT_EN: Record<string, any> = {
     creature:'🐉 Jade Dragon',
     creatureDesc:'The jade dragon is the Wood-element totem — wisdom, compassion, protection',
     creatureStory:'In the Forbidden City, the jade dragon ruled spring and the eastern direction — one of four sacred beasts (dragon, phoenix, tortoise, tiger) guarding the four corners of the world. Asian dragons are not the western beast to be slain but the bringer of rain and abundance. Wood people connecting with the jade dragon are tapping growth on an imperial scale.',
-    mantra:'ॐ शक्राय नमः — chant 108 times on Thursday to amplify Wood',
+    mantra:'ॐ शक्राय नमः (Om Shakraya Namah) — chant 108 times on Thursday to amplify Wood',
     places:'Forest temples · botanical gardens · high mountains · Japanese bamboo groves',
     music:'Nature music · bamboo flute · forest sounds · Celtic harp',
     crystal:'Emerald · Jade · Green Aventurine — under your pillow or in your pocket',
@@ -2137,7 +2139,7 @@ const ADDON_COMPANIONS_BY_ELEMENT_EN: Record<string, any> = {
     creature:'🦁 Solar Lion',
     creatureDesc:'The solar lion — courage, energy, leadership',
     creatureStory:'The lion symbolises Ra, Sekhmet, and Narasimha (avatar of Vishnu) — every culture uses the lion to mean "highest power, controlled." Egypt\'s Sekhmet is lion-headed: goddess of war and of healing both — a reminder that the fire that creates is the same that destroys. Fire people who choose Solar Lion as a spirit guide learn to use power in regal calm, not feral heat.',
-    mantra:'ॐ सूर्याय नमः — chant at sunrise facing the sun to amplify Fire',
+    mantra:'ॐ सूर्याय नमः (Om Suryaya Namah) — chant at sunrise facing the sun to amplify Fire',
     places:'Deserts · volcanoes · sun-facing temples · evening beaches',
     music:'African drumming · epic orchestral · rock & soul',
     crystal:'Ruby · Red Jasper · Carnelian — wear as ring or pendant',
@@ -2147,7 +2149,7 @@ const ADDON_COMPANIONS_BY_ELEMENT_EN: Record<string, any> = {
     creature:'🦬 Buffalo Spirit',
     creatureDesc:'Buffalo: abundance, strength, the steadiness of the earth',
     creatureStory:'The Lakota tradition tells of White Buffalo Calf Woman who brought the sacred pipe and seven rites to her people — the moment spirit "descended" to earth. In Thai-Lao culture the buffalo has tilled the rice paddies for thousands of years — the symbol of "quiet labour that feeds the whole nation." Buffalo Spirit teaches Earth people to wield power silently, without display.',
-    mantra:'ॐ भूम्यै नमः — chant at evening with bare feet on soil',
+    mantra:'ॐ भूम्यै नमः (Om Bhumyai Namah) — chant at evening with bare feet on soil',
     places:'Rice fields · farms · caves · agricultural land · grounded places',
     music:'Folk music · drum circle · earthly sounds · world music',
     crystal:'Jade · Tiger Eye · Smoky Quartz — place on your work desk',
@@ -2157,7 +2159,7 @@ const ADDON_COMPANIONS_BY_ELEMENT_EN: Record<string, any> = {
     creature:'🦅 White Eagle',
     creatureDesc:'White eagle — wisdom, clarity, far-sight',
     creatureStory:'Across cultures, the eagle is the only animal said to stare into the sun without going blind — the symbol of the one who sees truth straight on. In India, Garuda is Vishnu\'s mount; in Greece, the eagle is Zeus\'s messenger; in Native American lore a fallen eagle feather is a gift from ancestral spirits. Metal people connect with White Eagle to learn altitude — seeing the big picture without losing themselves in detail.',
-    mantra:'ॐ ब्रह्मणे नमः — chant Friday at dawn to amplify Metal',
+    mantra:'ॐ ब्रह्मणे नमः (Om Brahmane Namah) — chant Friday at dawn to amplify Metal',
     places:'Mountain peaks · monuments · stone temples · fortresses',
     music:'Classical · opera · Tibetan bowls · architectural music',
     crystal:'Clear quartz · White Topaz · Diamond (lab) — wear as pendant',
@@ -2167,7 +2169,7 @@ const ADDON_COMPANIONS_BY_ELEMENT_EN: Record<string, any> = {
     creature:'🐬 Dolphin Spirit',
     creatureDesc:'Dolphin: wisdom, depth, communication, cosmic connection',
     creatureStory:'The ancient Greeks believed dolphins were human souls returning in new form. Dionysus turned the pirates who kidnapped him into dolphins — punishment as a second chance, not destruction. Modern science confirms dolphins have signature whistles (their own names), learn other species\' languages, and instinctively rescue drowning humans. Water people who connect to Dolphin Spirit develop empathy across distance — they know who needs help before words are spoken.',
-    mantra:'ॐ गङ्गायै नमः — chant near water or in a warm bath on Monday',
+    mantra:'ॐ गङ्गायै नमः (Om Gangayai Namah) — chant near water or in a warm bath on Monday',
     places:'Ocean · rivers · waterfalls · bays · sacred springs',
     music:'Ambient ocean · whale songs · New Age · piano nocturnes',
     crystal:'Sapphire · Aquamarine · Moonstone — wear close to body always',
@@ -3012,6 +3014,7 @@ function calcOgham(d: BirthData): OghamData {
 // ── ARABIC PARTS ─────────────────────────────────────────────────
 function calcArabicParts(d: BirthData): ArabicPartsData {
   const SIGNS_TH = ['เมษ','พฤษภ','เมถุน','กรกฎ','สิงห์','กันย์','ตุลย์','พิจิก','ธนู','มกร','กุมภ์','มีน'];
+  const SIGNS_EN = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
   const SIGN_SCORES = [760,800,750,710,820,730,780,720,800,740,760,730];
   const isDaySect = d.hour >= 6 && d.hour < 18;
   const ASC = (d.lat * 2 + d.hour * 15 + d.minute / 4) % 360;
@@ -3024,8 +3027,14 @@ function calcArabicParts(d: BirthData): ArabicPartsData {
   const variation = (d.day * 9 + d.month * 3) % 60 - 30;
   const score = Math.max(440, Math.min(950, SIGN_SCORES[fSign] + variation));
   return {
-    partOfFortune: Math.round(fortune), fortuneSign: SIGNS_TH[fSign], fortuneSignTh: SIGNS_TH[fSign],
-    partOfSpirit: Math.round(spirit), spiritSign: SIGNS_TH[sSign],
+    // fortuneSign mirrors UI lang: EN sign in EN mode, TH sign in TH mode.
+    // fortuneSignTh is always the Thai canonical for systems that need it
+    // regardless of UI language (eg the report's Lot-of-Fortune callout).
+    partOfFortune: Math.round(fortune),
+    fortuneSign:   _reportLang === 'en' ? SIGNS_EN[fSign] : SIGNS_TH[fSign],
+    fortuneSignTh: SIGNS_TH[fSign],
+    partOfSpirit:  Math.round(spirit),
+    spiritSign:    _reportLang === 'en' ? SIGNS_EN[sSign] : SIGNS_TH[sSign],
     score,
     reading: buildRichReading({
       sysTh: 'จุดอาหรับ (Arabic Parts / Lots)',
