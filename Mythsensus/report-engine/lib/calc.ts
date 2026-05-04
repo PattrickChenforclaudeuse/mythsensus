@@ -27,14 +27,16 @@ const DAY_TH_EN: Record<string, string> = {
   'วันพฤหัสบดี':'Thursday','วันศุกร์':'Friday','วันเสาร์':'Saturday',
 };
 // Vedic / classical-astrology planets (Thai planet names → English).
-// Used by Celtic, Vedic, Mahadasha render paths.
+// Used by Celtic, Vedic, Mahadasha render paths. Includes plain forms
+// ('อาทิตย์'/'จันทร์'/etc) — DASHA_ORDER stores those without honorifics —
+// and 'ดาวเวเนส' which appears in the Celtic ruling-planet table.
 const PLANET_TH_EN: Record<string, string> = {
-  'ดวงอาทิตย์':'Sun','พระอาทิตย์':'Sun',
-  'ดวงจันทร์':'Moon','พระจันทร์':'Moon',
-  'ดาวพฤหัสฯ':'Jupiter','ดาวพฤหัส':'Jupiter','พฤหัสฯ':'Jupiter','พฤหัส':'Jupiter','พระพฤหัสบดี':'Jupiter',
+  'ดวงอาทิตย์':'Sun','พระอาทิตย์':'Sun','อาทิตย์':'Sun',
+  'ดวงจันทร์':'Moon','พระจันทร์':'Moon','จันทร์':'Moon',
+  'ดาวพฤหัสฯ':'Jupiter','ดาวพฤหัส':'Jupiter','พฤหัสฯ':'Jupiter','พฤหัส':'Jupiter','พระพฤหัสบดี':'Jupiter','พฤหัสบดี':'Jupiter',
   'ดาวเสาร์':'Saturn','เสาร์':'Saturn','พระเสาร์':'Saturn',
   'ดาวอังคาร':'Mars','อังคาร':'Mars','พระอังคาร':'Mars',
-  'ดาวศุกร์':'Venus','ศุกร์':'Venus','พระศุกร์':'Venus',
+  'ดาวศุกร์':'Venus','ศุกร์':'Venus','พระศุกร์':'Venus','ดาวเวเนส':'Venus',
   'ดาวพุธ':'Mercury','พุธ':'Mercury','พระพุธ':'Mercury',
   'ยูเรนัส':'Uranus','เนปจูน':'Neptune','พลูโต':'Pluto',
   'ราหู':'Rahu','เคตุ':'Ketu',
@@ -181,7 +183,7 @@ export interface ThaiData {
 }
 
 export interface ScoreData {
-  total: number; tier: string; tierEn: string; percentile: string;
+  total: number; tier: string; tierTh: string; tierEn: string; percentile: string;
   maxAchievable: number;
   mean: number; modalBin: number;
   starCount: number; midCount: number; warnCount: number;
@@ -941,7 +943,7 @@ function calcVedic(d: BirthData, w: WesternData): VedicData {
   const vedicScore = Math.max(400, Math.min(960, (NAKSH_SCORES[nakshatra]??700) + ((d.day*9+d.month*13)%80)-40));
   return {
     lagna: lagnaSign.en, lagnaSign: lagnaSign.th,
-    moonNakshatra: nakshatra, nakshatraLord: lord, nakshathraPada: pada,
+    moonNakshatra: nakshatra, nakshatraLord: pPlanet(lord), nakshathraPada: pada,
     mahadasha: pPlanet(currentDasha), mahadashaPeriod: tPick(`ถึง ${dashEnd}`, `until ${dashEnd}`), mahadashaEnd: dashEnd,
     antardasha: pPlanet(antardasha),
     yogas,
@@ -1279,7 +1281,14 @@ function calcCeltic(d: BirthData): CelticData {
     treeName: found.name, treeNameTh: found.th,
     // Apply LANG-aware translators so Resonance/Mirror/Product tabs render
     // English in EN mode without each renderer having to wrap the field.
-    symbol: `🌳`, rulingPlanet: pPlanet(found.planet), gemstone: found.gem, element: pEl(found.el),
+    symbol: `🌳`,
+    rulingPlanet: pPlanet(found.planet),
+    gemstone: tPick(found.gem, ({
+      'ควอตซ์ขาว':'White Quartz','เพริด็อต':'Peridot','โอปอล':'Opal',
+      'รูบี':'Ruby','รูบี่':'Ruby','มุก':'Pearl','โทแพซ':'Topaz',
+      'เพชร':'Diamond','อเมทิสต์':'Amethyst','เจสเปอร์':'Jasper','เจ็ต':'Jet',
+    } as Record<string,string>)[found.gem] || found.gem),
+    element: pEl(found.el),
     personality: celticPersonality(found.name),
     reading: buildRichReading({
       sysTh: 'ต้นไม้เซลติก (Celtic Tree Astrology)',
@@ -1316,13 +1325,13 @@ function calcCeltic(d: BirthData): CelticData {
 // THAI BRAHMIN
 // ============================================================
 const THAI_DAYS = [
-  { name: 'วันอาทิตย์', nameEn: 'Sunday',    color: 'แดง',           colorEn: 'Red',           god: 'Surya',      godTh: 'พระอาทิตย์',  nakshatra: 'มิตรา',  fortune: 'โชคลาภและชื่อเสียง',     fortuneEn: 'Fortune and fame' },
-  { name: 'วันจันทร์', nameEn: 'Monday',    color: 'เหลือง/ครีม',   colorEn: 'Yellow/Cream',  god: 'Chandra',    godTh: 'พระจันทร์',   nakshatra: 'โรหิณี', fortune: 'ความอ่อนโยนและเสน่ห์',  fortuneEn: 'Gentleness and charm' },
-  { name: 'วันอังคาร', nameEn: 'Tuesday',   color: 'ชมพู/ม่วงแดง',  colorEn: 'Pink/Magenta',  god: 'Mangala',    godTh: 'พระอังคาร',   nakshatra: 'มฤคศิร', fortune: 'ความกล้าหาญและพลังงาน', fortuneEn: 'Courage and energy' },
-  { name: 'วันพุธ',    nameEn: 'Wednesday', color: 'เขียว',         colorEn: 'Green',         god: 'Budha',      godTh: 'พระพุธ',      nakshatra: 'เรวดี',  fortune: 'ปัญญาและการสื่อสาร',     fortuneEn: 'Wisdom and communication' },
-  { name: 'วันพฤหัสบดี', nameEn: 'Thursday', color: 'ส้ม/เหลือง',    colorEn: 'Orange/Yellow', god: 'Brihaspati', godTh: 'พระพฤหัส',    nakshatra: 'ปุษยะ',  fortune: 'ความรู้และจิตวิญญาณ',    fortuneEn: 'Knowledge and spirit' },
-  { name: 'วันศุกร์',  nameEn: 'Friday',    color: 'ฟ้า/ครีม',      colorEn: 'Sky-blue/Cream', god: 'Shukra',    godTh: 'พระศุกร์',    nakshatra: 'ภรณี',   fortune: 'ความงามและความรัก',      fortuneEn: 'Beauty and love' },
-  { name: 'วันเสาร์',  nameEn: 'Saturday',  color: 'ม่วง/ดำ',       colorEn: 'Purple/Black',   god: 'Shani',      godTh: 'พระเสาร์',    nakshatra: 'อนุราธา', fortune: 'ความอดทนและรากฐาน',     fortuneEn: 'Endurance and foundation' },
+  { name: 'วันอาทิตย์', nameEn: 'Sunday',    color: 'แดง',           colorEn: 'Red',           god: 'Surya',      godTh: 'พระอาทิตย์',  nakshatra: 'มิตรา',  nakshatraEn: 'Maitra',     fortune: 'โชคลาภและชื่อเสียง',     fortuneEn: 'Fortune and fame' },
+  { name: 'วันจันทร์', nameEn: 'Monday',    color: 'เหลือง/ครีม',   colorEn: 'Yellow/Cream',  god: 'Chandra',    godTh: 'พระจันทร์',   nakshatra: 'โรหิณี', nakshatraEn: 'Rohini',     fortune: 'ความอ่อนโยนและเสน่ห์',  fortuneEn: 'Gentleness and charm' },
+  { name: 'วันอังคาร', nameEn: 'Tuesday',   color: 'ชมพู/ม่วงแดง',  colorEn: 'Pink/Magenta',  god: 'Mangala',    godTh: 'พระอังคาร',   nakshatra: 'มฤคศิร', nakshatraEn: 'Mrigashira', fortune: 'ความกล้าหาญและพลังงาน', fortuneEn: 'Courage and energy' },
+  { name: 'วันพุธ',    nameEn: 'Wednesday', color: 'เขียว',         colorEn: 'Green',         god: 'Budha',      godTh: 'พระพุธ',      nakshatra: 'เรวดี',  nakshatraEn: 'Revati',     fortune: 'ปัญญาและการสื่อสาร',     fortuneEn: 'Wisdom and communication' },
+  { name: 'วันพฤหัสบดี', nameEn: 'Thursday', color: 'ส้ม/เหลือง',    colorEn: 'Orange/Yellow', god: 'Brihaspati', godTh: 'พระพฤหัส',    nakshatra: 'ปุษยะ',  nakshatraEn: 'Pushya',     fortune: 'ความรู้และจิตวิญญาณ',    fortuneEn: 'Knowledge and spirit' },
+  { name: 'วันศุกร์',  nameEn: 'Friday',    color: 'ฟ้า/ครีม',      colorEn: 'Sky-blue/Cream', god: 'Shukra',    godTh: 'พระศุกร์',    nakshatra: 'ภรณี',   nakshatraEn: 'Bharani',    fortune: 'ความงามและความรัก',      fortuneEn: 'Beauty and love' },
+  { name: 'วันเสาร์',  nameEn: 'Saturday',  color: 'ม่วง/ดำ',       colorEn: 'Purple/Black',   god: 'Shani',      godTh: 'พระเสาร์',    nakshatra: 'อนุราธา', nakshatraEn: 'Anuradha',   fortune: 'ความอดทนและรากฐาน',     fortuneEn: 'Endurance and foundation' },
 ];
 
 function calcThai(d: BirthData): ThaiData {
@@ -1333,7 +1342,9 @@ function calcThai(d: BirthData): ThaiData {
   const thaiDayScore = Math.max(400, Math.min(960, (DAY_SCORES[day?.name??'']??700) + ((d.year%100+d.day*7)%80)-40));
   return {
     dayOfWeek: dow, dayName: tPick(day.name, day.nameEn), dayColor: tPick(day.color, day.colorEn),
-    dayGod: day.god, dayGodTh: tPick(day.godTh, day.god), nakshatra: day.nakshatra, fortuneDay: tPick(day.fortune, day.fortuneEn),
+    dayGod: day.god, dayGodTh: tPick(day.godTh, day.god),
+    nakshatra: tPick(day.nakshatra, day.nakshatraEn),
+    fortuneDay: tPick(day.fortune, day.fortuneEn),
     reading: buildRichReading({
       sysTh: 'โหราศาสตร์ไทยพราหมณ์',
       sysEn: 'Thai Brahmin Astrology',
@@ -1369,40 +1380,42 @@ function calcThai(d: BirthData): ThaiData {
 // COSMIC SCORE
 // ============================================================
 // 26 systems, equal weight 1/26 ≈ 3.85% each. Sum = 1.00 exactly after normalization.
+// system   = Thai/native label (used when _reportLang === 'th')
+// systemEn = English label    (used when _reportLang === 'en')
 const SCORE_WEIGHTS = [
   // East Asia
-  { system: 'BaZi สี่เสา',           weight: 1/26 },
-  { system: 'Nine Star Ki',           weight: 1/26 },
-  { system: 'Saju (Korean)',          weight: 1/26 },
-  { system: 'Zi Wei Dou Shu',        weight: 1/26 },
-  { system: 'Onmyōdō',               weight: 1/26 },
+  { system: 'BaZi สี่เสา',           systemEn: 'BaZi Four Pillars',     weight: 1/26 },
+  { system: 'Nine Star Ki',           systemEn: 'Nine Star Ki',          weight: 1/26 },
+  { system: 'Saju (Korean)',          systemEn: 'Saju (Korean)',         weight: 1/26 },
+  { system: 'Zi Wei Dou Shu',         systemEn: 'Zi Wei Dou Shu',        weight: 1/26 },
+  { system: 'Onmyōdō',                systemEn: 'Onmyōdō',               weight: 1/26 },
   // South Asia
-  { system: 'Vedic Jyotish',         weight: 1/26 },
-  { system: 'Vedic Mahadasha',       weight: 1/26 },
-  { system: 'ไทยพราหมณ์',            weight: 1/26 },
+  { system: 'Vedic Jyotish',          systemEn: 'Vedic Jyotish',         weight: 1/26 },
+  { system: 'Vedic Mahadasha',        systemEn: 'Vedic Mahadasha',       weight: 1/26 },
+  { system: 'ไทยพราหมณ์',             systemEn: 'Thai Brahmin',          weight: 1/26 },
   // Europe/West
-  { system: 'โหราศาสตร์ตะวันตก',    weight: 1/26 },
-  { system: 'Hellenistic',           weight: 1/26 },
-  { system: 'เซลติก Tree',          weight: 1/26 },
-  { system: 'Norse Rune',            weight: 1/26 },
-  { system: 'Ogham',                 weight: 1/26 },
+  { system: 'โหราศาสตร์ตะวันตก',     systemEn: 'Western Astrology',     weight: 1/26 },
+  { system: 'Hellenistic',            systemEn: 'Hellenistic',           weight: 1/26 },
+  { system: 'เซลติก Tree',            systemEn: 'Celtic Tree',           weight: 1/26 },
+  { system: 'Norse Rune',             systemEn: 'Norse Rune',            weight: 1/26 },
+  { system: 'Ogham',                  systemEn: 'Ogham',                 weight: 1/26 },
   // Middle East
-  { system: 'Arabic Parts',         weight: 1/26 },
-  { system: 'Kabbalistic',          weight: 1/26 },
-  { system: 'Zoroastrian',          weight: 1/26 },
+  { system: 'Arabic Parts',           systemEn: 'Arabic Parts',          weight: 1/26 },
+  { system: 'Kabbalistic',            systemEn: 'Kabbalistic',           weight: 1/26 },
+  { system: 'Zoroastrian',            systemEn: 'Zoroastrian',           weight: 1/26 },
   // Americas
-  { system: 'มายัน Tzolk\'in',       weight: 1/26 },
-  { system: 'Aztec Tonalpohualli',  weight: 1/26 },
-  { system: 'Native American',      weight: 1/26 },
+  { system: 'มายัน Tzolk\'in',        systemEn: 'Mayan Tzolk\'in',       weight: 1/26 },
+  { system: 'Aztec Tonalpohualli',    systemEn: 'Aztec Tonalpohualli',   weight: 1/26 },
+  { system: 'Native American',        systemEn: 'Native American',       weight: 1/26 },
   // Africa/Oceania
-  { system: 'Ifa/Yoruba',           weight: 1/26 },
-  { system: 'Aboriginal Dreamtime', weight: 1/26 },
+  { system: 'Ifa/Yoruba',             systemEn: 'Ifa/Yoruba',            weight: 1/26 },
+  { system: 'Aboriginal Dreamtime',   systemEn: 'Aboriginal Dreamtime',  weight: 1/26 },
   // Modern/Global
-  { system: 'ระบบประเภทพลังงาน',    weight: 1/26 },
-  { system: 'เลขศาสตร์ Pythagorean', weight: 1/26 },
-  { system: 'เลข ๗ ตัว ๙ ฐาน',     weight: 1/26 },
-  { system: 'Tibetan Astrology',    weight: 1/26 },
-  { system: 'Biorhythm',            weight: 1/26 },
+  { system: 'ระบบประเภทพลังงาน',     systemEn: 'Energy Type',           weight: 1/26 },
+  { system: 'เลขศาสตร์ Pythagorean',  systemEn: 'Pythagorean Numerology', weight: 1/26 },
+  { system: 'เลข ๗ ตัว ๙ ฐาน',       systemEn: 'Thai 7-Number',         weight: 1/26 },
+  { system: 'Tibetan Astrology',      systemEn: 'Tibetan Astrology',     weight: 1/26 },
+  { system: 'Biorhythm',              systemEn: 'Biorhythm',             weight: 1/26 },
 ];
 
 const SCORE_COLORS = [
@@ -1475,7 +1488,12 @@ function calcScore(d: BirthData, data: Omit<ChartData, 'score'>): ScoreData {
     data.biorhythm.score,
   ];
 
-  const findings: string[] = [
+  // 26 per-system "finding" lines for the cosmic-blueprint score breakdown.
+  // The Thai versions interpolate the existing chart fields verbatim; the EN
+  // versions translate or strip Thai-prefixed phrasing so EN users see clean
+  // English summaries. Each Thai/EN pair must read the SAME chart data so
+  // both languages stay in sync as the engine changes.
+  const findingsTh: string[] = [
     `${data.bazi.dayMasterTh} — ธาตุ${data.bazi.dayMasterElement} ${data.bazi.missingElement !== 'ครบทุกธาตุ' ? `ขาดธาตุ${data.bazi.missingElement}` : 'ครบทุกธาตุ'}`,
     `ดาว ${data.ninestar.star} ${data.ninestar.starChinese} ทิศ${data.ninestar.starDirection}นำโชค`,
     `${data.saju.dominantEnergy} — ชาตุ${data.saju.sajuElement}`,
@@ -1485,11 +1503,11 @@ function calcScore(d: BirthData, data: Omit<ChartData, 'score'>): ScoreData {
     `${data.vedicMahadasha.currentDasha} Dasha — ${data.vedicMahadasha.dashaQuality}`,
     `${data.thai.dayName}ปกครองโดย${data.thai.dayGodTh} สี${data.thai.dayColor}`,
     `${data.western.sunSignTh} ☽${data.western.moonSignTh} ASC${data.western.ascSignTh}`,
-    `${data.hellenistic.sectTh} Lot of Fortune ใน${data.hellenistic.lotSign}`,
+    `${data.hellenistic.sectTh} Lot of Fortune ใน${data.hellenistic.lotSignTh ?? data.hellenistic.lotSign}`,
     `${data.celtic.treeNameTh} (${data.celtic.treeName}) ธาตุ${data.celtic.element}`,
     `${data.norseRune.rune} ${data.norseRune.runeName} — ${data.norseRune.runeKeyword}`,
     `${data.ogham.ogham} ${data.ogham.treeNameTh} — ${data.ogham.oghamClass}`,
-    `Part of Fortune ใน${data.arabicParts.fortuneSign}`,
+    `Part of Fortune ใน${data.arabicParts.fortuneSignTh ?? data.arabicParts.fortuneSign}`,
     `${data.kabbalistic.sephira} (${data.kabbalistic.sephiraHebrew}) ปกครองโดย ${data.kabbalistic.archangel}`,
     `${data.zoroastrian.dayYazataTh} | ${data.zoroastrian.monthAmeshaTh}`,
     `Kin ${data.mayan.kin} ${data.mayan.daySignName} โทน${data.mayan.toneNumber}`,
@@ -1503,12 +1521,42 @@ function calcScore(d: BirthData, data: Omit<ChartData, 'score'>): ScoreData {
     `Mewa ${data.tibetan.mewa} ${data.tibetan.mewaName} | ${data.tibetan.parkhaName}`,
     `ร่างกาย ${data.biorhythm.physical}% | อารมณ์ ${data.biorhythm.emotional}% | สติปัญญา ${data.biorhythm.intellectual}%`,
   ];
+  const findingsEn: string[] = [
+    `${data.bazi.dayMaster} (${data.bazi.dayMasterElement}) ${data.bazi.missingElement !== 'ครบทุกธาตุ' && data.bazi.missingElement !== 'all five present' ? `· missing ${data.bazi.missingElement}` : '· all five elements present'}`,
+    `Star ${data.ninestar.star} ${data.ninestar.starChinese} · lucky direction ${data.ninestar.starDirection}`,
+    `${data.saju.dominantEnergy} · ${data.saju.sajuElement} element`,
+    `${data.ziwei.lifePalaceName} palace · main star ${data.ziwei.mainStar ?? data.ziwei.mainStarTh}`,
+    `${data.onmyodo.rokuyo} · ${data.onmyodo.onmyoPolarity}`,
+    `Nakshatra ${data.vedic.moonNakshatra} · ${data.vedic.lagna ?? data.vedic.lagnaSign} ascendant`,
+    `${data.vedicMahadasha.currentDasha} Dasha — ${data.vedicMahadasha.dashaQuality}`,
+    `${data.thai.dayName} ruled by ${data.thai.dayGod} · colour ${data.thai.dayColor}`,
+    `${data.western.sunSign} Sun · ☽${data.western.moonSign} · ASC ${data.western.ascSign}`,
+    `${data.hellenistic.sect} sect · Lot of Fortune in ${data.hellenistic.lotSign}`,
+    `${data.celtic.treeName} · ${data.celtic.element} element`,
+    `${data.norseRune.rune} ${data.norseRune.runeName} — ${data.norseRune.runeKeyword}`,
+    `${data.ogham.ogham} ${data.ogham.treeName} — ${data.ogham.oghamClass}`,
+    `Part of Fortune in ${data.arabicParts.fortuneSign}`,
+    `${data.kabbalistic.sephira} (${data.kabbalistic.sephiraHebrew}) ruled by ${data.kabbalistic.archangel}`,
+    `${data.zoroastrian.dayYazata} | ${data.zoroastrian.monthAmesha}`,
+    `Kin ${data.mayan.kin} ${data.mayan.daySignName} · tone ${data.mayan.toneNumber}`,
+    `${data.aztec.daySign ?? data.aztec.daySignTh} ${data.aztec.toneNumber} — ${data.aztec.daySignQuality}`,
+    `${data.nativeAmerican.birthTotem ?? data.nativeAmerican.birthTotemTh} | ${data.nativeAmerican.clansmother}`,
+    `Odù ${data.ifaYoruba.odu} — ${data.ifaYoruba.oduTheme}`,
+    `${data.aboriginal.dreamingAncestor ?? data.aboriginal.dreamingTh} | ${data.aboriginal.clan}`,
+    `${data.humandesign.type ?? data.humandesign.typeTh} · Profile ${data.humandesign.profile} · strategy: ${data.humandesign.strategy}`,
+    `Life Path ${data.numerology.lifePath} — ${data.numerology.lifePathName}`,
+    `Thai 7-Number: ${data.numerology.thaiSeven?.join('-') ?? '—'}`,
+    `Mewa ${data.tibetan.mewa} ${data.tibetan.mewaName} | ${data.tibetan.parkhaName}`,
+    `Body ${data.biorhythm.physical}% | Emotion ${data.biorhythm.emotional}% | Intellect ${data.biorhythm.intellectual}%`,
+  ];
+  const findings = _reportLang === 'en' ? findingsEn : findingsTh;
 
   const breakdown: ScoreBreakdown[] = SCORE_WEIGHTS.map((w, i) => {
     const rawScore = systemScores[i] ?? 700;
     const score = Math.max(400, Math.min(999, rawScore));
+    const sysLabel = _reportLang === 'en' ? (w as any).systemEn || w.system : w.system;
     // Display weight as percentage rounded to 1 decimal
-    return { system: w.system, weight: Math.round(w.weight * 1000) / 10, score, finding: findings[i] ?? '', color: SCORE_COLORS[i] ?? '#5a5a5a' };
+    return { system: sysLabel, weight: Math.round(w.weight * 1000) / 10, score, finding: findings[i] ?? '', color: SCORE_COLORS[i] ?? '#5a5a5a' };
   });
 
   // Cosmic Score = MEDIAN of 26 systems (resistant to outliers, true consensus)
@@ -1538,13 +1586,24 @@ function calcScore(d: BirthData, data: Omit<ChartData, 'score'>): ScoreData {
   const warnCount = breakdown.filter(b => b.score < 650).length;
 
   return {
-    total, tier: tier.tierTh, tierEn: tier.tier, percentile: tier.pct,
+    total,
+    // tier follows UI lang; tierTh + tierEn are the canonical pair.
+    // Renderers that want a specific language should reach for tierTh / tierEn
+    // directly; renderers that just want "the right one for current UI" read tier.
+    tier: tPick(tier.tierTh, tier.tier),
+    tierTh: tier.tierTh,
+    tierEn: tier.tier,
+    percentile: tier.pct,
     maxAchievable, mean, modalBin,
     starCount, midCount, warnCount,
     breakdown,
     cosmicEntity: COSMIC_ENTITIES[entityIdx],
-    cosmicEntityDesc: `${COSMIC_ENTITIES[entityIdx]} — สัญลักษณ์จักรวาลของคุณบ่งบอกถึงบทบาทและภารกิจที่แท้จริงในชาตินี้`,
-    primaryGod: GODS[godIdx][0], secondaryGod: GODS[godIdx][1],
+    cosmicEntityDesc: tPick(
+      `${COSMIC_ENTITIES[entityIdx]} — สัญลักษณ์จักรวาลของคุณบ่งบอกถึงบทบาทและภารกิจที่แท้จริงในชาตินี้`,
+      `${COSMIC_ENTITIES[entityIdx]} — your cosmic signature points to the role and mission you carry in this life.`,
+    ),
+    primaryGod: tPick(GODS[godIdx][0], (GODS[godIdx][0].match(/\(([^)]+)\)/) || [,GODS[godIdx][0]])[1]),
+    secondaryGod: tPick(GODS[godIdx][1], (GODS[godIdx][1].match(/\(([^)]+)\)/) || [,GODS[godIdx][1]])[1]),
     // 3-score placeholders — filled by calcLifeTerrain below
     soulFrequency: total, lifeTerrainScore: 0, pathResonanceScore: 0,
     cosmicFinal: total, lifeTerrainDetail: '', pathResonanceDetail: '',
@@ -2299,7 +2358,9 @@ function calcAddons(dmEl: string, tier: string, dasha?: string) {
     food:       {
       ...pick(ADDON_FOOD_BY_ELEMENT, ADDON_FOOD_BY_ELEMENT_EN),
       element: dmEl,
-      dasha: dasha || '',
+      // dasha is passed in as the Thai key (for ADJUST lookup) but exposed for
+      // display in whichever language matches the UI — pPlanet handles both.
+      dasha: pPlanet(dasha || ''),
       dashaAdjust: (dasha && (isEn ? ADDON_FOOD_DASHA_ADJUST_EN : ADDON_FOOD_DASHA_ADJUST)[dasha])
                    || (isEn ? 'balanced for primary element' : 'สมดุลตามธาตุหลัก'),
     },
@@ -2387,7 +2448,13 @@ export function calculate(d: BirthData): ChartData {
   // Add-on content blocks (all 7), filed under chart.addons so the offline
   // HTML can read chart.addons.{mirror,compat,pet,companions,exercise,food,product}
   // instead of maintaining parallel tables. See ADDON_* constants above.
-  const addons = calcAddons(dmEl, (score as any).tier || 'Resonant', vedicMahadasha.currentDasha);
+  // Pass the English tier name so ADDON_COSMIC_BY_TIER_EN keys resolve in EN
+  // mode (otherwise the Thai score.tier "หยั่งราก — Grounded" would fall back
+  // to 'Resonant'). vedicMahadasha.currentDasha is now lang-aware (Rahu/Jupiter
+  // in EN) so we map it back to the Thai key for the food-dasha-adjust dict
+  // which is keyed on Thai planet names.
+  const dashaThaiKey = (Object.entries(PLANET_TH_EN).find(([_, en]) => en === vedicMahadasha.currentDasha)?.[0]) || vedicMahadasha.currentDasha;
+  const addons = calcAddons(dmEl, (score as any).tierEn || (score as any).tier || 'Resonant', dashaThaiKey);
 
   return { ...partial, score, addons } as any;
 }
@@ -2847,6 +2914,7 @@ function calcHellenistic(d: BirthData): HellenisticData {
     : (ASC_DEG + sunDeg - moonDeg + 360) % 360;
   const lotSign = Math.floor(lotRaw / 30); // 0-11
   const SIGNS_TH = ['เมษ','พฤษภ','เมถุน','กรกฎ','สิงห์','กันย์','ตุลย์','พิจิก','ธนู','มกร','กุมภ์','มีน'];
+  const SIGNS_EN = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
   const SIGN_SCORES = [750,780,760,700,800,720,770,710,790,730,760,720]; // fortune by sign
 
   const sectBonus = isDaySect ? 30 : 20;
@@ -2855,7 +2923,11 @@ function calcHellenistic(d: BirthData): HellenisticData {
 
   return {
     sect, sectTh, trigonLord,
-    lotOfFortune: Math.round(lotRaw), lotSign: SIGNS_TH[lotSign], lotSignTh: SIGNS_TH[lotSign],
+    // lotSign mirrors UI lang; lotSignTh kept as Thai canonical for any caller
+    // that needs the Thai form regardless of LANG (parallel to fortuneSign).
+    lotOfFortune: Math.round(lotRaw),
+    lotSign: _reportLang === 'en' ? SIGNS_EN[lotSign] : SIGNS_TH[lotSign],
+    lotSignTh: SIGNS_TH[lotSign],
     score,
     reading: buildRichReading({
       sysTh: 'โหราศาสตร์เฮลเลนิสติก',
@@ -2919,11 +2991,25 @@ function calcNorseRune(d: BirthData): NorseRuneData {
     {r:'ᛟ',n:'Othalan',th:'มรดก',el:'ดิน',kw:'รากและมรดก',score:740},
   ];
   const rune = RUNES[runeIdx] ?? RUNES[0];
+  // Thai → English keyword translations for the 24 Elder Futhark runes.
+  // Used both at chart-output level (so renderers don't need to translate)
+  // and inside buildRichReading for the EN reading body.
+  const RUNE_KW_EN: Record<string, string> = {
+    'ความมั่งคั่ง':'wealth', 'ความแข็งแกร่ง':'strength', 'ความท้าทาย':'challenge',
+    'ปัญญาและสาร':'wisdom and message', 'เส้นทางชีวิต':'life journey', 'ความรู้':'knowledge',
+    'การแลกเปลี่ยน':'exchange', 'ความสำเร็จ':'success', 'การเปลี่ยนแปลง':'change',
+    'การเอาชีวิตรอด':'survival', 'การหยุดนิ่ง':'stillness', 'รางวัลแห่งแรงงาน':'reward of labour',
+    'ความอดทน':'endurance', 'ลึกลับและโชค':'mystery and luck', 'การปกป้อง':'protection',
+    'ชัยชนะ':'victory', 'ความกล้าหาญ':'courage', 'การเกิดใหม่':'rebirth',
+    'การเดินทาง':'travel', 'ตัวตนและชุมชน':'self and community', 'ความรู้สึกลึก':'deep feeling',
+    'ศักยภาพ':'potential', 'การตื่นรู้':'awakening', 'รากและมรดก':'heritage and roots',
+  };
   const variation = (d.day * 11 + d.month * 7) % 60 - 30;
   const score = Math.max(430, Math.min(940, rune.score + variation));
   return {
     rune: rune.r, runeName: rune.n, runeNameTh: rune.th,
-    runeElement: rune.el, runeKeyword: rune.kw,
+    runeElement: pEl(rune.el),
+    runeKeyword: _reportLang === 'en' ? (RUNE_KW_EN[rune.kw] || rune.kw) : rune.kw,
     score,
     reading: buildRichReading({
       sysTh: 'รูนไวกิ้ง (Elder Futhark)',
@@ -2973,13 +3059,22 @@ function calcOgham(d: BirthData): OghamData {
     {o:'ᚌ',tree:'Reed',th:'กก',cls:'ต้นผู้ส่งสาร',el:'ลม',score:730},
     {o:'ᚍ',tree:'Blackthorn',th:'แบล็คธอร์น',cls:'ต้นเวทมนตร์',el:'ดิน',score:650},
   ];
+  // Thai → English class names for the 13 Beth-Luis-Nion Ogham trees.
+  const OGHAM_CLS_EN: Record<string, string> = {
+    'ต้นใหม่':'beginner tree', 'ต้นปกป้อง':'protector tree', 'ต้นเชื่อมโยง':'connector tree',
+    'ต้นผู้นำ':'leader tree', 'ต้นจันทร์':'moon tree', 'ต้นอุปสรรค':'obstacle tree',
+    'ต้นกษัตริย์':'king tree', 'ต้นนักรบ':'warrior tree', 'ต้นปัญญา':'wisdom tree',
+    'ต้นมีสวรรค์':'heavenly tree', 'ต้นผู้แสวงหา':'seeker tree', 'ต้นผู้ส่งสาร':'messenger tree',
+    'ต้นเวทมนตร์':'magic tree',
+  };
   const oghamIdx = ((d.month - 1) + Math.floor(d.day / 28)) % 13;
   const og = OGHAM[oghamIdx];
   const variation = (d.year % 100 + d.day * 3) % 60 - 30;
   const score = Math.max(430, Math.min(940, og.score + variation));
   return {
     ogham: og.o, treeName: og.tree, treeNameTh: og.th,
-    oghamClass: og.cls, element: og.el,
+    oghamClass: _reportLang === 'en' ? (OGHAM_CLS_EN[og.cls] || og.cls) : og.cls,
+    element: pEl(og.el),
     score,
     reading: buildRichReading({
       sysTh: 'อักษรโอแฮม (Ogham)',
@@ -3154,8 +3249,12 @@ function calcZoroastrian(d: BirthData): ZoroastrianData {
   const base = DAY_YAZATA_SCORE[dayIdx] ?? 720;
   const variation = (d.year % 100 + d.hour * 5) % 80 - 40;
   const score = Math.max(430, Math.min(950, base + variation + (harmony ? 30 : 0)));
+  // The DAY_YAZATA table uses "<Name> (<thai annotation>)" format for some
+  // entries (Atar/ไฟ, Aban/น้ำ, Mahraspand/วาจา…). Drop the Thai annotation
+  // when the UI is English so we don't leak Thai into English render paths.
+  const yazataDisplay = _reportLang === 'en' ? yazata.replace(/\s*\([^)]*[฀-๿][^)]*\)\s*$/, '') : yazata;
   return {
-    dayYazata: yazata, dayYazataTh: yazata,
+    dayYazata: yazataDisplay, dayYazataTh: yazata,
     monthAmesha: amesha.n, monthAmeshaTh: tPick(amesha.th, amesha.thEn),
     harmony, score,
     reading: buildRichReading({
@@ -3445,7 +3544,14 @@ function calcBiorhythm(d: BirthData): BiorhythmData {
   const emotional = Math.sin((PI2 * daysSinceBirth) / 28);
   const intellectual = Math.sin((PI2 * daysSinceBirth) / 33);
 
-  const phaseLabel = (v: number) => v > 0.5 ? 'Peak สูงสุด' : v > 0 ? 'ขาขึ้น' : v > -0.5 ? 'ขาลง' : 'Critical ต่ำสุด';
+  const phaseLabel = (v: number) => {
+    // Pre-Phase 2: this string was 'Peak สูงสุด' / 'ขาขึ้น' / 'ขาลง' / 'Critical ต่ำสุด'
+    // — mixed Thai+EN even in EN mode. Now lang-aware via _reportLang.
+    if (_reportLang === 'en') {
+      return v > 0.5 ? 'Peak' : v > 0 ? 'Rising' : v > -0.5 ? 'Falling' : 'Critical low';
+    }
+    return v > 0.5 ? 'Peak สูงสุด' : v > 0 ? 'ขาขึ้น' : v > -0.5 ? 'ขาลง' : 'Critical ต่ำสุด';
+  };
   // Score: based on long-term cycle harmony — use average of 3 cycles combined
   // Normalize each cycle: (-1 to 1) → (400 to 1000)
   const normalize = (v: number) => Math.round(700 + v * 200);
