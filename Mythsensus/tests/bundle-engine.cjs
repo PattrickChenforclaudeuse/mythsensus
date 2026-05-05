@@ -59,7 +59,7 @@ const bundle = [
   strip(reportSrc),
   '',
   '  // ─── Public API ─────────────────────────────────────────',
-  '  root.MS26 = { calculate: calculate, generateReport: generateReport };',
+  '  root.MS26 = { calculate: calculate, generateReport: generateReport, calcDailyPulse: calcDailyPulse };',
   '})(typeof window !== "undefined" ? window : globalThis);',
   '',
 ].join('\n');

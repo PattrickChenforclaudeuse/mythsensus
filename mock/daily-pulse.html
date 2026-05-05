@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Daily Cosmic Pulse — Mock Preview</title>
+<style>
+  /* Mythsensus visual tokens (matches the live site) */
+  :root {
+    --bg: #0d0a08;
+    --bg2: #14110d;
+    --bg3: #1a1510;
+    --border: #2a2418;
+    --gold: #d4aa50;
+    --gold2: #c8a45a;
+    --gold3: #8a7040;
+    --text: #e8d8b8;
+    --muted: #8a7a5a;
+    --green: #4a9a40;
+    --green2: #50d490;
+    --amber: #c8a840;
+    --red: #c06060;
+    --ink: #d4aa50;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', 'Songti SC', 'PingFang SC', 'Sarabun', serif;
+    padding: 30px 20px;
+  }
+  h1.page-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 28px;
+    color: var(--gold);
+    text-align: center;
+    letter-spacing: 4px;
+    margin-bottom: 6px;
+  }
+  .page-sub {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+    font-family: 'Josefin Sans', sans-serif;
+  }
+  .panel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 28px;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+  }
+  .panel-header {
+    background: rgba(212, 170, 80, 0.04);
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .panel-state {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 9px;
+    color: var(--gold3);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .panel-name {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 14px;
+    color: var(--gold);
+  }
+  .panel-body {
+    padding: 18px 20px;
+  }
+
+  /* ---- inner Daily Pulse mock ---- */
+  .pulse-tab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 14px;
+  }
+  .pulse-date {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+  .pulse-streak {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 11px;
+    color: var(--gold2);
+  }
+  .pulse-verdict-card {
+    text-align: center;
+    padding: 18px 16px;
+    background: rgba(74, 154, 64, 0.06);
+    border: 1px solid rgba(74, 154, 64, 0.3);
+    border-radius: 10px;
+    margin-bottom: 14px;
+  }
+  .pulse-verdict-card.neutral {
+    background: rgba(200, 168, 64, 0.06);
+    border-color: rgba(200, 168, 64, 0.3);
+  }
+  .pulse-verdict-card.observe {
+    background: rgba(192, 96, 96, 0.06);
+    border-color: rgba(192, 96, 96, 0.3);
+  }
+  .pulse-verdict {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 22px;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .pulse-score {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--green2);
+    margin-bottom: 2px;
+  }
+  .pulse-score.neutral { color: var(--amber); }
+  .pulse-score.observe { color: var(--red); }
+  .pulse-score-sub {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    font-family: 'Josefin Sans', sans-serif;
+  }
+
+  .pulse-synthesis {
+    padding: 14px 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    line-height: 1.85;
+    font-size: 13.5px;
+    color: var(--text);
+    margin-bottom: 14px;
+    border-left: 3px solid var(--gold);
+  }
+  .pulse-synthesis em {
+    color: var(--gold2);
+    font-style: italic;
+  }
+
+  .pulse-drilldown {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .pulse-drilldown-toggle {
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    font-family: 'Josefin Sans', sans-serif;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(212, 170, 80, 0.03);
+  }
+  .pulse-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border-top: 1px solid var(--border);
+    font-size: 11.5px;
+  }
+  .pulse-row.pinned {
+    background: rgba(212, 170, 80, 0.05);
+  }
+  .pulse-sys {
+    width: 130px;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--gold3);
+  }
+  .pulse-sys-pinned-tag {
+    display: inline-block;
+    margin-left: 4px;
+    background: rgba(212, 170, 80, 0.15);
+    border: 1px solid var(--gold3);
+    border-radius: 3px;
+    padding: 0 4px;
+    font-size: 8px;
+    color: var(--gold);
+  }
+  .pulse-row-note {
+    flex: 1;
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .pulse-row-score {
+    font-family: 'Josefin Sans', sans-serif;
+    font-weight: 700;
+    color: var(--green2);
+    min-width: 32px;
+    text-align: right;
+  }
+  .pulse-row-score.neg { color: var(--red); }
+  .pulse-row-score.zero { color: var(--muted); }
+
+  .pulse-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .pulse-pin-btn, .pulse-history-btn {
+    padding: 7px 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+  }
+  .pulse-pin-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* Reflection prompt */
+  .pulse-reflect {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: rgba(50, 30, 90, 0.15);
+    border: 1px dashed rgba(180, 130, 230, 0.4);
+    border-radius: 8px;
+  }
+  .pulse-reflect-q {
+    font-size: 13px;
+    color: #c8a8e0;
+    font-style: italic;
+    margin-bottom: 8px;
+    line-height: 1.7;
+  }
+  .pulse-reflect-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-family: inherit;
+    font-size: 12px;
+    resize: vertical;
+    min-height: 50px;
+  }
+  .pulse-reflect-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    font-family: 'Josefin Sans', sans-serif;
+  }
+
+  /* Free preview lock */
+  .free-locked {
+    position: relative;
+    overflow: hidden;
+  }
+  .free-locked::after {
+    content: '';
+    position: absolute;
+    top: 60px; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(180deg, transparent 0%, var(--bg2) 60%);
+    pointer-events: none;
+  }
+  .free-locked-content {
+    filter: blur(3px);
+    opacity: 0.4;
+  }
+  .free-cta {
+    position: absolute;
+    bottom: 16px; left: 16px; right: 16px;
+    background: rgba(212, 170, 80, 0.1);
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+    z-index: 2;
+  }
+  .free-cta-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 13px;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .free-cta-sub {
+    font-size: 11px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .free-cta-btn {
+    background: var(--gold);
+    color: var(--bg);
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* Pin modal */
+  .pin-modal {
+    background: var(--bg3);
+    border: 1px solid var(--gold);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .pin-modal-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 14px;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .pin-modal-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .pin-region {
+    margin-top: 14px;
+  }
+  .pin-region-label {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--gold3);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .pin-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .pin-chip {
+    padding: 5px 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .pin-chip.active {
+    background: rgba(212, 170, 80, 0.15);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .pin-chip.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .pin-counter {
+    text-align: right;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 6px;
+    font-family: 'Josefin Sans', sans-serif;
+    letter-spacing: 1px;
+  }
+
+  /* History list */
+  .hist-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .hist-date {
+    color: var(--muted);
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .hist-verdict {
+    color: var(--text);
+  }
+  .hist-score {
+    font-weight: 700;
+    color: var(--green2);
+    min-width: 28px;
+    text-align: right;
+  }
+  .hist-score.neg { color: var(--red); }
+  .hist-score.zero { color: var(--muted); }
+
+  .streak-banner {
+    text-align: center;
+    padding: 14px;
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.08), rgba(212, 170, 80, 0.04));
+    border: 1px solid rgba(255, 152, 0, 0.3);
+    border-radius: 10px;
+    margin-bottom: 14px;
+  }
+  .streak-fire {
+    font-size: 32px;
+    margin-bottom: 4px;
+  }
+  .streak-num {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 28px;
+    color: #f59030;
+    margin-bottom: 2px;
+  }
+  .streak-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    font-family: 'Josefin Sans', sans-serif;
+  }
+</style>
+</head>
+<body>
+  <h1 class="page-title">DAILY COSMIC PULSE</h1>
+  <p class="page-sub">DESIGN MOCK · 5 STATES · MAY 5 · 2026</p>
+
+  <div class="panel-grid">
+
+    <!-- ============================================
+         STATE 1: FREE USER (locked preview)
+         ============================================ -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-state">STATE 1 · FREE USER</div>
+        <div class="panel-name">Subscriber-gated preview</div>
+      </div>
+      <div class="panel-body free-locked">
+        <div class="free-locked-content">
+          <div class="pulse-tab-header">
+            <div class="pulse-date">วันนี้ · 5 พฤษภาคม 2026</div>
+          </div>
+          <div class="pulse-verdict-card">
+            <div class="pulse-verdict">🟢 Supportive</div>
+            <div class="pulse-score">+3</div>
+            <div class="pulse-score-sub">7 SYSTEMS CONSENSUS</div>
+          </div>
+          <div class="pulse-synthesis">
+            ดวงจันทร์ในมีนวันนี้สอดคล้องกับ biorhythm peak ของคุณ — งาน creative ไหลลื่นเป็นพิเศษ. เสาวันไม้หยางหล่อเลี้ยง Day Master ไฟ — มีพลังเริ่มต้น...
+          </div>
+        </div>
+        <div class="free-cta">
+          <div class="free-cta-title">✦ Daily Pulse</div>
+          <div class="free-cta-sub">7 ศาสตร์รวมเป็นคำตอบเดียว · ทุกเช้า</div>
+          <button class="free-cta-btn">UPGRADE — ฿199/เดือน</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         STATE 2: SUBSCRIBER VIEW (no pins yet)
+         ============================================ -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-state">STATE 2 · SUBSCRIBER · DEFAULT</div>
+        <div class="panel-name">Engine-curated 7 systems</div>
+      </div>
+      <div class="panel-body">
+        <div class="pulse-tab-header">
+          <div class="pulse-date">วันนี้ · 5 พฤษภาคม 2026</div>
+          <div class="pulse-streak">🔥 5 days</div>
+        </div>
+
+        <div class="pulse-verdict-card">
+          <div class="pulse-verdict">🟢 Supportive</div>
+          <div class="pulse-score">+3</div>
+          <div class="pulse-score-sub">7 SYSTEMS · TODAY</div>
+        </div>
+
+        <div class="pulse-synthesis">
+          ดวงจันทร์ในราศี<em>มีน</em> วันนี้สอดคล้องกับ <em>biorhythm peak</em> ของคุณ — งานสร้างสรรค์ไหลลื่นเป็นพิเศษ. เสาวันไม้หยางหล่อเลี้ยง Day Master ไฟ — มีพลังเริ่มต้นโครงการใหม่. <em>Personal Day 6</em> เน้นเรื่องครอบครัว ลองคุยกับคนที่คุณรัก.
+        </div>
+
+        <div class="pulse-drilldown">
+          <div class="pulse-drilldown-toggle">
+            ▾ 7 SYSTEMS · DETAIL
+            <span style="color:var(--muted);font-size:9px">tap to collapse</span>
+          </div>
+          <div class="pulse-row">
+            <span class="pulse-sys">Western Moon</span>
+            <span class="pulse-row-note">จันทร์ในมีน · soft + intuitive</span>
+            <span class="pulse-row-score">+1</span>
+          </div>
+          <div class="pulse-row">
+            <span class="pulse-sys">BaZi Day</span>
+            <span class="pulse-row-note">วันไม้หยาง 甲 · หล่อเลี้ยงคุณ</span>
+            <span class="pulse-row-score">+2</span>
+          </div>
+          <div class="pulse-row">
+            <span class="pulse-sys">Biorhythm</span>
+            <span class="pulse-row-note">เฉลี่ย +60% · 3 cycles high</span>
+            <span class="pulse-row-score">+2</span>
+          </div>
+          <div class="pulse-row">
+            <span class="pulse-sys">Vedic Moon</span>
+            <span class="pulse-row-note">Nakshatra Revati · spiritual</span>
+            <span class="pulse-row-score">+1</span>
+          </div>
+          <div class="pulse-row">
+            <span class="pulse-sys">Numerology PD</span>
+            <span class="pulse-row-note">Personal Day 6 · family</span>
+            <span class="pulse-row-score">+1</span>
+          </div>
+          <div class="pulse-row">
+            <span class="pulse-sys">Mayan Kin</span>
+            <span class="pulse-row-note">Kin 56 Cib (warrior) tone 4</span>
+            <span class="pulse-row-score zero">0</span>
+          </div>
+          <div class="pulse-row">
+            <span class="pulse-sys">NSK Day Star</span>
+            <span class="pulse-row-note">ดาว 7 แดง โลหะ · ขัด lucky</span>
+            <span class="pulse-row-score neg">−2</span>
+          </div>
+        </div>
+
+        <div class="pulse-actions">
+          <button class="pulse-pin-btn">⚙ Pin favorites</button>
+          <button class="pulse-history-btn">📜 History</button>
+          <button class="pulse-history-btn">🔄 Refresh</button>
+        </div>
+
+        <div class="pulse-reflect">
+          <div class="pulse-reflect-q">
+            ✨ <strong>Reflection</strong> · "Day Master ไฟ ของคุณกำลังถูกหล่อเลี้ยงด้วยพลังไม้วันนี้ — งานสร้างสรรค์อะไรที่คุณเลื่อนมานานควรเริ่มได้แล้ว?"
+          </div>
+          <textarea class="pulse-reflect-input" placeholder="พิมพ์สิ่งที่คุณรู้สึก/ตั้งใจวันนี้..."></textarea>
+          <div class="pulse-reflect-meta">
+            <span>ONCE PER DAY · LOGGED TO HISTORY</span>
+            <span style="color:var(--gold)">Save</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         STATE 3: PIN MODAL
+         ============================================ -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-state">STATE 3 · PIN MODAL</div>
+        <div class="panel-name">Lock 1-3 systems to always include</div>
+      </div>
+      <div class="panel-body">
+        <div class="pin-modal">
+          <div class="pin-modal-title">⚙ Pin your favorite systems</div>
+          <div class="pin-modal-sub">Lock up to 3 systems to always appear in your daily pulse — the engine fills the rest based on what's varying today.</div>
+
+          <div class="pin-region">
+            <div class="pin-region-label">EAST ASIA</div>
+            <div class="pin-options">
+              <div class="pin-chip active">☯ BaZi Day</div>
+              <div class="pin-chip">⭐ Nine Star Ki</div>
+              <div class="pin-chip">㊗ Saju</div>
+              <div class="pin-chip">紫 Zi Wei</div>
+              <div class="pin-chip">陰 Onmyōdō</div>
+            </div>
+          </div>
+
+          <div class="pin-region">
+            <div class="pin-region-label">SOUTH ASIA / VEDIC</div>
+            <div class="pin-options">
+              <div class="pin-chip active">🕉 Vedic Moon</div>
+              <div class="pin-chip">📿 Mahadasha</div>
+              <div class="pin-chip">🙏 ไทยพราหมณ์</div>
+            </div>
+          </div>
+
+          <div class="pin-region">
+            <div class="pin-region-label">WEST / EUROPE</div>
+            <div class="pin-options">
+              <div class="pin-chip">☉ Western Moon</div>
+              <div class="pin-chip">🪐 Hellenistic</div>
+              <div class="pin-chip">🌳 Celtic Tree</div>
+              <div class="pin-chip">ᚱ Norse Rune</div>
+              <div class="pin-chip">ᚅ Ogham</div>
+            </div>
+          </div>
+
+          <div class="pin-region">
+            <div class="pin-region-label">MIDDLE EAST / GLOBAL</div>
+            <div class="pin-options">
+              <div class="pin-chip">★ Arabic Parts</div>
+              <div class="pin-chip">✡ Kabbalistic</div>
+              <div class="pin-chip">🔥 Zoroastrian</div>
+              <div class="pin-chip">🌀 Mayan</div>
+              <div class="pin-chip">🦅 Aztec</div>
+              <div class="pin-chip">🪶 Native American</div>
+              <div class="pin-chip">🌿 Ifa/Yoruba</div>
+              <div class="pin-chip">🐢 Aboriginal</div>
+            </div>
+          </div>
+
+          <div class="pin-region">
+            <div class="pin-region-label">MODERN / NUMEROLOGY</div>
+            <div class="pin-options">
+              <div class="pin-chip">⚡ Energy Type</div>
+              <div class="pin-chip active">🔢 Numerology</div>
+              <div class="pin-chip">๗ Thai 7-Number</div>
+              <div class="pin-chip disabled">🏔 Tibetan</div>
+              <div class="pin-chip disabled">📈 Biorhythm</div>
+            </div>
+          </div>
+
+          <div class="pin-counter">PINNED 3 / 3 · disabled to free a slot</div>
+
+          <div style="display:flex;gap:8px;margin-top:18px;justify-content:flex-end">
+            <button class="pulse-history-btn">CANCEL</button>
+            <button class="pulse-pin-btn" style="background:var(--gold);color:var(--bg);font-weight:600">SAVE PINS</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         STATE 4: WITH PINS APPLIED
+         ============================================ -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-state">STATE 4 · WITH PINS</div>
+        <div class="panel-name">Pinned: BaZi · Vedic · Numerology</div>
+      </div>
+      <div class="panel-body">
+        <div class="pulse-tab-header">
+          <div class="pulse-date">วันนี้ · 5 พฤษภาคม 2026</div>
+          <div class="pulse-streak">🔥 5 days</div>
+        </div>
+
+        <div class="pulse-verdict-card">
+          <div class="pulse-verdict">🟢 Supportive</div>
+          <div class="pulse-score">+3</div>
+          <div class="pulse-score-sub">10 SYSTEMS · 3 PINNED + 7 DAILY</div>
+        </div>
+
+        <div class="pulse-synthesis">
+          <strong style="color:var(--gold)">[Pinned BaZi]</strong> วันไม้หยางหล่อเลี้ยง Day Master ไฟของคุณ — พลังเริ่มต้นเด่น. <strong style="color:var(--gold)">[Pinned Vedic]</strong> Moon ในนักษัตร Revati เปิดมิติจิตวิญญาณ. <strong style="color:var(--gold)">[Pinned Numerology]</strong> Personal Day 6 = ครอบครัว/ความรับผิดชอบ. ส่วน 7 daily signals ที่เหลือเสริมว่า biorhythm peak แต่ NSK Day Star −2 ให้ระวังการสื่อสารช่วงบ่าย.
+        </div>
+
+        <div class="pulse-drilldown">
+          <div class="pulse-drilldown-toggle">
+            ▾ 10 SYSTEMS · 3 PINNED + 7 DAILY
+            <span style="color:var(--muted);font-size:9px">expanded</span>
+          </div>
+          <div class="pulse-row pinned">
+            <span class="pulse-sys">BaZi Day<span class="pulse-sys-pinned-tag">PIN</span></span>
+            <span class="pulse-row-note">วันไม้หยาง 甲 · หล่อเลี้ยงคุณ</span>
+            <span class="pulse-row-score">+2</span>
+          </div>
+          <div class="pulse-row pinned">
+            <span class="pulse-sys">Vedic Moon<span class="pulse-sys-pinned-tag">PIN</span></span>
+            <span class="pulse-row-note">Nakshatra Revati · spiritual</span>
+            <span class="pulse-row-score">+1</span>
+          </div>
+          <div class="pulse-row pinned">
+            <span class="pulse-sys">Numerology PD<span class="pulse-sys-pinned-tag">PIN</span></span>
+            <span class="pulse-row-note">Personal Day 6 · family</span>
+            <span class="pulse-row-score">+1</span>
+          </div>
+          <div class="pulse-row">
+            <span class="pulse-sys">Western Moon</span>
+            <span class="pulse-row-note">จันทร์ในมีน · soft + intuitive</span>
+            <span class="pulse-row-score">+1</span>
+          </div>
+          <div class="pulse-row">
+            <span class="pulse-sys">Biorhythm</span>
+            <span class="pulse-row-note">เฉลี่ย +60% · 3 cycles high</span>
+            <span class="pulse-row-score">+2</span>
+          </div>
+          <div class="pulse-row">
+            <span class="pulse-sys">Mayan Kin</span>
+            <span class="pulse-row-note">Kin 56 Cib (warrior) tone 4</span>
+            <span class="pulse-row-score zero">0</span>
+          </div>
+          <div class="pulse-row">
+            <span class="pulse-sys">NSK Day Star</span>
+            <span class="pulse-row-note">ดาว 7 แดง โลหะ · ขัด lucky</span>
+            <span class="pulse-row-score neg">−2</span>
+          </div>
+          <div class="pulse-row">
+            <span class="pulse-sys">Hellenistic</span>
+            <span class="pulse-row-note">Sect: day · Sun above horizon</span>
+            <span class="pulse-row-score zero">0</span>
+          </div>
+          <div class="pulse-row">
+            <span class="pulse-sys">ไทยพราหมณ์</span>
+            <span class="pulse-row-note">วันอังคาร · พระอังคารเป็นใหญ่</span>
+            <span class="pulse-row-score">+1</span>
+          </div>
+          <div class="pulse-row">
+            <span class="pulse-sys">Personal Year</span>
+            <span class="pulse-row-note">PY 8 · harvest year</span>
+            <span class="pulse-row-score">+1</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         STATE 5: HISTORY + STREAK
+         ============================================ -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-state">STATE 5 · HISTORY + STREAK</div>
+        <div class="panel-name">Past 14 days · trend chart</div>
+      </div>
+      <div class="panel-body">
+        <div class="streak-banner">
+          <div class="streak-fire">🔥</div>
+          <div class="streak-num">5 days</div>
+          <div class="streak-label">CONSECUTIVE STREAK</div>
+        </div>
+
+        <!-- Mini sparkline -->
+        <div style="background:rgba(0,0,0,0.2);padding:12px 14px;border-radius:8px;margin-bottom:14px">
+          <div style="font-size:9px;color:var(--muted);letter-spacing:2px;font-family:'Josefin Sans',sans-serif;margin-bottom:8px">SCORE TREND · 14 DAYS</div>
+          <svg viewBox="0 0 280 60" style="width:100%;height:60px">
+            <line x1="0" y1="30" x2="280" y2="30" stroke="var(--border)" stroke-dasharray="2,3"/>
+            <polyline fill="none" stroke="var(--gold)" stroke-width="2"
+              points="0,40 20,35 40,42 60,28 80,32 100,18 120,22 140,38 160,12 180,20 200,28 220,15 240,10 260,18 280,15"/>
+            <circle cx="280" cy="15" r="4" fill="var(--gold)"/>
+          </svg>
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:4px;font-family:'Josefin Sans',sans-serif;letter-spacing:1px">
+            <span>−5</span>
+            <span>0</span>
+            <span>+5</span>
+          </div>
+        </div>
+
+        <div style="font-size:10px;color:var(--gold3);letter-spacing:2px;font-family:'Josefin Sans',sans-serif;margin-bottom:6px">RECENT ENTRIES</div>
+
+        <div class="hist-row">
+          <span class="hist-date">5 พ.ค. · TUE</span>
+          <span class="hist-verdict">🟢 Supportive</span>
+          <span class="hist-score">+3</span>
+        </div>
+        <div class="hist-row">
+          <span class="hist-date">4 พ.ค. · MON</span>
+          <span class="hist-verdict">🟡 Neutral</span>
+          <span class="hist-score zero">0</span>
+        </div>
+        <div class="hist-row">
+          <span class="hist-date">3 พ.ค. · SUN</span>
+          <span class="hist-verdict">🌟 Peak</span>
+          <span class="hist-score">+5</span>
+        </div>
+        <div class="hist-row">
+          <span class="hist-date">2 พ.ค. · SAT</span>
+          <span class="hist-verdict">🟢 Supportive</span>
+          <span class="hist-score">+2</span>
+        </div>
+        <div class="hist-row">
+          <span class="hist-date">1 พ.ค. · FRI</span>
+          <span class="hist-verdict">🟠 Observe</span>
+          <span class="hist-score neg">−2</span>
+        </div>
+        <div class="hist-row">
+          <span class="hist-date">30 เม.ย. · THU</span>
+          <span class="hist-verdict">🟡 Neutral</span>
+          <span class="hist-score zero">+1</span>
+        </div>
+        <div class="hist-row" style="opacity:0.7">
+          <span class="hist-date">29 เม.ย. · WED</span>
+          <span class="hist-verdict">🟢 Supportive</span>
+          <span class="hist-score">+3</span>
+        </div>
+
+        <div style="text-align:center;padding:10px;font-size:11px;color:var(--gold);cursor:pointer;letter-spacing:1.5px;font-family:'Josefin Sans',sans-serif">
+          📜 SHOW ALL HISTORY ▸
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="text-align:center;margin-top:50px;color:var(--muted);font-size:11px;letter-spacing:2px;font-family:'Josefin Sans',sans-serif">
+    ✦ MOCK PREVIEW · NOT LIVE · DESIGN VALIDATION ONLY ✦
+  </div>
+</body>
+</html>

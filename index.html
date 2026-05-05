@@ -1741,6 +1741,14 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 </div>
 
 <!-- ═══ SUBSCRIPTION ─ Monthly Cosmic Brief ═══ -->
+<!-- ═══ SUBSCRIPTION ─ Daily Cosmic Pulse ═══ -->
+<div class="panel" id="panel-pulse">
+  <div class="section-title" data-t="pulse_title">DAILY COSMIC PULSE</div>
+  <p class="panel-intro" data-en="One reading from 7+ ancient systems — every morning. The hard work of cross-referencing 26 schools is done for you." data-th="คำอ่าน 1 ฉบับจากศาสตร์ 7+ ระบบรวมกัน · เช้าวันใหม่อ่านครั้งเดียวพอ · ไม่ต้องไล่ดูทีละศาสตร์เอง">One reading from 7+ ancient systems — every morning.</p>
+  <div class="sky-dom-hint" data-t="pulse_hint">ดวงวันนี้ · 7-10 ศาสตร์รวมเป็นคำตอบเดียว · refresh ทุกวัน</div>
+  <div id="pulsePanel" style="max-width:720px;margin:0 auto;"></div>
+</div>
+
 <div class="panel" id="panel-brief">
   <div class="section-title" data-t="brief_title">MONTHLY COSMIC BRIEF</div>
   <p class="panel-intro" data-en="Your month ahead — dominant themes, quiet cautions, clear opportunities. Reads like a weather forecast for your life." data-th="เดือนหน้าน่าจะเจออะไร · ธีมหลัก จุดที่ต้องระวัง โอกาสที่กำลังเปิด อ่านง่ายเหมือนพยากรณ์อากาศ เพียงแต่เป็นของชีวิตคุณ">Your month ahead — dominant themes, quiet cautions, clear opportunities. Reads like a weather forecast for your life.</p>
@@ -1883,6 +1891,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 //  MYTHSENSUS — Pure Internal Calculation Engine
 //  All 10 systems calculated algorithmically. Zero external API.
 // ============================================================
+
 
 
 
@@ -4229,10 +4238,264 @@ function calcSaju(d) {
         })(),
     };
 }
-// ── Shared prose builder for all 26 systems ─────────────────
-// Assembles a metadata header (origin country, age, popularity,
-// key strength) plus 5-paragraph Thai HTML prose from structured
-// inputs — so every system delivers ≥2,000 chars of readable content.
+// 60-stem-branch cycle for BaZi day pillar (天干 + 地支 + element).
+// Reference epoch: 1900-01-31 = jia-zi (kept consistent with calcBazi).
+const BAZI_DAY_STEM_EL = ['Wood', 'Wood', 'Fire', 'Fire', 'Earth', 'Earth', 'Metal', 'Metal', 'Water', 'Water'];
+const BAZI_DAY_STEM_NAMES = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+const BAZI_DAY_BRANCH_NAMES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+function _baziDayPillar(jd) {
+    // 60-day cycle. JD epoch for jia-zi day: JD 2415021 ≈ 1900-01-31.
+    const cycle = ((Math.floor(jd - 2415021) % 60) + 60) % 60;
+    const stemIdx = cycle % 10;
+    const branchIdx = cycle % 12;
+    return {
+        stem: BAZI_DAY_STEM_NAMES[stemIdx],
+        branch: BAZI_DAY_BRANCH_NAMES[branchIdx],
+        element: BAZI_DAY_STEM_EL[stemIdx],
+    };
+}
+// Five-element interaction model (sheng = generates, ke = controls).
+// Returns +2 if today's element generates yours (most favourable),
+// +1 if same element, 0 neutral, -1 if you control today's, -2 if today
+// controls you.
+function _wuxingScore(today, natal) {
+    const SHENG = { Wood: 'Fire', Fire: 'Earth', Earth: 'Metal', Metal: 'Water', Water: 'Wood' };
+    const KE = { Wood: 'Earth', Fire: 'Metal', Earth: 'Water', Metal: 'Wood', Water: 'Fire' };
+    if (today === natal)
+        return 1;
+    if (SHENG[today] === natal)
+        return 2; // today's element generates yours — feeds you
+    if (SHENG[natal] === today)
+        return 0; // you generate today's — drains you slightly
+    if (KE[today] === natal)
+        return -2; // today's element controls yours — pressure
+    if (KE[natal] === today)
+        return -1; // you control today's — friction but manageable
+    return 0;
+}
+const VERDICT_TIERS = [
+    { min: 4, key: 'peak', emoji: '🌟', th: 'วันทอง', en: 'Peak day' },
+    { min: 2, key: 'supportive', emoji: '🟢', th: 'หนุน', en: 'Supportive' },
+    { min: -1, key: 'neutral', emoji: '🟡', th: 'กลาง', en: 'Neutral' },
+    { min: -3, key: 'observe', emoji: '🟠', th: 'สังเกต', en: 'Observe' },
+    { min: -99, key: 'rest', emoji: '🔴', th: 'พักฟื้น', en: 'Rest-recovery' },
+];
+const SIGN_NAMES_EN = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
+const SIGN_NAMES_TH = ['เมษ', 'พฤษภ', 'เมถุน', 'กรกฎ', 'สิงห์', 'กันย์', 'ตุลย์', 'พิจิก', 'ธนู', 'มกร', 'กุมภ์', 'มีน'];
+const SIGN_ELS = ['Fire', 'Earth', 'Air', 'Water', 'Fire', 'Earth', 'Air', 'Water', 'Fire', 'Earth', 'Air', 'Water'];
+const NAKSHATRAS_EN = [
+    'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra', 'Punarvasu', 'Pushya', 'Ashlesha',
+    'Magha', 'Purva Phalguni', 'Uttara Phalguni', 'Hasta', 'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha',
+    'Mula', 'Purva Ashadha', 'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada', 'Uttara Bhadrapada', 'Revati'
+];
+// Tara Bala — 9 levels of nakshatra compatibility (count from natal nakshatra).
+// 1 (Janma)=mixed, 2 (Sampat)=+, 3 (Vipat)=-, 4 (Kshema)=+, 5 (Pratyari)=-,
+// 6 (Sadhaka)=+, 7 (Vadha)=-, 8 (Mitra)=+, 9 (Param Mitra)=+
+const TARA_SCORE = [0, +1, -1, +2, -1, +1, -2, +2, +2];
+function calcDailyPulse(c, date, opts = {}) {
+    const lang = opts.lang ?? _reportLang ?? 'th';
+    const pinned = new Set(opts.pinnedSystems ?? []);
+    // Inline Thai element labels — calcDailyPulse must produce BOTH noteTh and
+    // noteEn regardless of _reportLang, so we don't piggy-back on pEl()/pPlanet()
+    // which read the module-scoped lang flag.
+    const EL_TH = { Wood: 'ไม้', Fire: 'ไฟ', Earth: 'ดิน', Metal: 'โลหะ', Water: 'น้ำ', Air: 'ลม' };
+    // Today's Julian Day at noon (use noon to avoid TZ flip-flop near midnight).
+    const jd = toJD(date.getFullYear(), date.getMonth() + 1, date.getDate(), 12);
+    // ── Build candidate signals ─────────────────────────────
+    const candidates = [];
+    // 1. BaZi Day Pillar (changes daily)
+    const dayP = _baziDayPillar(jd);
+    const baziScore = _wuxingScore(dayP.element, c.bazi.dayMasterElement);
+    candidates.push({
+        sys: 'BaZi Day',
+        sysTh: 'BaZi เสาวัน', sysEn: 'BaZi Day',
+        noteTh: `วัน ${dayP.stem}${dayP.branch} (ธาตุ${EL_TH[dayP.element] || dayP.element}) ${baziScore >= 2 ? 'หล่อเลี้ยง' : baziScore === 1 ? 'เสริม' : baziScore === 0 ? 'กลาง' : 'ขัด'} Day Master ธาตุ${EL_TH[c.bazi.dayMasterElement] || c.bazi.dayMasterElement}`,
+        noteEn: `Day ${dayP.stem}${dayP.branch} (${dayP.element}) ${baziScore >= 2 ? 'feeds' : baziScore === 1 ? 'reinforces' : baziScore === 0 ? 'neutral with' : 'pressures'} your ${c.bazi.dayMasterElement} Day Master`,
+        score: baziScore,
+        velocity: 'daily',
+    });
+    // 2. Western Moon transit today
+    const moonLon = mod360(moonLongitude(jd));
+    const moonSignIdx = Math.floor(moonLon / 30);
+    const moonEl = SIGN_ELS[moonSignIdx];
+    // Compatibility: Fire ↔ Air friendly, Water ↔ Earth friendly
+    const FRIENDLY = { Fire: ['Fire', 'Air'], Air: ['Air', 'Fire'], Water: ['Water', 'Earth'], Earth: ['Earth', 'Water'] };
+    const sunSign = c.western.sunSign;
+    const sunIdx = SIGN_NAMES_EN.indexOf(sunSign);
+    const sunEl = sunIdx >= 0 ? SIGN_ELS[sunIdx] : 'Fire';
+    const moonCompat = FRIENDLY[moonEl]?.includes(sunEl) ? (moonEl === sunEl ? 2 : 1) : -1;
+    candidates.push({
+        sys: 'Western Moon',
+        sysTh: 'จันทร์ตะวันตก', sysEn: 'Western Moon',
+        noteTh: `จันทร์ในราศี${SIGN_NAMES_TH[moonSignIdx]} (ธาตุ${EL_TH[moonEl] || moonEl}) ${moonCompat > 0 ? 'เข้ากันกับราศีอาทิตย์ของคุณ' : 'ต่างขั้วกับราศีอาทิตย์'}`,
+        noteEn: `Moon in ${SIGN_NAMES_EN[moonSignIdx]} (${moonEl}) — ${moonCompat > 0 ? 'aligned with your Sun element' : 'cross-element from your Sun'}`,
+        score: moonCompat,
+        velocity: 'daily',
+    });
+    // 3. Vedic Moon nakshatra today (Tara Bala)
+    const AYANAMSA = 24;
+    const sidMoon = mod360(moonLon - AYANAMSA);
+    const todayNakIdx = Math.floor(sidMoon / (360 / 27));
+    const natalNakName = c.vedic.moonNakshatra;
+    const natalNakIdx = Math.max(0, NAKSHATRAS_EN.findIndex(n => n.toLowerCase() === natalNakName.toLowerCase()));
+    const taraIdx = ((todayNakIdx - natalNakIdx) % 9 + 9) % 9;
+    const taraScore = TARA_SCORE[taraIdx] ?? 0;
+    const TARA_NAMES_TH = ['Janma', 'สัมปัต', 'วิปัต', 'เกษม', 'ปรัตยรี', 'สาธก', 'วาธ', 'มิตร', 'ปรมมิตร'];
+    const TARA_NAMES_EN = ['Janma', 'Sampat', 'Vipat', 'Kshema', 'Pratyari', 'Sadhaka', 'Vadha', 'Mitra', 'Param Mitra'];
+    candidates.push({
+        sys: 'Vedic Moon',
+        sysTh: 'จันทร์เวทิก', sysEn: 'Vedic Moon',
+        noteTh: `Moon Nakshatra ${NAKSHATRAS_EN[todayNakIdx]} · Tara ${TARA_NAMES_TH[taraIdx]}`,
+        noteEn: `Moon Nakshatra ${NAKSHATRAS_EN[todayNakIdx]} · Tara ${TARA_NAMES_EN[taraIdx]}`,
+        score: taraScore,
+        velocity: 'daily',
+    });
+    // 4. Mayan Kin today (Tzolkʼin)
+    // Reference: 1970-01-01 = Kin 116 (commonly cited correlation).
+    const KIN_EPOCH_JD = 2440588; // 1970-01-01
+    const kin0 = ((Math.floor(jd - KIN_EPOCH_JD + 116) % 260) + 260) % 260;
+    const kin = kin0 === 0 ? 260 : kin0;
+    const tone = ((kin - 1) % 13) + 1;
+    const dayIdx = ((kin - 1) % 20) + 1;
+    // Tones 1, 4, 7, 10, 13 = strong; 5, 8, 11 = soft; rest neutral
+    const TONE_FAV = [0, 1, 0, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1];
+    const toneScore = TONE_FAV[tone] || 0;
+    const MAYAN_DAY_EN = ['', 'Imix', 'Ik', 'Akbal', 'Kan', 'Chicchan', 'Cimi', 'Manik', 'Lamat', 'Muluc', 'Oc', 'Chuen', 'Eb', 'Ben', 'Ix', 'Men', 'Cib', 'Caban', 'Etznab', 'Cauac', 'Ahau'];
+    candidates.push({
+        sys: 'Mayan Kin',
+        sysTh: 'มายัน Kin', sysEn: 'Mayan Kin',
+        noteTh: `Kin ${kin} · ${MAYAN_DAY_EN[dayIdx]} · โทน ${tone}`,
+        noteEn: `Kin ${kin} · ${MAYAN_DAY_EN[dayIdx]} · Tone ${tone}`,
+        score: toneScore,
+        velocity: 'daily',
+    });
+    // 5. Numerology Personal Day (PY + month + day)
+    const digitSum = (n) => String(n).split('').reduce((a, b) => a + (+b), 0);
+    const reduce11 = (n) => { while (n > 9 && n !== 11 && n !== 22)
+        n = digitSum(n); return n; };
+    const py = c.numerology.personalYear2026;
+    const pdNum = reduce11(py + (date.getMonth() + 1) + date.getDate());
+    // Same favourable-day mapping as Monthly Brief: 1,3,6,8,9 favour; 4,7 caution.
+    const FAVOR_DAYS = [0, 1, 0, 1, -1, 0, 1, -1, 1, 1, 0, 0, 0];
+    const pdScore = pdNum === 11 ? 2 : pdNum === 22 ? 2 : (FAVOR_DAYS[pdNum] ?? 0);
+    const PD_TH = { 1: 'เริ่มต้นใหม่', 2: 'ความสัมพันธ์', 3: 'สื่อสาร-สร้างสรรค์', 4: 'ทำงานหนัก', 5: 'เปลี่ยนแปลง', 6: 'ครอบครัว', 7: 'ปัญญา-ถอย', 8: 'อำนาจ-เก็บเกี่ยว', 9: 'ปิดวัฏจักร', 11: 'วิสัยทัศน์', 22: 'สร้างระบบ' };
+    const PD_EN = { 1: 'New beginning', 2: 'Partnership', 3: 'Communication', 4: 'Hard work', 5: 'Change', 6: 'Family', 7: 'Introspection', 8: 'Harvest', 9: 'Completion', 11: 'Vision', 22: 'Master builder' };
+    candidates.push({
+        sys: 'Numerology PD',
+        sysTh: 'เลขศาสตร์วัน', sysEn: 'Personal Day',
+        noteTh: `Personal Day ${pdNum} — ${PD_TH[pdNum] || ''}`,
+        noteEn: `Personal Day ${pdNum} — ${PD_EN[pdNum] || ''}`,
+        score: pdScore,
+        velocity: 'daily',
+    });
+    // 6. NSK Day Star (9-day cycle approximation)
+    // Real NSK day-star calculation depends on solar terms; we approximate via
+    // a 9-day modulo from a reference (2026-01-01 = star 1 by convention used
+    // here — close enough for daily-pulse rotation).
+    const NSK_REF_JD = 2461042; // 2026-01-01 ≈ JD 2461042
+    const dayStar = (((Math.floor(jd - NSK_REF_JD) % 9) + 9) % 9) + 1;
+    const dayStarVsNatal = c.ninestar.star;
+    const nskScore = dayStar === dayStarVsNatal ? 2 : Math.abs(dayStar - dayStarVsNatal) === 5 ? -2 : 0;
+    candidates.push({
+        sys: 'NSK Day Star',
+        sysTh: 'NSK ดาววัน', sysEn: 'NSK Day Star',
+        noteTh: `ดาว ${dayStar} ${dayStar === dayStarVsNatal ? '(Honmei — ตรงดาวเกิด)' : nskScore < 0 ? '(ตรงข้ามดาวเกิด)' : ''}`,
+        noteEn: `Star ${dayStar} ${dayStar === dayStarVsNatal ? '(Honmei — matches natal)' : nskScore < 0 ? '(opposite natal)' : ''}`,
+        score: nskScore,
+        velocity: 'daily',
+    });
+    // 7. Biorhythm today (already has the formulas; sample at today's elapsed days)
+    const birthJD = toJD(c.input.year, c.input.month, c.input.day, 12);
+    const dElapsed = Math.round(jd - birthJD);
+    const phy = Math.round(Math.sin(2 * Math.PI * dElapsed / 23) * 100);
+    const emo = Math.round(Math.sin(2 * Math.PI * dElapsed / 28) * 100);
+    const intel = Math.round(Math.sin(2 * Math.PI * dElapsed / 33) * 100);
+    const bioAvg = Math.round((phy + emo + intel) / 3);
+    const bioScore = bioAvg > 50 ? 2 : bioAvg > 20 ? 1 : bioAvg > -20 ? 0 : bioAvg > -50 ? -1 : -2;
+    candidates.push({
+        sys: 'Biorhythm',
+        sysTh: 'ไบโอริทึม', sysEn: 'Biorhythm',
+        noteTh: `กาย ${phy >= 0 ? '+' : ''}${phy}% · ใจ ${emo >= 0 ? '+' : ''}${emo}% · สมอง ${intel >= 0 ? '+' : ''}${intel}%`,
+        noteEn: `Body ${phy >= 0 ? '+' : ''}${phy}% · Emotion ${emo >= 0 ? '+' : ''}${emo}% · Intellect ${intel >= 0 ? '+' : ''}${intel}%`,
+        score: bioScore,
+        velocity: 'daily',
+    });
+    // 8. ไทยพราหมณ์ — day-of-week ruler (changes 7-day cycle)
+    const dow = ((Math.floor(jd + 1.5) % 7) + 7) % 7; // 0=Sun
+    const natalDow = c.thai.dayOfWeek;
+    const dowScore = dow === natalDow ? 1 : Math.abs(dow - natalDow) === 4 ? -1 : 0;
+    const DAY_TH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+    const DAY_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    candidates.push({
+        sys: 'Thai Brahmin',
+        sysTh: 'ไทยพราหมณ์', sysEn: 'Thai Brahmin',
+        noteTh: `วัน${DAY_TH[dow]} ${dow === natalDow ? '(ตรงวันเกิด)' : dowScore < 0 ? '(ตรงข้ามวันเกิด)' : ''}`,
+        noteEn: `${DAY_EN[dow]} ${dow === natalDow ? '(matches birth day)' : dowScore < 0 ? '(opposite birth day)' : ''}`,
+        score: dowScore,
+        velocity: 'weekly',
+    });
+    // 9. Vedic Mahadasha — natal-constant. Cite for context (no score).
+    candidates.push({
+        sys: 'Mahadasha',
+        sysTh: 'วิมโชตติริ', sysEn: 'Mahadasha',
+        noteTh: `${c.vedicMahadasha.currentDasha} Dasha ต่อเนื่อง`,
+        noteEn: `${c.vedicMahadasha.currentDasha} Dasha ongoing`,
+        score: 0,
+        velocity: 'natal',
+    });
+    // ── Mark pinned + select up to 10 ───────────────────────
+    for (const sig of candidates)
+        if (pinned.has(sig.sys))
+            sig.pinned = true;
+    // Selection rule: include all pinned, then fill remaining slots with
+    // highest-velocity (daily before weekly before monthly).
+    const VELOCITY_RANK = { daily: 3, weekly: 2, monthly: 1, natal: 0 };
+    const sorted = candidates.slice().sort((a, b) => {
+        if (a.pinned !== b.pinned)
+            return a.pinned ? -1 : 1;
+        return (VELOCITY_RANK[b.velocity] ?? 0) - (VELOCITY_RANK[a.velocity] ?? 0);
+    });
+    const selected = sorted.slice(0, 10);
+    // ── Aggregate score + verdict ───────────────────────────
+    const total = selected.reduce((s, sig) => s + sig.score, 0);
+    const tier = VERDICT_TIERS.find(t => total >= t.min) ?? VERDICT_TIERS[VERDICT_TIERS.length - 1];
+    // ── Synthesis paragraph ─────────────────────────────────
+    // Pull the 3 highest-magnitude signals for the synthesis spotlight.
+    const spotlight = selected.slice().sort((a, b) => Math.abs(b.score) - Math.abs(a.score)).slice(0, 3);
+    const synTh = _buildSynthesis(spotlight, tier, 'th', c);
+    const synEn = _buildSynthesis(spotlight, tier, 'en', c);
+    return {
+        isoDate: date.toISOString().slice(0, 10),
+        total,
+        verdictKey: tier.key,
+        verdictEmoji: tier.emoji,
+        verdictTh: tier.th,
+        verdictEn: tier.en,
+        signals: selected,
+        pinnedCount: selected.filter(s => s.pinned).length,
+        synthesisTh: synTh,
+        synthesisEn: synEn,
+    };
+}
+function _buildSynthesis(signals, tier, lang, c) {
+    if (signals.length === 0)
+        return lang === 'th' ? 'วันธรรมดา ไม่มีสัญญาณเด่น' : 'Quiet day, no strong signal.';
+    const intro = lang === 'th'
+        ? (tier.key === 'peak' ? 'วันนี้พลังสูงเป็นพิเศษ — '
+            : tier.key === 'supportive' ? 'วันนี้ฟ้าหนุน — '
+                : tier.key === 'neutral' ? 'วันนี้กลาง ๆ — '
+                    : tier.key === 'observe' ? 'วันนี้ต้องสังเกตหลายจุด — '
+                        : 'วันนี้เป็นวงรอบพักฟื้น — ')
+        : (tier.key === 'peak' ? 'Today carries unusually high resonance — '
+            : tier.key === 'supportive' ? 'The day favours you — '
+                : tier.key === 'neutral' ? 'A neutral day — '
+                    : tier.key === 'observe' ? 'Several signals ask for caution today — '
+                        : 'A recovery cycle today — ');
+    // Build the spotlight phrases from signals' notes.
+    const phrases = signals.map(sig => lang === 'th' ? sig.noteTh : sig.noteEn);
+    const joiner = lang === 'th' ? ' · ' : '. ';
+    return intro + phrases.join(joiner) + (lang === 'th' ? '.' : '.');
+}
 // Module-scoped language marker set by generateReport() at the top of each
 // report render. Read by buildRichReading() and other helpers so section
 // labels/prose wrappers respect user's chosen language.
@@ -7622,10 +7885,11 @@ function p_vedicMahadasha(c) {
 
 
   // ─── Public API ─────────────────────────────────────────
-  root.MS26 = { calculate: calculate, generateReport: generateReport };
+  root.MS26 = { calculate: calculate, generateReport: generateReport, calcDailyPulse: calcDailyPulse };
 })(typeof window !== "undefined" ? window : globalThis);
 
 /* MS26_BUNDLE_END */
+
 
 
 
@@ -7683,7 +7947,35 @@ en:{
   sub_collection:"📚 Collection",sub_library:"📖 Library",sub_streak:"🔥 Streak",sub_history7:"📜 7-day",
   sub_generate:"✨ Generate",sub_reports:"📁 My Reports",
   sub_sky:"🌌 Daily Sky",sub_resonance:"🧭 Resonance",sub_organum_plus:"🔮 Organum ∞",
-  sub_brief:"📰 Monthly",sub_freq:"📡 Frequency",sub_history_all:"📜 History",
+  sub_pulse:"⚡ Daily",sub_brief:"📰 Monthly",sub_freq:"📡 Frequency",sub_history_all:"📜 History",
+  pulse_title:"DAILY COSMIC PULSE",
+  pulse_hint:"Today's pulse · 7-10 systems consensus · refreshes every morning",
+  pulse_pin_btn:"⚙ Pin favorites",
+  pulse_history_btn:"📜 History",
+  pulse_refresh_btn:"🔄 Refresh",
+  pulse_show_systems:"▾ Show systems",
+  pulse_hide_systems:"▴ Hide systems",
+  pulse_pinned_tag:"PIN",
+  pulse_streak_label:"day streak",
+  pulse_streak_label_plural:"day streak",
+  pulse_score_sub:"SYSTEMS · TODAY",
+  pulse_pinned_score_sub:"PINNED + DAILY",
+  pulse_lock_title:"✦ Daily Pulse",
+  pulse_lock_sub:"7+ ancient systems → one reading · every morning",
+  pulse_lock_cta:"UPGRADE",
+  pulse_pin_modal_title:"⚙ Pin your favorite systems",
+  pulse_pin_modal_sub:"Lock up to 3 systems to always appear in your daily pulse — the engine fills the rest based on what's varying today.",
+  pulse_pin_save:"SAVE PINS",
+  pulse_pin_cancel:"CANCEL",
+  pulse_pin_counter:"PINNED",
+  pulse_pin_max:"of 3",
+  pulse_reflect_title:"Reflection",
+  pulse_reflect_placeholder:"Note what you feel / intend today...",
+  pulse_reflect_meta:"ONCE PER DAY · LOGGED TO HISTORY",
+  pulse_reflect_save:"Save",
+  pulse_reflect_saved:"Saved ✓",
+  pulse_history_title:"PAST 14 DAYS",
+  pulse_no_chart:"Set your birth date in Profile → Me first",
   sub_deep:"🔬 26 Systems",sub_mirror:"🪞 Mirror",sub_pet:"🐾 Pet",
   sub_companions:"🦄 Cosmic Companions",sub_exercise:"⚡ Exercise",sub_food:"🍲 Food",
   sub_product:"🛍️ Product",sub_compat:"💑 Compat",
@@ -7846,7 +8138,35 @@ th:{
   sub_collection:"📚 สะสมเทพ",sub_library:"📖 คลังของฉัน",sub_streak:"🔥 Streak",sub_history7:"📜 7 วัน",
   sub_generate:"✨ สร้างรายงาน",sub_reports:"📁 รายงานของฉัน",
   sub_sky:"🌌 ฟ้าวันนี้",sub_resonance:"🧭 ดวงของเรากับสภาพแวดล้อม",sub_organum_plus:"🔮 เสียงจาก 108 เทพ",
-  sub_brief:"📰 สรุปเดือน",sub_freq:"📡 ความถี่",sub_history_all:"📜 ประวัติทั้งหมด",
+  sub_pulse:"⚡ ดวงวันนี้",sub_brief:"📰 สรุปเดือน",sub_freq:"📡 ความถี่",sub_history_all:"📜 ประวัติทั้งหมด",
+  pulse_title:"ดวงคอสมิครายวัน",
+  pulse_hint:"ดวงวันนี้ · 7-10 ศาสตร์รวมเป็นคำตอบเดียว · refresh ทุกเช้า",
+  pulse_pin_btn:"⚙ Pin ศาสตร์โปรด",
+  pulse_history_btn:"📜 ประวัติ",
+  pulse_refresh_btn:"🔄 Refresh",
+  pulse_show_systems:"▾ แสดงรายละเอียด",
+  pulse_hide_systems:"▴ ซ่อนรายละเอียด",
+  pulse_pinned_tag:"PIN",
+  pulse_streak_label:"วัน streak",
+  pulse_streak_label_plural:"วัน streak",
+  pulse_score_sub:"ศาสตร์ · วันนี้",
+  pulse_pinned_score_sub:"PIN + DAILY",
+  pulse_lock_title:"✦ ดวงวันนี้",
+  pulse_lock_sub:"7+ ศาสตร์รวมเป็นคำตอบเดียว · ทุกเช้า",
+  pulse_lock_cta:"UPGRADE",
+  pulse_pin_modal_title:"⚙ Pin ศาสตร์โปรดของคุณ",
+  pulse_pin_modal_sub:"เลือก ≤ 3 ศาสตร์ที่อยากให้อยู่ใน Daily Pulse ทุกวัน — ที่เหลือ engine จะเลือกตามสัญญาณของวันนั้น",
+  pulse_pin_save:"บันทึก",
+  pulse_pin_cancel:"ยกเลิก",
+  pulse_pin_counter:"PIN แล้ว",
+  pulse_pin_max:"จาก 3",
+  pulse_reflect_title:"บันทึกประจำวัน",
+  pulse_reflect_placeholder:"พิมพ์สิ่งที่คุณรู้สึก/ตั้งใจวันนี้...",
+  pulse_reflect_meta:"วันละครั้ง · เก็บไว้ใน History",
+  pulse_reflect_save:"บันทึก",
+  pulse_reflect_saved:"บันทึกแล้ว ✓",
+  pulse_history_title:"14 วันที่ผ่านมา",
+  pulse_no_chart:"กรอกวันเกิดที่ Profile → Me ก่อน",
   sub_deep:"🔬 26 ศาสตร์",sub_mirror:"🪞 เทพกระจก",sub_pet:"🐾 สัตว์เลี้ยง",
   sub_companions:"🦄 เพื่อนคู่ใจ",sub_exercise:"⚡ ออกกำลัง",sub_food:"🍲 อาหาร",
   sub_product:"🛍️ สินค้า",sub_compat:"💑 ความเข้ากัน",
@@ -8059,8 +8379,9 @@ const GROUPS = {
     ],
   },
   subscription: {
-    default: 'sky',
+    default: 'pulse',
     tabs: [
+      ['pulse',     'pulse',     'sub_pulse',        false],
       ['sky',       'sky',       'sub_sky',          false],
       ['resonance', 'resonance', 'sub_resonance',    false],
       ['organum',   'organum',   'sub_organum_plus', false],
@@ -8151,6 +8472,7 @@ function showSubTab(subKey) {
   if (panelId === 'blueprint')        syncAllForms();
   if (panelId === 'deep')             renderDeepReadings();
   if (panelId === 'resonance')        renderResonance();
+  if (panelId === 'pulse')            renderDailyPulse();
   if (panelId === 'brief')            renderMonthlyBrief();
   if (panelId === 'freq')             renderFreqHistory();
   if (panelId === 'collection')       renderCollection();
@@ -11670,6 +11992,357 @@ function _showResRegenHint(){
   _resRegenTimer = setTimeout(() => {
     if (banner.parentNode) banner.remove();
   }, 4000);
+}
+
+// ════════════════════════════════════════════════════════════
+// DAILY COSMIC PULSE — engine-curated 7+ systems, daily refresh
+// ════════════════════════════════════════════════════════════
+// Subscriber-feature in spirit (gating deferred until paid launch — see
+// HANDOFF.md "All add-ons unlocked for beta testing"). Architecture mirrors
+// renderMonthlyBrief: pull chart → call MS26 helper → emit innerHTML.
+
+// Catalogue of pin-able systems, grouped for the modal. Keys must match
+// `sys` strings in calcDailyPulse signal records.
+const _PULSE_PIN_CATALOG = [
+  { region:{th:'East Asia / เอเชียตะวันออก', en:'East Asia'}, items: [
+    { key:'BaZi Day',     th:'☯ BaZi เสาวัน',  en:'☯ BaZi Day' },
+    { key:'NSK Day Star', th:'⭐ NSK ดาววัน',   en:'⭐ NSK Day Star' },
+  ]},
+  { region:{th:'South Asia / ใต้', en:'South Asia / Vedic'}, items: [
+    { key:'Vedic Moon',   th:'🕉 จันทร์เวทิก',  en:'🕉 Vedic Moon' },
+    { key:'Mahadasha',    th:'📿 วิมโชตติริ',  en:'📿 Mahadasha' },
+    { key:'Thai Brahmin', th:'🙏 ไทยพราหมณ์',  en:'🙏 Thai Brahmin' },
+  ]},
+  { region:{th:'West / Europe', en:'West / Europe'}, items: [
+    { key:'Western Moon', th:'☉ จันทร์ตะวันตก', en:'☉ Western Moon' },
+  ]},
+  { region:{th:'Americas / Modern', en:'Americas / Modern'}, items: [
+    { key:'Mayan Kin',     th:'🌀 มายัน Kin',    en:'🌀 Mayan Kin' },
+    { key:'Numerology PD', th:'🔢 เลขศาสตร์วัน', en:'🔢 Personal Day' },
+    { key:'Biorhythm',     th:'📈 ไบโอริทึม',   en:'📈 Biorhythm' },
+  ]},
+];
+
+const PULSE_PIN_MAX = 3;
+
+function _getDailyPins() {
+  try { return JSON.parse(localStorage.getItem('mth_daily_pins') || '[]') || []; }
+  catch (_) { return []; }
+}
+function _setDailyPins(arr) {
+  localStorage.setItem('mth_daily_pins', JSON.stringify(arr.slice(0, PULSE_PIN_MAX)));
+}
+
+// Streak counter — counts consecutive days ending today that have a saved
+// daily-pulse entry in mth_full_history. Today not yet logged still counts
+// (we log on first view). Resets to 0 if any day in the window is missing.
+function _computeDailyPulseStreak() {
+  const hist = (function(){
+    try { return JSON.parse(localStorage.getItem('mth_full_history') || '[]'); }
+    catch(_) { return []; }
+  })();
+  const days = new Set(
+    hist.filter(h => h.type === 'daily_pulse').map(h => h.iso)
+  );
+  let streak = 0;
+  const cursor = new Date();
+  for (let i = 0; i < 365; i++) {
+    const iso = cursor.toISOString().slice(0,10);
+    if (days.has(iso)) streak++;
+    else if (i > 0) break;       // first-day-not-found is fine for today; gap thereafter breaks streak
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}
+
+// Idempotent — overwrites today's entry if already logged.
+function _logDailyPulseToHistory(pulse) {
+  try {
+    const hist = JSON.parse(localStorage.getItem('mth_full_history') || '[]');
+    const ix = hist.findIndex(h => h.type === 'daily_pulse' && h.iso === pulse.isoDate);
+    const entry = {
+      type: 'daily_pulse',
+      iso: pulse.isoDate,
+      ts: Date.now(),
+      total: pulse.total,
+      verdictKey: pulse.verdictKey,
+      verdictEmoji: pulse.verdictEmoji,
+    };
+    if (ix >= 0) hist[ix] = entry; else hist.unshift(entry);
+    if (hist.length > 500) hist.length = 500;
+    localStorage.setItem('mth_full_history', JSON.stringify(hist));
+  } catch (e) { console.warn('daily-pulse history log failed:', e); }
+}
+
+// Past 14 days of daily_pulse entries, oldest-first (chart-friendly).
+function _getRecentDailyPulses(n = 14) {
+  try {
+    const hist = JSON.parse(localStorage.getItem('mth_full_history') || '[]');
+    const items = hist.filter(h => h.type === 'daily_pulse');
+    return items.slice(0, n).reverse(); // oldest first
+  } catch (_) { return []; }
+}
+
+// Subscriber gate stub. Beta = always true. At online launch, swap with
+// real subscription state (probably another localStorage flag or a check
+// against an account record).
+function _isPulseSubscriber() {
+  // TODO: replace with real subscription check at launch.
+  return true;
+}
+
+let _PULSE_DRILLDOWN_OPEN = false;
+let _PULSE_PIN_MODAL_OPEN = false;
+let _PULSE_HISTORY_OPEN   = false;
+
+function togglePulseDrilldown() {
+  _PULSE_DRILLDOWN_OPEN = !_PULSE_DRILLDOWN_OPEN;
+  renderDailyPulse();
+}
+function togglePulsePinModal() {
+  _PULSE_PIN_MODAL_OPEN = !_PULSE_PIN_MODAL_OPEN;
+  renderDailyPulse();
+}
+function togglePulseHistory() {
+  _PULSE_HISTORY_OPEN = !_PULSE_HISTORY_OPEN;
+  renderDailyPulse();
+}
+function pulseTogglePin(key) {
+  let pins = _getDailyPins();
+  if (pins.includes(key)) {
+    pins = pins.filter(k => k !== key);
+  } else if (pins.length < PULSE_PIN_MAX) {
+    pins.push(key);
+  }
+  _setDailyPins(pins);
+  renderDailyPulse();
+}
+function pulseSavePins() {
+  _PULSE_PIN_MODAL_OPEN = false;
+  renderDailyPulse();
+}
+function pulseSaveReflection() {
+  const ta = document.getElementById('pulse-reflect-input');
+  if (!ta) return;
+  const today = new Date().toISOString().slice(0,10);
+  localStorage.setItem('mth_pulse_reflect_' + today, ta.value.trim());
+  // Brief saved indicator
+  const meta = document.getElementById('pulse-reflect-meta-status');
+  if (meta) meta.textContent = LANG === 'th' ? 'บันทึกแล้ว ✓' : 'Saved ✓';
+}
+
+function renderDailyPulse() {
+  const panel = document.getElementById('pulsePanel');
+  if (!panel) return;
+  const isTh = LANG === 'th';
+
+  // No chart yet — prompt to fill profile.
+  const chart = (typeof _getMS26ChartFromProfile === 'function') ? _getMS26ChartFromProfile() : null;
+  if (!chart) {
+    panel.innerHTML = `<div style="text-align:center;padding:36px 20px;color:var(--muted);font-size:14px">${isTh?'กรอกวันเกิดที่ Profile → Me ก่อน':'Set your birth date in Profile → Me first'}</div>`;
+    return;
+  }
+
+  // Subscriber gate — beta = always pass; rendered locked preview shown otherwise.
+  if (!_isPulseSubscriber()) {
+    panel.innerHTML = _renderPulseLockedPreview(chart);
+    return;
+  }
+
+  const today = new Date();
+  const pins = _getDailyPins();
+  const pulse = window.MS26.calcDailyPulse(chart, today, { pinnedSystems: pins, lang: LANG });
+  _logDailyPulseToHistory(pulse);
+  const streak = _computeDailyPulseStreak();
+  const reflectKey = 'mth_pulse_reflect_' + pulse.isoDate;
+  const savedReflect = localStorage.getItem(reflectKey) || '';
+
+  // Verdict card colours
+  const tierColor = {
+    peak:       { bg:'rgba(212,175,55,0.08)', border:'rgba(212,175,55,0.4)', score:'#d4aa50' },
+    supportive: { bg:'rgba(74,154,64,0.06)',  border:'rgba(74,154,64,0.3)',  score:'#50d490' },
+    neutral:    { bg:'rgba(200,168,64,0.06)', border:'rgba(200,168,64,0.3)', score:'#c8a840' },
+    observe:    { bg:'rgba(192,96,96,0.06)',  border:'rgba(192,96,96,0.3)',  score:'#c06060' },
+    rest:       { bg:'rgba(192,96,96,0.1)',   border:'rgba(192,96,96,0.4)',  score:'#c06060' },
+  }[pulse.verdictKey];
+
+  const verdictLabel = isTh ? pulse.verdictTh : pulse.verdictEn;
+  const synthesis = isTh ? pulse.synthesisTh : pulse.synthesisEn;
+  const dateLabel = today.toLocaleDateString(isTh ? 'th-TH' : 'en-US', { day:'numeric', month:'long', year:'numeric' });
+
+  // Drill-down rows
+  const sysRowsHtml = pulse.signals.map(sig => {
+    const noteText = isTh ? sig.noteTh : sig.noteEn;
+    const sysLabel = isTh ? sig.sysTh : sig.sysEn;
+    const scoreColor = sig.score > 0 ? '#50d490' : sig.score < 0 ? '#c06060' : 'var(--muted)';
+    const pinTag = sig.pinned ? `<span style="margin-left:5px;background:rgba(212,170,80,0.18);border:1px solid var(--gold3);border-radius:3px;padding:0 5px;font-size:8.5px;color:var(--gold)">${t('pulse_pinned_tag')}</span>` : '';
+    const rowBg = sig.pinned ? 'background:rgba(212,170,80,0.05);' : '';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 14px;border-top:1px solid var(--border);font-size:11.5px;${rowBg}">
+      <span style="width:130px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.2px;color:var(--gold3);flex-shrink:0">${sysLabel}${pinTag}</span>
+      <span style="flex:1;color:var(--text);line-height:1.55">${noteText}</span>
+      <span style="font-family:'Josefin Sans',sans-serif;font-weight:700;color:${scoreColor};min-width:32px;text-align:right">${sig.score >= 0 ? '+' : ''}${sig.score}</span>
+    </div>`;
+  }).join('');
+
+  // Pin modal HTML
+  const pinModalHtml = !_PULSE_PIN_MODAL_OPEN ? '' : `
+    <div style="background:var(--bg3);border:1px solid var(--gold);border-radius:10px;padding:18px 20px;margin-top:14px">
+      <div style="font-family:'Cinzel Decorative',serif;font-size:14px;color:var(--gold);margin-bottom:4px">${t('pulse_pin_modal_title')}</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.6">${t('pulse_pin_modal_sub')}</div>
+      ${_PULSE_PIN_CATALOG.map(reg => `
+        <div style="margin-top:14px">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold3);text-transform:uppercase;margin-bottom:6px">${isTh?reg.region.th:reg.region.en}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            ${reg.items.map(it => {
+              const active = pins.includes(it.key);
+              const disabled = !active && pins.length >= PULSE_PIN_MAX;
+              const style = active
+                ? 'background:rgba(212,170,80,0.15);border:1px solid var(--gold);color:var(--gold);'
+                : disabled
+                  ? 'background:var(--bg);border:1px solid var(--border);color:var(--muted);opacity:0.5;cursor:not-allowed;'
+                  : 'background:var(--bg);border:1px solid var(--border);color:var(--text);';
+              const handler = disabled ? '' : `onclick="pulseTogglePin('${it.key.replace(/'/g,"&apos;")}')"`;
+              return `<button ${handler} style="padding:5px 10px;border-radius:5px;font-size:11px;cursor:${disabled?'not-allowed':'pointer'};font-family:inherit;${style}">${isTh?it.th:it.en}</button>`;
+            }).join('')}
+          </div>
+        </div>
+      `).join('')}
+      <div style="text-align:right;font-size:10px;color:var(--muted);margin-top:8px;font-family:'Josefin Sans',sans-serif;letter-spacing:1px">${t('pulse_pin_counter')} ${pins.length} ${t('pulse_pin_max')}</div>
+      <div style="display:flex;gap:8px;margin-top:18px;justify-content:flex-end">
+        <button onclick="togglePulsePinModal()" style="padding:7px 14px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:6px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;cursor:pointer">${t('pulse_pin_cancel')}</button>
+        <button onclick="pulseSavePins()" style="padding:7px 14px;background:var(--gold);border:none;color:var(--bg);border-radius:6px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;cursor:pointer;font-weight:600">${t('pulse_pin_save')}</button>
+      </div>
+    </div>`;
+
+  // History block
+  const recent = _getRecentDailyPulses(14);
+  const sparklineHtml = recent.length === 0 ? '' : (function() {
+    const max = 5; const min = -5; const range = max - min;
+    const W = 280; const H = 60;
+    const pts = recent.map((r, i) => {
+      const x = (i / Math.max(1, recent.length - 1)) * W;
+      const v = Math.max(min, Math.min(max, r.total));
+      const y = H - ((v - min) / range) * H;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    return `<div style="background:rgba(0,0,0,0.2);padding:12px 14px;border-radius:8px;margin-bottom:14px">
+      <div style="font-size:9px;color:var(--muted);letter-spacing:2px;font-family:'Josefin Sans',sans-serif;margin-bottom:8px">${isTh?'แนวโน้ม 14 วัน':'14-DAY TREND'}</div>
+      <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:60px">
+        <line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="var(--border)" stroke-dasharray="2,3"/>
+        <polyline fill="none" stroke="var(--gold)" stroke-width="2" points="${pts}"/>
+      </svg>
+    </div>`;
+  })();
+  const historyRowsHtml = recent.slice().reverse().map(r => {
+    const verdictLabel2 = (function(){
+      switch (r.verdictKey) {
+        case 'peak': return isTh ? '🌟 วันทอง' : '🌟 Peak';
+        case 'supportive': return isTh ? '🟢 หนุน' : '🟢 Supportive';
+        case 'neutral': return isTh ? '🟡 กลาง' : '🟡 Neutral';
+        case 'observe': return isTh ? '🟠 สังเกต' : '🟠 Observe';
+        case 'rest': return isTh ? '🔴 พักฟื้น' : '🔴 Rest';
+        default: return r.verdictEmoji || '';
+      }
+    })();
+    const dateShort = new Date(r.iso).toLocaleDateString(isTh ? 'th-TH' : 'en-US', { day:'numeric', month:'short' });
+    const sc = r.total > 0 ? '#50d490' : r.total < 0 ? '#c06060' : 'var(--muted)';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);font-size:12px">
+      <span style="color:var(--muted);font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1px">${dateShort}</span>
+      <span style="color:var(--text)">${verdictLabel2}</span>
+      <span style="font-weight:700;color:${sc};min-width:28px;text-align:right">${r.total >= 0 ? '+' : ''}${r.total}</span>
+    </div>`;
+  }).join('');
+  const historyHtml = !_PULSE_HISTORY_OPEN ? '' : `
+    <div style="background:rgba(0,0,0,0.15);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:14px">
+      ${streak >= 2 ? `
+      <div style="text-align:center;padding:14px;background:linear-gradient(135deg,rgba(255,152,0,0.08),rgba(212,170,80,0.04));border:1px solid rgba(255,152,0,0.3);border-radius:10px;margin-bottom:14px">
+        <div style="font-size:32px;margin-bottom:4px">🔥</div>
+        <div style="font-family:'Cinzel Decorative',serif;font-size:28px;color:#f59030;margin-bottom:2px">${streak} ${t('pulse_streak_label')}</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:2px;font-family:'Josefin Sans',sans-serif">CONSECUTIVE</div>
+      </div>` : ''}
+      ${sparklineHtml}
+      <div style="font-size:10px;color:var(--gold3);letter-spacing:2px;font-family:'Josefin Sans',sans-serif;margin-bottom:6px">${t('pulse_history_title')}</div>
+      ${historyRowsHtml || `<div style="color:var(--muted);text-align:center;padding:20px;font-size:11px">${isTh?'ยังไม่มีประวัติ':'No history yet'}</div>`}
+    </div>`;
+
+  // Reflection prompt — uses the highest-magnitude signal as the anchor.
+  const topSig = pulse.signals.slice().sort((a,b)=>Math.abs(b.score)-Math.abs(a.score))[0];
+  const reflectQ = topSig
+    ? (isTh
+        ? `วันนี้ ${topSig.noteTh} — สิ่งนี้สอดคล้อง/ขัดกับสิ่งที่คุณวางแผนไว้ยังไง?`
+        : `Today ${topSig.noteEn} — how does this align with or challenge what you planned?`)
+    : (isTh ? 'วันนี้คุณรู้สึกอย่างไร?' : 'How are you feeling today?');
+
+  // ── Compose panel HTML ──────────────────────────────────────
+  panel.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted)">${dateLabel}</div>
+      ${streak >= 2 ? `<div style="font-family:'Josefin Sans',sans-serif;font-size:11px;color:var(--gold2)">🔥 ${streak} ${t('pulse_streak_label')}</div>` : ''}
+    </div>
+
+    <div style="text-align:center;padding:18px 16px;background:${tierColor.bg};border:1px solid ${tierColor.border};border-radius:10px;margin-bottom:14px">
+      <div style="font-family:'Cinzel Decorative',serif;font-size:22px;color:var(--gold);margin-bottom:4px">${pulse.verdictEmoji} ${verdictLabel}</div>
+      <div style="font-size:36px;font-weight:700;color:${tierColor.score};margin-bottom:2px">${pulse.total >= 0 ? '+' : ''}${pulse.total}</div>
+      <div style="font-size:10px;color:var(--muted);letter-spacing:1.5px;font-family:'Josefin Sans',sans-serif">${pulse.signals.length} ${pulse.pinnedCount > 0 ? `· ${pulse.pinnedCount} ${t('pulse_pinned_tag')} + ${pulse.signals.length - pulse.pinnedCount} ${t('pulse_score_sub')}` : t('pulse_score_sub')}</div>
+    </div>
+
+    <div style="padding:14px 16px;background:rgba(0,0,0,0.2);border-radius:8px;line-height:1.85;font-size:13.5px;color:var(--text);margin-bottom:14px;border-left:3px solid var(--gold)">
+      ${synthesis}
+    </div>
+
+    <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px">
+      <div onclick="togglePulseDrilldown()" style="padding:10px 14px;cursor:pointer;font-size:11px;color:var(--muted);letter-spacing:1.5px;font-family:'Josefin Sans',sans-serif;display:flex;justify-content:space-between;align-items:center;background:rgba(212,170,80,0.03)">
+        <span>${_PULSE_DRILLDOWN_OPEN ? t('pulse_hide_systems') : t('pulse_show_systems')} · ${pulse.signals.length} ${isTh?'ศาสตร์':'systems'}</span>
+        <span style="color:var(--gold3);font-size:9px">${isTh?'แตะเพื่อ':'tap to'} ${_PULSE_DRILLDOWN_OPEN?'collapse':'expand'}</span>
+      </div>
+      ${_PULSE_DRILLDOWN_OPEN ? sysRowsHtml : ''}
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      <button onclick="togglePulsePinModal()" style="padding:7px 12px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;cursor:pointer">${t('pulse_pin_btn')}</button>
+      <button onclick="togglePulseHistory()" style="padding:7px 12px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;cursor:pointer">${t('pulse_history_btn')}</button>
+      <button onclick="renderDailyPulse()" style="padding:7px 12px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;cursor:pointer">${t('pulse_refresh_btn')}</button>
+    </div>
+
+    ${pinModalHtml}
+
+    ${historyHtml}
+
+    <div style="margin-top:14px;padding:12px 14px;background:rgba(50,30,90,0.15);border:1px dashed rgba(180,130,230,0.4);border-radius:8px">
+      <div style="font-size:13px;color:#c8a8e0;font-style:italic;margin-bottom:8px;line-height:1.7">✨ <strong>${t('pulse_reflect_title')}</strong> · ${reflectQ}</div>
+      <textarea id="pulse-reflect-input" placeholder="${t('pulse_reflect_placeholder')}" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:8px 10px;font-family:inherit;font-size:12px;resize:vertical;min-height:50px;box-sizing:border-box">${(savedReflect || '').replace(/</g,'&lt;')}</textarea>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:var(--muted);letter-spacing:1px;font-family:'Josefin Sans',sans-serif">
+        <span id="pulse-reflect-meta-status">${savedReflect ? (isTh?'บันทึกแล้ว ✓':'Saved ✓') : t('pulse_reflect_meta')}</span>
+        <span style="color:var(--gold);cursor:pointer" onclick="pulseSaveReflection()">${t('pulse_reflect_save')}</span>
+      </div>
+    </div>
+  `;
+}
+
+// Subscriber-locked preview (used at launch when _isPulseSubscriber returns
+// false). Shows a verdict glimpse with a CTA to upgrade. Currently unused
+// because beta opens everything; kept here so launch-day flip is one boolean.
+function _renderPulseLockedPreview(chart) {
+  const isTh = LANG === 'th';
+  const today = new Date();
+  const peek = window.MS26.calcDailyPulse(chart, today, { lang: LANG });
+  const verdictLabel = isTh ? peek.verdictTh : peek.verdictEn;
+  return `
+    <div style="position:relative;overflow:hidden">
+      <div style="filter:blur(3px);opacity:0.4">
+        <div style="text-align:center;padding:18px 16px;background:rgba(74,154,64,0.06);border:1px solid rgba(74,154,64,0.3);border-radius:10px;margin-bottom:14px">
+          <div style="font-family:'Cinzel Decorative',serif;font-size:22px;color:var(--gold)">${peek.verdictEmoji} ${verdictLabel}</div>
+          <div style="font-size:36px;font-weight:700;color:#50d490">${peek.total >= 0 ? '+' : ''}${peek.total}</div>
+        </div>
+        <div style="padding:14px 16px;background:rgba(0,0,0,0.2);border-radius:8px;line-height:1.85;font-size:13.5px;color:var(--text);border-left:3px solid var(--gold)">${(isTh?peek.synthesisTh:peek.synthesisEn).slice(0,140)}…</div>
+      </div>
+      <div style="position:absolute;bottom:16px;left:16px;right:16px;background:rgba(212,170,80,0.1);border:1px solid var(--gold);border-radius:8px;padding:14px;text-align:center">
+        <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:var(--gold);margin-bottom:4px">${t('pulse_lock_title')}</div>
+        <div style="font-size:11px;color:var(--text);margin-bottom:8px">${t('pulse_lock_sub')}</div>
+        <button style="background:var(--gold);color:var(--bg);border:none;padding:8px 14px;border-radius:6px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;font-weight:600;cursor:pointer">${t('pulse_lock_cta')}</button>
+      </div>
+    </div>
+  `;
 }
 
 // ── Monthly Brief — compact snapshot, one line per system ──

@@ -512,6 +512,7 @@ html[lang="th"] .panel-intro{font-family:'Leelawadee UI','Leelawadee','Tahoma','
 
 
 
+
 // ── Bilingual primitives ────────────────────────────────────────
 // Single source of truth for translating Thai data fields to English.
 // Used by buildRichReading() and the per-system calc functions to keep
@@ -2854,10 +2855,264 @@ function calcSaju(d) {
         })(),
     };
 }
-// ── Shared prose builder for all 26 systems ─────────────────
-// Assembles a metadata header (origin country, age, popularity,
-// key strength) plus 5-paragraph Thai HTML prose from structured
-// inputs — so every system delivers ≥2,000 chars of readable content.
+// 60-stem-branch cycle for BaZi day pillar (天干 + 地支 + element).
+// Reference epoch: 1900-01-31 = jia-zi (kept consistent with calcBazi).
+const BAZI_DAY_STEM_EL = ['Wood', 'Wood', 'Fire', 'Fire', 'Earth', 'Earth', 'Metal', 'Metal', 'Water', 'Water'];
+const BAZI_DAY_STEM_NAMES = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+const BAZI_DAY_BRANCH_NAMES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+function _baziDayPillar(jd) {
+    // 60-day cycle. JD epoch for jia-zi day: JD 2415021 ≈ 1900-01-31.
+    const cycle = ((Math.floor(jd - 2415021) % 60) + 60) % 60;
+    const stemIdx = cycle % 10;
+    const branchIdx = cycle % 12;
+    return {
+        stem: BAZI_DAY_STEM_NAMES[stemIdx],
+        branch: BAZI_DAY_BRANCH_NAMES[branchIdx],
+        element: BAZI_DAY_STEM_EL[stemIdx],
+    };
+}
+// Five-element interaction model (sheng = generates, ke = controls).
+// Returns +2 if today's element generates yours (most favourable),
+// +1 if same element, 0 neutral, -1 if you control today's, -2 if today
+// controls you.
+function _wuxingScore(today, natal) {
+    const SHENG = { Wood: 'Fire', Fire: 'Earth', Earth: 'Metal', Metal: 'Water', Water: 'Wood' };
+    const KE = { Wood: 'Earth', Fire: 'Metal', Earth: 'Water', Metal: 'Wood', Water: 'Fire' };
+    if (today === natal)
+        return 1;
+    if (SHENG[today] === natal)
+        return 2; // today's element generates yours — feeds you
+    if (SHENG[natal] === today)
+        return 0; // you generate today's — drains you slightly
+    if (KE[today] === natal)
+        return -2; // today's element controls yours — pressure
+    if (KE[natal] === today)
+        return -1; // you control today's — friction but manageable
+    return 0;
+}
+const VERDICT_TIERS = [
+    { min: 4, key: 'peak', emoji: '🌟', th: 'วันทอง', en: 'Peak day' },
+    { min: 2, key: 'supportive', emoji: '🟢', th: 'หนุน', en: 'Supportive' },
+    { min: -1, key: 'neutral', emoji: '🟡', th: 'กลาง', en: 'Neutral' },
+    { min: -3, key: 'observe', emoji: '🟠', th: 'สังเกต', en: 'Observe' },
+    { min: -99, key: 'rest', emoji: '🔴', th: 'พักฟื้น', en: 'Rest-recovery' },
+];
+const SIGN_NAMES_EN = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
+const SIGN_NAMES_TH = ['เมษ', 'พฤษภ', 'เมถุน', 'กรกฎ', 'สิงห์', 'กันย์', 'ตุลย์', 'พิจิก', 'ธนู', 'มกร', 'กุมภ์', 'มีน'];
+const SIGN_ELS = ['Fire', 'Earth', 'Air', 'Water', 'Fire', 'Earth', 'Air', 'Water', 'Fire', 'Earth', 'Air', 'Water'];
+const NAKSHATRAS_EN = [
+    'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira', 'Ardra', 'Punarvasu', 'Pushya', 'Ashlesha',
+    'Magha', 'Purva Phalguni', 'Uttara Phalguni', 'Hasta', 'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha',
+    'Mula', 'Purva Ashadha', 'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha', 'Purva Bhadrapada', 'Uttara Bhadrapada', 'Revati'
+];
+// Tara Bala — 9 levels of nakshatra compatibility (count from natal nakshatra).
+// 1 (Janma)=mixed, 2 (Sampat)=+, 3 (Vipat)=-, 4 (Kshema)=+, 5 (Pratyari)=-,
+// 6 (Sadhaka)=+, 7 (Vadha)=-, 8 (Mitra)=+, 9 (Param Mitra)=+
+const TARA_SCORE = [0, +1, -1, +2, -1, +1, -2, +2, +2];
+function calcDailyPulse(c, date, opts = {}) {
+    const lang = opts.lang ?? _reportLang ?? 'th';
+    const pinned = new Set(opts.pinnedSystems ?? []);
+    // Inline Thai element labels — calcDailyPulse must produce BOTH noteTh and
+    // noteEn regardless of _reportLang, so we don't piggy-back on pEl()/pPlanet()
+    // which read the module-scoped lang flag.
+    const EL_TH = { Wood: 'ไม้', Fire: 'ไฟ', Earth: 'ดิน', Metal: 'โลหะ', Water: 'น้ำ', Air: 'ลม' };
+    // Today's Julian Day at noon (use noon to avoid TZ flip-flop near midnight).
+    const jd = toJD(date.getFullYear(), date.getMonth() + 1, date.getDate(), 12);
+    // ── Build candidate signals ─────────────────────────────
+    const candidates = [];
+    // 1. BaZi Day Pillar (changes daily)
+    const dayP = _baziDayPillar(jd);
+    const baziScore = _wuxingScore(dayP.element, c.bazi.dayMasterElement);
+    candidates.push({
+        sys: 'BaZi Day',
+        sysTh: 'BaZi เสาวัน', sysEn: 'BaZi Day',
+        noteTh: `วัน ${dayP.stem}${dayP.branch} (ธาตุ${EL_TH[dayP.element] || dayP.element}) ${baziScore >= 2 ? 'หล่อเลี้ยง' : baziScore === 1 ? 'เสริม' : baziScore === 0 ? 'กลาง' : 'ขัด'} Day Master ธาตุ${EL_TH[c.bazi.dayMasterElement] || c.bazi.dayMasterElement}`,
+        noteEn: `Day ${dayP.stem}${dayP.branch} (${dayP.element}) ${baziScore >= 2 ? 'feeds' : baziScore === 1 ? 'reinforces' : baziScore === 0 ? 'neutral with' : 'pressures'} your ${c.bazi.dayMasterElement} Day Master`,
+        score: baziScore,
+        velocity: 'daily',
+    });
+    // 2. Western Moon transit today
+    const moonLon = mod360(moonLongitude(jd));
+    const moonSignIdx = Math.floor(moonLon / 30);
+    const moonEl = SIGN_ELS[moonSignIdx];
+    // Compatibility: Fire ↔ Air friendly, Water ↔ Earth friendly
+    const FRIENDLY = { Fire: ['Fire', 'Air'], Air: ['Air', 'Fire'], Water: ['Water', 'Earth'], Earth: ['Earth', 'Water'] };
+    const sunSign = c.western.sunSign;
+    const sunIdx = SIGN_NAMES_EN.indexOf(sunSign);
+    const sunEl = sunIdx >= 0 ? SIGN_ELS[sunIdx] : 'Fire';
+    const moonCompat = FRIENDLY[moonEl]?.includes(sunEl) ? (moonEl === sunEl ? 2 : 1) : -1;
+    candidates.push({
+        sys: 'Western Moon',
+        sysTh: 'จันทร์ตะวันตก', sysEn: 'Western Moon',
+        noteTh: `จันทร์ในราศี${SIGN_NAMES_TH[moonSignIdx]} (ธาตุ${EL_TH[moonEl] || moonEl}) ${moonCompat > 0 ? 'เข้ากันกับราศีอาทิตย์ของคุณ' : 'ต่างขั้วกับราศีอาทิตย์'}`,
+        noteEn: `Moon in ${SIGN_NAMES_EN[moonSignIdx]} (${moonEl}) — ${moonCompat > 0 ? 'aligned with your Sun element' : 'cross-element from your Sun'}`,
+        score: moonCompat,
+        velocity: 'daily',
+    });
+    // 3. Vedic Moon nakshatra today (Tara Bala)
+    const AYANAMSA = 24;
+    const sidMoon = mod360(moonLon - AYANAMSA);
+    const todayNakIdx = Math.floor(sidMoon / (360 / 27));
+    const natalNakName = c.vedic.moonNakshatra;
+    const natalNakIdx = Math.max(0, NAKSHATRAS_EN.findIndex(n => n.toLowerCase() === natalNakName.toLowerCase()));
+    const taraIdx = ((todayNakIdx - natalNakIdx) % 9 + 9) % 9;
+    const taraScore = TARA_SCORE[taraIdx] ?? 0;
+    const TARA_NAMES_TH = ['Janma', 'สัมปัต', 'วิปัต', 'เกษม', 'ปรัตยรี', 'สาธก', 'วาธ', 'มิตร', 'ปรมมิตร'];
+    const TARA_NAMES_EN = ['Janma', 'Sampat', 'Vipat', 'Kshema', 'Pratyari', 'Sadhaka', 'Vadha', 'Mitra', 'Param Mitra'];
+    candidates.push({
+        sys: 'Vedic Moon',
+        sysTh: 'จันทร์เวทิก', sysEn: 'Vedic Moon',
+        noteTh: `Moon Nakshatra ${NAKSHATRAS_EN[todayNakIdx]} · Tara ${TARA_NAMES_TH[taraIdx]}`,
+        noteEn: `Moon Nakshatra ${NAKSHATRAS_EN[todayNakIdx]} · Tara ${TARA_NAMES_EN[taraIdx]}`,
+        score: taraScore,
+        velocity: 'daily',
+    });
+    // 4. Mayan Kin today (Tzolkʼin)
+    // Reference: 1970-01-01 = Kin 116 (commonly cited correlation).
+    const KIN_EPOCH_JD = 2440588; // 1970-01-01
+    const kin0 = ((Math.floor(jd - KIN_EPOCH_JD + 116) % 260) + 260) % 260;
+    const kin = kin0 === 0 ? 260 : kin0;
+    const tone = ((kin - 1) % 13) + 1;
+    const dayIdx = ((kin - 1) % 20) + 1;
+    // Tones 1, 4, 7, 10, 13 = strong; 5, 8, 11 = soft; rest neutral
+    const TONE_FAV = [0, 1, 0, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1];
+    const toneScore = TONE_FAV[tone] || 0;
+    const MAYAN_DAY_EN = ['', 'Imix', 'Ik', 'Akbal', 'Kan', 'Chicchan', 'Cimi', 'Manik', 'Lamat', 'Muluc', 'Oc', 'Chuen', 'Eb', 'Ben', 'Ix', 'Men', 'Cib', 'Caban', 'Etznab', 'Cauac', 'Ahau'];
+    candidates.push({
+        sys: 'Mayan Kin',
+        sysTh: 'มายัน Kin', sysEn: 'Mayan Kin',
+        noteTh: `Kin ${kin} · ${MAYAN_DAY_EN[dayIdx]} · โทน ${tone}`,
+        noteEn: `Kin ${kin} · ${MAYAN_DAY_EN[dayIdx]} · Tone ${tone}`,
+        score: toneScore,
+        velocity: 'daily',
+    });
+    // 5. Numerology Personal Day (PY + month + day)
+    const digitSum = (n) => String(n).split('').reduce((a, b) => a + (+b), 0);
+    const reduce11 = (n) => { while (n > 9 && n !== 11 && n !== 22)
+        n = digitSum(n); return n; };
+    const py = c.numerology.personalYear2026;
+    const pdNum = reduce11(py + (date.getMonth() + 1) + date.getDate());
+    // Same favourable-day mapping as Monthly Brief: 1,3,6,8,9 favour; 4,7 caution.
+    const FAVOR_DAYS = [0, 1, 0, 1, -1, 0, 1, -1, 1, 1, 0, 0, 0];
+    const pdScore = pdNum === 11 ? 2 : pdNum === 22 ? 2 : (FAVOR_DAYS[pdNum] ?? 0);
+    const PD_TH = { 1: 'เริ่มต้นใหม่', 2: 'ความสัมพันธ์', 3: 'สื่อสาร-สร้างสรรค์', 4: 'ทำงานหนัก', 5: 'เปลี่ยนแปลง', 6: 'ครอบครัว', 7: 'ปัญญา-ถอย', 8: 'อำนาจ-เก็บเกี่ยว', 9: 'ปิดวัฏจักร', 11: 'วิสัยทัศน์', 22: 'สร้างระบบ' };
+    const PD_EN = { 1: 'New beginning', 2: 'Partnership', 3: 'Communication', 4: 'Hard work', 5: 'Change', 6: 'Family', 7: 'Introspection', 8: 'Harvest', 9: 'Completion', 11: 'Vision', 22: 'Master builder' };
+    candidates.push({
+        sys: 'Numerology PD',
+        sysTh: 'เลขศาสตร์วัน', sysEn: 'Personal Day',
+        noteTh: `Personal Day ${pdNum} — ${PD_TH[pdNum] || ''}`,
+        noteEn: `Personal Day ${pdNum} — ${PD_EN[pdNum] || ''}`,
+        score: pdScore,
+        velocity: 'daily',
+    });
+    // 6. NSK Day Star (9-day cycle approximation)
+    // Real NSK day-star calculation depends on solar terms; we approximate via
+    // a 9-day modulo from a reference (2026-01-01 = star 1 by convention used
+    // here — close enough for daily-pulse rotation).
+    const NSK_REF_JD = 2461042; // 2026-01-01 ≈ JD 2461042
+    const dayStar = (((Math.floor(jd - NSK_REF_JD) % 9) + 9) % 9) + 1;
+    const dayStarVsNatal = c.ninestar.star;
+    const nskScore = dayStar === dayStarVsNatal ? 2 : Math.abs(dayStar - dayStarVsNatal) === 5 ? -2 : 0;
+    candidates.push({
+        sys: 'NSK Day Star',
+        sysTh: 'NSK ดาววัน', sysEn: 'NSK Day Star',
+        noteTh: `ดาว ${dayStar} ${dayStar === dayStarVsNatal ? '(Honmei — ตรงดาวเกิด)' : nskScore < 0 ? '(ตรงข้ามดาวเกิด)' : ''}`,
+        noteEn: `Star ${dayStar} ${dayStar === dayStarVsNatal ? '(Honmei — matches natal)' : nskScore < 0 ? '(opposite natal)' : ''}`,
+        score: nskScore,
+        velocity: 'daily',
+    });
+    // 7. Biorhythm today (already has the formulas; sample at today's elapsed days)
+    const birthJD = toJD(c.input.year, c.input.month, c.input.day, 12);
+    const dElapsed = Math.round(jd - birthJD);
+    const phy = Math.round(Math.sin(2 * Math.PI * dElapsed / 23) * 100);
+    const emo = Math.round(Math.sin(2 * Math.PI * dElapsed / 28) * 100);
+    const intel = Math.round(Math.sin(2 * Math.PI * dElapsed / 33) * 100);
+    const bioAvg = Math.round((phy + emo + intel) / 3);
+    const bioScore = bioAvg > 50 ? 2 : bioAvg > 20 ? 1 : bioAvg > -20 ? 0 : bioAvg > -50 ? -1 : -2;
+    candidates.push({
+        sys: 'Biorhythm',
+        sysTh: 'ไบโอริทึม', sysEn: 'Biorhythm',
+        noteTh: `กาย ${phy >= 0 ? '+' : ''}${phy}% · ใจ ${emo >= 0 ? '+' : ''}${emo}% · สมอง ${intel >= 0 ? '+' : ''}${intel}%`,
+        noteEn: `Body ${phy >= 0 ? '+' : ''}${phy}% · Emotion ${emo >= 0 ? '+' : ''}${emo}% · Intellect ${intel >= 0 ? '+' : ''}${intel}%`,
+        score: bioScore,
+        velocity: 'daily',
+    });
+    // 8. ไทยพราหมณ์ — day-of-week ruler (changes 7-day cycle)
+    const dow = ((Math.floor(jd + 1.5) % 7) + 7) % 7; // 0=Sun
+    const natalDow = c.thai.dayOfWeek;
+    const dowScore = dow === natalDow ? 1 : Math.abs(dow - natalDow) === 4 ? -1 : 0;
+    const DAY_TH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+    const DAY_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    candidates.push({
+        sys: 'Thai Brahmin',
+        sysTh: 'ไทยพราหมณ์', sysEn: 'Thai Brahmin',
+        noteTh: `วัน${DAY_TH[dow]} ${dow === natalDow ? '(ตรงวันเกิด)' : dowScore < 0 ? '(ตรงข้ามวันเกิด)' : ''}`,
+        noteEn: `${DAY_EN[dow]} ${dow === natalDow ? '(matches birth day)' : dowScore < 0 ? '(opposite birth day)' : ''}`,
+        score: dowScore,
+        velocity: 'weekly',
+    });
+    // 9. Vedic Mahadasha — natal-constant. Cite for context (no score).
+    candidates.push({
+        sys: 'Mahadasha',
+        sysTh: 'วิมโชตติริ', sysEn: 'Mahadasha',
+        noteTh: `${c.vedicMahadasha.currentDasha} Dasha ต่อเนื่อง`,
+        noteEn: `${c.vedicMahadasha.currentDasha} Dasha ongoing`,
+        score: 0,
+        velocity: 'natal',
+    });
+    // ── Mark pinned + select up to 10 ───────────────────────
+    for (const sig of candidates)
+        if (pinned.has(sig.sys))
+            sig.pinned = true;
+    // Selection rule: include all pinned, then fill remaining slots with
+    // highest-velocity (daily before weekly before monthly).
+    const VELOCITY_RANK = { daily: 3, weekly: 2, monthly: 1, natal: 0 };
+    const sorted = candidates.slice().sort((a, b) => {
+        if (a.pinned !== b.pinned)
+            return a.pinned ? -1 : 1;
+        return (VELOCITY_RANK[b.velocity] ?? 0) - (VELOCITY_RANK[a.velocity] ?? 0);
+    });
+    const selected = sorted.slice(0, 10);
+    // ── Aggregate score + verdict ───────────────────────────
+    const total = selected.reduce((s, sig) => s + sig.score, 0);
+    const tier = VERDICT_TIERS.find(t => total >= t.min) ?? VERDICT_TIERS[VERDICT_TIERS.length - 1];
+    // ── Synthesis paragraph ─────────────────────────────────
+    // Pull the 3 highest-magnitude signals for the synthesis spotlight.
+    const spotlight = selected.slice().sort((a, b) => Math.abs(b.score) - Math.abs(a.score)).slice(0, 3);
+    const synTh = _buildSynthesis(spotlight, tier, 'th', c);
+    const synEn = _buildSynthesis(spotlight, tier, 'en', c);
+    return {
+        isoDate: date.toISOString().slice(0, 10),
+        total,
+        verdictKey: tier.key,
+        verdictEmoji: tier.emoji,
+        verdictTh: tier.th,
+        verdictEn: tier.en,
+        signals: selected,
+        pinnedCount: selected.filter(s => s.pinned).length,
+        synthesisTh: synTh,
+        synthesisEn: synEn,
+    };
+}
+function _buildSynthesis(signals, tier, lang, c) {
+    if (signals.length === 0)
+        return lang === 'th' ? 'วันธรรมดา ไม่มีสัญญาณเด่น' : 'Quiet day, no strong signal.';
+    const intro = lang === 'th'
+        ? (tier.key === 'peak' ? 'วันนี้พลังสูงเป็นพิเศษ — '
+            : tier.key === 'supportive' ? 'วันนี้ฟ้าหนุน — '
+                : tier.key === 'neutral' ? 'วันนี้กลาง ๆ — '
+                    : tier.key === 'observe' ? 'วันนี้ต้องสังเกตหลายจุด — '
+                        : 'วันนี้เป็นวงรอบพักฟื้น — ')
+        : (tier.key === 'peak' ? 'Today carries unusually high resonance — '
+            : tier.key === 'supportive' ? 'The day favours you — '
+                : tier.key === 'neutral' ? 'A neutral day — '
+                    : tier.key === 'observe' ? 'Several signals ask for caution today — '
+                        : 'A recovery cycle today — ');
+    // Build the spotlight phrases from signals' notes.
+    const phrases = signals.map(sig => lang === 'th' ? sig.noteTh : sig.noteEn);
+    const joiner = lang === 'th' ? ' · ' : '. ';
+    return intro + phrases.join(joiner) + (lang === 'th' ? '.' : '.');
+}
 // Module-scoped language marker set by generateReport() at the top of each
 // report render. Read by buildRichReading() and other helpers so section
 // labels/prose wrappers respect user's chosen language.
@@ -6247,7 +6502,7 @@ function p_vedicMahadasha(c) {
 
 
   // ─── Public API ─────────────────────────────────────────
-  root.MS26 = { calculate: calculate, generateReport: generateReport };
+  root.MS26 = { calculate: calculate, generateReport: generateReport, calcDailyPulse: calcDailyPulse };
 })(typeof window !== "undefined" ? window : globalThis);
 
 /* MS26_BUNDLE_END */
