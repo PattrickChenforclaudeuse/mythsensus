@@ -1611,17 +1611,77 @@ function calcScore(d: BirthData, data: Omit<ChartData, 'score'>): ScoreData {
 }
 
 // ── LIFE TERRAIN — country + career level alignment ───────────
-// Country element mapping (Wuxing national character)
+// Country element mapping (Wuxing national character).
+// Element assignment by cultural archetype (rough heuristic; tweak as data lands):
+//   Wood = growth, education, forests, lush land (Thailand, Sweden, Ireland)
+//   Fire = sun, intensity, expression, innovation hubs (USA, Israel, UAE)
+//   Earth = deep cultural roots, ancient civilisations, stability (China, Egypt, Germany)
+//   Metal = precision, order, structure, manufacturing (Japan, Switzerland, UK)
+//   Water = water-surrounded or culture-of-flow (Iceland, Netherlands, Canada)
+// Scores in the 700–770 range; the spread reflects nothing more than a soft
+// "where does this culture rank on the cosmic-resonance dial" heuristic and is
+// intentionally narrow so a wrong country pick doesn't tank the score.
 const COUNTRY_ELEMENT: Record<string,string> = {
-  'Thailand':'Wood','Japan':'Metal','China':'Earth','Korea':'Metal',
-  'USA':'Fire','UK':'Metal','Germany':'Earth','France':'Wood',
-  'India':'Fire','Singapore':'Metal','Australia':'Water','Canada':'Water',
-  'Brazil':'Wood','UAE':'Fire','Italy':'Wood','Russia':'Water',
+  // East Asia
+  'China':'Earth','Japan':'Metal','Korea':'Metal','Taiwan':'Metal','Hong Kong':'Metal','Mongolia':'Earth',
+  // Southeast Asia
+  'Thailand':'Wood','Vietnam':'Wood','Philippines':'Wood','Indonesia':'Wood',
+  'Malaysia':'Wood','Singapore':'Metal','Cambodia':'Earth','Myanmar':'Earth','Laos':'Wood',
+  // South Asia
+  'India':'Fire','Pakistan':'Fire','Bangladesh':'Wood','Sri Lanka':'Wood','Nepal':'Earth','Bhutan':'Earth',
+  // Middle East
+  'Iran':'Fire','Iraq':'Earth','Saudi Arabia':'Fire','UAE':'Fire','Israel':'Fire',
+  'Turkey':'Earth','Jordan':'Earth','Lebanon':'Earth','Qatar':'Fire','Kuwait':'Fire','Oman':'Earth',
+  // Europe — west
+  'UK':'Metal','Ireland':'Wood','France':'Wood','Germany':'Earth','Italy':'Wood','Spain':'Fire','Portugal':'Water',
+  'Netherlands':'Water','Belgium':'Metal','Luxembourg':'Metal','Switzerland':'Metal','Austria':'Earth',
+  // Europe — north
+  'Denmark':'Metal','Sweden':'Wood','Norway':'Water','Finland':'Water','Iceland':'Water',
+  // Europe — east
+  'Poland':'Earth','Czech Republic':'Metal','Slovakia':'Metal','Hungary':'Earth','Romania':'Earth',
+  'Greece':'Fire','Russia':'Water','Ukraine':'Earth','Belarus':'Earth',
+  // North America
+  'USA':'Fire','Canada':'Water','Mexico':'Fire',
+  // Latin America
+  'Brazil':'Wood','Argentina':'Earth','Chile':'Metal','Colombia':'Fire',
+  'Peru':'Earth','Venezuela':'Fire','Cuba':'Fire','Costa Rica':'Wood','Uruguay':'Earth','Ecuador':'Wood',
+  // Africa
+  'South Africa':'Fire','Nigeria':'Fire','Kenya':'Earth','Ethiopia':'Earth',
+  'Ghana':'Fire','Morocco':'Earth','Egypt':'Earth','Tanzania':'Wood',
+  'Uganda':'Wood','Senegal':'Earth','Tunisia':'Earth','Algeria':'Fire',
+  // Oceania
+  'Australia':'Water','New Zealand':'Wood','Fiji':'Water',
 }
 const COUNTRY_SCORE: Record<string,number> = {
-  'Thailand':720,'Japan':750,'USA':760,'UK':740,'Singapore':755,
-  'Germany':735,'France':730,'Australia':740,'Canada':735,'UAE':745,
-  'India':725,'China':730,'Korea':740,'Brazil':715,'Italy':725,'Russia':710,
+  // East Asia
+  'China':730,'Japan':750,'Korea':740,'Taiwan':735,'Hong Kong':745,'Mongolia':710,
+  // Southeast Asia
+  'Thailand':720,'Vietnam':715,'Philippines':715,'Indonesia':715,
+  'Malaysia':720,'Singapore':755,'Cambodia':705,'Myanmar':695,'Laos':700,
+  // South Asia
+  'India':725,'Pakistan':710,'Bangladesh':700,'Sri Lanka':710,'Nepal':705,'Bhutan':720,
+  // Middle East
+  'Iran':715,'Iraq':695,'Saudi Arabia':735,'UAE':745,'Israel':745,
+  'Turkey':720,'Jordan':715,'Lebanon':715,'Qatar':740,'Kuwait':735,'Oman':725,
+  // Europe — west
+  'UK':740,'Ireland':735,'France':730,'Germany':735,'Italy':725,'Spain':725,'Portugal':720,
+  'Netherlands':745,'Belgium':735,'Luxembourg':745,'Switzerland':755,'Austria':735,
+  // Europe — north
+  'Denmark':745,'Sweden':745,'Norway':745,'Finland':745,'Iceland':740,
+  // Europe — east
+  'Poland':720,'Czech Republic':725,'Slovakia':720,'Hungary':720,'Romania':710,
+  'Greece':715,'Russia':710,'Ukraine':705,'Belarus':700,
+  // North America
+  'USA':760,'Canada':735,'Mexico':720,
+  // Latin America
+  'Brazil':715,'Argentina':715,'Chile':725,'Colombia':710,
+  'Peru':710,'Venezuela':695,'Cuba':705,'Costa Rica':725,'Uruguay':720,'Ecuador':710,
+  // Africa
+  'South Africa':720,'Nigeria':710,'Kenya':710,'Ethiopia':705,
+  'Ghana':710,'Morocco':715,'Egypt':715,'Tanzania':705,
+  'Uganda':700,'Senegal':705,'Tunisia':715,'Algeria':710,
+  // Oceania
+  'Australia':740,'New Zealand':745,'Fiji':720,
 }
 const LEVEL_BONUS: Record<string,number> = {
   'Junior':-20,'Mid':0,'Senior':30,'Director':60,'Executive':80,
