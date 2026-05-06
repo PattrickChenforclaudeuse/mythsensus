@@ -125,22 +125,10 @@ body.is-web .web-share{display:inline-block;}
 /* ── Starfield background ── */
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0}
 /* stars injected by initStarfield() */
-/* ── Nav collapse toggle ──
-   Default: small ▾ pill in bottom-right. When the user collapses the nav,
-   the pill expands to "▴ MENU" + pulses briefly so it's instantly findable
-   (without that hint, users who clicked the toggle by accident lost the
-   tabs row entirely and couldn't recover). */
-.nav-toggle-btn{position:fixed;bottom:16px;right:16px;z-index:800;height:36px;padding:0 12px;border-radius:18px;background:rgba(10,10,16,.85);border:1px solid var(--gold3);color:var(--gold);font-size:14px;font-family:'Josefin Sans',sans-serif;letter-spacing:1.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;backdrop-filter:blur(6px);transition:all .2s;box-shadow:0 2px 12px rgba(0,0,0,.4)}
-.nav-toggle-btn:hover{background:rgba(200,164,90,.15);border-color:var(--gold);transform:translateY(-1px)}
-.nav-toggle-btn .ntb-label{display:none;font-size:11px;font-weight:600}
-body.nav-hidden .nav-groups,body.nav-hidden .nav-tabs{display:none!important}
-body.nav-hidden .nav-toggle-btn{background:rgba(212,170,80,0.18);border-color:var(--gold);animation:ntbPulse 2.4s ease-out 2 forwards}
-body.nav-hidden .nav-toggle-btn .ntb-label{display:inline}
-@keyframes ntbPulse {
-  0%   { box-shadow: 0 0 0 0 rgba(212,170,80,0.55); }
-  70%  { box-shadow: 0 0 0 18px rgba(212,170,80,0);   }
-  100% { box-shadow: 0 0 0 0 rgba(212,170,80,0);     }
-}
+/* Nav-collapse toggle removed 2026-05-05. The floating ▾ pill was confused
+   for a "scroll to bottom" affordance and several users accidentally hid
+   their entire nav row. F11 (browser fullscreen) covers the same use case
+   without inventing new UI. */
 /* Share button — sits LEFT of .header-user (which is at right:16px, ~110px wide
    when logged in with email avatar) so the two no longer overlap. */
 .web-share{position:fixed;top:14px;right:140px;z-index:9000;display:none;
@@ -1260,11 +1248,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <div class="date-display" id="dateDisplay"></div>
 </header>
 
-<!-- Nav collapse toggle button — pulses + shows label when nav is hidden so
-     users who accidentally toggled it can find their way back. -->
-<button class="nav-toggle-btn" id="navToggleBtn" onclick="toggleNav()" title="Hide / show navigation menu" aria-label="Toggle navigation">
-  <span id="navToggleArrow">▾</span><span class="ntb-label" id="navToggleLabel" data-en="MENU" data-th="เมนู">MENU</span>
-</button>
+<!-- (Nav-collapse toggle removed — see CSS comment above.) -->
 
 <!-- ═══ TOP-LEVEL NAV: 5 Tier Groups ═══ -->
 <nav class="nav-groups" role="tablist">
@@ -14667,23 +14651,16 @@ function initStarfield(){
   document.head.appendChild(st);
 }
 
-// ── Nav collapse toggle ───────────────────────────────────────
-function toggleNav(){
-  const hidden=document.body.classList.toggle('nav-hidden');
-  // Update only the arrow span; the LABEL span is shown via CSS so users
-  // who hide the nav see "▴ MENU" and instantly know what brings the menu back.
-  const arrow=document.getElementById('navToggleArrow');
-  if(arrow)arrow.textContent=hidden?'▴':'▾';
-  try{localStorage.setItem('mth_nav_hidden',hidden?'1':'');}catch(e){}
-}
+// Nav collapse feature removed 2026-05-05. toggleNav() kept as a no-op
+// purely for any external bookmark or auto-fill that might call it.
+function toggleNav(){ /* no-op — feature retired */ }
 
 document.addEventListener('DOMContentLoaded', async ()=>{
   // ── Restore nav state ─────────────────────────────────────
-  if(localStorage.getItem('mth_nav_hidden')==='1'){
-    document.body.classList.add('nav-hidden');
-    const arrow=document.getElementById('navToggleArrow');
-    if(arrow)arrow.textContent='▴';
-  }
+  // Defensive: if a user landed on the deploy with the legacy nav-hidden
+  // state still set in localStorage, clear it so the nav comes back. The
+  // class itself is no longer applied because the floating toggle is gone.
+  try { localStorage.removeItem('mth_nav_hidden'); } catch(_) {}
   // ── Starfield ─────────────────────────────────────────────
   initStarfield();
   // ── Init Supabase ──────────────────────────────────────────
