@@ -213,6 +213,15 @@ function p01_cover(c) {
     const timeStr = _lang === 'en'
         ? `${String(input.hour).padStart(2, '0')}:${String(input.minute).padStart(2, '0')}`
         : `${String(input.hour).padStart(2, '0')}:${String(input.minute).padStart(2, '0')} น.`;
+    // Current age — surfaced on the cover so readers immediately notice if
+    // their birth-year was off by 10 (a common typo: 1985 vs 1995). Birthday
+    // hasn't happened yet this year? subtract 1.
+    const _now = new Date();
+    let _age = _now.getFullYear() - input.year;
+    const _birthdayThisYear = new Date(_now.getFullYear(), input.month - 1, input.day);
+    if (_now < _birthdayThisYear)
+        _age -= 1;
+    const ageStr = _lang === 'en' ? `${_age} years old` : `อายุ ${_age} ปี`;
     const pctBar = Math.round((score.total - 400) / 6);
     // Tier label is only available in Thai from the engine. When rendering EN,
     // prefer score.tierEn (already English) and skip the secondary "TierEn ·"
@@ -226,7 +235,8 @@ function p01_cover(c) {
     <div style="text-align:center;margin-bottom:16px">
       <div style="font-size:10px;color:#6a5a42;letter-spacing:4px;margin-bottom:6px">✦ MYTHSENSUS — PREMIUM EDITION ✦</div>
       <div style="font-size:22px;font-weight:700;color:#d4aa50;margin-bottom:4px">Cosmic Blueprint · 26 Ancient Systems</div>
-      <div style="font-size:12px;color:#9a8a72">${esc(input.gender)} ${esc(input.name)} · ${dobStr} · ${timeStr}</div>
+      <div style="font-size:12px;color:#9a8a72">${esc(input.gender)} ${esc(input.name)} · ${dobStr} · ${timeStr} · <strong style="color:#d4aa50">${ageStr}</strong></div>
+      <div style="font-size:10.5px;color:#6a5a42;margin-top:4px;font-style:italic">${tr('ตรวจดูว่าวันเดือนปีถูก — ถ้าอายุไม่ตรง ให้กลับไปแก้ที่ Profile', 'Double-check the date — if the age is wrong, edit your profile')}</div>
     </div>
 
     <!-- Cosmic Score -->
