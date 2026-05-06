@@ -172,16 +172,20 @@ body.nav-hidden .nav-toggle-btn{transform:rotate(180deg)}
 }
 .tb-rail-btn:hover{color:var(--gold);border-color:var(--gold3);}
 .tb-rail-btn.hidden{color:var(--gold);border-color:var(--gold3);background:rgba(200,164,90,.06);}
-@media (min-width:1320px){
+/* Breakpoint lowered from 1320 → 1200 in 2026-05-05 because users on
+   13" laptops + DevTools open + mid-zoom couldn't reach the threshold
+   even though they had room to fit the rails. Rail width compressed
+   from 220 → 195 so 1200 is comfortable, not knife-edge. */
+@media (min-width:1200px){
   .tb-rail-btn{display:inline-flex;align-items:center;gap:5px;}
   .desk-rail{
-    display:block;position:fixed;top:120px;width:220px;z-index:5;
+    display:block;position:fixed;top:120px;width:195px;z-index:5;
     font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;color:var(--text);
     pointer-events:none;transition:opacity .2s,transform .2s;
   }
   .desk-rail > *{pointer-events:auto;}
-  .desk-rail.left{left:calc((100vw - 820px)/2 - 242px);}
-  .desk-rail.right{right:calc((100vw - 820px)/2 - 242px);}
+  .desk-rail.left{left:calc((100vw - 820px)/2 - 200px);}
+  .desk-rail.right{right:calc((100vw - 820px)/2 - 200px);}
   /* hidden state — slide off-screen */
   .desk-rail.rail-hidden{opacity:0;pointer-events:none;}
   .desk-rail.left.rail-hidden{transform:translateX(-20px);}
@@ -9695,20 +9699,35 @@ function _railRotateTip(){
 }
 
 // ── DESKTOP RAIL TOGGLE (all 4 panels at once) ────────────────────────────
+// Explicitly reads current visibility from the DOM so it always toggles to
+// the opposite state, regardless of whatever localStorage / classList state
+// happens to be set. Bug from 2026-05-05: classList.toggle() return value
+// got out-of-sync with the saved flag when the user hit the button rapidly.
 function toggleAllRails() {
   const rL = document.getElementById('deskRailLeft');
   const rR = document.getElementById('deskRailRight');
   const btn = document.getElementById('railToggleAll');
   const icon = document.getElementById('railToggleIcon');
   const lbl  = document.getElementById('railToggleLabel');
-  if (!rL || !rR) return;
-  // If either rail is visible → hide both; if both hidden → show both
-  const nowHidden = rL.classList.toggle('rail-hidden');
-  rR.classList.toggle('rail-hidden', nowHidden);
-  if (icon) icon.textContent = nowHidden ? '⊞' : '⊟';
+  if (!rL || !rR) {
+    // Should never happen on desktop; on mobile the elements don't render.
+    console.warn('[rail] deskRailLeft/Right missing — ignoring toggle');
+    return;
+  }
+  // Source of truth: current presence of `.rail-hidden` on the LEFT rail.
+  const currentlyHidden = rL.classList.contains('rail-hidden');
+  const nextHidden = !currentlyHidden;
+  if (nextHidden) {
+    rL.classList.add('rail-hidden');
+    rR.classList.add('rail-hidden');
+  } else {
+    rL.classList.remove('rail-hidden');
+    rR.classList.remove('rail-hidden');
+  }
+  if (icon) icon.textContent = nextHidden ? '⊞' : '⊟';
   if (lbl)  lbl.textContent  = (LANG === 'th') ? ' แผง' : ' Panels';
-  if (btn)  btn.classList.toggle('hidden', nowHidden);
-  try { localStorage.setItem('mth_rails_hidden', nowHidden ? '1' : '0'); } catch(e) {}
+  if (btn)  btn.classList.toggle('hidden', nextHidden);
+  try { localStorage.setItem('mth_rails_hidden', nextHidden ? '1' : '0'); } catch(e) {}
 }
 (function _initRails() {
   // Restore hidden state on page load
