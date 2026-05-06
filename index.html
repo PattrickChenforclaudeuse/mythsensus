@@ -8077,7 +8077,22 @@ en:{
   multi_title:"MULTI-PROFILE",multi_hint:"Save charts of loved ones · unlimited profiles per account",
   multi_count:"saved profiles",multi_add:"Add profile",
   multi_empty_title:"No saved profiles yet",
-  multi_empty_desc:"Enter a profile in the Me tab to save it here.",
+  multi_empty_desc:"Click + Add profile to save someone (partner, family, friend) — separate from your own chart.",
+  multi_form_title:"Add a new profile",
+  multi_f_name:"Name",
+  multi_f_rel:"Relationship",
+  multi_f_rel_placeholder:"e.g. Spouse · Mom · Friend · Colleague",
+  multi_f_dob:"Date of birth",
+  multi_f_time:"Time",
+  multi_f_gender:"Gender",
+  multi_f_city:"City",
+  multi_save:"Save profile",
+  multi_cancel:"Cancel",
+  multi_delete:"Delete",
+  multi_delete_confirm:"Delete this profile?",
+  multi_view_chart:"View chart",
+  multi_age_label:"age",
+  multi_added:"Profile saved ✓",
   login_mg_title:"LOGIN & ACCOUNT",login_method_label:"Signed in via",
   login_session_desc:"Your session is local only — no cloud sync in offline mode.",
   login_logout:"🚪 Log out",login_not_signed_in:"Not signed in",
@@ -8271,9 +8286,24 @@ th:{
   // ── Multi / login / settings
   multi_title:"MULTI-PROFILE — ดวงของคนรอบข้าง",
   multi_hint:"บันทึกดวงของคู่รัก ครอบครัว เพื่อน · 1 บัญชีเพิ่มได้ไม่จำกัด",
-  multi_count:"โปรไฟล์ที่บันทึก",multi_add:"เพิ่ม",
+  multi_count:"โปรไฟล์ที่บันทึก",multi_add:"เพิ่มโปรไฟล์",
   multi_empty_title:"ยังไม่มีโปรไฟล์",
-  multi_empty_desc:"กรอกที่แท็บ Me แล้วจะมาแสดงที่นี่",
+  multi_empty_desc:"กดปุ่ม + เพิ่มโปรไฟล์ เพื่อบันทึกดวงคนอื่น (คู่ชีวิต ครอบครัว เพื่อน) — แยกจากดวงของคุณ",
+  multi_form_title:"เพิ่มโปรไฟล์ใหม่",
+  multi_f_name:"ชื่อ",
+  multi_f_rel:"ความสัมพันธ์",
+  multi_f_rel_placeholder:"เช่น คู่ชีวิต · แม่ · เพื่อน · เพื่อนร่วมงาน",
+  multi_f_dob:"วันเกิด",
+  multi_f_time:"เวลาเกิด",
+  multi_f_gender:"เพศ",
+  multi_f_city:"เมืองเกิด",
+  multi_save:"บันทึกโปรไฟล์",
+  multi_cancel:"ยกเลิก",
+  multi_delete:"ลบ",
+  multi_delete_confirm:"ลบโปรไฟล์นี้?",
+  multi_view_chart:"ดูดวง",
+  multi_age_label:"อายุ",
+  multi_added:"บันทึกโปรไฟล์เรียบร้อย ✓",
   login_mg_title:"เข้าสู่ระบบ & บัญชี",login_method_label:"เข้าสู่ระบบผ่าน",
   login_session_desc:"Session นี้เก็บในเครื่องอย่างเดียว — offline mode ไม่ sync cloud",
   login_logout:"🚪 ออกจากระบบ",login_not_signed_in:"ยังไม่ได้ล็อกอิน",
@@ -14078,27 +14108,139 @@ function _runCompatCheck(){
 }
 
 // ── Multi-profile list ─────────────────────────────────────
+// ── MULTI-PROFILE ─────────────────────────────────────────────
+// Saved profiles for OTHER people (partner, family, friends) — separate from
+// the user's own chart in mth_*. Stored in localStorage.ms_profiles as
+// [{name, relationship, dob, time, gender, city, ts}, ...].
+// Used by the Compatibility tab too (compatPicker reads from this list).
+let _MULTI_ADD_FORM_OPEN = false;
+
+function openMultiAddForm() {
+  _MULTI_ADD_FORM_OPEN = true;
+  renderMultiProfiles();
+}
+function cancelMultiAddForm() {
+  _MULTI_ADD_FORM_OPEN = false;
+  renderMultiProfiles();
+}
+function saveMultiProfile() {
+  const isTh = LANG === 'th';
+  const name = document.getElementById('multi-f-name')?.value.trim() || '';
+  const rel  = document.getElementById('multi-f-rel')?.value.trim()  || '';
+  const dob  = document.getElementById('multi-f-dob')?.value || '';
+  const time = document.getElementById('multi-f-time')?.value || '12:00';
+  const gender = document.getElementById('multi-f-gender')?.value || 'ชาย';
+  const city = document.getElementById('multi-f-city')?.value || '13.75,100.5,7';
+  if (!name) { alert(isTh ? '⚠ กรุณากรอกชื่อก่อน' : '⚠ Please enter a name'); return; }
+  if (!dob)  { alert(isTh ? '⚠ กรุณากรอกวันเกิดก่อน' : '⚠ Please enter date of birth'); return; }
+  const list = JSON.parse(localStorage.getItem('ms_profiles') || '[]');
+  // Dedupe by name+dob — overwrite existing entry if user re-adds the same person.
+  const ix = list.findIndex(p => p.name === name && p.dob === dob);
+  const entry = { name, relationship: rel, dob, time, gender, city, ts: Date.now() };
+  if (ix >= 0) list[ix] = entry; else list.unshift(entry);
+  if (list.length > 50) list.length = 50;
+  localStorage.setItem('ms_profiles', JSON.stringify(list));
+  _MULTI_ADD_FORM_OPEN = false;
+  renderMultiProfiles();
+  // Brief confirmation toast.
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--gold);border-radius:8px;padding:10px 18px;font-family:Cormorant Garamond,serif;font-size:13.5px;color:var(--gold2);box-shadow:0 8px 24px rgba(200,164,90,.25);z-index:9000';
+  toast.textContent = t('multi_added');
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+function deleteMultiProfile(idx) {
+  if (!confirm(t('multi_delete_confirm'))) return;
+  const list = JSON.parse(localStorage.getItem('ms_profiles') || '[]');
+  list.splice(idx, 1);
+  localStorage.setItem('ms_profiles', JSON.stringify(list));
+  renderMultiProfiles();
+}
+
+// Compute age from dob string "YYYY-MM-DD". Returns null if invalid.
+function _multiAgeFromDob(dob) {
+  if (!dob || typeof dob !== 'string') return null;
+  const m = dob.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  const [_, y, mo, d] = m.map(Number);
+  if (!y || !mo || !d || y < 1900 || y > 2100) return null;
+  const now = new Date();
+  let age = now.getFullYear() - y;
+  const birthdayThisYear = new Date(now.getFullYear(), mo - 1, d);
+  if (now < birthdayThisYear) age--;
+  return age;
+}
+
 function renderMultiProfiles(){
   const el = document.getElementById('multiList');
+  if (!el) return;
+  const isTh = LANG === 'th';
   const list = JSON.parse(localStorage.getItem('ms_profiles') || '[]');
-  el.innerHTML = `
+
+  // Inline add form HTML (rendered when _MULTI_ADD_FORM_OPEN === true).
+  const formHtml = !_MULTI_ADD_FORM_OPEN ? '' : `
+    <div style="background:rgba(212,170,80,0.05);border:1px solid var(--gold3);border-radius:10px;padding:18px;margin-bottom:14px">
+      <div style="font-family:'Cinzel Decorative',serif;font-size:14px;color:var(--gold);margin-bottom:14px">${t('multi_form_title')}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div class="form-group"><label>${t('multi_f_name')}</label><input id="multi-f-name" type="text" placeholder="${isTh?'ชื่อ':'Name'}"></div>
+        <div class="form-group"><label>${t('multi_f_rel')}</label><input id="multi-f-rel" type="text" placeholder="${t('multi_f_rel_placeholder')}"></div>
+        <div class="form-group"><label>${t('multi_f_dob')}</label><input id="multi-f-dob" type="date"></div>
+        <div class="form-group"><label>${t('multi_f_time')}</label><input id="multi-f-time" type="time" value="12:00"></div>
+        <div class="form-group"><label>${t('multi_f_gender')}</label>
+          <select id="multi-f-gender">
+            <option value="ชาย">${isTh?'ชาย':'Male'}</option>
+            <option value="หญิง">${isTh?'หญิง':'Female'}</option>
+          </select>
+        </div>
+        <div class="form-group"><label>${t('multi_f_city')}</label>
+          <input id="multi-f-city-search" list="ms-cities-datalist" placeholder="${isTh?'พิมพ์ค้นหาเมือง':'Type to search city'}" autocomplete="off">
+          <input type="hidden" id="multi-f-city" value="13.75,100.5,7">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button class="ghost-btn" onclick="cancelMultiAddForm()" style="padding:8px 16px">${t('multi_cancel')}</button>
+        <button class="cta-btn" onclick="saveMultiProfile()" style="padding:8px 16px;background:var(--gold);color:var(--bg);border:none;border-radius:6px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;font-weight:600;cursor:pointer">${t('multi_save')}</button>
+      </div>
+    </div>`;
+
+  // Header row + Add button (label flips while form is open).
+  const headerHtml = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14px;color:var(--muted);font-style:italic">${list.length} ${t('multi_count')}</div>
-      <button class="ghost-btn" onclick="showSubTab('me')">+ ${t('multi_add')}</button>
-    </div>` +
-    (list.length ? list.map((p,i)=>
-      `<div class="hist-item" style="margin-bottom:8px">
-         <div class="hist-item-header">
-           <div class="hist-title">${p.name||'—'}</div>
-           <div class="hist-date">${p.relationship||''}</div>
-         </div>
-         <div class="hist-sub">${p.dob||''} · ${p.city||''}</div>
-       </div>`).join('')
-    : `<div class="tier-lock" style="border-color:var(--border)">
-         <div class="tier-lock-icon">👥</div>
-         <div class="tier-lock-title">${t('multi_empty_title')}</div>
-         <div class="tier-lock-desc">${t('multi_empty_desc')}</div>
-       </div>`);
+      ${!_MULTI_ADD_FORM_OPEN
+        ? `<button class="ghost-btn" onclick="openMultiAddForm()" style="background:var(--gold);color:var(--bg);border:none;font-weight:600">+ ${t('multi_add')}</button>`
+        : ''}
+    </div>`;
+
+  // Saved profile cards (or empty state).
+  const cardsHtml = list.length ? list.map((p, i) => {
+    const age = _multiAgeFromDob(p.dob);
+    const ageStr = age != null ? ` · ${t('multi_age_label')} ${age}` : '';
+    return `<div class="hist-item" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <div style="flex:1;min-width:0">
+        <div class="hist-item-header">
+          <div class="hist-title">${(p.name || '—').replace(/</g,'&lt;')}</div>
+          <div class="hist-date">${(p.relationship || '').replace(/</g,'&lt;')}</div>
+        </div>
+        <div class="hist-sub">${p.dob || '—'}${ageStr}${p.city ? ' · ' + p.city.replace(/</g,'&lt;') : ''}</div>
+      </div>
+      <button onclick="deleteMultiProfile(${i})" style="flex-shrink:0;background:transparent;border:1px solid #c06060;color:#c06060;border-radius:4px;padding:4px 10px;font-size:10px;cursor:pointer;letter-spacing:1px;font-family:'Josefin Sans',sans-serif">🗑 ${t('multi_delete')}</button>
+    </div>`;
+  }).join('') : '';
+
+  const emptyHtml = (!list.length && !_MULTI_ADD_FORM_OPEN) ? `
+    <div class="tier-lock" style="border-color:var(--border)">
+      <div class="tier-lock-icon">👥</div>
+      <div class="tier-lock-title">${t('multi_empty_title')}</div>
+      <div class="tier-lock-desc">${t('multi_empty_desc')}</div>
+    </div>` : '';
+
+  el.innerHTML = headerHtml + formHtml + cardsHtml + emptyHtml;
+
+  // Wire the city search now that the form's DOM exists.
+  if (_MULTI_ADD_FORM_OPEN && typeof wireCitySearch === 'function') {
+    try { wireCitySearch('multi-f-city-search', 'multi-f-city'); } catch (_) {}
+  }
 }
 
 // ── Login management ───────────────────────────────────────
