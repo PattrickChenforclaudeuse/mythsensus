@@ -6,6 +6,9 @@
     "qa": "node Mythsensus/tests/qa-scanner.js",
     "deploy": "git push origin main && vercel --yes --prod"
   },
+  "dependencies": {
+    "stripe": "^17.4.0"
+  },
   "devDependencies": {
     "playwright": "^1.59.1",
     "typescript": "^5.9.3"

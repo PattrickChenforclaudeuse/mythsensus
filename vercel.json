@@ -32,7 +32,8 @@
     "api/auth/facebook/callback.js": { "maxDuration": 30 },
     "api/auth/magic/send.js": { "maxDuration": 30 },
     "api/auth/magic/verify.js": { "maxDuration": 30 },
-    "api/auth/magic/verify-code.js": { "maxDuration": 30 }
+    "api/auth/magic/verify-code.js": { "maxDuration": 30 },
+    "api/stripe/create-checkout-session.js": { "maxDuration": 15 }
   },
   "headers": [
     {

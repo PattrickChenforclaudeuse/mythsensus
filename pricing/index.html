@@ -171,6 +171,14 @@ html[lang="th"] .tier-name,html[lang="th"] .tier-price,html[lang="th"] .title,ht
           <li><span class="chk">✓</span><span data-en="📜 Full History (no 30-day limit)" data-th="📜 ประวัติเต็ม (ไม่จำกัด 30 วัน)">📜 Full History (no 30-day limit)</span></li>
           <li><span class="chk">✓</span><span data-en="🔮 Organum+ · expanded 108-deity voting" data-th="🔮 Organum+ · 108 เทพขยายผล">🔮 Organum+ · expanded 108-deity voting</span></li>
         </ul>
+        <!-- Subscribe form posts to the Stripe Checkout endpoint, which
+             resolves the lookup_key → price → 303-redirects to Stripe's
+             hosted page. The endpoint also wires the 7-day free trial
+             (controlled by STRIPE_FREE_TRIAL_DAYS env var). -->
+        <form action="/api/stripe/create-checkout-session" method="POST" style="margin-top:1.5rem">
+          <input type="hidden" name="lookup_key" value="mythsensus_subscription_monthly">
+          <button type="submit" class="tier-cta" data-en="Start 7-day trial" data-th="ทดลอง 7 วันฟรี">Start 7-day trial</button>
+        </form>
       </div>
 
       <!-- ANNUAL (featured) -->
@@ -185,6 +193,10 @@ html[lang="th"] .tier-name,html[lang="th"] .tier-price,html[lang="th"] .title,ht
           <li><span class="chk">✓</span><span data-en="One charge per year — no monthly billing reminders" data-th="ชาร์จปีละครั้ง — ไม่มีบิลรายเดือนกวน">One charge per year — no monthly billing reminders</span></li>
           <li><span class="chk">✓</span><span data-en="7-day free trial · refund within 14 days unused" data-th="ทดลอง 7 วันฟรี · คืนเงินภายใน 14 วันถ้าไม่ใช้">7-day free trial · refund within 14 days unused</span></li>
         </ul>
+        <form action="/api/stripe/create-checkout-session" method="POST" style="margin-top:1.5rem">
+          <input type="hidden" name="lookup_key" value="mythsensus_subscription_annual">
+          <button type="submit" class="tier-cta" data-en="Start 7-day trial" data-th="ทดลอง 7 วันฟรี">Start 7-day trial</button>
+        </form>
       </div>
     </div>
   </div>
