@@ -1280,7 +1280,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
      Each card is fully clickable — see _railJump() for routing. -->
 <aside class="desk-rail left" id="deskRailLeft" aria-hidden="true">
   <!-- TODAY'S SKY → Subscription → Sky (full transit panel) -->
-  <div class="desk-rail-card rail-clickable" onclick="_railJump('sky')" role="button" tabindex="0" title="Open today's full sky panel">
+  <div class="desk-rail-card" title="Today's sky preview">
     <h4 id="railTodayTitle">✦ Today's Sky</h4>
     <div class="desk-rail-row">
       <div class="desk-rail-icon" id="railPhase">🌑</div>
@@ -1297,10 +1297,10 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       </div>
     </div>
     <div class="desk-rail-meaning" id="railSkyMeaning">—</div>
-    <div class="rail-cta" id="railSkyCta" data-en="OPEN FULL SKY →" data-th="ดูท้องฟ้าเต็ม →">OPEN FULL SKY →</div>
+    <!-- CTA removed — rail is now display-only, click the nav tab instead. -->
   </div>
   <!-- DAY'S DEITY → Addon → Deep (Thai-Brahmin reading section) -->
-  <div class="desk-rail-card rail-clickable" onclick="_railJump('deity')" role="button" tabindex="0" title="Open Thai-Brahmin deep reading">
+  <div class="desk-rail-card" title="Day's deity preview">
     <h4 id="railDeityTitle">✦ Day's Deity</h4>
     <div class="desk-rail-row">
       <div class="desk-rail-icon" id="railDeityIcon" style="font-size:32px">—</div>
@@ -1310,7 +1310,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       </div>
     </div>
     <div class="desk-rail-meaning" id="railDeityMeaning">—</div>
-    <div class="rail-cta" id="railDeityCta" data-en="DEEP READING →" data-th="อ่านลึก →">DEEP READING →</div>
+    <!-- CTA removed — rail is now display-only, click the nav tab instead. -->
   </div>
 </aside>
 <aside class="desk-rail right" id="deskRailRight" aria-hidden="true">
@@ -1322,7 +1322,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     <div class="rail-cta" id="railTipCta" data-en="✦ NEXT TIP →" data-th="✦ คำใหม่ →">✦ NEXT TIP →</div>
   </div>
   <!-- YOUR JOURNEY → Subscription → History (full timeline) -->
-  <div class="desk-rail-card rail-clickable" onclick="_railJump('journey')" role="button" tabindex="0" title="View full history">
+  <div class="desk-rail-card" title="Cosmic journey preview">
     <h4 id="railStatsTitle">✦ Your Journey</h4>
     <ul>
       <li>
@@ -1341,7 +1341,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         <span class="stat-val" id="railStatReports">0</span>
       </li>
     </ul>
-    <div class="rail-cta" id="railJourneyCta" data-en="VIEW FULL HISTORY →" data-th="ดูประวัติเต็ม →">VIEW FULL HISTORY →</div>
+    <!-- CTA removed — rail is now display-only, click the nav tab instead. -->
   </div>
 </aside>
 
