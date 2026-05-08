@@ -1271,9 +1271,11 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <div class="tb-pill"><span class="tb-label" data-t="tb_moon">MOON</span> <span id="tb-moon-sign">—</span></div>
   <span class="tb-dot">·</span>
   <div class="tb-pill"><span id="tb-day-icon">—</span><span id="tb-day-deity">—</span></div>
-  <button class="tb-rail-btn" id="railToggleAll" onclick="toggleAllRails()" title="Hide / show side panels">
-    <span id="railToggleIcon">⊟</span><span id="railToggleLabel" data-en=" Panels" data-th=" แผง"> Panels</span>
-  </button>
+  <!-- Rail toggle button removed 2026-05-08. The "📋 แผง" pill in the
+       today-bar at the right-most edge could overlap with the sub-tab
+       click area at certain viewport widths, hijacking taps that the user
+       intended for "26 ศาสตร์" / "ความเข้ากัน". Rails are now display-only;
+       there's no toggle to expose. -->
 </div>
 
 <!-- ═══ DESKTOP SIDE RAILS (viewport >= 1200px only) ═══
