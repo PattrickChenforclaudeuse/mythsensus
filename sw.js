@@ -11,7 +11,7 @@
 // shipped together. Several users were stuck on v3-cached HTML where addon
 // sub-tabs landed on stale panel IDs (deep → sky, compat → no-op). Bumping
 // the cache name forces every client to re-fetch fresh assets on next load.
-const CACHE = 'mythsensus-v5';
+const CACHE = 'mythsensus-v6';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

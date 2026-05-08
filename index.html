@@ -155,9 +155,10 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opa
    --mth-zoom (1 / 1.15 / 1.3 / 1.5); we apply via CSS `zoom` so every px
    value scales uniformly without rewriting inline styles across the file.
    Skipped below 900px so phones/tablets aren't affected. */
-@media (min-width: 900px) {
-  html { zoom: var(--mth-zoom, 1); }
-}
+/* CSS `zoom` removed 2026-05-08 — caused hit-test offset on user reports.
+   Click positions drifted from visible tab positions when zoom != 1.
+   Users wanting larger UI should use the browser's own page zoom
+   (Ctrl + Plus / Cmd + Plus) which the OS / browser hit-tests correctly. */
 /* ── Desktop side rails: only visible on wide viewports (>=1320px).
    Hidden on mobile/tablet so they never impact the core layout. ── */
 .desk-rail{display:none;}
@@ -9821,31 +9822,23 @@ function toggleAllRails() {
   }
 })();
 
-// ── DESKTOP UI ZOOM ────────────────────────────────────────────────
-// Subscriber feedback: 13px base feels small on PC/notebook. We scale the
-// whole document via CSS `zoom` so every px value (chips, body text, etc.)
-// grows together without touching inline styles. Only applied to viewports
-// >= 900px (see CSS @media block); mobile keeps native sizing. Allowed
-// values: 1.00, 1.15, 1.30, 1.50.
-const FONT_SCALE_OPTIONS = [
-  { value: 1.00, labelTh: 'มาตรฐาน',  labelEn: 'Default'  },
-  { value: 1.15, labelTh: 'ใหญ่ขึ้น',  labelEn: 'Larger'   },
-  { value: 1.30, labelTh: 'ใหญ่มาก',  labelEn: 'Large'    },
-  { value: 1.50, labelTh: 'สูงสุด',   labelEn: 'X-Large'  },
-];
-function getFontScale() {
-  const v = parseFloat(localStorage.getItem('mth_font_scale') || '1');
-  return FONT_SCALE_OPTIONS.find(o => Math.abs(o.value - v) < 0.01) ? v : 1;
-}
+// ── UI ZOOM SETTING (retired 2026-05-08) ─────────────────────────────
+// The CSS-zoom-based scaler was removed because it offset click hit-tests
+// on some Chrome configurations: users reported that buttons in the nav row
+// didn't respond at the visible position. Browsers compute hit areas from
+// the unscaled DOM box for `zoom`-scaled content in some hover/focus paths,
+// so the tap-target moves out from under the rendered pixel.
+// Settings panel will fall back to "use Ctrl + Plus / Cmd + Plus for browser
+// zoom — your browser hit-tests correctly across the page". Stub functions
+// kept so the Settings UI doesn't error out on already-rendered buttons.
+const FONT_SCALE_OPTIONS = [];
+function getFontScale() { return 1; }
 function applyFontScale() {
-  document.documentElement.style.setProperty('--mth-zoom', String(getFontScale()));
+  // Clear any leftover --mth-zoom in case a user had v1 set.
+  document.documentElement.style.removeProperty('--mth-zoom');
+  try { localStorage.removeItem('mth_font_scale'); } catch (_) {}
 }
-function setFontScale(v) {
-  localStorage.setItem('mth_font_scale', String(v));
-  applyFontScale();
-  // Re-render settings if it's the current panel so the button highlights flip.
-  if (typeof renderSettings === 'function' && document.getElementById('settingsPanel')) renderSettings();
-}
+function setFontScale(_v) { /* feature retired */ applyFontScale(); }
 applyFontScale();
 
 // Jump to Subscription → Life Resonance sub-tab from Blueprint form
@@ -14318,21 +14311,15 @@ function renderSettings(){
       <button class="ghost-btn" onclick="toggleLang();renderSettings()">${isTh?'Switch to English':'เปลี่ยนเป็นภาษาไทย'}</button>
     </div>
 
-    <!-- ░░░ FONT SIZE (desktop only) ░░░ -->
-    <!-- Mobile auto-sizes well; on PC/notebook the 13px base feels tight on a
-         wide canvas. Pick a zoom level — applied via CSS \`zoom\` so layout
-         stays identical, just scaled. Mobile (<900px) ignores the setting. -->
+    <!-- ░░░ TEXT SIZE — point users at browser zoom ░░░ -->
+    <!-- Replaced the in-app CSS-zoom toggle with a hint to use the browser's
+         own page zoom (Ctrl + Plus / Cmd + Plus). Browser-level zoom hit-
+         tests correctly across the page; the in-app version offset clicks. -->
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">${isTh?'🔠 ขนาดตัวอักษร (PC/Notebook)':'🔠 Text size (PC/Notebook)'}</div>
-      <div class="deep-sys-origin">${isTh?'ปรับ zoom ของหน้าเว็บ — มือถือใช้ขนาดอัตโนมัติเสมอ':'Adjust page zoom — mobile always uses its native size'}</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-        ${FONT_SCALE_OPTIONS.map(o => {
-          const active = Math.abs(o.value - curScale) < 0.01;
-          const label = isTh ? o.labelTh : o.labelEn;
-          return `<button onclick="setFontScale(${o.value})" style="padding:7px 14px;border-radius:6px;border:1px solid ${active?'var(--gold)':'var(--border)'};background:${active?'rgba(212,170,80,0.12)':'var(--bg3)'};color:${active?'var(--gold)':'var(--text)'};font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.2px;cursor:pointer;font-weight:${active?600:400}">${Math.round(o.value*100)}% · ${label}</button>`;
-        }).join('')}
-      </div>
-      <div style="margin-top:8px;font-size:11px;color:var(--muted);font-style:italic">${isTh?'💡 เปลี่ยนเห็นผลทันที — ขนาดถูกบันทึกอัตโนมัติ':'💡 Change applies instantly — your choice is saved automatically'}</div>
+      <div class="deep-sys-title">${isTh?'🔠 ขนาดตัวอักษร':'🔠 Text size'}</div>
+      <div style="margin-top:8px;font-size:13px;color:var(--text);line-height:1.7">${isTh
+        ? '👉 ใช้ <strong style="color:var(--gold)">Ctrl + Plus</strong> (Win) หรือ <strong style="color:var(--gold)">Cmd + Plus</strong> (Mac) เพื่อขยายหน้าเว็บ — ปุ่มและ tap-target จะแม่นยำกว่าการปรับใน app'
+        : 'Use <strong style="color:var(--gold)">Ctrl + Plus</strong> (Windows) or <strong style="color:var(--gold)">Cmd + Plus</strong> (Mac) to zoom the page — buttons and tap targets stay accurate.'}</div>
     </div>
 
     <!-- ░░░ DATA & BACKUP ░░░ -->
