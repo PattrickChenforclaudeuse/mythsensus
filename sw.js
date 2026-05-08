@@ -7,7 +7,11 @@
 // reload, making it look like "sign-in doesn't remember" after deploys.
 // v3: app moved from /beta/ to / on 2026-05-02. New cache name forces clients
 // to re-fetch; old /beta/ entry removed because the route now 301-redirects.
-const CACHE = 'mythsensus-v3';
+// v4: 2026-05-07 — bump after Daily Pulse + multi-profile + nav-toggle removal
+// shipped together. Several users were stuck on v3-cached HTML where addon
+// sub-tabs landed on stale panel IDs (deep → sky, compat → no-op). Bumping
+// the cache name forces every client to re-fetch fresh assets on next load.
+const CACHE = 'mythsensus-v4';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
