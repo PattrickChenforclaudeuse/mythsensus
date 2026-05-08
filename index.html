@@ -8472,78 +8472,115 @@ const GROUPS = {
   },
 };
 
+// ════════════════════════════════════════════════════════════════════
+// NAVIGATION — fully rewritten 2026-05-08.
+// ════════════════════════════════════════════════════════════════════
+// The previous implementation rebuilt the sub-tab buttons with inline
+// onclick="showSubTab('key')" each time the user switched groups. Multiple
+// users reported addon sub-tabs (26 ศาสตร์, ความเข้ากัน) "redirecting" to
+// ฟ้าวันนี้ or "not responding" — symptoms consistent with click events
+// landing on stale onclick handlers when the bar's innerHTML had just been
+// rewritten. This rewrite replaces inline handlers with delegated click
+// listeners on document.body, so a click on any .group-btn or .sub-btn
+// always routes through a single switchboard regardless of when the
+// element was rendered.
+
 let CUR_GROUP = 'free';
 let CUR_SUB   = 'blessing';
 
+const RENDERERS = {
+  history:          () => renderHistoryPanel(),
+  sky:              () => { const dob = document.getElementById('profDob')?.value; if (dob && !document.getElementById('skyResults')?.classList.contains('active')) calcSky(); },
+  chart:            () => { const dob = document.getElementById('profDob')?.value; if (dob && !document.getElementById('chartResults')?.classList.contains('active')) calcChart(); },
+  blueprint:        () => syncAllForms(),
+  deep:             () => renderDeepReadings(),
+  resonance:        () => renderResonance(),
+  pulse:            () => renderDailyPulse(),
+  brief:            () => renderMonthlyBrief(),
+  freq:             () => renderFreqHistory(),
+  collection:       () => renderCollection(),
+  library:          () => renderLibrary(),
+  streak:           () => renderStreak(),
+  'premium-reports':() => renderSavedReports(),
+  mirror:           () => renderMirror(),
+  pet:              () => renderPet(),
+  companions:       () => renderCompanions(),
+  exercise:         () => renderExercise(),
+  food:             () => renderFood(),
+  product:          () => renderProduct(),
+  compat:           () => renderCompat(),
+  multi:            () => renderMultiProfiles(),
+  login:            () => renderLoginMgmt(),
+  settings:         () => renderSettings(),
+};
+
 function setGroup(g) {
   if (!GROUPS[g]) g = 'free';
-  // Log engagement only when actually switching to a different group
-  // (avoid double-counting when the user clicks the same tab twice).
   if (CUR_GROUP !== g && typeof _logEngagement === 'function') _logEngagement('group_switch');
   CUR_GROUP = g;
-  document.querySelectorAll('.group-btn').forEach(b=>b.classList.remove('active'));
-  const gb = document.getElementById('group-'+g);
-  if (gb) gb.classList.add('active');
-
-  // Render the sub-tab bar for this group.
+  // Highlight the active group button.
+  for (const b of document.querySelectorAll('.group-btn')) {
+    b.classList.toggle('active', b.id === 'group-' + g);
+  }
+  // Rebuild the sub-tab row WITHOUT inline onclick — the document-level
+  // delegation handler picks up clicks via .sub-btn class + data-sub attr.
   const bar = document.getElementById('navSubs');
-  bar.innerHTML = GROUPS[g].tabs.map(([key, panel, txKey, locked]) =>
-    `<button class="sub-btn${locked?' locked':''}" data-sub="${key}" data-panel="${panel}" ` +
-    `onclick="showSubTab('${key}')" data-t="${txKey}">${t(txKey)}</button>`
-  ).join('');
-
-  // Restore last sub for this group, or default.
+  if (bar) {
+    bar.innerHTML = GROUPS[g].tabs.map(([key, panel, txKey, locked]) =>
+      `<button type="button" class="sub-btn${locked?' locked':''}" data-sub="${key}" data-panel="${panel}" data-t="${txKey}">${t(txKey)}</button>`
+    ).join('');
+  }
+  // Restore last-visited sub for this group; fall back to default if the
+  // saved key no longer exists in the group definition (e.g. tab renamed).
   const last = localStorage.getItem('ms_last_sub_' + g);
-  const available = GROUPS[g].tabs.map(x=>x[0]);
-  const target = (last && available.includes(last)) ? last : GROUPS[g].default;
-  showSubTab(target);
+  const valid = GROUPS[g].tabs.some(x => x[0] === last);
+  showSubTab(valid ? last : GROUPS[g].default);
 }
 
 function showSubTab(subKey) {
-  const entry = GROUPS[CUR_GROUP].tabs.find(x => x[0] === subKey);
-  if (!entry) return;
-  const [, panelId] = entry;
+  const tabs = (GROUPS[CUR_GROUP] || {}).tabs || [];
+  const entry = tabs.find(x => x[0] === subKey);
+  if (!entry) {
+    console.warn('[showSubTab] unknown sub:', subKey, 'in group', CUR_GROUP);
+    return;
+  }
+  const panelId = entry[1];
   CUR_SUB = subKey;
-  localStorage.setItem('ms_last_sub_' + CUR_GROUP, subKey);
-
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+  try { localStorage.setItem('ms_last_sub_' + CUR_GROUP, subKey); } catch(_) {}
+  // Hide every panel, then show the target. Avoids partial state if a panel
+  // happened to have stuck `.active` from an aborted prior switch.
+  for (const p of document.querySelectorAll('.panel')) p.classList.remove('active');
   const panel = document.getElementById('panel-' + panelId);
   if (panel) panel.classList.add('active');
-  const btn = document.querySelector('.sub-btn[data-sub="' + subKey + '"]');
-  if (btn) btn.classList.add('active');
-
-  // Panel-specific lazy renderers (kept from original showTab).
-  if (panelId === 'history')  renderHistoryPanel();
-  if (panelId === 'sky') {
-    const dob = document.getElementById('profDob').value;
-    if (dob && !document.getElementById('skyResults').classList.contains('active')) calcSky();
+  else console.warn('[showSubTab] panel-' + panelId + ' not found in DOM');
+  // Highlight active sub-button.
+  for (const b of document.querySelectorAll('.sub-btn')) {
+    b.classList.toggle('active', b.getAttribute('data-sub') === subKey);
   }
-  if (panelId === 'chart') {
-    const dob = document.getElementById('profDob').value;
-    if (dob && !document.getElementById('chartResults').classList.contains('active')) calcChart();
+  // Lazy renderer — wrapped so a thrown render doesn't kill the navigation.
+  const fn = RENDERERS[panelId];
+  if (typeof fn === 'function') {
+    try { fn(); } catch (e) { console.error('[render ' + panelId + ']', e); }
   }
-  if (panelId === 'blueprint')        syncAllForms();
-  if (panelId === 'deep')             renderDeepReadings();
-  if (panelId === 'resonance')        renderResonance();
-  if (panelId === 'pulse')            renderDailyPulse();
-  if (panelId === 'brief')            renderMonthlyBrief();
-  if (panelId === 'freq')             renderFreqHistory();
-  if (panelId === 'collection')       renderCollection();
-  if (panelId === 'library')          renderLibrary();
-  if (panelId === 'streak')           renderStreak();
-  if (panelId === 'premium-reports')  renderSavedReports();
-  if (panelId === 'mirror')           renderMirror();
-  if (panelId === 'pet')              renderPet();
-  if (panelId === 'companions')       renderCompanions();
-  if (panelId === 'exercise')         renderExercise();
-  if (panelId === 'food')             renderFood();
-  if (panelId === 'product')          renderProduct();
-  if (panelId === 'compat')           renderCompat();
-  if (panelId === 'multi')            renderMultiProfiles();
-  if (panelId === 'login')            renderLoginMgmt();
-  if (panelId === 'settings')         renderSettings();
 }
+
+// One delegated listener handles every group / sub click. Survives sub-tab
+// row re-renders, ignores clicks that happen inside disabled / locked
+// buttons, and never relies on inline onclick attributes.
+document.addEventListener('click', e => {
+  const subBtn = e.target.closest('.sub-btn');
+  if (subBtn) {
+    if (subBtn.classList.contains('locked')) return;   // locked = paid tier, ignore
+    const k = subBtn.getAttribute('data-sub');
+    if (k) { e.preventDefault(); showSubTab(k); }
+    return;
+  }
+  const grpBtn = e.target.closest('.group-btn');
+  if (grpBtn) {
+    const g = (grpBtn.id || '').replace(/^group-/, '');
+    if (g) { e.preventDefault(); setGroup(g); }
+  }
+});
 
 // Legacy shim — some old callers still call showTab(panelId). Route
 // them through the new nav by finding the group that owns that panel.
