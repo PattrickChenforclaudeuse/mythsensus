@@ -18036,9 +18036,10 @@ function cb_generate() {
   }
 
   // Read Life Path Resonance context saved by the Subscription → Resonance panel.
-  const workCountry = localStorage.getItem('mth_country') || '';
-  const domain      = localStorage.getItem('mth_career')  || '';
-  const industry    = localStorage.getItem('mth_industry')|| '';
+  const workCountry = localStorage.getItem('mth_country')      || '';
+  const domain      = localStorage.getItem('mth_career')       || '';
+  const industry    = localStorage.getItem('mth_industry')     || '';
+  const careerLevel = localStorage.getItem('mth_careerLevel')  || '';
 
   _cbGenerating = true;
   document.getElementById('cb-form-section').style.display = 'none';
@@ -18056,6 +18057,7 @@ function cb_generate() {
         hour: h, minute: mi,
         lat, lon, timezone: tz,
         workCountry,   // from Subscription → Life Path Resonance
+        careerLevel,   // ← was previously missing — engine needs it for LEVEL_BONUS
         domain,        // career role
         industry,      // industry sector
         lang: LANG,    // propagate UI lang into report.ts for bilingual output
