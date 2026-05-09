@@ -13067,6 +13067,7 @@ function renderSavedReports(){
   const el = document.getElementById('reportsList');
   const raw = localStorage.getItem('ms_saved_reports');
   const reports = raw ? (JSON.parse(raw)||[]) : [];
+  const isTh = LANG === 'th';
   if (!reports.length) {
     el.innerHTML = `<div class="tier-lock" style="border-color:var(--border)">
       <div class="tier-lock-icon">📂</div>
@@ -13076,14 +13077,55 @@ function renderSavedReports(){
     </div>`;
     return;
   }
-  el.innerHTML = reports.map((r,i)=>
-    `<div class="hist-item" style="margin-bottom:8px">
-       <div class="hist-item-header">
-         <div class="hist-title">${r.name||'Profile'}</div>
-         <div class="hist-date">${r.date||''}</div>
-       </div>
-       <div class="hist-sub">Score ${r.score||'—'} · ${r.tier||'—'}</div>
-     </div>`).join('');
+  // Each saved report becomes interactive: tap the card to re-open it (loads
+  // its DOB/time/city/etc into the Cosmic Blueprint form and regenerates),
+  // or use the inline 🗑 delete button to remove it from the saved list.
+  el.innerHTML = reports.map((r,i) => {
+    const safeName = (r.name || 'Profile').replace(/</g,'&lt;');
+    const safeDate = (r.date || '').replace(/</g,'&lt;');
+    return `<div class="hist-item" style="margin-bottom:8px;display:flex;align-items:flex-start;gap:10px">
+      <div onclick="_openSavedReport(${i})" style="flex:1;cursor:pointer;min-width:0" role="button" tabindex="0" title="${isTh?'เปิดรายงานนี้อีกครั้ง':'Open this report again'}">
+        <div class="hist-item-header">
+          <div class="hist-title">${safeName}</div>
+          <div class="hist-date">${safeDate}</div>
+        </div>
+        <div class="hist-sub">Score ${r.score||'—'} · ${r.tier||'—'} · ${r.dob||'—'}</div>
+        <div style="font-size:10px;color:var(--gold3);letter-spacing:1.5px;font-family:'Josefin Sans',sans-serif;margin-top:6px">${isTh?'แตะเพื่อเปิดรายงาน →':'TAP TO OPEN →'}</div>
+      </div>
+      <button onclick="_deleteSavedReport(${i})" style="flex-shrink:0;background:transparent;border:1px solid #c06060;color:#c06060;border-radius:4px;padding:4px 10px;font-size:10px;cursor:pointer;letter-spacing:1px;font-family:'Josefin Sans',sans-serif" title="${isTh?'ลบรายงาน':'Delete report'}">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+// Re-open a saved report: copies its profile data back into the active
+// mth_* localStorage so syncAllForms picks it up, then jumps to Premium →
+// Generate and clicks Generate. The user lands on the rendered report.
+function _openSavedReport(idx) {
+  try {
+    const reports = JSON.parse(localStorage.getItem('ms_saved_reports') || '[]');
+    const r = reports[idx];
+    if (!r) return;
+    if (r.name)   localStorage.setItem('mth_name',   r.name);
+    if (r.dob)    localStorage.setItem('mth_dob',    r.dob);
+    if (r.time)   localStorage.setItem('mth_time',   r.time);
+    if (r.gender) localStorage.setItem('mth_gender', r.gender);
+    if (r.city)   localStorage.setItem('mth_city',   r.city);
+    setGroup('premium');
+    showSubTab('blueprint');
+    // syncAllForms ran inside showSubTab via the renderer map. Generate now.
+    setTimeout(() => { try { cb_generate(); } catch (e) { console.error('[openSavedReport]', e); } }, 200);
+  } catch (e) { console.error('[openSavedReport] failed:', e); }
+}
+
+function _deleteSavedReport(idx) {
+  const isTh = LANG === 'th';
+  if (!confirm(isTh ? 'ลบรายงานนี้?' : 'Delete this report?')) return;
+  try {
+    const reports = JSON.parse(localStorage.getItem('ms_saved_reports') || '[]');
+    reports.splice(idx, 1);
+    localStorage.setItem('ms_saved_reports', JSON.stringify(reports));
+    renderSavedReports();
+  } catch (e) { console.error('[deleteSavedReport]', e); }
 }
 
 // ══════════════════════════════════════════════════════════
