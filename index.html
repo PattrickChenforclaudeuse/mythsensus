@@ -13097,9 +13097,11 @@ function renderSavedReports(){
   }).join('');
 }
 
-// Re-open a saved report: copies its profile data back into the active
-// mth_* localStorage so syncAllForms picks it up, then jumps to Premium →
-// Generate and clicks Generate. The user lands on the rendered report.
+// Re-open a saved report: copies its profile data + resonance context back
+// into mth_* localStorage so the regenerated chart uses EXACTLY the same
+// inputs that produced the saved score. Without restoring country/career/
+// industry/careerLevel, the engine would fall back to the user's current
+// resonance settings, drifting the score from what was originally saved.
 function _openSavedReport(idx) {
   try {
     const reports = JSON.parse(localStorage.getItem('ms_saved_reports') || '[]');
@@ -13110,6 +13112,17 @@ function _openSavedReport(idx) {
     if (r.time)   localStorage.setItem('mth_time',   r.time);
     if (r.gender) localStorage.setItem('mth_gender', r.gender);
     if (r.city)   localStorage.setItem('mth_city',   r.city);
+    // Resonance context — explicit set-or-clear so the regenerated chart
+    // matches the snapshot. If a saved report had no country, we want the
+    // re-open to also have no country (not whatever the user typed earlier).
+    const setOrClear = (key, val) => {
+      if (val) localStorage.setItem(key, val);
+      else     localStorage.removeItem(key);
+    };
+    setOrClear('mth_country',     r.workCountry || '');
+    setOrClear('mth_career',      r.career      || '');
+    setOrClear('mth_industry',    r.industry    || '');
+    setOrClear('mth_careerLevel', r.careerLevel || '');
     setGroup('premium');
     showSubTab('blueprint');
     // syncAllForms ran inside showSubTab via the renderer map. Generate now.
@@ -18115,10 +18128,27 @@ function cb_saveHTML() {
     const chart = window._lastChartData || null;
     const score = (chart && chart.score && chart.score.total) || null;
     const tier  = (chart && chart.score && chart.score.tier) || null;
+    // Snapshot the full Cosmic Score components AND the resonance context
+    // (country/career/industry/level) so re-opening this report later
+    // regenerates EXACTLY the same number — without these fields, the engine
+    // falls back to whatever the user's CURRENT mth_country / mth_career are,
+    // which makes the score drift between save and re-view.
+    const cosmicFinal = (chart && chart.score && chart.score.cosmicFinal) || score;
+    const soulFreq    = (chart && chart.score && chart.score.soulFrequency) || score;
+    const ltScore     = (chart && chart.score && chart.score.lifeTerrainScore) || 0;
+    const prScore     = (chart && chart.score && chart.score.pathResonanceScore) || 0;
     const entry = {
       name, dob, gender, city,
       time: `${timeH}:${String(timeM).padStart(2,'0')}`,
-      score, tier,
+      // Resonance context that affects lifeTerrain + pathResonance scoring.
+      workCountry: localStorage.getItem('mth_country')      || '',
+      career:      localStorage.getItem('mth_career')       || '',
+      industry:    localStorage.getItem('mth_industry')     || '',
+      careerLevel: localStorage.getItem('mth_careerLevel')  || '',
+      // Full score snapshot — kept alongside the basic score so re-opening
+      // can verify the regenerated value matches and surface a warning if
+      // the engine's formulas have changed since the save.
+      score, tier, cosmicFinal, soulFreq, ltScore, prScore,
       date: new Date().toLocaleDateString(LANG==='th'?'th-TH':'en-US',
               {day:'numeric',month:'short',year:'numeric'}),
       ts: Date.now(),
