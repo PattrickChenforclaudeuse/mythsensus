@@ -14227,12 +14227,19 @@ function saveMultiProfile() {
   if (!dob)  { alert(isTh ? '⚠ กรุณากรอกวันเกิดก่อน' : '⚠ Please enter date of birth'); return; }
   const list = JSON.parse(localStorage.getItem('ms_profiles') || '[]');
   const entry = { name, relationship: rel, dob, time, gender, city, ts: Date.now() };
-  // Edit mode (set by editMultiProfile) replaces the entry at the saved
-  // index — necessary so a fix-typo edit doesn't accidentally create a new
-  // row when the name/dob themselves changed. Otherwise dedupe by name+dob.
-  if (_MULTI_EDIT_IDX != null && list[_MULTI_EDIT_IDX]) {
-    list[_MULTI_EDIT_IDX] = entry;
+  // _MULTI_EDIT_IDX is a FILTERED index — translate to raw index first.
+  if (_MULTI_EDIT_IDX != null) {
+    const visibleIndices = list.map((p, i) => p.deleted ? -1 : i).filter(i => i >= 0);
+    const rawIdx = visibleIndices[_MULTI_EDIT_IDX];
+    if (rawIdx != null && list[rawIdx]) {
+      list[rawIdx] = entry;
+    } else {
+      list.unshift(entry);
+    }
   } else {
+    // Add mode: if a soft-deleted (or alive) entry with same name+dob exists,
+    // replace it (effectively undeletes when the user re-adds someone they
+    // previously deleted). Otherwise prepend.
     const ix = list.findIndex(p => p.name === name && p.dob === dob);
     if (ix >= 0) list[ix] = entry; else list.unshift(entry);
   }
@@ -14252,7 +14259,14 @@ function saveMultiProfile() {
 function deleteMultiProfile(idx) {
   if (!confirm(t('multi_delete_confirm'))) return;
   const list = JSON.parse(localStorage.getItem('ms_profiles') || '[]');
-  list.splice(idx, 1);
+  // Map UI index (which only counts non-deleted entries) to the raw array idx.
+  const visibleIndices = list.map((p, i) => p.deleted ? -1 : i).filter(i => i >= 0);
+  const rawIdx = visibleIndices[idx];
+  if (rawIdx == null || !list[rawIdx]) return;
+  // Soft delete: keep the row but mark deleted with a fresh ts. The merge in
+  // _mergeArrayKey lets this tombstone propagate to other devices via cloud,
+  // so the deleted entry won't reappear on either side after auto-sync.
+  list[rawIdx] = { ...list[rawIdx], deleted: true, ts: Date.now() };
   localStorage.setItem('ms_profiles', JSON.stringify(list));
   _sbPushSoon();
   renderMultiProfiles();
@@ -14274,7 +14288,10 @@ function editMultiProfile(idx) {
 function viewMultiProfile(idx) {
   try {
     const list = JSON.parse(localStorage.getItem('ms_profiles') || '[]');
-    const p = list[idx];
+    // idx is the index in the visible (non-deleted) list. Translate to raw.
+    const visibleIndices = list.map((p, i) => p.deleted ? -1 : i).filter(i => i >= 0);
+    const rawIdx = visibleIndices[idx];
+    const p = (rawIdx != null) ? list[rawIdx] : null;
     if (!p || !p.dob) {
       alert(LANG === 'th' ? '⚠ ไม่พบวันเกิด' : '⚠ Birth date missing');
       return;
@@ -14341,7 +14358,10 @@ function renderMultiProfiles(){
   const el = document.getElementById('multiList');
   if (!el) return;
   const isTh = LANG === 'th';
-  const list = JSON.parse(localStorage.getItem('ms_profiles') || '[]');
+  const rawList = JSON.parse(localStorage.getItem('ms_profiles') || '[]');
+  // Visible list = non-deleted entries. UI buttons (view/edit/delete) get
+  // indices into THIS filtered list; the functions translate back to raw.
+  const list = rawList.filter(p => !p.deleted);
 
   // Background sync: if signed in, pull cloud and merge — re-render once on
   // changes. Non-blocking so the UI shows local data instantly.
@@ -14349,7 +14369,7 @@ function renderMultiProfiles(){
     _sbPullAndMerge().then(changed => { if (changed) renderMultiProfiles(); });
   }
 
-  // Edit mode pre-fills form fields with the entry being edited.
+  // Edit mode pre-fills form fields with the entry being edited (visible idx).
   const editing = (_MULTI_EDIT_IDX != null) ? list[_MULTI_EDIT_IDX] : null;
   const formTitle = editing
     ? (isTh ? '✏ แก้ไขโปรไฟล์' : '✏ Edit profile')
@@ -14588,9 +14608,11 @@ const _SYNC_KEYS = [
   'mth_coll_tier','ms_profiles','ms_saved_reports','ms_last_group'
 ];
 
-// Merge two arrays of {name,dob,ts}-like records by (name|dob) key, picking
-// the newer ts. Dropped to a helper because both _sbPush and _sbPullAndMerge
-// need the same merge contract.
+// Merge two arrays of {name,dob,ts,deleted?}-like records by (name|dob) key,
+// picking the newer ts. Soft-deleted entries (deleted:true) DO participate in
+// the merge — they're how a delete on Device A propagates to Device B (the
+// cloud's tombstone with newer ts beats the alive entry on B). Render layer
+// is responsible for filtering deleted:true rows out of the visible list.
 function _mergeArrayKey(localStr, cloudStr) {
   let local = []; let cloud = [];
   try { local = JSON.parse(localStr || '[]'); } catch (_) {}
@@ -14602,7 +14624,13 @@ function _mergeArrayKey(localStr, cloudStr) {
     const existing = map.get(key);
     if (!existing || (lo.ts || 0) > (existing.ts || 0)) map.set(key, lo);
   }
-  return [...map.values()].sort((a, b) => (b.ts || 0) - (a.ts || 0));
+  // Garbage-collect tombstones older than 30 days to keep payload trim. By
+  // then every device has long since pulled the delete, so the tombstone has
+  // served its purpose.
+  const TOMBSTONE_TTL = 30 * 24 * 60 * 60 * 1000;
+  const cutoff = Date.now() - TOMBSTONE_TTL;
+  const filtered = [...map.values()].filter(it => !(it.deleted && (it.ts || 0) < cutoff));
+  return filtered.sort((a, b) => (b.ts || 0) - (a.ts || 0));
 }
 
 const _ARRAY_SYNC_KEYS = new Set(['ms_profiles', 'ms_saved_reports']);
