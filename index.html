@@ -8092,6 +8092,7 @@ en:{
   multi_delete:"Delete",
   multi_delete_confirm:"Delete this profile?",
   multi_view_chart:"View chart",
+  multi_edit:"Edit",
   multi_age_label:"age",
   multi_added:"Profile saved ✓",
   login_mg_title:"LOGIN & ACCOUNT",login_method_label:"Signed in via",
@@ -8303,6 +8304,7 @@ th:{
   multi_delete:"ลบ",
   multi_delete_confirm:"ลบโปรไฟล์นี้?",
   multi_view_chart:"ดูดวง",
+  multi_edit:"แก้ไข",
   multi_age_label:"อายุ",
   multi_added:"บันทึกโปรไฟล์เรียบร้อย ✓",
   login_mg_title:"เข้าสู่ระบบ & บัญชี",login_method_label:"เข้าสู่ระบบผ่าน",
@@ -10095,6 +10097,8 @@ function savePrefs(){
     localStorage.setItem('mth_gender',gender);
     localStorage.setItem('mth_city',city);
     localStorage.setItem('mth_lang',LANG);
+    // Auto-push to cloud if signed in — keeps PC and mobile in sync.
+    if (typeof _sbPushSoon === 'function') _sbPushSoon();
   }catch(e){ console.warn('[savePrefs] localStorage write failed:', e); }
 }
 
@@ -14199,13 +14203,16 @@ function _runCompatCheck(){
 // [{name, relationship, dob, time, gender, city, ts}, ...].
 // Used by the Compatibility tab too (compatPicker reads from this list).
 let _MULTI_ADD_FORM_OPEN = false;
+let _MULTI_EDIT_IDX      = null;   // null = add mode, number = edit at index
 
 function openMultiAddForm() {
   _MULTI_ADD_FORM_OPEN = true;
+  _MULTI_EDIT_IDX = null;        // pure add mode, no prefill
   renderMultiProfiles();
 }
 function cancelMultiAddForm() {
   _MULTI_ADD_FORM_OPEN = false;
+  _MULTI_EDIT_IDX = null;
   renderMultiProfiles();
 }
 function saveMultiProfile() {
@@ -14219,13 +14226,21 @@ function saveMultiProfile() {
   if (!name) { alert(isTh ? '⚠ กรุณากรอกชื่อก่อน' : '⚠ Please enter a name'); return; }
   if (!dob)  { alert(isTh ? '⚠ กรุณากรอกวันเกิดก่อน' : '⚠ Please enter date of birth'); return; }
   const list = JSON.parse(localStorage.getItem('ms_profiles') || '[]');
-  // Dedupe by name+dob — overwrite existing entry if user re-adds the same person.
-  const ix = list.findIndex(p => p.name === name && p.dob === dob);
   const entry = { name, relationship: rel, dob, time, gender, city, ts: Date.now() };
-  if (ix >= 0) list[ix] = entry; else list.unshift(entry);
+  // Edit mode (set by editMultiProfile) replaces the entry at the saved
+  // index — necessary so a fix-typo edit doesn't accidentally create a new
+  // row when the name/dob themselves changed. Otherwise dedupe by name+dob.
+  if (_MULTI_EDIT_IDX != null && list[_MULTI_EDIT_IDX]) {
+    list[_MULTI_EDIT_IDX] = entry;
+  } else {
+    const ix = list.findIndex(p => p.name === name && p.dob === dob);
+    if (ix >= 0) list[ix] = entry; else list.unshift(entry);
+  }
   if (list.length > 50) list.length = 50;
   localStorage.setItem('ms_profiles', JSON.stringify(list));
   _MULTI_ADD_FORM_OPEN = false;
+  _MULTI_EDIT_IDX = null;
+  _sbPushSoon();   // sync to cloud if signed in
   renderMultiProfiles();
   // Brief confirmation toast.
   const toast = document.createElement('div');
@@ -14239,6 +14254,16 @@ function deleteMultiProfile(idx) {
   const list = JSON.parse(localStorage.getItem('ms_profiles') || '[]');
   list.splice(idx, 1);
   localStorage.setItem('ms_profiles', JSON.stringify(list));
+  _sbPushSoon();
+  renderMultiProfiles();
+}
+
+// Edit existing multi-profile: opens the add form pre-filled with the
+// entry's data. saveMultiProfile sees _MULTI_EDIT_IDX set and replaces
+// in-place instead of creating a new row.
+function editMultiProfile(idx) {
+  _MULTI_EDIT_IDX = idx;
+  _MULTI_ADD_FORM_OPEN = true;
   renderMultiProfiles();
 }
 
@@ -14318,24 +14343,37 @@ function renderMultiProfiles(){
   const isTh = LANG === 'th';
   const list = JSON.parse(localStorage.getItem('ms_profiles') || '[]');
 
-  // Inline add form HTML (rendered when _MULTI_ADD_FORM_OPEN === true).
+  // Background sync: if signed in, pull cloud and merge — re-render once on
+  // changes. Non-blocking so the UI shows local data instantly.
+  if (typeof _sbPullAndMerge === 'function' && typeof _sbSession !== 'undefined' && _sbSession) {
+    _sbPullAndMerge().then(changed => { if (changed) renderMultiProfiles(); });
+  }
+
+  // Edit mode pre-fills form fields with the entry being edited.
+  const editing = (_MULTI_EDIT_IDX != null) ? list[_MULTI_EDIT_IDX] : null;
+  const formTitle = editing
+    ? (isTh ? '✏ แก้ไขโปรไฟล์' : '✏ Edit profile')
+    : t('multi_form_title');
+  const pf = (val) => (val || '').replace(/"/g, '&quot;');
+
+  // Inline add/edit form HTML (rendered when _MULTI_ADD_FORM_OPEN === true).
   const formHtml = !_MULTI_ADD_FORM_OPEN ? '' : `
     <div style="background:rgba(212,170,80,0.05);border:1px solid var(--gold3);border-radius:10px;padding:18px;margin-bottom:14px">
-      <div style="font-family:'Cinzel Decorative',serif;font-size:14px;color:var(--gold);margin-bottom:14px">${t('multi_form_title')}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:14px;color:var(--gold);margin-bottom:14px">${formTitle}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-        <div class="form-group"><label>${t('multi_f_name')}</label><input id="multi-f-name" type="text" placeholder="${isTh?'ชื่อ':'Name'}"></div>
-        <div class="form-group"><label>${t('multi_f_rel')}</label><input id="multi-f-rel" type="text" placeholder="${t('multi_f_rel_placeholder')}"></div>
-        <div class="form-group"><label>${t('multi_f_dob')}</label><input id="multi-f-dob" type="date"></div>
-        <div class="form-group"><label>${t('multi_f_time')}</label><input id="multi-f-time" type="time" value="12:00"></div>
+        <div class="form-group"><label>${t('multi_f_name')}</label><input id="multi-f-name" type="text" placeholder="${isTh?'ชื่อ':'Name'}" value="${pf(editing && editing.name)}"></div>
+        <div class="form-group"><label>${t('multi_f_rel')}</label><input id="multi-f-rel" type="text" placeholder="${t('multi_f_rel_placeholder')}" value="${pf(editing && editing.relationship)}"></div>
+        <div class="form-group"><label>${t('multi_f_dob')}</label><input id="multi-f-dob" type="date" value="${pf(editing && editing.dob)}"></div>
+        <div class="form-group"><label>${t('multi_f_time')}</label><input id="multi-f-time" type="time" value="${pf((editing && editing.time) || '12:00')}"></div>
         <div class="form-group"><label>${t('multi_f_gender')}</label>
           <select id="multi-f-gender">
-            <option value="ชาย">${isTh?'ชาย':'Male'}</option>
-            <option value="หญิง">${isTh?'หญิง':'Female'}</option>
+            <option value="ชาย"${editing && editing.gender === 'ชาย' ? ' selected' : ''}>${isTh?'ชาย':'Male'}</option>
+            <option value="หญิง"${editing && editing.gender === 'หญิง' ? ' selected' : ''}>${isTh?'หญิง':'Female'}</option>
           </select>
         </div>
         <div class="form-group"><label>${t('multi_f_city')}</label>
           <input id="multi-f-city-search" list="ms-cities-datalist" placeholder="${isTh?'พิมพ์ค้นหาเมือง':'Type to search city'}" autocomplete="off">
-          <input type="hidden" id="multi-f-city" value="13.75,100.5,7">
+          <input type="hidden" id="multi-f-city" value="${pf((editing && editing.city) || '13.75,100.5,7')}">
         </div>
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
@@ -14369,6 +14407,7 @@ function renderMultiProfiles(){
       </div>
       <div style="flex-shrink:0;display:flex;gap:6px;flex-wrap:wrap">
         <button onclick="viewMultiProfile(${i})" style="background:var(--gold);border:none;color:var(--bg);border-radius:4px;padding:6px 12px;font-size:10px;cursor:pointer;letter-spacing:1px;font-family:'Josefin Sans',sans-serif;font-weight:600">📜 ${t('multi_view_chart')}</button>
+        <button onclick="editMultiProfile(${i})" style="background:transparent;border:1px solid var(--gold3);color:var(--gold);border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;letter-spacing:1px;font-family:'Josefin Sans',sans-serif">✏ ${t('multi_edit')}</button>
         <button onclick="deleteMultiProfile(${i})" style="background:transparent;border:1px solid #c06060;color:#c06060;border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;letter-spacing:1px;font-family:'Josefin Sans',sans-serif">🗑 ${t('multi_delete')}</button>
       </div>
     </div>`;
@@ -14568,6 +14607,56 @@ function _sbApply(cloudData){
   _SYNC_KEYS.forEach(k=>{if(cloudData[k]!==undefined)localStorage.setItem(k,cloudData[k]);});
   syncAllForms();
   applyLang();
+}
+
+// ── Auto-sync helpers ─────────────────────────────────────────
+// Debounced push: collapses rapid edits (e.g. typing into Resonance) into a
+// single network call ~800 ms after the last change. Silent no-op when the
+// user isn't signed in — a sign-in hint is surfaced separately at the UI.
+let _sbPushTimer = null;
+function _sbPushSoon(){
+  if (!_sb || !_sbSession) return;
+  clearTimeout(_sbPushTimer);
+  _sbPushTimer = setTimeout(() => {
+    _sbPush().catch(e => console.warn('[sb push]', e));
+  }, 800);
+}
+
+// One-shot pull. Merges cloud arrays (ms_profiles, ms_saved_reports) with
+// local by `ts` so a profile added on Mobile while PC was offline doesn't
+// get clobbered when PC pulls. Strings (ms_last_group, mth_dob, etc.) use
+// last-write-wins via the cloud's updated_at — the Pull always overwrites
+// because cloud is canonical for those.
+async function _sbPullAndMerge(){
+  if (!_sb || !_sbSession) return false;
+  try {
+    const cloud = await _sbPull();
+    if (!cloud) return false;
+    let changed = false;
+    // Array keys: merge by ts (item's timestamp), prefer newer.
+    const arrKeys = ['ms_profiles', 'ms_saved_reports'];
+    for (const k of arrKeys) {
+      let cloudArr = []; let localArr = [];
+      try { cloudArr = JSON.parse(cloud[k] || '[]'); } catch (_) {}
+      try { localArr = JSON.parse(localStorage.getItem(k) || '[]'); } catch (_) {}
+      // Build a map keyed by name+dob so dupes don't proliferate
+      const map = new Map();
+      for (const it of cloudArr) map.set((it.name || '') + '|' + (it.dob || ''), it);
+      for (const lo of localArr) {
+        const key = (lo.name || '') + '|' + (lo.dob || '');
+        const existing = map.get(key);
+        if (!existing || (lo.ts || 0) > (existing.ts || 0)) map.set(key, lo);
+      }
+      const merged = [...map.values()].sort((a, b) => (b.ts || 0) - (a.ts || 0));
+      const localStr = localStorage.getItem(k) || '[]';
+      const mergedStr = JSON.stringify(merged);
+      if (localStr !== mergedStr) {
+        localStorage.setItem(k, mergedStr);
+        changed = true;
+      }
+    }
+    return changed;
+  } catch (e) { console.warn('[sb pullMerge]', e); return false; }
 }
 
 function _showSyncToast(msg){
