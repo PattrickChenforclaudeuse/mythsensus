@@ -14588,11 +14588,55 @@ const _SYNC_KEYS = [
   'mth_coll_tier','ms_profiles','ms_saved_reports','ms_last_group'
 ];
 
+// Merge two arrays of {name,dob,ts}-like records by (name|dob) key, picking
+// the newer ts. Dropped to a helper because both _sbPush and _sbPullAndMerge
+// need the same merge contract.
+function _mergeArrayKey(localStr, cloudStr) {
+  let local = []; let cloud = [];
+  try { local = JSON.parse(localStr || '[]'); } catch (_) {}
+  try { cloud = JSON.parse(cloudStr || '[]'); } catch (_) {}
+  const map = new Map();
+  for (const it of cloud) map.set((it.name || '') + '|' + (it.dob || ''), it);
+  for (const lo of local) {
+    const key = (lo.name || '') + '|' + (lo.dob || '');
+    const existing = map.get(key);
+    if (!existing || (lo.ts || 0) > (existing.ts || 0)) map.set(key, lo);
+  }
+  return [...map.values()].sort((a, b) => (b.ts || 0) - (a.ts || 0));
+}
+
+const _ARRAY_SYNC_KEYS = new Set(['ms_profiles', 'ms_saved_reports']);
+
 async function _sbPush(){
   if(!_sb||!_sbSession)return;
   const uid=_sbSession.user.id;
-  const data={};
-  _SYNC_KEYS.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)data[k]=v;});
+  // CRITICAL: pull cloud first so we never overwrite arrays with a partial
+  // local view. Without this, signing in on Device-B with fewer profiles
+  // would wipe Device-A's profiles from the cloud.
+  let cloud = null;
+  try { cloud = await _sbPull(); } catch (_) {}
+  cloud = cloud || {};
+  const data = {};
+  for (const k of _SYNC_KEYS) {
+    const localVal = localStorage.getItem(k);
+    if (_ARRAY_SYNC_KEYS.has(k)) {
+      // Array merge: union by name+dob, newer ts wins.
+      const merged = _mergeArrayKey(localVal, cloud[k]);
+      // Always persist the merged JSON locally too so subsequent renders see
+      // the full set (this is the fix for "I added Alice on PC, mobile pushed
+      // an empty list and wiped her").
+      const mergedStr = JSON.stringify(merged);
+      if (localVal !== mergedStr) localStorage.setItem(k, mergedStr);
+      data[k] = mergedStr;
+    } else if (localVal !== null && localVal !== '') {
+      // String key: prefer local when local is non-empty, else keep cloud.
+      data[k] = localVal;
+    } else if (cloud[k] !== undefined) {
+      // Local is empty/missing → preserve cloud value (don't pull it onto
+      // local — the user might WANT it empty here, e.g. cleared a chip).
+      data[k] = cloud[k];
+    }
+  }
   await _sb.from('user_data').upsert({user_id:uid,data,updated_at:new Date().toISOString()},{onConflict:'user_id'});
 }
 
@@ -14624,31 +14668,16 @@ function _sbPushSoon(){
 
 // One-shot pull. Merges cloud arrays (ms_profiles, ms_saved_reports) with
 // local by `ts` so a profile added on Mobile while PC was offline doesn't
-// get clobbered when PC pulls. Strings (ms_last_group, mth_dob, etc.) use
-// last-write-wins via the cloud's updated_at — the Pull always overwrites
-// because cloud is canonical for those.
+// get clobbered when PC pulls.
 async function _sbPullAndMerge(){
   if (!_sb || !_sbSession) return false;
   try {
     const cloud = await _sbPull();
     if (!cloud) return false;
     let changed = false;
-    // Array keys: merge by ts (item's timestamp), prefer newer.
-    const arrKeys = ['ms_profiles', 'ms_saved_reports'];
-    for (const k of arrKeys) {
-      let cloudArr = []; let localArr = [];
-      try { cloudArr = JSON.parse(cloud[k] || '[]'); } catch (_) {}
-      try { localArr = JSON.parse(localStorage.getItem(k) || '[]'); } catch (_) {}
-      // Build a map keyed by name+dob so dupes don't proliferate
-      const map = new Map();
-      for (const it of cloudArr) map.set((it.name || '') + '|' + (it.dob || ''), it);
-      for (const lo of localArr) {
-        const key = (lo.name || '') + '|' + (lo.dob || '');
-        const existing = map.get(key);
-        if (!existing || (lo.ts || 0) > (existing.ts || 0)) map.set(key, lo);
-      }
-      const merged = [...map.values()].sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    for (const k of _ARRAY_SYNC_KEYS) {
       const localStr = localStorage.getItem(k) || '[]';
+      const merged = _mergeArrayKey(localStr, cloud[k]);
       const mergedStr = JSON.stringify(merged);
       if (localStr !== mergedStr) {
         localStorage.setItem(k, mergedStr);
@@ -14680,17 +14709,35 @@ async function _onSignIn(session){
   const name=localStorage.getItem('mth_name')||email.split('@')[0];
   localStorage.setItem('mth_user',JSON.stringify({name,loginMethod:'email',email}));
   localStorage.setItem('mth_backup_enabled','1');
-  // Restore cloud → local if local has no profile; otherwise push local → cloud
-  const localDob=localStorage.getItem('mth_dob');
-  const cloud=await _sbPull();
-  if(cloud&&cloud['mth_dob']&&!localDob){
-    _sbApply(cloud);
-    renderDate&&renderDate();
-    syncAllForms&&syncAllForms();
-    _showSyncToast('☁️ '+(LANG==='th'?'กู้ข้อมูลจากคลาวด์แล้ว':'Restored from cloud'));
-  } else if(localDob){
-    await _sbPush();
+  // SAFE sync sequence (rewrite 2026-05-09 — original "push if local has DOB,
+  // restore otherwise" pattern wiped one device's profiles when the other
+  // signed in with fewer entries).
+  // Step 1: pull-and-merge ARRAY data (profiles, saved reports) so neither
+  //         device loses entries the other added.
+  // Step 2: for STRING keys (mth_name, mth_dob, etc.), only adopt cloud
+  //         when local is empty — never overwrite a non-empty local string.
+  // Step 3: push the merged state back so cloud reflects the union.
+  const cloud = await _sbPull();
+  await _sbPullAndMerge();
+  if (cloud) {
+    let restored = false;
+    for (const k of _SYNC_KEYS) {
+      if (_ARRAY_SYNC_KEYS.has(k)) continue;          // arrays already merged
+      const localVal = localStorage.getItem(k);
+      if ((localVal === null || localVal === '') && cloud[k] !== undefined && cloud[k] !== '') {
+        localStorage.setItem(k, cloud[k]);
+        restored = true;
+      }
+    }
+    if (restored) {
+      try { renderDate && renderDate(); } catch(_){}
+      try { syncAllForms && syncAllForms(); } catch(_){}
+      _showSyncToast('☁️ ' + (LANG === 'th' ? 'กู้ข้อมูลจากคลาวด์แล้ว' : 'Restored from cloud'));
+    }
   }
+  // Always push the merged result so cloud catches up to anything that was
+  // local-only.
+  await _sbPush();
   renderHeaderUser({name,loginMethod:'email',email});
   const sp=document.getElementById('settingsPanel');
   if(sp&&sp.children.length)renderSettings();
