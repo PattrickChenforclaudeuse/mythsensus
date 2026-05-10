@@ -14666,9 +14666,37 @@ function _sbPushSoon(){
   }, 800);
 }
 
-// One-shot pull. Merges cloud arrays (ms_profiles, ms_saved_reports) with
-// local by `ts` so a profile added on Mobile while PC was offline doesn't
-// get clobbered when PC pulls.
+// Apply cloud STRING keys (mth_name etc.) when the cloud version is newer
+// than what we last saw. Used by the realtime auto-sync so a name typed
+// on Mobile shows up on PC within seconds without the user touching anything.
+// Returns the list of keys that actually changed locally so callers can
+// re-render the right UI.
+async function _sbPullStringsAndApply() {
+  if (!_sb || !_sbSession) return [];
+  try {
+    const cloud = await _sbPull();
+    if (!cloud) return [];
+    const changed = [];
+    for (const k of _SYNC_KEYS) {
+      if (_ARRAY_SYNC_KEYS.has(k)) continue;
+      const local = localStorage.getItem(k);
+      // Only adopt cloud value when it's NON-EMPTY and differs from local.
+      // Empty cloud means "not set on the canonical side" — don't blindly
+      // wipe local just because someone deleted on another device. (Real
+      // delete cases for strings are rare; arrays handle their own deletes
+      // via dedupe.)
+      if (cloud[k] != null && cloud[k] !== '' && cloud[k] !== local) {
+        localStorage.setItem(k, cloud[k]);
+        changed.push(k);
+      }
+    }
+    return changed;
+  } catch (e) { console.warn('[sb pullStrings]', e); return []; }
+}
+
+// Merge cloud arrays (ms_profiles, ms_saved_reports) with local by `ts`
+// so a profile added on Mobile while PC was offline doesn't get clobbered
+// when PC pulls.
 async function _sbPullAndMerge(){
   if (!_sb || !_sbSession) return false;
   try {
@@ -14686,6 +14714,55 @@ async function _sbPullAndMerge(){
     }
     return changed;
   } catch (e) { console.warn('[sb pullMerge]', e); return false; }
+}
+
+// ── REAL-TIME CLOUD SYNC ─────────────────────────────────────────────
+// Three triggers keep PC and Mobile within seconds of each other:
+//   1. Push immediately after every save (already wired via _sbPushSoon).
+//   2. Pull-and-merge when the user focuses the tab (covers "I made an
+//      edit on Mobile, switched to my PC tab").
+//   3. Periodic background pull while the tab is visible (covers the case
+//      where both tabs are open simultaneously).
+// All three are no-ops when the user isn't signed in.
+
+let _sbPullPollTimer = null;
+const _SB_POLL_INTERVAL_MS = 30000;   // 30s — Supabase free tier handles 1000s of users polling at this rate easily; profile data is < 5 KB per row
+
+async function _sbAutoPull(reason) {
+  if (!_sb || !_sbSession) return;
+  if (document.hidden) return;          // skip when tab is in background
+  try {
+    const arrChanged = await _sbPullAndMerge();
+    const strChanged = await _sbPullStringsAndApply();
+    if (arrChanged || strChanged.length) {
+      // Re-render whichever panel is currently active so the user sees the
+      // freshly-pulled data without needing to switch tabs.
+      try { syncAllForms && syncAllForms(); } catch (_) {}
+      const cur = (typeof CUR_SUB !== 'undefined') ? CUR_SUB : '';
+      if (cur === 'multi' && typeof renderMultiProfiles === 'function') renderMultiProfiles();
+      if (cur === 'reports' && typeof renderSavedReports === 'function') renderSavedReports();
+      if (cur === 'pulse' && typeof renderDailyPulse === 'function') renderDailyPulse();
+      console.log('[sync] cloud → local (' + reason + '):',
+        arrChanged ? 'arrays merged' : '',
+        strChanged.length ? 'strings: ' + strChanged.join(',') : '');
+    }
+  } catch (e) { console.warn('[sbAutoPull]', e); }
+}
+
+function _sbStartAutoSync() {
+  if (_sbPullPollTimer) return;          // already running
+  // Periodic poll while tab visible.
+  _sbPullPollTimer = setInterval(() => _sbAutoPull('poll'), _SB_POLL_INTERVAL_MS);
+  // Pull on tab focus / visibility change.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) _sbAutoPull('visibility');
+  });
+  window.addEventListener('focus', () => _sbAutoPull('focus'));
+  console.log('[sync] auto-pull started (' + _SB_POLL_INTERVAL_MS + 'ms poll + focus + visibility)');
+}
+
+function _sbStopAutoSync() {
+  if (_sbPullPollTimer) { clearInterval(_sbPullPollTimer); _sbPullPollTimer = null; }
 }
 
 function _showSyncToast(msg){
@@ -14738,6 +14815,9 @@ async function _onSignIn(session){
   // Always push the merged result so cloud catches up to anything that was
   // local-only.
   await _sbPush();
+  // Kick off realtime auto-sync (poll + focus + visibility) so subsequent
+  // changes on other devices land on this tab within seconds.
+  try { _sbStartAutoSync(); } catch(_) {}
   renderHeaderUser({name,loginMethod:'email',email});
   const sp=document.getElementById('settingsPanel');
   if(sp&&sp.children.length)renderSettings();
@@ -14753,6 +14833,7 @@ async function _onSignIn(session){
 function _onSignOut(){
   _sbSession=null;
   localStorage.removeItem('mth_backup_enabled');
+  try { _sbStopAutoSync(); } catch(_) {}
 }
 
 async function manualSync(){
