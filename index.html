@@ -14242,6 +14242,62 @@ function deleteMultiProfile(idx) {
   renderMultiProfiles();
 }
 
+// View a saved profile's Cosmic Blueprint without touching the user's own
+// mth_* localStorage. Builds the chart + report HTML in memory, then drops
+// it straight into the cb-report-frame iframe. cb_goBack() returns to the
+// blueprint form which still shows the user's own profile.
+function viewMultiProfile(idx) {
+  try {
+    const list = JSON.parse(localStorage.getItem('ms_profiles') || '[]');
+    const p = list[idx];
+    if (!p || !p.dob) {
+      alert(LANG === 'th' ? '⚠ ไม่พบวันเกิด' : '⚠ Birth date missing');
+      return;
+    }
+    if (!window.MS26 || typeof window.MS26.calculate !== 'function') {
+      alert('MS26 engine not loaded');
+      return;
+    }
+    const [y, m, d] = p.dob.split('-').map(Number);
+    const [hh, mm] = (p.time || '12:00').split(':').map(Number);
+    let [lat, lon, tz] = (p.city || '13.75,100.5,7').split(',').map(Number);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon) || !Number.isFinite(tz)) {
+      [lat, lon, tz] = [13.75, 100.5, 7];
+    }
+    const chart = window.MS26.calculate({
+      name: p.name || 'Profile',
+      gender: p.gender || 'ชาย',
+      year: y, month: m, day: d,
+      hour: hh || 12, minute: mm || 0,
+      lat, lon, timezone: tz,
+      workCountry: p.workCountry || '',
+      careerLevel: p.careerLevel || '',
+      domain:      p.career      || '',
+      industry:    p.industry    || '',
+      lang: LANG,
+    });
+    cbCurrentHTML = window.MS26.generateReport(chart);
+    window._lastChartData = chart;
+    // Jump to the Premium → Generate panel and inject the iframe directly.
+    setGroup('premium');
+    showSubTab('blueprint');
+    setTimeout(() => {
+      try {
+        document.getElementById('cb-form-section').style.display = 'none';
+        document.getElementById('cb-loading').style.display = 'none';
+        document.getElementById('cb-toolbar').style.display = 'flex';
+        document.getElementById('cb-report-wrap').style.display = 'block';
+        document.getElementById('cb-report-frame').srcdoc = cbCurrentHTML;
+        document.body.classList.add('cb-report-active');
+        try { showCompareScore && showCompareScore(chart.score); } catch(_){}
+      } catch (e) { console.error('[viewMultiProfile show]', e); }
+    }, 150);
+  } catch (e) {
+    console.error('[viewMultiProfile]', e);
+    alert((LANG === 'th' ? 'เกิดข้อผิดพลาด: ' : 'Error: ') + e.message);
+  }
+}
+
 // Compute age from dob string "YYYY-MM-DD". Returns null if invalid.
 function _multiAgeFromDob(dob) {
   if (!dob || typeof dob !== 'string') return null;
@@ -14297,19 +14353,24 @@ function renderMultiProfiles(){
         : ''}
     </div>`;
 
-  // Saved profile cards (or empty state).
+  // Saved profile cards (or empty state). Each card now has a "View chart"
+  // button that builds + renders this person's Cosmic Blueprint in-memory
+  // (without overwriting the user's own mth_* localStorage).
   const cardsHtml = list.length ? list.map((p, i) => {
     const age = _multiAgeFromDob(p.dob);
     const ageStr = age != null ? ` · ${t('multi_age_label')} ${age}` : '';
-    return `<div class="hist-item" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
-      <div style="flex:1;min-width:0">
+    return `<div class="hist-item" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;min-width:180px">
         <div class="hist-item-header">
           <div class="hist-title">${(p.name || '—').replace(/</g,'&lt;')}</div>
           <div class="hist-date">${(p.relationship || '').replace(/</g,'&lt;')}</div>
         </div>
         <div class="hist-sub">${p.dob || '—'}${ageStr}${p.city ? ' · ' + p.city.replace(/</g,'&lt;') : ''}</div>
       </div>
-      <button onclick="deleteMultiProfile(${i})" style="flex-shrink:0;background:transparent;border:1px solid #c06060;color:#c06060;border-radius:4px;padding:4px 10px;font-size:10px;cursor:pointer;letter-spacing:1px;font-family:'Josefin Sans',sans-serif">🗑 ${t('multi_delete')}</button>
+      <div style="flex-shrink:0;display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="viewMultiProfile(${i})" style="background:var(--gold);border:none;color:var(--bg);border-radius:4px;padding:6px 12px;font-size:10px;cursor:pointer;letter-spacing:1px;font-family:'Josefin Sans',sans-serif;font-weight:600">📜 ${t('multi_view_chart')}</button>
+        <button onclick="deleteMultiProfile(${i})" style="background:transparent;border:1px solid #c06060;color:#c06060;border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer;letter-spacing:1px;font-family:'Josefin Sans',sans-serif">🗑 ${t('multi_delete')}</button>
+      </div>
     </div>`;
   }).join('') : '';
 
