@@ -11,7 +11,9 @@
 // shipped together. Several users were stuck on v3-cached HTML where addon
 // sub-tabs landed on stale panel IDs (deep → sky, compat → no-op). Bumping
 // the cache name forces every client to re-fetch fresh assets on next load.
-const CACHE = 'mythsensus-v6';
+// v7: 2026-05-26 — auth/payment migration. Portal moved to Supabase Auth and
+// pricing forms now POST to LemonSqueezy. Bump to evict stale portal HTML.
+const CACHE = 'mythsensus-v7';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
