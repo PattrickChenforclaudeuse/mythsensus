@@ -193,7 +193,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 // ─── Supabase client ────────────────────────────────────────────────
 // SUPABASE_URL / ANON_KEY are injected at build time via Vercel env vars
 // (or hardcoded fallback for static-only demo deploys).
-const SUPABASE_URL  = (window.__MYTH_ENV__ && window.__MYTH_ENV__.SUPABASE_URL)  || 'https://jahxcwqwajrzjeiaaozo.supabase.co';
+const SUPABASE_URL  = (window.__MYTH_ENV__ && window.__MYTH_ENV__.SUPABASE_URL)  || 'https://woamqrhifuxsscnihqco.supabase.co';
 const SUPABASE_ANON = (window.__MYTH_ENV__ && window.__MYTH_ENV__.SUPABASE_ANON_KEY) || '';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
@@ -252,12 +252,50 @@ async function signInWith(provider){
   });
   if (error) {
     console.error('OAuth error:', error);
-    showToast(L === 'th' ? 'ไม่สามารถเข้าสู่ระบบได้' : 'Sign-in failed', 4000);
+    // Detect "provider not enabled" specifically — common state during rollout
+    const isNotEnabled = /not enabled|unsupported provider/i.test(error.message || '');
+    const providerLabel = { google: 'Google', facebook: 'Facebook', line: 'LINE' }[provider] || provider;
+    if (isNotEnabled) {
+      const msg = L === 'th'
+        ? providerLabel + ' ยังไม่พร้อมใช้งาน — ลอง LINE หรืออีเมลแทน'
+        : providerLabel + ' is coming soon — try LINE or Email for now';
+      showToast(msg, 5000);
+    } else {
+      showToast(L === 'th' ? 'ไม่สามารถเข้าสู่ระบบได้' : 'Sign-in failed', 4000);
+    }
   }
 }
 
 document.getElementById('googleLoginBtn').addEventListener('click',   () => signInWith('google'));
 document.getElementById('facebookLoginBtn').addEventListener('click', () => signInWith('facebook'));
+
+// Hide providers that aren't enabled yet so users don't get cryptic errors.
+// We probe Supabase Auth's settings endpoint (public, no auth required) and
+// hide the buttons for providers where external_<provider>_enabled is false.
+(async function gateProviderButtons(){
+  try {
+    const resp = await fetch(SUPABASE_URL.replace(/\/+$/, '') + '/auth/v1/settings', {
+      headers: { apikey: SUPABASE_ANON }
+    });
+    if (!resp.ok) return;
+    const settings = await resp.json();
+    const ext = settings.external || {};
+    // Each provider has { enabled: bool } here
+    const checks = [
+      { id: 'googleLoginBtn',   key: 'google'   },
+      { id: 'facebookLoginBtn', key: 'facebook' },
+    ];
+    checks.forEach(c => {
+      const enabled = ext[c.key] && (ext[c.key].enabled === true || ext[c.key] === true);
+      if (!enabled) {
+        const btn = document.getElementById(c.id);
+        if (btn) btn.style.display = 'none';
+      }
+    });
+  } catch (e) {
+    console.warn('Provider gate check failed:', e);
+  }
+})();
 
 // LINE goes through our server callback (Supabase Auth has no native LINE provider).
 // Server callback uses Supabase admin API to issue a magic link, then redirects user.

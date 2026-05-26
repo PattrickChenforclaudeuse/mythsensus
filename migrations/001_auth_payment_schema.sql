@@ -1,10 +1,14 @@
--- Mythsensus auth + payment schema (applied 2026-05-26)
+-- Mythsensus auth + payment schema
 --
--- Status: APPLIED to jah (jahxcwqwajrzjeiaaozo) via mcp__supabase__apply_migration
--- Migration name: mythsensus_auth_payment_schema
+-- Target project: woam (woamqrhifuxsscnihqco) — the actual production project
+-- per Vercel env vars (NEXT_PUBLIC_SUPABASE_URL).
 --
--- Why myth_ prefix: shared Supabase project with Yoohui bot (jah). Namespace to
--- avoid collision with Yoohui tables in same DB.
+-- DO NOT apply to jah — that's Yoohui's office project. (An earlier mistaken
+-- application to jah on 2026-05-26 was rolled back same day.)
+--
+-- How to apply: paste into Supabase SQL Editor at
+--   https://supabase.com/dashboard/project/woamqrhifuxsscnihqco/sql/new
+-- and click Run. Workspace SB_MGMT_TOKEN does not have access to woam.
 --
 -- ROLLBACK (if needed):
 --   drop trigger if exists myth_on_auth_user_created on auth.users;

@@ -12,19 +12,24 @@ Quick orientation for Claude/agent sessions that enter this folder directly.
   - `api/lemonsqueezy/create-checkout.js`
   - `api/lemonsqueezy/webhook.js`
   - `api/public-env.js`                — emits `window.__MYTH_ENV__` for the browser
-- **Database:** Supabase project **`jahxcwqwajrzjeiaaozo`** (jah). Mythsensus reads/writes via Data API + `SUPABASE_SERVICE_ROLE_KEY`. Tables: `myth_profiles`, `myth_subscriptions`, `myth_orders` (all RLS-on, prefixed to namespace from Yoohui tables).
+- **Database:** Supabase project **`woamqrhifuxsscnihqco`** (woam). Personal/Mythsensus project — DO NOT confuse with Yoohui's `jahxcwqwajrzjeiaaozo` (jah). Mythsensus reads/writes via Data API + `SUPABASE_SERVICE_ROLE_KEY`. Tables: `myth_profiles`, `myth_subscriptions`, `myth_orders` (all RLS-on).
+
+  **Project ownership note:** woam is a separate Supabase organization from Yoohui's "Yoohui AI Ecosystem" org. The workspace-level `SB_MGMT_TOKEN` (in `D:/Claude works here/.env`) does NOT have Management API access to woam — schema changes must be applied via the Supabase dashboard SQL editor at https://supabase.com/dashboard/project/woamqrhifuxsscnihqco/sql/new, not via `mcp__supabase__apply_migration`.
 
 ## Auth + Payment migration history (2026-05-26)
 
 Old setup (now in `_legacy/`):
-- `_legacy/auth/{google,facebook,magic}/` — custom OAuth callbacks that wrote to `public.users` (table never existed → all writes were silent no-ops → all sessions had `user_id: null`)
-- `_legacy/stripe/create-checkout-session.js` — Stripe Checkout (account rejected)
+- `_legacy/auth/{google,facebook,magic}/` — custom OAuth callbacks that wrote to `public.users` (table never existed → all writes were silent no-ops → all sessions had `user_id: null`). Note: these wrote to whatever `SUPABASE_URL` env var pointed at, which has been woam in production all along.
+- `_legacy/stripe/create-checkout-session.js` — Stripe Checkout (account rejected — Thai entity limitation).
 
 New setup:
-- Supabase Auth handles Google/Facebook/email natively. Schema migration `migrations/001_auth_payment_schema.sql` was applied to jah on 2026-05-26.
+- Supabase Auth handles Google/Facebook/email natively (Supabase Auth was already in production use on woam before the rewrite — emails like `chaiyapat.c@yoohui.co.th` and `garsell@hotmail.com` already had accounts).
+- Schema migration `migrations/001_auth_payment_schema.sql` applied to **woam** via the dashboard SQL editor on 2026-05-26 (not via MCP — see ownership note above).
 - LINE Login keeps the existing channel — server callback bridges into Supabase via the admin `generate_link` API so users still end up with a real Supabase session.
-- LemonSqueezy is Merchant of Record → they handle card processing, VAT/tax in 130+ countries, refunds, chargebacks. No Thai business entity required.
+- LemonSqueezy is Merchant of Record → handles card processing, VAT/tax in 130+ countries, refunds, chargebacks. No Thai business entity required.
 - Portal writes a legacy-shaped `ms_token` to `localStorage` whenever the Supabase session changes, so the unrefactored 2.5MB `index.html` keeps working without changes.
+
+**Why this CLAUDE.md previously said jah (corrected 2026-05-26):** earlier notes assumed Mythsensus shared Yoohui's jah project. Vercel env vars revealed it actually uses woam. Don't confuse the two — jah is Yoohui office DB (do not pollute with Mythsensus tables), woam is the personal/Mythsensus DB.
 
 ## ⚠️ Supabase Data API GRANT rule (effective 2026-10-30)
 
