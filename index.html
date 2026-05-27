@@ -15188,6 +15188,25 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     if(event==='SIGNED_IN'  && session) _onSignIn(session);
     else if(event==='SIGNED_OUT')        _onSignOut();
   });
+
+  // ── Provider gate — hide social buttons for providers not enabled in Supabase
+  // (Google/Facebook need OAuth credentials configured in the Supabase dashboard
+  // before they work. LINE goes through our own bridge so it's always usable.)
+  (async()=>{
+    try{
+      const r=await fetch(_SB_URL.replace(/\/+$/,'')+'/auth/v1/settings',{headers:{apikey:_SB_KEY}});
+      if(!r.ok) return;
+      const s=await r.json();
+      const ext=s.external||{};
+      [['google'],['facebook']].forEach(([key])=>{
+        const enabled = ext[key] && (ext[key].enabled===true || ext[key]===true);
+        if(!enabled){
+          const btn=document.querySelector('.social-signin-btn[data-provider="'+key+'"]');
+          if(btn){ btn.style.display='none'; }
+        }
+      });
+    }catch(e){ console.warn('[provider-gate]', e); }
+  })();
   // Restore existing session (returning user, token still valid).
   // If the URL contains ?code= it's a magic-link PKCE redirect — poll until
   // Supabase has finished the code exchange (max 5s, 200ms intervals).
