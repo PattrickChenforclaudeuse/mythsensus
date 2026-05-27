@@ -15083,28 +15083,53 @@ function showLoginOverlay(){
 // Until the dashboard is wired, the buttons fail with a toast and the user
 // can fall back to email.
 async function _socialSignIn(provider){
+  const btn=document.querySelector('.social-signin-btn[data-provider="'+provider+'"]');
+  if(btn){btn.disabled=true;btn.style.opacity='.6';}
+
+  // LINE doesn't have a native Supabase provider — we bridge it through our own
+  // /api/auth/line/callback which then uses the Supabase admin generate_link API
+  // to produce a Supabase session. So for LINE we redirect straight to LINE OAuth.
+  if(provider==='line'){
+    const state=Math.random().toString(36).substring(2);
+    try{ sessionStorage.setItem('line_state', state); }catch(_){}
+    const channelId=(window.__MYTH_ENV__ && window.__MYTH_ENV__.LINE_LOGIN_CHANNEL_ID) || '2009661365';
+    const params=new URLSearchParams({
+      response_type:'code',
+      client_id: channelId,
+      redirect_uri: location.origin + '/api/auth/line/callback',
+      scope:'profile openid email',
+      state: state,
+      bot_prompt:'aggressive'
+    });
+    location.href='https://access.line.me/oauth2/v2.1/authorize?' + params.toString();
+    return;
+  }
+
+  // Google/Facebook go through Supabase native OAuth providers — only works
+  // when the provider is enabled + credentials are pasted in Supabase dashboard.
+  // Until then, gracefully surface a friendly error.
   if(!_sb){
     _showSyncToast(LANG==='th'
       ? 'ระบบยังไม่พร้อม — โปรดลองใหม่'
       : 'Auth not ready — please retry');
+    if(btn){btn.disabled=false;btn.style.opacity='1';}
     return;
   }
-  const btn=document.querySelector('.social-signin-btn[data-provider="'+provider+'"]');
-  if(btn){btn.disabled=true;btn.style.opacity='.6';}
   try{
     const { error } = await _sb.auth.signInWithOAuth({
       provider,
       options:{
         redirectTo: location.origin + '/?login=1',
-        // PKCE-friendly query so the boot handler can clean up and re-open overlay.
         queryParams:{ prompt:'select_account' }
       }
     });
     if(error){
       console.warn('[social-signin]', provider, error);
+      const isNotEnabled=/not enabled|could not be found|unsupported provider/i.test(error.message||'');
+      const providerLabel={google:'Google', facebook:'Facebook', line:'LINE'}[provider]||provider;
       _showSyncToast(LANG==='th'
-        ? 'เข้าสู่ระบบไม่สำเร็จ — โปรดลองอีกวิธี'
-        : 'Sign-in failed — please try another method');
+        ? (isNotEnabled ? providerLabel+' ยังไม่พร้อมใช้งาน — ลองอีเมลแทน' : 'เข้าสู่ระบบไม่สำเร็จ — โปรดลองอีกวิธี')
+        : (isNotEnabled ? providerLabel+' is coming soon — try email instead'   : 'Sign-in failed — please try another method'));
       if(btn){btn.disabled=false;btn.style.opacity='1';}
     }
     // On success the page redirects to the provider; nothing else to do here.
