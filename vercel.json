@@ -29,6 +29,7 @@
   "functions": {
     "api/auth/line/callback.js": { "maxDuration": 30 },
     "api/gumroad/webhook.js": { "maxDuration": 15 },
+    "api/me/plan.js": { "maxDuration": 10 },
     "api/public-env.js": { "maxDuration": 5 }
   },
   "headers": [

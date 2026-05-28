@@ -10611,58 +10611,75 @@ function _addToLibrary(itemKey, opts){
   _writeLibrary(list);
 }
 
-// During soft-launch beta the Omise gateway is still pending approval, so
-// we cannot actually charge anyone. Gating the deep readings + add-ons +
-// full report behind paywalls during this window leaves users (especially
-// on mobile) staring at "Unlock $9" buttons they can never satisfy. Open
-// access until Omise goes live, then flip this back to false to re-enable
-// the per-input pricing model. The pricing UI (banner + price tags) stays
-// visible so users see the future price; only the access gate is relaxed.
-const _BETA_ALL_UNLOCKED = true;
+// Payment is LIVE via Gumroad (2026-05-28). Gating model = HYBRID:
+//   - Active subscriber (Gumroad $4.99/mo → auth.users.app_metadata.plan
+//     === 'premium', surfaced via /api/me/plan) unlocks EVERYTHING.
+//   - Gift code unlocks everything (beta access).
+//   - Per-item one-time purchases ($9 system / $19 report) — Phase 2:
+//     real per-item Gumroad products + server-side purchase records. For
+//     now the local purchase map is still honoured (kept for forward-compat).
+// Flip _BETA_ALL_UNLOCKED back to true only for an emergency open-access
+// rollback. The pricing UI (banner + price tags) stays visible regardless.
+const _BETA_ALL_UNLOCKED = false;
 
-// Returns true if EITHER (a) Beta soft-launch mode is on (no charging
-// possible until Omise approves), OR (b) user has an active beta gift
-// code, OR (c) the specific item has been purchased for the current chart.
+// Set async by _refreshPremium() after login (reads /api/me/plan). Starts
+// false; never downgraded on a transient fetch error (see _refreshPremium).
+let _IS_PREMIUM = false;
+
+// Returns true if EITHER (a) emergency open-access rollback is on, OR
+// (b) the user is an active Gumroad subscriber, OR (c) user has an active
+// gift code, OR (d) the specific item has been purchased for the current chart.
 function _hasItemAccess(itemKey, hashOverride){
   if (_BETA_ALL_UNLOCKED) return true;
+  if (_IS_PREMIUM) return true;
   if (_hasActiveGift()) return true;
   const hash = hashOverride || _chartInputHash();
   const map  = _readPurchases();
   return Boolean(map[itemKey + ':' + hash]);
 }
 
+// Pull the logged-in user's plan from the server and unlock premium content
+// if they're a subscriber. Re-renders the current view when the plan flips so
+// locks disappear immediately after a subscription is detected. Safe to call
+// repeatedly (boot, sign-in, subscribe-return).
+async function _refreshPremium(){
+  try {
+    if (typeof _sb === 'undefined' || !_sb) return;
+    const { data: { session } } = await _sb.auth.getSession();
+    if (!session) { _IS_PREMIUM = false; return; }
+    const r = await fetch('/api/me/plan', { headers: { Authorization: 'Bearer ' + session.access_token } });
+    if (!r.ok) return;                       // transient — keep prior value
+    const j = await r.json();
+    const was = _IS_PREMIUM;
+    _IS_PREMIUM = (j && j.plan === 'premium');
+    if (_IS_PREMIUM !== was) {
+      try { if (typeof setGroup === 'function' && typeof CUR_GROUP === 'string') setGroup(CUR_GROUP); } catch(_){}
+      try { if (typeof showSubTab === 'function' && typeof CUR_SUB === 'string') showSubTab(CUR_SUB); } catch(_){}
+    }
+  } catch (e) { console.warn('[premium] refresh failed', e); }
+}
+
 // Stub for the Omise-backed buy flow. Today: pretend-purchase that just
 // records the unlock locally (so the UI can be verified end-to-end). Once
 // Omise account is approved (Task 2 in handoff) this will open the Omise
 // JS popup and only record the purchase after server-side charge success.
+// Gumroad-hosted subscription checkout. During Phase 1 there is no per-item
+// Gumroad product yet, so every "Unlock" CTA routes to the $4.99/mo membership
+// which unlocks EVERYTHING. (Phase 2 will add real per-item products and record
+// purchases server-side; the local purchase map in _hasItemAccess is kept for
+// forward-compat with that.) Subscribing flips app_metadata.plan via the
+// Gumroad webhook → _refreshPremium() picks it up → locks vanish.
+const _GUMROAD_SUBSCRIBE_URL = 'https://garsell.gumroad.com/l/tlkfx?wanted=true';
+
 function _purchaseItem(itemKey, opts){
   const isTh = LANG === 'th';
-  // Compound keys like "deep_western" / "deep_bazi" all use the "deep" tier;
-  // fall back to the prefix lookup so each of the 26 systems shares one tag.
-  const price = PRICING[itemKey] || PRICING[String(itemKey).split('_')[0]];
-  if (!price) { console.warn('[purchase] unknown item', itemKey); return; }
-  const hash = (opts && opts.hash) || _chartInputHash();
-  const label = (opts && opts.label) || itemKey;
-  // TEMP: fake checkout via confirm() — replace with Omise.open() when live.
-  const ok = confirm(isTh
-    ? `เปิดอ่าน ${label}\n\nราคา $${price.usd} (~฿${price.thb}) สำหรับข้อมูลปัจจุบัน\n` +
-      `(ดูซ้ำได้ฟรีตราบใดที่ไม่เปลี่ยนข้อมูลเกิด/เวลา/เพศ/เมือง/ชื่อ)\n\n` +
-      `⚠ ระบบ Omise ยังไม่เปิด — ตอนนี้กด OK = unlock ฟรีเพื่อทดสอบ`
-    : `Unlock ${label}\n\n$${price.usd} (~฿${price.thb}) for the current chart input\n` +
-      `(re-view free as long as DOB/time/gender/city/name don't change)\n\n` +
-      `⚠ Omise checkout not live yet — clicking OK unlocks for free (test mode)`);
-  if (!ok) return false;
-  const map = _readPurchases();
-  map[itemKey + ':' + hash] = new Date().toISOString();
-  _writePurchases(map);
-  // Also stash a profile-side library row so the user can find this
-  // reading again from Profile → Library without remembering which
-  // tab originally hosted it.
-  _addToLibrary(itemKey, { hash, label });
-  // Re-render whatever is visible so the lock disappears immediately.
-  try { if (typeof setGroup === 'function' && typeof CUR_GROUP === 'string') setGroup(CUR_GROUP); } catch(_){}
-  try { if (typeof showSubTab === 'function' && typeof CUR_SUB === 'string') showSubTab(CUR_SUB); } catch(_){}
-  return true;
+  try {
+    _showSyncToast(isTh
+      ? '✦ สมัครสมาชิก $4.99/เดือน → ปลดล็อกทุกศาสตร์'
+      : '✦ Subscribe $4.99/mo → unlock everything');
+  } catch(_){}
+  window.open(_GUMROAD_SUBSCRIBE_URL, '_blank', 'noopener');
+  return false;
 }
 
 // Renders the standard paywall card used everywhere a purchase gate appears.
@@ -14945,6 +14962,7 @@ async function _onSignIn(session){
   // Kick off realtime auto-sync (poll + focus + visibility) so subsequent
   // changes on other devices land on this tab within seconds.
   try { _sbStartAutoSync(); } catch(_) {}
+  try { _refreshPremium(); } catch(_) {}   // unlock premium content for subscribers
   renderHeaderUser({name,loginMethod:'email',email});
   const sp=document.getElementById('settingsPanel');
   if(sp&&sp.children.length)renderSettings();
@@ -14959,8 +14977,11 @@ async function _onSignIn(session){
 
 function _onSignOut(){
   _sbSession=null;
+  _IS_PREMIUM=false;
   localStorage.removeItem('mth_backup_enabled');
   try { _sbStopAutoSync(); } catch(_) {}
+  // Re-render so premium content re-locks after sign-out.
+  try { if (typeof setGroup === 'function' && typeof CUR_GROUP === 'string') setGroup(CUR_GROUP); } catch(_){}
 }
 
 async function manualSync(){
@@ -15232,6 +15253,14 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const name  = localStorage.getItem('mth_name') || email.split('@')[0];
     localStorage.setItem('mth_user', JSON.stringify({name, loginMethod:'email', email}));
     localStorage.setItem('mth_backup_enabled','1');
+    // Pull subscription plan → unlock premium content if subscriber.
+    _refreshPremium();
+    // If returning from a successful Gumroad subscribe, re-check shortly after
+    // (webhook may land a beat after redirect) so locks clear without a manual reload.
+    if (location.search.includes('subscribe=success')) {
+      setTimeout(_refreshPremium, 4000);
+      setTimeout(_refreshPremium, 12000);
+    }
   }
   // ── Boot the mandatory entry overlay ─────────────────────
   showEntryOverlay();

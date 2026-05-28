@@ -13,7 +13,9 @@
 // the cache name forces every client to re-fetch fresh assets on next load.
 // v7: 2026-05-26 — auth/payment migration. Portal moved to Supabase Auth and
 // pricing forms now POST to LemonSqueezy. Bump to evict stale portal HTML.
-const CACHE = 'mythsensus-v7';
+// v8: 2026-05-28 — Gumroad payment + subscription gating live (premium check
+// via /api/me/plan). Bump to evict the old all-unlocked beta HTML.
+const CACHE = 'mythsensus-v8';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

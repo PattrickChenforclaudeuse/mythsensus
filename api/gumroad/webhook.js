@@ -39,22 +39,43 @@ async function gumroadGet(path, token) {
   return r.json();
 }
 
+// Plan source of truth = auth.users.app_metadata.plan (Supabase Auth users
+// don't necessarily have a public.users row). We set app_metadata via the
+// admin API, and best-effort also update public.users.plan if a row exists.
 async function setUserPlan(email, plan) {
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const url = SUPABASE_URL.replace(/\/+$/, '') + '/rest/v1/users?email=eq.' + encodeURIComponent(email);
-  const r = await fetch(url, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      apikey: KEY,
-      Authorization: 'Bearer ' + KEY,
-      Prefer: 'return=representation',
-    },
-    body: JSON.stringify({ plan, updated_at: new Date().toISOString() }),
-  });
-  const text = await r.text();
-  return { ok: r.ok, status: r.status, body: text.slice(0, 300) };
+  const base = SUPABASE_URL.replace(/\/+$/, '');
+  const adminHeaders = { 'Content-Type': 'application/json', apikey: KEY, Authorization: 'Bearer ' + KEY };
+
+  // 1. Find the auth user by email
+  const look = await fetch(base + '/auth/v1/admin/users?email=' + encodeURIComponent(email), { headers: adminHeaders });
+  const data = await look.json();
+  const u = Array.isArray(data && data.users) ? data.users[0] : null;
+
+  let authOk = false;
+  if (u) {
+    const put = await fetch(base + '/auth/v1/admin/users/' + u.id, {
+      method: 'PUT',
+      headers: adminHeaders,
+      body: JSON.stringify({ app_metadata: { ...(u.app_metadata || {}), plan } }),
+    });
+    authOk = put.ok;
+    if (!put.ok) console.error('[gumroad/webhook] app_metadata update failed:', put.status, (await put.text()).slice(0, 200));
+  } else {
+    console.warn('[gumroad/webhook] no auth user for', email, '— buyer must sign in with this email to get premium');
+  }
+
+  // 2. Best-effort: also reflect on public.users.plan (if such a row exists)
+  try {
+    await fetch(base + '/rest/v1/users?email=eq.' + encodeURIComponent(email), {
+      method: 'PATCH',
+      headers: { ...adminHeaders, Prefer: 'return=minimal' },
+      body: JSON.stringify({ plan, updated_at: new Date().toISOString() }),
+    });
+  } catch (e) { /* non-fatal */ }
+
+  return { ok: authOk, foundAuthUser: Boolean(u) };
 }
 
 export default async function handler(req, res) {
@@ -109,10 +130,16 @@ export default async function handler(req, res) {
     const plan = (refunded || disputed) ? 'free' : 'premium';
 
     const result = await setUserPlan(verifiedEmail, plan);
+    if (!result.foundAuthUser) {
+      // Buyer hasn't signed in to Mythsensus with this email yet. Payment is
+      // valid; they'll get premium once they sign in (then re-fire or they
+      // re-subscribe). Log it, return 200 so Gumroad doesn't retry-spam.
+      console.warn('[gumroad/webhook] paid but no matching account yet:', verifiedEmail);
+      return res.status(200).json({ ok: true, note: 'no_account_yet', email: verifiedEmail, plan });
+    }
     if (!result.ok) {
-      console.error('[gumroad/webhook] setUserPlan failed:', result.status, result.body);
-      // 200 anyway so Gumroad doesn't spam retries; we logged it
-      return res.status(200).json({ ok: false, note: 'db update failed', detail: result.body });
+      console.error('[gumroad/webhook] plan update failed for', verifiedEmail);
+      return res.status(200).json({ ok: false, note: 'update_failed', email: verifiedEmail });
     }
 
     console.log('[gumroad/webhook] plan set:', verifiedEmail, '→', plan);
