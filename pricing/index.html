@@ -100,8 +100,8 @@ html[lang="th"] .tier-name,html[lang="th"] .tier-price,html[lang="th"] .title,ht
   <p class="sub" data-en="One consensus score. Twenty-six ancient traditions. Every tier below." data-th="คะแนนเดียว · 26 ศาสตร์โบราณ · ครบทุกระดับ">One consensus score. Twenty-six ancient traditions. Every tier below.</p>
 
   <div class="beta-banner">
-    <div class="beta-banner-title" data-en="✦ SECURE CHECKOUT · POWERED BY LEMONSQUEEZY" data-th="✦ ชำระเงินปลอดภัย · โดย LEMONSQUEEZY">✦ SECURE CHECKOUT · POWERED BY LEMONSQUEEZY</div>
-    <div class="beta-banner-body" data-en="Subscription checkouts go through LemonSqueezy (Merchant of Record) — they handle card processing, tax, and refunds in 130+ countries. One-time purchases (Deep Reading, Full Report, add-ons) are recorded locally during beta and will move to live billing as soon as variants are configured. Every purchase is tied to one chart input — re-view free as long as DOB / time / gender / city / name don't change." data-th="การสมัครสมาชิกชำระผ่าน LemonSqueezy (Merchant of Record) — รับบัตรเครดิตทั่วโลก จัดการภาษีและการคืนเงินครบในระบบเดียว สำหรับการซื้อแบบครั้งเดียว (Deep Reading, Full Report, แอดออน) จะบันทึกแบบ local ในช่วง beta และเปิดชำระจริงเมื่อตั้งค่า variant เสร็จ การซื้อแต่ละครั้งผูกกับข้อมูลเกิดหนึ่งชุด — ดูซ้ำได้ฟรีตราบใดที่ไม่เปลี่ยนวันเกิด/เวลา/เพศ/เมือง/ชื่อ">Subscription checkouts go through LemonSqueezy (Merchant of Record) — they handle card processing, tax, and refunds in 130+ countries. One-time purchases (Deep Reading, Full Report, add-ons) are recorded locally during beta and will move to live billing as soon as variants are configured. Every purchase is tied to one chart input — re-view free as long as DOB / time / gender / city / name don't change.</div>
+    <div class="beta-banner-title" data-en="✦ SECURE CHECKOUT · POWERED BY GUMROAD" data-th="✦ ชำระเงินปลอดภัย · โดย GUMROAD">✦ SECURE CHECKOUT · POWERED BY GUMROAD</div>
+    <div class="beta-banner-body" data-en="Subscriptions are processed by Gumroad — they handle card payments, tax, and receipts. One-time purchases (Deep Reading, Full Report, add-ons) are recorded locally during beta and will move to live billing soon. Every purchase is tied to one chart input — re-view free as long as DOB / time / gender / city / name don't change." data-th="การสมัครสมาชิกชำระผ่าน Gumroad — รับบัตรเครดิต จัดการภาษีและใบเสร็จให้ครบ สำหรับการซื้อแบบครั้งเดียว (Deep Reading, Full Report, แอดออน) จะบันทึกแบบ local ในช่วง beta และเปิดชำระจริงเร็วๆ นี้ การซื้อแต่ละครั้งผูกกับข้อมูลเกิดหนึ่งชุด — ดูซ้ำได้ฟรีตราบใดที่ไม่เปลี่ยนวันเกิด/เวลา/เพศ/เมือง/ชื่อ">Subscriptions are processed by Gumroad — they handle card payments, tax, and receipts. One-time purchases (Deep Reading, Full Report, add-ons) are recorded locally during beta and will move to live billing soon. Every purchase is tied to one chart input — re-view free as long as DOB / time / gender / city / name don't change.</div>
   </div>
 
   <div class="tier-grid">
@@ -171,13 +171,11 @@ html[lang="th"] .tier-name,html[lang="th"] .tier-price,html[lang="th"] .title,ht
           <li><span class="chk">✓</span><span data-en="📜 Full History (no 30-day limit)" data-th="📜 ประวัติเต็ม (ไม่จำกัด 30 วัน)">📜 Full History (no 30-day limit)</span></li>
           <li><span class="chk">✓</span><span data-en="🔮 Organum+ · expanded 108-deity voting" data-th="🔮 Organum+ · 108 เทพขยายผล">🔮 Organum+ · expanded 108-deity voting</span></li>
         </ul>
-        <!-- Subscribe form posts to LemonSqueezy create-checkout endpoint.
-             Endpoint resolves lookup_key → variant_id → 303-redirects to the
-             LemonSqueezy-hosted checkout. LS handles trial / card / tax. -->
-        <form action="/api/lemonsqueezy/create-checkout" method="POST" style="margin-top:1.5rem">
-          <input type="hidden" name="lookup_key" value="mythsensus_subscription_monthly">
-          <button type="submit" class="tier-cta" data-en="Start 7-day trial" data-th="ทดลอง 7 วันฟรี">Start 7-day trial</button>
-        </form>
+        <!-- Gumroad-hosted membership checkout. Gumroad handles card / tax /
+             receipts; our /api/gumroad/webhook flips users.plan on sale. -->
+        <a href="https://garsell.gumroad.com/l/tlkfx?wanted=true" target="_blank" rel="noopener"
+           class="tier-cta" style="display:block;margin-top:1.5rem;text-decoration:none"
+           data-en="Subscribe — $4.99/mo" data-th="สมัคร — ฿175/เดือน">Subscribe — $4.99/mo</a>
       </div>
 
       <!-- ANNUAL (featured) -->
@@ -192,10 +190,11 @@ html[lang="th"] .tier-name,html[lang="th"] .tier-price,html[lang="th"] .title,ht
           <li><span class="chk">✓</span><span data-en="One charge per year — no monthly billing reminders" data-th="ชาร์จปีละครั้ง — ไม่มีบิลรายเดือนกวน">One charge per year — no monthly billing reminders</span></li>
           <li><span class="chk">✓</span><span data-en="7-day free trial · refund within 14 days unused" data-th="ทดลอง 7 วันฟรี · คืนเงินภายใน 14 วันถ้าไม่ใช้">7-day free trial · refund within 14 days unused</span></li>
         </ul>
-        <form action="/api/lemonsqueezy/create-checkout" method="POST" style="margin-top:1.5rem">
-          <input type="hidden" name="lookup_key" value="mythsensus_subscription_annual">
-          <button type="submit" class="tier-cta" data-en="Start 7-day trial" data-th="ทดลอง 7 วันฟรี">Start 7-day trial</button>
-        </form>
+        <!-- Annual tier: add a yearly variant in Gumroad, then swap this link to
+             that variant's permalink. For now points to the monthly membership. -->
+        <a href="https://garsell.gumroad.com/l/tlkfx?wanted=true" target="_blank" rel="noopener"
+           class="tier-cta" style="display:block;margin-top:1.5rem;text-decoration:none"
+           data-en="Subscribe annually" data-th="สมัครรายปี">Subscribe annually</a>
       </div>
     </div>
   </div>
