@@ -15,7 +15,9 @@
 // pricing forms now POST to LemonSqueezy. Bump to evict stale portal HTML.
 // v8: 2026-05-28 — Gumroad payment + subscription gating live (premium check
 // via /api/me/plan). Bump to evict the old all-unlocked beta HTML.
-const CACHE = 'mythsensus-v8';
+// v9: 2026-05-28 — pre-launch polish: Vercel Analytics, homepage meta
+// description, pricing copy → subscription model. Bump to refresh HTML.
+const CACHE = 'mythsensus-v9';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
