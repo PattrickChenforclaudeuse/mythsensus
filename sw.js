@@ -17,7 +17,9 @@
 // via /api/me/plan). Bump to evict the old all-unlocked beta HTML.
 // v9: 2026-05-28 — pre-launch polish: Vercel Analytics, homepage meta
 // description, pricing copy → subscription model. Bump to refresh HTML.
-const CACHE = 'mythsensus-v9';
+// v10: 2026-05-28 — perf: externalized MS26 engine bundle (→/build/ms26-bundle.js)
+// + GODS_FULL (→/data/gods.json), cut index.html ~1MB. Bump to refresh HTML.
+const CACHE = 'mythsensus-v10';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
