@@ -19,7 +19,9 @@
 // description, pricing copy → subscription model. Bump to refresh HTML.
 // v10: 2026-05-28 — perf: externalized MS26 engine bundle (→/build/ms26-bundle.js)
 // + GODS_FULL (→/data/gods.json), cut index.html ~1MB. Bump to refresh HTML.
-const CACHE = 'mythsensus-v10';
+// v11: 2026-05-28 — UX: Cosmic Library link in app header, clearer sign-in
+// label (LINE+Email), prominent "Explore first" skip button. Bump to refresh.
+const CACHE = 'mythsensus-v11';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

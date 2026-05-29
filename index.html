@@ -1101,7 +1101,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     <!-- RETURNING USER — sign-in shortcut (top of form so always visible on mobile) -->
     <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;padding:10px 14px;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:6px">
       <span id="entrySignInLabel" style="font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px">มีบัญชีอยู่แล้ว?</span>
-      <button class="login-guest-btn" onclick="showLoginOverlay()" id="entrySignInBtn">✉️ ลงชื่อเข้าใช้ด้วย Email →</button>
+      <button class="login-guest-btn" onclick="showLoginOverlay()" id="entrySignInBtn">✦ ลงชื่อเข้าใช้ / Sign in →</button>
     </div>
 
     <!-- WELCOME BACK PILL (shown when returning user has saved profile) -->
@@ -1213,8 +1213,9 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     </div>
     <div style="text-align:center;margin-top:12px">
       <button id="entrySkipBtn" onclick="entrySkip()"
-        style="background:transparent;border:none;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px 8px">
-        ข้ามไปก่อน — ลองดู Tab ต่างๆ โดยไม่ต้องกรอกข้อมูล
+        style="background:transparent;border:1px solid var(--gold3);border-radius:8px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--gold2);cursor:pointer;padding:10px 22px"
+        data-en="👁 Explore first — no birth data needed" data-th="👁 สำรวจก่อน — ยังไม่ต้องกรอกวันเกิด">
+        👁 สำรวจก่อน — ยังไม่ต้องกรอกวันเกิด
       </button>
     </div>
 
@@ -1332,6 +1333,9 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <div class="logo">MYTHSENSUS</div>
   <div class="tagline" data-t="tagline">Where myriad myths reach consensus — about you</div>
   <div class="date-display" id="dateDisplay"></div>
+  <div style="text-align:center;margin-top:10px">
+    <a href="/blog/" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);text-decoration:none;border:1px solid var(--gold3);padding:5px 16px;border-radius:20px;display:inline-block" data-en="📖 Cosmic Library" data-th="📖 ห้องสมุดจักรวาล">📖 ห้องสมุดจักรวาล</a>
+  </div>
 </header>
 
 <!-- (Nav-collapse toggle removed — see CSS comment above.) -->
@@ -9491,7 +9495,7 @@ function _entryRefreshLang(){
       siLabel.style.color = '';
     }
     if (siBtn){
-      siBtn.textContent = isTh ? '✉️ ลงชื่อเข้าใช้ด้วย Email →' : '✉️ Sign in with Email →';
+      siBtn.textContent = isTh ? '✦ ลงชื่อเข้าใช้ →' : '✦ Sign in →';
       siBtn.setAttribute('onclick', 'showLoginOverlay()');
     }
   }
