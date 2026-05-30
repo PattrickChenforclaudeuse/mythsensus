@@ -72,7 +72,16 @@
 //    FIXED reference (2026-04-14, exposed as biorhythm.refDate) and the Deep
 //    Reading tab reads it instead of new Date() — report + score are now
 //    fully deterministic, a saved blueprint never drifts.
-const CACHE = 'mythsensus-v18';
+// v19: 2026-05-30 — review-2 follow-ups: (HIGH) EN Full Report pet card no
+// longer beheads the animal name — p24_pets sources emoji+label from pet.main
+// (emoji-prefixed in both langs) instead of pet.mainEn (no emoji), so EN shows
+// "🐟 Fish in a tank — Betta / Koi" matching the add-on tab, not "F + ish".
+// (MEDIUM) ADDON_COSMIC_BY_TIER rekeyed to the 7 real TIERS names — the Divine
+// Mirror cosmic entity was wrong for Celestial/Radiant/Grounded/Emerging
+// (all fell back to Tai Yi). (LOW) Organum tally lowercased to merge Healing/
+// healing; Variant coherent-copy softened; renderFreqHistory escapes history
+// strings (XSS defense); stale page-number comments fixed.
+const CACHE = 'mythsensus-v19';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

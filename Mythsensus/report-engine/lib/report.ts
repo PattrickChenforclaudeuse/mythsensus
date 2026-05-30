@@ -933,8 +933,8 @@ function p03_convergence(c: ChartData): string {
     <div style="background:linear-gradient(135deg,#0a1a14,#0a1828);border:2px solid #5acc8a;border-radius:12px;padding:14px 18px;margin:14px 0">
       <div style="font-size:10px;letter-spacing:3px;color:#7ad8a8;margin-bottom:6px">${tr('🎯 ดวงที่กลมกลืน — rare coherence','🎯 A COHERENT CHART — rare coherence')}</div>
       <div style="font-size:12px;color:#a8e0c8;line-height:1.8">${tr(
-        `ดวงของคุณ "พูดด้วยเสียงเดียว" — ไม่มีศาสตร์ใดให้คะแนนต่ำกว่าค่ากลางของคุณอย่างมีนัยสำคัญ นี่หายากกว่าที่คิด: ${dissenters.length === 1 ? 'มีเพียง 1 ศาสตร์ที่เห็นต่างเล็กน้อย' : 'ทั้ง 26 ศาสตร์เห็นภาพไปทางเดียวกัน'} เมื่อทุกมุมมองสอดคล้องกัน ความมั่นใจในการตัดสินใจของคุณมีพื้นฐานแข็งแรง — แต่ระวัง blind spot ที่ไม่มีใครเตือน`,
-        `Your chart "speaks with one voice" — no system scores significantly below your own median. This is rarer than it sounds: ${dissenters.length === 1 ? 'only one system dissents, and only mildly' : 'all 26 systems point the same way'}. When every lens agrees, your decisions rest on solid ground — but watch for the blind spot no one is there to flag.`)}</div>
+        `ดวงของคุณ "พูดด้วยเสียงเดียว" — ไม่มีศาสตร์ระบุตัวตนใดให้คะแนนต่ำกว่าค่ากลางของคุณอย่างมีนัยสำคัญ นี่หายากกว่าที่คิด: ${dissenters.length === 1 ? 'มีเพียง 1 ศาสตร์ที่เห็นต่างเล็กน้อย' : 'แทบทุกศาสตร์เห็นภาพไปทางเดียวกัน'} เมื่อมุมมองส่วนใหญ่สอดคล้องกัน ความมั่นใจในการตัดสินใจของคุณมีพื้นฐานแข็งแรง — แต่ระวัง blind spot ที่ไม่มีใครเตือน`,
+        `Your chart "speaks with one voice" — no identity-level system scores significantly below your own median. This is rarer than it sounds: ${dissenters.length === 1 ? 'only one system dissents, and only mildly' : 'nearly every system points the same way'}. When most lenses agree, your decisions rest on solid ground — but watch for the blind spot no one is there to flag.`)}</div>
     </div>`
 
   // ── Headline TL;DR — one-paragraph summary ──
@@ -2414,13 +2414,21 @@ function p24_pets(c: ChartData): string {
       </div>
     </div>`
 
-  // Split "🐟 ปลาในตู้ Betta / Koi" → emoji + label (mirrors the add-on tab).
+  // Split "🐟 ปลาในตู้ Betta / Koi" → [emoji, label]. Only treat the leading
+  // token as an emoji when it's an Extended_Pictographic grapheme (so a plain
+  // ASCII letter is NOT mistaken for an icon); otherwise no emoji.
   const splitAnimal = (s: string): [string, string] => {
     const t = (s || '').trim()
-    const m = t.match(/^(\p{Emoji}+|\S)\s*(.*)$/u)
-    return m ? [m[1], m[2] || t] : ['🐾', t]
+    const m = t.match(/^(\p{Extended_Pictographic}(?:‍\p{Extended_Pictographic})*)\s*(.*)$/u)
+    return m ? [m[1], (m[2] || '').trim() || t] : ['🐾', t]
   }
-  const [mainEmoji, mainLabel] = splitAnimal(isTh ? (pet?.main || '') : (pet?.mainEn || pet?.main || ''))
+  // ALWAYS source from pet.main — calcAddons swaps the whole object by language,
+  // so pet.main is already "🐟 Fish in a tank — Betta / Koi" in EN and
+  // "🐟 ปลาในตู้ Betta / Koi" in TH (emoji-prefixed in both). pet.mainEn has NO
+  // emoji + an abbreviated breed list → feeding it to splitAnimal beheaded the
+  // first letter as a fake icon ("og — Shiba / Golden"). Using pet.main makes
+  // the report byte-identical to the Pet add-on tab in both languages.
+  const [mainEmoji, mainLabel] = splitAnimal(pet?.main || '')
   const [secEmoji, secLabel]   = splitAnimal(pet?.secondary || '')
 
   const petBlock = pet ? `
@@ -2595,15 +2603,15 @@ export function generateReport(c: ChartData): string {
     p23_forecast10yr,    // 33. 10-Year Forecast
     p16_activation,      // 34. Activation Plan (all 26 systems)
     p17_weekly,          // 35. Weekly Plan
-    // ─── 36-42: Lifestyle & closing ──────────────────────────────
+    // ─── 36-43: Lifestyle & closing ──────────────────────────────
     p14_health,          // 36. Health (multi-system)
     p15_finance,         // 37. Finance (multi-system)
     p20_colors,          // 38. สีมงคล
     p24_pets,            // 39. สัตว์เลี้ยง (now shares chart.addons.pet with the add-on tab)
     p_divineMirror,      // 40. Divine Mirror (chart.addons.mirror — same as add-on tab)
     p21_historicalFigures, // 41. Historical Figures
-    p22_painPoints,      // 41. 5 Pain Points
-    p25_summary,         // 42. Summary + Disclaimer
+    p22_painPoints,      // 42. 5 Pain Points
+    p25_summary,         // 43. Summary + Disclaimer
   ].map(fn => fn(c)).join('\n')
 
   return `<!DOCTYPE html>

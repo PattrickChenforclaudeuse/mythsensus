@@ -1654,12 +1654,19 @@ const ADDON_MIRROR_BY_ELEMENT = {
         mantra: 'ॐ गङ्गायै नमः (Om Gangayai Namah)'
     }
 };
+// Keys MUST match the 7 TIERS tierEn names (Celestial/Radiant/Luminous/
+// Resonant/Grounded/Seeking/Emerging). Previously keyed by an older 5-name set
+// (Transcendent/Aligned…) so Celestial/Radiant/Grounded/Emerging silently fell
+// back to 'Resonant' (Tai Yi) — a Top-1% user saw the mid-tier entity. The 5
+// cosmic archetypes are mapped across the 7 tiers by elevation.
 const ADDON_COSMIC_BY_TIER = {
-    'Transcendent': { name: 'พรหมัน · The Absolute', desc: '26 ศาสตร์เห็นตรงกัน — บุคลิกภาพของคุณสะท้อนหลักจักรวาลที่เหนือกาลเวลา' },
+    'Celestial': { name: 'พรหมัน · The Absolute', desc: '26 ศาสตร์เห็นตรงกัน — บุคลิกภาพของคุณสะท้อนหลักจักรวาลที่เหนือกาลเวลา' },
+    'Radiant': { name: 'โพธิสัตว์ · Bodhisattva', desc: 'พลังงานที่เอื้อเฟื้อ ปัญญาสูง พร้อมยกระดับผู้รอบข้าง' },
     'Luminous': { name: 'โพธิสัตว์ · Bodhisattva', desc: 'พลังงานที่เอื้อเฟื้อ ปัญญาสูง พร้อมยกระดับผู้รอบข้าง' },
     'Resonant': { name: 'ไท้ยี่ · Tai Yi', desc: 'สมดุลระหว่างยิน-หยาง พลังงานที่กลมกลืนและทรงพลัง' },
-    'Aligned': { name: 'วายุ · Vayu', desc: 'พลังงานแห่งการเปลี่ยนแปลงและการเคลื่อนไหว — ยืดหยุ่นและปรับตัวเก่ง' },
+    'Grounded': { name: 'วายุ · Vayu', desc: 'พลังงานแห่งการเปลี่ยนแปลงและการเคลื่อนไหว — ยืดหยุ่นและปรับตัวเก่ง' },
     'Seeking': { name: 'อาร์เจส · Arges', desc: 'พลังงานที่กำลังค้นหาตัวเอง — ศักยภาพสูงรอการปลดปล่อย' },
+    'Emerging': { name: 'อาร์เจส · Arges', desc: 'พลังงานที่กำลังก่อตัว — เมล็ดพันธุ์ของศักยภาพที่รอการเติบโต' },
 };
 const ADDON_COMPAT_BY_ELEMENT = {
     'ไม้': { best: ['น้ำ', 'ไม้'], good: ['ไฟ'], neutral: ['ดิน'], avoid: ['โลหะ'] },
@@ -1954,11 +1961,13 @@ const ADDON_MIRROR_BY_ELEMENT_EN = {
     }
 };
 const ADDON_COSMIC_BY_TIER_EN = {
-    'Transcendent': { name: 'Brahman · The Absolute', desc: 'All 26 systems converge — your personality reflects timeless cosmic principles' },
+    'Celestial': { name: 'Brahman · The Absolute', desc: 'All 26 systems converge — your personality reflects timeless cosmic principles' },
+    'Radiant': { name: 'Bodhisattva', desc: 'Generous energy, high wisdom, ready to lift those around you' },
     'Luminous': { name: 'Bodhisattva', desc: 'Generous energy, high wisdom, ready to lift those around you' },
     'Resonant': { name: 'Tai Yi · 太乙', desc: 'Balance between yin and yang — harmonious, powerful energy' },
-    'Aligned': { name: 'Vayu', desc: 'Energy of change and movement — flexible and adaptive' },
+    'Grounded': { name: 'Vayu', desc: 'Energy of change and movement — flexible and adaptive' },
     'Seeking': { name: 'Arges', desc: 'Energy still finding itself — high potential awaiting release' },
+    'Emerging': { name: 'Arges', desc: 'Energy still forming — a seed of potential awaiting growth' },
 };
 const ADDON_COMPAT_BY_ELEMENT_EN = {
     'ไม้': { best: ['Water', 'Wood'], good: ['Fire'], neutral: ['Earth'], avoid: ['Metal'] },

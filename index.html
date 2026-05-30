@@ -3136,8 +3136,11 @@ async function runOrganum(){
     const sayingLabel=LANG==='th'?'พูดถึง:':'is saying:';
     ticker.textContent=`${god.symbol||'✦'} ${god.name} ${sayingLabel} ${kws.join(' · ')||'—'}`;
 
-    // Tally each represents word
-    kws.forEach(word=>{
+    // Tally each represents word. Normalize to lowercase so "Healing" and
+    // "healing" merge into one bucket (the dataset mixes cases) and the IDF
+    // lookup (which lowercases) always finds the global frequency.
+    kws.forEach(rawWord=>{
+      const word=String(rawWord).toLowerCase();
       if(!wordCount[word])wordCount[word]={count:0,gods:[]};
       wordCount[word].count++;
       wordCount[word].gods.push(god);
@@ -7161,14 +7164,20 @@ function renderFreqHistory(){
 
   // Headline interpretation: the single loudest recurring deity.
   const topGod = gods[0];
+  // Escape all history-derived strings before they enter innerHTML (god names,
+  // blessing message, theme words) — defense-in-depth so a future deity name or
+  // user-influenced field can never inject markup.
+  const gName = topGod ? _esc(topGod[0]) : '';
+  const gSym  = topGod ? _esc(topGod[1].symbol || '✦') : '✦';
+  const gMsg  = topGod ? _esc(topGod[1].lastMsg || '') : '';
   const headline = topGod && topGod[1].count >= 2
     ? `<div style="background:linear-gradient(135deg,#1a1408,#0e0a18);border:1px solid var(--gold3);border-radius:10px;padding:14px 16px;margin-bottom:14px">
         <div style="font-size:10px;letter-spacing:2px;color:var(--gold2);margin-bottom:6px">${isTh?'✦ สัญญาณที่ดังที่สุดของคุณ ✦':'✦ YOUR LOUDEST SIGNAL ✦'}</div>
-        <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:16px;color:var(--gold);margin-bottom:4px">${topGod[1].symbol} ${topGod[0]} <span style="font-size:12px;color:var(--muted)">· ${topGod[1].count}×</span></div>
+        <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:16px;color:var(--gold);margin-bottom:4px">${gSym} ${gName} <span style="font-size:12px;color:var(--muted)">· ${topGod[1].count}×</span></div>
         <div style="font-size:12px;color:var(--text);line-height:1.7">${isTh
-          ? `<strong>${topGod[0]}</strong> กลับมาหาคุณ <strong>${topGod[1].count} ครั้ง</strong> — ในศาสตร์โอเรกุรัม การที่เทพองค์เดิมวนกลับมาแปลว่า "ยังมีสารที่คุณยังไม่ได้รับเต็มที่" ลองทบทวนว่าครั้งก่อนๆ ${topGod[0]} พยายามบอกอะไร`
-          : `<strong>${topGod[0]}</strong> has returned to you <strong>${topGod[1].count} times</strong> — in the Organum tradition, the same deity recurring means there's a message you haven't fully received. Reflect on what ${topGod[0]} has been trying to tell you.`}
-          ${topGod[1].lastMsg?`<br><span style="font-style:italic;color:var(--muted)">"${topGod[1].lastMsg}"</span>`:''}</div>
+          ? `<strong>${gName}</strong> กลับมาหาคุณ <strong>${topGod[1].count} ครั้ง</strong> — ในศาสตร์โอเรกุรัม การที่เทพองค์เดิมวนกลับมาแปลว่า "ยังมีสารที่คุณยังไม่ได้รับเต็มที่" ลองทบทวนว่าครั้งก่อนๆ ${gName} พยายามบอกอะไร`
+          : `<strong>${gName}</strong> has returned to you <strong>${topGod[1].count} times</strong> — in the Organum tradition, the same deity recurring means there's a message you haven't fully received. Reflect on what ${gName} has been trying to tell you.`}
+          ${gMsg?`<br><span style="font-style:italic;color:var(--muted)">"${gMsg}"</span>`:''}</div>
       </div>`
     : `<div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:12px">${isTh
         ? `จากทั้งหมด <strong style="color:var(--gold)">${totalSignals}</strong> สัญญาณ ยังไม่มีเทพองค์ใดวนกลับมาซ้ำ — pattern จะชัดขึ้นเมื่อคุณใช้ต่อเนื่อง`
@@ -7176,8 +7185,8 @@ function renderFreqHistory(){
 
   const godRows = gods.map(([nm,d])=>`
     <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--border)">
-      <span style="font-size:18px">${d.symbol}</span>
-      <span style="flex:1;font-size:13px;color:var(--text)">${nm}</span>
+      <span style="font-size:18px">${_esc(d.symbol||'✦')}</span>
+      <span style="flex:1;font-size:13px;color:var(--text)">${_esc(nm)}</span>
       ${d.count>=2?`<span style="font-size:9px;color:var(--gold);background:rgba(212,170,80,0.12);border:1px solid var(--gold3);border-radius:8px;padding:1px 7px">${isTh?'วนกลับมา':'recurring'}</span>`:''}
       <span style="font-family:'Josefin Sans',sans-serif;font-weight:700;color:var(--gold);min-width:32px;text-align:right">${d.count}×</span>
     </div>`).join('');
@@ -7187,7 +7196,7 @@ function renderFreqHistory(){
       <div class="deep-sys-title">${isTh?'ธีมที่จักรวาลย้ำ':'Themes the universe repeats'}</div>
       <div class="deep-sys-origin">${isTh?'คำที่ 108 เทพโหวตให้บ่อยสุดในคำถามของคุณ':'Words the 108 gods voted for most across your questions'}</div>
       <div class="deep-sys-stats">
-        ${themes.map(([w,n])=>`<div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${w}</div><div class="deep-sys-stat-val">${n}×</div></div>`).join('')}
+        ${themes.map(([w,n])=>`<div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${_esc(w)}</div><div class="deep-sys-stat-val">${n}×</div></div>`).join('')}
       </div>
     </div>` : '';
 

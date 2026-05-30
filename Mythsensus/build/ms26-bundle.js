@@ -1661,12 +1661,19 @@ const ADDON_MIRROR_BY_ELEMENT = {
         mantra: 'ॐ गङ्गायै नमः (Om Gangayai Namah)'
     }
 };
+// Keys MUST match the 7 TIERS tierEn names (Celestial/Radiant/Luminous/
+// Resonant/Grounded/Seeking/Emerging). Previously keyed by an older 5-name set
+// (Transcendent/Aligned…) so Celestial/Radiant/Grounded/Emerging silently fell
+// back to 'Resonant' (Tai Yi) — a Top-1% user saw the mid-tier entity. The 5
+// cosmic archetypes are mapped across the 7 tiers by elevation.
 const ADDON_COSMIC_BY_TIER = {
-    'Transcendent': { name: 'พรหมัน · The Absolute', desc: '26 ศาสตร์เห็นตรงกัน — บุคลิกภาพของคุณสะท้อนหลักจักรวาลที่เหนือกาลเวลา' },
+    'Celestial': { name: 'พรหมัน · The Absolute', desc: '26 ศาสตร์เห็นตรงกัน — บุคลิกภาพของคุณสะท้อนหลักจักรวาลที่เหนือกาลเวลา' },
+    'Radiant': { name: 'โพธิสัตว์ · Bodhisattva', desc: 'พลังงานที่เอื้อเฟื้อ ปัญญาสูง พร้อมยกระดับผู้รอบข้าง' },
     'Luminous': { name: 'โพธิสัตว์ · Bodhisattva', desc: 'พลังงานที่เอื้อเฟื้อ ปัญญาสูง พร้อมยกระดับผู้รอบข้าง' },
     'Resonant': { name: 'ไท้ยี่ · Tai Yi', desc: 'สมดุลระหว่างยิน-หยาง พลังงานที่กลมกลืนและทรงพลัง' },
-    'Aligned': { name: 'วายุ · Vayu', desc: 'พลังงานแห่งการเปลี่ยนแปลงและการเคลื่อนไหว — ยืดหยุ่นและปรับตัวเก่ง' },
+    'Grounded': { name: 'วายุ · Vayu', desc: 'พลังงานแห่งการเปลี่ยนแปลงและการเคลื่อนไหว — ยืดหยุ่นและปรับตัวเก่ง' },
     'Seeking': { name: 'อาร์เจส · Arges', desc: 'พลังงานที่กำลังค้นหาตัวเอง — ศักยภาพสูงรอการปลดปล่อย' },
+    'Emerging': { name: 'อาร์เจส · Arges', desc: 'พลังงานที่กำลังก่อตัว — เมล็ดพันธุ์ของศักยภาพที่รอการเติบโต' },
 };
 const ADDON_COMPAT_BY_ELEMENT = {
     'ไม้': { best: ['น้ำ', 'ไม้'], good: ['ไฟ'], neutral: ['ดิน'], avoid: ['โลหะ'] },
@@ -1961,11 +1968,13 @@ const ADDON_MIRROR_BY_ELEMENT_EN = {
     }
 };
 const ADDON_COSMIC_BY_TIER_EN = {
-    'Transcendent': { name: 'Brahman · The Absolute', desc: 'All 26 systems converge — your personality reflects timeless cosmic principles' },
+    'Celestial': { name: 'Brahman · The Absolute', desc: 'All 26 systems converge — your personality reflects timeless cosmic principles' },
+    'Radiant': { name: 'Bodhisattva', desc: 'Generous energy, high wisdom, ready to lift those around you' },
     'Luminous': { name: 'Bodhisattva', desc: 'Generous energy, high wisdom, ready to lift those around you' },
     'Resonant': { name: 'Tai Yi · 太乙', desc: 'Balance between yin and yang — harmonious, powerful energy' },
-    'Aligned': { name: 'Vayu', desc: 'Energy of change and movement — flexible and adaptive' },
+    'Grounded': { name: 'Vayu', desc: 'Energy of change and movement — flexible and adaptive' },
     'Seeking': { name: 'Arges', desc: 'Energy still finding itself — high potential awaiting release' },
+    'Emerging': { name: 'Arges', desc: 'Energy still forming — a seed of potential awaiting growth' },
 };
 const ADDON_COMPAT_BY_ELEMENT_EN = {
     'ไม้': { best: ['Water', 'Wood'], good: ['Fire'], neutral: ['Earth'], avoid: ['Metal'] },
@@ -4490,7 +4499,7 @@ function p03_convergence(c) {
         : `
     <div style="background:linear-gradient(135deg,#0a1a14,#0a1828);border:2px solid #5acc8a;border-radius:12px;padding:14px 18px;margin:14px 0">
       <div style="font-size:10px;letter-spacing:3px;color:#7ad8a8;margin-bottom:6px">${tr('🎯 ดวงที่กลมกลืน — rare coherence', '🎯 A COHERENT CHART — rare coherence')}</div>
-      <div style="font-size:12px;color:#a8e0c8;line-height:1.8">${tr(`ดวงของคุณ "พูดด้วยเสียงเดียว" — ไม่มีศาสตร์ใดให้คะแนนต่ำกว่าค่ากลางของคุณอย่างมีนัยสำคัญ นี่หายากกว่าที่คิด: ${dissenters.length === 1 ? 'มีเพียง 1 ศาสตร์ที่เห็นต่างเล็กน้อย' : 'ทั้ง 26 ศาสตร์เห็นภาพไปทางเดียวกัน'} เมื่อทุกมุมมองสอดคล้องกัน ความมั่นใจในการตัดสินใจของคุณมีพื้นฐานแข็งแรง — แต่ระวัง blind spot ที่ไม่มีใครเตือน`, `Your chart "speaks with one voice" — no system scores significantly below your own median. This is rarer than it sounds: ${dissenters.length === 1 ? 'only one system dissents, and only mildly' : 'all 26 systems point the same way'}. When every lens agrees, your decisions rest on solid ground — but watch for the blind spot no one is there to flag.`)}</div>
+      <div style="font-size:12px;color:#a8e0c8;line-height:1.8">${tr(`ดวงของคุณ "พูดด้วยเสียงเดียว" — ไม่มีศาสตร์ระบุตัวตนใดให้คะแนนต่ำกว่าค่ากลางของคุณอย่างมีนัยสำคัญ นี่หายากกว่าที่คิด: ${dissenters.length === 1 ? 'มีเพียง 1 ศาสตร์ที่เห็นต่างเล็กน้อย' : 'แทบทุกศาสตร์เห็นภาพไปทางเดียวกัน'} เมื่อมุมมองส่วนใหญ่สอดคล้องกัน ความมั่นใจในการตัดสินใจของคุณมีพื้นฐานแข็งแรง — แต่ระวัง blind spot ที่ไม่มีใครเตือน`, `Your chart "speaks with one voice" — no identity-level system scores significantly below your own median. This is rarer than it sounds: ${dissenters.length === 1 ? 'only one system dissents, and only mildly' : 'nearly every system points the same way'}. When most lenses agree, your decisions rest on solid ground — but watch for the blind spot no one is there to flag.`)}</div>
     </div>`;
     // ── Headline TL;DR — one-paragraph summary ──
     const elemConsensusEl = dmEl; // we already established cover's element consensus
@@ -5747,13 +5756,21 @@ function p24_pets(c) {
         ${story ? `<div style="font-size:11px;color:#9a8a72;margin-top:6px;line-height:1.6;font-style:italic">${esc(story)}</div>` : ''}
       </div>
     </div>`;
-    // Split "🐟 ปลาในตู้ Betta / Koi" → emoji + label (mirrors the add-on tab).
+    // Split "🐟 ปลาในตู้ Betta / Koi" → [emoji, label]. Only treat the leading
+    // token as an emoji when it's an Extended_Pictographic grapheme (so a plain
+    // ASCII letter is NOT mistaken for an icon); otherwise no emoji.
     const splitAnimal = (s) => {
         const t = (s || '').trim();
-        const m = t.match(/^(\p{Emoji}+|\S)\s*(.*)$/u);
-        return m ? [m[1], m[2] || t] : ['🐾', t];
+        const m = t.match(/^(\p{Extended_Pictographic}(?:‍\p{Extended_Pictographic})*)\s*(.*)$/u);
+        return m ? [m[1], (m[2] || '').trim() || t] : ['🐾', t];
     };
-    const [mainEmoji, mainLabel] = splitAnimal(isTh ? (pet?.main || '') : (pet?.mainEn || pet?.main || ''));
+    // ALWAYS source from pet.main — calcAddons swaps the whole object by language,
+    // so pet.main is already "🐟 Fish in a tank — Betta / Koi" in EN and
+    // "🐟 ปลาในตู้ Betta / Koi" in TH (emoji-prefixed in both). pet.mainEn has NO
+    // emoji + an abbreviated breed list → feeding it to splitAnimal beheaded the
+    // first letter as a fake icon ("og — Shiba / Golden"). Using pet.main makes
+    // the report byte-identical to the Pet add-on tab in both languages.
+    const [mainEmoji, mainLabel] = splitAnimal(pet?.main || '');
     const [secEmoji, secLabel] = splitAnimal(pet?.secondary || '');
     const petBlock = pet ? `
     <h2>${tr('สัตว์เลี้ยงที่แนะนำ', 'Recommended Pets')}</h2>
@@ -5908,15 +5925,15 @@ function generateReport(c) {
         p23_forecast10yr, // 33. 10-Year Forecast
         p16_activation, // 34. Activation Plan (all 26 systems)
         p17_weekly, // 35. Weekly Plan
-        // ─── 36-42: Lifestyle & closing ──────────────────────────────
+        // ─── 36-43: Lifestyle & closing ──────────────────────────────
         p14_health, // 36. Health (multi-system)
         p15_finance, // 37. Finance (multi-system)
         p20_colors, // 38. สีมงคล
         p24_pets, // 39. สัตว์เลี้ยง (now shares chart.addons.pet with the add-on tab)
         p_divineMirror, // 40. Divine Mirror (chart.addons.mirror — same as add-on tab)
         p21_historicalFigures, // 41. Historical Figures
-        p22_painPoints, // 41. 5 Pain Points
-        p25_summary, // 42. Summary + Disclaimer
+        p22_painPoints, // 42. 5 Pain Points
+        p25_summary, // 43. Summary + Disclaimer
     ].map(fn => fn(c)).join('\n');
     return `<!DOCTYPE html>
 <html lang="th">
