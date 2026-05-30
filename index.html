@@ -1005,12 +1005,79 @@ function _webNavBack(e) {
 }
 
 // ── Share menu (online only) ─────────────────────────────────────────
-function _webShareUrl()  { return 'https://mythsensus.com/'; }
+/**
+ * Builds the share URL — draw-aware. When the user is in panel-blessing AND
+ * _currentDraw is set, returns a deep-link `#g=&t=&m=&l=&msg=` that carries
+ * the god name, tier, msgIdx, source language, and the literal rendered
+ * blessing (the literal text wins over msgIdx in the recipient render to
+ * survive cross-language array-length differences). Otherwise returns the
+ * site-wide marketing URL.
+ *
+ * Depends on: globals _currentDraw, LANG; DOM state .panel.active.
+ * No side effects.
+ */
+function _webShareUrl() {
+  try {
+    if (_currentDraw && document.querySelector('.panel.active')?.id === 'panel-blessing') {
+      const d = _currentDraw;
+      const p = new URLSearchParams();
+      p.set('g', d.god.name);
+      if (d.tier && d.tier.name) p.set('t', d.tier.name);
+      p.set('m', String(d.msgIdx || 0));
+      // Encode source language + the literal rendered message so the recipient
+      // sees EXACTLY what the sender saw, even if their LANG differs or the
+      // god's msgIdx array length differs across languages (cross-language
+      // msgIdx drift was breaking the "see what your friend saw" promise).
+      if (typeof LANG !== 'undefined') p.set('l', LANG === 'th' ? 'th' : 'en');
+      if (d.message) p.set('msg', d.message);
+      return 'https://mythsensus.com/#' + p.toString();
+    }
+  } catch(_) {}
+  return 'https://mythsensus.com/';
+}
+/**
+ * Builds the share text — draw-aware (mirror of _webShareUrl). When the user
+ * just revealed a god, returns "🔮 พรจาก <name> (<mythology> · <tier>):
+ * "<message>"" so LINE/X/FB previews carry the actual blessing. Otherwise
+ * returns the site marketing pitch.
+ *
+ * Depends on: globals _currentDraw, LANG; DOM state .panel.active.
+ */
 function _webShareText() {
-  const isTh = (localStorage.getItem('mth_lang') === 'th');
+  // Use the in-memory LANG (matches randMsg + the rest of the app). A
+  // first-time default-Thai visitor sharing before localStorage.mth_lang is
+  // written would otherwise get an English share text.
+  const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
+  try {
+    if (_currentDraw && document.querySelector('.panel.active')?.id === 'panel-blessing') {
+      const d = _currentDraw;
+      const g = d.god;
+      const tierLabel = d.tier ? ((isTh ? d.tier.nameTH : d.tier.nameEN) || d.tier.name) : '';
+      const origin = g.mythology || '';
+      const meta = origin + (tierLabel ? ' · ' + tierLabel : '');
+      return isTh
+        ? `🔮 พรจาก ${g.name} (${meta}): "${d.message}"`
+        : `🔮 A blessing from ${g.name} (${meta}): "${d.message}"`;
+    }
+  } catch(_) {}
   return isTh
     ? 'ฉันเพิ่งค้นพบแผนที่จักรวาลของตัวเองจาก 26 ศาสตร์โบราณ — ลองดูของคุณบ้างสิ'
     : "I just mapped my cosmic blueprint across 26 ancient systems — see yours.";
+}
+/**
+ * Handler for the "✦ Share this blessing" CTA inside the godCard. Opens the
+ * OS native share sheet on mobile (Web Share API), falls back to opening the
+ * site's share menu (LINE/X/FB/copy) on desktop. Logs engagement on click.
+ *
+ * Depends on: navigator.share availability + _logEngagement existence; calls
+ * _webShareNative/_webShareToggle which read _webShareUrl/_webShareText.
+ */
+function _shareDraw() {
+  try { if (typeof _logEngagement === 'function') _logEngagement('share_draw_click'); } catch(_) {}
+  try {
+    if (navigator.share) { _webShareNative(); return; }
+  } catch(_) {}
+  _webShareToggle();
 }
 function _webShareToggle(){
   const m = document.getElementById('shareMenu'); if (!m) return;
@@ -1056,7 +1123,7 @@ async function _webShareCopy(){
   const b = document.getElementById('webShare');
   if (b) {
     const orig = b.textContent;
-    b.textContent = (localStorage.getItem('mth_lang') === 'th') ? '✓ คัดลอกแล้ว' : '✓ Copied!';
+    b.textContent = (typeof LANG !== 'undefined' && LANG === 'th') ? '✓ คัดลอกแล้ว' : '✓ Copied!';
     setTimeout(()=>{ b.textContent = orig; }, 1500);
   }
   const m = document.getElementById('shareMenu'); if (m) m.classList.remove('show');
@@ -1452,6 +1519,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <div class="god-origin" id="godOrigin"></div>
       <div class="god-message" id="godMessage"></div>
       <div class="god-represents" id="godRepresents"></div>
+      <button id="godShareBtn" onclick="_shareDraw()" style="display:none;margin-top:16px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;background:transparent;color:var(--gold);border:1px solid var(--gold3);padding:8px 18px;border-radius:4px;cursor:pointer">✦ Share this blessing</button>
     </div>
     <div class="history-list" id="historyList"></div>
     <!-- RECENT BLESSINGS PREVIEW (shown when today's card is empty) -->
@@ -1665,7 +1733,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 
 <!-- ═══ PANEL 5: COSMIC BLUEPRINT ═══ -->
 <div class="panel" id="panel-blueprint">
-  <p class="panel-intro" data-en="The flagship reading: 26 ancient systems synthesized into one complete profile. Generate once and keep forever." data-th="รายงานตัวจริงของมายเซนซัส · รวมคำวินิจฉัยจาก 26 ศาสตร์โบราณมาสรุปเป็นตัวตนของคุณในฉบับเดียว สร้างครั้งเดียว เก็บไว้ตลอด">The flagship reading: 26 ancient systems synthesized into one complete profile. Generate once and keep forever.</p>
+  <p class="panel-intro" data-en="The flagship reading: 26 ancient systems synthesized into one complete profile. Generate once and keep forever." data-th="รายงานตัวจริงของ Mythsensus · รวมคำวินิจฉัยจาก 26 ศาสตร์โบราณมาสรุปเป็นตัวตนของคุณในฉบับเดียว สร้างครั้งเดียว เก็บไว้ตลอด">The flagship reading: 26 ancient systems synthesized into one complete profile. Generate once and keep forever.</p>
 
   <!-- CB FORM SECTION -->
   <div id="cb-form-section">
@@ -2731,23 +2799,23 @@ function godsOfTier(T){
   return g.length ? g : GODS;
 }
 function randMsg(g){
-  // Bilingual deity blessings — prefer the new structured fields when
-  // available, fall back to legacy single-string fields, fall back to
-  // the GODS_FULL `messages` array. This matrix lets us migrate the
-  // dataset gradually without breaking older browsers/caches.
+  // Bilingual deity blessings — fall-back chain:
+  //   1. per-language messages array (preferred — multi-message after Phase B
+  //      enrichment for rare tiers; single-message arrays for the rest).
+  //   2. bilingual singular fields (legacy Phase F translation pass).
+  //   3. legacy mixed-language `blessing` singular.
+  //   4. GODS_FULL inline `messages` array (always English).
   const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
-  // 1) New bilingual fields (added by Phase F sub-agent translation pass)
-  if (g.blessing_th && isTh) return g.blessing_th;
-  if (g.blessing_en && !isTh) return g.blessing_en;
-  // 2) Legacy single-blessing field — works if it happens to be in the
-  //    user's chosen language (e.g. Gabriel was Thai, lucky for TH users)
-  if (g.blessing) {
-    const blessingIsThai = /[฀-๿]/.test(g.blessing);
-    if (blessingIsThai === isTh) return g.blessing;
-    // Cross-language fallback: better to show *something* than '—'
-    return g.blessing;
-  }
-  // 3) GODS_FULL inline format (English messages array)
+  // 1) Per-language arrays.
+  const arr = isTh ? g.messages_th : g.messages_en;
+  if (Array.isArray(arr) && arr.length) return arr[Math.floor(Math.random() * arr.length)];
+  // 2) Bilingual singular fields (Phase F).
+  if (isTh && g.blessing_th) return g.blessing_th;
+  if (!isTh && g.blessing_en) return g.blessing_en;
+  // 3) Legacy single-blessing field — return regardless of language match
+  //    (better to show *something* than '—').
+  if (g.blessing) return g.blessing;
+  // 4) GODS_FULL inline format (English).
   const m = g.messages || [];
   return m.length ? m[Math.floor(Math.random() * m.length)] : '—';
 }
@@ -2756,6 +2824,13 @@ function randMsg(g){
 // GOD BLESSING
 // ════════════════════════════════════════
 const MAX_DRAWS=3;let draws=0,blessHistory=[];
+// Most-recent revealed card — drives the draw-aware share text/URL and the
+// "Share this blessing" CTA. Set by drawBlessing() and _renderGodCard().
+let _currentDraw=null;
+// Top-level `let`/`const` don't attach to window; these getters are the
+// supported way for tests + DevTools to read internal state.
+window._getDrawState = () => ({ currentDraw: _currentDraw, draws });
+window._getGodsAPI = () => ({ GODS, TIERS });
 function updateBlessingStatus(){const el=document.getElementById('blessingStatus');if(!el)return;const l=MAX_DRAWS-draws;el.textContent=l>0?`${l} ${t('blessing_draws_left')}`:t('blessing_used');renderBlessingRecentPreview();}
 function renderBlessingRecentPreview(){
   const wrap=document.getElementById('blessingRecentPreview');
@@ -2811,17 +2886,109 @@ async function drawBlessing(){
     if (filtered.length >= 3) pool = filtered;
   } catch(_) { /* fall through with original pool */ }
   const god=pool[Math.floor(Math.random()*pool.length)];draws++;
+  // Pick the message + remember its index so share can deep-link back to
+  // exactly this card. For single-message gods msgIdx is always 0; once the
+  // dataset gains multi-message arrays (rare tiers first), the random pick
+  // happens here and the index travels through to the shared URL.
+  const arr=(LANG==='th'?god.messages_th:god.messages_en)||god.messages||[];
+  const msgIdx=arr.length>1?Math.floor(Math.random()*arr.length):0;
+  const message=arr[msgIdx]||randMsg(god);
   const card=document.getElementById('godCard');card.classList.remove('revealed');void card.offsetWidth;
   document.getElementById('tierBadge').textContent=LANG==='th'?T.nameTH:T.nameEN;
   document.getElementById('tierBadge').style.cssText=`background:${T.color}22;color:${T.color};border:1px solid ${T.color}55`;
   document.getElementById('godSymbol').textContent=god.symbol||'✦';
   document.getElementById('godName').textContent=god.name;
   document.getElementById('godOrigin').textContent=god.mythology||'';
-  document.getElementById('godMessage').textContent='"'+randMsg(god)+'"';
+  document.getElementById('godMessage').textContent='"'+message+'"';
   document.getElementById('godRepresents').textContent=(god.represents||[]).join(' · ');
-  card.classList.add('revealed');updateBlessingStatus();blessHistory.unshift({T,god});renderHistory();saveBlessings();saveBlessingToHistory(god, T);
+  _currentDraw={god,tier:T,msgIdx,message};
+  const sb=document.getElementById('godShareBtn');
+  if(sb){sb.style.display='inline-block';sb.textContent=(LANG==='th'?'✦ แชร์พรนี้':'✦ Share this blessing');}
+  card.classList.add('revealed');updateBlessingStatus();blessHistory.unshift({T,god});renderHistory();saveBlessings();saveBlessingToHistory(god, T, message, msgIdx);
   if(draws>=MAX_DRAWS){const b=document.getElementById('drawBtn');b.disabled=true;b.textContent=t('blessing_used');}
 }
+
+// Render an arbitrary god card without consuming a draw. Used by drawBlessing
+// (indirectly — drawBlessing inlines the same logic for animation control)
+// and by the deep-link handler that shows a friend's shared card.
+/**
+ * Renders an arbitrary god card into the blessing panel WITHOUT consuming a
+ * daily draw. Shared between drawBlessing() (normal flow) and the deep-link
+ * handler. explicitMsg wins over msgIdx so a friend's deep-link can carry
+ * the EXACT blessing text even when the recipient's LANG arrays differ.
+ *
+ * Depends on: globals LANG, _currentDraw; DOM elements godCard / tierBadge /
+ * godSymbol / godName / godOrigin / godMessage / godRepresents / godShareBtn.
+ * Side effect: mutates _currentDraw to the rendered values + shows share button.
+ */
+function _renderGodCard(god, T, msgIdx, explicitMsg) {
+  const card = document.getElementById('godCard');
+  if (!card) return;
+  card.classList.remove('revealed'); void card.offsetWidth;
+  document.getElementById('tierBadge').textContent = (LANG==='th') ? (T.nameTH||T.name) : (T.nameEN||T.name);
+  document.getElementById('tierBadge').style.cssText = `background:${T.color}22;color:${T.color};border:1px solid ${T.color}55`;
+  document.getElementById('godSymbol').textContent = god.symbol || '✦';
+  document.getElementById('godName').textContent = god.name;
+  document.getElementById('godOrigin').textContent = god.mythology || '';
+  // explicitMsg wins over the msgIdx lookup so a friend's deep-link can
+  // carry the EXACT blessing text the sender saw, even if their LANG arrays
+  // differ in length or content. Falls back to indexed lookup → randMsg.
+  const arr = (LANG==='th' ? god.messages_th : god.messages_en) || god.messages || [];
+  const idx = Math.max(0, Math.min(Math.max(0, arr.length-1), msgIdx | 0));
+  const message = explicitMsg || arr[idx] || randMsg(god);
+  document.getElementById('godMessage').textContent = '"' + message + '"';
+  document.getElementById('godRepresents').textContent = (god.represents||[]).join(' · ');
+  _currentDraw = { god, tier: T, msgIdx: idx, message };
+  const sb = document.getElementById('godShareBtn');
+  if (sb) { sb.style.display = 'inline-block'; sb.textContent = (LANG==='th'?'✦ แชร์พรนี้':'✦ Share this blessing'); }
+  card.classList.add('revealed');
+}
+
+/**
+ * Parses location.hash (#g=Brahma&t=Mythic&m=2&l=th&msg=...) and renders that
+ * specific card on the Blessing tab — WITHOUT consuming a daily draw. Honors
+ * sender's language (l) and literal blessing (msg) so recipient sees exactly
+ * what the sender saw, even across LANG differences. Called twice: once at
+ * window.load and again at the end of _bootAfterEntry (to survive the entry
+ * overlay re-rendering panels after onboarding).
+ *
+ * Depends on: globals GODS, TIERS, LANG, setGroup, showSubTab, loadGods,
+ * _renderGodCard. Returns true if a shared draw was rendered, false otherwise.
+ */
+async function _maybeRenderSharedDraw() {
+  if (!location.hash || !location.hash.includes('g=')) return false;
+  try {
+    const p = new URLSearchParams(location.hash.replace(/^#/,''));
+    const name = p.get('g'); if (!name) return false;
+    await loadGods();
+    if (typeof GODS === 'undefined' || !Array.isArray(GODS)) return false;
+    const god = GODS.find(x => x.name === name);
+    if (!god) return false;
+    const tierName = p.get('t') || god.tier;
+    const T = (Array.isArray(TIERS) ? TIERS.find(x => x.name === tierName) : null)
+           || { name: god.tier || '?', color:'#c8a45a', nameTH: god.tier || '?', nameEN: god.tier || '?' };
+    const msgIdx = parseInt(p.get('m') || '0', 10) || 0;
+    // Sender may carry the literal message + their source language. This
+    // bypasses cross-language msgIdx drift (TH array length ≠ EN array length).
+    const senderMsg  = p.get('msg') || '';
+    const senderLang = p.get('l') === 'en' ? 'en' : (p.get('l') === 'th' ? 'th' : '');
+    if (senderLang && typeof LANG !== 'undefined' && LANG !== senderLang) {
+      // Recipient is viewing in a different language than sender — switching
+      // to sender's lang preserves the share fidelity. The user can toggle
+      // back via Settings if they prefer.
+      try { LANG = senderLang; document.documentElement.lang = senderLang; localStorage.setItem('mth_lang', senderLang); } catch(_){}
+    }
+    if (typeof setGroup === 'function') setGroup('free');
+    if (typeof showSubTab === 'function') showSubTab('blessing');
+    setTimeout(() => _renderGodCard(god, T, msgIdx, senderMsg), 50);
+    return true;
+  } catch(e) { console.warn('[deeplink]', e); return false; }
+}
+
+// Fire after page load + a short settle delay so the entry overlay flow can
+// resolve first. If hash carries a shared draw, route to it.
+window.addEventListener('load', () => { setTimeout(() => { try { _maybeRenderSharedDraw(); } catch(_){} }, 600); });
+
 function renderHistory(){
   const el=document.getElementById('historyList');if(blessHistory.length<2){el.innerHTML='';return;}
   el.innerHTML=`<div style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:7px;text-align:center">${t('blessing_history').toUpperCase()}</div>`+
@@ -4610,10 +4777,29 @@ const _BETA_ALL_UNLOCKED = false;
 // false; never downgraded on a transient fetch error (see _refreshPremium).
 let _IS_PREMIUM = false;
 
-// Returns true if EITHER (a) emergency open-access rollback is on, OR
-// (b) the user is an active Gumroad subscriber, OR (c) user has an active
-// gift code, OR (d) the specific item has been purchased for the current chart.
+// ── Owner / dev mode ───────────────────────────────────────────
+// Bypasses every paywall for testing without touching the production gates.
+// Activated by ANY of:
+//   1. URL flag  ?dev=1  (persists to localStorage so it survives navigation)
+//   2. localStorage  mth_owner_dev = '1'  (set manually in DevTools)
+//   3. Logged-in Supabase session email matches OWNER_EMAILS
+// Disable with  ?dev=0  or  localStorage.removeItem('mth_owner_dev')
+const OWNER_EMAILS = ['chaiyapat.c@yoohui.co.th'];
+let _OWNER_MODE = false;
+try {
+  const q = new URLSearchParams(location.search);
+  if (q.get('dev') === '1') { localStorage.setItem('mth_owner_dev','1'); }
+  else if (q.get('dev') === '0') { localStorage.removeItem('mth_owner_dev'); }
+  if (localStorage.getItem('mth_owner_dev') === '1') _OWNER_MODE = true;
+} catch(_) {}
+function _isOwner(){ return _OWNER_MODE; }
+
+// Returns true if EITHER (a) owner/dev mode is on, OR (b) emergency open-access
+// rollback is on, OR (c) the user is an active Gumroad subscriber, OR (d) user
+// has an active gift code, OR (e) the specific item has been purchased for the
+// current chart.
 function _hasItemAccess(itemKey, hashOverride){
+  if (_OWNER_MODE) return true;
   if (_BETA_ALL_UNLOCKED) return true;
   if (_IS_PREMIUM) return true;
   if (_hasActiveGift()) return true;
@@ -4631,6 +4817,13 @@ async function _refreshPremium(){
     if (typeof _sb === 'undefined' || !_sb) return;
     const { data: { session } } = await _sb.auth.getSession();
     if (!session) { _IS_PREMIUM = false; return; }
+    // Auto-detect owner from logged-in email — persists so it survives sign-out.
+    try {
+      const email = (session.user && session.user.email || '').toLowerCase();
+      if (email && OWNER_EMAILS.includes(email)) {
+        if (!_OWNER_MODE) { _OWNER_MODE = true; localStorage.setItem('mth_owner_dev','1'); }
+      }
+    } catch(_) {}
     const r = await fetch('/api/me/plan', { headers: { Authorization: 'Bearer ' + session.access_token } });
     if (!r.ok) return;                       // transient — keep prior value
     const j = await r.json();
@@ -4655,13 +4848,72 @@ async function _refreshPremium(){
 // Gumroad webhook → _refreshPremium() picks it up → locks vanish.
 const _GUMROAD_SUBSCRIBE_URL = 'https://garsell.gumroad.com/l/tlkfx?wanted=true';
 
+// ── Per-item Gumroad product URLs ─────────────────────────────────────────
+// One-time purchases that unlock a single feature for the current birth chart.
+// Keys MUST match PRICING above. Each entry has:
+//   url        — full Gumroad product URL (https://garsell.gumroad.com/l/<id>)
+//                If empty, _purchaseItem falls back to _GUMROAD_SUBSCRIBE_URL.
+//   permalink  — the short id (the part after /l/) so the webhook can
+//                resolve which item was purchased without parsing the URL.
+//
+// TODO (Director): create these as separate Gumroad products in the Gumroad
+// dashboard, then paste the URL + permalink below. Each product should be
+// priced to match PRICING[<key>].usd and configured as one-time purchase.
+// While `url` is empty the paywall button still works — it just sends the
+// user to the subscription page instead of the per-item checkout.
+const _GUMROAD_PRODUCTS = {
+  // Created 2026-05-30 via Gumroad API. All 9 start as `published: false` so the
+  // Director can review pricing + description on the Gumroad dashboard before
+  // going live. Once published, paywall buttons send buyers straight to per-item
+  // one-time checkout (no subscription required).
+  deep:        { url: 'https://garsell.gumroad.com/l/oziji?wanted=true',  permalink: 'oziji'  }, // $9
+  mirror:      { url: 'https://garsell.gumroad.com/l/luqkbx?wanted=true', permalink: 'luqkbx' }, // $9
+  pet:         { url: 'https://garsell.gumroad.com/l/nxezj?wanted=true',  permalink: 'nxezj'  }, // $5
+  companions:  { url: 'https://garsell.gumroad.com/l/wlgmbp?wanted=true', permalink: 'wlgmbp' }, // $7
+  exercise:    { url: 'https://garsell.gumroad.com/l/intvj?wanted=true',  permalink: 'intvj'  }, // $7
+  food:        { url: 'https://garsell.gumroad.com/l/vwzkgz?wanted=true', permalink: 'vwzkgz' }, // $7
+  product:     { url: 'https://garsell.gumroad.com/l/howzdo?wanted=true', permalink: 'howzdo' }, // $5
+  compat:      { url: 'https://garsell.gumroad.com/l/mdjeln?wanted=true', permalink: 'mdjeln' }, // $9
+  full_report: { url: 'https://garsell.gumroad.com/l/mbkayz?wanted=true', permalink: 'mbkayz' }, // $19
+};
+
+// Resolve the checkout URL for a given itemKey: prefer per-item one-time
+// product; fall back to the subscription URL when not yet configured.
+// Returns { url, kind: 'one-time' | 'subscription' } so the toast + analytics
+// can show the user which flow they entered.
+function _gumroadCheckout(itemKey){
+  // Try the exact key, then the prefix before `_` (e.g. deep_western → deep).
+  const exact  = _GUMROAD_PRODUCTS[itemKey];
+  const prefix = _GUMROAD_PRODUCTS[String(itemKey || '').split('_')[0]];
+  const cfg    = (exact && exact.url) ? exact : ((prefix && prefix.url) ? prefix : null);
+  return cfg
+    ? { url: cfg.url, kind: 'one-time', permalink: cfg.permalink || '' }
+    : { url: _GUMROAD_SUBSCRIBE_URL, kind: 'subscription', permalink: 'tlkfx' };
+}
+
 function _purchaseItem(itemKey, opts){
   const isTh = LANG === 'th';
+  const checkout = _gumroadCheckout(itemKey);
   try {
-    _showSyncToast(isTh
-      ? '✦ สมัครสมาชิก $4.99/เดือน → ปลดล็อกทุกศาสตร์'
-      : '✦ Subscribe $4.99/mo → unlock everything');
+    const oneTime = checkout.kind === 'one-time';
+    const price   = PRICING[itemKey] || PRICING[String(itemKey || '').split('_')[0]] || { usd: 9 };
+    _showSyncToast(oneTime
+      ? (isTh ? `✦ ซื้อครั้งเดียว $${price.usd} → ปลดล็อกสำหรับวันเกิดนี้` : `✦ One-time $${price.usd} → unlock for this chart`)
+      : (isTh ? '✦ สมัครสมาชิก $4.99/เดือน → ปลดล็อกทุกศาสตร์' : '✦ Subscribe $4.99/mo → unlock everything'));
   } catch(_){}
+  try { if (typeof _logEngagement === 'function') _logEngagement('purchase_click:' + (itemKey || 'unknown') + ':' + checkout.kind); } catch(_){}
+  window.open(checkout.url, '_blank', 'noopener');
+  return false;
+}
+
+// Bare subscription CTA — used by the dual-CTA paywall + the standalone
+// "Subscribe to unlock everything" button in pricing surfaces.
+function _purchaseSubscription(source){
+  const isTh = LANG === 'th';
+  try {
+    _showSyncToast(isTh ? '✦ สมัครสมาชิก $4.99/เดือน → ปลดล็อกทุกศาสตร์' : '✦ Subscribe $4.99/mo → unlock everything');
+  } catch(_){}
+  try { if (typeof _logEngagement === 'function') _logEngagement('subscribe_click:' + (source || 'unknown')); } catch(_){}
   window.open(_GUMROAD_SUBSCRIBE_URL, '_blank', 'noopener');
   return false;
 }
@@ -4693,10 +4945,12 @@ function _purchasePaywall(itemKey, opts){
       ${benefits.length ? `<ul style="margin:10px 0 12px 18px;padding:0;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--text);line-height:1.7">${benefits.map(b=>`<li style="margin-bottom:2px">${b}</li>`).join('')}</ul>` : ''}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
         <button onclick="_purchaseItem(${itemArg},{label:${labelArg}})" style="cursor:pointer;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:var(--bg);font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:9px 16px;border-radius:6px;font-weight:700">✦ ${isTh?'ปลดล็อค $'+price.usd:'Unlock $'+price.usd}</button>
-        <button onclick="setGroup('profile');showSubTab('me')" style="cursor:pointer;background:transparent;border:1px solid var(--gold3);color:var(--gold);font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:1.5px;padding:9px 14px;border-radius:6px">${isTh?'ใส่รหัสของขวัญ':'Use Gift Code'}</button>
+        <button onclick="_purchaseSubscription('paywall:${itemKey}')" style="cursor:pointer;background:transparent;border:1px solid var(--gold3);color:var(--gold);font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:1.5px;padding:9px 14px;border-radius:6px" title="${isTh?'ปลดล็อกทุก feature ของ Mythsensus':'Unlock every Mythsensus feature'}">${isTh?'หรือสมัครสมาชิก $4.99/ด.':'Or subscribe $4.99/mo'}</button>
+        <button onclick="setGroup('profile');showSubTab('me')" style="cursor:pointer;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;padding:9px 12px;border-radius:6px">${isTh?'ใส่รหัสของขวัญ':'Use Gift Code'}</button>
       </div>
-      <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(212,175,55,0.15);font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:var(--muted)">
-        ${isTh?'💡 จ่ายครั้งเดียว ดูซ้ำได้ตลอด · ถ้าเปลี่ยนวันเกิด/เวลา/เพศ/เมือง/ชื่อ → ต้องชำระใหม่':'💡 One-time payment, unlimited re-views · changing DOB / time / gender / city / name → re-purchase required'}
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(212,175,55,0.15);font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:var(--muted);line-height:1.7">
+        ${isTh?'💡 ซื้อครั้งเดียว = ปลดล็อกเฉพาะ feature นี้สำหรับวันเกิดของคุณ ดูซ้ำได้ตลอด · สมัครสมาชิก = ปลดล็อกทุก feature ใช้กับทุกดวง':'💡 One-time purchase = unlocks just this feature for your chart, unlimited re-views · subscribe = unlocks every feature across every chart'}<br>
+        ${isTh?'· ถ้าเปลี่ยนวันเกิด/เวลา/เพศ/เมือง/ชื่อ → ต้องชำระใหม่ (สำหรับ one-time เท่านั้น)':'· If you change DOB / time / gender / city / name → re-purchase required (one-time only)'}
       </div>
     </div>`;
 }
@@ -5472,6 +5726,28 @@ const DEEP_SYSTEMS = [
       [LANG==='th'?'กาย':'Physical', c.biorhythm.physical+'%'],
       [LANG==='th'?'อารมณ์':'Emotional', c.biorhythm.emotional+'%'],
       [LANG==='th'?'สติปัญญา':'Intellectual', c.biorhythm.intellectual+'%'],
+    ]
+  })],
+  // เลข ๗ ตัว ๙ ฐาน — Thai 7-Number System. Was the 26th system in the engine
+  // score breakdown but missing from this Deep Reading menu, so 81 places of
+  // "26 systems" marketing copy were technically over-claiming. Added 2026-05-30.
+  ['thaiSeven','ds_thai7','7️⃣',(c)=>({
+    title: LANG==='th'
+      ? `เลข ๗ ตัว · ${(c.numerology.thaiSeven||[]).join(' · ')}`
+      : `Thai 7-Number System · ${(c.numerology.thaiSeven||[]).join(' · ')}`,
+    origin: LANG==='th' ? 'ไทย · 700+ ปี (พราหมณ์ปรับใช้)' : 'Thai · 700+ yrs (Brahmin adaptation)',
+    insight: LANG==='th'
+      ? `เลข 7 ตัวจากชื่อ-วันเดือนปีเกิด วางใน 9 ฐาน — สะท้อนพลังงานหลักของชีวิต<br>ฐาน 1 (อัตตา): <strong>${(c.numerology.thaiSeven||[])[0]||'—'}</strong> · ฐาน 4 (กรรม): <strong>${(c.numerology.thaiSeven||[])[3]||'—'}</strong> · ฐาน 7 (โชค): <strong>${(c.numerology.thaiSeven||[])[6]||'—'}</strong>`
+      : `Seven numbers derived from name + birth date placed on 9 bases — reflecting your life's core energetic signatures<br>Base 1 (Self): <strong>${(c.numerology.thaiSeven||[])[0]||'—'}</strong> · Base 4 (Karma): <strong>${(c.numerology.thaiSeven||[])[3]||'—'}</strong> · Base 7 (Fortune): <strong>${(c.numerology.thaiSeven||[])[6]||'—'}</strong>`,
+    reading: c.numerology.thaiSevenReading || '',
+    stats:[
+      [LANG==='th'?'ฐาน 1':'Base 1', String((c.numerology.thaiSeven||[])[0]||'—')],
+      [LANG==='th'?'ฐาน 2':'Base 2', String((c.numerology.thaiSeven||[])[1]||'—')],
+      [LANG==='th'?'ฐาน 3':'Base 3', String((c.numerology.thaiSeven||[])[2]||'—')],
+      [LANG==='th'?'ฐาน 4':'Base 4', String((c.numerology.thaiSeven||[])[3]||'—')],
+      [LANG==='th'?'ฐาน 5':'Base 5', String((c.numerology.thaiSeven||[])[4]||'—')],
+      [LANG==='th'?'ฐาน 6':'Base 6', String((c.numerology.thaiSeven||[])[5]||'—')],
+      [LANG==='th'?'ฐาน 7':'Base 7', String((c.numerology.thaiSeven||[])[6]||'—')],
     ]
   })],
   ['vedicMahadasha','ds_mahadasha','⏳',(c)=>({
@@ -6313,6 +6589,7 @@ function _getRecentDailyPulses(n = 14) {
 // real subscription state (probably another localStorage flag or a check
 // against an account record).
 function _isPulseSubscriber() {
+  if (typeof _OWNER_MODE !== 'undefined' && _OWNER_MODE) return true;
   // TODO: replace with real subscription check at launch.
   return true;
 }
@@ -7316,12 +7593,16 @@ const _ELEMENT_TRAITS_TH = {
   'โลหะ':{ core:'ความชัดเจน · ระเบียบ · ตัดสินใจ', drains:'ความฟุ้งเฟ้อ · ไฟมากเกินไป · ความยุ่งเหยิง' },
   'น้ำ': { core:'ปัญญา · สัญชาตญาณ · ปรับตัว',    drains:'ดินทึบ · ความซ้ำซาก · การปิดกั้นการไหล' },
 };
+// Keyed by English element names because chart.bazi.dayMasterElement
+// returns English in lang:'en' mode (calc.ts pEl()). Previously this was
+// keyed by Thai labels and every EN lookup silently fell back to '—',
+// shipping visible em-dashes across mirror+pet+companions reasoning blocks.
 const _ELEMENT_TRAITS_EN = {
-  'ไม้':  { core:'growth · flexibility · communication', drains:'stagnation · over-restriction · excess metal' },
-  'ไฟ':  { core:'energy · creativity · leadership',     drains:'coldness · suppression · excess water' },
-  'ดิน': { core:'stability · nourishment · balance',    drains:'chaos · excess wood · rootlessness' },
-  'โลหะ':{ core:'clarity · order · decisiveness',       drains:'excess · excess fire · disarray' },
-  'น้ำ': { core:'wisdom · intuition · adaptability',    drains:'heaviness · monotony · blocked flow' },
+  'Wood':  { core:'growth · flexibility · communication', drains:'stagnation · over-restriction · excess metal' },
+  'Fire':  { core:'energy · creativity · leadership',     drains:'coldness · suppression · excess water' },
+  'Earth': { core:'stability · nourishment · balance',    drains:'chaos · excess wood · rootlessness' },
+  'Metal': { core:'clarity · order · decisiveness',       drains:'excess · excess fire · disarray' },
+  'Water': { core:'wisdom · intuition · adaptability',    drains:'heaviness · monotony · blocked flow' },
 };
 
 // ── Divine Mirror ──────────────────────────────────────────
@@ -7935,7 +8216,40 @@ function renderProduct(){
         <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">🎨 ${isTh?'พาเลตต์ที่เสริมพลัง':'Empowering palette'}</div>
         <div style="font-size:13px;color:var(--text);margin-bottom:10px">${p.colors}</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          ${p.colors.split('·').map(c=>{const hex=c.match(/#[0-9a-f]{6}/i);return hex?`<div style="width:32px;height:32px;border-radius:6px;background:${hex[0]};border:1px solid var(--border)" title="${hex[0]}"></div>`:''}).join('')}
+          ${(()=>{
+            // Thai/EN colour-name → hex map. Covers the names the engine
+            // currently emits in chart.addons.product.colors so palettes for
+            // Water/Earth/Metal element profiles (which use no hex codes)
+            // also render chips instead of an empty row.
+            const HEX = {
+              // Thai
+              'แดง':'#c0392b','ส้ม':'#e67e22','เหลือง':'#f1c40f','เขียว':'#27ae60',
+              'น้ำเงิน':'#2c3e50','น้ำเงินเข้ม':'#1a2238','ฟ้า':'#5dade2','ฟ้าอ่อน':'#aed6f1',
+              'ม่วง':'#7d3c98','ม่วงน้ำ':'#5b6ea0','ชมพู':'#e91e63','ขาว':'#f5f5f5',
+              'ดำ':'#1a1a1a','ดำเงา':'#0a0a0a','เทา':'#7a7a7a','เทาเข้ม':'#3a3a3a',
+              'เงิน':'#bdc3c7','ทอง':'#d4af37','น้ำตาล':'#8b5a2b','น้ำตาลอ่อน':'#a47148',
+              'น้ำตาลเข้ม':'#4a2c1a','ครีม':'#e8d8b8','เขียวมะกอก':'#6a7a3a','เขียวมรกต':'#1a7a52',
+              'เหลืองดิน':'#caa44a','เหลืองทอง':'#d4af37','ฟ้าคราม':'#3a4a7a','ดำหมึก':'#0e0e1a',
+              // English
+              'Red':'#c0392b','Orange':'#e67e22','Yellow':'#f1c40f','Green':'#27ae60',
+              'Blue':'#2c3e50','Light Blue':'#5dade2','Indigo':'#3a4a7a','Purple':'#7d3c98',
+              'Pink':'#e91e63','White':'#f5f5f5','Black':'#1a1a1a','Gray':'#7a7a7a','Grey':'#7a7a7a',
+              'Silver':'#bdc3c7','Gold':'#d4af37','Brown':'#8b5a2b','Cream':'#e8d8b8',
+              'Olive':'#6a7a3a','Emerald':'#1a7a52','Lacquer Black':'#0a0a0a',
+            };
+            return p.colors.split('·').map(c=>{
+              const t = c.trim();
+              if (!t) return '';
+              const inline = t.match(/#[0-9a-f]{6}/i);
+              const hex = inline ? inline[0]
+                       : HEX[t]
+                       || HEX[t.replace(/\s*\/.*$/,'').trim()]  // strip after /
+                       || HEX[t.split(/\s+/)[0]]                  // first word
+                       || null;
+              if (!hex) return '';
+              return `<div style="width:32px;height:32px;border-radius:6px;background:${hex};border:1px solid var(--border)" title="${t}"></div>`;
+            }).join('');
+          })()}
         </div>
       </div>
 
@@ -8962,6 +9276,12 @@ async function _onSignIn(session){
 function _onSignOut(){
   _sbSession=null;
   _IS_PREMIUM=false;
+  // CRITICAL: clear owner mode on sign-out so subsequent visitors on a shared
+  // browser (kiosk, library, friend's laptop) cannot inherit the owner's
+  // auto-promoted paywall bypass. _refreshPremium would re-apply it on the
+  // next owner-email login anyway, so nothing is permanently lost.
+  _OWNER_MODE = false;
+  try { localStorage.removeItem('mth_owner_dev'); } catch(_) {}
   localStorage.removeItem('mth_backup_enabled');
   try { _sbStopAutoSync(); } catch(_) {}
   // Re-render so premium content re-locks after sign-out.
@@ -9278,6 +9598,17 @@ function _bootAfterEntry(){
   // Restore last-active group (or default to 'free').
   const savedGroup = localStorage.getItem('ms_last_group') || 'free';
   setGroup(savedGroup);
+  // Deep-link rescue: if the URL hash carries a shared draw (#g=&t=&m=) the
+  // earlier load-time _maybeRenderSharedDraw may have rendered into the wrong
+  // group/overlay state, and setGroup() above just cleared the godCard's
+  // `revealed` class. Re-apply the shared draw AFTER setGroup completes so a
+  // first-time visitor arriving via a friend's share link still lands on the
+  // exact card the sender drew. No-op when the hash has no g= param.
+  try {
+    if (location.hash && location.hash.includes('g=') && typeof _maybeRenderSharedDraw === 'function') {
+      setTimeout(() => _maybeRenderSharedDraw(), 100);
+    }
+  } catch(_) {}
 }
 
 // Persist active group for next session.
@@ -9892,7 +10223,9 @@ async function logout(){
     : 'Sign out?\n\nYou will need a new OTP code by email to sign back in.\n(Sessions persist for weeks — you can close the tab and return without logging out.)';
   if (!confirm(msg)) return;
   if(_sb) await _sb.auth.signOut().catch(()=>{});
-  ['mth_user','mth_guest_ok','mth_backup_enabled'].forEach(k=>localStorage.removeItem(k));
+  // mth_owner_dev included: prevent the owner's auto-promoted paywall bypass
+  // from leaking to the next visitor on a shared browser.
+  ['mth_user','mth_guest_ok','mth_backup_enabled','mth_owner_dev'].forEach(k=>localStorage.removeItem(k));
   location.reload();
 }
 
@@ -10719,7 +11052,7 @@ function generateHTML(c) {
   const p1 = page(1,'✦','ปกและ Cosmic Score',`
 <div style="text-align:center;margin-bottom:18px">
   <div style="font-size:11px;color:#6a5a42;letter-spacing:4px;margin-bottom:6px">✦ COSMIC BLUEPRINT — PREMIUM EDITION ✦</div>
-  <div style="font-size:23px;font-weight:700;color:#d4aa50">การอ่านดวงชะตาครบ 10 ศาสตร์</div>
+  <div style="font-size:23px;font-weight:700;color:#d4aa50">การอ่านดวงชะตาครบ 26 ศาสตร์</div>
   <div style="font-size:13px;color:#9a8a72;margin-top:5px">${esc(gender)} ${esc(name)}</div>
 </div>
 <div style="background:#0d0b1e;border:1px solid #3a3060;border-radius:10px;padding:13px 16px;margin:12px 0 14px">
@@ -10781,7 +11114,7 @@ ${(()=>{
   });
   const p2 = page(2,'📊','Cosmic Score — ระบบคะแนนพลังงานจักรวาล',`
 ${box('d','📖 Cosmic Score คืออะไร?',`
-คะแนนที่คำนวณจาก <strong style="color:#d4aa50">10 ศาสตร์โบราณ</strong>พร้อมกัน ในช่วง <strong style="color:#d4aa50">300–999</strong> คะแนน
+คะแนนที่คำนวณจาก <strong style="color:#d4aa50">26 ศาสตร์โบราณ</strong>พร้อมกัน ในช่วง <strong style="color:#d4aa50">300–999</strong> คะแนน
 สะท้อน "ความสอดคล้องของพลังงาน" ณ ขณะเกิด — ไม่ใช่ดีหรือเลว แต่เป็น <em>แผนที่ศักยภาพ</em>ที่คุณนำมาพัฒนาต่อได้
 <em style="color:#6a5a42">(ไม่มีใครได้ 1,000 — จักรวาลสงวนช่องว่างไว้ให้เติบโตเสมอ)</em>`)}
 <div class="g2" style="margin-bottom:4px">
@@ -10831,7 +11164,7 @@ ${(()=>{
 `);
 
   // ─ P3: Grand Convergence — HERO PRODUCT ─
-  const p3 = page(3,'🌐','Grand Convergence — บทสรุปจาก 10 ศาสตร์โบราณ',`
+  const p3 = page(3,'🌐','Grand Convergence — บทสรุปจาก 26 ศาสตร์โบราณ',`
 ${(()=>{
   const mainEl = SEL[D.si];
   const sameEl = SEL[D.si]===nsk.el;
@@ -11041,7 +11374,7 @@ ${(()=>{
 
   <!-- Para 2: Cross-system convergence -->
   <div style="font-size:13px;color:#c8b880;line-height:2.1;margin-bottom:14px;padding:12px 14px;background:#0f0d28;border-radius:8px;border-left:3px solid #d4aa50">
-    <span style="font-size:11px;color:#d4aa50;letter-spacing:1px;display:block;margin-bottom:6px">✦ สิ่งที่ 10 ศาสตร์เห็นตรงกัน</span>
+    <span style="font-size:11px;color:#d4aa50;letter-spacing:1px;display:block;margin-bottom:6px">✦ สิ่งที่ 26 ศาสตร์เห็นตรงกัน</span>
     สิ่งที่ปรากฏซ้ำในชาร์ตนี้มากที่สุดคือ <strong style="color:#d4aa50">${_themeList||'Sun ราศี'+sun.th+' และ Life Path '+lPath}</strong> — ไม่ใช่ดวงที่กระจัดกระจาย แต่คือสัญญาณที่ชัดเจนและซ้ำข้ามอารยธรรมในลักษณะที่ผิดปกติ BaZi Day Master <strong style="color:#d4aa50">${D.s} (${D.si%2===0?'หยาง':'หยิน'}${mainEl})</strong> ยืนยันจากตะวันออก NSK Star <strong style="color:#d4aa50">${star} ${nsk.th}</strong> ยืนยันจากญี่ปุ่น Vedic Nakshatra <strong style="color:#d4aa50">${vedic.nakshatra}</strong> ยืนยันจากอินเดีย — 3 อารยธรรมที่ไม่รู้จักกันชี้มาที่จุดเดียว
   </div>
 
@@ -11065,14 +11398,14 @@ ${(()=>{
 
   <!-- Para 5: Score + closing -->
   <div style="font-size:12px;color:#9a8a72;line-height:2;padding-top:12px;border-top:1px solid #1a1840">
-    Cosmic Score <strong style="color:#d4aa50">${score.total}/999</strong> ระดับ <strong style="color:#d4aa50">${score.tier}</strong> — ${_scoreInterp} ศักยภาพสูงสุดที่ชาร์ตนี้สามารถไปถึงคือ <strong style="color:#d4aa50">${score.max}/999</strong> — ช่องว่างระหว่างสองตัวเลขนี้คือสิ่งที่ Activation Plan ในหน้า 16 ถูกออกแบบมาเพื่อปิด รายละเอียดทั้ง 10 ศาสตร์พร้อมหลักฐานอยู่ในการ์ดด้านล่าง
+    Cosmic Score <strong style="color:#d4aa50">${score.total}/999</strong> ระดับ <strong style="color:#d4aa50">${score.tier}</strong> — ${_scoreInterp} ศักยภาพสูงสุดที่ชาร์ตนี้สามารถไปถึงคือ <strong style="color:#d4aa50">${score.max}/999</strong> — ช่องว่างระหว่างสองตัวเลขนี้คือสิ่งที่ Activation Plan ในหน้า 16 ถูกออกแบบมาเพื่อปิด รายละเอียดทั้ง 26 ศาสตร์พร้อมหลักฐานอยู่ในการ์ดด้านล่าง
   </div>
 </div>
 ${themeHTML}
 <div class="box box-r" style="margin-top:16px"><div class="bt">⚠️ ปัจจัยที่ทำให้คะแนนต่ำกว่าศักยภาพ — Score Reducers (${reducers.length} ปัจจัยที่พบ)</div>
 <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">สิ่งเหล่านี้ไม่ใช่ "คำสาป" — แต่คือสัญญาณเตือนที่ทุกศาสตร์เห็นตรงกันว่าต้องระวังพิเศษในช่วงนี้</div>
 <div>${reducerHTML}</div></div>
-<div class="box box-gr" style="margin-top:12px"><div class="bt">🚀 วิธีเข้าถึงศักยภาพ ${score.max}/999 — Activation Plan จาก 10 ศาสตร์</div>
+<div class="box box-gr" style="margin-top:12px"><div class="bt">🚀 วิธีเข้าถึงศักยภาพ ${score.max}/999 — Activation Plan จาก 26 ศาสตร์</div>
 <div style="font-size:12px;color:#9a8a72;margin-bottom:10px">Cosmic Score กำหนดจากดวง แต่การ "ใช้ชีวิตตามดวง" คือกุญแจที่ปลดล็อก — ทำ 5 ข้อนี้พร้อมกันให้ผลทบทวีคูณ</div>
 <div>${activatorHTML}</div></div>`;
 })()}`);
@@ -11805,7 +12138,7 @@ ${LP.map(l=>{const cur=age>=l.ageStart&&age<=l.ageEnd;return `<tr${cur?' style="
   // ─ P14: Health ─
   const exercises={甲:'ยิม/Weight Training',乙:'Pilates/Stretching',丙:'ว่ายน้ำ/Water Sports',丁:'โยคะ/Meditation',戊:'เดินในธรรมชาติ/Hiking',己:'เดินชายหาด/Swimming',庚:'HIIT/Boxing',辛:'Dance/Yoga',壬:'เดิน 10,000 ก้าว/Pilates',癸:'Yin Yoga/Tai Chi'};
   const elHealth={ไฟ:'ดื่มน้ำมากขึ้น ลดอาหารเผ็ดและทอด ระวัง inflammation',ไม้:'ดูแลตับและสายตา กินผักใบเขียว ออกกำลังกายยืดเส้น',น้ำ:'ดูแลไตและกระดูก อุ่นร่างกาย กินอาหารอุ่น',โลหะ:'ดูแลปอดและลำไส้ ฝึกหายใจลึก กินอาหารสีขาว',ดิน:'ดูแลกระเพาะและม้าม กินตรงเวลา ลดของหวาน'};
-  const p14 = page(14,'🌿','Health Coaching — แผนสุขภาพจาก 10 ศาสตร์',`
+  const p14 = page(14,'🌿','Health Coaching — แผนสุขภาพจาก 26 ศาสตร์',`
 <div style="font-size:12px;color:#7a6a52;margin-bottom:14px">ทุกคำแนะนำมาจากจุดที่ศาสตร์หลายระบบเห็นตรงกัน ดวงเป็นแนวทาง ไม่ใช่คำสั่ง</div>
 ${(()=>{
   const items=[
@@ -12139,7 +12472,7 @@ ${(()=>{
 <div style="font-size:12px;color:#7a6a52;margin-bottom:12px">คำแนะนำอิงจาก BaZi Day Master · Nine Star Ki · Thai Brahmin · Vedic Dosha · Western ASC · Celtic — ทุกคำแนะนำมีเหตุผลจากดวงชะตา</div>
 <h2>สีมงคล</h2>
 <table>
-<thead><tr><th>สี</th><th>Hex</th><th>เหตุผลจาก 10 ศาสตร์</th><th>โอกาส</th></tr></thead>
+<thead><tr><th>สี</th><th>Hex</th><th>เหตุผลจาก 26 ศาสตร์</th><th>โอกาส</th></tr></thead>
 <tbody>
 ${myColors.primary.map(c=>'<tr><td><div style="display:flex;align-items:center;gap:7px"><div style="width:20px;height:20px;border-radius:4px;background:'+c.hex+';border:1px solid #444"></div><strong>'+c.th+'</strong></div></td><td style="font-family:monospace;font-size:11px;color:#9a9ab0">'+c.hex+'</td><td style="font-size:11px;color:#7a6a52">'+c.reason+'</td><td style="font-size:11px;color:#d4aa50">'+c.occ+'</td></tr>').join('')}
 <tr><td><div style="display:flex;align-items:center;gap:7px"><div style="width:20px;height:20px;border-radius:4px;background:#9a2060;border:1px solid #444"></div><strong>ม่วง Nine Star ${star}</strong></div></td><td style="font-family:monospace;font-size:11px;color:#9a9ab0">${nsk.color}</td><td style="font-size:11px;color:#7a6a52">Nine Star Ki Star ${star} ${nsk.th} สีมงคลหลัก</td><td style="font-size:11px;color:#d4aa50">งานสร้างสรรค์ Networking</td></tr>
@@ -12440,7 +12773,7 @@ ${box('gr','ช่วงทอง',`Luck Pillar ${curLP.sth.split(' ')[0]}–${c
   </div>
 </div>
 <div style="font-size:11px;color:#6a5a42;text-align:center;border-top:1px solid #252240;padding-top:10px;line-height:1.9">
-  รายงานนี้สร้างโดย AI โดยนำ 10 ศาสตร์โบราณมาวิเคราะห์หาจุดร่วม<br>
+  รายงานนี้สร้างโดย AI โดยนำ 26 ศาสตร์โบราณมาวิเคราะห์หาจุดร่วม<br>
   เพื่อความบันเทิงและการสำรวจตนเอง ไม่ใช่คำแนะนำวิชาชีพด้านการแพทย์ กฎหมาย หรือการเงิน<br>
   © Mythsensus · mythsensus.com
 </div>`);
@@ -13109,7 +13442,19 @@ function saveOrganumToHistory(question, topWord, topCount, godName1, godSymbol1)
   });
 }
 
-function saveBlessingToHistory(god, tier) {
+function saveBlessingToHistory(god, tier, message, msgIdx) {
+  // After Phase B enrichment (217 rare-tier gods × multi-message TH/EN),
+  // the legacy `god.messages` array is stale (still holds the pre-enrichment
+  // single English string). The caller passes the *actually rendered* message
+  // + msgIdx. Fall back through the same chain randMsg uses so legacy gods +
+  // older history entries continue to work.
+  const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
+  const fallbackMsg = message
+    || (isTh ? (god.messages_th && god.messages_th[0]) : (god.messages_en && god.messages_en[0]))
+    || (god.messages_th && god.messages_th[0])
+    || (god.messages_en && god.messages_en[0])
+    || (god.messages && god.messages[0])
+    || '';
   saveToFullHistory({
     type: 'blessing',
     ts: Date.now(),
@@ -13118,7 +13463,9 @@ function saveBlessingToHistory(god, tier) {
     godName: god.name,
     godSymbol: god.symbol || '✦',
     godOrigin: god.mythology || '',
-    message: (god.messages && god.messages.length) ? god.messages[0] : '',
+    message: fallbackMsg,
+    msgIdx: (typeof msgIdx === 'number') ? msgIdx : 0,
+    lang: isTh ? 'th' : 'en',
     tierName: tier ? tier.nameEN : '',
     tierColor: tier ? tier.color : '#c8a45a',
   });

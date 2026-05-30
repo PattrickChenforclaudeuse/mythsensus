@@ -2179,7 +2179,17 @@ const ADDON_PRODUCT_BY_ELEMENT_EN = {
 // matches online AI-generated shape.
 function calcAddons(dmEl, tier, dasha) {
     const isEn = _reportLang === 'en';
-    const pick = (th, en) => (isEn ? en : th)[dmEl] || (isEn ? en : th)['ไม้'];
+    // The _EN content tables are keyed by Thai element labels ('ไม้','ไฟ',...)
+    // because that's how they shipped before bilingual rendering became a thing.
+    // But `dmEl` arrives here as the ENGLISH name in EN mode ('Metal','Wood',...)
+    // — so `en['Metal']` would miss and fall through to `en['ไม้']` (Wood),
+    // shipping Wood-template myth/pet/companion content for every non-Wood
+    // English profile (the workflow review caught Metal users seeing
+    // "Wood Day Masters who lead and grow easily" in their mirror).
+    // Fix: translate the English element back to its Thai key before lookup.
+    const EN_TO_TH_EL = { Wood: 'ไม้', Fire: 'ไฟ', Earth: 'ดิน', Metal: 'โลหะ', Water: 'น้ำ' };
+    const lookupKey = isEn ? (EN_TO_TH_EL[dmEl] || dmEl) : dmEl;
+    const pick = (th, en) => (isEn ? en : th)[lookupKey] || (isEn ? en : th)['ไม้'];
     return {
         mirror: {
             ...pick(ADDON_MIRROR_BY_ELEMENT, ADDON_MIRROR_BY_ELEMENT_EN),
@@ -3900,15 +3910,70 @@ function p01_cover(c) {
 
     <!-- Key signals -->
     <div class="grid-3" style="margin:12px 0">
-      ${[
-        ['🔥 Day Master', `${bazi.dayStem} ${bazi.dayMasterElement}`],
-        ['⭐ Nine Star Ki', ninestar.star + ' ' + ninestar.starName],
-        [tr('☀️ Western', '☀️ Western Sun'), _lang === 'en' ? western.sunSign || western.sunSignTh : western.sunSignTh],
-        ['🕉️ Vedic Lagna', c.vedic.lagnaSign],
-        [tr('⚡ พลังงาน', '⚡ Energy Type'), _lang === 'en' ? c.humandesign.type || c.humandesign.typeTh : c.humandesign.typeTh],
-        ['🔢 Life Path', `${numerology.lifePath}`],
-    ].map(([l, v]) => `<div class="stat-card"><div class="lbl">${esc(l)}</div><div style="font-size:13px;font-weight:600;color:#d4aa50;margin-top:3px">${esc(v)}</div></div>`).join('')}
+      ${(() => {
+        // Match the emoji to the actual element so the visual cue agrees with
+        // the label. Previously this was a hard-coded 🔥 next to all Day Masters
+        // — Water-element users saw a fire emoji and assumed they were Fire.
+        const elEmoji = {
+            'ไม้': '🌳', 'ไฟ': '🔥', 'ดิน': '🌍', 'โลหะ': '⚔️', 'น้ำ': '🌊',
+            'Wood': '🌳', 'Fire': '🔥', 'Earth': '🌍', 'Metal': '⚔️', 'Water': '🌊',
+        };
+        const dmE = elEmoji[bazi.dayMasterElement] || '✦';
+        return [
+            [`${dmE} ${tr('ธาตุประจำตัว (BaZi)', 'Primary Element (BaZi)')}`, `${bazi.dayStem} ${bazi.dayMasterElement}`],
+            [tr('⭐ ดาวประจำตัว (NSK)', '⭐ Birth Star (NSK)'), ninestar.star + ' ' + ninestar.starName],
+            [tr('☀️ Western', '☀️ Western Sun'), _lang === 'en' ? western.sunSign || western.sunSignTh : western.sunSignTh],
+            ['🕉️ Vedic Lagna', c.vedic.lagnaSign],
+            [tr('⚡ พลังงาน', '⚡ Energy Type'), _lang === 'en' ? c.humandesign.type || c.humandesign.typeTh : c.humandesign.typeTh],
+            ['🔢 Life Path', `${numerology.lifePath}`],
+        ].map(([l, v]) => `<div class="stat-card"><div class="lbl">${esc(l)}</div><div style="font-size:13px;font-weight:600;color:#d4aa50;margin-top:3px">${esc(v)}</div></div>`).join('');
+    })()}
     </div>
+
+    <!-- Element Consensus — answers "which element am I really?" by tallying
+         all the birth-fixed element fields across the 26 systems. The BaZi
+         Day Master is the East-Asian canonical "your element" but multiple
+         systems contribute their own element-read; if a majority agree, the
+         consensus is the "loudest" elemental signal. We exclude time-variable
+         fields (vedicMahadasha.dashaElement changes with the current period). -->
+    ${(() => {
+        const ee = { 'ไม้': '🌳', 'ไฟ': '🔥', 'ดิน': '🌍', 'โลหะ': '⚔️', 'น้ำ': '🌊', 'Wood': '🌳', 'Fire': '🔥', 'Earth': '🌍', 'Metal': '⚔️', 'Water': '🌊' };
+        const votes = {};
+        const _v = (sys, el) => { if (!el)
+            return; (votes[el] = votes[el] || []).push(sys); };
+        _v('BaZi Day Master', bazi.dayMasterElement);
+        _v('BaZi Dominant', bazi.dominantElement);
+        _v('Nine Star Ki', ninestar.starElement);
+        _v('Celtic Tree', c.celtic.element);
+        _v('Saju', c.saju.sajuElement);
+        _v('Tibetan Mewa', c.tibetan.mewaElement);
+        _v('Tibetan Parkha', c.tibetan.parkhaElement);
+        _v('Norse Rune', c.norseRune.runeElement);
+        _v('Ogham', c.ogham.element);
+        const total = Object.values(votes).reduce((s, a) => s + a.length, 0);
+        if (total < 2)
+            return '';
+        const sorted = Object.entries(votes).sort((a, b) => b[1].length - a[1].length);
+        const [winEl, winSys] = sorted[0];
+        const winEmoji = ee[winEl] || '✦';
+        const matchBaZi = winEl === bazi.dayMasterElement;
+        const minorityLines = sorted.slice(1).map(([el, sys]) => `${ee[el] || '·'} ${esc(el)} ${sys.length} (${esc(sys.join(', '))})`).join(' · ');
+        return `
+    <div style="background:linear-gradient(135deg,#0e1a2a,#1a2a3e);border:2px solid #5a8acc;border-radius:12px;padding:14px 18px;margin:12px 0">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <div style="font-size:36px;line-height:1">${winEmoji}</div>
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:10px;color:#7aaae0;letter-spacing:2px;margin-bottom:3px">${tr('🤝 ฉันทามติธาตุ', '🤝 ELEMENT CONSENSUS')}</div>
+          <div style="font-size:20px;font-weight:700;color:#aac8ff">${esc(winEl)}${matchBaZi ? '' : ` <span style="font-size:11px;color:#7a8aaa">(${tr('ต่างจาก BaZi', 'differs from BaZi')})</span>`}</div>
+          <div style="font-size:11px;color:#90a8c8;margin-top:4px;line-height:1.6"><strong style="color:#aac8ff">${winSys.length}/${total}</strong> ${tr('ศาสตร์เห็นพ้อง', 'systems agree')} · ${esc(winSys.join(' · '))}</div>
+          ${sorted.length > 1 ? `<div style="font-size:10.5px;color:#6a7a90;margin-top:4px">${tr('อีกฝั่งหนึ่ง', 'Other view')}: ${minorityLines}</div>` : ''}
+        </div>
+      </div>
+      <div style="font-size:10.5px;color:#6a7a90;margin-top:10px;padding-top:10px;border-top:1px solid #2a3a5a;line-height:1.65">
+        ${tr('ทำไมแต่ละศาสตร์ให้ต่างกัน? · ทุกศาสตร์มอง "ธาตุ" จากมุมของตัวเอง — BaZi ดูจาก Day Master (วันเกิด), Nine Star Ki ดูจากดาวเกิด, Celtic ดูจากต้นไม้ประจำวันเกิด ฯลฯ · ฉันทามติคือธาตุที่หลายๆ ศาสตร์เห็นตรงกัน = พลังที่ "ออกมาชัด" ที่สุดในตัวคุณ', 'Why do systems differ? · Each tradition reads "element" from its own angle — BaZi uses your Day Master, Nine Star Ki your birth star, Celtic your birth tree, etc. The consensus is the element multiple systems agree on = the energy that shows up most clearly in you.')}
+      </div>
+    </div>`;
+    })()}
 
     ${bazi.benMingNian2026 ? `
     <div class="warn">
@@ -3983,6 +4048,13 @@ function p_threeScores(c) {
     const countryEl = 'ไม้'; // Thailand = Wood (tropical, agricultural)
     const feedsDm = SHENG[EL_EN[countryEl] ?? ''] === dmElEn;
     const domainFit = SHENG[EL_EN[bdEl] ?? ''] === EL_EN[industryEl] ? 'ธาตุงานเสริมกัน ✓' : 'ธาตุงานต่างกัน';
+    // Prose character portrait — answers the page's "who you are" promise in
+    // words, synthesising element + tier + the loudest and quietest systems.
+    const dmEl = bazi.dayMasterElement;
+    const sortedSys = score.breakdown.slice().sort((a, b) => b.score - a.score);
+    const topSys = sortedSys[0], secondSys = sortedSys[1], lowSys = sortedSys[sortedSys.length - 1];
+    const tierLabel = _lang === 'en' ? (score.tierEn || score.tier) : score.tier;
+    const portrait = tr(`ถ้าจะสรุปคุณเป็นย่อหน้าเดียว: คุณคือพลังงานธาตุ${esc(dmEl)} ที่แกนกลางของดวงสั่นพ้องในระดับ "${esc(tierLabel)}" (${esc(score.percentile)}) · ศาสตร์ที่ขับตัวตนคุณออกมาชัดที่สุดคือ <strong style="color:#c0e080">${esc(trDF(topSys.system))}</strong> — ${esc(stripHtml(String(topSys.finding || '')))} เสริมด้วยเสียงของ ${esc(trDF(secondSys.system))} อีกแรง · ส่วน ${esc(trDF(lowSys.system))} ที่ให้คะแนนต่ำสุดไม่ได้แปลว่าคุณอ่อนด้านนั้น แต่คือมุมที่พลังงานของคุณเลือกไม่เดินเป็นทางหลัก — และความ "ไม่เท่ากันทุกด้าน" นี่เองที่ทำให้คุณเป็นคุณ ไม่ใช่ค่าเฉลี่ยของใคร`, `If we had to capture you in a single paragraph: you are ${esc(dmEl)}-element energy whose core resonates at the "${esc(tierLabel)}" level (${esc(score.percentile)}). The system that voices your identity most clearly is <strong style="color:#c0e080">${esc(trDF(topSys.system))}</strong> — ${esc(stripHtml(String(topSys.finding || '')))}, reinforced by ${esc(trDF(secondSys.system))}. Your lowest-scoring system, ${esc(trDF(lowSys.system))}, doesn't mean you're weak there — it's simply an angle your energy chooses not to travel as a main road. That very unevenness is what makes you <em>you</em>, not an average of anyone else.`);
     return section(2, tr('Soul Frequency — คุณเป็นใครตั้งแต่เกิด', 'Soul Frequency — Who You Are From Birth'), '🔥', `
     <div style="font-size:12px;color:#7a8a60;margin-bottom:16px;line-height:1.6">
       ${tr('Soul Frequency คือ', 'Soul Frequency is')} <strong style="color:#c0d080">${tr('คุณภาพดวงชะตาพื้นฐาน', 'your fundamental chart quality')}</strong> — ${tr('ไม่เปลี่ยนแปลง เหมือนเกรดน้ำมัน', 'unchanging, like the grade of petroleum')}<br>
@@ -4010,6 +4082,8 @@ function p_threeScores(c) {
         </div>
       </div>
     </div>
+
+    ${box(tr('ภาพรวมตัวตนคุณในหนึ่งย่อหน้า', 'Your portrait in one paragraph'), portrait, 'green')}
 
     ${_renderCosmicJourney(score)}
 
@@ -4106,7 +4180,7 @@ function p03_convergence(c) {
     const hi = (s) => s >= medianScore; // "votes yes" if at or above median
     // Helper: get system score by name fragment
     const sc = (nameFragment) => all26.find(b => b.system.includes(nameFragment))?.score ?? 0;
-    const { bazi, western, ninestar, numerology, vedic, humandesign, mayan, celtic, thai, saju, tibetan, ziwei, onmyodo, hellenistic, norseRune, ogham, arabicParts, kabbalistic, zoroastrian, aztec, nativeAmerican, ifaYoruba, aboriginal, biorhythm, vedicMahadasha } = c;
+    const { score, bazi, western, ninestar, numerology, vedic, humandesign, mayan, celtic, thai, saju, tibetan, ziwei, onmyodo, hellenistic, norseRune, ogham, arabicParts, kabbalistic, zoroastrian, aztec, nativeAmerican, ifaYoruba, aboriginal, biorhythm, vedicMahadasha } = c;
     const dmEl = bazi.dayMasterElement;
     const themes = [];
     // ─── 1. Element Resonance (ธาตุ Day Master แผ่ซึมทุกศาสตร์) ─────────────
@@ -4313,11 +4387,139 @@ function p03_convergence(c) {
         '⚡': tr(`ทุกจุดท้าทายในดวงมีเหตุผล — ธาตุขาด${bazi.missingElement ? bazi.missingElement : 'ไม่มี'} คือพลังงานที่ต้องหามาจากภายนอก ระบบที่ score ต่ำกว่า median ไม่ได้บอกว่า "ดวงแย่" แต่บอกว่า "พลังงานนั้นไม่ใช่ทิศหลัก"`, `Every challenge in your chart has a reason. The missing ${trDF(bazi.missingElement) || 'no'} element is the energy you must source from outside. Systems scoring below median don't say "bad chart" — they say "this energy isn't your primary direction".`),
         '💞': tr(`พลังความสัมพันธ์ใน HD Profile ${humandesign.profile} + ${kabbalistic.archangel} + ${nativeAmerican.clansmother} บ่งว่าเครือข่ายมนุษย์คือ multiplier — คนเดียวได้ 1x แต่ผ่านคนที่ใช่ได้ 5-10x`, `The relational signature in HD Profile ${humandesign.profile} + ${kabbalistic.archangel} + ${nativeAmerican.clansmother} indicates that human networks are your multiplier — solo you do 1x, but through the right people 5-10x.`),
     };
-    return section(4, tr(`Grand Convergence — ${visible.length} themes จาก 26 ศาสตร์`, `Grand Convergence — ${visible.length} themes across 26 systems`), '🌐', `
-    <div style="font-size:11px;color:#7a6a52;margin-bottom:12px;line-height:1.6">
-      ${tr('ทุก 26 ระบบ cast votes ในแต่ละ theme — score-based · ชื่อระบบแสดงครบทุกตัว · narrative คือ AI สังเคราะห์จากดวงจริง', 'All 26 systems cast votes per theme — score-weighted · every system listed by name · narrative AI-synthesised from your specific chart')}
+    const FAMILY_MAP = [
+        ['BaZi', 'east'], ['Nine Star', 'east'], ['Saju', 'east'], ['Zi Wei', 'east'],
+        ['Onmyōdō', 'east'], ['Tibetan', 'east'], ['ไทยพราหมณ์', 'east'], ['เลข ๗ ตัว', 'east'],
+        ['Vedic Jyotish', 'east'], ['Vedic Mahadasha', 'east'],
+        ['ตะวันตก', 'west'], ['Hellenistic', 'west'], ['Pythagorean', 'west'],
+        ['Kabbalistic', 'west'], ['เซลติก', 'west'], ['Ogham', 'west'], ['Arabic', 'west'],
+        ['มายัน', 'indigenous'], ['Aztec', 'indigenous'], ['Native', 'indigenous'],
+        ['Aboriginal', 'indigenous'], ['Ifa', 'indigenous'],
+        ['Norse', 'esoteric'], ['Zoroastrian', 'esoteric'], ['ระบบประเภทพลังงาน', 'esoteric'],
+        ['Biorhythm', 'esoteric'],
+    ];
+    const familyOf = (sys) => {
+        for (const [frag, fam] of FAMILY_MAP)
+            if (sys.includes(frag))
+                return fam;
+        return null;
+    };
+    const families = {
+        east: { total: 0, strong: 0, resonance: 0, weak: 0, names: [], strongNames: [] },
+        west: { total: 0, strong: 0, resonance: 0, weak: 0, names: [], strongNames: [] },
+        indigenous: { total: 0, strong: 0, resonance: 0, weak: 0, names: [], strongNames: [] },
+        esoteric: { total: 0, strong: 0, resonance: 0, weak: 0, names: [], strongNames: [] },
+    };
+    for (const b of all26) {
+        const fam = familyOf(b.system);
+        if (!fam)
+            continue;
+        families[fam].total++;
+        families[fam].names.push(b.system);
+        if (b.score >= 780) {
+            families[fam].strong++;
+            families[fam].strongNames.push(b.system);
+        }
+        else if (b.score >= 650) {
+            families[fam].resonance++;
+        }
+        else {
+            families[fam].weak++;
+        }
+    }
+    const fams = ['east', 'west', 'indigenous', 'esoteric'];
+    const totalStrong = fams.reduce((s, f) => s + families[f].strong, 0);
+    const totalResonance = fams.reduce((s, f) => s + families[f].resonance, 0);
+    const totalWeak = fams.reduce((s, f) => s + families[f].weak, 0);
+    const dominantFamily = fams.reduce((m, f) => (families[f].strong / families[f].total) > (families[m].strong / families[m].total) ? f : m, 'east');
+    // ── Rarity math for the Unique Signature box ──
+    // BaZi Day Pillar combinations: 10 stems × 12 branches = 60
+    // Vedic Nakshatra × Pada: 27 nakshatras × 4 padas = 108
+    // Mayan Kin: 13 tones × 20 day signs = 260
+    // Joint combinations: 60 × 108 × 260 = 1,684,800 unique cosmic fingerprints.
+    // World population ≈ 8B → ≈ 4,750 people share each fingerprint.
+    const totalCombos = 60 * 108 * 260;
+    const peopleSharing = Math.round(8000000000 / totalCombos);
+    const nakshatra = c.vedic.moonNakshatra || '—';
+    const pada = c.vedic.nakshathraPada || c.vedic.nakshatraPada || '';
+    const mayanLbl = `${c.mayan.kin} ${_lang === 'en' ? c.mayan.daySignName : c.mayan.daySignNameTh}`;
+    // ── Variant Perception: 3 lowest-scoring systems carry the most info ──
+    const dissenters = [...all26].sort((a, b) => a.score - b.score).slice(0, 3);
+    // ── Headline TL;DR — one-paragraph summary ──
+    const elemConsensusEl = dmEl; // we already established cover's element consensus
+    const tldrCore = tr(`26 ศาสตร์มอง <strong style="color:#f0d060">${esc(c.input.name || 'คุณ')}</strong> = พลังธาตุ<strong>${esc(dmEl)}</strong> · <strong style="color:#f0d060">"${esc(score.cosmicEntity)}"</strong> · Life Path <strong>${numerology.lifePath}</strong> "${esc((numerology.lifePathName || '').split('—')[0].trim())}" · ${bazi.benMingNian2026 ? 'Ben Ming Nian + ' : ''}${ninestar.star === 9 ? 'NSK Honmei + ' : ''}Personal Year <strong>${numerology.personalYear2026}</strong> · ${totalStrong}/26 ศาสตร์ยืนยันชัด, ${totalWeak}/26 เห็นจุดท้าทาย · ลายเซ็นจักรวาล ~1 ใน ${(totalCombos / 1000).toFixed(0)}k คน`, `26 systems see <strong style="color:#f0d060">${esc(c.input.name || 'you')}</strong> as <strong>${esc(dmEl)}</strong>-element energy · <strong style="color:#f0d060">"${esc(score.cosmicEntity)}"</strong> · Life Path <strong>${numerology.lifePath}</strong> "${esc((numerology.lifePathName || '').split('—').slice(-1)[0].trim())}" · ${bazi.benMingNian2026 ? 'Ben Ming Nian + ' : ''}${ninestar.star === 9 ? 'NSK Honmei + ' : ''}Personal Year <strong>${numerology.personalYear2026}</strong> · ${totalStrong}/26 systems strongly agree, ${totalWeak}/26 flag challenges · cosmic fingerprint ~1 in ${(totalCombos / 1000).toFixed(0)}k people`);
+    const familyLabels = {
+        east: { th: 'ตะวันออก', en: 'Eastern' },
+        west: { th: 'ตะวันตก', en: 'Western' },
+        indigenous: { th: 'พื้นเมือง', en: 'Indigenous' },
+        esoteric: { th: 'ลึกลับ/นิรนาม', en: 'Esoteric' },
+    };
+    const familyBars = fams.map(f => {
+        const d = families[f];
+        const sPct = d.total ? (d.strong / d.total) * 100 : 0;
+        const rPct = d.total ? (d.resonance / d.total) * 100 : 0;
+        const wPct = d.total ? (d.weak / d.total) * 100 : 0;
+        const lbl = _lang === 'en' ? familyLabels[f].en : familyLabels[f].th;
+        const star = (f === dominantFamily) ? ' ⭐' : '';
+        return `<div style="display:flex;align-items:center;gap:10px;margin:5px 0">
+      <div style="width:90px;font-size:11px;color:#c8b890">${esc(lbl)}${star}</div>
+      <div style="flex:1;display:flex;height:14px;border-radius:3px;overflow:hidden;border:1px solid #2a2545;background:#0a0815">
+        <div style="width:${sPct.toFixed(1)}%;background:#50b050" title="${d.strong} ${tr('ยืนยันชัด', 'strong')}"></div>
+        <div style="width:${rPct.toFixed(1)}%;background:#d4aa50" title="${d.resonance} ${tr('เห็นสอดคล้อง', 'resonate')}"></div>
+        <div style="width:${wPct.toFixed(1)}%;background:#a04030" title="${d.weak} ${tr('จุดท้าทาย', 'challenge')}"></div>
+      </div>
+      <div style="width:60px;font-size:11px;color:#9a8a72;text-align:right">${d.strong}/${d.total}</div>
+    </div>`;
+    }).join('');
+    return section(4, tr('Grand Convergence — 26 ศาสตร์ส่งคำตอบเดียวกัน', 'Grand Convergence — All 26 Systems Speak Together'), '🌐', `
+    <!-- 1. Headline TL;DR -->
+    <div style="background:linear-gradient(135deg,#1a1408,#0e0a18);border:2px solid #d4aa50;border-radius:12px;padding:14px 18px;margin-bottom:14px">
+      <div style="font-size:10px;letter-spacing:3px;color:#d4aa50;margin-bottom:6px">${tr('✦ สรุปสั้น 1 ย่อหน้า', '✦ ONE-PARAGRAPH SUMMARY')}</div>
+      <div style="font-size:12.5px;color:#e0d4b0;line-height:1.85">${tldrCore}</div>
+    </div>
+
+    <!-- 2. Cross-Cultural Consensus -->
+    <div style="background:linear-gradient(135deg,#0a1422,#1a1530);border:2px solid #5a8acc;border-radius:12px;padding:14px 18px;margin-bottom:14px">
+      <div style="text-align:center;margin-bottom:10px">
+        <div style="font-size:10px;letter-spacing:3px;color:#7aaae0">${tr('🌏 ฉันทามติข้ามวัฒนธรรม', '🌏 CROSS-CULTURAL CONSENSUS')}</div>
+        <div style="font-size:13px;color:#aac8ff;margin-top:3px;line-height:1.65">${tr(`<strong>${totalStrong}/26</strong> ศาสตร์ยืนยันชัด · <strong>${totalResonance}/26</strong> เห็นสอดคล้อง · <strong>${totalWeak}/26</strong> ชี้จุดท้าทาย`, `<strong>${totalStrong}/26</strong> systems strongly agree · <strong>${totalResonance}/26</strong> resonate · <strong>${totalWeak}/26</strong> flag challenges`)}</div>
+      </div>
+      ${familyBars}
+      <div style="font-size:10px;color:#6a7a90;margin-top:10px;padding-top:10px;border-top:1px solid #2a3a5a;line-height:1.65">
+        🟢 ${tr('ยืนยันชัด (≥780)', 'Strong (≥780)')} · 🟡 ${tr('เห็นสอดคล้อง (650–779)', 'Resonate (650–779)')} · 🔴 ${tr('จุดท้าทาย (<650)', 'Challenge (<650)')} · ${tr(`จุดแข็งสุด: <strong style="color:#aac8ff">${esc(_lang === 'en' ? familyLabels[dominantFamily].en : familyLabels[dominantFamily].th)}</strong> — เมื่อศาสตร์จากหลายอารยธรรมเห็นตรงกัน ความน่าเชื่อถือสูงกว่าศาสตร์เดี่ยวจาก ลูกหลาน`, `Strongest: <strong style="color:#aac8ff">${esc(familyLabels[dominantFamily].en)}</strong> — when systems from multiple civilisations agree, the read is more reliable than any single tradition alone`)}
+      </div>
+    </div>
+
+    <!-- 3. Themes (the existing 8 with consensus rows) -->
+    <div style="font-size:11px;color:#7a6a52;margin:14px 0 8px;line-height:1.6">
+      ${tr('🎯 ภาพหลัก ' + visible.length + ' theme — แต่ละ theme คือจุดที่ระบบหลายตัวยืนยัน', `🎯 ${visible.length} main themes — each is a point where multiple systems agree`)}
     </div>
     ${visible.map(t => consensusRow(t.icon, t.theme, t.votes.map(v => v.system), t.msg, t.votes.length, t.color, narratives[t.icon] ?? '')).join('')}
+
+    <!-- 4. Variant Perception — minority dissent insight -->
+    <div style="background:linear-gradient(135deg,#1a0a14,#180a28);border:2px solid #8a5acc;border-radius:12px;padding:14px 18px;margin:14px 0">
+      <div style="font-size:10px;letter-spacing:3px;color:#c08ad8;margin-bottom:6px">${tr('🔍 อีกมุมหนึ่งที่น่าฟัง — variant perception', '🔍 THE DISSENTING VIEW — variant perception')}</div>
+      <div style="font-size:12px;color:#d0a8e0;line-height:1.8;margin-bottom:8px">${tr(`เมื่อศาสตร์ส่วนใหญ่เห็นภาพรวมเป็นบวก ${dissenters.length} ศาสตร์ที่ "เห็นต่าง" มักชี้สิ่งที่ระบบใหญ่มองข้าม — ไม่ใช่ "ดวงแย่" แต่เป็นมิติในเงาที่ควรฟังตอนตัดสินใจใหญ่:`, `When the majority sees a positive picture, the ${dissenters.length} dissenting systems often reveal what the consensus misses — this is not "bad chart" but the shadow dimension worth hearing when stakes are high:`)}</div>
+      <div style="font-size:11.5px;color:#b890d0;line-height:1.9">
+        ${dissenters.map(d => `• <strong>${esc(d.system)}</strong> <span style="color:#8868a0">(${d.score})</span> — ${esc(d.finding || '').slice(0, 90)}`).join('<br>')}
+      </div>
+      <div style="font-size:10px;color:#806090;margin-top:10px;padding-top:8px;border-top:1px solid #3a2050">${tr('🎯 ใช้ยังไง: ก่อนตัดสินใจใหญ่ (อาชีพ ความสัมพันธ์ การลงทุน) อ่านเสียงข้างน้อยนี้ซ้ำ มันมักชี้สิ่งที่คุณรู้ลึกๆ แต่ไม่อยากยอมรับ', '🎯 How to use: before big decisions (career, relationships, investments), re-read these dissenting voices — they often name what you already sense but resist admitting')}</div>
+    </div>
+
+    <!-- 5. Unique Cosmic Signature -->
+    <div style="background:linear-gradient(135deg,#1a1408,#2a1c0a);border:2px solid #d4aa50;border-radius:12px;padding:14px 18px;margin:14px 0">
+      <div style="text-align:center;margin-bottom:10px">
+        <div style="font-size:10px;letter-spacing:3px;color:#d4aa50">${tr('✦ ลายเซ็นจักรวาลของคุณ ✦', '✦ YOUR COSMIC SIGNATURE ✦')}</div>
+        <div style="font-size:18px;color:#f0d060;font-weight:700;margin-top:6px;font-family:'Cinzel Decorative',serif">${esc(score.cosmicEntity)}</div>
+      </div>
+      <div style="background:#0e0a08;border-radius:6px;padding:10px 14px;font-size:11.5px;color:#c8a878;line-height:2">
+        <div>🀄 BaZi Day Pillar <strong style="color:#f0d060">${esc(bazi.dayStem)}${esc(bazi.dayBranch)}</strong> · ~1 ${tr('ใน 60', 'in 60')}</div>
+        <div>🕉️ Vedic Nakshatra <strong style="color:#f0d060">${esc(nakshatra)}${pada ? ' ' + tr('บาท', 'pada') + ' ' + esc(String(pada)) : ''}</strong> · ~1 ${tr('ใน 108', 'in 108')}</div>
+        <div>🌀 Mayan Kin <strong style="color:#f0d060">${esc(mayanLbl)}</strong> · ~1 ${tr('ใน 260', 'in 260')}</div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #3a2c1a;color:#f0d060;font-size:13px">${tr(`= ลายเซ็นรูปนี้ มีเพียง <strong>~${peopleSharing.toLocaleString()} คน</strong> บนโลก หรือ <strong>1 ใน ${(totalCombos / 1000).toFixed(0)},000</strong> คน`, `= this exact signature shared by only <strong>~${peopleSharing.toLocaleString()} people</strong> worldwide, or <strong>1 in ${(totalCombos / 1000).toFixed(0)},000</strong>`)}</div>
+      </div>
+      <div style="font-size:10.5px;color:#8a7050;margin-top:8px;line-height:1.65">${tr('💡 คุณไม่ใช่ "ราศีเมษ" หรือ "Life Path 4" — คุณคือผลคูณที่หาเหมือนไม่ได้ของหลายระบบที่ต่างวัฒนธรรมต่างยุค ลายเซ็นนี้คือ fingerprint ของคุณในจักรวาล', '💡 You are not just "Aries" or "Life Path 4" — you are the unrepeatable intersection of many systems across cultures and eras. This signature is your fingerprint in the cosmos.')}</div>
+    </div>
   `);
 }
 function p_new16systems(c) {
@@ -4368,6 +4570,24 @@ function p04_western(c) {
     const sunLabel = isEn ? w.sunSign : w.sunSignTh;
     const moonLabel = isEn ? w.moonSign : w.moonSignTh;
     const ascLabel = isEn ? w.ascSign : w.ascSignTh;
+    // Specific per-sign traits so the Sun/Moon/ASC reads aren't "core X energy".
+    // core = identity (Sun) · emo = inner needs (Moon) · mask = first impression (ASC)
+    const SIGN_TRAITS = {
+        Aries: { core: ['ผู้บุกเบิกที่กล้าเริ่มก่อนใคร ไม่กลัวเป็นคนแรก', 'a pioneer who moves before anyone else, unafraid to go first'], emo: ['โกรธเร็วหายเร็ว และต้องรู้สึกว่าได้นำ', 'flares up fast and cools fast, and needs to feel in the lead'], mask: ['ตรงไปตรงมาและมีพลังขับเคลื่อน', 'direct and full of forward drive'] },
+        Taurus: { core: ['คนมั่นคงที่รักความสบายและคุณค่าที่จับต้องได้', 'a steady soul drawn to comfort and tangible value'], emo: ['ต้องการความปลอดภัยและความสม่ำเสมอ ไม่ชอบถูกเร่ง', 'needs security and steadiness, dislikes being rushed'], mask: ['สงบ น่าเชื่อถือ และไม่รีบร้อน', 'calm, dependable and unhurried'] },
+        Gemini: { core: ['คนอยากรู้อยากเห็น สื่อสารเก่ง ปรับตัวไว', 'a curious, articulate mind that adapts quickly'], emo: ['ต้องการความหลากหลายทางความคิด และเบื่อง่าย', 'needs mental variety and bores easily'], mask: ['ช่างคุย ว่องไว และมีหลายมุม', 'talkative, quick, many-sided'] },
+        Cancer: { core: ['คนอ่อนไหวที่ผูกพันกับบ้านและคนที่รัก', 'a sensitive heart bonded to home and loved ones'], emo: ['ต้องการความรู้สึกปลอดภัยทางใจเป็นอันดับแรก', 'needs emotional safety above all'], mask: ['อบอุ่น คอยปกป้อง และระวังตัวเล็กน้อย', 'warm, protective and a little guarded'] },
+        Leo: { core: ['คนภูมิใจในตัวเอง มีเสน่ห์ และอยากเปล่งประกาย', 'proud, magnetic, and born to shine'], emo: ['ต้องการการยอมรับและความรักอย่างจริงใจ', 'needs genuine recognition and love'], mask: ['สง่า มั่นใจ และดึงดูดสายตา', 'regal, confident and eye-catching'] },
+        Virgo: { core: ['คนละเอียด ใฝ่พัฒนา รับใช้ด้วยการทำให้สิ่งต่างๆ ดีขึ้น', 'precise and improvement-driven, serving by making things better'], emo: ['สบายใจที่สุดเมื่อทุกอย่างเป็นระเบียบ', 'most at ease when things are in order'], mask: ['สุภาพ คมชัด และช่างสังเกต', 'polite, sharp and observant'] },
+        Libra: { core: ['คนรักความสมดุลและความงาม มองหาความยุติธรรม', 'a lover of balance and beauty who seeks fairness'], emo: ['ต้องการความกลมเกลียวและคู่คิด', 'needs harmony and a partner to think with'], mask: ['มีเสน่ห์ทางสังคมและประนีประนอม', 'socially charming and diplomatic'] },
+        Scorpio: { core: ['คนเข้มข้น ลึกซึ้ง มองทะลุเปลือกนอก', 'intense and deep, seeing past the surface'], emo: ['ต้องการความสัมพันธ์ที่จริงและลึก ไม่เอาผิวเผิน', 'needs real, deep connection — nothing shallow'], mask: ['ลึกลับ ทรงพลัง และอ่านยาก', 'mysterious, powerful and hard to read'] },
+        Sagittarius: { core: ['คนรักอิสระ มองภาพใหญ่ และใฝ่หาความหมาย', 'a freedom-loving, big-picture seeker of meaning'], emo: ['ต้องการพื้นที่และการผจญภัย', 'needs space and adventure'], mask: ['ร่าเริง ตรงไปตรงมา และมองโลกกว้าง', 'cheerful, blunt and broad-minded'] },
+        Capricorn: { core: ['คนมีวินัย มุ่งเป้า และสร้างเพื่อระยะยาว', 'disciplined and goal-driven, building for the long term'], emo: ['รู้สึกมั่นคงเมื่อเห็นความก้าวหน้าที่จับต้องได้', 'feels secure with tangible progress'], mask: ['สุขุม จริงจัง และน่าเชื่อถือ', 'composed, serious and trustworthy'] },
+        Aquarius: { core: ['คนคิดต่าง มองอนาคต และทำเพื่อส่วนรวม', 'an original, future-facing mind working for the collective'], emo: ['ต้องการอิสระทางความคิดและมิตรภาพ', 'needs intellectual freedom and friendship'], mask: ['แปลก เป็นตัวของตัวเอง และเป็นมิตรแบบมีระยะ', 'original, independent and warmly detached'] },
+        Pisces: { core: ['คนช่างฝัน เห็นอกเห็นใจ และไหลตามสัญชาตญาณ', 'a dreamy, empathetic soul who follows intuition'], emo: ['ซึมซับอารมณ์รอบตัว และต้องการพื้นที่หลบพัก', 'absorbs the emotions around it and needs a place to retreat'], mask: ['อ่อนโยน ลึกลับ เหมือนอยู่คนละโลก', 'gentle, mystical, slightly otherworldly'] },
+    };
+    const FALLBACK_TRAIT = { core: [`พลังของ${w.sunSignTh}`, `the qualities of ${w.sunSign}`], emo: [`จังหวะของ${w.moonSignTh}`, `the rhythm of ${w.moonSign}`], mask: [`แบบ${w.ascSignTh}`, `a ${w.ascSign} quality`] };
+    const traitOf = (s) => SIGN_TRAITS[s] ?? FALLBACK_TRAIT;
     return section(4, tr('โหราศาสตร์ตะวันตก', 'Western Astrology'), '☀️', `
     <h2>${tr('ตำแหน่งดาวหลัก', 'Major planetary positions')}</h2>
     <table><tbody>
@@ -4381,9 +4601,9 @@ function p04_western(c) {
 
     <p style="font-size:11px;color:#5a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:10px"><strong>${tr('ต้นกำเนิด:', 'Origin:')}</strong> ${tr('มีต้นกำเนิดจากอารยธรรม Babylonian กว่า 4,000 ปีก่อน ถูก Hellenistic Greeks พัฒนาเป็นระบบ Zodiac 12 ราศี และ Ptolemy (100 AD) รวบรวมเป็น "Tetrabiblos" — คัมภีร์โหราศาสตร์หลักจนถึงปัจจุบัน นิยมสูงสุดในโลกตะวันตก เพราะ Sun Sign ใน 5 นาทีทำให้ใครก็เข้าถึงได้', 'Originating in Babylonian civilisation over 4,000 years ago, refined by Hellenistic Greeks into the 12-sign Zodiac, and consolidated by Ptolemy (~100 AD) into Tetrabiblos — still the canonical text for Western astrology. The most popular tradition in the West because a Sun sign reading takes 5 minutes and is universally accessible.')}</p>
     <h2>${tr('การตีความ', 'Interpretation')}</h2>
-    ${box(tr('ดวงอาทิตย์ ☉ — แกนตัวตน', 'Sun ☉ — Core Identity'), tr(`ดวงอาทิตย์ใน${w.sunSignTh} — คุณมีพลังงานหลักของ${w.sunSignTh} ซึ่งหมายถึงแก่นกลางของบุคลิกภาพและพลังสร้างสรรค์ที่คุณฉายออกสู่โลก`, `Sun in ${w.sunSign} — your primary energy carries the qualities of ${w.sunSign}, the core of your personality and the creative force you project into the world.`), 'gold')}
-    ${box(tr('ดวงจันทร์ ☽ — โลกภายใน', 'Moon ☽ — Inner World'), tr(`ดวงจันทร์ใน${w.moonSignTh} — อารมณ์ สัญชาตญาณ และความต้องการที่ลึกที่สุดของคุณสะท้อนผ่านพลังงาน${w.moonSignTh}`, `Moon in ${w.moonSign} — your emotions, instincts and deepest needs flow through the rhythm of ${w.moonSign}.`), 'dark')}
-    ${box(tr('ASC — หน้ากากโลก', 'ASC — Public Mask'), tr(`ราศีขึ้น${w.ascSignTh} — ผู้คนรับรู้คุณในแบบ${w.ascSignTh} ก่อนที่จะรู้จักตัวตนที่แท้จริง`, `Rising ${w.ascSign} — others perceive you through the ${w.ascSign} lens before they meet your true self.`), 'dark')}
+    ${box(tr('ดวงอาทิตย์ ☉ — แกนตัวตน', 'Sun ☉ — Core Identity'), tr(`ดวงอาทิตย์ใน${w.sunSignTh} — แกนตัวตนของคุณคือ${traitOf(w.sunSign).core[0]} นี่คือพลังสร้างสรรค์ที่คุณฉายออกสู่โลก และเป็นตัวจริงของคุณเมื่อได้เป็นตัวเองเต็มที่`, `Sun in ${w.sunSign} — at your core you are ${traitOf(w.sunSign).core[1]}. This is the creative force you project into the world, and who you are when you're most fully yourself.`), 'gold')}
+    ${box(tr('ดวงจันทร์ ☽ — โลกภายใน', 'Moon ☽ — Inner World'), tr(`ดวงจันทร์ใน${w.moonSignTh} — ในโลกภายใน คุณ${traitOf(w.moonSign).emo[0]} นี่คือวิธีที่อารมณ์และความต้องการลึกที่สุดของคุณทำงาน และคุณจะสงบก็ต่อเมื่อมันได้รับการเติมเต็ม`, `Moon in ${w.moonSign} — inwardly, ${traitOf(w.moonSign).emo[1]}. This is how your emotions and deepest needs operate, and you settle only when that need is met.`), 'dark')}
+    ${box(tr('ASC — หน้ากากโลก', 'ASC — Public Mask'), tr(`ราศีขึ้น${w.ascSignTh} — สิ่งแรกที่คนรับรู้จากคุณคือความ${traitOf(w.ascSign).mask[0]} ก่อนที่เขาจะได้รู้จักตัวจริงข้างใน — มันคือ "ประตูหน้า" ของบุคลิกคุณ`, `Rising ${w.ascSign} — the first thing people register is that you come across as ${traitOf(w.ascSign).mask[1]}, before they meet the real you inside — it's the "front door" of your personality.`), 'dark')}
     ${box('Transit 2026', w.transitNote2026, 'purple')}
   `);
 }
@@ -4590,12 +4810,8 @@ function p13_luckPillars(c) {
     const { bazi, vedic, ninestar, numerology, biorhythm, vedicMahadasha } = c;
     const luckRows = bazi.luckPillars.map(lp => {
         const isCurrent = age2026 >= lp.ageStart && age2026 <= lp.ageEnd;
-        // Multi-system quality for this decade
-        const midAge = (lp.ageStart + lp.ageEnd) / 2;
         // NSK decade: every 9 years a cycle completes
         const nskDecadeNote = ((lp.ageStart % 9) === 0) ? tr('NSK: เริ่มรอบใหม่', 'NSK: new cycle begins') : '';
-        // Numerology: personal year pattern
-        const startPY = ((c.input.year + lp.ageStart - c.input.year + 2026 - age2026) % 9) + 1;
         return `<tr ${isCurrent ? 'style="background:#1a1a08;border:1px solid #d4aa5044"' : ''}>
       <td style="font-size:12px">${esc(lp.ageStart)}–${esc(lp.ageEnd)}</td>
       <td style="font-size:18px">${esc(lp.stem)}${esc(lp.branch)}</td>
@@ -4604,17 +4820,25 @@ function p13_luckPillars(c) {
       <td>${isCurrent ? `<span style="color:#d4aa50;font-weight:700">▶ ${tr('ปัจจุบัน', 'Current')}</span>` : ''}</td>
     </tr>`;
     }).join('');
-    // Vedic Mahadasha timeline (major periods)
-    const dashaTimeline = [
-        { lord: vedicMahadasha.currentDasha, end: vedicMahadasha.currentDashaEnd, quality: vedicMahadasha.dashaQuality, isCurrent: true },
-    ];
     // NSK year trend 2026-2035
     const nskYears = Array.from({ length: 10 }, (_, i) => 2026 + i).map(yr => {
         const starForYear = ((9 - ((yr - 1) % 9)) % 9) + 1;
         const isGood = [starForYear].some(s => [1, 3, 6, 8, 9].includes(s));
         return `<span style="font-size:11px;padding:2px 6px;border-radius:4px;background:${isGood ? '#1a3010' : '#2a1010'};color:${isGood ? '#60c060' : '#c06060'};margin:2px">${yr}:${starForYear}${isGood ? '✓' : '·'}</span>`;
     }).join('');
+    // ── Life-arc synthesis: turn the pillar tables into a story ──
+    const lps = bazi.luckPillars;
+    const curIdx = lps.findIndex(lp => age2026 >= lp.ageStart && age2026 <= lp.ageEnd);
+    const cur = curIdx >= 0 ? lps[curIdx] : (lps.length ? (age2026 < lps[0].ageStart ? lps[0] : lps[lps.length - 1]) : null);
+    const nxt = curIdx >= 0 && curIdx < lps.length - 1 ? lps[curIdx + 1] : null;
+    const pivotYear = nxt ? c.input.year + nxt.ageStart : null;
+    const firstLp = lps[0], lastLp = lps[lps.length - 1];
+    const lifeArc = cur ? tr(`ตอนนี้คุณอายุ ${age2026} ปี กำลังอยู่ในเสา ${cur.stem}${cur.branch} (${cur.stemTh} ${cur.branchTh}) ซึ่งครอบช่วงอายุ ${cur.ageStart}–${cur.ageEnd} — แต่ละเสาใน BaZi คือ "บท" ของชีวิตยาวราว 10 ปี ที่มีบุคลิกพลังงานต่างกัน ${nxt ? `บทถัดไปจะเริ่มราวปี ${pivotYear} (ตอนคุณอายุ ${nxt.ageStart}) เมื่อพลังงานสลับเป็นเสา ${nxt.stem}${nxt.branch} จุดเปลี่ยนเสาแบบนี้มักมาพร้อมการเปลี่ยนงาน เปลี่ยนเมือง หรือเปลี่ยนมุมมองครั้งใหญ่ — รู้ล่วงหน้าก็เตรียมรับจังหวะได้` : `คุณกำลังอยู่ในเสาท้ายๆ ของเส้นเวลานี้ ซึ่งเป็นช่วงของการสรุปและส่งต่อปัญญาที่สะสมมาทั้งชีวิต`}`, `You're currently ${age2026}, inside the ${cur.stem}${cur.branch} pillar, spanning ages ${cur.ageStart}–${cur.ageEnd}. Each BaZi pillar is a roughly 10-year "chapter" of life, each with its own energetic character. ${nxt ? `Your next chapter begins around ${pivotYear} (when you turn ${nxt.ageStart}), as the energy shifts to the ${nxt.stem}${nxt.branch} pillar. These pillar changes often arrive with a job change, a move, or a major shift in outlook — knowing one is coming lets you prepare for the turn.` : `You're in one of the later pillars of this timeline — a phase for consolidating and passing on the wisdom gathered across a lifetime.`}`)
+        : tr(`เส้นเวลาด้านล่างคือเสา BaZi แต่ละช่วง 10 ปีของชีวิตคุณ ซ้อนกับช่วงดาวของ Vedic และรอบเลขศาสตร์`, `The timeline below maps your BaZi pillars — each a 10-year span of life — layered with your Vedic planetary periods and numerology cycle.`);
+    const lifeSpanNote = (firstLp && lastLp) ? tr(`เส้นเวลานี้ทอดยาวตั้งแต่อายุ ${firstLp.ageStart} ถึง ${lastLp.ageEnd} ปี — อ่านเป็นแผนที่ของทั้งชีวิต ไม่ใช่คำทำนายรายปี`, `This timeline spans ages ${firstLp.ageStart} to ${lastLp.ageEnd} — read it as a map of a whole life, not a year-by-year prophecy.`) : '';
     return section(14, tr('เส้นทาง 80 ปี — Multi-System Timeline', '80-Year Life Timeline — Multi-System View'), '🗺️', `
+    <p style="font-size:12.5px;color:#c8c0a8;line-height:1.75;margin-bottom:6px">${lifeArc}</p>
+    <p style="font-size:11px;color:#7a6a52;margin-bottom:10px">${lifeSpanNote}</p>
     <!-- BaZi Luck Pillars (main) -->
     <h2 style="font-size:14px;color:#d4aa50;margin-bottom:8px">🔥 ${tr('BaZi Luck Pillars — แกนหลัก 10 ปีต่อเสา', 'BaZi Luck Pillars — 10 years per pillar')}</h2>
     <table>
@@ -4647,6 +4871,7 @@ function p13_luckPillars(c) {
       <div style="font-size:12px;color:#c0a060">Personal Year 2026: <strong>${esc(String(numerology.personalYear2026))}</strong> — ${esc(numerology.personalYearMeaning.split('—')[0])}</div>
       <div style="font-size:11px;color:#8a7040;margin-top:4px">Biorhythm Physical ${esc(String(biorhythm.physical))}% | Emotional ${esc(String(biorhythm.emotional))}% | Intellectual ${esc(String(biorhythm.intellectual))}%</div>
     </div>
+    ${box(tr('จุดบรรจบของสามเส้นเวลา', 'Where these timelines converge'), tr(`สามศาสตร์มองช่วงนี้ของคุณพร้อมกัน — BaZi อยู่เสา ${cur ? `${cur.stemTh} ${cur.branchTh}` : '—'}, Vedic อยู่ช่วงดาว ${esc(vedicMahadasha.currentDasha)} (ถึงปี ${esc(String(vedicMahadasha.currentDashaEnd))}) ${esc(vedicMahadasha.dashaQuality)}, และเลขศาสตร์เป็น Personal Year ${esc(String(numerology.personalYear2026))} เมื่อทั้งสามจังหวะชี้ไปทางเดียวกันคือช่วงเร่งเครื่องที่ควรลงแรง เมื่อชี้คนละทางให้ยึดกระแสของเสา BaZi เป็นหลัก เพราะมันคือคลื่นพลังที่ยาวที่สุดในชีวิตคุณ`, `Three systems read this season of your life at once — BaZi places you in the ${cur ? `${cur.stem}${cur.branch}` : '—'} pillar, Vedic in your ${esc(vedicMahadasha.currentDasha)} planetary period (until ${esc(String(vedicMahadasha.currentDashaEnd))}) ${esc(vedicMahadasha.dashaQuality)}, and numerology at Personal Year ${esc(String(numerology.personalYear2026))}. When all three point the same way it's an accelerate window worth your effort; when they diverge, follow the BaZi pillar first — it's the longest energy wave in your life.`), 'gold')}
   `);
 }
 function p14_health(c) {
@@ -5024,6 +5249,14 @@ function p18_monthly2026(c) {
         const icon = ms === natal ? '🌟' : total >= 2 ? '🟢' : total >= 0 ? '🟡' : '🔴';
         return { icon, score: total };
     }
+    // Synthesis: surface the standout months instead of leaving them in the table.
+    const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const lbl = (i) => _lang === 'en' ? monthsEn[i] : months[i];
+    const monthEval = months.map((_, i) => ({ i, r: monthRating(monthStars[i], monthBiorhythm[i].avg), honmei: monthStars[i] === natal }));
+    const bestM = monthEval.filter(e => e.r.icon === '🌟' || e.r.icon === '🟢').map(e => lbl(e.i));
+    const honmeiM = (() => { const h = monthEval.find(e => e.honmei); return h ? lbl(h.i) : ''; })();
+    const cautionM = monthEval.filter(e => e.r.icon === '🔴').map(e => lbl(e.i));
+    const monthSynthesis = tr(`เดือนที่พลังหนุนที่สุดของปี 2026 คือ <strong>${bestM.join(', ') || '—'}</strong>${honmeiM ? ` (โดยเฉพาะ <strong>${honmeiM}</strong> ที่เป็น Honmei — เดือนดาวเกิดของคุณซึ่งมาปีละครั้ง)` : ''} — เก็บเรื่องใหญ่ เปิดตัว หรือเริ่มสิ่งสำคัญไว้ทำช่วงนี้ · ส่วนเดือนที่ควรตั้งหลักคือ <strong>${cautionM.join(', ') || 'ไม่มีเดือนที่ท้าทายเด่นชัด'}</strong> ใช้ช่วงนั้นทบทวนและเตรียมตัวแทนการบุก`, `Your most supported months in 2026 are <strong>${bestM.join(', ') || '—'}</strong>${honmeiM ? ` (especially <strong>${honmeiM}</strong>, your Honmei — the birth-star month that comes once a year)` : ''} — save your big launches and important starts for these. The months to steady yourself are <strong>${cautionM.join(', ') || 'none stand out as challenging'}</strong>; use them to reflect and prepare rather than push.`);
     return section(16, tr('พยากรณ์รายเดือน 2026 — 3 ศาสตร์ Consensus', 'Monthly Forecast 2026 — 3-System Consensus'), '🗓️', `
     <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
       <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">${tr('วิธีอ่านตารางนี้', 'How to read this table')}</div>
@@ -5058,7 +5291,7 @@ function p18_monthly2026(c) {
                 : nskRating.icon === '🟡' ? tr('ค่อยๆ ขยับ · ไม่เร่ง', 'Move gradually · don\'t rush')
                     : tr('ระวังและสังเกต · ไม่รีบตัดสินใจ', 'Watch & observe · don\'t decide hastily');
         return `<tr>
-            <td style="font-weight:600">${esc(m)}</td>
+            <td style="font-weight:600">${esc(lbl(i))}</td>
             <td style="font-size:11px">${ms} ${esc(starNames[ms])}${isHonmei ? ' ★' : ''}</td>
             <td style="font-size:11px;color:${bio.avg > 30 ? '#60c060' : bio.avg < -30 ? '#c06060' : '#c0a060'}">${bio.avg > 0 ? '+' : ''}${bio.avg}%</td>
             <td style="font-size:11px;color:#9a8a72">${esc(vedicMonthQuality[i])}</td>
@@ -5068,6 +5301,7 @@ function p18_monthly2026(c) {
     }).join('')}
       </tbody>
     </table>
+    ${box(tr('สรุป: เดือนไหนควรลงมือ', 'At a glance: when to act'), monthSynthesis, 'green')}
     <div style="font-size:10.5px;color:#9a8a72;margin-top:10px;line-height:1.7">
       ${tr(`🌟 <strong>Honmei</strong> (ดาวเดือนตรงกับดาวเกิด ${natal} — เกิดปีละ 1 เดือน) · 🟢 <strong>Positive</strong> (NSK+Bio หนุนกัน) · 🟡 <strong>Neutral</strong> (หนึ่งหนุนหนึ่งต้าน) · 🔴 <strong>Challenging</strong> (NSK ขัด + Bio ตก)`, `🌟 <strong>Honmei</strong> (month star matches your birth star ${natal} — once per year) · 🟢 <strong>Positive</strong> (NSK + Bio aligned) · 🟡 <strong>Neutral</strong> (one supports, one resists) · 🔴 <strong>Challenging</strong> (NSK clashes + Bio dips)`)}
       <br>
@@ -5377,35 +5611,76 @@ function p22_painPoints(c) {
 function p23_forecast10yr(c) {
     const startYear = 2026;
     const years = Array.from({ length: 10 }, (_, i) => startYear + i);
-    const { bazi, numerology } = c;
+    const { numerology } = c;
+    const pyOf = (y) => ((numerology.personalYear2026 - 1 + (y - startYear)) % 9) + 1;
+    const nskOf = (y) => ((9 - (y - startYear)) % 9) || 9;
+    const icon = (py) => py === 1 || py === 8 || py === 3 ? '🟢' : py === 4 || py === 7 ? '🔴' : '🟡';
+    const meaningOf = (py) => py === 1 ? tr('เริ่มต้นใหม่', 'New beginning')
+        : py === 2 ? tr('สร้างความสัมพันธ์', 'Build relationships')
+            : py === 3 ? tr('สื่อสารขยาย', 'Communicate & expand')
+                : py === 4 ? tr('ทำงานหนัก', 'Hard work')
+                    : py === 5 ? tr('เปลี่ยนแปลง', 'Change')
+                        : py === 6 ? tr('ครอบครัว', 'Family / care')
+                            : py === 7 ? tr('พักฟื้น', 'Rest & restore')
+                                : py === 8 ? tr('เก็บเกี่ยว', 'Harvest')
+                                    : tr('สรุปปิดฉาก', 'Closing chapter');
+    // Deep per-Personal-Year guidance: the theme of the year + one concrete move.
+    const PY_DEEP = {
+        1: { focus: tr(`ปีแห่งการเริ่มต้น เมล็ดพันธุ์ที่หว่านปีนี้จะกำหนดทิศของทั้งรอบ 9 ปีข้างหน้า`, `The year of beginnings — the seeds you plant now set the direction for the entire 9-year cycle ahead.`),
+            act: tr(`กล้าตัดสินใจเรื่องใหญ่ เริ่มโปรเจกต์หรือบทใหม่ของชีวิต อย่ารอให้พร้อม 100%`, `Make the big decision. Start the new project or chapter — don't wait to feel 100% ready.`) },
+        2: { focus: tr(`ปีแห่งความอดทนและการร่วมมือ สิ่งที่เริ่มไว้ยังต้องบ่ม ไม่ใช่ปีของผลลัพธ์เร็ว`, `A year of patience and partnership — what you started still needs to incubate; this is not a year of fast results.`),
+            act: tr(`สร้างพันธมิตร ฟังให้มากกว่าพูด ประคองความสัมพันธ์ที่จะพาคุณไปต่อ`, `Build alliances, listen more than you speak, and nurture the relationships that will carry you forward.`) },
+        3: { focus: tr(`ปีแห่งการสื่อสารและความคิดสร้างสรรค์ พลังสังคมและการแสดงออกพุ่งสูง`, `A year of communication and creativity — your social and expressive energy runs high.`),
+            act: tr(`เผยแพร่ผลงาน ขยายเครือข่าย ทำสิ่งที่สนุกและปล่อยให้คนอื่นได้เห็นตัวตนของคุณ`, `Publish your work, widen your network, and do the things that are fun and let people see who you really are.`) },
+        4: { focus: tr(`ปีแห่งการวางรากฐาน หนักแต่จำเป็น โครงสร้างที่สร้างปีนี้จะรองรับความสำเร็จในอนาคต`, `A year of laying foundations — heavy but necessary. The structures you build now will hold up your future success.`),
+            act: tr(`ทำงานเป็นระบบ เก็บรายละเอียด อย่าลัดขั้นตอน เพราะสิ่งที่สร้างปีนี้จะอยู่กับคุณยาว`, `Work systematically, mind the details, and don't cut corners — what you build this year is built to last.`) },
+        5: { focus: tr(`ปีแห่งการเปลี่ยนแปลงและอิสระ สิ่งเดิมเริ่มคับแคบ โอกาสใหม่ๆ วิ่งเข้ามาเร็ว`, `A year of change and freedom — the old starts to feel too tight and new openings come at you fast.`),
+            act: tr(`เปิดรับโอกาส เดินทาง ปรับตัว แต่อย่าทิ้งทุกอย่างพร้อมกัน เลือกการเปลี่ยนแปลงที่มีทิศ`, `Embrace the openings, travel, adapt — but don't throw everything out at once; choose change that has direction.`) },
+        6: { focus: tr(`ปีแห่งความรับผิดชอบต่อคนรอบข้าง บ้าน ครอบครัว และชุมชนต่างเรียกหาคุณ`, `A year of responsibility to those around you — home, family and community all call on you.`),
+            act: tr(`ดูแลความสัมพันธ์ใกล้ตัวและสุขภาพ จัดบ้านจัดใจ และรักษาสมดุลระหว่างการให้กับการรับ`, `Tend your close relationships and health, put your home and mind in order, and balance giving with receiving.`) },
+        7: { focus: tr(`ปีแห่งการพักและทบทวน พลังภายนอกถอย พลังภายในและปัญญาขึ้นมาแทน`, `A year of rest and reflection — outer momentum pulls back while inner depth and wisdom rise.`),
+            act: tr(`พักให้พอ เรียนรู้ให้ลึก ทบทวนทิศทาง อย่าฝืนดันงานใหญ่ในปีที่ร่างกายต้องการฟื้น`, `Rest enough, learn deeply, review your direction — don't force big pushes in a year your body needs to recover.`) },
+        8: { focus: tr(`ปีแห่งการเก็บเกี่ยวและอำนาจ ผลของความพยายาม 7 ปีก่อนหน้าสุกพร้อมเก็บ`, `A year of harvest and power — the fruit of the previous seven years ripens and is ready to gather.`),
+            act: tr(`ขอในสิ่งที่ควรได้ ปิดดีล ลงทุน และก้าวเข้าสู่บทบาทที่ใหญ่ขึ้นอย่างมั่นใจ`, `Ask for what you've earned, close deals, invest, and step into a bigger role with confidence.`) },
+        9: { focus: tr(`ปีแห่งการสรุปและปล่อยวาง รอบ 9 ปีกำลังจบลงเพื่อเปิดพื้นที่ให้รอบใหม่`, `A year of completion and release — the 9-year cycle is closing to make room for the next one.`),
+            act: tr(`สะสางสิ่งค้างคา ปล่อยสิ่งที่ไม่ไปต่อ ให้อภัยและให้คืน เคลียร์พื้นที่ว่างไว้สำหรับ PY1 ที่กำลังมา`, `Tie up loose ends, release what no longer fits, forgive and give back — clear the space for the PY1 that's coming.`) },
+    };
+    const py2026 = pyOf(2026);
+    const golden = years.filter(y => [1, 8, 3].includes(pyOf(y)));
+    const caution = years.filter(y => [4, 7].includes(pyOf(y)));
+    const peak = years.find(y => pyOf(y) === 8) ?? golden[0];
+    const arc = tr(`ทศวรรษนี้เปิดด้วยปี 2026 ที่เป็น Personal Year ${py2026} (${meaningOf(py2026)}) แล้วไล่ไปตามรอบพลังงาน 9 ปีของเลขศาสตร์ ซ้อนกับดาวประจำปีของ Nine Star Ki จุดพีคของรอบคือปี ${peak} (PY8 — ปีเก็บเกี่ยว) ส่วนช่วงที่ต้องตั้งหลักคือปี ${caution.join(', ')} ลองอ่านแต่ละปีเป็น "บท" หนึ่ง ไม่ใช่คำทำนายตายตัว แล้ววางแผนเรื่องใหญ่ให้ตรงกับจังหวะของมัน`, `This decade opens in 2026 at Personal Year ${py2026} (${meaningOf(py2026)}), then moves through numerology's 9-year energy cycle layered over your Nine Star Ki annual stars. The peak of the cycle is ${peak} (PY8 — the harvest year), while the years to steady yourself are ${caution.join(', ')}. Read each year as a "chapter," not a fixed prophecy, and time your big moves to match its rhythm.`);
+    const yearGuide = years.map(y => {
+        const py = pyOf(y);
+        const d = PY_DEEP[py];
+        const edge = py === 1 || py === 8 || py === 3 ? '#1a8a3a' : py === 4 || py === 7 ? '#c01020' : '#d4aa50';
+        return `<div style="border-left:3px solid ${edge};padding:3px 0 6px 10px;margin:6px 0">
+      <div style="font-size:12px"><strong style="color:#d4aa50">${y}</strong> · ${icon(py)} PY${py} ${meaningOf(py)}</div>
+      <div style="font-size:11.5px;color:#c8c0a8;line-height:1.6;margin-top:2px">${d.focus} <span style="color:#90e0a0">→ ${d.act}</span></div>
+    </div>`;
+    }).join('');
     return section(23, tr('พยากรณ์ 10 ปี 2026–2035', '10-Year Forecast · 2026–2035'), '🔭', `
+    <p style="font-size:12.5px;color:#c8c0a8;line-height:1.75;margin-bottom:10px">${arc}</p>
     <table>
       <thead><tr><th>${tr('ปี', 'Year')}</th><th>PY</th><th>NSK</th><th>${tr('แนวโน้ม', 'Trend')}</th></tr></thead>
       <tbody>
         ${years.map(y => {
-        const py = ((numerology.personalYear2026 - 1 + (y - 2026)) % 9) + 1;
-        const nsk = ((9 - (y - 2026)) % 9) || 9;
-        const good = py === 1 || py === 8 || py === 3 ? '🟢' : py === 4 || py === 7 ? '🔴' : '🟡';
-        const meaning = py === 1 ? tr('เริ่มต้นใหม่', 'New beginning')
-            : py === 2 ? tr('สร้างความสัมพันธ์', 'Build relationships')
-                : py === 3 ? tr('สื่อสารขยาย', 'Communicate & expand')
-                    : py === 4 ? tr('ทำงานหนัก', 'Hard work')
-                        : py === 5 ? tr('เปลี่ยนแปลง', 'Change')
-                            : py === 6 ? tr('ครอบครัว', 'Family / care')
-                                : py === 7 ? tr('พักฟื้น', 'Rest & restore')
-                                    : py === 8 ? tr('เก็บเกี่ยว', 'Harvest')
-                                        : tr('สรุปปิดฉาก', 'Closing chapter');
+        const py = pyOf(y);
+        const nsk = nskOf(y);
         return `<tr>
             <td style="font-weight:600">${y}</td>
             <td style="color:#d4aa50">PY ${py}</td>
             <td style="font-size:11px;color:#9a8a72">Star ${nsk}</td>
-            <td>${good} ${meaning}</td>
+            <td>${icon(py)} ${meaningOf(py)}</td>
           </tr>`;
     }).join('')}
       </tbody>
     </table>
     <p style="font-size:11px;color:#6a5a42;margin-top:8px">PY = Personal Year | 🟢 ${tr('ดี', 'Good')} 🟡 ${tr('ปานกลาง', 'Mixed')} 🔴 ${tr('ระวัง', 'Caution')}</p>
-    ${box(tr('ช่วงทอง', 'Golden Window'), tr(`ปี ${years.filter((_, i) => { const py = ((numerology.personalYear2026 - 1 + i) % 9) + 1; return py === 1 || py === 8 || py === 3; }).slice(0, 3).join(', ')} — Personal Year ที่ดีที่สุดในรอบ 10 ปี`, `Years ${years.filter((_, i) => { const py = ((numerology.personalYear2026 - 1 + i) % 9) + 1; return py === 1 || py === 8 || py === 3; }).slice(0, 3).join(', ')} — your strongest Personal Years in this 10-year window.`), 'green')}
+    <div style="font-size:13px;font-weight:700;color:#d4aa50;margin:14px 0 4px">${tr('แต่ละปีลงรายละเอียด', 'Year by year, in depth')}</div>
+    ${yearGuide}
+    ${box(tr('ช่วงทอง — ลงมือเรื่องใหญ่', 'Golden Window — make your big moves'), tr(`ปี <strong>${golden.slice(0, 3).join(', ')}</strong> คือ Personal Year ที่แรงที่สุดในรอบ 10 ปี (PY1 เริ่มต้น · PY3 ขยาย · PY8 เก็บเกี่ยว) ถ้าจะเปิดตัว ลงทุน เปลี่ยนงาน หรือตัดสินใจครั้งใหญ่ — จัดให้ตรงปีเหล่านี้`, `Years <strong>${golden.slice(0, 3).join(', ')}</strong> are your strongest Personal Years in this window (PY1 to begin · PY3 to expand · PY8 to harvest). If you're going to launch, invest, switch roles, or make a major call — time it to these years.`), 'green')}
+    ${box(tr('ปีตั้งหลัก — สร้างและฟื้นฟู', 'Steady years — build and restore'), tr(`ปี <strong>${caution.join(', ')}</strong> ไม่ใช่ปี "แย่" แต่เป็นปีของการวางรากฐาน (PY4) และพักฟื้น (PY7) ผลงานเงียบๆ ของสองช่วงนี้คือสิ่งที่ทำให้ช่วงทองข้างบนเกิดขึ้นจริงได้ อย่าฝืนเร่งผลในปีเหล่านี้`, `Years <strong>${caution.join(', ')}</strong> are not "bad" years — they're for laying foundations (PY4) and recovering (PY7). The quiet work of these phases is exactly what makes the golden years above possible. Don't force fast results here.`), 'dark')}
   `);
 }
 function p24_pets(c) {
@@ -5526,6 +5801,8 @@ function p24_pets(c) {
 }
 function p25_summary(c) {
     const { score, bazi, numerology, ninestar, western } = c;
+    const dmEl = bazi.dayMasterElement;
+    const closingMsg = tr(`คุณคือ "<strong style="color:#d4aa50">${esc(score.cosmicEntity)}</strong>" — พลังของธาตุ${esc(dmEl)} ที่เดินอยู่บน Life Path ${esc(String(numerology.lifePath))} (${esc(numerology.lifePathName)}) ทั้ง 26 ศาสตร์ต่างมองคุณจากคนละมุม แต่ฉายภาพเดียวกันออกมา · ดวงชะตาไม่ใช่โชคที่ตายตัว มันคือแผนที่พลังงานที่ช่วยให้คุณรู้จักตัวเองและเลือกทางได้ฉลาดขึ้น · จุดแข็งทุกข้อในรายงานนี้จะเปล่งประกายก็ต่อเมื่อคุณกล้าหยิบมันมาใช้จริง — จงเดินต่อไปด้วยความมั่นใจ`, `You are "<strong style="color:#d4aa50">${esc(score.cosmicEntity)}</strong>" — the force of the ${esc(dmEl)} element walking Life Path ${esc(String(numerology.lifePath))} (${esc(numerology.lifePathName)}). All 26 systems look at you from different angles yet project the same image. Your chart is not a fixed fate — it is an energy map that helps you know yourself and choose your path with more wisdom. Every strength named in this report only shines once you dare to actually use it. Walk forward with confidence.`);
     return section(25, tr('สรุปภาพรวมและคำส่งท้าย', 'Final Summary & Closing Reflection'), '✨', `
     <div style="text-align:center;margin-bottom:20px">
       <div style="font-size:48px;font-weight:700;color:#d4aa50">${score.cosmicFinal}</div>
@@ -5549,12 +5826,7 @@ function p25_summary(c) {
 
     <div style="text-align:center;margin:24px 0;padding:20px;background:#1a1510;border:1px solid #3a3020;border-radius:12px">
       <div style="font-size:14px;color:#d4aa50;font-weight:600;margin-bottom:8px">✦ ${tr('คำส่งท้าย', 'Closing')} ✦</div>
-      <div style="font-size:13px;color:#c8c0a8;line-height:1.9">
-        ${tr('ดวงชะตาไม่ใช่โชคชะตาที่ตายตัว', 'Your chart is not a fixed fate.')}<br>
-        ${tr('มันคือแผนที่พลังงานที่ช่วยให้คุณเข้าใจตัวเองและเลือกทางได้ฉลาดขึ้น', 'It is an energy map that helps you know yourself and choose your path with more wisdom.')}<br>
-        <strong style="color:#d4aa50">${esc(score.cosmicEntity)}</strong><br>
-        — ${tr('นี่คือสัญลักษณ์จักรวาลของคุณ จงเดินไปด้วยความมั่นใจ', 'This is your cosmic symbol. Walk forward with confidence.')}
-      </div>
+      <div style="font-size:13px;color:#c8c0a8;line-height:1.9;text-align:left">${closingMsg}</div>
     </div>
 
     <div style="font-size:11px;color:#6a5a42;text-align:center;border-top:1px solid #2a2010;padding-top:12px;line-height:1.8">

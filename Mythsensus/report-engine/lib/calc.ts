@@ -2401,8 +2401,18 @@ const ADDON_PRODUCT_BY_ELEMENT_EN: Record<string, any> = {
 // matches online AI-generated shape.
 function calcAddons(dmEl: string, tier: string, dasha?: string) {
   const isEn = _reportLang === 'en';
+  // The _EN content tables are keyed by Thai element labels ('ไม้','ไฟ',...)
+  // because that's how they shipped before bilingual rendering became a thing.
+  // But `dmEl` arrives here as the ENGLISH name in EN mode ('Metal','Wood',...)
+  // — so `en['Metal']` would miss and fall through to `en['ไม้']` (Wood),
+  // shipping Wood-template myth/pet/companion content for every non-Wood
+  // English profile (the workflow review caught Metal users seeing
+  // "Wood Day Masters who lead and grow easily" in their mirror).
+  // Fix: translate the English element back to its Thai key before lookup.
+  const EN_TO_TH_EL: Record<string,string> = { Wood:'ไม้', Fire:'ไฟ', Earth:'ดิน', Metal:'โลหะ', Water:'น้ำ' };
+  const lookupKey = isEn ? (EN_TO_TH_EL[dmEl] || dmEl) : dmEl;
   const pick = <T>(th: Record<string,T>, en: Record<string,T>) =>
-    (isEn ? en : th)[dmEl] || (isEn ? en : th)['ไม้'];
+    (isEn ? en : th)[lookupKey] || (isEn ? en : th)['ไม้'];
   return {
     mirror: {
       ...pick(ADDON_MIRROR_BY_ELEMENT, ADDON_MIRROR_BY_ELEMENT_EN),

@@ -9,3 +9,8 @@ user-sim-report.html
 audit-bilingual-screenshots/
 audit-bilingual-report.json
 _credentials.local.md
+# Session-scoped QA / one-shot artifacts — may contain API tokens, never commit.
+_qa-out/
+# Backup snapshots written by data-enrich + inject scripts before destructive ops.
+data/gods.json.pre-*.bak
+build/ms26-bundle.js.pre-*.bak

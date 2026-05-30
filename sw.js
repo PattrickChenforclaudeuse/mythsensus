@@ -21,7 +21,34 @@
 // + GODS_FULL (→/data/gods.json), cut index.html ~1MB. Bump to refresh HTML.
 // v11: 2026-05-28 — UX: Cosmic Library link in app header, clearer sign-in
 // label (LINE+Email), prominent "Explore first" skip button. Bump to refresh.
-const CACHE = 'mythsensus-v11';
+// v12: 2026-05-30 — share-the-draw (per-card share button + deep-link),
+// multi-blessing variety for 217 rare-tier gods, cover element emoji fix
+// (Day Master no longer always 🔥), "10 ศาสตร์" → "26 ศาสตร์" in library doc,
+// owner dev-mode (?dev=1). Bump to force every cached client to re-fetch.
+// v13: 2026-05-30 — post-workflow-review fixes: clear mth_owner_dev on
+// sign-out (paywall-leak), thread message+msgIdx into history (fixes wrong
+// blessing text in history for all 217 enriched gods), re-key
+// _ELEMENT_TRAITS_EN to English (fixes em-dashes in mirror/pet/companions),
+// add the missing 26th DEEP_SYSTEM (Thai 7-Number System), deep-link race
+// rescue in _bootAfterEntry, lang+msg encoded in share URL,
+// _webShareText/_webShareCopy use in-memory LANG, Grand Convergence MVP
+// (TL;DR + cross-cultural banner + variant perception + rarity signature),
+// Element Consensus added to cover. Bump to evict stale clients.
+// v14: 2026-05-30 — Gumroad per-item product wiring: _GUMROAD_PRODUCTS map
+// for 9 paid items, _gumroadCheckout resolver, _purchaseSubscription split,
+// _purchasePaywall dual-CTA (one-time + subscribe), product palette Thai/EN
+// colour-name → hex map (palettes for ดิน/น้ำ/โลหะ profiles now render
+// chips instead of empty rows). Bump so the dual-CTA paywall + colour
+// chips reach existing visitors immediately.
+// v15: 2026-05-30 — 9 one-time Gumroad products created via API and pasted
+// into _GUMROAD_PRODUCTS. The "Unlock $X" paywall button now sends buyers
+// to per-item one-time checkout (deep/mirror/pet/companions/exercise/food/
+// product/compat/full_report) instead of the subscription fallback. The
+// products remain `published:false` on Gumroad until Director publishes
+// them, so during this brief window the buttons land on Gumroad's
+// "product not found" page — bump cache so visitors get the correct URLs
+// the moment the products go live.
+const CACHE = 'mythsensus-v15';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
