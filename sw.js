@@ -81,7 +81,15 @@
 // (all fell back to Tai Yi). (LOW) Organum tally lowercased to merge Healing/
 // healing; Variant coherent-copy softened; renderFreqHistory escapes history
 // strings (XSS defense); stale page-number comments fixed.
-const CACHE = 'mythsensus-v19';
+// v20: 2026-05-30 — UX fixes from user testing: (1) 108 Organum featured god
+// cards now come from the WINNING-theme voters (vary per question + on-topic:
+// money→Lakshmi/Caishen, love→Oshun, health→Apollo/Surya) instead of the same
+// max-domain gods every time; (2) Monthly Brief gains a narrative paragraph
+// per month (what the verdict means + a concrete move) — was just a score +
+// chips; (3) Resonance "Generate Cosmic Blueprint now" button actually fires
+// cb_generate so mobile lands on the finished report; (4) entry-overlay month
+// is now a named dropdown (ม.ค./Jan…) to kill day/month confusion.
+const CACHE = 'mythsensus-v20';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

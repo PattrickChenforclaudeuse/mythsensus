@@ -1196,8 +1196,22 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:6px">
           <input class="login-input" type="number" id="entryDay" min="1" max="31" placeholder="15"
                  style="font-family:inherit;font-size:16px;text-align:center">
-          <input class="login-input" type="number" id="entryMonth" min="1" max="12" placeholder="4"
-                 style="font-family:inherit;font-size:16px;text-align:center">
+          <select class="login-input" id="entryMonth"
+                  style="font-family:inherit;font-size:15px;text-align:center;cursor:pointer;padding:8px 4px">
+            <option value="" disabled selected>— เดือน —</option>
+            <option value="1">ม.ค. · Jan</option>
+            <option value="2">ก.พ. · Feb</option>
+            <option value="3">มี.ค. · Mar</option>
+            <option value="4">เม.ย. · Apr</option>
+            <option value="5">พ.ค. · May</option>
+            <option value="6">มิ.ย. · Jun</option>
+            <option value="7">ก.ค. · Jul</option>
+            <option value="8">ส.ค. · Aug</option>
+            <option value="9">ก.ย. · Sep</option>
+            <option value="10">ต.ค. · Oct</option>
+            <option value="11">พ.ย. · Nov</option>
+            <option value="12">ธ.ค. · Dec</option>
+          </select>
           <div style="display:flex;gap:4px">
             <input class="login-input" type="number" id="entryYear" min="1" max="9999" placeholder="2548"
                    style="font-family:inherit;font-size:16px;text-align:center;flex:1;min-width:0">
@@ -3206,9 +3220,16 @@ function showOrganumResult(wordCount,godContrib){
     document.getElementById('secMsg').textContent=LANG==='th'?`${n2} เทพ · ${LANG==='th'?'ก็พูดถึงคำนี้ด้วย':''}`:`${n2} gods · also heard clearly`;
   }
 
-  // Loudest gods = top 2 by total keyword contributions
+  // Loudest gods = the deities that VOTED FOR THE WINNING THEMES — so the two
+  // featured god cards relate to this answer AND change per question. The old
+  // logic ranked by godContrib.total (number of domains), which always surfaced
+  // the same few many-domain gods regardless of what you asked ("แบบเดิมๆ").
   const sorted=Object.values(godContrib).sort((a,b)=>b.total-a.total);
-  const loud1=sorted[0]?.god,loud2=sorted.find(x=>x.god.name!==loud1?.name)?.god;
+  const voterPool=[]; const seenG=new Set();
+  const addVoters=(entry)=>{ if(!entry)return; (wordCount[entry[0]]&&wordCount[entry[0]].gods||[]).forEach(g=>{ if(g&&!seenG.has(g.name)){ seenG.add(g.name); voterPool.push(g); } }); };
+  addVoters(top1); addVoters(top2);
+  const loud1 = voterPool[0] || sorted[0]?.god;
+  const loud2 = voterPool.find(g=>g.name!==loud1?.name) || sorted.find(x=>x.god.name!==loud1?.name)?.god;
   if(loud1){fillLoudBox('rl1',loud1);document.getElementById('rl1msg').textContent='"'+randMsg(loud1)+'"';}
   if(loud2){fillLoudBox('rl2',loud2);document.getElementById('rl2msg').textContent='"'+randMsg(loud2)+'"';}
 
@@ -6554,11 +6575,11 @@ function renderResonance(){
       <div class="deep-sys-title">🔗 ${isTh?'เชื่อมกับ Cosmic Blueprint':'Connection to Cosmic Blueprint'}</div>
       <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.7;margin-top:8px">
         ${isTh
-          ? `คะแนนด้านบนคือ <strong>คะแนนเดียวกัน</strong> ที่จะปรากฏในรายงาน Cosmic Blueprint ที่สร้างไป · ถ้าเพิ่งแก้ข้อมูลที่นี่ ให้ <strong>ไปที่ Premium → Generate แล้วกดสร้างรายงานใหม่อีกครั้ง</strong> เพื่อ re-render รายงานด้วยคะแนนล่าสุด`
-          : `The scores above are <strong>the same scores</strong> that appear in your Cosmic Blueprint report · if you just edited data here, <strong>go to Premium → Generate and tap the Generate button again</strong> to re-render the report with the updated scores`}
+          ? `คะแนนด้านบนคือ <strong>คะแนนเดียวกัน</strong> ที่จะปรากฏในรายงาน Cosmic Blueprint · กดปุ่มด้านล่างเพื่อ <strong>สร้างรายงานใหม่ด้วยคะแนนล่าสุด</strong>ทันที (ไม่ต้องไปกด Generate เองอีก)`
+          : `The scores above are <strong>the same scores</strong> that appear in your Cosmic Blueprint report · tap below to <strong>generate the report with these latest scores</strong> right away (no need to hit Generate yourself)`}
         <div style="margin-top:10px;text-align:center">
-          <button onclick="setGroup('premium');showSubTab('blueprint');" style="font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:2px;padding:9px 20px;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;border-radius:6px;color:var(--bg);font-weight:700;cursor:pointer">
-            ✦ ${isTh?'ไปที่ Cosmic Blueprint':'Go to Cosmic Blueprint'}
+          <button onclick="_resonanceToBlueprint()" style="font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:2px;padding:9px 20px;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;border-radius:6px;color:var(--bg);font-weight:700;cursor:pointer">
+            ✦ ${isTh?'สร้าง Cosmic Blueprint เลย':'Generate Cosmic Blueprint now'}
           </button>
         </div>
       </div>
@@ -6570,6 +6591,21 @@ function renderResonance(){
 // Shows a brief toast/banner telling the user to regenerate their Cosmic Blueprint
 // to incorporate the updated Life Resonance context into the report.
 let _resRegenTimer = null;
+// Resonance → Blueprint: navigate to the Premium → Generate panel and, if a
+// birth date is saved, actually KICK OFF generation so the user lands on the
+// finished report (with the latest resonance scores) instead of an empty form
+// they have to submit again. Previously the button only navigated, so on
+// mobile it looked like "nothing happened / didn't go to the blueprint".
+function _resonanceToBlueprint(){
+  try { setGroup('premium'); showSubTab('blueprint'); } catch(_){}
+  const hasDob = (localStorage.getItem('mth_dob') || '').length >= 8;
+  setTimeout(() => {
+    try {
+      if (hasDob && typeof cb_generate === 'function') cb_generate();
+    } catch(e){ console.warn('[resonanceToBlueprint]', e); }
+  }, 200);
+}
+
 function _showResRegenHint(){
   // Remove any existing hint first
   const old = document.getElementById('resRegenHint');
@@ -7062,6 +7098,31 @@ function renderMonthlyBrief(){
     ? ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม']
     : ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
+  // Narrative paragraph for a month: what the verdict MEANS + a concrete move.
+  // Weaves in the dominant drivers (Personal Month theme + biorhythm window)
+  // so each month reads as guidance, not just a score + chips.
+  const monthNarrative = (V) => {
+    const pmTheme = PM_THEME[V.pmNum] || '';
+    const bioHi = V.bio.avg > 40, bioLo = V.bio.avg < -40;
+    const bioPhraseTh = bioHi ? 'พลังกาย-ใจ-สมองอยู่ช่วงสูง เหมาะลงมือ' : bioLo ? 'วงจรชีวภาพอยู่ช่วงพักฟื้น ร่างกายขอเวลาชาร์จ' : 'พลังงานค่อนข้างเสถียร';
+    const bioPhraseEn = bioHi ? 'your physical-emotional-mental cycles run high — good for action' : bioLo ? 'your biological cycles are in recovery — your body is asking to recharge' : 'your energy is fairly steady';
+    if (V.score >= 4) return isTh
+      ? `<strong>เดือนทอง</strong> — ศาสตร์เวลาหลายตัวหนุนพร้อมกัน โดยมีธีม "<strong>${pmTheme}</strong>" นำ และ${bioPhraseTh} · ถ้ามีเรื่องใหญ่ที่ตั้งใจไว้ (เปิดตัว ตัดสินใจ ลงทุน) เดือนนี้คือจังหวะที่ควรลงแรงมากที่สุด`
+      : `<strong>A peak month</strong> — several time-phased systems align, led by the "<strong>${pmTheme}</strong>" theme, and ${bioPhraseEn}. If you have a big move planned (a launch, a decision, an investment), this is the window to push hardest.`;
+    if (V.score >= 2) return isTh
+      ? `<strong>เดือนหนุน</strong> — กระแสเอนเข้าข้างคุณผ่านธีม "<strong>${pmTheme}</strong>" และ${bioPhraseTh} · เดินหน้าตามแผนได้อย่างมั่นใจ แต่ไม่ต้องฝืนเร่งเกินจังหวะ`
+      : `<strong>A supportive month</strong> — the current leans your way through the "<strong>${pmTheme}</strong>" theme, and ${bioPhraseEn}. Move forward confidently, but don't force the pace.`;
+    if (V.score >= 0) return isTh
+      ? `<strong>เดือนกลางๆ</strong> — ไม่มีแรงหนุนหรือต้านชัด ธีมของเดือนคือ "<strong>${pmTheme}</strong>" · เหมาะกับงานต่อเนื่องและการวางรากฐานเงียบๆ มากกว่าการเปิดเกมใหญ่`
+      : `<strong>A neutral month</strong> — no strong tailwind or headwind; the month's theme is "<strong>${pmTheme}</strong>". Better for steady follow-through and quiet groundwork than for big new bets.`;
+    if (V.score >= -2) return isTh
+      ? `<strong>เดือนสังเกต</strong> — มีสัญญาณต้านบางจุด ${bioPhraseTh} · ชะลอการตัดสินใจที่ย้อนกลับไม่ได้ ใช้ช่วงนี้ทบทวนและเตรียมตัวสำหรับจังหวะที่ดีกว่าข้างหน้า`
+      : `<strong>An observe month</strong> — some resistance shows up; ${bioPhraseEn}. Hold off on irreversible decisions; use this time to review and prepare for a better window ahead.`;
+    return isTh
+      ? `<strong>เดือนพักฟื้น</strong> — ศาสตร์เวลาหลายตัวชี้ลงพร้อมกัน ${bioPhraseTh} · นี่ไม่ใช่เดือน "แย่" แต่เป็นเดือนของการพัก ซ่อมแซม และดูแลตัวเอง · ลดกิจกรรมใหญ่ให้น้อยที่สุด งานเงียบๆ ในเดือนนี้คือสิ่งที่ทำให้เดือนทองข้างหน้าเกิดขึ้นได้`
+      : `<strong>A rest-and-recovery month</strong> — several time systems point down together; ${bioPhraseEn}. This isn't a "bad" month but a month to rest, repair, and tend yourself. Keep big activity to a minimum — the quiet work now is what makes the peak months ahead possible.`;
+  };
+
   // Helper to render one month's block
   const monthBlock = (label, V) => `
     <div class="deep-sys-card" style="margin-top:12px">
@@ -7075,6 +7136,8 @@ function renderMonthlyBrief(){
           <div style="font-family:'Cinzel Decorative',serif;font-size:22px;color:${V.score>=2?'#4a9a40':V.score>=0?'#c8a840':'#c06060'}">${V.score>0?'+':''}${V.score}</div>
         </div>
       </div>
+      <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.75;margin-bottom:12px;padding:10px 12px;background:rgba(212,175,55,0.04);border-left:3px solid var(--gold3);border-radius:0 6px 6px 0">${monthNarrative(V)}</div>
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">${isTh?'ศาสตร์ที่ลงคะแนน':'Systems that voted'}</div>
       <div style="display:flex;flex-direction:column;gap:6px">
         ${V.reasons.map(r => `
           <div style="display:flex;gap:8px;padding:7px 10px;background:rgba(0,0,0,.15);border-radius:6px;font-size:11.5px">
@@ -9948,6 +10011,10 @@ function _entryRefreshLang(){
   const monPh  = document.getElementById('entryMonth');
   if (lblDay) lblDay.textContent = isTh ? 'วัน' : 'Day';
   if (lblMon) lblMon.textContent = isTh ? 'เดือน' : 'Month';
+  // entryMonth is a <select>; refresh its placeholder option per language.
+  if (monPh && monPh.tagName === 'SELECT' && monPh.options[0] && monPh.options[0].disabled) {
+    monPh.options[0].textContent = isTh ? '— เดือน —' : '— Month —';
+  }
   if (lblYr)  lblYr.textContent  = isTh ? 'ปีเกิด' : 'Year';
   if (lblH)   lblH.textContent   = isTh ? 'ชม. (0–23)' : 'Hour (0–23)';
   if (lblM)   lblM.textContent   = isTh ? 'นาที (0–59)' : 'Min (0–59)';
