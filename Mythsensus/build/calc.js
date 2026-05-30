@@ -3490,10 +3490,15 @@ function calcAboriginal(d) {
     };
 }
 // ── BIORHYTHM ─────────────────────────────────────────────────────
+// Single source of truth for the Biorhythm reference date. FIXED (never
+// "today") so the report + score are deterministic and a saved blueprint
+// never changes. Exposed as biorhythm.refDate for every display surface.
+const BIORHYTHM_REF = { y: 2026, m: 4, d: 14 };
+const BIORHYTHM_REF_ISO = `${BIORHYTHM_REF.y}-${String(BIORHYTHM_REF.m).padStart(2, '0')}-${String(BIORHYTHM_REF.d).padStart(2, '0')}`;
 function calcBiorhythm(d) {
     // Physical: 23-day cycle; Emotional: 28-day; Intellectual: 33-day
-    // Calculate state at Apr 14, 2026 (mid-year 2026 reference)
-    const refDate = toJD(2026, 4, 14, 12);
+    // Sampled at the FIXED reference date (NOT new Date()) — see BIORHYTHM_REF.
+    const refDate = toJD(BIORHYTHM_REF.y, BIORHYTHM_REF.m, BIORHYTHM_REF.d, 12);
     const birthDate = toJD(d.year, d.month, d.day, 12);
     const daysSinceBirth = Math.round(refDate - birthDate);
     const PI2 = Math.PI * 2;
@@ -3517,6 +3522,7 @@ function calcBiorhythm(d) {
         physical: Math.round(physical * 100), emotional: Math.round(emotional * 100), intellectual: Math.round(intellectual * 100),
         physicalPhase: phaseLabel(physical), emotionalPhase: phaseLabel(emotional), intellectualPhase: phaseLabel(intellectual),
         score,
+        refDate: BIORHYTHM_REF_ISO,
         reading: buildRichReading({
             sysTh: 'ไบโอริธึม (Biorhythm)',
             sysEn: 'Biorhythm',

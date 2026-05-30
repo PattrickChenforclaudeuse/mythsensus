@@ -3003,19 +3003,93 @@ let _lastWordData=null,_activeWord=null,_lastGodContrib=null;
 
 function updateWordBars(wordCount,activeWord){
   const barsEl=document.getElementById('atBars');if(!barsEl)return;
-  const entries=Object.entries(wordCount).sort((a,b)=>b[1].count-a[1].count).slice(0,12);
+  // Order by IDF weight once computed (post-vote), else by raw count (live).
+  const rank=d=>(d.weight!=null?d.weight:d.count);
+  const entries=Object.entries(wordCount).sort((a,b)=>rank(b[1])-rank(a[1])).slice(0,12);
   if(!entries.length){barsEl.innerHTML='';return;}
-  const maxC=entries[0][1].count||1;
+  const maxC=rank(entries[0][1])||1;
   barsEl.innerHTML=entries.map(([w,d])=>{
     const isActive=w===activeWord;
     const esc=w.replace(/'/g,"\\'");
     return`<div class="at-row" onclick="selectWord('${esc}')" style="cursor:pointer;padding:3px 0">
       <div class="at-icon" style="font-size:10px;width:26px;color:var(--muted);text-align:right;flex-shrink:0">${d.count}×</div>
       <div class="at-label" style="width:85px;color:${isActive?'var(--gold)':'var(--text)'};font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w}</div>
-      <div class="at-track"><div class="at-fill" style="width:${(d.count/maxC*100).toFixed(0)}%;background:${isActive?'var(--gold)':'var(--gold3)'};transition:width .2s"></div></div>
+      <div class="at-track"><div class="at-fill" style="width:${(rank(d)/maxC*100).toFixed(0)}%;background:${isActive?'var(--gold)':'var(--gold3)'};transition:width .2s"></div></div>
       <div class="at-count">${d.count}</div>
     </div>`;
   }).join('');
+}
+
+// ── Organum responsiveness helpers ───────────────────────────────────────
+// Previously runOrganum picked 108 RANDOM gods and tallied their `represents`
+// domains. Because a handful of domains dominate the 1,069-god dataset
+// (fertility 62 · war 51 · creation 50 · wisdom 42 · sun 35 …), every random
+// sample converged on the SAME generic words no matter what you asked — the
+// "แบบเดิมๆ" complaint. The question text was never used at all.
+//
+// Three fixes, applied below:
+//   1. SEED the 108-god pool from a hash of the question → the same question
+//      gives a reproducible reading, and DIFFERENT questions give different
+//      pools (and therefore different consensus words).
+//   2. BIAS selection toward gods whose domains relate to the question, via a
+//      small TH/EN topic→domain map (money, love, work, health, decision …).
+//   3. IDF-WEIGHT the consensus words so a domain that is over-represented in
+//      YOUR sampled pool (relative to the global baseline) rises above the
+//      ever-present "fertility/war/sun".
+
+// FNV-1a 32-bit hash → seed.
+function _organumHash(str){
+  let h=0x811c9dc5;
+  for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,0x01000193);}
+  return h>>>0;
+}
+// mulberry32 seeded PRNG — deterministic stream from a seed.
+function _mulberry32(a){
+  return function(){
+    a|=0;a=a+0x6D2B79F5|0;
+    let t=Math.imul(a^a>>>15,1|a);
+    t=t+Math.imul(t^t>>>7,61|t)^t;
+    return ((t^t>>>14)>>>0)/4294967296;
+  };
+}
+// TH + EN topic → relevant domain keywords (matched against god.represents).
+// Keys are substrings searched in the lowercased question.
+const _ORGANUM_TOPICS=[
+  {kw:['เงิน','การเงิน','รวย','ทรัพย์','ลงทุน','หนี้','money','wealth','rich','invest','finance','debt','salary'],
+   domains:['wealth','prosperity','fortune','abundance','gold','commerce','trade','riches']},
+  {kw:['งาน','อาชีพ','ลาออก','เลื่อน','ธุรกิจ','career','work','job','quit','promotion','business','boss'],
+   domains:['craft','labor','skill','crafts','war','authority','kingship','victory','smithcraft','strategy']},
+  {kw:['รัก','ความรัก','แฟน','คู่','แต่งงาน','หย่า','love','relationship','partner','marriage','divorce','crush','dating'],
+   domains:['love','beauty','desire','fertility','marriage','attraction','passion','union']},
+  {kw:['สุขภาพ','ป่วย','โรค','หาย','กาย','health','sick','illness','heal','disease','body','recovery'],
+   domains:['healing','medicine','life','health','vitality','sun','protection','purity']},
+  {kw:['ตัดสินใจ','เลือก','ทาง','ควร','decision','choose','choice','should','path','direction','dilemma'],
+   domains:['wisdom','knowledge','justice','fate','crossroads','truth','foresight','order','prophecy']},
+  {kw:['เรียน','สอบ','ศึกษา','ความรู้','study','exam','learn','school','knowledge','test','university'],
+   domains:['knowledge','wisdom','learning','writing','arts','intellect','discriminating awareness']},
+  {kw:['เดินทาง','ย้าย','ต่างประเทศ','ทริป','travel','move','relocate','abroad','trip','journey','migrate'],
+   domains:['travel','journey','sea','sky','messages','wind','ocean','guide']},
+  {kw:['ครอบครัว','บ้าน','พ่อ','แม่','ลูก','family','home','parent','child','mother','father','household'],
+   domains:['home','hearth','family','motherhood','protection','creation','nourishment','fertility']},
+  {kw:['กลัว','เครียด','กังวล','ทุกข์','เศร้า','fear','stress','anxious','worry','sad','grief','depress'],
+   domains:['protection','peace','healing','liberation','compassion','mercy','rest','night']},
+  {kw:['เปลี่ยน','เริ่ม','ใหม่','โอกาส','change','start','new','begin','opportunity','fresh','transform'],
+   domains:['transformation','creation','beginnings','renewal','rebirth','change','fire','destruction']},
+];
+function _questionDomains(q){
+  const ql=(q||'').toLowerCase();
+  const out=new Set();
+  for(const t of _ORGANUM_TOPICS){ if(t.kw.some(k=>ql.includes(k))) t.domains.forEach(d=>out.add(d.toLowerCase())); }
+  return out;
+}
+// Lazy global domain-frequency (for IDF). Cached after first build.
+let _ORGANUM_DF=null;
+function _organumDF(){
+  if(_ORGANUM_DF)return _ORGANUM_DF;
+  const df={};
+  const arr=(typeof GODS!=='undefined'&&Array.isArray(GODS))?GODS:[];
+  for(const g of arr)for(const w of (g.represents||[])){const k=String(w).toLowerCase();df[k]=(df[k]||0)+1;}
+  _ORGANUM_DF=df;return df;
 }
 
 async function runOrganum(){
@@ -3029,11 +3103,24 @@ async function runOrganum(){
   document.getElementById('voteArena').classList.add('active');
   document.getElementById('atBars').innerHTML='';
 
-  // Pick 108 gods (extend pool if needed)
-  const src=[...GODS];
-  while(src.length<108)src.push(...GODS);
-  const tmp=[...src];const pool=[];
-  for(let i=0;i<108;i++)pool.push(tmp.splice(Math.floor(Math.random()*tmp.length),1)[0]);
+  // ── Question-seeded, relevance-biased selection of 108 gods ──
+  // Seed includes the day so the same question on a different day shifts the
+  // pool slightly (an oracle should feel alive), but stays stable within a day.
+  const _daySalt=new Date().toISOString().slice(0,10);
+  const rand=_mulberry32(_organumHash(q+'|'+_daySalt));
+  const wantDomains=_questionDomains(q);
+  // Score every god: seeded noise + a relevance bonus when its domains match
+  // the question's topic. Then take the top 108 by score.
+  const scored=GODS.map(g=>{
+    let rel=0;
+    if(wantDomains.size){ for(const w of (g.represents||[])){ if(wantDomains.has(String(w).toLowerCase())) rel++; } }
+    // seeded noise in [0,1) + relevance weight (each matching domain ≈ +0.6)
+    return {g, s: rand() + rel*0.6};
+  }).sort((a,b)=>b.s-a.s);
+  let pool=scored.slice(0,108).map(x=>x.g);
+  // Shuffle the chosen 108 (seeded) so the ticker order isn't strictly by score.
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  while(pool.length<108)pool.push(GODS[Math.floor(rand()*GODS.length)]);
 
   const wordCount={};   // word → {count, gods:[]}
   const godContrib={};  // godName → {god, total keyword contributions}
@@ -3080,7 +3167,17 @@ function fillLoudBox(prefix,god){
 
 function showOrganumResult(wordCount,godContrib){
   _lastWordData=wordCount;_lastGodContrib=godContrib;
-  const entries=Object.entries(wordCount).sort((a,b)=>b[1].count-a[1].count);
+  // IDF-weight each domain so a word that is over-represented in THIS pool
+  // (vs the global 1,069-god baseline) outranks ever-present "fertility/war/
+  // sun". weight = count × ln(totalGods / globalFreq). A word appearing on 3
+  // gods globally but 4× in your pool now beats "sun" appearing 12×.
+  const df=_organumDF();
+  const totalGods=(typeof GODS!=='undefined'&&Array.isArray(GODS))?GODS.length:1069;
+  for(const [w,d] of Object.entries(wordCount)){
+    const global=df[String(w).toLowerCase()]||1;
+    d.weight=d.count*Math.log((totalGods+1)/global);
+  }
+  const entries=Object.entries(wordCount).sort((a,b)=>(b[1].weight||b[1].count)-(a[1].weight||a[1].count));
   const top1=entries[0],top2=entries[1];
 
   // Primary word
@@ -5713,7 +5810,7 @@ const DEEP_SYSTEMS = [
     ]
   })],
   ['biorhythm','ds_bio','📈',(c)=>({
-    title:`Biorhythm — ${new Date().toISOString().slice(0,10)}`,
+    title:`Biorhythm — ${c.biorhythm.refDate || '2026-04-14'}`,
     origin: LANG==='th' ? 'สมัยใหม่ (เวียนนา) · ~120 ปี' : 'Modern (Vienna) · 120 yrs',
     // Engine already returns biorhythm values as percent-int (-100..+100),
     // see build/calc.js: `physical: Math.round(physical * 100)`. Do NOT
@@ -7023,22 +7120,85 @@ function renderFreqHistory(){
     </div>`;
     return;
   }
-  // History uses the FLAT shape {type, godName, ...}; support legacy nested too.
-  const byKey = {};
+  const isTh = LANG === 'th';
+
+  // Two separate signals, each with meaning — NOT a raw key tally. Previously
+  // this mixed god names with event types ("DAILY_PULSE 12×") and attached no
+  // interpretation, so it read as noise. Now:
+  //   • RECURRING DEITIES — gods that returned across blessings + organum.
+  //   • RECURRING THEMES  — organum consensus words that keep coming up.
+  // A repeat ≥2× is framed as "a message you haven't fully integrated yet"
+  // (the promise the intro copy makes).
+  const godFreq = {};   // name → {count, symbol, lastMsg}
+  const themeFreq = {}; // organum topWord → count
+  let blessings = 0, organa = 0;
   for (const h of hist) {
-    const k = (h.god && h.god.name) || h.godName || h.type || 'event';
-    byKey[k] = (byKey[k]||0) + 1;
+    if (h.type === 'blessing') {
+      blessings++;
+      const nm = h.godName || (h.god && h.god.name);
+      if (nm) { godFreq[nm] = godFreq[nm] || {count:0, symbol:h.godSymbol||'✦', lastMsg:''}; godFreq[nm].count++; if (h.message) godFreq[nm].lastMsg = h.message; }
+    } else if (h.type === 'organum') {
+      organa++;
+      const nm = h.godName;
+      if (nm) { godFreq[nm] = godFreq[nm] || {count:0, symbol:h.godSymbol||'✦', lastMsg:''}; godFreq[nm].count++; }
+      if (h.topWord) themeFreq[h.topWord] = (themeFreq[h.topWord]||0) + 1;
+    }
+    // All other types (daily_pulse, group_switch, …) are engagement noise — skip.
   }
-  const entries = Object.entries(byKey).sort((a,b)=>b[1]-a[1]).slice(0,12);
-  panel.innerHTML = `
-    <div class="deep-sys-card">
-      <div class="deep-sys-title">${t('freq_top_title')}</div>
-      <div class="deep-sys-origin">${t('freq_top_sub')}</div>
-      <div class="deep-sys-stats">
-        ${entries.map(([k,n])=>
-          `<div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${k}</div><div class="deep-sys-stat-val">${n}×</div></div>`).join('')}
-      </div>
+
+  const gods   = Object.entries(godFreq).sort((a,b)=>b[1].count-a[1].count).slice(0,8);
+  const themes = Object.entries(themeFreq).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const totalSignals = blessings + organa;
+
+  if (!gods.length && !themes.length) {
+    panel.innerHTML = `<div class="tier-lock" style="border-color:var(--border)">
+      <div class="tier-lock-icon">📡</div>
+      <div class="tier-lock-title">${t('freq_empty_title')}</div>
+      <div class="tier-lock-desc">${isTh?'จั่วพรหรือถามโอเรกุรัมสัก 2-3 ครั้ง แล้วกลับมาดู pattern ที่กลับมาซ้ำ':'Draw a few blessings or ask the Organum, then return to see what keeps recurring.'}</div>
     </div>`;
+    return;
+  }
+
+  // Headline interpretation: the single loudest recurring deity.
+  const topGod = gods[0];
+  const headline = topGod && topGod[1].count >= 2
+    ? `<div style="background:linear-gradient(135deg,#1a1408,#0e0a18);border:1px solid var(--gold3);border-radius:10px;padding:14px 16px;margin-bottom:14px">
+        <div style="font-size:10px;letter-spacing:2px;color:var(--gold2);margin-bottom:6px">${isTh?'✦ สัญญาณที่ดังที่สุดของคุณ ✦':'✦ YOUR LOUDEST SIGNAL ✦'}</div>
+        <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:16px;color:var(--gold);margin-bottom:4px">${topGod[1].symbol} ${topGod[0]} <span style="font-size:12px;color:var(--muted)">· ${topGod[1].count}×</span></div>
+        <div style="font-size:12px;color:var(--text);line-height:1.7">${isTh
+          ? `<strong>${topGod[0]}</strong> กลับมาหาคุณ <strong>${topGod[1].count} ครั้ง</strong> — ในศาสตร์โอเรกุรัม การที่เทพองค์เดิมวนกลับมาแปลว่า "ยังมีสารที่คุณยังไม่ได้รับเต็มที่" ลองทบทวนว่าครั้งก่อนๆ ${topGod[0]} พยายามบอกอะไร`
+          : `<strong>${topGod[0]}</strong> has returned to you <strong>${topGod[1].count} times</strong> — in the Organum tradition, the same deity recurring means there's a message you haven't fully received. Reflect on what ${topGod[0]} has been trying to tell you.`}
+          ${topGod[1].lastMsg?`<br><span style="font-style:italic;color:var(--muted)">"${topGod[1].lastMsg}"</span>`:''}</div>
+      </div>`
+    : `<div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:12px">${isTh
+        ? `จากทั้งหมด <strong style="color:var(--gold)">${totalSignals}</strong> สัญญาณ ยังไม่มีเทพองค์ใดวนกลับมาซ้ำ — pattern จะชัดขึ้นเมื่อคุณใช้ต่อเนื่อง`
+        : `Across <strong style="color:var(--gold)">${totalSignals}</strong> signals so far, no deity has recurred yet — patterns sharpen as you keep using the app.`}</div>`;
+
+  const godRows = gods.map(([nm,d])=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--border)">
+      <span style="font-size:18px">${d.symbol}</span>
+      <span style="flex:1;font-size:13px;color:var(--text)">${nm}</span>
+      ${d.count>=2?`<span style="font-size:9px;color:var(--gold);background:rgba(212,170,80,0.12);border:1px solid var(--gold3);border-radius:8px;padding:1px 7px">${isTh?'วนกลับมา':'recurring'}</span>`:''}
+      <span style="font-family:'Josefin Sans',sans-serif;font-weight:700;color:var(--gold);min-width:32px;text-align:right">${d.count}×</span>
+    </div>`).join('');
+
+  const themeRows = themes.length ? `
+    <div class="deep-sys-card" style="margin-top:14px">
+      <div class="deep-sys-title">${isTh?'ธีมที่จักรวาลย้ำ':'Themes the universe repeats'}</div>
+      <div class="deep-sys-origin">${isTh?'คำที่ 108 เทพโหวตให้บ่อยสุดในคำถามของคุณ':'Words the 108 gods voted for most across your questions'}</div>
+      <div class="deep-sys-stats">
+        ${themes.map(([w,n])=>`<div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${w}</div><div class="deep-sys-stat-val">${n}×</div></div>`).join('')}
+      </div>
+    </div>` : '';
+
+  panel.innerHTML = `
+    ${headline}
+    <div class="deep-sys-card">
+      <div class="deep-sys-title">${isTh?'เทพที่กลับมาหาคุณบ่อย':'Deities that keep returning'}</div>
+      <div class="deep-sys-origin">${isTh?`จาก ${blessings} พร + ${organa} คำถามโอเรกุรัม`:`From ${blessings} blessings + ${organa} Organum readings`}</div>
+      ${godRows || `<div style="font-size:12px;color:var(--muted);padding-top:8px">${isTh?'ยังไม่มีเทพที่บันทึก':'No deities recorded yet'}</div>`}
+    </div>
+    ${themeRows}`;
 }
 
 // ── God Collection grid (from history) ─────────────────────

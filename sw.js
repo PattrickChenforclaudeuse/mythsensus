@@ -61,7 +61,18 @@
 // all "42 หน้า/42-page" copy bumped to 43 + Gumroad Full Report product
 // renamed. Single source of truth for pet/mirror/companion across report
 // and add-ons.
-const CACHE = 'mythsensus-v17';
+// v18: 2026-05-30 — three responsiveness/consistency fixes:
+//  • 108 Organum now USES the question: pool is seeded from the question +
+//    biased toward topic-relevant gods (TH/EN topic map) + consensus words
+//    are IDF-weighted, so different questions give different, on-topic answers
+//    (was always "sun/love/war" regardless of what you asked).
+//  • Frequency Alerts rewritten from a raw key tally ("DAILY_PULSE 12×") into
+//    recurring-deity + recurring-theme panels with an interpretation headline.
+//  • Biorhythm no longer uses the current date anywhere: engine samples a
+//    FIXED reference (2026-04-14, exposed as biorhythm.refDate) and the Deep
+//    Reading tab reads it instead of new Date() — report + score are now
+//    fully deterministic, a saved blueprint never drifts.
+const CACHE = 'mythsensus-v18';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
