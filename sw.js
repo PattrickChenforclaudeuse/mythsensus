@@ -96,7 +96,17 @@
 // 🙏 faith) shown as Thai/EN chips on the blessing card, god-detail modal, and
 // collection grid. 100% of gods get >=1 tag (80% via category, 20% fall back
 // to their own first domains).
-const CACHE = 'mythsensus-v21';
+// v22: 2026-05-30 — MULTI-tag mythology categories baked into gods.json. A god
+// can legitimately span several domains (Diana = night+nature+protect+power;
+// Ishtar-type = love+power), so single-tag was lossy. All 852 Common+Uncommon+
+// Rare deities now carry a curated `categories[]` array (1-6 keys) researched +
+// cross-checked by parallel comparative-mythology agents with an accuracy audit
+// (~97% Common/Uncommon, Rare re-run with reasoning agents + 9 audit fixes).
+// 87% are multi-tagged (2-5 tags). _godCategories() prefers the baked array and
+// falls back to represents-derived tags for the 217 Epic/Legendary/Mythic still
+// pending. Chips on the card now show up to 4, god-detail modal up to 5. Bump to
+// re-fetch the enlarged gods.json so visitors see the richer tags immediately.
+const CACHE = 'mythsensus-v22';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

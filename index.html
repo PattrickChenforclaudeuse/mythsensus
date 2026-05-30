@@ -2788,12 +2788,24 @@ const _DOMAIN_TO_CAT = (() => {
   add('faith',   ['devotion','sacrifice','mercy','compassion','purity','peace','salvation','blessing','prayer','spirituality','virtue','duty','righteousness','honor','chivalry','humility','asceticism','dharma','discipline','grace','enlightenment']);
   return m;
 })();
-// Returns up to `max` distinct category objects for a god, by its represents.
+// Returns up to `max` distinct category objects for a god. Prefers the curated
+// `categories` array baked into gods.json (a mythology expert assigned these
+// from the god's full tradition, often more complete than the short
+// `represents` hint); falls back to deriving from `represents` for any god not
+// yet curated.
 function _godCategories(god, max){
   const seen = new Set(); const out = [];
+  const lim = max || 3;
+  const baked = (god && Array.isArray(god.categories)) ? god.categories : null;
+  if (baked && baked.length){
+    for (const key of baked){
+      if (_GOD_CATEGORIES[key] && !seen.has(key)){ seen.add(key); out.push(_GOD_CATEGORIES[key]); if (out.length >= lim) break; }
+    }
+    if (out.length) return out;
+  }
   for (const raw of (god && god.represents || [])){
     const cat = _DOMAIN_TO_CAT[String(raw).toLowerCase()];
-    if (cat && !seen.has(cat)){ seen.add(cat); out.push(_GOD_CATEGORIES[cat]); if (out.length >= (max||3)) break; }
+    if (cat && !seen.has(cat)){ seen.add(cat); out.push(_GOD_CATEGORIES[cat]); if (out.length >= lim) break; }
   }
   return out;
 }
@@ -2978,7 +2990,7 @@ async function drawBlessing(){
   document.getElementById('godName').textContent=god.name;
   document.getElementById('godOrigin').textContent=god.mythology||'';
   document.getElementById('godMessage').textContent='"'+message+'"';
-  document.getElementById('godRepresents').innerHTML=(typeof _godCategoryChips==='function'?_godCategoryChips(god,3):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).join(' · ')}</div>`;
+  document.getElementById('godRepresents').innerHTML=(typeof _godCategoryChips==='function'?_godCategoryChips(god,4):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).join(' · ')}</div>`;
   _currentDraw={god,tier:T,msgIdx,message};
   const sb=document.getElementById('godShareBtn');
   if(sb){sb.style.display='inline-block';sb.textContent=(LANG==='th'?'✦ แชร์พรนี้':'✦ Share this blessing');}
@@ -3015,7 +3027,7 @@ function _renderGodCard(god, T, msgIdx, explicitMsg) {
   const idx = Math.max(0, Math.min(Math.max(0, arr.length-1), msgIdx | 0));
   const message = explicitMsg || arr[idx] || randMsg(god);
   document.getElementById('godMessage').textContent = '"' + message + '"';
-  document.getElementById('godRepresents').innerHTML = (typeof _godCategoryChips==='function'?_godCategoryChips(god,3):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).join(' · ')}</div>`;
+  document.getElementById('godRepresents').innerHTML = (typeof _godCategoryChips==='function'?_godCategoryChips(god,4):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).join(' · ')}</div>`;
   _currentDraw = { god, tier: T, msgIdx: idx, message };
   const sb = document.getElementById('godShareBtn');
   if (sb) { sb.style.display = 'inline-block'; sb.textContent = (LANG==='th'?'✦ แชร์พรนี้':'✦ Share this blessing'); }
@@ -7517,7 +7529,7 @@ function openGodDetail(name){
 
   const reps = Array.isArray(god.represents) ? god.represents : [];
   // Category tags first (the "what is this god about" cue), then the raw domains.
-  const catChips = (typeof _godCategoryChips === 'function') ? _godCategoryChips(god, 3) : '';
+  const catChips = (typeof _godCategoryChips === 'function') ? _godCategoryChips(god, 5) : '';
   $('gdReps').innerHTML = reps.length
     ? `${catChips ? `<div style="margin-bottom:6px">${catChips}</div>` : ''}<span style="color:var(--muted)">${isTh ? 'เป็นตัวแทนของ' : 'Represents'}</span>  ${reps.map(r=>`<span style="color:var(--gold2)">${r}</span>`).join(' · ')}`
     : (catChips || '');
