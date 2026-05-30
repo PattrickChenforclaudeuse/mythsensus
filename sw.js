@@ -48,7 +48,12 @@
 // them, so during this brief window the buttons land on Gumroad's
 // "product not found" page — bump cache so visitors get the correct URLs
 // the moment the products go live.
-const CACHE = 'mythsensus-v15';
+// v16: 2026-05-30 — Grand Convergence Variant Perception now excludes
+// time-variable systems (Biorhythm, Vedic Mahadasha) and requires score
+// ≥50 below the chart's own median, so the "dissenting view" surfaces real
+// identity-level dissent instead of today's biorhythm dip. Coherent charts
+// (no real dissenters) render a "speaks with one voice" note instead.
+const CACHE = 'mythsensus-v16';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

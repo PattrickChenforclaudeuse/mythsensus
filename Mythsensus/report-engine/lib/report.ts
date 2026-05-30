@@ -888,8 +888,54 @@ function p03_convergence(c: ChartData): string {
   const pada      = (c.vedic as any).nakshathraPada || (c.vedic as any).nakshatraPada || ''
   const mayanLbl  = `${(c.mayan as any).kin} ${_lang==='en' ? (c.mayan as any).daySignName : (c.mayan as any).daySignNameTh}`
 
-  // ── Variant Perception: 3 lowest-scoring systems carry the most info ──
-  const dissenters = [...all26].sort((a, b) => a.score - b.score).slice(0, 3)
+  // ── Variant Perception ──────────────────────────────────────────────────
+  // Surface systems that genuinely DISAGREE with the consensus — not just
+  // "three lowest scores". Two filters:
+  //   1. Exclude TIME-VARIABLE systems (Biorhythm = today's energy,
+  //      Vedic Mahadasha = current planetary period). They speak about the
+  //      moment, not the person, so they can't meaningfully "dissent" from
+  //      an identity-level read.
+  //   2. Require the score to be meaningfully BELOW the chart's own median
+  //      (gap ≥ 50). Three lowest could be one point under median for a
+  //      cohesive chart — that's coherence, not dissent.
+  // If fewer than 2 real dissenters exist, the chart is highly coherent and
+  // the Variant box renders a "your chart speaks with one voice" message
+  // instead of forcing weak dissents.
+  const VARIANT_EXCLUDE = ['Biorhythm', 'Vedic Mahadasha']
+  const dissenters = [...all26]
+    .filter(b => !VARIANT_EXCLUDE.some(ex => b.system.includes(ex)))
+    .filter(b => b.score < medianScore - 50)
+    .sort((a, b) => a.score - b.score)
+    .slice(0, 3)
+  // Each dissenter needs a short "what it sees differently" line. Prefer the
+  // system's own finding; if empty, fall back to a generic shadow phrase so
+  // the row never renders a bare score with a trailing dash.
+  const dissentLine = (d: typeof all26[0]) => {
+    const f = (d.finding || '').trim()
+    if (f) return esc(f.slice(0, 90))
+    return tr('เห็นมิติที่ระบบส่วนใหญ่ไม่ได้เน้น','sees a dimension the majority underplays')
+  }
+  const variantBox = dissenters.length >= 2
+    ? `
+    <div style="background:linear-gradient(135deg,#1a0a14,#180a28);border:2px solid #8a5acc;border-radius:12px;padding:14px 18px;margin:14px 0">
+      <div style="font-size:10px;letter-spacing:3px;color:#c08ad8;margin-bottom:6px">${tr('🔍 อีกมุมหนึ่งที่น่าฟัง — variant perception','🔍 THE DISSENTING VIEW — variant perception')}</div>
+      <div style="font-size:12px;color:#d0a8e0;line-height:1.8;margin-bottom:8px">${tr(
+        `เมื่อศาสตร์ส่วนใหญ่เห็นภาพรวมเป็นบวก ${dissenters.length} ศาสตร์ที่ให้คะแนนต่ำกว่าค่ากลางของคุณชัดเจน มักชี้สิ่งที่ระบบใหญ่มองข้าม — ไม่ใช่ "ดวงแย่" แต่เป็นมิติในเงาที่ควรฟังตอนตัดสินใจใหญ่:`,
+        `When the majority sees a positive picture, the ${dissenters.length} systems scoring clearly below your own median often reveal what the consensus misses — not "bad chart" but the shadow dimension worth hearing when stakes are high:`)}</div>
+      <div style="font-size:11.5px;color:#b890d0;line-height:1.9">
+        ${dissenters.map(d => `• <strong>${esc(d.system)}</strong> <span style="color:#8868a0">(${d.score})</span> — ${dissentLine(d)}`).join('<br>')}
+      </div>
+      <div style="font-size:10px;color:#806090;margin-top:10px;padding-top:8px;border-top:1px solid #3a2050">${tr(
+        '🎯 ใช้ยังไง: ก่อนตัดสินใจใหญ่ (อาชีพ ความสัมพันธ์ การลงทุน) อ่านเสียงข้างน้อยนี้ซ้ำ มันมักชี้สิ่งที่คุณรู้ลึกๆ แต่ไม่อยากยอมรับ',
+        '🎯 How to use: before big decisions (career, relationships, investments), re-read these dissenting voices — they often name what you already sense but resist admitting')}</div>
+    </div>`
+    : `
+    <div style="background:linear-gradient(135deg,#0a1a14,#0a1828);border:2px solid #5acc8a;border-radius:12px;padding:14px 18px;margin:14px 0">
+      <div style="font-size:10px;letter-spacing:3px;color:#7ad8a8;margin-bottom:6px">${tr('🎯 ดวงที่กลมกลืน — rare coherence','🎯 A COHERENT CHART — rare coherence')}</div>
+      <div style="font-size:12px;color:#a8e0c8;line-height:1.8">${tr(
+        `ดวงของคุณ "พูดด้วยเสียงเดียว" — ไม่มีศาสตร์ใดให้คะแนนต่ำกว่าค่ากลางของคุณอย่างมีนัยสำคัญ นี่หายากกว่าที่คิด: ${dissenters.length === 1 ? 'มีเพียง 1 ศาสตร์ที่เห็นต่างเล็กน้อย' : 'ทั้ง 26 ศาสตร์เห็นภาพไปทางเดียวกัน'} เมื่อทุกมุมมองสอดคล้องกัน ความมั่นใจในการตัดสินใจของคุณมีพื้นฐานแข็งแรง — แต่ระวัง blind spot ที่ไม่มีใครเตือน`,
+        `Your chart "speaks with one voice" — no system scores significantly below your own median. This is rarer than it sounds: ${dissenters.length === 1 ? 'only one system dissents, and only mildly' : 'all 26 systems point the same way'}. When every lens agrees, your decisions rest on solid ground — but watch for the blind spot no one is there to flag.`)}</div>
+    </div>`
 
   // ── Headline TL;DR — one-paragraph summary ──
   const elemConsensusEl  = dmEl  // we already established cover's element consensus
@@ -950,19 +996,8 @@ function p03_convergence(c: ChartData): string {
     </div>
     ${visible.map(t => consensusRow(t.icon, t.theme, t.votes.map(v => v.system), t.msg, t.votes.length, t.color, narratives[t.icon] ?? '')).join('')}
 
-    <!-- 4. Variant Perception — minority dissent insight -->
-    <div style="background:linear-gradient(135deg,#1a0a14,#180a28);border:2px solid #8a5acc;border-radius:12px;padding:14px 18px;margin:14px 0">
-      <div style="font-size:10px;letter-spacing:3px;color:#c08ad8;margin-bottom:6px">${tr('🔍 อีกมุมหนึ่งที่น่าฟัง — variant perception','🔍 THE DISSENTING VIEW — variant perception')}</div>
-      <div style="font-size:12px;color:#d0a8e0;line-height:1.8;margin-bottom:8px">${tr(
-        `เมื่อศาสตร์ส่วนใหญ่เห็นภาพรวมเป็นบวก ${dissenters.length} ศาสตร์ที่ "เห็นต่าง" มักชี้สิ่งที่ระบบใหญ่มองข้าม — ไม่ใช่ "ดวงแย่" แต่เป็นมิติในเงาที่ควรฟังตอนตัดสินใจใหญ่:`,
-          `When the majority sees a positive picture, the ${dissenters.length} dissenting systems often reveal what the consensus misses — this is not "bad chart" but the shadow dimension worth hearing when stakes are high:`)}</div>
-      <div style="font-size:11.5px;color:#b890d0;line-height:1.9">
-        ${dissenters.map(d => `• <strong>${esc(d.system)}</strong> <span style="color:#8868a0">(${d.score})</span> — ${esc(d.finding || '').slice(0, 90)}`).join('<br>')}
-      </div>
-      <div style="font-size:10px;color:#806090;margin-top:10px;padding-top:8px;border-top:1px solid #3a2050">${tr(
-        '🎯 ใช้ยังไง: ก่อนตัดสินใจใหญ่ (อาชีพ ความสัมพันธ์ การลงทุน) อ่านเสียงข้างน้อยนี้ซ้ำ มันมักชี้สิ่งที่คุณรู้ลึกๆ แต่ไม่อยากยอมรับ',
-        '🎯 How to use: before big decisions (career, relationships, investments), re-read these dissenting voices — they often name what you already sense but resist admitting')}</div>
-    </div>
+    <!-- 4. Variant Perception — minority dissent insight (or coherence note) -->
+    ${variantBox}
 
     <!-- 5. Unique Cosmic Signature -->
     <div style="background:linear-gradient(135deg,#1a1408,#2a1c0a);border:2px solid #d4aa50;border-radius:12px;padding:14px 18px;margin:14px 0">
