@@ -2748,6 +2748,70 @@ document.addEventListener('click', e => {
   }
 });
 
+// ── God category tags ────────────────────────────────────────────────────
+// 1,069 deities is overwhelming without a "what is this god about?" cue. Every
+// god has a `represents` array of English domain words; we group those into a
+// dozen human-readable themes (Thai + EN + emoji + colour) and show them as
+// chips wherever a god appears, so a glance tells you "love god" vs "war god".
+const _GOD_CATEGORIES = {
+  love:    { th:'ความรัก·ความงาม', en:'Love & Beauty',     emoji:'❤️', color:'#e0608a' },
+  wealth:  { th:'ทรัพย์·โชค',       en:'Wealth & Fortune',  emoji:'💰', color:'#d4af37' },
+  power:   { th:'พลัง·สงคราม',      en:'Power & War',       emoji:'⚔️', color:'#c0503a' },
+  wisdom:  { th:'ปัญญา·ความจริง',   en:'Wisdom & Truth',    emoji:'🧠', color:'#5a8acc' },
+  protect: { th:'การปกป้อง',         en:'Protection',        emoji:'🛡️', color:'#4a9a6a' },
+  nature:  { th:'ธรรมชาติ·ธาตุ',     en:'Nature & Elements', emoji:'🌿', color:'#3aa88a' },
+  light:   { th:'แสง·ดวงอาทิตย์',   en:'Light & Sun',       emoji:'☀️', color:'#e69020' },
+  night:   { th:'ราตรี·ดวงจันทร์',  en:'Night & Moon',      emoji:'🌙', color:'#7a6ad0' },
+  death:   { th:'ความตาย·เกิดใหม่',  en:'Death & Rebirth',   emoji:'💀', color:'#9060c0' },
+  healing: { th:'การรักษา',          en:'Healing',           emoji:'🩺', color:'#3ab090' },
+  art:     { th:'ศิลปะ·ดนตรี',       en:'Art & Music',       emoji:'🎨', color:'#c060b0' },
+  cosmos:  { th:'การสร้าง·จักรวาล',  en:'Creation & Cosmos', emoji:'🌌', color:'#c8a45a' },
+  faith:   { th:'ศรัทธา·เมตตา',      en:'Faith & Mercy',     emoji:'🙏', color:'#c8a040' },
+};
+// domain (lowercase) → category key. Covers the high-frequency domains; any
+// uncovered domain just doesn't add a chip (the god still shows its top one).
+const _DOMAIN_TO_CAT = (() => {
+  const m = {};
+  const add = (cat, words) => words.forEach(w => { m[w] = cat; });
+  add('love',    ['love','beauty','desire','fertility','marriage','attraction','passion','union','romance','sensuality','luxury','venus','pleasure','flowers']);
+  add('wealth',  ['wealth','prosperity','fortune','abundance','gold','commerce','trade','riches','luck','harvest','agriculture','cattle','grain','treasure','jupiter']);
+  add('power',   ['war','strength','power','victory','courage','conflict','authority','kingship','king of gods','sovereignty','battle','warrior','might','ambition','obsession','eclipse','mars','conquest','rebellion','revolution','force']);
+  add('wisdom',  ['wisdom','knowledge','justice','truth','prophecy','foresight','learning','intellect','law','order','writing','philosophy','intelligence','communication','mind','mercury','divination','memory','language','scribe','messages','messenger']);
+  add('protect', ['protection','guardian','shelter','defense','watchfulness','vigilance','boundaries']);
+  add('nature',  ['earth','water','sea','sky','wind','rain','thunder','lightning','fire','mountains','forest','rivers','storm','ocean','nature','animals','storms','air','snow','volcanoes','rivers','spring','seasons','crops','hunt','wilderness']);
+  add('light',   ['sun','light','dawn','radiance','solar','day','illumination']);
+  add('night',   ['moon','night','darkness','dreams','shadow','stars','sleep']);
+  add('death',   ['death','underworld','rebirth','transformation','afterlife','destruction','resurrection','the dead','ancestors','chaos','void','decay','terror','saturn','fate','karma','endings']);
+  add('healing', ['healing','medicine','life','health','vitality','youth','purification','renewal','restoration']);
+  add('art',     ['music','arts','poetry','dance','crafts','creativity','craft','song','smithcraft','metalwork','architecture','artisan','skill','craftsmanship','divine craftsman','weaving','smith','divine artisans','forge']);
+  add('cosmos',  ['creation','universe','cosmic order','time','infinity','supreme deity','heaven','creator','the absolute','sky father','first-born','cosmos','existence','primordial','eternity']);
+  add('faith',   ['devotion','sacrifice','mercy','compassion','purity','peace','salvation','blessing','prayer','spirituality','virtue','duty','righteousness','honor','chivalry','humility','asceticism','dharma','discipline','grace','enlightenment']);
+  return m;
+})();
+// Returns up to `max` distinct category objects for a god, by its represents.
+function _godCategories(god, max){
+  const seen = new Set(); const out = [];
+  for (const raw of (god && god.represents || [])){
+    const cat = _DOMAIN_TO_CAT[String(raw).toLowerCase()];
+    if (cat && !seen.has(cat)){ seen.add(cat); out.push(_GOD_CATEGORIES[cat]); if (out.length >= (max||3)) break; }
+  }
+  return out;
+}
+// Chip HTML for a god's categories (Thai/EN aware). ALWAYS returns at least one
+// chip — when no domain maps to a theme (~20% of niche/unique deities), it
+// falls back to the god's own first 1-2 represents words as neutral chips, so
+// every one of the 1,069 gods carries a "what is this about?" tag.
+function _godCategoryChips(god, max){
+  const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
+  const chip = (label, color) => `<span style="display:inline-block;background:${color}22;color:${color};border:1px solid ${color}66;border-radius:20px;padding:2px 9px;font-size:10.5px;font-family:'Josefin Sans','Sarabun',sans-serif;letter-spacing:.3px;margin:2px 3px 2px 0;white-space:nowrap">${label}</span>`;
+  const cats = _godCategories(god, max);
+  if (cats.length) return cats.map(c => chip(`${c.emoji} ${isTh?c.th:c.en}`, c.color)).join('');
+  // Fallback: surface the god's own domains as plain chips (capitalized).
+  const reps = (god && god.represents || []).slice(0, 2)
+    .map(w => String(w).replace(/\b\w/g, ch => ch.toUpperCase()));
+  return reps.length ? reps.map(r => chip('✦ ' + r, '#c8a45a')).join('') : '';
+}
+
 // Legacy shim — some old callers still call showTab(panelId). Route
 // them through the new nav by finding the group that owns that panel.
 function showTab(n) {
@@ -2914,7 +2978,7 @@ async function drawBlessing(){
   document.getElementById('godName').textContent=god.name;
   document.getElementById('godOrigin').textContent=god.mythology||'';
   document.getElementById('godMessage').textContent='"'+message+'"';
-  document.getElementById('godRepresents').textContent=(god.represents||[]).join(' · ');
+  document.getElementById('godRepresents').innerHTML=(typeof _godCategoryChips==='function'?_godCategoryChips(god,3):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).join(' · ')}</div>`;
   _currentDraw={god,tier:T,msgIdx,message};
   const sb=document.getElementById('godShareBtn');
   if(sb){sb.style.display='inline-block';sb.textContent=(LANG==='th'?'✦ แชร์พรนี้':'✦ Share this blessing');}
@@ -2951,7 +3015,7 @@ function _renderGodCard(god, T, msgIdx, explicitMsg) {
   const idx = Math.max(0, Math.min(Math.max(0, arr.length-1), msgIdx | 0));
   const message = explicitMsg || arr[idx] || randMsg(god);
   document.getElementById('godMessage').textContent = '"' + message + '"';
-  document.getElementById('godRepresents').textContent = (god.represents||[]).join(' · ');
+  document.getElementById('godRepresents').innerHTML = (typeof _godCategoryChips==='function'?_godCategoryChips(god,3):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).join(' · ')}</div>`;
   _currentDraw = { god, tier: T, msgIdx: idx, message };
   const sb = document.getElementById('godShareBtn');
   if (sb) { sb.style.display = 'inline-block'; sb.textContent = (LANG==='th'?'✦ แชร์พรนี้':'✦ Share this blessing'); }
@@ -7381,14 +7445,19 @@ function renderCollection(){
     ? allEntries
     : allEntries.filter(([,info]) => info.tier === activeTier);
 
+  // Name → full god lookup so each grid card can show its category tag.
+  const _godPool = (typeof GODS_FULL !== 'undefined' && Array.isArray(GODS_FULL)) ? GODS_FULL : (Array.isArray(GODS) ? GODS : []);
+  const _godByName = {}; for (const g of _godPool) if (g && g.name) _godByName[g.name] = g;
   const gridHTML = entries.length
     ? entries.map(([name,info])=>{
         const T = TIERS.find(x => x.name === info.tier) || {color:'var(--gold)'};
         const esc = name.replace(/'/g, "\\'");
+        const catChip = (typeof _godCategoryChips === 'function') ? _godCategoryChips(_godByName[name], 1) : '';
         return `<div onclick="openGodDetail('${esc}')" style="background:var(--bg2);border:1px solid var(--border);border-top:2px solid ${T.color};border-radius:6px;padding:14px 10px;text-align:center;cursor:pointer;transition:transform .15s,border-color .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='var(--gold3)'" onmouseout="this.style.transform='';this.style.borderColor='var(--border)'">
           <div style="font-size:34px;margin-bottom:6px">${info.symbol}</div>
           <div style="font-family:'Cinzel Decorative',serif;font-size:12px;color:var(--gold);line-height:1.3">${name}</div>
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:${T.color};letter-spacing:1px;margin-top:3px">${info.tier}</div>
+          ${catChip ? `<div style="margin-top:6px">${catChip}</div>` : ''}
         </div>`;
       }).join('')
     : (allEntries.length
@@ -7447,9 +7516,11 @@ function openGodDetail(name){
   $('gdMyth').textContent = (god.mythology || '').toUpperCase();
 
   const reps = Array.isArray(god.represents) ? god.represents : [];
+  // Category tags first (the "what is this god about" cue), then the raw domains.
+  const catChips = (typeof _godCategoryChips === 'function') ? _godCategoryChips(god, 3) : '';
   $('gdReps').innerHTML = reps.length
-    ? `<span style="color:var(--muted)">${isTh ? 'เป็นตัวแทนของ' : 'Represents'}</span>  ${reps.map(r=>`<span style="color:var(--gold2)">${r}</span>`).join(' · ')}`
-    : '';
+    ? `${catChips ? `<div style="margin-bottom:6px">${catChips}</div>` : ''}<span style="color:var(--muted)">${isTh ? 'เป็นตัวแทนของ' : 'Represents'}</span>  ${reps.map(r=>`<span style="color:var(--gold2)">${r}</span>`).join(' · ')}`
+    : (catChips || '');
 
   const msgs = Array.isArray(god.messages) ? god.messages : [];
   $('gdMessages').innerHTML = msgs.length

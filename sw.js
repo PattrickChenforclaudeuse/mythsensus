@@ -89,7 +89,14 @@
 // chips; (3) Resonance "Generate Cosmic Blueprint now" button actually fires
 // cb_generate so mobile lands on the finished report; (4) entry-overlay month
 // is now a named dropdown (ม.ค./Jan…) to kill day/month confusion.
-const CACHE = 'mythsensus-v20';
+// v21: 2026-05-30 — god category tags: with 1,069 deities, users had no cue
+// what each god is "about". Added a domain→theme map (12 colour-coded themes:
+// ❤️ love · 💰 wealth · ⚔️ power · 🧠 wisdom · 🛡️ protection · 🌿 nature ·
+// ☀️ light · 🌙 night · 💀 death/rebirth · 🩺 healing · 🎨 art · 🌌 cosmos ·
+// 🙏 faith) shown as Thai/EN chips on the blessing card, god-detail modal, and
+// collection grid. 100% of gods get >=1 tag (80% via category, 20% fall back
+// to their own first domains).
+const CACHE = 'mythsensus-v21';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
