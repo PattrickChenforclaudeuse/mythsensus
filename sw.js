@@ -106,7 +106,15 @@
 // falls back to represents-derived tags for the 217 Epic/Legendary/Mythic still
 // pending. Chips on the card now show up to 4, god-detail modal up to 5. Bump to
 // re-fetch the enlarged gods.json so visitors see the richer tags immediately.
-const CACHE = 'mythsensus-v22';
+// v23: 2026-05-31 — multi-tag categories now cover ALL 1,069 deities (100%).
+// The final 217 Epic/Legendary/Mythic showcase gods (Zeus, Odin, Ra, Vishnu,
+// Amaterasu, Quetzalcoatl, the Thai pantheon...) were tagged by reasoning agents
+// + audit; 28 famous gods two failed batches dropped (Egyptian/Aztec/Mesopotamian/
+// Thai) were hand-tagged from mythology; 5 audit fixes (Gaia, Venus, Durga, Indra,
+// Hachiman). ~98% of top-tier carry 3-6 tags. Mythic/Legendary/Epic no longer fall
+// back to represents — every god shows curated chips. (Also: the duplicate
+// "Wakan Tanka" entry, Mythic + Legendary, now both tagged.) Bump to re-fetch.
+const CACHE = 'mythsensus-v23';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
