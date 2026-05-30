@@ -53,7 +53,15 @@
 // ≥50 below the chart's own median, so the "dissenting view" surfaces real
 // identity-level dissent instead of today's biorhythm dip. Coherent charts
 // (no real dissenters) render a "speaks with one voice" note instead.
-const CACHE = 'mythsensus-v16';
+// v17: 2026-05-30 — report ↔ add-on consistency: p24_pets now reads
+// chart.addons.pet (was a parallel petMap → premium report and Pet add-on
+// tab showed different animals); NEW Divine Mirror page (p_divineMirror)
+// sourced from chart.addons.mirror so the Full Report includes it and
+// matches the Mirror add-on exactly; report is now 43 pages (was 42),
+// all "42 หน้า/42-page" copy bumped to 43 + Gumroad Full Report product
+// renamed. Single source of truth for pet/mirror/companion across report
+// and add-ons.
+const CACHE = 'mythsensus-v17';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

@@ -1912,7 +1912,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 <div class="panel" id="panel-premium-reports">
   <div class="section-title" data-t="reports_title">MY PREMIUM REPORTS</div>
   <p class="panel-intro" data-en="All your saved Cosmic Blueprint reports. Download as PDF anytime, share with family, or compare old readings to new." data-th="รายงาน Cosmic Blueprint ทุกฉบับที่เคยสร้างเก็บไว้ที่นี่ · ดาวน์โหลด PDF ได้ตลอด ส่งต่อคนในครอบครัว หรือเอามาเทียบกับฉบับเก่า">All your saved Cosmic Blueprint reports. Download as PDF anytime, share with family, or compare old readings to new.</p>
-  <div class="sky-dom-hint" data-t="reports_hint">รายงาน Premium 42 หน้า ที่คุณเคย generate · เปิดดูซ้ำได้ไม่จำกัด</div>
+  <div class="sky-dom-hint" data-t="reports_hint">รายงาน Premium 43 หน้า ที่คุณเคย generate · เปิดดูซ้ำได้ไม่จำกัด</div>
   <div id="reportsList" style="max-width:720px;margin:0 auto;"></div>
 </div>
 
@@ -2165,7 +2165,7 @@ en:{
   streak_days:"days",streak_sub:"Current streak",
   streak_desc:"Keep a daily habit — Cosmic Score & frequency alerts become more accurate over time.",
   // ── Premium panels
-  reports_title:"MY PREMIUM REPORTS",reports_hint:"42-page Premium reports you've generated · re-open anytime",
+  reports_title:"MY PREMIUM REPORTS",reports_hint:"43-page Premium reports you've generated · re-open anytime",
   reports_empty_title:"No reports yet",reports_empty_desc:"Generate your first Premium Blueprint from the Generate tab.",
   reports_empty_cta:"✨ Go generate",
   // ── Subscription / Resonance
@@ -2373,7 +2373,7 @@ th:{
   streak_days:"วัน",streak_sub:"Streak ปัจจุบัน",
   streak_desc:"รักษาวินัยรายวัน — ยิ่งใช้ต่อเนื่อง Cosmic Score และ สัญญาณความถี่ ยิ่งแม่นยำขึ้น",
   // ── Premium
-  reports_title:"รายงาน Premium ของฉัน",reports_hint:"รายงาน 42 หน้าที่คุณเคยสร้าง · เปิดดูซ้ำได้",
+  reports_title:"รายงาน Premium ของฉัน",reports_hint:"รายงาน 43 หน้าที่คุณเคยสร้าง · เปิดดูซ้ำได้",
   reports_empty_title:"ยังไม่มีรายงาน",reports_empty_desc:"กด ✨ สร้างรายงาน เพื่อสร้างรายงานแรก",
   reports_empty_cta:"✨ ไปสร้างรายงาน",
   // ── Subscription / Resonance
@@ -4624,7 +4624,7 @@ function _hasActiveGift(){
 
 // ── Per-input purchase model ──────────────────────────────
 // Pricing model decided 2026-05-02:
-//   • $19  one-time = Full Report 42-page PDF for ONE chart input
+//   • $19  one-time = Full Report 43-page PDF for ONE chart input
 //   • $5–9 add-ons  = utility add-ons (Mirror/Pet/Companions/Exercise/Food/
 //                     Product/Compat) — each tied to ONE chart input;
 //                     re-view free, change input → repurchase
@@ -4646,7 +4646,7 @@ const PRICING = {
   food:        { usd: 7,  thb: 250 },
   product:     { usd: 5,  thb: 180 },
   compat:      { usd: 9,  thb: 320 },
-  // Big bundle — Full Report 42-page PDF (NOT an add-on)
+  // Big bundle — Full Report 43-page PDF (NOT an add-on)
   full_report: { usd: 19, thb: 650 },
 };
 
@@ -5807,7 +5807,7 @@ function _showDeep(k){
   const isTh = LANG === 'th';
   // Per-system gate — each of the 26 deep systems is its own purchase.
   // Existing $19 Full Report does NOT include these (per pricing decision
-  // 2026-05-02 — Full Report is the 42-page PDF only). User unlocks each
+  // 2026-05-02 — Full Report is the 43-page PDF only). User unlocks each
   // system at $9 per chart input.
   const deepKey = 'deep_' + k;
   const deepLocked = !_hasItemAccess(deepKey);

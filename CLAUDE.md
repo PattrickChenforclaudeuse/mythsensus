@@ -106,7 +106,7 @@ subscription URL (still works, just bypasses the per-item flow).
 | Cosmic Food | $7 | One-time | `food` | `vwzkgz` | ✓ created (draft) — review + publish |
 | Product Personality | $5 | One-time | `product` | `howzdo` | ✓ created (draft) — review + publish |
 | Compatibility Check | $9 | One-time | `compat` | `mdjeln` | ✓ created (draft) — review + publish |
-| Full Report (42-page PDF) | $19 | One-time | `full_report` | `mbkayz` | ✓ created (draft) — review + publish |
+| Full Report (43-page PDF) | $19 | One-time | `full_report` | `mbkayz` | ✓ created (draft) — review + publish |
 
 **Before launching:** open each draft product on Gumroad dashboard → review the
 auto-generated description (currently English-only one-liner from

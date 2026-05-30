@@ -40,7 +40,7 @@ function pill(text: string, bg = '#2a2010', color = '#d4aa50') {
 
 // Auto-incrementing page counter (reset per report generation)
 let _pageNum = 0
-let _totalPages = 42
+let _totalPages = 43
 // Language for the currently-generating report. Set once by generateReport()
 // from chart.input.lang so page headers/footers respect the user's choice.
 let _lang: 'th' | 'en' = 'th'
@@ -2391,117 +2391,57 @@ function p24_pets(c: ChartData): string {
   const dmEl = c.bazi.dayMasterElement
   const missingEl = c.bazi.missingElement || '—'
 
-  // Enrich each pet suggestion with the 5-element logic + which missing
-  // element it supplies to make the suggestion traceable, not arbitrary.
-  // Element label helper for fills tag
-  const elL = (th: string, en: string) => tr(th, en)
-
-  const petMap: Record<string, Array<{animal:string; why:string; fills?:string}>> = {
-    'ไฟ': [
-      {animal: tr('🐱 แมว','🐱 Cat'),
-       why: tr(`แมวเป็นสัตว์ที่วัฒนธรรมอียิปต์-ตะวันออกจับคู่กับธาตุไฟ — อิสระ อุณหภูมิร่างกายสูง กลางคืนตื่นตัว · เสริม Day Master ${dmEl}ของคุณโดยตรง`,
-               `Cats are paired with Fire across Egyptian and Eastern traditions — independent, high body heat, nocturnally alert. They directly reinforce your ${dmEl} Day Master.`),
-       fills: elL('ไฟ (หนุน)','Fire (reinforces)')},
-      {animal: tr('🦜 นกแก้ว','🦜 Parrot'),
-       why: tr('นกเป็นตัวแทนธาตุไม้ (เคลื่อนไหวในอากาศ-ต้นไม้) · ไม้สร้างไฟใน 5 ธาตุ → หล่อเลี้ยง Day Master ของคุณ',
-               `Birds represent the Wood element (moving through air-and-tree). Wood feeds Fire in the 5-element cycle, nourishing your Day Master.`),
-       fills: elL('ไม้ (สร้างไฟ)','Wood (feeds Fire)')},
-      {animal: tr('🐠 ปลา','🐠 Fish'),
-       why: tr(`น้ำตรงข้ามกับไฟ แต่เสริมสมดุล — สำหรับคนไฟร้อนแรง ปลาช่วยลดความร้อนอาโวคาโด · ดีพิเศษถ้าขาดธาตุ${missingEl==='น้ำ'?'น้ำ':'—'}`,
-               `Water opposes Fire but creates balance — for hot Fire-types, fish cool the temperature${missingEl==='น้ำ'?'. Especially good if your missing element is Water':''}.`),
-       fills: missingEl==='น้ำ' ? elL('น้ำ (ขาด)','Water (missing element)') : elL('น้ำ (สมดุล)','Water (balance)')},
-      {animal: tr('🐇 กระต่าย','🐇 Rabbit'),
-       why: tr('กระต่ายเป็นสัตว์ธาตุไม้ (เกี่ยวข้องกับพืช) + อ่อนโยน — สมดุลไฟที่อาจร้อนเกิน',
-               'Rabbits are a Wood-element animal (associated with plants) and gentle — balancing Fire that might run too hot.'),
-       fills: elL('ไม้ (สร้างไฟ)','Wood (feeds Fire)')},
-    ],
-    'ไม้': [
-      {animal: tr('🐶 สุนัข','🐶 Dog'),
-       why: tr('สุนัขเป็นสัตว์ธาตุดิน (ซื่อสัตย์ สัมพันธ์กับบ้าน) · ดินให้รากฐานกับไม้ให้ยึดได้',
-               'Dogs are an Earth-element animal (loyal, home-oriented). Earth gives Wood the foundation it needs to root.'),
-       fills: elL('ดิน (ให้รากกับไม้)','Earth (roots Wood)')},
-      {animal: tr('🐠 ปลา','🐠 Fish'),
-       why: tr('น้ำหล่อเลี้ยงไม้โดยตรงใน 5 ธาตุ — ตู้ปลาในบ้านจะเสริม Day Master ของคุณทุกวัน',
-               'Water directly nourishes Wood in the 5-element cycle — a home aquarium reinforces your Day Master every day.'),
-       fills: elL('น้ำ (หล่อเลี้ยงไม้)','Water (nourishes Wood)')},
-      {animal: tr('🐢 เต่า','🐢 Turtle'),
-       why: tr('เต่าเป็นสัญลักษณ์ดิน+น้ำในพุทธและจีน — สองธาตุที่ค้ำจุนไม้',
-               'Turtles symbolise Earth + Water in Buddhist and Chinese traditions — two elements that uphold Wood.'),
-       fills: elL('ดิน+น้ำ','Earth + Water')},
-      {animal: tr('🦜 นก','🦜 Bird'),
-       why: tr('นกอยู่บนต้นไม้ = ขยายพลังงานไม้ในแนวสูง',
-               'Birds live in trees = they extend Wood\'s energy upward.'),
-       fills: elL('ไม้ (เหมือนกัน)','Wood (same element)')},
-    ],
-    'น้ำ': [
-      {animal: tr('🐠 ตู้ปลา','🐠 Aquarium'),
-       why: tr('ตู้ปลา = น้ำในบ้าน ขยายพลังของ Day Master โดยตรง · Feng Shui ใช้มาเป็นพันปี',
-               'An aquarium = water in the home, directly amplifying your Day Master. Feng Shui has used this for thousands of years.'),
-       fills: elL('น้ำ (หนุน)','Water (reinforces)')},
-      {animal: tr('🐢 เต่า','🐢 Turtle'),
-       why: tr('เต่ามีธาตุดิน — ดินควบคุมน้ำใน 5 ธาตุ ทำให้น้ำไม่ล้นหรือหายไปง่าย',
-               'Turtles carry the Earth element — Earth controls Water in the 5-element cycle, keeping it from overflowing or evaporating.'),
-       fills: elL('ดิน (สมดุลน้ำ)','Earth (balances Water)')},
-      {animal: tr('🐶 สุนัข','🐶 Dog'),
-       why: tr('สุนัขเป็นธาตุดิน — ช่วย <em>ยึด</em> พลังงานน้ำไม่ให้ไหลเปลี่ยนแปลงเร็วเกินไป',
-               'Dogs are an Earth-element animal — they <em>anchor</em> Water energy so it doesn\'t shift too quickly.'),
-       fills: elL('ดิน (ยึดน้ำ)','Earth (anchors Water)')},
-      {animal: tr('🐱 แมว','🐱 Cat'),
-       why: tr('แมวธาตุไฟ — ไฟสมดุลกับน้ำในทางพลังงาน (ขั้วตรงข้ามที่เติมเต็มกัน)',
-               'Cats are a Fire-element animal — Fire and Water complete each other (opposite poles that fill each other).'),
-       fills: elL('ไฟ (สมดุล)','Fire (balance)')},
-    ],
-    'โลหะ': [
-      {animal: tr('🐟 ปลา','🐟 Fish'),
-       why: tr('น้ำเป็นผลผลิตของโลหะใน 5 ธาตุ — ปลาช่วยให้พลังงานโลหะของคุณไหลออกมาเป็นการสร้างสรรค์',
-               'Water is what Metal produces in the 5-element cycle — fish help your Metal energy flow out as creativity.'),
-       fills: elL('น้ำ (โลหะสร้าง)','Water (Metal produces)')},
-      {animal: tr('🐇 กระต่าย','🐇 Rabbit'),
-       why: tr('ไม้ — โลหะตัดไม้ใน 5 ธาตุ ให้กระต่ายเป็นเป้าของความเข้มงวด เปลี่ยนเป็นความอ่อนโยน',
-               'Wood — Metal cuts Wood in the 5-element cycle, so a rabbit becomes the target that softens your strictness into gentleness.'),
-       fills: elL('ไม้ (ควบคู่)','Wood (counterpart)')},
-      {animal: tr('🐹 แฮมสเตอร์','🐹 Hamster'),
-       why: tr('พลังงานเบา สะอาด โลหะชอบความเป็นระเบียบ — แฮมสเตอร์ตอบสนองดี',
-               'Light, clean energy. Metal loves order — and hamsters thrive on that.'),
-       fills: elL('โลหะ (เหมือน)','Metal (same element)')},
-      {animal: tr('🐱 แมว','🐱 Cat'),
-       why: tr('ไฟหลอมโลหะ — แมวเปลี่ยน "โลหะแข็ง" ให้เป็น "โลหะมีชีวิต"',
-               'Fire forges Metal — cats turn "rigid Metal" into "living Metal".'),
-       fills: elL('ไฟ (ปรับโลหะ)','Fire (forges Metal)')},
-    ],
-    'ดิน': [
-      {animal: tr('🐶 สุนัข','🐶 Dog'),
-       why: tr('สุนัขเป็นธาตุดิน (ซื่อสัตย์ รักบ้าน) — เสริม Day Master ของคุณโดยตรง',
-               'Dogs are an Earth-element animal (loyal, home-loving) — directly reinforcing your Day Master.'),
-       fills: elL('ดิน (หนุน)','Earth (reinforces)')},
-      {animal: tr('🐱 แมว','🐱 Cat'),
-       why: tr('ไฟสร้างดินใน 5 ธาตุ — แมวเติมพลังให้ Day Master',
-               'Fire produces Earth in the 5-element cycle — cats feed energy into your Day Master.'),
-       fills: elL('ไฟ (สร้างดิน)','Fire (produces Earth)')},
-      {animal: tr('🌵 ไม้อวบน้ำ','🌵 Succulent'),
-       why: tr('แม้ไม่ใช่สัตว์ — แต่ไม้อวบน้ำมีทั้งธาตุไม้และน้ำเล็กน้อย · ช่วยป้องกันดินไม่ให้ "แห้ง" เกินไป',
-               'Not technically an animal — but succulents carry both Wood and a touch of Water, preventing your Earth from becoming "too dry".'),
-       fills: elL('ไม้ (ควบคุมดิน)','Wood (controls Earth)')},
-      {animal: tr('🐢 เต่า','🐢 Turtle'),
-       why: tr('เต่าเป็นธาตุดิน+น้ำ — เพิ่มความเสถียรให้ Day Master',
-               'Turtles carry Earth + Water — adding stability to your Day Master.'),
-       fills: elL('ดิน (เหมือน)','Earth (same element)')},
-    ],
-  }
-  const pets = petMap[dmEl] ?? petMap['ดิน']
-
-  // Mythological Spirit Creature — moved here (was missing in this page).
-  // Drawn from the add-ons.companions table via calcAddons, which maps
-  // dmEl → {creature, creatureDesc, mantra, ...}
+  // SINGLE SOURCE OF TRUTH: pet content comes from chart.addons.pet (calc.ts
+  // calcAddons), the EXACT same data the Pet add-on tab renders. Previously
+  // this page kept its own parallel petMap, so the premium report and the
+  // add-on tab showed DIFFERENT animals for the same chart. Now they're
+  // identical. Spirit creature continues to use chart.addons.companions.
+  const pet = (c as any).addons?.pet || null
   const companions = (c as any).addons?.companions || null
+  const isTh = _lang !== 'en'
+
+  // Build the main + secondary pet cards from the addon shape.
+  const petCard = (emoji: string, animalLabel: string, why: string, story?: string, badge?: string) => `
+    <div style="border:1px solid #2a2010;border-radius:8px;padding:12px;margin:8px 0;display:flex;gap:12px">
+      <span style="font-size:28px;flex-shrink:0">${emoji}</span>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px">
+          <div style="font-weight:600;color:#d4aa50;font-size:13px">${esc(animalLabel)}</div>
+          ${badge ? `<div style="font-size:10px;color:#8a7040;background:#1e1a0e;padding:2px 8px;border-radius:10px">${esc(badge)}</div>` : ''}
+        </div>
+        <div style="font-size:11.5px;color:#c8c0a8;margin-top:4px;line-height:1.6">${esc(why)}</div>
+        ${story ? `<div style="font-size:11px;color:#9a8a72;margin-top:6px;line-height:1.6;font-style:italic">${esc(story)}</div>` : ''}
+      </div>
+    </div>`
+
+  // Split "🐟 ปลาในตู้ Betta / Koi" → emoji + label (mirrors the add-on tab).
+  const splitAnimal = (s: string): [string, string] => {
+    const t = (s || '').trim()
+    const m = t.match(/^(\p{Emoji}+|\S)\s*(.*)$/u)
+    return m ? [m[1], m[2] || t] : ['🐾', t]
+  }
+  const [mainEmoji, mainLabel] = splitAnimal(isTh ? (pet?.main || '') : (pet?.mainEn || pet?.main || ''))
+  const [secEmoji, secLabel]   = splitAnimal(pet?.secondary || '')
+
+  const petBlock = pet ? `
+    <h2>${tr('สัตว์เลี้ยงที่แนะนำ','Recommended Pets')}</h2>
+    ${petCard(mainEmoji, mainLabel, pet.why || '', pet.story || '', tr('ตัวเลือกหลัก','Primary'))}
+    ${pet.secondary ? petCard(secEmoji, secLabel, pet.secWhy || '', pet.secStory || '', tr('ตัวเลือกรอง','Secondary')) : ''}
+    <div class="grid-3" style="margin-top:10px">
+      ${pet.colors ? `<div class="stat-card"><div class="lbl">${tr('สีเสริมพลัง','Lucky colours')}</div><div style="font-size:12px;color:#d4aa50;margin-top:3px">${esc(pet.colors)}</div></div>` : ''}
+      ${pet.timing ? `<div class="stat-card"><div class="lbl">${tr('ช่วงรับมาเลี้ยง','Best timing')}</div><div style="font-size:12px;color:#d4aa50;margin-top:3px">${esc(pet.timing)}</div></div>` : ''}
+      ${pet.care ? `<div class="stat-card"><div class="lbl">${tr('เคล็ดดูแล','Care tip')}</div><div style="font-size:11px;color:#c8c0a8;margin-top:3px">${esc(pet.care)}</div></div>` : ''}
+    </div>
+    ${pet.avoid ? box(tr('สัตว์ที่ควรเลี่ยง','Animal to avoid'), esc(pet.avoid), 'red') : ''}
+  ` : tr('<p>ข้อมูลสัตว์เลี้ยงไม่พร้อมใช้งาน</p>','<p>Pet data unavailable.</p>')
 
   return section(24, tr('สัตว์เลี้ยง & สัตว์ในตำนาน — ตามธาตุของคุณ','Pets & Mythological Creatures — by Your Element'), '🐾', `
     <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
       <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">${tr('ที่มาของคำแนะนำ','Source of these suggestions')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">
         ${tr(
-          `สัตว์แต่ละตัวถูกจับคู่กับธาตุใน <strong>5-element cycle</strong> ของจีนโบราณ — สัตว์ที่เสริม Day Master ของคุณ หรือเติมธาตุที่ขาด คือสัตว์ที่พลังงานจะ "ทำงานให้" คุณทุกวันที่อยู่ด้วยกัน`,
-          `Each animal is matched to an element in the ancient Chinese <strong>5-element cycle</strong> — animals that reinforce your Day Master or fill your missing element are the ones whose energy will "work for you" every day you're together.`
+          `สัตว์ถูกจับคู่กับธาตุใน <strong>5-element cycle</strong> ของจีนโบราณ — สัตว์ที่เสริม Day Master ของคุณคือสัตว์ที่พลังงานจะ "ทำงานให้" คุณทุกวัน · <strong>ตรงกับแท็บ สัตว์เลี้ยง ในแอป</strong>`,
+          `Each animal is matched to an element in the ancient Chinese <strong>5-element cycle</strong> — animals reinforcing your Day Master work for you every day. <strong>Identical to the Pet add-on tab in the app.</strong>`
         )}<br>
         ${tr(
           `Day Master ของคุณ: <strong>${esc(c.bazi.dayMasterTh)} (ธาตุ${esc(dmEl)})</strong> · ธาตุที่ขาด: <strong>${esc(missingEl)}</strong>`,
@@ -2510,7 +2450,7 @@ function p24_pets(c: ChartData): string {
       </div>
     </div>
 
-    <!-- Spirit Creature (mythological) -->
+    <!-- Spirit Creature (mythological) — shared with the Companions add-on tab -->
     ${companions ? `
     <div style="border:2px solid #c8a840;background:linear-gradient(135deg,#1e1a0e,#14120a);border-radius:10px;padding:14px 16px;margin:8px 0 16px">
       <div style="font-size:10px;letter-spacing:2px;color:#c8a840;margin-bottom:6px">${tr(`✦ สัตว์ในตำนานประจำธาตุ${esc(dmEl)} ✦`,`✦ Mythological Companion for the ${esc(dmEl)} Element ✦`)}</div>
@@ -2519,18 +2459,48 @@ function p24_pets(c: ChartData): string {
       ${companions.mantra ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #3a3020;font-size:11px;color:#c8a840;font-style:italic">🔔 ${esc(companions.mantra)}</div>` : ''}
     </div>` : ''}
 
-    <h2>${tr('สัตว์เลี้ยงที่แนะนำ','Recommended Pets')}</h2>
-    ${pets.map(p => `
-      <div style="border:1px solid #2a2010;border-radius:8px;padding:12px;margin:8px 0;display:flex;gap:12px">
-        <span style="font-size:28px;flex-shrink:0">${p.animal.split(' ')[0]}</span>
-        <div style="flex:1">
-          <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px">
-            <div style="font-weight:600;color:#d4aa50;font-size:13px">${esc(p.animal.split(' ').slice(1).join(' '))}</div>
-            ${p.fills ? `<div style="font-size:10px;color:#8a7040;background:#1e1a0e;padding:2px 8px;border-radius:10px">ธาตุ: ${esc(p.fills)}</div>` : ''}
-          </div>
-          <div style="font-size:11.5px;color:#c8c0a8;margin-top:4px;line-height:1.6">${esc(p.why)}</div>
-        </div>
-      </div>`).join('')}
+    ${petBlock}
+  `)
+}
+
+// Divine Mirror — included in the Full Report per PRICING. Sourced from
+// chart.addons.mirror (SAME data the Divine Mirror add-on tab renders), so the
+// premium report and the add-on are guaranteed identical. 4 deity archetypes
+// (primary/secondary/tertiary) + the shadow archetype + cosmic entity + mantra.
+function p_divineMirror(c: ChartData): string {
+  const m = (c as any).addons?.mirror || null
+  const dmEl = c.bazi.dayMasterElement
+  if (!m) return section(0, tr('Divine Mirror — เทพกระจกสะท้อนตัวตน','Divine Mirror — Deities That Reflect You'), '🪞',
+    tr('<p>ข้อมูลกระจกเทพไม่พร้อมใช้งาน</p>','<p>Divine Mirror data unavailable.</p>'))
+
+  const archetype = (label: string, name?: string, desc?: string, story?: string, color = '#d4aa50') => name ? `
+    <div style="border:1px solid #2a2010;border-left:3px solid ${color};border-radius:6px;padding:12px 14px;margin:8px 0">
+      <div style="font-size:9px;letter-spacing:2px;color:${color};margin-bottom:4px">${esc(label)}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:15px;color:#d4aa50;margin-bottom:4px">${esc(name)}</div>
+      ${desc ? `<div style="font-size:12px;color:#c8c0a8;line-height:1.6">${esc(desc)}</div>` : ''}
+      ${story ? `<div style="font-size:11px;color:#9a8a72;line-height:1.6;margin-top:6px;font-style:italic">${esc(story)}</div>` : ''}
+    </div>` : ''
+
+  return section(0, tr('Divine Mirror — เทพกระจกสะท้อนตัวตน','Divine Mirror — Deities That Reflect You'), '🪞', `
+    <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+      <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">${tr('กระจกเทพคืออะไร','What the Divine Mirror is')}</div>
+      <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">${tr(
+        `เทพ 4 องค์จากหลายอารยธรรมที่ "สะท้อน" พลังงานธาตุ<strong>${esc(dmEl)}</strong>ของคุณ — ไม่ใช่เทพที่คุณบูชา แต่คือกระจกที่ทำให้เห็นตัวตนเมื่อมองอย่างซื่อสัตย์ รวมถึง <strong>เงา (shadow)</strong> ที่เป็นด้านเดียวกันเมื่อพลังงานเสียสมดุล · <strong>ตรงกับแท็บ Divine Mirror ในแอป</strong>`,
+        `Four deities across civilisations that "mirror" your <strong>${esc(dmEl)}</strong>-element energy — not gods you worship, but reflections that reveal who you are when you look honestly, including the <strong>shadow</strong> archetype — the same energy gone out of balance. <strong>Identical to the Divine Mirror add-on tab.</strong>`)}</div>
+    </div>
+
+    ${m.cosmic && m.cosmic.name ? `<div style="text-align:center;margin-bottom:14px">
+      <div style="font-size:10px;letter-spacing:3px;color:#c8a840">${tr('✦ สัญลักษณ์จักรวาลของคุณ ✦','✦ YOUR COSMIC ENTITY ✦')}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:18px;color:#f0d060;margin-top:4px">${esc(m.cosmic.name)}</div>
+      ${m.cosmic.desc ? `<div style="font-size:11.5px;color:#c8c0a8;margin-top:4px;line-height:1.6">${esc(m.cosmic.desc)}</div>` : ''}
+    </div>` : ''}
+
+    ${archetype(tr('เทพหลัก — ตัวตนที่ฉายออก','PRIMARY — your projected self'), m.primary, m.primaryDesc, m.primaryStory, '#d4aa50')}
+    ${archetype(tr('เทพรอง — แรงขับเคลื่อน','SECONDARY — your driving force'), m.secondary, m.secondaryDesc, m.secondaryStory, '#c8a840')}
+    ${archetype(tr('เทพที่สาม — มิติที่ซ่อน','TERTIARY — your hidden dimension'), m.tertiary, m.tertiaryDesc, m.tertiaryStory, '#a89060')}
+    ${archetype(tr('เงา — พลังงานเดียวกันที่เสียสมดุล','SHADOW — the same energy imbalanced'), m.shadow, m.shadowDesc, m.shadowStory, '#a05050')}
+
+    ${m.mantra ? box(tr('มนตราของกระจก','Mirror mantra'), `<span style="font-style:italic">🔔 ${esc(m.mantra)}</span>`, 'gold') : ''}
   `)
 }
 
@@ -2629,8 +2599,9 @@ export function generateReport(c: ChartData): string {
     p14_health,          // 36. Health (multi-system)
     p15_finance,         // 37. Finance (multi-system)
     p20_colors,          // 38. สีมงคล
-    p24_pets,            // 39. สัตว์เลี้ยง
-    p21_historicalFigures, // 40. Historical Figures
+    p24_pets,            // 39. สัตว์เลี้ยง (now shares chart.addons.pet with the add-on tab)
+    p_divineMirror,      // 40. Divine Mirror (chart.addons.mirror — same as add-on tab)
+    p21_historicalFigures, // 41. Historical Figures
     p22_painPoints,      // 41. 5 Pain Points
     p25_summary,         // 42. Summary + Disclaimer
   ].map(fn => fn(c)).join('\n')
