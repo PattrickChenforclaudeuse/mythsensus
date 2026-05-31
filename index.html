@@ -8394,6 +8394,78 @@ function renderMirror(){
     )}`;
 }
 
+// ── Pet enrichment helpers (Director feedback 2026-06-01: A+B+C combo —
+//    add new sections, expand existing depth, personalize per-chart) ──
+// Mahadasha planetary periods (years) — Vedic standard. Used to cross-
+// reference how long a pet's lifespan covers the user's current life chapter.
+const MAHADASHA_YEARS = { Sun:6, Moon:10, Mars:7, Rahu:18, Jupiter:16, Saturn:19, Mercury:17, Ketu:7, Venus:20 };
+// Pet species → typical lifespan range (years). Detected from p.main string.
+const PET_LIFESPAN = {
+  'แมว':[12,18],'cat':[12,18],
+  'หมา':[10,14],'สุนัข':[10,14],'dog':[10,14],
+  'กระต่าย':[8,12],'rabbit':[8,12],
+  'นก':[15,30],'bird':[15,30],'parrot':[20,50],
+  'ปลา':[2,10],'fish':[2,10],
+  'แฮม':[2,3],'hamster':[2,3],
+  'เต่า':[30,60],'turtle':[30,60],
+  'หนู':[2,4],'guinea':[5,8],
+  'งู':[15,25],'snake':[15,25],
+};
+function _detectPetSpan(mainStr){
+  const lc = (mainStr||'').toLowerCase();
+  for (const key in PET_LIFESPAN) if (lc.indexOf(key.toLowerCase())>=0) return PET_LIFESPAN[key];
+  return [10,14]; // default = medium
+}
+// HD-type-tailored Week-1 adoption guidance (energetic match).
+const HD_ADOPTION = {
+  'Generator':       { th:'ตอบสนองตาม sacral — สัตว์จะสะท้อน energetic signal ของคุณ. อย่าฝืน routine ที่ไม่ตื่นเต้น', en:'Respond from your sacral — the pet mirrors your energetic signal. Don\'t force routines that don\'t excite you' },
+  'Manifesting Generator': { th:'Inform เมื่อจะเปลี่ยน activity — สัตว์จะเรียนรู้ pace แบบหลาย-direction ของคุณ', en:'Inform before switching activity — the pet adapts to your multi-directional pace' },
+  'Projector':       { th:'ให้สัตว์ observe คุณ 1-2 วันก่อน initiate contact. Energy management เป็นเรื่องของทั้งคู่', en:'Let the pet observe you for 1-2 days before initiating contact. Energy management is mutual' },
+  'Manifestor':      { th:'Inform สัตว์ก่อนเคลื่อนไหวใหญ่ๆ — initiating energy ของคุณแรง สัตว์ต้องเตรียมตัว', en:'Inform the pet before big movements — your initiating energy is strong, they need a heads-up' },
+  'Reflector':       { th:'Sample environment ของสัตว์ 28 วัน (จันทร์ครบรอบ) ก่อนตัดสินใจ — ทั้งคุณและสัตว์เป็น lunar reflector', en:'Sample the pet\'s environment for 28 days (full lunar cycle) before committing — you\'re both lunar reflectors' },
+};
+// Life Path → training style.
+const LP_TRAINING = {
+  1:{th:'แข่ง-เดี่ยว · ฝึกตามลำพังกับสัตว์ · clear commands',     en:'Solo-competitive · train one-on-one · clear commands'},
+  2:{th:'ร่วมมือ-คู่ · ฝึกกับคนที่บ้านอีก 1 คน · pace ช้า',         en:'Cooperative · train with one other household member · slow pace'},
+  3:{th:'สนุก-หลากหลาย · sessions สั้น 5-10 นาที · varied tricks', en:'Playful-varied · short 5-10 min sessions · varied tricks'},
+  4:{th:'มีโครงสร้าง · ฝึกเวลาเดิมทุกวัน · ซ้ำขั้นตอนเดิม',           en:'Structured · same time daily · repeat same steps'},
+  5:{th:'อิสระ-เปลี่ยน · ฝึกที่ใหม่ทุกครั้ง · adventure cues',         en:'Free-changing · train in new locations each time · adventure cues'},
+  6:{th:'ครอบครัว-อบอุ่น · ทุกคนในบ้านร่วมด้วย · positive reinforcement', en:'Family-warm · whole household participates · positive reinforcement'},
+  7:{th:'meditative-เงียบ · ฝึก non-verbal · พลังสัมผัสมากกว่าเสียง',   en:'Meditative-quiet · non-verbal cues · touch energy over voice'},
+  8:{th:'มุ่งเป้า-มีระเบียบ · ฝึกแบบ goal-driven · บันทึก progress',     en:'Goal-driven · structured progress tracking · clear milestones'},
+  9:{th:'เห็นภาพรวม · ฝึกตามจังหวะของสัตว์ ไม่ฝืน · intuitive',           en:'Holistic · follow the pet\'s rhythm · intuitive flow'},
+};
+// 7-day Vedic planetary rhythm for pet care (Sun=Sunday … Saturn=Saturday).
+const WEEKLY_PET_RHYTHM = [
+  {dayTh:'อา. (อาทิตย์)',dayEn:'Sun', planet:'☉ Sun',  acTh:'เล่นกลางแดด · sunbathing · play sessions แรงสุดของสัปดาห์', acEn:'Outdoor play in sunlight · sunbathing · highest-intensity play of the week'},
+  {dayTh:'จ. (จันทร์)',  dayEn:'Mon', planet:'☽ Moon',  acTh:'แปรงขนตอนเช้า · contact soft-touch · ไม่เปลี่ยนแปลงใหญ่', acEn:'Morning brushing · soft-touch contact · no major changes'},
+  {dayTh:'อ. (อังคาร)',  dayEn:'Tue', planet:'♂ Mars',  acTh:'เล่นเบา (Mars แรง สัตว์อาจหงุดหงิด) · เลี่ยง training ใหม่', acEn:'Light play only — Mars energy can trigger pet irritability · avoid new training'},
+  {dayTh:'พ. (พุธ)',     dayEn:'Wed', planet:'☿ Mercury',acTh:'สอน trick หรือ command ใหม่ · Mercury ปกครองการสื่อสาร',  acEn:'Teach a new trick or command — Mercury rules communication'},
+  {dayTh:'พฤ. (พฤหัสฯ)', dayEn:'Thu', planet:'♃ Jupiter',acTh:'วัน treat — อาหารคุณภาพ + พาเที่ยว · ขยายโลกของสัตว์', acEn:'Treat day — quality food + outing · expand the pet\'s world'},
+  {dayTh:'ศ. (ศุกร์)',   dayEn:'Fri', planet:'♀ Venus',  acTh:'grooming + ดูแลความสบาย · spa · ที่นอนใหม่', acEn:'Grooming + comfort care · spa · refresh bedding'},
+  {dayTh:'ส. (เสาร์)',   dayEn:'Sat', planet:'♄ Saturn', acTh:'พัก ไม่เปลี่ยนอะไร ไม่หาหมอ (Saturn ขัด healing energy)', acEn:'Rest — no changes, no vet (Saturn obstructs healing energy)'},
+];
+// Compute next 7 days biorhythm from DOB. Period (days): phys=23, emo=28, int=33.
+// Used to highlight peak-bonding day in the adoption window.
+function _bio7Days(dob){
+  if (!dob) return [];
+  const [y,m,d] = dob.split('-').map(Number);
+  const dobMs = Date.UTC(y, m-1, d);
+  const todayMs = (function(){ const t = new Date(); return Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate()); })();
+  const out = [];
+  for (let i = 0; i < 7; i++) {
+    const dayMs = todayMs + i * 86400000;
+    const daysFromBirth = (dayMs - dobMs) / 86400000;
+    const phys = Math.round(100 * Math.sin(2 * Math.PI * daysFromBirth / 23));
+    const emo  = Math.round(100 * Math.sin(2 * Math.PI * daysFromBirth / 28));
+    const intel= Math.round(100 * Math.sin(2 * Math.PI * daysFromBirth / 33));
+    const score = phys + emo + intel;
+    out.push({ date: new Date(dayMs), phys, emo, intel, score });
+  }
+  return out;
+}
+
 // ── Compatible Pet ──────────────────────────────────────────
 function renderPet(){
   const el = document.getElementById('petContent');
@@ -8404,6 +8476,7 @@ function renderPet(){
   const nskDir = chart.ninestar.starDirection||'—';
   // Engine returns biorhythm already as percent-int (-100..+100).
   const physical = chart.biorhythm.physical|0;
+  const emotional = chart.biorhythm.emotional|0;
 
   // Pet content sourced from chart.addons.pet (engine-side calcAddons).
   // Fallback minimal stub kept so older bundles don't crash the renderer.
@@ -8453,8 +8526,26 @@ function renderPet(){
     ],
   });
 
+  // ── Enrichment derivations (Director 2026-06-01: A+B+C combo) ──
+  // Pet lifespan span vs current Mahadasha chapter — coverage = full or partial.
+  const dasha       = chart.vedicMahadasha?.currentDasha || 'Jupiter';
+  const dashaYears  = MAHADASHA_YEARS[dasha] || 12;
+  const [petMin, petMax] = _detectPetSpan(p.main);
+  const petAvg      = Math.round((petMin + petMax) / 2);
+  const coverage    = petAvg >= dashaYears ? 'full' : 'partial';
+  // Next-7-days biorhythm window (peak day = best for bonding).
+  const dobStr      = (document.getElementById('profDob')||{}).value || localStorage.getItem('mth_dob');
+  const bio7        = _bio7Days(dobStr);
+  const peakBio     = bio7.length ? bio7.reduce((best,d) => d.score > (best?.score ?? -999) ? d : best, null) : null;
+  const peakDateLabel = peakBio ? peakBio.date.toLocaleDateString(isTh?'th-TH':'en-US', {weekday:'long', day:'numeric', month:'short'}) : '—';
+  // Resolve HD type to one of our adoption-guide keys.
+  const hdKey       = HD_ADOPTION[hdType] ? hdType : (HD_ADOPTION[chart.humandesign?.type] ? chart.humandesign.type : 'Generator');
+  const lpKey       = LP_TRAINING[+lp] ? +lp : 5;
+
   el.innerHTML = `
     ${reasoning}
+
+    <!-- Primary Pet -->
     <div class="deep-sys-card">
       <div class="deep-sys-title">🐾 ${isTh?'สัตว์เลี้ยงหลัก':'Primary pet'} — ${isTh?'ธาตุ':'Element'} ${dmEl}</div>
       <div class="deep-sys-origin">${isTh?'คำนวณจาก Day Master · Nine Star Ki · Biorhythm':'Based on Day Master · Nine Star Ki · Biorhythm'}</div>
@@ -8469,6 +8560,111 @@ function renderPet(){
         <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${isTh?'สีมงคล':'Lucky color'}</div><div class="deep-sys-stat-val">${p.colors}</div></div>
         <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${isTh?'ช่วงรับมาเลี้ยง':'Adoption window'}</div><div class="deep-sys-stat-val">${p.timing}</div></div>
         <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${isTh?'พลังกาย':'Physical'}</div><div class="deep-sys-stat-val">${physical>0?'+'+physical+'%':physical+'%'}</div></div>
+      </div>
+    </div>
+
+    <!-- 🆕 30-Day Adoption Plan — tuned to HD type + LP + NSK direction -->
+    <div class="deep-sys-card" style="margin-top:12px">
+      <div class="deep-sys-title">📅 ${isTh?'แผน 30 วันรับเลี้ยง':'30-Day Adoption Plan'}</div>
+      <div class="deep-sys-origin">${isTh?'ปรับตาม':'Tuned to'} HD ${hdKey} · LP ${lp} · NSK ${nskDir}</div>
+
+      <div style="margin-top:14px">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:var(--gold3);margin-bottom:6px">${isTh?'สัปดาห์ 1 · วันที่ 1-7':'WEEK 1 · DAYS 1-7'} — ${isTh?'ปรับตัว':'Settling'}</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7">${HD_ADOPTION[hdKey][isTh?'th':'en']}</div>
+      </div>
+
+      <div style="margin-top:14px">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:var(--gold3);margin-bottom:6px">${isTh?'สัปดาห์ 2 · วันที่ 8-14':'WEEK 2 · DAYS 8-14'} — ${isTh?'สร้าง Routine':'Build Routine'}</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7">${isTh
+          ? `ที่นอนของสัตว์ → วางทิศ <strong>${nskDir}</strong> (NSK ของคุณ); ให้อาหารช่วงเวลาเดิมทุกวัน — จังหวะนี้ทำให้ chi ไหลเข้าทั้งคู่ · พลัง <strong>${tr.core}</strong> ของธาตุ ${dmEl} จะเสริมความสบายของสัตว์ในช่วงนี้`
+          : `Pet bed → place facing <strong>${nskDir}</strong> (your NSK direction); feed at the same time daily — this rhythm channels chi to both of you · your ${dmEl} <strong>${tr.core}</strong> energy amplifies the pet's comfort during this phase`}</div>
+      </div>
+
+      <div style="margin-top:14px">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:var(--gold3);margin-bottom:6px">${isTh?'สัปดาห์ 3 · วันที่ 15-21':'WEEK 3 · DAYS 15-21'} — ${isTh?'ฝึก':'Training'}</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7">${LP_TRAINING[lpKey][isTh?'th':'en']}</div>
+      </div>
+
+      <div style="margin-top:14px">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:var(--gold3);margin-bottom:6px">${isTh?'สัปดาห์ 4 · วันที่ 22-30':'WEEK 4 · DAYS 22-30'} — ${isTh?'Bond ลึก':'Deep Bond'}</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7">${isTh
+          ? `ทดสอบการแยกกันสั้นๆ (15-30 นาที); สังเกตว่า bonding peak เมื่อ biorhythm ของคุณ peak ด้วย — ดู section "หน้าต่าง 7 วัน" ด้านล่าง. ภายในวันที่ 30 ความสัมพันธ์จะ stable พอจะเลี้ยงระยะยาว`
+          : `Try short separations (15-30 min); notice that bonding peaks coincide with your biorhythm peaks — see the "7-day window" section below. By day 30 the relationship is stable enough for long-term commitment`}</div>
+      </div>
+    </div>
+
+    <!-- 🆕 Weekly Care Rhythm — Vedic planetary days -->
+    <div class="deep-sys-card" style="margin-top:12px">
+      <div class="deep-sys-title">🌙 ${isTh?'จังหวะดูแลรายสัปดาห์':'Weekly Care Rhythm'}</div>
+      <div class="deep-sys-origin">${isTh?'จากดวงดาวประจำวัน (Vedic week)':'Vedic planetary rulers per weekday'}</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px">
+        ${WEEKLY_PET_RHYTHM.map(d => `
+          <div style="display:grid;grid-template-columns:78px 1fr;gap:10px;padding:8px 10px;background:rgba(212,170,80,0.04);border-left:2px solid var(--gold3);border-radius:0 6px 6px 0">
+            <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1px;color:var(--gold2);align-self:center">${isTh?d.dayTh:d.dayEn}</div>
+            <div style="font-size:12.5px;color:var(--text);line-height:1.55">
+              <span style="color:var(--gold);font-weight:600">${d.planet}</span> · ${isTh?d.acTh:d.acEn}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- 🆕 Biorhythm 7-Day Window — peak bonding day highlighted -->
+    <div class="deep-sys-card" style="margin-top:12px;border-color:rgba(212,175,55,0.5)">
+      <div class="deep-sys-title">⚡ ${isTh?'หน้าต่าง 7 วัน · Biorhythm':'7-Day Window · Biorhythm'}</div>
+      <div class="deep-sys-origin">${isTh?'วันที่ดีสุดสำหรับ bonding ใน 7 วันข้างหน้า':'Best bonding day in the next 7 days'}</div>
+      ${bio7.length ? `
+        <div style="margin-top:14px;padding:12px;background:rgba(212,175,55,0.06);border-radius:8px;text-align:center">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold);margin-bottom:6px">${isTh?'วัน Peak Bonding':'PEAK BONDING DAY'}</div>
+          <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:18px;color:var(--gold);font-weight:600">${peakDateLabel}</div>
+          <div style="margin-top:6px;font-size:11px;color:var(--muted)">phys ${peakBio?.phys||0}%  ·  emo ${peakBio?.emo||0}%  ·  intel ${peakBio?.intel||0}%</div>
+        </div>
+
+        <div style="margin-top:14px;display:flex;gap:4px">
+          ${bio7.map(d => `<div style="flex:1;text-align:center">
+            <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;color:var(--muted);margin-bottom:4px">${d.date.toLocaleDateString(isTh?'th-TH':'en-US',{weekday:'short'})}</div>
+            <div style="height:42px;display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid var(--border)">
+              <div style="width:80%;background:${d.score>100?'#50d490':d.score<-100?'#c06060':'#c8a840'};opacity:.7;height:${Math.max(6, Math.min(40, 21 + d.score/8))}px;border-radius:2px 2px 0 0"></div>
+            </div>
+            <div style="font-size:9px;color:var(--muted);margin-top:3px">${d.score>=0?'+':''}${d.score}</div>
+          </div>`).join('')}
+        </div>
+
+        <div style="margin-top:12px;font-size:12px;color:var(--muted);line-height:1.6;font-style:italic">
+          ${isTh
+            ? `💡 ใช้ peak day สำหรับ first-time outing / overnight separation test / vet visit แรก — สัตว์อ่านคุณดีที่สุดในวันนั้น. หลีกเลี่ยงวัน score ติดลบสำหรับ major change`
+            : `💡 Use the peak day for first outings, overnight separation tests, or first vet visits — the pet reads you most clearly then. Avoid negative-score days for any major change`}
+        </div>
+      ` : `<div style="margin-top:12px;font-size:12px;color:var(--muted);font-style:italic">${isTh?'กรอกวันเกิดเพื่อเห็นหน้าต่าง 7 วันที่แม่นยำ':'Add your DOB to see your precise 7-day window'}</div>`}
+    </div>
+
+    <!-- 🆕 Lifespan × Mahadasha — pet life vs current chapter -->
+    <div class="deep-sys-card" style="margin-top:12px">
+      <div class="deep-sys-title">⏳ ${isTh?'อายุสัตว์ × Mahadasha':'Lifespan × Mahadasha'}</div>
+      <div class="deep-sys-origin">${isTh?'สัตว์ตัวนี้จะอยู่กับคุณข้าม chapter ชีวิตไหม':'Will this pet span your life chapters?'}</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
+        <div style="padding:14px 12px;background:rgba(0,0,0,.2);border-radius:8px;text-align:center">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted)">${isTh?'อายุเฉลี่ยของสัตว์':'PET LIFESPAN'}</div>
+          <div style="font-family:'Cinzel Decorative',serif;font-size:22px;color:var(--gold);font-weight:700;margin-top:6px;line-height:1">${petMin}–${petMax}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">${isTh?'ปี':'years'}</div>
+        </div>
+        <div style="padding:14px 12px;background:rgba(212,175,55,0.05);border-radius:8px;text-align:center;border:1px solid var(--gold3)">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold)">${isTh?'Mahadasha ปัจจุบัน':'CURRENT MAHADASHA'}</div>
+          <div style="font-family:'Cinzel Decorative',serif;font-size:22px;color:var(--gold);font-weight:700;margin-top:6px;line-height:1">${dashaYears}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">${dasha} · ${isTh?'ปี':'yrs'}</div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;padding:14px;background:${coverage==='full'?'rgba(74,154,64,0.06)':'rgba(192,168,64,0.06)'};border-left:3px solid ${coverage==='full'?'#4a9a40':'#c8a840'};border-radius:0 8px 8px 0;font-size:13px;color:var(--text);line-height:1.7">
+        ${coverage==='full'
+          ? (isTh
+            ? `<strong>✓ ครอบคลุมเต็ม Mahadasha</strong> — สัตว์ตัวนี้จะอยู่กับคุณตลอด chapter <strong>${dasha}</strong> (${dashaYears} ปี) ของชีวิต + บางส่วนของ Mahadasha ถัดไป. Bond ลึก เห็น transition ใหญ่ๆ ของชีวิตคุณ — เป็น witness สัตว์ที่ลึกที่สุดในช่วงนี้`
+            : `<strong>✓ Full Mahadasha coverage</strong> — this pet will accompany you through the entire <strong>${dasha}</strong> chapter (${dashaYears} years) + part of the next. Deep bond, witnesses your major life transitions — the most profound companion of this period`)
+          : (isTh
+            ? `<strong>~ ครอบคลุมบางส่วน</strong> — สัตว์อายุเฉลี่ยสั้นกว่า Mahadasha <strong>${dasha}</strong> (${dashaYears} ปี) ของคุณ. Bond intense แต่จบใน chapter เดียวกัน. คุณจะมีโอกาสได้สัตว์อีก 1-2 ตัวภายใน chapter นี้ — แต่ละตัวสอนคุณ phase ต่างกัน`
+            : `<strong>~ Partial coverage</strong> — this pet's average span is shorter than your <strong>${dasha}</strong> Mahadasha (${dashaYears} years). Intense bond but ends within the same chapter. You'll likely have 1-2 more pets during this period — each teaches a different phase`)
+        }
       </div>
     </div>
 
