@@ -5955,6 +5955,7 @@ const DEEP_SYSTEMS = [
       reading: c.onmyodo.reading||'',
       stats:[
         ['Rokuyo', rokuyoLabel],
+        [LANG==='th'?'ขั้วหยิน-หยาง':'Yin-Yang', c.onmyodo.onmyoPolarity||'—'],
       ]
     };
   }],
@@ -6003,6 +6004,7 @@ const DEEP_SYSTEMS = [
     reading: c.arabicParts.reading||'',
     stats:[
       [LANG==='th'?'ราศีแห่งโชค':'Fortune Sign', c.arabicParts.fortuneSignTh||c.arabicParts.fortuneSign],
+      [LANG==='th'?'ธาตุของโชค':'Fortune Element', (LANG==='th'?{1:'🔥 ไฟ',2:'🌍 ดิน',3:'💨 ลม',4:'💧 น้ำ'}:{1:'🔥 Fire',2:'🌍 Earth',3:'💨 Air',4:'💧 Water'})[({Aries:1,Leo:1,Sagittarius:1,Taurus:2,Virgo:2,Capricorn:2,Gemini:3,Libra:3,Aquarius:3,Cancer:4,Scorpio:4,Pisces:4})[c.arabicParts.fortuneSign]] || '—'],
     ]
   })],
   ['kabbalistic','ds_kabbalah','✡️',(c)=>({
@@ -6027,6 +6029,7 @@ const DEEP_SYSTEMS = [
     reading: c.zoroastrian.reading||'',
     stats:[
       [LANG==='th'?'เทพประจำวัน':'Day Yazata', c.zoroastrian.dayYazataTh||c.zoroastrian.dayYazata],
+      [LANG==='th'?'Amesha ประจำเดือน':'Month Amesha', c.zoroastrian.monthAmeshaTh||c.zoroastrian.monthAmesha||'—'],
     ]
   })],
   ['aztec','ds_aztec','🪶',(c)=>({
@@ -6062,6 +6065,7 @@ const DEEP_SYSTEMS = [
     reading: c.ifaYoruba.reading||'',
     stats:[
       ['Odù', c.ifaYoruba.oduTh||c.ifaYoruba.odu],
+      [LANG==='th'?'แก่นของ Odù':'Odù Theme', c.ifaYoruba.oduTheme||'—'],
     ]
   })],
   ['aboriginal','ds_aboriginal','🦘',(c)=>({
@@ -9078,6 +9082,35 @@ function _runCompatCheck(){
   const myScore = mine.score.total;
   const pScore  = theirs.score.total;
 
+  // ── Elemental synthesis reading — interpret the 5-element relationship between
+  // the two Day Masters into a real "reading", matching the other add-ons' depth.
+  const EL_EN_C = {'ไม้':'Wood','ไฟ':'Fire','ดิน':'Earth','โลหะ':'Metal','น้ำ':'Water'};
+  const myEl = mine.bazi.dayMasterElement, thEl = theirs.bazi.dayMasterElement;
+  const SHENG_C = {'ไม้':'ไฟ','ไฟ':'ดิน','ดิน':'โลหะ','โลหะ':'น้ำ','น้ำ':'ไม้'};
+  const KE_C    = {'ไม้':'ดิน','ไฟ':'น้ำ','ดิน':'น้ำ','โลหะ':'ไม้','น้ำ':'ไฟ'};
+  const elL = e => isTh ? e : (EL_EN_C[e]||e);
+  let _rel = 'neutral';
+  if (myEl===thEl) _rel='same';
+  else if (SHENG_C[myEl]===thEl) _rel='iFeed';
+  else if (SHENG_C[thEl]===myEl) _rel='theyFeed';
+  else if (KE_C[myEl]===thEl) _rel='iControl';
+  else if (KE_C[thEl]===myEl) _rel='theyControl';
+  const _REL = {
+    same:{ th:`ทั้งคู่เป็นธาตุ<strong>${elL(myEl)}</strong>เหมือนกัน — เข้าใจกันโดยแทบไม่ต้องอธิบาย เพราะมองโลกผ่านเลนส์เดียวกัน. ข้อดีคือ resonance ทันที; จุดระวังคือทั้งคู่ต้องการสิ่งเดียวกันในเวลาเดียวกัน และมีจุดอ่อนชุดเดียวกัน — ถ้าไม่มีใครคอยถ่วงดุล อาจเสริมข้อเสียของกันและกันโดยไม่รู้ตัว.`,
+           en:`You're both <strong>${elL(myEl)}</strong> — you get each other almost without explaining, seeing the world through the same lens. The upside is instant resonance; the watch-out is that you want the same things at the same time and share the same blind spots — without one of you balancing, you can quietly amplify each other's weaknesses.` },
+    iFeed:{ th:`ธาตุ<strong>${elL(myEl)}</strong>ของคุณ "หล่อเลี้ยง" ธาตุ<strong>${elL(thEl)}</strong>ของ${name} ในวงจร 5 ธาตุ — คุณเป็นฝ่ายให้พลังงาน เขาเติบโตได้เพราะมีคุณ. ความสัมพันธ์นี้อบอุ่นและ generative แต่ระวังให้จนตัวเองหมดพลัง — สมดุลเกิดเมื่อเขา "รับแล้วส่งคืน" บ้าง.`,
+            en:`Your <strong>${elL(myEl)}</strong> <em>feeds</em> ${name}'s <strong>${elL(thEl)}</strong> in the 5-element cycle — you're the one giving energy, and they grow because of you. Warm and generative, but watch over-giving until you're drained — balance comes when they learn to receive <em>and</em> return.` },
+    theyFeed:{ th:`ธาตุ<strong>${elL(thEl)}</strong>ของ${name} "หล่อเลี้ยง" ธาตุ<strong>${elL(myEl)}</strong>ของคุณ — เขาเป็นฝ่ายเติมพลังให้ คุณรู้สึกปลอดภัยและเติบโตเมื่ออยู่ใกล้. ของขวัญคือได้รับการสนับสนุน; กับดักคือพึ่งพาจนลืมเติมพลังให้ตัวเอง — อย่าให้กลายเป็นทางเดียว.`,
+               en:`${name}'s <strong>${elL(thEl)}</strong> <em>feeds</em> your <strong>${elL(myEl)}</strong> — they're the one refilling you, and you feel safe and grow near them. The gift is being supported; the trap is leaning so hard you forget to refill yourself — don't let it run one-way.` },
+    iControl:{ th:`ธาตุ<strong>${elL(myEl)}</strong>ของคุณ "ขัดเกลา/ควบคุม" ธาตุ<strong>${elL(thEl)}</strong>ของ${name} — คุณคือแรงที่ท้าทายและทำให้เขาคมขึ้น แต่ถ้าใช้แรงเกินจะรู้สึกเหมือนกดดัน. งดงามเมื่อ "ขัดเกลาด้วยความรัก" ไม่ใช่ครอบงำ — ให้พื้นที่เขาเป็นตัวเอง.`,
+               en:`Your <strong>${elL(myEl)}</strong> <em>refines/controls</em> ${name}'s <strong>${elL(thEl)}</strong> — you're the force that challenges and sharpens them, but too much pressure feels like control. Beautiful as "refining with love", not dominating — give them room to be themselves.` },
+    theyControl:{ th:`ธาตุ<strong>${elL(thEl)}</strong>ของ${name} "ขัดเกลา/ควบคุม" ธาตุ<strong>${elL(myEl)}</strong>ของคุณ — เขาคือคนที่ท้าทายและทำให้คุณเติบโตผ่านแรงเสียดทาน. มองเป็น "ครูที่รัก" จะได้เยอะ; มองเป็นการกดดันจะอึดอัด — กุญแจคืออย่าเสียตัวตนเพื่อเอาใจเขา.`,
+                  en:`${name}'s <strong>${elL(thEl)}</strong> <em>refines/controls</em> your <strong>${elL(myEl)}</strong> — they challenge you and grow you through friction. Seen as a "loving teacher" you gain a lot; seen as pressure it chafes — the key is not losing yourself to please them.` },
+    neutral:{ th:`ธาตุ<strong>${elL(myEl)}</strong>ของคุณกับธาตุ<strong>${elL(thEl)}</strong>ของ${name} ไม่ได้หล่อเลี้ยงหรือควบคุมกันโดยตรง — ความสัมพันธ์จึงขึ้นกับ "เจตจำนง" มากกว่าเคมีธาตุ. ไม่มีแรงดึงหรือผลักตามธรรมชาติ แปลว่าต้อง "เลือก" กันอย่างตั้งใจ — ซึ่งบางทีคือรากที่มั่นคงกว่าเคมีฉับพลัน.`,
+              en:`Your <strong>${elL(myEl)}</strong> and ${name}'s <strong>${elL(thEl)}</strong> neither feed nor control each other directly — so this bond rests on <em>intention</em> more than elemental chemistry. No natural pull or push means you two have to <em>choose</em> each other deliberately — sometimes a steadier root than instant chemistry.` },
+  };
+  const compatReading = isTh ? _REL[_rel].th : _REL[_rel].en;
+
   res.innerHTML = `
     <div style="border:2px solid ${verdictColor};border-radius:10px;padding:16px 18px;background:rgba(212,175,55,0.03)">
       <div style="text-align:center;margin-bottom:14px">
@@ -9113,6 +9146,12 @@ function _runCompatCheck(){
       <!-- Verdict commentary -->
       <div style="background:rgba(0,0,0,.2);border-left:3px solid ${verdictColor};border-radius:0 6px 6px 0;padding:12px 14px;margin-bottom:14px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.65">
         ${verdictLine}
+      </div>
+
+      <!-- Elemental synthesis reading -->
+      <div style="margin-bottom:14px;padding:14px 16px;background:linear-gradient(135deg,rgba(212,175,55,0.07),rgba(212,175,55,0.02));border:1px solid rgba(212,175,55,0.28);border-radius:9px">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px">✦ ${isTh?'อ่านรวม · เคมีธาตุของคุณสองคน':'The Reading · your elemental chemistry'}</div>
+        <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.8">${compatReading}</div>
       </div>
 
       <!-- 26 rows -->

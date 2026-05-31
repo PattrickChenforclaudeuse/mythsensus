@@ -130,7 +130,14 @@
 // from the chart (element seam, HD strategy, life path), not just a table of
 // system rows. (MONTHLY) the Monthly Brief gains a 12-month year-at-a-glance
 // strip (verdict + score per month + peak/rest callouts). Bump to ship all.
-const CACHE = 'mythsensus-v25';
+// v26: 2026-05-31 — add-on polish: (1) the 4 thinnest Deep-Reading systems
+// (Onmyōdō, Arabic Parts, Zoroastrian, Ifá) each gain a real 2nd stat
+// (yin-yang polarity / fortune element / month Amesha / Odù theme) so every
+// system shows ≥2 data points; (2) Compatibility now ends its verdict with an
+// elemental-chemistry "reading" — interprets the 5-element relationship between
+// the two charts (feeds / refines / mirrors / neutral) into concrete guidance,
+// matching the depth of the other add-ons. Bump to ship.
+const CACHE = 'mythsensus-v26';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
