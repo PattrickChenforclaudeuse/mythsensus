@@ -122,7 +122,15 @@
 // verifies the sale server-side via new /api/gumroad/verify and grants the
 // item locally (+ a manual "Already bought? Unlock with email" fallback on the
 // paywall). Bump to ship the new engine + return-handler to existing visitors.
-const CACHE = 'mythsensus-v24';
+// v25: 2026-05-31 — add-on depth + a real bug fix: (BUG) _buildDeepAddon
+// referenced `hdStrategy`, only defined in another function, so clicking
+// "deep reading" on mirror/pet/companions/exercise/food/product threw a
+// ReferenceError — the deep add-on generated NOTHING. Defined it in scope.
+// (ENRICH) every add-on now opens with a 2-paragraph synthesis "reading" woven
+// from the chart (element seam, HD strategy, life path), not just a table of
+// system rows. (MONTHLY) the Monthly Brief gains a 12-month year-at-a-glance
+// strip (verdict + score per month + peak/rest callouts). Bump to ship all.
+const CACHE = 'mythsensus-v25';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

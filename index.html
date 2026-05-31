@@ -5504,6 +5504,10 @@ function _buildDeepAddon(chart, key){
   // so users walk away with something to DO, not just understand. Addresses
   // the "ยังไม่ละเอียด" feedback by translating chart insight → 7-day playbook.
   const dmCore = (isTh ? _ELEMENT_TRAITS_TH : _ELEMENT_TRAITS_EN)[dmEl] || tr;
+  // hdStrategy was referenced by TACTICAL (mirror/compat) but only defined in a
+  // different function → _buildDeepAddon threw a ReferenceError the moment a user
+  // clicked "อ่านลึก 26 ศาสตร์" (deep add-on generation was broken). Define it here.
+  const hdStrategy = chart.humandesign?.strategy || chart.humandesign?.strategyTh || '';
   const TACTICAL = {
     mirror: {
       titleTh: '✦ บทเช็กตัวเองรายสัปดาห์',
@@ -5627,6 +5631,61 @@ function _buildDeepAddon(chart, key){
   };
   const tac = TACTICAL[key];
 
+  // ── Synthesis narrative — turns the per-system list into an actual reading.
+  // Built for the CURRENT language only (so element-trait words resolve right).
+  const SYNTHESIS = {
+    mirror: isTh ? [
+      `เมื่อวาง 26 ศาสตร์ซ้อนทับกัน แกนที่ทุกศาสตร์ชี้ตรงกันคือพลังงานธาตุ<strong>${dmEl}</strong> (${dmTh}) — "${tr.core}" คือสิ่งที่คุณปล่อยออกมาโดยไม่ต้องพยายาม. แต่จุดที่น่าสนใจคือ "รอยต่อ" ระหว่างชั้น: Western Sun <strong>${sunTh}</strong> คือหน้ากากที่โลกเห็น ส่วน Vedic Nakshatra <strong>${moonNak}</strong> คือแรงขับใต้สำนึกที่บางครั้งสวนทางกับหน้ากากนั้น — ความไม่ลงรอยตรงนี้ไม่ใช่ข้อบกพร่อง แต่คือบ่อเกิดของความลึกในตัวคุณ.`,
+      `Life Path <strong>${lp}</strong> คือบทที่วิญญาณมาเรียนในชีวิตนี้ และ Human Design <strong>${hdType}</strong> คือ "วิธีใช้พลังงาน" ที่ถูกต้องสำหรับคุณ. เมื่อสองอย่างนี้ทำงานพร้อมกัน คุณจะรู้สึก "เป็นตัวเอง"; แต่ทุกครั้งที่ฝืนใช้กลยุทธ์ของคนอื่น พลังจะรั่วผ่าน "${tr.drains}". กระจกบานนี้ไม่ได้บอกว่าคุณควรเป็นใคร — มันสะท้อนว่าคุณเป็นใครอยู่แล้ว เมื่อหยุดเทียบตัวเองกับค่าเฉลี่ยของคนอื่น.`
+    ] : [
+      `Overlay all 26 systems and the axis they agree on is your <strong>${dmEl}</strong>-element core (${dmTh}) — "${tr.core}" is what you radiate without trying. The revealing part is the <em>seam</em> between layers: your Western Sun <strong>${sunEn}</strong> is the mask the world sees, while your Vedic Nakshatra <strong>${moonNak}</strong> is the subconscious drive that sometimes pulls against that mask — and that mismatch isn't a flaw, it's where your depth comes from.`,
+      `Life Path <strong>${lp}</strong> is the role your soul came to master, and Human Design <strong>${hdType}</strong> is the <em>correct way to spend your energy</em>. When the two run together you feel most like yourself; every time you borrow someone else's strategy, power leaks out through "${tr.drains}". This mirror doesn't tell you who to become — it reflects who you already are once you stop measuring yourself against everyone else's average.`
+    ],
+    pet: isTh ? [
+      `ในวงจร 5 ธาตุ ธาตุ<strong>${dmEl}</strong>ของคุณไม่ได้ต้องการ "สัตว์ที่น่ารักที่สุด" แต่ต้องการสัตว์ที่นำ "${tr.core}" เข้ามาเติมสมดุล. นี่คือเหตุผลที่บางคนเลี้ยงหมาแล้วสงบ บางคนเลี้ยงแมวแล้วรู้สึกเข้าใจกัน — ไม่ใช่เรื่องรสนิยม แต่เป็นเรื่องพลังงานที่ขาด/เกินในดวง.`,
+      `Human Design <strong>${hdType}</strong> กำหนดจังหวะการอยู่ร่วม: ${hdType.includes('Projector')||hdType.includes('โปรเจก')?'คุณเหนื่อยกับสัตว์ที่ขอความสนใจตลอดเวลา — เลือกตัวที่อยู่เป็น':hdType.includes('Generator')||hdType.includes('เจเนอ')?'สัตว์พลังงานสูงจะช่วยปลุก sacral response ให้คุณตื่นเต็มที่':'เลือกสัตว์ที่เคารพพื้นที่ของคุณ ไม่เกาะติด'}. และ Life Path ${lp} บอกว่าความผูกพันแบบไหนที่เติมเต็มคุณจริง — สัตว์เลี้ยงที่ "ใช่" จะรู้สึกเหมือนส่วนขยายของพลังคุณ ไม่ใช่ภาระอีกอย่าง.`
+    ] : [
+      `In the 5-element cycle your <strong>${dmEl}</strong> element doesn't need the "cutest" animal — it needs one that brings in "${tr.core}" to balance you. That's why some people calm down around a dog and others feel understood by a cat: it isn't taste, it's which energy your chart is missing or over-carrying.`,
+      `Human Design <strong>${hdType}</strong> sets the rhythm of cohabiting: ${hdType==='Projector'?'animals that demand constant attention drain you — pick a self-contained one':hdType==='Generator'?'a high-energy animal helps fire up your sacral response':'choose an animal that respects your space rather than clinging'}. And Life Path ${lp} hints at the bond that actually fills you — the <em>right</em> pet feels like an extension of your energy, not one more thing to carry.`
+    ],
+    companions: isTh ? [
+      `สัตว์ในตำนานจากแต่ละวัฒนธรรมไม่ได้สุ่มมา — มันสะท้อนธีมเดียวกันที่ปรากฏซ้ำในดวงคุณผ่านสัญลักษณ์ต่างกัน. ลองสังเกตว่ากลุ่มสัตว์ของคุณเอนไปทาง "ผู้พิทักษ์", "นักเดินทาง", หรือ "ผู้สร้าง" — รูปแบบที่ซ้ำคือข้อความที่จักรวาลหลายสายส่งตรงกัน.`,
+      `ธาตุ<strong>${dmEl}</strong>ของคุณให้ "โทน" กับทั้งกลุ่ม: ${tr.core} คือเส้นด้ายที่ร้อยสัตว์เหล่านี้เข้าด้วยกัน. ใช้พวกมันเป็น archetype นำทาง — เวลาตัดสินใจยาก ลองถามว่า "สัตว์ประจำตัวของฉันจะทำยังไง" แล้วคำตอบจะชัดขึ้น เพราะมันคือสัญชาตญาณของคุณที่ถูกแปลเป็นภาพ.`
+    ] : [
+      `The mythic animals from each culture aren't random — they echo one recurring theme in your chart through different symbols. Notice whether your companions lean toward "guardian", "traveller", or "creator": the repeated pattern is the message many cosmologies are sending you at once.`,
+      `Your <strong>${dmEl}</strong> element sets the whole group's tone — "${tr.core}" is the thread that strings these animals together. Use them as guiding archetypes: when a decision is hard, ask "what would my companion animal do?" and the answer sharpens, because it's your own instinct translated into an image.`
+    ],
+    exercise: isTh ? [
+      `ร่างกายของธาตุ<strong>${dmEl}</strong>ตอบสนองการเคลื่อนไหวต่างจากคนอื่น: ${dmEl==='ไฟ'?'ไฟต้องการ burst สั้นแรงแล้วพัก — คาร์ดิโอยาวๆ จะเผาคุณหมดไฟ':dmEl==='ไม้'?'ไม้ต้องการการยืดและการเติบโตต่อเนื่อง ไม่ใช่ max effort':dmEl==='ดิน'?'ดินสร้างจากความสม่ำเสมอและน้ำหนัก ไม่ใช่ความหวือหวา':dmEl==='โลหะ'?'โลหะรักความแม่นยำและฟอร์มที่คม มากกว่าปริมาณ':'น้ำต้องการ flow ต่อเนื่อง — ว่ายน้ำ เต้น เคลื่อนไหวลื่นไหล'}. ฝืนระบบของธาตุอื่นเมื่อไหร่ การออกกำลังจะกลายเป็นการรีดพลังแทนที่จะเติม.`,
+      `Biorhythm กายรอบ 23 วันบอก "ปริมาณ" ที่ปลอดภัยในแต่ละช่วง และ Human Design ${hdType} บอก "วิธี" เริ่ม: ${hdType.includes('Projector')||hdType.includes('โปรเจก')?'เซสชันสั้นเข้มข้น ดีกว่าลากยาว':hdType.includes('Generator')||hdType.includes('เจเนอ')?'ฟังร่างกายก่อนทุกเซต อย่าฝืนตามตาราง':'ปรับตาม cue ของร่างกาย ไม่ใช่ตาม coach app'}. รวมกันคือสูตรที่ทำให้ออกกำลังแล้ว "มีพลังมากขึ้น" ไม่ใช่ "หมดแรง".`
+    ] : [
+      `A <strong>${dmEl}</strong>-element body responds to movement differently: ${dmEl==='ไฟ'?'Fire wants short hard bursts then rest — long cardio burns it out':dmEl==='ไม้'?'Wood wants stretch and steady growth, not max effort':dmEl==='ดิน'?'Earth is built on consistency and load, not flashy intensity':dmEl==='โลหะ'?'Metal loves precision and clean form over volume':'Water needs continuous flow — swim, dance, move fluidly'}. The moment you force another element's system, training drains you instead of filling you.`,
+      `Your 23-day physical biorhythm sets the safe <em>dose</em> for each window, and Human Design ${hdType} sets the <em>way</em> to start: ${hdType==='Projector'?'short intense sessions beat long grinds':hdType==='Generator'?'sacral-check before each set; don\'t train by the calendar':'adjust to body cues, not a coach app'}. Together they're the formula that leaves you with <em>more</em> energy after exercise, not less.`
+    ],
+    food: isTh ? [
+      `ธาตุ<strong>${dmEl}</strong>มีแนวโน้มเมตาบอลิกเฉพาะตัว — "${tr.core}" คือสิ่งที่ร่างกายคุณใช้ได้ดี ส่วน "${tr.drains}" คือสิ่งที่ทำให้หนักและล้าแม้กินของ "เพื่อสุขภาพ" ตามเทรนด์. นี่คือเหตุผลที่ diet เดียวกันทำให้คนหนึ่งเบาสบาย อีกคนบวมและเพลีย.`,
+      `กฎง่ายๆ สำหรับคุณ: เลือกอาหารที่ทำให้รู้สึก "ตื่น-เบา" หลังมื้อ ไม่ใช่ "อิ่ม-ง่วง". ${dmEl==='ไฟ'?'ของเย็น-ชุ่มชื้นช่วยลดความร้อนเกิน':dmEl==='ไม้'?'ของเขียวสดและขมเล็กน้อยช่วยให้ตับ-ไม้ไหลลื่น':dmEl==='ดิน'?'ของปรุงสุก-อุ่นย่อยง่ายกว่าของดิบ':dmEl==='โลหะ'?'ของแห้ง-คั่วและเผ็ดน้อยช่วยปอด-โลหะ':'ของอุ่น-มีน้ำเช่นซุปช่วยไต-น้ำ'} — ฟังร่างกายมากกว่าฟัง Instagram.`
+    ] : [
+      `Your <strong>${dmEl}</strong> element carries a specific metabolic tendency — "${tr.core}" is what your body uses well, while "${tr.drains}" is what weighs you down even when it's a trendy "healthy" food. That's why the same diet leaves one person light and another bloated and tired.`,
+      `A simple rule for you: choose foods that leave you "alert and light" after a meal, not "full and sleepy". ${dmEl==='ไฟ'?'Cooling, hydrating foods ease excess heat':dmEl==='ไม้'?'Fresh greens and a touch of bitter keep your Wood-liver flowing':dmEl==='ดิน'?'Cooked, warm food digests easier than raw for Earth':dmEl==='โลหะ'?'Dry, roasted, lightly spiced supports Metal-lungs':'Warm, water-rich foods like soup support Water-kidneys'} — listen to your body over Instagram.`
+    ],
+    product: isTh ? [
+      `สิ่งที่คุณนำเข้าบ้าน-เข้าตัวส่งผลต่อพลังงานมากกว่าที่คิด. ธาตุ<strong>${dmEl}</strong>ถูกขับเน้นด้วยสี-วัสดุที่เข้าคู่ และถูกทอนลงด้วยของที่ขัดธาตุ — ของที่ "สวยแต่ไม่ใช่ของคุณ" จะให้ความสุขแค่ตอนซื้อ แล้วกลายเป็นของรกที่ดูดพลังเงียบๆ.`,
+      `ตัวกรองของคุณ: ${dmEl==='ไฟ'?'โทนแดง-ส้ม วัสดุอบอุ่น (ผ้า/หนัง/ไม้)':dmEl==='ไม้'?'โทนเขียว วัสดุธรรมชาติ (ไม้/ผ้าฝ้าย/ต้นไม้)':dmEl==='ดิน'?'โทนน้ำตาล-เหลือง วัสดุดิน (เซรามิก/หิน/ดินเผา)':dmEl==='โลหะ'?'โทนขาว-เงิน วัสดุโลหะแท้-แก้ว':'โทนน้ำเงิน-ดำ วัสดุลื่น-สะท้อน (แก้ว/กระจก/น้ำ)'} เสริมคุณ. ก่อนซื้อของชิ้นใหญ่ ถามสั้นๆ ว่า "มันเสริม ${tr.core} ของฉันไหม" — ถ้าลังเล แปลว่าไม่ใช่.`
+    ] : [
+      `What you bring into your home and onto your body shapes your energy more than you'd think. Your <strong>${dmEl}</strong> element is amplified by matching colours and materials and dulled by clashing ones — something "pretty but not yours" gives a buyer's-high then becomes quiet clutter that drains you.`,
+      `Your filter: ${dmEl==='ไฟ'?'red-orange tones, warm materials (fabric/leather/wood)':dmEl==='ไม้'?'green tones, natural materials (wood/cotton/plants)':dmEl==='ดิน'?'brown-yellow tones, earthy materials (ceramic/stone/clay)':dmEl==='โลหะ'?'white-silver tones, real metal and glass':'blue-black tones, sleek reflective materials (glass/mirror/water)'} amplify you. Before any big purchase, ask "does this amplify my ${tr.core}?" — if you hesitate, it's a no.`
+    ],
+    compat: isTh ? [
+      `วิธีที่คุณ "รัก" ถูกเขียนไว้ในดวง: ธาตุ<strong>${dmEl}</strong>ให้ "${tr.core}" กับความสัมพันธ์ และอ่อนไหวเป็นพิเศษเมื่อเจอ "${tr.drains}". คุณไม่ได้เข้ากับทุกคน — และนั่นเป็นเรื่องดี เพราะความเข้ากันจริงคือเรื่องของธาตุที่เสริมกัน ไม่ใช่ความพยายามที่จะปรับตัวให้เข้าหากัน.`,
+      `Human Design ${hdType} บอกกฎทองของคุณในความสัมพันธ์: ${hdType.includes('Projector')||hdType.includes('โปรเจก')?'รอ "คำเชิญ" ก่อนให้คำแนะนำ — คุณถูกมองข้ามเมื่อ push, แต่ถูกเห็นค่าเมื่อถูกเชิญ':hdType.includes('Generator')||hdType.includes('เจเนอ')?'เชื่อ "ตอบสนอง" ของร่างกาย — ใช่หรือไม่ใช่รู้ได้ก่อนหัวคิด':'ใช้กลยุทธ์ HD ของคุณเป็นเข็มทิศ ไม่ใช่ตามใจคนอื่น'}. คนที่ใช่จะไม่ทำให้คุณต้อง "ทำงานหนัก" เพื่อรู้สึกถูกรัก.`
+    ] : [
+      `The way you <em>love</em> is written in your chart: your <strong>${dmEl}</strong> element brings "${tr.core}" to a relationship and is especially sensitive to "${tr.drains}". You don't click with everyone — and that's good, because real compatibility is about elements that complement, not effort spent forcing a fit.`,
+      `Human Design ${hdType} gives your golden rule in relationships: ${hdType==='Projector'?'wait for the invitation before advising — you\'re overlooked when you push, valued when you\'re invited':hdType==='Generator'?'trust your body\'s response — yes or no is known before the mind argues':'run your HD strategy as the compass, not other people\'s moods'}. The right person never makes you "work hard" to feel loved.`
+    ],
+  };
+  const syn = SYNTHESIS[key];
+
   const rows = cfg.sys.map(s => `
     <div style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:14px 16px">
       <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px">
@@ -5649,6 +5708,16 @@ function _buildDeepAddon(chart, key){
         </div>
       </div>
       <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(212,175,55,0.15)">${isTh?cfg.subtTh:cfg.subtEn}</div>
+
+      ${syn ? `
+      <!-- Synthesis reading — weaves the systems into a personalised narrative so
+           the add-on reads like a reading, not just a table of system rows. -->
+      <div style="margin-bottom:16px;padding:15px 17px;background:linear-gradient(135deg,rgba(212,175,55,0.07),rgba(212,175,55,0.02));border:1px solid rgba(212,175,55,0.28);border-radius:9px">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:9px">✦ ${isTh?'อ่านรวมจาก 26 ศาสตร์':'The Reading'}</div>
+        ${syn.map(p => `<p style="margin:0 0 10px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.8">${p}</p>`).join('')}
+      </div>` : ''}
+
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">${isTh?'ทีละศาสตร์':'System by system'}</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px">
         ${rows}
       </div>
@@ -7271,6 +7340,33 @@ function renderMonthlyBrief(){
   const monthNames = isTh
     ? ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม']
     : ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const monthAbbr = isTh
+    ? ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.']
+    : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  // ═══ 12-month year-at-a-glance strip ═══
+  // Runs monthVerdict() for all 12 months so the user sees the whole year's
+  // peaks & troughs at once and can plan timing ahead — not just this/next.
+  const allV = monthNames.map((_, mi) => monthVerdict(mi));
+  const verdictEmoji = (s) => s>=4?'🌟':s>=2?'🟢':s>=0?'🟡':s>=-2?'🟠':'🔴';
+  const stripColor   = (s) => s>=4?'#d4af37':s>=2?'#4a9a40':s>=0?'#c8a840':s>=-2?'#c08040':'#c06060';
+  const peakMonths = allV.map((v,i)=>({i,s:v.score})).filter(x=>x.s>=4).map(x=>monthAbbr[x.i]);
+  const restMonths = allV.map((v,i)=>({i,s:v.score})).filter(x=>x.s<=-3).map(x=>monthAbbr[x.i]);
+  const yearStrip = `
+    <div class="deep-sys-card" style="margin-bottom:14px">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:10px">${isTh?'ภาพรวมทั้งปี '+now.getFullYear()+' · 12 เดือน':'Year at a glance · '+now.getFullYear()}</div>
+      <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px">
+        ${allV.map((v,mi)=>`
+          <div title="${monthNames[mi]} · ${v.verdict} (${v.score>0?'+':''}${v.score})" style="text-align:center;padding:7px 2px 6px;border-radius:5px;background:${mi===thisMonth?'rgba(212,175,55,0.16)':'rgba(0,0,0,.18)'};border:1px solid ${mi===thisMonth?'var(--gold3)':'transparent'}">
+            <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:.5px;color:var(--muted)">${monthAbbr[mi]}</div>
+            <div style="font-size:14px;line-height:1.3;margin:2px 0">${verdictEmoji(v.score)}</div>
+            <div style="font-family:'Cinzel Decorative',serif;font-size:11px;color:${stripColor(v.score)};font-weight:600">${v.score>0?'+':''}${v.score}</div>
+          </div>`).join('')}
+      </div>
+      <div style="margin-top:10px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--text);line-height:1.6">
+        ${peakMonths.length?`<span style="color:var(--gold2)">🌟 ${isTh?'เดือนทอง':'Peak'}:</span> ${peakMonths.join(' · ')}`:(isTh?'ปีนี้ไม่มีเดือน "ทอง" เด่นชัด — กระแสค่อนข้างสม่ำเสมอ':'No standout peak month this year — the current runs fairly even')}${restMonths.length?`<br><span style="color:#c08080">🔴 ${isTh?'เดือนพักฟื้น':'Rest'}:</span> ${restMonths.join(' · ')} — ${isTh?'วางแผนงานเบาในช่วงนี้':'plan lighter loads here'}`:''}
+      </div>
+    </div>`;
 
   // Narrative paragraph for a month: what the verdict MEANS + a concrete move.
   // Weaves in the dominant drivers (Personal Month theme + biorhythm window)
@@ -7331,6 +7427,8 @@ function renderMonthlyBrief(){
           : `Summarises the <strong>current</strong> and <strong>next</strong> month by combining the <strong>time-phased</strong> systems from your 26: Nine Star Ki (monthly star) · Biorhythm · Numerology Personal Month · Vedic Mahadasha · BaZi element interaction. Each votes; the consensus becomes your "trend verdict" for timing big decisions.`}
       </div>
     </div>
+
+    ${yearStrip}
 
     ${monthBlock((isTh?'เดือนนี้ · ':'This month · ')+monthNames[thisMonth]+' '+now.getFullYear(), thisV)}
     ${monthBlock((isTh?'เดือนหน้า · ':'Next month · ')+monthNames[nextMonthIdx]+' '+(nextMonthIdx===0?now.getFullYear()+1:now.getFullYear()), nextV)}
