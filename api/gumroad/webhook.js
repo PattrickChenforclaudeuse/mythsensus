@@ -78,6 +78,38 @@ async function setUserPlan(email, plan) {
   return { ok: authOk, foundAuthUser: Boolean(u) };
 }
 
+// Gumroad permalink → app item key (matches _GUMROAD_PRODUCTS in index.html).
+const PERMALINK_TO_ITEM = {
+  oziji: 'deep', luqkbx: 'mirror', nxezj: 'pet', wlgmbp: 'companions',
+  intvj: 'exercise', vwzkgz: 'food', howzdo: 'product', mdjeln: 'compat',
+  mbkayz: 'full_report', tlkfx: 'subscription',
+};
+
+// Upsert a one-time purchase into public.myth_purchases (woam) via PostgREST,
+// keyed by sale_id for idempotency. service_role bypasses RLS.
+async function recordPurchase({ email, itemKey, permalink, saleId, refunded }) {
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!SUPABASE_URL || !KEY) return { ok: false, reason: 'not configured' };
+  const base = SUPABASE_URL.replace(/\/+$/, '');
+  const headers = {
+    'Content-Type': 'application/json', apikey: KEY, Authorization: 'Bearer ' + KEY,
+    Prefer: 'resolution=merge-duplicates,return=minimal',
+  };
+  try {
+    const r = await fetch(base + '/rest/v1/myth_purchases?on_conflict=sale_id', {
+      method: 'POST', headers,
+      body: JSON.stringify({
+        email: String(email || '').toLowerCase(), item_key: itemKey,
+        product_permalink: permalink || null, sale_id: saleId || null,
+        refunded: !!refunded, updated_at: new Date().toISOString(),
+      }),
+    });
+    if (!r.ok) console.error('[gumroad/webhook] recordPurchase failed:', r.status, (await r.text()).slice(0, 160));
+    return { ok: r.ok, status: r.status };
+  } catch (e) { return { ok: false, reason: String(e).slice(0, 120) }; }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -106,12 +138,6 @@ export default async function handler(req, res) {
 
   console.log('[gumroad/webhook] ping:', { saleId, email, permalink, refunded, disputed });
 
-  // Only act on our product
-  if (PERMALINK && permalink && !String(permalink).includes(PERMALINK)) {
-    console.log('[gumroad/webhook] ignoring ping for other product:', permalink);
-    return res.status(200).json({ ok: true, ignored: 'other_product' });
-  }
-
   if (!email || !saleId) {
     return res.status(200).json({ ok: true, ignored: 'missing_email_or_sale' });
   }
@@ -123,27 +149,35 @@ export default async function handler(req, res) {
       console.warn('[gumroad/webhook] sale verification failed:', saleId);
       return res.status(401).json({ error: 'sale verification failed' });
     }
-    // Confirm the verified sale email matches the ping email
-    const verifiedEmail = verify.sale.email || email;
+    const sale = verify.sale;
+    const verifiedEmail = sale.email || email;
+    const verifiedPermalink = String(sale.product_permalink || permalink || '').trim();
+    const voided = refunded || disputed || sale.refunded === true || sale.disputed === true;
+    const itemKey = PERMALINK_TO_ITEM[verifiedPermalink] || null;
 
-    // Determine plan: refund/dispute → free, otherwise premium
-    const plan = (refunded || disputed) ? 'free' : 'premium';
-
-    const result = await setUserPlan(verifiedEmail, plan);
-    if (!result.foundAuthUser) {
-      // Buyer hasn't signed in to Mythsensus with this email yet. Payment is
-      // valid; they'll get premium once they sign in (then re-fire or they
-      // re-subscribe). Log it, return 200 so Gumroad doesn't retry-spam.
-      console.warn('[gumroad/webhook] paid but no matching account yet:', verifiedEmail);
-      return res.status(200).json({ ok: true, note: 'no_account_yet', email: verifiedEmail, plan });
-    }
-    if (!result.ok) {
-      console.error('[gumroad/webhook] plan update failed for', verifiedEmail);
-      return res.status(200).json({ ok: false, note: 'update_failed', email: verifiedEmail });
+    // Record EVERY sale (subscription + per-item) so a logged-in buyer can
+    // re-unlock the item on any device via /api/me/purchases.
+    if (itemKey) {
+      await recordPurchase({ email: verifiedEmail, itemKey, permalink: verifiedPermalink, saleId, refunded: voided });
+    } else {
+      console.log('[gumroad/webhook] unknown permalink, not recorded:', verifiedPermalink);
     }
 
-    console.log('[gumroad/webhook] plan set:', verifiedEmail, '→', plan);
-    return res.status(200).json({ ok: true, email: verifiedEmail, plan });
+    // Only the subscription product flips the account plan to premium-everything.
+    const isSubscription = itemKey === 'subscription' || (PERMALINK && verifiedPermalink.includes(PERMALINK));
+    if (isSubscription) {
+      const plan = voided ? 'free' : 'premium';
+      const result = await setUserPlan(verifiedEmail, plan);
+      if (!result.foundAuthUser) {
+        console.warn('[gumroad/webhook] paid but no matching account yet:', verifiedEmail);
+        return res.status(200).json({ ok: true, note: 'no_account_yet', email: verifiedEmail, plan, item: itemKey });
+      }
+      console.log('[gumroad/webhook] plan set:', verifiedEmail, '→', plan);
+      return res.status(200).json({ ok: true, email: verifiedEmail, plan, item: itemKey });
+    }
+
+    console.log('[gumroad/webhook] per-item recorded:', verifiedEmail, '→', itemKey, voided ? '(refunded)' : '');
+    return res.status(200).json({ ok: true, email: verifiedEmail, item: itemKey, refunded: voided });
   } catch (err) {
     console.error('[gumroad/webhook] error:', err);
     return res.status(200).json({ ok: false, error: String(err).slice(0, 200) });

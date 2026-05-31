@@ -137,7 +137,14 @@
 // elemental-chemistry "reading" — interprets the 5-element relationship between
 // the two charts (feeds / refines / mirrors / neutral) into concrete guidance,
 // matching the depth of the other add-ons. Bump to ship.
-const CACHE = 'mythsensus-v26';
+// v27: 2026-05-31 — per-item purchases now persist server-side: the Gumroad
+// webhook records every sale into public.myth_purchases (woam), a new
+// /api/me/purchases endpoint returns a logged-in buyer's owned items, and
+// _refreshPremium restores them on this device → one-time unlocks survive a
+// cache-clear or a new device once you're signed in (no more re-redeem). All
+// paths fail soft until the migration (migrations/002_purchases.sql) is applied.
+// Also: garsell@hotmail.com added to OWNER_EMAILS. Bump to ship the client side.
+const CACHE = 'mythsensus-v27';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

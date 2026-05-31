@@ -5030,6 +5030,25 @@ async function _refreshPremium(){
       try { if (typeof setGroup === 'function' && typeof CUR_GROUP === 'string') setGroup(CUR_GROUP); } catch(_){}
       try { if (typeof showSubTab === 'function' && typeof CUR_SUB === 'string') showSubTab(CUR_SUB); } catch(_){}
     }
+    // Restore one-time purchases tied to this account → unlock them on this
+    // device too (server-recorded by the Gumroad webhook into myth_purchases).
+    try {
+      const pr = await fetch('/api/me/purchases', { headers: { Authorization: 'Bearer ' + session.access_token } });
+      if (pr.ok) {
+        const pj = await pr.json();
+        const items = (pj && Array.isArray(pj.items)) ? pj.items : [];
+        let granted = 0;
+        for (const it of items) {
+          if (typeof _hasItemAccess === 'function' && !_hasItemAccess(it) && typeof _grantItemLocally === 'function') {
+            _grantItemLocally(it); granted++;
+          }
+        }
+        if (granted) {
+          try { if (typeof setGroup === 'function' && typeof CUR_GROUP === 'string') setGroup(CUR_GROUP); } catch(_){}
+          try { if (typeof showSubTab === 'function' && typeof CUR_SUB === 'string') showSubTab(CUR_SUB); } catch(_){}
+        }
+      }
+    } catch(_) {}
   } catch (e) { console.warn('[premium] refresh failed', e); }
 }
 
