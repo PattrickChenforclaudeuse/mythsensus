@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mythsensus — Daily Oracle</title>
-<meta name="description" content="Mythsensus reveals your Cosmic Score from 26 ancient wisdom systems — Western astrology, BaZi, Vedic, Mayan and more — synthesized into one reading. Free daily blessings; premium deep readings.">
+<title>Mythsensus — Cosmic Score · ดวงจาก 26 ศาสตร์โบราณ</title>
+<meta name="description" content="Cosmic Score เดียวจาก 26 ศาสตร์โบราณ — BaZi, Vedic, Western, Nine Star Ki และอีก 22 ศาสตร์ — สังเคราะห์จากวันเกิดเป็นรายงานเชิงลึก พร้อมเทพ 1,000+ องค์ฟรีรายวัน">
 <!-- Vercel Web Analytics (privacy-friendly, cookieless). Enable in Vercel → Project → Analytics. -->
 <script defer src="/_vercel/insights/script.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -637,8 +637,8 @@ details.ms-more>.ms-more-body{padding-top:6px;animation:msMoreIn .25s ease}
   <link rel="canonical" href="https://mythsensus.com/">
   <meta property="og:site_name" content="Mythsensus">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Mythsensus — Daily Oracle">
-  <meta property="og:description" content="Your full cosmic blueprint from 26 ancient divination systems. Free beta — works offline, no signup.">
+  <meta property="og:title" content="Mythsensus — Cosmic Score · ดวงจาก 26 ศาสตร์โบราณ">
+  <meta property="og:description" content="Cosmic Score เดียวจาก 26 ศาสตร์โบราณ สังเคราะห์จากวันเกิดเป็นรายงานเชิงลึก พร้อมเทพ 1,000+ องค์ฟรีรายวัน · ใช้ออฟไลน์ได้ ไม่ต้องลงทะเบียน">
   <meta property="og:url" content="https://mythsensus.com/">
   <meta property="og:image" content="https://mythsensus.com/og-default.png">
   <meta property="og:image:type" content="image/png">
@@ -648,8 +648,8 @@ details.ms-more>.ms-more-body{padding-top:6px;animation:msMoreIn .25s ease}
   <meta property="og:locale" content="th_TH">
   <meta property="og:locale:alternate" content="en_US">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Mythsensus — Daily Oracle">
-  <meta name="twitter:description" content="Your full cosmic blueprint from 26 ancient divination systems. Free beta — works offline, no signup.">
+  <meta name="twitter:title" content="Mythsensus — Cosmic Score · ดวงจาก 26 ศาสตร์โบราณ">
+  <meta name="twitter:description" content="Cosmic Score เดียวจาก 26 ศาสตร์โบราณ สังเคราะห์จากวันเกิดเป็นรายงานเชิงลึก พร้อมเทพ 1,000+ องค์ฟรีรายวัน · ใช้ออฟไลน์ได้ ไม่ต้องลงทะเบียน">
   <meta name="twitter:image" content="https://mythsensus.com/og-default.png">
 <!-- ═══ ANALYTICS (Vercel Web Analytics — privacy-first, no cookies. Enable in Vercel → Project → Analytics) ═══ -->
   <script defer src="/_vercel/insights/script.js"></script>
@@ -974,6 +974,54 @@ let _sb        = null;  // Supabase client — set in DOMContentLoaded
 let _sbSession = null;  // Current session (null = guest / not signed-in)
 let _authEmail = '';    // Email pending OTP verification
 </script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://mythsensus.com/#organization",
+      "name": "Mythsensus",
+      "url": "https://mythsensus.com",
+      "logo": "https://mythsensus.com/og-default.png",
+      "description": "Synthesises 26 ancient divination systems into a single Cosmic Score (1 to 1,000) from a birth date."
+    },
+    {
+      "@type": "WebApplication",
+      "@id": "https://mythsensus.com/#webapp",
+      "name": "Mythsensus",
+      "url": "https://mythsensus.com",
+      "publisher": { "@id": "https://mythsensus.com/#organization" },
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "Any (browser-based, works offline)",
+      "inLanguage": ["th","en"],
+      "description": "Mythsensus synthesises 26 ancient divination systems — BaZi, Vedic, Western, Nine Star Ki, Mayan, and 21 others — into a single Cosmic Score from 1 to 1,000. Free Cosmic Score, free daily deity blessing from more than 1,000 deities, free 108 Organum oracle. Premium adds depth: $9 per-system deep readings, a $19 forty-two-page PDF full report, and a $4.99/month subscription for daily-refresh features.",
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Cosmic Blueprint — Full Report",
+          "description": "42-page PDF synthesising all 26 systems into one consensus reading.",
+          "price": "19.00",
+          "priceCurrency": "USD",
+          "url": "https://mythsensus.com/pricing",
+          "availability": "https://schema.org/InStock"
+        },
+        {
+          "@type": "Offer",
+          "name": "Daily Subscription",
+          "description": "Monthly access to daily-refresh features, frequency alerts, and full history.",
+          "price": "4.99",
+          "priceCurrency": "USD",
+          "url": "https://mythsensus.com/pricing",
+          "availability": "https://schema.org/InStock"
+        }
+      ]
+    }
+  ]
+}
+</script>
+
 </head>
 <body>
 
@@ -10119,17 +10167,20 @@ async function _socialSignIn(provider){
     const state=Math.random().toString(36).substring(2);
     try{ sessionStorage.setItem('line_state', state); }catch(_){}
     const channelId=(window.__MYTH_ENV__ && window.__MYTH_ENV__.LINE_LOGIN_CHANNEL_ID) || '2009661365';
-    // Seamless re-login: `profile openid` ONLY (no `email` scope) and no
-    // `bot_prompt`. A user already signed in to LINE on their phone is then
-    // auto-approved and skips the consent / add-friend screens — LINE remembers
-    // the prior authorization for this channel and redirects straight back.
-    // (Email is not needed; the server callback synthesizes a stable
-    // pseudo-email from the LINE userId.)
+    // Director feedback 2026-06-01: restore `email` scope. Removing it for
+    // seamless re-login (2026-05-31) caused the predicted duplicate-account
+    // issue — when LINE doesn't return email, the callback synthesizes
+    // `line_<id>@line.mythsensus.local`, which never matches the real email a
+    // user used for magic-link signup → Supabase find-or-create creates a 2nd
+    // user_id → forked account, lost history. Restoring email scope keeps the
+    // Email-magic-link and LINE-login pointing to the same user_id when the
+    // user grants email permission (which LINE remembers, so it's a one-time
+    // consent — re-logins after that are still seamless).
     const params=new URLSearchParams({
       response_type:'code',
       client_id: channelId,
       redirect_uri: location.origin + '/api/auth/line/callback',
-      scope:'profile openid',
+      scope:'profile openid email',
       state: state
     });
     location.href='https://access.line.me/oauth2/v2.1/authorize?' + params.toString();
