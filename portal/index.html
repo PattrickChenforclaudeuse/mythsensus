@@ -304,13 +304,19 @@ document.getElementById('lineLoginBtn').addEventListener('click', () => {
   // Generate state for CSRF protection
   const state = Math.random().toString(36).substring(2);
   sessionStorage.setItem('line_state', state);
+  // Seamless re-login: request `profile openid` ONLY (no `email` scope) and
+  // drop `bot_prompt`. A user already signed in to LINE on their phone is then
+  // auto-approved — LINE remembers the prior authorization for this channel and
+  // redirects straight back without showing the consent or add-friend screens.
+  // (Adding `email` or `bot_prompt:'aggressive'` forces an extra approval screen
+  // on every login.) Email isn't needed — the server callback synthesizes a
+  // stable pseudo-email from the LINE userId.
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: (window.__MYTH_ENV__ && window.__MYTH_ENV__.LINE_LOGIN_CHANNEL_ID) || '2009661365',
     redirect_uri: window.location.origin + '/api/auth/line/callback',
-    scope: 'profile openid email',
-    state,
-    bot_prompt: 'aggressive'
+    scope: 'profile openid',
+    state
   });
   window.location.href = 'https://access.line.me/oauth2/v2.1/authorize?' + params.toString();
 });
