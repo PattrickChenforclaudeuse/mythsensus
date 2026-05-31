@@ -1149,6 +1149,24 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     <div class="login-logo">MYTHSENSUS</div>
     <div class="login-tagline-sm">Where myriad myths reach consensus — about you</div>
 
+    <!-- ════ STEP 0 — simple hero (first impression) ════
+         New visitors used to land on the full birth-data form ("ข้อมูลเยอะ
+         ใช้งานยาก"). Now they see one clear value-prop + ONE button; the form
+         lives behind it (entryShowForm). The returning-user fast path in
+         showEntryOverlay still skips this whole overlay entirely. -->
+    <div id="entryHeroStep">
+      <div style="text-align:center;margin:22px 0 4px;font-family:'Cinzel Decorative',serif;font-size:18px;color:var(--gold);line-height:1.4">ดูดวงคุณจาก <span style="color:var(--gold2)">26 ศาสตร์โบราณ</span> ในที่เดียว</div>
+      <div style="text-align:center;margin:0 0 16px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--muted)">Your birth chart, read by 26 ancient systems</div>
+      <div style="text-align:center;margin:0 0 18px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.7">BaZi · โหราศาสตร์ตะวันตก · เลข ๗ ตัว · Human Design · เวท · มายา · เซลติก · และอีก 20 ศาสตร์ — หลอมเป็นภาพเดียวของ "คุณ"</div>
+      <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:20px;font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:.5px;color:var(--gold3)"><span>✨ เริ่มฟรี</span><span>🔒 ข้อมูลอยู่ในเครื่อง</span><span>⚡ ไม่ต้องสมัคร</span></div>
+      <button class="login-confirm-btn" onclick="entryShowForm()" style="font-size:15px">✨ เริ่มดูดวงฟรี · Start free</button>
+      <div style="text-align:center;margin-top:11px"><button onclick="entrySkip()" style="background:transparent;border:1px solid var(--gold3);border-radius:8px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--gold2);cursor:pointer;padding:9px 20px">👁 สำรวจก่อน · Explore first</button></div>
+      <div style="text-align:center;margin-top:14px;font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px">มีบัญชีแล้ว? <button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">ลงชื่อเข้าใช้ / Sign in →</button></div>
+    </div>
+
+    <!-- ════ STEP 1 — the birth-data form (revealed by the hero CTA) ════ -->
+    <div id="entryFormStep" style="display:none">
+
     <!-- LANGUAGE SELECTOR (top of overlay so it switches immediately) -->
     <div style="display:flex;gap:8px;justify-content:center;margin:18px 0 10px">
       <button class="entry-lang-btn" id="entryLangTh" onclick="entrySelectLang('th')"
@@ -1228,8 +1246,17 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
           พ.ศ. = ค.ศ. + 543 &nbsp;·&nbsp; เช่น ปี 2548 พ.ศ. = 2005 ค.ศ.
         </div>
       </div>
+      <!-- OPTIONAL DETAILS — collapsed by default to keep onboarding light.
+           Only date of birth is required; time / gender / city merely sharpen
+           accuracy, so they live behind a single tap to reduce the "too much
+           info" feeling. All fields stay in the DOM (entryAccept reads them
+           with safe defaults) whether the section is open or not. -->
+      <details id="entryMoreWrap" style="margin-top:2px">
+        <summary style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--gold2);text-align:center;list-style:none;padding:6px 0;letter-spacing:0.3px;cursor:pointer" id="entryMoreToggle">
+          ✦ เพิ่มความแม่นยำ: เวลา · เพศ · เมือง (ไม่บังคับ) / Add details (optional)
+        </summary>
       <!-- เวลาเกิด: HH | MM (default 12:00 — many users don't have birth time) -->
-      <div>
+      <div style="margin-top:8px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
           <input class="login-input" type="number" id="entryHour" min="0" max="23" value="12"
                  style="font-family:inherit;font-size:15px;text-align:center">
@@ -1264,6 +1291,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <div id="entryCityLabel" style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:11.5px;color:var(--muted);margin-top:-4px;text-align:center;letter-spacing:0.5px">
         สถานที่เกิด / Birth city
       </div>
+      </details>
     </div>
 
     <!-- GIFT CODE — optional, unlocks premium tiers without payment during beta -->
@@ -1301,6 +1329,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     </div>
 
     <div id="entryError" style="display:none;text-align:center;margin-top:8px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:#ff8080"></div>
+    </div><!-- /#entryFormStep -->
   </div>
 </div>
 
@@ -1330,7 +1359,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       </div>
 
       <div style="display:flex;flex-direction:column;gap:8px">
-        <!-- LINE — Supabase provider name: "line"; scopes: profile openid email;
+        <!-- LINE — bridged via /api/auth/line/callback (not a native Supabase provider); scopes: profile openid;
              callback URL: https://<project>.supabase.co/auth/v1/callback;
              register at https://developers.line.biz/console/ → LINE Login channel. -->
         <button type="button" class="social-signin-btn" data-provider="line" onclick="_socialSignIn('line')"
@@ -9971,7 +10000,7 @@ function showLoginOverlay(){
 //   Site URL / additional redirect URL (in Supabase -> Auth -> URL Config):
 //     https://mythsensus.com  (and https://mythsensus.com/?login=1)
 //   Scopes required:
-//     LINE     -> profile openid email
+//     LINE     -> profile openid   (no `email` — keeps re-login consent-free)
 //     Facebook -> email, public_profile
 //     Google   -> openid email profile
 // Until the dashboard is wired, the buttons fail with a toast and the user
@@ -9987,13 +10016,18 @@ async function _socialSignIn(provider){
     const state=Math.random().toString(36).substring(2);
     try{ sessionStorage.setItem('line_state', state); }catch(_){}
     const channelId=(window.__MYTH_ENV__ && window.__MYTH_ENV__.LINE_LOGIN_CHANNEL_ID) || '2009661365';
+    // Seamless re-login: `profile openid` ONLY (no `email` scope) and no
+    // `bot_prompt`. A user already signed in to LINE on their phone is then
+    // auto-approved and skips the consent / add-friend screens — LINE remembers
+    // the prior authorization for this channel and redirects straight back.
+    // (Email is not needed; the server callback synthesizes a stable
+    // pseudo-email from the LINE userId.)
     const params=new URLSearchParams({
       response_type:'code',
       client_id: channelId,
       redirect_uri: location.origin + '/api/auth/line/callback',
-      scope:'profile openid email',
-      state: state,
-      bot_prompt:'aggressive'
+      scope:'profile openid',
+      state: state
     });
     location.href='https://access.line.me/oauth2/v2.1/authorize?' + params.toString();
     return;
@@ -10300,8 +10334,24 @@ function showEntryOverlay(){
   } else if (wb) {
     wb.style.display = 'none';
   }
+  // Hero (step 0) vs form (step 1): a returning user with saved data jumps
+  // straight to the pre-filled form; a brand-new visitor sees the simple hero.
+  try {
+    const hero = document.getElementById('entryHeroStep');
+    const form = document.getElementById('entryFormStep');
+    if (dob) { if (hero) hero.style.display = 'none'; if (form) form.style.display = ''; }
+    else     { if (hero) hero.style.display = '';     if (form) form.style.display = 'none'; }
+  } catch(_){}
   ov.style.display = 'flex';
-  setTimeout(()=>{ const f = document.getElementById(dob?'entryName':'entryDay'); if(f) f.focus(); }, 100);
+  // Only focus a field when the form is actually visible (returning user).
+  if (dob) setTimeout(()=>{ const f = document.getElementById('entryName'); if(f) f.focus(); }, 100);
+}
+
+// Reveal the birth-data form from the hero CTA (new-visitor first impression).
+function entryShowForm(){
+  try { const h = document.getElementById('entryHeroStep'); if (h) h.style.display = 'none'; } catch(_){}
+  try { const f = document.getElementById('entryFormStep'); if (f) f.style.display = ''; } catch(_){}
+  try { const n = document.getElementById('entryName'); if (n) setTimeout(()=>{ try{ n.focus(); }catch(_){} }, 60); } catch(_){}
 }
 
 function entrySelectLang(lang){
@@ -10581,10 +10631,14 @@ function entryAccept(){
   if (ov) ov.style.display = 'none';
   // Auto-push updated profile to cloud if signed in
   if(_sb && _sbSession) _sbPush().catch(()=>{});
-  // Boot the rest of the app, then jump to Cosmic Blueprint with the form pre-filled.
+  // Boot the rest of the app, then land on the FREE, simple page first.
+  // User feedback: onboarding felt heavy and dropped people straight into the
+  // complex paid Cosmic Blueprint. Instead we land on the free daily Blessing —
+  // a one-tap, welcoming first experience. The Blueprint form is still
+  // pre-filled below so it's ready the moment they choose to generate a report.
   _bootAfterEntry();
-  setGroup('premium');
-  showSubTab('blueprint');
+  setGroup('free');
+  showSubTab('blessing');
   setTimeout(() => {
     const dInp = document.getElementById('cb-f-dob');
     const nInp = document.getElementById('cb-f-name');
@@ -10598,7 +10652,11 @@ function entryAccept(){
     if (mInp) mInp.value = parseInt(time.split(':')[1])||0;
     if (gInp) gInp.value = gender;
     if (cInp) cInp.value = city;
-    _showOnboardCompleteHint && _showOnboardCompleteHint();
+    // Gentle welcome onto the free page — the "tap Generate" hint was tied to
+    // the Blueprint generator and would confuse a user landing on Blessing.
+    _showSyncToast(LANG==='th'
+      ? '✨ ยินดีต้อนรับ — รับพรประจำวันฟรีของคุณได้เลย'
+      : '✨ Welcome — draw your free daily blessing');
   }, 200);
 }
 

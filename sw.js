@@ -144,7 +144,13 @@
 // cache-clear or a new device once you're signed in (no more re-redeem). All
 // paths fail soft until the migration (migrations/002_purchases.sql) is applied.
 // Also: garsell@hotmail.com added to OWNER_EMAILS. Bump to ship the client side.
-const CACHE = 'mythsensus-v27';
+// v28: 2026-05-31 — simpler first impression (feedback: "ใช้งานยาก ข้อมูลเยอะ").
+// New visitors used to land on the full birth-data form. The entry overlay is
+// now 2-step: a clean hero (value prop + one "✨ เริ่มดูดวงฟรี" button + explore/
+// sign-in) → the birth-data form reveals only on click (entryShowForm). The
+// returning-user fast path still skips the overlay entirely; a stale/forced
+// re-entry with saved data jumps straight to the pre-filled form. Bump to ship.
+const CACHE = 'mythsensus-v28';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
