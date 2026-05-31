@@ -617,6 +617,17 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opa
 html[lang="th"] .panel-intro{font-family:'Leelawadee UI','Leelawadee','Tahoma','Segoe UI',sans-serif;font-style:normal;font-size:15.5px;line-height:1.8;}
 @media (max-width:480px){html[lang="th"] .panel-intro{font-size:14.5px;}}
 
+/* Progressive disclosure — reusable collapsible (.ms-more). Keeps the summary/
+   teaser visible and tucks the deep content behind a tap, so dense tabs read
+   light by default without losing the depth. */
+details.ms-more{margin-top:12px;border-top:1px solid var(--border)}
+details.ms-more>summary{list-style:none;cursor:pointer;padding:9px 0 7px;text-align:center;font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:1.5px;color:var(--gold2);text-transform:uppercase;user-select:none;transition:color .15s}
+details.ms-more>summary::-webkit-details-marker{display:none}
+details.ms-more>summary::after{content:" ▾";color:var(--gold3);font-size:11px}
+details.ms-more[open]>summary::after{content:" ▴"}
+details.ms-more>summary:hover{color:var(--gold)}
+details.ms-more>.ms-more-body{padding-top:6px;animation:msMoreIn .25s ease}
+@keyframes msMoreIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
 </style>
   <meta name="ms-meta-v1" content="1">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -5349,6 +5360,14 @@ function generateDeepAddon(key){
 
 // Builds the cross-system synthesis card for a given add-on key.
 // Called by generateDeepAddon() after the subscription gate is passed.
+// Reusable progressive-disclosure wrapper. labelTh/labelEn = the toggle text;
+// bodyHtml = the deep content tucked behind the tap; open = start expanded.
+function _collapse(labelTh, labelEn, bodyHtml, open){
+  const lbl = (typeof LANG !== 'undefined' && LANG === 'th') ? labelTh : labelEn;
+  return '<details class="ms-more"' + (open ? ' open' : '') + '><summary>' + lbl +
+         '</summary><div class="ms-more-body">' + bodyHtml + '</div></details>';
+}
+
 function _buildDeepAddon(chart, key){
   const isTh = LANG === 'th';
   const dmEl  = chart.bazi?.dayMasterElement || 'ไม้';
@@ -5769,10 +5788,12 @@ function _buildDeepAddon(chart, key){
         ${syn.map(p => `<p style="margin:0 0 10px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.8">${p}</p>`).join('')}
       </div>` : ''}
 
-      <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">${isTh?'ทีละศาสตร์':'System by system'}</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px">
-        ${rows}
-      </div>
+      ${_collapse(
+        'ทีละศาสตร์ · ดูครบ 26 ระบบ',
+        'System by system · all 26',
+        `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px">${rows}</div>`,
+        false
+      )}
 
       ${tac ? `
       <!-- Tactical block — translates the 26-system insight into a 7-day playbook
@@ -8272,21 +8293,24 @@ function renderMirror(){
       <div style="margin-top:14px;font-family:'Sarabun',sans-serif;font-size:12px;color:var(--muted);font-style:italic">${gods.mantra}</div>
     </div>
 
-    <!-- Secondary & Tertiary -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
-      <div class="deep-sys-card">
-        <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--muted)">SECONDARY</div>
-        <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:16px;color:var(--gold);margin:8px 0">${gods.secondary}</div>
-        <div style="font-size:12px;color:var(--text);line-height:1.6">${gods.secondaryDesc}</div>
-        ${gods.secondaryStory ? `<div style="margin-top:10px;padding:8px 10px;background:rgba(0,0,0,.2);border-radius:6px;font-size:11.5px;color:var(--muted);line-height:1.65">${gods.secondaryStory}</div>` : ''}
-      </div>
-      <div class="deep-sys-card">
-        <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--muted)">TERTIARY</div>
-        <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:16px;color:var(--gold);margin:8px 0">${gods.tertiary}</div>
-        <div style="font-size:12px;color:var(--text);line-height:1.6">${gods.tertiaryDesc}</div>
-        ${gods.tertiaryStory ? `<div style="margin-top:10px;padding:8px 10px;background:rgba(0,0,0,.2);border-radius:6px;font-size:11.5px;color:var(--muted);line-height:1.65">${gods.tertiaryStory}</div>` : ''}
-      </div>
-    </div>
+    ${_collapse(
+      '🪞 มุมรอง · Secondary & Tertiary',
+      '🪞 Secondary & Tertiary archetypes',
+      `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="deep-sys-card">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--muted)">SECONDARY</div>
+          <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:16px;color:var(--gold);margin:8px 0">${gods.secondary}</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.6">${gods.secondaryDesc}</div>
+          ${gods.secondaryStory ? `<div style="margin-top:10px;padding:8px 10px;background:rgba(0,0,0,.2);border-radius:6px;font-size:11.5px;color:var(--muted);line-height:1.65">${gods.secondaryStory}</div>` : ''}
+        </div>
+        <div class="deep-sys-card">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--muted)">TERTIARY</div>
+          <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:16px;color:var(--gold);margin:8px 0">${gods.tertiary}</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.6">${gods.tertiaryDesc}</div>
+          ${gods.tertiaryStory ? `<div style="margin-top:10px;padding:8px 10px;background:rgba(0,0,0,.2);border-radius:6px;font-size:11.5px;color:var(--muted);line-height:1.65">${gods.tertiaryStory}</div>` : ''}
+        </div>
+      </div>`
+    )}
 
     <!-- Cosmic Entity -->
     <div class="deep-sys-card" style="margin-top:12px;border-color:rgba(212,175,55,0.5);background:rgba(212,175,55,0.05);text-align:center;padding:20px">
@@ -8296,13 +8320,16 @@ function renderMirror(){
       <div style="margin-top:8px;font-size:11px;color:var(--muted)">Score ${score}/999 · LP ${lp} · ${nakshatra}</div>
     </div>
 
-    <!-- Shadow Warning -->
-    <div class="deep-sys-card" style="margin-top:12px;border-color:rgba(160,40,40,0.5);background:rgba(160,40,40,0.04)">
-      <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:#c06060">⚠️ SHADOW ARCHETYPE — ${isTh?'ด้านมืดที่ต้องระวัง':'the side to watch out for'}</div>
-      <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:16px;color:#c08080;margin:8px 0">${gods.shadow}</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.6">${gods.shadowDesc}</div>
-      ${gods.shadowStory ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(160,40,40,0.08);border-radius:6px;font-size:11.5px;color:#c09088;line-height:1.7"><div style="font-size:9px;letter-spacing:1.5px;color:#c06060;margin-bottom:4px">📜 ${isTh?'ตำนานด้านมืด':'SHADOW MYTH'}</div>${gods.shadowStory}</div>` : ''}
-    </div>`;
+    ${_collapse(
+      '⚠️ ด้านมืดที่ต้องระวัง · Shadow',
+      '⚠️ Shadow archetype — what to watch',
+      `<div class="deep-sys-card" style="border-color:rgba(160,40,40,0.5);background:rgba(160,40,40,0.04)">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:#c06060">⚠️ SHADOW ARCHETYPE — ${isTh?'ด้านมืดที่ต้องระวัง':'the side to watch out for'}</div>
+        <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:16px;color:#c08080;margin:8px 0">${gods.shadow}</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">${gods.shadowDesc}</div>
+        ${gods.shadowStory ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(160,40,40,0.08);border-radius:6px;font-size:11.5px;color:#c09088;line-height:1.7"><div style="font-size:9px;letter-spacing:1.5px;color:#c06060;margin-bottom:4px">📜 ${isTh?'ตำนานด้านมืด':'SHADOW MYTH'}</div>${gods.shadowStory}</div>` : ''}
+      </div>`
+    )}`;
 }
 
 // ── Compatible Pet ──────────────────────────────────────────
@@ -8383,22 +8410,26 @@ function renderPet(){
       </div>
     </div>
 
-    <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">🌟 ${isTh?'ทางเลือกรอง':'Secondary option'}</div>
-      <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:16px;color:var(--gold);margin:8px 0">${p.secondary}</div>
-      <div style="font-size:13px;color:var(--text);line-height:1.6">${p.secWhy}</div>
-      ${p.secStory ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(0,0,0,.2);border-radius:6px;font-size:11.5px;color:var(--muted);line-height:1.7">${p.secStory}</div>` : ''}
-    </div>
+    ${_collapse(
+      'ดูเพิ่ม · ตัวเลือกรอง · ควรเลี่ยง · เคล็ดดูแล',
+      'More: secondary pick · avoid · care',
+      `<div class="deep-sys-card">
+        <div class="deep-sys-title">🌟 ${isTh?'ทางเลือกรอง':'Secondary option'}</div>
+        <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:16px;color:var(--gold);margin:8px 0">${p.secondary}</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6">${p.secWhy}</div>
+        ${p.secStory ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(0,0,0,.2);border-radius:6px;font-size:11.5px;color:var(--muted);line-height:1.7">${p.secStory}</div>` : ''}
+      </div>
 
-    <div class="deep-sys-card" style="margin-top:12px;border-left:3px solid #c06060;background:rgba(180,40,40,0.04)">
-      <div style="font-size:10px;letter-spacing:1px;color:#c06060;margin-bottom:6px">⚠️ ${isTh?'ควรเลี่ยง':'Avoid'}</div>
-      <div style="font-size:13px;color:var(--text)">${p.avoid}</div>
-    </div>
+      <div class="deep-sys-card" style="margin-top:12px;border-left:3px solid #c06060;background:rgba(180,40,40,0.04)">
+        <div style="font-size:10px;letter-spacing:1px;color:#c06060;margin-bottom:6px">⚠️ ${isTh?'ควรเลี่ยง':'Avoid'}</div>
+        <div style="font-size:13px;color:var(--text)">${p.avoid}</div>
+      </div>
 
-    <div class="deep-sys-card" style="margin-top:12px;border-left:3px solid var(--gold)">
-      <div style="font-size:10px;letter-spacing:1px;color:var(--muted);margin-bottom:6px">💡 ${isTh?'เคล็ดลับการดูแลตามธาตุ':'Elemental care tip'}</div>
-      <div style="font-size:13px;color:var(--text);line-height:1.6">${p.care}</div>
-    </div>`;
+      <div class="deep-sys-card" style="margin-top:12px;border-left:3px solid var(--gold)">
+        <div style="font-size:10px;letter-spacing:1px;color:var(--muted);margin-bottom:6px">💡 ${isTh?'เคล็ดลับการดูแลตามธาตุ':'Elemental care tip'}</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6">${p.care}</div>
+      </div>`
+    )}`;
 }
 
 // ── Cosmic Companions ───────────────────────────────────────
@@ -8470,37 +8501,39 @@ function renderCompanions(){
       <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:15px;color:var(--gold);line-height:1.7">${comp.mantra}</div>
     </div>
 
-    <!-- Sacred Places + Music + Crystal -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
-      <div class="deep-sys-card">
-        <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">🏛️ ${isTh?'สถานที่ศักดิ์สิทธิ์':'Sacred places'}</div>
-        <div style="font-size:13px;color:var(--text);line-height:1.7">${comp.places}</div>
-      </div>
-      <div class="deep-sys-card">
-        <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">🎵 ${isTh?'ดนตรีที่เสริมพลัง':'Empowering music'}</div>
-        <div style="font-size:13px;color:var(--text);line-height:1.7">${comp.music}</div>
-      </div>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
-      <div class="deep-sys-card">
-        <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">💎 ${isTh?'คริสตัลประจำธาตุ':'Crystal for your element'}</div>
-        <div style="font-size:13px;color:var(--text);line-height:1.7">${comp.crystal}</div>
-      </div>
-      <div class="deep-sys-card">
-        <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">🎨 ${isTh?'สีพลังงาน':'Power colors'}</div>
-        <div style="font-size:13px;color:var(--text);line-height:1.7">${comp.color}</div>
-        <div style="margin-top:8px;display:flex;gap:6px">
-          ${comp.color.split('·').map(c=>{const hex=c.match(/#[0-9a-f]{6}/i);return hex?`<div style="width:24px;height:24px;border-radius:50%;background:${hex[0]};border:1px solid var(--border)"></div>`:''}).join('')}
+    ${_collapse(
+      'สถานที่ · ดนตรี · คริสตัล · สี · Rune+Kin',
+      'Places · music · crystals · colors · cosmic keys',
+      `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="deep-sys-card">
+          <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">🏛️ ${isTh?'สถานที่ศักดิ์สิทธิ์':'Sacred places'}</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.7">${comp.places}</div>
+        </div>
+        <div class="deep-sys-card">
+          <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">🎵 ${isTh?'ดนตรีที่เสริมพลัง':'Empowering music'}</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.7">${comp.music}</div>
         </div>
       </div>
-    </div>
 
-    <!-- Rune + Kin bonus insight -->
-    <div class="deep-sys-card" style="margin-top:12px;border-left:3px solid rgba(212,175,55,0.4)">
-      <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px">✦ COSMIC KEYS (Rune · Kin)</div>
-      <div style="font-size:13px;color:var(--text)">Norse Rune <strong>${rune}</strong> · Mayan Kin <strong>${kin}</strong> — ${isTh?`รูนและ Kin ของคุณยืนยันพลังงาน ${dmEl}`:`your Rune and Kin both confirm your ${dmEl} energy`}</div>
-    </div>`;
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+        <div class="deep-sys-card">
+          <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">💎 ${isTh?'คริสตัลประจำธาตุ':'Crystal for your element'}</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.7">${comp.crystal}</div>
+        </div>
+        <div class="deep-sys-card">
+          <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">🎨 ${isTh?'สีพลังงาน':'Power colors'}</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.7">${comp.color}</div>
+          <div style="margin-top:8px;display:flex;gap:6px">
+            ${comp.color.split('·').map(c=>{const hex=c.match(/#[0-9a-f]{6}/i);return hex?`<div style="width:24px;height:24px;border-radius:50%;background:${hex[0]};border:1px solid var(--border)"></div>`:''}).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="deep-sys-card" style="margin-top:12px;border-left:3px solid rgba(212,175,55,0.4)">
+        <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px">✦ COSMIC KEYS (Rune · Kin)</div>
+        <div style="font-size:13px;color:var(--text)">Norse Rune <strong>${rune}</strong> · Mayan Kin <strong>${kin}</strong> — ${isTh?`รูนและ Kin ของคุณยืนยันพลังงาน ${dmEl}`:`your Rune and Kin both confirm your ${dmEl} energy`}</div>
+      </div>`
+    )}`;
 }
 
 // ── Exercise Plan ───────────────────────────────────────────
@@ -8585,21 +8618,25 @@ function renderExercise(){
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
-      <div class="deep-sys-card">
-        <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">⏰ ${isTh?'เวลาที่เหมาะสุด':'Best time'}</div>
-        <div style="font-size:13px;color:var(--text);line-height:1.6">${ex.bestTime}</div>
+    ${_collapse(
+      'เวลา · ควรเลี่ยง · ภูมิปัญญาธาตุ',
+      'Timing · avoid · elemental wisdom',
+      `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="deep-sys-card">
+          <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">⏰ ${isTh?'เวลาที่เหมาะสุด':'Best time'}</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.6">${ex.bestTime}</div>
+        </div>
+        <div class="deep-sys-card" style="border-left:3px solid #c06060">
+          <div style="font-size:9px;letter-spacing:1.5px;color:#c06060;margin-bottom:8px">⚠️ ${isTh?'ควรเลี่ยง':'Avoid'}</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.6">${ex.avoid}</div>
+        </div>
       </div>
-      <div class="deep-sys-card" style="border-left:3px solid #c06060">
-        <div style="font-size:9px;letter-spacing:1.5px;color:#c06060;margin-bottom:8px">⚠️ ${isTh?'ควรเลี่ยง':'Avoid'}</div>
-        <div style="font-size:13px;color:var(--text);line-height:1.6">${ex.avoid}</div>
-      </div>
-    </div>
 
-    <div class="deep-sys-card" style="margin-top:12px;border-left:3px solid var(--gold)">
-      <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px">💡 ${isTh?'ภูมิปัญญาธาตุ':'Elemental wisdom'}</div>
-      <div style="font-size:13px;color:var(--text);line-height:1.7">${ex.note}</div>
-    </div>`;
+      <div class="deep-sys-card" style="margin-top:12px;border-left:3px solid var(--gold)">
+        <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px">💡 ${isTh?'ภูมิปัญญาธาตุ':'Elemental wisdom'}</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7">${ex.note}</div>
+      </div>`
+    )}`;
 }
 
 // ── Food & Diet ─────────────────────────────────────────────
@@ -8677,26 +8714,30 @@ function renderFood(){
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
-      <div class="deep-sys-card">
-        <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">👅 ${isTh?'รสชาติที่เสริมธาตุ':'Flavours that nourish'}</div>
-        <div style="font-size:13px;color:var(--text);line-height:1.6">${food.flavor}</div>
+    ${_collapse(
+      'รสชาติ · เวลากิน · supplement · ปรับ Mahadasha',
+      'Flavors · timing · supplements · Mahadasha tuning',
+      `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="deep-sys-card">
+          <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">👅 ${isTh?'รสชาติที่เสริมธาตุ':'Flavours that nourish'}</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.6">${food.flavor}</div>
+        </div>
+        <div class="deep-sys-card">
+          <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">⏰ ${isTh?'เวลากิน':'Meal timing'}</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.6">${food.timing}</div>
+        </div>
       </div>
-      <div class="deep-sys-card">
-        <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">⏰ ${isTh?'เวลากิน':'Meal timing'}</div>
-        <div style="font-size:13px;color:var(--text);line-height:1.6">${food.timing}</div>
+
+      <div class="deep-sys-card" style="margin-top:12px;border-left:3px solid var(--gold)">
+        <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px">💊 ${isTh?'Supplement แนะนำ':'Recommended supplements'}</div>
+        <div style="font-size:13px;color:var(--text)">${food.supplement}</div>
       </div>
-    </div>
 
-    <div class="deep-sys-card" style="margin-top:12px;border-left:3px solid var(--gold)">
-      <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px">💊 ${isTh?'Supplement แนะนำ':'Recommended supplements'}</div>
-      <div style="font-size:13px;color:var(--text)">${food.supplement}</div>
-    </div>
-
-    <div class="deep-sys-card" style="margin-top:12px;border-left:3px solid rgba(212,175,55,0.4)">
-      <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px">🕉️ ${isTh?'ปรับตาม Mahadasha':'Adjust for Mahadasha'} ${dasha}</div>
-      <div style="font-size:13px;color:var(--text);line-height:1.6">${dashaNote}</div>
-    </div>`;
+      <div class="deep-sys-card" style="margin-top:12px;border-left:3px solid rgba(212,175,55,0.4)">
+        <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px">🕉️ ${isTh?'ปรับตาม Mahadasha':'Adjust for Mahadasha'} ${dasha}</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6">${dashaNote}</div>
+      </div>`
+    )}`;
 }
 
 // ── Product Personality ─────────────────────────────────────
@@ -8797,18 +8838,20 @@ function renderProduct(){
       ${p.archetypeWhy ? `<div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--muted);font-style:italic;line-height:1.7;border-top:1px solid var(--border);padding-top:12px;max-width:540px;margin:0 auto">${p.archetypeWhy}</div>` : ''}
     </div>
 
-    <!-- Cosmic Blueprint color alignment -->
-    ${blueprintSources.length ? `
-    <div class="deep-sys-card" style="margin-top:12px">
-      <div style="font-size:9.5px;letter-spacing:2px;color:var(--gold3);margin-bottom:8px">🔗 ${isTh?'สีตรงกันกับ COSMIC BLUEPRINT':'COLORS ALIGNED WITH BLUEPRINT'}</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        ${blueprintSources.map(s => `
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--bg3);border-radius:6px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px">
-            <span style="color:var(--muted)">${s.label}</span>
-            <span style="color:var(--gold);font-weight:600">${s.value}</span>
-          </div>`).join('')}
-      </div>
-    </div>` : ''}
+    ${blueprintSources.length ? _collapse(
+      '🔗 สีตรงกับ Cosmic Blueprint',
+      '🔗 Colors aligned with your Cosmic Blueprint',
+      `<div class="deep-sys-card">
+        <div style="font-size:9.5px;letter-spacing:2px;color:var(--gold3);margin-bottom:8px">🔗 ${isTh?'สีตรงกันกับ COSMIC BLUEPRINT':'COLORS ALIGNED WITH BLUEPRINT'}</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          ${blueprintSources.map(s => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--bg3);border-radius:6px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px">
+              <span style="color:var(--muted)">${s.label}</span>
+              <span style="color:var(--gold);font-weight:600">${s.value}</span>
+            </div>`).join('')}
+        </div>
+      </div>`
+    ) : ''}
 
     <div class="deep-sys-card" style="margin-top:12px">
       <div class="deep-sys-title">🎨 ${isTh?'บุคลิกผลิตภัณฑ์':'Product personality'} — ${isTh?'ธาตุ':'Element'} ${dmEl}</div>
@@ -8861,27 +8904,31 @@ function renderProduct(){
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
-      <div class="deep-sys-card">
-        <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">🪡 ${isTh?'วัสดุที่ใช่':'Materials that fit'}</div>
-        <div style="font-size:13px;color:var(--text);line-height:1.7">${p.materials}</div>
+    ${_collapse(
+      'วัสดุ · สไตล์ · แบรนด์ · ควรเลี่ยง',
+      'Materials · style · aligned brands · avoid',
+      `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="deep-sys-card">
+          <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">🪡 ${isTh?'วัสดุที่ใช่':'Materials that fit'}</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.7">${p.materials}</div>
+        </div>
+        <div class="deep-sys-card">
+          <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">🏛️ ${isTh?'สไตล์':'Style'}</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.7">${p.style}</div>
+        </div>
       </div>
-      <div class="deep-sys-card">
-        <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">🏛️ ${isTh?'สไตล์':'Style'}</div>
-        <div style="font-size:13px;color:var(--text);line-height:1.7">${p.style}</div>
-      </div>
-    </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
-      <div class="deep-sys-card">
-        <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">🌟 ${isTh?'แบรนด์ที่สอดคล้อง':'Aligned brands'}</div>
-        <div style="font-size:13px;color:var(--text);line-height:1.7">${p.brands}</div>
-      </div>
-      <div class="deep-sys-card" style="border-left:3px solid #c06060">
-        <div style="font-size:9px;letter-spacing:1.5px;color:#c06060;margin-bottom:8px">⚠️ ${isTh?'ควรเลี่ยง':'Avoid'}</div>
-        <div style="font-size:13px;color:var(--text);line-height:1.7">${p.avoid}</div>
-      </div>
-    </div>`;
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+        <div class="deep-sys-card">
+          <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">🌟 ${isTh?'แบรนด์ที่สอดคล้อง':'Aligned brands'}</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.7">${p.brands}</div>
+        </div>
+        <div class="deep-sys-card" style="border-left:3px solid #c06060">
+          <div style="font-size:9px;letter-spacing:1.5px;color:#c06060;margin-bottom:8px">⚠️ ${isTh?'ควรเลี่ยง':'Avoid'}</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.7">${p.avoid}</div>
+        </div>
+      </div>`
+    )}`;
 }
 
 // ── Compatibility Report ─────────────────────────────────────
@@ -8911,28 +8958,31 @@ function renderCompat(){
       </div>
     </div>
 
-    <!-- Elemental compatibility guide -->
-    <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">⚡ ${isTh?'ธาตุที่เข้ากัน':'Element compatibility'}</div>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
-        <div style="padding:8px 12px;background:rgba(40,100,40,0.1);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0">
-          <div style="font-size:10px;color:#4a9a40;letter-spacing:1px;margin-bottom:2px">🌟 ${isTh?'เข้ากันดีมาก':'Excellent match'}</div>
-          <div style="font-size:13px;color:var(--text)">${myComp.best.join(' · ')}</div>
+    ${_collapse(
+      '⚡ ธาตุที่เข้ากัน · Element compatibility',
+      '⚡ Element compatibility guide',
+      `<div class="deep-sys-card">
+        <div class="deep-sys-title">⚡ ${isTh?'ธาตุที่เข้ากัน':'Element compatibility'}</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+          <div style="padding:8px 12px;background:rgba(40,100,40,0.1);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0">
+            <div style="font-size:10px;color:#4a9a40;letter-spacing:1px;margin-bottom:2px">🌟 ${isTh?'เข้ากันดีมาก':'Excellent match'}</div>
+            <div style="font-size:13px;color:var(--text)">${myComp.best.join(' · ')}</div>
+          </div>
+          <div style="padding:8px 12px;background:rgba(212,175,55,0.08);border-left:3px solid var(--gold);border-radius:0 6px 6px 0">
+            <div style="font-size:10px;color:var(--gold);letter-spacing:1px;margin-bottom:2px">👍 ${isTh?'เข้ากันได้ดี':'Good match'}</div>
+            <div style="font-size:13px;color:var(--text)">${myComp.good.join(' · ')}</div>
+          </div>
+          <div style="padding:8px 12px;background:var(--bg2);border-left:3px solid var(--muted);border-radius:0 6px 6px 0">
+            <div style="font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:2px">😐 ${isTh?'กลาง':'Neutral'}</div>
+            <div style="font-size:13px;color:var(--text)">${myComp.neutral.join(' · ')}</div>
+          </div>
+          <div style="padding:8px 12px;background:rgba(160,40,40,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0">
+            <div style="font-size:10px;color:#c06060;letter-spacing:1px;margin-bottom:2px">⚠️ ${isTh?'ต้องระวัง':'Caution'}</div>
+            <div style="font-size:13px;color:var(--text)">${myComp.avoid.join(' · ')}</div>
+          </div>
         </div>
-        <div style="padding:8px 12px;background:rgba(212,175,55,0.08);border-left:3px solid var(--gold);border-radius:0 6px 6px 0">
-          <div style="font-size:10px;color:var(--gold);letter-spacing:1px;margin-bottom:2px">👍 ${isTh?'เข้ากันได้ดี':'Good match'}</div>
-          <div style="font-size:13px;color:var(--text)">${myComp.good.join(' · ')}</div>
-        </div>
-        <div style="padding:8px 12px;background:var(--bg2);border-left:3px solid var(--muted);border-radius:0 6px 6px 0">
-          <div style="font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:2px">😐 ${isTh?'กลาง':'Neutral'}</div>
-          <div style="font-size:13px;color:var(--text)">${myComp.neutral.join(' · ')}</div>
-        </div>
-        <div style="padding:8px 12px;background:rgba(160,40,40,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0">
-          <div style="font-size:10px;color:#c06060;letter-spacing:1px;margin-bottom:2px">⚠️ ${isTh?'ต้องระวัง':'Caution'}</div>
-          <div style="font-size:13px;color:var(--text)">${myComp.avoid.join(' · ')}</div>
-        </div>
-      </div>
-    </div>
+      </div>`
+    )}
 
     <!-- Enter partner DOB -->
     <div class="deep-sys-card" style="margin-top:12px">
