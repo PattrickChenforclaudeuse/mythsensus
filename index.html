@@ -1309,12 +1309,16 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       </details>
     </div>
 
-    <!-- GIFT CODE — optional, unlocks premium tiers without payment during beta -->
-    <details id="entryGiftWrap" style="margin-bottom:12px;cursor:pointer">
-      <summary style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12px;color:var(--gold2);text-align:center;list-style:none;padding:4px 0;letter-spacing:0.3px" id="entryGiftToggle">
-        ✦ มีรหัสของขวัญ? / Have a gift code?
+    <!-- DISCOUNT / GIFT CODE — optional, unlocks premium tiers without payment during beta.
+         Director feedback 2026-05-31: original summary was a thin centered text with no border,
+         tap target felt unclickable. Now styled as an obvious button with border + background +
+         disclosure arrow. Renamed to "Discount / Gift code" to also cover the influencer/group
+         promo use case (same mechanism, different framing). -->
+    <details id="entryGiftWrap" style="margin-bottom:12px">
+      <summary style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--gold2);text-align:center;list-style:none;padding:10px 14px;letter-spacing:0.3px;border:1px solid var(--gold3);border-radius:8px;cursor:pointer;background:rgba(212,170,80,0.04);transition:all .15s" id="entryGiftToggle">
+        ✦ มีรหัสส่วนลด / โค้ดของขวัญ? / Have a discount or gift code? ▾
       </summary>
-      <div style="margin-top:8px">
+      <div style="margin-top:10px">
         <input class="login-input" type="text" id="entryGift" placeholder="MYTH-XXXX"
                autocapitalize="characters" autocomplete="off" spellcheck="false"
                style="font-family:'Josefin Sans',sans-serif;font-size:14px;letter-spacing:2px;text-align:center;text-transform:uppercase">
@@ -1458,8 +1462,9 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <div class="logo">MYTHSENSUS</div>
   <div class="tagline" data-t="tagline">Where myriad myths reach consensus — about you</div>
   <div class="date-display" id="dateDisplay"></div>
-  <div style="text-align:center;margin-top:10px">
+  <div style="text-align:center;margin-top:10px;display:flex;justify-content:center;gap:10px;align-items:center;flex-wrap:wrap">
     <a href="/blog/" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);text-decoration:none;border:1px solid var(--gold3);padding:5px 16px;border-radius:20px;display:inline-block" data-en="📖 Cosmic Library" data-th="📖 ห้องสมุดจักรวาล">📖 ห้องสมุดจักรวาล</a>
+    <button id="langBtn" onclick="toggleLang()" title="Switch language / สลับภาษา" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);background:transparent;border:1px solid var(--gold3);padding:5px 14px;border-radius:20px;cursor:pointer;transition:all .15s">EN</button>
   </div>
 </header>
 
@@ -2585,6 +2590,11 @@ function toggleLang(){
   applyLang();
 }
 function applyLang(){
+  // Keep the top-nav lang pill in sync — toggleLang() also updates this,
+  // but applyLang() runs at boot too (so EN-preferring returning users see
+  // "ไทย" on the pill immediately, not the default "EN").
+  const _lb = document.getElementById('langBtn');
+  if (_lb) _lb.textContent = LANG === 'th' ? 'EN' : 'ไทย';
   document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.getAttribute('data-t')));
   document.querySelectorAll('[data-t-placeholder]').forEach(el=>el.placeholder=t(el.getAttribute('data-t-placeholder')));
   document.querySelectorAll('[data-t-title]').forEach(el=>el.title=t(el.getAttribute('data-t-title')));
@@ -2627,11 +2637,15 @@ function renderDate(){const d=new Date();document.getElementById('dateDisplay').
 // Each sub-tab entry: [key, panel_id, tx_label_key, locked?]
 const GROUPS = {
   free: {
-    default: 'blessing',
+    // First-time visitors land on "ดูตัวอย่าง" (the 26-system chart preview)
+    // — it's the primary value demo. Daily blessing comes second; users who
+    // want it daily can pin it via the sub-tab. Director feedback 2026-05-31:
+    // the preview was buried at position 3, content not visible enough.
+    default: 'preview',
     tabs: [
+      ['preview',    'chart',       'sub_preview',    false],
       ['blessing',   'blessing',    'sub_blessing',   false],
       ['organum',    'organum',     'sub_organum',    false],
-      ['preview',    'chart',       'sub_preview',    false],
       ['history',    'history',     'sub_history7',   false],
     ],
   },
@@ -10505,7 +10519,13 @@ function _entryRefreshLang(){
     ? '⚠ ไม่ทราบเวลาเกิด — ความแม่นของ BaZi/Vedic จะลดประมาณ 30% (Hour Pillar คาดเดาไม่ได้)'
     : '⚠ Birth time unknown — BaZi/Vedic accuracy drops ~30% (Hour Pillar can\'t be inferred)';
   const giftTog = document.getElementById('entryGiftToggle');
-  if (giftTog) giftTog.textContent = isTh ? '✦ มีรหัสของขวัญ?' : '✦ Have a gift code?';
+  // Director feedback 2026-05-31: rename to "discount / gift code" to cover both
+  // influencer/group promo codes and traditional beta gift codes (same mechanism).
+  // The ▾ tells users the area expands when tapped — needed since list-style:none
+  // removed the default disclosure triangle.
+  if (giftTog) giftTog.textContent = isTh
+    ? '✦ มีรหัสส่วนลด / โค้ดของขวัญ? ▾'
+    : '✦ Have a discount or gift code? ▾';
   const giftInp = document.getElementById('entryGift');
   if (giftInp) giftInp.placeholder = isTh ? 'MYTH-XXXX (เลือกใส่ก็ได้)' : 'MYTH-XXXX (optional)';
   // Refresh welcome-back text if visible.
