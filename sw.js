@@ -114,7 +114,15 @@
 // Hachiman). ~98% of top-tier carry 3-6 tags. Mythic/Legendary/Epic no longer fall
 // back to represents — every god shows curated chips. (Also: the duplicate
 // "Wakan Tanka" entry, Mythic + Legendary, now both tagged.) Bump to re-fetch.
-const CACHE = 'mythsensus-v23';
+// v24: 2026-05-31 — two fixes: (1) Cosmic Blueprint no longer shows the
+// "dataset n=1,211" stat on the Soul Frequency page (it implied an empirical
+// corpus that isn't surfaced; methodology line now just states "median of 26
+// systems, equal weight"). Engine bundle rebuilt. (2) Gumroad post-purchase
+// unlock: products redirect back to /?gr=1&sale_id=… → _handleGumroadReturn()
+// verifies the sale server-side via new /api/gumroad/verify and grants the
+// item locally (+ a manual "Already bought? Unlock with email" fallback on the
+// paywall). Bump to ship the new engine + return-handler to existing visitors.
+const CACHE = 'mythsensus-v24';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

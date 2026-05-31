@@ -484,7 +484,7 @@ function p_threeScores(c: ChartData): string {
   return section(2, tr('Soul Frequency — คุณเป็นใครตั้งแต่เกิด', 'Soul Frequency — Who You Are From Birth'), '🔥', `
     <div style="font-size:12px;color:#7a8a60;margin-bottom:16px;line-height:1.6">
       ${tr('Soul Frequency คือ', 'Soul Frequency is')} <strong style="color:#c0d080">${tr('คุณภาพดวงชะตาพื้นฐาน', 'your fundamental chart quality')}</strong> — ${tr('ไม่เปลี่ยนแปลง เหมือนเกรดน้ำมัน', 'unchanging, like the grade of petroleum')}<br>
-      ${tr('คำนวณจาก Median ของ 26 ศาสตร์โบราณ (equal weight) เทียบกับ dataset n=1,211', 'Calculated from the median of 26 ancient systems (equal weight) against a dataset of n=1,211')}
+      ${tr('คำนวณจาก Median ของ 26 ศาสตร์โบราณ (ถ่วงน้ำหนักเท่ากัน)', 'Calculated from the median of 26 ancient systems (equal weight)')}
     </div>
 
     <!-- Soul Frequency big display -->
@@ -496,7 +496,7 @@ function p_threeScores(c: ChartData): string {
         </div>
         <div style="flex:1">
           <div style="font-size:16px;font-weight:600;color:#c0e080">${_lang === 'en' ? esc(score.tierEn || score.tier) : esc(score.tier)}</div>
-          <div style="font-size:12px;color:#7a9a50;margin:4px 0">${esc(score.percentile)} ${tr('ใน dataset n=1,211', 'in dataset n=1,211')}</div>
+          <div style="font-size:12px;color:#7a9a50;margin:4px 0">${esc(score.percentile)}</div>
           <div style="background:#0a1205;border-radius:4px;height:8px;overflow:hidden;margin:8px 0">
             <div style="width:${Math.round((score.total-400)/6)}%;height:8px;background:linear-gradient(90deg,#2a5010,#8aba50)"></div>
           </div>

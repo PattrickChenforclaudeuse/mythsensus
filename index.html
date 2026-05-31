@@ -5115,6 +5115,101 @@ function _purchaseSubscription(source){
   return false;
 }
 
+// ── Post-purchase unlock (Gumroad redirect + manual email redeem) ──────────
+// Each Gumroad product redirects after purchase to
+//   https://mythsensus.com/?gr=1   (Gumroad appends &sale_id=…&product_permalink=…&email=…)
+// We verify the sale_id server-side (/api/gumroad/verify) so a spoofed URL
+// can't unlock anything, then grant the matching item locally for this chart.
+function _permalinkToItem(permalink){
+  const p = String(permalink || '').trim();
+  if (!p) return null;
+  for (const k of Object.keys(_GUMROAD_PRODUCTS)){
+    const cfg = _GUMROAD_PRODUCTS[k];
+    if (cfg && cfg.permalink && p.includes(cfg.permalink)) return k;
+  }
+  return null;
+}
+function _grantItemLocally(itemKey, label){
+  try {
+    const hash = _chartInputHash();
+    const map  = _readPurchases();
+    map[itemKey + ':' + hash] = true;
+    _writePurchases(map);
+    try { _addToLibrary(itemKey, { label: label || itemKey, hash }); } catch(_){}
+  } catch(_){}
+}
+function _unlockToast(msg){ try { _showSyncToast(msg); } catch(_){} }
+// Called once on boot. If we arrived back from a Gumroad checkout, verify +
+// unlock. Safe no-op on every normal load.
+async function _handleGumroadReturn(){
+  try {
+    const qs = new URLSearchParams(location.search);
+    const saleId = (qs.get('sale_id') || qs.get('saleId') || '').trim();
+    const marker = qs.get('gr') || qs.get('purchased') || qs.get('subscribed');
+    if (!saleId && !marker) return;                       // not a purchase return
+    const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
+    // Clean the URL up-front so a refresh never re-triggers this.
+    try { history.replaceState(null, '', location.pathname + location.hash); } catch(_){}
+
+    if (!saleId){
+      // Came back without a verifiable sale id → guide to the manual redeem.
+      _unlockToast(isTh ? '✦ ซื้อเสร็จแล้ว? กด “ซื้อแล้ว? ปลดล็อกด้วยอีเมล” ที่การ์ดราคา'
+                        : '✦ Done paying? Tap “Already bought? Unlock with email” on the price card');
+      return;
+    }
+    let j = null;
+    try { const r = await fetch('/api/gumroad/verify?sale_id=' + encodeURIComponent(saleId)); j = await r.json(); } catch(_){}
+    if (j && j.ok){
+      if (j.subscription || String(j.permalink || '').includes('tlkfx')){
+        _unlockToast(isTh ? '✦ สมาชิกเปิดใช้งานแล้ว — ปลดล็อกทุก feature' : '✦ Subscription active — everything unlocked');
+        try { if (typeof _refreshPremium === 'function') _refreshPremium(); } catch(_){}
+        return;
+      }
+      const key = _permalinkToItem(j.permalink);
+      if (key){
+        _grantItemLocally(key);
+        _unlockToast(isTh ? '✦ ปลดล็อกเรียบร้อย! กำลังเปิดเนื้อหาที่ซื้อ' : '✦ Unlocked! Opening your purchase');
+        try { const nav = _navForItem(key); if (nav){ setGroup(nav[0]); showSubTab(nav[1]); } } catch(_){}
+        return;
+      }
+      _unlockToast(isTh ? '✦ ยืนยันการซื้อแล้ว' : '✦ Purchase verified');
+    } else {
+      _unlockToast(isTh ? '⚠ ยังยืนยันการซื้อไม่ได้ — ลอง “ซื้อแล้ว? ปลดล็อกด้วยอีเมล” ที่การ์ดราคา'
+                        : '⚠ Could not verify yet — try “Already bought? Unlock with email” on the price card');
+    }
+  } catch(_){}
+}
+// Manual fallback used by the paywall: user types the email they paid with →
+// verify against Gumroad → grant.
+async function _redeemByEmail(itemKey){
+  const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
+  const cfg = _GUMROAD_PRODUCTS[itemKey] || _GUMROAD_PRODUCTS[String(itemKey || '').split('_')[0]];
+  const permalink = cfg && cfg.permalink;
+  if (!permalink){ _unlockToast(isTh ? 'รายการนี้ยังไม่มีสินค้า Gumroad' : 'No Gumroad product for this item'); return; }
+  const email = (prompt(isTh ? 'ใส่อีเมลที่ใช้ซื้อบน Gumroad:' : 'Enter the email you purchased with on Gumroad:') || '').trim();
+  if (!email) return;
+  _unlockToast(isTh ? '⏳ กำลังตรวจสอบการซื้อ…' : '⏳ Checking your purchase…');
+  let j = null;
+  try {
+    const r = await fetch('/api/gumroad/verify?email=' + encodeURIComponent(email) + '&permalink=' + encodeURIComponent(permalink));
+    j = await r.json();
+  } catch(_){}
+  if (j && j.ok){
+    if (j.subscription){
+      _unlockToast(isTh ? '✦ สมาชิกเปิดใช้งานแล้ว — ล็อกอินด้วยอีเมลนี้เพื่อใช้ทุกเครื่อง' : '✦ Subscription active — sign in with this email');
+      try { if (typeof _refreshPremium === 'function') _refreshPremium(); } catch(_){}
+    } else {
+      _grantItemLocally(itemKey);
+      _unlockToast(isTh ? '✦ ปลดล็อกเรียบร้อย!' : '✦ Unlocked!');
+      try { const nav = _navForItem(itemKey); if (nav){ setGroup(nav[0]); showSubTab(nav[1]); } } catch(_){}
+    }
+  } else {
+    const refunded = j && j.reason === 'refunded_or_disputed';
+    _unlockToast(isTh ? ('⚠ ไม่พบการซื้อสำหรับอีเมลนี้' + (refunded ? ' (ถูกคืนเงิน/มีข้อโต้แย้ง)' : ''))
+                      : ('⚠ No purchase found for that email' + (refunded ? ' (refunded/disputed)' : '')));
+  }
+}
+
 // Renders the standard paywall card used everywhere a purchase gate appears.
 // Same look across deep / add-on tabs so users learn the pattern once.
 function _purchasePaywall(itemKey, opts){
@@ -5144,6 +5239,9 @@ function _purchasePaywall(itemKey, opts){
         <button onclick="_purchaseItem(${itemArg},{label:${labelArg}})" style="cursor:pointer;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:var(--bg);font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:9px 16px;border-radius:6px;font-weight:700">✦ ${isTh?'ปลดล็อค $'+price.usd:'Unlock $'+price.usd}</button>
         <button onclick="_purchaseSubscription('paywall:${itemKey}')" style="cursor:pointer;background:transparent;border:1px solid var(--gold3);color:var(--gold);font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:1.5px;padding:9px 14px;border-radius:6px" title="${isTh?'ปลดล็อกทุก feature ของ Mythsensus':'Unlock every Mythsensus feature'}">${isTh?'หรือสมัครสมาชิก $4.99/ด.':'Or subscribe $4.99/mo'}</button>
         <button onclick="setGroup('profile');showSubTab('me')" style="cursor:pointer;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;padding:9px 12px;border-radius:6px">${isTh?'ใส่รหัสของขวัญ':'Use Gift Code'}</button>
+      </div>
+      <div style="margin-top:8px">
+        <button onclick="_redeemByEmail(${itemArg})" style="cursor:pointer;background:transparent;border:none;color:var(--gold3);font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1px;padding:2px 0;text-decoration:underline">${isTh?'ซื้อแล้ว? ปลดล็อกด้วยอีเมลที่ใช้ซื้อ':'Already bought? Unlock with your email'}</button>
       </div>
       <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(212,175,55,0.15);font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:var(--muted);line-height:1.7">
         ${isTh?'💡 ซื้อครั้งเดียว = ปลดล็อกเฉพาะ feature นี้สำหรับวันเกิดของคุณ ดูซ้ำได้ตลอด · สมัครสมาชิก = ปลดล็อกทุก feature ใช้กับทุกดวง':'💡 One-time purchase = unlocks just this feature for your chart, unlimited re-views · subscribe = unlocks every feature across every chart'}<br>
@@ -9924,6 +10022,9 @@ function _bootAfterEntry(){
       setTimeout(() => _maybeRenderSharedDraw(), 100);
     }
   } catch(_) {}
+  // If we just came back from a Gumroad checkout (?gr=1&sale_id=…), verify the
+  // sale server-side and unlock the purchased item. No-op on normal loads.
+  try { if (typeof _handleGumroadReturn === 'function') _handleGumroadReturn(); } catch(_) {}
 }
 
 // Persist active group for next session.
