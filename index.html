@@ -8446,6 +8446,51 @@ const WEEKLY_PET_RHYTHM = [
   {dayTh:'ศ. (ศุกร์)',   dayEn:'Fri', planet:'♀ Venus',  acTh:'grooming + ดูแลความสบาย · spa · ที่นอนใหม่', acEn:'Grooming + comfort care · spa · refresh bedding'},
   {dayTh:'ส. (เสาร์)',   dayEn:'Sat', planet:'♄ Saturn', acTh:'พัก ไม่เปลี่ยนอะไร ไม่หาหมอ (Saturn ขัด healing energy)', acEn:'Rest — no changes, no vet (Saturn obstructs healing energy)'},
 ];
+// 20 pet species classified by traditional 5-element correspondences.
+// Ranked against the user's Day Master via the 5-element feeding +
+// destruction cycle. Director feedback 2026-06-01: original Pet edition
+// had Top 3 favorable + Avoid list — restore + expand to 20 species so
+// users see the full compatibility map, not just 1 primary pick.
+const ALL_PETS_20 = [
+  // Wood — herbivore, gentle, growth-oriented
+  { e:'🐇', th:'กระต่าย',         en:'Rabbit',         el:'ไม้' },
+  { e:'🐭', th:'หนูตะเภา',       en:'Guinea Pig',     el:'ไม้' },
+  { e:'🦋', th:'ผีเสื้อ (Vivarium)', en:'Butterfly (vivarium)', el:'ไม้' },
+  // Fire — warm, social, bright
+  { e:'🦜', th:'นกแก้ว',         en:'Parrot',         el:'ไฟ' },
+  { e:'🐦', th:'นกค็อกคาเทล',     en:'Cockatiel',      el:'ไฟ' },
+  { e:'🕊️', th:'นกเลิฟเบิร์ด',     en:'Lovebird',       el:'ไฟ' },
+  { e:'🐹', th:'ชูการ์ไกลเดอร์',   en:'Sugar Glider',   el:'ไฟ' },
+  // Earth — loyal, stable, grounding
+  { e:'🐕', th:'สุนัข',           en:'Dog',            el:'ดิน' },
+  { e:'🐢', th:'เต่าบก',         en:'Tortoise',       el:'ดิน' },
+  { e:'🐹', th:'แฮมสเตอร์',       en:'Hamster',        el:'ดิน' },
+  { e:'🦔', th:'เม่นแคระ',        en:'Hedgehog',       el:'ดิน' },
+  // Metal — independent, precise, cool
+  { e:'🐈', th:'แมว',            en:'Cat',            el:'โลหะ' },
+  { e:'🦎', th:'กิ้งก่า / Gecko',  en:'Lizard / Gecko', el:'โลหะ' },
+  { e:'🐍', th:'งู (Ball Python)', en:'Snake',         el:'โลหะ' },
+  { e:'🐢', th:'เต่าน้ำ',        en:'Water Turtle',   el:'โลหะ' },
+  // Water — fluid, silent, cool
+  { e:'🐟', th:'ปลาทอง',         en:'Goldfish',       el:'น้ำ' },
+  { e:'🐡', th:'ปลากัด',         en:'Betta',          el:'น้ำ' },
+  { e:'🐠', th:'ปลาตู้ทะเล',     en:'Marine Fish',    el:'น้ำ' },
+  { e:'🐸', th:'กบ / Frog',       en:'Frog',           el:'น้ำ' },
+  { e:'🦐', th:'กุ้งใส / Shrimp',  en:'Aquarium Shrimp',el:'น้ำ' },
+];
+// 5-element relationships (Chinese cosmology). FEEDS = X strengthens Y;
+// DESTROYS = X overcomes Y. Used to score pet ↔ user compatibility.
+const _ELEMENT_FEEDS    = { 'ไม้':'ไฟ', 'ไฟ':'ดิน', 'ดิน':'โลหะ', 'โลหะ':'น้ำ', 'น้ำ':'ไม้' };
+const _ELEMENT_DESTROYS = { 'ไม้':'ดิน', 'ไฟ':'โลหะ', 'ดิน':'น้ำ', 'โลหะ':'ไม้', 'น้ำ':'ไฟ' };
+function _petCompat(userEl, petEl){
+  if (userEl === petEl)                       return { score: 1, key:'good',    emoji:'👍' };
+  if (_ELEMENT_FEEDS[petEl] === userEl)       return { score: 2, key:'best',    emoji:'✨' }; // pet's element feeds user → BEST
+  if (_ELEMENT_DESTROYS[petEl] === userEl)    return { score:-2, key:'avoid',   emoji:'⚠️' }; // pet's element destroys user → AVOID
+  if (_ELEMENT_FEEDS[userEl] === petEl)       return { score:-1, key:'caution', emoji:'😐' }; // user feeds pet → drains user
+  if (_ELEMENT_DESTROYS[userEl] === petEl)    return { score: 0, key:'neutral', emoji:'~'  }; // user destroys pet → neutral but tiring
+  return { score: 0, key:'neutral', emoji:'~' };
+}
+
 // Compute next 7 days biorhythm from DOB. Period (days): phys=23, emo=28, int=33.
 // Used to highlight peak-bonding day in the adoption window.
 function _bio7Days(dob){
@@ -8533,6 +8578,12 @@ function renderPet(){
   const [petMin, petMax] = _detectPetSpan(p.main);
   const petAvg      = Math.round((petMin + petMax) / 2);
   const coverage    = petAvg >= dashaYears ? 'full' : 'partial';
+  // Rank all 20 pet species by 5-element compatibility for this user.
+  // Director 2026-06-01: restore Top 3 + Avoid list, expand to 20 species.
+  const petsRanked  = ALL_PETS_20.map(pp => ({ ...pp, cmp: _petCompat(dmEl, pp.el) }))
+                                 .sort((a,b) => b.cmp.score - a.cmp.score);
+  const top3Pets    = petsRanked.slice(0, 3);
+  const bottom3Pets = petsRanked.slice(-3).reverse();
   // Next-7-days biorhythm window (peak day = best for bonding).
   const dobStr      = (document.getElementById('profDob')||{}).value || localStorage.getItem('mth_dob');
   const bio7        = _bio7Days(dobStr);
@@ -8561,6 +8612,53 @@ function renderPet(){
         <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${isTh?'ช่วงรับมาเลี้ยง':'Adoption window'}</div><div class="deep-sys-stat-val">${p.timing}</div></div>
         <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${isTh?'พลังกาย':'Physical'}</div><div class="deep-sys-stat-val">${physical>0?'+'+physical+'%':physical+'%'}</div></div>
       </div>
+    </div>
+
+    <!-- 🆕 20-Pet Compatibility Map (Director 2026-06-01: restore Top 3 + Avoid) -->
+    <div class="deep-sys-card" style="margin-top:12px">
+      <div class="deep-sys-title">🐾 ${isTh?'แผนที่สัตว์เลี้ยง 20 ชนิด':'20-Pet Compatibility Map'}</div>
+      <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${dmEl} · 5-element cycle`:`Ranked for your ${dmEl} element · 5-element cycle`}</div>
+
+      <div style="margin-top:14px">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· เข้ากับคุณที่สุด':'· BEST FOR YOU'}</div>
+        ${top3Pets.map(pp => `
+          <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
+            <div style="font-size:22px;text-align:center">${pp.e}</div>
+            <div style="font-size:13px;color:var(--text)"><strong>${isTh?pp.th:pp.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${pp.el}</span></div>
+            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${pp.cmp.score>0?'+':''}${pp.cmp.score}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="margin-top:14px">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#c06060;margin-bottom:6px">⚠️ ${isTh?'3 ชนิดควรเลี่ยง':'AVOID THESE 3'}</div>
+        ${bottom3Pets.map(pp => `
+          <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
+            <div style="font-size:22px;text-align:center;opacity:.6">${pp.e}</div>
+            <div style="font-size:13px;color:var(--text)"><strong>${isTh?pp.th:pp.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${pp.el}</span></div>
+            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${pp.cmp.score}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="margin-top:12px;padding:10px 12px;background:rgba(212,170,80,0.04);border:1px dashed var(--gold3);border-radius:6px;font-size:11.5px;color:var(--muted);line-height:1.65">
+        ${isTh
+          ? `🔄 <strong>5-element cycle:</strong> ธาตุที่ <em>หล่อเลี้ยง</em> ${dmEl} ของคุณ = ดีที่สุด · ธาตุที่ <em>ทำลาย</em> ${dmEl} = ควรเลี่ยง · ธาตุเดียวกัน = supportive · ธาตุที่ ${dmEl} หล่อเลี้ยง = drain · ธาตุที่ ${dmEl} ทำลาย = neutral แต่เหนื่อย`
+          : `🔄 <strong>5-element cycle:</strong> The element that <em>feeds</em> your ${dmEl} = best · the element that <em>destroys</em> ${dmEl} = avoid · same element = supportive · the one ${dmEl} feeds = drain · the one ${dmEl} destroys = neutral but tiring`}
+      </div>
+
+      ${_collapse(
+        `▾ ${isTh?'ดูทั้ง 20 ชนิด เรียงตามคะแนน':'View all 20 ranked'}`,
+        `▾ ${isTh?'ดูทั้ง 20 ชนิด':'View all 20 ranked'}`,
+        `<div style="display:flex;flex-direction:column;gap:2px">${petsRanked.map(pp => `
+          <div style="display:grid;grid-template-columns:30px 1fr 50px 32px;gap:8px;padding:6px 8px;border-bottom:1px dotted var(--border);align-items:center;font-size:12px;${pp.cmp.score>=2?'background:rgba(74,154,64,0.04)':pp.cmp.score>=1?'background:rgba(74,154,64,0.02)':pp.cmp.score<=-2?'background:rgba(192,96,96,0.04)':pp.cmp.score<=-1?'background:rgba(192,168,64,0.03)':''}">
+            <div style="font-size:16px;text-align:center;${pp.cmp.score<=-2?'opacity:.6':''}">${pp.e}</div>
+            <div style="color:var(--text);line-height:1.4">${isTh?pp.th:pp.en} <span style="color:var(--muted);font-size:10px">· ${pp.el}</span></div>
+            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:10.5px;font-weight:600;color:${pp.cmp.score>=2?'#4a9a40':pp.cmp.score>=1?'#80b860':pp.cmp.score<=-2?'#c06060':pp.cmp.score<=-1?'#c08840':'var(--muted)'}">${pp.cmp.score>0?'+':''}${pp.cmp.score}</div>
+            <div style="text-align:center;font-size:13px">${pp.cmp.emoji}</div>
+          </div>
+        `).join('')}</div>`
+      )}
     </div>
 
     <!-- 🆕 30-Day Adoption Plan — tuned to HD type + LP + NSK direction -->
