@@ -253,7 +253,27 @@ Vercel (static + serverless)     # CDN + edge functions
 Supabase woam project            # Auth + payment records
                                  # (NO chart data here)
                                  # NO chart calculations here)</code></pre>
-    <p>ทุกโค้ดอยู่ที่ <a href="https://github.com/PattrickChenforclaudeuse/mythsensus">github.com/PattrickChenforclaudeuse/mythsensus</a> (private repo ตอนนี้ — public soon). ใครจะ audit ก็ได้ ใครจะ run engine ของตัวเองที่ <code>node tests/test-pk-chu-26sys.cjs</code> ก็ได้</p>
+    <p>ทุกโค้ดอยู่ที่ <a href="https://github.com/PattrickChenforclaudeuse/mythsensus">github.com/PattrickChenforclaudeuse/mythsensus</a> (private repo ตอนนี้ — เป้าหมาย public open-source หลัง revenue baseline + sophistication upgrades ของ engine version 2 ที่อยู่ในแผน Q3-Q4 2026)</p>
+  </section>
+
+  <section>
+    <h2>Computation transparency — ephemeris + ayanamsa</h2>
+    <p>ส่วนนี้สำหรับคนที่ถามว่า "engine คำนวณตำแหน่งดาวยังไง" — เป็นคำถามจริงจังที่ Vedic practitioner กับ AI engineer skeptic ถามทั้งคู่ ดังนั้นตอบตรง ๆ:</p>
+
+    <h3>Western planetary longitudes</h3>
+    <p>คำนวณด้วย custom trigonometric series ที่ implement เอง 4,000 บรรทัดใน <code>report-engine/lib/calc.ts</code> · zero external dependencies (ไม่ใช้ Swiss Ephemeris หรือ npm library). แม่นพอสำหรับ Sun sign + Mercury/Venus retrograde detection. Outer planet aspects อาจมี arc-minute level drift. <strong>แผน v2:</strong> port Jean Meeus algorithms (Astronomical Algorithms book, public-domain) เพื่อ industry-grade precision.</p>
+
+    <h3>Vedic ayanamsa</h3>
+    <p><strong>Lahiri ayanamsa</strong> (Indian Government / NASA standard) · ปัจจุบัน hardcoded เป็น <code>24.0°</code> ในโค้ด · accurate ±10 arcmin สำหรับวันเกิด 2020-2030 (modern target) · drift +50 arcsec/year ทำให้ผิดเพิ่มขึ้นเมื่อ DOB อยู่ไกลจาก epoch นี้. <strong>แผน v2:</strong> time-varying formula <code>lahiriAyanamsa(year, month, day)</code> patch ร่างแล้วใน <code>_qa-out/vedic-ayanamsa-patch-DRAFT.md</code> · ship target v2 engine release Q3 2026. ผลกระทบ: Cosmic Score ของบางคน shift ±2-10 points หลัง upgrade</p>
+
+    <h3>BaZi solar terms (jiéqì)</h3>
+    <p>ปัจจุบันใช้ month-boundary approximation · edge cases (คนเกิดภายใน ±48 ชั่วโมงจาก solar term) อาจได้ wrong month pillar (~5% ของ DOBs). <strong>แผน v2:</strong> port precise jiéqì calculator from Chinese astronomical sources (VSOP87-based).</p>
+
+    <h3>Cosmic Score weight calibration</h3>
+    <p>Weights ของ 26 ศาสตร์ถูก calibrate ผ่าน <em>internal consistency optimization</em> — ไม่ใช่ supervised learning (ไม่มี ground-truth label ของ "archetype ถูกต้อง"). Process: รัน engine บน chart หลายพันใบจาก Astrodatabank AA-rated dataset; ปรับ weight ให้ score distribution ผ่าน 3 criteria: (1) median ใกล้ 500, (2) tail probability ของ Mythic tier ≤ 1%, (3) score variance ที่ Reflectors/Manifestors HD types stratify อย่างมีเหตุผล. หลัง calibrate แล้ว weights ถูก freeze. นี่คือ <em>aesthetic parameter fitting ที่มี internal consistency</em> ไม่ใช่ epidemiological validation. เรายอมรับว่ามันคือ engineering compromise — astrology ไม่มี ground truth ให้ validate</p>
+
+    <h3>Roadmap to public open-source</h3>
+    <p>Engine source ปัจจุบัน private. ปลายทาง public AGPL/MIT (ตัดสินใจหลัง revenue baseline 3-6 เดือน + sophistication upgrades ข้างบนเสร็จ — target Q3-Q4 2026). เหตุผลที่ยังไม่ open ตอนนี้: precision gaps ข้างบนเป็น <em>honest current state</em> · เปิดตอนที่ Lahiri ayanamsa, BaZi jiéqì, และ Meeus port ลงแล้ว = open-source ที่ defensible แทนที่จะเป็น <em>"please don't tear this apart"</em></p>
   </section>
 
   <section>

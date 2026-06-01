@@ -1049,14 +1049,45 @@ let _authEmail = '';    // Email pending OTP verification
       "url": "https://mythsensus.com",
       "publisher": { "@id": "https://mythsensus.com/#organization" },
       "applicationCategory": "LifestyleApplication",
+      "applicationSubCategory": "Astrology",
       "operatingSystem": "Any (browser-based, works offline)",
       "inLanguage": ["th","en"],
-      "description": "Mythsensus synthesises 26 ancient divination systems — BaZi, Vedic, Western, Nine Star Ki, Mayan, and 21 others — into a single Cosmic Score from 1 to 1,000. Free Cosmic Score, free daily deity blessing from more than 1,000 deities, free 108 Organum oracle. Premium adds depth: $9 per-system deep readings, a $19 forty-two-page PDF full report, and a $4.99/month subscription for daily-refresh features.",
+      "datePublished": "2026-04-27",
+      "dateModified": "2026-06-01",
+      "description": "Mythsensus synthesises 26 ancient divination systems — BaZi, Vedic, Western, Nine Star Ki, Mayan, and 21 others — into a single Cosmic Score from 1 to 1,000. Free Cosmic Score, free daily deity blessing from more than 1,000 deities, free 108 Organum oracle. Premium adds depth: $9 per-system deep readings, a $19 forty-three-page PDF full report, and a $4.99/month subscription for daily-refresh features.",
+      "featureList": [
+        "BaZi (Four Pillars of Destiny)",
+        "Vedic Jyotish",
+        "Western Astrology",
+        "Nine Star Ki",
+        "Thai Seven Number (เลข 7 ตัว 9 ฐาน)",
+        "Thai Brahmin",
+        "Pythagorean Numerology",
+        "Human Design",
+        "Mayan Tzolk'in",
+        "Aztec Tonalpohualli",
+        "Celtic Tree Astrology",
+        "Korean Saju",
+        "Tibetan Astrology",
+        "Zi Wei Dou Shu",
+        "Onmyōdō",
+        "Hellenistic Astrology",
+        "Norse Runes",
+        "Ogham Alphabet",
+        "Arabic Parts",
+        "Kabbalistic Numerology",
+        "Zoroastrian Astrology",
+        "Native American Totems",
+        "Ifá Yoruba",
+        "Aboriginal Dreamtime",
+        "Biorhythm",
+        "Vedic Mahādaśā"
+      ],
       "offers": [
         {
           "@type": "Offer",
           "name": "Cosmic Blueprint — Full Report",
-          "description": "42-page PDF synthesising all 26 systems into one consensus reading.",
+          "description": "43-page PDF synthesising all 26 systems into one consensus reading. Assembled in the user's browser; no birth data leaves the device during purchase or PDF generation.",
           "price": "19.00",
           "priceCurrency": "USD",
           "url": "https://mythsensus.com/pricing",
@@ -1064,8 +1095,17 @@ let _authEmail = '';    // Email pending OTP verification
         },
         {
           "@type": "Offer",
+          "name": "Per-System Deep Reading",
+          "description": "$9 deep reading for any single divination system among the 26. Pick what you want, pay only for what you read.",
+          "price": "9.00",
+          "priceCurrency": "USD",
+          "url": "https://mythsensus.com/pricing",
+          "availability": "https://schema.org/InStock"
+        },
+        {
+          "@type": "Offer",
           "name": "Daily Subscription",
-          "description": "Monthly access to daily-refresh features, frequency alerts, and full history.",
+          "description": "Monthly access to daily-refresh features, frequency alerts, and full history. 7-day free trial.",
           "price": "4.99",
           "priceCurrency": "USD",
           "url": "https://mythsensus.com/pricing",
@@ -1567,7 +1607,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <div class="header-user" id="headerUser"></div>
   <div class="logo">MYTHSENSUS</div>
   <div class="tagline" data-t="tagline">Where myriad myths reach consensus — about you</div>
-  <div class="tagline-sub" data-en="One Cosmic Score (1–1,000) synthesised from 26 ancient divination systems — BaZi, Vedic, Western, Nine Star Ki and more. " data-th="คะแนนเดียวจาก 26 ศาสตร์โบราณ — BaZi, Vedic, Western, Nine Star Ki และอีก 22 ศาสตร์ ">คะแนนเดียวจาก 26 ศาสตร์โบราณ — BaZi, Vedic, Western, Nine Star Ki และอีก 22 ศาสตร์
+  <div class="tagline-sub" data-en="One score (1–1,000) showing how strongly 26 ancient systems agree about you — BaZi, Vedic, Western, Nine Star Ki and 22 more. " data-th="คะแนนเดียว 1–1,000 บอกว่า 26 ศาสตร์โบราณเห็นตรงกันแค่ไหนเรื่องคุณ — BaZi, Vedic, Western, Nine Star Ki และอีก 22 ศาสตร์ ">คะแนนเดียว 1–1,000 บอกว่า 26 ศาสตร์โบราณเห็นตรงกันแค่ไหนเรื่องคุณ — BaZi, Vedic, Western, Nine Star Ki และอีก 22 ศาสตร์
     <a href="/cosmic-score" data-en="What's a Cosmic Score? →" data-th="Cosmic Score คืออะไร? →">Cosmic Score คืออะไร? →</a>
   </div>
   <div class="date-display" id="dateDisplay"></div>
@@ -1603,7 +1643,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     </div>
     <div class="hp-cell hp-cell-score">
       <span class="hp-glyph">⟁</span>
-      <span class="hp-k" data-en="Cosmic Score · consensus of 26 systems" data-th="Cosmic Score · consensus จาก 26 ศาสตร์">Cosmic Score · consensus จาก 26 ศาสตร์</span>
+      <span class="hp-k" data-en="Cosmic Score · how strongly 26 systems agree" data-th="Cosmic Score · 26 ศาสตร์เห็นตรงกันแค่ไหน">Cosmic Score · 26 ศาสตร์เห็นตรงกันแค่ไหน</span>
       <span class="hp-v hp-v-big">754 / 999 · Resonant</span>
     </div>
   </div>
