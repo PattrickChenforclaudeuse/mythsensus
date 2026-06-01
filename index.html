@@ -10517,13 +10517,75 @@ function _runCompatCheck(){
     return;
   }
 
-  // Compare all 26 systems row by row, score convergence per row.
+  // Director feedback 2026-06-01: "ดวงเหมือนกัน ≠ สนับสนุนกันจริงๆ".
+  // Replaced pure identity-match with real complementarity scoring for the
+  // systems where astrology has well-defined aspect / cycle rules.
+  // ── Lookup tables for complementarity scoring ──
+  const _WEST_SIGNS_EN = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+  const _WEST_SIGNS_TH = ['เมษ','พฤษภ','เมถุน','กรกฎ','สิงห์','กันย์','ตุลย์','พิจิก','ธนู','มังกร','กุมภ์','มีน'];
+  function _signIdx(s){
+    if (!s) return -1;
+    for (let i = 0; i < 12; i++) {
+      if (s.indexOf(_WEST_SIGNS_EN[i]) >= 0 || s.indexOf(_WEST_SIGNS_TH[i]) >= 0) return i;
+    }
+    return -1;
+  }
+  // 5-element cycle for BaZi
+  const _BAZI_SHENG = {'ไม้':'ไฟ','ไฟ':'ดิน','ดิน':'โลหะ','โลหะ':'น้ำ','น้ำ':'ไม้'};
+  const _BAZI_KE    = {'ไม้':'ดิน','ไฟ':'น้ำ','ดิน':'น้ำ','โลหะ':'ไม้','น้ำ':'ไฟ'};
+  // Human Design pair table (5×5, symmetric). Based on standard HD-type compatibility.
+  const _HD_PAIR = {
+    'G|G':'partial', 'G|MG':true, 'G|P':true, 'G|M':'partial', 'G|R':'partial',
+    'MG|MG':'partial', 'MG|P':true, 'MG|M':'partial', 'MG|R':'partial',
+    'P|P':false, 'P|M':true, 'P|R':'partial',
+    'M|M':false, 'M|R':'partial',
+    'R|R':'partial',
+  };
+  function _hdCode(t){
+    if (!t) return '';
+    const s = String(t);
+    if (s.indexOf('Manifesting Generator')>=0 || s.indexOf('นักสร้างผู้แสดง')>=0) return 'MG';
+    if (s.indexOf('Generator')>=0 || s.indexOf('นักสร้าง')>=0) return 'G';
+    if (s.indexOf('Projector')>=0 || s.indexOf('นักนำทาง')>=0) return 'P';
+    if (s.indexOf('Manifestor')>=0 || s.indexOf('ผู้ก่อ')>=0) return 'M';
+    if (s.indexOf('Reflector')>=0 || s.indexOf('ผู้สะท้อน')>=0) return 'R';
+    return '';
+  }
+  function _hdPairMatch(a, b){
+    const ca = _hdCode(a), cb = _hdCode(b);
+    if (!ca || !cb) return false;
+    return _HD_PAIR[ca+'|'+cb] ?? _HD_PAIR[cb+'|'+ca] ?? 'partial';
+  }
+  // BaZi polarity (yang/yin) from dayMasterTh first prefix.
+  function _baziPol(s){ return /^หยาง|^หยาน|^Yang/i.test(s||'') ? 'yang' : /^หยิน|^Yin/i.test(s||'') ? 'yin' : ''; }
+  function _baziEl(s){ return String(s||'').replace(/^หยาง|^หยาน|^หยิน|^Yang\s*|^Yin\s*/i, '').trim(); }
+
+  // Compare all 28 systems row by row, score convergence per row.
   // Each row: {emoji, label, mine, theirs, match (bool|'partial')}
   const ROWS = [
-    { key:'western',  emoji:'☀️', label:isTh?'Western (Sun)':'Western',
-      extract:c => c.western.sunSignTh, match:(a,b)=>a===b },
-    { key:'bazi',     emoji:'☯️', label:'BaZi',
-      extract:c => c.bazi.dayMasterTh, match:(a,b)=>a.split(' ')[1]===b.split(' ')[1] },
+    // Western — aspect-based (sextile/trine/opposition = good · square = friction)
+    { key:'western',  emoji:'☀️', label:isTh?'Western (Sun aspect)':'Western (Sun aspect)',
+      extract:c => c.western.sunSignTh + (c.western.sunSign?(' · '+c.western.sunSign):''),
+      match:(a,b) => {
+        const ia = _signIdx(a), ib = _signIdx(b);
+        if (ia<0 || ib<0) return false;
+        const dist = Math.min(Math.abs(ia-ib), 12-Math.abs(ia-ib));
+        if (dist === 0) return 'partial';   // conjunction — resonant but can stagnate
+        if (dist === 2) return true;        // sextile — supportive
+        if (dist === 3) return false;       // square — friction
+        if (dist === 4) return true;        // trine — natural flow
+        if (dist === 6) return true;        // opposition — polar attraction (growth)
+        return 'partial';                   // semi-sextile / quincunx — adjustment
+      }},
+    // BaZi — polarity (yang/yin) — opposite polarity = balanced
+    { key:'bazi',     emoji:'☯️', label:isTh?'BaZi (Yang/Yin)':'BaZi (Yang/Yin)',
+      extract:c => c.bazi.dayMasterTh,
+      match:(a,b) => {
+        const pa = _baziPol(a), pb = _baziPol(b);
+        if (!pa || !pb) return _baziEl(a) === _baziEl(b) ? 'partial' : false;
+        if (pa !== pb) return true;          // yang+yin → balanced
+        return 'partial';                    // both yang or both yin → high-energy, can clash
+      }},
     { key:'vedic',    emoji:'🕉️', label:'Vedic Nakshatra',
       extract:c => c.vedic.moonNakshatra, match:(a,b)=>a===b },
     { key:'ninestar', emoji:'⭐', label:'Nine Star Ki',
@@ -10531,8 +10593,10 @@ function _runCompatCheck(){
     { key:'numerology', emoji:'🔢', label:'Numerology',
       extract:c => 'LP '+c.numerology.lifePath,
       match:(a,b) => { const diff=Math.abs(+a.replace(/\D/g,'')-+b.replace(/\D/g,'')); return diff<=2?true: diff<=4?'partial':false; } },
-    { key:'humandesign', emoji:'⚡', label:'Human Design',
-      extract:c => c.humandesign.typeTh||c.humandesign.type, match:(a,b)=>a===b },
+    // Human Design — type-pair compatibility (Generator+Projector = ideal,
+    // Manifestor+Manifestor = clash, etc.)
+    { key:'humandesign', emoji:'⚡', label:isTh?'Human Design (Type pair)':'Human Design (Type pair)',
+      extract:c => c.humandesign.typeTh||c.humandesign.type, match:_hdPairMatch },
     { key:'mayan',    emoji:'🌀', label:'Mayan Kin',
       extract:c => 'Kin '+c.mayan.kin, match:(a,b) => { const diff=Math.abs(+a.split(' ')[1]-+b.split(' ')[1])%260; return diff===0?true: diff<=26?'partial':false; } },
     { key:'thai',     emoji:'🙏', label:'Thai Brahmin',
