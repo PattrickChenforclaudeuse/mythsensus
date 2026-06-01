@@ -7582,15 +7582,29 @@ function renderMonthlyBrief(){
   const lowDays  = monthDays.length ? [...monthDays].sort((a,b)=>a.total-b.total).slice(0,5).sort((a,b)=>a.day-b.day) : [];
 
   panel.innerHTML = `
-    <!-- Intro block -->
-    <div style="background:rgba(212,175,55,0.04);border:1px solid var(--gold3);border-radius:8px;padding:14px 16px;margin-bottom:14px">
-      <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;color:var(--gold);margin-bottom:6px">✦ ${isTh?'MONTHLY COSMIC BRIEF คืออะไร':'WHAT THIS BRIEF IS'}</div>
-      <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13.5px;color:var(--text);line-height:1.7">
-        ${isTh
-          ? `สรุปแนวโน้มของ <strong>เดือนนี้</strong> และ <strong>เดือนหน้า</strong> โดย <strong>ใช้ศาสตร์ที่เปลี่ยนตามเวลา</strong> ในรายงาน 26 ศาสตร์ — คือ Nine Star Ki (ดาวเดือน) · Biorhythm (3 วงจรชีวภาพ) · Numerology Personal Month · Vedic Mahadasha · BaZi ธาตุ · แต่ละศาสตร์โหวตในทิศทางของมันเอง · รวมกันเป็น "trend verdict" ที่ช่วยตัดสินใจ timing ใหญ่ในแต่ละเดือน`
-          : `Summarises the <strong>current</strong> and <strong>next</strong> month by combining the <strong>time-phased</strong> systems from your 26: Nine Star Ki (monthly star) · Biorhythm · Numerology Personal Month · Vedic Mahadasha · BaZi element interaction. Each votes; the consensus becomes your "trend verdict" for timing big decisions.`}
-      </div>
-    </div>
+    ${_methodologyCard(
+      'วิธีคิด · ก่อนอ่านคำตอบ',
+      'How We Calculate · Read Before Results',
+      '5 ศาสตร์ที่เปลี่ยนตามเวลา · โหวตรวมเป็น verdict',
+      '5 time-phased systems · vote together for the verdict',
+      [
+        { labelTh:'NINE STAR KI (MONTHLY STAR)', labelEn:'NINE STAR KI (MONTHLY STAR)',
+          textTh:`ดาวประจำเดือน vs ดาวเกิด — ตรงกัน (Honmei) = +3 · ดาวธาตุเดียวกับธาตุมงคล = +2 · ขัด = -2`,
+          textEn:`Monthly star vs natal star — match (Honmei) = +3 · same element as lucky = +2 · clash = -2` },
+        { labelTh:'BIORHYTHM (3 CYCLES)', labelEn:'BIORHYTHM (3 CYCLES)',
+          textTh:`Physical 23 + Emotional 28 + Intellectual 33 วัน · sample mid-month · avg >+40% = boost · <-40% = rest`,
+          textEn:`Physical 23 + Emotional 28 + Intellectual 33 days · sampled mid-month · avg >+40% = boost · <-40% = rest` },
+        { labelTh:'NUMEROLOGY PERSONAL MONTH', labelEn:'NUMEROLOGY PERSONAL MONTH',
+          textTh:`PM = reduce(Personal Year + month#) · 1,3,6,8,9 = active themes · 4,7 = inward/quiet · 11/22 = master numbers`,
+          textEn:`PM = reduce(Personal Year + month#) · 1,3,6,8,9 = active themes · 4,7 = inward/quiet · 11/22 = master numbers` },
+        { labelTh:'VEDIC MAHADASHA (BACKDROP)', labelEn:'VEDIC MAHADASHA (BACKDROP)',
+          textTh:`Dasha <strong>${chart.vedicMahadasha.currentDasha}</strong> เป็น backdrop ทั้งปี · ทำให้ verdict ตีความใต้แสงของดาวที่ครองช่วงชีวิต`,
+          textEn:`Dasha <strong>${chart.vedicMahadasha.currentDasha}</strong> is the year-long backdrop · all verdicts read under the light of this ruling planet` },
+        { labelTh:'BAZI ELEMENT INTERACTION', labelEn:'BAZI ELEMENT INTERACTION',
+          textTh:`ธาตุของเดือน × ธาตุมงคลของคุณ · sheng cycle (feed) = + · ke cycle (destroy) = − · controls intensity ของ verdict`,
+          textEn:`Month element × your lucky element · sheng cycle (feed) = + · ke cycle (destroy) = − · controls verdict intensity` },
+      ]
+    )}
 
     ${yearStrip}
 
@@ -8511,37 +8525,80 @@ const WEEKLY_PET_RHYTHM = [
   {dayTh:'ศ. (ศุกร์)',   dayEn:'Fri', planet:'♀ Venus',  acTh:'grooming + ดูแลความสบาย · spa · ที่นอนใหม่', acEn:'Grooming + comfort care · spa · refresh bedding'},
   {dayTh:'ส. (เสาร์)',   dayEn:'Sat', planet:'♄ Saturn', acTh:'พัก ไม่เปลี่ยนอะไร ไม่หาหมอ (Saturn ขัด healing energy)', acEn:'Rest — no changes, no vet (Saturn obstructs healing energy)'},
 ];
-// 20 pet species classified by traditional 5-element correspondences.
-// Ranked against the user's Day Master via the 5-element feeding +
-// destruction cycle. Director feedback 2026-06-01: original Pet edition
-// had Top 3 favorable + Avoid list — restore + expand to 20 species so
-// users see the full compatibility map, not just 1 primary pick.
+// 20 pet species classified by traditional 5-element correspondences,
+// each with a distinguishing "why" line so rank 1 / 2 / 3 read differently
+// even when their element-score is tied (Director feedback 2026-06-01:
+// "อันดับ 2-3 ลงไปต่างจากอันดับ 1 เพราะอะไร" — every entry now has its
+// own narrative trait, separate from the element compatibility score).
 const ALL_PETS_20 = [
   // Wood — herbivore, gentle, growth-oriented
-  { e:'🐇', th:'กระต่าย',         en:'Rabbit',         el:'ไม้' },
-  { e:'🐭', th:'หนูตะเภา',       en:'Guinea Pig',     el:'ไม้' },
-  { e:'🦋', th:'ผีเสื้อ (Vivarium)', en:'Butterfly (vivarium)', el:'ไม้' },
+  { e:'🐇', th:'กระต่าย',           en:'Rabbit',              el:'ไม้',
+    whyTh:'เลี้ยงง่าย · เงียบ · พื้นที่น้อยพอ · low-touch companion ที่ดูแลตัวเองเก่ง',
+    whyEn:'easy care · quiet · small-space-friendly · self-tending low-touch companion' },
+  { e:'🐭', th:'หนูตะเภา',         en:'Guinea Pig',          el:'ไม้',
+    whyTh:'สังคม · ต้องการเป็นคู่/กลุ่ม · เหมาะถ้าอยู่กับครอบครัว/แฟน · interactive กว่ากระต่าย',
+    whyEn:'social herd animal · needs a pair · for households · more interactive than rabbit' },
+  { e:'🦋', th:'ผีเสื้อ (Vivarium)', en:'Butterfly (vivarium)', el:'ไม้',
+    whyTh:'สัญลักษณ์ · contact เกือบไม่มี · เหมาะ ritual space · มี life cycle สั้นที่สอน impermanence',
+    whyEn:'symbolic · near-zero contact · ritual-room piece · short lifecycle teaches impermanence' },
+  { e:'🌲', th:'ต้น Bonsai (สัตว์ทดแทน)', en:'Bonsai (pet-equivalent)', el:'ไม้',
+    whyTh:'ไม่ใช่สัตว์แต่ทำหน้าที่ companion · ฝึก patience + ritual care · 0% maintenance ของมีชีวิตน้อยที่สุด',
+    whyEn:'not an animal but serves the role · trains patience + ritual care · lowest-maintenance living being' },
   // Fire — warm, social, bright
-  { e:'🦜', th:'นกแก้ว',         en:'Parrot',         el:'ไฟ' },
-  { e:'🐦', th:'นกค็อกคาเทล',     en:'Cockatiel',      el:'ไฟ' },
-  { e:'🕊️', th:'นกเลิฟเบิร์ด',     en:'Lovebird',       el:'ไฟ' },
-  { e:'🐹', th:'ชูการ์ไกลเดอร์',   en:'Sugar Glider',   el:'ไฟ' },
+  { e:'🦜', th:'นกแก้ว',           en:'Parrot',              el:'ไฟ',
+    whyTh:'พูดได้ · ฉลาดระดับเด็ก 3-5 ขวบ · ต้องการ stimulation สูง · เหมาะคนชอบ conversational bond',
+    whyEn:'talking · 3-5-year-old intelligence · needs stimulation · for conversational bonds' },
+  { e:'🐦', th:'นกค็อกคาเทล',       en:'Cockatiel',           el:'ไฟ',
+    whyTh:'อ่อนโยนกว่านกแก้ว · ร้องเพลงไพเราะ · เลี้ยงเป็นเพื่อน · entry-level bird ที่ดี',
+    whyEn:'gentler than parrot · sings nicely · companionable · great entry-level bird' },
+  { e:'🕊️', th:'นกเลิฟเบิร์ด',       en:'Lovebird',            el:'ไฟ',
+    whyTh:'รักเป็นคู่ตลอดชีวิต · ต้องเลี้ยงเป็นคู่เสมอ · vibrant · symbol of partnership',
+    whyEn:'pair-bonded for life · must keep in pairs · vibrant · symbol of partnership' },
+  { e:'🐹', th:'ชูการ์ไกลเดอร์',     en:'Sugar Glider',        el:'ไฟ',
+    whyTh:'กลางคืน-active · เลี้ยงเป็นโคโลนี · ไม่ใช่ตัวเลี้ยงมือใหม่ · exotic',
+    whyEn:'nocturnal · colony animal · not for beginners · exotic pet' },
   // Earth — loyal, stable, grounding
-  { e:'🐕', th:'สุนัข',           en:'Dog',            el:'ดิน' },
-  { e:'🐢', th:'เต่าบก',         en:'Tortoise',       el:'ดิน' },
-  { e:'🐹', th:'แฮมสเตอร์',       en:'Hamster',        el:'ดิน' },
-  { e:'🦔', th:'เม่นแคระ',        en:'Hedgehog',       el:'ดิน' },
+  { e:'🐕', th:'สุนัข',             en:'Dog',                  el:'ดิน',
+    whyTh:'ภักดีลึก · ต้องการ exercise + bond ทุกวัน · 12-14 ปี · เหมาะถ้าเดินทุกวันได้',
+    whyEn:'deep loyalty · daily exercise + bonding · 12-14 yrs · suits daily walkers' },
+  { e:'🐢', th:'เต่าบก',           en:'Tortoise',            el:'ดิน',
+    whyTh:'อายุยาวมาก 30-60 ปี · เลี้ยงผ่าน Mahadasha หลาย chapter · สอน slow time',
+    whyEn:'very long-lived 30-60 yrs · spans multiple Mahadashas · teaches slow time' },
+  { e:'🐹', th:'แฮมสเตอร์',         en:'Hamster',             el:'ดิน',
+    whyTh:'อายุสั้น 2-3 ปี · เลี้ยงเดี่ยว · เหมาะเด็ก/เริ่มต้น/short-cycle responsibility',
+    whyEn:'short-lived 2-3 yrs · solo only · for kids / starter / short-cycle responsibility' },
+  { e:'🦔', th:'เม่นแคระ',          en:'Hedgehog',            el:'ดิน',
+    whyTh:'เงียบ · ไม่สังคม · low touch · เหมาะ introvert + คนต้องการสัตว์ที่ไม่ต้อง interact มาก',
+    whyEn:'quiet · solitary · low-touch · for introverts wanting non-interactive presence' },
   // Metal — independent, precise, cool
-  { e:'🐈', th:'แมว',            en:'Cat',            el:'โลหะ' },
-  { e:'🦎', th:'กิ้งก่า / Gecko',  en:'Lizard / Gecko', el:'โลหะ' },
-  { e:'🐍', th:'งู (Ball Python)', en:'Snake',         el:'โลหะ' },
-  { e:'🐢', th:'เต่าน้ำ',        en:'Water Turtle',   el:'โลหะ' },
+  { e:'🐈', th:'แมว',              en:'Cat',                  el:'โลหะ',
+    whyTh:'อิสระ · self-grooming · low maintenance · เหมาะคน busy/ทำงานหนัก',
+    whyEn:'independent · self-grooming · low maintenance · suits busy/working people' },
+  { e:'🦎', th:'กิ้งก่า / Gecko',    en:'Lizard / Gecko',      el:'โลหะ',
+    whyTh:'แทบไม่ต้อง interact · สวยงาม visual · vivarium hobby · เน้นดูแล habitat',
+    whyEn:'near-zero interaction · visual companion · vivarium hobby · habitat-focused' },
+  { e:'🐍', th:'งู (Ball Python)',  en:'Snake',                el:'โลหะ',
+    whyTh:'low maintenance · กินอาทิตย์ละ 1 ครั้ง · เหมาะคน calm energy · ไม่ใช่ pet สำหรับโชว์',
+    whyEn:'low maintenance · weekly feeding · for calm-energy people · not a show pet' },
+  { e:'🐢', th:'เต่าน้ำ',          en:'Water Turtle',        el:'โลหะ',
+    whyTh:'อายุ 20-30+ ปี · ตู้ใหญ่ + filter ต้องเข้ม · เลี้ยงเย็น calm steady',
+    whyEn:'20-30+ yrs · large tank + strong filtration · cool calm steady companion' },
   // Water — fluid, silent, cool
-  { e:'🐟', th:'ปลาทอง',         en:'Goldfish',       el:'น้ำ' },
-  { e:'🐡', th:'ปลากัด',         en:'Betta',          el:'น้ำ' },
-  { e:'🐠', th:'ปลาตู้ทะเล',     en:'Marine Fish',    el:'น้ำ' },
-  { e:'🐸', th:'กบ / Frog',       en:'Frog',           el:'น้ำ' },
-  { e:'🦐', th:'กุ้งใส / Shrimp',  en:'Aquarium Shrimp',el:'น้ำ' },
+  { e:'🐟', th:'ปลาทอง',           en:'Goldfish',             el:'น้ำ',
+    whyTh:'classic · visual peace · low contact · ถ้าตู้ดีอยู่ได้ 10-15 ปี',
+    whyEn:'classic · visual peace · low contact · 10-15 yrs in a good tank' },
+  { e:'🐡', th:'ปลากัด',           en:'Betta',                el:'น้ำ',
+    whyTh:'สีสันสวย · เลี้ยงเดี่ยว · ตู้เล็กพอ · แสดงพฤติกรรมตอบสนองคน',
+    whyEn:'vibrant colors · solo · small tank works · responsive to human presence' },
+  { e:'🐠', th:'ปลาตู้ทะเล',       en:'Marine Fish',          el:'น้ำ',
+    whyTh:'ตู้ทะเล setup ใหญ่ + ค่าใช้จ่ายสูง · advanced hobby · stunning visual',
+    whyEn:'marine tank — big setup + cost · advanced hobby · stunning visual' },
+  { e:'🐸', th:'กบ / Frog',         en:'Frog',                 el:'น้ำ',
+    whyTh:'น้อย contact · เสียงร้องเป็น ambient · เหมาะ ritual/meditation space',
+    whyEn:'minimal contact · vocal ambient soundtrack · for ritual/meditation rooms' },
+  { e:'🦐', th:'กุ้งใส / Shrimp',    en:'Aquarium Shrimp',     el:'น้ำ',
+    whyTh:'micro pet · ดูแล tank ecosystem ทั้งระบบ · zen meditation training',
+    whyEn:'micro pet · whole-tank ecosystem stewardship · zen meditation training' },
 ];
 // 5-element relationships (Chinese cosmology). FEEDS = X strengthens Y;
 // DESTROYS = X overcomes Y. Used to score pet ↔ user compatibility.
@@ -8773,6 +8830,26 @@ const STYLE_WEEK = [
   { dayTh:'ส. (เสาร์)',    dayEn:'Sat', planet:'♄ Saturn',  acTh:'ดำ / น้ำเงินเข้ม · minimal · structured',       acEn:'Black / dark navy · minimal · structured' },
 ];
 
+// ── Methodology card helper (Director 2026-06-01: "วิธีคิดควรมาก่อนคำตอบ") ──
+// Renders an "🔍 How we calculate" box that goes at the TOP of every
+// enriched add-on renderer — users see the systems + scoring rules BEFORE
+// the actual answers, so they understand the reasoning, not just the result.
+// methods: [{ labelTh, labelEn, textTh, textEn }, ...] · up to 5 numbered items.
+function _methodologyCard(titleTh, titleEn, originTh, originEn, methods){
+  const isTh = LANG === 'th';
+  const nums = ['①','②','③','④','⑤','⑥'];
+  return `<div class="deep-sys-card" style="margin-bottom:14px;background:rgba(212,175,55,0.04);border:1px solid rgba(212,175,55,0.4)">
+    <div class="deep-sys-title">🔍 ${isTh?titleTh:titleEn}</div>
+    <div class="deep-sys-origin">${isTh?originTh:originEn}</div>
+    <div style="display:flex;flex-direction:column;gap:9px;margin-top:14px">
+      ${methods.map((m,i) => `<div style="padding:10px 12px;background:rgba(0,0,0,.15);border-left:3px solid var(--gold3);border-radius:0 6px 6px 0">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:var(--gold);margin-bottom:5px">${nums[i]||(i+1)} ${isTh?m.labelTh:m.labelEn}</div>
+        <div style="font-size:12.5px;color:var(--text);line-height:1.65">${isTh?m.textTh:m.textEn}</div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
 // Compute next 7 days biorhythm from DOB. Period (days): phys=23, emo=28, int=33.
 // Used to highlight peak-bonding day in the adoption window.
 function _bio7Days(dob){
@@ -8878,6 +8955,27 @@ function renderPet(){
   el.innerHTML = `
     ${reasoning}
 
+    ${_methodologyCard(
+      'วิธีคิด · ก่อนอ่านคำตอบ',
+      'How We Calculate · Read Before Results',
+      '4 ศาสตร์ที่ใช้คำนวณ — เข้าใจที่มาก่อนค่อยอ่านสัตว์ที่แนะนำ',
+      '4 systems used to compute — understand the reasoning first, then read the picks',
+      [
+        { labelTh:'5-ELEMENT CYCLE (BAZI · TCM)', labelEn:'5-ELEMENT CYCLE (BAZI · TCM)',
+          textTh:`สัตว์ที่ธาตุ <em>หล่อเลี้ยง</em> ${dmEl} ของคุณ = ดีที่สุด (+2) · ธาตุเดียวกัน = supportive (+1) · ที่ ${dmEl} ทำลาย = neutral (0) · ที่ ${dmEl} หล่อเลี้ยง = drain (-1) · ที่ <em>ทำลาย</em> ${dmEl} = AVOID (-2)`,
+          textEn:`Pet element that <em>feeds</em> your ${dmEl} = best (+2) · same = supportive (+1) · ${dmEl} destroys it = neutral (0) · ${dmEl} feeds it = drain (-1) · it <em>destroys</em> ${dmEl} = AVOID (-2)` },
+        { labelTh:'PHYSICAL BIORHYTHM', labelEn:'PHYSICAL BIORHYTHM',
+          textTh:`วงจร <strong>23-วัน</strong> · sine wave จากวันเกิด · บวก = peak พลังกาย / ลบ = ช่วงพักฟื้น · ของคุณตอนนี้ <strong style="color:${physical>0?'#4a9a40':'#c06060'}">${physical>=0?'+':''}${physical}%</strong> · ใช้ระบุช่วงรับเลี้ยง + peak bonding day`,
+          textEn:`<strong>23-day</strong> sine cycle from your DOB · positive = energy peak / negative = recovery window · yours now <strong style="color:${physical>0?'#4a9a40':'#c06060'}">${physical>=0?'+':''}${physical}%</strong> · used to pick adoption window + peak bonding day` },
+        { labelTh:'VEDIC MAHADASHA', labelEn:'VEDIC MAHADASHA',
+          textTh:`ดาวที่ครองช่วงชีวิตของคุณ — ตอนนี้คือ <strong>${dasha}</strong> (${dashaYears} ปี) · เทียบกับอายุสัตว์ — full coverage = อยู่ด้วยตลอด chapter · partial = สอน phase สั้นๆ`,
+          textEn:`Planet ruling your life-chapter — currently <strong>${dasha}</strong> (${dashaYears} yrs) · compared to pet lifespan — full coverage = together the whole chapter · partial = teaches a short phase` },
+        { labelTh:'HUMAN DESIGN TYPE', labelEn:'HUMAN DESIGN TYPE',
+          textTh:`คุณคือ <strong>${hdKey}</strong> · กำหนดจังหวะใน 30 วันแรกของการรับเลี้ยง — Generator ตอบ sacral / Projector observe ก่อน / Manifestor inform / Reflector sample 28 วัน`,
+          textEn:`You're <strong>${hdKey}</strong> · sets the first-30-day adoption pace — Generator responds to sacral / Projector observes first / Manifestor informs / Reflector samples 28 days` },
+      ]
+    )}
+
     <!-- Primary Pet -->
     <div class="deep-sys-card">
       <div class="deep-sys-title">🐾 ${isTh?'สัตว์เลี้ยงหลัก':'Primary pet'} — ${isTh?'ธาตุ':'Element'} ${dmEl}</div>
@@ -8903,30 +9001,30 @@ function renderPet(){
 
       <div style="margin-top:14px">
         <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· เข้ากับคุณที่สุด':'· BEST FOR YOU'}</div>
-        ${top3Pets.map(pp => `
-          <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
-            <div style="font-size:22px;text-align:center">${pp.e}</div>
-            <div style="font-size:13px;color:var(--text)"><strong>${isTh?pp.th:pp.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${pp.el}</span></div>
-            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${pp.cmp.score>0?'+':''}${pp.cmp.score}</div>
+        ${top3Pets.map((pp,idx) => `
+          <div style="padding:9px 12px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:6px">
+            <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
+              <div style="font-size:22px;text-align:center">${pp.e}</div>
+              <div style="font-size:13px;color:var(--text)"><span style="color:#4a9a40;font-weight:700;margin-right:6px">#${idx+1}</span><strong>${isTh?pp.th:pp.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${pp.el}</span></div>
+              <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${pp.cmp.score>0?'+':''}${pp.cmp.score}</div>
+            </div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?pp.whyTh:pp.whyEn}</div>
           </div>
         `).join('')}
       </div>
 
       <div style="margin-top:14px">
         <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#c06060;margin-bottom:6px">⚠️ ${isTh?'3 ชนิดควรเลี่ยง':'AVOID THESE 3'}</div>
-        ${bottom3Pets.map(pp => `
-          <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
-            <div style="font-size:22px;text-align:center;opacity:.6">${pp.e}</div>
-            <div style="font-size:13px;color:var(--text)"><strong>${isTh?pp.th:pp.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${pp.el}</span></div>
-            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${pp.cmp.score}</div>
+        ${bottom3Pets.map((pp,idx) => `
+          <div style="padding:9px 12px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:6px">
+            <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
+              <div style="font-size:22px;text-align:center;opacity:.6">${pp.e}</div>
+              <div style="font-size:13px;color:var(--text)"><strong>${isTh?pp.th:pp.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${pp.el}</span></div>
+              <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${pp.cmp.score}</div>
+            </div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?pp.whyTh:pp.whyEn}</div>
           </div>
         `).join('')}
-      </div>
-
-      <div style="margin-top:12px;padding:10px 12px;background:rgba(212,170,80,0.04);border:1px dashed var(--gold3);border-radius:6px;font-size:11.5px;color:var(--muted);line-height:1.65">
-        ${isTh
-          ? `🔄 <strong>5-element cycle:</strong> ธาตุที่ <em>หล่อเลี้ยง</em> ${dmEl} ของคุณ = ดีที่สุด · ธาตุที่ <em>ทำลาย</em> ${dmEl} = ควรเลี่ยง · ธาตุเดียวกัน = supportive · ธาตุที่ ${dmEl} หล่อเลี้ยง = drain · ธาตุที่ ${dmEl} ทำลาย = neutral แต่เหนื่อย`
-          : `🔄 <strong>5-element cycle:</strong> The element that <em>feeds</em> your ${dmEl} = best · the element that <em>destroys</em> ${dmEl} = avoid · same element = supportive · the one ${dmEl} feeds = drain · the one ${dmEl} destroys = neutral but tiring`}
       </div>
 
       ${_collapse(
@@ -9131,6 +9229,28 @@ function renderCompanions(){
 
   el.innerHTML = `
     ${reasoning}
+
+    ${_methodologyCard(
+      'วิธีคิด · ก่อนอ่านคำตอบ',
+      'How We Calculate · Read Before Results',
+      '4 ศาสตร์ที่ใช้คำนวณ Companions — เข้าใจที่มาก่อนค่อยอ่าน',
+      '4 systems used — understand the reasoning first',
+      [
+        { labelTh:'5-ELEMENT CYCLE', labelEn:'5-ELEMENT CYCLE',
+          textTh:`Creature ที่ธาตุ <em>หล่อเลี้ยง</em> ${dmEl} ของคุณ = ดีที่สุด (+2) · ที่ <em>ทำลาย</em> ${dmEl} = AVOID (-2) — เลือกใน 20 ตัวจาก East Asian guardians, Western myth, Hindu, Norse, Japanese`,
+          textEn:`Creature with element that <em>feeds</em> your ${dmEl} = best (+2) · that <em>destroys</em> ${dmEl} = AVOID (-2) — picked from 20 across East Asian guardians, Western myth, Hindu, Norse, Japanese` },
+        { labelTh:'VEDIC MAHADASHA → PILGRIMAGE', labelEn:'VEDIC MAHADASHA → PILGRIMAGE',
+          textTh:`ดาวที่ครองช่วงชีวิตของคุณ = <strong>${mahadasha}</strong> · กำหนด 4 stage ของ Sacred Pilgrimage (cleanse → approach → encounter → integrate) · แต่ละ stage อ้างอิงสถานที่ตรงพลังของดาว`,
+          textEn:`Planet ruling your life-chapter = <strong>${mahadasha}</strong> · sets the 4 Sacred Pilgrimage stages (cleanse → approach → encounter → integrate) · each stage references a place tuned to that planet's energy` },
+        { labelTh:'VEDIC WEEK → RITUAL', labelEn:'VEDIC WEEK → RITUAL',
+          textTh:`ดาวประจำวัน (อา.=Sun, จ.=Moon, อ.=Mars, พ.=Mercury, พฤ.=Jupiter, ศ.=Venus, ส.=Saturn) → กำหนดว่าควรอัญเชิญ creature ตัวไหนในวันนั้น`,
+          textEn:`Vedic weekday rulers (Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn) → which creature to invoke that day` },
+        { labelTh:'CROSS-SYSTEM CITATION (LP · RUNE · KIN)', labelEn:'CROSS-SYSTEM CITATION',
+          textTh:`Life Path ${lp} · Norse Rune ${rune} · Mayan Kin ${kin} — ใช้คัด mantra + คริสตัล + สถานที่ที่ resonate กับ 3 พิกัดนี้ตรงๆ`,
+          textEn:`Life Path ${lp} · Norse Rune ${rune} · Mayan Kin ${kin} — used to filter the mantra + crystal + place that resonates with these 3 axes` },
+      ]
+    )}
+
     <!-- Spirit Companion -->
     <div class="deep-sys-card" style="text-align:center;padding:24px 20px">
       <div style="font-size:52px;margin-bottom:10px">${comp.creature.split(' ')[0]}</div>
@@ -9340,6 +9460,31 @@ function renderExercise(){
 
   el.innerHTML = `
     ${reasoning}
+
+    ${_methodologyCard(
+      'วิธีคิด · ก่อนอ่านคำตอบ',
+      'How We Calculate · Read Before Results',
+      '5 ศาสตร์ที่ใช้คัดกีฬาให้คุณ',
+      '5 systems used to pick your exercise',
+      [
+        { labelTh:'5-ELEMENT CYCLE (MOVEMENT PATTERN)', labelEn:'5-ELEMENT CYCLE (MOVEMENT PATTERN)',
+          textTh:`กีฬาที่ pattern การเคลื่อนไหวสอดคล้องกับธาตุ ${dmEl} ของคุณ — ไม้=ไหลลื่น · ไฟ=intensity · ดิน=stability · โลหะ=precision · น้ำ=fluid`,
+          textEn:`Sports whose movement pattern aligns with your ${dmEl} — Wood=flow · Fire=intensity · Earth=stability · Metal=precision · Water=fluid` },
+        { labelTh:'PHYSICAL BIORHYTHM', labelEn:'PHYSICAL BIORHYTHM',
+          textTh:`วงจร 23-วันของ "พลังกาย" · ของคุณตอนนี้ <strong style="color:${physical>0?'#4a9a40':'#c06060'}">${physical>=0?'+':''}${physical}%</strong> · ${physical>30?'full intensity OK':physical>-10?'medium intensity':'stretching/พักดีกว่า'}`,
+          textEn:`23-day physical-energy cycle · yours now <strong style="color:${physical>0?'#4a9a40':'#c06060'}">${physical>=0?'+':''}${physical}%</strong> · ${physical>30?'full intensity OK':physical>-10?'medium intensity':'stretch/rest better'}` },
+        { labelTh:'HUMAN DESIGN + AUTHORITY', labelEn:'HUMAN DESIGN + AUTHORITY',
+          textTh:`คุณคือ <strong>${hdType}</strong> (auth: ${hdAuthority}) · Generator = sacral response · Projector = recovery mandatory · Manifestor = burst · Reflector = 28-day cycle`,
+          textEn:`You're <strong>${hdType}</strong> (auth: ${hdAuthority}) · Generator = sacral · Projector = recovery mandatory · Manifestor = burst · Reflector = 28-day cycle` },
+        { labelTh:'LIFE PATH (NUMEROLOGY)', labelEn:'LIFE PATH (NUMEROLOGY)',
+          textTh:`LP ${lp} กำหนดสไตล์ฝึก — แข่งเดี่ยว (1,8) · กลุ่ม (2,6) · หลากหลาย (3,5) · มีโครงสร้าง (4) · meditative (7,9)`,
+          textEn:`LP ${lp} sets training style — competitive-solo (1,8) · team (2,6) · varied (3,5) · structured (4) · meditative (7,9)` },
+        { labelTh:'NSK DIRECTION', labelEn:'NSK DIRECTION',
+          textTh:`ทิศ <strong>${nskDir}</strong> · ทิศที่ควรหันหน้าขณะออกกำลัง (yoga facing, วิ่งไปทาง) ให้ chi ไหลเต็มที่`,
+          textEn:`Direction <strong>${nskDir}</strong> · the way to face during exercise (yoga, running) for full chi flow` },
+      ]
+    )}
+
     <div class="deep-sys-card">
       <div class="deep-sys-title">🏃 ${isTh?'แผนออกกำลังกาย':'Exercise plan'} — ${isTh?'ธาตุ':'Element'} ${dmEl}</div>
       <div class="deep-sys-stats" style="margin-top:10px">
@@ -9501,6 +9646,31 @@ function renderFood(){
 
   el.innerHTML = `
     ${reasoning}
+
+    ${_methodologyCard(
+      'วิธีคิด · ก่อนอ่านคำตอบ',
+      'How We Calculate · Read Before Results',
+      '5 ศาสตร์ที่ใช้คัดอาหารให้คุณ',
+      '5 systems used to pick your food',
+      [
+        { labelTh:'TCM 5-FLAVOR CYCLE (BAZI)', labelEn:'TCM 5-FLAVOR CYCLE (BAZI)',
+          textTh:`อาหารที่รสและธรรมชาติ <em>หล่อเลี้ยง</em> ธาตุ ${dmEl} = ดี (+2) · ที่ <em>ทำลาย</em> ${dmEl} = ควรเลี่ยง (-2) — เปรี้ยว/ไม้ · ขม-เผ็ด/ไฟ · หวาน/ดิน · เผ็ดร้อน-ขาว/โลหะ · เค็ม-ลึก/น้ำ`,
+          textEn:`Food flavour & nature that <em>feeds</em> your ${dmEl} = good (+2) · that <em>destroys</em> ${dmEl} = avoid (-2) — sour/Wood · bitter-spicy/Fire · sweet/Earth · pungent-white/Metal · salty-deep/Water` },
+        { labelTh:'TCM ORGAN PAIRING', labelEn:'TCM ORGAN PAIRING',
+          textTh:`ธาตุ ${dmEl} ของคุณคู่กับอวัยวะ <strong>${organ}</strong> · อาหารถูกคัดให้ <em>บำรุง</em> อวัยวะนี้ตรงๆ ไม่ใช่แค่ "คนธาตุไฟกินเผ็ดได้"`,
+          textEn:`Your ${dmEl} pairs with the <strong>${organ}</strong> organ · foods are selected to <em>tonify</em> this organ directly — not just "fire types like spicy"` },
+        { labelTh:'VEDIC MAHADASHA TUNING', labelEn:'VEDIC MAHADASHA TUNING',
+          textTh:`ตอนนี้คุณอยู่ใน Mahadasha <strong>${dasha}</strong> · ปรับสมดุลเฉพาะ: ${dashaNote}`,
+          textEn:`You're in Mahadasha <strong>${dasha}</strong> · this chapter needs: ${dashaNote}` },
+        { labelTh:'VEDIC NAKSHATRA → DOSHA', labelEn:'VEDIC NAKSHATRA → DOSHA',
+          textTh:`Nakshatra ${nakshatra} → Ayurveda dosha · ส่งผลต่อการย่อยอาหารของคุณ · ลิสต์ balance dosha ที่ Nakshatra นี้มักมี`,
+          textEn:`Nakshatra ${nakshatra} → Ayurveda dosha · affects your digestion · list balances the dosha signature of this Nakshatra` },
+        { labelTh:'LIFE PATH (RHYTHM)', labelEn:'LIFE PATH (RHYTHM)',
+          textTh:`LP ${lp} ของคุณกำหนดจังหวะกิน — มื้อหนัก-ห่าง (1,8) · มื้อเล็ก-บ่อย (5) · ครอบครัว-ตรงเวลา (6) · หิวแล้วกิน (7,9) · สม่ำเสมอ (อื่นๆ)`,
+          textEn:`LP ${lp} sets meal rhythm — heavy-spaced (1,8) · small-frequent (5) · family-on-time (6) · eat-when-hungry (7,9) · steady (others)` },
+      ]
+    )}
+
     <div class="deep-sys-card">
       <div class="deep-sys-title">🍽️ ${isTh?'อาหารตามธาตุ':'Diet by element'} — ${dmEl}</div>
       <div class="deep-sys-origin">Mahadasha: ${dasha} · Life Path: ${lp}</div>
@@ -9690,6 +9860,27 @@ function renderProduct(){
 
   el.innerHTML = `
     ${reasoning}
+
+    ${_methodologyCard(
+      'วิธีคิด · ก่อนอ่านคำตอบ',
+      'How We Calculate · Read Before Results',
+      '4 ศาสตร์ที่ใช้คัด archetype + วัสดุ + สีให้คุณ',
+      '4 systems used to pick your archetype + materials + colors',
+      [
+        { labelTh:'4-WAY ARCHETYPE FILTER', labelEn:'4-WAY ARCHETYPE FILTER',
+          textTh:`Archetype "คุณคือ" คัดจาก 4 ศาสตร์พร้อมกัน — BaZi Day Master (${chart.bazi.dayMasterTh}) + Nine Star Ki (สี ${starColor}) + ไทยพราหมณ์ (วัน${chart.thai?.dayName||'—'}) + Celtic ต้นไม้ — convergence ของทั้ง 4 = หนึ่ง archetype`,
+          textEn:`The "you are like" archetype is filtered through 4 systems at once — BaZi Day Master (${chart.bazi.dayMasterTh}) + Nine Star Ki (${starColor}) + Thai Brahmin (${chart.thai?.dayName||'—'} day) + Celtic tree — their convergence = one archetype` },
+        { labelTh:'5-ELEMENT CYCLE (MATERIALS)', labelEn:'5-ELEMENT CYCLE (MATERIALS)',
+          textTh:`วัสดุ/สี ที่ธาตุ <em>หล่อเลี้ยง</em> ${dmEl} ของคุณ = ดีที่สุด (+2) · ที่ <em>ทำลาย</em> ${dmEl} = AVOID (-2) — ใช้คัด 20 วัสดุจาก linen, wool, ceramic, marble, indigo silk...`,
+          textEn:`Materials/colors whose element <em>feeds</em> your ${dmEl} = best (+2) · that <em>destroys</em> ${dmEl} = AVOID (-2) — across 20 items from linen, wool, ceramic, marble, indigo silk...` },
+        { labelTh:'NSK STAR COLOR (ACCENT)', labelEn:'NSK STAR COLOR (ACCENT)',
+          textTh:`สี Star ของคุณคือ <strong>${starColor}</strong> · ใช้เป็น accent (1 ชิ้น/วัน) กระตุ้นพลังส่วนตัว — ไม่ใช่สีหลักของชุด`,
+          textEn:`Your Star color is <strong>${starColor}</strong> · used as a daily accent (1 piece) to trigger personal power — not the dominant outfit color` },
+        { labelTh:'NSK DIRECTION (ROOM LAYOUT)', labelEn:'NSK DIRECTION (ROOM LAYOUT)',
+          textTh:`ทิศ NSK ส่วนตัวของคุณคือ <strong>${nskDir}</strong> · headboard / โต๊ะทำงานควรหันทางนี้ · เป็น axis ที่ chi ส่วนตัวไหล`,
+          textEn:`Your personal NSK direction is <strong>${nskDir}</strong> · headboard / desk should face this · the axis your personal chi flows along` },
+      ]
+    )}
 
     <!-- YOU ARE LIKE archetype block -->
     <div class="deep-sys-card" style="border:2px solid var(--gold3);background:linear-gradient(135deg,rgba(212,175,55,0.08),rgba(212,175,55,0.02));text-align:center;padding:22px 20px">
