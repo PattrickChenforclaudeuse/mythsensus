@@ -31,7 +31,14 @@
 <!-- Vercel Web Analytics (privacy-friendly, cookieless). Enable in Vercel → Project → Analytics. -->
 <script defer src="/_vercel/insights/script.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Josefin+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<!-- Perf 2026-06-01: preload critical assets so they download in parallel
+     with HTML parse instead of blocking on the deferred bundle line ~2329.
+     ms26-bundle.js: 909KB engine (defer = parsed after DOM ready, not blocking)
+     gods.json: 689KB deity data (fetched soon after engine load) -->
+<link rel="preload" as="script" href="/build/ms26-bundle.js">
+<link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
   --bg:#040407;--bg2:#0a0a10;--bg3:#0d0d15;
@@ -2326,7 +2333,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js"></script>
+<script src="/build/ms26-bundle.js" defer></script>
 <script>
 
 
