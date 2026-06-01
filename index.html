@@ -55,6 +55,32 @@ header{text-align:center;padding:28px 20px 0;position:relative;}
 .lang-pill button{font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:8px 16px;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
 .lang-pill button.active{background:var(--gold);color:#040407}
 .lang-pill button:hover:not(.active){color:var(--gold)}
+/* ── Tagline sub-explainer (anchors "Cosmic Score" tagline with a 1-line
+   definition + inline link to /cosmic-score so first-timers don't bounce
+   wondering what the score is). ── */
+.tagline-sub{font-family:'Cormorant Garamond','Songti SC','PingFang SC','Sarabun',serif;font-style:italic;font-size:13px;color:var(--muted);margin:6px auto 0;letter-spacing:.2px;max-width:580px;padding:0 16px;line-height:1.55;text-align:center}
+.tagline-sub a{color:var(--gold2);text-decoration:none;border-bottom:1px dotted var(--gold3);padding-bottom:1px}
+.tagline-sub a:hover{color:var(--gold);border-bottom-color:var(--gold)}
+html[lang="th"] .tagline-sub{font-family:'Leelawadee UI','Tahoma','Sarabun',sans-serif;font-style:normal;font-size:12.5px}
+/* ── Hero preview card · shows "what you'll get" in 3 example system
+   cells + 1 score row, with a CTA to /sample-report. Helps first-timers
+   visualise "26 systems" before they decide to enter their DOB. ── */
+.hero-preview{max-width:680px;margin:18px auto 4px;background:var(--bg2);border:1px solid var(--gold3);border-radius:8px;padding:14px 18px;position:relative}
+.hp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
+.hp-eyebrow{font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2.5px;color:var(--gold);opacity:.85;text-transform:uppercase}
+.hp-close{background:transparent;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0 4px;line-height:1;font-family:Arial,sans-serif}
+.hp-close:hover{color:var(--gold)}
+.hp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:10px}
+.hp-cell{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 10px;text-align:center}
+.hp-cell-score{grid-column:1/-1;background:rgba(200,164,90,.06);border-color:var(--gold3)}
+.hp-glyph{display:block;font-size:14px;color:var(--gold);margin-bottom:2px}
+.hp-k{display:block;font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:2px}
+.hp-v{display:block;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--text)}
+.hp-v-big{font-size:15px;color:var(--gold2);font-weight:500}
+.hp-foot{font-family:'Cormorant Garamond','Sarabun',serif;font-style:italic;font-size:11.5px;color:var(--muted);text-align:center;padding-top:6px;border-top:1px solid var(--border);line-height:1.5}
+.hp-foot a{color:var(--gold2);text-decoration:none}
+.hp-foot a:hover{color:var(--gold)}
+html[lang="th"] .hp-foot{font-family:'Leelawadee UI','Sarabun',sans-serif;font-style:normal}
 nav{display:flex;justify-content:center;gap:3px;padding:18px 12px 0;flex-wrap:wrap;}
 .tab-btn{font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:9px 16px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);cursor:pointer;border-radius:2px;transition:all .3s;white-space:nowrap;}
 .tab-btn:hover{color:var(--gold);border-color:var(--gold3);}
@@ -1518,12 +1544,61 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <div class="header-user" id="headerUser"></div>
   <div class="logo">MYTHSENSUS</div>
   <div class="tagline" data-t="tagline">Where myriad myths reach consensus — about you</div>
+  <div class="tagline-sub" data-en="One Cosmic Score (1–1,000) synthesised from 26 ancient divination systems — BaZi, Vedic, Western, Nine Star Ki and more. " data-th="คะแนนเดียวจาก 26 ศาสตร์โบราณ — BaZi, Vedic, Western, Nine Star Ki และอีก 22 ศาสตร์ ">คะแนนเดียวจาก 26 ศาสตร์โบราณ — BaZi, Vedic, Western, Nine Star Ki และอีก 22 ศาสตร์
+    <a href="/cosmic-score" data-en="What's a Cosmic Score? →" data-th="Cosmic Score คืออะไร? →">Cosmic Score คืออะไร? →</a>
+  </div>
   <div class="date-display" id="dateDisplay"></div>
-  <div style="text-align:center;margin-top:10px;display:flex;justify-content:center;gap:10px;align-items:center;flex-wrap:wrap">
-    <a href="/blog/" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);text-decoration:none;border:1px solid var(--gold3);padding:5px 16px;border-radius:20px;display:inline-block" data-en="📖 Cosmic Library" data-th="📖 ห้องสมุดจักรวาล">📖 ห้องสมุดจักรวาล</a>
-    <a href="/cosmic-score" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);text-decoration:none;border:1px solid var(--gold3);padding:5px 16px;border-radius:20px;display:inline-block" data-en="✦ Cosmic Score" data-th="✦ Cosmic Score">✦ Cosmic Score</a>
+  <div style="text-align:center;margin-top:10px;display:flex;justify-content:center;gap:8px;align-items:center;flex-wrap:wrap">
+    <a href="/blog/" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);text-decoration:none;border:1px solid var(--gold3);padding:5px 14px;border-radius:20px;display:inline-block" data-en="📖 Cosmic Library" data-th="📖 ห้องสมุดจักรวาล">📖 ห้องสมุดจักรวาล</a>
+    <a href="/cosmic-score" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);text-decoration:none;border:1px solid var(--gold3);padding:5px 14px;border-radius:20px;display:inline-block" data-en="✦ Cosmic Score" data-th="✦ Cosmic Score">✦ Cosmic Score</a>
+    <a href="/sample-report" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);text-decoration:none;border:1px solid var(--gold3);padding:5px 14px;border-radius:20px;display:inline-block" data-en="📄 Sample Report" data-th="📄 ตัวอย่างรายงาน">📄 ตัวอย่างรายงาน</a>
+    <a href="/how-it-works" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);text-decoration:none;border:1px solid var(--gold3);padding:5px 14px;border-radius:20px;display:inline-block" data-en="🔒 How It Works" data-th="🔒 ทำงานยังไง">🔒 ทำงานยังไง</a>
   </div>
 </header>
+
+<!-- ═══ HERO PREVIEW · "What you'll see" card · dismissible ═══ -->
+<div class="hero-preview" id="heroPreview">
+  <div class="hp-head">
+    <span class="hp-eyebrow" data-en="✦ Example preview · what 26 systems look like" data-th="✦ ตัวอย่าง · 26 ศาสตร์หน้าตาเป็นยังไง">✦ ตัวอย่าง · 26 ศาสตร์หน้าตาเป็นยังไง</span>
+    <button class="hp-close" onclick="document.getElementById('heroPreview').style.display='none';try{localStorage.setItem('mth_hp_dismissed','1')}catch(e){}" title="Hide / ซ่อน" aria-label="Hide preview">×</button>
+  </div>
+  <div class="hp-grid">
+    <div class="hp-cell">
+      <span class="hp-glyph">☉</span>
+      <span class="hp-k" data-en="Western Sun" data-th="ราศีอาทิตย์">ราศีอาทิตย์</span>
+      <span class="hp-v">Pisces · มีน</span>
+    </div>
+    <div class="hp-cell">
+      <span class="hp-glyph">五</span>
+      <span class="hp-k" data-en="BaZi Day Master" data-th="ธาตุของวัน BaZi">ธาตุของวัน BaZi</span>
+      <span class="hp-v">戊 · ดินหยาง</span>
+    </div>
+    <div class="hp-cell">
+      <span class="hp-glyph">✦</span>
+      <span class="hp-k" data-en="Vedic Nakshatra" data-th="นักษัตร Vedic">นักษัตร Vedic</span>
+      <span class="hp-v">Uttara Bhadrapada</span>
+    </div>
+    <div class="hp-cell hp-cell-score">
+      <span class="hp-glyph">⟁</span>
+      <span class="hp-k" data-en="Cosmic Score · consensus of 26 systems" data-th="Cosmic Score · consensus จาก 26 ศาสตร์">Cosmic Score · consensus จาก 26 ศาสตร์</span>
+      <span class="hp-v hp-v-big">754 / 999 · Resonant</span>
+    </div>
+  </div>
+  <div class="hp-foot">
+    <span data-en="Numbers above are computed by the engine for a real historical figure. " data-th="ตัวเลขด้านบนคำนวณจาก engine จริงของบุคคลในประวัติศาสตร์ ">ตัวเลขด้านบนคำนวณจาก engine จริงของบุคคลในประวัติศาสตร์
+    <a href="/sample-report" data-en="See full 43-page sample →" data-th="ดูตัวอย่างเต็ม 43 หน้า →">ดูตัวอย่างเต็ม 43 หน้า →</a>
+    </span>
+  </div>
+</div>
+<script>
+// Hide hero preview if user dismissed it previously.
+try{
+  if(localStorage.getItem('mth_hp_dismissed')==='1'){
+    var _hp=document.getElementById('heroPreview');
+    if(_hp) _hp.style.display='none';
+  }
+}catch(e){}
+</script>
 
 <!-- (Nav-collapse toggle removed — see CSS comment above.) -->
 
