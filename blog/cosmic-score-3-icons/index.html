@@ -132,12 +132,12 @@ a{color:var(--gold);text-decoration:none}
 </div>
 
 <h2>วิธีการ — Engine, ไม่ใช่ AI</h2>
-<p>Mythsensus ไม่ใช่ ChatGPT ที่<em>เดา</em>ดวง — มันคือ <strong>algorithm คณิตศาสตร์</strong>ของศาสตร์โบราณ 26 ระบบ ที่ implement เป็นโค้ดและรันใน browser (หรือ Node) ของคุณเอง ใส่วันเกิด → คำนวณตำแหน่งดาว, stem-branch, นักษัตร, เลข 7 ตัว 9 ฐาน, ดาว Magic Square, Mahadasha cycle ฯลฯ — ทั้งหมด deterministic input เดียวกันออก output เดียวกันเสมอ</p>
+<p>Mythsensus ไม่ใช่ ChatGPT ที่<em>เดา</em>ดวง — แต่เป็น<strong>ระบบคำนวณทางคณิตศาสตร์</strong>ของศาสตร์โบราณทั้ง 26 ระบบ เขียนเป็นโค้ดและทำงานในเบราว์เซอร์ (หรือ Node.js) ของคุณเอง ใส่วันเกิด → คำนวณตำแหน่งดาว แม่ลูก-ก้านสาขา (stem-branch) นักษัตร เลข 7 ตัว 9 ฐาน ดาวในแมจิกสแควร์ รอบทศ (Mahadasha) ฯลฯ — ทั้งหมดคำนวณแบบกำหนดผล (deterministic) วันเกิดเดียวกันให้ผลลัพธ์เดียวกันเสมอ</p>
 <p>สำหรับบทความนี้ เรา:</p>
 <p>1. เขียน Node script ที่ <code>require('Mythsensus/build/calc.js')</code><br>
 2. ส่ง <code>{name, year, month, day, hour, minute, lat, lon, timezone}</code> ของแต่ละบุคคล<br>
 3. ปริ้น <code>chart.score.total</code>, <code>chart.score.tier</code>, และ per-system tokens<br>
-4. <strong>ไม่แต่ง ไม่แก้ ไม่ AI</strong> — ตัวเลขที่คุณเห็นด้านล่างคือ output ของ engine โดยตรง</p>
+4. <strong>ไม่แต่ง ไม่แก้ ไม่ใช้ AI ตกแต่ง</strong> — ตัวเลขที่คุณเห็นด้านล่างคือผลลัพธ์จาก engine โดยตรง</p>
 
 <h2>ผลการคำนวณ — 3 บุคคล</h2>
 

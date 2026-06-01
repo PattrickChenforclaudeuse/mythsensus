@@ -4339,7 +4339,7 @@ const _phaseMeaning = {
     'First Quarter':  'ฝ่าแรงต้านและลงมือ · ดีกว่ารอ',
     'Waxing Gibbous': 'ปรับและขัดเกลา · เส้นชัยใกล้แล้ว',
     'Full Moon':      'เผยความจริง · เฉลิมฉลองหรือปล่อยวางสิ่งที่ไม่เป็นประโยชน์',
-    'Waning Gibbous': 'แบ่งปันสิ่งที่เรียนรู้ · ความกตัญญูสร้างผลทบทวี',
+    'Waning Gibbous': 'แบ่งปันสิ่งที่เรียนรู้ · ความกตัญญูสร้างผลทวีคูณ',
     'Last Quarter':   'ปล่อยวางด้วยใจดี · เปิดพื้นที่ให้วงจรใหม่',
     'Waning Crescent':'พักและสะท้อนตัวเอง · วงจรถัดไปกำลังถูกเตรียม',
   }
@@ -5969,9 +5969,9 @@ function _buildDeepAddon(chart, key){
         `Low emotional biorhythm (${bp(bioEmo)}) day — add omega-3 + tryptophan (fish/avocado/dark chocolate)`,
         `${dmCore.drains?`Avoid ${dmCore.drains} at main meals`:'Log foods that cause sluggishness for 1 week — eliminate'}`,
       ],
-      avoidTh: `อย่ากินตาม diet trend ที่ขัดกับธาตุ${dmEl} — keto/raw/vegan ไม่ใช่สำหรับทุกคน`,
+      avoidTh: `อย่ากินตามกระแสอาหารที่ขัดกับธาตุ${dmEl} — keto/raw/vegan ไม่เหมาะกับทุกคน`,
       avoidEn: `Don't follow diet trends against your ${dmEl} — keto/raw/vegan aren't for everyone`,
-      mantraTh: `อาหารของฉันต้อง resonate กับธาตุของฉัน ไม่ใช่ trend ของ Instagram`,
+      mantraTh: `อาหารของฉันต้องสอดคล้องกับธาตุของฉัน ไม่ใช่ตามกระแส Instagram`,
       mantraEn: `My food has to resonate with my element, not Instagram's trend`,
     },
     product: {
@@ -7166,7 +7166,7 @@ function renderResonance(){
     <!-- 🏭 Top 5 industries — ranked by your specific chart -->
     <div class="deep-sys-card" style="margin-top:14px">
       <div class="deep-sys-title">🏭 ${isTh?'5 อุตสาหกรรมที่หนุนพลังคุณ':'Top 5 industries that amplify you'}</div>
-      <div class="deep-sys-origin">${isTh?`ธาตุ${dmEl} ของคุณ resonate กับอุตสาหกรรมเหล่านี้ · แตะเพื่อเลือก`:`Your ${dmEl} element resonates with these · tap to pick`}</div>
+      <div class="deep-sys-origin">${isTh?`ธาตุ${dmEl} ของคุณสอดคล้องกับอุตสาหกรรมเหล่านี้ · แตะเพื่อเลือก`:`Your ${dmEl} element resonates with these · tap to pick`}</div>
       <div style="margin-top:10px">
         ${top(industryRanked,5).map((d,i) => rankRow(d, i+1, industry, 'mth_industry', d.el)).join('')}
       </div>
@@ -9747,7 +9747,7 @@ function renderCompanions(){
           textTh:`ดาวประจำวัน (อา.=Sun, จ.=Moon, อ.=Mars, พ.=Mercury, พฤ.=Jupiter, ศ.=Venus, ส.=Saturn) → กำหนดว่าควรอัญเชิญ creature ตัวไหนในวันนั้น`,
           textEn:`Vedic weekday rulers (Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn) → which creature to invoke that day` },
         { labelTh:'CROSS-SYSTEM CITATION (LP · RUNE · KIN)', labelEn:'CROSS-SYSTEM CITATION',
-          textTh:`Life Path ${lp} · Norse Rune ${rune} · Mayan Kin ${kin} — ใช้คัด mantra + คริสตัล + สถานที่ที่ resonate กับ 3 พิกัดนี้ตรงๆ`,
+          textTh:`Life Path ${lp} · Norse Rune ${rune} · Mayan Kin ${kin} — ใช้คัดมนตรา + คริสตัล + สถานที่ที่สอดคล้องกับ 3 พิกัดนี้ตรง ๆ`,
           textEn:`Life Path ${lp} · Norse Rune ${rune} · Mayan Kin ${kin} — used to filter the mantra + crystal + place that resonates with these 3 axes` },
       ]
     )}
@@ -10361,7 +10361,7 @@ function renderProduct(){
     ],
     whyFits: [
       isTh
-        ? `Archetype ด้านล่างคัดจาก <strong>4 ศาสตร์</strong> — BaZi Day Master (${chart.bazi.dayMasterTh}) + Nine Star Ki (สี${starColor}) + ไทยพราหมณ์ (วัน${chart.thai?.dayName}) + Celtic (${chart.celtic?.treeNameTh||chart.celtic?.treeName||'—'}) — เห็นตรงกันว่าคุณ resonate กับ aesthetic แบบนี้`
+        ? `ต้นแบบด้านล่างคัดจาก <strong>4 ศาสตร์</strong> — BaZi Day Master (${chart.bazi.dayMasterTh}) + Nine Star Ki (สี${starColor}) + ไทยพราหมณ์ (วัน${chart.thai?.dayName}) + Celtic (${chart.celtic?.treeNameTh||chart.celtic?.treeName||'—'}) — เห็นตรงกันว่าคุณเข้ากับสุนทรียะแบบนี้`
         : `The archetype below is filtered through <strong>4 systems</strong> — BaZi + NSK + Thai Brahmin + Celtic — converging on the same aesthetic`,
       isTh
         ? `สี/วัสดุ/แบรนด์แต่ละชิ้น map กับ <strong>หน้าสีมงคลใน Cosmic Blueprint</strong> — ไม่ใช่คำแนะนำใหม่ แต่เป็น concrete products ของเฉพาะแต่ละสี`
@@ -14907,8 +14907,8 @@ ${(()=>{
   const dm=SEL[D.si];
   const pyWealthMap = {
     1:'ปีแห่งรากฐาน — เหมาะสร้าง income stream ใหม่ เริ่มลงทุนระยะยาว อย่า gamble ด้วยเงินที่ยังไม่มั่นคง',
-    2:'ปีแห่งความร่วมมือ — รายได้มาจาก partnership และ collaboration หาพาร์ทเนอร์ที่ complement จุดอ่อน',
-    3:'ปีแห่งการแสดงออก — สร้าง personal brand โอกาสมาจากการ "visible" ไม่ใช่นิ่งเงียบ',
+    2:'ปีแห่งความร่วมมือ — รายได้มาจากการเป็นหุ้นส่วนและทำงานร่วมกัน หาคู่ที่เสริมจุดอ่อนของคุณ',
+    3:'ปีแห่งการแสดงออก — สร้างแบรนด์ส่วนตัว โอกาสมาจากการ "ปรากฏตัว" ไม่ใช่นิ่งเงียบ',
     4:'ปีแห่งสร้างระบบ — วางโครงสร้างการเงิน สร้าง SOPs ลดรายจ่ายที่ไม่จำเป็น สะสมทุน',
     5:'ปีแห่งเปลี่ยนแปลง — โอกาสใหม่มาพร้อมความเสี่ยงสูง ระวัง impulse spending เน้นรักษา+เพิ่ม slowly',
     6:'ปีแห่งความรับผิดชอบ — รายได้มั่นคงมาจากงานที่ทำ "right way" ลงทุนในสิ่งที่ดูแลได้',
@@ -14919,7 +14919,7 @@ ${(()=>{
   const mahaDashaWealth = {
     'พระอาทิตย์':'ช่วงอำนาจและชื่อเสียง รายได้มาจากตำแหน่งและการยอมรับ พัฒนา personal brand สร้างรายได้จากความเชี่ยวชาญ',
     'ดวงจันทร์':'ช่วงอารมณ์และความสัมพันธ์ รายได้จาก caring/service ระวัง emotional spending',
-    'ดาวอังคาร':'ช่วงพลังงานสูง ใช้ momentum สร้าง income ใหม่ได้ดี แต่ระวังลงทุนที่เสี่ยงเพราะ impulsive',
+    'ดาวอังคาร':'ช่วงพลังงานสูง ใช้โมเมนตัมสร้างรายได้ใหม่ได้ดี แต่ระวังการลงทุนเสี่ยงที่ตัดสินใจด้วยอารมณ์ชั่ววูบ',
     'ราหู':'ช่วงโอกาสใหม่/ต่างประเทศเปิด แต่ระวัง overpromise และคนที่ไม่จริงใจเรื่องเงิน',
     'พฤหัส':'ช่วงทองของการขยายตัว Jupiter ขยายทุกอย่างรวมถึงความมั่งคั่ง ลงทุนและขยายธุรกิจได้ดีมาก',
     'เสาร์':'ช่วงทดสอบ ผลตอบแทนมาช้าแต่ยั่งยืน เน้นสร้างรากฐาน ตัดค่าใช้จ่ายที่ไม่จำเป็น ลงทุนระยะยาว',
@@ -15017,7 +15017,7 @@ ${box('g','หมายเหตุ',`${thai.name} (★) คือวันเ�
   const decadeActions=[
     ['สร้าง expertise ในสาขาที่เลือก','วางโครงสร้างการเงินพื้นฐาน','สร้างความสัมพันธ์คุณภาพสูง','เรียนรู้จากความผิดพลาดโดยไม่ตัดสิน'],
     ['สร้าง expertise ให้เป็น Top 5% ในสาขาที่เลือก','ลงทุนระยะยาวด้วยความรู้ที่มีอยู่ (DCA Index Fund)','สร้าง income stream ที่ 2 จากความรู้ที่มีอยู่','ดูแลสุขภาพพื้นฐาน: ดื่มน้ำ นอน ออกกำลังกาย'],
-    ['ขยาย portfolio ด้วยความเสมอสม','สอน mentoring ถ่ายทอดความรู้','ดูแลสุขภาพเชิงรุก ตรวจประจำปี','วางแผน estate และ legacy อย่างจริงจัง'],
+    ['ขยายพอร์ตการลงทุนอย่างสม่ำเสมอ','เป็นที่ปรึกษาและถ่ายทอดความรู้ให้รุ่นน้อง','ดูแลสุขภาพเชิงรุก ตรวจประจำปี','วางแผนทรัพย์สินและมรดกอย่างจริงจัง'],
     ['ขยาย passive income streams ที่สร้างไว้ก่อนหน้า','เป็น mentor ในสาขาที่เชี่ยวชาญ — คุณค่าสูงมากในช่วงนี้','ตรวจสุขภาพเชิงรุกปีละ 2 ครั้ง อย่ารอให้ป่วย','วางแผน estate และ wealth transfer อย่างจริงจัง'],
     ['ทำสิ่งที่มีความหมายจริงๆ — ตัดสิ่งที่ทำเพราะคนอื่นคาดหวัง','เขียน memoir หรือ document บทเรียนชีวิตให้คนรุ่นหลัง','อาสาสมัครหรือ contribute ในสาขาที่เชี่ยวชาญ — ไม่ต้องการเงิน','ดูแล joy และ health เป็นสิ่งสำคัญที่สุด ไม่ใช่ productivity'],
   ];
@@ -15026,7 +15026,7 @@ ${box('g','หมายเหตุ',`${thai.name} (★) คือวันเ�
     ['2026 (PY'+' + Ben Ming Nian): วางรากฐาน ห้ามเสี่ยงสูง กฎ 24 ชม. บังคับ','2027 (PY7): วิเคราะห์และความเชี่ยวชาญ เหมาะลงทุนในความรู้','2028 (PY8): ปีอำนาจและการนำ เปิดโอกาสใหม่ · Saturn-Jupiter sub-period ≈2028: โอกาสใหญ่จาก Jupiter เปิด'],
     ['สิ่งที่สร้างใน phase 35–44 ควรออกผลเงิน','ความสัมพันธ์ที่ดีจะเริ่มสร้างดอกผล','รายได้ควรมาจาก passive income มากขึ้น','เริ่มคิดถึง legacy — สิ่งที่อยากทิ้งไว้'],
     ['Warren Buffett สร้างความมั่งคั่ง 90% หลังอายุ 50 ชาร์ตนี้มี pattern คล้ายกัน','ความมั่งคั่ง (การเงิน ความรู้ อิทธิพล) ควรถึงจุดสูงสุด','การเป็น elder ในสาขาที่เชี่ยวชาญจะมีคุณค่าสูง'],
-    ['Star 9 Fire ในวัยนี้เหมือน "เปลวเทียน" ที่ให้แสงสว่างและนิ่งเรียน ไม่ใช่เปลาไฟ','Jupiter Mahadasha ที่จะตามมาหลัง Saturn = 16 ปีแห่งปัญญาและการขยาย','ชีวิตในช่วงนี้ไม่ใช่การ "หยุด" แต่คือการเปลี่ยนรูปแบบ: จาก Worker → Mentor'],
+    ['Star 9 Fire ในวัยนี้เหมือน "เปลวเทียน" ที่ให้แสงสว่างนิ่ง ๆ ไม่ใช่กองไฟลุกโชน','รอบทศ Jupiter Mahadasha ที่ตามมาหลัง Saturn = 16 ปีแห่งปัญญาและการขยายขอบเขต','ชีวิตในช่วงนี้ไม่ใช่การ "หยุด" แต่คือการเปลี่ยนบทบาท: จากผู้ลงมือ → สู่ผู้ถ่ายทอด'],
   ];
   const p19 = page(19,'📖','ดวงชะตา Decade by Decade — แผนที่ชีวิต',`
 <div style="font-size:12px;color:#7a6a52;margin-bottom:14px;line-height:1.75">การวิเคราะห์นี้ผสมผสาน BaZi Luck Pillar · Vedic Mahadasha · Nine Star Ki · Western progressions และ Numerology เพื่อให้เห็นภาพรวมชีวิตในแต่ละช่วง ไม่ใช่การทำนายที่แน่นอน แต่คือ "แผนที่ภูมิประเทศ" ที่ช่วยเตรียมพร้อม</div>

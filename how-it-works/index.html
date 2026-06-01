@@ -150,7 +150,7 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
   <div class="tldr-card">
     <div class="tldr-label">✦ สรุปสั้น ๆ ๔ ข้อ</div>
     <ul>
-      <li><strong>Engine ทำงานในเบราเซอร์ของคุณ</strong> ไม่มีการเรียก API ไม่ส่งวันเกิดออกจากเครื่อง · พิสูจน์ได้ผ่าน DevTools ภายใน ๓๐ วินาที</li>
+      <li><strong>Engine ทำงานในเบราว์เซอร์ของคุณ</strong> ไม่มีการเรียก API ไม่ส่งวันเกิดออกจากเครื่อง · พิสูจน์ได้ผ่าน DevTools ภายใน ๓๐ วินาที</li>
       <li><strong>ตัวเลขและคะแนนทุกตัวคำนวณแบบกำหนดผล (deterministic)</strong> ไม่มี LLM อยู่ในเส้นทางคำนวณ · เนื้อหาเชิงเล่าเรื่องเป็นส่วนที่ AI ช่วยร่างจากคัมภีร์ดั้งเดิมที่อ้างอิงได้ · <a href="#engine" style="color:var(--gold2);text-decoration:underline">ดูจุดแบ่งให้ชัด →</a></li>
       <li><strong>การลงชื่อเข้าใช้เป็นทางเลือก</strong> เก็บแค่อีเมลและสถานะการสมัครเท่านั้น ไม่เก็บวันเกิดหรือเนื้อหาในแผนภูมิดวง</li>
       <li><strong>การเปิดเผยข้อจำกัดทางวิศวกรรม</strong> — Vedic ayanamsa ใช้สูตร lahiriAyanamsa() ตามเวลาจริง (ปรับเมื่อ ๑ มิ.ย. ๒๕๖๙ จากเดิมตั้งคงที่ ๒๔.๐) · BaZi solar terms ยังเป็นค่าประมาณ · เวอร์ชัน ๒ ของ engine กำหนดปล่อยไตรมาส ๓-๔ ปี ๒๕๖๙</li>
@@ -194,7 +194,7 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
 │  │  │  • No network calls         │  │  │
 │  │  └─────────────────────────────┘  │  │
 │  │              ↑                    │  │
-│  │              │ vันเกิด (in memory)│  │
+│  │              │ วันเกิด (in memory)│  │
 │  │              │                    │  │
 │  │  ┌─────────────────────────────┐  │  │
 │  │  │  Your input (DOB)           │  │  │
@@ -264,7 +264,7 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
         <li>ไปที่แท็บ <strong>Network</strong> ใน DevTools</li>
         <li>กด <code>Ctrl+R</code> (หรือ <code>Cmd+R</code>) — reload หน้า. ดู requests ที่เข้ามา (static files download)</li>
         <li>ใส่วันเกิดของคุณ → กด <strong>Generate</strong></li>
-        <li><strong>ดู Network tab อีกครั้ง</strong> — ไม่มี request ใหม่ไปที่ <code>/api/calculate</code> หรือใด ๆ ที่ mีวันเกิดคุณส่งไป</li>
+        <li><strong>ดู Network tab อีกครั้ง</strong> — ไม่มี request ใหม่ไปที่ <code>/api/calculate</code> หรือใด ๆ ที่มีวันเกิดคุณส่งออกไป</li>
       </ol>
       <p style="margin-top:.8rem;font-size:.95rem">นี่คือพิสูจน์ที่ดีที่สุด — browser ของคุณเห็นทุก HTTP request ที่ออกไป ถ้าเราส่งวันเกิดไป server คุณจะเห็นใน Network tab ทันที</p>
     </div>

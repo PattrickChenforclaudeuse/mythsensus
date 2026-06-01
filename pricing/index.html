@@ -316,7 +316,11 @@ function setLang(l){
   document.getElementById('lang-th').classList.toggle('active',l==='th');
   document.querySelectorAll('[data-en]').forEach(el=>{
     const k=l==='th'?'data-th':'data-en';
-    el.textContent=el.getAttribute(k)||el.textContent;
+    const v=el.getAttribute(k)||el.textContent;
+    // Use innerHTML when value contains HTML tags (preserves <strong>/<a>/<span>);
+    // textContent for plain text (safer, no XSS). Fixed 2026-06-01 — Pattrick
+    // reported beta banner lost <strong> emphasis on TH toggle.
+    if(v.indexOf('<')>=0){ el.innerHTML=v; } else { el.textContent=v; }
   });
   try{localStorage.setItem('mth_lang',l);}catch(e){}
 }
