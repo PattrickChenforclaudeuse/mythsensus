@@ -6439,22 +6439,57 @@ const DEEP_SYSTEMS = [
       [LANG==='th'?'ฤดู':'Season', c.aboriginal.season||'-'],
     ]
   })],
-  ['biorhythm','ds_bio','📈',(c)=>({
-    title:`Biorhythm — ${c.biorhythm.refDate || '2026-04-14'}`,
-    origin: LANG==='th' ? 'สมัยใหม่ (เวียนนา) · ~120 ปี' : 'Modern (Vienna) · 120 yrs',
-    // Engine already returns biorhythm values as percent-int (-100..+100),
-    // see build/calc.js: `physical: Math.round(physical * 100)`. Do NOT
-    // multiply again — previous bug gave -7300% style output.
-    insight: LANG==='th'
-      ? `กาย <strong>${c.biorhythm.physical}%</strong> · อารมณ์ <strong>${c.biorhythm.emotional}%</strong> · สติปัญญา <strong>${c.biorhythm.intellectual}%</strong><br>วันนี้${c.biorhythm.physical>50?'พลังกายสูง — เหมาะลงมือ':'พลังกายต่ำ — เหมาะพักฟื้น'}${c.biorhythm.intellectual>50?' · สมองแล่น เหมาะวางแผน':' · ให้เวลาสมองประมวลผล'}`
-      : `Physical <strong>${c.biorhythm.physical}%</strong> · Emotional <strong>${c.biorhythm.emotional}%</strong> · Intellectual <strong>${c.biorhythm.intellectual}%</strong><br>${c.biorhythm.physical>50?'High physical energy — great day to act':'Low physical day — prioritise rest'}`,
+  ['biorhythm','ds_bio','📈',(c)=>{
+    // Director feedback 2026-06-01: "biorythm ควรอัพเดททุกวัน".
+    // Engine's c.biorhythm is computed against BIORHYTHM_REF (fixed
+    // 2026-04-14) for blueprint determinism — never changes per visit.
+    // For the daily Biorhythm display, override with TODAY's actual values
+    // (renderer-side, no engine touch). The deterministic engine values
+    // still drive Cosmic Score (so saved reports stay reproducible).
+    // Falls back to engine values if input is missing.
+    const PI2 = Math.PI * 2;
+    let bio = c.biorhythm;
+    let isToday = false;
+    let todayISO = bio.refDate || '2026-04-14';
+    if (c.input && c.input.year) {
+      try {
+        const now = new Date();
+        const birth = Date.UTC(c.input.year, (c.input.month||1)-1, c.input.day||1);
+        const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+        const days = Math.round((today - birth) / 86400000);
+        const p = Math.sin((PI2 * days) / 23);
+        const e = Math.sin((PI2 * days) / 28);
+        const i = Math.sin((PI2 * days) / 33);
+        bio = {
+          ...bio,
+          physical: Math.round(p * 100),
+          emotional: Math.round(e * 100),
+          intellectual: Math.round(i * 100),
+        };
+        todayISO = now.toISOString().slice(0, 10);
+        isToday = true;
+      } catch(_) { /* fall back to engine values */ }
+    }
+    const isTh = LANG === 'th';
+    const titleDate = isToday
+      ? (isTh ? `Biorhythm — วันนี้ ${todayISO}` : `Biorhythm — Today ${todayISO}`)
+      : `Biorhythm — ${todayISO}`;
+    return {
+    title: titleDate,
+    origin: isTh ? 'สมัยใหม่ (เวียนนา) · ~120 ปี · refresh ทุกวัน' : 'Modern (Vienna) · 120 yrs · refreshes daily',
+    // Values are percent-int (-100..+100). Daily-overridden by renderer.
+    insight: isTh
+      ? `กาย <strong>${bio.physical}%</strong> · อารมณ์ <strong>${bio.emotional}%</strong> · สติปัญญา <strong>${bio.intellectual}%</strong><br>วันนี้${bio.physical>50?'พลังกายสูง — เหมาะลงมือ':bio.physical>0?'พลังกายปานกลาง':'พลังกายต่ำ — เหมาะพักฟื้น'}${bio.intellectual>50?' · สมองแล่น เหมาะวางแผน':bio.intellectual>0?' · สมองพอใช้':' · ให้เวลาสมองประมวลผล'}${bio.emotional>50?' · อารมณ์เปิด':bio.emotional<-50?' · อารมณ์อ่อนไหว':''}`
+      : `Physical <strong>${bio.physical}%</strong> · Emotional <strong>${bio.emotional}%</strong> · Intellectual <strong>${bio.intellectual}%</strong><br>${bio.physical>50?'High physical energy — great day to act':bio.physical>0?'Moderate physical energy':'Low physical day — prioritise rest'}${bio.intellectual>50?' · sharp mind, good for planning':bio.intellectual>0?' · adequate cognition':' · give your mind time to process'}${bio.emotional>50?' · emotionally open':bio.emotional<-50?' · emotionally sensitive':''}`,
     reading: c.biorhythm.reading||'',
     stats:[
-      [LANG==='th'?'กาย':'Physical', c.biorhythm.physical+'%'],
-      [LANG==='th'?'อารมณ์':'Emotional', c.biorhythm.emotional+'%'],
-      [LANG==='th'?'สติปัญญา':'Intellectual', c.biorhythm.intellectual+'%'],
+      [isTh?'กาย (23 วัน)':'Physical (23-day)', bio.physical+'%'],
+      [isTh?'อารมณ์ (28 วัน)':'Emotional (28-day)', bio.emotional+'%'],
+      [isTh?'สติปัญญา (33 วัน)':'Intellectual (33-day)', bio.intellectual+'%'],
+      [isTh?'อ้างอิงวันที่':'Reference date', todayISO + (isToday ? (isTh?' · refresh ทุกวัน':' · refreshes daily') : '')],
     ]
-  })],
+  };
+  }],
   // เลข ๗ ตัว ๙ ฐาน — Thai 7-Number System. Was the 26th system in the engine
   // score breakdown but missing from this Deep Reading menu, so 81 places of
   // "26 systems" marketing copy were technically over-claiming. Added 2026-05-30.
