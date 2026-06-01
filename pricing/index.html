@@ -223,8 +223,11 @@ html[lang="th"] .tier-name,html[lang="th"] .tier-price,html[lang="th"] .title,ht
           <li><span class="chk">✓</span><span data-en="🔮 Organum+ · expanded 108-deity voting" data-th="🔮 Organum+ · 108 เทพขยายผล">🔮 Organum+ · expanded 108-deity voting</span></li>
         </ul>
         <!-- Gumroad-hosted membership checkout. Gumroad handles card / tax /
-             receipts; our /api/gumroad/webhook flips users.plan on sale. -->
-        <a href="https://garsell.gumroad.com/l/tlkfx?wanted=true" target="_blank" rel="noopener"
+             receipts; our /api/gumroad/webhook flips users.plan on sale.
+             `tlkfx` is a tiered membership product with BOTH monthly + yearly
+             recurrences — same product, buyer picks recurrence at checkout.
+             `recurrence=monthly` pre-selects the monthly tier. -->
+        <a href="https://garsell.gumroad.com/l/tlkfx?wanted=true&recurrence=monthly" target="_blank" rel="noopener"
            class="tier-cta" style="display:block;margin-top:1.5rem;text-decoration:none"
            data-en="Subscribe — $8.99/mo" data-th="สมัคร — ฿315/เดือน">Subscribe — $8.99/mo</a>
       </div>
@@ -241,9 +244,10 @@ html[lang="th"] .tier-name,html[lang="th"] .tier-price,html[lang="th"] .title,ht
           <li><span class="chk">✓</span><span data-en="One charge per year — no monthly billing reminders" data-th="ชาร์จปีละครั้ง — ไม่มีบิลรายเดือนกวน">One charge per year — no monthly billing reminders</span></li>
           <li><span class="chk">✓</span><span data-en="7-day free trial · refund within 14 days unused" data-th="ทดลอง 7 วันฟรี · คืนเงินภายใน 14 วันถ้าไม่ใช้">7-day free trial · refund within 14 days unused</span></li>
         </ul>
-        <!-- Annual tier: add a yearly variant in Gumroad, then swap this link to
-             that variant's permalink. For now points to the monthly membership. -->
-        <a href="https://garsell.gumroad.com/l/tlkfx?wanted=true" target="_blank" rel="noopener"
+        <!-- Same `tlkfx` product as Monthly — Gumroad tiered membership
+             supports both recurrences in one product. `recurrence=yearly`
+             pre-selects the annual tier on the checkout page. -->
+        <a href="https://garsell.gumroad.com/l/tlkfx?wanted=true&recurrence=yearly" target="_blank" rel="noopener"
            class="tier-cta" style="display:block;margin-top:1.5rem;text-decoration:none"
            data-en="Subscribe annually" data-th="สมัครรายปี">Subscribe annually</a>
       </div>

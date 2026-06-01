@@ -97,8 +97,8 @@ subscription URL (still works, just bypasses the per-item flow).
 
 | Product | Price | Type | `_GUMROAD_PRODUCTS` key | Permalink | Status |
 |---|---:|---|---|---|---|
-| Mythsensus Subscription — Monthly | $8.99/mo | Subscription | (subscribe url) | `tlkfx` | ⚠ Director must update price from $0/$4.99 to **$8.99/mo** + publish |
-| Mythsensus Subscription — Annual | $89.99/yr | Subscription | (subscribe url) | _TODO new permalink_ | 🆕 Director must CREATE new Gumroad annual product at $89.99/yr — paste permalink into pricing/index.html L233 (currently fallback to `tlkfx`) |
+| Mythsensus Subscription — Monthly tier | $8.99/mo | Subscription | (subscribe url) | `tlkfx` ?recurrence=monthly | ⚠ Director must update Monthly tier price 499→899 cents via dashboard (API doesn't support tier price update for membership products — confirmed 2026-06-01) |
+| Mythsensus Subscription — Annual tier | $89.99/yr | Subscription | (subscribe url) | `tlkfx` ?recurrence=yearly | ⚠ Director must update Annual tier price 4999→8999 cents via dashboard. **NOTE: same product `tlkfx`, just different recurrence tier** — no new product needed (Gumroad tiered-membership pattern) |
 | Deep Reading (any system) | $9 | One-time | `deep` | `oziji` | ✓ created (draft) — review + publish |
 | Divine Mirror | $9 | One-time | `mirror` | `luqkbx` | ✓ created (draft) — review + publish |
 | Cosmic Pet | $5 | One-time | `pet` | `nxezj` | ✓ created (draft) — review + publish |
