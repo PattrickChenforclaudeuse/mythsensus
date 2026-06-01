@@ -148,21 +148,21 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
   <p class="sub">วันเกิดของคุณเป็นเรื่องส่วนตัว Mythsensus จึงออกแบบให้การคำนวณดวง 26 ศาสตร์ทำใน browser ของคุณเอง — ไม่ส่งวันเกิดไป server ใด ๆ. หน้านี้อธิบาย architecture + วิธีพิสูจน์ด้วยตัวเองใน 30 วินาที</p>
 
   <div class="tldr-card">
-    <div class="tldr-label">✦ TL;DR — 4 ข้อสำคัญ</div>
+    <div class="tldr-label">✦ สรุปสั้น ๆ ๔ ข้อ</div>
     <ul>
-      <li><strong>Engine รันใน browser ของคุณ</strong> · ไม่มี API call · ไม่ส่ง DOB ออก · พิสูจน์ด้วย DevTools 30 วินาที</li>
-      <li><strong>คะแนนทุกตัว = deterministic (ไม่มี LLM)</strong>. เนื้อหาเชิงเล่าเรื่อง = AI ช่วยร่าง อิงจาก traditional doctrines · <a href="#engine" style="color:var(--gold2);text-decoration:underline">แยกแยะให้ชัด →</a></li>
-      <li><strong>Optional account sync</strong> เก็บแค่ email + plan status (active/inactive) · ไม่เก็บ DOB หรือ chart content</li>
-      <li><strong>Engineering-honest disclosure</strong>: Vedic ayanamsa = time-varying lahiriAyanamsa() (patched 2026-06-01, ก่อนหน้านี้ hardcoded 24.0) · BaZi solar terms approximated · v2 ship Q3-Q4 2026</li>
+      <li><strong>Engine ทำงานในเบราเซอร์ของคุณ</strong> ไม่มีการเรียก API ไม่ส่งวันเกิดออกจากเครื่อง · พิสูจน์ได้ผ่าน DevTools ภายใน ๓๐ วินาที</li>
+      <li><strong>ตัวเลขและคะแนนทุกตัวคำนวณแบบกำหนดผล (deterministic)</strong> ไม่มี LLM อยู่ในเส้นทางคำนวณ · เนื้อหาเชิงเล่าเรื่องเป็นส่วนที่ AI ช่วยร่างจากคัมภีร์ดั้งเดิมที่อ้างอิงได้ · <a href="#engine" style="color:var(--gold2);text-decoration:underline">ดูจุดแบ่งให้ชัด →</a></li>
+      <li><strong>การลงชื่อเข้าใช้เป็นทางเลือก</strong> เก็บแค่อีเมลและสถานะการสมัครเท่านั้น ไม่เก็บวันเกิดหรือเนื้อหาในแผนภูมิดวง</li>
+      <li><strong>การเปิดเผยข้อจำกัดทางวิศวกรรม</strong> — Vedic ayanamsa ใช้สูตร lahiriAyanamsa() ตามเวลาจริง (ปรับเมื่อ ๑ มิ.ย. ๒๕๖๙ จากเดิมตั้งคงที่ ๒๔.๐) · BaZi solar terms ยังเป็นค่าประมาณ · เวอร์ชัน ๒ ของ engine กำหนดปล่อยไตรมาส ๓-๔ ปี ๒๕๖๙</li>
     </ul>
   </div>
 
   <!-- AI transparency explainer — added from AI audit re-run 2026-06-01
        (4/5 personas independently flagged "is this AI or deterministic?"). -->
-  <div class="ai-honest" style="max-width:720px;margin:18px auto 24px;padding:16px 20px;background:rgba(200,164,90,.05);border:1px solid var(--gold3);border-radius:8px;font-size:14px;line-height:1.75;color:var(--silver)">
-    <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2.5px;color:var(--gold);margin-bottom:10px;text-transform:uppercase">⚖️ Honest split — deterministic vs AI-assisted</div>
+  <div class="ai-honest" style="max-width:720px;margin:18px auto 24px;padding:16px 20px;background:rgba(200,164,90,.05);border:1px solid var(--gold3);border-radius:8px;font-size:14px;line-height:1.85;color:var(--silver)">
+    <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2.5px;color:var(--gold);margin-bottom:10px;text-transform:uppercase">⚖️ เส้นแบ่งระหว่างการคำนวณกับ AI</div>
     <p style="margin:0">
-      <strong>คะแนน Cosmic Score + คะแนน 26 ศาสตร์ + ตัวเลขทุกตัว</strong> = computed deterministically (สูตรดาราศาสตร์ Newcomb/VSOP87 + lookup tables โบราณ · zero LLM ใน score path · วันเกิดเดียวกัน → ผลเดียวกันทุกครั้ง · reproduce ได้ offline · MCP server ตรวจสอบได้). <strong>เนื้อหาเชิงเล่าเรื่อง</strong> (mythic reading, "หมายถึงอะไรกับคุณ", god myths) = AI ช่วยร่าง อิงจาก cited traditional doctrines (BaZi classics, Vedic texts, Mayan tzolkin sources, ฯลฯ) — NOT freestyle ChatGPT.
+      <strong>Cosmic Score และคะแนนทั้ง ๒๖ ศาสตร์</strong> คำนวณแบบกำหนดผลทั้งหมด ใช้สูตรดาราศาสตร์ (Newcomb / VSOP87) ร่วมกับตารางอ้างอิงดั้งเดิมของแต่ละศาสตร์ ไม่มี LLM อยู่ในเส้นทางคำนวณ วันเกิดเดียวกันให้ผลลัพธ์เดียวกันทุกครั้ง ตรวจสอบซ้ำแบบออฟไลน์ได้ และ MCP server เรียกใช้ engine ตัวเดียวกัน. <strong>เนื้อหาเชิงเล่าเรื่อง</strong> (ตำนาน คำอธิบายความหมาย คำแนะนำในการใช้พลังของคุณ ตำนานเทพ) เป็นส่วนที่ AI ช่วยร่าง โดยอิงจากคัมภีร์ดั้งเดิมที่อ้างอิงได้ — BaZi classics, ตำราพระเวท, ปฏิทินมายันต้นฉบับ ฯลฯ — ไม่ใช่ ChatGPT แต่งเองตามใจชอบ.
     </p>
   </div>
 
