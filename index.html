@@ -1054,7 +1054,7 @@ let _authEmail = '';    // Email pending OTP verification
       "inLanguage": ["th","en"],
       "datePublished": "2026-04-27",
       "dateModified": "2026-06-01",
-      "description": "Mythsensus synthesises 26 ancient divination systems — BaZi, Vedic, Western, Nine Star Ki, Mayan, and 21 others — into a single Cosmic Score from 1 to 1,000. Free Cosmic Score, free daily deity blessing from more than 1,000 deities, free 108 Organum oracle. Premium adds depth: $9 per-system deep readings, a $19 forty-three-page PDF full report, and a $4.99/month subscription for daily-refresh features.",
+      "description": "Mythsensus synthesises 26 ancient divination systems — BaZi, Vedic, Western, Nine Star Ki, Mayan, and 21 others — into a single Cosmic Score from 1 to 1,000. Free Cosmic Score, free daily deity blessing from more than 1,000 deities, free 108 Organum oracle. Premium adds depth: $9 per-system deep readings, a $19 forty-three-page PDF full report, and a $8.99/month subscription for daily-refresh features.",
       "featureList": [
         "BaZi (Four Pillars of Destiny)",
         "Vedic Jyotish",
@@ -1106,7 +1106,7 @@ let _authEmail = '';    // Email pending OTP verification
           "@type": "Offer",
           "name": "Daily Subscription",
           "description": "Monthly access to daily-refresh features, frequency alerts, and full history. 7-day free trial.",
-          "price": "4.99",
+          "price": "8.99",
           "priceCurrency": "USD",
           "url": "https://mythsensus.com/pricing",
           "availability": "https://schema.org/InStock"
@@ -5231,7 +5231,7 @@ function _addToLibrary(itemKey, opts){
 }
 
 // Payment is LIVE via Gumroad (2026-05-28). Gating model = HYBRID:
-//   - Active subscriber (Gumroad $4.99/mo → auth.users.app_metadata.plan
+//   - Active subscriber (Gumroad $8.99/mo → auth.users.app_metadata.plan
 //     === 'premium', surfaced via /api/me/plan) unlocks EVERYTHING.
 //   - Gift code unlocks everything (beta access).
 //   - Per-item one-time purchases ($9 system / $19 report) — Phase 2:
@@ -5328,7 +5328,7 @@ async function _refreshPremium(){
 // Omise account is approved (Task 2 in handoff) this will open the Omise
 // JS popup and only record the purchase after server-side charge success.
 // Gumroad-hosted subscription checkout. During Phase 1 there is no per-item
-// Gumroad product yet, so every "Unlock" CTA routes to the $4.99/mo membership
+// Gumroad product yet, so every "Unlock" CTA routes to the $8.99/mo membership
 // which unlocks EVERYTHING. (Phase 2 will add real per-item products and record
 // purchases server-side; the local purchase map in _hasItemAccess is kept for
 // forward-compat with that.) Subscribing flips app_metadata.plan via the
@@ -5386,7 +5386,7 @@ function _purchaseItem(itemKey, opts){
     const price   = PRICING[itemKey] || PRICING[String(itemKey || '').split('_')[0]] || { usd: 9 };
     _showSyncToast(oneTime
       ? (isTh ? `✦ ซื้อครั้งเดียว $${price.usd} → ปลดล็อกสำหรับวันเกิดนี้` : `✦ One-time $${price.usd} → unlock for this chart`)
-      : (isTh ? '✦ สมัครสมาชิก $4.99/เดือน → ปลดล็อกทุกศาสตร์' : '✦ Subscribe $4.99/mo → unlock everything'));
+      : (isTh ? '✦ สมัครสมาชิก $8.99/เดือน → ปลดล็อกทุกศาสตร์' : '✦ Subscribe $8.99/mo → unlock everything'));
   } catch(_){}
   try { if (typeof _logEngagement === 'function') _logEngagement('purchase_click:' + (itemKey || 'unknown') + ':' + checkout.kind); } catch(_){}
   window.open(checkout.url, '_blank', 'noopener');
@@ -5398,7 +5398,7 @@ function _purchaseItem(itemKey, opts){
 function _purchaseSubscription(source){
   const isTh = LANG === 'th';
   try {
-    _showSyncToast(isTh ? '✦ สมัครสมาชิก $4.99/เดือน → ปลดล็อกทุกศาสตร์' : '✦ Subscribe $4.99/mo → unlock everything');
+    _showSyncToast(isTh ? '✦ สมัครสมาชิก $8.99/เดือน → ปลดล็อกทุกศาสตร์' : '✦ Subscribe $8.99/mo → unlock everything');
   } catch(_){}
   try { if (typeof _logEngagement === 'function') _logEngagement('subscribe_click:' + (source || 'unknown')); } catch(_){}
   window.open(_GUMROAD_SUBSCRIBE_URL, '_blank', 'noopener');
@@ -5586,7 +5586,7 @@ function _purchasePaywall(itemKey, opts){
       ${benefits.length ? `<ul style="margin:10px 0 12px 18px;padding:0;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--text);line-height:1.7">${benefits.map(b=>`<li style="margin-bottom:2px">${b}</li>`).join('')}</ul>` : ''}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
         <button onclick="_purchaseItem(${itemArg},{label:${labelArg}})" style="cursor:pointer;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:var(--bg);font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:9px 16px;border-radius:6px;font-weight:700">✦ ${isTh?'ปลดล็อค $'+price.usd:'Unlock $'+price.usd}</button>
-        <button onclick="_purchaseSubscription('paywall:${itemKey}')" style="cursor:pointer;background:transparent;border:1px solid var(--gold3);color:var(--gold);font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:1.5px;padding:9px 14px;border-radius:6px" title="${isTh?'ปลดล็อกทุก feature ของ Mythsensus':'Unlock every Mythsensus feature'}">${isTh?'หรือสมัครสมาชิก $4.99/ด.':'Or subscribe $4.99/mo'}</button>
+        <button onclick="_purchaseSubscription('paywall:${itemKey}')" style="cursor:pointer;background:transparent;border:1px solid var(--gold3);color:var(--gold);font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:1.5px;padding:9px 14px;border-radius:6px" title="${isTh?'ปลดล็อกทุก feature ของ Mythsensus':'Unlock every Mythsensus feature'}">${isTh?'หรือสมัครสมาชิก $8.99/ด.':'Or subscribe $8.99/mo'}</button>
         <button onclick="_redeemGiftCodePrompt()" style="cursor:pointer;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;padding:9px 12px;border-radius:6px">${isTh?'ใส่รหัสของขวัญ / ส่วนลด':'Redeem code'}</button>
       </div>
       <div style="margin-top:8px">
@@ -8328,7 +8328,7 @@ function _planComparisonHtml(isTh){
   const one = card(isTh?'ซื้อครั้งเดียว':'ONE-TIME', isTh?'เจาะลึกรายอย่าง':'Per add-on', isTh?'฿180–650 (ต่ออย่าง)':'$5–19 each', 'var(--gold3)',
     isTh ? ['✓ ปลดล็อก add-on ที่เลือก<br><span style="color:var(--muted);font-size:12px">(Deep Reading · Mirror · Pet · Food · Compat …)</span>','✓ ใช้กับ <strong>ดวงของคุณ</strong>','✓ ดูซ้ำได้ตลอด ไม่หมดอายุ'] : ['✓ Unlock the add-on you pick<br><span style="color:var(--muted);font-size:12px">(Deep Reading · Mirror · Pet · Food · Compat …)</span>','✓ For <strong>your chart</strong>','✓ Unlimited re-views, forever'],
     isTh ? 'เปลี่ยนวันเกิด/เวลา = ต้องซื้อใหม่' : 'Change birth data → re-purchase');
-  const sub = card(isTh?'★ คุ้มสุด':'★ BEST VALUE', isTh?'สมาชิก':'Subscription', isTh?'$4.99/เดือน':'$4.99/mo', 'var(--gold)',
+  const sub = card(isTh?'★ คุ้มสุด':'★ BEST VALUE', isTh?'สมาชิก':'Subscription', isTh?'$8.99/เดือน':'$8.99/mo', 'var(--gold)',
     isTh ? ['✓ ปลดล็อก <strong>add-on ทุกอย่าง</strong>','✓ <strong>ทุกดวง</strong> (ตัวเอง · คู่ · เพื่อน · ครอบครัว)','✓ Full Report 43 หน้า (PDF)','✓ feature ใหม่ในอนาคต'] : ['✓ <strong>Every</strong> deep add-on','✓ <strong>Every</strong> chart (you · partner · friends)','✓ 43-page Full Report PDF','✓ All future features'],
     isTh ? 'ยกเลิกเมื่อไหร่ก็ได้' : 'Cancel anytime');
   return `
@@ -8337,7 +8337,7 @@ function _planComparisonHtml(isTh){
       <div style="display:flex;gap:10px;flex-wrap:wrap">${free}${one}${sub}</div>
       <div style="margin-top:10px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12px;color:var(--muted);line-height:1.6">${isTh?'สรุปสั้น: <strong style="color:var(--gold2)">ซื้อครั้งเดียว</strong> = 1 add-on / 1 ดวง ถาวร · <strong style="color:var(--gold2)">สมาชิก</strong> = ทุก add-on / ทุกดวง ตราบที่ต่ออายุ':'In short: <strong style="color:var(--gold2)">one-time</strong> = one add-on for one chart, forever · <strong style="color:var(--gold2)">subscription</strong> = all add-ons for all charts while active'}</div>
       <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-        <button onclick="_purchaseSubscription('library')" style="cursor:pointer;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:var(--bg);font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 18px;border-radius:6px;font-weight:700">✦ ${isTh?'สมัครสมาชิก $4.99/ด.':'Subscribe $4.99/mo'}</button>
+        <button onclick="_purchaseSubscription('library')" style="cursor:pointer;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:var(--bg);font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 18px;border-radius:6px;font-weight:700">✦ ${isTh?'สมัครสมาชิก $8.99/ด.':'Subscribe $8.99/mo'}</button>
         <button onclick="setGroup('addon');showSubTab('deep')" style="cursor:pointer;background:transparent;border:1px solid var(--gold3);color:var(--gold);font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;padding:10px 16px;border-radius:6px">${isTh?'ดู add-on ทั้งหมด':'Browse add-ons'}</button>
       </div>
     </div>`;
