@@ -10723,8 +10723,27 @@ function _runCompatCheck(){
   function _baziPol(s){ return /^หยาง|^หยาน|^Yang/i.test(s||'') ? 'yang' : /^หยิน|^Yin/i.test(s||'') ? 'yin' : ''; }
   function _baziEl(s){ return String(s||'').replace(/^หยาง|^หยาน|^หยิน|^Yang\s*|^Yin\s*/i, '').trim(); }
 
-  // Compare all 28 systems row by row, score convergence per row.
-  // Each row: {emoji, label, mine, theirs, match (bool|'partial')}
+  // ── Western aspect-name helper (returns aspect name + meaning per distance) ─
+  function _westAspect(a, b){
+    const ia = _signIdx(a), ib = _signIdx(b);
+    if (ia<0 || ib<0) return null;
+    const d = Math.min(Math.abs(ia-ib), 12-Math.abs(ia-ib));
+    const T = {
+      0: { en:'Conjunction (0°)', th:'Conjunction (0°)', detail_en:'same sign — your suns resonate but can mirror each other\'s flaws', detail_th:'ราศีเดียวกัน — เคมีทันทีแต่อาจสะท้อนจุดอ่อนของกันและกัน' },
+      1: { en:'Semi-sextile (30°)', th:'Semi-sextile (30°)', detail_en:'awkward angle — needs minor adjustment to feel right', detail_th:'มุมเฉียง — ต้องปรับเข้าหากันเล็กน้อยจึงจะลงตัว' },
+      2: { en:'Sextile (60°)', th:'Sextile (60°)', detail_en:'supportive — opportunities flow naturally between you', detail_th:'มุมหนุน — โอกาสไหลระหว่างคุณสองคนแบบธรรมชาติ' },
+      3: { en:'Square (90°)', th:'Square (90°)', detail_en:'friction angle — productive tension if neither runs from it', detail_th:'มุมเสียดสี — แรงเสียดทานที่สร้างสรรค์ถ้าไม่หนีกัน' },
+      4: { en:'Trine (120°)', th:'Trine (120°)', detail_en:'natural flow — same element, supportive without effort', detail_th:'มุมกลมกลืน — ธาตุเดียวกัน หนุนกันโดยไม่ต้องพยายาม' },
+      5: { en:'Quincunx (150°)', th:'Quincunx (150°)', detail_en:'inconjunct — requires constant adjustment to bridge worlds', detail_th:'มุมต่างมิติ — ต้องปรับตลอดเวลาเพื่อเชื่อมกัน' },
+      6: { en:'Opposition (180°)', th:'Opposition (180°)', detail_en:'polar attraction — opposites pull and grow each other', detail_th:'มุมตรงข้าม — ขั้วตรงข้ามดึงดูดและเติบโตด้วยกัน' },
+    };
+    return T[d] || null;
+  }
+
+  // Compare all 26 systems row by row, score convergence per row.
+  // Each row: {emoji, label, extract, match, whyTh, whyEn}
+  // why* generates a per-row interpretation (Compat v2 — 2026-06-01:
+  // Pattrick: "ตัว compare 26 ศาสตร์ยังบอกแค่ตรงไม่ตรง").
   const ROWS = [
     // Western — aspect-based (sextile/trine/opposition = good · square = friction)
     { key:'western',  emoji:'☀️', label:isTh?'Western (Sun aspect)':'Western (Sun aspect)',
@@ -10739,6 +10758,11 @@ function _runCompatCheck(){
         if (dist === 4) return true;        // trine — natural flow
         if (dist === 6) return true;        // opposition — polar attraction (growth)
         return 'partial';                   // semi-sextile / quincunx — adjustment
+      },
+      why:(a,b,r) => {
+        const A = _westAspect(a, b);
+        if (!A) return null;
+        return { th:`${A.th} — ${A.detail_th}`, en:`${A.en} — ${A.detail_en}` };
       }},
     // BaZi — polarity (yang/yin) — opposite polarity = balanced
     { key:'bazi',     emoji:'☯️', label:isTh?'BaZi (Yang/Yin)':'BaZi (Yang/Yin)',
@@ -10748,54 +10772,155 @@ function _runCompatCheck(){
         if (!pa || !pb) return _baziEl(a) === _baziEl(b) ? 'partial' : false;
         if (pa !== pb) return true;          // yang+yin → balanced
         return 'partial';                    // both yang or both yin → high-energy, can clash
+      },
+      why:(a,b,r) => {
+        const pa = _baziPol(a), pb = _baziPol(b);
+        if (!pa || !pb) return null;
+        if (pa !== pb) return { th:'ขั้วตรงข้าม (Yang+Yin) — สมดุลพลังงาน หล่อเลี้ยงกันโดยธรรมชาติ', en:'Opposite polarity (Yang+Yin) — energetic balance, naturally complementary' };
+        if (pa === 'yang') return { th:'ทั้งคู่เป็น Yang — พลังสูง ขับเคลื่อนเร็ว แต่อาจชนกันถ้าไม่มีพื้นที่ส่วนตัว', en:'Both Yang — high-energy, fast-moving, can clash without personal space' };
+        return { th:'ทั้งคู่เป็น Yin — ลึกซึ้ง สื่อสารแบบไม่ใช้คำพูดได้ แต่ระวังเก็บกดทั้งคู่', en:'Both Yin — deep, can communicate without words, but watch out for both withdrawing' };
       }},
     { key:'vedic',    emoji:'🕉️', label:'Vedic Nakshatra',
-      extract:c => c.vedic.moonNakshatra, match:(a,b)=>a===b },
+      extract:c => c.vedic.moonNakshatra, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:`Moon nakshatra เดียวกัน (${a}) — soul-level resonance · เข้าใจอารมณ์กันลึกโดยไม่ต้องอธิบาย`, en:`Same moon nakshatra (${a}) — soul-level resonance · you read each other's emotions without explanation` }
+        : { th:`คนละ nakshatra (${a} · ${b}) — ต่างเลนส์ทางอารมณ์ · ต้องเรียนรู้วิธีอ่านอารมณ์ของอีกฝ่าย`, en:`Different nakshatras (${a} · ${b}) — different emotional lenses · you'll learn to read each other's inner weather` }},
     { key:'ninestar', emoji:'⭐', label:'Nine Star Ki',
-      extract:c => 'Star '+c.ninestar.star, match:(a,b)=>a===b },
+      extract:c => 'Star '+c.ninestar.star, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:`Ki number เดียวกัน — เคลื่อนผ่านปี/เดือนแบบ synchronized · จังหวะชีวิตไปด้วยกัน`, en:`Same Ki number — you move through annual/monthly cycles in sync · your life rhythms align` }
+        : { th:`คนละ Ki — แต่ละคนมีจังหวะดี/แย่ในเดือนต่างกัน · ผลัดกันสนับสนุนตามรอบ`, en:`Different Ki — each has good/hard months on different cycles · you can take turns supporting one another` }},
     { key:'numerology', emoji:'🔢', label:'Numerology',
       extract:c => 'LP '+c.numerology.lifePath,
-      match:(a,b) => { const diff=Math.abs(+a.replace(/\D/g,'')-+b.replace(/\D/g,'')); return diff<=2?true: diff<=4?'partial':false; } },
+      match:(a,b) => { const diff=Math.abs(+a.replace(/\D/g,'')-+b.replace(/\D/g,'')); return diff<=2?true: diff<=4?'partial':false; },
+      why:(a,b,r) => {
+        const diff = Math.abs(+a.replace(/\D/g,'')-+b.replace(/\D/g,''));
+        if (diff === 0) return { th:`Life Path เลขเดียวกัน — เส้นทางชีวิตเดียวกัน · เข้าใจ purpose ของกันและกันทันที`, en:`Identical Life Path — same life trajectory · you grok each other's purpose instantly` };
+        if (diff <= 2) return { th:`LP ห่างกัน ${diff} — เส้นทางใกล้เคียง เป้าหมายอยู่ทิศเดียวกัน`, en:`LP differs by ${diff} — adjacent paths heading the same direction` };
+        if (diff <= 4) return { th:`LP ห่างกัน ${diff} — ทิศต่างกันบ้าง แต่ยังมีจุดร่วมที่ทำงานด้วยกันได้`, en:`LP differs by ${diff} — different trajectories with workable overlap` };
+        return { th:`LP ห่างกัน ${diff} — เส้นทางชีวิตคนละทิศ · ต้อง "เลือก" ที่จะมาเจอกัน ไม่ใช่ "ไหลมาเอง"`, en:`LP differs by ${diff} — divergent life paths · you'll have to <em>choose</em> to meet, not drift together` };
+      }},
     // Human Design — type-pair compatibility (Generator+Projector = ideal,
     // Manifestor+Manifestor = clash, etc.)
     { key:'humandesign', emoji:'⚡', label:isTh?'Human Design (Type pair)':'Human Design (Type pair)',
-      extract:c => c.humandesign.typeTh||c.humandesign.type, match:_hdPairMatch },
+      extract:c => c.humandesign.typeTh||c.humandesign.type, match:_hdPairMatch,
+      why:(a,b,r) => {
+        const ca = _hdCode(a), cb = _hdCode(b);
+        if (!ca || !cb) return null;
+        const key = [ca,cb].sort().join('+');
+        const PAIRS = {
+          'G+G':       { th:'Generator + Generator — พลังงานเหมือนกัน ตอบสนองสิ่งเดียวกัน · ต้องไม่กลายเป็น loop "รอกันตอบสนอง"', en:'Generator + Generator — same energy, responding to same things · watch the "waiting for each other to respond" loop' },
+          'G+MG':      { th:'Generator + Manifesting Generator — MG เคลื่อนเร็วกว่า, Generator คอย ground · เสริมกันถ้าไม่แข่งกัน', en:'Generator + Manifesting Generator — MG moves faster, Generator grounds · complementary if not competing' },
+          'G+P':       { th:'Generator + Projector — คลาสสิก! Projector แนะนำ Generator ทำ · ต้องรอ "invitation" ทั้งสองทาง', en:'Generator + Projector — classic pair! Projector advises, Generator executes · both must wait for invitation' },
+          'G+M':       { th:'Generator + Manifestor — Manifestor นำ Generator ตาม · ดีถ้า M ประกาศแผนล่วงหน้า', en:'Generator + Manifestor — Manifestor leads, Generator follows · works if M announces plans early' },
+          'G+R':       { th:'Generator + Reflector — Reflector สะท้อน Generator · ทำให้ G เห็นตัวเองชัดถ้าให้พื้นที่กับเขา', en:'Generator + Reflector — Reflector mirrors Generator · helps G see themselves clearly if given space' },
+          'MG+MG':     { th:'MG + MG — สองคนหลายเลน รวดเร็ว · ระวัง overcommit', en:'MG + MG — both multi-passionate and fast · watch over-commitment' },
+          'MG+P':      { th:'MG + Projector — P นำทาง MG ลุย · ดีถ้า P รอ MG ตอบสนองก่อนแนะนำ', en:'MG + Projector — P guides, MG executes · works if P waits for MG to respond first' },
+          'MG+M':      { th:'MG + Manifestor — สองคนนำทั้งคู่ · ต้องตกลงใครนำเรื่องไหน', en:'MG + Manifestor — both initiators · must agree who leads what' },
+          'MG+R':      { th:'MG + Reflector — R สะท้อนสิ่งที่ MG เคลื่อน · ให้ R เวลาสัมผัสจังหวะแต่ละเดือน', en:'MG + Reflector — R mirrors MG\'s motion · give R the monthly cycle to attune' },
+          'P+P':       { th:'Projector + Projector — สองที่ปรึกษา · ระวังให้คำแนะนำกันโดยไม่ถาม', en:'Projector + Projector — two advisors · watch unsolicited advice to each other' },
+          'P+M':       { th:'Projector + Manifestor — P เห็นภาพรวม, M ลงมือ · ดีถ้า M ฟัง P ก่อนเริ่ม', en:'Projector + Manifestor — P sees the big picture, M acts · works if M listens to P first' },
+          'P+R':       { th:'Projector + Reflector — สองคนรับรู้รอบข้าง · ต้องการ outer Generators ใน ecosystem', en:'Projector + Reflector — both perceptive · need outer Generators in their ecosystem' },
+          'M+M':       { th:'Manifestor + Manifestor — สองหัวเรือ · มักชนกันถ้าไม่ตกลงเขตงานล่วงหน้า', en:'Manifestor + Manifestor — two captains · usually clash without pre-agreed territories' },
+          'M+R':       { th:'Manifestor + Reflector — M ลุย, R สะท้อนผลกระทบ · M ต้องเช็ค R ด้วยความใส่ใจ', en:'Manifestor + Reflector — M acts, R reflects impact · M must check in mindfully' },
+          'R+R':       { th:'Reflector + Reflector — สะท้อนกันและกัน · เปลี่ยนตามรอบจันทร์ทั้งคู่', en:'Reflector + Reflector — mirroring each other · both shift with lunar cycles' },
+        };
+        return PAIRS[key] || null;
+      }},
     { key:'mayan',    emoji:'🌀', label:'Mayan Kin',
-      extract:c => 'Kin '+c.mayan.kin, match:(a,b) => { const diff=Math.abs(+a.split(' ')[1]-+b.split(' ')[1])%260; return diff===0?true: diff<=26?'partial':false; } },
+      extract:c => 'Kin '+c.mayan.kin,
+      match:(a,b) => { const diff=Math.abs(+a.split(' ')[1]-+b.split(' ')[1])%260; return diff===0?true: diff<=26?'partial':false; },
+      why:(a,b,r) => {
+        const diff = Math.abs(+a.split(' ')[1]-+b.split(' ')[1]) % 260;
+        if (diff === 0) return { th:'Kin เดียวกัน — เกิดในวันเดียวของ Tzolkin · galactic signature เดียวกัน', en:'Same Kin — born on the same Tzolkin day · identical galactic signature' };
+        if (diff <= 26) return { th:`Kin ห่างกัน ${diff} — อยู่ใน wavespell เดียวกัน · จังหวะ 13 วันใกล้กัน`, en:`Kin differs by ${diff} — same wavespell · close 13-day rhythm` };
+        return { th:`Kin ห่างกัน ${diff} — wavespell ต่างกัน · จังหวะธรรมชาติคนละจังหวะ`, en:`Kin differs by ${diff} — different wavespells · natural rhythms run on different beats` };
+      }},
     { key:'thai',     emoji:'🙏', label:'Thai Brahmin',
-      extract:c => c.thai.dayName+' · '+c.thai.dayColor, match:(a,b)=>a.split(' · ')[0]===b.split(' · ')[0] },
+      extract:c => c.thai.dayName+' · '+c.thai.dayColor, match:(a,b)=>a.split(' · ')[0]===b.split(' · ')[0],
+      why:(a,b,r) => r===true
+        ? { th:'เกิดวันเดียวกัน — เทวดาประจำวันเดียวกัน · อ่อนแอ/แข็งแกร่งวันเดียวกัน', en:'Same Thai weekday — same guardian deva · share strong/weak days' }
+        : { th:'คนละวันเทวดา — เทวดาคนละองค์ · ขุนพลคนละแบบ ผลัดกันรับช่วงตามวัน', en:'Different weekday devas — different daily guardians, taking turns to lead' }},
     { key:'saju',     emoji:'🌸', label:'Saju',
-      extract:c => c.saju.dayPillar, match:(a,b)=>a===b },
+      extract:c => c.saju.dayPillar, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:'Day pillar Saju เดียวกัน — เกิดวัน 60-cycle เดียวกัน (เกิดทุก ~60 วัน) · ตัวตนหลักคล้ายกันมาก', en:'Same Saju day pillar — born on same 60-day cycle day (~1 in 60 chance) · highly similar core selves' }
+        : { th:'Day pillar ต่าง — ตัวตนหลักคนละแบบใน 60 ตัวอักษร · ความต่างคือพื้นที่เรียนรู้', en:'Different day pillars — distinct core selves from the 60-character cycle · differences are learning territory' }},
     { key:'celtic',   emoji:'🌳', label:'Celtic Tree',
-      extract:c => c.celtic.treeNameTh||c.celtic.treeName, match:(a,b)=>a===b },
+      extract:c => c.celtic.treeNameTh||c.celtic.treeName, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:`Celtic tree เดียวกัน (${a}) — ต้นแบบป่าเดียวกัน · เติบโตในระบบนิเวศเดียวกัน`, en:`Same Celtic tree (${a}) — same forest archetype · growing in the same ecology` }
+        : { th:`ต้นไม้ต่างกัน (${a} · ${b}) — ป่าคนละแบบ · แต่ละต้นเสริมความหลากหลายให้ระบบ`, en:`Different trees (${a} · ${b}) — different forests · each adds biodiversity to the system` }},
     { key:'tibetan',  emoji:'🏔', label:'Tibetan Mewa',
-      extract:c => 'Mewa '+c.tibetan.mewa, match:(a,b)=>a===b },
+      extract:c => 'Mewa '+c.tibetan.mewa, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:'Mewa เดียวกัน — ตาราง 9 ช่องเดียวกัน · พลังงานปีพื้นฐานเดียวกัน', en:'Same Mewa — same 9-square grid position · same root-year energy' }
+        : { th:'Mewa ต่าง — ตำแหน่ง 9-fold ต่าง · ผลัดกันถือธาตุ', en:'Different Mewas — different 9-fold positions · taking turns holding elements' }},
     { key:'ziwei',    emoji:'👑', label:'Zi Wei',
-      extract:c => c.ziwei.mainStarTh||c.ziwei.mainStar, match:(a,b)=>a===b },
+      extract:c => c.ziwei.mainStarTh||c.ziwei.mainStar, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:`Main star Zi Wei เดียวกัน (${a}) — บทบาทใน "ราชสำนักจักรวาล" เดียวกัน · เข้าใจ ambition กันลึก`, en:`Same Zi Wei main star (${a}) — same "celestial court" role · share deep understanding of ambition` }
+        : { th:`Main star ต่าง (${a} · ${b}) — ตำแหน่งในราชสำนักต่าง · แต่ละคนเก่งคนละโดเมน`, en:`Different main stars (${a} · ${b}) — different court positions · each excels in a different domain` }},
     { key:'onmyodo',  emoji:'⛩', label:'Onmyōdō',
-      extract:c => c.onmyodo.rokuyoTh||c.onmyodo.rokuyo, match:(a,b)=>a===b },
+      extract:c => c.onmyodo.rokuyoTh||c.onmyodo.rokuyo, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:'Rokuyō เดียวกัน — โชค/วันมงคลเดียวกัน · ตัดสินใจ "วันไหนทำอะไร" ตรงกัน', en:'Same Rokuyō — share lucky/unlucky days · agree on "which day for what" decisions' }
+        : { th:'Rokuyō ต่าง — วันโชคต่าง · ผลัดกันเป็นคน "วันนี้ของฉัน"', en:'Different Rokuyō — different lucky days · take turns being "today is my day"' }},
     { key:'hellenistic', emoji:'🌿', label:'Hellenistic',
-      extract:c => c.hellenistic.sectTh||c.hellenistic.sect, match:(a,b)=>a===b },
+      extract:c => c.hellenistic.sectTh||c.hellenistic.sect, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:'Sect เดียวกัน (Diurnal/Nocturnal) — เกิดในช่วงวัน/คืนคล้ายกัน · ดาวเคราะห์ดีเหมือนกัน', en:'Same sect (Diurnal/Nocturnal) — born in matching day/night cohort · same benefic planets' }
+        : { th:'Sect ต่าง — คนหนึ่งเป็นคนกลางวัน อีกคนกลางคืน · พลังงานตื่นในจังหวะต่างกัน', en:'Different sects — one diurnal, one nocturnal · awake to different rhythms' }},
     { key:'norseRune', emoji:'ᚦ', label:'Norse Rune',
-      extract:c => c.norseRune.runeName, match:(a,b)=>a===b },
+      extract:c => c.norseRune.runeName, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:`Birth rune เดียวกัน (${a}) — บทเรียน Elder Futhark เดียวกันในชีวิตนี้`, en:`Same birth rune (${a}) — same Elder Futhark lesson for this life` }
+        : { th:`Birth rune ต่าง (${a} · ${b}) — บทเรียนคนละบท · เรียนรู้จากกันได้`, en:`Different birth runes (${a} · ${b}) — different lessons · much to learn from each other` }},
     { key:'ogham',    emoji:'ᚂ', label:'Ogham',
-      extract:c => c.ogham.treeName, match:(a,b)=>a===b },
+      extract:c => c.ogham.treeName, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:`Ogham few เดียวกัน (${a}) — ป่าโบราณเดียวกัน · soul-tree เดียวกัน`, en:`Same Ogham few (${a}) — same ancient grove · matching soul-tree` }
+        : { th:`Ogham few ต่าง — รากเหง้าโบราณต่าง · ต้นไม้ในป่าเดียวที่เกื้อกูลกัน`, en:`Different Ogham few — distinct ancient roots · trees in the same grove supporting each other` }},
     { key:'arabicParts', emoji:'🔮', label:'Arabic Parts',
-      extract:c => c.arabicParts.fortuneSignTh||c.arabicParts.fortuneSign, match:(a,b)=>a===b },
+      extract:c => c.arabicParts.fortuneSignTh||c.arabicParts.fortuneSign, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:'Lot of Fortune เดียวกัน — โชค/ความสำเร็จมาในมิติเดียวกัน', en:'Same Lot of Fortune — fortune/success arrives through matching dimensions' }
+        : { th:'Lot of Fortune ต่าง — โชคของคุณกับเขามาคนละทาง · เสริมกันถ้าใช้เป็น', en:'Different Lot of Fortune — fortune arrives differently for each · complementary if used well' }},
     { key:'kabbalistic', emoji:'✡', label:'Kabbalistic',
-      extract:c => c.kabbalistic.sephira, match:(a,b)=>a===b },
+      extract:c => c.kabbalistic.sephira, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:`Sephira เดียวกัน (${a}) — ตำแหน่งบนต้น Tree of Life เดียวกัน · บทเรียนจิตวิญญาณคล้ายกัน`, en:`Same Sephira (${a}) — same position on Tree of Life · matching spiritual lesson` }
+        : { th:`Sephira ต่าง (${a} · ${b}) — ตำแหน่ง tree of life ต่าง · มิติของพระเจ้าต่างกัน เสริมกันเป็น path`, en:`Different Sephirot (${a} · ${b}) — different positions on Tree of Life · different divine facets, forming a path together` }},
     { key:'zoroastrian', emoji:'🔥', label:'Zoroastrian',
-      extract:c => c.zoroastrian.dayYazataTh||c.zoroastrian.dayYazata, match:(a,b)=>a===b },
+      extract:c => c.zoroastrian.dayYazataTh||c.zoroastrian.dayYazata, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:`Yazata ประจำวันเดียวกัน (${a}) — ทูตสวรรค์โซโรอัสเตอร์องค์เดียวกัน`, en:`Same daily Yazata (${a}) — same Zoroastrian angelic guardian` }
+        : { th:'Yazata ต่าง — ทูตสวรรค์คนละองค์ · ขุนพลคุณธรรมต่างประจำวัน', en:'Different Yazatas — different angelic guardians · distinct daily virtues' }},
     { key:'aztec',    emoji:'🪶', label:'Aztec',
-      extract:c => c.aztec.daySignTh||c.aztec.daySign, match:(a,b)=>a===b },
+      extract:c => c.aztec.daySignTh||c.aztec.daySign, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:`Tonalpohualli day sign เดียวกัน (${a}) — ตำนาน Aztec เรื่องเดียวกัน`, en:`Same Tonalpohualli day sign (${a}) — same Aztec mythic identity` }
+        : { th:`Day sign ต่าง (${a} · ${b}) — ตำนาน Aztec คนละตัวละคร · ความหลากหลายใน trecena`, en:`Different day signs (${a} · ${b}) — different Aztec mythic characters · diversity in the trecena` }},
     { key:'nativeAmerican', emoji:'🦅', label:'Native Totem',
-      extract:c => c.nativeAmerican.birthTotemTh||c.nativeAmerican.birthTotem, match:(a,b)=>a===b },
+      extract:c => c.nativeAmerican.birthTotemTh||c.nativeAmerican.birthTotem, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:`Birth totem เดียวกัน (${a}) — สัตว์ป่าวงล้อยา (Medicine Wheel) เดียวกัน`, en:`Same birth totem (${a}) — same Medicine Wheel totem animal` }
+        : { th:`Totem ต่าง (${a} · ${b}) — Medicine Wheel ตำแหน่งต่าง · พรของสัตว์ต่างกัน`, en:`Different totems (${a} · ${b}) — different Medicine Wheel positions · different animal blessings` }},
     { key:'ifaYoruba', emoji:'🌴', label:'Ifá',
-      extract:c => c.ifaYoruba.oduTh||c.ifaYoruba.odu, match:(a,b)=>a===b },
+      extract:c => c.ifaYoruba.oduTh||c.ifaYoruba.odu, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:`Odu เดียวกัน (${a}) — บท Ifá เดียวกัน · ปัญญา Yoruba ใกล้เคียง`, en:`Same Odu (${a}) — same Ifá verse · matching Yoruba wisdom` }
+        : { th:`Odu ต่าง (${a} · ${b}) — บท Ifá ต่าง · ขุมปัญญาต่างประเภท`, en:`Different Odu (${a} · ${b}) — different Ifá verses · different wisdom wells` }},
     { key:'aboriginal', emoji:'🦘', label:'Aboriginal',
-      extract:c => c.aboriginal.dreamingTh||c.aboriginal.dreamingAncestor, match:(a,b)=>a===b },
+      extract:c => c.aboriginal.dreamingTh||c.aboriginal.dreamingAncestor, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:`Dreaming ancestor เดียวกัน (${a}) — บรรพชน Dreamtime เดียวกัน · นิทานเก่าแก่เดียวกัน`, en:`Same Dreaming ancestor (${a}) — same Dreamtime ancestor · same ancient story` }
+        : { th:`Dreaming ต่าง (${a} · ${b}) — บรรพชน Dreamtime ต่าง · นิทาน 60,000 ปีคนละเรื่อง`, en:`Different Dreamings (${a} · ${b}) — different Dreamtime ancestors · different 60,000-year stories` }},
     { key:'vedicMahadasha', emoji:'⏳', label:'Mahadasha',
-      extract:c => c.vedicMahadasha.currentDasha, match:(a,b)=>a===b },
+      extract:c => c.vedicMahadasha.currentDasha, match:(a,b)=>a===b,
+      why:(a,b,r) => r===true
+        ? { th:`อยู่ใน Mahadasha ของ ${a} เหมือนกัน — ช่วงชีวิตปกครองโดยดาวเคราะห์เดียวกัน · synchronized phase`, en:`Both in ${a}'s Mahadasha — life phase ruled by same planet · synchronized phase` }
+        : { th:`Mahadasha ต่าง (${a} · ${b}) — ดาวเคราะห์ปกครองชีวิตช่วงนี้คนละองค์ · เห็นจังหวะของกันและกัน`, en:`Different Mahadashas (${a} · ${b}) — different planets ruling your current life phase · you each witness the other's rhythm` }},
     // Element pair — special 5-element cycle check (best/good/neutral/clash)
     { key:'_element', emoji:'🔥', label:isTh?'ธาตุหลัก · 5-Element Cycle':'Element · 5-Cycle',
       extract:c => c.bazi.dayMasterElement,
@@ -10806,11 +10931,28 @@ function _runCompatCheck(){
         if (best[a]===b || best[b]===a) return true;
         if (clash[a]===b || clash[b]===a) return false;
         return 'partial';
+      },
+      why:(a,b,r) => {
+        if (a === b) return { th:`ธาตุเดียวกัน (${a}) — รู้จักจุดอ่อน-จุดแข็งของกันโดยทันที`, en:`Same element (${a}) — recognize each other's strengths and weaknesses instantly` };
+        const best = {'ไม้':'น้ำ','ไฟ':'ไม้','ดิน':'ไฟ','โลหะ':'ดิน','น้ำ':'โลหะ'};
+        const clash = {'ไม้':'ดิน','ไฟ':'น้ำ','ดิน':'น้ำ','โลหะ':'ไฟ','น้ำ':'ไฟ'};
+        if (best[a]===b) return { th:`${b} หล่อเลี้ยง ${a} (Sheng cycle) — ${b} ให้พลัง ${a} เติบโต`, en:`${b} feeds ${a} (Sheng cycle) — ${b} gives energy for ${a} to grow` };
+        if (best[b]===a) return { th:`${a} หล่อเลี้ยง ${b} (Sheng cycle) — ${a} ให้พลัง ${b} เติบโต`, en:`${a} feeds ${b} (Sheng cycle) — ${a} gives energy for ${b} to grow` };
+        if (clash[a]===b) return { th:`${a} ควบคุม ${b} (Ke cycle) — ${a} ขัดเกลา ${b} · งดงามถ้าใช้ด้วยความรัก`, en:`${a} controls ${b} (Ke cycle) — ${a} refines ${b} · beautiful when done with love` };
+        if (clash[b]===a) return { th:`${b} ควบคุม ${a} (Ke cycle) — ${b} ท้าทาย ${a} ให้คม`, en:`${b} controls ${a} (Ke cycle) — ${b} sharpens ${a} through challenge` };
+        return { th:`${a} กับ ${b} ไม่อยู่ในวง Sheng/Ke ตรง — ขึ้นกับเจตจำนงมากกว่าเคมีธาตุ`, en:`${a} and ${b} aren't in a direct Sheng/Ke cycle — bond rests on intention more than elemental chemistry` };
       }},
     // LP resonance
     { key:'_lpMatch', emoji:'🔢', label:isTh?'Life Path ระยะ':'Life Path Distance',
       extract:c => String(c.numerology.lifePath),
-      match:(a,b) => { const diff=Math.abs(+a-+b); return diff<=2?true: diff<=4?'partial':false; }},
+      match:(a,b) => { const diff=Math.abs(+a-+b); return diff<=2?true: diff<=4?'partial':false; },
+      why:(a,b,r) => {
+        const diff = Math.abs(+a-+b);
+        if (diff === 0) return { th:'LP เดียวกัน — ครูเดียวกันสอนทั้งคู่', en:'Identical LP — the same teacher teaches you both' };
+        if (diff <= 2) return { th:`LP ใกล้ (ห่าง ${diff}) — ครู/บทเรียนใกล้กัน เรียนพร้อมกันได้`, en:`Close LP (off by ${diff}) — adjacent teachers, you can study together` };
+        if (diff <= 4) return { th:`LP ปานกลาง (ห่าง ${diff}) — คนละครู แต่ปัญญาคล้ายกัน`, en:`Medium LP gap (${diff}) — different teachers but similar wisdom` };
+        return { th:`LP ห่าง (${diff}) — บทเรียนคนละบทใหญ่ · ต้องเล่าให้กันฟัง`, en:`Wide LP gap (${diff}) — fundamentally different lessons · you'll have to tell each other your stories` };
+      }},
   ];
 
   let yes = 0, partial = 0, no = 0;
@@ -10828,17 +10970,36 @@ function _runCompatCheck(){
     else { no++; frictionRows.push({...r, mv, tv}); }
     const color = res === true ? '#4a9a40' : res === 'partial' ? '#c8a840' : '#c06060';
     const sym   = res === true ? '✓' : res === 'partial' ? '~' : '✗';
-    return `<div style="display:grid;grid-template-columns:22px 1fr 1fr 18px;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);align-items:center;font-size:11.5px">
-      <span style="font-size:14px;text-align:center">${r.emoji}</span>
-      <div>
-        <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;line-height:1.3">${isTh?'คุณ':'You'} · ${r.label}</div>
-        <div style="color:var(--text)">${mv}</div>
+    // Compat v2: per-row "why" interpretation explaining the system's mechanic
+    // (not just whether values match). Compute lazily and render as italic
+    // sub-line. Falls back to nothing if the row has no why() — preserves
+    // backward compat for any future row added without one.
+    let whyHtml = '';
+    if (typeof r.why === 'function') {
+      try {
+        const w = r.why(mv, tv, res);
+        if (w && (w.th || w.en)) {
+          const txt = isTh ? (w.th || w.en) : (w.en || w.th);
+          if (txt) {
+            whyHtml = `<div style="padding:4px 10px 4px 38px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:11.5px;color:var(--muted);line-height:1.55;font-style:italic;border-left:2px solid ${color};margin:2px 0 6px;background:rgba(0,0,0,.10);border-radius:0 4px 4px 0">${txt}</div>`;
+          }
+        }
+      } catch(e) { /* silent — row still renders without why */ }
+    }
+    return `<div style="border-bottom:1px solid rgba(255,255,255,.04);padding:6px 0">
+      <div style="display:grid;grid-template-columns:22px 1fr 1fr 18px;gap:8px;align-items:center;font-size:11.5px">
+        <span style="font-size:14px;text-align:center">${r.emoji}</span>
+        <div>
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;line-height:1.3">${isTh?'คุณ':'You'} · ${r.label}</div>
+          <div style="color:var(--text)">${mv}</div>
+        </div>
+        <div>
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;line-height:1.3">${name}</div>
+          <div style="color:var(--gold2)">${tv}</div>
+        </div>
+        <span style="text-align:center;color:${color};font-weight:700;font-size:13px">${sym}</span>
       </div>
-      <div>
-        <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;line-height:1.3">${name}</div>
-        <div style="color:var(--gold2)">${tv}</div>
-      </div>
-      <span style="text-align:center;color:${color};font-weight:700;font-size:13px">${sym}</span>
+      ${whyHtml}
     </div>`;
   }).join('');
 
