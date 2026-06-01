@@ -1204,8 +1204,35 @@ const DASHA_YEARS = {
     'เคตุ': 7, 'ศุกร์': 20, 'อาทิตย์': 6, 'จันทร์': 10, 'อังคาร': 7, 'ราหู': 18, 'พฤหัสฯ': 16, 'เสาร์': 19, 'พุธ': 17
 };
 const DASHA_ORDER = ['เคตุ', 'ศุกร์', 'อาทิตย์', 'จันทร์', 'อังคาร', 'ราหู', 'พฤหัสฯ', 'เสาร์', 'พุธ'];
+/**
+ * Lahiri Ayanamsa — time-varying sidereal offset for Vedic calculations.
+ *
+ * Linear approximation from J2000.0 epoch: rate = 50.288 arcsec/year
+ * (≈ 0.013968°/year) due to precession of the equinoxes. Accurate to
+ * ~±10 arcsec across years 1900-2100 — sufficient for nakshatra
+ * boundary placement at 13°20' resolution.
+ *
+ * Reference value: 23°51'11.18" at 2000-01-01 UT = 23.85310°
+ *
+ * Patched 2026-06-01 (Director-approved): previously hardcoded to 24.0
+ * which drifts ~10 arcmin from true Lahiri at 2026 and ~26 arcmin by
+ * 2050. For older charts (pre-1950) the drift is even larger — Sunthorn
+ * Phu's 1786 chart was using a value 2.87° wrong (≈ shift of half a
+ * nakshatra), affecting nakshatra/Mahadasha/dasha period accuracy.
+ *
+ * For higher precision in future, replace with full IAU 2006 series
+ * (Newcomb / Capitaine). Current linear form is enough for ~99% of
+ * cases at nakshatra-boundary precision.
+ */
+function lahiriAyanamsa(year, month, day) {
+    const decYear = year + (month - 1) / 12 + (day - 1) / 365.25;
+    const REF_YEAR = 2000.0;
+    const REF_AYAN_DEG = 23.85310; // 23°51'11.18" at 2000-01-01 UT
+    const RATE_PER_YEAR_DEG = 0.013968; // 50.288"/yr / 3600
+    return REF_AYAN_DEG + (decYear - REF_YEAR) * RATE_PER_YEAR_DEG;
+}
 function calcVedic(d, w) {
-    const AYANAMSA = 24.0; // Lahiri ayanamsa ~2026
+    const AYANAMSA = lahiriAyanamsa(d.year, d.month, d.day); // Time-varying Lahiri (was hardcoded 24.0)
     const siderealMoon = mod360(w.moonDeg - AYANAMSA);
     const nakshatraIdx = Math.floor(siderealMoon / (360 / 27));
     const pada = Math.floor((siderealMoon % (360 / 27)) / (360 / 27 / 4)) + 1;
@@ -2158,12 +2185,19 @@ const ADDON_MIRROR_BY_ELEMENT = {
         mantra: 'ॐ गङ्गायै नमः (Om Gangayai Namah)'
     }
 };
+// Keys MUST match the 7 TIERS tierEn names (Celestial/Radiant/Luminous/
+// Resonant/Grounded/Seeking/Emerging). Previously keyed by an older 5-name set
+// (Transcendent/Aligned…) so Celestial/Radiant/Grounded/Emerging silently fell
+// back to 'Resonant' (Tai Yi) — a Top-1% user saw the mid-tier entity. The 5
+// cosmic archetypes are mapped across the 7 tiers by elevation.
 const ADDON_COSMIC_BY_TIER = {
-    'Transcendent': { name: 'พรหมัน · The Absolute', desc: '26 ศาสตร์เห็นตรงกัน — บุคลิกภาพของคุณสะท้อนหลักจักรวาลที่เหนือกาลเวลา' },
+    'Celestial': { name: 'พรหมัน · The Absolute', desc: '26 ศาสตร์เห็นตรงกัน — บุคลิกภาพของคุณสะท้อนหลักจักรวาลที่เหนือกาลเวลา' },
+    'Radiant': { name: 'โพธิสัตว์ · Bodhisattva', desc: 'พลังงานที่เอื้อเฟื้อ ปัญญาสูง พร้อมยกระดับผู้รอบข้าง' },
     'Luminous': { name: 'โพธิสัตว์ · Bodhisattva', desc: 'พลังงานที่เอื้อเฟื้อ ปัญญาสูง พร้อมยกระดับผู้รอบข้าง' },
     'Resonant': { name: 'ไท้ยี่ · Tai Yi', desc: 'สมดุลระหว่างยิน-หยาง พลังงานที่กลมกลืนและทรงพลัง' },
-    'Aligned': { name: 'วายุ · Vayu', desc: 'พลังงานแห่งการเปลี่ยนแปลงและการเคลื่อนไหว — ยืดหยุ่นและปรับตัวเก่ง' },
+    'Grounded': { name: 'วายุ · Vayu', desc: 'พลังงานแห่งการเปลี่ยนแปลงและการเคลื่อนไหว — ยืดหยุ่นและปรับตัวเก่ง' },
     'Seeking': { name: 'อาร์เจส · Arges', desc: 'พลังงานที่กำลังค้นหาตัวเอง — ศักยภาพสูงรอการปลดปล่อย' },
+    'Emerging': { name: 'อาร์เจส · Arges', desc: 'พลังงานที่กำลังก่อตัว — เมล็ดพันธุ์ของศักยภาพที่รอการเติบโต' },
 };
 const ADDON_COMPAT_BY_ELEMENT = {
     'ไม้': { best: ['น้ำ', 'ไม้'], good: ['ไฟ'], neutral: ['ดิน'], avoid: ['โลหะ'] },
@@ -2458,11 +2492,13 @@ const ADDON_MIRROR_BY_ELEMENT_EN = {
     }
 };
 const ADDON_COSMIC_BY_TIER_EN = {
-    'Transcendent': { name: 'Brahman · The Absolute', desc: 'All 26 systems converge — your personality reflects timeless cosmic principles' },
+    'Celestial': { name: 'Brahman · The Absolute', desc: 'All 26 systems converge — your personality reflects timeless cosmic principles' },
+    'Radiant': { name: 'Bodhisattva', desc: 'Generous energy, high wisdom, ready to lift those around you' },
     'Luminous': { name: 'Bodhisattva', desc: 'Generous energy, high wisdom, ready to lift those around you' },
     'Resonant': { name: 'Tai Yi · 太乙', desc: 'Balance between yin and yang — harmonious, powerful energy' },
-    'Aligned': { name: 'Vayu', desc: 'Energy of change and movement — flexible and adaptive' },
+    'Grounded': { name: 'Vayu', desc: 'Energy of change and movement — flexible and adaptive' },
     'Seeking': { name: 'Arges', desc: 'Energy still finding itself — high potential awaiting release' },
+    'Emerging': { name: 'Arges', desc: 'Energy still forming — a seed of potential awaiting growth' },
 };
 const ADDON_COMPAT_BY_ELEMENT_EN = {
     'ไม้': { best: ['Water', 'Wood'], good: ['Fire'], neutral: ['Earth'], avoid: ['Metal'] },
@@ -2676,7 +2712,17 @@ const ADDON_PRODUCT_BY_ELEMENT_EN = {
 // matches online AI-generated shape.
 function calcAddons(dmEl, tier, dasha) {
     const isEn = _reportLang === 'en';
-    const pick = (th, en) => (isEn ? en : th)[dmEl] || (isEn ? en : th)['ไม้'];
+    // The _EN content tables are keyed by Thai element labels ('ไม้','ไฟ',...)
+    // because that's how they shipped before bilingual rendering became a thing.
+    // But `dmEl` arrives here as the ENGLISH name in EN mode ('Metal','Wood',...)
+    // — so `en['Metal']` would miss and fall through to `en['ไม้']` (Wood),
+    // shipping Wood-template myth/pet/companion content for every non-Wood
+    // English profile (the workflow review caught Metal users seeing
+    // "Wood Day Masters who lead and grow easily" in their mirror).
+    // Fix: translate the English element back to its Thai key before lookup.
+    const EN_TO_TH_EL = { Wood: 'ไม้', Fire: 'ไฟ', Earth: 'ดิน', Metal: 'โลหะ', Water: 'น้ำ' };
+    const lookupKey = isEn ? (EN_TO_TH_EL[dmEl] || dmEl) : dmEl;
+    const pick = (th, en) => (isEn ? en : th)[lookupKey] || (isEn ? en : th)['ไม้'];
     return {
         mirror: {
             ...pick(ADDON_MIRROR_BY_ELEMENT, ADDON_MIRROR_BY_ELEMENT_EN),
@@ -3984,10 +4030,15 @@ function calcAboriginal(d) {
     };
 }
 // ── BIORHYTHM ─────────────────────────────────────────────────────
+// Single source of truth for the Biorhythm reference date. FIXED (never
+// "today") so the report + score are deterministic and a saved blueprint
+// never changes. Exposed as biorhythm.refDate for every display surface.
+const BIORHYTHM_REF = { y: 2026, m: 4, d: 14 };
+const BIORHYTHM_REF_ISO = `${BIORHYTHM_REF.y}-${String(BIORHYTHM_REF.m).padStart(2, '0')}-${String(BIORHYTHM_REF.d).padStart(2, '0')}`;
 function calcBiorhythm(d) {
     // Physical: 23-day cycle; Emotional: 28-day; Intellectual: 33-day
-    // Calculate state at Apr 14, 2026 (mid-year 2026 reference)
-    const refDate = toJD(2026, 4, 14, 12);
+    // Sampled at the FIXED reference date (NOT new Date()) — see BIORHYTHM_REF.
+    const refDate = toJD(BIORHYTHM_REF.y, BIORHYTHM_REF.m, BIORHYTHM_REF.d, 12);
     const birthDate = toJD(d.year, d.month, d.day, 12);
     const daysSinceBirth = Math.round(refDate - birthDate);
     const PI2 = Math.PI * 2;
@@ -4011,6 +4062,7 @@ function calcBiorhythm(d) {
         physical: Math.round(physical * 100), emotional: Math.round(emotional * 100), intellectual: Math.round(intellectual * 100),
         physicalPhase: phaseLabel(physical), emotionalPhase: phaseLabel(emotional), intellectualPhase: phaseLabel(intellectual),
         score,
+        refDate: BIORHYTHM_REF_ISO,
         reading: buildRichReading({
             sysTh: 'ไบโอริธึม (Biorhythm)',
             sysEn: 'Biorhythm',
@@ -4130,7 +4182,7 @@ function pill(text, bg = '#2a2010', color = '#d4aa50') {
 }
 // Auto-incrementing page counter (reset per report generation)
 let _pageNum = 0;
-let _totalPages = 42;
+let _totalPages = 43;
 // Language for the currently-generating report. Set once by generateReport()
 // from chart.input.lang so page headers/footers respect the user's choice.
 let _lang = 'th';
@@ -4397,15 +4449,70 @@ function p01_cover(c) {
 
     <!-- Key signals -->
     <div class="grid-3" style="margin:12px 0">
-      ${[
-        ['🔥 Day Master', `${bazi.dayStem} ${bazi.dayMasterElement}`],
-        ['⭐ Nine Star Ki', ninestar.star + ' ' + ninestar.starName],
-        [tr('☀️ Western', '☀️ Western Sun'), _lang === 'en' ? western.sunSign || western.sunSignTh : western.sunSignTh],
-        ['🕉️ Vedic Lagna', c.vedic.lagnaSign],
-        [tr('⚡ พลังงาน', '⚡ Energy Type'), _lang === 'en' ? c.humandesign.type || c.humandesign.typeTh : c.humandesign.typeTh],
-        ['🔢 Life Path', `${numerology.lifePath}`],
-    ].map(([l, v]) => `<div class="stat-card"><div class="lbl">${esc(l)}</div><div style="font-size:13px;font-weight:600;color:#d4aa50;margin-top:3px">${esc(v)}</div></div>`).join('')}
+      ${(() => {
+        // Match the emoji to the actual element so the visual cue agrees with
+        // the label. Previously this was a hard-coded 🔥 next to all Day Masters
+        // — Water-element users saw a fire emoji and assumed they were Fire.
+        const elEmoji = {
+            'ไม้': '🌳', 'ไฟ': '🔥', 'ดิน': '🌍', 'โลหะ': '⚔️', 'น้ำ': '🌊',
+            'Wood': '🌳', 'Fire': '🔥', 'Earth': '🌍', 'Metal': '⚔️', 'Water': '🌊',
+        };
+        const dmE = elEmoji[bazi.dayMasterElement] || '✦';
+        return [
+            [`${dmE} ${tr('ธาตุประจำตัว (BaZi)', 'Primary Element (BaZi)')}`, `${bazi.dayStem} ${bazi.dayMasterElement}`],
+            [tr('⭐ ดาวประจำตัว (NSK)', '⭐ Birth Star (NSK)'), ninestar.star + ' ' + ninestar.starName],
+            [tr('☀️ Western', '☀️ Western Sun'), _lang === 'en' ? western.sunSign || western.sunSignTh : western.sunSignTh],
+            ['🕉️ Vedic Lagna', c.vedic.lagnaSign],
+            [tr('⚡ พลังงาน', '⚡ Energy Type'), _lang === 'en' ? c.humandesign.type || c.humandesign.typeTh : c.humandesign.typeTh],
+            ['🔢 Life Path', `${numerology.lifePath}`],
+        ].map(([l, v]) => `<div class="stat-card"><div class="lbl">${esc(l)}</div><div style="font-size:13px;font-weight:600;color:#d4aa50;margin-top:3px">${esc(v)}</div></div>`).join('');
+    })()}
     </div>
+
+    <!-- Element Consensus — answers "which element am I really?" by tallying
+         all the birth-fixed element fields across the 26 systems. The BaZi
+         Day Master is the East-Asian canonical "your element" but multiple
+         systems contribute their own element-read; if a majority agree, the
+         consensus is the "loudest" elemental signal. We exclude time-variable
+         fields (vedicMahadasha.dashaElement changes with the current period). -->
+    ${(() => {
+        const ee = { 'ไม้': '🌳', 'ไฟ': '🔥', 'ดิน': '🌍', 'โลหะ': '⚔️', 'น้ำ': '🌊', 'Wood': '🌳', 'Fire': '🔥', 'Earth': '🌍', 'Metal': '⚔️', 'Water': '🌊' };
+        const votes = {};
+        const _v = (sys, el) => { if (!el)
+            return; (votes[el] = votes[el] || []).push(sys); };
+        _v('BaZi Day Master', bazi.dayMasterElement);
+        _v('BaZi Dominant', bazi.dominantElement);
+        _v('Nine Star Ki', ninestar.starElement);
+        _v('Celtic Tree', c.celtic.element);
+        _v('Saju', c.saju.sajuElement);
+        _v('Tibetan Mewa', c.tibetan.mewaElement);
+        _v('Tibetan Parkha', c.tibetan.parkhaElement);
+        _v('Norse Rune', c.norseRune.runeElement);
+        _v('Ogham', c.ogham.element);
+        const total = Object.values(votes).reduce((s, a) => s + a.length, 0);
+        if (total < 2)
+            return '';
+        const sorted = Object.entries(votes).sort((a, b) => b[1].length - a[1].length);
+        const [winEl, winSys] = sorted[0];
+        const winEmoji = ee[winEl] || '✦';
+        const matchBaZi = winEl === bazi.dayMasterElement;
+        const minorityLines = sorted.slice(1).map(([el, sys]) => `${ee[el] || '·'} ${esc(el)} ${sys.length} (${esc(sys.join(', '))})`).join(' · ');
+        return `
+    <div style="background:linear-gradient(135deg,#0e1a2a,#1a2a3e);border:2px solid #5a8acc;border-radius:12px;padding:14px 18px;margin:12px 0">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <div style="font-size:36px;line-height:1">${winEmoji}</div>
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:10px;color:#7aaae0;letter-spacing:2px;margin-bottom:3px">${tr('🤝 ฉันทามติธาตุ', '🤝 ELEMENT CONSENSUS')}</div>
+          <div style="font-size:20px;font-weight:700;color:#aac8ff">${esc(winEl)}${matchBaZi ? '' : ` <span style="font-size:11px;color:#7a8aaa">(${tr('ต่างจาก BaZi', 'differs from BaZi')})</span>`}</div>
+          <div style="font-size:11px;color:#90a8c8;margin-top:4px;line-height:1.6"><strong style="color:#aac8ff">${winSys.length}/${total}</strong> ${tr('ศาสตร์เห็นพ้อง', 'systems agree')} · ${esc(winSys.join(' · '))}</div>
+          ${sorted.length > 1 ? `<div style="font-size:10.5px;color:#6a7a90;margin-top:4px">${tr('อีกฝั่งหนึ่ง', 'Other view')}: ${minorityLines}</div>` : ''}
+        </div>
+      </div>
+      <div style="font-size:10.5px;color:#6a7a90;margin-top:10px;padding-top:10px;border-top:1px solid #2a3a5a;line-height:1.65">
+        ${tr('ทำไมแต่ละศาสตร์ให้ต่างกัน? · ทุกศาสตร์มอง "ธาตุ" จากมุมของตัวเอง — BaZi ดูจาก Day Master (วันเกิด), Nine Star Ki ดูจากดาวเกิด, Celtic ดูจากต้นไม้ประจำวันเกิด ฯลฯ · ฉันทามติคือธาตุที่หลายๆ ศาสตร์เห็นตรงกัน = พลังที่ "ออกมาชัด" ที่สุดในตัวคุณ', 'Why do systems differ? · Each tradition reads "element" from its own angle — BaZi uses your Day Master, Nine Star Ki your birth star, Celtic your birth tree, etc. The consensus is the element multiple systems agree on = the energy that shows up most clearly in you.')}
+      </div>
+    </div>`;
+    })()}
 
     ${bazi.benMingNian2026 ? `
     <div class="warn">
@@ -4490,7 +4597,7 @@ function p_threeScores(c) {
     return section(2, tr('Soul Frequency — คุณเป็นใครตั้งแต่เกิด', 'Soul Frequency — Who You Are From Birth'), '🔥', `
     <div style="font-size:12px;color:#7a8a60;margin-bottom:16px;line-height:1.6">
       ${tr('Soul Frequency คือ', 'Soul Frequency is')} <strong style="color:#c0d080">${tr('คุณภาพดวงชะตาพื้นฐาน', 'your fundamental chart quality')}</strong> — ${tr('ไม่เปลี่ยนแปลง เหมือนเกรดน้ำมัน', 'unchanging, like the grade of petroleum')}<br>
-      ${tr('คำนวณจาก Median ของ 26 ศาสตร์โบราณ (equal weight) เทียบกับ dataset n=1,211', 'Calculated from the median of 26 ancient systems (equal weight) against a dataset of n=1,211')}
+      ${tr('คำนวณจาก Median ของ 26 ศาสตร์โบราณ (ถ่วงน้ำหนักเท่ากัน)', 'Calculated from the median of 26 ancient systems (equal weight)')}
     </div>
 
     <!-- Soul Frequency big display -->
@@ -4502,7 +4609,7 @@ function p_threeScores(c) {
         </div>
         <div style="flex:1">
           <div style="font-size:16px;font-weight:600;color:#c0e080">${_lang === 'en' ? esc(score.tierEn || score.tier) : esc(score.tier)}</div>
-          <div style="font-size:12px;color:#7a9a50;margin:4px 0">${esc(score.percentile)} ${tr('ใน dataset n=1,211', 'in dataset n=1,211')}</div>
+          <div style="font-size:12px;color:#7a9a50;margin:4px 0">${esc(score.percentile)}</div>
           <div style="background:#0a1205;border-radius:4px;height:8px;overflow:hidden;margin:8px 0">
             <div style="width:${Math.round((score.total - 400) / 6)}%;height:8px;background:linear-gradient(90deg,#2a5010,#8aba50)"></div>
           </div>
@@ -4612,7 +4719,7 @@ function p03_convergence(c) {
     const hi = (s) => s >= medianScore; // "votes yes" if at or above median
     // Helper: get system score by name fragment
     const sc = (nameFragment) => all26.find(b => b.system.includes(nameFragment))?.score ?? 0;
-    const { bazi, western, ninestar, numerology, vedic, humandesign, mayan, celtic, thai, saju, tibetan, ziwei, onmyodo, hellenistic, norseRune, ogham, arabicParts, kabbalistic, zoroastrian, aztec, nativeAmerican, ifaYoruba, aboriginal, biorhythm, vedicMahadasha } = c;
+    const { score, bazi, western, ninestar, numerology, vedic, humandesign, mayan, celtic, thai, saju, tibetan, ziwei, onmyodo, hellenistic, norseRune, ogham, arabicParts, kabbalistic, zoroastrian, aztec, nativeAmerican, ifaYoruba, aboriginal, biorhythm, vedicMahadasha } = c;
     const dmEl = bazi.dayMasterElement;
     const themes = [];
     // ─── 1. Element Resonance (ธาตุ Day Master แผ่ซึมทุกศาสตร์) ─────────────
@@ -4819,11 +4926,173 @@ function p03_convergence(c) {
         '⚡': tr(`ทุกจุดท้าทายในดวงมีเหตุผล — ธาตุขาด${bazi.missingElement ? bazi.missingElement : 'ไม่มี'} คือพลังงานที่ต้องหามาจากภายนอก ระบบที่ score ต่ำกว่า median ไม่ได้บอกว่า "ดวงแย่" แต่บอกว่า "พลังงานนั้นไม่ใช่ทิศหลัก"`, `Every challenge in your chart has a reason. The missing ${trDF(bazi.missingElement) || 'no'} element is the energy you must source from outside. Systems scoring below median don't say "bad chart" — they say "this energy isn't your primary direction".`),
         '💞': tr(`พลังความสัมพันธ์ใน HD Profile ${humandesign.profile} + ${kabbalistic.archangel} + ${nativeAmerican.clansmother} บ่งว่าเครือข่ายมนุษย์คือ multiplier — คนเดียวได้ 1x แต่ผ่านคนที่ใช่ได้ 5-10x`, `The relational signature in HD Profile ${humandesign.profile} + ${kabbalistic.archangel} + ${nativeAmerican.clansmother} indicates that human networks are your multiplier — solo you do 1x, but through the right people 5-10x.`),
     };
-    return section(4, tr(`Grand Convergence — ${visible.length} themes จาก 26 ศาสตร์`, `Grand Convergence — ${visible.length} themes across 26 systems`), '🌐', `
-    <div style="font-size:11px;color:#7a6a52;margin-bottom:12px;line-height:1.6">
-      ${tr('ทุก 26 ระบบ cast votes ในแต่ละ theme — score-based · ชื่อระบบแสดงครบทุกตัว · narrative คือ AI สังเคราะห์จากดวงจริง', 'All 26 systems cast votes per theme — score-weighted · every system listed by name · narrative AI-synthesised from your specific chart')}
+    const FAMILY_MAP = [
+        ['BaZi', 'east'], ['Nine Star', 'east'], ['Saju', 'east'], ['Zi Wei', 'east'],
+        ['Onmyōdō', 'east'], ['Tibetan', 'east'], ['ไทยพราหมณ์', 'east'], ['เลข ๗ ตัว', 'east'],
+        ['Vedic Jyotish', 'east'], ['Vedic Mahadasha', 'east'],
+        ['ตะวันตก', 'west'], ['Hellenistic', 'west'], ['Pythagorean', 'west'],
+        ['Kabbalistic', 'west'], ['เซลติก', 'west'], ['Ogham', 'west'], ['Arabic', 'west'],
+        ['มายัน', 'indigenous'], ['Aztec', 'indigenous'], ['Native', 'indigenous'],
+        ['Aboriginal', 'indigenous'], ['Ifa', 'indigenous'],
+        ['Norse', 'esoteric'], ['Zoroastrian', 'esoteric'], ['ระบบประเภทพลังงาน', 'esoteric'],
+        ['Biorhythm', 'esoteric'],
+    ];
+    const familyOf = (sys) => {
+        for (const [frag, fam] of FAMILY_MAP)
+            if (sys.includes(frag))
+                return fam;
+        return null;
+    };
+    const families = {
+        east: { total: 0, strong: 0, resonance: 0, weak: 0, names: [], strongNames: [] },
+        west: { total: 0, strong: 0, resonance: 0, weak: 0, names: [], strongNames: [] },
+        indigenous: { total: 0, strong: 0, resonance: 0, weak: 0, names: [], strongNames: [] },
+        esoteric: { total: 0, strong: 0, resonance: 0, weak: 0, names: [], strongNames: [] },
+    };
+    for (const b of all26) {
+        const fam = familyOf(b.system);
+        if (!fam)
+            continue;
+        families[fam].total++;
+        families[fam].names.push(b.system);
+        if (b.score >= 780) {
+            families[fam].strong++;
+            families[fam].strongNames.push(b.system);
+        }
+        else if (b.score >= 650) {
+            families[fam].resonance++;
+        }
+        else {
+            families[fam].weak++;
+        }
+    }
+    const fams = ['east', 'west', 'indigenous', 'esoteric'];
+    const totalStrong = fams.reduce((s, f) => s + families[f].strong, 0);
+    const totalResonance = fams.reduce((s, f) => s + families[f].resonance, 0);
+    const totalWeak = fams.reduce((s, f) => s + families[f].weak, 0);
+    const dominantFamily = fams.reduce((m, f) => (families[f].strong / families[f].total) > (families[m].strong / families[m].total) ? f : m, 'east');
+    // ── Rarity math for the Unique Signature box ──
+    // BaZi Day Pillar combinations: 10 stems × 12 branches = 60
+    // Vedic Nakshatra × Pada: 27 nakshatras × 4 padas = 108
+    // Mayan Kin: 13 tones × 20 day signs = 260
+    // Joint combinations: 60 × 108 × 260 = 1,684,800 unique cosmic fingerprints.
+    // World population ≈ 8B → ≈ 4,750 people share each fingerprint.
+    const totalCombos = 60 * 108 * 260;
+    const peopleSharing = Math.round(8000000000 / totalCombos);
+    const nakshatra = c.vedic.moonNakshatra || '—';
+    const pada = c.vedic.nakshathraPada || c.vedic.nakshatraPada || '';
+    const mayanLbl = `${c.mayan.kin} ${_lang === 'en' ? c.mayan.daySignName : c.mayan.daySignNameTh}`;
+    // ── Variant Perception ──────────────────────────────────────────────────
+    // Surface systems that genuinely DISAGREE with the consensus — not just
+    // "three lowest scores". Two filters:
+    //   1. Exclude TIME-VARIABLE systems (Biorhythm = today's energy,
+    //      Vedic Mahadasha = current planetary period). They speak about the
+    //      moment, not the person, so they can't meaningfully "dissent" from
+    //      an identity-level read.
+    //   2. Require the score to be meaningfully BELOW the chart's own median
+    //      (gap ≥ 50). Three lowest could be one point under median for a
+    //      cohesive chart — that's coherence, not dissent.
+    // If fewer than 2 real dissenters exist, the chart is highly coherent and
+    // the Variant box renders a "your chart speaks with one voice" message
+    // instead of forcing weak dissents.
+    const VARIANT_EXCLUDE = ['Biorhythm', 'Vedic Mahadasha'];
+    const dissenters = [...all26]
+        .filter(b => !VARIANT_EXCLUDE.some(ex => b.system.includes(ex)))
+        .filter(b => b.score < medianScore - 50)
+        .sort((a, b) => a.score - b.score)
+        .slice(0, 3);
+    // Each dissenter needs a short "what it sees differently" line. Prefer the
+    // system's own finding; if empty, fall back to a generic shadow phrase so
+    // the row never renders a bare score with a trailing dash.
+    const dissentLine = (d) => {
+        const f = (d.finding || '').trim();
+        if (f)
+            return esc(f.slice(0, 90));
+        return tr('เห็นมิติที่ระบบส่วนใหญ่ไม่ได้เน้น', 'sees a dimension the majority underplays');
+    };
+    const variantBox = dissenters.length >= 2
+        ? `
+    <div style="background:linear-gradient(135deg,#1a0a14,#180a28);border:2px solid #8a5acc;border-radius:12px;padding:14px 18px;margin:14px 0">
+      <div style="font-size:10px;letter-spacing:3px;color:#c08ad8;margin-bottom:6px">${tr('🔍 อีกมุมหนึ่งที่น่าฟัง — variant perception', '🔍 THE DISSENTING VIEW — variant perception')}</div>
+      <div style="font-size:12px;color:#d0a8e0;line-height:1.8;margin-bottom:8px">${tr(`เมื่อศาสตร์ส่วนใหญ่เห็นภาพรวมเป็นบวก ${dissenters.length} ศาสตร์ที่ให้คะแนนต่ำกว่าค่ากลางของคุณชัดเจน มักชี้สิ่งที่ระบบใหญ่มองข้าม — ไม่ใช่ "ดวงแย่" แต่เป็นมิติในเงาที่ควรฟังตอนตัดสินใจใหญ่:`, `When the majority sees a positive picture, the ${dissenters.length} systems scoring clearly below your own median often reveal what the consensus misses — not "bad chart" but the shadow dimension worth hearing when stakes are high:`)}</div>
+      <div style="font-size:11.5px;color:#b890d0;line-height:1.9">
+        ${dissenters.map(d => `• <strong>${esc(d.system)}</strong> <span style="color:#8868a0">(${d.score})</span> — ${dissentLine(d)}`).join('<br>')}
+      </div>
+      <div style="font-size:10px;color:#806090;margin-top:10px;padding-top:8px;border-top:1px solid #3a2050">${tr('🎯 ใช้ยังไง: ก่อนตัดสินใจใหญ่ (อาชีพ ความสัมพันธ์ การลงทุน) อ่านเสียงข้างน้อยนี้ซ้ำ มันมักชี้สิ่งที่คุณรู้ลึกๆ แต่ไม่อยากยอมรับ', '🎯 How to use: before big decisions (career, relationships, investments), re-read these dissenting voices — they often name what you already sense but resist admitting')}</div>
+    </div>`
+        : `
+    <div style="background:linear-gradient(135deg,#0a1a14,#0a1828);border:2px solid #5acc8a;border-radius:12px;padding:14px 18px;margin:14px 0">
+      <div style="font-size:10px;letter-spacing:3px;color:#7ad8a8;margin-bottom:6px">${tr('🎯 ดวงที่กลมกลืน — rare coherence', '🎯 A COHERENT CHART — rare coherence')}</div>
+      <div style="font-size:12px;color:#a8e0c8;line-height:1.8">${tr(`ดวงของคุณ "พูดด้วยเสียงเดียว" — ไม่มีศาสตร์ระบุตัวตนใดให้คะแนนต่ำกว่าค่ากลางของคุณอย่างมีนัยสำคัญ นี่หายากกว่าที่คิด: ${dissenters.length === 1 ? 'มีเพียง 1 ศาสตร์ที่เห็นต่างเล็กน้อย' : 'แทบทุกศาสตร์เห็นภาพไปทางเดียวกัน'} เมื่อมุมมองส่วนใหญ่สอดคล้องกัน ความมั่นใจในการตัดสินใจของคุณมีพื้นฐานแข็งแรง — แต่ระวัง blind spot ที่ไม่มีใครเตือน`, `Your chart "speaks with one voice" — no identity-level system scores significantly below your own median. This is rarer than it sounds: ${dissenters.length === 1 ? 'only one system dissents, and only mildly' : 'nearly every system points the same way'}. When most lenses agree, your decisions rest on solid ground — but watch for the blind spot no one is there to flag.`)}</div>
+    </div>`;
+    // ── Headline TL;DR — one-paragraph summary ──
+    const elemConsensusEl = dmEl; // we already established cover's element consensus
+    const tldrCore = tr(`26 ศาสตร์มอง <strong style="color:#f0d060">${esc(c.input.name || 'คุณ')}</strong> = พลังธาตุ<strong>${esc(dmEl)}</strong> · <strong style="color:#f0d060">"${esc(score.cosmicEntity)}"</strong> · Life Path <strong>${numerology.lifePath}</strong> "${esc((numerology.lifePathName || '').split('—')[0].trim())}" · ${bazi.benMingNian2026 ? 'Ben Ming Nian + ' : ''}${ninestar.star === 9 ? 'NSK Honmei + ' : ''}Personal Year <strong>${numerology.personalYear2026}</strong> · ${totalStrong}/26 ศาสตร์ยืนยันชัด, ${totalWeak}/26 เห็นจุดท้าทาย · ลายเซ็นจักรวาล ~1 ใน ${(totalCombos / 1000).toFixed(0)}k คน`, `26 systems see <strong style="color:#f0d060">${esc(c.input.name || 'you')}</strong> as <strong>${esc(dmEl)}</strong>-element energy · <strong style="color:#f0d060">"${esc(score.cosmicEntity)}"</strong> · Life Path <strong>${numerology.lifePath}</strong> "${esc((numerology.lifePathName || '').split('—').slice(-1)[0].trim())}" · ${bazi.benMingNian2026 ? 'Ben Ming Nian + ' : ''}${ninestar.star === 9 ? 'NSK Honmei + ' : ''}Personal Year <strong>${numerology.personalYear2026}</strong> · ${totalStrong}/26 systems strongly agree, ${totalWeak}/26 flag challenges · cosmic fingerprint ~1 in ${(totalCombos / 1000).toFixed(0)}k people`);
+    const familyLabels = {
+        east: { th: 'ตะวันออก', en: 'Eastern' },
+        west: { th: 'ตะวันตก', en: 'Western' },
+        indigenous: { th: 'พื้นเมือง', en: 'Indigenous' },
+        esoteric: { th: 'ลึกลับ/นิรนาม', en: 'Esoteric' },
+    };
+    const familyBars = fams.map(f => {
+        const d = families[f];
+        const sPct = d.total ? (d.strong / d.total) * 100 : 0;
+        const rPct = d.total ? (d.resonance / d.total) * 100 : 0;
+        const wPct = d.total ? (d.weak / d.total) * 100 : 0;
+        const lbl = _lang === 'en' ? familyLabels[f].en : familyLabels[f].th;
+        const star = (f === dominantFamily) ? ' ⭐' : '';
+        return `<div style="display:flex;align-items:center;gap:10px;margin:5px 0">
+      <div style="width:90px;font-size:11px;color:#c8b890">${esc(lbl)}${star}</div>
+      <div style="flex:1;display:flex;height:14px;border-radius:3px;overflow:hidden;border:1px solid #2a2545;background:#0a0815">
+        <div style="width:${sPct.toFixed(1)}%;background:#50b050" title="${d.strong} ${tr('ยืนยันชัด', 'strong')}"></div>
+        <div style="width:${rPct.toFixed(1)}%;background:#d4aa50" title="${d.resonance} ${tr('เห็นสอดคล้อง', 'resonate')}"></div>
+        <div style="width:${wPct.toFixed(1)}%;background:#a04030" title="${d.weak} ${tr('จุดท้าทาย', 'challenge')}"></div>
+      </div>
+      <div style="width:60px;font-size:11px;color:#9a8a72;text-align:right">${d.strong}/${d.total}</div>
+    </div>`;
+    }).join('');
+    return section(4, tr('Grand Convergence — 26 ศาสตร์ส่งคำตอบเดียวกัน', 'Grand Convergence — All 26 Systems Speak Together'), '🌐', `
+    <!-- 1. Headline TL;DR -->
+    <div style="background:linear-gradient(135deg,#1a1408,#0e0a18);border:2px solid #d4aa50;border-radius:12px;padding:14px 18px;margin-bottom:14px">
+      <div style="font-size:10px;letter-spacing:3px;color:#d4aa50;margin-bottom:6px">${tr('✦ สรุปสั้น 1 ย่อหน้า', '✦ ONE-PARAGRAPH SUMMARY')}</div>
+      <div style="font-size:12.5px;color:#e0d4b0;line-height:1.85">${tldrCore}</div>
+    </div>
+
+    <!-- 2. Cross-Cultural Consensus -->
+    <div style="background:linear-gradient(135deg,#0a1422,#1a1530);border:2px solid #5a8acc;border-radius:12px;padding:14px 18px;margin-bottom:14px">
+      <div style="text-align:center;margin-bottom:10px">
+        <div style="font-size:10px;letter-spacing:3px;color:#7aaae0">${tr('🌏 ฉันทามติข้ามวัฒนธรรม', '🌏 CROSS-CULTURAL CONSENSUS')}</div>
+        <div style="font-size:13px;color:#aac8ff;margin-top:3px;line-height:1.65">${tr(`<strong>${totalStrong}/26</strong> ศาสตร์ยืนยันชัด · <strong>${totalResonance}/26</strong> เห็นสอดคล้อง · <strong>${totalWeak}/26</strong> ชี้จุดท้าทาย`, `<strong>${totalStrong}/26</strong> systems strongly agree · <strong>${totalResonance}/26</strong> resonate · <strong>${totalWeak}/26</strong> flag challenges`)}</div>
+      </div>
+      ${familyBars}
+      <div style="font-size:10px;color:#6a7a90;margin-top:10px;padding-top:10px;border-top:1px solid #2a3a5a;line-height:1.65">
+        🟢 ${tr('ยืนยันชัด (≥780)', 'Strong (≥780)')} · 🟡 ${tr('เห็นสอดคล้อง (650–779)', 'Resonate (650–779)')} · 🔴 ${tr('จุดท้าทาย (<650)', 'Challenge (<650)')} · ${tr(`จุดแข็งสุด: <strong style="color:#aac8ff">${esc(_lang === 'en' ? familyLabels[dominantFamily].en : familyLabels[dominantFamily].th)}</strong> — เมื่อศาสตร์จากหลายอารยธรรมเห็นตรงกัน ความน่าเชื่อถือสูงกว่าศาสตร์เดี่ยวจาก ลูกหลาน`, `Strongest: <strong style="color:#aac8ff">${esc(familyLabels[dominantFamily].en)}</strong> — when systems from multiple civilisations agree, the read is more reliable than any single tradition alone`)}
+      </div>
+    </div>
+
+    <!-- 3. Themes (the existing 8 with consensus rows) -->
+    <div style="font-size:11px;color:#7a6a52;margin:14px 0 8px;line-height:1.6">
+      ${tr('🎯 ภาพหลัก ' + visible.length + ' theme — แต่ละ theme คือจุดที่ระบบหลายตัวยืนยัน', `🎯 ${visible.length} main themes — each is a point where multiple systems agree`)}
     </div>
     ${visible.map(t => consensusRow(t.icon, t.theme, t.votes.map(v => v.system), t.msg, t.votes.length, t.color, narratives[t.icon] ?? '')).join('')}
+
+    <!-- 4. Variant Perception — minority dissent insight (or coherence note) -->
+    ${variantBox}
+
+    <!-- 5. Unique Cosmic Signature -->
+    <div style="background:linear-gradient(135deg,#1a1408,#2a1c0a);border:2px solid #d4aa50;border-radius:12px;padding:14px 18px;margin:14px 0">
+      <div style="text-align:center;margin-bottom:10px">
+        <div style="font-size:10px;letter-spacing:3px;color:#d4aa50">${tr('✦ ลายเซ็นจักรวาลของคุณ ✦', '✦ YOUR COSMIC SIGNATURE ✦')}</div>
+        <div style="font-size:18px;color:#f0d060;font-weight:700;margin-top:6px;font-family:'Cinzel Decorative',serif">${esc(score.cosmicEntity)}</div>
+      </div>
+      <div style="background:#0e0a08;border-radius:6px;padding:10px 14px;font-size:11.5px;color:#c8a878;line-height:2">
+        <div>🀄 BaZi Day Pillar <strong style="color:#f0d060">${esc(bazi.dayStem)}${esc(bazi.dayBranch)}</strong> · ~1 ${tr('ใน 60', 'in 60')}</div>
+        <div>🕉️ Vedic Nakshatra <strong style="color:#f0d060">${esc(nakshatra)}${pada ? ' ' + tr('บาท', 'pada') + ' ' + esc(String(pada)) : ''}</strong> · ~1 ${tr('ใน 108', 'in 108')}</div>
+        <div>🌀 Mayan Kin <strong style="color:#f0d060">${esc(mayanLbl)}</strong> · ~1 ${tr('ใน 260', 'in 260')}</div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #3a2c1a;color:#f0d060;font-size:13px">${tr(`= ลายเซ็นรูปนี้ มีเพียง <strong>~${peopleSharing.toLocaleString()} คน</strong> บนโลก หรือ <strong>1 ใน ${(totalCombos / 1000).toFixed(0)},000</strong> คน`, `= this exact signature shared by only <strong>~${peopleSharing.toLocaleString()} people</strong> worldwide, or <strong>1 in ${(totalCombos / 1000).toFixed(0)},000</strong>`)}</div>
+      </div>
+      <div style="font-size:10.5px;color:#8a7050;margin-top:8px;line-height:1.65">${tr('💡 คุณไม่ใช่ "ราศีเมษ" หรือ "Life Path 4" — คุณคือผลคูณที่หาเหมือนไม่ได้ของหลายระบบที่ต่างวัฒนธรรมต่างยุค ลายเซ็นนี้คือ fingerprint ของคุณในจักรวาล', '💡 You are not just "Aries" or "Life Path 4" — you are the unrepeatable intersection of many systems across cultures and eras. This signature is your fingerprint in the cosmos.')}</div>
+    </div>
   `);
 }
 function p_new16systems(c) {
@@ -5114,12 +5383,8 @@ function p13_luckPillars(c) {
     const { bazi, vedic, ninestar, numerology, biorhythm, vedicMahadasha } = c;
     const luckRows = bazi.luckPillars.map(lp => {
         const isCurrent = age2026 >= lp.ageStart && age2026 <= lp.ageEnd;
-        // Multi-system quality for this decade
-        const midAge = (lp.ageStart + lp.ageEnd) / 2;
         // NSK decade: every 9 years a cycle completes
         const nskDecadeNote = ((lp.ageStart % 9) === 0) ? tr('NSK: เริ่มรอบใหม่', 'NSK: new cycle begins') : '';
-        // Numerology: personal year pattern
-        const startPY = ((c.input.year + lp.ageStart - c.input.year + 2026 - age2026) % 9) + 1;
         return `<tr ${isCurrent ? 'style="background:#1a1a08;border:1px solid #d4aa5044"' : ''}>
       <td style="font-size:12px">${esc(lp.ageStart)}–${esc(lp.ageEnd)}</td>
       <td style="font-size:18px">${esc(lp.stem)}${esc(lp.branch)}</td>
@@ -5128,10 +5393,6 @@ function p13_luckPillars(c) {
       <td>${isCurrent ? `<span style="color:#d4aa50;font-weight:700">▶ ${tr('ปัจจุบัน', 'Current')}</span>` : ''}</td>
     </tr>`;
     }).join('');
-    // Vedic Mahadasha timeline (major periods)
-    const dashaTimeline = [
-        { lord: vedicMahadasha.currentDasha, end: vedicMahadasha.currentDashaEnd, quality: vedicMahadasha.dashaQuality, isCurrent: true },
-    ];
     // NSK year trend 2026-2035
     const nskYears = Array.from({ length: 10 }, (_, i) => 2026 + i).map(yr => {
         const starForYear = ((9 - ((yr - 1) % 9)) % 9) + 1;
@@ -5603,7 +5864,7 @@ function p18_monthly2026(c) {
                 : nskRating.icon === '🟡' ? tr('ค่อยๆ ขยับ · ไม่เร่ง', 'Move gradually · don\'t rush')
                     : tr('ระวังและสังเกต · ไม่รีบตัดสินใจ', 'Watch & observe · don\'t decide hastily');
         return `<tr>
-            <td style="font-weight:600">${esc(m)}</td>
+            <td style="font-weight:600">${esc(lbl(i))}</td>
             <td style="font-size:11px">${ms} ${esc(starNames[ms])}${isHonmei ? ' ★' : ''}</td>
             <td style="font-size:11px;color:${bio.avg > 30 ? '#60c060' : bio.avg < -30 ? '#c06060' : '#c0a060'}">${bio.avg > 0 ? '+' : ''}${bio.avg}%</td>
             <td style="font-size:11px;color:#9a8a72">${esc(vedicMonthQuality[i])}</td>
@@ -5998,97 +6259,64 @@ function p23_forecast10yr(c) {
 function p24_pets(c) {
     const dmEl = c.bazi.dayMasterElement;
     const missingEl = c.bazi.missingElement || '—';
-    // Enrich each pet suggestion with the 5-element logic + which missing
-    // element it supplies to make the suggestion traceable, not arbitrary.
-    // Element label helper for fills tag
-    const elL = (th, en) => tr(th, en);
-    const petMap = {
-        'ไฟ': [
-            { animal: tr('🐱 แมว', '🐱 Cat'),
-                why: tr(`แมวเป็นสัตว์ที่วัฒนธรรมอียิปต์-ตะวันออกจับคู่กับธาตุไฟ — อิสระ อุณหภูมิร่างกายสูง กลางคืนตื่นตัว · เสริม Day Master ${dmEl}ของคุณโดยตรง`, `Cats are paired with Fire across Egyptian and Eastern traditions — independent, high body heat, nocturnally alert. They directly reinforce your ${dmEl} Day Master.`),
-                fills: elL('ไฟ (หนุน)', 'Fire (reinforces)') },
-            { animal: tr('🦜 นกแก้ว', '🦜 Parrot'),
-                why: tr('นกเป็นตัวแทนธาตุไม้ (เคลื่อนไหวในอากาศ-ต้นไม้) · ไม้สร้างไฟใน 5 ธาตุ → หล่อเลี้ยง Day Master ของคุณ', `Birds represent the Wood element (moving through air-and-tree). Wood feeds Fire in the 5-element cycle, nourishing your Day Master.`),
-                fills: elL('ไม้ (สร้างไฟ)', 'Wood (feeds Fire)') },
-            { animal: tr('🐠 ปลา', '🐠 Fish'),
-                why: tr(`น้ำตรงข้ามกับไฟ แต่เสริมสมดุล — สำหรับคนไฟร้อนแรง ปลาช่วยลดความร้อนอาโวคาโด · ดีพิเศษถ้าขาดธาตุ${missingEl === 'น้ำ' ? 'น้ำ' : '—'}`, `Water opposes Fire but creates balance — for hot Fire-types, fish cool the temperature${missingEl === 'น้ำ' ? '. Especially good if your missing element is Water' : ''}.`),
-                fills: missingEl === 'น้ำ' ? elL('น้ำ (ขาด)', 'Water (missing element)') : elL('น้ำ (สมดุล)', 'Water (balance)') },
-            { animal: tr('🐇 กระต่าย', '🐇 Rabbit'),
-                why: tr('กระต่ายเป็นสัตว์ธาตุไม้ (เกี่ยวข้องกับพืช) + อ่อนโยน — สมดุลไฟที่อาจร้อนเกิน', 'Rabbits are a Wood-element animal (associated with plants) and gentle — balancing Fire that might run too hot.'),
-                fills: elL('ไม้ (สร้างไฟ)', 'Wood (feeds Fire)') },
-        ],
-        'ไม้': [
-            { animal: tr('🐶 สุนัข', '🐶 Dog'),
-                why: tr('สุนัขเป็นสัตว์ธาตุดิน (ซื่อสัตย์ สัมพันธ์กับบ้าน) · ดินให้รากฐานกับไม้ให้ยึดได้', 'Dogs are an Earth-element animal (loyal, home-oriented). Earth gives Wood the foundation it needs to root.'),
-                fills: elL('ดิน (ให้รากกับไม้)', 'Earth (roots Wood)') },
-            { animal: tr('🐠 ปลา', '🐠 Fish'),
-                why: tr('น้ำหล่อเลี้ยงไม้โดยตรงใน 5 ธาตุ — ตู้ปลาในบ้านจะเสริม Day Master ของคุณทุกวัน', 'Water directly nourishes Wood in the 5-element cycle — a home aquarium reinforces your Day Master every day.'),
-                fills: elL('น้ำ (หล่อเลี้ยงไม้)', 'Water (nourishes Wood)') },
-            { animal: tr('🐢 เต่า', '🐢 Turtle'),
-                why: tr('เต่าเป็นสัญลักษณ์ดิน+น้ำในพุทธและจีน — สองธาตุที่ค้ำจุนไม้', 'Turtles symbolise Earth + Water in Buddhist and Chinese traditions — two elements that uphold Wood.'),
-                fills: elL('ดิน+น้ำ', 'Earth + Water') },
-            { animal: tr('🦜 นก', '🦜 Bird'),
-                why: tr('นกอยู่บนต้นไม้ = ขยายพลังงานไม้ในแนวสูง', 'Birds live in trees = they extend Wood\'s energy upward.'),
-                fills: elL('ไม้ (เหมือนกัน)', 'Wood (same element)') },
-        ],
-        'น้ำ': [
-            { animal: tr('🐠 ตู้ปลา', '🐠 Aquarium'),
-                why: tr('ตู้ปลา = น้ำในบ้าน ขยายพลังของ Day Master โดยตรง · Feng Shui ใช้มาเป็นพันปี', 'An aquarium = water in the home, directly amplifying your Day Master. Feng Shui has used this for thousands of years.'),
-                fills: elL('น้ำ (หนุน)', 'Water (reinforces)') },
-            { animal: tr('🐢 เต่า', '🐢 Turtle'),
-                why: tr('เต่ามีธาตุดิน — ดินควบคุมน้ำใน 5 ธาตุ ทำให้น้ำไม่ล้นหรือหายไปง่าย', 'Turtles carry the Earth element — Earth controls Water in the 5-element cycle, keeping it from overflowing or evaporating.'),
-                fills: elL('ดิน (สมดุลน้ำ)', 'Earth (balances Water)') },
-            { animal: tr('🐶 สุนัข', '🐶 Dog'),
-                why: tr('สุนัขเป็นธาตุดิน — ช่วย <em>ยึด</em> พลังงานน้ำไม่ให้ไหลเปลี่ยนแปลงเร็วเกินไป', 'Dogs are an Earth-element animal — they <em>anchor</em> Water energy so it doesn\'t shift too quickly.'),
-                fills: elL('ดิน (ยึดน้ำ)', 'Earth (anchors Water)') },
-            { animal: tr('🐱 แมว', '🐱 Cat'),
-                why: tr('แมวธาตุไฟ — ไฟสมดุลกับน้ำในทางพลังงาน (ขั้วตรงข้ามที่เติมเต็มกัน)', 'Cats are a Fire-element animal — Fire and Water complete each other (opposite poles that fill each other).'),
-                fills: elL('ไฟ (สมดุล)', 'Fire (balance)') },
-        ],
-        'โลหะ': [
-            { animal: tr('🐟 ปลา', '🐟 Fish'),
-                why: tr('น้ำเป็นผลผลิตของโลหะใน 5 ธาตุ — ปลาช่วยให้พลังงานโลหะของคุณไหลออกมาเป็นการสร้างสรรค์', 'Water is what Metal produces in the 5-element cycle — fish help your Metal energy flow out as creativity.'),
-                fills: elL('น้ำ (โลหะสร้าง)', 'Water (Metal produces)') },
-            { animal: tr('🐇 กระต่าย', '🐇 Rabbit'),
-                why: tr('ไม้ — โลหะตัดไม้ใน 5 ธาตุ ให้กระต่ายเป็นเป้าของความเข้มงวด เปลี่ยนเป็นความอ่อนโยน', 'Wood — Metal cuts Wood in the 5-element cycle, so a rabbit becomes the target that softens your strictness into gentleness.'),
-                fills: elL('ไม้ (ควบคู่)', 'Wood (counterpart)') },
-            { animal: tr('🐹 แฮมสเตอร์', '🐹 Hamster'),
-                why: tr('พลังงานเบา สะอาด โลหะชอบความเป็นระเบียบ — แฮมสเตอร์ตอบสนองดี', 'Light, clean energy. Metal loves order — and hamsters thrive on that.'),
-                fills: elL('โลหะ (เหมือน)', 'Metal (same element)') },
-            { animal: tr('🐱 แมว', '🐱 Cat'),
-                why: tr('ไฟหลอมโลหะ — แมวเปลี่ยน "โลหะแข็ง" ให้เป็น "โลหะมีชีวิต"', 'Fire forges Metal — cats turn "rigid Metal" into "living Metal".'),
-                fills: elL('ไฟ (ปรับโลหะ)', 'Fire (forges Metal)') },
-        ],
-        'ดิน': [
-            { animal: tr('🐶 สุนัข', '🐶 Dog'),
-                why: tr('สุนัขเป็นธาตุดิน (ซื่อสัตย์ รักบ้าน) — เสริม Day Master ของคุณโดยตรง', 'Dogs are an Earth-element animal (loyal, home-loving) — directly reinforcing your Day Master.'),
-                fills: elL('ดิน (หนุน)', 'Earth (reinforces)') },
-            { animal: tr('🐱 แมว', '🐱 Cat'),
-                why: tr('ไฟสร้างดินใน 5 ธาตุ — แมวเติมพลังให้ Day Master', 'Fire produces Earth in the 5-element cycle — cats feed energy into your Day Master.'),
-                fills: elL('ไฟ (สร้างดิน)', 'Fire (produces Earth)') },
-            { animal: tr('🌵 ไม้อวบน้ำ', '🌵 Succulent'),
-                why: tr('แม้ไม่ใช่สัตว์ — แต่ไม้อวบน้ำมีทั้งธาตุไม้และน้ำเล็กน้อย · ช่วยป้องกันดินไม่ให้ "แห้ง" เกินไป', 'Not technically an animal — but succulents carry both Wood and a touch of Water, preventing your Earth from becoming "too dry".'),
-                fills: elL('ไม้ (ควบคุมดิน)', 'Wood (controls Earth)') },
-            { animal: tr('🐢 เต่า', '🐢 Turtle'),
-                why: tr('เต่าเป็นธาตุดิน+น้ำ — เพิ่มความเสถียรให้ Day Master', 'Turtles carry Earth + Water — adding stability to your Day Master.'),
-                fills: elL('ดิน (เหมือน)', 'Earth (same element)') },
-        ],
-    };
-    const pets = petMap[dmEl] ?? petMap['ดิน'];
-    // Mythological Spirit Creature — moved here (was missing in this page).
-    // Drawn from the add-ons.companions table via calcAddons, which maps
-    // dmEl → {creature, creatureDesc, mantra, ...}
+    // SINGLE SOURCE OF TRUTH: pet content comes from chart.addons.pet (calc.ts
+    // calcAddons), the EXACT same data the Pet add-on tab renders. Previously
+    // this page kept its own parallel petMap, so the premium report and the
+    // add-on tab showed DIFFERENT animals for the same chart. Now they're
+    // identical. Spirit creature continues to use chart.addons.companions.
+    const pet = c.addons?.pet || null;
     const companions = c.addons?.companions || null;
+    const isTh = _lang !== 'en';
+    // Build the main + secondary pet cards from the addon shape.
+    const petCard = (emoji, animalLabel, why, story, badge) => `
+    <div style="border:1px solid #2a2010;border-radius:8px;padding:12px;margin:8px 0;display:flex;gap:12px">
+      <span style="font-size:28px;flex-shrink:0">${emoji}</span>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px">
+          <div style="font-weight:600;color:#d4aa50;font-size:13px">${esc(animalLabel)}</div>
+          ${badge ? `<div style="font-size:10px;color:#8a7040;background:#1e1a0e;padding:2px 8px;border-radius:10px">${esc(badge)}</div>` : ''}
+        </div>
+        <div style="font-size:11.5px;color:#c8c0a8;margin-top:4px;line-height:1.6">${esc(why)}</div>
+        ${story ? `<div style="font-size:11px;color:#9a8a72;margin-top:6px;line-height:1.6;font-style:italic">${esc(story)}</div>` : ''}
+      </div>
+    </div>`;
+    // Split "🐟 ปลาในตู้ Betta / Koi" → [emoji, label]. Only treat the leading
+    // token as an emoji when it's an Extended_Pictographic grapheme (so a plain
+    // ASCII letter is NOT mistaken for an icon); otherwise no emoji.
+    const splitAnimal = (s) => {
+        const t = (s || '').trim();
+        const m = t.match(/^(\p{Extended_Pictographic}(?:‍\p{Extended_Pictographic})*)\s*(.*)$/u);
+        return m ? [m[1], (m[2] || '').trim() || t] : ['🐾', t];
+    };
+    // ALWAYS source from pet.main — calcAddons swaps the whole object by language,
+    // so pet.main is already "🐟 Fish in a tank — Betta / Koi" in EN and
+    // "🐟 ปลาในตู้ Betta / Koi" in TH (emoji-prefixed in both). pet.mainEn has NO
+    // emoji + an abbreviated breed list → feeding it to splitAnimal beheaded the
+    // first letter as a fake icon ("og — Shiba / Golden"). Using pet.main makes
+    // the report byte-identical to the Pet add-on tab in both languages.
+    const [mainEmoji, mainLabel] = splitAnimal(pet?.main || '');
+    const [secEmoji, secLabel] = splitAnimal(pet?.secondary || '');
+    const petBlock = pet ? `
+    <h2>${tr('สัตว์เลี้ยงที่แนะนำ', 'Recommended Pets')}</h2>
+    ${petCard(mainEmoji, mainLabel, pet.why || '', pet.story || '', tr('ตัวเลือกหลัก', 'Primary'))}
+    ${pet.secondary ? petCard(secEmoji, secLabel, pet.secWhy || '', pet.secStory || '', tr('ตัวเลือกรอง', 'Secondary')) : ''}
+    <div class="grid-3" style="margin-top:10px">
+      ${pet.colors ? `<div class="stat-card"><div class="lbl">${tr('สีเสริมพลัง', 'Lucky colours')}</div><div style="font-size:12px;color:#d4aa50;margin-top:3px">${esc(pet.colors)}</div></div>` : ''}
+      ${pet.timing ? `<div class="stat-card"><div class="lbl">${tr('ช่วงรับมาเลี้ยง', 'Best timing')}</div><div style="font-size:12px;color:#d4aa50;margin-top:3px">${esc(pet.timing)}</div></div>` : ''}
+      ${pet.care ? `<div class="stat-card"><div class="lbl">${tr('เคล็ดดูแล', 'Care tip')}</div><div style="font-size:11px;color:#c8c0a8;margin-top:3px">${esc(pet.care)}</div></div>` : ''}
+    </div>
+    ${pet.avoid ? box(tr('สัตว์ที่ควรเลี่ยง', 'Animal to avoid'), esc(pet.avoid), 'red') : ''}
+  ` : tr('<p>ข้อมูลสัตว์เลี้ยงไม่พร้อมใช้งาน</p>', '<p>Pet data unavailable.</p>');
     return section(24, tr('สัตว์เลี้ยง & สัตว์ในตำนาน — ตามธาตุของคุณ', 'Pets & Mythological Creatures — by Your Element'), '🐾', `
     <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
       <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">${tr('ที่มาของคำแนะนำ', 'Source of these suggestions')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">
-        ${tr(`สัตว์แต่ละตัวถูกจับคู่กับธาตุใน <strong>5-element cycle</strong> ของจีนโบราณ — สัตว์ที่เสริม Day Master ของคุณ หรือเติมธาตุที่ขาด คือสัตว์ที่พลังงานจะ "ทำงานให้" คุณทุกวันที่อยู่ด้วยกัน`, `Each animal is matched to an element in the ancient Chinese <strong>5-element cycle</strong> — animals that reinforce your Day Master or fill your missing element are the ones whose energy will "work for you" every day you're together.`)}<br>
+        ${tr(`สัตว์ถูกจับคู่กับธาตุใน <strong>5-element cycle</strong> ของจีนโบราณ — สัตว์ที่เสริม Day Master ของคุณคือสัตว์ที่พลังงานจะ "ทำงานให้" คุณทุกวัน · <strong>ตรงกับแท็บ สัตว์เลี้ยง ในแอป</strong>`, `Each animal is matched to an element in the ancient Chinese <strong>5-element cycle</strong> — animals reinforcing your Day Master work for you every day. <strong>Identical to the Pet add-on tab in the app.</strong>`)}<br>
         ${tr(`Day Master ของคุณ: <strong>${esc(c.bazi.dayMasterTh)} (ธาตุ${esc(dmEl)})</strong> · ธาตุที่ขาด: <strong>${esc(missingEl)}</strong>`, `Your Day Master: <strong>${esc(c.bazi.dayMasterTh)} (${esc(dmEl)} element)</strong> · Missing element: <strong>${esc(missingEl)}</strong>`)}
       </div>
     </div>
 
-    <!-- Spirit Creature (mythological) -->
+    <!-- Spirit Creature (mythological) — shared with the Companions add-on tab -->
     ${companions ? `
     <div style="border:2px solid #c8a840;background:linear-gradient(135deg,#1e1a0e,#14120a);border-radius:10px;padding:14px 16px;margin:8px 0 16px">
       <div style="font-size:10px;letter-spacing:2px;color:#c8a840;margin-bottom:6px">${tr(`✦ สัตว์ในตำนานประจำธาตุ${esc(dmEl)} ✦`, `✦ Mythological Companion for the ${esc(dmEl)} Element ✦`)}</div>
@@ -6097,18 +6325,43 @@ function p24_pets(c) {
       ${companions.mantra ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #3a3020;font-size:11px;color:#c8a840;font-style:italic">🔔 ${esc(companions.mantra)}</div>` : ''}
     </div>` : ''}
 
-    <h2>${tr('สัตว์เลี้ยงที่แนะนำ', 'Recommended Pets')}</h2>
-    ${pets.map(p => `
-      <div style="border:1px solid #2a2010;border-radius:8px;padding:12px;margin:8px 0;display:flex;gap:12px">
-        <span style="font-size:28px;flex-shrink:0">${p.animal.split(' ')[0]}</span>
-        <div style="flex:1">
-          <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px">
-            <div style="font-weight:600;color:#d4aa50;font-size:13px">${esc(p.animal.split(' ').slice(1).join(' '))}</div>
-            ${p.fills ? `<div style="font-size:10px;color:#8a7040;background:#1e1a0e;padding:2px 8px;border-radius:10px">ธาตุ: ${esc(p.fills)}</div>` : ''}
-          </div>
-          <div style="font-size:11.5px;color:#c8c0a8;margin-top:4px;line-height:1.6">${esc(p.why)}</div>
-        </div>
-      </div>`).join('')}
+    ${petBlock}
+  `);
+}
+// Divine Mirror — included in the Full Report per PRICING. Sourced from
+// chart.addons.mirror (SAME data the Divine Mirror add-on tab renders), so the
+// premium report and the add-on are guaranteed identical. 4 deity archetypes
+// (primary/secondary/tertiary) + the shadow archetype + cosmic entity + mantra.
+function p_divineMirror(c) {
+    const m = c.addons?.mirror || null;
+    const dmEl = c.bazi.dayMasterElement;
+    if (!m)
+        return section(0, tr('Divine Mirror — เทพกระจกสะท้อนตัวตน', 'Divine Mirror — Deities That Reflect You'), '🪞', tr('<p>ข้อมูลกระจกเทพไม่พร้อมใช้งาน</p>', '<p>Divine Mirror data unavailable.</p>'));
+    const archetype = (label, name, desc, story, color = '#d4aa50') => name ? `
+    <div style="border:1px solid #2a2010;border-left:3px solid ${color};border-radius:6px;padding:12px 14px;margin:8px 0">
+      <div style="font-size:9px;letter-spacing:2px;color:${color};margin-bottom:4px">${esc(label)}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:15px;color:#d4aa50;margin-bottom:4px">${esc(name)}</div>
+      ${desc ? `<div style="font-size:12px;color:#c8c0a8;line-height:1.6">${esc(desc)}</div>` : ''}
+      ${story ? `<div style="font-size:11px;color:#9a8a72;line-height:1.6;margin-top:6px;font-style:italic">${esc(story)}</div>` : ''}
+    </div>` : '';
+    return section(0, tr('Divine Mirror — เทพกระจกสะท้อนตัวตน', 'Divine Mirror — Deities That Reflect You'), '🪞', `
+    <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+      <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">${tr('กระจกเทพคืออะไร', 'What the Divine Mirror is')}</div>
+      <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">${tr(`เทพ 4 องค์จากหลายอารยธรรมที่ "สะท้อน" พลังงานธาตุ<strong>${esc(dmEl)}</strong>ของคุณ — ไม่ใช่เทพที่คุณบูชา แต่คือกระจกที่ทำให้เห็นตัวตนเมื่อมองอย่างซื่อสัตย์ รวมถึง <strong>เงา (shadow)</strong> ที่เป็นด้านเดียวกันเมื่อพลังงานเสียสมดุล · <strong>ตรงกับแท็บ Divine Mirror ในแอป</strong>`, `Four deities across civilisations that "mirror" your <strong>${esc(dmEl)}</strong>-element energy — not gods you worship, but reflections that reveal who you are when you look honestly, including the <strong>shadow</strong> archetype — the same energy gone out of balance. <strong>Identical to the Divine Mirror add-on tab.</strong>`)}</div>
+    </div>
+
+    ${m.cosmic && m.cosmic.name ? `<div style="text-align:center;margin-bottom:14px">
+      <div style="font-size:10px;letter-spacing:3px;color:#c8a840">${tr('✦ สัญลักษณ์จักรวาลของคุณ ✦', '✦ YOUR COSMIC ENTITY ✦')}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:18px;color:#f0d060;margin-top:4px">${esc(m.cosmic.name)}</div>
+      ${m.cosmic.desc ? `<div style="font-size:11.5px;color:#c8c0a8;margin-top:4px;line-height:1.6">${esc(m.cosmic.desc)}</div>` : ''}
+    </div>` : ''}
+
+    ${archetype(tr('เทพหลัก — ตัวตนที่ฉายออก', 'PRIMARY — your projected self'), m.primary, m.primaryDesc, m.primaryStory, '#d4aa50')}
+    ${archetype(tr('เทพรอง — แรงขับเคลื่อน', 'SECONDARY — your driving force'), m.secondary, m.secondaryDesc, m.secondaryStory, '#c8a840')}
+    ${archetype(tr('เทพที่สาม — มิติที่ซ่อน', 'TERTIARY — your hidden dimension'), m.tertiary, m.tertiaryDesc, m.tertiaryStory, '#a89060')}
+    ${archetype(tr('เงา — พลังงานเดียวกันที่เสียสมดุล', 'SHADOW — the same energy imbalanced'), m.shadow, m.shadowDesc, m.shadowStory, '#a05050')}
+
+    ${m.mantra ? box(tr('มนตราของกระจก', 'Mirror mantra'), `<span style="font-style:italic">🔔 ${esc(m.mantra)}</span>`, 'gold') : ''}
   `);
 }
 function p25_summary(c) {
@@ -6196,14 +6449,15 @@ function generateReport(c) {
         p23_forecast10yr, // 33. 10-Year Forecast
         p16_activation, // 34. Activation Plan (all 26 systems)
         p17_weekly, // 35. Weekly Plan
-        // ─── 36-42: Lifestyle & closing ──────────────────────────────
+        // ─── 36-43: Lifestyle & closing ──────────────────────────────
         p14_health, // 36. Health (multi-system)
         p15_finance, // 37. Finance (multi-system)
         p20_colors, // 38. สีมงคล
-        p24_pets, // 39. สัตว์เลี้ยง
-        p21_historicalFigures, // 40. Historical Figures
-        p22_painPoints, // 41. 5 Pain Points
-        p25_summary, // 42. Summary + Disclaimer
+        p24_pets, // 39. สัตว์เลี้ยง (now shares chart.addons.pet with the add-on tab)
+        p_divineMirror, // 40. Divine Mirror (chart.addons.mirror — same as add-on tab)
+        p21_historicalFigures, // 41. Historical Figures
+        p22_painPoints, // 42. 5 Pain Points
+        p25_summary, // 43. Summary + Disclaimer
     ].map(fn => fn(c)).join('\n');
     return `<!DOCTYPE html>
 <html lang="th">

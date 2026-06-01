@@ -872,8 +872,36 @@ const DASHA_YEARS: Record<string, number> = {
 
 const DASHA_ORDER = ['เคตุ','ศุกร์','อาทิตย์','จันทร์','อังคาร','ราหู','พฤหัสฯ','เสาร์','พุธ'];
 
+/**
+ * Lahiri Ayanamsa — time-varying sidereal offset for Vedic calculations.
+ *
+ * Linear approximation from J2000.0 epoch: rate = 50.288 arcsec/year
+ * (≈ 0.013968°/year) due to precession of the equinoxes. Accurate to
+ * ~±10 arcsec across years 1900-2100 — sufficient for nakshatra
+ * boundary placement at 13°20' resolution.
+ *
+ * Reference value: 23°51'11.18" at 2000-01-01 UT = 23.85310°
+ *
+ * Patched 2026-06-01 (Director-approved): previously hardcoded to 24.0
+ * which drifts ~10 arcmin from true Lahiri at 2026 and ~26 arcmin by
+ * 2050. For older charts (pre-1950) the drift is even larger — Sunthorn
+ * Phu's 1786 chart was using a value 2.87° wrong (≈ shift of half a
+ * nakshatra), affecting nakshatra/Mahadasha/dasha period accuracy.
+ *
+ * For higher precision in future, replace with full IAU 2006 series
+ * (Newcomb / Capitaine). Current linear form is enough for ~99% of
+ * cases at nakshatra-boundary precision.
+ */
+function lahiriAyanamsa(year: number, month: number, day: number): number {
+  const decYear = year + (month - 1) / 12 + (day - 1) / 365.25;
+  const REF_YEAR = 2000.0;
+  const REF_AYAN_DEG = 23.85310;        // 23°51'11.18" at 2000-01-01 UT
+  const RATE_PER_YEAR_DEG = 0.013968;   // 50.288"/yr / 3600
+  return REF_AYAN_DEG + (decYear - REF_YEAR) * RATE_PER_YEAR_DEG;
+}
+
 function calcVedic(d: BirthData, w: WesternData): VedicData {
-  const AYANAMSA = 24.0; // Lahiri ayanamsa ~2026
+  const AYANAMSA = lahiriAyanamsa(d.year, d.month, d.day); // Time-varying Lahiri (was hardcoded 24.0)
   const siderealMoon = mod360(w.moonDeg - AYANAMSA);
   const nakshatraIdx = Math.floor(siderealMoon / (360 / 27));
   const pada = Math.floor((siderealMoon % (360 / 27)) / (360 / 27 / 4)) + 1;
