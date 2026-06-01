@@ -7444,10 +7444,98 @@ function _renderPulseLockedPreview(chart) {
 }
 
 // ── Monthly Brief — compact snapshot, one line per system ──
+// Director feedback 2026-06-01: make the Monthly Brief year-strip months
+// clickable so a user can see ANY month's biorhythm, not just this/next.
+// We cache the chart so the onclick handler can recompute without re-running
+// renderMonthlyBrief (which would also reset scroll position).
+let _MB_CHART_CACHE = null;
+function _mbComputeMonthDays(monthIdx, year, dobStr){
+  if (!dobStr) return [];
+  const [yy,mm,dd] = dobStr.split('-').map(Number);
+  const dobMs = Date.UTC(yy, mm-1, dd);
+  const daysInMonth = new Date(year, monthIdx+1, 0).getDate();
+  const out = [];
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dayMs = Date.UTC(year, monthIdx, day);
+    const dfb = (dayMs - dobMs) / 86400000;
+    const phys = Math.round(100 * Math.sin(2*Math.PI*dfb/23));
+    const emo  = Math.round(100 * Math.sin(2*Math.PI*dfb/28));
+    const intel= Math.round(100 * Math.sin(2*Math.PI*dfb/33));
+    const total = phys + emo + intel;
+    out.push({ day, date: new Date(dayMs), phys, emo, intel, total });
+  }
+  return out;
+}
+function _mbSignificantDaysHTML(monthIdx, year){
+  const isTh = LANG === 'th';
+  const dobStr = (document.getElementById('profDob')||{}).value || localStorage.getItem('mth_dob');
+  const monthDays = _mbComputeMonthDays(monthIdx, year, dobStr);
+  if (!monthDays.length) return `<div style="font-size:12px;color:var(--muted);font-style:italic;text-align:center;padding:16px">${isTh?'กรอกวันเกิดเพื่อเห็นหน้าต่างเดือน':'Add DOB to see month window'}</div>`;
+  const peakDays = [...monthDays].sort((a,b)=>b.total-a.total).slice(0,5).sort((a,b)=>a.day-b.day);
+  const lowDays  = [...monthDays].sort((a,b)=>a.total-b.total).slice(0,5).sort((a,b)=>a.day-b.day);
+  const mNames = isTh ? ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม']
+                      : ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const mAbbr  = isTh ? ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.']
+                      : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now = new Date();
+  const isCurrentMonth = now.getMonth() === monthIdx && now.getFullYear() === year;
+  const todayDay = isCurrentMonth ? now.getDate() : -1;
+
+  return `
+    <div class="deep-sys-title">⭐ ${isTh?`10 วันสำคัญใน ${mNames[monthIdx]}`:`10 Significant Days in ${mNames[monthIdx]}`}</div>
+    <div class="deep-sys-origin">${isTh?'จาก biorhythm 3 วงจรของคุณ · กดดูเดือนอื่นที่แถบด้านบน':'Your 3-cycle biorhythm · click any month above to view it'}</div>
+
+    <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ ${isTh?'5 วันที่ดีที่สุด':'TOP 5 PEAK DAYS'}</div>
+        ${peakDays.map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:rgba(74,154,64,0.06);border-left:3px solid #4a9a40;border-radius:0 5px 5px 0;margin-bottom:3px;font-size:12px">
+          <span style="color:var(--text)"><strong>${mAbbr[monthIdx]} ${d.day}</strong> · <span style="color:var(--muted);font-size:10.5px">${d.date.toLocaleDateString(isTh?'th-TH':'en-US',{weekday:'short'})}</span></span>
+          <span style="color:#4a9a40;font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600">+${d.total}</span>
+        </div>`).join('')}
+      </div>
+      <div>
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#c06060;margin-bottom:6px">⚠️ ${isTh?'5 วันควรระวัง':'5 CAUTION DAYS'}</div>
+        ${lowDays.map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 5px 5px 0;margin-bottom:3px;font-size:12px">
+          <span style="color:var(--text)"><strong>${mAbbr[monthIdx]} ${d.day}</strong> · <span style="color:var(--muted);font-size:10.5px">${d.date.toLocaleDateString(isTh?'th-TH':'en-US',{weekday:'short'})}</span></span>
+          <span style="color:#c06060;font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600">${d.total}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <div style="margin-top:14px">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px">${isTh?mNames[monthIdx]+' · ความสูง = biorhythm รวม 3 วงจร':mNames[monthIdx]+' · bar height = sum of 3 cycles'}</div>
+      <div style="display:flex;gap:1px;align-items:flex-end;height:54px;padding:2px 0;border-bottom:1px solid var(--border)">
+        ${monthDays.map(d => `<div style="flex:1;min-width:6px;background:${d.total>100?'#50d490':d.total<-100?'#c06060':'#c8a840'};opacity:${d.day===todayDay?1:.65};height:${Math.max(4, Math.min(50, 25 + d.total/8))}px;border-radius:1px 1px 0 0;border-top:${d.day===todayDay?'2px solid var(--gold)':'none'}" title="${mAbbr[monthIdx]} ${d.day} · ${d.total>=0?'+':''}${d.total}"></div>`).join('')}
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px;font-family:'Josefin Sans',sans-serif;font-size:8.5px;color:var(--muted)">
+        <span>${isTh?'วันที่':'Day'} 1</span>${isCurrentMonth?`<span style="color:var(--gold)">${isTh?'วันนี้':'today'}: ${mAbbr[monthIdx]} ${now.getDate()}</span>`:`<span style="color:var(--gold3)">${mNames[monthIdx]} ${year}</span>`}<span>${isTh?'วันที่':'Day'} ${monthDays.length}</span>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;font-size:12px;color:var(--muted);line-height:1.6;font-style:italic">
+      ${isTh?'💡 ใช้ peak days สำหรับ launch/decision/big move · caution days = วางแผนเงียบ ทบทวน ฟื้นฟู · ${isCurrentMonth?\'วันนี้แถบสีทอง\':\'\'}':'💡 Use peak days for launches/decisions/big moves · caution days = quiet planning, review, recovery'}
+    </div>
+  `;
+}
+function _mbViewMonth(monthIdx){
+  const year = new Date().getFullYear();
+  const container = document.getElementById('mbSigDaysContainer');
+  if (container) container.innerHTML = _mbSignificantDaysHTML(monthIdx, year);
+  document.querySelectorAll('[data-mb-month]').forEach(el => {
+    const sel = el.getAttribute('data-mb-month') === String(monthIdx);
+    el.style.background = sel ? 'rgba(212,175,55,0.22)' : 'rgba(0,0,0,.18)';
+    el.style.borderColor = sel ? 'var(--gold)' : 'transparent';
+    el.style.borderWidth = sel ? '2px' : '1px';
+  });
+  // Smooth-scroll the container into view so the new content is visible.
+  if (container) container.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
 function renderMonthlyBrief(){
   const panel = document.getElementById('briefPanel');
   const chart = _getMS26ChartFromProfile();
   if (!chart) { _emptyDeepHint('briefPanel'); return; }
+  _MB_CHART_CACHE = chart;  // cache for onclick handlers (year-strip month tiles)
   const isTh = LANG === 'th';
   const now = new Date();
   const thisMonth  = now.getMonth();  // 0-11
@@ -7555,12 +7643,13 @@ function renderMonthlyBrief(){
       <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:10px">${isTh?'ภาพรวมทั้งปี '+now.getFullYear()+' · 12 เดือน':'Year at a glance · '+now.getFullYear()}</div>
       <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px">
         ${allV.map((v,mi)=>`
-          <div title="${monthNames[mi]} · ${v.verdict} (${v.score>0?'+':''}${v.score})" style="text-align:center;padding:7px 2px 6px;border-radius:5px;background:${mi===thisMonth?'rgba(212,175,55,0.16)':'rgba(0,0,0,.18)'};border:1px solid ${mi===thisMonth?'var(--gold3)':'transparent'}">
+          <div data-mb-month="${mi}" onclick="_mbViewMonth(${mi})" title="${monthNames[mi]} · ${v.verdict} (${v.score>0?'+':''}${v.score}) · ${isTh?'คลิกดู biorhythm':'click to view biorhythm'}" style="text-align:center;padding:7px 2px 6px;border-radius:5px;cursor:pointer;background:${mi===thisMonth?'rgba(212,175,55,0.22)':'rgba(0,0,0,.18)'};border:${mi===thisMonth?'2px':'1px'} solid ${mi===thisMonth?'var(--gold)':'transparent'};transition:all .15s" onmouseover="if(this.getAttribute('data-mb-month')!==String(${thisMonth})||document.querySelector('[data-mb-month=\\'${thisMonth}\\']').style.borderColor==='transparent')this.style.background='rgba(212,175,55,0.10)'" onmouseout="if(this.style.borderColor!=='var(--gold)')this.style.background='rgba(0,0,0,.18)'">
             <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:.5px;color:var(--muted)">${monthAbbr[mi]}</div>
             <div style="font-size:14px;line-height:1.3;margin:2px 0">${verdictEmoji(v.score)}</div>
             <div style="font-family:'Cinzel Decorative',serif;font-size:11px;color:${stripColor(v.score)};font-weight:600">${v.score>0?'+':''}${v.score}</div>
           </div>`).join('')}
       </div>
+      <div style="margin-top:8px;text-align:center;font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold3)">${isTh?'👆 คลิกเดือนใดก็ได้เพื่อดู biorhythm รายวันของเดือนนั้น':'👆 Click any month to see its daily biorhythm'}</div>
       <div style="margin-top:10px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--text);line-height:1.6">
         ${peakMonths.length?`<span style="color:var(--gold2)">🌟 ${isTh?'เดือนทอง':'Peak'}:</span> ${peakMonths.join(' · ')}`:(isTh?'ปีนี้ไม่มีเดือน "ทอง" เด่นชัด — กระแสค่อนข้างสม่ำเสมอ':'No standout peak month this year — the current runs fairly even')}${restMonths.length?`<br><span style="color:#c08080">🔴 ${isTh?'เดือนพักฟื้น':'Rest'}:</span> ${restMonths.join(' · ')} — ${isTh?'วางแผนงานเบาในช่วงนี้':'plan lighter loads here'}`:''}
       </div>
@@ -7667,45 +7756,10 @@ function renderMonthlyBrief(){
 
     ${yearStrip}
 
-    ${monthDays.length ? `
-    <!-- 🆕 Day-Level Significant Days This Month (Director 2026-06-01) -->
-    <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">⭐ ${isTh?'10 วันสำคัญในเดือนนี้':'10 Significant Days This Month'}</div>
-      <div class="deep-sys-origin">${isTh?'จาก biorhythm 3 วงจรของคุณ · วันที่ดีที่สุด/ควรระวัง':'Your 3-cycle biorhythm · top peak + caution days'}</div>
-
-      <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div>
-          <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ ${isTh?'5 วันที่ดีที่สุด':'TOP 5 PEAK DAYS'}</div>
-          ${peakDays.map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:rgba(74,154,64,0.06);border-left:3px solid #4a9a40;border-radius:0 5px 5px 0;margin-bottom:3px;font-size:12px">
-            <span style="color:var(--text)"><strong>${monthAbbr[thisMonth]} ${d.day}</strong> · <span style="color:var(--muted);font-size:10.5px">${d.date.toLocaleDateString(isTh?'th-TH':'en-US',{weekday:'short'})}</span></span>
-            <span style="color:#4a9a40;font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600">+${d.total}</span>
-          </div>`).join('')}
-        </div>
-        <div>
-          <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#c06060;margin-bottom:6px">⚠️ ${isTh?'5 วันควรระวัง':'5 CAUTION DAYS'}</div>
-          ${lowDays.map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 5px 5px 0;margin-bottom:3px;font-size:12px">
-            <span style="color:var(--text)"><strong>${monthAbbr[thisMonth]} ${d.day}</strong> · <span style="color:var(--muted);font-size:10.5px">${d.date.toLocaleDateString(isTh?'th-TH':'en-US',{weekday:'short'})}</span></span>
-            <span style="color:#c06060;font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600">${d.total}</span>
-          </div>`).join('')}
-        </div>
-      </div>
-
-      <div style="margin-top:14px">
-        <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px">${isTh?'ทั้งเดือน · ความสูง = biorhythm รวม 3 วงจร':'Full month · bar height = sum of 3 cycles'}</div>
-        <div style="display:flex;gap:1px;align-items:flex-end;height:54px;padding:2px 0;border-bottom:1px solid var(--border)">
-          ${monthDays.map(d => `<div style="flex:1;min-width:6px;background:${d.total>100?'#50d490':d.total<-100?'#c06060':'#c8a840'};opacity:${d.day===now.getDate()?1:.65};height:${Math.max(4, Math.min(50, 25 + d.total/8))}px;border-radius:1px 1px 0 0;border-top:${d.day===now.getDate()?'2px solid var(--gold)':'none'}" title="${monthAbbr[thisMonth]} ${d.day} · ${d.total>=0?'+':''}${d.total}"></div>`).join('')}
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-top:4px;font-family:'Josefin Sans',sans-serif;font-size:8.5px;color:var(--muted)">
-          <span>${isTh?'วันที่':'Day'} 1</span><span style="color:var(--gold)">${isTh?'วันนี้':'today'}: ${monthAbbr[thisMonth]} ${now.getDate()}</span><span>${isTh?'วันที่':'Day'} ${monthDays.length}</span>
-        </div>
-      </div>
-
-      <div style="margin-top:12px;font-size:12px;color:var(--muted);line-height:1.6;font-style:italic">
-        ${isTh
-          ? `💡 ใช้ peak days สำหรับ launch/decision/big move ในเดือนนี้ · caution days = วางแผนเงียบ ทบทวน ฟื้นฟู · วันแถบทอง = วันนี้`
-          : `💡 Use peak days for launches/decisions/big moves this month · caution days = quiet planning, review, recovery · gold-bordered bar = today`}
-      </div>
-    </div>` : ''}
+    <!-- 🆕 Significant Days · click year-strip above to view any month -->
+    <div class="deep-sys-card" id="mbSigDaysContainer" style="margin-top:12px">
+      ${_mbSignificantDaysHTML(thisMonth, now.getFullYear())}
+    </div>
 
     ${monthBlock((isTh?'เดือนนี้ · ':'This month · ')+monthNames[thisMonth]+' '+now.getFullYear(), thisV)}
     ${monthBlock((isTh?'เดือนหน้า · ':'Next month · ')+monthNames[nextMonthIdx]+' '+(nextMonthIdx===0?now.getFullYear()+1:now.getFullYear()), nextV)}
@@ -10530,15 +10584,18 @@ function _runCompatCheck(){
   ];
 
   let yes = 0, partial = 0, no = 0;
+  // Director feedback 2026-06-01: track WHICH systems aligned/diverged so the
+  // synthesis card at the end can name them, not just give a tally.
+  const alignedRows = [], partialRows = [], frictionRows = [];
   const rowHTML = ROWS.map(r => {
     const mv = r.extract(mine) || '—';
     const tv = r.extract(theirs) || '—';
     let res;
     try { res = r.match(mv, tv); }
     catch(e) { res = false; }
-    if (res === true) yes++;
-    else if (res === 'partial') partial++;
-    else no++;
+    if (res === true) { yes++; alignedRows.push({...r, mv, tv}); }
+    else if (res === 'partial') { partial++; partialRows.push({...r, mv, tv}); }
+    else { no++; frictionRows.push({...r, mv, tv}); }
     const color = res === true ? '#4a9a40' : res === 'partial' ? '#c8a840' : '#c06060';
     const sym   = res === true ? '✓' : res === 'partial' ? '~' : '✗';
     return `<div style="display:grid;grid-template-columns:22px 1fr 1fr 18px;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);align-items:center;font-size:11.5px">
@@ -10659,6 +10716,73 @@ function _runCompatCheck(){
         <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px">✦ ${isTh?'อ่านรวม · เคมีธาตุของคุณสองคน':'The Reading · your elemental chemistry'}</div>
         <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.8">${compatReading}</div>
       </div>
+
+      <!-- 🆕 Synthesis Verdict (Director 2026-06-01: "ไม่มีข้อสรุปให้ด้วย ต้องลึกกว่านี้") -->
+      ${(()=>{
+        const topAlign = alignedRows.slice(0, 4);
+        const topFrict = frictionRows.slice(0, 4);
+        // The "deal" + outlook — narrative tuned to the overall score level.
+        const dealTh = score >= 70
+          ? `คุณทั้งคู่นำสิ่งเดียวกันมาในจังหวะเดียวกัน — เคมีเป็นของขวัญที่ไม่ต้องสร้าง · สิ่งที่ต้องลงทุนคือ "อย่าใช้ความเหมือนเป็นข้ออ้างไม่เติบโต"`
+          : score >= 45
+          ? `แต่ละคนนำมิติที่อีกฝ่ายขาด — คุณ${myEl}+เขา${thEl} = พลังเสริมกันถ้าใช้เป็น · สิ่งที่ต้องลงทุน: สื่อสารความต่างให้เร็วก่อนจะสะสมเป็น resentment`
+          : score >= 25
+          ? `ความต่างมากกว่าความเหมือน — แปลว่าต้อง "ตั้งใจเข้าใจ" มากกว่าคู่ทั่วไป · ของขวัญคือต่างคนต่างเรียนรู้โลกใหม่ผ่านอีกคน; กับดักคือสมมติว่าอีกฝ่ายคิดเหมือนเรา`
+          : `เป็นคู่ "เรียนหนัก" — มีกันมาเพราะมีบทเรียนต้องสอนกัน · ถ้ายังเลือก ต้องตกลงกันชัด: แต่ละฝ่ายยอมปรับอะไร และอะไรห้ามต่อรอง — มิฉะนั้นจะวนเข้าวงจรเสียดสีเดิมๆ`;
+        const dealEn = score >= 70
+          ? `You bring the same things at the same time — chemistry is the gift you didn't have to build · what you must invest: don't use sameness as an excuse not to grow`
+          : score >= 45
+          ? `Each of you brings dimensions the other lacks — your ${EL_EN_C[myEl]||myEl} + their ${EL_EN_C[thEl]||thEl} = complementary if used well · what you must invest: communicate differences early, before they compound into resentment`
+          : score >= 25
+          ? `More difference than sameness — meaning you must <em>deliberately</em> understand each other more than the average couple · the gift is learning new worlds through each other; the trap is assuming they think like you`
+          : `A "high-school of love" couple — you're here because there's a lesson to teach each other · if you choose to stay, agree on what each of you will compromise and what's non-negotiable — otherwise you'll loop the same friction`;
+        const outlookTh = score >= 70
+          ? `🔭 ระยะยาว: ความเข้ากันแบบนี้คงอยู่ได้ถ้าทั้งคู่ "เปิดประตูสู่ความท้าทาย" — เคมีง่ายจะเฉื่อยถ้าไม่มีงานร่วมที่ใหญ่กว่าทั้งคู่`
+          : score >= 45
+          ? `🔭 ระยะยาว: คู่ที่ "เข้ากันพอตัว" มักอยู่ยาวสุดเพราะมี balance — ทั้ง resonance + ทั้ง friction ที่ทำให้ทั้งคู่เติบโต`
+          : score >= 25
+          ? `🔭 ระยะยาว: คู่แบบนี้ทำงานได้ดีถ้าทั้งคู่มี "third focus" — งาน ลูก ความฝันร่วม — ไม่ใช่แค่กันและกัน เพราะเคมีคู่ตรงข้ามต้องการ "วัตถุประสงค์ร่วม" มาเป็นจุดร้อย`
+          : `🔭 ระยะยาว: คู่ที่ "เรียนกันหนัก" จบสองทาง — สิ้นสุดเร็วเพราะหมดแรง หรืออยู่ยาวเพราะกลายเป็นแก่นที่หล่อหลอมกันทั้งคู่ · ตัวคุณเลือกได้ ถ้าตั้งใจ`;
+        const outlookEn = score >= 70
+          ? `🔭 Long-term: this kind of chemistry survives only if both of you "open a door to challenge" — easy resonance goes stale without a project bigger than the two of you`
+          : score >= 45
+          ? `🔭 Long-term: "meaningfully compatible" couples often last the longest because they have <em>both</em> resonance and friction — and the friction is what grows them`
+          : score >= 25
+          ? `🔭 Long-term: this works best when you both have a "third focus" — work, kids, shared dream — beyond each other; complementary chemistry needs a common object to bind to`
+          : `🔭 Long-term: "hard-learning" couples end one of two ways — early because energy runs out, or deeply because the friction itself becomes the bond. You choose, deliberately`;
+        return `<div style="margin-bottom:14px;padding:16px 18px;background:linear-gradient(135deg,rgba(212,175,55,0.06),rgba(74,154,64,0.04));border:2px solid ${verdictColor};border-radius:10px">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2.5px;color:${verdictColor};text-transform:uppercase;margin-bottom:10px;text-align:center">📜 ${isTh?'บทสรุปจริงๆ · The Real Verdict':'The Real Verdict'}</div>
+
+          ${topAlign.length ? `
+            <div style="margin-bottom:12px">
+              <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">🌟 ${isTh?'จุดที่หนุนกันชัด':'STRONGEST ALIGNMENTS'}</div>
+              ${topAlign.map(r => `<div style="display:grid;grid-template-columns:22px 1fr;gap:8px;padding:5px 8px;background:rgba(74,154,64,0.06);border-left:2px solid #4a9a40;border-radius:0 5px 5px 0;margin-bottom:3px;font-size:11.5px">
+                <span style="font-size:13px;text-align:center">${r.emoji}</span>
+                <div style="color:var(--text);line-height:1.4"><strong>${r.label}</strong> · <span style="color:var(--muted)">${isTh?'คุณ':'you'} ${r.mv} ↔ ${name} ${r.tv}</span></div>
+              </div>`).join('')}
+            </div>
+          ` : ''}
+
+          ${topFrict.length ? `
+            <div style="margin-bottom:12px">
+              <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#c06060;margin-bottom:6px">⚠️ ${isTh?'จุดที่ต้องสื่อสาร':'NEEDS DELIBERATE COMMUNICATION'}</div>
+              ${topFrict.map(r => `<div style="display:grid;grid-template-columns:22px 1fr;gap:8px;padding:5px 8px;background:rgba(192,96,96,0.05);border-left:2px solid #c06060;border-radius:0 5px 5px 0;margin-bottom:3px;font-size:11.5px">
+                <span style="font-size:13px;text-align:center;opacity:.7">${r.emoji}</span>
+                <div style="color:var(--text);line-height:1.4"><strong>${r.label}</strong> · <span style="color:var(--muted)">${isTh?'คุณ':'you'} ${r.mv} ↔ ${name} ${r.tv}</span></div>
+              </div>`).join('')}
+            </div>
+          ` : ''}
+
+          <div style="margin-bottom:10px;padding:10px 12px;background:rgba(0,0,0,.18);border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.75">
+            <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold);margin-bottom:5px">💎 ${isTh?'ข้อตกลง · พลังที่แต่ละคนต้องนำมา':'THE DEAL · what each must bring'}</div>
+            ${isTh?dealTh:dealEn}
+          </div>
+
+          <div style="padding:10px 12px;background:rgba(0,0,0,.18);border-left:3px solid var(--gold3);border-radius:0 7px 7px 0;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.75">
+            ${isTh?outlookTh:outlookEn}
+          </div>
+        </div>`;
+      })()}
 
       <!-- 26 rows -->
       <div style="margin-bottom:6px;font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold3);text-transform:uppercase">${isTh?'ทั้ง '+total+' ศาสตร์ · เทียบทีละแถว':total+' systems · row by row'}</div>
