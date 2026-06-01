@@ -8715,20 +8715,21 @@ function renderMirror(){
     ${_collapse(
       '🪞 มุมรอง · Secondary & Tertiary',
       '🪞 Secondary & Tertiary archetypes',
-      `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">
         <div class="deep-sys-card">
-          <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--muted)">SECONDARY</div>
-          <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:16px;color:var(--gold);margin:8px 0">${gods.secondary}</div>
-          <div style="font-size:12px;color:var(--text);line-height:1.6">${gods.secondaryDesc}</div>
-          ${gods.secondaryStory ? `<div style="margin-top:10px;padding:8px 10px;background:rgba(0,0,0,.2);border-radius:6px;font-size:11.5px;color:var(--muted);line-height:1.65">${gods.secondaryStory}</div>` : ''}
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--muted)">SECONDARY ARCHETYPE</div>
+          <div style="font-family:'Cinzel Decorative',serif;font-size:16px;color:var(--gold);margin:8px 0;letter-spacing:0.5px">${gods.secondary}</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:10px">${gods.secondaryDesc}</div>
+          ${gods.secondaryStory ? `<div style="padding:10px 12px;background:rgba(0,0,0,.18);border-left:2px solid var(--gold3);border-radius:0 6px 6px 0;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--muted);line-height:1.75"><div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--gold3);margin-bottom:5px">📜 ${isTh?'ตำนาน':'MYTH'}</div>${gods.secondaryStory}</div>` : ''}
         </div>
         <div class="deep-sys-card">
-          <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--muted)">TERTIARY</div>
-          <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:16px;color:var(--gold);margin:8px 0">${gods.tertiary}</div>
-          <div style="font-size:12px;color:var(--text);line-height:1.6">${gods.tertiaryDesc}</div>
-          ${gods.tertiaryStory ? `<div style="margin-top:10px;padding:8px 10px;background:rgba(0,0,0,.2);border-radius:6px;font-size:11.5px;color:var(--muted);line-height:1.65">${gods.tertiaryStory}</div>` : ''}
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--muted)">TERTIARY ARCHETYPE</div>
+          <div style="font-family:'Cinzel Decorative',serif;font-size:16px;color:var(--gold);margin:8px 0;letter-spacing:0.5px">${gods.tertiary}</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:10px">${gods.tertiaryDesc}</div>
+          ${gods.tertiaryStory ? `<div style="padding:10px 12px;background:rgba(0,0,0,.18);border-left:2px solid var(--gold3);border-radius:0 6px 6px 0;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--muted);line-height:1.75"><div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--gold3);margin-bottom:5px">📜 ${isTh?'ตำนาน':'MYTH'}</div>${gods.tertiaryStory}</div>` : ''}
         </div>
-      </div>`
+      </div>`,
+      true
     )}
 
     <!-- Cosmic Entity -->
