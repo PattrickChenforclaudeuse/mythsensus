@@ -148,12 +148,22 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
   <p class="sub">วันเกิดของคุณเป็นเรื่องส่วนตัว Mythsensus จึงออกแบบให้การคำนวณดวง 26 ศาสตร์ทำใน browser ของคุณเอง — ไม่ส่งวันเกิดไป server ใด ๆ. หน้านี้อธิบาย architecture + วิธีพิสูจน์ด้วยตัวเองใน 30 วินาที</p>
 
   <div class="tldr-card">
-    <div class="tldr-label">✦ TL;DR — 3 ข้อสำคัญ</div>
+    <div class="tldr-label">✦ TL;DR — 4 ข้อสำคัญ</div>
     <ul>
       <li><strong>Engine รันใน browser ของคุณ</strong> · ไม่มี API call · ไม่ส่ง DOB ออก · พิสูจน์ด้วย DevTools 30 วินาที</li>
+      <li><strong>คะแนนทุกตัว = deterministic (ไม่มี LLM)</strong>. เนื้อหาเชิงเล่าเรื่อง = AI ช่วยร่าง อิงจาก traditional doctrines · <a href="#engine" style="color:var(--gold2);text-decoration:underline">แยกแยะให้ชัด →</a></li>
       <li><strong>Optional account sync</strong> เก็บแค่ email + plan status (active/inactive) · ไม่เก็บ DOB หรือ chart content</li>
-      <li><strong>Engineering-honest disclosure</strong>: Vedic ayanamsa hardcoded · BaZi solar terms approximated · v2 ship Q3-Q4 2026 ที่ระบุไว้ชัด</li>
+      <li><strong>Engineering-honest disclosure</strong>: Vedic ayanamsa = time-varying lahiriAyanamsa() (patched 2026-06-01, ก่อนหน้านี้ hardcoded 24.0) · BaZi solar terms approximated · v2 ship Q3-Q4 2026</li>
     </ul>
+  </div>
+
+  <!-- AI transparency explainer — added from AI audit re-run 2026-06-01
+       (4/5 personas independently flagged "is this AI or deterministic?"). -->
+  <div class="ai-honest" style="max-width:720px;margin:18px auto 24px;padding:16px 20px;background:rgba(200,164,90,.05);border:1px solid var(--gold3);border-radius:8px;font-size:14px;line-height:1.75;color:var(--silver)">
+    <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2.5px;color:var(--gold);margin-bottom:10px;text-transform:uppercase">⚖️ Honest split — deterministic vs AI-assisted</div>
+    <p style="margin:0">
+      <strong>คะแนน Cosmic Score + คะแนน 26 ศาสตร์ + ตัวเลขทุกตัว</strong> = computed deterministically (สูตรดาราศาสตร์ Newcomb/VSOP87 + lookup tables โบราณ · zero LLM ใน score path · วันเกิดเดียวกัน → ผลเดียวกันทุกครั้ง · reproduce ได้ offline · MCP server ตรวจสอบได้). <strong>เนื้อหาเชิงเล่าเรื่อง</strong> (mythic reading, "หมายถึงอะไรกับคุณ", god myths) = AI ช่วยร่าง อิงจาก cited traditional doctrines (BaZi classics, Vedic texts, Mayan tzolkin sources, ฯลฯ) — NOT freestyle ChatGPT.
+    </p>
   </div>
 
   <nav class="jump-nav">
