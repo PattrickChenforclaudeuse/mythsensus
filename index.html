@@ -8620,30 +8620,70 @@ function _petCompat(userEl, petEl){
 // _petCompat() since 5-element logic is element-agnostic.
 const MYTHIC_CREATURES_20 = [
   // Wood — forest, growth, regenerative
-  { e:'🐉', th:'มังกรเขียว · Azure Dragon',  en:'Azure Dragon',  el:'ไม้' },
-  { e:'🐴', th:'เซนทอร์ · Centaur',           en:'Centaur',       el:'ไม้' },
-  { e:'🦊', th:'คิทสึเนะ · Kitsune',          en:'Kitsune',       el:'ไม้' },
-  { e:'🌲', th:'รุกขเทวี · Treant',           en:'Treant',        el:'ไม้' },
+  { e:'🐉', th:'มังกรเขียว · Azure Dragon',  en:'Azure Dragon',  el:'ไม้',
+    whyTh:'ผู้นำ · พลังนามธรรมที่ขึ้น/ลง · เหมาะคนต้องการ vision นำทาง',
+    whyEn:'rising leader · abstract authority · for those needing visionary direction' },
+  { e:'🐴', th:'เซนทอร์ · Centaur',           en:'Centaur',       el:'ไม้',
+    whyTh:'ปราชญ์ป่า · สอนผ่านประสบการณ์ในธรรมชาติ · คู่กับคนชอบเรียนรู้ผ่านการเดิน',
+    whyEn:'forest sage · teaches through nature experience · for learners who walk' },
+  { e:'🦊', th:'คิทสึเนะ · Kitsune',          en:'Kitsune',       el:'ไม้',
+    whyTh:'แปลงร่าง · ไหวพริบ · เหมาะคนที่กำลังหา "หน้ากาก" ในโลก',
+    whyEn:'shapeshifter · cunning · for those finding their "mask" in the world' },
+  { e:'🌲', th:'รุกขเทวี · Treant',           en:'Treant',        el:'ไม้',
+    whyTh:'ผู้พิทักษ์ป่า · slow wisdom · เหมาะคนต้องการ groundedness ระยะยาว',
+    whyEn:'forest guardian · slow wisdom · for those seeking long-term groundedness' },
   // Fire — sun, flight, brilliance
-  { e:'🔥', th:'ฟีนิกซ์ · Phoenix',           en:'Phoenix',       el:'ไฟ' },
-  { e:'🐎', th:'เพกาซัส · Pegasus',           en:'Pegasus',       el:'ไฟ' },
-  { e:'🦂', th:'แมนติคอร์ · Manticore',       en:'Manticore',     el:'ไฟ' },
-  { e:'🦅', th:'ครุฑ · Garuda',               en:'Garuda',        el:'ไฟ' },
+  { e:'🔥', th:'ฟีนิกซ์ · Phoenix',           en:'Phoenix',       el:'ไฟ',
+    whyTh:'เกิดใหม่ · เผาเก่าทิ้งสร้างใหม่ · เหมาะคนช่วง transformation ใหญ่',
+    whyEn:'rebirth · burns away old to forge new · for those mid-major-transformation' },
+  { e:'🐎', th:'เพกาซัส · Pegasus',           en:'Pegasus',       el:'ไฟ',
+    whyTh:'บินสูง · vision-ผู้มีศิลปะ · เหมาะคนหา inspired creativity',
+    whyEn:'high-flying · artist-visionary · for those seeking inspired creativity' },
+  { e:'🦂', th:'แมนติคอร์ · Manticore',       en:'Manticore',     el:'ไฟ',
+    whyTh:'ปกป้องด้วยความน่ากลัว · เหมาะคนต้องการ boundary แข็งและน่าเกรง',
+    whyEn:'defends through fearsomeness · for those needing strong, intimidating boundaries' },
+  { e:'🦅', th:'ครุฑ · Garuda',               en:'Garuda',        el:'ไฟ',
+    whyTh:'พิฆาตอุปสรรค · justice-ตัวจริง · เหมาะคนต้องการความกล้าหาญทางคุณธรรม',
+    whyEn:'obstacle-slayer · pure justice · for those needing moral courage' },
   // Earth — stable, ancient, monument
-  { e:'🦌', th:'กิเลน · Kirin',               en:'Kirin (Qilin)', el:'ดิน' },
-  { e:'🦁', th:'สฟิงซ์ · Sphinx',             en:'Sphinx',        el:'ดิน' },
-  { e:'🐂', th:'มิโนทอร์ · Minotaur',         en:'Minotaur',      el:'ดิน' },
-  { e:'👺', th:'เทงงุ · Tengu',               en:'Tengu',         el:'ดิน' },
+  { e:'🦌', th:'กิเลน · Kirin',               en:'Kirin (Qilin)', el:'ดิน',
+    whyTh:'เมตตา · มาเฉพาะตอนสมดุลในชีวิต · เหมาะคนต้องการ blessing แท้',
+    whyEn:'benevolence · appears only in balanced lives · for those seeking genuine blessing' },
+  { e:'🦁', th:'สฟิงซ์ · Sphinx',             en:'Sphinx',        el:'ดิน',
+    whyTh:'ปริศนา · transformation through riddle · เหมาะนักคิดที่ชอบโจทย์',
+    whyEn:'riddle keeper · transformation via question · for thinkers who love puzzles' },
+  { e:'🐂', th:'มิโนทอร์ · Minotaur',         en:'Minotaur',      el:'ดิน',
+    whyTh:'หลงทางในใจตัวเอง · shadow encounter · เหมาะคนเผชิญด้านมืดในตัว',
+    whyEn:'lost in own labyrinth · shadow encounter · for those facing inner darkness' },
+  { e:'👺', th:'เทงงุ · Tengu',               en:'Tengu',         el:'ดิน',
+    whyTh:'ความรู้ภูเขา · trickster-อาจารย์ · เหมาะคนแหวกแนวที่ต้องการ wisdom นอกระบบ',
+    whyEn:'mountain wisdom · trickster-teacher · for the unconventional seeking off-system wisdom' },
   // Metal — precise, sharp, refined
-  { e:'🦄', th:'ยูนิคอร์น · Unicorn',         en:'Unicorn',       el:'โลหะ' },
-  { e:'🦅', th:'กริฟฟอน · Gryphon',           en:'Gryphon',       el:'โลหะ' },
-  { e:'🐅', th:'เสือขาว · White Tiger',       en:'White Tiger',   el:'โลหะ' },
-  { e:'⚔️', th:'จอร์มุนแกนด์ · Jormungandr',  en:'Jormungandr',   el:'โลหะ' },
+  { e:'🦄', th:'ยูนิคอร์น · Unicorn',         en:'Unicorn',       el:'โลหะ',
+    whyTh:'ความบริสุทธิ์ · มาเฉพาะ heart-pure · เหมาะคนต้องการ healing ที่ลึกที่สุด',
+    whyEn:'purity · appears only for the pure-hearted · for those needing deepest healing' },
+  { e:'🦅', th:'กริฟฟอน · Gryphon',           en:'Gryphon',       el:'โลหะ',
+    whyTh:'เฝ้าสมบัติ · ผสมเหยี่ยว+สิงโต · เหมาะคนต้องการปกป้องสิ่งมีค่า',
+    whyEn:'treasure guardian · eagle+lion · for those protecting what matters' },
+  { e:'🐅', th:'เสือขาว · White Tiger',       en:'White Tiger',   el:'โลหะ',
+    whyTh:'เด็ดขาด · นักล่าผู้สง่างาม · เหมาะคนต้องการ courage to act now',
+    whyEn:'decisive · regal hunter · for those needing courage to act now' },
+  { e:'⚔️', th:'จอร์มุนแกนด์ · Jormungandr',  en:'Jormungandr',   el:'โลหะ',
+    whyTh:'วัฏจักร · ทำลายเพื่อรีเซ็ตจักรวาล · เหมาะคนช่วง end-of-cycle',
+    whyEn:'cyclical · destroys to reset the world · for those at end-of-cycle' },
   // Water — fluid, deep, silent
-  { e:'🐢', th:'เต่าดำ · Black Tortoise',     en:'Black Tortoise',el:'น้ำ' },
-  { e:'🐙', th:'คราเคน · Kraken',             en:'Kraken',        el:'น้ำ' },
-  { e:'🧜', th:'นางเงือก · Mermaid',          en:'Mermaid',       el:'น้ำ' },
-  { e:'🐍', th:'นาคา · Naga',                 en:'Naga',          el:'น้ำ' },
+  { e:'🐢', th:'เต่าดำ · Black Tortoise',     en:'Black Tortoise',el:'น้ำ',
+    whyTh:'อายุยืน · stability เหนือกาลเวลา · เหมาะคนต้องการ deep root',
+    whyEn:'long-lived · stability beyond time · for those needing deep root' },
+  { e:'🐙', th:'คราเคน · Kraken',             en:'Kraken',        el:'น้ำ',
+    whyTh:'พลังลึกใต้น้ำ · subconscious giant · เหมาะคนทำงานกับ depth psyche',
+    whyEn:'deep-water power · subconscious giant · for those working with depth psyche' },
+  { e:'🧜', th:'นางเงือก · Mermaid',          en:'Mermaid',       el:'น้ำ',
+    whyTh:'เสียงใต้น้ำ · ความปรารถนาที่ซ่อนอยู่ · เหมาะคนหา hidden truth ในตัวเอง',
+    whyEn:'underwater voice · hidden longings · for those uncovering inner truth' },
+  { e:'🐍', th:'นาคา · Naga',                 en:'Naga',          el:'น้ำ',
+    whyTh:'พิทักษ์ขุมทรัพย์ · บริหาร wealth/wisdom · เหมาะคนเก็บรักษาสิ่งล้ำค่า',
+    whyEn:'treasure-keeper · steward of wealth/wisdom · for those stewarding precious things' },
 ];
 // 7-day ritual schedule for Companions — Vedic planetary day × creature invocation.
 const RITUAL_WEEK = [
@@ -8692,30 +8732,70 @@ const MAHADASHA_PILGRIMAGE = {
 // 20 sports / exercise modalities classified by 5-element movement pattern.
 const ALL_EXERCISES_20 = [
   // Wood — flexibility, growth, flow
-  { e:'🧘', th:'โยคะ Hatha',          en:'Hatha Yoga',           el:'ไม้' },
-  { e:'🤸', th:'พิลาทีส',              en:'Pilates',              el:'ไม้' },
-  { e:'🌿', th:'ไทเก๊ก / ไทชี่',         en:'Tai Chi',              el:'ไม้' },
-  { e:'🧗', th:'ปีนผา / Bouldering',    en:'Climbing / Bouldering', el:'ไม้' },
+  { e:'🧘', th:'โยคะ Hatha',          en:'Hatha Yoga',           el:'ไม้',
+    whyTh:'พื้นฐาน · ทุกระดับ · ฝึก flexibility + ลมหายใจ · เริ่มที่นี่ได้',
+    whyEn:'foundational · any level · trains flexibility + breath · start here' },
+  { e:'🤸', th:'พิลาทีส',              en:'Pilates',              el:'ไม้',
+    whyTh:'core + spine alignment · เหมาะคนนั่งทำงานนาน / หลังคลอด',
+    whyEn:'core + spine alignment · for desk workers / post-partum' },
+  { e:'🌿', th:'ไทเก๊ก / ไทชี่',         en:'Tai Chi',              el:'ไม้',
+    whyTh:'ช้า · meditative · เหมาะคนที่ stressed หรืออายุมาก · ทำได้ตลอดชีวิต',
+    whyEn:'slow · meditative · for stressed or older bodies · lifelong practice' },
+  { e:'🧗', th:'ปีนผา / Bouldering',    en:'Climbing / Bouldering', el:'ไม้',
+    whyTh:'problem-solving + strength · เหมาะคนชอบ challenge ทางสมอง+กาย',
+    whyEn:'problem-solving + strength · for those wanting brain+body challenge' },
   // Fire — intensity, cardio, heat
-  { e:'🥊', th:'มวย / Kickboxing',      en:'Boxing / Kickboxing',  el:'ไฟ' },
-  { e:'🔥', th:'HIIT / Tabata',         en:'HIIT / Tabata',        el:'ไฟ' },
-  { e:'🌶️', th:'Hot Yoga (Bikram)',     en:'Hot Yoga (Bikram)',    el:'ไฟ' },
-  { e:'💃', th:'Zumba / Salsa dance',   en:'Zumba / Salsa',        el:'ไฟ' },
+  { e:'🥊', th:'มวย / Kickboxing',      en:'Boxing / Kickboxing',  el:'ไฟ',
+    whyTh:'stress release + cardio · ตีพอ vent emotion · ระบายโกรธ',
+    whyEn:'stress release + cardio · vents emotion · processes anger' },
+  { e:'🔥', th:'HIIT / Tabata',         en:'HIIT / Tabata',        el:'ไฟ',
+    whyTh:'20-30 นาที burn สูง · เหมาะคนเวลาน้อย · maximum effect/time',
+    whyEn:'20-30 min high burn · for time-poor schedules · maximum effect/time' },
+  { e:'🌶️', th:'Hot Yoga (Bikram)',     en:'Hot Yoga (Bikram)',    el:'ไฟ',
+    whyTh:'เหงื่อ + flexibility · detox · ต้องดื่มน้ำเยอะก่อนและหลัง',
+    whyEn:'sweat + flexibility · detox · heavy hydration required' },
+  { e:'💃', th:'Zumba / Salsa dance',   en:'Zumba / Salsa',        el:'ไฟ',
+    whyTh:'fun cardio · สังคม · ไม่รู้สึกเหมือนออกกำลัง · LP สนุก',
+    whyEn:'fun cardio · social · doesn\'t feel like exercise · playful LPs' },
   // Earth — stability, strength, ground
-  { e:'🏋️', th:'เวทเทรนนิ่ง',           en:'Weight training',      el:'ดิน' },
-  { e:'🥾', th:'เดินขึ้นเขา / Hiking',    en:'Hiking',               el:'ดิน' },
-  { e:'🌱', th:'จัดสวน / Gardening',     en:'Gardening',            el:'ดิน' },
-  { e:'🧱', th:'Foundation training',    en:'Foundation training',  el:'ดิน' },
+  { e:'🏋️', th:'เวทเทรนนิ่ง',           en:'Weight training',      el:'ดิน',
+    whyTh:'muscle + bone density · จำเป็น 30+ · ปั้นรูปร่าง',
+    whyEn:'muscle + bone density · essential 30+ · sculpts physique' },
+  { e:'🥾', th:'เดินขึ้นเขา / Hiking',    en:'Hiking',               el:'ดิน',
+    whyTh:'natural cardio + nature exposure · ไม่เหมือนยิม · soul reset',
+    whyEn:'natural cardio + nature exposure · unlike a gym · soul reset' },
+  { e:'🌱', th:'จัดสวน / Gardening',     en:'Gardening',            el:'ดิน',
+    whyTh:'low-impact full-body · stress relief + dopamine · earth-grounding',
+    whyEn:'low-impact full-body · stress relief + dopamine · earth-grounding' },
+  { e:'🧱', th:'Foundation training',    en:'Foundation training',  el:'ดิน',
+    whyTh:'ฟื้นฟูร่างกายที่บาด · postural correction · ก่อนเริ่มฝึกหนัก',
+    whyEn:'rehab for injured bodies · postural correction · prep before heavy training' },
   // Metal — precision, discipline, technique
-  { e:'🏊', th:'ว่ายน้ำ Lap (technique)',en:'Lap Swimming (technique)', el:'โลหะ' },
-  { e:'🏹', th:'ยิงธนู',                 en:'Archery',              el:'โลหะ' },
-  { e:'🤺', th:'ฟันดาบ / Fencing',       en:'Fencing',              el:'โลหะ' },
-  { e:'🥋', th:'Wing Chun / Aikido',     en:'Wing Chun / Aikido',   el:'โลหะ' },
+  { e:'🏊', th:'ว่ายน้ำ Lap (technique)',en:'Lap Swimming (technique)', el:'โลหะ',
+    whyTh:'joint-friendly cardio · technique-focused · เหมาะข้อต่อบาด',
+    whyEn:'joint-friendly cardio · technique-focused · for sensitive joints' },
+  { e:'🏹', th:'ยิงธนู',                 en:'Archery',              el:'โลหะ',
+    whyTh:'focus + breath control · meditative competition · พัฒนา concentration',
+    whyEn:'focus + breath control · meditative competition · builds concentration' },
+  { e:'🤺', th:'ฟันดาบ / Fencing',       en:'Fencing',              el:'โลหะ',
+    whyTh:'footwork + tactics · brain-body coordination · sport ที่สูง elegance',
+    whyEn:'footwork + tactics · brain-body coordination · elegant sport' },
+  { e:'🥋', th:'Wing Chun / Aikido',     en:'Wing Chun / Aikido',   el:'โลหะ',
+    whyTh:'self-defence · close-quarters · centerline philosophy · lifelong art',
+    whyEn:'self-defence · close-quarters · centerline philosophy · lifelong art' },
   // Water — flow, endurance, depth
-  { e:'🏄', th:'เซิร์ฟ / Surfing',       en:'Surfing',              el:'น้ำ' },
-  { e:'🛶', th:'พายเรือ / Kayak',        en:'Kayaking',             el:'น้ำ' },
-  { e:'💧', th:'แอโรบิคในน้ำ',           en:'Water aerobics',       el:'น้ำ' },
-  { e:'🤿', th:'ดำน้ำลึก / Free dive',    en:'Free diving',          el:'น้ำ' },
+  { e:'🏄', th:'เซิร์ฟ / Surfing',       en:'Surfing',              el:'น้ำ',
+    whyTh:'balance + ocean meditation · seasonal · ต้องเดินทาง · soul sport',
+    whyEn:'balance + ocean meditation · seasonal · requires travel · soul sport' },
+  { e:'🛶', th:'พายเรือ / Kayak',        en:'Kayaking',             el:'น้ำ',
+    whyTh:'upper body + water solitude · เริ่มง่าย · สงบ',
+    whyEn:'upper body + water solitude · easy to start · peaceful' },
+  { e:'💧', th:'แอโรบิคในน้ำ',           en:'Water aerobics',       el:'น้ำ',
+    whyTh:'low-impact · เหมาะคนข้อต่อบาด · senior-friendly · recovery exercise',
+    whyEn:'low-impact · joint-sensitive · senior-friendly · recovery-grade' },
+  { e:'🤿', th:'ดำน้ำลึก / Free dive',    en:'Free diving',          el:'น้ำ',
+    whyTh:'breath-hold + zen + ocean · advanced · ต้องการ training พิเศษ',
+    whyEn:'breath-hold + zen + ocean · advanced · requires special training' },
 ];
 // Weekly workout cadence by Vedic day — what type of movement to favour.
 const WORKOUT_WEEK = [
@@ -8743,30 +8823,70 @@ const EXERCISE_30DAY = { th:[
 // 20 foods / cuisines classified by 5-element flavour & nature (TCM-aligned).
 const ALL_FOODS_20 = [
   // Wood — sour, fresh, green, fermented
-  { e:'🥗', th:'สลัด/ผักสดเขียว',       en:'Fresh green salads',                el:'ไม้' },
-  { e:'🍋', th:'มะนาว / มะม่วงดิบ',      en:'Citrus / sour fruits',              el:'ไม้' },
-  { e:'🥬', th:'ผักหมัก (kimchi/ดอง)',   en:'Fermented vegetables',              el:'ไม้' },
-  { e:'🍵', th:'ชาเขียว / Matcha',       en:'Green tea / Matcha',                el:'ไม้' },
+  { e:'🥗', th:'สลัด/ผักสดเขียว',       en:'Fresh green salads',                el:'ไม้',
+    whyTh:'เปลี่ยน gut microbiome · ใยอาหารสด · เริ่มมื้อหนักด้วย',
+    whyEn:'reshapes gut microbiome · raw fiber · begin heavy meals with this' },
+  { e:'🍋', th:'มะนาว / มะม่วงดิบ',      en:'Citrus / sour fruits',              el:'ไม้',
+    whyTh:'รสเปรี้ยว = liver tonic · กระตุ้นน้ำดี · ดีก่อนอาหารมัน',
+    whyEn:'sour = liver tonic · stimulates bile · best before fatty meals' },
+  { e:'🥬', th:'ผักหมัก (kimchi/ดอง)',   en:'Fermented vegetables',              el:'ไม้',
+    whyTh:'probiotic-rich · เสริม immunity · 1-2 ช้อนต่อมื้อพอ',
+    whyEn:'probiotic-rich · supports immunity · 1-2 tbsp per meal is enough' },
+  { e:'🍵', th:'ชาเขียว / Matcha',       en:'Green tea / Matcha',                el:'ไม้',
+    whyTh:'L-theanine + คาเฟอีนเย็น · focus ไม่ jittery · 2-3 แก้ว/วัน',
+    whyEn:'L-theanine + smooth caffeine · focused without jitters · 2-3 cups/day' },
   // Fire — bitter, spicy, red, roasted
-  { e:'🌶️', th:'พริก / แกงเผ็ด',         en:'Chili / spicy curry',               el:'ไฟ' },
-  { e:'🔥', th:'BBQ / ปิ้งย่าง',          en:'BBQ / grilled meats',               el:'ไฟ' },
-  { e:'🍫', th:'ดาร์ก ช็อกโกแลต',         en:'Dark chocolate',                    el:'ไฟ' },
-  { e:'☕', th:'กาแฟ / Espresso',         en:'Coffee / Espresso',                 el:'ไฟ' },
+  { e:'🌶️', th:'พริก / แกงเผ็ด',         en:'Chili / spicy curry',               el:'ไฟ',
+    whyTh:'capsaicin · metabolism boost · ระบาย sweat · ใช้ในมื้อกลางวัน',
+    whyEn:'capsaicin · boosts metabolism · induces sweating · best at lunch' },
+  { e:'🔥', th:'BBQ / ปิ้งย่าง',          en:'BBQ / grilled meats',               el:'ไฟ',
+    whyTh:'high protein + char flavor · social meal · 1-2 ครั้ง/สัปดาห์พอ',
+    whyEn:'high protein + char flavor · social meal · 1-2 times/week is plenty' },
+  { e:'🍫', th:'ดาร์ก ช็อกโกแลต',         en:'Dark chocolate',                    el:'ไฟ',
+    whyTh:'70%+ · flavanols · mood lift · 20-30g/วันพอ',
+    whyEn:'70%+ · flavanols · mood lift · 20-30g/day is plenty' },
+  { e:'☕', th:'กาแฟ / Espresso',         en:'Coffee / Espresso',                 el:'ไฟ',
+    whyTh:'alertness booster · stop หลัง 2pm · ผู้มี emotional cycle ต่ำต้องระวัง',
+    whyEn:'alertness booster · stop after 2pm · watch if emotional cycle is low' },
   // Earth — sweet, grounding, yellow, root
-  { e:'🍠', th:'มันหวาน / ฟักทอง',        en:'Sweet potato / pumpkin',            el:'ดิน' },
-  { e:'🍚', th:'ข้าวกล้อง / whole grain',  en:'Whole-grain rice',                  el:'ดิน' },
-  { e:'🍯', th:'น้ำผึ้ง / กล้วย',          en:'Honey / bananas',                   el:'ดิน' },
-  { e:'🥕', th:'แครอท / บีท / รากผัก',     en:'Root vegetables (carrot, beet)',    el:'ดิน' },
+  { e:'🍠', th:'มันหวาน / ฟักทอง',        en:'Sweet potato / pumpkin',            el:'ดิน',
+    whyTh:'beta-carotene + slow carb · พลังงานยาว · ดีก่อนนอน',
+    whyEn:'beta-carotene + slow carb · long energy · good before sleep' },
+  { e:'🍚', th:'ข้าวกล้อง / whole grain',  en:'Whole-grain rice',                  el:'ดิน',
+    whyTh:'fiber + B vitamins · พื้นฐาน Asian diet · ครึ่งจาน',
+    whyEn:'fiber + B vitamins · Asian-diet base · half your plate' },
+  { e:'🍯', th:'น้ำผึ้ง / กล้วย',          en:'Honey / bananas',                   el:'ดิน',
+    whyTh:'fast sugar + minerals · ก่อน workout / กลางวัน · ไม่กินตอน sedentary',
+    whyEn:'fast sugar + minerals · pre-workout / midday · not when sedentary' },
+  { e:'🥕', th:'แครอท / บีท / รากผัก',     en:'Root vegetables (carrot, beet)',    el:'ดิน',
+    whyTh:'ground energy + earth minerals · roast หรือต้ม · ทำเป็น stew',
+    whyEn:'ground energy + earth minerals · roast or boil · ideal for stews' },
   // Metal — pungent, white, sharp, refined
-  { e:'🧄', th:'กระเทียม / หัวหอม',       en:'Garlic / onion',                    el:'โลหะ' },
-  { e:'🫚', th:'ขิง / หัวไชเท้า',          en:'Ginger / daikon',                   el:'โลหะ' },
-  { e:'🍐', th:'แอปเปิ้ลขาว / แพร์',       en:'White apple / pear',                el:'โลหะ' },
-  { e:'🥛', th:'นม / โยเกิร์ตขาว',         en:'Dairy / plain yogurt',              el:'โลหะ' },
+  { e:'🧄', th:'กระเทียม / หัวหอม',       en:'Garlic / onion',                    el:'โลหะ',
+    whyTh:'allicin · ฆ่าเชื้อ · เสริมภูมิ · กินดิบดีสุด · 2-3 กลีบ/วัน',
+    whyEn:'allicin · antimicrobial · immune boost · raw best · 2-3 cloves/day' },
+  { e:'🫚', th:'ขิง / หัวไชเท้า',          en:'Ginger / daikon',                   el:'โลหะ',
+    whyTh:'warming digestion · ใช้ในชา / ซุป · บรรเทาคลื่นไส้',
+    whyEn:'warming digestion · use in tea / soup · eases nausea' },
+  { e:'🍐', th:'แอปเปิ้ลขาว / แพร์',       en:'White apple / pear',                el:'โลหะ',
+    whyTh:'ปอด tonic (TCM) · pectin · กิน 1 ผล/วัน หลังอาหาร',
+    whyEn:'lung tonic (TCM) · pectin · 1 fruit/day after meals' },
+  { e:'🥛', th:'นม / โยเกิร์ตขาว',         en:'Dairy / plain yogurt',              el:'โลหะ',
+    whyTh:'calcium + protein · plain ไม่ใส่น้ำตาล · เช้าหรือก่อนนอน',
+    whyEn:'calcium + protein · plain unsweetened · morning or pre-sleep' },
   // Water — salty, deep, dark, sea
-  { e:'🐟', th:'ปลา + อาหารทะเล',         en:'Fish + seafood',                    el:'น้ำ' },
-  { e:'🌊', th:'สาหร่าย / kombu',          en:'Seaweed / kombu',                   el:'น้ำ' },
-  { e:'🫘', th:'ถั่วดำ / ถั่วเหลือง',       en:'Black beans / soybeans',            el:'น้ำ' },
-  { e:'🧂', th:'มิโซะ / เกลือทะเล',        en:'Miso / sea salt',                   el:'น้ำ' },
+  { e:'🐟', th:'ปลา + อาหารทะเล',         en:'Fish + seafood',                    el:'น้ำ',
+    whyTh:'omega-3 + brain food · 2-3 ครั้ง/สัปดาห์ · ปลาเล็กดีกว่าใหญ่',
+    whyEn:'omega-3 + brain food · 2-3 times/week · small fish > big fish' },
+  { e:'🌊', th:'สาหร่าย / kombu',          en:'Seaweed / kombu',                   el:'น้ำ',
+    whyTh:'iodine + minerals · ใช้ทำดาชิ / แช่ในข้าว · 1-2 แผ่น/สัปดาห์',
+    whyEn:'iodine + minerals · for dashi / rice cooking · 1-2 sheets/week' },
+  { e:'🫘', th:'ถั่วดำ / ถั่วเหลือง',       en:'Black beans / soybeans',            el:'น้ำ',
+    whyTh:'plant protein + ไต tonic · ทดแทนเนื้อ 1-2 มื้อ/สัปดาห์',
+    whyEn:'plant protein + kidney tonic · replace meat 1-2 meals/week' },
+  { e:'🧂', th:'มิโซะ / เกลือทะเล',        en:'Miso / sea salt',                   el:'น้ำ',
+    whyTh:'electrolytes + fermented · ซุปมิโซะตอนเช้าดีมาก',
+    whyEn:'electrolytes + fermented · morning miso soup is ideal' },
 ];
 // Weekly meal rhythm by Vedic day.
 const MEAL_WEEK = [
@@ -8794,30 +8914,70 @@ const FOOD_30DAY = { th:[
 // 20 materials / palette items classified by 5-element correspondence.
 const ALL_MATERIALS_20 = [
   // Wood — fabric, organic, green
-  { e:'🌿', th:'ลินิน / Linen',         en:'Linen',                el:'ไม้' },
-  { e:'☘️', th:'ผ้าฝ้ายอินทรีย์',        en:'Organic cotton',       el:'ไม้' },
-  { e:'🎍', th:'ไม้ไผ่ / Bamboo',        en:'Bamboo',               el:'ไม้' },
-  { e:'🧵', th:'ผ้าใยกัญชง / Hemp',      en:'Hemp fabric',          el:'ไม้' },
+  { e:'🌿', th:'ลินิน / Linen',         en:'Linen',                el:'ไม้',
+    whyTh:'หายใจได้ · เย็น · ดีตัวเมืองร้อน · wrinkle = signature ไม่ใช่ปัญหา',
+    whyEn:'breathable · cool · great for hot cities · wrinkle = signature not flaw' },
+  { e:'☘️', th:'ผ้าฝ้ายอินทรีย์',        en:'Organic cotton',       el:'ไม้',
+    whyTh:'soft + sustainable · daily wear basic · พื้นฐาน wardrobe ทุกธาตุ',
+    whyEn:'soft + sustainable · daily-wear basic · wardrobe foundation for any element' },
+  { e:'🎍', th:'ไม้ไผ่ / Bamboo',        en:'Bamboo',               el:'ไม้',
+    whyTh:'antibacterial · soft · eco-friendly · เหมาะ active wear',
+    whyEn:'antibacterial · soft · eco-friendly · suits active wear' },
+  { e:'🧵', th:'ผ้าใยกัญชง / Hemp',      en:'Hemp fabric',          el:'ไม้',
+    whyTh:'ทน · ใช้นานยังหล่อ · investment piece สำหรับ minimalist',
+    whyEn:'durable · ages handsomely · investment piece for minimalists' },
   // Fire — bright, glossy, red/orange
-  { e:'🔴', th:'กำมะหยี่สีแดง',          en:'Red velvet',           el:'ไฟ' },
-  { e:'🟠', th:'หนัง / Leather',         en:'Leather',              el:'ไฟ' },
-  { e:'💎', th:'แก้ว / Crystal glass',    en:'Crystal glass',        el:'ไฟ' },
-  { e:'🌟', th:'ทอง / Gold accents',     en:'Gold accents',         el:'ไฟ' },
+  { e:'🔴', th:'กำมะหยี่สีแดง',          en:'Red velvet',           el:'ไฟ',
+    whyTh:'luxury · evening only · power statement · 1 ชิ้น/outfit',
+    whyEn:'luxury · evening only · power statement · 1 piece per outfit' },
+  { e:'🟠', th:'หนัง / Leather',         en:'Leather',              el:'ไฟ',
+    whyTh:'investment · ages well · เหมาะคน classic style · เลือก quality ตั้งต้น',
+    whyEn:'investment · ages well · for classic style · start with quality' },
+  { e:'💎', th:'แก้ว / Crystal glass',    en:'Crystal glass',        el:'ไฟ',
+    whyTh:'home accessory · reflect light · romantic · ใช้ใน dining area',
+    whyEn:'home accessory · reflects light · romantic · ideal in dining area' },
+  { e:'🌟', th:'ทอง / Gold accents',     en:'Gold accents',         el:'ไฟ',
+    whyTh:'subtle wealth signal · 1 ชิ้น/outfit เท่านั้น · มากไป = vulgar',
+    whyEn:'subtle wealth signal · 1 piece per outfit only · more = vulgar' },
   // Earth — stable, yellow/brown, ceramic
-  { e:'🪵', th:'ไม้เนื้อแข็ง / hardwood', en:'Hardwood furniture',   el:'ดิน' },
-  { e:'🏺', th:'เซรามิก / เครื่องดินเผา', en:'Ceramic / terracotta', el:'ดิน' },
-  { e:'🧶', th:'ขนแกะ / Wool felt',      en:'Wool / felt',          el:'ดิน' },
-  { e:'🟫', th:'สีน้ำตาล + ดิน clay',     en:'Brown + clay tones',   el:'ดิน' },
+  { e:'🪵', th:'ไม้เนื้อแข็ง / hardwood', en:'Hardwood furniture',   el:'ดิน',
+    whyTh:'decade+ investment · grounded interior · ขัดใหม่ได้ตลอดชีวิต',
+    whyEn:'decade+ investment · grounded interior · can be refinished for life' },
+  { e:'🏺', th:'เซรามิก / เครื่องดินเผา', en:'Ceramic / terracotta', el:'ดิน',
+    whyTh:'warm earth tone · plants love it · handmade ดีกว่า mass-produce',
+    whyEn:'warm earth tone · plants love it · handmade > mass-produced' },
+  { e:'🧶', th:'ขนแกะ / Wool felt',      en:'Wool / felt',          el:'ดิน',
+    whyTh:'ฤดูหนาว · cabin aesthetic · cozy · ดีในห้องนอน',
+    whyEn:'winter · cabin aesthetic · cozy · ideal in bedrooms' },
+  { e:'🟫', th:'สีน้ำตาล + ดิน clay',     en:'Brown + clay tones',   el:'ดิน',
+    whyTh:'ground · stable · เหมาะ accent wall · เพิ่ม warmth ใน minimal room',
+    whyEn:'ground · stable · suits accent walls · adds warmth to minimalist rooms' },
   // Metal — sharp, white/silver, refined
-  { e:'⚪', th:'มาร์เบิล / Marble',       en:'Marble',               el:'โลหะ' },
-  { e:'🥈', th:'เงิน / Stainless steel', en:'Silver / Steel',        el:'โลหะ' },
-  { e:'🪞', th:'กระจก / Mirror',         en:'Mirror finish',        el:'โลหะ' },
-  { e:'🤍', th:'เพิร์ล / Pearl',         en:'Pearl',                el:'โลหะ' },
+  { e:'⚪', th:'มาร์เบิล / Marble',       en:'Marble',               el:'โลหะ',
+    whyTh:'cool premium · bathroom/kitchen island · timeless · ใช้กับน้ำมัน carefully',
+    whyEn:'cool premium · bathroom/kitchen island · timeless · careful with oils' },
+  { e:'🥈', th:'เงิน / Stainless steel', en:'Silver / Steel',        el:'โลหะ',
+    whyTh:'precision · modern kitchen · ทำความสะอาดง่าย · เหมาะ contemporary',
+    whyEn:'precision · modern kitchen · easy to clean · suits contemporary aesthetic' },
+  { e:'🪞', th:'กระจก / Mirror',         en:'Mirror finish',        el:'โลหะ',
+    whyTh:'expand space · 1 ใหญ่ + small accent · feng shui · ไม่หันสู่เตียง',
+    whyEn:'expand space · 1 large + small accent · feng shui · do not face the bed' },
+  { e:'🤍', th:'เพิร์ล / Pearl',         en:'Pearl',                el:'โลหะ',
+    whyTh:'luminous · feminine power · investment jewelry · ใส่ทุกวันได้',
+    whyEn:'luminous · feminine power · investment jewelry · wearable daily' },
   // Water — fluid, dark blue/black, smooth
-  { e:'🔵', th:'อินดิโก้ / สีน้ำเงินเข้ม', en:'Indigo / deep blue',   el:'น้ำ' },
-  { e:'⚫', th:'ไม้ดำ / Black lacquer',   en:'Black lacquer wood',   el:'น้ำ' },
-  { e:'💧', th:'ผ้าไหมเงาวาว',           en:'Silk (lustrous)',      el:'น้ำ' },
-  { e:'🌊', th:'หิน blue lace agate',    en:'Blue lace agate stone',el:'น้ำ' },
+  { e:'🔵', th:'อินดิโก้ / สีน้ำเงินเข้ม', en:'Indigo / deep blue',   el:'น้ำ',
+    whyTh:'evening sophistication · denim-elevated · contemplative · ดีในห้องทำงาน',
+    whyEn:'evening sophistication · denim-elevated · contemplative · ideal in workspaces' },
+  { e:'⚫', th:'ไม้ดำ / Black lacquer',   en:'Black lacquer wood',   el:'น้ำ',
+    whyTh:'luxury Asian · drama · accent piece · ดูดีในแสงเทียน',
+    whyEn:'luxury Asian · drama · accent piece · stunning in candlelight' },
+  { e:'💧', th:'ผ้าไหมเงาวาว',           en:'Silk (lustrous)',      el:'น้ำ',
+    whyTh:'evening + special · drape beautifully · investment · skin-friendly ตอนนอน',
+    whyEn:'evening + special · drapes beautifully · investment · skin-friendly for sleep' },
+  { e:'🌊', th:'หิน blue lace agate',    en:'Blue lace agate stone',el:'น้ำ',
+    whyTh:'calming stone · workspace · meditation aid · pendant หรือ desk piece',
+    whyEn:'calming stone · workspace · meditation aid · pendant or desk piece' },
 ];
 // Weekly wardrobe cadence by Vedic day.
 const STYLE_WEEK = [
@@ -9276,22 +9436,28 @@ function renderCompanions(){
 
       <div style="margin-top:14px">
         <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· เข้ากับคุณที่สุด':'· BEST FOR YOU'}</div>
-        ${top3Cr.map(cc => `
-          <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
-            <div style="font-size:22px;text-align:center">${cc.e}</div>
-            <div style="font-size:13px;color:var(--text)"><strong>${isTh?cc.th:cc.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${cc.el}</span></div>
-            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${cc.cmp.score>0?'+':''}${cc.cmp.score}</div>
+        ${top3Cr.map((cc,idx) => `
+          <div style="padding:9px 12px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:6px">
+            <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
+              <div style="font-size:22px;text-align:center">${cc.e}</div>
+              <div style="font-size:13px;color:var(--text)"><span style="color:#4a9a40;font-weight:700;margin-right:6px">#${idx+1}</span><strong>${isTh?cc.th:cc.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${cc.el}</span></div>
+              <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${cc.cmp.score>0?'+':''}${cc.cmp.score}</div>
+            </div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?cc.whyTh:cc.whyEn}</div>
           </div>
         `).join('')}
       </div>
 
       <div style="margin-top:14px">
         <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#c06060;margin-bottom:6px">⚠️ ${isTh?'3 ตัวที่ไม่ควรอัญเชิญ':'AVOID INVOKING THESE 3'}</div>
-        ${bottom3Cr.map(cc => `
-          <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
-            <div style="font-size:22px;text-align:center;opacity:.6">${cc.e}</div>
-            <div style="font-size:13px;color:var(--text)"><strong>${isTh?cc.th:cc.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${cc.el}</span></div>
-            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${cc.cmp.score}</div>
+        ${bottom3Cr.map((cc,idx) => `
+          <div style="padding:9px 12px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:6px">
+            <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
+              <div style="font-size:22px;text-align:center;opacity:.6">${cc.e}</div>
+              <div style="font-size:13px;color:var(--text)"><strong>${isTh?cc.th:cc.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${cc.el}</span></div>
+              <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${cc.cmp.score}</div>
+            </div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?cc.whyTh:cc.whyEn}</div>
           </div>
         `).join('')}
       </div>
@@ -9514,18 +9680,24 @@ function renderExercise(){
         <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${dmEl} · 5-element cycle · 4 ชนิด/ธาตุ`:`Ranked for ${dmEl} · 5-element cycle · 4 per element`}</div>
         <div style="margin-top:14px">
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· เข้ากับร่างคุณที่สุด':'· BEST FOR YOUR BODY'}</div>
-          ${top3.map(it => `<div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
-            <div style="font-size:22px;text-align:center">${it.e}</div>
-            <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
-            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
+          ${top3.map((it,idx) => `<div style="padding:9px 12px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:6px">
+            <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
+              <div style="font-size:22px;text-align:center">${it.e}</div>
+              <div style="font-size:13px;color:var(--text)"><span style="color:#4a9a40;font-weight:700;margin-right:6px">#${idx+1}</span><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+              <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
+            </div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?it.whyTh:it.whyEn}</div>
           </div>`).join('')}
         </div>
         <div style="margin-top:14px">
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#c06060;margin-bottom:6px">⚠️ ${isTh?'3 ชนิดควรเลี่ยง':'AVOID THESE 3'}</div>
-          ${bot3.map(it => `<div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
-            <div style="font-size:22px;text-align:center;opacity:.6">${it.e}</div>
-            <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
-            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${it.cmp.score}</div>
+          ${bot3.map(it => `<div style="padding:9px 12px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:6px">
+            <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
+              <div style="font-size:22px;text-align:center;opacity:.6">${it.e}</div>
+              <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+              <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${it.cmp.score}</div>
+            </div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?it.whyTh:it.whyEn}</div>
           </div>`).join('')}
         </div>
         ${_collapse(
@@ -9695,18 +9867,24 @@ function renderFood(){
         <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${dmEl} · TCM 5-flavor cycle`:`Ranked for ${dmEl} · TCM 5-flavor cycle`}</div>
         <div style="margin-top:14px">
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· บำรุงร่างคุณที่สุด':'· BEST FOR YOUR BODY'}</div>
-          ${top3.map(it => `<div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
-            <div style="font-size:22px;text-align:center">${it.e}</div>
-            <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
-            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
+          ${top3.map((it,idx) => `<div style="padding:9px 12px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:6px">
+            <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
+              <div style="font-size:22px;text-align:center">${it.e}</div>
+              <div style="font-size:13px;color:var(--text)"><span style="color:#4a9a40;font-weight:700;margin-right:6px">#${idx+1}</span><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+              <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
+            </div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?it.whyTh:it.whyEn}</div>
           </div>`).join('')}
         </div>
         <div style="margin-top:14px">
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#c06060;margin-bottom:6px">⚠️ ${isTh?'3 ชนิดควรเลี่ยง/ลด':'AVOID/REDUCE THESE 3'}</div>
-          ${bot3.map(it => `<div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
-            <div style="font-size:22px;text-align:center;opacity:.6">${it.e}</div>
-            <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
-            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${it.cmp.score}</div>
+          ${bot3.map(it => `<div style="padding:9px 12px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:6px">
+            <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
+              <div style="font-size:22px;text-align:center;opacity:.6">${it.e}</div>
+              <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+              <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${it.cmp.score}</div>
+            </div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?it.whyTh:it.whyEn}</div>
           </div>`).join('')}
         </div>
         ${_collapse(
@@ -9967,18 +10145,24 @@ function renderProduct(){
         <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${dmEl} · ใช้กับ wardrobe + interior`:`Ranked for ${dmEl} · wardrobe + interior`}</div>
         <div style="margin-top:14px">
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· เสริม aura':'· AMPLIFY YOUR AURA'}</div>
-          ${top3.map(it => `<div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
-            <div style="font-size:22px;text-align:center">${it.e}</div>
-            <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
-            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
+          ${top3.map((it,idx) => `<div style="padding:9px 12px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:6px">
+            <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
+              <div style="font-size:22px;text-align:center">${it.e}</div>
+              <div style="font-size:13px;color:var(--text)"><span style="color:#4a9a40;font-weight:700;margin-right:6px">#${idx+1}</span><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+              <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
+            </div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?it.whyTh:it.whyEn}</div>
           </div>`).join('')}
         </div>
         <div style="margin-top:14px">
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#c06060;margin-bottom:6px">⚠️ ${isTh?'3 อย่างควรเลี่ยง':'AVOID THESE 3'}</div>
-          ${bot3.map(it => `<div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
-            <div style="font-size:22px;text-align:center;opacity:.6">${it.e}</div>
-            <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
-            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${it.cmp.score}</div>
+          ${bot3.map(it => `<div style="padding:9px 12px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:6px">
+            <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
+              <div style="font-size:22px;text-align:center;opacity:.6">${it.e}</div>
+              <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+              <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${it.cmp.score}</div>
+            </div>
+            <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?it.whyTh:it.whyEn}</div>
           </div>`).join('')}
         </div>
         ${_collapse(
