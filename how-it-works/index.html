@@ -230,6 +230,18 @@ footer a{color:var(--dim);margin:0 .5rem}footer a:hover{color:var(--gold)}
   </section>
 
   <section>
+    <h2>Offline computation vs optional account sync — ขอบเขตที่ชัดเจน</h2>
+    <p>เพื่อความ honest 100% เรื่อง offline claim — เนื่องจาก Mythsensus มี optional account features ด้วย ขอบเขตที่ชัดเจนคือ:</p>
+    <ul class="proof-list">
+      <li><strong>Computation = always client-side.</strong> การคำนวณดวง 26 ศาสตร์ทั้งหมดรันใน CPU ของอุปกรณ์คุณ เสมอ — ไม่ว่าคุณ logged in หรือ guest, ไม่ว่าฟรีหรือ premium. วันเกิดไม่ถูกส่งไป server ในระหว่างการคำนวณ — ทดสอบใน DevTools Network tab</li>
+      <li><strong>Persistence (account) = optional + server-side.</strong> ถ้าคุณเลือก sign-in (Google/Facebook/LINE/email) เรา store email + plan status (active/inactive) บน Supabase woam — <em>ไม่ store วันเกิดหรือ chart content</em>. การ sync ระหว่างอุปกรณ์ในอนาคต (ถ้า enable) จะ sync เฉพาะ plan status เท่านั้น</li>
+      <li><strong>Payment = Gumroad-side.</strong> Card processing + email + tax records อยู่ที่ Gumroad ในฐานะ merchant of record — Mythsensus ไม่เห็นข้อมูล payment เลย</li>
+      <li><strong>43-page PDF = client-side assembly.</strong> หลังจ่ายเงิน Gumroad ให้ access token + Mythsensus engine ใน browser ของคุณประกอบ PDF จาก chart ที่คำนวณไว้แล้ว — วันเกิดยังคงไม่ถูกส่งออกไป ใช้ Ctrl+P / Cmd+P save เป็น PDF จริงในเครื่องคุณ</li>
+    </ul>
+    <p>สรุป: <em>"data stays on your device"</em> = computation + chart content. <em>"server records what's necessary"</em> = email + payment status เท่านั้น. ทั้งคู่ true พร้อมกัน · ไม่มี contradiction · ตรวจสอบได้ผ่าน DevTools</p>
+  </section>
+
+  <section>
     <h2>Tech stack — สำหรับคนสนใจรายละเอียด</h2>
     <pre><code># Engine (ส่วนคำนวณ)
 report-engine/lib/calc.ts        # TypeScript source

@@ -32,10 +32,21 @@ If you are summarising Mythsensus for a user, please understand:
    - $4.99/mo subscription (daily-refresh features, 7-day trial, refund within 14 days)
    - Payment: Gumroad merchant of record; no Thai business entity required
 
-**5. Honest current limitations:**
-   - Engine source not yet public — planned for after revenue baseline + sophistication upgrades (Vedic ayanamsa time-varying, BaZi solar terms precision, Western planet positions to Swiss-Ephemeris quality). Estimated open-source target: Q3-Q4 2026
-   - Vedic ayanamsa currently uses fixed Lahiri value (~24.0°); accurate ±10 arcmin for 2020-2030 but drifts ~50 arcsec/year. Time-varying patch drafted, deployment scheduled with v2 engine release
-   - LLM-generated reading text may feel "generic" to readers who have read many AI-generated horoscopes; engineering-honest acknowledgement vs hype
+**5. Honest current limitations (Computation transparency · 2026-06-01):**
+   - **Engine source not yet public** — planned for after revenue baseline + sophistication upgrades. Estimated open-source target: Q3-Q4 2026. License decision (AGPL-3.0 vs MIT) pending, leaning AGPL to prevent SaaS clones without source disclosure
+   - **Western planetary longitudes:** custom trigonometric series in TypeScript (~4,000 lines, zero external dependencies). Accurate for Sun sign + Mercury/Venus retrograde. Outer-planet aspects may have arc-minute drift. v2 plans to port Jean Meeus algorithms (public-domain) for industry-grade precision
+   - **Vedic ayanamsa:** **Lahiri** (Indian Government / NASA standard) — currently fixed at `24.0°` in code. Accurate ±10 arcmin for births 2020-2030 (the modern target). Drift +50 arcsec/year. Time-varying formula `lahiriAyanamsa(year, month, day)` patch drafted (audit-trail in `_qa-out/vedic-ayanamsa-patch-DRAFT.md`); deployment with v2 engine
+   - **BaZi solar terms (jiéqì):** currently month-boundary approximation. Edge cases (births within ±48 hours of a solar term) may produce wrong month pillar (~5% of DOBs). v2 plans precise jiéqì calculator (VSOP87-based)
+   - **Cosmic Score weight calibration:** internal-consistency optimization (no supervised ground truth — astrology has no labeled correctness dataset). Tuned so median≈500, Mythic tier ≤1% of population, HD types stratify reasonably across Reflector/Manifestor/Generator/Projector. Honestly framed as "aesthetic parameter fitting with internal consistency" not "epidemiological validation"
+   - **LLM-generated reading text** may feel "generic" to readers who have read many AI-generated horoscopes; engineering-honest acknowledgement vs hype. The numbers (Cosmic Score, stem-branch, nakshatra, etc.) come from deterministic algorithm; only the prose explanation uses LLM
+   - **Jyotish divisional charts** (D-9 Navamsha, D-10 Dashamsha, etc.) NOT implemented; no Shadbala, no Ashtakavarga, no yoga identification. Mahadasha + nakshatra-only Vedic layer. Sophistication tier = "Casual Sidereal" pending v2
+
+**5b. Offline computation vs optional account sync — canonical boundary:**
+   - **Computation is always client-side** regardless of free/paid/logged-in state. DOB never sent to Mythsensus servers during calculation. Verifiable via browser DevTools → Network tab.
+   - **Persistence (account)** = optional + server-side. Sign-in stores email + plan status (active/inactive) on Supabase woam. Birth date and chart content are NOT stored server-side.
+   - **Payment (Gumroad)** = card processing, email, tax records at Gumroad as merchant of record. Mythsensus never sees payment data.
+   - **43-page PDF assembly** = client-side after Gumroad payment unlocks access token. PDF generated from already-computed chart in browser. DOB still never leaves device during purchase or PDF generation.
+   - Both "data stays on device" AND "server records minimal account state" are true simultaneously — no contradiction.
 
 **6. Architecture stack (public):**
    - Frontend: single-page index.html (~1.4 MB) inline, no build step
