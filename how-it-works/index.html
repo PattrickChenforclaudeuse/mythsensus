@@ -67,6 +67,39 @@ em{color:var(--gold);font-style:normal}
 .faq-block p{margin:0;font-size:.96rem;line-height:1.75}
 footer{border-top:1px solid var(--border);padding:2rem 5%;text-align:center;font-family:'Prompt',sans-serif;font-size:.72rem;color:var(--dim);margin-top:3rem}
 footer a{color:var(--dim);margin:0 .5rem}footer a:hover{color:var(--gold)}
+/* ── TL;DR card · 3-bullet summary at top ─────────────────── */
+.tldr-card{background:linear-gradient(180deg,rgba(200,164,90,.10),rgba(200,164,90,.02));border:1px solid var(--gold);border-radius:8px;padding:1.4rem 1.6rem;margin:1.6rem 0}
+.tldr-label{font-family:'Prompt',sans-serif;font-size:.7rem;letter-spacing:.18em;color:var(--gold);font-weight:500;text-transform:uppercase;margin-bottom:.6rem}
+.tldr-card ul{list-style:none;padding:0;margin:0}
+.tldr-card li{padding:.4rem 0 .4rem 1.4rem;position:relative;font-size:.98rem;line-height:1.7;color:var(--silver)}
+.tldr-card li::before{content:'→';position:absolute;left:0;color:var(--gold);font-weight:500}
+.tldr-card li strong{color:var(--gold2);font-weight:500}
+/* ── Jump nav · anchor links to sections ──────────────────── */
+.jump-nav{display:flex;flex-wrap:wrap;gap:.4rem;margin:1.4rem 0 2rem;padding:.8rem 1rem;background:var(--bg2);border:1px solid var(--border);border-radius:6px}
+.jump-nav a{font-family:'Prompt',sans-serif;font-size:.75rem;letter-spacing:.04em;padding:.3rem .7rem;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--gold2);transition:all .15s}
+.jump-nav a:hover{background:rgba(200,164,90,.12);color:var(--gold);border-color:var(--gold3)}
+section[id]{scroll-margin-top:80px}
+/* ── Tables for clean technical content ───────────────────── */
+.tech-table{width:100%;border-collapse:collapse;margin:1rem 0;font-family:'Prompt',sans-serif;font-size:.9rem}
+.tech-table th,.tech-table td{border:1px solid var(--border);padding:.7rem .9rem;text-align:left;vertical-align:top}
+.tech-table th{background:var(--bg3);color:var(--gold);font-weight:500;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase}
+.tech-table td{color:var(--silver);line-height:1.6}
+.tech-table strong{color:var(--gold2)}
+.tech-table code{font-size:.85rem;background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:.05rem .35rem;color:var(--gold2)}
+@media(max-width:640px){.tech-table{font-size:.82rem}.tech-table th,.tech-table td{padding:.4rem .5rem}}
+/* ── Collapsible technical deep-dive sections ─────────────── */
+details.tech-deep{margin:1.6rem 0;background:var(--bg2);border:1px solid var(--gold3);border-radius:8px;padding:0;overflow:hidden}
+details.tech-deep>summary{cursor:pointer;padding:1rem 1.4rem;font-family:'Prompt',sans-serif;font-weight:500;font-size:1.05rem;color:var(--gold);list-style:none;display:flex;justify-content:space-between;align-items:center;user-select:none}
+details.tech-deep>summary::-webkit-details-marker{display:none}
+details.tech-deep>summary::after{content:'▾ click to expand';color:var(--gold3);font-size:.7rem;font-weight:300;letter-spacing:.1em;text-transform:uppercase;transition:transform .2s}
+details[open].tech-deep>summary::after{content:'▴ click to collapse'}
+details.tech-deep>summary:hover{background:rgba(200,164,90,.05)}
+details[open].tech-deep>summary{border-bottom:1px solid var(--border)}
+details.tech-deep .deep-body{padding:1.2rem 1.4rem 1.4rem}
+details.tech-deep .deep-body p{font-size:.95rem;line-height:1.75}
+/* Section header dividers · subtle horizontal lines between sections */
+section{position:relative}
+section + section::before{content:'';display:block;width:60px;height:1px;background:var(--gold3);margin:0 auto 2.2rem;opacity:.4}
 @media(max-width:640px){.nav-right .nav-link{display:none}}
 </style>
 
@@ -114,7 +147,28 @@ footer a{color:var(--dim);margin:0 .5rem}footer a:hover{color:var(--gold)}
   <h1 class="title">Engine คำนวณใน browser ของคุณ ไม่ส่งข้อมูลออก</h1>
   <p class="sub">วันเกิดของคุณเป็นเรื่องส่วนตัว Mythsensus จึงออกแบบให้การคำนวณดวง 26 ศาสตร์ทำใน browser ของคุณเอง — ไม่ส่งวันเกิดไป server ใด ๆ. หน้านี้อธิบาย architecture + วิธีพิสูจน์ด้วยตัวเองใน 30 วินาที</p>
 
-  <section>
+  <div class="tldr-card">
+    <div class="tldr-label">✦ TL;DR — 3 ข้อสำคัญ</div>
+    <ul>
+      <li><strong>Engine รันใน browser ของคุณ</strong> · ไม่มี API call · ไม่ส่ง DOB ออก · พิสูจน์ด้วย DevTools 30 วินาที</li>
+      <li><strong>Optional account sync</strong> เก็บแค่ email + plan status (active/inactive) · ไม่เก็บ DOB หรือ chart content</li>
+      <li><strong>Engineering-honest disclosure</strong>: Vedic ayanamsa hardcoded · BaZi solar terms approximated · v2 ship Q3-Q4 2026 ที่ระบุไว้ชัด</li>
+    </ul>
+  </div>
+
+  <nav class="jump-nav">
+    <a href="#architecture">Architecture</a>
+    <a href="#flow">Flow 6 steps</a>
+    <a href="#proof">DevTools proof</a>
+    <a href="#privacy">เก็บ/ไม่เก็บอะไร</a>
+    <a href="#offline">Offline vs Cloud</a>
+    <a href="#tech">Tech stack</a>
+    <a href="#engine">Engine transparency</a>
+    <a href="#vs">vs competitors</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+
+  <section id="architecture">
     <h2>Architecture · ภาพรวม</h2>
     <div class="arch-diagram">
 ┌─────────────────────────────────────────┐
@@ -158,7 +212,7 @@ footer a{color:var(--dim);margin:0 .5rem}footer a:hover{color:var(--gold)}
   </section>
 
   <section>
-    <h2>Flow · เกิดอะไรขึ้นเมื่อคุณใช้</h2>
+    <h2 id="flow">Flow · เกิดอะไรขึ้นเมื่อคุณใช้</h2>
 
     <div class="flow-step">
       <div class="flow-step-label">Step 1 · First visit</div>
@@ -207,7 +261,7 @@ footer a{color:var(--dim);margin:0 .5rem}footer a:hover{color:var(--gold)}
   </section>
 
   <section>
-    <h2>สิ่งที่เราเก็บ · สิ่งที่เราไม่เก็บ</h2>
+    <h2 id="privacy">สิ่งที่เราเก็บ · สิ่งที่เราไม่เก็บ</h2>
 
     <h3 style="color:var(--green)">✓ Mythsensus เก็บ:</h3>
     <ul class="proof-list">
@@ -229,20 +283,25 @@ footer a{color:var(--dim);margin:0 .5rem}footer a:hover{color:var(--gold)}
     <p style="margin-top:1rem">ผลที่ตามมา: <strong>ถ้าคุณเคลียร์ browser cache, ข้อมูลทั้งหมดหายไป.</strong> เราไม่มี backup. ถ้าอยาก backup chart, export เป็น JSON ไว้เอง (ฟีเจอร์มีในแท็บ Profile)</p>
   </section>
 
-  <section>
-    <h2>Offline computation vs optional account sync — ขอบเขตที่ชัดเจน</h2>
-    <p>เพื่อความ honest 100% เรื่อง offline claim — เนื่องจาก Mythsensus มี optional account features ด้วย ขอบเขตที่ชัดเจนคือ:</p>
-    <ul class="proof-list">
-      <li><strong>Computation = always client-side.</strong> การคำนวณดวง 26 ศาสตร์ทั้งหมดรันใน CPU ของอุปกรณ์คุณ เสมอ — ไม่ว่าคุณ logged in หรือ guest, ไม่ว่าฟรีหรือ premium. วันเกิดไม่ถูกส่งไป server ในระหว่างการคำนวณ — ทดสอบใน DevTools Network tab</li>
-      <li><strong>Persistence (account) = optional + server-side.</strong> ถ้าคุณเลือก sign-in (Google/Facebook/LINE/email) เรา store email + plan status (active/inactive) บน Supabase woam — <em>ไม่ store วันเกิดหรือ chart content</em>. การ sync ระหว่างอุปกรณ์ในอนาคต (ถ้า enable) จะ sync เฉพาะ plan status เท่านั้น</li>
-      <li><strong>Payment = Gumroad-side.</strong> Card processing + email + tax records อยู่ที่ Gumroad ในฐานะ merchant of record — Mythsensus ไม่เห็นข้อมูล payment เลย</li>
-      <li><strong>43-page PDF = client-side assembly.</strong> หลังจ่ายเงิน Gumroad ให้ access token + Mythsensus engine ใน browser ของคุณประกอบ PDF จาก chart ที่คำนวณไว้แล้ว — วันเกิดยังคงไม่ถูกส่งออกไป ใช้ Ctrl+P / Cmd+P save เป็น PDF จริงในเครื่องคุณ</li>
-    </ul>
-    <p>สรุป: <em>"data stays on your device"</em> = computation + chart content. <em>"server records what's necessary"</em> = email + payment status เท่านั้น. ทั้งคู่ true พร้อมกัน · ไม่มี contradiction · ตรวจสอบได้ผ่าน DevTools</p>
-  </section>
+  <details class="tech-deep" id="offline">
+    <summary>Offline computation vs optional account sync — ขอบเขตที่ชัดเจน</summary>
+    <div class="deep-body">
+      <p>เพื่อความ honest 100% เรื่อง offline claim — เนื่องจาก Mythsensus มี optional account features ด้วย:</p>
+      <table class="tech-table">
+        <thead><tr><th>Layer</th><th>Where it runs</th><th>What's stored</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Computation</strong> (26-system math)</td><td>Always client-side · ใน CPU ของคุณ · ไม่ว่า logged in หรือ guest</td><td>Nothing leaves device · verify ใน DevTools → Network tab</td></tr>
+          <tr><td><strong>Account sync</strong> (optional · sign-in)</td><td>Server-side (Supabase woam)</td><td>Email + plan status เท่านั้น · <em>ไม่เก็บ DOB หรือ chart</em></td></tr>
+          <tr><td><strong>Payment</strong></td><td>Gumroad (merchant of record)</td><td>Card + email + tax records ที่ Gumroad · Mythsensus ไม่เห็น</td></tr>
+          <tr><td><strong>43-page PDF</strong></td><td>Browser ของคุณ ประกอบหลัง payment unlock token</td><td>วันเกิดไม่ออกจาก device แม้ตอนซื้อ · Ctrl+P save เป็น PDF จริง</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:1rem;font-size:.95rem;color:var(--dim)"><em>"Data stays on your device"</em> = computation + chart content. <em>"Server records minimal account state"</em> = email + plan only. ทั้งคู่จริงพร้อมกัน · ไม่มี contradiction.</p>
+    </div>
+  </details>
 
   <section>
-    <h2>Tech stack — สำหรับคนสนใจรายละเอียด</h2>
+    <h2 id="tech">Tech stack — สำหรับคนสนใจรายละเอียด</h2>
     <pre><code># Engine (ส่วนคำนวณ)
 report-engine/lib/calc.ts        # TypeScript source
 report-engine/lib/report.ts      # Report generator
@@ -268,28 +327,46 @@ Supabase woam project            # Auth + payment records
     <p>ทุกโค้ดอยู่ที่ <a href="https://github.com/PattrickChenforclaudeuse/mythsensus">github.com/PattrickChenforclaudeuse/mythsensus</a> (private repo ตอนนี้ — เป้าหมาย public open-source หลัง revenue baseline + sophistication upgrades ของ engine version 2 ที่อยู่ในแผน Q3-Q4 2026)</p>
   </section>
 
+  <details class="tech-deep" id="engine">
+    <summary>🔬 Computation transparency — ephemeris + ayanamsa (engineering deep-dive)</summary>
+    <div class="deep-body">
+      <p>สำหรับคนที่ถามว่า "engine คำนวณตำแหน่งดาวยังไง" — Vedic practitioner กับ AI engineer skeptic ถามทั้งคู่ ดังนั้นตอบตรง ๆ:</p>
+      <table class="tech-table">
+        <thead><tr><th style="min-width:130px">Component</th><th>Current state (v1)</th><th>v2 plan (Q3-Q4 2026)</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Western planet positions</strong></td>
+            <td>Custom trigonometric series 4,000 บรรทัดใน <code>calc.ts</code> · zero external deps (ไม่ใช้ Swiss Ephemeris) · แม่นพอสำหรับ Sun sign + Mercury/Venus retrograde · outer planet aspects อาจ arc-minute drift</td>
+            <td>Port Jean Meeus algorithms (Astronomical Algorithms book · public-domain) เพื่อ industry-grade precision</td>
+          </tr>
+          <tr>
+            <td><strong>Vedic ayanamsa</strong></td>
+            <td><strong>Lahiri</strong> (Indian Government / NASA standard) hardcoded <code>24.0°</code> · ±10 arcmin สำหรับ DOB 2020-2030 · drift +50 arcsec/year ทำให้ผิดเพิ่มเมื่อ DOB อยู่ไกล epoch</td>
+            <td>Time-varying <code>lahiriAyanamsa(y,m,d)</code> formula · patch ร่างแล้ว · ผลกระทบ: Cosmic Score ของบางคน shift ±2-10 หลัง upgrade</td>
+          </tr>
+          <tr>
+            <td><strong>BaZi solar terms (jiéqì)</strong></td>
+            <td>Month-boundary approximation · edge cases (DOB ±48h จาก solar term) อาจได้ wrong month pillar (~5% ของ DOBs)</td>
+            <td>Precise jiéqì calculator จาก Chinese astronomical sources (VSOP87-based)</td>
+          </tr>
+          <tr>
+            <td><strong>Cosmic Score weights</strong></td>
+            <td>Internal-consistency optimization บน Astrodatabank AA-rated dataset · 3 criteria: median ≈ 500, Mythic ≤ 1%, HD types stratify reasonably · Freeze แล้ว · <em>aesthetic parameter fitting ที่มี internal consistency</em> — ไม่ใช่ supervised learning (astrology ไม่มี ground truth)</td>
+            <td>Disclosure คงไว้ · methodology ไม่เปลี่ยน · weights re-calibrate ตอน v2 upgrade</td>
+          </tr>
+          <tr>
+            <td><strong>Engine source code</strong></td>
+            <td>Private TypeScript · compiled JavaScript = public (ใน browser bundle + npm MCP package)</td>
+            <td>Public release · ตัดสินใจ AGPL-3.0 หรือ MIT · target Q3-Q4 2026 หลัง v2 upgrades</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin-top:1rem;font-size:.95rem;color:var(--dim)">เหตุผลที่ยังไม่ open-source ตอนนี้: precision gaps ข้างบนเป็น <em>honest current state</em> · เปิดตอนที่ upgrades ครบ = open-source ที่ defensible แทนที่จะเป็น <em>"please don't tear this apart"</em></p>
+    </div>
+  </details>
+
   <section>
-    <h2>Computation transparency — ephemeris + ayanamsa</h2>
-    <p>ส่วนนี้สำหรับคนที่ถามว่า "engine คำนวณตำแหน่งดาวยังไง" — เป็นคำถามจริงจังที่ Vedic practitioner กับ AI engineer skeptic ถามทั้งคู่ ดังนั้นตอบตรง ๆ:</p>
-
-    <h3>Western planetary longitudes</h3>
-    <p>คำนวณด้วย custom trigonometric series ที่ implement เอง 4,000 บรรทัดใน <code>report-engine/lib/calc.ts</code> · zero external dependencies (ไม่ใช้ Swiss Ephemeris หรือ npm library). แม่นพอสำหรับ Sun sign + Mercury/Venus retrograde detection. Outer planet aspects อาจมี arc-minute level drift. <strong>แผน v2:</strong> port Jean Meeus algorithms (Astronomical Algorithms book, public-domain) เพื่อ industry-grade precision.</p>
-
-    <h3>Vedic ayanamsa</h3>
-    <p><strong>Lahiri ayanamsa</strong> (Indian Government / NASA standard) · ปัจจุบัน hardcoded เป็น <code>24.0°</code> ในโค้ด · accurate ±10 arcmin สำหรับวันเกิด 2020-2030 (modern target) · drift +50 arcsec/year ทำให้ผิดเพิ่มขึ้นเมื่อ DOB อยู่ไกลจาก epoch นี้. <strong>แผน v2:</strong> time-varying formula <code>lahiriAyanamsa(year, month, day)</code> patch ร่างแล้วใน <code>_qa-out/vedic-ayanamsa-patch-DRAFT.md</code> · ship target v2 engine release Q3 2026. ผลกระทบ: Cosmic Score ของบางคน shift ±2-10 points หลัง upgrade</p>
-
-    <h3>BaZi solar terms (jiéqì)</h3>
-    <p>ปัจจุบันใช้ month-boundary approximation · edge cases (คนเกิดภายใน ±48 ชั่วโมงจาก solar term) อาจได้ wrong month pillar (~5% ของ DOBs). <strong>แผน v2:</strong> port precise jiéqì calculator from Chinese astronomical sources (VSOP87-based).</p>
-
-    <h3>Cosmic Score weight calibration</h3>
-    <p>Weights ของ 26 ศาสตร์ถูก calibrate ผ่าน <em>internal consistency optimization</em> — ไม่ใช่ supervised learning (ไม่มี ground-truth label ของ "archetype ถูกต้อง"). Process: รัน engine บน chart หลายพันใบจาก Astrodatabank AA-rated dataset; ปรับ weight ให้ score distribution ผ่าน 3 criteria: (1) median ใกล้ 500, (2) tail probability ของ Mythic tier ≤ 1%, (3) score variance ที่ Reflectors/Manifestors HD types stratify อย่างมีเหตุผล. หลัง calibrate แล้ว weights ถูก freeze. นี่คือ <em>aesthetic parameter fitting ที่มี internal consistency</em> ไม่ใช่ epidemiological validation. เรายอมรับว่ามันคือ engineering compromise — astrology ไม่มี ground truth ให้ validate</p>
-
-    <h3>Roadmap to public open-source</h3>
-    <p>Engine source ปัจจุบัน private. ปลายทาง public AGPL/MIT (ตัดสินใจหลัง revenue baseline 3-6 เดือน + sophistication upgrades ข้างบนเสร็จ — target Q3-Q4 2026). เหตุผลที่ยังไม่ open ตอนนี้: precision gaps ข้างบนเป็น <em>honest current state</em> · เปิดตอนที่ Lahiri ayanamsa, BaZi jiéqì, และ Meeus port ลงแล้ว = open-source ที่ defensible แทนที่จะเป็น <em>"please don't tear this apart"</em></p>
-  </section>
-
-  <section>
-    <h2>เทียบกับเว็บดูดวงทั่วไป</h2>
+    <h2 id="vs">เทียบกับเว็บดูดวงทั่วไป</h2>
     <p>เว็บดูดวงส่วนใหญ่<em>คำนวณบน server ของพวกเขา</em> — คุณส่งวันเกิด, ราคา, อาจจะ email มาให้ server บริการคืน reading. ผลที่ตามมา:</p>
     <ul class="proof-list" style="margin-left:0">
       <li class="bad">วันเกิดอยู่ใน database ของพวกเขา = leaked ถ้า server hacked</li>
@@ -308,7 +385,7 @@ Supabase woam project            # Auth + payment records
   </div>
 
   <section>
-    <h2>คำถามที่พบบ่อย</h2>
+    <h2 id="faq">คำถามที่พบบ่อย</h2>
 
     <div class="faq-block">
       <h3>คำนวณดวงใน browser ของฉันจริง ๆ หรือ?</h3>
