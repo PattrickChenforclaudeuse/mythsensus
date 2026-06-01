@@ -49,6 +49,12 @@ header{text-align:center;padding:28px 20px 0;position:relative;}
 .lang-toggle{position:absolute;top:28px;right:16px;}
 .lang-btn{font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;padding:5px 10px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);cursor:pointer;border-radius:2px;transition:all .2s;}
 .lang-btn:hover{color:var(--gold);}
+/* ── Bottom-right pill toggle (matches the Cosmic Library blog UX so the
+   language switcher feels identical across the whole site). ── */
+.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
+.lang-pill button{font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:8px 16px;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
+.lang-pill button.active{background:var(--gold);color:#040407}
+.lang-pill button:hover:not(.active){color:var(--gold)}
 nav{display:flex;justify-content:center;gap:3px;padding:18px 12px 0;flex-wrap:wrap;}
 .tab-btn{font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:9px 16px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);cursor:pointer;border-radius:2px;transition:all .3s;white-space:nowrap;}
 .tab-btn:hover{color:var(--gold);border-color:var(--gold3);}
@@ -1515,7 +1521,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <div class="date-display" id="dateDisplay"></div>
   <div style="text-align:center;margin-top:10px;display:flex;justify-content:center;gap:10px;align-items:center;flex-wrap:wrap">
     <a href="/blog/" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);text-decoration:none;border:1px solid var(--gold3);padding:5px 16px;border-radius:20px;display:inline-block" data-en="📖 Cosmic Library" data-th="📖 ห้องสมุดจักรวาล">📖 ห้องสมุดจักรวาล</a>
-    <button id="langBtn" onclick="toggleLang()" title="Switch language / สลับภาษา" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);background:transparent;border:1px solid var(--gold3);padding:5px 14px;border-radius:20px;cursor:pointer;transition:all .15s">EN</button>
+    <a href="/cosmic-score" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);text-decoration:none;border:1px solid var(--gold3);padding:5px 16px;border-radius:20px;display:inline-block" data-en="✦ Cosmic Score" data-th="✦ Cosmic Score">✦ Cosmic Score</a>
   </div>
 </header>
 
@@ -2640,12 +2646,30 @@ function toggleLang(){
   if (btn) btn.textContent = LANG === 'th' ? 'EN' : 'ไทย';
   applyLang();
 }
+// Explicit lang setter for the bottom-right .lang-pill toggle (matches the
+// Cosmic Library blog UX). toggleLang() above is kept for the settings-menu
+// caller; both end up routing through applyLang() which syncs every UI surface
+// (langBtn header pill if present, .lang-pill bottom-right, [data-en/data-th]
+// elements, [data-t] keys, etc.).
+function setLangExplicit(lang){
+  if (lang !== 'en' && lang !== 'th') return;
+  if (LANG === lang) return;
+  LANG = lang;
+  try { localStorage.setItem('mth_lang', LANG); } catch(e){}
+  document.documentElement.lang = LANG;
+  applyLang();
+}
 function applyLang(){
   // Keep the top-nav lang pill in sync — toggleLang() also updates this,
   // but applyLang() runs at boot too (so EN-preferring returning users see
   // "ไทย" on the pill immediately, not the default "EN").
   const _lb = document.getElementById('langBtn');
   if (_lb) _lb.textContent = LANG === 'th' ? 'EN' : 'ไทย';
+  // Sync the bottom-right .lang-pill (blog-style two-button toggle).
+  const _lpEn = document.getElementById('lp-en');
+  const _lpTh = document.getElementById('lp-th');
+  if (_lpEn) _lpEn.classList.toggle('active', LANG === 'en');
+  if (_lpTh) _lpTh.classList.toggle('active', LANG === 'th');
   document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.getAttribute('data-t')));
   document.querySelectorAll('[data-t-placeholder]').forEach(el=>el.placeholder=t(el.getAttribute('data-t-placeholder')));
   document.querySelectorAll('[data-t-title]').forEach(el=>el.title=t(el.getAttribute('data-t-title')));
@@ -15834,5 +15858,14 @@ function clearAllHistory() {
 // showTab is extended below in the original definition
 
 </script>
+
+<!-- Bottom-right language pill — matches the Cosmic Library blog UX exactly.
+     Lives outside <header> so it stays fixed on scroll and is reachable from
+     every panel/tab. applyLang() syncs .active class at boot + on every change. -->
+<div class="lang-pill" aria-label="Language switcher">
+  <button id="lp-en" onclick="setLangExplicit('en')" type="button">EN</button>
+  <button id="lp-th" class="active" onclick="setLangExplicit('th')" type="button">TH</button>
+</div>
+
 </body>
 </html>
