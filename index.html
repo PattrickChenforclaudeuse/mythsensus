@@ -7556,6 +7556,31 @@ function renderMonthlyBrief(){
       </div>
     </div>`;
 
+  // ── Enrichment derivations (Director 2026-06-01: "ครบทุก tab") ──
+  // Day-by-day biorhythm for the current month → top 5 peak + 5 caution days.
+  const dobStrMB = (document.getElementById('profDob')||{}).value || localStorage.getItem('mth_dob');
+  const monthDays = (function(){
+    if (!dobStrMB) return [];
+    const [yy,mm,dd] = dobStrMB.split('-').map(Number);
+    const dobMs = Date.UTC(yy, mm-1, dd);
+    const year = now.getFullYear();
+    const monthIdx = now.getMonth();
+    const daysInMonth = new Date(year, monthIdx+1, 0).getDate();
+    const out = [];
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayMs = Date.UTC(year, monthIdx, day);
+      const dfb = (dayMs - dobMs) / 86400000;
+      const phys = Math.round(100 * Math.sin(2*Math.PI*dfb/23));
+      const emo  = Math.round(100 * Math.sin(2*Math.PI*dfb/28));
+      const intel= Math.round(100 * Math.sin(2*Math.PI*dfb/33));
+      const total = phys + emo + intel;
+      out.push({ day, date: new Date(dayMs), phys, emo, intel, total });
+    }
+    return out;
+  })();
+  const peakDays = monthDays.length ? [...monthDays].sort((a,b)=>b.total-a.total).slice(0,5).sort((a,b)=>a.day-b.day) : [];
+  const lowDays  = monthDays.length ? [...monthDays].sort((a,b)=>a.total-b.total).slice(0,5).sort((a,b)=>a.day-b.day) : [];
+
   panel.innerHTML = `
     <!-- Intro block -->
     <div style="background:rgba(212,175,55,0.04);border:1px solid var(--gold3);border-radius:8px;padding:14px 16px;margin-bottom:14px">
@@ -7568,6 +7593,46 @@ function renderMonthlyBrief(){
     </div>
 
     ${yearStrip}
+
+    ${monthDays.length ? `
+    <!-- 🆕 Day-Level Significant Days This Month (Director 2026-06-01) -->
+    <div class="deep-sys-card" style="margin-top:12px">
+      <div class="deep-sys-title">⭐ ${isTh?'10 วันสำคัญในเดือนนี้':'10 Significant Days This Month'}</div>
+      <div class="deep-sys-origin">${isTh?'จาก biorhythm 3 วงจรของคุณ · วันที่ดีที่สุด/ควรระวัง':'Your 3-cycle biorhythm · top peak + caution days'}</div>
+
+      <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ ${isTh?'5 วันที่ดีที่สุด':'TOP 5 PEAK DAYS'}</div>
+          ${peakDays.map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:rgba(74,154,64,0.06);border-left:3px solid #4a9a40;border-radius:0 5px 5px 0;margin-bottom:3px;font-size:12px">
+            <span style="color:var(--text)"><strong>${monthAbbr[thisMonth]} ${d.day}</strong> · <span style="color:var(--muted);font-size:10.5px">${d.date.toLocaleDateString(isTh?'th-TH':'en-US',{weekday:'short'})}</span></span>
+            <span style="color:#4a9a40;font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600">+${d.total}</span>
+          </div>`).join('')}
+        </div>
+        <div>
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#c06060;margin-bottom:6px">⚠️ ${isTh?'5 วันควรระวัง':'5 CAUTION DAYS'}</div>
+          ${lowDays.map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 5px 5px 0;margin-bottom:3px;font-size:12px">
+            <span style="color:var(--text)"><strong>${monthAbbr[thisMonth]} ${d.day}</strong> · <span style="color:var(--muted);font-size:10.5px">${d.date.toLocaleDateString(isTh?'th-TH':'en-US',{weekday:'short'})}</span></span>
+            <span style="color:#c06060;font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600">${d.total}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+
+      <div style="margin-top:14px">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px">${isTh?'ทั้งเดือน · ความสูง = biorhythm รวม 3 วงจร':'Full month · bar height = sum of 3 cycles'}</div>
+        <div style="display:flex;gap:1px;align-items:flex-end;height:54px;padding:2px 0;border-bottom:1px solid var(--border)">
+          ${monthDays.map(d => `<div style="flex:1;min-width:6px;background:${d.total>100?'#50d490':d.total<-100?'#c06060':'#c8a840'};opacity:${d.day===now.getDate()?1:.65};height:${Math.max(4, Math.min(50, 25 + d.total/8))}px;border-radius:1px 1px 0 0;border-top:${d.day===now.getDate()?'2px solid var(--gold)':'none'}" title="${monthAbbr[thisMonth]} ${d.day} · ${d.total>=0?'+':''}${d.total}"></div>`).join('')}
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-family:'Josefin Sans',sans-serif;font-size:8.5px;color:var(--muted)">
+          <span>${isTh?'วันที่':'Day'} 1</span><span style="color:var(--gold)">${isTh?'วันนี้':'today'}: ${monthAbbr[thisMonth]} ${now.getDate()}</span><span>${isTh?'วันที่':'Day'} ${monthDays.length}</span>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;font-size:12px;color:var(--muted);line-height:1.6;font-style:italic">
+        ${isTh
+          ? `💡 ใช้ peak days สำหรับ launch/decision/big move ในเดือนนี้ · caution days = วางแผนเงียบ ทบทวน ฟื้นฟู · วันแถบทอง = วันนี้`
+          : `💡 Use peak days for launches/decisions/big moves this month · caution days = quiet planning, review, recovery · gold-bordered bar = today`}
+      </div>
+    </div>` : ''}
 
     ${monthBlock((isTh?'เดือนนี้ · ':'This month · ')+monthNames[thisMonth]+' '+now.getFullYear(), thisV)}
     ${monthBlock((isTh?'เดือนหน้า · ':'Next month · ')+monthNames[nextMonthIdx]+' '+(nextMonthIdx===0?now.getFullYear()+1:now.getFullYear()), nextV)}
@@ -8563,6 +8628,151 @@ const MAHADASHA_PILGRIMAGE = {
               en:{ s1:'Wilderness / deserted isle',         s2:'Solitary hermitage',              s3:'Lonely mountain peak',       s4:'Quiet corner — mat + flute + silence' } },
 };
 
+// ── 20-item lists for Exercise / Food / Product (Director 2026-06-01:
+//    "ครบทุก tab" — scale Pet/Companion pattern to remaining thin add-ons).
+//    All use _petCompat() for 5-element scoring. 4 items per element. ──
+
+// 20 sports / exercise modalities classified by 5-element movement pattern.
+const ALL_EXERCISES_20 = [
+  // Wood — flexibility, growth, flow
+  { e:'🧘', th:'โยคะ Hatha',          en:'Hatha Yoga',           el:'ไม้' },
+  { e:'🤸', th:'พิลาทีส',              en:'Pilates',              el:'ไม้' },
+  { e:'🌿', th:'ไทเก๊ก / ไทชี่',         en:'Tai Chi',              el:'ไม้' },
+  { e:'🧗', th:'ปีนผา / Bouldering',    en:'Climbing / Bouldering', el:'ไม้' },
+  // Fire — intensity, cardio, heat
+  { e:'🥊', th:'มวย / Kickboxing',      en:'Boxing / Kickboxing',  el:'ไฟ' },
+  { e:'🔥', th:'HIIT / Tabata',         en:'HIIT / Tabata',        el:'ไฟ' },
+  { e:'🌶️', th:'Hot Yoga (Bikram)',     en:'Hot Yoga (Bikram)',    el:'ไฟ' },
+  { e:'💃', th:'Zumba / Salsa dance',   en:'Zumba / Salsa',        el:'ไฟ' },
+  // Earth — stability, strength, ground
+  { e:'🏋️', th:'เวทเทรนนิ่ง',           en:'Weight training',      el:'ดิน' },
+  { e:'🥾', th:'เดินขึ้นเขา / Hiking',    en:'Hiking',               el:'ดิน' },
+  { e:'🌱', th:'จัดสวน / Gardening',     en:'Gardening',            el:'ดิน' },
+  { e:'🧱', th:'Foundation training',    en:'Foundation training',  el:'ดิน' },
+  // Metal — precision, discipline, technique
+  { e:'🏊', th:'ว่ายน้ำ Lap (technique)',en:'Lap Swimming (technique)', el:'โลหะ' },
+  { e:'🏹', th:'ยิงธนู',                 en:'Archery',              el:'โลหะ' },
+  { e:'🤺', th:'ฟันดาบ / Fencing',       en:'Fencing',              el:'โลหะ' },
+  { e:'🥋', th:'Wing Chun / Aikido',     en:'Wing Chun / Aikido',   el:'โลหะ' },
+  // Water — flow, endurance, depth
+  { e:'🏄', th:'เซิร์ฟ / Surfing',       en:'Surfing',              el:'น้ำ' },
+  { e:'🛶', th:'พายเรือ / Kayak',        en:'Kayaking',             el:'น้ำ' },
+  { e:'💧', th:'แอโรบิคในน้ำ',           en:'Water aerobics',       el:'น้ำ' },
+  { e:'🤿', th:'ดำน้ำลึก / Free dive',    en:'Free diving',          el:'น้ำ' },
+];
+// Weekly workout cadence by Vedic day — what type of movement to favour.
+const WORKOUT_WEEK = [
+  { dayTh:'อา. (อาทิตย์)', dayEn:'Sun', planet:'☉ Sun',     acTh:'Cardio + outdoor (วิ่ง/ปั่น) · peak vitality',   acEn:'Cardio + outdoor (run/cycle) · peak vitality' },
+  { dayTh:'จ. (จันทร์)',   dayEn:'Mon', planet:'☽ Moon',    acTh:'Yoga / stretching เบา · recovery จากอาทิตย์',     acEn:'Light yoga / stretching · recovery from Sunday' },
+  { dayTh:'อ. (อังคาร)',   dayEn:'Tue', planet:'♂ Mars',    acTh:'Strength / weights · channel Mars · ดันหนัก',     acEn:'Strength / weights · channel Mars · push heavy' },
+  { dayTh:'พ. (พุธ)',      dayEn:'Wed', planet:'☿ Mercury', acTh:'Skill day · sport ใหม่ · เรียน form ใหม่',         acEn:'Skill day · new sport · learn new form' },
+  { dayTh:'พฤ. (พฤหัสฯ)',  dayEn:'Thu', planet:'♃ Jupiter', acTh:'Endurance · long run / cycling / hike',           acEn:'Endurance · long run / cycle / hike' },
+  { dayTh:'ศ. (ศุกร์)',    dayEn:'Fri', planet:'♀ Venus',   acTh:'Dance / pilates / flow · ความสวยงาม + จังหวะ',     acEn:'Dance / pilates / flow · beauty + rhythm' },
+  { dayTh:'ส. (เสาร์)',    dayEn:'Sat', planet:'♄ Saturn',  acTh:'พักเต็มที่ หรือเดิน slow · ไม่ฝืน',                 acEn:'Full rest or slow walk · do not push' },
+];
+// 4-stage 30-day exercise progression.
+const EXERCISE_30DAY = { th:[
+  'สัปดาห์ 1 · Foundation — sets เบา · technique > weight · ≤ 60% effort',
+  'สัปดาห์ 2 · Build — เพิ่ม volume +20% · เพิ่ม session/สัปดาห์ +1',
+  'สัปดาห์ 3 · Push — peak intensity day ตรงกับ biorhythm peak · attempt personal best',
+  'สัปดาห์ 4 · Deload — ลด volume −40% · recovery + assess · plan รอบใหม่',
+], en:[
+  'Week 1 · Foundation — light sets · technique > weight · ≤ 60% effort',
+  'Week 2 · Build — bump volume +20% · add 1 session to the week',
+  'Week 3 · Push — schedule peak-intensity on biorhythm peak · attempt PR',
+  'Week 4 · Deload — drop volume −40% · recover + assess · plan next cycle',
+]};
+
+// 20 foods / cuisines classified by 5-element flavour & nature (TCM-aligned).
+const ALL_FOODS_20 = [
+  // Wood — sour, fresh, green, fermented
+  { e:'🥗', th:'สลัด/ผักสดเขียว',       en:'Fresh green salads',                el:'ไม้' },
+  { e:'🍋', th:'มะนาว / มะม่วงดิบ',      en:'Citrus / sour fruits',              el:'ไม้' },
+  { e:'🥬', th:'ผักหมัก (kimchi/ดอง)',   en:'Fermented vegetables',              el:'ไม้' },
+  { e:'🍵', th:'ชาเขียว / Matcha',       en:'Green tea / Matcha',                el:'ไม้' },
+  // Fire — bitter, spicy, red, roasted
+  { e:'🌶️', th:'พริก / แกงเผ็ด',         en:'Chili / spicy curry',               el:'ไฟ' },
+  { e:'🔥', th:'BBQ / ปิ้งย่าง',          en:'BBQ / grilled meats',               el:'ไฟ' },
+  { e:'🍫', th:'ดาร์ก ช็อกโกแลต',         en:'Dark chocolate',                    el:'ไฟ' },
+  { e:'☕', th:'กาแฟ / Espresso',         en:'Coffee / Espresso',                 el:'ไฟ' },
+  // Earth — sweet, grounding, yellow, root
+  { e:'🍠', th:'มันหวาน / ฟักทอง',        en:'Sweet potato / pumpkin',            el:'ดิน' },
+  { e:'🍚', th:'ข้าวกล้อง / whole grain',  en:'Whole-grain rice',                  el:'ดิน' },
+  { e:'🍯', th:'น้ำผึ้ง / กล้วย',          en:'Honey / bananas',                   el:'ดิน' },
+  { e:'🥕', th:'แครอท / บีท / รากผัก',     en:'Root vegetables (carrot, beet)',    el:'ดิน' },
+  // Metal — pungent, white, sharp, refined
+  { e:'🧄', th:'กระเทียม / หัวหอม',       en:'Garlic / onion',                    el:'โลหะ' },
+  { e:'🫚', th:'ขิง / หัวไชเท้า',          en:'Ginger / daikon',                   el:'โลหะ' },
+  { e:'🍐', th:'แอปเปิ้ลขาว / แพร์',       en:'White apple / pear',                el:'โลหะ' },
+  { e:'🥛', th:'นม / โยเกิร์ตขาว',         en:'Dairy / plain yogurt',              el:'โลหะ' },
+  // Water — salty, deep, dark, sea
+  { e:'🐟', th:'ปลา + อาหารทะเล',         en:'Fish + seafood',                    el:'น้ำ' },
+  { e:'🌊', th:'สาหร่าย / kombu',          en:'Seaweed / kombu',                   el:'น้ำ' },
+  { e:'🫘', th:'ถั่วดำ / ถั่วเหลือง',       en:'Black beans / soybeans',            el:'น้ำ' },
+  { e:'🧂', th:'มิโซะ / เกลือทะเล',        en:'Miso / sea salt',                   el:'น้ำ' },
+];
+// Weekly meal rhythm by Vedic day.
+const MEAL_WEEK = [
+  { dayTh:'อา. (อาทิตย์)', dayEn:'Sun', planet:'☉ Sun',     acTh:'อาหาร warming + colorful (ส้ม/แดง) · breakfast เต็ม',  acEn:'Warming + colorful (orange/red) · full breakfast' },
+  { dayTh:'จ. (จันทร์)',   dayEn:'Mon', planet:'☽ Moon',    acTh:'อาหารเหลว/นุ่ม (โจ๊ก/ซุป) · นม · เน้นน้ำ',           acEn:'Liquid/soft (congee/soup) · dairy · hydrate' },
+  { dayTh:'อ. (อังคาร)',   dayEn:'Tue', planet:'♂ Mars',    acTh:'โปรตีนสูง (เนื้อ/ถั่ว) · เผ็ดเล็กน้อย',                acEn:'High protein (meat/legume) · mild spice' },
+  { dayTh:'พ. (พุธ)',      dayEn:'Wed', planet:'☿ Mercury', acTh:'มื้อเล็กบ่อย · เมล็ดถั่ว · brain food',               acEn:'Small frequent meals · seeds/nuts · brain food' },
+  { dayTh:'พฤ. (พฤหัสฯ)',  dayEn:'Thu', planet:'♃ Jupiter', acTh:'งานเลี้ยง / หลากหลาย · ขนมหวาน OK · expand',          acEn:'Feast day / variety · sweets OK · expansion' },
+  { dayTh:'ศ. (ศุกร์)',    dayEn:'Fri', planet:'♀ Venus',   acTh:'อาหารหวานธรรมชาติ · cheese plate · sensual eating',  acEn:'Natural sweets · cheese plate · sensual eating' },
+  { dayTh:'ส. (เสาร์)',    dayEn:'Sat', planet:'♄ Saturn',  acTh:'ฟาสติ้ง / มื้อง่าย · ผัก/ข้าว/น้ำ · ระบาย',             acEn:'Fasting / simple meals · veg/grain/water · cleanse' },
+];
+// 4-stage 30-day diet protocol.
+const FOOD_30DAY = { th:[
+  'สัปดาห์ 1 · Detox — งดน้ำตาล แอลกอฮอล์ ของทอด · เน้นผักใบเขียว/ของหมัก',
+  'สัปดาห์ 2 · Rebuild — โปรตีนคุณภาพ + carb ดี + healthy fats',
+  'สัปดาห์ 3 · Optimize — คัดอาหารที่ดี → cycle ตามวัน Vedic ข้างบน',
+  'สัปดาห์ 4 · Integrate — ทำสูตรเป็น habit · plan 30 วันถัดไป',
+], en:[
+  'Week 1 · Detox — cut sugar, alcohol, fried · emphasize leafy greens / ferments',
+  'Week 2 · Rebuild — quality protein + good carbs + healthy fats',
+  'Week 3 · Optimize — selected foods → cycle by the Vedic week above',
+  'Week 4 · Integrate — convert the protocol into habit · plan next 30 days',
+]};
+
+// 20 materials / palette items classified by 5-element correspondence.
+const ALL_MATERIALS_20 = [
+  // Wood — fabric, organic, green
+  { e:'🌿', th:'ลินิน / Linen',         en:'Linen',                el:'ไม้' },
+  { e:'☘️', th:'ผ้าฝ้ายอินทรีย์',        en:'Organic cotton',       el:'ไม้' },
+  { e:'🎍', th:'ไม้ไผ่ / Bamboo',        en:'Bamboo',               el:'ไม้' },
+  { e:'🧵', th:'ผ้าใยกัญชง / Hemp',      en:'Hemp fabric',          el:'ไม้' },
+  // Fire — bright, glossy, red/orange
+  { e:'🔴', th:'กำมะหยี่สีแดง',          en:'Red velvet',           el:'ไฟ' },
+  { e:'🟠', th:'หนัง / Leather',         en:'Leather',              el:'ไฟ' },
+  { e:'💎', th:'แก้ว / Crystal glass',    en:'Crystal glass',        el:'ไฟ' },
+  { e:'🌟', th:'ทอง / Gold accents',     en:'Gold accents',         el:'ไฟ' },
+  // Earth — stable, yellow/brown, ceramic
+  { e:'🪵', th:'ไม้เนื้อแข็ง / hardwood', en:'Hardwood furniture',   el:'ดิน' },
+  { e:'🏺', th:'เซรามิก / เครื่องดินเผา', en:'Ceramic / terracotta', el:'ดิน' },
+  { e:'🧶', th:'ขนแกะ / Wool felt',      en:'Wool / felt',          el:'ดิน' },
+  { e:'🟫', th:'สีน้ำตาล + ดิน clay',     en:'Brown + clay tones',   el:'ดิน' },
+  // Metal — sharp, white/silver, refined
+  { e:'⚪', th:'มาร์เบิล / Marble',       en:'Marble',               el:'โลหะ' },
+  { e:'🥈', th:'เงิน / Stainless steel', en:'Silver / Steel',        el:'โลหะ' },
+  { e:'🪞', th:'กระจก / Mirror',         en:'Mirror finish',        el:'โลหะ' },
+  { e:'🤍', th:'เพิร์ล / Pearl',         en:'Pearl',                el:'โลหะ' },
+  // Water — fluid, dark blue/black, smooth
+  { e:'🔵', th:'อินดิโก้ / สีน้ำเงินเข้ม', en:'Indigo / deep blue',   el:'น้ำ' },
+  { e:'⚫', th:'ไม้ดำ / Black lacquer',   en:'Black lacquer wood',   el:'น้ำ' },
+  { e:'💧', th:'ผ้าไหมเงาวาว',           en:'Silk (lustrous)',      el:'น้ำ' },
+  { e:'🌊', th:'หิน blue lace agate',    en:'Blue lace agate stone',el:'น้ำ' },
+];
+// Weekly wardrobe cadence by Vedic day.
+const STYLE_WEEK = [
+  { dayTh:'อา. (อาทิตย์)', dayEn:'Sun', planet:'☉ Sun',     acTh:'โทนทอง/ส้ม + accessory เปล่งประกาย',         acEn:'Gold/orange tones + statement accessory' },
+  { dayTh:'จ. (จันทร์)',   dayEn:'Mon', planet:'☽ Moon',    acTh:'ขาว/เงิน + ผ้าที่นุ่ม · เย็น calming',           acEn:'White/silver + soft cool fabrics' },
+  { dayTh:'อ. (อังคาร)',   dayEn:'Tue', planet:'♂ Mars',    acTh:'แดง / hot pink · texture หนาแน่น',             acEn:'Red / hot pink · dense textures' },
+  { dayTh:'พ. (พุธ)',      dayEn:'Wed', planet:'☿ Mercury', acTh:'เขียว / pattern เล็ก · clean lines',           acEn:'Green / small patterns · clean lines' },
+  { dayTh:'พฤ. (พฤหัสฯ)',  dayEn:'Thu', planet:'♃ Jupiter', acTh:'เหลือง / ม่วง · ใหญ่ generous silhouette',      acEn:'Yellow / purple · generous silhouettes' },
+  { dayTh:'ศ. (ศุกร์)',    dayEn:'Fri', planet:'♀ Venus',   acTh:'ชมพู / ฟ้าอ่อน · ดอกไม้ · ลูกไม้',             acEn:'Pink / light blue · florals · lace' },
+  { dayTh:'ส. (เสาร์)',    dayEn:'Sat', planet:'♄ Saturn',  acTh:'ดำ / น้ำเงินเข้ม · minimal · structured',       acEn:'Black / dark navy · minimal · structured' },
+];
+
 // Compute next 7 days biorhythm from DOB. Period (days): phys=23, emo=28, int=33.
 // Used to highlight peak-bonding day in the adoption window.
 function _bio7Days(dob){
@@ -9150,6 +9360,66 @@ function renderExercise(){
       </div>
     </div>
 
+    <!-- 🆕 20-Exercise Compatibility Map -->
+    ${(()=>{
+      const ranked = ALL_EXERCISES_20.map(it => ({ ...it, cmp: _petCompat(dmEl, it.el) })).sort((a,b) => b.cmp.score - a.cmp.score);
+      const top3 = ranked.slice(0,3), bot3 = ranked.slice(-3).reverse();
+      return `<div class="deep-sys-card" style="margin-top:12px">
+        <div class="deep-sys-title">🏃 ${isTh?'แผนที่กีฬา 20 ชนิด':'20-Exercise Compatibility Map'}</div>
+        <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${dmEl} · 5-element cycle · 4 ชนิด/ธาตุ`:`Ranked for ${dmEl} · 5-element cycle · 4 per element`}</div>
+        <div style="margin-top:14px">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· เข้ากับร่างคุณที่สุด':'· BEST FOR YOUR BODY'}</div>
+          ${top3.map(it => `<div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
+            <div style="font-size:22px;text-align:center">${it.e}</div>
+            <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
+          </div>`).join('')}
+        </div>
+        <div style="margin-top:14px">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#c06060;margin-bottom:6px">⚠️ ${isTh?'3 ชนิดควรเลี่ยง':'AVOID THESE 3'}</div>
+          ${bot3.map(it => `<div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
+            <div style="font-size:22px;text-align:center;opacity:.6">${it.e}</div>
+            <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${it.cmp.score}</div>
+          </div>`).join('')}
+        </div>
+        ${_collapse(
+          `▾ ${isTh?'ดูทั้ง 20 ชนิด':'View all 20 ranked'}`,
+          `▾ ${isTh?'ดูทั้ง 20 ชนิด':'View all 20 ranked'}`,
+          `<div style="display:flex;flex-direction:column;gap:2px">${ranked.map(it => `<div style="display:grid;grid-template-columns:30px 1fr 50px 32px;gap:8px;padding:6px 8px;border-bottom:1px dotted var(--border);align-items:center;font-size:12px;${it.cmp.score>=2?'background:rgba(74,154,64,0.04)':it.cmp.score>=1?'background:rgba(74,154,64,0.02)':it.cmp.score<=-2?'background:rgba(192,96,96,0.04)':it.cmp.score<=-1?'background:rgba(192,168,64,0.03)':''}">
+            <div style="font-size:16px;text-align:center;${it.cmp.score<=-2?'opacity:.6':''}">${it.e}</div>
+            <div style="color:var(--text);line-height:1.4">${isTh?it.th:it.en} <span style="color:var(--muted);font-size:10px">· ${it.el}</span></div>
+            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:10.5px;font-weight:600;color:${it.cmp.score>=2?'#4a9a40':it.cmp.score>=1?'#80b860':it.cmp.score<=-2?'#c06060':it.cmp.score<=-1?'#c08840':'var(--muted)'}">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
+            <div style="text-align:center;font-size:13px">${it.cmp.emoji}</div>
+          </div>`).join('')}</div>`
+        )}
+      </div>`;
+    })()}
+
+    <!-- 🆕 7-Day Workout Rhythm -->
+    <div class="deep-sys-card" style="margin-top:12px">
+      <div class="deep-sys-title">📅 ${isTh?'จังหวะออกกำลังรายสัปดาห์':'7-Day Workout Rhythm'}</div>
+      <div class="deep-sys-origin">${isTh?'ปรับรายวันตามดวงดาวประจำวัน (Vedic)':'Daily focus by Vedic planetary rulers'}</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px">
+        ${WORKOUT_WEEK.map(d => `<div style="display:grid;grid-template-columns:78px 1fr;gap:10px;padding:8px 10px;background:rgba(212,170,80,0.04);border-left:2px solid var(--gold3);border-radius:0 6px 6px 0">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1px;color:var(--gold2);align-self:center">${isTh?d.dayTh:d.dayEn}</div>
+          <div style="font-size:12.5px;color:var(--text);line-height:1.55"><span style="color:var(--gold);font-weight:600">${d.planet}</span> · ${isTh?d.acTh:d.acEn}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- 🆕 4-Week 30-Day Progression -->
+    <div class="deep-sys-card" style="margin-top:12px;border-color:rgba(212,175,55,0.5)">
+      <div class="deep-sys-title">📈 ${isTh?'แผน 30 วัน · Progression':'30-Day Progression Plan'}</div>
+      <div class="deep-sys-origin">${isTh?'4 สัปดาห์ · Build → Peak → Deload':'4 weeks · Build → Peak → Deload'}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+        ${EXERCISE_30DAY[isTh?'th':'en'].map((s,i) => `<div style="padding:12px;background:${i===2?'rgba(212,175,55,0.07)':'rgba(0,0,0,.2)'};border-radius:8px;${i===2?'border:1px solid var(--gold3)':''}">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:${i===2?'var(--gold)':'var(--gold3)'};margin-bottom:6px">STAGE ${i+1}</div>
+          <div style="font-size:12.5px;color:var(--text);line-height:1.6">${s}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
     ${_collapse(
       'เวลา · ควรเลี่ยง · ภูมิปัญญาธาตุ',
       'Timing · avoid · elemental wisdom',
@@ -9246,6 +9516,66 @@ function renderFood(){
       </div>
     </div>
 
+    <!-- 🆕 20-Food Compatibility Map -->
+    ${(()=>{
+      const ranked = ALL_FOODS_20.map(it => ({ ...it, cmp: _petCompat(dmEl, it.el) })).sort((a,b) => b.cmp.score - a.cmp.score);
+      const top3 = ranked.slice(0,3), bot3 = ranked.slice(-3).reverse();
+      return `<div class="deep-sys-card" style="margin-top:12px">
+        <div class="deep-sys-title">🍽️ ${isTh?'แผนที่อาหาร 20 ชนิด':'20-Food Compatibility Map'}</div>
+        <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${dmEl} · TCM 5-flavor cycle`:`Ranked for ${dmEl} · TCM 5-flavor cycle`}</div>
+        <div style="margin-top:14px">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· บำรุงร่างคุณที่สุด':'· BEST FOR YOUR BODY'}</div>
+          ${top3.map(it => `<div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
+            <div style="font-size:22px;text-align:center">${it.e}</div>
+            <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
+          </div>`).join('')}
+        </div>
+        <div style="margin-top:14px">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#c06060;margin-bottom:6px">⚠️ ${isTh?'3 ชนิดควรเลี่ยง/ลด':'AVOID/REDUCE THESE 3'}</div>
+          ${bot3.map(it => `<div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
+            <div style="font-size:22px;text-align:center;opacity:.6">${it.e}</div>
+            <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${it.cmp.score}</div>
+          </div>`).join('')}
+        </div>
+        ${_collapse(
+          `▾ ${isTh?'ดูทั้ง 20 ชนิด':'View all 20 ranked'}`,
+          `▾ ${isTh?'ดูทั้ง 20 ชนิด':'View all 20 ranked'}`,
+          `<div style="display:flex;flex-direction:column;gap:2px">${ranked.map(it => `<div style="display:grid;grid-template-columns:30px 1fr 50px 32px;gap:8px;padding:6px 8px;border-bottom:1px dotted var(--border);align-items:center;font-size:12px;${it.cmp.score>=2?'background:rgba(74,154,64,0.04)':it.cmp.score>=1?'background:rgba(74,154,64,0.02)':it.cmp.score<=-2?'background:rgba(192,96,96,0.04)':it.cmp.score<=-1?'background:rgba(192,168,64,0.03)':''}">
+            <div style="font-size:16px;text-align:center;${it.cmp.score<=-2?'opacity:.6':''}">${it.e}</div>
+            <div style="color:var(--text);line-height:1.4">${isTh?it.th:it.en} <span style="color:var(--muted);font-size:10px">· ${it.el}</span></div>
+            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:10.5px;font-weight:600;color:${it.cmp.score>=2?'#4a9a40':it.cmp.score>=1?'#80b860':it.cmp.score<=-2?'#c06060':it.cmp.score<=-1?'#c08840':'var(--muted)'}">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
+            <div style="text-align:center;font-size:13px">${it.cmp.emoji}</div>
+          </div>`).join('')}</div>`
+        )}
+      </div>`;
+    })()}
+
+    <!-- 🆕 7-Day Meal Rhythm -->
+    <div class="deep-sys-card" style="margin-top:12px">
+      <div class="deep-sys-title">🍽️ ${isTh?'จังหวะมื้อรายสัปดาห์':'7-Day Meal Rhythm'}</div>
+      <div class="deep-sys-origin">${isTh?'ปรับมื้อแต่ละวันตามดวงดาว':'Daily focus by Vedic planetary rulers'}</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px">
+        ${MEAL_WEEK.map(d => `<div style="display:grid;grid-template-columns:78px 1fr;gap:10px;padding:8px 10px;background:rgba(212,170,80,0.04);border-left:2px solid var(--gold3);border-radius:0 6px 6px 0">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1px;color:var(--gold2);align-self:center">${isTh?d.dayTh:d.dayEn}</div>
+          <div style="font-size:12.5px;color:var(--text);line-height:1.55"><span style="color:var(--gold);font-weight:600">${d.planet}</span> · ${isTh?d.acTh:d.acEn}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- 🆕 30-Day Diet Protocol -->
+    <div class="deep-sys-card" style="margin-top:12px;border-color:rgba(212,175,55,0.5)">
+      <div class="deep-sys-title">📅 ${isTh?'แผนอาหาร 30 วัน':'30-Day Diet Protocol'}</div>
+      <div class="deep-sys-origin">${isTh?'Detox → Rebuild → Optimize → Integrate':'Detox → Rebuild → Optimize → Integrate'}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+        ${FOOD_30DAY[isTh?'th':'en'].map((s,i) => `<div style="padding:12px;background:${i===2?'rgba(212,175,55,0.07)':'rgba(0,0,0,.2)'};border-radius:8px;${i===2?'border:1px solid var(--gold3)':''}">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:${i===2?'var(--gold)':'var(--gold3)'};margin-bottom:6px">STAGE ${i+1}</div>
+          <div style="font-size:12.5px;color:var(--text);line-height:1.6">${s}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
     ${_collapse(
       'รสชาติ · เวลากิน · supplement · ปรับ Mahadasha',
       'Flavors · timing · supplements · Mahadasha tuning',
@@ -9280,6 +9610,7 @@ function renderProduct(){
   const isTh = LANG==='th';
   const dmEl = chart.bazi.dayMasterElement||'ไม้';
   const starColor = chart.ninestar.starColor||'—';
+  const nskDir = chart.ninestar.starDirection||'—';
   const score = chart.score.total;
 
   const p = (chart.addons && chart.addons.product) || {
@@ -9433,6 +9764,78 @@ function renderProduct(){
       <div style="margin-top:14px">
         <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">✨ ${isTh?'สินค้าที่เสริมพลังธาตุ':'Items that boost your element'}</div>
         ${p.boost.map(b=>`<div style="padding:8px 12px;background:rgba(212,175,55,0.06);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;margin-bottom:6px;font-size:13px;color:var(--text)">${b}</div>`).join('')}
+      </div>
+    </div>
+
+    <!-- 🆕 20-Material Compatibility Map -->
+    ${(()=>{
+      const ranked = ALL_MATERIALS_20.map(it => ({ ...it, cmp: _petCompat(dmEl, it.el) })).sort((a,b) => b.cmp.score - a.cmp.score);
+      const top3 = ranked.slice(0,3), bot3 = ranked.slice(-3).reverse();
+      return `<div class="deep-sys-card" style="margin-top:12px">
+        <div class="deep-sys-title">🎨 ${isTh?'แผนที่วัสดุ/สี 20 ชนิด':'20-Material Compatibility Map'}</div>
+        <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${dmEl} · ใช้กับ wardrobe + interior`:`Ranked for ${dmEl} · wardrobe + interior`}</div>
+        <div style="margin-top:14px">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· เสริม aura':'· AMPLIFY YOUR AURA'}</div>
+          ${top3.map(it => `<div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
+            <div style="font-size:22px;text-align:center">${it.e}</div>
+            <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
+          </div>`).join('')}
+        </div>
+        <div style="margin-top:14px">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#c06060;margin-bottom:6px">⚠️ ${isTh?'3 อย่างควรเลี่ยง':'AVOID THESE 3'}</div>
+          ${bot3.map(it => `<div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;padding:8px 10px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:4px;align-items:center">
+            <div style="font-size:22px;text-align:center;opacity:.6">${it.e}</div>
+            <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${it.cmp.score}</div>
+          </div>`).join('')}
+        </div>
+        ${_collapse(
+          `▾ ${isTh?'ดูทั้ง 20 อย่าง':'View all 20 ranked'}`,
+          `▾ ${isTh?'ดูทั้ง 20 อย่าง':'View all 20 ranked'}`,
+          `<div style="display:flex;flex-direction:column;gap:2px">${ranked.map(it => `<div style="display:grid;grid-template-columns:30px 1fr 50px 32px;gap:8px;padding:6px 8px;border-bottom:1px dotted var(--border);align-items:center;font-size:12px;${it.cmp.score>=2?'background:rgba(74,154,64,0.04)':it.cmp.score>=1?'background:rgba(74,154,64,0.02)':it.cmp.score<=-2?'background:rgba(192,96,96,0.04)':it.cmp.score<=-1?'background:rgba(192,168,64,0.03)':''}">
+            <div style="font-size:16px;text-align:center;${it.cmp.score<=-2?'opacity:.6':''}">${it.e}</div>
+            <div style="color:var(--text);line-height:1.4">${isTh?it.th:it.en} <span style="color:var(--muted);font-size:10px">· ${it.el}</span></div>
+            <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:10.5px;font-weight:600;color:${it.cmp.score>=2?'#4a9a40':it.cmp.score>=1?'#80b860':it.cmp.score<=-2?'#c06060':it.cmp.score<=-1?'#c08840':'var(--muted)'}">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
+            <div style="text-align:center;font-size:13px">${it.cmp.emoji}</div>
+          </div>`).join('')}</div>`
+        )}
+      </div>`;
+    })()}
+
+    <!-- 🆕 7-Day Wardrobe Cadence -->
+    <div class="deep-sys-card" style="margin-top:12px">
+      <div class="deep-sys-title">👗 ${isTh?'จังหวะแต่งกายรายสัปดาห์':'7-Day Wardrobe Cadence'}</div>
+      <div class="deep-sys-origin">${isTh?'แต่งตามดวงดาว ดึงพลังประจำวัน':'Dress by planetary ruler · channel each day\'s energy'}</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px">
+        ${STYLE_WEEK.map(d => `<div style="display:grid;grid-template-columns:78px 1fr;gap:10px;padding:8px 10px;background:rgba(212,170,80,0.04);border-left:2px solid var(--gold3);border-radius:0 6px 6px 0">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1px;color:var(--gold2);align-self:center">${isTh?d.dayTh:d.dayEn}</div>
+          <div style="font-size:12.5px;color:var(--text);line-height:1.55"><span style="color:var(--gold);font-weight:600">${d.planet}</span> · ${isTh?d.acTh:d.acEn}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- 🆕 NSK-Directional Room Layout -->
+    <div class="deep-sys-card" style="margin-top:12px;border-color:rgba(212,175,55,0.5)">
+      <div class="deep-sys-title">🏠 ${isTh?'ผังจัดห้องตาม NSK':'NSK-Directional Room Layout'}</div>
+      <div class="deep-sys-origin">${isTh?`ทิศ ${nskDir||starColor} ของคุณ · จุดเสริมพลัง 4 ทิศ`:`Your NSK direction ${nskDir||starColor} · 4-direction power placement`}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+        <div style="padding:12px;background:rgba(0,0,0,.2);border-radius:8px">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold3);margin-bottom:6px">${isTh?'ทิศ NSK ส่วนตัว':'YOUR NSK DIRECTION'}</div>
+          <div style="font-size:12.5px;color:var(--text);line-height:1.6">${isTh?`วาง headboard เตียง / โต๊ะทำงาน หันหน้าทาง ${nskDir||'East'} — chi ส่วนตัวของคุณไหลผ่านทิศนี้`:`Place bed headboard / desk facing ${nskDir||'East'} — your personal chi flows through this direction`}</div>
+        </div>
+        <div style="padding:12px;background:rgba(212,175,55,0.05);border-radius:8px;border:1px solid var(--gold3)">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold);margin-bottom:6px">${isTh?'มุมความงาม (Venus)':'BEAUTY CORNER (Venus)'}</div>
+          <div style="font-size:12.5px;color:var(--text);line-height:1.6">${isTh?'ทิศตะวันตกเฉียงใต้ — กระจก + ดอกไม้สด + ของล้ำค่า':'Southwest — mirror + fresh flowers + treasured items'}</div>
+        </div>
+        <div style="padding:12px;background:rgba(0,0,0,.2);border-radius:8px">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold3);margin-bottom:6px">${isTh?'มุมการงาน (Mercury)':'CAREER CORNER (Mercury)'}</div>
+          <div style="font-size:12.5px;color:var(--text);line-height:1.6">${isTh?'ทิศเหนือ — โต๊ะทำงาน + แสงเย็น + ของแสดงความสำเร็จ':'North — desk + cool light + achievement displays'}</div>
+        </div>
+        <div style="padding:12px;background:rgba(0,0,0,.2);border-radius:8px">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold3);margin-bottom:6px">${isTh?'มุมพลัง (Sun)':'POWER CORNER (Sun)'}</div>
+          <div style="font-size:12.5px;color:var(--text);line-height:1.6">${isTh?'ทิศใต้ — เก้าอี้ใหญ่หันหลังให้กำแพง + ของสีทอง/ส้ม':'South — large chair backed by wall + gold/orange accents'}</div>
+        </div>
       </div>
     </div>
 
