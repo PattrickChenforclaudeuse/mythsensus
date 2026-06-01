@@ -1314,9 +1314,12 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
            accuracy, so they live behind a single tap to reduce the "too much
            info" feeling. All fields stay in the DOM (entryAccept reads them
            with safe defaults) whether the section is open or not. -->
-      <details id="entryMoreWrap" style="margin-top:2px">
+      <!-- Director feedback 2026-06-01: city input was "หาย" — collapsed by default,
+           users couldn't find the field. Now opens by default + summary makes it
+           explicit you can collapse if you don't need them. -->
+      <details id="entryMoreWrap" open style="margin-top:2px">
         <summary style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--gold2);text-align:center;list-style:none;padding:6px 0;letter-spacing:0.3px;cursor:pointer" id="entryMoreToggle">
-          ✦ เพิ่มความแม่นยำ: เวลา · เพศ · เมือง (ไม่บังคับ) / Add details (optional)
+          ✦ เวลา · เพศ · เมืองเกิด (กดเพื่อย่อ) / Birth time · gender · city (tap to collapse)
         </summary>
       <!-- เวลาเกิด: HH | MM (default 12:00 — many users don't have birth time) -->
       <div style="margin-top:8px">
@@ -11853,22 +11856,28 @@ function showEntryOverlay(){
   _entryLang = localStorage.getItem('mth_lang') || 'th';
   _entryRefreshLang();
   // Pre-fill from saved profile if any.
-  const dob   = localStorage.getItem('mth_dob')   || '';
-  const name  = localStorage.getItem('mth_name')  || '';
-  const time  = localStorage.getItem('mth_time')  || '';
-  const gender = localStorage.getItem('mth_gender') || 'ชาย';
-  const city   = localStorage.getItem('mth_city')   || '13.75,100.5,7';
+  // Director feedback 2026-06-01: don't pre-fill the entry overlay with the
+  // user's saved birth date — start at "today" instead. This lets a user
+  // look up SOMEONE ELSE's chart without having to clear their own data
+  // first. The actual saved chart stays untouched in localStorage until the
+  // user submits the new form (entryAccept overwrites on submit).
+  const _entryNow = new Date();
+  const todayDob = _entryNow.toISOString().slice(0,10);  // YYYY-MM-DD
+  const name  = '';                                       // start fresh (was: mth_name)
+  const gender = 'ชาย';                                   // default option (was: mth_gender)
+  const city   = '13.75,100.5,7';                         // default Bangkok (was: mth_city)
   const nameInp = document.getElementById('entryName');
   const hourInp = document.getElementById('entryHour');
   const minInp  = document.getElementById('entryMinute');
   const gSelect = document.getElementById('entryGender');
   const cSelect = document.getElementById('entryCity');
-  _setEntryDobFields(dob);
+  _setEntryDobFields(todayDob);
   if (nameInp) nameInp.value = name;
-  if (time && hourInp && minInp) {
-    const [hh,mm] = time.split(':');
-    hourInp.value = hh || '12';
-    minInp.value  = mm || '0';
+  // Default the time fields to NOW (current hour/minute) — same rationale as
+  // DOB: fresh entry, not stale prefill.
+  if (hourInp && minInp) {
+    hourInp.value = String(_entryNow.getHours()).padStart(2, '0');
+    minInp.value  = String(_entryNow.getMinutes()).padStart(2, '0');
   }
   // Restore "Birth time unknown" toggle (set previously) — drives disabled
   // styling + the 30%-accuracy warning. Default off (user typed a time).
