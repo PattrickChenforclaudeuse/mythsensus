@@ -10,8 +10,11 @@
   <!-- Trust signal: free sample report (43-page engine output) -->
   <url><loc>https://mythsensus.com/sample-report</loc><changefreq>monthly</changefreq><priority>0.95</priority></url>
   <url><loc>https://mythsensus.com/sample-report/sunthorn-phu</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
-  <!-- Case study with real engine output (3 historical icons) -->
+  <!-- Trust signal: how the engine works + privacy architecture -->
+  <url><loc>https://mythsensus.com/how-it-works</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <!-- Case studies with real engine output -->
   <url><loc>https://mythsensus.com/blog/cosmic-score-3-icons</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://mythsensus.com/blog/cosmic-score-icons-vol2</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <!-- Thai-query landings (high-intent entry points) -->
   <url><loc>https://mythsensus.com/blog/%E0%B8%94%E0%B8%B9%E0%B8%94%E0%B8%A7%E0%B8%87%E0%B8%A3%E0%B8%A7%E0%B8%A1%E0%B8%AB%E0%B8%A5%E0%B8%B2%E0%B8%A2%E0%B8%A8%E0%B8%B2%E0%B8%AA%E0%B8%95%E0%B8%A3%E0%B9%8C</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
   <url><loc>https://mythsensus.com/blog/%E0%B8%94%E0%B8%B9%E0%B8%94%E0%B8%A7%E0%B8%87-ai-%E0%B8%AB%E0%B8%A5%E0%B8%B2%E0%B8%A2%E0%B8%A3%E0%B8%B0%E0%B8%9A%E0%B8%9A</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>

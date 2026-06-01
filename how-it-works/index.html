@@ -1,0 +1,322 @@
+<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How Mythsensus Works — Engine คำนวณใน browser, ไม่ส่งข้อมูลออก · Mythsensus</title>
+<meta name="description" content="Mythsensus คำนวณดวง 26 ศาสตร์ใน browser ของคุณเอง ไม่ส่งวันเกิดไป server — วิธีพิสูจน์ด้วย DevTools + technical architecture แบบ transparent">
+<link rel="canonical" href="https://mythsensus.com/how-it-works">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#040407">
+<meta property="og:site_name" content="Mythsensus">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How Mythsensus Works — Engine ใน browser, ไม่ส่งข้อมูล">
+<meta property="og:description" content="ดวงคำนวณบนเครื่องคุณ ไม่ใช่ server ของเรา — วิธีพิสูจน์ด้วย DevTools + architecture transparent">
+<meta property="og:url" content="https://mythsensus.com/how-it-works">
+<meta property="og:image" content="https://mythsensus.com/og-default.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="th_TH">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How Mythsensus Works — On-device 26 ศาสตร์">
+<meta name="twitter:description" content="คำนวณใน browser ไม่ส่งข้อมูลออก — วิธีพิสูจน์ด้วย DevTools">
+<meta name="twitter:image" content="https://mythsensus.com/og-default.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600&family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#040407;--bg2:#0a0a10;--bg3:#0d0d14;--gold:#c8a45a;--gold2:#e8c87a;--gold3:#a8843a;--silver:#e6e2d8;--dim:#9a9088;--border:rgba(200,164,90,0.22);--green:#4aba50;--red:#ff6060;--text:#e6e2d8}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--silver);font-family:'Prompt',sans-serif;font-weight:300;font-size:17px;line-height:1.85}
+a{color:var(--gold);text-decoration:none}
+code,pre{font-family:'Consolas','Monaco','Courier New',monospace;font-size:.88rem}
+code{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:.05rem .35rem;color:var(--gold2)}
+pre{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:1rem 1.2rem;overflow-x:auto;line-height:1.55;margin:1rem 0;color:var(--silver)}
+pre code{background:none;border:none;padding:0;color:inherit}
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:1rem;letter-spacing:.06em}
+.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
+.nav-right{display:flex;gap:1.5rem;align-items:center}
+.nav-link{font-family:'Prompt',sans-serif;font-size:.78rem;letter-spacing:.06em;color:var(--silver);opacity:.7}
+.nav-link:hover{opacity:1;color:var(--gold)}
+.page-wrap{max-width:840px;margin:0 auto;padding:110px 5% 60px}
+.eyebrow{font-family:'Prompt',sans-serif;font-weight:500;font-size:.7rem;letter-spacing:.22em;color:var(--gold);opacity:.85;margin-bottom:.8rem;text-align:center;text-transform:uppercase}
+h1.title{font-family:'Prompt',sans-serif;font-weight:500;font-size:clamp(1.5rem,3.2vw,2.5rem);color:var(--silver);line-height:1.3;text-align:center;margin-bottom:.8rem}
+.sub{font-family:'Prompt',sans-serif;font-size:1.1rem;color:var(--dim);text-align:center;max-width:680px;margin:0 auto 1.6rem;font-weight:300;line-height:1.7}
+section{margin-bottom:2.6rem}
+h2{font-family:'Prompt',sans-serif;font-weight:500;font-size:1.3rem;color:var(--gold);margin-bottom:1rem;margin-top:2.6rem}
+h3{font-family:'Prompt',sans-serif;font-weight:500;font-size:1rem;color:var(--silver);margin:1.6rem 0 .6rem}
+p{margin-bottom:1.1rem;color:var(--silver);font-size:1.02rem;line-height:1.9}
+strong{color:var(--silver);font-weight:500}
+em{color:var(--gold);font-style:normal}
+.arch-diagram{background:var(--bg2);border:1px solid var(--gold3);border-radius:8px;padding:1.6rem 1.8rem;margin:1.6rem 0;font-family:'Consolas','Monaco',monospace;font-size:.85rem;color:var(--silver);overflow-x:auto;white-space:pre;line-height:1.7}
+.flow-step{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;padding:1rem 1.3rem;margin-bottom:.8rem}
+.flow-step-label{font-family:'Prompt',sans-serif;font-weight:500;font-size:.7rem;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:.3rem}
+.flow-step p{margin:0;font-size:.95rem;line-height:1.7}
+.proof-list{list-style:none;padding:0;margin:1rem 0}
+.proof-list li{padding:.6rem 0 .6rem 1.8rem;position:relative;font-size:.98rem;color:var(--silver);line-height:1.8}
+.proof-list li::before{content:"✓";position:absolute;left:0;top:.6rem;color:var(--green);font-weight:500;font-size:1.1rem}
+.proof-list li.bad::before{content:"✗";color:var(--red)}
+.check-block{background:var(--bg2);border:1px solid var(--gold3);border-radius:8px;padding:1.4rem 1.6rem;margin:1.6rem 0}
+.check-block h3{margin-top:0;color:var(--gold2)}
+.cta-block{background:var(--bg2);border:1px solid var(--gold3);border-radius:6px;padding:1.6rem 1.6rem;text-align:center;margin:2.4rem 0}
+.cta-title{font-family:'Prompt',sans-serif;font-weight:500;font-size:1.05rem;color:var(--gold);margin-bottom:.4rem}
+.cta-sub{font-family:'Prompt',sans-serif;font-size:.95rem;color:var(--dim);margin-bottom:1.1rem;line-height:1.65}
+.cta-btn{display:inline-block;background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:'Prompt',sans-serif;font-weight:500;font-size:.8rem;letter-spacing:.06em;padding:.7rem 1.4rem;border-radius:4px;text-decoration:none}
+.cta-btn:hover{background:rgba(200,164,90,.12);color:var(--gold2)}
+.faq-block{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.2rem 1.4rem;margin-bottom:.7rem}
+.faq-block h3{font-family:'Prompt',sans-serif;font-weight:500;font-size:1.02rem;color:var(--gold2);margin:0 0 .4rem}
+.faq-block p{margin:0;font-size:.96rem;line-height:1.75}
+footer{border-top:1px solid var(--border);padding:2rem 5%;text-align:center;font-family:'Prompt',sans-serif;font-size:.72rem;color:var(--dim);margin-top:3rem}
+footer a{color:var(--dim);margin:0 .5rem}footer a:hover{color:var(--gold)}
+@media(max-width:640px){.nav-right .nav-link{display:none}}
+</style>
+
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Article",
+  "headline":"How Mythsensus Works — Engine คำนวณใน browser, ไม่ส่งข้อมูลออก",
+  "description":"Mythsensus คำนวณดวง 26 ศาสตร์ใน browser ของคุณเอง — วิธีพิสูจน์ด้วย DevTools + technical architecture transparent",
+  "author":{"@type":"Organization","name":"Mythsensus"},
+  "publisher":{"@type":"Organization","name":"Mythsensus","logo":{"@type":"ImageObject","url":"https://mythsensus.com/og-default.png"}},
+  "datePublished":"2026-06-01",
+  "image":"https://mythsensus.com/og-default.png",
+  "inLanguage":"th"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"คำนวณดวงใน browser ของฉันจริง ๆ หรือ?","acceptedAnswer":{"@type":"Answer","text":"จริง — engine 26 ศาสตร์ (~250 KB JavaScript) ถูก compile จาก TypeScript และ load เข้า browser ของคุณตอนเปิดเว็บครั้งแรก หลังจากนั้นการคำนวณรันใน CPU/RAM ของอุปกรณ์คุณเอง วันเกิดที่คุณใส่อยู่ใน memory ของ browser tab เท่านั้น ไม่ถูกส่งไปที่ Mythsensus server ใด ๆ ในระหว่างการคำนวณ"}},
+    {"@type":"Question","name":"วิธีพิสูจน์ว่าไม่ส่งข้อมูลออก?","acceptedAnswer":{"@type":"Answer","text":"เปิด DevTools (F12 หรือ Cmd+Option+I) ไปที่แท็บ Network กด Ctrl+R (Cmd+R) reload หน้า ใส่วันเกิดของคุณ กด Generate — ดูใน Network tab ว่ามี request ไปที่ mythsensus.com หรือไม่ คำตอบ: ไม่มี (ยกเว้น analytics ภายในที่ไม่ส่งวันเกิด) การคำนวณทั้งหมดเสร็จใน browser โดยไม่ต้องเชื่อมต่อ server"}},
+    {"@type":"Question","name":"แล้ว Cosmic Blueprint $19 ส่งข้อมูลออกไหม?","acceptedAnswer":{"@type":"Answer","text":"การชำระเงิน $19 ไปที่ Gumroad (merchant of record สำหรับ card processing + tax + receipt) — email และข้อมูล payment ส่งไปที่ Gumroad ไม่ใช่ Mythsensus. การคำนวณรายงาน 43 หน้ายังคงรันใน browser ของคุณเอง ไม่ใช่ server ของเรา — เราเก็บแค่ payment status (active/inactive) ผ่าน Gumroad webhook ไม่เก็บวันเกิดหรือเนื้อหารายงาน"}},
+    {"@type":"Question","name":"localStorage คืออะไร? ปลอดภัยไหม?","acceptedAnswer":{"@type":"Answer","text":"localStorage คือกล่องเก็บข้อมูลใน browser ของคุณเอง — แต่ละ origin (mythsensus.com) มีกล่องของตัวเอง ไม่ shared กับเว็บอื่น และไม่ส่งไปที่ server ใด ๆ ข้อมูลอยู่ใน hard drive ของอุปกรณ์คุณเท่านั้น เคลียร์ browser cache = ข้อมูลหายหมด เพราะ Mythsensus ไม่มี backup บน server (เป็นข้อจำกัดที่จงใจ — privacy-first)"}},
+    {"@type":"Question","name":"Vercel Analytics เก็บข้อมูลอะไร?","acceptedAnswer":{"@type":"Answer","text":"Vercel Web Analytics คือ aggregated traffic data แบบ privacy-friendly — เก็บ page view count, country (ไม่ใช่ IP), browser type, referrer. ไม่ใช้ cookies. ไม่ track individual user. ไม่เก็บ IP. ไม่ส่งไปที่ Google/Facebook. ไม่ใช้สำหรับ advertising หรือ remarketing วันเกิดของคุณ ไม่ส่งไปที่ Vercel Analytics — เป็น analytics ของ page navigation เท่านั้น"}}
+  ]
+}
+</script>
+</head><body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
+  <div class="nav-right">
+    <a href="/cosmic-score" class="nav-link">Cosmic Score</a>
+    <a href="/blog" class="nav-link">บทความ</a>
+    <a href="/pricing" class="nav-link">ราคา</a>
+    <a href="/" class="nav-link">หน้าแรก</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <p class="eyebrow">How It Works · ทำงานยังไง</p>
+  <h1 class="title">Engine คำนวณใน browser ของคุณ ไม่ส่งข้อมูลออก</h1>
+  <p class="sub">วันเกิดของคุณเป็นเรื่องส่วนตัว Mythsensus จึงออกแบบให้การคำนวณดวง 26 ศาสตร์ทำใน browser ของคุณเอง — ไม่ส่งวันเกิดไป server ใด ๆ. หน้านี้อธิบาย architecture + วิธีพิสูจน์ด้วยตัวเองใน 30 วินาที</p>
+
+  <section>
+    <h2>Architecture · ภาพรวม</h2>
+    <div class="arch-diagram">
+┌─────────────────────────────────────────┐
+│  Your Device (PC / Mobile)              │
+│                                         │
+│  ┌───────────────────────────────────┐  │
+│  │  Browser tab @ mythsensus.com     │  │
+│  │                                   │  │
+│  │  ┌─────────────────────────────┐  │  │
+│  │  │  Engine (250 KB JS)         │  │  │
+│  │  │  • 26-system calculation    │  │  │
+│  │  │  • Runs in your CPU         │  │  │
+│  │  │  • No network calls         │  │  │
+│  │  └─────────────────────────────┘  │  │
+│  │              ↑                    │  │
+│  │              │ vันเกิด (in memory)│  │
+│  │              │                    │  │
+│  │  ┌─────────────────────────────┐  │  │
+│  │  │  Your input (DOB)           │  │  │
+│  │  │  ↓                          │  │  │
+│  │  │  Saved to localStorage      │  │  │
+│  │  │  (stays on your device)     │  │  │
+│  │  └─────────────────────────────┘  │  │
+│  └───────────────────────────────────┘  │
+│                                         │
+└───────────────────┬─────────────────────┘
+                    │
+                    │ Only on first visit:
+                    │ download engine + static assets
+                    ↓
+        ┌─────────────────────┐
+        │  Vercel CDN         │
+        │  (serves static     │
+        │   files only)       │
+        └─────────────────────┘
+
+        ❌ NO request: "calculate({dob: ...})"
+        ❌ NO server-side computation
+        ❌ NO database of users with DOBs
+    </div>
+  </section>
+
+  <section>
+    <h2>Flow · เกิดอะไรขึ้นเมื่อคุณใช้</h2>
+
+    <div class="flow-step">
+      <div class="flow-step-label">Step 1 · First visit</div>
+      <p>Browser ของคุณ <em>download</em> static files จาก Vercel CDN: HTML (~1.3 MB), JS engine bundle (~250 KB), gods.json (~700 KB), fonts. นี่เป็น HTTP requests มาตรฐาน ปกติของเว็บทั่วไป — เหมือนเปิด Wikipedia</p>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-step-label">Step 2 · Service worker installs</div>
+      <p>Service worker (browser feature) <em>cache</em> ทุกอย่างไว้ในเครื่องคุณ ครั้งต่อไปคุณเปิดเว็บ — เปิดได้แม้ไม่มีอินเทอร์เน็ต (offline-capable)</p>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-step-label">Step 3 · You enter DOB</div>
+      <p>คุณใส่วันเกิด (เวลา + เมืองเป็น optional) ในฟอร์ม HTML ของหน้าแรก ข้อมูลอยู่ใน JavaScript variable ของ browser tab — ยังไม่ไปไหน</p>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-step-label">Step 4 · Engine runs in your CPU</div>
+      <p>คุณกด Generate — engine เรียก <code>calculate({year, month, day, hour, minute, lat, lon, timezone})</code> ฟังก์ชันนี้รันใน CPU ของอุปกรณ์คุณเอง คำนวณ 26 ศาสตร์ออกมาเป็น chart object <em>ไม่มี HTTP request ใด ๆ เกิดขึ้นในขั้นตอนนี้</em></p>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-step-label">Step 5 · Reading renders</div>
+      <p>Chart object ถูก render เป็น HTML ผ่าน <code>generateReport(chart)</code> ที่รันใน browser เช่นกัน คุณเห็น Cosmic Score + 26 ศาสตร์บนหน้าจอ <em>ทั้งหมดยังอยู่ใน browser tab ของคุณ</em></p>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-step-label">Step 6 · Saved to localStorage</div>
+      <p>วันเกิดและ chart ของคุณถูก save ไว้ใน <code>localStorage</code> ของ browser — กล่องเก็บข้อมูลใน hard drive ของอุปกรณ์ ไม่ shared กับเว็บอื่น ไม่ส่งไปที่ server ครั้งหน้าเปิดเว็บ — อ่าน localStorage แล้ว render ทันที</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="check-block">
+      <h3>พิสูจน์ด้วยตัวเองใน 30 วินาที</h3>
+      <ol style="padding-left:1.4rem;font-size:.98rem;line-height:1.9">
+        <li>เปิด <a href="/">mythsensus.com</a> ในเบราว์เซอร์</li>
+        <li>กด <code>F12</code> (Windows) หรือ <code>Cmd+Option+I</code> (Mac) — เปิด DevTools</li>
+        <li>ไปที่แท็บ <strong>Network</strong> ใน DevTools</li>
+        <li>กด <code>Ctrl+R</code> (หรือ <code>Cmd+R</code>) — reload หน้า. ดู requests ที่เข้ามา (static files download)</li>
+        <li>ใส่วันเกิดของคุณ → กด <strong>Generate</strong></li>
+        <li><strong>ดู Network tab อีกครั้ง</strong> — ไม่มี request ใหม่ไปที่ <code>/api/calculate</code> หรือใด ๆ ที่ mีวันเกิดคุณส่งไป</li>
+      </ol>
+      <p style="margin-top:.8rem;font-size:.95rem">นี่คือพิสูจน์ที่ดีที่สุด — browser ของคุณเห็นทุก HTTP request ที่ออกไป ถ้าเราส่งวันเกิดไป server คุณจะเห็นใน Network tab ทันที</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>สิ่งที่เราเก็บ · สิ่งที่เราไม่เก็บ</h2>
+
+    <h3 style="color:var(--green)">✓ Mythsensus เก็บ:</h3>
+    <ul class="proof-list">
+      <li><strong>Email + plan status</strong> ของผู้ที่ซื้อ subscription (เก็บใน Supabase woam สำหรับ check premium access) — ไม่เก็บวันเกิด</li>
+      <li><strong>Aggregated traffic data</strong> ผ่าน Vercel Analytics (cookieless · ไม่มี IP · ไม่มี individual tracking)</li>
+      <li><strong>Gumroad transaction record</strong> สำหรับ refund และ tax compliance — ผ่าน Gumroad merchant of record</li>
+    </ul>
+
+    <h3 style="color:var(--red)">✗ Mythsensus ไม่เก็บ:</h3>
+    <ul class="proof-list">
+      <li class="bad">วันเกิดของคุณ (อยู่ใน localStorage ของ browser คุณเท่านั้น)</li>
+      <li class="bad">เวลาเกิด, เมืองที่เกิด, ชื่อ</li>
+      <li class="bad">Cosmic Score, Cosmic Blueprint ของคุณ</li>
+      <li class="bad">เทพประจำวันที่คุณจับได้, คำถามใน 108 Organum</li>
+      <li class="bad">Profile, photo, social media handle</li>
+      <li class="bad">IP address (Vercel Analytics เป็น aggregated only)</li>
+    </ul>
+
+    <p style="margin-top:1rem">ผลที่ตามมา: <strong>ถ้าคุณเคลียร์ browser cache, ข้อมูลทั้งหมดหายไป.</strong> เราไม่มี backup. ถ้าอยาก backup chart, export เป็น JSON ไว้เอง (ฟีเจอร์มีในแท็บ Profile)</p>
+  </section>
+
+  <section>
+    <h2>Tech stack — สำหรับคนสนใจรายละเอียด</h2>
+    <pre><code># Engine (ส่วนคำนวณ)
+report-engine/lib/calc.ts        # TypeScript source
+report-engine/lib/report.ts      # Report generator
+build/calc.js                    # Compiled JS (run on Node + browser)
+build/ms26-bundle.js             # Bundled for browser inline
+
+# Browser shell
+index.html                       # Single-page app (~1.3 MB)
+data/gods.json                   # 1,069 deities (~700 KB)
+sw.js                            # Service worker (offline cache)
+
+# Backend (minimal, payment + auth only)
+api/auth/line/callback.js        # LINE OAuth bridge
+api/gumroad/webhook.js           # Payment webhook
+api/me/plan.js                   # Premium status check
+api/public-env.js                # Public config emit
+
+# Hosting
+Vercel (static + serverless)     # CDN + edge functions
+Supabase woam project            # Auth + payment records
+                                 # (NO chart data here)
+                                 # NO chart calculations here)</code></pre>
+    <p>ทุกโค้ดอยู่ที่ <a href="https://github.com/PattrickChenforclaudeuse/mythsensus">github.com/PattrickChenforclaudeuse/mythsensus</a> (private repo ตอนนี้ — public soon). ใครจะ audit ก็ได้ ใครจะ run engine ของตัวเองที่ <code>node tests/test-pk-chu-26sys.cjs</code> ก็ได้</p>
+  </section>
+
+  <section>
+    <h2>เทียบกับเว็บดูดวงทั่วไป</h2>
+    <p>เว็บดูดวงส่วนใหญ่<em>คำนวณบน server ของพวกเขา</em> — คุณส่งวันเกิด, ราคา, อาจจะ email มาให้ server บริการคืน reading. ผลที่ตามมา:</p>
+    <ul class="proof-list" style="margin-left:0">
+      <li class="bad">วันเกิดอยู่ใน database ของพวกเขา = leaked ถ้า server hacked</li>
+      <li class="bad">ใช้สำหรับ marketing list / re-targeted ads</li>
+      <li class="bad">ต้องลงทะเบียน + verify email ก่อนใช้</li>
+      <li class="bad">เปิดไม่ได้ถ้าไม่มี internet</li>
+      <li class="bad">เปลี่ยน design = ดวงเปลี่ยนตาม (เพราะคำนวณใหม่ทุกครั้ง)</li>
+    </ul>
+    <p>Mythsensus เลือกทาง opposite — คำนวณบน device คุณ, engine deterministic + version-locked. <strong>Same input → same Cosmic Score, anywhere, anytime.</strong></p>
+  </section>
+
+  <div class="cta-block">
+    <div class="cta-title">ลองคำนวณ Cosmic Score ของคุณ — ฟรี</div>
+    <div class="cta-sub">เปิด DevTools ก่อนก็ได้ — ดูเองว่าไม่ส่งข้อมูลออก</div>
+    <a href="/" class="cta-btn">เริ่มเลย →</a>
+  </div>
+
+  <section>
+    <h2>คำถามที่พบบ่อย</h2>
+
+    <div class="faq-block">
+      <h3>คำนวณดวงใน browser ของฉันจริง ๆ หรือ?</h3>
+      <p>จริง — engine 26 ศาสตร์ (~250 KB JavaScript) ถูก compile จาก TypeScript และ load เข้า browser ของคุณตอนเปิดเว็บครั้งแรก หลังจากนั้นการคำนวณรันใน CPU/RAM ของอุปกรณ์คุณเอง วันเกิดที่คุณใส่อยู่ใน memory ของ browser tab เท่านั้น ไม่ถูกส่งไปที่ Mythsensus server ใด ๆ ในระหว่างการคำนวณ</p>
+    </div>
+
+    <div class="faq-block">
+      <h3>วิธีพิสูจน์ว่าไม่ส่งข้อมูลออก?</h3>
+      <p>เปิด DevTools (F12 หรือ Cmd+Option+I) ไปที่แท็บ Network กด Ctrl+R reload หน้า ใส่วันเกิดของคุณ กด Generate — ดูใน Network tab ว่ามี request ไปที่ <code>/api/calculate</code> หรือใด ๆ ที่มีวันเกิดส่งไปหรือไม่ คำตอบ: ไม่มี (ยกเว้น analytics ภายในที่ไม่ส่งวันเกิด)</p>
+    </div>
+
+    <div class="faq-block">
+      <h3>แล้ว Cosmic Blueprint $19 ส่งข้อมูลออกไหม?</h3>
+      <p>การชำระเงิน $19 ไปที่ Gumroad (merchant of record สำหรับ card processing + tax + receipt) — email และข้อมูล payment ส่งไปที่ Gumroad ไม่ใช่ Mythsensus. การคำนวณรายงาน 43 หน้ายังคงรันใน browser ของคุณเอง ไม่ใช่ server ของเรา — เราเก็บแค่ payment status (active/inactive) ผ่าน Gumroad webhook ไม่เก็บวันเกิดหรือเนื้อหารายงาน</p>
+    </div>
+
+    <div class="faq-block">
+      <h3>localStorage คืออะไร? ปลอดภัยไหม?</h3>
+      <p>localStorage คือกล่องเก็บข้อมูลใน browser ของคุณเอง — แต่ละ origin (mythsensus.com) มีกล่องของตัวเอง ไม่ shared กับเว็บอื่น และไม่ส่งไปที่ server ใด ๆ ข้อมูลอยู่ใน hard drive ของอุปกรณ์คุณเท่านั้น เคลียร์ browser cache = ข้อมูลหายหมด เพราะ Mythsensus ไม่มี backup บน server (เป็นข้อจำกัดที่จงใจ — privacy-first)</p>
+    </div>
+
+    <div class="faq-block">
+      <h3>Vercel Analytics เก็บข้อมูลอะไร?</h3>
+      <p>Vercel Web Analytics คือ aggregated traffic data แบบ privacy-friendly — เก็บ page view count, country (ไม่ใช่ IP), browser type, referrer. ไม่ใช้ cookies. ไม่ track individual user. ไม่เก็บ IP. ไม่ส่งไปที่ Google/Facebook. ไม่ใช้สำหรับ advertising หรือ remarketing วันเกิดของคุณ ไม่ส่งไปที่ Vercel Analytics — เป็น analytics ของ page navigation เท่านั้น</p>
+    </div>
+
+  </section>
+
+  <h2>อ่านต่อ</h2>
+  <p>· <a href="/cosmic-score">Cosmic Score คืออะไร · methodology</a><br>
+  · <a href="/sample-report">Sample Report 43 หน้า — ดูฟรีก่อนซื้อ</a><br>
+  · <a href="/privacy">Privacy Policy</a><br>
+  · <a href="/blog/ดูดวงฟรี-ไม่ต้องลงทะเบียน">ดูดวงฟรี ไม่ต้องลงทะเบียน — ทำได้จริงไหม</a></p>
+
+</div>
+
+<footer>
+  <a href="/">หน้าแรก</a> · <a href="/cosmic-score">Cosmic Score</a> · <a href="/blog">บทความ</a> · <a href="/pricing">ราคา</a> · <a href="/privacy">Privacy</a> · <a href="/disclaimer">ข้อจำกัด</a>
+  <div style="margin-top:1rem;opacity:.6">© 2026 MYTHSENSUS · เพื่อความบันเทิง ไม่ใช่คำแนะนำทางวิชาชีพ</div>
+</footer>
+
+<script defer src="/_vercel/insights/script.js"></script>
+</body></html>
