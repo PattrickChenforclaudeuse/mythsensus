@@ -1,22 +1,31 @@
--- Mythsensus auth + payment schema
+-- ============================================================================
+-- DEPRECATED — DO NOT APPLY. Kept only for historical reference.
+-- ============================================================================
 --
--- Target project: woam (woamqrhifuxsscnihqco) — the actual production project
--- per Vercel env vars (NEXT_PUBLIC_SUPABASE_URL).
+-- Status (verified 2026-06-02 against woam): none of these tables / triggers /
+-- functions exist on woam, and NOTHING in the current codebase reads or writes
+-- them. Architecture moved on:
+--   • Subscription state  → auth.users.app_metadata.plan
+--     (set by api/gumroad/webhook.js, read by api/me/plan.js)
+--   • Per-item purchases  → public.myth_purchases  (see migrations/002_purchases.sql)
+--     (set by api/gumroad/webhook.js, read by api/me/purchases.js)
+--   • User profile data   → not stored server-side; the engine + client work
+--     entirely from the chart input, no profile row is needed
 --
--- DO NOT apply to jah — that's Yoohui's office project. (An earlier mistaken
--- application to jah on 2026-05-26 was rolled back same day.)
+-- If you apply this anyway you'll get:
+--   - 3 empty tables nothing writes to
+--   - 2 dead triggers (incl. one on auth.users that adds overhead on every signup)
+--   - 2 dead functions
+--   - confusion for the next reader who has to figure out which is canonical
 --
--- How to apply: paste into Supabase SQL Editor at
---   https://supabase.com/dashboard/project/woamqrhifuxsscnihqco/sql/new
--- and click Run. Workspace SB_MGMT_TOKEN does not have access to woam.
---
--- ROLLBACK (if needed):
+-- ROLLBACK (only if you accidentally applied this somewhere):
 --   drop trigger if exists myth_on_auth_user_created on auth.users;
 --   drop function if exists public.myth_handle_new_user;
 --   drop function if exists public.myth_touch_updated_at;
 --   drop table if exists public.myth_orders;
 --   drop table if exists public.myth_subscriptions;
 --   drop table if exists public.myth_profiles;
+-- ============================================================================
 
 create table if not exists public.myth_profiles (
   id uuid primary key references auth.users(id) on delete cascade,

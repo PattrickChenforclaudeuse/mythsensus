@@ -1231,24 +1231,50 @@ function _webShareText() {
 }
 /**
  * Handler for the "✦ Share this blessing" CTA inside the godCard. Opens the
- * OS native share sheet on mobile (Web Share API), falls back to opening the
- * site's share menu (LINE/X/FB/copy) on desktop. Logs engagement on click.
+ * site's in-app share menu (LINE/X/FB/Copy + Share… for OS native sheet) so
+ * the LINE option is always visible — the OS native sheet on iOS often hides
+ * LINE behind a "More" drawer, which read as "no LINE option" to users.
+ * Director feedback 2026-06-02: keep LINE explicit, always.
  *
- * Depends on: navigator.share availability + _logEngagement existence; calls
- * _webShareNative/_webShareToggle which read _webShareUrl/_webShareText.
+ * Depends on: _logEngagement existence; calls _webShareToggle which reads
+ * _webShareUrl/_webShareText and provides a "📱 Share…" entry that fires
+ * _webShareNative for users who still want the OS sheet.
  */
 function _shareDraw() {
   try { if (typeof _logEngagement === 'function') _logEngagement('share_draw_click'); } catch(_) {}
-  try {
-    if (navigator.share) { _webShareNative(); return; }
-  } catch(_) {}
-  _webShareToggle();
+  // Pass the godShareBtn as the anchor so the menu opens just under the
+  // blessing text instead of jumping to the top-right pill (which made users
+  // think the click did nothing).
+  _webShareToggle(document.getElementById('godShareBtn'));
 }
-function _webShareToggle(){
+function _webShareToggle(anchor){
   const m = document.getElementById('shareMenu'); if (!m) return;
   const wasOpen = m.classList.contains('show');
   m.classList.toggle('show');
   if (!wasOpen && typeof _logEngagement === 'function') _logEngagement('share_open');
+  // Anchor positioning: when triggered from a specific button (e.g. the
+  // godShareBtn under the blessing text), drop the menu just below that
+  // button so the LINE/X/FB options are visible right where the user just
+  // clicked. With no anchor (top-right ✦ Share pill), fall back to the
+  // pill-relative position from CSS.
+  if (m.classList.contains('show')) {
+    try {
+      if (anchor && anchor.getBoundingClientRect) {
+        const r = anchor.getBoundingClientRect();
+        const menuW = 200; // matches .share-menu min-width-ish
+        let left = r.left + (r.width / 2) - (menuW / 2);
+        left = Math.max(8, Math.min(left, window.innerWidth - menuW - 8));
+        m.style.top = (r.bottom + 8) + 'px';
+        m.style.left = left + 'px';
+        m.style.right = 'auto';
+      } else {
+        // Reset to CSS-driven pill anchor
+        m.style.top = '';
+        m.style.left = '';
+        m.style.right = '';
+      }
+    } catch(_){}
+  }
   // Rebuild target links each toggle in case lang changed.
   const url = encodeURIComponent(_webShareUrl());
   const txt = encodeURIComponent(_webShareText());
@@ -12685,6 +12711,12 @@ let _entryLang = 'th';      // captured choice; commits to global LANG on accept
 function showEntryOverlay(){
   const ov = document.getElementById('entryOverlay');
   if (!ov) { _bootAfterEntry(); return; }
+  // Saved DOB drives both the fast-path return AND the "Welcome back" pill +
+  // hero/form step branching further down. Hoisted to function scope so both
+  // sections share it (was: declared inside the try block → ReferenceError in
+  // the welcome-back section after the 2026-06-01 refactor that stopped
+  // pre-filling the form from saved data).
+  const savedDob = (function(){ try { return localStorage.getItem('mth_dob') || ''; } catch(_) { return ''; } })();
   // ── Returning-user fast path ─────────────────────────────────
   // If saved DOB + lang already exist, skip the overlay entirely and
   // boot straight into the app. Re-prompt only on key events:
@@ -12693,7 +12725,6 @@ function showEntryOverlay(){
   //   3. Last visit older than 180 days (freshness re-confirm)
   // The user can always edit DOB later via Profile → Edit Birth Data.
   try {
-    const savedDob   = localStorage.getItem('mth_dob');
     const savedLang  = localStorage.getItem('mth_lang');
     const lastVisit  = parseInt(localStorage.getItem('mth_last_visit') || '0', 10);
     const daysSince  = lastVisit ? Math.floor((Date.now() - lastVisit) / 86400000) : Infinity;
@@ -12779,12 +12810,12 @@ function showEntryOverlay(){
   const wb     = document.getElementById('entryWelcomeBack');
   const wbText = document.getElementById('entryWelcomeBackText');
   const useSaved = document.getElementById('entryUseSaved');
-  if (dob && wb && wbText) {
+  if (savedDob && wb && wbText) {
     const isTh = _entryLang === 'th';
     wb.style.display = 'block';
     wbText.innerHTML = isTh
-      ? `ยินดีต้อนรับกลับ${name?` <strong>${_esc(name)}</strong>`:''} · เกิด ${_esc(_formatDobDisplay(dob,true))}`
-      : `Welcome back${name?` <strong>${_esc(name)}</strong>`:''} · DOB ${_esc(_formatDobDisplay(dob,false))}`;
+      ? `ยินดีต้อนรับกลับ${name?` <strong>${_esc(name)}</strong>`:''} · เกิด ${_esc(_formatDobDisplay(savedDob,true))}`
+      : `Welcome back${name?` <strong>${_esc(name)}</strong>`:''} · DOB ${_esc(_formatDobDisplay(savedDob,false))}`;
     if (useSaved) useSaved.textContent = isTh ? '✦ ใช้ข้อมูลเดิม' : '✦ Use saved data';
   } else if (wb) {
     wb.style.display = 'none';
@@ -12794,12 +12825,12 @@ function showEntryOverlay(){
   try {
     const hero = document.getElementById('entryHeroStep');
     const form = document.getElementById('entryFormStep');
-    if (dob) { if (hero) hero.style.display = 'none'; if (form) form.style.display = ''; }
-    else     { if (hero) hero.style.display = '';     if (form) form.style.display = 'none'; }
+    if (savedDob) { if (hero) hero.style.display = 'none'; if (form) form.style.display = ''; }
+    else          { if (hero) hero.style.display = '';     if (form) form.style.display = 'none'; }
   } catch(_){}
   ov.style.display = 'flex';
   // Only focus a field when the form is actually visible (returning user).
-  if (dob) setTimeout(()=>{ const f = document.getElementById('entryName'); if(f) f.focus(); }, 100);
+  if (savedDob) setTimeout(()=>{ const f = document.getElementById('entryName'); if(f) f.focus(); }, 100);
 }
 
 // Reveal the birth-data form from the hero CTA (new-visitor first impression).
