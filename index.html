@@ -2229,6 +2229,14 @@ try{
   <div id="freqPanel" style="max-width:720px;margin:0 auto;"></div>
 </div>
 
+<!-- ═══ SUBSCRIPTION ─ Auspicious Timing — ฤกษ์ดี ═══ -->
+<div class="panel" id="panel-lucky">
+  <div class="section-title" data-t="lucky_title">🌟 ฤกษ์ดี — Auspicious Timing</div>
+  <p class="panel-intro" data-en="Today's auspicious windows, computed from Chinese 12-Day Officers (十二建除) and Thai Brahmin weekday traditions — personalised to your birth chart." data-th="ฤกษ์ดีวันนี้ คำนวณจากฤกษ์จีน ๑๒ เจ้าฤกษ์ (十二建除) และระบบวันไทยพราหมณ์ — ปรับตามวันเกิดของคุณโดยเฉพาะ">Today's auspicious windows, computed from Chinese 12-Day Officers (十二建除) and Thai Brahmin weekday traditions — personalised to your birth chart.</p>
+  <div class="sky-dom-hint" data-t="lucky_hint">ฤกษ์จีน + ไทย · คำนวณร่วมกับวดปเกิด · refresh ทุกวัน</div>
+  <div id="luckyPanel" style="max-width:720px;margin:0 auto;"></div>
+</div>
+
 <!-- ═══ ADD-ON ─ Deep Readings (26 Systems) ═══ -->
 <div class="panel" id="panel-deep">
   <div class="section-title" data-t="deep_title">DEEP READINGS — 26 ศาสตร์ แบบเจาะลึก</div>
@@ -2402,7 +2410,7 @@ en:{
   sub_collection:"📚 Collection",sub_library:"📦 My Unlocks",sub_streak:"🔥 Streak",sub_history7:"📜 7-day",
   sub_generate:"✨ Generate",sub_reports:"📁 My Reports",
   sub_sky:"🌌 Daily Sky",sub_resonance:"🧭 Resonance",sub_organum_plus:"🔮 Organum ∞",
-  sub_pulse:"⚡ Daily",sub_brief:"📰 Monthly",sub_freq:"📡 Frequency",sub_history_all:"📜 History",
+  sub_pulse:"⚡ Daily",sub_brief:"📰 Monthly",sub_freq:"📡 Frequency",sub_lucky:"🌟 Auspicious",sub_history_all:"📜 History",
   pulse_title:"DAILY COSMIC PULSE",
   pulse_hint:"Today's pulse · 7-10 systems consensus · refreshes every morning",
   pulse_pin_btn:"⚙ Pin favorites",
@@ -2468,6 +2476,7 @@ en:{
   // ── Frequency
   freq_title:"FREQUENCY ALERTS",freq_hint:"Full pattern history · subscriber only",
   freq_empty_title:"No pattern data yet",freq_empty_desc:"Use the app daily — patterns surface in 7-14 days.",
+  lucky_title:"🌟 AUSPICIOUS TIMING — ฤกษ์ดีวันนี้",lucky_hint:"Chinese 12-Day Officers + Thai Brahmin weekday · personalised to your birth chart · refreshes daily",
   freq_top_title:"Most frequent signals",freq_top_sub:"Gods, planets and themes that keep returning",
   // ── Deep 26 systems: sub-nav labels
   deep_title:"DEEP READINGS — 26 ancient systems",
@@ -2609,7 +2618,7 @@ th:{
   sub_collection:"📚 สะสมเทพ",sub_library:"📦 ที่ปลดล็อก",sub_streak:"🔥 Streak",sub_history7:"📜 7 วัน",
   sub_generate:"✨ สร้างรายงาน",sub_reports:"📁 รายงานของฉัน",
   sub_sky:"🌌 ฟ้าวันนี้",sub_resonance:"🧭 ดวงของเรากับสภาพแวดล้อม",sub_organum_plus:"🔮 เสียงจาก 108 เทพ",
-  sub_pulse:"⚡ ดวงวันนี้",sub_brief:"📰 สรุปเดือน",sub_freq:"📡 ความถี่",sub_history_all:"📜 ประวัติทั้งหมด",
+  sub_pulse:"⚡ ดวงวันนี้",sub_brief:"📰 สรุปเดือน",sub_freq:"📡 ความถี่",sub_lucky:"🌟 ฤกษ์ดี",sub_history_all:"📜 ประวัติทั้งหมด",
   pulse_title:"ดวงคอสมิครายวัน",
   pulse_hint:"ดวงวันนี้ · 7-10 ศาสตร์รวมเป็นคำตอบเดียว · refresh ทุกเช้า",
   pulse_pin_btn:"⚙ Pin ศาสตร์โปรด",
@@ -2679,6 +2688,7 @@ th:{
   // ── Frequency
   freq_title:"FREQUENCY ALERTS — ประวัติเต็ม",freq_hint:"ประวัติ pattern ทั้งหมด · เฉพาะ subscriber",
   freq_empty_title:"ยังไม่มีข้อมูล pattern",freq_empty_desc:"ใช้แอปต่อเนื่อง — pattern จะปรากฏใน 7-14 วัน",
+  lucky_title:"🌟 ฤกษ์ดี — คำนวณวันนี้",lucky_hint:"ฤกษ์จีน ๑๒ เจ้าฤกษ์ + ฤกษ์ไทยพราหมณ์ · ปรับตามวันเกิดของคุณ · refresh ทุกวัน",
   freq_top_title:"สัญญาณที่ปรากฏบ่อยสุด",freq_top_sub:"เทพ · ดาว · ธีมที่กลับมาซ้ำ",
   // ── Deep 26 systems
   deep_title:"DEEP READINGS — 26 ศาสตร์แบบเจาะลึก",
@@ -2901,6 +2911,7 @@ const GROUPS = {
       ['organum',   'organum',   'sub_organum_plus', false],
       ['brief',     'brief',     'sub_brief',        false],
       ['freq',      'freq',      'sub_freq',         false],
+      ['lucky',     'lucky',     'sub_lucky',        false],
       ['history',   'history',   'sub_history_all',  false],
     ],
   },
@@ -2972,6 +2983,7 @@ const RENDERERS = {
   multi:            () => renderMultiProfiles(),
   login:            () => renderLoginMgmt(),
   settings:         () => renderSettings(),
+  lucky:            () => renderLucky(),
 };
 
 function setGroup(g) {
@@ -3152,15 +3164,44 @@ async function loadGods(){
     if (r && r.ok) {
       const raw = await r.json();
       if (Array.isArray(raw) && raw.length > 0) {
-        GODS = raw; GODS_LOADED = true; return;
+        GODS = raw; GODS_LOADED = true; _updateGodCountDisplay(); return;
       }
     }
   } catch (e) { /* fall through to inline */ }
   if (typeof GODS_FULL !== "undefined" && Array.isArray(GODS_FULL)) {
-    GODS = GODS_FULL; GODS_LOADED = true; return;
+    GODS = GODS_FULL; GODS_LOADED = true; _updateGodCountDisplay(); return;
   }
   GODS = []; GODS_LOADED = true;
 }
+
+// Update any hardcoded god-count displays after GODS loads.
+// Searches for text nodes containing the static "1,069" placeholder and
+// replaces with the actual count from GODS.length so adding/removing gods
+// from gods.json auto-updates the UI without a code change.
+function _updateGodCountDisplay() {
+  const n = GODS.length;
+  if (!n) return;
+  const fmt = n.toLocaleString();
+  // Update known element IDs and data-th attributes that reference the count
+  const hints = [
+    document.querySelector('#panel-blessing .panel-intro'),
+    document.querySelector('#panel-collection .sky-dom-hint'),
+  ];
+  for (const el of hints) {
+    if (!el) continue;
+    ['data-th','data-en'].forEach(attr => {
+      const v = el.getAttribute(attr);
+      if (v) el.setAttribute(attr, v.replace(/1[,.]?069/g, fmt).replace(/1069/g, fmt));
+    });
+    if (el.textContent) el.textContent = el.textContent.replace(/1[,.]?069/g, fmt).replace(/1069/g, fmt);
+  }
+  // Also update the subscription library card if present
+  const libCard = document.querySelector('[data-t="coll_hint"]');
+  if (libCard && libCard.textContent) {
+    libCard.textContent = libCard.textContent.replace(/1[,.]?069/g, fmt).replace(/1069/g, fmt);
+  }
+}
+
 const TIERS=[
   {name:'Common',nameEN:'Common',nameTH:'ทั่วไป',color:'#9a8a72',weight:40},
   {name:'Uncommon',nameEN:'Uncommon',nameTH:'ไม่ค่อยพบ',color:'#6090c0',weight:28},
@@ -8704,6 +8745,373 @@ const _ELEMENT_TRAITS_EN = {
   'Metal': { core:'clarity · order · decisiveness',       drains:'excess · excess fire · disarray' },
   'Water': { core:'wisdom · intuition · adaptability',    drains:'heaviness · monotony · blocked flow' },
 };
+
+// ── Auspicious Timing (ฤกษ์ดี) ────────────────────────────────────────────
+// Pure renderer-side computation — no engine rebuild needed.
+// Sources:
+//   1. Chinese 12 Day Officers (十二建除) — based on BaZi day/month branch
+//   2. Thai Brahmin weekday system — based on weekday + birth weekday compatibility
+//   3. 5-Element compatibility — today's BaZi element vs birth day master element
+//
+// BaZi day calibration: 2020-01-01 = 庚子 (stem 6, branch 0)
+//   Day Stem   = (JD + 6) % 10   (JD = Julian Day Number of date at noon)
+//   Day Branch = (JD + 10) % 12
+// ─────────────────────────────────────────────────────────────────────────
+
+function renderLucky() {
+  const el = document.getElementById('luckyPanel');
+  const chart = _getMS26ChartFromProfile();
+  if (!chart) { _emptyDeepHint('luckyPanel'); return; }
+  const isTh = LANG === 'th';
+  const now = new Date();
+  const todayY = now.getFullYear(), todayM = now.getMonth() + 1, todayD = now.getDate();
+
+  // ── Julian Day from Gregorian date ──
+  function _jd(y, m, d) {
+    const a = Math.floor((14 - m) / 12);
+    const Y = y + 4800 - a, M2 = m + 12 * a - 3;
+    return d + Math.floor((153 * M2 + 2) / 5) + 365 * Y + Math.floor(Y / 4)
+           - Math.floor(Y / 100) + Math.floor(Y / 400) - 32045;
+  }
+
+  const jd = _jd(todayY, todayM, todayD);
+  const stemIdx   = (jd + 6) % 10;
+  const branchIdx = (jd + 10) % 12;
+
+  const HS_ZH = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+  const EB_ZH = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const ELEM  = ['ไม้','ไม้','ไฟ','ไฟ','ดิน','ดิน','โลหะ','โลหะ','น้ำ','น้ำ'];
+  const EB_ZODIAC_TH = ['ชวด(หนู)','ฉลู(วัว)','ขาล(เสือ)','เถาะ(กระต่าย)',
+    'มะโรง(มังกร)','มะเส็ง(งู)','มะเมีย(ม้า)','มะแม(แพะ)',
+    'วอก(ลิง)','ระกา(ไก่)','จอ(หมา)','กุน(หมู)'];
+  const todayElement = ELEM[stemIdx];
+  const todayStem   = HS_ZH[stemIdx];
+  const todayBranch = EB_ZH[branchIdx];
+
+  // ── BaZi month branch (approximate, for 12-Officer calculation) ──
+  // Solar terms that START each BaZi month: [calMonth 0-indexed, approx day, newBranch]
+  function _monthBranch(y, m, d) {
+    const terms = [[0,6,1],[1,4,2],[2,6,3],[3,5,4],[4,6,5],[5,6,6],
+                   [6,7,7],[7,7,8],[8,8,9],[9,8,10],[10,7,11],[11,7,0]];
+    let br = 1;
+    for (const [tm, td, tb] of terms)
+      if (m - 1 > tm || (m - 1 === tm && d >= td)) br = tb;
+    return br;
+  }
+  const monthBr = _monthBranch(todayY, todayM, todayD);
+  const officerIdx = (branchIdx - monthBr + 12) % 12;
+
+  // ── 12 Day Officers (十二建除) ──
+  const OFFICERS = [
+    {zh:'建',th:'เจี้ยน — ก่อตั้ง', q:0, col:'#c08040',
+     desc:isTh?'วันวางรากฐาน — วางแผนได้ แต่ยังไม่เหมาะลงมือในสิ่งสำคัญ':
+               'Foundation day — good for planning, avoid major actions',
+     do:isTh?['วางแผน','ประชุม','เรียนรู้']:['Planning','Meetings','Learning'],
+     avoid:isTh?['เซ็นสัญญา','แต่งงาน','ย้ายบ้าน']:['Contracts','Marriage','Moving']},
+    {zh:'除',th:'ฉู — กำจัด', q:2, col:'#27ae60',
+     desc:isTh?'วันชำระล้าง — เหมาะแก้ปัญหาเก่า ยุติสิ่งค้างคา เริ่มต้นใหม่สะอาด':
+               'Removal day — resolve old issues, clear obstacles, fresh starts',
+     do:isTh?['ทำความสะอาดใหญ่','รักษาโรค','ยุติข้อพิพาท']:['Deep cleaning','Medical treatment','Ending disputes'],
+     avoid:isTh?['งานมงคลใหม่','เปิดกิจการ']:['New auspicious events','Grand openings']},
+    {zh:'滿',th:'หมั่น — สมบูรณ์', q:1, col:'#c8a840',
+     desc:isTh?'วันเต็มเปี่ยม — ดีสำหรับรับ สะสม เก็บเกี่ยว ระวังความฟุ้งเฟ้อ':
+               'Fullness day — good for receiving and accumulating',
+     do:isTh?['รับทรัพย์','เก็บออม','สะสมสินค้า']:['Receiving wealth','Saving','Stocking'],
+     avoid:isTh?['ก่อสร้าง','เดินทางไกล']:['Construction','Long journeys']},
+    {zh:'平',th:'ผิง — สมดุล', q:1, col:'#c8a840',
+     desc:isTh?'วันสมดุล — ดีสำหรับงานประจำ ไม่โดดเด่นแต่ไม่เสี่ยง':
+               'Balance day — steady progress, routine work, safe choices',
+     do:isTh?['งานประจำวัน','เจรจา','ซ่อมบำรุง']:['Daily tasks','Negotiations','Maintenance'],
+     avoid:isTh?['ตัดสินใจสำคัญมาก']:['Major decisions']},
+    {zh:'定',th:'ติ้ง — มั่นคง', q:2, col:'#27ae60',
+     desc:isTh?'วันมั่นคง — หนึ่งในวันที่ดีที่สุด เหมาะกิจการสำคัญทุกประเภท':
+               'Stability day — one of the best days, excellent for all major matters',
+     do:isTh?['แต่งงาน','ลงทุน','เซ็นสัญญา','เปิดร้าน','ก่อสร้าง','เดินทาง']:
+              ['Marriage','Investment','Contracts','Opening business','Construction','Travel'],
+     avoid:[]},
+    {zh:'執',th:'จือ — ยึดถือ', q:1, col:'#c8a840',
+     desc:isTh?'วันวินัย — ดีสำหรับงานที่ต้องความอดทน ระวังดื้อรั้นเกินไป':
+               'Determination day — good for disciplined work, watch for rigidity',
+     do:isTh?['งานซ้ำๆ','ฝึกซ้อม','เก็บทรัพย์']:['Repetitive work','Practice','Saving assets'],
+     avoid:isTh?['งานกลุ่ม','ขอความช่วยเหลือ']:['Group work','Asking for help']},
+    {zh:'破',th:'ผ่อ — ทำลาย', q:0, col:'#c06060',
+     desc:isTh?'วันรื้อถอน — หลีกเลี่ยงกิจการสำคัญ เหมาะรื้อถอน ยุติสิ่งเก่า':
+               'Destruction day — avoid major events, suitable for demolition and ending old things',
+     do:isTh?['รื้อถอนสิ่งเก่า','ยุติสัญญา','ทำความสะอาดใหญ่']:['Demolition','Ending contracts','Major cleaning'],
+     avoid:isTh?['สัญญาใหม่','งานมงคล','ผ่าตัด']:['New contracts','Auspicious events','Surgery']},
+    {zh:'危',th:'เว่ย — อันตราย', q:0, col:'#c06060',
+     desc:isTh?'วันที่ต้องระวัง — งดกิจกรรมเสี่ยง ระวังอุบัติเหตุ อยู่บ้านปลอดภัยที่สุด':
+               'Danger day — avoid risky activities, be cautious of accidents',
+     do:isTh?['อยู่บ้าน','ซ่อมแซมรั้ว','วางแผนความปลอดภัย']:['Stay home','Fix fences','Safety planning'],
+     avoid:isTh?['เดินทางทะเล/ที่สูง','เปิดกิจการ','ผ่าตัด']:['Sea/high-altitude travel','New ventures','Surgery']},
+    {zh:'成',th:'เฉิง — สำเร็จ', q:2, col:'#27ae60',
+     desc:isTh?'วันสำเร็จ — วันดีสำหรับทุกกิจการที่ต้องการผลลัพธ์ดี':
+               'Success day — excellent for ventures where you want positive outcomes',
+     do:isTh?['เปิดตัวโครงการ','งานแต่งงาน','ลงทุน','ขอพร']:['Launching projects','Wedding','Investment','Prayers'],
+     avoid:isTh?['ฟ้องร้อง','งานพิพาท']:['Lawsuits','Disputes']},
+    {zh:'收',th:'โส่ว — เก็บเกี่ยว', q:1, col:'#c8a840',
+     desc:isTh?'วันเก็บเกี่ยว — เหมาะรับทรัพย์ ยุติโครงการ สรุปงาน':
+               'Harvest day — good for receiving, closing projects, and settling accounts',
+     do:isTh?['รับชำระหนี้','เก็บเงิน','ยุติโครงการ']:['Collecting debts','Saving','Closing projects'],
+     avoid:isTh?['เริ่มต้นใหม่','เดินทางไกล']:['New starts','Long journeys']},
+    {zh:'開',th:'ไค่ — เปิด', q:3, col:'#50d490',
+     desc:isTh?'วันมหามงคล — ดีที่สุดสำหรับทุกกิจการสำคัญในชีวิต':
+               'Opening day — the most auspicious day, ideal for all major life events',
+     do:isTh?['งานมงคลทุกชนิด','เปิดกิจการ','เดินทาง','ขอพร','เซ็นสัญญา','ก่อสร้าง']:
+              ['All auspicious events','Grand openings','Travel','Prayers','Contracts','Construction'],
+     avoid:isTh?['งานศพ','รื้อถอน']:['Funerals','Demolition']},
+    {zh:'閉',th:'บี้ — ปิด', q:0, col:'#9a9088',
+     desc:isTh?'วันพักผ่อน — งดกิจการสำคัญ เหมาะทำสมาธิ จัดการภายใน':
+               'Closing day — avoid major events, good for meditation and internal work',
+     do:isTh?['พักผ่อน','ทำสมาธิ','จัดเก็บ','งานภายใน']:['Rest','Meditation','Organizing','Internal work'],
+     avoid:isTh?['เดินทาง','งานมงคล','เปิดตัวสิ่งใหม่']:['Travel','Auspicious events','New launches']},
+  ];
+
+  const officer = OFFICERS[officerIdx];
+  // Yellow Road (黃道 4 auspicious): 除(1)、定(4)、成(8)、開(10)
+  const isYellow = [false,true,false,false,true,false,false,false,true,false,true,false][officerIdx];
+
+  // ── Thai weekday system ──
+  const THAI_DAYS = [
+    {name:isTh?'อาทิตย์':'Sunday',   col:'#e67e22', nature:isTh?'โชคลาภ · การค้า · การเดินทาง':'Fortune, commerce, travel',
+     do:isTh?['ค้าขาย','เดินทาง','ขอพร']:['Commerce','Travel','Prayers'],
+     avoid:isTh?['ทะเลาะ','ฟ้องร้อง']:['Arguments','Lawsuits']},
+    {name:isTh?'จันทร์':'Monday',     col:'#a8c8d8', nature:isTh?'มิตรสัมพันธ์ · ขอพร · ครอบครัว':'Friendships, blessings, family',
+     do:isTh?['พบปะ','ขอพร','งานครอบครัว']:['Meetings','Prayers','Family matters'],
+     avoid:isTh?['เรื่องศัตรู','ฟ้องร้อง']:['Dealing with enemies','Lawsuits']},
+    {name:isTh?'อังคาร':'Tuesday',   col:'#e74c3c', nature:isTh?'ฤกษ์ศัตรู — ระวังข้อขัดแย้ง':'Adversarial day — caution with conflicts',
+     do:isTh?['ออกกำลังกาย','งานที่ต้องความกล้าหาญ']:['Exercise','Courageous tasks'],
+     avoid:isTh?['งานมงคล','เซ็นสัญญา','เดินทางไกล']:['Auspicious ceremonies','Contracts','Long journeys']},
+    {name:isTh?'พุธ':'Wednesday',    col:'#27ae60', nature:isTh?'การศึกษา · วิทยาการ · ปัญญา':'Learning, knowledge, wisdom',
+     do:isTh?['เรียน','สอน','วางแผน','สร้างสรรค์']:['Study','Teach','Plan','Create'],
+     avoid:isTh?['ลงทุนก้อนโต']:['Large investments']},
+    {name:isTh?'พฤหัสบดี':'Thursday', col:'#f39c12', nature:isTh?'ฤกษ์โชคสูงสุด · ศาสนา · ผู้ใหญ่':'Most auspicious — religion, elders, major matters',
+     do:isTh?['กิจการสำคัญ','เซ็นสัญญา','ไหว้พระ','ขอพรผู้ใหญ่','ลงทุน']:
+              ['Important matters','Contracts','Worship','Elder blessings','Investment'],
+     avoid:isTh?['งานศพ','รื้อถอน']:['Funerals','Demolition']},
+    {name:isTh?'ศุกร์':'Friday',     col:'#3498db', nature:isTh?'ความรัก · ความงาม · ศิลปะ · สังคม':'Love, beauty, arts, social life',
+     do:isTh?['ความรัก','ศิลปะ','งานสังคม','ความงาม']:['Love','Arts','Social events','Beauty'],
+     avoid:isTh?['งานหนัก','ทะเลาะ']:['Heavy work','Arguments']},
+    {name:isTh?'เสาร์':'Saturday',   col:'#7f8c8d', nature:isTh?'ฤกษ์จม — ระวังการเริ่มต้นสิ่งใหม่':'Saturating day — caution with new starts',
+     do:isTh?['ทบทวนงาน','จัดเก็บ','วางแผนระยะยาว','ทำสมาธิ']:['Review work','Organize','Long-term planning','Meditation'],
+     avoid:isTh?['เปิดตัวสิ่งใหม่','เซ็นสัญญา','เดินทางไกล']:['New launches','Contracts','Long journeys']},
+  ];
+
+  const todayWD = now.getDay(); // 0=Sun
+  const todayInfo = THAI_DAYS[todayWD];
+
+  // Birth date weekday
+  let birthWD = -1, birthInfo = null;
+  if (chart.input && chart.input.year) {
+    birthWD = new Date(chart.input.year, (chart.input.month || 1) - 1, chart.input.day || 1).getDay();
+    birthInfo = THAI_DAYS[birthWD];
+  }
+
+  // ── 5-element compat: birth day master vs today's BaZi element ──
+  const birthElement = chart.bazi?.dayMasterElement || '';
+  const SHENG = {'ไม้':'ไฟ','ไฟ':'ดิน','ดิน':'โลหะ','โลหะ':'น้ำ','น้ำ':'ไม้'};
+  const KE    = {'ไม้':'ดิน','ไฟ':'น้ำ','ดิน':'น้ำ','โลหะ':'ไฟ','น้ำ':'ไฟ'};
+
+  let elemLevel = 1, elemMsg = '';
+  if (birthElement && todayElement) {
+    if (birthElement === todayElement) {
+      elemLevel = 0;
+      elemMsg = isTh ? `ธาตุวันเกิดของคุณ (${birthElement}) ตรงกับธาตุวันนี้ — พลังงานส่วนตัวถึงจุดสูงสุด`
+                     : `Your birth element (${birthElement}) matches today — personal energy at peak`;
+    } else if (SHENG[todayElement] === birthElement) {
+      elemLevel = 0;
+      elemMsg = isTh ? `วันธาตุ${todayElement}หล่อเลี้ยงธาตุ${birthElement}ของคุณ — วันเติมพลังงาน`
+                     : `Today's ${todayElement} feeds your ${birthElement} — an energising day`;
+    } else if (SHENG[birthElement] === todayElement) {
+      elemLevel = 1;
+      elemMsg = isTh ? `ธาตุ${birthElement}ของคุณหล่อเลี้ยงวันนี้ (${todayElement}) — ให้พลังงานออกไป รู้สึกใช้แรงมากขึ้น`
+                     : `Your ${birthElement} feeds today's ${todayElement} — you give energy out, may feel more effort needed`;
+    } else if (KE[todayElement] === birthElement) {
+      elemLevel = 2;
+      elemMsg = isTh ? `วันธาตุ${todayElement}กดธาตุ${birthElement}ของคุณ — พักผ่อนดีกว่าฝืน ระวังเพิ่มขึ้น`
+                     : `Today's ${todayElement} controls your ${birthElement} — rest is wiser than forcing`;
+    } else if (KE[birthElement] === todayElement) {
+      elemLevel = 0;
+      elemMsg = isTh ? `ธาตุ${birthElement}ของคุณควบคุมวันนี้ (${todayElement}) — วันที่คุณเป็นผู้นำสถานการณ์`
+                     : `Your ${birthElement} controls today's ${todayElement} — you're in command today`;
+    } else {
+      elemMsg = isTh ? `ธาตุ${birthElement} กับธาตุ${todayElement} — ไม่ขัด ไม่ส่งเสริมตรง ๆ พลังเป็นกลาง`
+                    : `${birthElement} and ${todayElement} — neutral, neither support nor opposition`;
+    }
+  }
+
+  // ── Thai weekday compat: birth vs today ──
+  const WD_ELEM = ['ไฟ','น้ำ','ดิน','ไม้','ไม้','น้ำ','ดิน']; // Sun=fire,Mon=water,...
+  let thaiLevel = 1, thaiCompatMsg = '';
+  if (birthWD >= 0) {
+    const bEl = WD_ELEM[birthWD], tEl = WD_ELEM[todayWD];
+    if (birthWD === todayWD) {
+      thaiLevel = 0; thaiCompatMsg = isTh ? `วัน${birthInfo.name} เหมือนวันเกิดคุณ — พลังงานส่วนตัวสูงสุด` : `Same weekday as your birth — personal peak`;
+    } else if (SHENG[bEl] === tEl || SHENG[tEl] === bEl) {
+      thaiLevel = 0; thaiCompatMsg = isTh ? `วัน${todayInfo.name}เสริมธาตุวันเกิด${birthInfo.name}ของคุณ` : `Today supports your birth weekday element`;
+    } else if (KE[tEl] === bEl) {
+      thaiLevel = 2; thaiCompatMsg = isTh ? `วัน${todayInfo.name}กดธาตุวันเกิด${birthInfo.name} — ระวังเพิ่มขึ้น` : `Today's energy controls your birth weekday — extra caution`;
+    } else if (KE[bEl] === tEl) {
+      thaiLevel = 0; thaiCompatMsg = isTh ? `ธาตุวันเกิด${birthInfo.name}ของคุณควบคุมวัน${todayInfo.name} — คุณนำสถานการณ์` : `Your birth weekday controls today — you lead`;
+    } else {
+      thaiCompatMsg = isTh ? `วัน${birthInfo.name}กับวัน${todayInfo.name} — กลาง ไม่ขัดไม่เสริมตรง ๆ` : `${birthInfo.name} and ${todayInfo.name} — neutral`;
+    }
+  }
+
+  // ── Overall score (0=poor, 1=caution, 2=neutral, 3=good, 4=great) ──
+  let score = 2; // base neutral
+  score += officer.q >= 2 ? 1 : officer.q === 0 ? -1 : 0;
+  score += isYellow ? 1 : 0;
+  score += elemLevel === 0 ? 1 : elemLevel === 2 ? -1 : 0;
+  score += thaiLevel === 0 ? 1 : thaiLevel === 2 ? -1 : 0;
+  score = Math.max(0, Math.min(4, score));
+  const SCORE_LABELS = isTh
+    ? ['⚫ ควรระวัง','🟠 ต้องระมัดระวัง','🟡 กลาง ๆ','🟢 วันดี','🌟 วันมงคล']
+    : ['⚫ Caution','🟠 Extra care needed','🟡 Neutral','🟢 Good day','🌟 Very auspicious'];
+  const SCORE_COLS = ['#c06060','#c08040','#c8a840','#4a9a40','#50d490'];
+  const overallLabel = SCORE_LABELS[score];
+  const overallCol   = SCORE_COLS[score];
+
+  // ── Auspicious hours (Thai tradition, per weekday) ──
+  const HOURS = {
+    0:[{t:'07:00-09:00',q:isTh?'ดีมาก':'Great',a:isTh?'ค้าขาย เดินทาง':'Commerce, travel'},
+       {t:'13:00-15:00',q:isTh?'ดี':'Good',   a:isTh?'เจรจา ตกลงกัน':'Negotiations'},
+       {t:'19:00-21:00',q:isTh?'ดี':'Good',   a:isTh?'พบปะสังสรรค์':'Social'}],
+    1:[{t:'09:00-11:00',q:isTh?'ดีมาก':'Great',a:isTh?'ขอพร ศาสนา':'Prayer, religion'},
+       {t:'15:00-17:00',q:isTh?'ดี':'Good',   a:isTh?'การเงิน':'Finance'},
+       {t:'21:00-23:00',q:isTh?'ดี':'Good',   a:isTh?'ทำสมาธิ':'Meditation'}],
+    2:[{t:'05:00-07:00',q:isTh?'ดี':'Good',   a:isTh?'ออกกำลังกาย':'Exercise'},
+       {t:'11:00-13:00',q:isTh?'กลาง':'Neutral',a:isTh?'พักผ่อน':'Rest'},
+       {t:'17:00-19:00',q:isTh?'ดี':'Good',   a:isTh?'ครอบครัว':'Family time'}],
+    3:[{t:'07:00-09:00',q:isTh?'ดีมาก':'Great',a:isTh?'เรียน ศึกษา วางแผน':'Study, learning, planning'},
+       {t:'13:00-15:00',q:isTh?'ดี':'Good',   a:isTh?'สร้างสรรค์ เขียน':'Creative work'},
+       {t:'19:00-21:00',q:isTh?'ดี':'Good',   a:isTh?'วิเคราะห์ ทบทวน':'Analysis, review'}],
+    4:[{t:'09:00-11:00',q:isTh?'ดีที่สุด':'Best',a:isTh?'กิจการสำคัญทุกชนิด':'All important matters'},
+       {t:'13:00-15:00',q:isTh?'ดีมาก':'Great', a:isTh?'ลงทุน ทำสัญญา':'Investment, contracts'},
+       {t:'17:00-19:00',q:isTh?'ดี':'Good',     a:isTh?'ขอพร ไหว้พระ':'Prayer, worship'}],
+    5:[{t:'07:00-09:00',q:isTh?'ดี':'Good',   a:isTh?'ความรัก':'Love matters'},
+       {t:'11:00-13:00',q:isTh?'ดีมาก':'Great',a:isTh?'ศิลปะ สร้างสรรค์':'Arts, creativity'},
+       {t:'19:00-21:00',q:isTh?'ดีมาก':'Great',a:isTh?'สังสรรค์ พบปะ':'Social gathering'}],
+    6:[{t:'05:00-07:00',q:isTh?'กลาง':'Neutral',a:isTh?'ทำสมาธิ':'Meditation'},
+       {t:'09:00-11:00',q:isTh?'ระวัง':'Caution',a:isTh?'หลีกเลี่ยงสิ่งสำคัญ':'Avoid important actions'},
+       {t:'15:00-17:00',q:isTh?'ดี':'Good',    a:isTh?'พักผ่อน จัดเก็บ':'Rest, organize'}],
+  };
+  const hours = HOURS[todayWD] || [];
+
+  // ── Date string ──
+  const thMo = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                  'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  const dateStr = isTh
+    ? `วัน${todayInfo.name}ที่ ${todayD} ${thMo[todayM-1]} พ.ศ. ${todayY + 543}`
+    : now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // ── Small helpers ──
+  const lvlC = l => l===0?'#50d490':l===2?'#c06060':'#c8a840';
+  const lvlL = l => isTh?(l===0?'ดี':l===2?'ควรระวัง':'กลาง'):(l===0?'Good':l===2?'Caution':'Neutral');
+  const pills = (arr, c) => arr.map(x => `<span style="font-size:11px;padding:3px 9px;border-radius:12px;background:${c}22;border:1px solid ${c}66;color:${c};margin:2px;display:inline-block">${x}</span>`).join('');
+  const hoursHtml = hours.map(h =>
+    `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(200,164,90,.04);border-radius:6px;margin-bottom:4px">
+       <div style="font-family:'Josefin Sans',sans-serif;font-size:10.5px;color:var(--gold);min-width:110px;letter-spacing:.5px">${h.t}</div>
+       <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:${h.q.includes('ดีที่สุด')||h.q==='Best'?'#50d490':h.q.includes('ดีมาก')||h.q==='Great'?'#4a9a40':h.q.includes('ระวัง')||h.q==='Caution'?'#c06060':'#c8a840'};min-width:52px">${h.q.toUpperCase()}</div>
+       <div style="font-size:12.5px;color:var(--text);font-family:'Cormorant Garamond','Sarabun',serif">${h.a}</div>
+     </div>`
+  ).join('');
+
+  el.innerHTML = `
+    <!-- Date banner -->
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">${isTh?'คำนวณสำหรับวัน':'Calculated for'}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:16px;color:var(--gold);margin-bottom:6px">${dateStr}</div>
+      <div style="display:inline-block;padding:8px 20px;border-radius:20px;border:2px solid ${overallCol};background:${overallCol}18;font-family:'Josefin Sans',sans-serif;font-size:14px;color:${overallCol};letter-spacing:1px;font-weight:700">${overallLabel}</div>
+    </div>
+
+    <!-- ═══ Section 1: ฤกษ์จีน ═══ -->
+    <div class="deep-sys-card" style="margin-bottom:14px">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px">🀄 ฤกษ์จีน · Chinese Almanac</div>
+
+      <!-- Pillars -->
+      <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:120px;padding:10px 14px;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.25);border-radius:8px;text-align:center">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px">${isTh?'เสาวันนี้':'DAY PILLAR'}</div>
+          <div style="font-family:'Cinzel Decorative',serif;font-size:28px;color:var(--gold);line-height:1">${todayStem}${todayBranch}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">${EB_ZODIAC_TH[branchIdx]} · ธาตุ${todayElement}</div>
+        </div>
+        <div style="flex:1;min-width:160px;padding:10px 14px;background:${officer.col}18;border:2px solid ${officer.col};border-radius:8px;text-align:center">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px">${isTh?'เจ้าฤกษ์วันนี้':'12-DAY OFFICER'}</div>
+          <div style="font-family:'Cinzel Decorative',serif;font-size:28px;color:${officer.col};line-height:1">${officer.zh}</div>
+          <div style="font-size:12.5px;color:var(--text);margin-top:3px;font-family:'Cormorant Garamond','Sarabun',serif">${officer.th}</div>
+          <div style="font-size:10.5px;color:${isYellow?'#50d490':'#c08888'};margin-top:4px;font-family:'Josefin Sans',sans-serif;letter-spacing:1px">${isYellow?(isTh?'🌕 ทางสว่าง (黃道)':'🌕 Yellow Road'):(isTh?'⚫ ทางมืด (黑道)':'⚫ Black Road')}</div>
+        </div>
+      </div>
+
+      <!-- Officer description -->
+      <div style="padding:10px 14px;background:rgba(0,0,0,.15);border-left:3px solid ${officer.col};border-radius:0 6px 6px 0;margin-bottom:10px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--text);line-height:1.7">${officer.desc}</div>
+
+      <!-- Do/Avoid -->
+      ${officer.do.length ? `<div style="margin-bottom:8px"><div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:#4a9a40;margin-bottom:5px">✓ ${isTh?'กิจกรรมที่เหมาะ':'Auspicious activities'}</div>${pills(officer.do,'#4a9a40')}</div>` : ''}
+      ${officer.avoid.length ? `<div><div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:#c06060;margin-bottom:5px">✗ ${isTh?'ควรหลีกเลี่ยง':'Avoid today'}</div>${pills(officer.avoid,'#c06060')}</div>` : `<div style="font-size:12px;color:#50d490;font-family:'Cormorant Garamond','Sarabun',serif;font-style:italic">✦ ${isTh?'วันนี้เหมาะกับกิจการสำคัญทุกประเภท':'Suitable for all major matters today'}</div>`}
+    </div>
+
+    <!-- ═══ Section 2: ฤกษ์ไทย ═══ -->
+    <div class="deep-sys-card" style="margin-bottom:14px">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px">🙏 ฤกษ์ไทยพราหมณ์ · Thai Brahmin</div>
+
+      <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:140px;padding:10px 14px;background:${todayInfo.col}18;border:2px solid ${todayInfo.col};border-radius:8px;text-align:center">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px">${isTh?'วันนี้':'TODAY'}</div>
+          <div style="font-family:'Cinzel Decorative',serif;font-size:22px;color:${todayInfo.col};line-height:1.1">วัน${todayInfo.name}</div>
+          <div style="font-size:11.5px;color:var(--text);margin-top:4px;font-family:'Cormorant Garamond','Sarabun',serif">${todayInfo.nature}</div>
+        </div>
+        ${birthInfo ? `<div style="flex:1;min-width:140px;padding:10px 14px;background:rgba(200,164,90,.05);border:1px solid rgba(200,164,90,.3);border-radius:8px">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--muted);margin-bottom:5px">${isTh?'วันนี้ vs วันเกิดคุณ (วัน'+birthInfo.name+')':'Today vs your birth day ('+birthInfo.name+')'}</div>
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1px;color:${lvlC(thaiLevel)};margin-bottom:5px">${lvlL(thaiLevel).toUpperCase()}</div>
+          <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--text);line-height:1.6">${thaiCompatMsg}</div>
+        </div>` : ''}
+      </div>
+
+      <div style="margin-bottom:10px">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:#4a9a40;margin-bottom:5px">✓ ${isTh?'เหมาะวันนี้':'Good for today'}</div>
+        ${pills(todayInfo.do,'#4a9a40')}
+      </div>
+      <div>
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:#c06060;margin-bottom:5px">✗ ${isTh?'ควรระวัง':'Caution'}</div>
+        ${pills(todayInfo.avoid,'#c06060')}
+      </div>
+    </div>
+
+    <!-- ═══ Section 3: ธาตุส่วนตัว ═══ -->
+    ${birthElement ? `<div class="deep-sys-card" style="margin-bottom:14px">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px">☯️ ธาตุวันเกิดกับวันนี้ · Personal Element Resonance</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="padding:8px 14px;background:rgba(200,164,90,.07);border-radius:6px;text-align:center;min-width:80px">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1px;color:var(--muted)">${isTh?'ธาตุเกิด':'BIRTH'}</div>
+          <div style="font-size:18px;font-family:'Cinzel Decorative',serif;color:var(--gold)">${birthElement}</div>
+        </div>
+        <div style="font-size:20px;color:var(--muted)">↔</div>
+        <div style="padding:8px 14px;background:${officer.col}18;border-radius:6px;text-align:center;min-width:80px">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1px;color:var(--muted)">${isTh?'ธาตุวันนี้':'TODAY'}</div>
+          <div style="font-size:18px;font-family:'Cinzel Decorative',serif;color:${officer.col}">${todayElement}</div>
+        </div>
+        <div style="flex:1;padding:8px 10px;border-radius:6px;border-left:3px solid ${lvlC(elemLevel)}">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:${lvlC(elemLevel)};margin-bottom:4px">${lvlL(elemLevel).toUpperCase()}</div>
+          <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--text);line-height:1.6">${elemMsg}</div>
+        </div>
+      </div>
+    </div>` : ''}
+
+    <!-- ═══ Section 4: ช่วงเวลามงคล ═══ -->
+    <div class="deep-sys-card" style="margin-bottom:14px">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px">⏰ ${isTh?'ช่วงเวลามงคลวันนี้':'Auspicious Time Windows Today'}</div>
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--muted);margin-bottom:10px;font-style:italic">${isTh?'ตามระบบฤกษ์ไทย · ปรับตามวันในสัปดาห์':'Based on Thai Brahmin weekday system'}</div>
+      ${hoursHtml}
+    </div>
+
+    <!-- Disclaimer -->
+    <div style="text-align:center;font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--muted);line-height:1.7;margin-top:8px">
+      ${isTh?'ฤกษ์ดีเป็นแนวทางเสริม ไม่ใช่คำพยากรณ์ที่กำหนดชีวิต · ตัดสินใจสำคัญด้วยปัญญาและข้อมูลจริง'
+             :'Auspicious timing is a guide, not a deterministic prediction · combine with real information and good judgment'}
+    </div>`;
+}
 
 // ── Divine Mirror ──────────────────────────────────────────
 // Content now comes from chart.addons.mirror (produced by calc.ts :: calcAddons).
