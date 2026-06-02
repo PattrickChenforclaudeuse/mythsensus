@@ -154,7 +154,7 @@
 // 3-tier plan comparison (Free / one-time / subscription $8.99) so buyers stop
 // wondering what the subscription includes vs a single buy, then lists what
 // they own. Tab relabelled 📦 ที่ปลดล็อก / My Unlocks for discoverability.
-const CACHE = 'mythsensus-v63';
+const CACHE = 'mythsensus-v64';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

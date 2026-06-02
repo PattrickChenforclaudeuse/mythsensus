@@ -1614,6 +1614,9 @@ const ADDON_MIRROR_BY_ELEMENT = {
         shadow: 'Loki · เทพแห่งความปั่นป่วน',
         shadowDesc: 'เมื่อธาตุไม้ไม่สมดุล มักแสดงออกผ่านความหุนหันพลันแล่นหรือการบงการ',
         shadowStory: 'เทพเพื่อนของธอร์แต่ทรยศครั้งแล้วครั้งเล่า ฉลาดเกินไปจนใช้สติปัญญาหลอกตัวเองได้ — เงาสะท้อนไม้ที่ยืดหยุ่นเกินไปจนลื่นไหลไปกับสถานการณ์ แทนที่จะหยั่งราก',
+        primaryReflect: 'คุณนำคนได้โดยธรรมชาติเหมือนพระอินทร์ แต่กระจกบานนี้เตือนว่าพลังไม้ที่พุ่งขึ้นเร็วก็ล้มได้ง่าย — จุดแข็งของคุณไม่ใช่การไม่เคยล้ม แต่คือการยอมรับผิดแล้วลุกขึ้นใหม่',
+        secondaryReflect: 'ด้านที่โอบอุ้มคนอื่นในตัวคุณคือกวนอิม — ไม้ที่สูงขึ้นไม่ใช่เพื่อตัวเอง แต่เพื่อเป็นร่มเงา คุณเติบโตได้เต็มที่ที่สุดเมื่อมีคนได้พักใต้ร่มของคุณ',
+        tertiaryReflect: 'เหมือนต้นไม้ที่ผลัดใบ คุณมีจังหวะ "ตายแล้วเกิดใหม่" เหมือนโอซิริส — ช่วงที่รู้สึกว่าทุกอย่างพังทลายคือการลอกคราบ ไม่ใช่จุดจบ',
         mantra: 'ॐ शक्राय नमः (Om Shakraya Namah)'
     },
     'ไฟ': {
@@ -1629,7 +1632,10 @@ const ADDON_MIRROR_BY_ELEMENT = {
         tertiaryStory: 'ทุกคืน Ra ต่อสู้กับงูอาเปปในดินแดนมืด ชนะทุกวันจึงขึ้นรุ่งสางอีกครั้ง — เตือนว่าไฟไม่เคยพักผ่อน ต้องสู้ความมืดภายในทุกคืนเพื่อให้รุ่งเช้ามีความหมาย',
         shadow: 'Prometheus · ผู้ล้ำเส้น',
         shadowDesc: 'เมื่อธาตุไฟไม่สมดุล มักแสดงออกผ่านความหยิ่งผยองหรือการเผาพลาญตัวเอง',
-        shadowStory: 'ขโมยไฟจากสวรรค์ให้มนุษย์ · ถูก Zeus ลงโทษให้นกอินทรีจิกตับตลอดกาล ตับงอกใหม่ทุกคืน — เงาของไฟที่อยากช่วยคนจนลืมดูแลตัวเอง · burnout คือราคา',
+        shadowStory: 'ขโมยไฟจากสวรรค์ให้มนุษย์ · ถูก Zeus ลงโทษให้นกอินทรีจิกตับตลอดกาล ตับงอกใหม่ทุกคืน — เงาของไฟที่อยากช่วยคนจนลืมดูแลตัวเอง การหมดไฟคือราคาที่ต้องจ่าย',
+        primaryReflect: 'ไฟในตัวคุณคือสุรยะ — ไม่ใช่ประกายไฟที่วูบเดียวดับ แต่คือดวงอาทิตย์ที่ขึ้นทุกเช้าอย่างสม่ำเสมอ กระจกบานนี้ถามว่าคุณส่องแสงคงที่ หรือลุกโชนเป็นพักๆ แล้วมอดลง',
+        secondaryReflect: 'ด้านศิลปินในตัวคุณคืออพอลโล — เปล่งประกายและสร้างสรรค์ แต่บทเรียนคือ ไม่ใช่ทุกคนอยากรับแสงของคุณ การถูกปฏิเสธไม่ได้แปลว่าแสงในตัวคุณหรี่ลง',
+        tertiaryReflect: 'เหมือนรา (Ra) ที่ต่อสู้กับงูอาเปปทุกค่ำคืน คุณต้องเอาชนะความมืดในใจตัวเองซ้ำแล้วซ้ำเล่า เพื่อให้รุ่งเช้ามีความหมาย — ไฟไม่เคยได้พักอย่างแท้จริง',
         mantra: 'ॐ सूर्याय नमः (Om Suryaya Namah)'
     },
     'ดิน': {
@@ -1646,6 +1652,9 @@ const ADDON_MIRROR_BY_ELEMENT = {
         shadow: 'Cronos · ผู้กักขัง',
         shadowDesc: 'เมื่อธาตุดินไม่สมดุล มักแสดงออกผ่านความดื้อรั้นหรือความกลัวการเปลี่ยนแปลง',
         shadowStory: 'Cronos โค่น Ouranos พ่อตัวเองแล้วกินลูกตัวเองทุกคนเพราะกลัวถูกโค่นบ้าง — เงาของดินที่แข็งจนกลัวการผลัดใบ เก็บทุกอย่างไว้จนตายเอง',
+        primaryReflect: 'ดินในตัวคุณคือไกอา — อดทนรอจังหวะที่ใช่ ไม่ใช่เพิกเฉย กระจกบานนี้ช่วยแยก "ความนิ่งเพื่อรอเวลา" ออกจาก "ความนิ่งเพราะกลัวเปลี่ยนแปลง"',
+        secondaryReflect: 'ความมั่งคั่งของคุณเหมือนพระลักษมี — เกิดจากความเพียรที่ทำร่วมกันและความอดทน ไม่ใช่โชคที่ลอยมา คุณสร้างได้จริงเมื่อลงแรงอย่างต่อเนื่อง',
+        tertiaryReflect: 'เหมือนเดมิเทอร์ที่ยอมรับฤดูกาล คุณทำงานสอดคล้องกับวัฏจักร ไม่ฝืนเวลา — ช่วงที่ดูเหมือนหยุดนิ่งคือฤดูหนาวที่จำเป็น ก่อนที่ดอกจะผลิ',
         mantra: 'ॐ भूम्यै नमः (Om Bhumyai Namah)'
     },
     'โลหะ': {
@@ -1662,6 +1671,9 @@ const ADDON_MIRROR_BY_ELEMENT = {
         shadow: 'Ares · ด้านมืด',
         shadowDesc: 'เมื่อธาตุโลหะไม่สมดุล มักแสดงออกผ่านความเย็นชาหรือความก้าวร้าว',
         shadowStory: 'ในสงครามโทรจัน Ares เปลี่ยนฝ่ายไปมาตามอารมณ์ · ถูก Athena (ยุทธปัญญา) เอาชนะเสมอ — เงาของโลหะที่ใช้พลังโดยไร้กลยุทธ์ ชนะวันนี้ แพ้ระยะยาว',
+        primaryReflect: 'โลหะในตัวคุณคือพระพรหมสี่หน้า — มองได้รอบด้าน คิดเป็นระบบ สร้างจากโครงสร้างไม่ใช่อารมณ์ชั่ววูบ จุดแข็งที่สุดของคุณคือความชัดเจน',
+        secondaryReflect: 'ด้านที่ยอมแลกเพื่อปัญญาในตัวคุณคือโอดิน — เขาสละดวงตาข้างหนึ่งเพื่อความรู้ คุณก็เข้าใจดีว่าความชัดเจนมีราคา และคุณยอมจ่ายโดยไม่ต่อรอง',
+        tertiaryReflect: 'ความเด็ดขาดในตัวคุณคือเอรีส — คมและตรงไปตรงมา แต่บางครั้งก็โดดเดี่ยว กระจกบานนี้เตือนว่าคุณต้องการคนที่มองเห็นด้านอ่อนโยนใต้คมดาบ',
         mantra: 'ॐ ब्रह्मणे नमः (Om Brahmane Namah)'
     },
     'น้ำ': {
@@ -1678,6 +1690,9 @@ const ADDON_MIRROR_BY_ELEMENT = {
         shadow: 'Hades · ผู้กักเก็บ',
         shadowDesc: 'เมื่อธาตุน้ำไม่สมดุล มักแสดงออกผ่านการหมกมุ่นหรือการแยกตัว',
         shadowStory: 'Hades ลักพา Persephone ไปกักในยมโลกเพราะเหงา แม้เทพคนอื่นไม่ยอมมาหาเขา — เงาของน้ำที่ลึกจนกลายเป็นบ่อกักตัวเอง ดูดเอาของดีเข้ามาแต่ไม่ปล่อยให้เติบโต',
+        primaryReflect: 'น้ำในตัวคุณคือคงคา — ยิ่งใหญ่และชำระล้าง แต่ต้องมี "ภูเขารับ" เหมือนที่ศิวะรับนางไว้ในมวยผม ถ้าไม่มีจุดยึด พลังน้ำจะไหลกระจายจนหายไป',
+        secondaryReflect: 'ด้านพลังลึกในตัวคุณคือโพไซดอน — กว้างใหญ่และไม่หยุดยั้ง แต่บทเรียนคือ ต้องแปลงพลังเป็นสิ่งที่คนเข้าถึงและใช้ได้จริง ไม่ใช่แค่ทรงพลังอยู่ในที่ลึก',
+        tertiaryReflect: 'สัญชาตญาณของคุณคืออนูบิส — ชั่งใจคนได้ว่าใครจริงใครปลอม คุณรู้ลึกๆ เสมอแม้ปากจะไม่เอ่ย นี่คือพลังเงียบของน้ำ',
         mantra: 'ॐ गङ्गायै नमः (Om Gangayai Namah)'
     }
 };
@@ -1955,6 +1970,9 @@ const ADDON_MIRROR_BY_ELEMENT_EN = {
         shadow: 'Loki · god of mischief',
         shadowDesc: 'When Wood is unbalanced, it shows up as impulsiveness or manipulation',
         shadowStory: 'Thor\'s companion who betrayed the gods over and over — too clever, until his cunning fooled even himself. The shadow of Wood that bends so flexibly with circumstance it never sets down roots.',
+        primaryReflect: 'You lead naturally like Indra — but this mirror reminds you that Wood energy which shoots up fast can also topple. Your strength isn\'t never falling; it\'s owning the fall and rising again.',
+        secondaryReflect: 'The part of you that shelters others is Guanyin — Wood grows tall not for itself but to give shade. You\'re at your fullest when someone can rest beneath your canopy.',
+        tertiaryReflect: 'Like a tree shedding its leaves, you carry a "die-and-rise" rhythm like Osiris — the season when everything seems to collapse is a moulting, not an ending.',
         mantra: 'ॐ शक्राय नमः (Om Shakraya Namah)'
     },
     'ไฟ': {
@@ -1971,6 +1989,9 @@ const ADDON_MIRROR_BY_ELEMENT_EN = {
         shadow: 'Prometheus · the boundary-crosser',
         shadowDesc: 'When Fire is unbalanced, it shows up as arrogance or self-immolation',
         shadowStory: 'He stole fire from heaven for humanity and was punished by Zeus to have his liver eaten by an eagle every day, regenerating each night. The shadow of Fire that wants to save everyone but forgets to tend itself — burnout is the price.',
+        primaryReflect: 'Your fire is Surya — not a single spark that flares and dies, but the sun that rises every morning, steady. This mirror asks: do you shine consistently, or only flare in bursts and then fade?',
+        secondaryReflect: 'Your artist side is Apollo — radiant and creative, but the lesson is that not everyone wants your light. Being refused doesn\'t dim the flame inside you.',
+        tertiaryReflect: 'Like Ra battling the serpent Apep each night, you must overcome your own inner darkness again and again to give the dawn its meaning — Fire never truly rests.',
         mantra: 'ॐ सूर्याय नमः (Om Suryaya Namah)'
     },
     'ดิน': {
@@ -1987,6 +2008,9 @@ const ADDON_MIRROR_BY_ELEMENT_EN = {
         shadow: 'Cronos · the imprisoner',
         shadowDesc: 'When Earth is unbalanced, it shows up as stubbornness or fear of change',
         shadowStory: 'Cronos overthrew his father Ouranos and then devoured each of his own children to prevent the same fate. The shadow of Earth that hardens until it fears any shedding, hoarding everything until it suffocates itself.',
+        primaryReflect: 'Your earth is Gaia — patient, waiting for the right moment, never passive. This mirror helps you tell apart "stillness to wait" from "stillness out of fear of change."',
+        secondaryReflect: 'Your wealth is like Lakshmi — born of sustained, shared effort and patience, not luck that drifts in. You build something real when you put in continuous effort.',
+        tertiaryReflect: 'Like Demeter accepting the seasons, you work in tune with the cycle and never force time — the stretch that looks like a standstill is the winter needed before the bloom.',
         mantra: 'ॐ भूम्यै नमः (Om Bhumyai Namah)'
     },
     'โลหะ': {
@@ -2003,6 +2027,9 @@ const ADDON_MIRROR_BY_ELEMENT_EN = {
         shadow: 'Ares · dark side',
         shadowDesc: 'When Metal is unbalanced, it shows up as coldness or aggression',
         shadowStory: 'In the Trojan War, Ares switched sides on whim and was always defeated by Athena (strategic warfare). The shadow of Metal that uses force without strategy — wins today, loses the long game.',
+        primaryReflect: 'Your metal is four-faced Brahma — seeing every direction, thinking systematically, building from structure rather than passing emotion. Clarity is your single greatest strength.',
+        secondaryReflect: 'The part of you that trades for wisdom is Odin — he gave up an eye for knowledge; you too understand that clarity has a price, and you pay it without negotiating.',
+        tertiaryReflect: 'Your decisiveness is Ares — sharp and direct, but sometimes lonely. This mirror reminds you that you need someone who can see the softness beneath the blade.',
         mantra: 'ॐ ब्रह्मणे नमः (Om Brahmane Namah)'
     },
     'น้ำ': {
@@ -2019,6 +2046,9 @@ const ADDON_MIRROR_BY_ELEMENT_EN = {
         shadow: 'Hades · the hoarder',
         shadowDesc: 'When Water is unbalanced, it shows up as obsession or withdrawal',
         shadowStory: 'Hades abducted Persephone to the underworld out of loneliness because no other god would visit him. The shadow of Water grown so deep it becomes a private well — pulling good things in but never letting them grow.',
+        primaryReflect: 'Your water is Ganga — vast and purifying, but it needs a "mountain to receive it," the way Shiva caught her in his hair. Without an anchor, Water power scatters until it\'s lost.',
+        secondaryReflect: 'Your deep-power side is Poseidon — vast and unstoppable, but the lesson is to translate that power into something people can actually reach and use, not just be mighty in the depths.',
+        tertiaryReflect: 'Your instinct is Anubis — you weigh people and sense who is real and who is false. You always know, deep down, even when you never say it aloud — the quiet power of Water.',
         mantra: 'ॐ गङ्गायै नमः (Om Gangayai Namah)'
     }
 };
