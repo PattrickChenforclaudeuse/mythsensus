@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -12,7 +12,9 @@ html{font-size:20px}
 body{background:#040407;color:#e6e2d8;font-family:'Prompt',sans-serif;font-weight:300;min-height:100vh}
 a{color:#c8a45a;text-decoration:none}
 nav{display:flex;align-items:center;justify-content:space-between;padding:1.4rem 2.4rem;border-bottom:1px solid rgba(200,164,90,0.18);position:sticky;top:0;z-index:100;background:rgba(4,4,7,0.95);backdrop-filter:blur(12px)}
-.nav-logo{font-family:'Cinzel Decorative',serif;font-size:clamp(16px,1.8vw,22px);letter-spacing:5px;color:#c8a45a;cursor:pointer}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:clamp(16px,1.8vw,22px);letter-spacing:5px;color:#c8a45a;cursor:pointer;text-decoration:none}
+.nav-logo .logo-myth{color:#c8a45a}
+.nav-logo .logo-sensus{color:#e6e2d8;opacity:.65}
 .nav-links{display:flex;gap:1.8rem;align-items:center}
 .nav-links a{font-family:'Josefin Sans',sans-serif;font-size:.75rem;letter-spacing:.18em;text-transform:uppercase;color:#9a9088;transition:color .25s}
 .nav-links a:hover{color:#c8a45a}
@@ -78,7 +80,7 @@ footer a:hover{color:#c8a45a}
 </head>
 <body>
 <nav>
-  <a class="nav-logo" href="/">MYTHSENSUS</a>
+  <a class="nav-logo" href="/"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
   <div class="nav-links">
     <a href="/" data-en="Get Report" data-th="รับรายงาน">Get Report</a>
     <a href="/blog/" data-en="Library" data-th="คลัง">Library</a>
@@ -205,7 +207,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
 let L = localStorage.getItem('msLang') || 'th';
 function setLang(lang){
   L = lang;
-  localStorage.setItem('msLang', lang);
+  localStorage.setItem('mth_lang', lang); localStorage.setItem('msLang', lang);
   document.querySelectorAll('[data-en][data-th]').forEach(el => {
     el.textContent = lang === 'th' ? el.getAttribute('data-th') : el.getAttribute('data-en');
   });
