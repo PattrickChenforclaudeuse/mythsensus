@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -43,7 +43,7 @@
 :root{
   --bg:#040407;--bg2:#0a0a10;--bg3:#0d0d15;
   --gold:#c8a45a;--gold2:#e8c87a;--gold3:#a8843a;
-  --text:#e6e2d8;--muted:#9a8a72;--border:#1a1a28;
+  --text:#e6e2d8;--muted:#9a8a72;--border:rgba(200,164,90,.22);
   --green:#4aba50;--blue:#6090c0;--red:#ff6060;--purple:#b070e0;
   --fire:#e06040;--earth:#60a060;--air:#a0b040;--water:#4080c0;
 }
@@ -726,7 +726,7 @@ details.ms-more>.ms-more-body{padding-top:6px;animation:msMoreIn .25s ease}
   <meta property="og:url" content="https://mythsensus.com/">
   <meta property="og:image" content="https://mythsensus.com/og-default.png">
   <meta property="og:image:type" content="image/png">
-  <meta property="og:image:alt" content="Mythsensus — 26 Ancient Systems, One Cosmic Score">
+  <meta property="og:image:alt" content="Mythsensus — 26 Systems, One Cosmic Score">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:locale" content="th_TH">
@@ -1069,7 +1069,7 @@ let _authEmail = '';    // Email pending OTP verification
       "name": "Mythsensus",
       "url": "https://mythsensus.com",
       "logo": "https://mythsensus.com/og-default.png",
-      "description": "Synthesises 26 ancient divination systems into a single Cosmic Score (1 to 1,000) from a birth date."
+      "description": "Synthesises 26 divination systems into a single Cosmic Score (1 to 1,000) from a birth date."
     },
     {
       "@type": "WebApplication",
@@ -1083,7 +1083,7 @@ let _authEmail = '';    // Email pending OTP verification
       "inLanguage": ["th","en"],
       "datePublished": "2026-04-27",
       "dateModified": "2026-06-01",
-      "description": "Mythsensus synthesises 26 ancient divination systems — BaZi, Vedic, Western, Nine Star Ki, Mayan, and 21 others — into a single Cosmic Score from 1 to 1,000. Free Cosmic Score, free daily deity blessing from more than 1,000 deities, free 108 Organum oracle. Premium adds depth: $9 per-system deep readings, a $19 forty-three-page PDF full report, and a $8.99/month subscription for daily-refresh features.",
+      "description": "Mythsensus synthesises 26 divination systems — BaZi, Vedic, Western, Nine Star Ki, Mayan, and 21 others — into a single Cosmic Score from 1 to 1,000. Free Cosmic Score, free daily deity blessing from more than 1,000 deities, free 108 Organum oracle. Premium adds depth: $9 per-system deep readings, a $19 forty-three-page PDF full report, and a $8.99/month subscription for daily-refresh features.",
       "featureList": [
         "BaZi (Four Pillars of Destiny)",
         "Vedic Jyotish",
@@ -1249,7 +1249,7 @@ function _webShareText() {
   } catch(_) {}
   return isTh
     ? 'ฉันเพิ่งค้นพบแผนที่จักรวาลของตัวเองจาก 26 ศาสตร์โบราณ — ลองดูของคุณบ้างสิ'
-    : "I just mapped my cosmic blueprint across 26 ancient systems — see yours.";
+    : "I just mapped my cosmic blueprint across 26 systems — see yours.";
 }
 /**
  * Handler for the "✦ Share this blessing" CTA inside the godCard. Opens the
@@ -1369,7 +1369,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
          showEntryOverlay still skips this whole overlay entirely. -->
     <div id="entryHeroStep">
       <div style="text-align:center;margin:22px 0 4px;font-family:'Cinzel Decorative',serif;font-size:18px;color:var(--gold);line-height:1.4">ดูดวงคุณจาก <span style="color:var(--gold2)">26 ศาสตร์โบราณ</span> ในที่เดียว</div>
-      <div style="text-align:center;margin:0 0 16px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--muted)">Your birth chart, read by 26 ancient systems</div>
+      <div style="text-align:center;margin:0 0 16px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--muted)">Your birth chart, read by 26 systems</div>
       <div style="text-align:center;margin:0 0 18px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.7">BaZi · โหราศาสตร์ตะวันตก · เลข ๗ ตัว · Human Design · เวท · มายา · เซลติก · และอีก 20 ศาสตร์ — หลอมเป็นภาพเดียวของ "คุณ"</div>
       <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:20px;font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:.5px;color:var(--gold3)"><span>✨ เริ่มฟรี</span><span>🔒 ข้อมูลอยู่ในเครื่อง</span><span>⚡ ไม่ต้องสมัคร</span></div>
       <button class="login-confirm-btn" onclick="entryShowForm()" style="font-size:15px">✨ เริ่มดูดวงฟรี · Start free</button>
@@ -1393,7 +1393,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     </div>
 
     <div style="text-align:center;margin:10px 0 14px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13.5px;color:var(--text);line-height:1.65" id="entryIntro">
-      Pick a language · enter your birth date to unlock 26 ancient systems
+      Pick a language · enter your birth date to unlock 26 systems
     </div>
 
     <!-- RETURNING USER — sign-in shortcut (top of form so always visible on mobile) -->
@@ -1662,7 +1662,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <div class="header-user" id="headerUser"></div>
   <div class="logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></div>
   <div class="tagline" data-t="tagline">Where myriad myths reach consensus — about you</div>
-  <div class="tagline-sub" data-en="One score (1–1,000) showing how strongly 26 ancient systems agree about you — BaZi, Vedic, Western, Nine Star Ki and 22 more. " data-th="คะแนนเดียว 1–1,000 บอกว่า 26 ศาสตร์โบราณเห็นตรงกันแค่ไหนเรื่องคุณ — BaZi, Vedic, Western, Nine Star Ki และอีก 22 ศาสตร์ ">คะแนนเดียว 1–1,000 บอกว่า 26 ศาสตร์โบราณเห็นตรงกันแค่ไหนเรื่องคุณ — BaZi, Vedic, Western, Nine Star Ki และอีก 22 ศาสตร์
+  <div class="tagline-sub" data-en="One score (1–1,000) showing how strongly 26 systems agree about you — BaZi, Vedic, Western, Nine Star Ki and 22 more. " data-th="คะแนนเดียว 1–1,000 บอกว่า 26 ศาสตร์โบราณเห็นตรงกันแค่ไหนเรื่องคุณ — BaZi, Vedic, Western, Nine Star Ki และอีก 22 ศาสตร์ ">คะแนนเดียว 1–1,000 บอกว่า 26 ศาสตร์โบราณเห็นตรงกันแค่ไหนเรื่องคุณ — BaZi, Vedic, Western, Nine Star Ki และอีก 22 ศาสตร์
     <a href="/cosmic-score" data-en="What's a Cosmic Score? →" data-th="Cosmic Score คืออะไร? →">Cosmic Score คืออะไร? →</a>
   </div>
   <div class="date-display" id="dateDisplay"></div>
@@ -2068,7 +2068,7 @@ try{
 
 <!-- ═══ PANEL 5: COSMIC BLUEPRINT ═══ -->
 <div class="panel" id="panel-blueprint">
-  <p class="panel-intro" data-en="The flagship reading: 26 ancient systems synthesized into one complete profile. Generate once and keep forever." data-th="รายงานตัวจริงของ Mythsensus · รวมคำวินิจฉัยจาก 26 ศาสตร์โบราณมาสรุปเป็นตัวตนของคุณในฉบับเดียว สร้างครั้งเดียว เก็บไว้ตลอด">The flagship reading: 26 ancient systems synthesized into one complete profile. Generate once and keep forever.</p>
+  <p class="panel-intro" data-en="The flagship reading: 26 systems synthesized into one complete profile. Generate once and keep forever." data-th="รายงานตัวจริงของ Mythsensus · รวมคำวินิจฉัยจาก 26 ศาสตร์โบราณมาสรุปเป็นตัวตนของคุณในฉบับเดียว สร้างครั้งเดียว เก็บไว้ตลอด">The flagship reading: 26 systems synthesized into one complete profile. Generate once and keep forever.</p>
 
   <!-- CB FORM SECTION -->
   <div id="cb-form-section">
@@ -2533,7 +2533,7 @@ en:{
   lucky_title:"🌟 AUSPICIOUS TIMING — ฤกษ์ดีวันนี้",lucky_hint:"Chinese 12-Day Officers + Thai Brahmin weekday · personalised to your birth chart · refreshes daily",
   freq_top_title:"Most frequent signals",freq_top_sub:"Gods, planets and themes that keep returning",
   // ── Deep 26 systems: sub-nav labels
-  deep_title:"DEEP READINGS — 26 ancient systems",
+  deep_title:"DEEP READINGS — 26 systems",
   deep_hint:"Pick a system · read the detailed interpretation for your chart",
   ds_western:"Western",ds_bazi:"BaZi",ds_vedic:"Vedic",ds_nsk:"Nine Star Ki",
   ds_num:"Numerology",ds_hd:"Energy Type",ds_mayan:"Mayan",ds_celtic:"Celtic",
@@ -2606,9 +2606,9 @@ en:{
   badge_thai_brahmin:"🙏 Thai Brahmin",
   badge_lek7:"🔢 Lek 7 Tua",
   cb_note_top:"100% browser calculation · zero data leaves your device · works offline · 26 systems across 4 continents",
-  cb_loading:"Calculating 26 ancient systems…",
+  cb_loading:"Calculating 26 systems…",
   cb_compare_empty:"Enter your birth data above · tap ✦ Generate to see where you stand",
-  chart_title:"MY CHART",chart_calc_btn:"Reveal My Chart",chart_sub:"26 Ancient Wisdom Systems · Free Preview",
+  chart_title:"MY CHART",chart_calc_btn:"Reveal My Chart",chart_sub:"26 Wisdom Systems · Free Preview",
   chart_time_hint:"Improves accuracy for some systems",
   opt_label:"Optional",
   no_question:"Please enter a question first.",no_dob:"Please enter your date of birth.",
@@ -13024,7 +13024,7 @@ function _entryRefreshLang(){
   const nameI = document.getElementById('entryName');
   if (intro) intro.textContent = isTh
     ? 'เลือกภาษาก่อน · ใส่วันเกิดเพื่อปลดล็อก 26 ศาสตร์โบราณ'
-    : 'Pick a language · enter your birth date to unlock 26 ancient systems';
+    : 'Pick a language · enter your birth date to unlock 26 systems';
   if (priv) priv.textContent = isTh
     ? 'ข้อมูลทั้งหมดอยู่ในเครื่องคุณเท่านั้น — ไม่ส่งขึ้น cloud'
     : 'All data stays on your device — never sent to the cloud';
@@ -13381,7 +13381,7 @@ function maybeShowOnboarding(){
   const nameInp = document.getElementById('onboardName');
   if (tag) tag.textContent = isTh
     ? '26 ศาสตร์โบราณกำลังจะตอบเป็นเสียงเดียวกัน — เกี่ยวกับคุณ'
-    : '26 ancient systems are about to speak as one — about you';
+    : '26 systems are about to speak as one — about you';
   if (body) body.innerHTML = isTh
     ? 'ใส่แค่<strong style="color:var(--gold)">วันเกิด</strong>ของคุณ — เราจะคำนวณ <strong>BaZi · Vedic · Western · Numerology</strong> และอีก 22 ศาสตร์ เพื่อแสดงให้ดูว่าศาสตร์เหล่านี้พูดถึงคุณว่าอย่างไร'
     : 'Just enter your <strong style="color:var(--gold)">date of birth</strong> — we will calculate <strong>BaZi · Vedic · Western · Numerology</strong> and 22 more ancient systems to reveal what they all say about you.';
