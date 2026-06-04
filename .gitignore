@@ -13,6 +13,8 @@ _credentials.local.md
 _qa-out/
 # Design mockups / option-comparisons used during a session; not shipped to prod.
 _mockups/
+# Design / cold-skeptic audit screenshots, regenerable on demand.
+_audit-screens-*/
 # Backup snapshots written by data-enrich + inject scripts before destructive ops.
 data/gods.json.pre-*.bak
 build/ms26-bundle.js.pre-*.bak
