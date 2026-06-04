@@ -201,6 +201,11 @@ export interface ScoreData {
 
 export interface ScoreBreakdown {
   system: string; weight: number; score: number; finding: string; color: string;
+  // OPTIONAL — false means this system is shown in the breakdown but is NOT
+  // included in the Cosmic Score median (e.g. Biorhythm = daily-changing,
+  // excluded so the identity score stays stable day-to-day). Omitted/true
+  // means the system votes on the score in the usual way.
+  scoring?: boolean;
 }
 
 // ============================================================
@@ -1583,18 +1588,36 @@ function calcScore(d: BirthData, data: Omit<ChartData, 'score'>): ScoreData {
     const rawScore = systemScores[i] ?? 700;
     const score = Math.max(400, Math.min(999, rawScore));
     const sysLabel = _reportLang === 'en' ? (w as any).systemEn || w.system : w.system;
-    // Display weight as percentage rounded to 1 decimal
-    return { system: sysLabel, weight: Math.round(w.weight * 1000) / 10, score, finding: findings[i] ?? '', color: SCORE_COLORS[i] ?? '#5a5a5a' };
+    // Biorhythm (last entry) is a DAILY layer — Director feedback 2026-06-04:
+    // "biorhythm ไม่ควรอยู่ใน cosmic score สิถ้ามันไม่นิ่ง". It's still shown
+    // in the breakdown (so users see all 26 systems) but flagged
+    // `scoring:false` to exclude it from the median voting that produces the
+    // Cosmic Score. The user-facing displays (Pet/Exercise/Mirror/Biorhythm
+    // tile) all read biorhythm via the renderer-side _liveBio helper that
+    // computes against today's date — so the FROZEN engine biorhythm score
+    // has no effect on either the user's UI or their Cosmic Score now.
+    const isDailyOnly = w.systemEn === 'Biorhythm' || w.system === 'Biorhythm';
+    return {
+      system: sysLabel,
+      weight: isDailyOnly ? 0 : Math.round(w.weight * 1000) / 10,
+      score,
+      finding: findings[i] ?? '',
+      color: SCORE_COLORS[i] ?? '#5a5a5a',
+      scoring: !isDailyOnly,
+    };
   });
 
-  // Cosmic Score = MEDIAN of 26 systems (resistant to outliers, true consensus)
-  const sorted = [...breakdown.map(b => b.score)].sort((a, b) => a - b);
+  // Cosmic Score = MEDIAN of 25 stable identity systems (biorhythm excluded —
+  // see scoring:false flag on the breakdown entry). Median is resistant to
+  // outliers and represents true cross-system consensus.
+  const votingScores = breakdown.filter(b => b.scoring !== false).map(b => b.score);
+  const sorted = [...votingScores].sort((a, b) => a - b);
   const n = sorted.length;
   const median = n % 2 === 0
     ? Math.round((sorted[n/2-1] + sorted[n/2]) / 2)
     : sorted[Math.floor(n/2)];
-  const mean = Math.round(breakdown.reduce((acc, b) => acc + b.score, 0) / n);
-  // Modal bin (50-pt range with most systems)
+  const mean = Math.round(votingScores.reduce((acc, s) => acc + s, 0) / Math.max(1, n));
+  // Modal bin (50-pt range with most systems) — also from voting set only
   const binCounts: Record<number,number> = {};
   sorted.forEach(s => { const bin = Math.floor(s/50)*50; binCounts[bin] = (binCounts[bin]||0)+1; });
   const modalBin = +Object.entries(binCounts).sort((a,b)=>b[1]-a[1])[0][0];
@@ -1604,14 +1627,16 @@ function calcScore(d: BirthData, data: Omit<ChartData, 'score'>): ScoreData {
   const entityIdx = total % COSMIC_ENTITIES.length;
   const godIdx = (d.month + d.day) % GODS.length;
 
-  // maxAchievable: gap between current average and best individual system score × 0.6
-  const maxIndividualScore = Math.max(...breakdown.map(b => b.score));
+  // maxAchievable + tier counts: computed from the voting set only (excludes
+  // biorhythm) so a daily-shifting biorhythm doesn't change these stats.
+  const votingBreakdown = breakdown.filter(b => b.scoring !== false);
+  const maxIndividualScore = Math.max(...votingBreakdown.map(b => b.score));
   const gap = maxIndividualScore - total;
   const maxAchievable = Math.min(999, total + Math.round(gap * 0.6));
 
-  const starCount = breakdown.filter(b => b.score >= 780).length;
-  const midCount  = breakdown.filter(b => b.score >= 650 && b.score < 780).length;
-  const warnCount = breakdown.filter(b => b.score < 650).length;
+  const starCount = votingBreakdown.filter(b => b.score >= 780).length;
+  const midCount  = votingBreakdown.filter(b => b.score >= 650 && b.score < 780).length;
+  const warnCount = votingBreakdown.filter(b => b.score < 650).length;
 
   return {
     total,

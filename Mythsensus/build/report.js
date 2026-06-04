@@ -510,11 +510,16 @@ function p_threeScores(c) {
   `);
 }
 function p02_scoreBreakdown(c) {
-    // Group into 🌟 ≥780 / 〰 650-779 / ⚠ <650
-    const sorted = c.score.breakdown.slice().sort((a, b) => b.score - a.score);
-    const stars = sorted.filter(b => b.score >= 780);
-    const mids = sorted.filter(b => b.score >= 650 && b.score < 780);
-    const warns = sorted.filter(b => b.score < 650);
+    // Group into 🌟 ≥780 / 〰 650-779 / ⚠ <650, EXCLUDING the daily-only layer
+    // (biorhythm). Director feedback 2026-06-04: biorhythm is intentionally a
+    // daily-changing snapshot, so it doesn't belong in the identity consensus.
+    // Show it separately at the bottom as a "daily layer · not scoring" card.
+    const allSorted = c.score.breakdown.slice().sort((a, b) => b.score - a.score);
+    const voting = allSorted.filter(b => b.scoring !== false);
+    const daily = allSorted.filter(b => b.scoring === false);
+    const stars = voting.filter(b => b.score >= 780);
+    const mids = voting.filter(b => b.score >= 650 && b.score < 780);
+    const warns = voting.filter(b => b.score < 650);
     const systemRow = (b, icon) => `
     <div style="display:flex;align-items:center;gap:8px;margin:3px 0;padding:5px 8px;background:#141210;border-radius:6px">
       <span style="min-width:20px;text-align:center">${icon}</span>
@@ -524,9 +529,20 @@ function p02_scoreBreakdown(c) {
         <div style="width:${Math.round((b.score - 400) / 6)}%;height:6px;background:${b.color}"></div>
       </div>
     </div>`;
+    const dailyRow = (b) => `
+    <div style="display:flex;align-items:center;gap:8px;margin:3px 0;padding:6px 10px;background:#0f120e;border:1px dashed #3a4030;border-radius:6px;opacity:.88">
+      <span style="min-width:22px;text-align:center;color:#7090a0">📈</span>
+      <span style="flex:1;font-size:12px;color:#a0b090">${esc(trDF(b.system))}
+        <span style="font-size:9.5px;letter-spacing:1px;color:#5a7060;margin-left:4px;text-transform:uppercase;font-family:'Josefin Sans',sans-serif">${tr('ระดับรายวัน · ไม่ vote', 'Daily layer · not scoring')}</span>
+      </span>
+      <span style="font-size:12px;color:#7a9080;min-width:34px;text-align:right">${b.score}</span>
+      <div style="width:80px;background:#1a1510;border-radius:3px;height:6px;overflow:hidden;opacity:.5">
+        <div style="width:${Math.round((b.score - 400) / 6)}%;height:6px;background:#5a7060"></div>
+      </div>
+    </div>`;
     return section(3, tr('26-System Consensus — ทุกศาสตร์เห็นอะไร', '26-System Consensus — what every tradition sees'), '🌐', `
     <div style="font-size:11px;color:#7a6a52;margin-bottom:12px;line-height:1.6">
-      ${tr('Equal weight · แต่ละระบบ 3.8% · คะแนน Median', 'Equal weight · each system 3.8% · Median score')} = <strong style="color:#d4aa50">${c.score.total}</strong>
+      ${tr('Cosmic Score = Median จาก 25 ศาสตร์ที่นิ่ง (Biorhythm เป็นรายวัน แสดงแยก)', 'Cosmic Score = Median of 25 stable identity systems (Biorhythm is daily-only, shown separately)')} = <strong style="color:#d4aa50">${c.score.total}</strong>
       · Mean = ${c.score.mean} · Modal range = ${c.score.modalBin}–${c.score.modalBin + 49}
     </div>
 
@@ -558,14 +574,26 @@ function p02_scoreBreakdown(c) {
       </div>
     </div>` : ''}
 
-    <!-- Stats summary -->
+    <!-- Daily-only layer (biorhythm) -->
+    ${daily.length > 0 ? `
+    <div style="margin-bottom:12px">
+      <div style="font-size:13px;font-weight:600;color:#7090a0;margin-bottom:6px">
+        📈 ${tr('ระดับรายวัน', 'Daily layer')} — ${daily.length} ${tr('ระบบ · ไม่นับใน Cosmic Score', 'system · not part of Cosmic Score')}
+      </div>
+      ${daily.map(dailyRow).join('')}
+      <div style="font-size:10px;color:#5a7060;margin-top:6px;line-height:1.6">
+        ${tr('ⓘ Biorhythm เปลี่ยนทุกวันตามรอบ 23/28/33 — เก็บแยกออกจาก Cosmic Score เพื่อให้คะแนน identity ไม่เลื่อนตามวัน', 'ⓘ Biorhythm shifts every day along 23/28/33-day cycles — kept out of the Cosmic Score so your identity number stays stable.')}
+      </div>
+    </div>` : ''}
+
+    <!-- Stats summary — voting set only (excludes biorhythm) -->
     <div style="background:#1a1510;border-radius:8px;padding:12px;margin-top:12px">
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">
         ${[
         ['Median', c.score.total, '#d4aa50'],
         ['Mean', c.score.mean, '#b09040'],
-        [tr('ต่ำสุด', 'Lowest'), Math.min(...c.score.breakdown.map(b => b.score)), '#c07050'],
-        [tr('สูงสุด', 'Highest'), Math.max(...c.score.breakdown.map(b => b.score)), '#70c070'],
+        [tr('ต่ำสุด', 'Lowest'), Math.min(...voting.map(b => b.score)), '#c07050'],
+        [tr('สูงสุด', 'Highest'), Math.max(...voting.map(b => b.score)), '#70c070'],
     ].map(([l, v, col]) => `<div><div style="font-size:18px;font-weight:700;color:${col}">${v}</div><div style="font-size:10px;color:#6a5a42">${l}</div></div>`).join('')}
       </div>
     </div>

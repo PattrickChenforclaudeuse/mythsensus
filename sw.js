@@ -166,7 +166,16 @@
 // them as conflicting "your deity X" / "your deity Y". The detail cards
 // below are now relabelled "AXIS 1 · PRIMARY ARCHETYPE" and "AXIS 2 ·
 // COSMIC ENTITY" for the same clarity.
-const CACHE = 'mythsensus-v66';
+// v67: 2026-06-04 — Engine: biorhythm excluded from Cosmic Score median.
+// Director feedback "biorhythm ไม่ควรอยู่ใน cosmic score สิถ้ามันไม่นิ่ง" —
+// biorhythm is intentionally daily-changing, so including its score made
+// the Cosmic Score (which should be a stable identity number) drift
+// day-to-day. ScoreBreakdown now carries `scoring?: boolean`; biorhythm
+// is set to `scoring:false`. Median is computed from the 25 voting
+// systems, biorhythm is still shown in the breakdown but in a separate
+// "Daily layer · not scoring" card with explanatory copy. /build/ms26-bundle.js
+// regenerated.
+const CACHE = 'mythsensus-v67';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
