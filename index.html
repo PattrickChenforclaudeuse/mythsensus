@@ -5140,6 +5140,26 @@ function switchLifeTab(key,btn){
 // NEW-PANEL RENDERERS
 // ════════════════════════════════════════
 
+// Live biorhythm — computed at render time (NOT frozen at chart-generation).
+// The engine bundle's calcBiorhythm uses a fixed BIORHYTHM_REF for deterministic
+// "blueprint" output, but the user-facing tabs (Pet, Exercise, Identity Synthesis,
+// Lucky 7-day) all promise daily refresh per the subscription marketing. This
+// helper recomputes the 3 cycles against TODAY so cards always show current values.
+// dateOverride is an optional Date for the 7-day Lucky strip (defaults to today).
+function _liveBio(input, dateOverride){
+  if (!input || !input.year) return { physical:0, emotional:0, intellectual:0, refDate:'—' };
+  const t = dateOverride || new Date();
+  const today = Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate(), 12);
+  const dob   = Date.UTC(input.year, (input.month||1)-1, input.day||1, 12);
+  const days  = (today - dob) / 86400000;
+  return {
+    physical:     Math.round(100 * Math.sin(2*Math.PI*days/23)),
+    emotional:    Math.round(100 * Math.sin(2*Math.PI*days/28)),
+    intellectual: Math.round(100 * Math.sin(2*Math.PI*days/33)),
+    refDate: t.toISOString().slice(0,10)
+  };
+}
+
 // Shared — build a MS26 chart from the saved profile (or null if no DOB yet).
 function _getMS26ChartFromProfile(){
   const dob = (document.getElementById('profDob')||{}).value || localStorage.getItem('mth_dob');
@@ -5763,9 +5783,11 @@ function _buildDeepAddon(chart, key){
   const celticTree = chart.celtic?.tree   || '—';
   const norseRune  = chart.norseRune?.rune || chart.norseRune?.name || '—';
   const tibMewa    = chart.tibetan?.mewa  || '—';
-  const bioPhys = chart.biorhythm?.physical|0;
-  const bioEmo  = chart.biorhythm?.emotional|0;
-  const bioInt  = chart.biorhythm?.intellectual|0;
+  // LIVE biorhythm (today's snapshot) — not the chart's frozen blueprint values.
+  const _liveB = _liveBio(chart.input);
+  const bioPhys = _liveB.physical;
+  const bioEmo  = _liveB.emotional;
+  const bioInt  = _liveB.intellectual;
   const score   = chart.score?.total || 0;
   const tr = (isTh ? _ELEMENT_TRAITS_TH : _ELEMENT_TRAITS_EN)[dmEl] || {core:'—', drains:'—'};
   const bp = v => (v>=0?'+':'')+v+'%';
@@ -8789,7 +8811,10 @@ function renderLucky() {
   const chart = _getMS26ChartFromProfile();
   if (!chart) { _emptyDeepHint('luckyPanel'); return; }
   const isTh = LANG === 'th';
-  const now = new Date();
+  // SELECTED day = the one rendered in detail below. Defaults to today (offset 0).
+  // The 7-day strip lets the user click another day to refocus the detail view.
+  const _luckySel = Math.max(0, Math.min(6, +(el.dataset.luckyOffset||0)));
+  const now = new Date(); now.setHours(12,0,0,0); now.setDate(now.getDate() + _luckySel);
   const todayY = now.getFullYear(), todayM = now.getMonth() + 1, todayD = now.getDate();
 
   // ── Julian Day from Gregorian date ──
@@ -9043,10 +9068,83 @@ function renderLucky() {
      </div>`
   ).join('');
 
+  // ── 7-day quick-glance strip ──
+  // Compute the per-day signature (12-Officer + element + score) for today + 6
+  // future days so the user can scan the upcoming week at a glance and click a
+  // day to refocus the detail view below.
+  function _luckyDayOnce(off){
+    const dd = new Date(); dd.setHours(12,0,0,0); dd.setDate(dd.getDate()+off);
+    const yy = dd.getFullYear(), mm = dd.getMonth()+1, ddNum = dd.getDate();
+    const _jdL = _jd(yy, mm, ddNum);
+    const _stem = (_jdL + 6) % 10;
+    const _branch = (_jdL + 10) % 12;
+    const _el = ELEM[_stem];
+    const _mb = _monthBranch(yy, mm, ddNum);
+    const _ofIdx = (_branch - _mb + 12) % 12;
+    const _of = OFFICERS[_ofIdx];
+    const _isYel = [false,true,false,false,true,false,false,false,true,false,true,false][_ofIdx];
+    const _wd = dd.getDay();
+    const _ti = THAI_DAYS[_wd];
+    // 5-element compat
+    let _eLvl = 1;
+    if (birthElement && _el) {
+      if (birthElement === _el || SHENG[_el] === birthElement || KE[birthElement] === _el) _eLvl = 0;
+      else if (KE[_el] === birthElement) _eLvl = 2;
+      else if (SHENG[birthElement] === _el) _eLvl = 1;
+    }
+    // Thai-day compat
+    let _tLvl = 1;
+    if (birthWD >= 0) {
+      const bEl = WD_ELEM[birthWD], tEl = WD_ELEM[_wd];
+      if (birthWD === _wd || SHENG[bEl] === tEl || SHENG[tEl] === bEl || KE[bEl] === tEl) _tLvl = 0;
+      else if (KE[tEl] === bEl) _tLvl = 2;
+    }
+    let _sc = 2;
+    _sc += _of.q >= 2 ? 1 : _of.q === 0 ? -1 : 0;
+    _sc += _isYel ? 1 : 0;
+    _sc += _eLvl === 0 ? 1 : _eLvl === 2 ? -1 : 0;
+    _sc += _tLvl === 0 ? 1 : _tLvl === 2 ? -1 : 0;
+    _sc = Math.max(0, Math.min(4, _sc));
+    const _wdShortTh = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'][_wd];
+    const _wdShortEn = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][_wd];
+    const _moShortTh = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][mm-1];
+    const _moShortEn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][mm-1];
+    return {
+      off, off0: off===0,
+      label: isTh ? `${_wdShortTh} ${ddNum} ${_moShortTh}` : `${_wdShortEn} ${ddNum} ${_moShortEn}`,
+      officerZh: _of.zh, officerCol: _of.col, isYellow: _isYel,
+      score: _sc, scoreCol: SCORE_COLS[_sc],
+      scoreLabel: (isTh
+        ? ['ระวัง','ระวัง','กลาง','ดี','มงคล']
+        : ['Caution','Caution','Neutral','Good','Auspicious'])[_sc],
+      element: _el,
+    };
+  }
+  const _days7 = [];
+  for (let i = 0; i < 7; i++) _days7.push(_luckyDayOnce(i));
+  const _stripHtml = _days7.map(d => `
+    <button type="button"
+            data-offset="${d.off}"
+            onclick="(function(b){const p=b.closest('#luckyPanel');if(!p)return;p.dataset.luckyOffset=String(${d.off});renderLucky();})(this)"
+            style="flex:1;min-width:78px;padding:9px 6px;background:${d.off===_luckySel?(d.scoreCol+'22'):'rgba(0,0,0,.18)'};border:1.5px solid ${d.off===_luckySel?d.scoreCol:'rgba(200,164,90,.18)'};border-radius:8px;cursor:pointer;font-family:inherit;color:var(--text);transition:all .15s;text-align:center;outline:none">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.3px;color:${d.off===_luckySel?d.scoreCol:'var(--muted)'};margin-bottom:3px;text-transform:uppercase">${d.off===0?(isTh?'วันนี้':'TODAY'):d.label.split(' ').slice(0,1)[0]}</div>
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:11px;color:${d.off===_luckySel?d.scoreCol:'var(--text)'};margin-bottom:4px">${d.off===0?d.label:d.label.split(' ').slice(1).join(' ')}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:18px;color:${d.officerCol};margin-bottom:2px;line-height:1">${d.officerZh}</div>
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1px;color:${d.scoreCol};font-weight:700">${d.scoreLabel.toUpperCase()}</div>
+      ${d.isYellow ? `<div style="font-size:9px;color:#f0d060;margin-top:2px">🌕</div>` : ''}
+    </button>
+  `).join('');
+
   el.innerHTML = `
+    <!-- 7-day quick-glance strip -->
+    <div style="margin-bottom:16px">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;text-align:center">${isTh?'⏳ ภาพรวม 7 วัน · แตะเพื่อดูรายละเอียด':'⏳ 7-day forecast · tap a day for detail'}</div>
+      <div style="display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px">${_stripHtml}</div>
+    </div>
+
     <!-- Date banner -->
     <div style="text-align:center;margin-bottom:18px">
-      <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">${isTh?'คำนวณสำหรับวัน':'Calculated for'}</div>
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">${isTh?(_luckySel===0?'คำนวณสำหรับวัน':'แสดงรายละเอียดของ'):(_luckySel===0?'Calculated for':'Detail for')}</div>
       <div style="font-family:'Cinzel Decorative',serif;font-size:16px;color:var(--gold);margin-bottom:6px">${dateStr}</div>
       <div style="display:inline-block;padding:8px 20px;border-radius:20px;border:2px solid ${overallCol};background:${overallCol}18;font-family:'Josefin Sans',sans-serif;font-size:14px;color:${overallCol};letter-spacing:1px;font-weight:700">${overallLabel}</div>
     </div>
@@ -9816,9 +9914,10 @@ function renderPet(){
   const isTh = LANG==='th';
   const dmEl = chart.bazi.dayMasterElement||'ไม้';
   const nskDir = chart.ninestar.starDirection||'—';
-  // Engine returns biorhythm already as percent-int (-100..+100).
-  const physical = chart.biorhythm.physical|0;
-  const emotional = chart.biorhythm.emotional|0;
+  // LIVE biorhythm computed for TODAY (not the chart's frozen blueprint).
+  const _bioToday = _liveBio(chart.input);
+  const physical = _bioToday.physical;
+  const emotional = _bioToday.emotional;
 
   // Pet content sourced from chart.addons.pet (engine-side calcAddons).
   // Fallback minimal stub kept so older bundles don't crash the renderer.
@@ -10349,11 +10448,13 @@ function renderExercise(){
   if (!chart) { _emptyDeepHint('exerciseContent'); return; }
   const isTh = LANG==='th';
   const dmEl = chart.bazi.dayMasterElement||'ไม้';
-  // Engine returns biorhythm already as percent-int (-100..+100). Do NOT
-  // multiply by 100 again — previous code produced -7300% results.
-  const physical     = chart.biorhythm.physical|0;
-  const emotional    = chart.biorhythm.emotional|0;
-  const intellectual = chart.biorhythm.intellectual|0;
+  // LIVE biorhythm computed for TODAY (not the chart's frozen blueprint values
+  // from BIORHYTHM_REF). Re-run on each render so the percent reflects the
+  // actual day the user is viewing the tab.
+  const _bioToday = _liveBio(chart.input);
+  const physical     = _bioToday.physical;
+  const emotional    = _bioToday.emotional;
+  const intellectual = _bioToday.intellectual;
   const nskDir       = chart.ninestar.starDirection||'—';
 
   // Exercise content sourced from chart.addons.exercise (engine-side).

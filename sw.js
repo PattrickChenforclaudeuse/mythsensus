@@ -154,7 +154,13 @@
 // 3-tier plan comparison (Free / one-time / subscription $8.99) so buyers stop
 // wondering what the subscription includes vs a single buy, then lists what
 // they own. Tab relabelled 📦 ที่ปลดล็อก / My Unlocks for discoverability.
-const CACHE = 'mythsensus-v64';
+// v65: 2026-06-04 — Lucky panel 7-day forecast strip (clickable day cards
+// refocus detail view) + biorhythm refresh fix: Pet / Exercise / Identity
+// Synthesis tabs now read TODAY's biorhythm via _liveBio(chart.input) instead
+// of the engine's frozen BIORHYTHM_REF (2026-04-14) values. Aligns with the
+// existing daily-refresh override that was scoped only to the Biorhythm
+// Deep Reading tile since 2026-06-01.
+const CACHE = 'mythsensus-v65';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
