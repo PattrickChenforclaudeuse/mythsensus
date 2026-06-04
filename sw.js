@@ -160,7 +160,13 @@
 // of the engine's frozen BIORHYTHM_REF (2026-04-14) values. Aligns with the
 // existing daily-refresh override that was scoped only to the Biorhythm
 // Deep Reading tile since 2026-06-01.
-const CACHE = 'mythsensus-v65';
+// v66: 2026-06-04 — Divine Mirror tab now opens with a "2-axis summary"
+// card pairing the element-based PRIMARY deity (e.g. Fire → Surya) with the
+// tier-based COSMIC ENTITY (e.g. Resonant → Tai Yi) so users stop reading
+// them as conflicting "your deity X" / "your deity Y". The detail cards
+// below are now relabelled "AXIS 1 · PRIMARY ARCHETYPE" and "AXIS 2 ·
+// COSMIC ENTITY" for the same clarity.
+const CACHE = 'mythsensus-v66';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
