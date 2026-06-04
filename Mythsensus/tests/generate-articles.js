@@ -140,7 +140,7 @@ function render({ slug, tagEn, tagTh, titleEn, titleTh, ledeEn, ledeTh, bodyEn, 
 body{background:var(--bg);color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.85}
 a{color:var(--gold);text-decoration:none}
 .nav{position:fixed;top:0;width:100%;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
-.nav-logo{font-family:'Cinzel Decorative',serif;font-size:1rem;cursor:pointer;letter-spacing:.06em}.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:clamp(16px,1.8vw,22px);cursor:pointer;letter-spacing:5px}.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
 .nav-right{display:flex;gap:1.6rem;align-items:center}
 .nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--silver);opacity:.7}
 .nav-link:hover{opacity:1;color:var(--gold)}

@@ -1,6 +1,6 @@
-<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>How Mythsensus Works — Engine คำนวณใน browser, ไม่ส่งข้อมูลออก · Mythsensus</title>
-<meta name="description" content="Mythsensus คำนวณดวง 26 ศาสตร์ใน browser ของคุณเอง ไม่ส่งวันเกิดไป server — วิธีพิสูจน์ด้วย DevTools + technical architecture แบบ transparent">
+﻿<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How Mythsensus Works â€” Engine à¸„à¸³à¸™à¸§à¸“à¹ƒà¸™ browser, à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸­à¸­à¸ Â· Mythsensus</title>
+<meta name="description" content="Mythsensus à¸„à¸³à¸™à¸§à¸“à¸”à¸§à¸‡ 26 à¸¨à¸²à¸ªà¸•à¸£à¹Œà¹ƒà¸™ browser à¸‚à¸­à¸‡à¸„à¸¸à¸“à¹€à¸­à¸‡ à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¸§à¸±à¸™à¹€à¸à¸´à¸”à¹„à¸› server â€” à¸§à¸´à¸˜à¸µà¸žà¸´à¸ªà¸¹à¸ˆà¸™à¹Œà¸”à¹‰à¸§à¸¢ DevTools + technical architecture à¹à¸šà¸š transparent">
 <link rel="canonical" href="https://mythsensus.com/how-it-works">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/favicon.svg">
@@ -8,8 +8,8 @@
 <meta name="theme-color" content="#040407">
 <meta property="og:site_name" content="Mythsensus">
 <meta property="og:type" content="article">
-<meta property="og:title" content="How Mythsensus Works — Engine ใน browser, ไม่ส่งข้อมูล">
-<meta property="og:description" content="ดวงคำนวณบนเครื่องคุณ ไม่ใช่ server ของเรา — วิธีพิสูจน์ด้วย DevTools + architecture transparent">
+<meta property="og:title" content="How Mythsensus Works â€” Engine à¹ƒà¸™ browser, à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¸‚à¹‰à¸­à¸¡à¸¹à¸¥">
+<meta property="og:description" content="à¸”à¸§à¸‡à¸„à¸³à¸™à¸§à¸“à¸šà¸™à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡à¸„à¸¸à¸“ à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆ server à¸‚à¸­à¸‡à¹€à¸£à¸² â€” à¸§à¸´à¸˜à¸µà¸žà¸´à¸ªà¸¹à¸ˆà¸™à¹Œà¸”à¹‰à¸§à¸¢ DevTools + architecture transparent">
 <meta property="og:url" content="https://mythsensus.com/how-it-works">
 <meta property="og:image" content="https://mythsensus.com/og-default.png">
 <meta property="og:image:type" content="image/png">
@@ -17,8 +17,8 @@
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="th_TH">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="How Mythsensus Works — On-device 26 ศาสตร์">
-<meta name="twitter:description" content="คำนวณใน browser ไม่ส่งข้อมูลออก — วิธีพิสูจน์ด้วย DevTools">
+<meta name="twitter:title" content="How Mythsensus Works â€” On-device 26 à¸¨à¸²à¸ªà¸•à¸£à¹Œ">
+<meta name="twitter:description" content="à¸„à¸³à¸™à¸§à¸“à¹ƒà¸™ browser à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸­à¸­à¸ â€” à¸§à¸´à¸˜à¸µà¸žà¸´à¸ªà¸¹à¸ˆà¸™à¹Œà¸”à¹‰à¸§à¸¢ DevTools">
 <meta name="twitter:image" content="https://mythsensus.com/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600&family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
@@ -32,7 +32,7 @@ code{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padd
 pre{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:1rem 1.2rem;overflow-x:auto;line-height:1.55;margin:1rem 0;color:var(--silver)}
 pre code{background:none;border:none;padding:0;color:inherit}
 .nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
-.nav-logo{font-family:'Cinzel Decorative',serif;font-size:1rem;letter-spacing:.06em}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:clamp(16px,1.8vw,22px);cursor:pointer;letter-spacing:5px}
 .logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
 .nav-right{display:flex;gap:1.5rem;align-items:center}
 .nav-link{font-family:'Prompt',sans-serif;font-size:.78rem;letter-spacing:.06em;color:var(--silver);opacity:.7}
@@ -53,8 +53,8 @@ em{color:var(--gold);font-style:normal}
 .flow-step p{margin:0;font-size:.95rem;line-height:1.7}
 .proof-list{list-style:none;padding:0;margin:1rem 0}
 .proof-list li{padding:.6rem 0 .6rem 1.8rem;position:relative;font-size:.98rem;color:var(--silver);line-height:1.8}
-.proof-list li::before{content:"✓";position:absolute;left:0;top:.6rem;color:var(--green);font-weight:500;font-size:1.1rem}
-.proof-list li.bad::before{content:"✗";color:var(--red)}
+.proof-list li::before{content:"âœ“";position:absolute;left:0;top:.6rem;color:var(--green);font-weight:500;font-size:1.1rem}
+.proof-list li.bad::before{content:"âœ—";color:var(--red)}
 .check-block{background:var(--bg2);border:1px solid var(--gold3);border-radius:8px;padding:1.4rem 1.6rem;margin:1.6rem 0}
 .check-block h3{margin-top:0;color:var(--gold2)}
 .cta-block{background:var(--bg2);border:1px solid var(--gold3);border-radius:6px;padding:1.6rem 1.6rem;text-align:center;margin:2.4rem 0}
@@ -67,19 +67,19 @@ em{color:var(--gold);font-style:normal}
 .faq-block p{margin:0;font-size:.96rem;line-height:1.75}
 footer{border-top:1px solid var(--border);padding:2rem 5%;text-align:center;font-family:'Prompt',sans-serif;font-size:.72rem;color:var(--dim);margin-top:3rem}
 footer a{color:var(--dim);margin:0 .5rem}footer a:hover{color:var(--gold)}
-/* ── TL;DR card · 3-bullet summary at top ─────────────────── */
+/* â”€â”€ TL;DR card Â· 3-bullet summary at top â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tldr-card{background:linear-gradient(180deg,rgba(200,164,90,.10),rgba(200,164,90,.02));border:1px solid var(--gold);border-radius:8px;padding:1.4rem 1.6rem;margin:1.6rem 0}
 .tldr-label{font-family:'Prompt',sans-serif;font-size:.7rem;letter-spacing:.18em;color:var(--gold);font-weight:500;text-transform:uppercase;margin-bottom:.6rem}
 .tldr-card ul{list-style:none;padding:0;margin:0}
 .tldr-card li{padding:.4rem 0 .4rem 1.4rem;position:relative;font-size:.98rem;line-height:1.7;color:var(--silver)}
-.tldr-card li::before{content:'→';position:absolute;left:0;color:var(--gold);font-weight:500}
+.tldr-card li::before{content:'â†’';position:absolute;left:0;color:var(--gold);font-weight:500}
 .tldr-card li strong{color:var(--gold2);font-weight:500}
-/* ── Jump nav · anchor links to sections ──────────────────── */
+/* â”€â”€ Jump nav Â· anchor links to sections â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .jump-nav{display:flex;flex-wrap:wrap;gap:.4rem;margin:1.4rem 0 2rem;padding:.8rem 1rem;background:var(--bg2);border:1px solid var(--border);border-radius:6px}
 .jump-nav a{font-family:'Prompt',sans-serif;font-size:.75rem;letter-spacing:.04em;padding:.3rem .7rem;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--gold2);transition:all .15s}
 .jump-nav a:hover{background:rgba(200,164,90,.12);color:var(--gold);border-color:var(--gold3)}
 section[id]{scroll-margin-top:80px}
-/* ── Tables for clean technical content ───────────────────── */
+/* â”€â”€ Tables for clean technical content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tech-table{width:100%;border-collapse:collapse;margin:1rem 0;font-family:'Prompt',sans-serif;font-size:.9rem}
 .tech-table th,.tech-table td{border:1px solid var(--border);padding:.7rem .9rem;text-align:left;vertical-align:top}
 .tech-table th{background:var(--bg3);color:var(--gold);font-weight:500;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase}
@@ -87,17 +87,17 @@ section[id]{scroll-margin-top:80px}
 .tech-table strong{color:var(--gold2)}
 .tech-table code{font-size:.85rem;background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:.05rem .35rem;color:var(--gold2)}
 @media(max-width:640px){.tech-table{font-size:.82rem}.tech-table th,.tech-table td{padding:.4rem .5rem}}
-/* ── Collapsible technical deep-dive sections ─────────────── */
+/* â”€â”€ Collapsible technical deep-dive sections â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 details.tech-deep{margin:1.6rem 0;background:var(--bg2);border:1px solid var(--gold3);border-radius:8px;padding:0;overflow:hidden}
 details.tech-deep>summary{cursor:pointer;padding:1rem 1.4rem;font-family:'Prompt',sans-serif;font-weight:500;font-size:1.05rem;color:var(--gold);list-style:none;display:flex;justify-content:space-between;align-items:center;user-select:none}
 details.tech-deep>summary::-webkit-details-marker{display:none}
-details.tech-deep>summary::after{content:'▾ click to expand';color:var(--gold3);font-size:.7rem;font-weight:300;letter-spacing:.1em;text-transform:uppercase;transition:transform .2s}
-details[open].tech-deep>summary::after{content:'▴ click to collapse'}
+details.tech-deep>summary::after{content:'â–¾ click to expand';color:var(--gold3);font-size:.7rem;font-weight:300;letter-spacing:.1em;text-transform:uppercase;transition:transform .2s}
+details[open].tech-deep>summary::after{content:'â–´ click to collapse'}
 details.tech-deep>summary:hover{background:rgba(200,164,90,.05)}
 details[open].tech-deep>summary{border-bottom:1px solid var(--border)}
 details.tech-deep .deep-body{padding:1.2rem 1.4rem 1.4rem}
 details.tech-deep .deep-body p{font-size:.95rem;line-height:1.75}
-/* Section header dividers · subtle horizontal lines between sections */
+/* Section header dividers Â· subtle horizontal lines between sections */
 section{position:relative}
 section + section::before{content:'';display:block;width:60px;height:1px;background:var(--gold3);margin:0 auto 2.2rem;opacity:.4}
 @media(max-width:640px){.nav-right .nav-link{display:none}}
@@ -107,8 +107,8 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
 {
   "@context":"https://schema.org",
   "@type":"Article",
-  "headline":"How Mythsensus Works — Engine คำนวณใน browser, ไม่ส่งข้อมูลออก",
-  "description":"Mythsensus คำนวณดวง 26 ศาสตร์ใน browser ของคุณเอง — วิธีพิสูจน์ด้วย DevTools + technical architecture transparent",
+  "headline":"How Mythsensus Works â€” Engine à¸„à¸³à¸™à¸§à¸“à¹ƒà¸™ browser, à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸­à¸­à¸",
+  "description":"Mythsensus à¸„à¸³à¸™à¸§à¸“à¸”à¸§à¸‡ 26 à¸¨à¸²à¸ªà¸•à¸£à¹Œà¹ƒà¸™ browser à¸‚à¸­à¸‡à¸„à¸¸à¸“à¹€à¸­à¸‡ â€” à¸§à¸´à¸˜à¸µà¸žà¸´à¸ªà¸¹à¸ˆà¸™à¹Œà¸”à¹‰à¸§à¸¢ DevTools + technical architecture transparent",
   "author":{"@type":"Organization","name":"Mythsensus"},
   "publisher":{"@type":"Organization","name":"Mythsensus","logo":{"@type":"ImageObject","url":"https://mythsensus.com/og-default.png"}},
   "datePublished":"2026-06-01",
@@ -121,11 +121,11 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
   "@context":"https://schema.org",
   "@type":"FAQPage",
   "mainEntity":[
-    {"@type":"Question","name":"คำนวณดวงใน browser ของฉันจริง ๆ หรือ?","acceptedAnswer":{"@type":"Answer","text":"จริง — engine 26 ศาสตร์ (~250 KB JavaScript) ถูก compile จาก TypeScript และ load เข้า browser ของคุณตอนเปิดเว็บครั้งแรก หลังจากนั้นการคำนวณรันใน CPU/RAM ของอุปกรณ์คุณเอง วันเกิดที่คุณใส่อยู่ใน memory ของ browser tab เท่านั้น ไม่ถูกส่งไปที่ Mythsensus server ใด ๆ ในระหว่างการคำนวณ"}},
-    {"@type":"Question","name":"วิธีพิสูจน์ว่าไม่ส่งข้อมูลออก?","acceptedAnswer":{"@type":"Answer","text":"เปิด DevTools (F12 หรือ Cmd+Option+I) ไปที่แท็บ Network กด Ctrl+R (Cmd+R) reload หน้า ใส่วันเกิดของคุณ กด Generate — ดูใน Network tab ว่ามี request ไปที่ mythsensus.com หรือไม่ คำตอบ: ไม่มี (ยกเว้น analytics ภายในที่ไม่ส่งวันเกิด) การคำนวณทั้งหมดเสร็จใน browser โดยไม่ต้องเชื่อมต่อ server"}},
-    {"@type":"Question","name":"แล้ว Cosmic Blueprint $19 ส่งข้อมูลออกไหม?","acceptedAnswer":{"@type":"Answer","text":"การชำระเงิน $19 ไปที่ Gumroad (merchant of record สำหรับ card processing + tax + receipt) — email และข้อมูล payment ส่งไปที่ Gumroad ไม่ใช่ Mythsensus. การคำนวณรายงาน 43 หน้ายังคงรันใน browser ของคุณเอง ไม่ใช่ server ของเรา — เราเก็บแค่ payment status (active/inactive) ผ่าน Gumroad webhook ไม่เก็บวันเกิดหรือเนื้อหารายงาน"}},
-    {"@type":"Question","name":"localStorage คืออะไร? ปลอดภัยไหม?","acceptedAnswer":{"@type":"Answer","text":"localStorage คือกล่องเก็บข้อมูลใน browser ของคุณเอง — แต่ละ origin (mythsensus.com) มีกล่องของตัวเอง ไม่ shared กับเว็บอื่น และไม่ส่งไปที่ server ใด ๆ ข้อมูลอยู่ใน hard drive ของอุปกรณ์คุณเท่านั้น เคลียร์ browser cache = ข้อมูลหายหมด เพราะ Mythsensus ไม่มี backup บน server (เป็นข้อจำกัดที่จงใจ — privacy-first)"}},
-    {"@type":"Question","name":"Vercel Analytics เก็บข้อมูลอะไร?","acceptedAnswer":{"@type":"Answer","text":"Vercel Web Analytics คือ aggregated traffic data แบบ privacy-friendly — เก็บ page view count, country (ไม่ใช่ IP), browser type, referrer. ไม่ใช้ cookies. ไม่ track individual user. ไม่เก็บ IP. ไม่ส่งไปที่ Google/Facebook. ไม่ใช้สำหรับ advertising หรือ remarketing วันเกิดของคุณ ไม่ส่งไปที่ Vercel Analytics — เป็น analytics ของ page navigation เท่านั้น"}}
+    {"@type":"Question","name":"à¸„à¸³à¸™à¸§à¸“à¸”à¸§à¸‡à¹ƒà¸™ browser à¸‚à¸­à¸‡à¸‰à¸±à¸™à¸ˆà¸£à¸´à¸‡ à¹† à¸«à¸£à¸·à¸­?","acceptedAnswer":{"@type":"Answer","text":"à¸ˆà¸£à¸´à¸‡ â€” engine 26 à¸¨à¸²à¸ªà¸•à¸£à¹Œ (~250 KB JavaScript) à¸–à¸¹à¸ compile à¸ˆà¸²à¸ TypeScript à¹à¸¥à¸° load à¹€à¸‚à¹‰à¸² browser à¸‚à¸­à¸‡à¸„à¸¸à¸“à¸•à¸­à¸™à¹€à¸›à¸´à¸”à¹€à¸§à¹‡à¸šà¸„à¸£à¸±à¹‰à¸‡à¹à¸£à¸ à¸«à¸¥à¸±à¸‡à¸ˆà¸²à¸à¸™à¸±à¹‰à¸™à¸à¸²à¸£à¸„à¸³à¸™à¸§à¸“à¸£à¸±à¸™à¹ƒà¸™ CPU/RAM à¸‚à¸­à¸‡à¸­à¸¸à¸›à¸à¸£à¸“à¹Œà¸„à¸¸à¸“à¹€à¸­à¸‡ à¸§à¸±à¸™à¹€à¸à¸´à¸”à¸—à¸µà¹ˆà¸„à¸¸à¸“à¹ƒà¸ªà¹ˆà¸­à¸¢à¸¹à¹ˆà¹ƒà¸™ memory à¸‚à¸­à¸‡ browser tab à¹€à¸—à¹ˆà¸²à¸™à¸±à¹‰à¸™ à¹„à¸¡à¹ˆà¸–à¸¹à¸à¸ªà¹ˆà¸‡à¹„à¸›à¸—à¸µà¹ˆ Mythsensus server à¹ƒà¸” à¹† à¹ƒà¸™à¸£à¸°à¸«à¸§à¹ˆà¸²à¸‡à¸à¸²à¸£à¸„à¸³à¸™à¸§à¸“"}},
+    {"@type":"Question","name":"à¸§à¸´à¸˜à¸µà¸žà¸´à¸ªà¸¹à¸ˆà¸™à¹Œà¸§à¹ˆà¸²à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸­à¸­à¸?","acceptedAnswer":{"@type":"Answer","text":"à¹€à¸›à¸´à¸” DevTools (F12 à¸«à¸£à¸·à¸­ Cmd+Option+I) à¹„à¸›à¸—à¸µà¹ˆà¹à¸—à¹‡à¸š Network à¸à¸” Ctrl+R (Cmd+R) reload à¸«à¸™à¹‰à¸² à¹ƒà¸ªà¹ˆà¸§à¸±à¸™à¹€à¸à¸´à¸”à¸‚à¸­à¸‡à¸„à¸¸à¸“ à¸à¸” Generate â€” à¸”à¸¹à¹ƒà¸™ Network tab à¸§à¹ˆà¸²à¸¡à¸µ request à¹„à¸›à¸—à¸µà¹ˆ mythsensus.com à¸«à¸£à¸·à¸­à¹„à¸¡à¹ˆ à¸„à¸³à¸•à¸­à¸š: à¹„à¸¡à¹ˆà¸¡à¸µ (à¸¢à¸à¹€à¸§à¹‰à¸™ analytics à¸ à¸²à¸¢à¹ƒà¸™à¸—à¸µà¹ˆà¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¸§à¸±à¸™à¹€à¸à¸´à¸”) à¸à¸²à¸£à¸„à¸³à¸™à¸§à¸“à¸—à¸±à¹‰à¸‡à¸«à¸¡à¸”à¹€à¸ªà¸£à¹‡à¸ˆà¹ƒà¸™ browser à¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¸•à¹‰à¸­à¸‡à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­ server"}},
+    {"@type":"Question","name":"à¹à¸¥à¹‰à¸§ Cosmic Blueprint $19 à¸ªà¹ˆà¸‡à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸­à¸­à¸à¹„à¸«à¸¡?","acceptedAnswer":{"@type":"Answer","text":"à¸à¸²à¸£à¸Šà¸³à¸£à¸°à¹€à¸‡à¸´à¸™ $19 à¹„à¸›à¸—à¸µà¹ˆ Gumroad (merchant of record à¸ªà¸³à¸«à¸£à¸±à¸š card processing + tax + receipt) â€” email à¹à¸¥à¸°à¸‚à¹‰à¸­à¸¡à¸¹à¸¥ payment à¸ªà¹ˆà¸‡à¹„à¸›à¸—à¸µà¹ˆ Gumroad à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆ Mythsensus. à¸à¸²à¸£à¸„à¸³à¸™à¸§à¸“à¸£à¸²à¸¢à¸‡à¸²à¸™ 43 à¸«à¸™à¹‰à¸²à¸¢à¸±à¸‡à¸„à¸‡à¸£à¸±à¸™à¹ƒà¸™ browser à¸‚à¸­à¸‡à¸„à¸¸à¸“à¹€à¸­à¸‡ à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆ server à¸‚à¸­à¸‡à¹€à¸£à¸² â€” à¹€à¸£à¸²à¹€à¸à¹‡à¸šà¹à¸„à¹ˆ payment status (active/inactive) à¸œà¹ˆà¸²à¸™ Gumroad webhook à¹„à¸¡à¹ˆà¹€à¸à¹‡à¸šà¸§à¸±à¸™à¹€à¸à¸´à¸”à¸«à¸£à¸·à¸­à¹€à¸™à¸·à¹‰à¸­à¸«à¸²à¸£à¸²à¸¢à¸‡à¸²à¸™"}},
+    {"@type":"Question","name":"localStorage à¸„à¸·à¸­à¸­à¸°à¹„à¸£? à¸›à¸¥à¸­à¸”à¸ à¸±à¸¢à¹„à¸«à¸¡?","acceptedAnswer":{"@type":"Answer","text":"localStorage à¸„à¸·à¸­à¸à¸¥à¹ˆà¸­à¸‡à¹€à¸à¹‡à¸šà¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹ƒà¸™ browser à¸‚à¸­à¸‡à¸„à¸¸à¸“à¹€à¸­à¸‡ â€” à¹à¸•à¹ˆà¸¥à¸° origin (mythsensus.com) à¸¡à¸µà¸à¸¥à¹ˆà¸­à¸‡à¸‚à¸­à¸‡à¸•à¸±à¸§à¹€à¸­à¸‡ à¹„à¸¡à¹ˆ shared à¸à¸±à¸šà¹€à¸§à¹‡à¸šà¸­à¸·à¹ˆà¸™ à¹à¸¥à¸°à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¹„à¸›à¸—à¸µà¹ˆ server à¹ƒà¸” à¹† à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸­à¸¢à¸¹à¹ˆà¹ƒà¸™ hard drive à¸‚à¸­à¸‡à¸­à¸¸à¸›à¸à¸£à¸“à¹Œà¸„à¸¸à¸“à¹€à¸—à¹ˆà¸²à¸™à¸±à¹‰à¸™ à¹€à¸„à¸¥à¸µà¸¢à¸£à¹Œ browser cache = à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸«à¸²à¸¢à¸«à¸¡à¸” à¹€à¸žà¸£à¸²à¸° Mythsensus à¹„à¸¡à¹ˆà¸¡à¸µ backup à¸šà¸™ server (à¹€à¸›à¹‡à¸™à¸‚à¹‰à¸­à¸ˆà¸³à¸à¸±à¸”à¸—à¸µà¹ˆà¸ˆà¸‡à¹ƒà¸ˆ â€” privacy-first)"}},
+    {"@type":"Question","name":"Vercel Analytics à¹€à¸à¹‡à¸šà¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸­à¸°à¹„à¸£?","acceptedAnswer":{"@type":"Answer","text":"Vercel Web Analytics à¸„à¸·à¸­ aggregated traffic data à¹à¸šà¸š privacy-friendly â€” à¹€à¸à¹‡à¸š page view count, country (à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆ IP), browser type, referrer. à¹„à¸¡à¹ˆà¹ƒà¸Šà¹‰ cookies. à¹„à¸¡à¹ˆ track individual user. à¹„à¸¡à¹ˆà¹€à¸à¹‡à¸š IP. à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¹„à¸›à¸—à¸µà¹ˆ Google/Facebook. à¹„à¸¡à¹ˆà¹ƒà¸Šà¹‰à¸ªà¸³à¸«à¸£à¸±à¸š advertising à¸«à¸£à¸·à¸­ remarketing à¸§à¸±à¸™à¹€à¸à¸´à¸”à¸‚à¸­à¸‡à¸„à¸¸à¸“ à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¹„à¸›à¸—à¸µà¹ˆ Vercel Analytics â€” à¹€à¸›à¹‡à¸™ analytics à¸‚à¸­à¸‡ page navigation à¹€à¸—à¹ˆà¸²à¸™à¸±à¹‰à¸™"}}
   ]
 }
 </script>
@@ -135,34 +135,34 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
   <a href="/" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
   <div class="nav-right">
     <a href="/cosmic-score" class="nav-link">Cosmic Score</a>
-    <a href="/blog" class="nav-link">บทความ</a>
-    <a href="/pricing" class="nav-link">ราคา</a>
-    <a href="/" class="nav-link">หน้าแรก</a>
+    <a href="/blog" class="nav-link">à¸šà¸—à¸„à¸§à¸²à¸¡</a>
+    <a href="/pricing" class="nav-link">à¸£à¸²à¸„à¸²</a>
+    <a href="/" class="nav-link">à¸«à¸™à¹‰à¸²à¹à¸£à¸</a>
   </div>
 </nav>
 
 <div class="page-wrap">
 
-  <p class="eyebrow">How It Works · ทำงานยังไง</p>
-  <h1 class="title">Engine คำนวณใน browser ของคุณ ไม่ส่งข้อมูลออก</h1>
-  <p class="sub">วันเกิดของคุณเป็นเรื่องส่วนตัว Mythsensus จึงออกแบบให้การคำนวณดวง 26 ศาสตร์ทำใน browser ของคุณเอง — ไม่ส่งวันเกิดไป server ใด ๆ. หน้านี้อธิบาย architecture + วิธีพิสูจน์ด้วยตัวเองใน 30 วินาที</p>
+  <p class="eyebrow">How It Works Â· à¸—à¸³à¸‡à¸²à¸™à¸¢à¸±à¸‡à¹„à¸‡</p>
+  <h1 class="title">Engine à¸„à¸³à¸™à¸§à¸“à¹ƒà¸™ browser à¸‚à¸­à¸‡à¸„à¸¸à¸“ à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸­à¸­à¸</h1>
+  <p class="sub">à¸§à¸±à¸™à¹€à¸à¸´à¸”à¸‚à¸­à¸‡à¸„à¸¸à¸“à¹€à¸›à¹‡à¸™à¹€à¸£à¸·à¹ˆà¸­à¸‡à¸ªà¹ˆà¸§à¸™à¸•à¸±à¸§ Mythsensus à¸ˆà¸¶à¸‡à¸­à¸­à¸à¹à¸šà¸šà¹ƒà¸«à¹‰à¸à¸²à¸£à¸„à¸³à¸™à¸§à¸“à¸”à¸§à¸‡ 26 à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸—à¸³à¹ƒà¸™ browser à¸‚à¸­à¸‡à¸„à¸¸à¸“à¹€à¸­à¸‡ â€” à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¸§à¸±à¸™à¹€à¸à¸´à¸”à¹„à¸› server à¹ƒà¸” à¹†. à¸«à¸™à¹‰à¸²à¸™à¸µà¹‰à¸­à¸˜à¸´à¸šà¸²à¸¢ architecture + à¸§à¸´à¸˜à¸µà¸žà¸´à¸ªà¸¹à¸ˆà¸™à¹Œà¸”à¹‰à¸§à¸¢à¸•à¸±à¸§à¹€à¸­à¸‡à¹ƒà¸™ 30 à¸§à¸´à¸™à¸²à¸—à¸µ</p>
 
   <div class="tldr-card">
-    <div class="tldr-label">✦ สรุปสั้น ๆ ๔ ข้อ</div>
+    <div class="tldr-label">âœ¦ à¸ªà¸£à¸¸à¸›à¸ªà¸±à¹‰à¸™ à¹† à¹” à¸‚à¹‰à¸­</div>
     <ul>
-      <li><strong>Engine ทำงานในเบราว์เซอร์ของคุณ</strong> ไม่มีการเรียก API ไม่ส่งวันเกิดออกจากเครื่อง · พิสูจน์ได้ผ่าน DevTools ภายใน ๓๐ วินาที</li>
-      <li><strong>ตัวเลขและคะแนนทุกตัวคำนวณแบบกำหนดผล (deterministic)</strong> ไม่มี LLM อยู่ในเส้นทางคำนวณ · เนื้อหาเชิงเล่าเรื่องเป็นส่วนที่ AI ช่วยร่างจากคัมภีร์ดั้งเดิมที่อ้างอิงได้ · <a href="#engine" style="color:var(--gold2);text-decoration:underline">ดูจุดแบ่งให้ชัด →</a></li>
-      <li><strong>การลงชื่อเข้าใช้เป็นทางเลือก</strong> เก็บแค่อีเมลและสถานะการสมัครเท่านั้น ไม่เก็บวันเกิดหรือเนื้อหาในแผนภูมิดวง</li>
-      <li><strong>การเปิดเผยข้อจำกัดทางวิศวกรรม</strong> — Vedic ayanamsa ใช้สูตร lahiriAyanamsa() ตามเวลาจริง (ปรับเมื่อ ๑ มิ.ย. ๒๕๖๙ จากเดิมตั้งคงที่ ๒๔.๐) · BaZi solar terms ยังเป็นค่าประมาณ · เวอร์ชัน ๒ ของ engine กำหนดปล่อยไตรมาส ๓-๔ ปี ๒๕๖๙</li>
+      <li><strong>Engine à¸—à¸³à¸‡à¸²à¸™à¹ƒà¸™à¹€à¸šà¸£à¸²à¸§à¹Œà¹€à¸‹à¸­à¸£à¹Œà¸‚à¸­à¸‡à¸„à¸¸à¸“</strong> à¹„à¸¡à¹ˆà¸¡à¸µà¸à¸²à¸£à¹€à¸£à¸µà¸¢à¸ API à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¸§à¸±à¸™à¹€à¸à¸´à¸”à¸­à¸­à¸à¸ˆà¸²à¸à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡ Â· à¸žà¸´à¸ªà¸¹à¸ˆà¸™à¹Œà¹„à¸”à¹‰à¸œà¹ˆà¸²à¸™ DevTools à¸ à¸²à¸¢à¹ƒà¸™ à¹“à¹ à¸§à¸´à¸™à¸²à¸—à¸µ</li>
+      <li><strong>à¸•à¸±à¸§à¹€à¸¥à¸‚à¹à¸¥à¸°à¸„à¸°à¹à¸™à¸™à¸—à¸¸à¸à¸•à¸±à¸§à¸„à¸³à¸™à¸§à¸“à¹à¸šà¸šà¸à¸³à¸«à¸™à¸”à¸œà¸¥ (deterministic)</strong> à¹„à¸¡à¹ˆà¸¡à¸µ LLM à¸­à¸¢à¸¹à¹ˆà¹ƒà¸™à¹€à¸ªà¹‰à¸™à¸—à¸²à¸‡à¸„à¸³à¸™à¸§à¸“ Â· à¹€à¸™à¸·à¹‰à¸­à¸«à¸²à¹€à¸Šà¸´à¸‡à¹€à¸¥à¹ˆà¸²à¹€à¸£à¸·à¹ˆà¸­à¸‡à¹€à¸›à¹‡à¸™à¸ªà¹ˆà¸§à¸™à¸—à¸µà¹ˆ AI à¸Šà¹ˆà¸§à¸¢à¸£à¹ˆà¸²à¸‡à¸ˆà¸²à¸à¸„à¸±à¸¡à¸ à¸µà¸£à¹Œà¸”à¸±à¹‰à¸‡à¹€à¸”à¸´à¸¡à¸—à¸µà¹ˆà¸­à¹‰à¸²à¸‡à¸­à¸´à¸‡à¹„à¸”à¹‰ Â· <a href="#engine" style="color:var(--gold2);text-decoration:underline">à¸”à¸¹à¸ˆà¸¸à¸”à¹à¸šà¹ˆà¸‡à¹ƒà¸«à¹‰à¸Šà¸±à¸” â†’</a></li>
+      <li><strong>à¸à¸²à¸£à¸¥à¸‡à¸Šà¸·à¹ˆà¸­à¹€à¸‚à¹‰à¸²à¹ƒà¸Šà¹‰à¹€à¸›à¹‡à¸™à¸—à¸²à¸‡à¹€à¸¥à¸·à¸­à¸</strong> à¹€à¸à¹‡à¸šà¹à¸„à¹ˆà¸­à¸µà¹€à¸¡à¸¥à¹à¸¥à¸°à¸ªà¸–à¸²à¸™à¸°à¸à¸²à¸£à¸ªà¸¡à¸±à¸„à¸£à¹€à¸—à¹ˆà¸²à¸™à¸±à¹‰à¸™ à¹„à¸¡à¹ˆà¹€à¸à¹‡à¸šà¸§à¸±à¸™à¹€à¸à¸´à¸”à¸«à¸£à¸·à¸­à¹€à¸™à¸·à¹‰à¸­à¸«à¸²à¹ƒà¸™à¹à¸œà¸™à¸ à¸¹à¸¡à¸´à¸”à¸§à¸‡</li>
+      <li><strong>à¸à¸²à¸£à¹€à¸›à¸´à¸”à¹€à¸œà¸¢à¸‚à¹‰à¸­à¸ˆà¸³à¸à¸±à¸”à¸—à¸²à¸‡à¸§à¸´à¸¨à¸§à¸à¸£à¸£à¸¡</strong> â€” Vedic ayanamsa à¹ƒà¸Šà¹‰à¸ªà¸¹à¸•à¸£ lahiriAyanamsa() à¸•à¸²à¸¡à¹€à¸§à¸¥à¸²à¸ˆà¸£à¸´à¸‡ (à¸›à¸£à¸±à¸šà¹€à¸¡à¸·à¹ˆà¸­ à¹‘ à¸¡à¸´.à¸¢. à¹’à¹•à¹–à¹™ à¸ˆà¸²à¸à¹€à¸”à¸´à¸¡à¸•à¸±à¹‰à¸‡à¸„à¸‡à¸—à¸µà¹ˆ à¹’à¹”.à¹) Â· BaZi solar terms à¸¢à¸±à¸‡à¹€à¸›à¹‡à¸™à¸„à¹ˆà¸²à¸›à¸£à¸°à¸¡à¸²à¸“ Â· à¹€à¸§à¸­à¸£à¹Œà¸Šà¸±à¸™ à¹’ à¸‚à¸­à¸‡ engine à¸à¸³à¸«à¸™à¸”à¸›à¸¥à¹ˆà¸­à¸¢à¹„à¸•à¸£à¸¡à¸²à¸ª à¹“-à¹” à¸›à¸µ à¹’à¹•à¹–à¹™</li>
     </ul>
   </div>
 
-  <!-- AI transparency explainer — added from AI audit re-run 2026-06-01
+  <!-- AI transparency explainer â€” added from AI audit re-run 2026-06-01
        (4/5 personas independently flagged "is this AI or deterministic?"). -->
   <div class="ai-honest" style="max-width:720px;margin:18px auto 24px;padding:16px 20px;background:rgba(200,164,90,.05);border:1px solid var(--gold3);border-radius:8px;font-size:14px;line-height:1.85;color:var(--silver)">
-    <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2.5px;color:var(--gold);margin-bottom:10px;text-transform:uppercase">⚖️ เส้นแบ่งระหว่างการคำนวณกับ AI</div>
+    <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2.5px;color:var(--gold);margin-bottom:10px;text-transform:uppercase">âš–ï¸ à¹€à¸ªà¹‰à¸™à¹à¸šà¹ˆà¸‡à¸£à¸°à¸«à¸§à¹ˆà¸²à¸‡à¸à¸²à¸£à¸„à¸³à¸™à¸§à¸“à¸à¸±à¸š AI</div>
     <p style="margin:0">
-      <strong>Cosmic Score และคะแนนทั้ง ๒๖ ศาสตร์</strong> คำนวณแบบกำหนดผลทั้งหมด ใช้สูตรดาราศาสตร์ (Newcomb / VSOP87) ร่วมกับตารางอ้างอิงดั้งเดิมของแต่ละศาสตร์ ไม่มี LLM อยู่ในเส้นทางคำนวณ วันเกิดเดียวกันให้ผลลัพธ์เดียวกันทุกครั้ง ตรวจสอบซ้ำแบบออฟไลน์ได้ และ MCP server เรียกใช้ engine ตัวเดียวกัน. <strong>เนื้อหาเชิงเล่าเรื่อง</strong> (ตำนาน คำอธิบายความหมาย คำแนะนำในการใช้พลังของคุณ ตำนานเทพ) เป็นส่วนที่ AI ช่วยร่าง โดยอิงจากคัมภีร์ดั้งเดิมที่อ้างอิงได้ — BaZi classics, ตำราพระเวท, ปฏิทินมายันต้นฉบับ ฯลฯ — ไม่ใช่ ChatGPT แต่งเองตามใจชอบ.
+      <strong>Cosmic Score à¹à¸¥à¸°à¸„à¸°à¹à¸™à¸™à¸—à¸±à¹‰à¸‡ à¹’à¹– à¸¨à¸²à¸ªà¸•à¸£à¹Œ</strong> à¸„à¸³à¸™à¸§à¸“à¹à¸šà¸šà¸à¸³à¸«à¸™à¸”à¸œà¸¥à¸—à¸±à¹‰à¸‡à¸«à¸¡à¸” à¹ƒà¸Šà¹‰à¸ªà¸¹à¸•à¸£à¸”à¸²à¸£à¸²à¸¨à¸²à¸ªà¸•à¸£à¹Œ (Newcomb / VSOP87) à¸£à¹ˆà¸§à¸¡à¸à¸±à¸šà¸•à¸²à¸£à¸²à¸‡à¸­à¹‰à¸²à¸‡à¸­à¸´à¸‡à¸”à¸±à¹‰à¸‡à¹€à¸”à¸´à¸¡à¸‚à¸­à¸‡à¹à¸•à¹ˆà¸¥à¸°à¸¨à¸²à¸ªà¸•à¸£à¹Œ à¹„à¸¡à¹ˆà¸¡à¸µ LLM à¸­à¸¢à¸¹à¹ˆà¹ƒà¸™à¹€à¸ªà¹‰à¸™à¸—à¸²à¸‡à¸„à¸³à¸™à¸§à¸“ à¸§à¸±à¸™à¹€à¸à¸´à¸”à¹€à¸”à¸µà¸¢à¸§à¸à¸±à¸™à¹ƒà¸«à¹‰à¸œà¸¥à¸¥à¸±à¸žà¸˜à¹Œà¹€à¸”à¸µà¸¢à¸§à¸à¸±à¸™à¸—à¸¸à¸à¸„à¸£à¸±à¹‰à¸‡ à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸šà¸‹à¹‰à¸³à¹à¸šà¸šà¸­à¸­à¸Ÿà¹„à¸¥à¸™à¹Œà¹„à¸”à¹‰ à¹à¸¥à¸° MCP server à¹€à¸£à¸µà¸¢à¸à¹ƒà¸Šà¹‰ engine à¸•à¸±à¸§à¹€à¸”à¸µà¸¢à¸§à¸à¸±à¸™. <strong>à¹€à¸™à¸·à¹‰à¸­à¸«à¸²à¹€à¸Šà¸´à¸‡à¹€à¸¥à¹ˆà¸²à¹€à¸£à¸·à¹ˆà¸­à¸‡</strong> (à¸•à¸³à¸™à¸²à¸™ à¸„à¸³à¸­à¸˜à¸´à¸šà¸²à¸¢à¸„à¸§à¸²à¸¡à¸«à¸¡à¸²à¸¢ à¸„à¸³à¹à¸™à¸°à¸™à¸³à¹ƒà¸™à¸à¸²à¸£à¹ƒà¸Šà¹‰à¸žà¸¥à¸±à¸‡à¸‚à¸­à¸‡à¸„à¸¸à¸“ à¸•à¸³à¸™à¸²à¸™à¹€à¸—à¸ž) à¹€à¸›à¹‡à¸™à¸ªà¹ˆà¸§à¸™à¸—à¸µà¹ˆ AI à¸Šà¹ˆà¸§à¸¢à¸£à¹ˆà¸²à¸‡ à¹‚à¸”à¸¢à¸­à¸´à¸‡à¸ˆà¸²à¸à¸„à¸±à¸¡à¸ à¸µà¸£à¹Œà¸”à¸±à¹‰à¸‡à¹€à¸”à¸´à¸¡à¸—à¸µà¹ˆà¸­à¹‰à¸²à¸‡à¸­à¸´à¸‡à¹„à¸”à¹‰ â€” BaZi classics, à¸•à¸³à¸£à¸²à¸žà¸£à¸°à¹€à¸§à¸—, à¸›à¸à¸´à¸—à¸´à¸™à¸¡à¸²à¸¢à¸±à¸™à¸•à¹‰à¸™à¸‰à¸šà¸±à¸š à¸¯à¸¥à¸¯ â€” à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆ ChatGPT à¹à¸•à¹ˆà¸‡à¹€à¸­à¸‡à¸•à¸²à¸¡à¹ƒà¸ˆà¸Šà¸­à¸š.
     </p>
   </div>
 
@@ -170,7 +170,7 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
     <a href="#architecture">Architecture</a>
     <a href="#flow">Flow 6 steps</a>
     <a href="#proof">DevTools proof</a>
-    <a href="#privacy">เก็บ/ไม่เก็บอะไร</a>
+    <a href="#privacy">à¹€à¸à¹‡à¸š/à¹„à¸¡à¹ˆà¹€à¸à¹‡à¸šà¸­à¸°à¹„à¸£</a>
     <a href="#offline">Offline vs Cloud</a>
     <a href="#tech">Tech stack</a>
     <a href="#engine">Engine transparency</a>
@@ -179,140 +179,140 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
   </nav>
 
   <section id="architecture">
-    <h2>Architecture · ภาพรวม</h2>
+    <h2>Architecture Â· à¸ à¸²à¸žà¸£à¸§à¸¡</h2>
     <div class="arch-diagram">
-┌─────────────────────────────────────────┐
-│  Your Device (PC / Mobile)              │
-│                                         │
-│  ┌───────────────────────────────────┐  │
-│  │  Browser tab @ mythsensus.com     │  │
-│  │                                   │  │
-│  │  ┌─────────────────────────────┐  │  │
-│  │  │  Engine (250 KB JS)         │  │  │
-│  │  │  • 26-system calculation    │  │  │
-│  │  │  • Runs in your CPU         │  │  │
-│  │  │  • No network calls         │  │  │
-│  │  └─────────────────────────────┘  │  │
-│  │              ↑                    │  │
-│  │              │ วันเกิด (in memory)│  │
-│  │              │                    │  │
-│  │  ┌─────────────────────────────┐  │  │
-│  │  │  Your input (DOB)           │  │  │
-│  │  │  ↓                          │  │  │
-│  │  │  Saved to localStorage      │  │  │
-│  │  │  (stays on your device)     │  │  │
-│  │  └─────────────────────────────┘  │  │
-│  └───────────────────────────────────┘  │
-│                                         │
-└───────────────────┬─────────────────────┘
-                    │
-                    │ Only on first visit:
-                    │ download engine + static assets
-                    ↓
-        ┌─────────────────────┐
-        │  Vercel CDN         │
-        │  (serves static     │
-        │   files only)       │
-        └─────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  Your Device (PC / Mobile)              â”‚
+â”‚                                         â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚  Browser tab @ mythsensus.com     â”‚  â”‚
+â”‚  â”‚                                   â”‚  â”‚
+â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚  â”‚
+â”‚  â”‚  â”‚  Engine (250 KB JS)         â”‚  â”‚  â”‚
+â”‚  â”‚  â”‚  â€¢ 26-system calculation    â”‚  â”‚  â”‚
+â”‚  â”‚  â”‚  â€¢ Runs in your CPU         â”‚  â”‚  â”‚
+â”‚  â”‚  â”‚  â€¢ No network calls         â”‚  â”‚  â”‚
+â”‚  â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚  â”‚
+â”‚  â”‚              â†‘                    â”‚  â”‚
+â”‚  â”‚              â”‚ à¸§à¸±à¸™à¹€à¸à¸´à¸” (in memory)â”‚  â”‚
+â”‚  â”‚              â”‚                    â”‚  â”‚
+â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚  â”‚
+â”‚  â”‚  â”‚  Your input (DOB)           â”‚  â”‚  â”‚
+â”‚  â”‚  â”‚  â†“                          â”‚  â”‚  â”‚
+â”‚  â”‚  â”‚  Saved to localStorage      â”‚  â”‚  â”‚
+â”‚  â”‚  â”‚  (stays on your device)     â”‚  â”‚  â”‚
+â”‚  â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â”‚                                         â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚
+                    â”‚ Only on first visit:
+                    â”‚ download engine + static assets
+                    â†“
+        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+        â”‚  Vercel CDN         â”‚
+        â”‚  (serves static     â”‚
+        â”‚   files only)       â”‚
+        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 
-        ❌ NO request: "calculate({dob: ...})"
-        ❌ NO server-side computation
-        ❌ NO database of users with DOBs
+        âŒ NO request: "calculate({dob: ...})"
+        âŒ NO server-side computation
+        âŒ NO database of users with DOBs
     </div>
   </section>
 
   <section>
-    <h2 id="flow">Flow · เกิดอะไรขึ้นเมื่อคุณใช้</h2>
+    <h2 id="flow">Flow Â· à¹€à¸à¸´à¸”à¸­à¸°à¹„à¸£à¸‚à¸¶à¹‰à¸™à¹€à¸¡à¸·à¹ˆà¸­à¸„à¸¸à¸“à¹ƒà¸Šà¹‰</h2>
 
     <div class="flow-step">
-      <div class="flow-step-label">Step 1 · First visit</div>
-      <p>Browser ของคุณ <em>download</em> static files จาก Vercel CDN: HTML (~1.3 MB), JS engine bundle (~250 KB), gods.json (~700 KB), fonts. นี่เป็น HTTP requests มาตรฐาน ปกติของเว็บทั่วไป — เหมือนเปิด Wikipedia</p>
+      <div class="flow-step-label">Step 1 Â· First visit</div>
+      <p>Browser à¸‚à¸­à¸‡à¸„à¸¸à¸“ <em>download</em> static files à¸ˆà¸²à¸ Vercel CDN: HTML (~1.3 MB), JS engine bundle (~250 KB), gods.json (~700 KB), fonts. à¸™à¸µà¹ˆà¹€à¸›à¹‡à¸™ HTTP requests à¸¡à¸²à¸•à¸£à¸à¸²à¸™ à¸›à¸à¸•à¸´à¸‚à¸­à¸‡à¹€à¸§à¹‡à¸šà¸—à¸±à¹ˆà¸§à¹„à¸› â€” à¹€à¸«à¸¡à¸·à¸­à¸™à¹€à¸›à¸´à¸” Wikipedia</p>
     </div>
 
     <div class="flow-step">
-      <div class="flow-step-label">Step 2 · Service worker installs</div>
-      <p>Service worker (browser feature) <em>cache</em> ทุกอย่างไว้ในเครื่องคุณ ครั้งต่อไปคุณเปิดเว็บ — เปิดได้แม้ไม่มีอินเทอร์เน็ต (offline-capable)</p>
+      <div class="flow-step-label">Step 2 Â· Service worker installs</div>
+      <p>Service worker (browser feature) <em>cache</em> à¸—à¸¸à¸à¸­à¸¢à¹ˆà¸²à¸‡à¹„à¸§à¹‰à¹ƒà¸™à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡à¸„à¸¸à¸“ à¸„à¸£à¸±à¹‰à¸‡à¸•à¹ˆà¸­à¹„à¸›à¸„à¸¸à¸“à¹€à¸›à¸´à¸”à¹€à¸§à¹‡à¸š â€” à¹€à¸›à¸´à¸”à¹„à¸”à¹‰à¹à¸¡à¹‰à¹„à¸¡à¹ˆà¸¡à¸µà¸­à¸´à¸™à¹€à¸—à¸­à¸£à¹Œà¹€à¸™à¹‡à¸• (offline-capable)</p>
     </div>
 
     <div class="flow-step">
-      <div class="flow-step-label">Step 3 · You enter DOB</div>
-      <p>คุณใส่วันเกิด (เวลา + เมืองเป็น optional) ในฟอร์ม HTML ของหน้าแรก ข้อมูลอยู่ใน JavaScript variable ของ browser tab — ยังไม่ไปไหน</p>
+      <div class="flow-step-label">Step 3 Â· You enter DOB</div>
+      <p>à¸„à¸¸à¸“à¹ƒà¸ªà¹ˆà¸§à¸±à¸™à¹€à¸à¸´à¸” (à¹€à¸§à¸¥à¸² + à¹€à¸¡à¸·à¸­à¸‡à¹€à¸›à¹‡à¸™ optional) à¹ƒà¸™à¸Ÿà¸­à¸£à¹Œà¸¡ HTML à¸‚à¸­à¸‡à¸«à¸™à¹‰à¸²à¹à¸£à¸ à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸­à¸¢à¸¹à¹ˆà¹ƒà¸™ JavaScript variable à¸‚à¸­à¸‡ browser tab â€” à¸¢à¸±à¸‡à¹„à¸¡à¹ˆà¹„à¸›à¹„à¸«à¸™</p>
     </div>
 
     <div class="flow-step">
-      <div class="flow-step-label">Step 4 · Engine runs in your CPU</div>
-      <p>คุณกด Generate — engine เรียก <code>calculate({year, month, day, hour, minute, lat, lon, timezone})</code> ฟังก์ชันนี้รันใน CPU ของอุปกรณ์คุณเอง คำนวณ 26 ศาสตร์ออกมาเป็น chart object <em>ไม่มี HTTP request ใด ๆ เกิดขึ้นในขั้นตอนนี้</em></p>
+      <div class="flow-step-label">Step 4 Â· Engine runs in your CPU</div>
+      <p>à¸„à¸¸à¸“à¸à¸” Generate â€” engine à¹€à¸£à¸µà¸¢à¸ <code>calculate({year, month, day, hour, minute, lat, lon, timezone})</code> à¸Ÿà¸±à¸‡à¸à¹Œà¸Šà¸±à¸™à¸™à¸µà¹‰à¸£à¸±à¸™à¹ƒà¸™ CPU à¸‚à¸­à¸‡à¸­à¸¸à¸›à¸à¸£à¸“à¹Œà¸„à¸¸à¸“à¹€à¸­à¸‡ à¸„à¸³à¸™à¸§à¸“ 26 à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸­à¸­à¸à¸¡à¸²à¹€à¸›à¹‡à¸™ chart object <em>à¹„à¸¡à¹ˆà¸¡à¸µ HTTP request à¹ƒà¸” à¹† à¹€à¸à¸´à¸”à¸‚à¸¶à¹‰à¸™à¹ƒà¸™à¸‚à¸±à¹‰à¸™à¸•à¸­à¸™à¸™à¸µà¹‰</em></p>
     </div>
 
     <div class="flow-step">
-      <div class="flow-step-label">Step 5 · Reading renders</div>
-      <p>Chart object ถูก render เป็น HTML ผ่าน <code>generateReport(chart)</code> ที่รันใน browser เช่นกัน คุณเห็น Cosmic Score + 26 ศาสตร์บนหน้าจอ <em>ทั้งหมดยังอยู่ใน browser tab ของคุณ</em></p>
+      <div class="flow-step-label">Step 5 Â· Reading renders</div>
+      <p>Chart object à¸–à¸¹à¸ render à¹€à¸›à¹‡à¸™ HTML à¸œà¹ˆà¸²à¸™ <code>generateReport(chart)</code> à¸—à¸µà¹ˆà¸£à¸±à¸™à¹ƒà¸™ browser à¹€à¸Šà¹ˆà¸™à¸à¸±à¸™ à¸„à¸¸à¸“à¹€à¸«à¹‡à¸™ Cosmic Score + 26 à¸¨à¸²à¸ªà¸•à¸£à¹Œà¸šà¸™à¸«à¸™à¹‰à¸²à¸ˆà¸­ <em>à¸—à¸±à¹‰à¸‡à¸«à¸¡à¸”à¸¢à¸±à¸‡à¸­à¸¢à¸¹à¹ˆà¹ƒà¸™ browser tab à¸‚à¸­à¸‡à¸„à¸¸à¸“</em></p>
     </div>
 
     <div class="flow-step">
-      <div class="flow-step-label">Step 6 · Saved to localStorage</div>
-      <p>วันเกิดและ chart ของคุณถูก save ไว้ใน <code>localStorage</code> ของ browser — กล่องเก็บข้อมูลใน hard drive ของอุปกรณ์ ไม่ shared กับเว็บอื่น ไม่ส่งไปที่ server ครั้งหน้าเปิดเว็บ — อ่าน localStorage แล้ว render ทันที</p>
+      <div class="flow-step-label">Step 6 Â· Saved to localStorage</div>
+      <p>à¸§à¸±à¸™à¹€à¸à¸´à¸”à¹à¸¥à¸° chart à¸‚à¸­à¸‡à¸„à¸¸à¸“à¸–à¸¹à¸ save à¹„à¸§à¹‰à¹ƒà¸™ <code>localStorage</code> à¸‚à¸­à¸‡ browser â€” à¸à¸¥à¹ˆà¸­à¸‡à¹€à¸à¹‡à¸šà¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹ƒà¸™ hard drive à¸‚à¸­à¸‡à¸­à¸¸à¸›à¸à¸£à¸“à¹Œ à¹„à¸¡à¹ˆ shared à¸à¸±à¸šà¹€à¸§à¹‡à¸šà¸­à¸·à¹ˆà¸™ à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¹„à¸›à¸—à¸µà¹ˆ server à¸„à¸£à¸±à¹‰à¸‡à¸«à¸™à¹‰à¸²à¹€à¸›à¸´à¸”à¹€à¸§à¹‡à¸š â€” à¸­à¹ˆà¸²à¸™ localStorage à¹à¸¥à¹‰à¸§ render à¸—à¸±à¸™à¸—à¸µ</p>
     </div>
   </section>
 
   <section>
     <div class="check-block">
-      <h3>พิสูจน์ด้วยตัวเองใน 30 วินาที</h3>
+      <h3>à¸žà¸´à¸ªà¸¹à¸ˆà¸™à¹Œà¸”à¹‰à¸§à¸¢à¸•à¸±à¸§à¹€à¸­à¸‡à¹ƒà¸™ 30 à¸§à¸´à¸™à¸²à¸—à¸µ</h3>
       <ol style="padding-left:1.4rem;font-size:.98rem;line-height:1.9">
-        <li>เปิด <a href="/">mythsensus.com</a> ในเบราว์เซอร์</li>
-        <li>กด <code>F12</code> (Windows) หรือ <code>Cmd+Option+I</code> (Mac) — เปิด DevTools</li>
-        <li>ไปที่แท็บ <strong>Network</strong> ใน DevTools</li>
-        <li>กด <code>Ctrl+R</code> (หรือ <code>Cmd+R</code>) — reload หน้า. ดู requests ที่เข้ามา (static files download)</li>
-        <li>ใส่วันเกิดของคุณ → กด <strong>Generate</strong></li>
-        <li><strong>ดู Network tab อีกครั้ง</strong> — ไม่มี request ใหม่ไปที่ <code>/api/calculate</code> หรือใด ๆ ที่มีวันเกิดคุณส่งออกไป</li>
+        <li>à¹€à¸›à¸´à¸” <a href="/">mythsensus.com</a> à¹ƒà¸™à¹€à¸šà¸£à¸²à¸§à¹Œà¹€à¸‹à¸­à¸£à¹Œ</li>
+        <li>à¸à¸” <code>F12</code> (Windows) à¸«à¸£à¸·à¸­ <code>Cmd+Option+I</code> (Mac) â€” à¹€à¸›à¸´à¸” DevTools</li>
+        <li>à¹„à¸›à¸—à¸µà¹ˆà¹à¸—à¹‡à¸š <strong>Network</strong> à¹ƒà¸™ DevTools</li>
+        <li>à¸à¸” <code>Ctrl+R</code> (à¸«à¸£à¸·à¸­ <code>Cmd+R</code>) â€” reload à¸«à¸™à¹‰à¸². à¸”à¸¹ requests à¸—à¸µà¹ˆà¹€à¸‚à¹‰à¸²à¸¡à¸² (static files download)</li>
+        <li>à¹ƒà¸ªà¹ˆà¸§à¸±à¸™à¹€à¸à¸´à¸”à¸‚à¸­à¸‡à¸„à¸¸à¸“ â†’ à¸à¸” <strong>Generate</strong></li>
+        <li><strong>à¸”à¸¹ Network tab à¸­à¸µà¸à¸„à¸£à¸±à¹‰à¸‡</strong> â€” à¹„à¸¡à¹ˆà¸¡à¸µ request à¹ƒà¸«à¸¡à¹ˆà¹„à¸›à¸—à¸µà¹ˆ <code>/api/calculate</code> à¸«à¸£à¸·à¸­à¹ƒà¸” à¹† à¸—à¸µà¹ˆà¸¡à¸µà¸§à¸±à¸™à¹€à¸à¸´à¸”à¸„à¸¸à¸“à¸ªà¹ˆà¸‡à¸­à¸­à¸à¹„à¸›</li>
       </ol>
-      <p style="margin-top:.8rem;font-size:.95rem">นี่คือพิสูจน์ที่ดีที่สุด — browser ของคุณเห็นทุก HTTP request ที่ออกไป ถ้าเราส่งวันเกิดไป server คุณจะเห็นใน Network tab ทันที</p>
+      <p style="margin-top:.8rem;font-size:.95rem">à¸™à¸µà¹ˆà¸„à¸·à¸­à¸žà¸´à¸ªà¸¹à¸ˆà¸™à¹Œà¸—à¸µà¹ˆà¸”à¸µà¸—à¸µà¹ˆà¸ªà¸¸à¸” â€” browser à¸‚à¸­à¸‡à¸„à¸¸à¸“à¹€à¸«à¹‡à¸™à¸—à¸¸à¸ HTTP request à¸—à¸µà¹ˆà¸­à¸­à¸à¹„à¸› à¸–à¹‰à¸²à¹€à¸£à¸²à¸ªà¹ˆà¸‡à¸§à¸±à¸™à¹€à¸à¸´à¸”à¹„à¸› server à¸„à¸¸à¸“à¸ˆà¸°à¹€à¸«à¹‡à¸™à¹ƒà¸™ Network tab à¸—à¸±à¸™à¸—à¸µ</p>
     </div>
   </section>
 
   <section>
-    <h2 id="privacy">สิ่งที่เราเก็บ · สิ่งที่เราไม่เก็บ</h2>
+    <h2 id="privacy">à¸ªà¸´à¹ˆà¸‡à¸—à¸µà¹ˆà¹€à¸£à¸²à¹€à¸à¹‡à¸š Â· à¸ªà¸´à¹ˆà¸‡à¸—à¸µà¹ˆà¹€à¸£à¸²à¹„à¸¡à¹ˆà¹€à¸à¹‡à¸š</h2>
 
-    <h3 style="color:var(--green)">✓ Mythsensus เก็บ:</h3>
+    <h3 style="color:var(--green)">âœ“ Mythsensus à¹€à¸à¹‡à¸š:</h3>
     <ul class="proof-list">
-      <li><strong>Email + plan status</strong> ของผู้ที่ซื้อ subscription (เก็บใน Supabase woam สำหรับ check premium access) — ไม่เก็บวันเกิด</li>
-      <li><strong>Aggregated traffic data</strong> ผ่าน Vercel Analytics (cookieless · ไม่มี IP · ไม่มี individual tracking)</li>
-      <li><strong>Gumroad transaction record</strong> สำหรับ refund และ tax compliance — ผ่าน Gumroad merchant of record</li>
+      <li><strong>Email + plan status</strong> à¸‚à¸­à¸‡à¸œà¸¹à¹‰à¸—à¸µà¹ˆà¸‹à¸·à¹‰à¸­ subscription (à¹€à¸à¹‡à¸šà¹ƒà¸™ Supabase woam à¸ªà¸³à¸«à¸£à¸±à¸š check premium access) â€” à¹„à¸¡à¹ˆà¹€à¸à¹‡à¸šà¸§à¸±à¸™à¹€à¸à¸´à¸”</li>
+      <li><strong>Aggregated traffic data</strong> à¸œà¹ˆà¸²à¸™ Vercel Analytics (cookieless Â· à¹„à¸¡à¹ˆà¸¡à¸µ IP Â· à¹„à¸¡à¹ˆà¸¡à¸µ individual tracking)</li>
+      <li><strong>Gumroad transaction record</strong> à¸ªà¸³à¸«à¸£à¸±à¸š refund à¹à¸¥à¸° tax compliance â€” à¸œà¹ˆà¸²à¸™ Gumroad merchant of record</li>
     </ul>
 
-    <h3 style="color:var(--red)">✗ Mythsensus ไม่เก็บ:</h3>
+    <h3 style="color:var(--red)">âœ— Mythsensus à¹„à¸¡à¹ˆà¹€à¸à¹‡à¸š:</h3>
     <ul class="proof-list">
-      <li class="bad">วันเกิดของคุณ (อยู่ใน localStorage ของ browser คุณเท่านั้น)</li>
-      <li class="bad">เวลาเกิด, เมืองที่เกิด, ชื่อ</li>
-      <li class="bad">Cosmic Score, Cosmic Blueprint ของคุณ</li>
-      <li class="bad">เทพประจำวันที่คุณจับได้, คำถามใน 108 Organum</li>
+      <li class="bad">à¸§à¸±à¸™à¹€à¸à¸´à¸”à¸‚à¸­à¸‡à¸„à¸¸à¸“ (à¸­à¸¢à¸¹à¹ˆà¹ƒà¸™ localStorage à¸‚à¸­à¸‡ browser à¸„à¸¸à¸“à¹€à¸—à¹ˆà¸²à¸™à¸±à¹‰à¸™)</li>
+      <li class="bad">à¹€à¸§à¸¥à¸²à¹€à¸à¸´à¸”, à¹€à¸¡à¸·à¸­à¸‡à¸—à¸µà¹ˆà¹€à¸à¸´à¸”, à¸Šà¸·à¹ˆà¸­</li>
+      <li class="bad">Cosmic Score, Cosmic Blueprint à¸‚à¸­à¸‡à¸„à¸¸à¸“</li>
+      <li class="bad">à¹€à¸—à¸žà¸›à¸£à¸°à¸ˆà¸³à¸§à¸±à¸™à¸—à¸µà¹ˆà¸„à¸¸à¸“à¸ˆà¸±à¸šà¹„à¸”à¹‰, à¸„à¸³à¸–à¸²à¸¡à¹ƒà¸™ 108 Organum</li>
       <li class="bad">Profile, photo, social media handle</li>
-      <li class="bad">IP address (Vercel Analytics เป็น aggregated only)</li>
+      <li class="bad">IP address (Vercel Analytics à¹€à¸›à¹‡à¸™ aggregated only)</li>
     </ul>
 
-    <p style="margin-top:1rem">ผลที่ตามมา: <strong>ถ้าคุณเคลียร์ browser cache, ข้อมูลทั้งหมดหายไป.</strong> เราไม่มี backup. ถ้าอยาก backup chart, export เป็น JSON ไว้เอง (ฟีเจอร์มีในแท็บ Profile)</p>
+    <p style="margin-top:1rem">à¸œà¸¥à¸—à¸µà¹ˆà¸•à¸²à¸¡à¸¡à¸²: <strong>à¸–à¹‰à¸²à¸„à¸¸à¸“à¹€à¸„à¸¥à¸µà¸¢à¸£à¹Œ browser cache, à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸—à¸±à¹‰à¸‡à¸«à¸¡à¸”à¸«à¸²à¸¢à¹„à¸›.</strong> à¹€à¸£à¸²à¹„à¸¡à¹ˆà¸¡à¸µ backup. à¸–à¹‰à¸²à¸­à¸¢à¸²à¸ backup chart, export à¹€à¸›à¹‡à¸™ JSON à¹„à¸§à¹‰à¹€à¸­à¸‡ (à¸Ÿà¸µà¹€à¸ˆà¸­à¸£à¹Œà¸¡à¸µà¹ƒà¸™à¹à¸—à¹‡à¸š Profile)</p>
   </section>
 
   <details class="tech-deep" id="offline">
-    <summary>Offline computation vs optional account sync — ขอบเขตที่ชัดเจน</summary>
+    <summary>Offline computation vs optional account sync â€” à¸‚à¸­à¸šà¹€à¸‚à¸•à¸—à¸µà¹ˆà¸Šà¸±à¸”à¹€à¸ˆà¸™</summary>
     <div class="deep-body">
-      <p>เพื่อความ honest 100% เรื่อง offline claim — เนื่องจาก Mythsensus มี optional account features ด้วย:</p>
+      <p>à¹€à¸žà¸·à¹ˆà¸­à¸„à¸§à¸²à¸¡ honest 100% à¹€à¸£à¸·à¹ˆà¸­à¸‡ offline claim â€” à¹€à¸™à¸·à¹ˆà¸­à¸‡à¸ˆà¸²à¸ Mythsensus à¸¡à¸µ optional account features à¸”à¹‰à¸§à¸¢:</p>
       <table class="tech-table">
         <thead><tr><th>Layer</th><th>Where it runs</th><th>What's stored</th></tr></thead>
         <tbody>
-          <tr><td><strong>Computation</strong> (26-system math)</td><td>Always client-side · ใน CPU ของคุณ · ไม่ว่า logged in หรือ guest</td><td>Nothing leaves device · verify ใน DevTools → Network tab</td></tr>
-          <tr><td><strong>Account sync</strong> (optional · sign-in)</td><td>Server-side (Supabase woam)</td><td>Email + plan status เท่านั้น · <em>ไม่เก็บ DOB หรือ chart</em></td></tr>
-          <tr><td><strong>Payment</strong></td><td>Gumroad (merchant of record)</td><td>Card + email + tax records ที่ Gumroad · Mythsensus ไม่เห็น</td></tr>
-          <tr><td><strong>43-page PDF</strong></td><td>Browser ของคุณ ประกอบหลัง payment unlock token</td><td>วันเกิดไม่ออกจาก device แม้ตอนซื้อ · Ctrl+P save เป็น PDF จริง</td></tr>
+          <tr><td><strong>Computation</strong> (26-system math)</td><td>Always client-side Â· à¹ƒà¸™ CPU à¸‚à¸­à¸‡à¸„à¸¸à¸“ Â· à¹„à¸¡à¹ˆà¸§à¹ˆà¸² logged in à¸«à¸£à¸·à¸­ guest</td><td>Nothing leaves device Â· verify à¹ƒà¸™ DevTools â†’ Network tab</td></tr>
+          <tr><td><strong>Account sync</strong> (optional Â· sign-in)</td><td>Server-side (Supabase woam)</td><td>Email + plan status à¹€à¸—à¹ˆà¸²à¸™à¸±à¹‰à¸™ Â· <em>à¹„à¸¡à¹ˆà¹€à¸à¹‡à¸š DOB à¸«à¸£à¸·à¸­ chart</em></td></tr>
+          <tr><td><strong>Payment</strong></td><td>Gumroad (merchant of record)</td><td>Card + email + tax records à¸—à¸µà¹ˆ Gumroad Â· Mythsensus à¹„à¸¡à¹ˆà¹€à¸«à¹‡à¸™</td></tr>
+          <tr><td><strong>43-page PDF</strong></td><td>Browser à¸‚à¸­à¸‡à¸„à¸¸à¸“ à¸›à¸£à¸°à¸à¸­à¸šà¸«à¸¥à¸±à¸‡ payment unlock token</td><td>à¸§à¸±à¸™à¹€à¸à¸´à¸”à¹„à¸¡à¹ˆà¸­à¸­à¸à¸ˆà¸²à¸ device à¹à¸¡à¹‰à¸•à¸­à¸™à¸‹à¸·à¹‰à¸­ Â· Ctrl+P save à¹€à¸›à¹‡à¸™ PDF à¸ˆà¸£à¸´à¸‡</td></tr>
         </tbody>
       </table>
-      <p style="margin-top:1rem;font-size:.95rem;color:var(--dim)"><em>"Data stays on your device"</em> = computation + chart content. <em>"Server records minimal account state"</em> = email + plan only. ทั้งคู่จริงพร้อมกัน · ไม่มี contradiction.</p>
+      <p style="margin-top:1rem;font-size:.95rem;color:var(--dim)"><em>"Data stays on your device"</em> = computation + chart content. <em>"Server records minimal account state"</em> = email + plan only. à¸—à¸±à¹‰à¸‡à¸„à¸¹à¹ˆà¸ˆà¸£à¸´à¸‡à¸žà¸£à¹‰à¸­à¸¡à¸à¸±à¸™ Â· à¹„à¸¡à¹ˆà¸¡à¸µ contradiction.</p>
     </div>
   </details>
 
   <section>
-    <h2 id="tech">Tech stack — สำหรับคนสนใจรายละเอียด</h2>
-    <pre><code># Engine (ส่วนคำนวณ)
+    <h2 id="tech">Tech stack â€” à¸ªà¸³à¸«à¸£à¸±à¸šà¸„à¸™à¸ªà¸™à¹ƒà¸ˆà¸£à¸²à¸¢à¸¥à¸°à¹€à¸­à¸µà¸¢à¸”</h2>
+    <pre><code># Engine (à¸ªà¹ˆà¸§à¸™à¸„à¸³à¸™à¸§à¸“)
 report-engine/lib/calc.ts        # TypeScript source
 report-engine/lib/report.ts      # Report generator
 build/calc.js                    # Compiled JS (run on Node + browser)
@@ -334,107 +334,107 @@ Vercel (static + serverless)     # CDN + edge functions
 Supabase woam project            # Auth + payment records
                                  # (NO chart data here)
                                  # NO chart calculations here)</code></pre>
-    <p>ทุกโค้ดอยู่ที่ <a href="https://github.com/PattrickChenforclaudeuse/mythsensus">github.com/PattrickChenforclaudeuse/mythsensus</a> (private repo ตอนนี้ — เป้าหมาย public open-source หลัง revenue baseline + sophistication upgrades ของ engine version 2 ที่อยู่ในแผน Q3-Q4 2026)</p>
+    <p>à¸—à¸¸à¸à¹‚à¸„à¹‰à¸”à¸­à¸¢à¸¹à¹ˆà¸—à¸µà¹ˆ <a href="https://github.com/PattrickChenforclaudeuse/mythsensus">github.com/PattrickChenforclaudeuse/mythsensus</a> (private repo à¸•à¸­à¸™à¸™à¸µà¹‰ â€” à¹€à¸›à¹‰à¸²à¸«à¸¡à¸²à¸¢ public open-source à¸«à¸¥à¸±à¸‡ revenue baseline + sophistication upgrades à¸‚à¸­à¸‡ engine version 2 à¸—à¸µà¹ˆà¸­à¸¢à¸¹à¹ˆà¹ƒà¸™à¹à¸œà¸™ Q3-Q4 2026)</p>
   </section>
 
   <details class="tech-deep" id="engine">
-    <summary>🔬 Computation transparency — ephemeris + ayanamsa (engineering deep-dive)</summary>
+    <summary>ðŸ”¬ Computation transparency â€” ephemeris + ayanamsa (engineering deep-dive)</summary>
     <div class="deep-body">
-      <p>สำหรับคนที่ถามว่า "engine คำนวณตำแหน่งดาวยังไง" — Vedic practitioner กับ AI engineer skeptic ถามทั้งคู่ ดังนั้นตอบตรง ๆ:</p>
+      <p>à¸ªà¸³à¸«à¸£à¸±à¸šà¸„à¸™à¸—à¸µà¹ˆà¸–à¸²à¸¡à¸§à¹ˆà¸² "engine à¸„à¸³à¸™à¸§à¸“à¸•à¸³à¹à¸«à¸™à¹ˆà¸‡à¸”à¸²à¸§à¸¢à¸±à¸‡à¹„à¸‡" â€” Vedic practitioner à¸à¸±à¸š AI engineer skeptic à¸–à¸²à¸¡à¸—à¸±à¹‰à¸‡à¸„à¸¹à¹ˆ à¸”à¸±à¸‡à¸™à¸±à¹‰à¸™à¸•à¸­à¸šà¸•à¸£à¸‡ à¹†:</p>
       <table class="tech-table">
         <thead><tr><th style="min-width:130px">Component</th><th>Current state (v1)</th><th>v2 plan (Q3-Q4 2026)</th></tr></thead>
         <tbody>
           <tr>
             <td><strong>Western planet positions</strong></td>
-            <td>Custom trigonometric series 4,000 บรรทัดใน <code>calc.ts</code> · zero external deps (ไม่ใช้ Swiss Ephemeris) · แม่นพอสำหรับ Sun sign + Mercury/Venus retrograde · outer planet aspects อาจ arc-minute drift</td>
-            <td>Port Jean Meeus algorithms (Astronomical Algorithms book · public-domain) เพื่อ industry-grade precision</td>
+            <td>Custom trigonometric series 4,000 à¸šà¸£à¸£à¸—à¸±à¸”à¹ƒà¸™ <code>calc.ts</code> Â· zero external deps (à¹„à¸¡à¹ˆà¹ƒà¸Šà¹‰ Swiss Ephemeris) Â· à¹à¸¡à¹ˆà¸™à¸žà¸­à¸ªà¸³à¸«à¸£à¸±à¸š Sun sign + Mercury/Venus retrograde Â· outer planet aspects à¸­à¸²à¸ˆ arc-minute drift</td>
+            <td>Port Jean Meeus algorithms (Astronomical Algorithms book Â· public-domain) à¹€à¸žà¸·à¹ˆà¸­ industry-grade precision</td>
           </tr>
           <tr>
             <td><strong>Vedic ayanamsa</strong></td>
-            <td><strong>Lahiri</strong> (Indian Government / NASA standard) hardcoded <code>24.0°</code> · ±10 arcmin สำหรับ DOB 2020-2030 · drift +50 arcsec/year ทำให้ผิดเพิ่มเมื่อ DOB อยู่ไกล epoch</td>
-            <td>Time-varying <code>lahiriAyanamsa(y,m,d)</code> formula · patch ร่างแล้ว · ผลกระทบ: Cosmic Score ของบางคน shift ±2-10 หลัง upgrade</td>
+            <td><strong>Lahiri</strong> (Indian Government / NASA standard) hardcoded <code>24.0Â°</code> Â· Â±10 arcmin à¸ªà¸³à¸«à¸£à¸±à¸š DOB 2020-2030 Â· drift +50 arcsec/year à¸—à¸³à¹ƒà¸«à¹‰à¸œà¸´à¸”à¹€à¸žà¸´à¹ˆà¸¡à¹€à¸¡à¸·à¹ˆà¸­ DOB à¸­à¸¢à¸¹à¹ˆà¹„à¸à¸¥ epoch</td>
+            <td>Time-varying <code>lahiriAyanamsa(y,m,d)</code> formula Â· patch à¸£à¹ˆà¸²à¸‡à¹à¸¥à¹‰à¸§ Â· à¸œà¸¥à¸à¸£à¸°à¸—à¸š: Cosmic Score à¸‚à¸­à¸‡à¸šà¸²à¸‡à¸„à¸™ shift Â±2-10 à¸«à¸¥à¸±à¸‡ upgrade</td>
           </tr>
           <tr>
-            <td><strong>BaZi solar terms (jiéqì)</strong></td>
-            <td>Month-boundary approximation · edge cases (DOB ±48h จาก solar term) อาจได้ wrong month pillar (~5% ของ DOBs)</td>
-            <td>Precise jiéqì calculator จาก Chinese astronomical sources (VSOP87-based)</td>
+            <td><strong>BaZi solar terms (jiÃ©qÃ¬)</strong></td>
+            <td>Month-boundary approximation Â· edge cases (DOB Â±48h à¸ˆà¸²à¸ solar term) à¸­à¸²à¸ˆà¹„à¸”à¹‰ wrong month pillar (~5% à¸‚à¸­à¸‡ DOBs)</td>
+            <td>Precise jiÃ©qÃ¬ calculator à¸ˆà¸²à¸ Chinese astronomical sources (VSOP87-based)</td>
           </tr>
           <tr>
             <td><strong>Cosmic Score weights</strong></td>
-            <td>Internal-consistency optimization บน Astrodatabank AA-rated dataset · 3 criteria: median ≈ 500, Mythic ≤ 1%, HD types stratify reasonably · Freeze แล้ว · <em>aesthetic parameter fitting ที่มี internal consistency</em> — ไม่ใช่ supervised learning (astrology ไม่มี ground truth)</td>
-            <td>Disclosure คงไว้ · methodology ไม่เปลี่ยน · weights re-calibrate ตอน v2 upgrade</td>
+            <td>Internal-consistency optimization à¸šà¸™ Astrodatabank AA-rated dataset Â· 3 criteria: median â‰ˆ 500, Mythic â‰¤ 1%, HD types stratify reasonably Â· Freeze à¹à¸¥à¹‰à¸§ Â· <em>aesthetic parameter fitting à¸—à¸µà¹ˆà¸¡à¸µ internal consistency</em> â€” à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆ supervised learning (astrology à¹„à¸¡à¹ˆà¸¡à¸µ ground truth)</td>
+            <td>Disclosure à¸„à¸‡à¹„à¸§à¹‰ Â· methodology à¹„à¸¡à¹ˆà¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™ Â· weights re-calibrate à¸•à¸­à¸™ v2 upgrade</td>
           </tr>
           <tr>
             <td><strong>Engine source code</strong></td>
-            <td>Private TypeScript · compiled JavaScript = public (ใน browser bundle + npm MCP package)</td>
-            <td>Public release · ตัดสินใจ AGPL-3.0 หรือ MIT · target Q3-Q4 2026 หลัง v2 upgrades</td>
+            <td>Private TypeScript Â· compiled JavaScript = public (à¹ƒà¸™ browser bundle + npm MCP package)</td>
+            <td>Public release Â· à¸•à¸±à¸”à¸ªà¸´à¸™à¹ƒà¸ˆ AGPL-3.0 à¸«à¸£à¸·à¸­ MIT Â· target Q3-Q4 2026 à¸«à¸¥à¸±à¸‡ v2 upgrades</td>
           </tr>
         </tbody>
       </table>
-      <p style="margin-top:1rem;font-size:.95rem;color:var(--dim)">เหตุผลที่ยังไม่ open-source ตอนนี้: precision gaps ข้างบนเป็น <em>honest current state</em> · เปิดตอนที่ upgrades ครบ = open-source ที่ defensible แทนที่จะเป็น <em>"please don't tear this apart"</em></p>
+      <p style="margin-top:1rem;font-size:.95rem;color:var(--dim)">à¹€à¸«à¸•à¸¸à¸œà¸¥à¸—à¸µà¹ˆà¸¢à¸±à¸‡à¹„à¸¡à¹ˆ open-source à¸•à¸­à¸™à¸™à¸µà¹‰: precision gaps à¸‚à¹‰à¸²à¸‡à¸šà¸™à¹€à¸›à¹‡à¸™ <em>honest current state</em> Â· à¹€à¸›à¸´à¸”à¸•à¸­à¸™à¸—à¸µà¹ˆ upgrades à¸„à¸£à¸š = open-source à¸—à¸µà¹ˆ defensible à¹à¸—à¸™à¸—à¸µà¹ˆà¸ˆà¸°à¹€à¸›à¹‡à¸™ <em>"please don't tear this apart"</em></p>
     </div>
   </details>
 
   <section>
-    <h2 id="vs">เทียบกับเว็บดูดวงทั่วไป</h2>
-    <p>เว็บดูดวงส่วนใหญ่<em>คำนวณบน server ของพวกเขา</em> — คุณส่งวันเกิด, ราคา, อาจจะ email มาให้ server บริการคืน reading. ผลที่ตามมา:</p>
+    <h2 id="vs">à¹€à¸—à¸µà¸¢à¸šà¸à¸±à¸šà¹€à¸§à¹‡à¸šà¸”à¸¹à¸”à¸§à¸‡à¸—à¸±à¹ˆà¸§à¹„à¸›</h2>
+    <p>à¹€à¸§à¹‡à¸šà¸”à¸¹à¸”à¸§à¸‡à¸ªà¹ˆà¸§à¸™à¹ƒà¸«à¸à¹ˆ<em>à¸„à¸³à¸™à¸§à¸“à¸šà¸™ server à¸‚à¸­à¸‡à¸žà¸§à¸à¹€à¸‚à¸²</em> â€” à¸„à¸¸à¸“à¸ªà¹ˆà¸‡à¸§à¸±à¸™à¹€à¸à¸´à¸”, à¸£à¸²à¸„à¸², à¸­à¸²à¸ˆà¸ˆà¸° email à¸¡à¸²à¹ƒà¸«à¹‰ server à¸šà¸£à¸´à¸à¸²à¸£à¸„à¸·à¸™ reading. à¸œà¸¥à¸—à¸µà¹ˆà¸•à¸²à¸¡à¸¡à¸²:</p>
     <ul class="proof-list" style="margin-left:0">
-      <li class="bad">วันเกิดอยู่ใน database ของพวกเขา = leaked ถ้า server hacked</li>
-      <li class="bad">ใช้สำหรับ marketing list / re-targeted ads</li>
-      <li class="bad">ต้องลงทะเบียน + verify email ก่อนใช้</li>
-      <li class="bad">เปิดไม่ได้ถ้าไม่มี internet</li>
-      <li class="bad">เปลี่ยน design = ดวงเปลี่ยนตาม (เพราะคำนวณใหม่ทุกครั้ง)</li>
+      <li class="bad">à¸§à¸±à¸™à¹€à¸à¸´à¸”à¸­à¸¢à¸¹à¹ˆà¹ƒà¸™ database à¸‚à¸­à¸‡à¸žà¸§à¸à¹€à¸‚à¸² = leaked à¸–à¹‰à¸² server hacked</li>
+      <li class="bad">à¹ƒà¸Šà¹‰à¸ªà¸³à¸«à¸£à¸±à¸š marketing list / re-targeted ads</li>
+      <li class="bad">à¸•à¹‰à¸­à¸‡à¸¥à¸‡à¸—à¸°à¹€à¸šà¸µà¸¢à¸™ + verify email à¸à¹ˆà¸­à¸™à¹ƒà¸Šà¹‰</li>
+      <li class="bad">à¹€à¸›à¸´à¸”à¹„à¸¡à¹ˆà¹„à¸”à¹‰à¸–à¹‰à¸²à¹„à¸¡à¹ˆà¸¡à¸µ internet</li>
+      <li class="bad">à¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™ design = à¸”à¸§à¸‡à¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¸•à¸²à¸¡ (à¹€à¸žà¸£à¸²à¸°à¸„à¸³à¸™à¸§à¸“à¹ƒà¸«à¸¡à¹ˆà¸—à¸¸à¸à¸„à¸£à¸±à¹‰à¸‡)</li>
     </ul>
-    <p>Mythsensus เลือกทาง opposite — คำนวณบน device คุณ, engine deterministic + version-locked. <strong>Same input → same Cosmic Score, anywhere, anytime.</strong></p>
+    <p>Mythsensus à¹€à¸¥à¸·à¸­à¸à¸—à¸²à¸‡ opposite â€” à¸„à¸³à¸™à¸§à¸“à¸šà¸™ device à¸„à¸¸à¸“, engine deterministic + version-locked. <strong>Same input â†’ same Cosmic Score, anywhere, anytime.</strong></p>
   </section>
 
   <div class="cta-block">
-    <div class="cta-title">ลองคำนวณ Cosmic Score ของคุณ — ฟรี</div>
-    <div class="cta-sub">เปิด DevTools ก่อนก็ได้ — ดูเองว่าไม่ส่งข้อมูลออก</div>
-    <a href="/" class="cta-btn">เริ่มเลย →</a>
+    <div class="cta-title">à¸¥à¸­à¸‡à¸„à¸³à¸™à¸§à¸“ Cosmic Score à¸‚à¸­à¸‡à¸„à¸¸à¸“ â€” à¸Ÿà¸£à¸µ</div>
+    <div class="cta-sub">à¹€à¸›à¸´à¸” DevTools à¸à¹ˆà¸­à¸™à¸à¹‡à¹„à¸”à¹‰ â€” à¸”à¸¹à¹€à¸­à¸‡à¸§à¹ˆà¸²à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸­à¸­à¸</div>
+    <a href="/" class="cta-btn">à¹€à¸£à¸´à¹ˆà¸¡à¹€à¸¥à¸¢ â†’</a>
   </div>
 
   <section>
-    <h2 id="faq">คำถามที่พบบ่อย</h2>
+    <h2 id="faq">à¸„à¸³à¸–à¸²à¸¡à¸—à¸µà¹ˆà¸žà¸šà¸šà¹ˆà¸­à¸¢</h2>
 
     <div class="faq-block">
-      <h3>คำนวณดวงใน browser ของฉันจริง ๆ หรือ?</h3>
-      <p>จริง — engine 26 ศาสตร์ (~250 KB JavaScript) ถูก compile จาก TypeScript และ load เข้า browser ของคุณตอนเปิดเว็บครั้งแรก หลังจากนั้นการคำนวณรันใน CPU/RAM ของอุปกรณ์คุณเอง วันเกิดที่คุณใส่อยู่ใน memory ของ browser tab เท่านั้น ไม่ถูกส่งไปที่ Mythsensus server ใด ๆ ในระหว่างการคำนวณ</p>
+      <h3>à¸„à¸³à¸™à¸§à¸“à¸”à¸§à¸‡à¹ƒà¸™ browser à¸‚à¸­à¸‡à¸‰à¸±à¸™à¸ˆà¸£à¸´à¸‡ à¹† à¸«à¸£à¸·à¸­?</h3>
+      <p>à¸ˆà¸£à¸´à¸‡ â€” engine 26 à¸¨à¸²à¸ªà¸•à¸£à¹Œ (~250 KB JavaScript) à¸–à¸¹à¸ compile à¸ˆà¸²à¸ TypeScript à¹à¸¥à¸° load à¹€à¸‚à¹‰à¸² browser à¸‚à¸­à¸‡à¸„à¸¸à¸“à¸•à¸­à¸™à¹€à¸›à¸´à¸”à¹€à¸§à¹‡à¸šà¸„à¸£à¸±à¹‰à¸‡à¹à¸£à¸ à¸«à¸¥à¸±à¸‡à¸ˆà¸²à¸à¸™à¸±à¹‰à¸™à¸à¸²à¸£à¸„à¸³à¸™à¸§à¸“à¸£à¸±à¸™à¹ƒà¸™ CPU/RAM à¸‚à¸­à¸‡à¸­à¸¸à¸›à¸à¸£à¸“à¹Œà¸„à¸¸à¸“à¹€à¸­à¸‡ à¸§à¸±à¸™à¹€à¸à¸´à¸”à¸—à¸µà¹ˆà¸„à¸¸à¸“à¹ƒà¸ªà¹ˆà¸­à¸¢à¸¹à¹ˆà¹ƒà¸™ memory à¸‚à¸­à¸‡ browser tab à¹€à¸—à¹ˆà¸²à¸™à¸±à¹‰à¸™ à¹„à¸¡à¹ˆà¸–à¸¹à¸à¸ªà¹ˆà¸‡à¹„à¸›à¸—à¸µà¹ˆ Mythsensus server à¹ƒà¸” à¹† à¹ƒà¸™à¸£à¸°à¸«à¸§à¹ˆà¸²à¸‡à¸à¸²à¸£à¸„à¸³à¸™à¸§à¸“</p>
     </div>
 
     <div class="faq-block">
-      <h3>วิธีพิสูจน์ว่าไม่ส่งข้อมูลออก?</h3>
-      <p>เปิด DevTools (F12 หรือ Cmd+Option+I) ไปที่แท็บ Network กด Ctrl+R reload หน้า ใส่วันเกิดของคุณ กด Generate — ดูใน Network tab ว่ามี request ไปที่ <code>/api/calculate</code> หรือใด ๆ ที่มีวันเกิดส่งไปหรือไม่ คำตอบ: ไม่มี (ยกเว้น analytics ภายในที่ไม่ส่งวันเกิด)</p>
+      <h3>à¸§à¸´à¸˜à¸µà¸žà¸´à¸ªà¸¹à¸ˆà¸™à¹Œà¸§à¹ˆà¸²à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸­à¸­à¸?</h3>
+      <p>à¹€à¸›à¸´à¸” DevTools (F12 à¸«à¸£à¸·à¸­ Cmd+Option+I) à¹„à¸›à¸—à¸µà¹ˆà¹à¸—à¹‡à¸š Network à¸à¸” Ctrl+R reload à¸«à¸™à¹‰à¸² à¹ƒà¸ªà¹ˆà¸§à¸±à¸™à¹€à¸à¸´à¸”à¸‚à¸­à¸‡à¸„à¸¸à¸“ à¸à¸” Generate â€” à¸”à¸¹à¹ƒà¸™ Network tab à¸§à¹ˆà¸²à¸¡à¸µ request à¹„à¸›à¸—à¸µà¹ˆ <code>/api/calculate</code> à¸«à¸£à¸·à¸­à¹ƒà¸” à¹† à¸—à¸µà¹ˆà¸¡à¸µà¸§à¸±à¸™à¹€à¸à¸´à¸”à¸ªà¹ˆà¸‡à¹„à¸›à¸«à¸£à¸·à¸­à¹„à¸¡à¹ˆ à¸„à¸³à¸•à¸­à¸š: à¹„à¸¡à¹ˆà¸¡à¸µ (à¸¢à¸à¹€à¸§à¹‰à¸™ analytics à¸ à¸²à¸¢à¹ƒà¸™à¸—à¸µà¹ˆà¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¸§à¸±à¸™à¹€à¸à¸´à¸”)</p>
     </div>
 
     <div class="faq-block">
-      <h3>แล้ว Cosmic Blueprint $19 ส่งข้อมูลออกไหม?</h3>
-      <p>การชำระเงิน $19 ไปที่ Gumroad (merchant of record สำหรับ card processing + tax + receipt) — email และข้อมูล payment ส่งไปที่ Gumroad ไม่ใช่ Mythsensus. การคำนวณรายงาน 43 หน้ายังคงรันใน browser ของคุณเอง ไม่ใช่ server ของเรา — เราเก็บแค่ payment status (active/inactive) ผ่าน Gumroad webhook ไม่เก็บวันเกิดหรือเนื้อหารายงาน</p>
+      <h3>à¹à¸¥à¹‰à¸§ Cosmic Blueprint $19 à¸ªà¹ˆà¸‡à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸­à¸­à¸à¹„à¸«à¸¡?</h3>
+      <p>à¸à¸²à¸£à¸Šà¸³à¸£à¸°à¹€à¸‡à¸´à¸™ $19 à¹„à¸›à¸—à¸µà¹ˆ Gumroad (merchant of record à¸ªà¸³à¸«à¸£à¸±à¸š card processing + tax + receipt) â€” email à¹à¸¥à¸°à¸‚à¹‰à¸­à¸¡à¸¹à¸¥ payment à¸ªà¹ˆà¸‡à¹„à¸›à¸—à¸µà¹ˆ Gumroad à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆ Mythsensus. à¸à¸²à¸£à¸„à¸³à¸™à¸§à¸“à¸£à¸²à¸¢à¸‡à¸²à¸™ 43 à¸«à¸™à¹‰à¸²à¸¢à¸±à¸‡à¸„à¸‡à¸£à¸±à¸™à¹ƒà¸™ browser à¸‚à¸­à¸‡à¸„à¸¸à¸“à¹€à¸­à¸‡ à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆ server à¸‚à¸­à¸‡à¹€à¸£à¸² â€” à¹€à¸£à¸²à¹€à¸à¹‡à¸šà¹à¸„à¹ˆ payment status (active/inactive) à¸œà¹ˆà¸²à¸™ Gumroad webhook à¹„à¸¡à¹ˆà¹€à¸à¹‡à¸šà¸§à¸±à¸™à¹€à¸à¸´à¸”à¸«à¸£à¸·à¸­à¹€à¸™à¸·à¹‰à¸­à¸«à¸²à¸£à¸²à¸¢à¸‡à¸²à¸™</p>
     </div>
 
     <div class="faq-block">
-      <h3>localStorage คืออะไร? ปลอดภัยไหม?</h3>
-      <p>localStorage คือกล่องเก็บข้อมูลใน browser ของคุณเอง — แต่ละ origin (mythsensus.com) มีกล่องของตัวเอง ไม่ shared กับเว็บอื่น และไม่ส่งไปที่ server ใด ๆ ข้อมูลอยู่ใน hard drive ของอุปกรณ์คุณเท่านั้น เคลียร์ browser cache = ข้อมูลหายหมด เพราะ Mythsensus ไม่มี backup บน server (เป็นข้อจำกัดที่จงใจ — privacy-first)</p>
+      <h3>localStorage à¸„à¸·à¸­à¸­à¸°à¹„à¸£? à¸›à¸¥à¸­à¸”à¸ à¸±à¸¢à¹„à¸«à¸¡?</h3>
+      <p>localStorage à¸„à¸·à¸­à¸à¸¥à¹ˆà¸­à¸‡à¹€à¸à¹‡à¸šà¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹ƒà¸™ browser à¸‚à¸­à¸‡à¸„à¸¸à¸“à¹€à¸­à¸‡ â€” à¹à¸•à¹ˆà¸¥à¸° origin (mythsensus.com) à¸¡à¸µà¸à¸¥à¹ˆà¸­à¸‡à¸‚à¸­à¸‡à¸•à¸±à¸§à¹€à¸­à¸‡ à¹„à¸¡à¹ˆ shared à¸à¸±à¸šà¹€à¸§à¹‡à¸šà¸­à¸·à¹ˆà¸™ à¹à¸¥à¸°à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¹„à¸›à¸—à¸µà¹ˆ server à¹ƒà¸” à¹† à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸­à¸¢à¸¹à¹ˆà¹ƒà¸™ hard drive à¸‚à¸­à¸‡à¸­à¸¸à¸›à¸à¸£à¸“à¹Œà¸„à¸¸à¸“à¹€à¸—à¹ˆà¸²à¸™à¸±à¹‰à¸™ à¹€à¸„à¸¥à¸µà¸¢à¸£à¹Œ browser cache = à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸«à¸²à¸¢à¸«à¸¡à¸” à¹€à¸žà¸£à¸²à¸° Mythsensus à¹„à¸¡à¹ˆà¸¡à¸µ backup à¸šà¸™ server (à¹€à¸›à¹‡à¸™à¸‚à¹‰à¸­à¸ˆà¸³à¸à¸±à¸”à¸—à¸µà¹ˆà¸ˆà¸‡à¹ƒà¸ˆ â€” privacy-first)</p>
     </div>
 
     <div class="faq-block">
-      <h3>Vercel Analytics เก็บข้อมูลอะไร?</h3>
-      <p>Vercel Web Analytics คือ aggregated traffic data แบบ privacy-friendly — เก็บ page view count, country (ไม่ใช่ IP), browser type, referrer. ไม่ใช้ cookies. ไม่ track individual user. ไม่เก็บ IP. ไม่ส่งไปที่ Google/Facebook. ไม่ใช้สำหรับ advertising หรือ remarketing วันเกิดของคุณ ไม่ส่งไปที่ Vercel Analytics — เป็น analytics ของ page navigation เท่านั้น</p>
+      <h3>Vercel Analytics à¹€à¸à¹‡à¸šà¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸­à¸°à¹„à¸£?</h3>
+      <p>Vercel Web Analytics à¸„à¸·à¸­ aggregated traffic data à¹à¸šà¸š privacy-friendly â€” à¹€à¸à¹‡à¸š page view count, country (à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆ IP), browser type, referrer. à¹„à¸¡à¹ˆà¹ƒà¸Šà¹‰ cookies. à¹„à¸¡à¹ˆ track individual user. à¹„à¸¡à¹ˆà¹€à¸à¹‡à¸š IP. à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¹„à¸›à¸—à¸µà¹ˆ Google/Facebook. à¹„à¸¡à¹ˆà¹ƒà¸Šà¹‰à¸ªà¸³à¸«à¸£à¸±à¸š advertising à¸«à¸£à¸·à¸­ remarketing à¸§à¸±à¸™à¹€à¸à¸´à¸”à¸‚à¸­à¸‡à¸„à¸¸à¸“ à¹„à¸¡à¹ˆà¸ªà¹ˆà¸‡à¹„à¸›à¸—à¸µà¹ˆ Vercel Analytics â€” à¹€à¸›à¹‡à¸™ analytics à¸‚à¸­à¸‡ page navigation à¹€à¸—à¹ˆà¸²à¸™à¸±à¹‰à¸™</p>
     </div>
 
   </section>
 
-  <h2>อ่านต่อ</h2>
-  <p>· <a href="/cosmic-score">Cosmic Score คืออะไร · methodology</a><br>
-  · <a href="/sample-report">Sample Report 43 หน้า — ดูฟรีก่อนซื้อ</a><br>
-  · <a href="/privacy">Privacy Policy</a><br>
-  · <a href="/blog/ดูดวงฟรี-ไม่ต้องลงทะเบียน">ดูดวงฟรี ไม่ต้องลงทะเบียน — ทำได้จริงไหม</a></p>
+  <h2>à¸­à¹ˆà¸²à¸™à¸•à¹ˆà¸­</h2>
+  <p>Â· <a href="/cosmic-score">Cosmic Score à¸„à¸·à¸­à¸­à¸°à¹„à¸£ Â· methodology</a><br>
+  Â· <a href="/sample-report">Sample Report 43 à¸«à¸™à¹‰à¸² â€” à¸”à¸¹à¸Ÿà¸£à¸µà¸à¹ˆà¸­à¸™à¸‹à¸·à¹‰à¸­</a><br>
+  Â· <a href="/privacy">Privacy Policy</a><br>
+  Â· <a href="/blog/à¸”à¸¹à¸”à¸§à¸‡à¸Ÿà¸£à¸µ-à¹„à¸¡à¹ˆà¸•à¹‰à¸­à¸‡à¸¥à¸‡à¸—à¸°à¹€à¸šà¸µà¸¢à¸™">à¸”à¸¹à¸”à¸§à¸‡à¸Ÿà¸£à¸µ à¹„à¸¡à¹ˆà¸•à¹‰à¸­à¸‡à¸¥à¸‡à¸—à¸°à¹€à¸šà¸µà¸¢à¸™ â€” à¸—à¸³à¹„à¸”à¹‰à¸ˆà¸£à¸´à¸‡à¹„à¸«à¸¡</a></p>
 
 </div>
 
 <footer>
-  <a href="/">หน้าแรก</a> · <a href="/cosmic-score">Cosmic Score</a> · <a href="/blog">บทความ</a> · <a href="/pricing">ราคา</a> · <a href="/privacy">Privacy</a> · <a href="/disclaimer">ข้อจำกัด</a>
-  <div style="margin-top:1rem;opacity:.6">© 2026 MYTHSENSUS · เพื่อความบันเทิง ไม่ใช่คำแนะนำทางวิชาชีพ</div>
+  <a href="/">à¸«à¸™à¹‰à¸²à¹à¸£à¸</a> Â· <a href="/cosmic-score">Cosmic Score</a> Â· <a href="/blog">à¸šà¸—à¸„à¸§à¸²à¸¡</a> Â· <a href="/pricing">à¸£à¸²à¸„à¸²</a> Â· <a href="/privacy">Privacy</a> Â· <a href="/disclaimer">à¸‚à¹‰à¸­à¸ˆà¸³à¸à¸±à¸”</a>
+  <div style="margin-top:1rem;opacity:.6">Â© 2026 MYTHSENSUS Â· à¹€à¸žà¸·à¹ˆà¸­à¸„à¸§à¸²à¸¡à¸šà¸±à¸™à¹€à¸—à¸´à¸‡ à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¸„à¸³à¹à¸™à¸°à¸™à¸³à¸—à¸²à¸‡à¸§à¸´à¸Šà¸²à¸Šà¸µà¸ž</div>
 </footer>
 
 <script defer src="/_vercel/insights/script.js"></script>
