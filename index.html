@@ -33,10 +33,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Josefin+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-<!-- Perf 2026-06-01: preload critical assets so they download in parallel
-     with HTML parse instead of blocking on the deferred bundle line ~2329.
-     ms26-bundle.js: 909KB engine (defer = parsed after DOM ready, not blocking)
-     gods.json: 689KB deity data (fetched soon after engine load) -->
+<!-- Preload critical assets (engine bundle + deity data). -->
 <link rel="preload" as="script" href="/build/ms26-bundle.js">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
@@ -1256,7 +1253,7 @@ function _webShareText() {
  * site's in-app share menu (LINE/X/FB/Copy + Share… for OS native sheet) so
  * the LINE option is always visible — the OS native sheet on iOS often hides
  * LINE behind a "More" drawer, which read as "no LINE option" to users.
- * Director feedback 2026-06-02: keep LINE explicit, always.
+ * keep LINE explicit, always.
  *
  * Depends on: _logEngagement existence; calls _webShareToggle which reads
  * _webShareUrl/_webShareText and provides a "📱 Share…" entry that fires
@@ -1460,9 +1457,6 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
            accuracy, so they live behind a single tap to reduce the "too much
            info" feeling. All fields stay in the DOM (entryAccept reads them
            with safe defaults) whether the section is open or not. -->
-      <!-- Director feedback 2026-06-01: city input was "หาย" — collapsed by default,
-           users couldn't find the field. Now opens by default + summary makes it
-           explicit you can collapse if you don't need them. -->
       <details id="entryMoreWrap" open style="margin-top:2px">
         <summary style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--gold2);text-align:center;list-style:none;padding:6px 0;letter-spacing:0.3px;cursor:pointer" id="entryMoreToggle">
           ✦ เวลา · เพศ · เมืองเกิด (กดเพื่อย่อ) / Birth time · gender · city (tap to collapse)
@@ -1507,7 +1501,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     </div>
 
     <!-- DISCOUNT / GIFT CODE — optional, unlocks premium tiers without payment during beta.
-         Director feedback 2026-05-31: original summary was a thin centered text with no border,
+         original summary was a thin centered text with no border,
          tap target felt unclickable. Now styled as an obvious button with border + background +
          disclosure arrow. Renamed to "Discount / Gift code" to also cover the influencer/group
          promo use case (same mechanism, different framing). -->
@@ -1732,9 +1726,7 @@ try{
 }catch(e){}
 </script>
 
-<!-- ═══ AI TRANSPARENCY EXPLAINER · added 2026-06-01 from AI audit
-     Fixed 2026-06-01: data-en/data-th + setLang's textContent escaped <strong>+<a>
-     to literal text. Switched to two <span lang> siblings + CSS toggle. ═══ -->
+<!-- AI transparency explainer · deterministic-vs-AI split -->
 <style>
   #aiHonest [lang="en"] { display: none; }
   html[lang="en"] #aiHonest [lang="th"] { display: none; }
@@ -1759,11 +1751,6 @@ try{
   <div class="tb-pill"><span class="tb-label" data-t="tb_moon">MOON</span> <span id="tb-moon-sign">—</span></div>
   <span class="tb-dot">·</span>
   <div class="tb-pill"><span id="tb-day-icon">—</span><span id="tb-day-deity">—</span></div>
-  <!-- Rail toggle button removed 2026-05-08. The "📋 แผง" pill in the
-       today-bar at the right-most edge could overlap with the sub-tab
-       click area at certain viewport widths, hijacking taps that the user
-       intended for "26 ศาสตร์" / "ความเข้ากัน". Rails are now display-only;
-       there's no toggle to expose. -->
 </div>
 
 <!-- ═══ DESKTOP SIDE RAILS (viewport >= 1200px only) ═══
@@ -2935,8 +2922,7 @@ const GROUPS = {
   free: {
     // First-time visitors land on "ดูตัวอย่าง" (the 26-system chart preview)
     // — it's the primary value demo. Daily blessing comes second; users who
-    // want it daily can pin it via the sub-tab. Director feedback 2026-05-31:
-    // the preview was buried at position 3, content not visible enough.
+    // want it daily can pin it via the sub-tab. // the preview was buried at position 3, content not visible enough.
     default: 'preview',
     tabs: [
       ['preview',    'chart',       'sub_preview',    false],
@@ -5477,16 +5463,15 @@ const _GUMROAD_SUBSCRIBE_URL = 'https://garsell.gumroad.com/l/tlkfx?wanted=true'
 //   permalink  — the short id (the part after /l/) so the webhook can
 //                resolve which item was purchased without parsing the URL.
 //
-// TODO (Director): create these as separate Gumroad products in the Gumroad
-// dashboard, then paste the URL + permalink below. Each product should be
-// priced to match PRICING[<key>].usd and configured as one-time purchase.
-// While `url` is empty the paywall button still works — it just sends the
-// user to the subscription page instead of the per-item checkout.
+// TODO: create these as separate Gumroad products in the Gumroad dashboard,
+// then paste the URL + permalink below. Each product should be priced to match
+// PRICING[<key>].usd and configured as one-time purchase. While `url` is empty
+// the paywall button still works — it just sends the user to the subscription
+// page instead of the per-item checkout.
 const _GUMROAD_PRODUCTS = {
-  // Created 2026-05-30 via Gumroad API. All 9 start as `published: false` so the
-  // Director can review pricing + description on the Gumroad dashboard before
-  // going live. Once published, paywall buttons send buyers straight to per-item
-  // one-time checkout (no subscription required).
+  // All 9 start as `published: false` so pricing + description can be reviewed
+  // on the Gumroad dashboard before going live. Once published, paywall buttons
+  // send buyers straight to per-item one-time checkout (no subscription required).
   deep:        { url: 'https://garsell.gumroad.com/l/oziji?wanted=true',  permalink: 'oziji'  }, // $9
   mirror:      { url: 'https://garsell.gumroad.com/l/luqkbx?wanted=true', permalink: 'luqkbx' }, // $9
   pet:         { url: 'https://garsell.gumroad.com/l/nxezj?wanted=true',  permalink: 'nxezj'  }, // $5
@@ -5636,7 +5621,7 @@ async function _redeemByEmail(itemKey){
 
 // Renders the standard paywall card used everywhere a purchase gate appears.
 // Same look across deep / add-on tabs so users learn the pattern once.
-// Gift-code redemption modal (Director feedback 2026-06-01: clicking the
+// Gift-code redemption modal (clicking the
 // "Use Gift Code" button was redirecting to Profile→Me, which has no code
 // input — users got stranded. Now opens an inline modal with the same
 // GIFT_CODES validation as the entry-overlay flow, no navigation away.
@@ -6576,7 +6561,7 @@ const DEEP_SYSTEMS = [
     ]
   })],
   ['biorhythm','ds_bio','📈',(c)=>{
-    // Director feedback 2026-06-01: "biorythm ควรอัพเดททุกวัน".
+    // "biorythm ควรอัพเดททุกวัน".
     // Engine's c.biorhythm is computed against BIORHYTHM_REF (fixed
     // 2026-04-14) for blueprint determinism — never changes per visit.
     // For the daily Biorhythm display, override with TODAY's actual values
@@ -7783,7 +7768,7 @@ function _renderPulseLockedPreview(chart) {
 }
 
 // ── Monthly Brief — compact snapshot, one line per system ──
-// Director feedback 2026-06-01: make the Monthly Brief year-strip months
+// make the Monthly Brief year-strip months
 // clickable so a user can see ANY month's biorhythm, not just this/next.
 // We cache the chart so the onclick handler can recompute without re-running
 // renderMonthlyBrief (which would also reset scroll position).
@@ -8043,7 +8028,7 @@ function renderMonthlyBrief(){
       </div>
     </div>`;
 
-  // ── Enrichment derivations (Director 2026-06-01: "ครบทุก tab") ──
+  // ── Enrichment derivations ("ครบทุก tab") ──
   // Day-by-day biorhythm for the current month → top 5 peak + 5 caution days.
   const dobStrMB = (document.getElementById('profDob')||{}).value || localStorage.getItem('mth_dob');
   const monthDays = (function(){
@@ -9319,12 +9304,7 @@ function renderMirror(){
 
   el.innerHTML = `
     ${reasoning}
-    <!-- 2-axis Mirror summary — Director feedback 2026-06-04: users see
-         Primary (Surya / element) and Cosmic Entity (Tai Yi / tier) on the
-         same page and read them as conflicting "your deity X" vs "your
-         deity Y". Pair them at the top with their axis labels so the
-         reader sees these are two READINGS of the same person, not two
-         different answers. -->
+    <!-- 2-axis Mirror summary: Primary + Cosmic Entity paired so they read as two perspectives on one person. -->
     <div class="deep-sys-card" style="background:linear-gradient(180deg,rgba(212,175,55,0.07),rgba(212,175,55,0.02));border:1px solid rgba(212,175,55,0.35);padding:18px 18px 16px">
       <div style="text-align:center;font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2.5px;color:var(--gold);margin-bottom:14px">${isTh?'🪞 เทพกระจกของคุณมี 2 มิติ · อ่านคนละแกน':'🪞 YOUR MIRROR HAS 2 AXES · TWO READINGS OF YOU'}</div>
       <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:stretch">
@@ -9402,7 +9382,7 @@ function renderMirror(){
     )}`;
 }
 
-// ── Pet enrichment helpers (Director feedback 2026-06-01: A+B+C combo —
+// ── Pet enrichment helpers (A+B+C combo —
 //    add new sections, expand existing depth, personalize per-chart) ──
 // Mahadasha planetary periods (years) — Vedic standard. Used to cross-
 // reference how long a pet's lifespan covers the user's current life chapter.
@@ -9456,8 +9436,7 @@ const WEEKLY_PET_RHYTHM = [
 ];
 // 20 pet species classified by traditional 5-element correspondences,
 // each with a distinguishing "why" line so rank 1 / 2 / 3 read differently
-// even when their element-score is tied (Director feedback 2026-06-01:
-// "อันดับ 2-3 ลงไปต่างจากอันดับ 1 เพราะอะไร" — every entry now has its
+// even when their element-score is tied (// "อันดับ 2-3 ลงไปต่างจากอันดับ 1 เพราะอะไร" — every entry now has its
 // own narrative trait, separate from the element compatibility score).
 const ALL_PETS_20 = [
   // Wood — herbivore, gentle, growth-oriented
@@ -9654,8 +9633,7 @@ const MAHADASHA_PILGRIMAGE = {
               en:{ s1:'Wilderness / deserted isle',         s2:'Solitary hermitage',              s3:'Lonely mountain peak',       s4:'Quiet corner — mat + flute + silence' } },
 };
 
-// ── 20-item lists for Exercise / Food / Product (Director 2026-06-01:
-//    "ครบทุก tab" — scale Pet/Companion pattern to remaining thin add-ons).
+// ── 20-item lists for Exercise / Food / Product (//    "ครบทุก tab" — scale Pet/Companion pattern to remaining thin add-ons).
 //    All use _petCompat() for 5-element scoring. 4 items per element. ──
 
 // 20 sports / exercise modalities classified by 5-element movement pattern.
@@ -9919,7 +9897,7 @@ const STYLE_WEEK = [
   { dayTh:'ส. (เสาร์)',    dayEn:'Sat', planet:'♄ Saturn',  acTh:'ดำ / น้ำเงินเข้ม · มินิมอล · ทรงเป๊ะ',          acEn:'Black / dark navy · minimal · structured' },
 ];
 
-// ── Methodology card helper (Director 2026-06-01: "วิธีคิดควรมาก่อนคำตอบ") ──
+// ── Methodology card helper ("วิธีคิดควรมาก่อนคำตอบ") ──
 // Renders an "🔍 How we calculate" box that goes at the TOP of every
 // enriched add-on renderer — users see the systems + scoring rules BEFORE
 // the actual answers, so they understand the reasoning, not just the result.
@@ -10020,7 +9998,7 @@ function renderPet(){
     ],
   });
 
-  // ── Enrichment derivations (Director 2026-06-01: A+B+C combo) ──
+  // ── Enrichment derivations (A+B+C combo) ──
   // Pet lifespan span vs current Mahadasha chapter — coverage = full or partial.
   const dasha       = chart.vedicMahadasha?.currentDasha || 'Jupiter';
   const dashaYears  = MAHADASHA_YEARS[dasha] || 12;
@@ -10028,7 +10006,7 @@ function renderPet(){
   const petAvg      = Math.round((petMin + petMax) / 2);
   const coverage    = petAvg >= dashaYears ? 'full' : 'partial';
   // Rank all 20 pet species by 5-element compatibility for this user.
-  // Director 2026-06-01: restore Top 3 + Avoid list, expand to 20 species.
+  // restore Top 3 + Avoid list, expand to 20 species.
   const petsRanked  = ALL_PETS_20.map(pp => ({ ...pp, cmp: _petCompat(dmEl, pp.el) }))
                                  .sort((a,b) => b.cmp.score - a.cmp.score);
   const top3Pets    = petsRanked.slice(0, 3);
@@ -10084,7 +10062,7 @@ function renderPet(){
       </div>
     </div>
 
-    <!-- 🆕 20-Pet Compatibility Map (Director 2026-06-01: restore Top 3 + Avoid) -->
+    <!-- 🆕 20-Pet Compatibility Map (restore Top 3 + Avoid) -->
     <div class="deep-sys-card" style="margin-top:12px">
       <div class="deep-sys-title">🐾 ${isTh?'แผนที่สัตว์เลี้ยง 20 ชนิด':'20-Pet Compatibility Map'}</div>
       <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${dmEl} · 5-element cycle`:`Ranked for your ${dmEl} element · 5-element cycle`}</div>
@@ -10307,7 +10285,7 @@ function renderCompanions(){
     ],
   });
 
-  // ── Companions enrichment derivations (Director 2026-06-01: scale Pet pattern) ──
+  // ── Companions enrichment derivations (scale Pet pattern) ──
   // Rank 20 mythic creatures by 5-element compatibility, pick Top 3 + Bottom 3.
   const creaturesRanked  = MYTHIC_CREATURES_20.map(cc => ({ ...cc, cmp: _petCompat(dmEl, cc.el) }))
                                                .sort((a,b) => b.cmp.score - a.cmp.score);
@@ -10359,7 +10337,7 @@ function renderCompanions(){
       <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:15px;color:var(--gold);line-height:1.7">${comp.mantra}</div>
     </div>
 
-    <!-- 🆕 20-Mythic-Creature Compatibility Map (Director 2026-06-01: restore Top 3 + Avoid pattern) -->
+    <!-- 🆕 20-Mythic-Creature Compatibility Map (restore Top 3 + Avoid pattern) -->
     <div class="deep-sys-card" style="margin-top:12px">
       <div class="deep-sys-title">🐉 ${isTh?'แผนที่สัตว์ตำนาน 20 ตัว':'20-Mythic-Creature Compatibility Map'}</div>
       <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${dmEl} · 5-element cycle · 4 ตัว/ธาตุ จากหลายวัฒนธรรม`:`Ranked for your ${dmEl} element · 5-element cycle · 4 creatures per element across cultures`}</div>
@@ -11333,7 +11311,7 @@ function _runCompatCheck(){
     return;
   }
 
-  // Director feedback 2026-06-01: "ดวงเหมือนกัน ≠ สนับสนุนกันจริงๆ".
+  // "ดวงเหมือนกัน ≠ สนับสนุนกันจริงๆ".
   // Replaced pure identity-match with real complementarity scoring for the
   // systems where astrology has well-defined aspect / cycle rules.
   // ── Lookup tables for complementarity scoring ──
@@ -11395,8 +11373,7 @@ function _runCompatCheck(){
 
   // Compare all 26 systems row by row, score convergence per row.
   // Each row: {emoji, label, extract, match, whyTh, whyEn}
-  // why* generates a per-row interpretation (Compat v2 — 2026-06-01:
-  // Pattrick: "ตัว compare 26 ศาสตร์ยังบอกแค่ตรงไม่ตรง").
+  // why* generates a per-row interpretation for each system.
   const ROWS = [
     // Western — aspect-based (sextile/trine/opposition = good · square = friction)
     { key:'western',  emoji:'☀️', label:isTh?'Western (Sun aspect)':'Western (Sun aspect)',
@@ -11609,7 +11586,7 @@ function _runCompatCheck(){
   ];
 
   let yes = 0, partial = 0, no = 0;
-  // Director feedback 2026-06-01: track WHICH systems aligned/diverged so the
+  // track WHICH systems aligned/diverged so the
   // synthesis card at the end can name them, not just give a tally.
   const alignedRows = [], partialRows = [], frictionRows = [];
   const rowHTML = ROWS.map(r => {
@@ -11761,7 +11738,7 @@ function _runCompatCheck(){
         <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.8">${compatReading}</div>
       </div>
 
-      <!-- 🆕 Synthesis Verdict (Director 2026-06-01: "ไม่มีข้อสรุปให้ด้วย ต้องลึกกว่านี้") -->
+      <!-- 🆕 Synthesis Verdict ("ไม่มีข้อสรุปให้ด้วย ต้องลึกกว่านี้") -->
       ${(()=>{
         const topAlign = alignedRows.slice(0, 4);
         const topFrict = frictionRows.slice(0, 4);
@@ -12642,7 +12619,7 @@ async function _socialSignIn(provider){
     const state=Math.random().toString(36).substring(2);
     try{ sessionStorage.setItem('line_state', state); }catch(_){}
     const channelId=(window.__MYTH_ENV__ && window.__MYTH_ENV__.LINE_LOGIN_CHANNEL_ID) || '2009661365';
-    // Director feedback 2026-06-01: restore `email` scope. Removing it for
+    // restore `email` scope. Removing it for
     // seamless re-login (2026-05-31) caused the predicted duplicate-account
     // issue — when LINE doesn't return email, the callback synthesizes
     // `line_<id>@line.mythsensus.local`, which never matches the real email a
@@ -12908,7 +12885,7 @@ function showEntryOverlay(){
   _entryLang = localStorage.getItem('mth_lang') || 'th';
   _entryRefreshLang();
   // Pre-fill from saved profile if any.
-  // Director feedback 2026-06-01: don't pre-fill the entry overlay with the
+  // don't pre-fill the entry overlay with the
   // user's saved birth date — start at "today" instead. This lets a user
   // look up SOMEONE ELSE's chart without having to clear their own data
   // first. The actual saved chart stays untouched in localStorage until the
@@ -13062,7 +13039,7 @@ function _entryRefreshLang(){
     ? '⚠ ไม่ทราบเวลาเกิด — ความแม่นของ BaZi/Vedic จะลดประมาณ 30% (Hour Pillar คาดเดาไม่ได้)'
     : '⚠ Birth time unknown — BaZi/Vedic accuracy drops ~30% (Hour Pillar can\'t be inferred)';
   const giftTog = document.getElementById('entryGiftToggle');
-  // Director feedback 2026-05-31: rename to "discount / gift code" to cover both
+  // rename to "discount / gift code" to cover both
   // influencer/group promo codes and traditional beta gift codes (same mechanism).
   // The ▾ tells users the area expands when tapped — needed since list-style:none
   // removed the default disclosure triangle.
