@@ -175,7 +175,7 @@
 // systems, biorhythm is still shown in the breakdown but in a separate
 // "Daily layer · not scoring" card with explanatory copy. /build/ms26-bundle.js
 // regenerated.
-const CACHE = 'mythsensus-v75';
+const CACHE = 'mythsensus-v76';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

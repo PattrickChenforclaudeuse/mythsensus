@@ -60,6 +60,16 @@ p{margin-bottom:1.1rem;color:var(--text);font-size:1.02rem;line-height:1.9}
 .faq-block{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.2rem 1.4rem;margin-bottom:.7rem}
 .faq-block h3{font-family:'Prompt',sans-serif;font-weight:500;font-size:1.02rem;color:var(--gold2);margin:0 0 .4rem}
 .faq-block p{margin:0;color:var(--text);font-size:.96rem;line-height:1.75}
+/* International-figures quick samples — added 2026-06-05 */
+.fig-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:.85rem;margin:1.6rem 0}
+.fig-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.1rem;transition:border-color .2s,background .2s}
+.fig-card:hover{border-color:var(--gold3);background:rgba(200,164,90,.03)}
+.fig-name{font-family:'Cinzel Decorative',serif;font-size:.98rem;color:var(--gold2);margin-bottom:.35rem;letter-spacing:.04em;line-height:1.3}
+.fig-meta{font-family:'Prompt',sans-serif;font-size:.74rem;color:var(--muted);margin-bottom:.65rem;letter-spacing:.02em;line-height:1.5}
+.fig-signals{display:flex;flex-direction:column;gap:.3rem}
+.fs-pill{display:flex;justify-content:space-between;align-items:center;font-size:.76rem;background:rgba(255,255,255,.018);border-radius:4px;padding:.32rem .55rem;border-left:2px solid var(--gold3)}
+.fs-lbl{color:var(--muted);font-family:'Prompt',sans-serif;font-size:.7rem;letter-spacing:.05em}
+.fs-val{color:var(--gold);font-weight:500;font-family:'Prompt',sans-serif;letter-spacing:.02em}
 footer{border-top:1px solid var(--border);padding:2rem 5%;text-align:center;font-family:'Prompt',sans-serif;font-size:.72rem;color:var(--muted);margin-top:3rem}
 footer a{color:var(--muted);margin:0 .5rem}footer a:hover{color:var(--gold)}
 @media(max-width:640px){.nav-right .nav-link{display:none}.score-banner-num{font-size:2.4rem}}
@@ -131,6 +141,139 @@ footer a{color:var(--muted);margin:0 .5rem}footer a:hover{color:var(--gold)}
       <a href="/how-it-works#engine" style="color:var(--gold);text-decoration:underline">ดูจุดแบ่งให้ชัด →</a>
     </p>
   </div>
+
+  <section style="margin:3rem 0 2.6rem">
+    <h2 style="text-align:center;margin-bottom:.6rem">ดูคำตอบของ engine สำหรับ <span style="color:var(--gold2)">บุคคลในประวัติศาสตร์</span></h2>
+    <p class="sub" style="margin:0 auto 1.8rem">12 บุคคลระดับโลกผ่าน engine 26 ศาสตร์ — quick read 4 signal สั้น ๆ · Sunthorn Phu ด้านบนคือ deep dive 43 หน้าฉบับเต็ม</p>
+
+    <div class="fig-grid">
+
+      <div class="fig-card">
+        <div class="fig-name">Nelson Mandela</div>
+        <div class="fig-meta">1918 · 🇿🇦 South Africa · การเมือง</div>
+        <div class="fig-signals">
+          <div class="fs-pill"><span class="fs-lbl">BaZi Day Master</span><span class="fs-val">戊 Wu · ดินหยาง</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Nine Star Ki</span><span class="fs-val">9 · Purple Fire</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Life Path</span><span class="fs-val">8 · Power</span></div>
+        </div>
+      </div>
+
+      <div class="fig-card">
+        <div class="fig-name">Alan Turing</div>
+        <div class="fig-meta">1912 · 🇬🇧 United Kingdom · คอมพิวเตอร์</div>
+        <div class="fig-signals">
+          <div class="fs-pill"><span class="fs-lbl">BaZi Day Master</span><span class="fs-val">壬 Ren · น้ำหยาง</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Nine Star Ki</span><span class="fs-val">6 · White Metal</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Life Path</span><span class="fs-val">6 · Lover</span></div>
+        </div>
+      </div>
+
+      <div class="fig-card">
+        <div class="fig-name">Nikola Tesla</div>
+        <div class="fig-meta">1856 · 🇭🇷 Croatia · วิศวกรรมไฟฟ้า</div>
+        <div class="fig-signals">
+          <div class="fs-pill"><span class="fs-lbl">BaZi Day Master</span><span class="fs-val">丙 Bing · ไฟหยาง</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Nine Star Ki</span><span class="fs-val">8 · White Earth</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Life Path</span><span class="fs-val">1 · Magician</span></div>
+        </div>
+      </div>
+
+      <div class="fig-card">
+        <div class="fig-name">Ada Lovelace</div>
+        <div class="fig-meta">1815 · 🇬🇧 United Kingdom · คณิตศาสตร์</div>
+        <div class="fig-signals">
+          <div class="fs-pill"><span class="fs-lbl">BaZi Day Master</span><span class="fs-val">癸 Gui · น้ำหยิน</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Nine Star Ki</span><span class="fs-val">4 · Green Wood</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Life Path</span><span class="fs-val">1 · Magician</span></div>
+        </div>
+      </div>
+
+      <div class="fig-card">
+        <div class="fig-name">Rosalind Franklin</div>
+        <div class="fig-meta">1920 · 🇬🇧 United Kingdom · ผลึกศาสตร์ X-ray</div>
+        <div class="fig-signals">
+          <div class="fs-pill"><span class="fs-lbl">BaZi Day Master</span><span class="fs-val">丙 Bing · ไฟหยาง</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Nine Star Ki</span><span class="fs-val">7 · Red Metal</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Life Path</span><span class="fs-val">8 · Power</span></div>
+        </div>
+      </div>
+
+      <div class="fig-card">
+        <div class="fig-name">Chien-Shiung Wu</div>
+        <div class="fig-meta">1912 · 🇨🇳 China · ฟิสิกส์นิวเคลียร์</div>
+        <div class="fig-signals">
+          <div class="fs-pill"><span class="fs-lbl">BaZi Day Master</span><span class="fs-val">己 Ji · ดินหยิน</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Nine Star Ki</span><span class="fs-val">6 · White Metal</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Life Path</span><span class="fs-val">22 · Master Builder</span></div>
+        </div>
+      </div>
+
+      <div class="fig-card">
+        <div class="fig-name">Lise Meitner</div>
+        <div class="fig-meta">1878 · 🇦🇹 Austria · ฟิสิกส์นิวเคลียร์</div>
+        <div class="fig-signals">
+          <div class="fs-pill"><span class="fs-lbl">BaZi Day Master</span><span class="fs-val">辛 Xin · โลหะหยิน</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Nine Star Ki</span><span class="fs-val">4 · Green Wood</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Life Path</span><span class="fs-val">33 · Master Teacher</span></div>
+        </div>
+      </div>
+
+      <div class="fig-card">
+        <div class="fig-name">Hedy Lamarr</div>
+        <div class="fig-meta">1914 · 🇦🇹 Austria · วิศวกรรม</div>
+        <div class="fig-signals">
+          <div class="fs-pill"><span class="fs-lbl">BaZi Day Master</span><span class="fs-val">辛 Xin · โลหะหยิน</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Nine Star Ki</span><span class="fs-val">4 · Green Wood</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Life Path</span><span class="fs-val">8 · Power</span></div>
+        </div>
+      </div>
+
+      <div class="fig-card">
+        <div class="fig-name">Katherine Johnson</div>
+        <div class="fig-meta">1918 · 🇺🇸 USA · คณิตศาสตร์ (NASA)</div>
+        <div class="fig-signals">
+          <div class="fs-pill"><span class="fs-lbl">BaZi Day Master</span><span class="fs-val">丁 Ding · ไฟหยิน</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Nine Star Ki</span><span class="fs-val">9 · Purple Fire</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Life Path</span><span class="fs-val">8 · Power</span></div>
+        </div>
+      </div>
+
+      <div class="fig-card">
+        <div class="fig-name">John F Kennedy</div>
+        <div class="fig-meta">1917 · 🇺🇸 USA · การเมือง</div>
+        <div class="fig-signals">
+          <div class="fs-pill"><span class="fs-lbl">BaZi Day Master</span><span class="fs-val">癸 Gui · น้ำหยิน</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Nine Star Ki</span><span class="fs-val">1 · White Water</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Life Path</span><span class="fs-val">7 · Mystic</span></div>
+        </div>
+      </div>
+
+      <div class="fig-card">
+        <div class="fig-name">John Lennon</div>
+        <div class="fig-meta">1940 · 🇬🇧 United Kingdom · ดนตรี</div>
+        <div class="fig-signals">
+          <div class="fs-pill"><span class="fs-lbl">BaZi Day Master</span><span class="fs-val">丁 Ding · ไฟหยิน</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Nine Star Ki</span><span class="fs-val">5 · Yellow Earth</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Life Path</span><span class="fs-val">6 · Lover</span></div>
+        </div>
+      </div>
+
+      <div class="fig-card">
+        <div class="fig-name">Barack Obama</div>
+        <div class="fig-meta">1961 · 🇺🇸 USA · การเมือง</div>
+        <div class="fig-signals">
+          <div class="fs-pill"><span class="fs-lbl">BaZi Day Master</span><span class="fs-val">辛 Xin · โลหะหยิน</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Nine Star Ki</span><span class="fs-val">2 · Black Earth</span></div>
+          <div class="fs-pill"><span class="fs-lbl">Life Path</span><span class="fs-val">11 · Visionary</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="disclaimer-box" style="margin-top:1.4rem">
+      <strong>📌 หมายเหตุเชิงเทคนิค:</strong> 12 quick samples ข้างบนใช้ <em>noon at country capital</em> เป็น default เพราะเวลาเกิดและพิกัดที่แม่นยำของบุคคลในประวัติศาสตร์ส่วนใหญ่ไม่ถูกบันทึก — <strong style="color:var(--gold2)">BaZi Day Master + Life Path + Nine Star Ki</strong> ใช้แค่วันที่เลยแม่นยำ · <strong style="color:#e8a560">Vedic Nakshatra / Western Ascendant / BaZi Hour Pillar</strong> ของบุคคลเหล่านี้จะคลาดเคลื่อนตามชั่วโมงเกิดที่ไม่รู้แน่ชัด · ตัวอย่าง <strong>Sunthorn Phu's 43-page report</strong> ด้านบนคือ deep dive ที่แสดง full 26-system output แบบสมบูรณ์ พร้อม <em>precision caveat</em> สำหรับ pre-modern era
+    </div>
+  </section>
 
   <section>
     <h2>ทำไมเราเปิดให้ดูฟรี</h2>
