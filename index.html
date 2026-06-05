@@ -1362,11 +1362,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     <div class="login-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></div>
     <div class="login-tagline-sm">Where myriad myths reach consensus — about you</div>
 
-    <!-- ════ STEP 0 — simple hero (first impression) ════
-         New visitors used to land on the full birth-data form ("ข้อมูลเยอะ
-         ใช้งานยาก"). Now they see one clear value-prop + ONE button; the form
-         lives behind it (entryShowForm). The returning-user fast path in
-         showEntryOverlay still skips this whole overlay entirely. -->
+    <!-- STEP 0: hero first-impression card. Form lives behind via entryShowForm. -->
     <div id="entryHeroStep">
       <div style="text-align:center;margin:22px 0 4px;font-family:'Cinzel Decorative',serif;font-size:18px;color:var(--gold);line-height:1.4">ดูดวงคุณจาก <span style="color:var(--gold2)">26 ศาสตร์โบราณ</span> ในที่เดียว</div>
       <div style="text-align:center;margin:0 0 16px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--muted)">Your birth chart, read by 26 systems</div>
@@ -12741,6 +12737,12 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   setInterval(() => { try { _checkBirthdayBanner(); } catch(_) {} }, 60 * 60 * 1000);
   // ── Starfield ─────────────────────────────────────────────
   initStarfield();
+  // ── Today's Sky — populate immediately (date-only data, no chart needed)
+  //    so visitors don't see "—" placeholders behind the entry overlay.
+  //    Fix 2026-06-05 from cold-skeptic audit: previously only rendered
+  //    after entry-overlay dismissal in _bootAfterEntry, leaving the today
+  //    bar showing em-dashes during the entire intro screen.
+  try { renderTodayBar(); } catch(_) {}
   // ── Init Supabase ──────────────────────────────────────────
   _sb = supabase.createClient(_SB_URL, _SB_KEY, {
     auth:{ autoRefreshToken:true, persistSession:true, detectSessionInUrl:true }
