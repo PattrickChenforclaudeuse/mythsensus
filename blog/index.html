@@ -44,32 +44,32 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Josefin+Sans:wght@300;400;600&family=Prompt:wght@300;400&display=swap">
 <style>
-:root{--bg:#040407;--gold:#c8a45a;--silver:#e6e2d8;--dim:#9a9088;--card:#0d0d14;--border:rgba(200,164,90,0.22)}
+:root{--bg:#040407;--gold:#c8a45a;--text:#e6e2d8;--muted:#9a9088;--card:#0d0d14;--border:rgba(200,164,90,0.22)}
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--silver);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.85}
+body{background:var(--bg);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.85}
 a{color:var(--gold);text-decoration:none}
 .nav{position:fixed;top:0;width:100%;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
-.nav-logo{font-family:'Cinzel Decorative',serif;font-size:clamp(16px,1.8vw,22px);cursor:pointer;letter-spacing:5px}.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
-.nav-right{display:flex;gap:1.6rem;align-items:center}.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--silver);opacity:.7}.nav-link:hover{opacity:1;color:var(--gold)}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:clamp(16px,1.8vw,22px);cursor:pointer;letter-spacing:5px}.logo-myth{color:var(--gold)}.logo-sensus{color:var(--text);opacity:.65}
+.nav-right{display:flex;gap:1.6rem;align-items:center}.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text);opacity:.7}.nav-link:hover{opacity:1;color:var(--gold)}
 .btn-gold{background:var(--gold);color:#040407;font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;padding:.55rem 1.4rem;border:none;cursor:pointer;border-radius:2px}
 .page-wrap{max-width:860px;margin:0 auto;padding:100px 5% 5rem}
 .lib-eyebrow{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:.8rem}
-.lib-title{font-family:'Cinzel Decorative',serif;font-size:clamp(2rem,4vw,3rem);color:var(--silver);margin-bottom:.8rem}
-.lib-sub{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--dim);margin-bottom:3rem}
+.lib-title{font-family:'Cinzel Decorative',serif;font-size:clamp(2rem,4vw,3rem);color:var(--text);margin-bottom:.8rem}
+.lib-sub{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--muted);margin-bottom:3rem}
 .lib-philosophy{background:rgba(200,164,90,.04);border:1px solid rgba(200,164,90,.12);border-radius:10px;padding:2rem;margin-bottom:3rem}
 .lib-philosophy-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--gold);margin-bottom:.8rem}
-.lib-philosophy-body{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--dim);line-height:1.75;font-style:italic}
+.lib-philosophy-body{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--muted);line-height:1.75;font-style:italic}
 .articles-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin-bottom:3.5rem}
 .article-card{display:block;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.5rem;transition:border-color .2s,background .2s}
 .article-card:hover{border-color:rgba(200,164,90,.45);background:#131320}
 .article-tag{font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:.75;margin-bottom:.8rem;display:block}
-.article-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--silver);margin-bottom:.7rem;line-height:1.4}
-.article-excerpt{font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--dim);line-height:1.6;margin-bottom:.9rem}
+.article-title{font-family:'Cinzel Decorative',serif;font-size:1rem;color:var(--text);margin-bottom:.7rem;line-height:1.4}
+.article-excerpt{font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--muted);line-height:1.6;margin-bottom:.9rem}
 .article-read{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);opacity:.7}
 .cta-block{text-align:center;padding:2.5rem;background:rgba(200,164,90,.04);border:1px solid rgba(200,164,90,.15);border-radius:10px;margin-bottom:2rem}
-.cta-text{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--dim);margin-bottom:.4rem}
+.cta-text{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--muted);margin-bottom:.4rem}
 .cta-sub{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.1em;color:rgba(200,164,90,.5);margin-bottom:1.2rem}
-.footer-blog{text-align:center;padding:1.5rem;font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);border-top:1px solid var(--border)}
+.footer-blog{text-align:center;padding:1.5rem;font-family:'Josefin Sans',sans-serif;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--border)}
 .lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
 .lang-btn{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
 .lang-btn.active{background:var(--gold);color:#040407}.lang-btn:hover:not(.active){color:var(--gold)}
@@ -341,9 +341,9 @@ html[lang="th"] .lib-title, html[lang="th"] .article-title{font-family:'Prompt',
     <br><a href="/disclaimer" style="color:var(--gold,#c8a45a);text-decoration:underline;opacity:.8" data-en="Read the full disclaimer →" data-th="อ่านข้อจำกัดฉบับเต็ม →">Read the full disclaimer →</a>
   </div>
 <div class="footer-blog">
-  <a href="/privacy" style="color:var(--dim)" data-en="Privacy" data-th="นโยบายความเป็นส่วนตัว">Privacy</a> · 
-  <a href="/support" style="color:var(--dim)" data-en="Support" data-th="ช่วยเหลือ">Support</a> · 
-  <a href="/" style="color:var(--dim)">mythsensus.com</a> · 
+  <a href="/privacy" style="color:var(--muted)" data-en="Privacy" data-th="นโยบายความเป็นส่วนตัว">Privacy</a> · 
+  <a href="/support" style="color:var(--muted)" data-en="Support" data-th="ช่วยเหลือ">Support</a> · 
+  <a href="/" style="color:var(--muted)">mythsensus.com</a> · 
   <span>© 2026 MYTHSENSUS</span>
 </div>
 

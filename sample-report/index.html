@@ -23,25 +23,25 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600&family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#040407;--bg2:#0a0a10;--bg3:#0d0d14;--gold:#c8a45a;--gold2:#e8c87a;--gold3:#a8843a;--silver:#e6e2d8;--dim:#9a9088;--border:rgba(200,164,90,0.22);--text:#e6e2d8}
+:root{--bg:#040407;--bg2:#0a0a10;--bg3:#0d0d14;--gold:#c8a45a;--gold2:#e8c87a;--gold3:#a8843a;--text:#e6e2d8;--muted:#9a9088;--border:rgba(200,164,90,0.22);--text:#e6e2d8}
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--silver);font-family:'Prompt',sans-serif;font-weight:300;font-size:17px;line-height:1.85}
+body{background:var(--bg);color:var(--text);font-family:'Prompt',sans-serif;font-weight:300;font-size:17px;line-height:1.85}
 a{color:var(--gold);text-decoration:none}
 .nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
 .nav-logo{font-family:'Cinzel Decorative',serif;font-size:clamp(16px,1.8vw,22px);cursor:pointer;letter-spacing:5px}
-.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
+.logo-myth{color:var(--gold)}.logo-sensus{color:var(--text);opacity:.65}
 .nav-right{display:flex;gap:1.5rem;align-items:center}
-.nav-link{font-family:'Prompt',sans-serif;font-size:.78rem;letter-spacing:.06em;color:var(--silver);opacity:.7}
+.nav-link{font-family:'Prompt',sans-serif;font-size:.78rem;letter-spacing:.06em;color:var(--text);opacity:.7}
 .nav-link:hover{opacity:1;color:var(--gold)}
 .page-wrap{max-width:860px;margin:0 auto;padding:110px 5% 60px}
 .eyebrow{font-family:'Prompt',sans-serif;font-weight:500;font-size:.7rem;letter-spacing:.22em;color:var(--gold);opacity:.85;margin-bottom:.8rem;text-align:center;text-transform:uppercase}
-h1.title{font-family:'Prompt',sans-serif;font-weight:500;font-size:clamp(1.5rem,3.2vw,2.5rem);color:var(--silver);line-height:1.3;text-align:center;margin-bottom:.8rem}
-.sub{font-family:'Prompt',sans-serif;font-size:1.1rem;color:var(--dim);text-align:center;max-width:680px;margin:0 auto 1.6rem;font-weight:300;line-height:1.7}
+h1.title{font-family:'Prompt',sans-serif;font-weight:500;font-size:clamp(1.5rem,3.2vw,2.5rem);color:var(--text);line-height:1.3;text-align:center;margin-bottom:.8rem}
+.sub{font-family:'Prompt',sans-serif;font-size:1.1rem;color:var(--muted);text-align:center;max-width:680px;margin:0 auto 1.6rem;font-weight:300;line-height:1.7}
 .score-banner{background:linear-gradient(180deg,rgba(200,164,90,.12),rgba(200,164,90,.04));border:1px solid var(--gold);border-radius:10px;padding:1.6rem 1.8rem;text-align:center;margin:2rem auto;max-width:560px}
 .score-banner-num{font-family:'Cinzel Decorative',serif;font-size:3rem;color:var(--gold2);line-height:1;letter-spacing:.04em;margin-bottom:.4rem}
-.score-banner-suffix{font-family:'Prompt',sans-serif;font-size:1rem;color:var(--dim);margin-left:.3rem}
-.score-banner-label{font-family:'Prompt',sans-serif;font-weight:500;font-size:.85rem;color:var(--silver);letter-spacing:.06em}
-.score-banner-meta{font-family:'Prompt',sans-serif;font-size:.85rem;color:var(--dim);margin-top:.6rem}
+.score-banner-suffix{font-family:'Prompt',sans-serif;font-size:1rem;color:var(--muted);margin-left:.3rem}
+.score-banner-label{font-family:'Prompt',sans-serif;font-weight:500;font-size:.85rem;color:var(--text);letter-spacing:.06em}
+.score-banner-meta{font-family:'Prompt',sans-serif;font-size:.85rem;color:var(--muted);margin-top:.6rem}
 .cta-row{text-align:center;display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin:1.6rem 0 2.4rem}
 .btn-gold{background:var(--gold);color:#040407;font-family:'Prompt',sans-serif;font-weight:500;font-size:.85rem;letter-spacing:.06em;padding:.85rem 1.6rem;border:none;border-radius:4px;cursor:pointer;display:inline-block;text-decoration:none}
 .btn-gold:hover{background:var(--gold2)}
@@ -49,19 +49,19 @@ h1.title{font-family:'Prompt',sans-serif;font-weight:500;font-size:clamp(1.5rem,
 .btn-outline:hover{background:rgba(200,164,90,.12);border-color:var(--gold)}
 section{margin-bottom:2.6rem}
 h2{font-family:'Prompt',sans-serif;font-weight:500;font-size:1.3rem;color:var(--gold);margin-bottom:1rem}
-p{margin-bottom:1.1rem;color:var(--silver);font-size:1.02rem;line-height:1.9}
+p{margin-bottom:1.1rem;color:var(--text);font-size:1.02rem;line-height:1.9}
 .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.9rem;margin:1.6rem 0}
 .feature-tile{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.1rem 1.2rem}
 .ft-icon{font-family:'Cinzel Decorative',serif;font-size:1.2rem;color:var(--gold);margin-bottom:.4rem}
-.ft-title{font-family:'Prompt',sans-serif;font-weight:500;font-size:.95rem;color:var(--silver);margin-bottom:.3rem}
-.ft-desc{font-family:'Prompt',sans-serif;font-size:.88rem;color:var(--dim);line-height:1.65}
-.disclaimer-box{background:rgba(200,164,90,.06);border:1px dashed var(--gold3);border-radius:8px;padding:1.1rem 1.4rem;margin:1.6rem 0;font-family:'Prompt',sans-serif;font-size:.88rem;color:var(--dim);line-height:1.75}
+.ft-title{font-family:'Prompt',sans-serif;font-weight:500;font-size:.95rem;color:var(--text);margin-bottom:.3rem}
+.ft-desc{font-family:'Prompt',sans-serif;font-size:.88rem;color:var(--muted);line-height:1.65}
+.disclaimer-box{background:rgba(200,164,90,.06);border:1px dashed var(--gold3);border-radius:8px;padding:1.1rem 1.4rem;margin:1.6rem 0;font-family:'Prompt',sans-serif;font-size:.88rem;color:var(--muted);line-height:1.75}
 .disclaimer-box strong{color:var(--gold2);font-weight:500}
 .faq-block{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.2rem 1.4rem;margin-bottom:.7rem}
 .faq-block h3{font-family:'Prompt',sans-serif;font-weight:500;font-size:1.02rem;color:var(--gold2);margin:0 0 .4rem}
-.faq-block p{margin:0;color:var(--silver);font-size:.96rem;line-height:1.75}
-footer{border-top:1px solid var(--border);padding:2rem 5%;text-align:center;font-family:'Prompt',sans-serif;font-size:.72rem;color:var(--dim);margin-top:3rem}
-footer a{color:var(--dim);margin:0 .5rem}footer a:hover{color:var(--gold)}
+.faq-block p{margin:0;color:var(--text);font-size:.96rem;line-height:1.75}
+footer{border-top:1px solid var(--border);padding:2rem 5%;text-align:center;font-family:'Prompt',sans-serif;font-size:.72rem;color:var(--muted);margin-top:3rem}
+footer a{color:var(--muted);margin:0 .5rem}footer a:hover{color:var(--gold)}
 @media(max-width:640px){.nav-right .nav-link{display:none}.score-banner-num{font-size:2.4rem}}
 </style>
 
@@ -124,7 +124,7 @@ footer a{color:var(--dim);margin:0 .5rem}footer a:hover{color:var(--gold)}
 
   <!-- AI transparency explainer — from AI audit re-run 2026-06-01
        (4/5 personas asked "is this AI or deterministic?"). -->
-  <div style="max-width:720px;margin:24px auto;padding:16px 20px;background:rgba(200,164,90,.05);border:1px solid var(--gold3);border-radius:8px;font-size:14px;line-height:1.85;color:var(--silver)">
+  <div style="max-width:720px;margin:24px auto;padding:16px 20px;background:rgba(200,164,90,.05);border:1px solid var(--gold3);border-radius:8px;font-size:14px;line-height:1.85;color:var(--text)">
     <div style="font-family:'Prompt',sans-serif;font-weight:500;font-size:11px;letter-spacing:2px;color:var(--gold);margin-bottom:8px;text-transform:uppercase">⚖️ เส้นแบ่งระหว่างการคำนวณกับ AI</div>
     <p style="margin:0">
       <strong>คะแนน ๗๓๙ และคะแนนทั้ง ๒๖ ศาสตร์ในตัวอย่างนี้</strong> คำนวณแบบกำหนดผล (deterministic) ทุกตัว ใช้สูตรดาราศาสตร์มาตรฐานและตารางอ้างอิงดั้งเดิมของแต่ละศาสตร์ ไม่มี LLM อยู่ในเส้นทางคำนวณ — วันเกิดของสุนทรภู่ในปี ค.ศ. ๑๗๘๖ จะให้ผลลัพธ์ ๗๓๙/๙๙๙ เสมอ ไม่เปลี่ยนแปลง. <strong>เนื้อหาเชิงเล่าเรื่อง</strong> (ตำนานเทพ บทอ่านเชิงสัญลักษณ์ คำแนะนำ) เป็นส่วนที่ AI ช่วยร่าง โดยอิงจากคัมภีร์ดั้งเดิมที่อ้างอิงได้ ไม่ใช่การสร้างเรื่องขึ้นเองโดยปราศจากที่มา.

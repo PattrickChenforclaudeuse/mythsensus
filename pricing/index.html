@@ -5,35 +5,35 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Josefin+Sans:wght@300;400;600&family=Prompt:wght@300;400&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#040407;--bg2:#0a0a10;--bg3:#0d0d14;--gold:#c8a45a;--gold2:#e8c87a;--gold3:#a8843a;--silver:#e6e2d8;--dim:#9a9088;--border:rgba(200,164,90,0.22);--text:#e6e2d8;--muted:#9a8a72}
+:root{--bg:#040407;--bg2:#0a0a10;--bg3:#0d0d14;--gold:#c8a45a;--gold2:#e8c87a;--gold3:#a8843a;--text:#e6e2d8;--muted:#9a9088;--border:rgba(200,164,90,0.22);--text:#e6e2d8;--muted:#9a8a72}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:17px;line-height:1.7;min-height:100vh}
 a{color:var(--gold);text-decoration:none}
 .nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
 .nav-logo{font-family:'Cinzel Decorative',serif;font-size:clamp(16px,1.8vw,22px);cursor:pointer;letter-spacing:5px}
-.logo-myth{color:var(--gold)}.logo-sensus{color:var(--silver);opacity:.65}
+.logo-myth{color:var(--gold)}.logo-sensus{color:var(--text);opacity:.65}
 .nav-right{display:flex;gap:1.5rem;align-items:center}
-.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--silver);opacity:.7}
+.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text);opacity:.7}
 .nav-link:hover{opacity:1;color:var(--gold)}
 .btn-gold{background:var(--gold);color:#040407;font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;padding:.55rem 1.4rem;border:none;border-radius:2px;cursor:pointer}
 .page-wrap{max-width:1120px;margin:0 auto;padding:110px 5% 80px}
 .eyebrow{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:1rem;text-align:center}
-.title{font-family:'Cinzel Decorative',serif;font-size:clamp(1.9rem,4vw,2.8rem);color:var(--silver);margin-bottom:.6rem;text-align:center}
-.sub{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--dim);margin-bottom:.6rem;text-align:center;font-style:italic}
+.title{font-family:'Cinzel Decorative',serif;font-size:clamp(1.9rem,4vw,2.8rem);color:var(--text);margin-bottom:.6rem;text-align:center}
+.sub{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--muted);margin-bottom:.6rem;text-align:center;font-style:italic}
 .beta-banner{background:linear-gradient(180deg,rgba(200,164,90,.12),rgba(200,164,90,.04));border:1px solid var(--gold3);border-radius:8px;padding:1rem 1.4rem;margin:1.6rem auto 3rem;max-width:680px;text-align:center}
 .beta-banner-title{font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem}
-.beta-banner-body{font-family:'Cormorant Garamond',serif;font-size:.96rem;color:var(--silver);line-height:1.6}
+.beta-banner-body{font-family:'Cormorant Garamond',serif;font-size:.96rem;color:var(--text);line-height:1.6}
 .tier-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.3rem;margin-bottom:4rem}
 .tier-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1.8rem 1.5rem;display:flex;flex-direction:column;position:relative;transition:border-color .2s}
 .tier-card:hover{border-color:var(--gold3)}
 .tier-card.featured{border-color:var(--gold);background:linear-gradient(180deg,rgba(200,164,90,.06),rgba(200,164,90,.02))}
 .tier-tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:#040407;font-family:'Josefin Sans',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;padding:.4rem 1.1rem;border-radius:12px;white-space:nowrap}
 .tier-name{font-family:'Cinzel Decorative',serif;font-size:1.15rem;color:var(--gold);letter-spacing:.08em;margin-bottom:.4rem;text-align:center}
-.tier-price{font-family:'Cinzel Decorative',serif;font-size:2rem;color:var(--silver);margin-bottom:.2rem;text-align:center}
-.tier-price small{font-size:.9rem;color:var(--dim);font-family:'Josefin Sans',sans-serif;letter-spacing:.12em}
-.tier-pitch{font-family:'Cormorant Garamond',serif;font-size:.95rem;color:var(--dim);text-align:center;margin-bottom:1.4rem;font-style:italic;line-height:1.55;min-height:3.2em}
+.tier-price{font-family:'Cinzel Decorative',serif;font-size:2rem;color:var(--text);margin-bottom:.2rem;text-align:center}
+.tier-price small{font-size:.9rem;color:var(--muted);font-family:'Josefin Sans',sans-serif;letter-spacing:.12em}
+.tier-pitch{font-family:'Cormorant Garamond',serif;font-size:.95rem;color:var(--muted);text-align:center;margin-bottom:1.4rem;font-style:italic;line-height:1.55;min-height:3.2em}
 .tier-features{list-style:none;padding:0;margin-bottom:1.5rem;flex:1}
-.tier-features li{padding:.55rem 0;border-bottom:1px solid var(--border);font-family:'Cormorant Garamond',serif;font-size:.94rem;color:var(--silver);display:flex;gap:.6rem;align-items:flex-start}
+.tier-features li{padding:.55rem 0;border-bottom:1px solid var(--border);font-family:'Cormorant Garamond',serif;font-size:.94rem;color:var(--text);display:flex;gap:.6rem;align-items:flex-start}
 .tier-features li:last-child{border-bottom:none}
 .tier-features li .chk{color:var(--gold);flex-shrink:0;font-size:.8rem;margin-top:.15rem}
 .tier-cta{display:block;text-align:center;background:transparent;border:1px solid var(--gold3);color:var(--gold);font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;padding:.85rem;border-radius:4px;font-weight:600;transition:all .2s}
@@ -41,24 +41,24 @@ a{color:var(--gold);text-decoration:none}
 .tier-card.featured .tier-cta{background:var(--gold);color:#040407;border-color:var(--gold)}
 .tier-card.featured .tier-cta:hover{background:var(--gold2)}
 .addon-section{margin-top:2rem;padding-top:3rem;border-top:1px solid var(--border)}
-.addon-title{font-family:'Cinzel Decorative',serif;font-size:1.3rem;color:var(--silver);text-align:center;margin-bottom:.4rem}
-.addon-sub{font-family:'Cormorant Garamond',serif;font-size:.96rem;color:var(--dim);text-align:center;margin-bottom:2rem;font-style:italic}
+.addon-title{font-family:'Cinzel Decorative',serif;font-size:1.3rem;color:var(--text);text-align:center;margin-bottom:.4rem}
+.addon-sub{font-family:'Cormorant Garamond',serif;font-size:.96rem;color:var(--muted);text-align:center;margin-bottom:2rem;font-style:italic}
 .addon-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
 .addon-tile{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.1rem 1rem;display:flex;flex-direction:column;gap:.3rem}
 .addon-icon{font-size:1.4rem}
 .addon-name{font-family:'Cinzel Decorative',serif;font-size:.9rem;color:var(--gold)}
-.addon-desc{font-family:'Cormorant Garamond',serif;font-size:.84rem;color:var(--dim);line-height:1.5}
-.addon-price{font-family:'Josefin Sans',sans-serif;font-size:.72rem;letter-spacing:.14em;color:var(--silver);margin-top:auto;padding-top:.5rem}
+.addon-desc{font-family:'Cormorant Garamond',serif;font-size:.84rem;color:var(--muted);line-height:1.5}
+.addon-price{font-family:'Josefin Sans',sans-serif;font-size:.72rem;letter-spacing:.14em;color:var(--text);margin-top:auto;padding-top:.5rem}
 .bundle{background:linear-gradient(180deg,rgba(200,164,90,.10),rgba(200,164,90,.02));border:1px solid var(--gold);border-radius:10px;padding:1.8rem;text-align:center;margin-top:2rem}
 .bundle-label{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem}
 .bundle-price{font-family:'Cinzel Decorative',serif;font-size:1.8rem;color:var(--gold2);margin-bottom:.3rem}
-.bundle-save{font-family:'Cormorant Garamond',serif;font-size:.94rem;color:var(--dim);font-style:italic}
+.bundle-save{font-family:'Cormorant Garamond',serif;font-size:.94rem;color:var(--muted);font-style:italic}
 .gift-section{margin-top:3rem;padding:2rem;background:var(--bg2);border:1px dashed var(--gold3);border-radius:10px;text-align:center}
 .gift-title{font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);margin-bottom:.4rem}
-.gift-body{font-family:'Cormorant Garamond',serif;font-size:.95rem;color:var(--dim);margin-bottom:1rem;line-height:1.6}
+.gift-body{font-family:'Cormorant Garamond',serif;font-size:.95rem;color:var(--muted);margin-bottom:1rem;line-height:1.6}
 .gift-code{font-family:'Josefin Sans',sans-serif;font-size:.72rem;letter-spacing:.18em;color:var(--gold);background:rgba(200,164,90,.08);border:1px solid var(--gold3);border-radius:4px;padding:.5rem 1rem;display:inline-block;margin:.3rem}
-footer{border-top:1px solid var(--border);padding:2rem 5%;text-align:center;margin-top:4rem;font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.16em;color:var(--dim);text-transform:uppercase}
-footer a{color:var(--dim);margin:0 .5rem}footer a:hover{color:var(--gold)}
+footer{border-top:1px solid var(--border);padding:2rem 5%;text-align:center;margin-top:4rem;font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+footer a{color:var(--muted);margin:0 .5rem}footer a:hover{color:var(--gold)}
 .lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
 .lang-pill button{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45)}
 .lang-pill button.active{background:var(--gold);color:#040407}
@@ -209,7 +209,7 @@ html[lang="th"] .tier-name,html[lang="th"] .tier-price,html[lang="th"] .title,ht
          contradiction). -->
     <div style="text-align:center;margin-bottom:1.6rem">
       <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:3px;color:var(--gold3);text-transform:uppercase;margin-bottom:.6rem">— OR —</div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-style:italic;color:var(--silver);max-width:580px;margin:0 auto;line-height:1.6" data-en="If you'll explore more than 3-4 readings, the subscription works out cheaper than buying à la carte. It also adds daily-refresh features (Biorhythm, Cosmic Pulse, Today's Sky) the one-time tier doesn't have." data-th="ถ้าคุณจะอ่านมากกว่า 3-4 ศาสตร์ สมัครสมาชิกคุ้มกว่าซื้อเฉพาะที่ใช้ · ฟีเจอร์รายวัน (Biorhythm, Cosmic Pulse, ฟ้าวันนี้) มีเฉพาะใน subscription">If you'll explore more than 3-4 readings, the subscription works out cheaper than buying à la carte. It also adds daily-refresh features (Biorhythm, Cosmic Pulse, Today's Sky) the one-time tier doesn't have.</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-style:italic;color:var(--text);max-width:580px;margin:0 auto;line-height:1.6" data-en="If you'll explore more than 3-4 readings, the subscription works out cheaper than buying à la carte. It also adds daily-refresh features (Biorhythm, Cosmic Pulse, Today's Sky) the one-time tier doesn't have." data-th="ถ้าคุณจะอ่านมากกว่า 3-4 ศาสตร์ สมัครสมาชิกคุ้มกว่าซื้อเฉพาะที่ใช้ · ฟีเจอร์รายวัน (Biorhythm, Cosmic Pulse, ฟ้าวันนี้) มีเฉพาะใน subscription">If you'll explore more than 3-4 readings, the subscription works out cheaper than buying à la carte. It also adds daily-refresh features (Biorhythm, Cosmic Pulse, Today's Sky) the one-time tier doesn't have.</div>
     </div>
     <h2 class="addon-title" data-en="🔮 Subscription — unlocks EVERYTHING above + daily refresh" data-th="🔮 สมาชิก — ปลดล็อกทุกอย่างด้านบน + ฟีเจอร์รายวัน">🔮 Subscription — unlocks EVERYTHING above + daily refresh</h2>
     <p class="addon-sub" data-en="Every one-time reading + every add-on + daily-refresh features (Biorhythm, Cosmic Pulse, Today's Sky, Monthly Brief). 7-day free trial, cancel anytime." data-th="ทุก reading ครั้งเดียว + ทุกแอดออน + ฟีเจอร์รายวัน (Biorhythm, Cosmic Pulse, ฟ้าวันนี้, สรุปเดือน) · ทดลอง 7 วันฟรี · ยกเลิกได้ทุกเมื่อ">Every one-time reading + every add-on + daily-refresh features (Biorhythm, Cosmic Pulse, Today's Sky, Monthly Brief). 7-day free trial, cancel anytime.</p>
