@@ -1213,49 +1213,133 @@ function calcThai(d) {
     };
 }
 // ============================================================
+// THAI TAKSA — 8-house classical astrology (ทักษา)
+// ============================================================
+// Birth weekday determines which planet sits in which life-arena house.
+// The 8 houses rotate around a fixed-order wheel:
+//   บริวาร (Borivar / Retainers) → อายุ (Ayu / Life) → เดช (Det / Power) →
+//   ศรี (Sri / Dignity) → มูละ (Mula / Wealth) → อุตสาหะ (Utsaha / Effort) →
+//   มนตรี (Montri / Advisors) → กาลกิณี (Kalakini / Misfortune)
+// 8 planet-deities rotate in the same order:
+//   อาทิตย์ Sun → จันทร์ Moon → อังคาร Mars → พุธ Mercury → พฤหัสบดี Jupiter →
+//   ศุกร์ Venus → เสาร์ Saturn → ราหู Rahu
+// For weekday X (0=Sunday), the day-lord planet[X] sits in house 0 (บริวาร),
+// and the remaining planets rotate around so each house has a different
+// planet-tenant per weekday — that's what makes the wheel personalised.
+const TAKSA_HOUSE_NAMES_TH = ['บริวาร', 'อายุ', 'เดช', 'ศรี', 'มูละ', 'อุตสาหะ', 'มนตรี', 'กาลกิณี'];
+const TAKSA_HOUSE_NAMES_EN = ['Retainers', 'Life', 'Power', 'Dignity', 'Wealth', 'Effort', 'Advisors', 'Misfortune'];
+const TAKSA_PLANET_NAMES_TH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์', 'ราหู'];
+const TAKSA_PLANET_NAMES_EN = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu'];
+// Planet "strength" buckets used to score the wealth (มูละ) and misfortune
+// (กาลกิณี) house placements. Classical Thai-Brahmin labels:
+//   strong benefic: Jupiter, Sun, Venus, Mercury (warm)
+//   neutral:        Moon, Mars
+//   challenging:    Saturn, Rahu
+function _taksaPlanetWeight(planetIdx, isMula) {
+    // Returns a delta added to the base score.
+    // Strong benefic in มูละ = +60..+80 (big wealth potential)
+    // Strong benefic in กาลกิณี = -50 (the day they sit on is the unlucky day)
+    // Challenging in มูละ = -40 (wealth obstacles)
+    // Challenging in กาลกิณี = +20 (less harm; the malefic is contained there)
+    const STRONG = [0, 4, 5, 3]; // Sun, Jupiter, Venus, Mercury
+    const CHALLENGING = [6, 7]; // Saturn, Rahu
+    if (STRONG.indexOf(planetIdx) >= 0)
+        return isMula ? 70 : -50;
+    if (CHALLENGING.indexOf(planetIdx) >= 0)
+        return isMula ? -40 : 20;
+    return isMula ? 20 : -10; // neutral planets (Moon, Mars)
+}
+function calcTaksa(d) {
+    const jd = toJD(d.year, d.month, d.day, 12);
+    const dow = ((Math.floor(jd + 1.5) % 7) + 7) % 7; // 0=Sunday
+    // Build the 8-house wheel for this weekday.
+    const wheel = [];
+    for (let h = 0; h < 8; h++) {
+        const planetIdx = (dow + h) % 8;
+        wheel.push({
+            house: h,
+            houseNameTh: TAKSA_HOUSE_NAMES_TH[h],
+            houseNameEn: TAKSA_HOUSE_NAMES_EN[h],
+            planet: planetIdx,
+            planetNameTh: TAKSA_PLANET_NAMES_TH[planetIdx],
+            planetNameEn: TAKSA_PLANET_NAMES_EN[planetIdx],
+        });
+    }
+    // House 4 = มูละ (wealth), House 7 = กาลกิณี (misfortune)
+    const mula = wheel[4];
+    const kalakini = wheel[7];
+    // Score formula:
+    //   base 700
+    //   + weight from planet sitting in มูละ (wealth potential)
+    //   + weight from planet sitting in กาลกิณี (misfortune containment)
+    //   + small DOB jitter so identical-weekday births still differ slightly
+    const baseScore = 700
+        + _taksaPlanetWeight(mula.planet, true)
+        + _taksaPlanetWeight(kalakini.planet, false)
+        + ((d.day * 13 + d.month * 7) % 60) - 30;
+    const score = Math.max(400, Math.min(960, baseScore));
+    // Compact bilingual reading (the deep narrative pattern used by other
+    // systems via buildRichReading is a larger writeup that we'll add in a
+    // later session — this short form already powers the score breakdown
+    // line + a usable per-system tile).
+    const readingTh = `ทักษา · เกิด${TAKSA_PLANET_NAMES_TH[dow]} วันลอร์ดสถิตในบริวาร · มูละ (ทรัพย์) ปกครองโดย${mula.planetNameTh} · กาลกิณีปกครองโดย${kalakini.planetNameTh} = วัน${TAKSA_PLANET_NAMES_TH[kalakini.planet]}เป็นวันต้องระวังของคุณ`;
+    const readingEn = `Taksa · ${TAKSA_PLANET_NAMES_EN[dow]} day-lord sits in Retainers · Wealth house (Mula) ruled by ${mula.planetNameEn} · Misfortune house (Kalakini) ruled by ${kalakini.planetNameEn}, so ${TAKSA_PLANET_NAMES_EN[kalakini.planet]}'s weekday is the day to handle with care.`;
+    return {
+        dayOfWeek: dow,
+        dayLordTh: TAKSA_PLANET_NAMES_TH[dow],
+        dayLordEn: TAKSA_PLANET_NAMES_EN[dow],
+        wheel,
+        mulaTh: mula.planetNameTh, mulaEn: mula.planetNameEn,
+        kalakiniTh: kalakini.planetNameTh, kalakiniEn: kalakini.planetNameEn,
+        reading: _reportLang === 'en' ? readingEn : readingTh,
+        score,
+    };
+}
+// ============================================================
 // COSMIC SCORE
 // ============================================================
-// 26 systems, equal weight 1/26 ≈ 3.85% each. Sum = 1.00 exactly after normalization.
+// 27 systems, equal weight 1/27 ≈ 3.70% each. Sum = 1.00 exactly after normalization.
 // system   = Thai/native label (used when _reportLang === 'th')
 // systemEn = English label    (used when _reportLang === 'en')
 const SCORE_WEIGHTS = [
     // East Asia
-    { system: 'BaZi สี่เสา', systemEn: 'BaZi Four Pillars', weight: 1 / 26 },
-    { system: 'Nine Star Ki', systemEn: 'Nine Star Ki', weight: 1 / 26 },
-    { system: 'Saju (Korean)', systemEn: 'Saju (Korean)', weight: 1 / 26 },
-    { system: 'Zi Wei Dou Shu', systemEn: 'Zi Wei Dou Shu', weight: 1 / 26 },
-    { system: 'Onmyōdō', systemEn: 'Onmyōdō', weight: 1 / 26 },
+    { system: 'BaZi สี่เสา', systemEn: 'BaZi Four Pillars', weight: 1 / 27 },
+    { system: 'Nine Star Ki', systemEn: 'Nine Star Ki', weight: 1 / 27 },
+    { system: 'Saju (Korean)', systemEn: 'Saju (Korean)', weight: 1 / 27 },
+    { system: 'Zi Wei Dou Shu', systemEn: 'Zi Wei Dou Shu', weight: 1 / 27 },
+    { system: 'Onmyōdō', systemEn: 'Onmyōdō', weight: 1 / 27 },
     // South Asia
-    { system: 'Vedic Jyotish', systemEn: 'Vedic Jyotish', weight: 1 / 26 },
-    { system: 'Vedic Mahadasha', systemEn: 'Vedic Mahadasha', weight: 1 / 26 },
-    { system: 'ไทยพราหมณ์', systemEn: 'Thai Brahmin', weight: 1 / 26 },
+    { system: 'Vedic Jyotish', systemEn: 'Vedic Jyotish', weight: 1 / 27 },
+    { system: 'Vedic Mahadasha', systemEn: 'Vedic Mahadasha', weight: 1 / 27 },
+    { system: 'ไทยพราหมณ์', systemEn: 'Thai Brahmin', weight: 1 / 27 },
+    { system: 'ทักษา 8 บ้าน', systemEn: 'Thai Taksa (8 Houses)', weight: 1 / 27 },
     // Europe/West
-    { system: 'โหราศาสตร์ตะวันตก', systemEn: 'Western Astrology', weight: 1 / 26 },
-    { system: 'Hellenistic', systemEn: 'Hellenistic', weight: 1 / 26 },
-    { system: 'เซลติก Tree', systemEn: 'Celtic Tree', weight: 1 / 26 },
-    { system: 'Norse Rune', systemEn: 'Norse Rune', weight: 1 / 26 },
-    { system: 'Ogham', systemEn: 'Ogham', weight: 1 / 26 },
+    { system: 'โหราศาสตร์ตะวันตก', systemEn: 'Western Astrology', weight: 1 / 27 },
+    { system: 'Hellenistic', systemEn: 'Hellenistic', weight: 1 / 27 },
+    { system: 'เซลติก Tree', systemEn: 'Celtic Tree', weight: 1 / 27 },
+    { system: 'Norse Rune', systemEn: 'Norse Rune', weight: 1 / 27 },
+    { system: 'Ogham', systemEn: 'Ogham', weight: 1 / 27 },
     // Middle East
-    { system: 'Arabic Parts', systemEn: 'Arabic Parts', weight: 1 / 26 },
-    { system: 'Kabbalistic', systemEn: 'Kabbalistic', weight: 1 / 26 },
-    { system: 'Zoroastrian', systemEn: 'Zoroastrian', weight: 1 / 26 },
+    { system: 'Arabic Parts', systemEn: 'Arabic Parts', weight: 1 / 27 },
+    { system: 'Kabbalistic', systemEn: 'Kabbalistic', weight: 1 / 27 },
+    { system: 'Zoroastrian', systemEn: 'Zoroastrian', weight: 1 / 27 },
     // Americas
-    { system: 'มายัน Tzolk\'in', systemEn: 'Mayan Tzolk\'in', weight: 1 / 26 },
-    { system: 'Aztec Tonalpohualli', systemEn: 'Aztec Tonalpohualli', weight: 1 / 26 },
-    { system: 'Native American', systemEn: 'Native American', weight: 1 / 26 },
+    { system: 'มายัน Tzolk\'in', systemEn: 'Mayan Tzolk\'in', weight: 1 / 27 },
+    { system: 'Aztec Tonalpohualli', systemEn: 'Aztec Tonalpohualli', weight: 1 / 27 },
+    { system: 'Native American', systemEn: 'Native American', weight: 1 / 27 },
     // Africa/Oceania
-    { system: 'Ifa/Yoruba', systemEn: 'Ifa/Yoruba', weight: 1 / 26 },
-    { system: 'Aboriginal Dreamtime', systemEn: 'Aboriginal Dreamtime', weight: 1 / 26 },
+    { system: 'Ifa/Yoruba', systemEn: 'Ifa/Yoruba', weight: 1 / 27 },
+    { system: 'Aboriginal Dreamtime', systemEn: 'Aboriginal Dreamtime', weight: 1 / 27 },
     // Modern/Global
-    { system: 'ระบบประเภทพลังงาน', systemEn: 'Energy Type', weight: 1 / 26 },
-    { system: 'เลขศาสตร์ Pythagorean', systemEn: 'Pythagorean Numerology', weight: 1 / 26 },
-    { system: 'เลข ๗ ตัว ๙ ฐาน', systemEn: 'Thai 7-Number', weight: 1 / 26 },
-    { system: 'Tibetan Astrology', systemEn: 'Tibetan Astrology', weight: 1 / 26 },
-    { system: 'Biorhythm', systemEn: 'Biorhythm', weight: 1 / 26 },
+    { system: 'ระบบประเภทพลังงาน', systemEn: 'Energy Type', weight: 1 / 27 },
+    { system: 'เลขศาสตร์ Pythagorean', systemEn: 'Pythagorean Numerology', weight: 1 / 27 },
+    { system: 'เลข ๗ ตัว ๙ ฐาน', systemEn: 'Thai 7-Number', weight: 1 / 27 },
+    { system: 'Tibetan Astrology', systemEn: 'Tibetan Astrology', weight: 1 / 27 },
+    { system: 'Biorhythm', systemEn: 'Biorhythm', weight: 1 / 27 },
 ];
 const SCORE_COLORS = [
     '#1a6a10', '#3a6a50', '#2a6a40', '#1a5a60', '#3a5040',
-    '#3a5a80', '#2a4a90', '#5a3070',
+    '#3a5a80', '#2a4a90', '#5a3070', '#b07840',
     '#8a6820', '#7a5830', '#6a4840', '#5a4a6a', '#4a5060',
     '#804020', '#704030', '#605040',
     '#4a4a10', '#5a3a10', '#6a2a20',
@@ -1299,6 +1383,7 @@ function calcScore(d, data) {
         data.vedic.score ?? 700,
         data.vedicMahadasha.score,
         data.thai.score ?? 700,
+        data.taksa.score ?? 700,
         data.western.score ?? 700,
         data.hellenistic.score,
         data.celtic.score ?? 700,
@@ -1318,7 +1403,7 @@ function calcScore(d, data) {
         data.tibetan.score,
         data.biorhythm.score,
     ];
-    // 26 per-system "finding" lines for the cosmic-blueprint score breakdown.
+    // 27 per-system "finding" lines for the cosmic-blueprint score breakdown.
     // The Thai versions interpolate the existing chart fields verbatim; the EN
     // versions translate or strip Thai-prefixed phrasing so EN users see clean
     // English summaries. Each Thai/EN pair must read the SAME chart data so
@@ -1332,6 +1417,7 @@ function calcScore(d, data) {
         `Nakshatra ${data.vedic.moonNakshatra} ลัคนา${data.vedic.lagnaSign}`,
         `${data.vedicMahadasha.currentDasha} Dasha — ${data.vedicMahadasha.dashaQuality}`,
         `${data.thai.dayName}ปกครองโดย${data.thai.dayGodTh} สี${data.thai.dayColor}`,
+        `ทักษา · เจ้าวัน${data.taksa.dayLordTh} · มูละ ${data.taksa.mulaTh} · กาลกิณี ${data.taksa.kalakiniTh}`,
         `${data.western.sunSignTh} ☽${data.western.moonSignTh} ASC${data.western.ascSignTh}`,
         `${data.hellenistic.sectTh} Lot of Fortune ใน${data.hellenistic.lotSignTh ?? data.hellenistic.lotSign}`,
         `${data.celtic.treeNameTh} (${data.celtic.treeName}) ธาตุ${data.celtic.element}`,
@@ -1360,6 +1446,7 @@ function calcScore(d, data) {
         `Nakshatra ${data.vedic.moonNakshatra} · ${data.vedic.lagna ?? data.vedic.lagnaSign} ascendant`,
         `${data.vedicMahadasha.currentDasha} Dasha — ${data.vedicMahadasha.dashaQuality}`,
         `${data.thai.dayName} ruled by ${data.thai.dayGod} · colour ${data.thai.dayColor}`,
+        `Taksa · ${data.taksa.dayLordEn} day-lord · Wealth/Mula ${data.taksa.mulaEn} · Misfortune/Kalakini ${data.taksa.kalakiniEn}`,
         `${data.western.sunSign} Sun · ☽${data.western.moonSign} · ASC ${data.western.ascSign}`,
         `${data.hellenistic.sect} sect · Lot of Fortune in ${data.hellenistic.lotSign}`,
         `${data.celtic.treeName} · ${data.celtic.element} element`,
@@ -2363,6 +2450,7 @@ function calculate(d) {
     const mayan = calcMayan(d);
     const celtic = calcCeltic(d);
     const thai = calcThai(d);
+    const taksa = calcTaksa(d);
     // ── 16 new systems ──
     const saju = calcSaju(d);
     const tibetan = calcTibetan(d);
@@ -2381,7 +2469,7 @@ function calculate(d) {
     const biorhythm = calcBiorhythm(d);
     const vedicMahadasha = calcVedicMahadasha(d, vedic);
     const partial = {
-        input: d, western, bazi, ninestar, numerology, vedic, humandesign, mayan, celtic, thai,
+        input: d, western, bazi, ninestar, numerology, vedic, humandesign, mayan, celtic, thai, taksa,
         saju, tibetan, ziwei, onmyodo, hellenistic, norseRune, ogham, arabicParts,
         kabbalistic, zoroastrian, aztec, nativeAmerican, ifaYoruba, aboriginal, biorhythm, vedicMahadasha,
     };
