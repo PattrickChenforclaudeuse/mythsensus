@@ -1681,7 +1681,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
      navigation of the app. See `.nav-groups` CSS above. -->
 <nav class="nav-groups" role="tablist">
   <button class="group-btn active" id="group-free"         onclick="setGroup('free')"         data-t="group_free">✦ Free Tier</button>
-  <button class="group-btn"        id="group-premium"      onclick="setGroup('premium')"      data-t="group_premium">👑 Premium</button>
+  <button class="group-btn"        id="group-premium"      onclick="setGroup('premium')"      data-t="group_premium">👑 Cosmic Blueprint</button>
   <button class="group-btn"        id="group-subscription" onclick="setGroup('subscription')" data-t="group_subscription">🔮 Subscription</button>
   <button class="group-btn"        id="group-addon"        onclick="setGroup('addon')"        data-t="group_addon">🎁 Add-ons</button>
   <button class="group-btn"        id="group-profile"      onclick="setGroup('profile')"      data-t="group_profile">👤 Profile</button>
@@ -2457,7 +2457,7 @@ en:{
   cb_tb_back:"← Back",cb_tb_compare:"📊 Compare",cb_tb_save:"💾 Save HTML",cb_tb_print:"🖨️ Print / PDF",
   history_title:"HISTORY — Your records",
   // ── top-level groups
-  group_free:"✦ Free",group_premium:"👑 Premium",group_subscription:"🔮 Subscription",
+  group_free:"✦ Free",group_premium:"👑 Cosmic Blueprint",group_subscription:"🔮 Subscription",
   group_addon:"🎁 Add-ons",group_profile:"👤 Profile",
   // ── sub-tabs
   sub_blessing:"🎴 Blessing",sub_organum:"🔮 Organum",sub_preview:"📊 Preview",
@@ -2665,7 +2665,7 @@ th:{
   cb_tb_back:"← กลับ",cb_tb_compare:"📊 เปรียบเทียบ",cb_tb_save:"💾 บันทึก HTML",cb_tb_print:"🖨️ Print / PDF",
   history_title:"HISTORY — บันทึกของคุณ",
   // ── top-level groups
-  group_free:"✦ ฟรี",group_premium:"👑 พรีเมียม",group_subscription:"🔮 สมาชิก",
+  group_free:"✦ ฟรี",group_premium:"👑 Cosmic Blueprint",group_subscription:"🔮 สมาชิก",
   group_addon:"🎁 แอดออน",group_profile:"👤 โปรไฟล์",
   // ── sub-tabs
   sub_blessing:"🎴 จั่วไพ่",sub_organum:"🔮 โอเรกุรัม",sub_preview:"📊 ดูตัวอย่าง",
@@ -7716,16 +7716,19 @@ function renderDailyPulse() {
 
     <!-- Pin row — primary CTA, gold-bordered so it's instantly findable.
          Sits directly under the synthesis (above drill-down) so subscribers
-         encounter the pin affordance before any optional content. -->
+         encounter the pin affordance before any optional content.
+         2026-06-05: eyebrow lifted out of the flex row so the button
+         vertically centers against the SINGLE main text line instead of
+         the eyebrow+text block (which made the button look stranded mid-gap). -->
     <div style="margin-bottom:14px;padding:12px 14px;background:rgba(212,170,80,0.05);border:1px solid var(--gold3);border-radius:8px">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold3);margin-bottom:8px">${isTh?'ปรับแต่ง':'CUSTOMIZE'}</div>
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-        <div style="flex:1;min-width:200px">
-          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold3);margin-bottom:4px">${isTh?'ปรับแต่ง':'CUSTOMIZE'}</div>
+        <div style="flex:1;min-width:200px;font-size:12px;color:var(--text);line-height:1.55">
           ${pins.length === 0
-            ? `<div style="font-size:12px;color:var(--text);line-height:1.55">${isTh?'💡 อยากให้ Daily Pulse ใช้ศาสตร์ที่คุณเชื่อโดยเฉพาะ? <strong style="color:var(--gold)">Pin ได้ ≤3 ศาสตร์</strong>':'💡 Want Daily Pulse to always use your favourite systems? <strong style="color:var(--gold)">Pin up to 3</strong>'}</div>`
-            : `<div style="font-size:12px;color:var(--text);line-height:1.55"><strong style="color:var(--gold)">📌 Pinned (${pins.length}/${PULSE_PIN_MAX}):</strong> ${pins.map(p => '<span style="display:inline-block;background:rgba(212,170,80,0.15);border:1px solid var(--gold3);border-radius:4px;padding:2px 8px;margin:0 4px 4px 0;font-size:11px;color:var(--gold)">'+p+'</span>').join('')}</div>`}
+            ? (isTh?'💡 อยากให้ Daily Pulse ใช้ศาสตร์ที่คุณเชื่อโดยเฉพาะ? <strong style="color:var(--gold)">Pin ได้ ≤3 ศาสตร์</strong>':'💡 Want Daily Pulse to always use your favourite systems? <strong style="color:var(--gold)">Pin up to 3</strong>')
+            : `<strong style="color:var(--gold)">📌 Pinned (${pins.length}/${PULSE_PIN_MAX}):</strong> ${pins.map(p => '<span style="display:inline-block;background:rgba(212,170,80,0.15);border:1px solid var(--gold3);border-radius:4px;padding:2px 8px;margin:0 4px 4px 0;font-size:11px;color:var(--gold)">'+p+'</span>').join('')}`}
         </div>
-        <button onclick="togglePulsePinModal()" style="padding:9px 16px;background:var(--gold);color:var(--bg);border:none;border-radius:6px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.8px;cursor:pointer;font-weight:600;flex-shrink:0">${pins.length === 0 ? (isTh?'⚙ เลือกศาสตร์':'⚙ CHOOSE SYSTEMS') : (isTh?'⚙ แก้ไข':'⚙ EDIT')}</button>
+        <button onclick="togglePulsePinModal()" style="padding:9px 16px;background:var(--gold);color:var(--bg);border:none;border-radius:6px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.8px;cursor:pointer;font-weight:600;flex-shrink:0;align-self:center">${pins.length === 0 ? (isTh?'⚙ เลือกศาสตร์':'⚙ CHOOSE SYSTEMS') : (isTh?'⚙ แก้ไข':'⚙ EDIT')}</button>
       </div>
     </div>
 
