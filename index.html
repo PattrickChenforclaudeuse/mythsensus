@@ -4464,10 +4464,12 @@ function renderDesktopRails(phase, moonSign, dow, dayIcons, dayNamesTH, dayNames
   set('railTipTitle', isTh ? '✦ คาถาของวันนี้' : '✦ Cosmic Tip');
   const tipIdx = (new Date().getDate() + dow) % _cosmicTipsTH.length;
   set('railTipBody',   isTh ? _cosmicTipsTH[tipIdx] : _cosmicTipsEN[tipIdx]);
-  const planetDay = ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn'][dow];
+  // Drop the planet attribution — the tip text and the dow-driven planet
+  // weren't paired in the tip pool, so the label "Saturn · Moon in Aquarius"
+  // could show under a Mercury-themed tip. Just say "Today · Moon in <sign>".
   set('railTipSource', isTh
-    ? (planetDay + ' · ' + (moonSign.th || moonSign.n))
-    : (planetDay + ' · Moon in ' + moonSign.n));
+    ? ('วันนี้ · ' + (moonSign.th || moonSign.n))
+    : ('Today · Moon in ' + moonSign.n));
   // Right rail — Your Journey
   set('railStatsTitle', isTh ? '✦ เส้นทางของคุณ' : '✦ Your Journey');
   set('railStatBlessingsLabel', isTh ? 'รับพรแล้ว' : 'Blessings received');

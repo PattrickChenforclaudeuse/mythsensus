@@ -153,7 +153,7 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
       <li><strong>Engine ทำงานในเบราว์เซอร์ของคุณ</strong> ไม่มีการเรียก API ไม่ส่งวันเกิดออกจากเครื่อง · พิสูจน์ได้ผ่าน DevTools ภายใน ๓๐ วินาที</li>
       <li><strong>ตัวเลขและคะแนนทุกตัวคำนวณแบบกำหนดผล (deterministic)</strong> ไม่มี LLM อยู่ในเส้นทางคำนวณ · เนื้อหาเชิงเล่าเรื่องเป็นส่วนที่ AI ช่วยร่างจากคัมภีร์ดั้งเดิมที่อ้างอิงได้ · <a href="#engine" style="color:var(--gold2);text-decoration:underline">ดูจุดแบ่งให้ชัด →</a></li>
       <li><strong>การลงชื่อเข้าใช้เป็นทางเลือก</strong> เก็บแค่อีเมลและสถานะการสมัครเท่านั้น ไม่เก็บวันเกิดหรือเนื้อหาในแผนภูมิดวง</li>
-      <li><strong>การเปิดเผยข้อจำกัดทางวิศวกรรม</strong> — Vedic ayanamsa ใช้สูตร lahiriAyanamsa() ตามเวลาจริง (ปรับเมื่อ ๑ มิ.ย. ๒๕๖๙ จากเดิมตั้งคงที่ ๒๔.๐) · BaZi solar terms ยังเป็นค่าประมาณ · เวอร์ชัน ๒ ของ engine กำหนดปล่อยไตรมาส ๓-๔ ปี ๒๕๖๙</li>
+      <li><strong>เปิดข้อจำกัดทุกข้อ ไม่ปกปิด</strong> — engine v1 มีจุดที่ยังคำนวณไม่สมบูรณ์เล็กน้อย (เช่น คนเกิดก่อนปี ๑๙๐๐ บางวัน ตำแหน่งดาวอาจคลาดเคลื่อนนิดหน่อย). ทุกจุดเปิดในตาราง "ข้อจำกัดที่เรารู้" ด้านล่าง พร้อมวันที่จะแก้</li>
     </ul>
   </div>
 
@@ -161,8 +161,11 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
        (4/5 personas independently flagged "is this AI or deterministic?"). -->
   <div class="ai-honest" style="max-width:720px;margin:18px auto 24px;padding:16px 20px;background:rgba(200,164,90,.05);border:1px solid var(--gold3);border-radius:8px;font-size:14px;line-height:1.85;color:var(--text)">
     <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2.5px;color:var(--gold);margin-bottom:10px;text-transform:uppercase">⚖️ เส้นแบ่งระหว่างการคำนวณกับ AI</div>
+    <p style="margin:0 0 12px">
+      <strong>คะแนนเป็นการคำนวณ ไม่ใช่ AI</strong> — Cosmic Score และคะแนนทั้ง 26 ศาสตร์ เราคำนวณด้วยสูตรดาราศาสตร์มาตรฐานและตารางอ้างอิงดั้งเดิมของแต่ละศาสตร์ ไม่มี AI อยู่ในเส้นทางการคำนวณ. วันเกิดของคุณให้คะแนนเดียวกันเสมอ — ไม่ว่าเปิดอ่านวันไหน อยู่ที่ไหนในโลก ตรวจสอบซ้ำได้
+    </p>
     <p style="margin:0">
-      <strong>Cosmic Score และคะแนนทั้ง 26 ศาสตร์</strong> คำนวณแบบกำหนดผลทั้งหมด ใช้สูตรดาราศาสตร์ (Newcomb / VSOP87) ร่วมกับตารางอ้างอิงดั้งเดิมของแต่ละศาสตร์ ไม่มี LLM อยู่ในเส้นทางคำนวณ วันเกิดเดียวกันให้ผลลัพธ์เดียวกันทุกครั้ง ตรวจสอบซ้ำแบบออฟไลน์ได้ และ MCP server เรียกใช้ engine ตัวเดียวกัน. <strong>เนื้อหาเชิงเล่าเรื่อง</strong> (ตำนาน คำอธิบายความหมาย คำแนะนำในการใช้พลังของคุณ ตำนานเทพ) เป็นส่วนที่ AI ช่วยร่าง โดยอิงจากคัมภีร์ดั้งเดิมที่อ้างอิงได้ — BaZi classics, ตำราพระเวท, ปฏิทินมายันต้นฉบับ ฯลฯ — ไม่ใช่ AI แต่งเรื่องโดยไร้ที่มา.
+      <strong>เนื้อหาเล่าเรื่อง AI ช่วยเขียน — แต่เขียนจากคัมภีร์ดั้งเดิม</strong> — เรื่องเล่าเทพ คำอธิบายความหมาย คำแนะนำการปฏิบัติ AI เรียบเรียงให้ แต่อิงจากตำราของแต่ละศาสตร์เอง: ตำราพระเวท คัมภีร์ BaZi ปฏิทินมายันต้นฉบับ ฯลฯ AI ไม่ได้แต่งเรื่องใหม่ — แค่แปลตำราเก่าให้อ่านง่าย
     </p>
   </div>
 
@@ -225,32 +228,32 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
     <h2 id="flow">Flow · เกิดอะไรขึ้นเมื่อคุณใช้</h2>
 
     <div class="flow-step">
-      <div class="flow-step-label">Step 1 · First visit</div>
+      <div class="flow-step-label">1. First visit · ครั้งแรกที่เข้า</div>
       <p>Browser ของคุณ <em>download</em> static files จาก Vercel CDN: HTML (~1.3 MB), JS engine bundle (~250 KB), gods.json (~700 KB), fonts. นี่เป็น HTTP requests มาตรฐาน ปกติของเว็บทั่วไป — เหมือนเปิด Wikipedia</p>
     </div>
 
     <div class="flow-step">
-      <div class="flow-step-label">Step 2 · Service worker installs</div>
+      <div class="flow-step-label">2. App caches itself · App เก็บตัวเองในเครื่อง</div>
       <p>Service worker (browser feature) <em>cache</em> ทุกอย่างไว้ในเครื่องคุณ ครั้งต่อไปคุณเปิดเว็บ — เปิดได้แม้ไม่มีอินเทอร์เน็ต (offline-capable)</p>
     </div>
 
     <div class="flow-step">
-      <div class="flow-step-label">Step 3 · You enter DOB</div>
+      <div class="flow-step-label">3. You enter your birth data · คุณกรอกวันเกิด</div>
       <p>คุณใส่วันเกิด (เวลา + เมืองเป็น optional) ในฟอร์ม HTML ของหน้าแรก ข้อมูลอยู่ใน JavaScript variable ของ browser tab — ยังไม่ไปไหน</p>
     </div>
 
     <div class="flow-step">
-      <div class="flow-step-label">Step 4 · Engine runs in your CPU</div>
+      <div class="flow-step-label">4. Engine runs locally · คำนวณในเครื่องคุณ</div>
       <p>คุณกด Generate — engine เรียก <code>calculate({year, month, day, hour, minute, lat, lon, timezone})</code> ฟังก์ชันนี้รันใน CPU ของอุปกรณ์คุณเอง คำนวณ 26 ศาสตร์ออกมาเป็น chart object <em>ไม่มี HTTP request ใด ๆ เกิดขึ้นในขั้นตอนนี้</em></p>
     </div>
 
     <div class="flow-step">
-      <div class="flow-step-label">Step 5 · Reading renders</div>
+      <div class="flow-step-label">5. Reading renders · รายงานแสดงผล</div>
       <p>Chart object ถูก render เป็น HTML ผ่าน <code>generateReport(chart)</code> ที่รันใน browser เช่นกัน คุณเห็น Cosmic Score + 26 ศาสตร์บนหน้าจอ <em>ทั้งหมดยังอยู่ใน browser tab ของคุณ</em></p>
     </div>
 
     <div class="flow-step">
-      <div class="flow-step-label">Step 6 · Saved to localStorage</div>
+      <div class="flow-step-label">6. Your data stays on your device · ข้อมูลเก็บในเครื่องคุณ</div>
       <p>วันเกิดและ chart ของคุณถูก save ไว้ใน <code>localStorage</code> ของ browser — กล่องเก็บข้อมูลใน hard drive ของอุปกรณ์ ไม่ shared กับเว็บอื่น ไม่ส่งไปที่ server ครั้งหน้าเปิดเว็บ — อ่าน localStorage แล้ว render ทันที</p>
     </div>
   </section>
@@ -379,13 +382,11 @@ Supabase woam project            # Auth + payment records
     <h2 id="vs">เทียบกับเว็บดูดวงทั่วไป</h2>
     <p>เว็บดูดวงส่วนใหญ่<em>คำนวณบน server ของพวกเขา</em> — คุณส่งวันเกิด, ราคา, อาจจะ email มาให้ server บริการคืน reading. ผลที่ตามมา:</p>
     <ul class="proof-list" style="margin-left:0">
-      <li class="bad">วันเกิดอยู่ใน database ของพวกเขา = leaked ถ้า server hacked</li>
-      <li class="bad">ใช้สำหรับ marketing list / re-targeted ads</li>
-      <li class="bad">ต้องลงทะเบียน + verify email ก่อนใช้</li>
-      <li class="bad">เปิดไม่ได้ถ้าไม่มี internet</li>
-      <li class="bad">เปลี่ยน design = ดวงเปลี่ยนตาม (เพราะคำนวณใหม่ทุกครั้ง)</li>
+      <li class="bad"><strong>ข้อมูล</strong> — วันเกิดอยู่ใน database ของพวกเขา รั่วได้ ใช้สำหรับ remarketing ได้</li>
+      <li class="bad"><strong>การเข้าถึง</strong> — ต้องลงทะเบียน + verify email + ต้องมีอินเทอร์เน็ตเสมอ</li>
+      <li class="bad"><strong>ความสม่ำเสมอ</strong> — เปลี่ยน design ครั้งใหม่ คะแนนเปลี่ยนตาม (คำนวณ server-side ใหม่ทุกครั้ง ไม่ pin engine version)</li>
     </ul>
-    <p>Mythsensus เลือกทาง opposite — คำนวณบน device คุณ, engine deterministic + version-locked. <strong>Same input → same Cosmic Score, anywhere, anytime.</strong></p>
+    <p>Mythsensus เลือกทางตรงข้าม — คำนวณบนเครื่องคุณ engine deterministic + version-locked <strong>วันเกิดเดียวกันให้คะแนนเดียวกัน ทุกที่ ทุกเวลา</strong></p>
   </section>
 
   <div class="cta-block">
