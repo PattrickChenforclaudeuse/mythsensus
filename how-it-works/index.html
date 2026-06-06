@@ -1,6 +1,6 @@
 ﻿<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>How Mythsensus Works — Engine คำนวณใน browser, ไม่ส่งข้อมูลออก · Mythsensus</title>
-<meta name="description" content="Mythsensus คำนวณดวง 27 ศาสตร์ใน browser ของคุณเอง ไม่ส่งวันเกิดไป server — วิธีพิสูจน์ด้วย DevTools + technical architecture แบบ transparent">
+<meta name="description" content="Mythsensus คำนวณดวง 26 ศาสตร์ใน browser ของคุณเอง ไม่ส่งวันเกิดไป server — วิธีพิสูจน์ด้วย DevTools + technical architecture แบบ transparent">
 <link rel="canonical" href="https://mythsensus.com/how-it-works">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/favicon.svg">
@@ -17,7 +17,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="th_TH">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="How Mythsensus Works — On-device 27 ศาสตร์">
+<meta name="twitter:title" content="How Mythsensus Works — On-device 26 ศาสตร์">
 <meta name="twitter:description" content="คำนวณใน browser ไม่ส่งข้อมูลออก — วิธีพิสูจน์ด้วย DevTools">
 <meta name="twitter:image" content="https://mythsensus.com/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -108,7 +108,7 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
   "@context":"https://schema.org",
   "@type":"Article",
   "headline":"How Mythsensus Works — Engine คำนวณใน browser, ไม่ส่งข้อมูลออก",
-  "description":"Mythsensus คำนวณดวง 27 ศาสตร์ใน browser ของคุณเอง — วิธีพิสูจน์ด้วย DevTools + technical architecture transparent",
+  "description":"Mythsensus คำนวณดวง 26 ศาสตร์ใน browser ของคุณเอง — วิธีพิสูจน์ด้วย DevTools + technical architecture transparent",
   "author":{"@type":"Organization","name":"Mythsensus"},
   "publisher":{"@type":"Organization","name":"Mythsensus","logo":{"@type":"ImageObject","url":"https://mythsensus.com/og-default.png"}},
   "datePublished":"2026-06-01",
@@ -121,7 +121,7 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
   "@context":"https://schema.org",
   "@type":"FAQPage",
   "mainEntity":[
-    {"@type":"Question","name":"คำนวณดวงใน browser ของฉันจริง ๆ หรือ?","acceptedAnswer":{"@type":"Answer","text":"จริง — engine 27 ศาสตร์ (~250 KB JavaScript) ถูก compile จาก TypeScript และ load เข้า browser ของคุณตอนเปิดเว็บครั้งแรก หลังจากนั้นการคำนวณรันใน CPU/RAM ของอุปกรณ์คุณเอง วันเกิดที่คุณใส่อยู่ใน memory ของ browser tab เท่านั้น ไม่ถูกส่งไปที่ Mythsensus server ใด ๆ ในระหว่างการคำนวณ"}},
+    {"@type":"Question","name":"คำนวณดวงใน browser ของฉันจริง ๆ หรือ?","acceptedAnswer":{"@type":"Answer","text":"จริง — engine 26 ศาสตร์ (~250 KB JavaScript) ถูก compile จาก TypeScript และ load เข้า browser ของคุณตอนเปิดเว็บครั้งแรก หลังจากนั้นการคำนวณรันใน CPU/RAM ของอุปกรณ์คุณเอง วันเกิดที่คุณใส่อยู่ใน memory ของ browser tab เท่านั้น ไม่ถูกส่งไปที่ Mythsensus server ใด ๆ ในระหว่างการคำนวณ"}},
     {"@type":"Question","name":"วิธีพิสูจน์ว่าไม่ส่งข้อมูลออก?","acceptedAnswer":{"@type":"Answer","text":"เปิด DevTools (F12 หรือ Cmd+Option+I) ไปที่แท็บ Network กด Ctrl+R (Cmd+R) reload หน้า ใส่วันเกิดของคุณ กด Generate — ดูใน Network tab ว่ามี request ไปที่ mythsensus.com หรือไม่ คำตอบ: ไม่มี (ยกเว้น analytics ภายในที่ไม่ส่งวันเกิด) การคำนวณทั้งหมดเสร็จใน browser โดยไม่ต้องเชื่อมต่อ server"}},
     {"@type":"Question","name":"แล้ว Cosmic Blueprint $19 ส่งข้อมูลออกไหม?","acceptedAnswer":{"@type":"Answer","text":"การชำระเงิน $19 ไปที่ Gumroad (merchant of record สำหรับ card processing + tax + receipt) — email และข้อมูล payment ส่งไปที่ Gumroad ไม่ใช่ Mythsensus. การคำนวณรายงาน 43 หน้ายังคงรันใน browser ของคุณเอง ไม่ใช่ server ของเรา — เราเก็บแค่ payment status (active/inactive) ผ่าน Gumroad webhook ไม่เก็บวันเกิดหรือเนื้อหารายงาน"}},
     {"@type":"Question","name":"localStorage คืออะไร? ปลอดภัยไหม?","acceptedAnswer":{"@type":"Answer","text":"localStorage คือกล่องเก็บข้อมูลใน browser ของคุณเอง — แต่ละ origin (mythsensus.com) มีกล่องของตัวเอง ไม่ shared กับเว็บอื่น และไม่ส่งไปที่ server ใด ๆ ข้อมูลอยู่ใน hard drive ของอุปกรณ์คุณเท่านั้น เคลียร์ browser cache = ข้อมูลหายหมด เพราะ Mythsensus ไม่มี backup บน server (เป็นข้อจำกัดที่จงใจ — privacy-first)"}},
@@ -145,7 +145,7 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
 
   <p class="eyebrow">How It Works · ทำงานยังไง</p>
   <h1 class="title">Engine คำนวณใน browser ของคุณ ไม่ส่งข้อมูลออก</h1>
-  <p class="sub">วันเกิดของคุณเป็นเรื่องส่วนตัว Mythsensus จึงออกแบบให้การคำนวณดวง 27 ศาสตร์ทำใน browser ของคุณเอง — ไม่ส่งวันเกิดไป server ใด ๆ. หน้านี้อธิบาย architecture + วิธีพิสูจน์ด้วยตัวเองใน 30 วินาที</p>
+  <p class="sub">วันเกิดของคุณเป็นเรื่องส่วนตัว Mythsensus จึงออกแบบให้การคำนวณดวง 26 ศาสตร์ทำใน browser ของคุณเอง — ไม่ส่งวันเกิดไป server ใด ๆ. หน้านี้อธิบาย architecture + วิธีพิสูจน์ด้วยตัวเองใน 30 วินาที</p>
 
   <div class="tldr-card">
     <div class="tldr-label">✦ สรุปสั้น ๆ ๔ ข้อ</div>
@@ -189,7 +189,7 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
 │  │                                   │  │
 │  │  ┌─────────────────────────────┐  │  │
 │  │  │  Engine (250 KB JS)         │  │  │
-│  │  │  • 27-system calculation    │  │  │
+│  │  │  • 26-system calculation    │  │  │
 │  │  │  • Runs in your CPU         │  │  │
 │  │  │  • No network calls         │  │  │
 │  │  └─────────────────────────────┘  │  │
@@ -241,12 +241,12 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
 
     <div class="flow-step">
       <div class="flow-step-label">Step 4 · Engine runs in your CPU</div>
-      <p>คุณกด Generate — engine เรียก <code>calculate({year, month, day, hour, minute, lat, lon, timezone})</code> ฟังก์ชันนี้รันใน CPU ของอุปกรณ์คุณเอง คำนวณ 27 ศาสตร์ออกมาเป็น chart object <em>ไม่มี HTTP request ใด ๆ เกิดขึ้นในขั้นตอนนี้</em></p>
+      <p>คุณกด Generate — engine เรียก <code>calculate({year, month, day, hour, minute, lat, lon, timezone})</code> ฟังก์ชันนี้รันใน CPU ของอุปกรณ์คุณเอง คำนวณ 26 ศาสตร์ออกมาเป็น chart object <em>ไม่มี HTTP request ใด ๆ เกิดขึ้นในขั้นตอนนี้</em></p>
     </div>
 
     <div class="flow-step">
       <div class="flow-step-label">Step 5 · Reading renders</div>
-      <p>Chart object ถูก render เป็น HTML ผ่าน <code>generateReport(chart)</code> ที่รันใน browser เช่นกัน คุณเห็น Cosmic Score + 27 ศาสตร์บนหน้าจอ <em>ทั้งหมดยังอยู่ใน browser tab ของคุณ</em></p>
+      <p>Chart object ถูก render เป็น HTML ผ่าน <code>generateReport(chart)</code> ที่รันใน browser เช่นกัน คุณเห็น Cosmic Score + 26 ศาสตร์บนหน้าจอ <em>ทั้งหมดยังอยู่ใน browser tab ของคุณ</em></p>
     </div>
 
     <div class="flow-step">
@@ -300,7 +300,7 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
       <table class="tech-table">
         <thead><tr><th>Layer</th><th>Where it runs</th><th>What's stored</th></tr></thead>
         <tbody>
-          <tr><td><strong>Computation</strong> (27-system math)</td><td>Always client-side · ใน CPU ของคุณ · ไม่ว่า logged in หรือ guest</td><td>Nothing leaves device · verify ใน DevTools → Network tab</td></tr>
+          <tr><td><strong>Computation</strong> (26-system math)</td><td>Always client-side · ใน CPU ของคุณ · ไม่ว่า logged in หรือ guest</td><td>Nothing leaves device · verify ใน DevTools → Network tab</td></tr>
           <tr><td><strong>Account sync</strong> (optional · sign-in)</td><td>Server-side (Supabase woam)</td><td>Email + plan status เท่านั้น · <em>ไม่เก็บ DOB หรือ chart</em></td></tr>
           <tr><td><strong>Payment</strong></td><td>Gumroad (merchant of record)</td><td>Card + email + tax records ที่ Gumroad · Mythsensus ไม่เห็น</td></tr>
           <tr><td><strong>43-page PDF</strong></td><td>Browser ของคุณ ประกอบหลัง payment unlock token</td><td>วันเกิดไม่ออกจาก device แม้ตอนซื้อ · Ctrl+P save เป็น PDF จริง</td></tr>
@@ -399,7 +399,7 @@ Supabase woam project            # Auth + payment records
 
     <div class="faq-block">
       <h3>คำนวณดวงใน browser ของฉันจริง ๆ หรือ?</h3>
-      <p>จริง — engine 27 ศาสตร์ (~250 KB JavaScript) ถูก compile จาก TypeScript และ load เข้า browser ของคุณตอนเปิดเว็บครั้งแรก หลังจากนั้นการคำนวณรันใน CPU/RAM ของอุปกรณ์คุณเอง วันเกิดที่คุณใส่อยู่ใน memory ของ browser tab เท่านั้น ไม่ถูกส่งไปที่ Mythsensus server ใด ๆ ในระหว่างการคำนวณ</p>
+      <p>จริง — engine 26 ศาสตร์ (~250 KB JavaScript) ถูก compile จาก TypeScript และ load เข้า browser ของคุณตอนเปิดเว็บครั้งแรก หลังจากนั้นการคำนวณรันใน CPU/RAM ของอุปกรณ์คุณเอง วันเกิดที่คุณใส่อยู่ใน memory ของ browser tab เท่านั้น ไม่ถูกส่งไปที่ Mythsensus server ใด ๆ ในระหว่างการคำนวณ</p>
     </div>
 
     <div class="faq-block">

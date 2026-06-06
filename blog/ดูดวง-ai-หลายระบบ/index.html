@@ -1,6 +1,6 @@
 ﻿<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ดูดวง AI หลายระบบ — ChatGPT ตอบมั่ว vs. Mythsensus คำนวณจริง · Mythsensus</title>
-<meta name="description" content="ดูดวงด้วย AI ทำได้จริงไหม? ทำไม ChatGPT ตอบดวงมักผิด — Mythsensus ใช้ algorithm คณิตศาสตร์ของ 27 ศาสตร์โบราณคำนวณจริง ไม่ใช่ AI ตอบมั่ว">
+<meta name="description" content="ดูดวงด้วย AI ทำได้จริงไหม? ทำไม ChatGPT ตอบดวงมักผิด — Mythsensus ใช้ algorithm คณิตศาสตร์ของ 26 ศาสตร์โบราณคำนวณจริง ไม่ใช่ AI ตอบมั่ว">
 <link rel="canonical" href="https://mythsensus.com/blog/%E0%B8%94%E0%B8%B9%E0%B8%94%E0%B8%A7%E0%B8%87-ai-%E0%B8%AB%E0%B8%A5%E0%B8%B2%E0%B8%A2%E0%B8%A3%E0%B8%B0%E0%B8%9A%E0%B8%9A">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/favicon.svg">
@@ -9,7 +9,7 @@
 <meta property="og:site_name" content="Mythsensus">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ดูดวง AI หลายระบบ — ChatGPT vs. Mythsensus">
-<meta property="og:description" content="ทำไม ChatGPT ดูดวงมักผิด — Mythsensus ใช้ algorithm คณิตศาสตร์ของ 27 ศาสตร์โบราณคำนวณจริง ไม่ใช่ AI generative ตอบมั่ว">
+<meta property="og:description" content="ทำไม ChatGPT ดูดวงมักผิด — Mythsensus ใช้ algorithm คณิตศาสตร์ของ 26 ศาสตร์โบราณคำนวณจริง ไม่ใช่ AI generative ตอบมั่ว">
 <meta property="og:url" content="https://mythsensus.com/blog/ดูดวง-ai-หลายระบบ">
 <meta property="og:image" content="https://mythsensus.com/og-default.png">
 <meta property="og:image:type" content="image/png">
@@ -18,7 +18,7 @@
 <meta property="og:locale" content="th_TH">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ดูดวง AI หลายระบบ — ChatGPT vs. Mythsensus">
-<meta name="twitter:description" content="AI ดูดวงทำได้จริงไหม? Mythsensus ใช้ algorithm คณิตศาสตร์ของ 27 ศาสตร์โบราณคำนวณจริง">
+<meta name="twitter:description" content="AI ดูดวงทำได้จริงไหม? Mythsensus ใช้ algorithm คณิตศาสตร์ของ 26 ศาสตร์โบราณคำนวณจริง">
 <meta name="twitter:image" content="https://mythsensus.com/og-default.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
@@ -64,10 +64,10 @@ a{color:var(--gold);text-decoration:none}
   "@context":"https://schema.org",
   "@type":"FAQPage",
   "mainEntity":[
-    {"@type":"Question","name":"AI ดูดวงทำได้จริงไหม?","acceptedAnswer":{"@type":"Answer","text":"ขึ้นอยู่กับว่า 'AI' หมายถึงอะไร — ถ้าหมายถึง LLM generative อย่าง ChatGPT ตอบมั่วโดยไม่คำนวณ → ไม่จริง ผลผิดบ่อย ถ้าหมายถึง algorithm คณิตศาสตร์ของศาสตร์โบราณที่ implement เป็นโค้ดและ run บนเครื่องผู้ใช้ → ทำได้จริงและแม่นยำตามสูตรของศาสตร์นั้น Mythsensus ใช้ทางที่สอง — 27 ศาสตร์ implement เป็น algorithm คณิตศาสตร์ run ใน browser"}},
+    {"@type":"Question","name":"AI ดูดวงทำได้จริงไหม?","acceptedAnswer":{"@type":"Answer","text":"ขึ้นอยู่กับว่า 'AI' หมายถึงอะไร — ถ้าหมายถึง LLM generative อย่าง ChatGPT ตอบมั่วโดยไม่คำนวณ → ไม่จริง ผลผิดบ่อย ถ้าหมายถึง algorithm คณิตศาสตร์ของศาสตร์โบราณที่ implement เป็นโค้ดและ run บนเครื่องผู้ใช้ → ทำได้จริงและแม่นยำตามสูตรของศาสตร์นั้น Mythsensus ใช้ทางที่สอง — 26 ศาสตร์ implement เป็น algorithm คณิตศาสตร์ run ใน browser"}},
     {"@type":"Question","name":"ทำไม ChatGPT ดูดวงมักผิด?","acceptedAnswer":{"@type":"Answer","text":"LLM อย่าง ChatGPT ไม่ได้คำนวณตำแหน่งดาว ไม่ได้รู้สูตร BaZi 60 stem-branch ไม่ได้รู้ Mahadasha cycle — มันแค่ pattern-match จากข้อความที่เคยอ่าน เลยตอบเป็นภาษาที่ฟังคล้ายดูดวงแต่ตัวเลข/ตำแหน่ง/ทศมั่ว ลอง ask ChatGPT ว่า 'BaZi day master ของคนเกิด 1990-02-27 คืออะไร' แล้วเทียบกับ BaZi calculator จริง — มักจะไม่ตรง"}},
     {"@type":"Question","name":"Mythsensus ใช้ AI หรือไม่?","acceptedAnswer":{"@type":"Answer","text":"ใช้ AI เฉพาะส่วนเขียนคำอธิบาย (reading text) ไม่ใช่ส่วนคำนวณ ตัวเลข Cosmic Score · ตำแหน่งดาว · stem-branch · นักษัตร · เลข 7 ตัว 9 ฐาน — ทั้งหมดเป็น deterministic math algorithm สูตรของศาสตร์นั้นเอง ส่วน reading ที่อธิบายให้อ่านง่ายใช้ LLM แต่ feed ด้วยตัวเลขที่คำนวณแล้ว — ไม่ใช่ LLM ทำนายเอง"}},
-    {"@type":"Question","name":"ดูดวง AI หลายระบบฟรีไหม?","acceptedAnswer":{"@type":"Answer","text":"Mythsensus ฟรี — reading 27 ศาสตร์ + Cosmic Score + เทพประจำวันมากกว่า 1,000 องค์ + 108 Organum oracle ใช้ออฟไลน์ได้ ไม่ลงทะเบียน ไม่เก็บข้อมูล ทางเลือกจ่าย: Deep Reading $9 ต่อศาสตร์, PDF 43 หน้า $19, สมาชิกรายเดือน $8.99"}}
+    {"@type":"Question","name":"ดูดวง AI หลายระบบฟรีไหม?","acceptedAnswer":{"@type":"Answer","text":"Mythsensus ฟรี — reading 26 ศาสตร์ + Cosmic Score + เทพประจำวันมากกว่า 1,000 องค์ + 108 Organum oracle ใช้ออฟไลน์ได้ ไม่ลงทะเบียน ไม่เก็บข้อมูล ทางเลือกจ่าย: Deep Reading $9 ต่อศาสตร์, PDF 43 หน้า $19, สมาชิกรายเดือน $8.99"}}
   ]
 }
 </script>
@@ -76,7 +76,7 @@ a{color:var(--gold);text-decoration:none}
   "@context": "https://schema.org",
   "@type": "Article",
   "headline": "ดูดวง AI หลายระบบ — ChatGPT ตอบมั่ว vs. Mythsensus คำนวณจริง · Mythsensus",
-  "description": "ดูดวงด้วย AI ทำได้จริงไหม? ทำไม ChatGPT ตอบดวงมักผิด — Mythsensus ใช้ algorithm คณิตศาสตร์ของ 27 ศาสตร์โบราณคำนวณจริง ไม่ใช่ AI ตอบมั่ว",
+  "description": "ดูดวงด้วย AI ทำได้จริงไหม? ทำไม ChatGPT ตอบดวงมักผิด — Mythsensus ใช้ algorithm คณิตศาสตร์ของ 26 ศาสตร์โบราณคำนวณจริง ไม่ใช่ AI ตอบมั่ว",
   "author": {
     "@type": "Organization",
     "name": "Mythsensus",
@@ -149,7 +149,7 @@ a{color:var(--gold);text-decoration:none}
 
 <div class="cta-block">
   <div class="cta-title">Mythsensus = Algorithmic AI + LLM อยู่ในที่ที่ใช่</div>
-  <div class="cta-sub">27 ศาสตร์ implement เป็น algorithm คณิตศาสตร์ run ใน browser ของคุณ · ส่วน reading ใช้ LLM อ่านตัวเลขแล้วเขียนเป็นภาษาคนได้ — แต่ตัวเลขไม่ใช่ LLM ทำนาย</div>
+  <div class="cta-sub">26 ศาสตร์ implement เป็น algorithm คณิตศาสตร์ run ใน browser ของคุณ · ส่วน reading ใช้ LLM อ่านตัวเลขแล้วเขียนเป็นภาษาคนได้ — แต่ตัวเลขไม่ใช่ LLM ทำนาย</div>
   <a href="/cosmic-score" class="cta-btn">ดู Cosmic Score ทำงานยังไง →</a>
 </div>
 
@@ -160,9 +160,9 @@ a{color:var(--gold);text-decoration:none}
 <p>ผลที่มัก: ChatGPT ตอบ day master แตกต่างจาก calculator จริง เพราะ ChatGPT ไม่ได้รัน solar term calculation, ไม่ได้แปลงไป Chinese calendar — มันเดาจาก pattern matching ที่มันเคยเห็นใน training data</p>
 <p>นี่เป็นเหตุผลที่ "AI ดูดวง" ฟังเท่ แต่ผลผิด — เพราะ LLM ทำในสิ่งที่มัน<em>ไม่ใช่</em>เครื่องมือสำหรับมัน</p>
 
-<h2>Mythsensus วิธีรวม 27 ศาสตร์</h2>
+<h2>Mythsensus วิธีรวม 26 ศาสตร์</h2>
 <p>Mythsensus แยก 2 ขั้นตอนชัดเจน:</p>
-<p><strong>ขั้นที่ 1 — Calculation (algorithmic, deterministic)</strong>: ทั้ง 27 ศาสตร์ implement เป็น JavaScript code ใน browser ของคุณ — ไม่ส่งข้อมูลออก ใส่วันเกิด → ได้ stem-branch + นักษัตร + ราศี + เลข 7 ตัว + ดาว Magic Square + Mahadasha period + ... ทุกอย่าง deterministic — input เดียวกัน output เดียวกัน ทุกครั้ง</p>
+<p><strong>ขั้นที่ 1 — Calculation (algorithmic, deterministic)</strong>: ทั้ง 26 ศาสตร์ implement เป็น JavaScript code ใน browser ของคุณ — ไม่ส่งข้อมูลออก ใส่วันเกิด → ได้ stem-branch + นักษัตร + ราศี + เลข 7 ตัว + ดาว Magic Square + Mahadasha period + ... ทุกอย่าง deterministic — input เดียวกัน output เดียวกัน ทุกครั้ง</p>
 <p><strong>ขั้นที่ 2 — Reading text (generative LLM, optional)</strong>: เอาตัวเลขที่คำนวณแล้วจากขั้นที่ 1 ส่งให้ LLM ใช้เขียนเป็นภาษาที่อ่านง่าย — LLM ไม่<em>คำนวณ</em>อะไรเอง มัน<em>อ่าน</em>ผลคำนวณแล้วเขียนเป็นประโยค Reading ภาษาไทยและอังกฤษมาจากขั้นนี้</p>
 <p>ดังนั้น <strong>ตัวเลข Cosmic Score · stem-branch · นักษัตร · เลข 7 ตัว 9 ฐาน ของคุณคือผลคำนวณ ไม่ใช่ AI ทำนาย</strong> AI แค่ช่วยแปลผลคำนวณเป็นประโยค</p>
 
@@ -170,7 +170,7 @@ a{color:var(--gold);text-decoration:none}
 <table class="compare-table">
 <thead><tr><th>ลักษณะ</th><th>Mythsensus</th><th>ChatGPT ดูดวง</th></tr></thead>
 <tbody>
-<tr><td>จำนวนศาสตร์</td><td>27 ศาสตร์โบราณ implement เป็น algorithm</td><td>ใช้ความรู้กว้าง ๆ ไม่เจาะจง</td></tr>
+<tr><td>จำนวนศาสตร์</td><td>26 ศาสตร์โบราณ implement เป็น algorithm</td><td>ใช้ความรู้กว้าง ๆ ไม่เจาะจง</td></tr>
 <tr><td>ผลคำนวณ deterministic ไหม</td><td>ใช่ — input เดียวกัน output เดียวกันทุกครั้ง</td><td>ไม่ — ตอบเปลี่ยนทุกครั้ง</td></tr>
 <tr><td>ใช้เวลาเกิด + เมืองได้ไหม</td><td>ใช่ — BaZi, Vedic, Western ใช้ทั้งหมด</td><td>ถ้าใส่ก็ใช้ แต่ไม่คำนวณตำแหน่งดาวจริง</td></tr>
 <tr><td>ใช้ออฟไลน์ได้ไหม</td><td>ใช่ — run ใน browser ไม่ส่งข้อมูลออก</td><td>ไม่ — ต้อง online ส่งข้อมูลให้ OpenAI</td></tr>
@@ -179,16 +179,16 @@ a{color:var(--gold);text-decoration:none}
 </table>
 
 <h2>เริ่มได้เลย — ใส่วันเกิดดูผล</h2>
-<p>Mythsensus ฟรี — ใส่วันเกิด (เวลาและเมืองเป็นทางเลือก) จะได้ Cosmic Score และ reading 27 ศาสตร์ในไม่กี่วินาที ไม่ต้องลงทะเบียน ไม่เก็บข้อมูล ไม่ส่งข้อมูลออก — ทุกอย่าง run ใน browser คุณเอง</p>
+<p>Mythsensus ฟรี — ใส่วันเกิด (เวลาและเมืองเป็นทางเลือก) จะได้ Cosmic Score และ reading 26 ศาสตร์ในไม่กี่วินาที ไม่ต้องลงทะเบียน ไม่เก็บข้อมูล ไม่ส่งข้อมูลออก — ทุกอย่าง run ใน browser คุณเอง</p>
 
 <div class="cta-block">
   <div class="cta-title">ทดลอง Mythsensus ฟรี</div>
-  <div class="cta-sub">27 ศาสตร์ในคะแนนเดียว · ไม่ต้องลงทะเบียน · ไม่เก็บข้อมูล · ใช้ออฟไลน์ได้</div>
+  <div class="cta-sub">26 ศาสตร์ในคะแนนเดียว · ไม่ต้องลงทะเบียน · ไม่เก็บข้อมูล · ใช้ออฟไลน์ได้</div>
   <a href="/" class="cta-btn">คำนวณ Cosmic Score ของคุณ →</a>
 </div>
 
 <h2>อ่านต่อ</h2>
-<p>· <a href="/blog/ดูดวงรวมหลายศาสตร์">ดูดวงรวมหลายศาสตร์ — เมื่อ 27 ศาสตร์ตอบเรื่องเดียวกันแล้วเห็นต่าง</a><br>
+<p>· <a href="/blog/ดูดวงรวมหลายศาสตร์">ดูดวงรวมหลายศาสตร์ — เมื่อ 26 ศาสตร์ตอบเรื่องเดียวกันแล้วเห็นต่าง</a><br>
 · <a href="/cosmic-score">Cosmic Score คืออะไร — methodology page</a><br>
 · <a href="/blog/bazi-four-pillars">BaZi (Four Pillars) — สี่เสาดวง</a><br>
 · <a href="/blog/vedic-jyotish">Vedic Jyotish — โหราศาสตร์อินเดีย</a></p>
