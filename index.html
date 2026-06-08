@@ -26,7 +26,7 @@
      mechanism, so this isn't theatre.
      ═══════════════════════════════════════════════════════════════════ -->
 
-<title>Mythsensus — เมื่อ 26 ศาสตร์โบราณเห็นต่าง · เราหาคำตอบที่ลงตัวให้คุณ</title>
+<title>Mythsensus · Where 26 ancient systems agree (and disagree) · ดวงรวม 26 ศาสตร์</title>
 <meta name="description" content="ดูดวงหลายที่แล้วบอกไม่ตรงกัน? Mythsensus อ่าน 26 ศาสตร์โบราณพร้อมกัน — BaZi, Vedic, Western, Human Design และอีก 22 ศาสตร์ — แล้วบอกคุณว่าศาสตร์ไหนเห็นตรงกัน ศาสตร์ไหนขัดกัน · เริ่มฟรี ไม่ต้องสมัคร">
 <meta name="google-site-verification" content="dmRo8ih4-4x1P0LMMfoMgUKV3xnp9QuEbkF0MZ9U7HA">
 <!-- Vercel Web Analytics (privacy-friendly, cookieless). Enable in Vercel → Project → Analytics. -->
@@ -1545,6 +1545,53 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   </div>
 </div>
 
+<!-- ═══ FIRST-VISIT TAB TOUR · shown once after first DOB submit ═══
+     AI audit flagged "too many tabs at once" as overwhelming.
+     This is a non-blocking 3-step tour that orients new users to the
+     5 group tabs (Free, Cosmic Blueprint, Subscription, Add-ons, Profile)
+     without forcing them through it — skip is always available.
+     Persisted flag: localStorage.mth_tab_tour_done. -->
+<style>
+#tabTourOverlay{position:fixed;inset:0;z-index:9000;display:none;align-items:flex-end;justify-content:center;padding:20px;pointer-events:none}
+#tabTourOverlay.active{display:flex}
+#tabTourOverlay .tour-backdrop{position:absolute;inset:0;background:rgba(4,4,7,.55);backdrop-filter:blur(2px);pointer-events:auto}
+#tabTourOverlay .tour-card{position:relative;max-width:440px;width:100%;background:linear-gradient(180deg,rgba(10,10,16,.97),rgba(10,10,16,.99));border:1px solid var(--gold);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 0 1px rgba(212,170,80,.1);padding:22px 22px 18px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;pointer-events:auto;animation:tourSlideUp .35s cubic-bezier(.22,.61,.36,1)}
+@keyframes tourSlideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+#tabTourOverlay .tour-step{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+#tabTourOverlay .tour-step-indicator{font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2.5px;color:var(--gold3)}
+#tabTourOverlay .tour-step-dots{display:flex;gap:4px}
+#tabTourOverlay .tour-step-dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:rgba(212,170,80,.25)}
+#tabTourOverlay .tour-step-dots span.on{background:var(--gold)}
+#tabTourOverlay .tour-title{font-family:'Cinzel Decorative',serif;font-size:17px;color:var(--gold2);line-height:1.35;margin-bottom:8px}
+#tabTourOverlay .tour-body{font-size:14px;line-height:1.7;color:var(--text);margin-bottom:14px}
+#tabTourOverlay .tour-body strong{color:var(--gold2);font-weight:600}
+#tabTourOverlay .tour-pointer{display:inline-block;font-size:13px;color:var(--gold);font-style:italic;background:rgba(212,170,80,.06);padding:8px 12px;border-left:2px solid var(--gold);border-radius:4px;margin-bottom:14px;line-height:1.5}
+#tabTourOverlay .tour-actions{display:flex;gap:10px;justify-content:space-between;align-items:center}
+#tabTourOverlay .tour-skip{background:transparent;border:none;font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:1.4px;color:var(--muted);cursor:pointer;text-decoration:underline;padding:6px 0}
+#tabTourOverlay .tour-skip:hover{color:var(--gold3)}
+#tabTourOverlay .tour-next{background:var(--gold);color:#1a1408;border:none;border-radius:6px;font-family:'Josefin Sans',sans-serif;font-size:11.5px;letter-spacing:1.6px;font-weight:600;padding:10px 22px;cursor:pointer;text-transform:uppercase}
+#tabTourOverlay .tour-next:hover{background:var(--gold2)}
+/* Highlight target tab during tour */
+.tour-highlight{position:relative;animation:tourPulse 1.6s ease-in-out infinite;box-shadow:0 0 0 2px var(--gold),0 0 24px rgba(212,170,80,.55) !important;border-radius:8px}
+@keyframes tourPulse{0%,100%{box-shadow:0 0 0 2px var(--gold),0 0 18px rgba(212,170,80,.4)}50%{box-shadow:0 0 0 2px var(--gold2),0 0 30px rgba(212,170,80,.7)}}
+</style>
+<div id="tabTourOverlay" role="dialog" aria-label="Welcome tour">
+  <div class="tour-backdrop" onclick="endTabTour()"></div>
+  <div class="tour-card">
+    <div class="tour-step">
+      <div class="tour-step-indicator" id="tourStepLabel">STEP 1 / 3</div>
+      <div class="tour-step-dots"><span class="on" id="tourDot1"></span><span id="tourDot2"></span><span id="tourDot3"></span></div>
+    </div>
+    <div class="tour-title" id="tourTitle">—</div>
+    <div class="tour-body" id="tourBody">—</div>
+    <div class="tour-pointer" id="tourPointer" style="display:none">—</div>
+    <div class="tour-actions">
+      <button class="tour-skip" onclick="endTabTour()" id="tourSkipBtn">ข้ามทัวร์ / Skip</button>
+      <button class="tour-next" onclick="nextTabTourStep()" id="tourNextBtn">ถัดไป / Next →</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ AUTH / LOGIN MODAL ═══ -->
 <div class="login-overlay" id="loginOverlay" style="display:none">
   <div class="login-box" style="max-width:340px">
@@ -1741,6 +1788,40 @@ try{
     <span lang="en"><strong>The Cosmic Score and all 26 system scores</strong> are computed deterministically — using standard astronomical formulas and each tradition's own canonical lookup tables. No LLM sits in the score path; the same birth date always yields the same result; you can reproduce every number offline; the MCP server calls the exact same engine. <strong>The narrative content</strong> (myth, interpretation, practice guidance) is AI-assisted, drawn from cited traditional doctrines — every passage traces back to a named tradition. <a href="/how-it-works#engine" style="color:var(--gold);text-decoration:underline">See exactly which is which →</a></span>
   </p>
 </div>
+
+<!-- ═══ DIFFERENTIATION BANNER · "Why we're different" · 4-axis VS panel ═══
+     Shows BEFORE any paywall encounter. Surfaces in free section so users
+     see the moat before deciding to pay. 4 axes chosen because they map to
+     the most common silent assumptions that visitors carry over from generic
+     horoscope sites — multi-system depth, privacy, conflict transparency,
+     AI honesty. -->
+<div id="whyDifferent" style="max-width:760px;margin:8px auto 24px;padding:18px 20px;background:linear-gradient(180deg,rgba(200,164,90,.04),rgba(200,164,90,.08));border:1px solid var(--gold3);border-radius:10px;font-family:'Cormorant Garamond','Sarabun',serif">
+  <div style="text-align:center;margin-bottom:14px">
+    <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:4px">✦ Why Mythsensus is different ✦</div>
+    <div style="font-family:'Cinzel Decorative',serif;font-size:16px;color:var(--gold2);line-height:1.35" data-en="What you get here that no other site offers" data-th="สิ่งที่คุณได้ที่นี่ ซึ่งเว็บอื่นไม่มี">สิ่งที่คุณได้ที่นี่ ซึ่งเว็บอื่นไม่มี</div>
+  </div>
+  <div class="why-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid rgba(212,170,80,.18);border-radius:6px;overflow:hidden">
+    <div style="padding:10px 14px;background:rgba(255,255,255,.02);font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase;text-align:center;border-bottom:1px solid rgba(212,170,80,.18);border-right:1px solid rgba(212,170,80,.18)" data-en="Typical horoscope sites" data-th="เว็บดูดวงทั่วไป">เว็บดูดวงทั่วไป</div>
+    <div style="padding:10px 14px;background:rgba(212,170,80,.08);font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.6px;color:var(--gold);text-transform:uppercase;text-align:center;border-bottom:1px solid rgba(212,170,80,.18)">Mythsensus</div>
+    <div style="padding:11px 14px;font-size:13px;color:var(--muted);border-right:1px solid rgba(212,170,80,.18);border-bottom:1px solid rgba(212,170,80,.12);line-height:1.55" data-en="ONE tradition (BaZi or Vedic or Western)" data-th="ศาสตร์เดียว (BaZi หรือ Vedic หรือ Western)">ศาสตร์เดียว (BaZi หรือ Vedic หรือ Western)</div>
+    <div style="padding:11px 14px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(212,170,80,.12);line-height:1.55"><strong style="color:var(--gold2)" data-en="26 systems read you in parallel" data-th="26 ศาสตร์อ่านคุณพร้อมกัน">26 ศาสตร์อ่านคุณพร้อมกัน</strong></div>
+    <div style="padding:11px 14px;font-size:13px;color:var(--muted);border-right:1px solid rgba(212,170,80,.18);border-bottom:1px solid rgba(212,170,80,.12);line-height:1.55" data-en="Sends your DOB to their server · stored in their DB" data-th="ส่งวันเกิดขึ้น server · เก็บในฐานข้อมูลเขา">ส่งวันเกิดขึ้น server · เก็บในฐานข้อมูลเขา</div>
+    <div style="padding:11px 14px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(212,170,80,.12);line-height:1.55"><strong style="color:var(--gold2)" data-en="100% on-device math · DOB never leaves your phone" data-th="คำนวณ 100% ในเครื่อง · วันเกิดไม่ออกจากมือถือคุณ">คำนวณ 100% ในเครื่อง · วันเกิดไม่ออกจากมือถือคุณ</strong></div>
+    <div style="padding:11px 14px;font-size:13px;color:var(--muted);border-right:1px solid rgba(212,170,80,.18);border-bottom:1px solid rgba(212,170,80,.12);line-height:1.55" data-en="One answer · hides where systems disagree" data-th="ตอบเดียว · ซ่อนตรงที่ศาสตร์ขัดกัน">ตอบเดียว · ซ่อนตรงที่ศาสตร์ขัดกัน</div>
+    <div style="padding:11px 14px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(212,170,80,.12);line-height:1.55"><strong style="color:var(--gold2)" data-en="Shows agreement AND minority voices — honest" data-th="แสดงทั้งจุดที่ตรงกัน และเสียงที่เห็นต่าง">แสดงทั้งจุดที่ตรงกัน และเสียงที่เห็นต่าง</strong></div>
+    <div style="padding:11px 14px;font-size:13px;color:var(--muted);border-right:1px solid rgba(212,170,80,.18);line-height:1.55" data-en="&quot;AI horoscope&quot; = ChatGPT generic narrative" data-th="“AI horoscope” = ChatGPT generic narrative">"AI horoscope" = ChatGPT generic narrative</div>
+    <div style="padding:11px 14px;font-size:13px;color:var(--text);line-height:1.55"><strong style="color:var(--gold2)" data-en="Deterministic math · AI narrative cites tradition" data-th="คณิตศาสตร์ deterministic · AI narrative อ้างอิงคัมภีร์">คณิตศาสตร์ deterministic · AI narrative อ้างอิงคัมภีร์</strong></div>
+  </div>
+  <div style="text-align:center;margin-top:12px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.3px;color:var(--gold3)">
+    <a href="/how-it-works#methodology" style="color:var(--gold);text-decoration:none;border-bottom:1px solid var(--gold3)" data-en="See full methodology · what &quot;reconcile&quot; means →" data-th="ดูระเบียบวิธีฉบับเต็ม · &quot;reconcile&quot; แปลว่าอะไร →">ดูระเบียบวิธีฉบับเต็ม · "reconcile" แปลว่าอะไร →</a>
+  </div>
+</div>
+<style>
+@media(max-width:560px){
+  #whyDifferent .why-grid{grid-template-columns:1fr}
+  #whyDifferent .why-grid > div{border-right:none !important}
+}
+</style>
 
 <!-- (Nav-collapse toggle removed — see CSS comment above.) -->
 <!-- (Tier-group nav moved up to sit directly under the header pill-tabs;
@@ -13575,7 +13656,102 @@ function entryAccept(){
     _showSyncToast(LANG==='th'
       ? '✨ ยินดีต้อนรับ — รับพรประจำวันฟรีของคุณได้เลย'
       : '✨ Welcome — draw your free daily blessing');
+    // First-visit tab tour: introduce the 5 group tabs so they don't feel
+    // overwhelming. Delayed 900ms so the page settles + welcome toast appears
+    // first. The tour itself checks localStorage.mth_tab_tour_done so it's a
+    // no-op on subsequent visits.
+    setTimeout(maybeShowTabTour, 900);
   }, 200);
+}
+
+// ── First-visit tab tour ─────────────────────────────────
+// 3-step orientation shown ONCE after first successful DOB submit.
+// Persists `mth_tab_tour_done=1` so it never repeats. Backdrop click or Skip
+// button ends early (still marks done — explicit dismissal counts).
+let _tourStepIdx = 0;
+const TAB_TOUR_STEPS = [
+  {
+    titleTh: 'ยินดีต้อนรับ · ทุกอย่างที่เห็นตอนนี้ฟรี',
+    titleEn: 'Welcome — everything you see now is free',
+    bodyTh: 'คุณอยู่ที่ <strong>Free Tier</strong> — มี <strong>Cosmic Score</strong>, <strong>เทพประจำวัน 1,069 องค์</strong>, <strong>preview 26 ศาสตร์</strong> · ทั้งหมดไม่เสียเงิน ไม่ต้องสมัคร',
+    bodyEn: 'You\'re on the <strong>Free Tier</strong> — <strong>Cosmic Score</strong>, <strong>1,069 daily deities</strong>, <strong>26-system preview</strong> — all free, no signup',
+    pointerTh: '👆 ปุ่ม <strong>✦ Free Tier</strong> ด้านบน คือที่ที่คุณอยู่ตอนนี้',
+    pointerEn: '👆 The <strong>✦ Free Tier</strong> button above is where you are now',
+    target: '#group-free',
+  },
+  {
+    titleTh: 'เราต่างจากเว็บอื่นยังไง',
+    titleEn: 'What makes us different',
+    bodyTh: 'ดูแถบ <strong>Why Mythsensus is different</strong> ด้านล่าง — <strong>26 ศาสตร์อ่านพร้อมกัน</strong>, <strong>คำนวณในเครื่อง</strong>, <strong>แสดงเสียงที่เห็นต่าง</strong> · ไม่ใช่ศาสตร์เดียวแบบเว็บทั่วไป',
+    bodyEn: 'See the <strong>Why Mythsensus is different</strong> panel — <strong>26 systems in parallel</strong>, <strong>on-device math</strong>, <strong>shows minority voices</strong> · not single-tradition like other sites',
+    pointerTh: '👇 จะเลื่อนลงให้อัตโนมัติ — ดู 4-axis comparison',
+    pointerEn: '👇 We\'ll scroll for you — 4-axis comparison',
+    target: '#whyDifferent',
+  },
+  {
+    titleTh: 'พร้อมเจาะลึก? เลือกเพิ่มได้ (ไม่บังคับ)',
+    titleEn: 'Ready to go deeper? Optional add-ons',
+    bodyTh: '<strong>Cosmic Blueprint</strong> ($19 ครั้งเดียว) — full breakdown 26 ศาสตร์ · <strong>Subscription</strong> รายเดือน — daily refresh + Biorhythm · <em>ลองฟรีก่อนได้ ไม่ต้องตัดสินใจตอนนี้</em>',
+    bodyEn: '<strong>Cosmic Blueprint</strong> ($19 one-time) — full 26-system breakdown · <strong>Subscription</strong> monthly — daily refresh + Biorhythm · <em>Explore free first · no rush</em>',
+    pointerTh: '👆 ปุ่ม <strong>👑 Cosmic Blueprint</strong> ด้านบน · เปิดดูตัวอย่าง form ก่อนได้ ไม่ผูกพัน',
+    pointerEn: '👆 The <strong>👑 Cosmic Blueprint</strong> button above · open it to peek at the form, no commitment',
+    target: '#group-premium',
+  },
+];
+
+function maybeShowTabTour(){
+  try {
+    if (localStorage.getItem('mth_tab_tour_done')) return;
+  } catch(e) { return; }
+  _tourStepIdx = 0;
+  _renderTabTourStep();
+  const ov = document.getElementById('tabTourOverlay');
+  if (ov) ov.classList.add('active');
+}
+
+function _renderTabTourStep(){
+  const step = TAB_TOUR_STEPS[_tourStepIdx];
+  if (!step) { endTabTour(); return; }
+  const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
+  const setText = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  const setHtml = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  setText('tourStepLabel', `STEP ${_tourStepIdx + 1} / ${TAB_TOUR_STEPS.length}`);
+  ['tourDot1','tourDot2','tourDot3'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) el.className = (i <= _tourStepIdx) ? 'on' : '';
+  });
+  setText('tourTitle', isTh ? step.titleTh : step.titleEn);
+  setHtml('tourBody', isTh ? step.bodyTh : step.bodyEn);
+  const ptr = document.getElementById('tourPointer');
+  const ptrText = isTh ? step.pointerTh : step.pointerEn;
+  if (ptr) {
+    ptr.style.display = ptrText ? 'block' : 'none';
+    ptr.innerHTML = ptrText || '';
+  }
+  const isLast = _tourStepIdx === TAB_TOUR_STEPS.length - 1;
+  setText('tourNextBtn', isLast
+    ? (isTh ? 'เริ่มเลย ✨' : 'Got it ✨')
+    : (isTh ? 'ถัดไป →' : 'Next →'));
+  // Clear prior highlight; apply to new target
+  document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+  const tgt = step.target ? document.querySelector(step.target) : null;
+  if (tgt) {
+    tgt.classList.add('tour-highlight');
+    try { tgt.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e) {}
+  }
+}
+
+function nextTabTourStep(){
+  if (_tourStepIdx >= TAB_TOUR_STEPS.length - 1) { endTabTour(); return; }
+  _tourStepIdx++;
+  _renderTabTourStep();
+}
+
+function endTabTour(){
+  try { localStorage.setItem('mth_tab_tour_done', '1'); } catch(e) {}
+  const ov = document.getElementById('tabTourOverlay');
+  if (ov) ov.classList.remove('active');
+  document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
 }
 
 function entryAcceptSaved(){

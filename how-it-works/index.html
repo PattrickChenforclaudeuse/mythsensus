@@ -379,6 +379,41 @@ Supabase woam project            # Auth + payment records
   </details>
 
   <section>
+    <h2 id="methodology">"Reconcile" หมายความว่าอะไร · What "reconcile" actually means</h2>
+    <p>คำว่า <em>"reconcile 26 systems"</em> ไม่ได้แปลว่า engine มีผู้พิพากษาภายในที่ตัดสินใจแทนคุณ — มันคือ <strong>weighted median</strong> เพื่อหาเสียงประสานที่ทน outlier ได้ พร้อมเก็บเสียงที่เห็นต่างไว้ให้คุณเห็น 3 ระดับ</p>
+
+    <h3>ระดับ 1 · Cosmic Score = weighted median ของ 25 ศาสตร์ที่โหวต</h3>
+    <p>26 ศาสตร์คำนวณคะแนนของตัวเอง (1–999) จากวันเกิดคุณ <em>Biorhythm</em> เป็น daily-layer ที่เปลี่ยนทุกวัน (ดูแยก ไม่นับ scoring) เหลือ <strong>25 ศาสตร์ที่โหวต</strong> ให้ Cosmic Score · เราใช้ <strong>median ไม่ใช่ average</strong> เพราะ:</p>
+    <ul class="proof-list" style="margin-left:0">
+      <li class="good"><strong>Median ทนต่อ outlier</strong> — ถ้าศาสตร์หนึ่งให้ 950 อีกศาสตร์ให้ 320 (เห็นต่างมาก) median เลือกค่ากลาง ไม่ใช่ค่าเฉลี่ยที่ลำเอียง</li>
+      <li class="good"><strong>"Weighted" แปลว่า</strong> ศาสตร์ที่ <em>granular</em> กว่า (Vedic 27 นักษัตร · BaZi 60 stem-branch · Mayan 260 day-signs) ได้น้ำหนักโหวตมากกว่าศาสตร์ที่ <em>coarse</em> (Western 12 ราศี · Biorhythm 3 cycles) — granularity = information density ของ schema ศาสตร์นั้น ไม่ใช่ความนิยมหรือศักดิ์สิทธิ์</li>
+    </ul>
+    <p>ผลคือ ถ้า ≥ 16/25 ศาสตร์เห็นตรง คุณได้คะแนนสูง · ถ้ากระจาย คุณได้คะแนนกลาง — <strong>คะแนนสะท้อน uncertainty โดยไม่ลบ minority voice ออก</strong></p>
+
+    <h3>ระดับ 2 · Domain-specific applications · ใครเป็น lead สำหรับเรื่องไหน</h3>
+    <p>Cosmic Score เป็น all-system reconciliation (ทุกศาสตร์โหวตด้วยน้ำหนัก granularity) · แต่ <strong>downstream applications</strong> (Career, Partnership, Pet, Food, Exercise, Cosmic Pulse) เป็นเรื่องที่แต่ละศาสตร์เชี่ยวชาญต่างกัน — เราจึง <em>ให้ศาสตร์ที่ specialize ในเรื่องนั้นเป็น lead</em> พร้อม cross-reference จากศาสตร์อื่น:</p>
+    <table>
+      <thead>
+        <tr><th>Application</th><th>Lead system(s)</th><th>Cross-reference</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Cosmic Score</strong></td><td>All 25 systems (weighted median)</td><td>—</td></tr>
+        <tr><td><strong>Path Resonance · career/location</strong></td><td>BaZi Day Master + Wu Xing element-flow</td><td>Vedic dasha · Pythagorean life path</td></tr>
+        <tr><td><strong>Compatibility · partnership</strong></td><td>26-system per-row pairwise (full reconciliation)</td><td>—</td></tr>
+        <tr><td><strong>Divine Mirror · self-archetype</strong></td><td>Median of top-3 archetypal voters · BaZi + Vedic + Human Design</td><td>Mayan tone · Celtic tree</td></tr>
+        <tr><td><strong>Daily layer · today's energy</strong></td><td>Biorhythm + Today's transit</td><td>26-system score is fixed/identity</td></tr>
+        <tr><td><strong>Pet/Food/Exercise · physical</strong></td><td>BaZi Wu Xing balance + biorhythm phase</td><td>Vedic ayurvedic dosha (when configured)</td></tr>
+      </tbody>
+    </table>
+    <p>เหตุผลที่ <strong>lead system ต่างกัน</strong>: ศาสตร์แต่ละศาสตร์ "เห็นโลก" ผ่าน schema ของมันเอง — BaZi เห็นทุกอย่างเป็น 5 ธาตุ Wu Xing (เหมาะ career/food/health) · Vedic เห็นเป็น nakshatra + dasha (เหมาะ life-stage timing) · Western เห็นเป็น aspect/transit (เหมาะ daily transit) · ไม่มีศาสตร์ไหนที่เก่งทุกเรื่อง · <em>ถ้าคุณซื้อ Cosmic Blueprint ($19) — full breakdown ของแต่ละ system per domain · มี trace ว่าแต่ละ output มาจาก system ไหน</em></p>
+
+    <h3>ระดับ 3 · Disagreement Highlight (Free tier)</h3>
+    <p>ใน free preview เราแสดง <em>"Minority Voices" panel</em> ใต้ consensus banner — ระบบที่ฟรีให้เห็นว่า <strong>ไม่ใช่ทุกศาสตร์เห็นตรงกัน</strong> · นี่คือ proof-of-concept ของ arbitration: ไม่ใช่ "ทุกคนตรงกัน" แต่ "ส่วนใหญ่เห็นแบบนี้ ส่วนน้อยเห็นต่าง <strong>เราเลือก X เพราะ N/25 vote</strong>" — โปร่งใส, falsifiable, ตรวจสอบได้</p>
+
+    <p style="margin-top:1.2rem;padding:1rem 1.2rem;background:rgba(200,164,90,.06);border-left:3px solid var(--gold);border-radius:4px"><strong>ทำไม "arbitration" ไม่ใช่ "judge"</strong> — engine ไม่ตัดสิน <em>คุณ</em> แต่ตัดสิน <em>ระหว่างเสียงของศาสตร์</em> โดยใช้ median + granularity weight ที่ freeze ตั้งแต่ calibration · เหมือนกรรมการที่นับคะแนนตามกติกาที่ประกาศไว้แล้ว — ไม่ใช่ผู้พิพากษาที่ใช้ดุลพินิจส่วนตัว · <a href="#engine" style="color:var(--gold)">ดูสูตร weight + dataset →</a></p>
+  </section>
+
+  <section>
     <h2 id="vs">เทียบกับเว็บดูดวงทั่วไป</h2>
     <p>เว็บดูดวงส่วนใหญ่<em>คำนวณบน server ของพวกเขา</em> — คุณส่งวันเกิด, ราคา, อาจจะ email มาให้ server บริการคืน reading. ผลที่ตามมา:</p>
     <ul class="proof-list" style="margin-left:0">

@@ -175,20 +175,23 @@
 // systems, biorhythm is still shown in the breakdown but in a separate
 // "Daily layer · not scoring" card with explanatory copy. /build/ms26-bundle.js
 // regenerated.
-// v91 — Arbitrator reposition + count cleanup + IndexNow.
-// • Hero copy: aggregator frame ("26 ศาสตร์ในที่เดียว") → arbitrator frame
-//   ("เมื่อ 26 ศาสตร์เห็นต่าง · เราหาคำตอบที่ลงตัว"). Applied to title, meta
-//   description, og/twitter cards, entry overlay hero, entryIntro.
-// • Free preview: Minority Voices panel + Cosmic Blueprint CTA below the
-//   consensus banner — proof-of-concept of the reconciliation moat surfaced
-//   in free tier.
-// • Count canonicalized to **26** everywhere (was flipping 26/27 because of
-//   biorhythm). 26 = stable identity systems for Cosmic Score. Biorhythm is
-//   the separate daily layer (subscription product), not part of the 26.
-// • IndexNow key file at /2b51134feb87e23b4483f7fbbfbf1fb7.txt — submit
-//   script at _qa-out/seo-indexnow-submit.cjs (run AFTER vercel --prod).
-// • Sitemap lastmod bumped 2026-06-01/02 → 2026-06-08 to signal re-crawl.
-const CACHE = 'mythsensus-v91';
+// v92 — Audit-driven follow-up (post-arbitrator deploy 2026-06-08).
+// • Bilingual <title>: "Where 26 ancient systems agree (and disagree) ·
+//   ดวงรวม 26 ศาสตร์" — fixes English-SERP CTR per P5. og/twitter stay Thai.
+// • Pricing $9 prominence: "$9 ต่อ 1 ศาสตร์ · ดูซ้ำฟรี" bolded gold +
+//   pitch rewritten "Not $9 for everything — $9 for ONE system" per P1
+//   recurring confusion.
+// • Differentiation banner #whyDifferent on landing: 4-axis VS-other-sites
+//   panel (26 systems / on-device / minority voices / cited AI) — surfaces
+//   moat BEFORE any paywall encounter.
+// • Methodology section in /how-it-works#methodology: explicit weighted-
+//   median explanation + domain-specialization table + arbitration ≠ judge
+//   framing — closes the 70/30 marketing-veneer gap (P2 + P4).
+// • Google Search Console meta verification (token committed in v91 build,
+//   listed here for trace): dmRo8ih4-4x1P0LMMfoMgUKV3xnp9QuEbkF0MZ9U7HA.
+// • First-visit tab tour: 3-step orientation after first DOB submit,
+//   addresses AI-flagged "too many tabs" overwhelm. Flag: mth_tab_tour_done.
+const CACHE = 'mythsensus-v92';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
