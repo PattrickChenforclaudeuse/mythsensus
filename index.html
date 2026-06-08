@@ -1203,6 +1203,13 @@ function _webNavBack(e) {
  * No side effects.
  */
 function _webShareUrl() {
+  // PRIVACY INVARIANT (verified 2026-06-08): the share URL must NEVER encode
+  // birth data (DOB, time, city, name, email). Only the publicly-shareable
+  // blessing-draw artifacts are included: god name, tier name, message index,
+  // language code, and the rendered message text. If you add a new share
+  // surface (chart share, score share, etc.), preserve this invariant —
+  // generate a chart hash server-side or use a short opaque token, never
+  // raw DOB.
   try {
     if (_currentDraw && document.querySelector('.panel.active')?.id === 'panel-blessing') {
       const d = _currentDraw;
@@ -1524,6 +1531,33 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <span id="entryPrivacy">All data stays on your device — never sent to the cloud</span>
     </div>
 
+    <!-- Age gate soft confirm — added 2026-06-08 from P3 audit (privacy parent
+         persona). Stores consent in localStorage.mth_age_confirmed so returning
+         users skip it. PDPA + COPPA practical floor at 13+. Not a hard
+         enforcement (anyone can tick) — but signals due-diligence + reminds
+         13–17 users about parental consent for paid features. -->
+    <div id="ageGateBox" style="display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;padding:10px 12px;background:rgba(212,170,80,.04);border:1px solid rgba(212,170,80,.22);border-radius:6px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--text);line-height:1.55">
+      <input type="checkbox" id="entryAgeConfirm" style="margin-top:3px;flex-shrink:0;width:14px;height:14px;cursor:pointer;accent-color:var(--gold)">
+      <label for="entryAgeConfirm" style="cursor:pointer;flex:1" id="entryAgeLabel">
+        <span lang="th"><strong style="color:var(--gold2)">ฉันอายุ 13 ปีขึ้นไป</strong> · ถ้าอายุ 13–17 ปี ฉันได้รับความยินยอมจากผู้ปกครองสำหรับฟีเจอร์แบบเสียเงิน (เนื้อหาฟรีปลอดภัยทุกวัย)</span>
+        <span lang="en"><strong style="color:var(--gold2)">I am 13 years or older</strong> · if aged 13–17, I have parental consent for paid features (free content is safe for all ages)</span>
+      </label>
+    </div>
+    <style>
+      #ageGateBox [lang="en"] { display: none; }
+      html[lang="en"] #ageGateBox [lang="th"] { display: none; }
+      html[lang="en"] #ageGateBox [lang="en"] { display: inline; }
+    </style>
+    <script>
+      // Returning users who already confirmed age skip the gate.
+      try {
+        if (localStorage.getItem('mth_age_confirmed')) {
+          var _ageBox = document.getElementById('ageGateBox');
+          if (_ageBox) _ageBox.style.display = 'none';
+        }
+      } catch(_) {}
+    </script>
+
     <button class="login-confirm-btn" onclick="entryAccept()" id="entryCta">
       ✦ Reveal my chart
     </button>
@@ -1784,8 +1818,8 @@ try{
 <div id="aiHonest" style="max-width:720px;margin:14px auto 24px;padding:14px 18px;background:rgba(200,164,90,.05);border:1px solid var(--gold3);border-radius:8px;font-size:13.5px;line-height:1.7;color:var(--text);font-family:'Cormorant Garamond','Sarabun',serif">
   <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2.5px;color:var(--gold);margin-bottom:8px;text-transform:uppercase">⚖️ Honest split — Deterministic vs AI</div>
   <p style="margin:0">
-    <span lang="th"><strong>Cosmic Score และคะแนนทั้ง 26 ศาสตร์</strong> คำนวณแบบกำหนดผล (deterministic) ทุกตัว — ใช้สูตรดาราศาสตร์มาตรฐานและตารางอ้างอิงดั้งเดิมของแต่ละศาสตร์ ไม่มี LLM อยู่ในเส้นทางการคำนวณ วันเกิดเดียวกันให้ผลลัพธ์เดียวกันเสมอ ตรวจสอบซ้ำแบบออฟไลน์ได้ MCP server เรียกใช้ engine ตัวเดียวกัน. <strong>เนื้อหาเชิงเล่าเรื่อง</strong> (ตำนาน คำอธิบายความหมาย คำแนะนำในการใช้พลังของคุณ) เป็นส่วนที่ AI ช่วยร่าง โดยอิงจากคัมภีร์และคำสอนดั้งเดิมที่อ้างอิงได้ ไม่ใช่ AI แต่งเรื่องโดยไร้ที่มา. <a href="/how-it-works#engine" style="color:var(--gold);text-decoration:underline">ดูแยกแยะให้ชัด →</a></span>
-    <span lang="en"><strong>The Cosmic Score and all 26 system scores</strong> are computed deterministically — using standard astronomical formulas and each tradition's own canonical lookup tables. No LLM sits in the score path; the same birth date always yields the same result; you can reproduce every number offline; the MCP server calls the exact same engine. <strong>The narrative content</strong> (myth, interpretation, practice guidance) is AI-assisted, drawn from cited traditional doctrines — every passage traces back to a named tradition. <a href="/how-it-works#engine" style="color:var(--gold);text-decoration:underline">See exactly which is which →</a></span>
+    <span lang="th"><strong>Cosmic Score และคะแนนทั้ง 26 ศาสตร์</strong> คำนวณแบบกำหนดผล (deterministic) ทุกตัว — ใช้สูตรดาราศาสตร์มาตรฐานและตารางอ้างอิงดั้งเดิมของแต่ละศาสตร์ ไม่มี LLM อยู่ในเส้นทางการคำนวณ วันเกิดเดียวกันให้ผลลัพธ์เดียวกันเสมอ ตรวจสอบซ้ำแบบออฟไลน์ได้ <a href="https://github.com/PattrickChenforclaudeuse/mythsensus-mcp" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:underline">MCP server</a> เรียกใช้ engine ตัวเดียวกัน (open-source บน GitHub · <code style="background:rgba(212,170,80,.1);padding:1px 5px;border-radius:3px;font-size:.9em">npx mythsensus-mcp</code>). <strong>เนื้อหาเชิงเล่าเรื่อง</strong> (ตำนาน คำอธิบายความหมาย คำแนะนำในการใช้พลังของคุณ) เป็นส่วนที่ AI ช่วยร่าง โดยอิงจากคัมภีร์และคำสอนดั้งเดิมที่อ้างอิงได้ ไม่ใช่ AI แต่งเรื่องโดยไร้ที่มา. <a href="/how-it-works#engine" style="color:var(--gold);text-decoration:underline">ดูแยกแยะให้ชัด →</a></span>
+    <span lang="en"><strong>The Cosmic Score and all 26 system scores</strong> are computed deterministically — using standard astronomical formulas and each tradition's own canonical lookup tables. No LLM sits in the score path; the same birth date always yields the same result; you can reproduce every number offline; the <a href="https://github.com/PattrickChenforclaudeuse/mythsensus-mcp" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:underline">MCP server</a> calls the exact same engine (open-source on GitHub · <code style="background:rgba(212,170,80,.1);padding:1px 5px;border-radius:3px;font-size:.9em">npx mythsensus-mcp</code>). <strong>The narrative content</strong> (myth, interpretation, practice guidance) is AI-assisted, drawn from cited traditional doctrines — every passage traces back to a named tradition. <a href="/how-it-works#engine" style="color:var(--gold);text-decoration:underline">See exactly which is which →</a></span>
   </p>
 </div>
 
@@ -13568,6 +13602,20 @@ function entryAccept(){
   const gender = (document.getElementById('entryGender')||{}).value || 'ชาย';
   const city   = (document.getElementById('entryCity')||{}).value   || '13.75,100.5,7';
   const giftRaw = ((document.getElementById('entryGift')||{}).value || '').trim().toUpperCase();
+  // Age gate soft confirm — checkbox required unless previously confirmed.
+  // Skipped automatically for returning visitors (localStorage flag set).
+  try {
+    if (!localStorage.getItem('mth_age_confirmed')) {
+      const ageCb = document.getElementById('entryAgeConfirm');
+      if (ageCb && !ageCb.checked) {
+        _entryError(isTh
+          ? 'กรุณายืนยันอายุ 13 ปีขึ้นไป (ติ๊กกล่องด้านบน)'
+          : 'Please confirm you are 13 or older (tick the box above)');
+        return;
+      }
+      if (ageCb && ageCb.checked) localStorage.setItem('mth_age_confirmed', '1');
+    }
+  } catch(_) {}
   if (!dob) {
     _entryError(isTh ? 'กรุณากรอกวันเกิด' : 'Please enter your date of birth');
     return;

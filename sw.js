@@ -175,24 +175,24 @@
 // systems, biorhythm is still shown in the breakdown but in a separate
 // "Daily layer · not scoring" card with explanatory copy. /build/ms26-bundle.js
 // regenerated.
-// v93 — Audit residual cleanup + Biorhythm subscription positioning.
-// • /privacy: explicit Vercel Analytics disclosure section (P3 doc-drift fix).
-//   Cookieless + IP-anonymised + aggregated language; link to Vercel privacy.
-// • /how-it-works "Vedic ayanamsa" row: refreshed stale "hardcoded 24.0°"
-//   text → current "lahiriAyanamsa(y,m,d) linear precession · 2026: 24.17°
-//   · 1786 Sunthorn Phu: 21.13°" (P4 Jyotishi trust signal). Future row =
-//   IAU 2006 precession series Q3-Q4 2026.
-// • Biorhythm subscription positioning:
-//   - /pricing subscription bridge: "26 = who you are (frozen identity);
-//     subscription adds the 27th daily-changing layer (Biorhythm + Pulse +
-//     Sky)" — directly answers audit's "subscription = No across paying
-//     personas" gap.
-//   - /pricing subscription monthly bullet #1 promoted to bold:
-//     "📈 Daily Biorhythm · physical · emotional · intellectual cycles".
-//   - /cosmic-score Biorhythm tile re-framed: gold border + "👑 Subscription
-//     · daily layer" region + "The 27th layer · subscription-only".
-// Engine math unchanged (biorhythm scoring:false since 2026-06-04).
-const CACHE = 'mythsensus-v93';
+// v94 — Audit residual finals (Option A polish):
+// • A3: MCP repo prominent link in #aiHonest banner — "MCP server" now
+//   hyperlinked to github.com/PattrickChenforclaudeuse/mythsensus-mcp +
+//   inline `npx mythsensus-mcp` snippet. Closes P2 "Maybe star (no
+//   GitHub found)" signal.
+// • A1: Share URL privacy verified + documented — _webShareUrl audit
+//   confirms zero birth-data leak. Added defensive privacy-invariant
+//   comment in code + "Social Sharing" section in /privacy explicitly
+//   stating shares never encode DOB/time/city/name/email.
+// • A2: Age gate soft confirm — checkbox "ฉันอายุ 13+ / parental consent
+//   for 13-17" in entry overlay form. Persists localStorage.mth_age_confirmed
+//   so returning users skip. Closes P3 enforcement-gap signal.
+// • A4: NEW blog /blog/calibration-methodology — open-book disclosure of
+//   Astrodatabank AA-rated dataset, 3-criterion objective function, why
+//   not supervised ML, why frozen, honest gap disclosure. Linked from
+//   /how-it-works methodology section. Closes P2 HN-killer signal.
+// • Sitemap updated with new blog URL + lastmod.
+const CACHE = 'mythsensus-v94';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

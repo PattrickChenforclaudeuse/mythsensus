@@ -1,0 +1,192 @@
+<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calibration Methodology — How the 26 Weights Were Set · Mythsensus</title>
+<meta name="description" content="ตำราเปิดสูตร calibrate ของ 26 ศาสตร์ใน Mythsensus — dataset Astrodatabank AA-rated · objective function 3 criteria · ทำไมไม่ใช่ supervised learning · ทำไม weights ถูก freeze · honest disclosure ทุก gap ที่เหลือ">
+<link rel="canonical" href="https://mythsensus.com/blog/calibration-methodology">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#040407">
+<meta property="og:site_name" content="Mythsensus">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Calibration Methodology — How the 26 Weights Were Set">
+<meta property="og:description" content="Astrodatabank AA-rated dataset · 3-criterion objective function · why NOT supervised learning · why weights are frozen post-calibration · honest gap disclosure">
+<meta property="og:url" content="https://mythsensus.com/blog/calibration-methodology">
+<meta property="og:image" content="https://mythsensus.com/og-default.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="th_TH">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Calibration Methodology — How the 26 Weights Were Set · Mythsensus">
+<meta name="twitter:description" content="Open-book calibration: dataset, objective function, why NOT ML, why frozen, honest gaps">
+<meta name="twitter:image" content="https://mythsensus.com/og-default.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#040407;--bg2:#0a0a10;--bg3:#0d0d14;--gold:#c8a45a;--gold2:#e8c87a;--gold3:#a8843a;--text:#e6e2d8;--muted:#9a9088;--border:rgba(200,164,90,0.22)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Prompt',sans-serif;font-weight:300;font-size:17px;line-height:1.85}
+a{color:var(--gold);text-decoration:none}
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:clamp(16px,1.8vw,22px);cursor:pointer;letter-spacing:5px}
+.logo-myth{color:var(--gold)}.logo-sensus{color:var(--text);opacity:.65}
+.nav-right{display:flex;gap:1.5rem;align-items:center}
+.nav-link{font-family:'Prompt',sans-serif;font-size:.78rem;letter-spacing:.06em;color:var(--text);opacity:.7}
+.nav-link:hover{opacity:1;color:var(--gold)}
+.blog-hero{padding:110px 5% 50px;max-width:820px;margin:0 auto;border-bottom:1px solid var(--border)}
+.back-link{font-family:'Prompt',sans-serif;font-size:.78rem;color:var(--muted);display:inline-flex;align-items:center;gap:.4rem;margin-bottom:1.6rem}
+.back-link:hover{color:var(--gold)}
+.article-tag{font-family:'Prompt',sans-serif;font-size:.7rem;letter-spacing:.18em;color:var(--gold);opacity:.8;margin-bottom:.8rem;display:block}
+.article-title{font-family:'Prompt',sans-serif;font-weight:500;font-size:clamp(1.5rem,3vw,2.4rem);color:var(--text);line-height:1.3;margin-bottom:1rem}
+.article-meta{font-family:'Prompt',sans-serif;font-size:.78rem;color:var(--muted);margin-bottom:1.6rem}
+.article-lede{font-size:1.15rem;color:var(--text);line-height:1.85;border-left:2px solid var(--gold);padding-left:1.2rem;margin-bottom:0;font-weight:400}
+.article-body{max-width:820px;margin:0 auto;padding:2.4rem 5% 4rem}
+.article-body h2{font-family:'Prompt',sans-serif;font-weight:500;font-size:1.4rem;color:var(--gold);margin:2.8rem 0 1rem}
+.article-body h3{font-family:'Prompt',sans-serif;font-weight:500;font-size:1.05rem;color:var(--text);margin:1.8rem 0 .8rem;opacity:.95}
+.article-body p{margin-bottom:1.3rem;color:var(--text);font-size:1.02rem;line-height:1.9}
+.article-body strong{color:var(--text);font-weight:500}
+.article-body em{color:var(--gold);font-style:normal}
+.article-body code{font-family:'Courier New',monospace;font-size:.92em;color:var(--gold2);background:rgba(200,164,90,.08);padding:.08em .35em;border-radius:3px}
+.article-body ul{margin:1rem 0 1.4rem 1.4rem}
+.article-body li{margin-bottom:.7rem;line-height:1.8}
+.criterion-box{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:6px;padding:1.1rem 1.3rem;margin:1.1rem 0}
+.criterion-box .crit-name{font-family:'Prompt',sans-serif;font-weight:500;color:var(--gold2);font-size:1rem;margin-bottom:.4rem}
+.criterion-box .crit-target{font-family:'Courier New',monospace;color:var(--gold);font-size:.95em;margin-bottom:.5rem}
+.criterion-box .crit-why{font-size:.97rem;color:var(--text);line-height:1.75}
+.honest-box{background:rgba(192,96,96,.05);border:1px dashed rgba(192,96,96,.4);border-radius:8px;padding:1.2rem 1.4rem;margin:1.6rem 0;color:var(--text);font-size:.97rem;line-height:1.75}
+.honest-box strong{color:#e8a880;font-weight:500}
+.callout{background:rgba(200,164,90,.05);border:1px dashed var(--gold3);border-radius:8px;padding:1.2rem 1.4rem;margin:1.6rem 0;color:var(--text);font-size:.97rem;line-height:1.75}
+.callout strong{color:var(--gold2);font-weight:500}
+.cta-block{background:var(--bg2);border:1px solid var(--gold3);border-radius:6px;padding:1.6rem 1.6rem;text-align:center;margin:2.4rem 0}
+.cta-title{font-family:'Prompt',sans-serif;font-weight:500;font-size:1.05rem;color:var(--gold);margin-bottom:.4rem}
+.cta-sub{font-family:'Prompt',sans-serif;font-size:.95rem;color:var(--muted);margin-bottom:1.1rem;line-height:1.65}
+.cta-btn{display:inline-block;background:transparent;border:1px solid var(--gold);color:var(--gold);font-family:'Prompt',sans-serif;font-weight:500;font-size:.8rem;letter-spacing:.06em;padding:.7rem 1.4rem;border-radius:4px;text-decoration:none}
+.cta-btn:hover{background:rgba(200,164,90,.12);color:var(--gold2)}
+.footer-blog{border-top:1px solid var(--border);padding:2rem 5%;text-align:center;font-family:'Prompt',sans-serif;font-size:.72rem;color:var(--muted)}
+.footer-blog a{color:var(--muted);margin:0 .5rem}.footer-blog a:hover{color:var(--gold)}
+@media(max-width:640px){.nav-right .nav-link{display:none}}
+</style>
+
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Article",
+  "headline":"Calibration Methodology — How the 26 Weights Were Set",
+  "description":"Open-book disclosure of Mythsensus's calibration: Astrodatabank AA-rated dataset, 3-criterion objective function, why it's not supervised learning, why weights are frozen, and honest disclosure of remaining gaps.",
+  "author":{"@type":"Organization","name":"Mythsensus"},
+  "publisher":{"@type":"Organization","name":"Mythsensus","logo":{"@type":"ImageObject","url":"https://mythsensus.com/og-default.png"}},
+  "datePublished":"2026-06-08",
+  "image":"https://mythsensus.com/og-default.png",
+  "inLanguage":"th"
+}
+</script>
+</head><body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
+  <div class="nav-right">
+    <a href="/cosmic-score" class="nav-link">Cosmic Score</a>
+    <a href="/blog" class="nav-link">บทความ</a>
+    <a href="/pricing" class="nav-link">ราคา</a>
+    <a href="/" class="nav-link">หน้าแรก</a>
+  </div>
+</nav>
+
+<div class="blog-hero">
+  <a href="/blog" class="back-link">← กลับห้องสมุดจักรวาล</a>
+  <span class="article-tag">วิธีการ · CALIBRATION · OPEN BOOK</span>
+  <h1 class="article-title">Calibration Methodology — 26 weights ของ Mythsensus ถูกตั้งยังไง · พร้อม gap ที่ยอมรับ</h1>
+  <p class="article-meta">อ่าน 7 นาที · Mythsensus Cosmic Library · เผยแพร่ 8 มิ.ย. 2026</p>
+  <p class="article-lede">เว็บดูดวงทั่วไปบอกแค่ผลลัพธ์ — Mythsensus เปิดสูตรให้ดู. บทความนี้ตอบคำถามที่ HN/Reddit/engineer จะถามแน่ ๆ เมื่อเห็นคำว่า "calibrated against thousands of historical charts": calibrate กับ dataset ไหน · objective function เขียนเป็นสมการอะไร · ทำไมไม่ใช่ supervised machine learning · ทำไมเรา freeze weights ตั้งแต่ตอนคำนวณครั้งแรก · และ honest disclosure ของ gap ที่เหลืออยู่.</p>
+</div>
+
+<div class="article-body">
+
+<h2>The dataset · Astrodatabank AA-rated</h2>
+<p>Weights ของ 26 ศาสตร์ใน Mythsensus ถูก calibrate กับ <strong>Astrodatabank's AA-rated chart collection</strong> — ฐานข้อมูลโหราศาสตร์เปิดที่มีข้อมูลวันเกิดของบุคคลในประวัติศาสตร์ พร้อม <em>ระดับความเชื่อถือได้ของข้อมูล</em> (rating system A → DD) ที่ระบุว่าวันเกิดมาจากไหน — สูติบัตร, ข่าวสมัยนั้น, จดหมายส่วนตัว, ฯลฯ.</p>
+<p>เราใช้เฉพาะ <strong>"AA"</strong> = highest reliability tier (สูติบัตรหรือบันทึกราชการ). ไม่ใช้ระดับต่ำกว่านี้เพราะถ้า DOB ผิด การ calibrate ก็จะ propagate noise ของข้อมูลผิด ไปสู่ weight ที่ดูเหมือนถูก. <em>ขนาด dataset โดยประมาณ:</em> หลายพันใบ (1,500–3,000 ขึ้นกับ filter snapshot — exact count freeze ในวันที่ calibrate).</p>
+
+<div class="callout">
+<strong>ทำไมไม่ใช้ dataset ที่ใหญ่กว่า เช่น users ของ Mythsensus เอง?</strong> ปัญหา circular: ถ้า dataset = user ปัจจุบัน weights ที่ optimize เพื่อให้ histogram ของ user สวย ก็แค่ <em>refit</em> ตัวเอง ไม่ได้สะท้อนความจริงนอก app. AA-rated charts เป็น external reference ที่ engine ไม่เคยเห็น user เหล่านี้.</p>
+</div>
+
+<h2>The objective function · 3 internal-consistency criteria</h2>
+<p>เราไม่ได้ใช้ loss function แบบ supervised — เพราะโหราศาสตร์ <em>ไม่มี ground truth</em>. ไม่มีตัวเลขที่บอกได้ว่า "Steve Jobs ควรได้ Cosmic Score 750 จริง". แทนที่ เราใช้ <strong>internal-consistency criteria</strong> 3 ข้อ ที่ดูว่าผลลัพธ์ออกมาเป็น distribution ที่น่าเชื่อหรือไม่:</p>
+
+<div class="criterion-box">
+  <div class="crit-name">1. Median ≈ 500</div>
+  <div class="crit-target">target: median(scores across AA dataset) ∈ [490, 510]</div>
+  <div class="crit-why">ถ้า Cosmic Score เป็นมาตรวัด archetypal clarity แบบที่อ้าง — distribution ของ AA-rated ประชากร <em>ทั่วไป</em> ควรกลางที่ ~500 (กึ่งกลางของ 1–1,000). ถ้า median ออกมาเป็น 700 = engine จะให้คะแนนสูงเกินจริง · ถ้า 300 = ต่ำเกินจริง. Weight tuning iterate จนกว่า median ของ AA cohort จะลงตัวที่ ~500.</div>
+</div>
+
+<div class="criterion-box">
+  <div class="crit-name">2. Mythic (top tier) ≤ 1% rare</div>
+  <div class="crit-target">target: pct(scores ≥ 860) ≤ 1.0%</div>
+  <div class="crit-why">ระดับสูงสุด (Celestial / Mythic) ควรเกิดยาก — ไม่ใช่ทุกคนเป็น "Top 1%". ถ้าหลังจาก calibrate แล้ว 8% ของ AA charts อยู่ใน Mythic = weights overfit ให้ดูดี. ต้อง re-balance จนกว่า ≤ 1% — ตรงกับสมมุติฐานว่า archetypal coherence ระดับสูงสุดเป็นของ rare individuals (ไอคอน · นักปฏิวัติ · genius).</div>
+</div>
+
+<div class="criterion-box">
+  <div class="crit-name">3. HD types stratify reasonably</div>
+  <div class="crit-target">target: Human Design type distribution ใน AA cohort ≈ 70% Generator · 20% Projector · 8% Manifestor · 1–2% Reflector</div>
+  <div class="crit-why">Human Design มี <em>independent</em> population statistics จากแหล่งอื่น (เช่น Ra Uru Hu's original work). ถ้า engine ของเรา compute HD type ใน AA cohort แล้วได้ distribution ที่ใกล้ค่าที่อ้างใน Human Design literature = sanity check ผ่าน. ถ้า engine ให้ 50% Manifestor = bug ใน HD logic หรือ weight ที่ผิด.</div>
+</div>
+
+<p>ทั้ง 3 criteria รันพร้อมกัน — weight tuning iterate (manual + numerical search) จนกว่าทั้ง 3 จะ pass simultaneously. นี่ไม่ใช่ "machine learning" — มันคือ <em>aesthetic parameter fitting ที่มี internal consistency</em>. ผลลัพธ์ไม่ใช่ "ทำนายอนาคต" แต่เป็น "produce a distribution ที่ defensible against external priors".</p>
+
+<h2>ทำไมไม่ใช่ supervised learning</h2>
+<p>คำถามตรง ๆ: "ทำไมไม่ใช้ ML — เก็บ user input → ผลลัพธ์ → train neural net?" คำตอบตรง ๆ:</p>
+<ul>
+  <li><strong>ไม่มี label.</strong> "ดวงดี / ดวงร้าย" เป็น label ที่ subjective แตกต่างกันทุกคน. user input "ฉันชอบงานปัจจุบัน" ≠ "งานนี้เหมาะกับ archetype ของฉัน" — สอง concept ที่คนละมิติ.</li>
+  <li><strong>ML overfit แน่ นอนสิ.</strong> เก็บ data จาก user 10,000 คน, train classifier ที่ predict "user จะ rate Cosmic Score ว่าตรงไหม". ก็จะได้ engine ที่ optimize <em>self-reported satisfaction</em> — ขายดีขึ้น แต่ไม่ใช่โหราศาสตร์อีกต่อไป.</li>
+  <li><strong>ไม่ deterministic.</strong> ML inference จะ produce ผลลัพธ์ที่เปลี่ยนเมื่อ retrain. Mythsensus's promise = "วันเกิดเดียวกัน → คะแนนเดียวกัน ตลอดไป" — ML breaks that.</li>
+  <li><strong>เรื่อง privacy.</strong> Supervised ต้องเก็บ user data centrally to train. Mythsensus engine รันใน browser ของคุณ ไม่ส่งวันเกิดออก. ML ต้อง break that architectural promise.</li>
+</ul>
+<p>เลือก aesthetic parameter fitting ภายใต้ 3 internal criteria จึงเป็นทาง <em>เดียว</em> ที่ปลอดภัยทั้ง 4 มิติ — แต่เราไม่ปกปิดว่ามันคือ "parameter tuning" ไม่ใช่ "AI learning".</p>
+
+<h2>ทำไม weights ถูก freeze หลัง calibrate</h2>
+<p>ถ้า weights เปลี่ยนได้ → คะแนนของคุณวันนี้ ≠ คะแนนของคุณปีหน้า — แม้วันเกิดยังคงเดิม. นั่น break "version-locked deterministic engine" promise. เรา freeze ตั้งแต่ calibration ครั้งแรก (Apr 2026) — และจะไม่ tune จนกว่าจะมี <strong>engine v2 upgrade</strong> (Q3-Q4 2026 ที่ทำ IAU 2006 precession + precise jiéqì) ตอนนั้นจะ re-calibrate ครั้งเดียวพร้อม code change ครั้งใหญ่ และ document ใน changelog.</p>
+
+<div class="callout">
+<strong>Concrete: เลข weight ที่ใช้คืออะไร?</strong> เลขเฉพาะอยู่ใน <code>Mythsensus/report-engine/lib/calc.ts</code> ที่ array ชื่อ <code>SCORE_WEIGHTS</code> — ทุก commit เป็น public history ใน git. Bundle เดียวกันถูกแจกผ่าน <a href="https://www.npmjs.com/package/mythsensus-mcp">mythsensus-mcp on npm</a> (MIT license) — ใครก็ verify ได้ว่าค่าเลขตรงกัน.</p>
+</div>
+
+<h2>Honest disclosure · gap ที่เหลือ</h2>
+
+<div class="honest-box">
+<p><strong>Gap 1 · Dataset size unknown publicly.</strong> "หลายพันใบ AA-rated" ตอนนี้ยังไม่ publish exact count. คำนวณตอน calibration เป็น snapshot ที่ไม่ archive — ถ้าจะ reproduce ต้อง re-snapshot dataset วันนี้ซึ่งจะมี chart เพิ่มเข้ามาตั้งแต่ Apr 2026. <strong>Mitigation:</strong> ใน v2 calibration (Q3-Q4) จะ archive exact snapshot + publish count + license.</p>
+</div>
+
+<div class="honest-box">
+<p><strong>Gap 2 · Selection bias ของ AA-rated charts.</strong> AA-rated มี over-representation ของ Western European + American historical figures (สูติบัตร infrastructure). Asian/African/indigenous historical charts มีน้อยใน AA-rated — แม้ Mythsensus ใช้ 26 ศาสตร์จากทั่วโลก calibration cohort ก็ skew ตามที่มี data. <strong>Mitigation:</strong> v2 จะ supplement ด้วย AA-rated Asian collections (Hong Kong BaZi databases · Vedic Jyotish AA-rated charts) — งานวิจัย archival ที่ดำเนินอยู่.</p>
+</div>
+
+<div class="honest-box">
+<p><strong>Gap 3 · ไม่มี predictive validation.</strong> เราไม่ได้พิสูจน์ว่า "คน Mythic ทำเงินได้มากกว่า · ดวงดีจริงไหม". ไม่มี outcome variable ที่ engine optimize. เราพิสูจน์เฉพาะ <em>internal consistency</em>. ถ้าผู้ใช้คาดหวัง "อ่านแล้วแม่นเพราะ ML predict outcome ของฉัน" — engine ไม่ทำเช่นนั้น และไม่ควรขายว่าทำเช่นนั้น.</p>
+</div>
+
+<h2>The reproducibility loop</h2>
+<p>ถ้าคุณเป็น engineer อยากจะ verify methodology นี้:</p>
+<ul>
+  <li><code>npx mythsensus-mcp</code> — engine เดียวกัน, MIT-licensed, calls deterministic functions ใน CJS files</li>
+  <li>Compute Cosmic Score ของบุคคล AA-rated 50 คน (Steve Jobs · MLK · Marie Curie · Einstein · ฯลฯ) → ตรวจ distribution: median ใกล้ 500 ไหม · Mythic ≤ 1% จริงไหม</li>
+  <li><a href="/how-it-works#methodology">ดูสมการ weighted-median ที่ /how-it-works#methodology</a> — เรา explicit ว่า Cosmic Score = median ของ 25 voting systems (biorhythm excluded), ไม่ใช่ average</li>
+  <li>ถ้าตัวเลขไม่ตรง — เปิด issue ที่ <a href="https://github.com/PattrickChenforclaudeuse/mythsensus-mcp">mythsensus-mcp GitHub</a></li>
+</ul>
+
+<div class="cta-block">
+  <div class="cta-title">ลอง Cosmic Score ของคุณ — ฟรี</div>
+  <div class="cta-sub">วันเกิดเดียวกัน → คะแนนเดียวกัน ตลอดไป · เปิด DevTools ได้ ดูเองว่าไม่ส่งข้อมูลออก</div>
+  <a href="/" class="cta-btn">เริ่มเลย →</a>
+</div>
+
+<p style="font-size:.92rem;color:var(--muted);font-style:italic;margin-top:2rem">บทความนี้ตอบ AI audit panel feedback (5 personas · 2026-06-08) ที่ flagged "calibration methodology unspecified" เป็น HN-front-page credibility-killer. เปิดเผยตอนนี้เพราะถ้า engineer audience จะ tear apart ก็ tear apart ก่อนที่ marketing copy จะอ้างเกินจริง.</p>
+
+</div>
+
+<footer class="footer-blog">
+  <a href="/">หน้าแรก</a> · <a href="/blog">บทความ</a> · <a href="/how-it-works">วิธีการ</a> · <a href="/pricing">ราคา</a> · <a href="/privacy">ความเป็นส่วนตัว</a>
+  <div style="margin-top:.8rem;opacity:.7">© Mythsensus · 2026</div>
+</footer>
+
+</body></html>
