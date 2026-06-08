@@ -354,8 +354,8 @@ Supabase woam project            # Auth + payment records
           </tr>
           <tr>
             <td><strong>Vedic ayanamsa</strong></td>
-            <td><strong>Lahiri</strong> (Indian Government / NASA standard) hardcoded <code>24.0°</code> · ±10 arcmin สำหรับ DOB 2020-2030 · drift +50 arcsec/year ทำให้ผิดเพิ่มเมื่อ DOB อยู่ไกล epoch</td>
-            <td>Time-varying <code>lahiriAyanamsa(y,m,d)</code> formula · patch ร่างแล้ว · ผลกระทบ: Cosmic Score ของบางคน shift ±2-10 หลัง upgrade</td>
+            <td><strong>Lahiri</strong> (Indian Government / NASA standard) · time-varying <code>lahiriAyanamsa(year,month,day)</code> · linear precession 50.288"/yr from J2000.0 epoch · <strong>2026: 24.17°</strong> · <strong>1786 (Sunthorn Phu): 21.13°</strong> · ±arcmin precision for modern charts, accumulating ~10 arcmin/century for historical DOBs <em>(shipped sw v55, 2026-06-01)</em></td>
+            <td>Full IAU 2006 precession series (Newcomb/Capitaine) for ±1 arcsec accuracy across millennia · target Q3-Q4 2026 alongside other v2 upgrades</td>
           </tr>
           <tr>
             <td><strong>BaZi solar terms (jiéqì)</strong></td>

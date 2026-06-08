@@ -175,23 +175,24 @@
 // systems, biorhythm is still shown in the breakdown but in a separate
 // "Daily layer · not scoring" card with explanatory copy. /build/ms26-bundle.js
 // regenerated.
-// v92 — Audit-driven follow-up (post-arbitrator deploy 2026-06-08).
-// • Bilingual <title>: "Where 26 ancient systems agree (and disagree) ·
-//   ดวงรวม 26 ศาสตร์" — fixes English-SERP CTR per P5. og/twitter stay Thai.
-// • Pricing $9 prominence: "$9 ต่อ 1 ศาสตร์ · ดูซ้ำฟรี" bolded gold +
-//   pitch rewritten "Not $9 for everything — $9 for ONE system" per P1
-//   recurring confusion.
-// • Differentiation banner #whyDifferent on landing: 4-axis VS-other-sites
-//   panel (26 systems / on-device / minority voices / cited AI) — surfaces
-//   moat BEFORE any paywall encounter.
-// • Methodology section in /how-it-works#methodology: explicit weighted-
-//   median explanation + domain-specialization table + arbitration ≠ judge
-//   framing — closes the 70/30 marketing-veneer gap (P2 + P4).
-// • Google Search Console meta verification (token committed in v91 build,
-//   listed here for trace): dmRo8ih4-4x1P0LMMfoMgUKV3xnp9QuEbkF0MZ9U7HA.
-// • First-visit tab tour: 3-step orientation after first DOB submit,
-//   addresses AI-flagged "too many tabs" overwhelm. Flag: mth_tab_tour_done.
-const CACHE = 'mythsensus-v92';
+// v93 — Audit residual cleanup + Biorhythm subscription positioning.
+// • /privacy: explicit Vercel Analytics disclosure section (P3 doc-drift fix).
+//   Cookieless + IP-anonymised + aggregated language; link to Vercel privacy.
+// • /how-it-works "Vedic ayanamsa" row: refreshed stale "hardcoded 24.0°"
+//   text → current "lahiriAyanamsa(y,m,d) linear precession · 2026: 24.17°
+//   · 1786 Sunthorn Phu: 21.13°" (P4 Jyotishi trust signal). Future row =
+//   IAU 2006 precession series Q3-Q4 2026.
+// • Biorhythm subscription positioning:
+//   - /pricing subscription bridge: "26 = who you are (frozen identity);
+//     subscription adds the 27th daily-changing layer (Biorhythm + Pulse +
+//     Sky)" — directly answers audit's "subscription = No across paying
+//     personas" gap.
+//   - /pricing subscription monthly bullet #1 promoted to bold:
+//     "📈 Daily Biorhythm · physical · emotional · intellectual cycles".
+//   - /cosmic-score Biorhythm tile re-framed: gold border + "👑 Subscription
+//     · daily layer" region + "The 27th layer · subscription-only".
+// Engine math unchanged (biorhythm scoring:false since 2026-06-04).
+const CACHE = 'mythsensus-v93';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
