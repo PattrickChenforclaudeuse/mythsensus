@@ -151,11 +151,14 @@ Top-level `hero_statement` = 1 sentence that anchors the WHOLE reading. Same con
 
 ## Length & cost targets
 
-- Per category framing: 150-250 words
-- Per question answer (body): 100-200 words
-- Total reading: 1500-3500 words (target ~2200)
-- Cost target: $0.08-0.15 per render at Sonnet 4.6
-- Time target: <25s per render
+- Per category framing: 100-180 words
+- Per question answer (body): 80-140 words
+- Total reading: **1200-2000 words** (target ~1500) — KEEP IT TIGHT
+- Cost target: $0.05-0.10 per render at Sonnet 4.6
+- Time target: <50s per render (Vercel function ceiling 60s)
+- ⚠ If you write more than 2000 words, the schema validation rejects the output
+  and the user sees an error. Be punchy, not verbose. Every sentence must earn
+  its place.
 
 ## Output structure (verbatim — JSON only, no fence)
 

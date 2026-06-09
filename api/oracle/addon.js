@@ -38,8 +38,8 @@ const SYSTEMS = [
 
 const SCHEMA_VERSION = '2.0'
 const MODEL = 'claude-sonnet-4-6'
-const MAX_TOKENS = 4000
-const RENDER_TIMEOUT_MS = 25_000
+const MAX_TOKENS = 3000               // 1500-2500 word target — output is the bottleneck
+const RENDER_TIMEOUT_MS = 55_000      // Vercel ceiling 60s; leave headroom for cache write + response
 const DEFAULT_DAILY_BUDGET_CENTS = 3000
 const DEFAULT_USER_DAILY_RENDERS = 10
 
@@ -160,7 +160,9 @@ function validateOracleOutput(out) {
   if (tagCounts.peak > 4) return `peak ${tagCounts.peak} > cap 4`
   if (tagCounts.caution > 4) return `caution ${tagCounts.caution} > cap 4`
   const wc = Number(out.word_count) || 0
-  if (wc < 1200 || wc > 4000) return `word_count ${wc} out of bounds`
+  // Tightened bounds 2026-06-09: keep output under 2000 words so generation
+  // finishes inside Vercel's 60s ceiling (Sonnet 4.6 ~30-50 tok/s).
+  if (wc < 800 || wc > 2400) return `word_count ${wc} out of bounds`
   return null
 }
 
