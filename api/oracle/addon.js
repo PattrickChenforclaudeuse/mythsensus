@@ -59,8 +59,12 @@ const MODEL = 'claude-haiku-4-5'
 //     shows the "Oracle unavailable, try again" fallback when this happens.
 //   - Director upgrade Vercel Pro plan (300s ceiling) → bump to 8000 tokens →
 //     full quality readings. Until then, ~10-20% of renders may need retry.
-const MAX_TOKENS = 4500
-const RENDER_TIMEOUT_MS = 55_000      // Vercel function ceiling 60s
+const MAX_TOKENS = 5500               // ~58s render with Haiku 4.5
+                                       // Production observation: Haiku is sometimes more verbose
+                                       // than local tests (model variance). 4500 was truncating
+                                       // mid-JSON in ~50% of production calls. 5500 trades a few
+                                       // seconds of headroom against schema reliability.
+const RENDER_TIMEOUT_MS = 58_000      // Vercel function ceiling 60s; tight 2s buffer
 const DEFAULT_DAILY_BUDGET_CENTS = 3000
 const DEFAULT_USER_DAILY_RENDERS = 10
 
