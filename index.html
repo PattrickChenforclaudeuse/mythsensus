@@ -7294,12 +7294,11 @@ const ORACLE_TAG_LABEL_EN = { peak:'Peak', caution:'Caution', open:'Open', conso
 // Static maps that mirror _shared/schema.ts → CATEGORIES + UNIVERSAL_QUESTIONS.
 // LLM emits only the keys; frontend fills the display strings. Saves ~30%
 // output tokens (= shorter generation time + lower cost).
+// 4 categories × 8 questions (reduced from 6×10 on 2026-06-09 to fit Vercel 60s).
 const ORACLE_CATEGORIES_DISPLAY = {
   work:    { th: 'การงาน',                en: 'Work',     glyph: '事' },
   money:   { th: 'การเงิน',                en: 'Money',    glyph: '財' },
   love:    { th: 'ความรัก',                en: 'Love',     glyph: '緣' },
-  health:  { th: 'สุขภาพ',                 en: 'Health',   glyph: '身' },
-  people:  { th: 'ครอบครัว / คนใกล้ตัว',    en: 'People',   glyph: '家' },
   warning: { th: 'สิ่งที่ต้องระวัง',         en: 'Cautions', glyph: '戒' },
 };
 const ORACLE_QUESTIONS_DISPLAY = {
@@ -7315,10 +7314,6 @@ const ORACLE_QUESTIONS_DISPLAY = {
                               en: 'Is your love energy open, closed, or transforming? What does that mean?' },
   love_timing_windows:      { th: 'ช่วงเดือนไหนคือ "หน้าต่างสำคัญ" ของความสัมพันธ์? (เริ่ม · พัฒนา · ตัดสินใจ · ปล่อย)',
                               en: 'Which months are the key relationship windows — to begin, deepen, decide, or release?' },
-  health_weak_point:        { th: 'ปีนี้ "จุดอ่อน" ของร่างกายคืออะไร? ช่วงไหนต้องดูแลพิเศษ?',
-                              en: 'What is your body\'s weak point — and which months need extra care?' },
-  people_who_changes_you:   { th: 'ใครคือ "คนที่จะเปลี่ยนชีวิตคุณ" ปีนี้? + เปลี่ยนยังไง?',
-                              en: 'Who will change your life this year — and how?' },
   warning_high_risk_window: { th: 'ช่วงเดือนไหน "เสี่ยงสุด"? เสี่ยงเรื่องอะไร?',
                               en: 'Which months are highest-risk — and about what?' },
   warning_specific:         { th: 'ปีนี้ต้องระวัง "อะไร / ใคร" เป็นพิเศษ? (คน · สัญญา · การตัดสินใจ · วัตถุ)',

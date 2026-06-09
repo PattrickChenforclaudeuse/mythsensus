@@ -139,17 +139,15 @@ function validateInput(body) {
 function validateOracleOutput(out) {
   if (!out || typeof out !== 'object') return 'oracle output not an object'
   if (!out.title || !out.hero_statement) return 'missing title/hero_statement'
-  if (!Array.isArray(out.sections) || out.sections.length !== 6) {
-    return `sections must be exactly 6, got ${out.sections ? out.sections.length : 0}`
+  if (!Array.isArray(out.sections) || out.sections.length !== 4) {
+    return `sections must be exactly 4, got ${out.sections ? out.sections.length : 0}`
   }
-  const VALID_CATEGORIES = ['work', 'money', 'love', 'health', 'people', 'warning']
+  const VALID_CATEGORIES = ['work', 'money', 'love', 'warning']
   const VALID_TAGS = ['peak', 'caution', 'open', 'consolidate', 'neutral']
   const VALID_Q_KEYS_BY_CATEGORY = {
     work:    ['work_energy_direction', 'work_boldest_move_window'],
     money:   ['money_flow_direction', 'money_leak_or_windfall'],
     love:    ['love_energy_state', 'love_timing_windows'],
-    health:  ['health_weak_point'],
-    people:  ['people_who_changes_you'],
     warning: ['warning_high_risk_window', 'warning_specific'],
   }
   const seenCategories = new Set()
@@ -177,13 +175,12 @@ function validateOracleOutput(out) {
       totalAnswers++
     }
   }
-  if (totalAnswers !== 10) return `must have exactly 10 answers, got ${totalAnswers}`
-  if (tagCounts.peak > 4) return `peak ${tagCounts.peak} > cap 4`
-  if (tagCounts.caution > 4) return `caution ${tagCounts.caution} > cap 4`
+  if (totalAnswers !== 8) return `must have exactly 8 answers, got ${totalAnswers}`
+  if (tagCounts.peak > 3) return `peak ${tagCounts.peak} > cap 3`
+  if (tagCounts.caution > 3) return `caution ${tagCounts.caution} > cap 3`
   const wc = Number(out.word_count) || 0
-  // LEAN schema (2026-06-09 3rd pass): output now omits labels/glyphs/q_label
-  // (frontend looks them up from static maps). Bounds: 600-1500 Thai words.
-  if (wc < 600 || wc > 1500) return `word_count ${wc} out of bounds`
+  // Scope-reduced schema (2026-06-09): 4 sections × 2 Qs each. Bounds 500-1300 words.
+  if (wc < 500 || wc > 1300) return `word_count ${wc} out of bounds`
   return null
 }
 
