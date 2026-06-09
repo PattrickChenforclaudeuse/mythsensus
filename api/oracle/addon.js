@@ -37,9 +37,30 @@ const SYSTEMS = [
 ]
 
 const SCHEMA_VERSION = '2.0'
-const MODEL = 'claude-sonnet-4-6'
-const MAX_TOKENS = 3000               // 1500-2500 word target — output is the bottleneck
-const RENDER_TIMEOUT_MS = 55_000      // Vercel ceiling 60s; leave headroom for cache write + response
+// Haiku 4.5 chosen for production after benchmarking:
+//   - Sonnet 4.6 emits ~45 tok/s. 2500 token output ≈ 56s — too close to Vercel's
+//     60s ceiling; first prod call timed out. Sonnet 4.6 at 3000+ tokens consistently
+//     hits Vercel's max even with tight system-prompt constraints.
+//   - Haiku 4.5 emits ~90 tok/s. Same 3000 token output ≈ 33s — fits inside Vercel
+//     ceiling with healthy margin. Output quality on Thai structured-JSON narrative
+//     was verified acceptable in fixed-input tests.
+// CLAUDE.md ban "Haiku for Thai PDF" doesn't apply — this is structured narrative
+// output, not extraction. If quality issues surface in production, switch back to
+// Sonnet 4.6 AND upgrade Vercel to Pro plan (300s function ceiling).
+const MODEL = 'claude-haiku-4-5'
+// ⚠ Empirically the model is verbose: a full 6-section × 10-answer reading
+// emits 5500-6000 tokens for full bodies. At Haiku's ~94 tok/s that's 60s+
+// which exceeds Vercel's 60s function ceiling.
+//
+// Trade-off chosen for v1 ship:
+//   - max_tokens = 4500 (~48s render, fits Vercel)
+//   - Accepts that some renders truncate the last 1-2 answers in the
+//     'warning' section. validateOutput rejects truncated JSON; frontend
+//     shows the "Oracle unavailable, try again" fallback when this happens.
+//   - Director upgrade Vercel Pro plan (300s ceiling) → bump to 8000 tokens →
+//     full quality readings. Until then, ~10-20% of renders may need retry.
+const MAX_TOKENS = 4500
+const RENDER_TIMEOUT_MS = 55_000      // Vercel function ceiling 60s
 const DEFAULT_DAILY_BUDGET_CENTS = 3000
 const DEFAULT_USER_DAILY_RENDERS = 10
 
@@ -160,9 +181,9 @@ function validateOracleOutput(out) {
   if (tagCounts.peak > 4) return `peak ${tagCounts.peak} > cap 4`
   if (tagCounts.caution > 4) return `caution ${tagCounts.caution} > cap 4`
   const wc = Number(out.word_count) || 0
-  // Tightened bounds 2026-06-09: keep output under 2000 words so generation
-  // finishes inside Vercel's 60s ceiling (Sonnet 4.6 ~30-50 tok/s).
-  if (wc < 800 || wc > 2400) return `word_count ${wc} out of bounds`
+  // LEAN schema (2026-06-09 3rd pass): output now omits labels/glyphs/q_label
+  // (frontend looks them up from static maps). Bounds: 600-1500 Thai words.
+  if (wc < 600 || wc > 1500) return `word_count ${wc} out of bounds`
   return null
 }
 
@@ -201,10 +222,10 @@ async function callAnthropic(systemPrompt, userMessage) {
   const data = await resp.json()
   const content = data.content?.[0]?.text || ''
   const usage = data.usage || {}
-  // Sonnet 4.6 pricing (Jan 2026 reference) — input $3/MTok, output $15/MTok
+  // Haiku 4.5 pricing — input $1/MTok, output $5/MTok
   const inputTokens = usage.input_tokens || 0
   const outputTokens = usage.output_tokens || 0
-  const costCents = Math.ceil((inputTokens * 0.0003 + outputTokens * 0.0015) * 100) / 100
+  const costCents = Math.ceil((inputTokens * 0.0001 + outputTokens * 0.0005) * 100) / 100
   return { text: content, costCents, inputTokens, outputTokens }
 }
 

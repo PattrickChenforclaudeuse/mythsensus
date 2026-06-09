@@ -7291,6 +7291,39 @@ const ORACLE_TAG_COLORS = {
 };
 const ORACLE_TAG_LABEL_TH = { peak:'พีค', caution:'ระวัง', open:'เปิด', consolidate:'รวบรวม', neutral:'ปกติ' };
 const ORACLE_TAG_LABEL_EN = { peak:'Peak', caution:'Caution', open:'Open', consolidate:'Consolidate', neutral:'Neutral' };
+// Static maps that mirror _shared/schema.ts → CATEGORIES + UNIVERSAL_QUESTIONS.
+// LLM emits only the keys; frontend fills the display strings. Saves ~30%
+// output tokens (= shorter generation time + lower cost).
+const ORACLE_CATEGORIES_DISPLAY = {
+  work:    { th: 'การงาน',                en: 'Work',     glyph: '事' },
+  money:   { th: 'การเงิน',                en: 'Money',    glyph: '財' },
+  love:    { th: 'ความรัก',                en: 'Love',     glyph: '緣' },
+  health:  { th: 'สุขภาพ',                 en: 'Health',   glyph: '身' },
+  people:  { th: 'ครอบครัว / คนใกล้ตัว',    en: 'People',   glyph: '家' },
+  warning: { th: 'สิ่งที่ต้องระวัง',         en: 'Cautions', glyph: '戒' },
+};
+const ORACLE_QUESTIONS_DISPLAY = {
+  work_energy_direction:    { th: 'ปีนี้พลังทางการงานของคุณ ขึ้น / นิ่ง / ลด / แปลงร่าง? เพราะอะไร?',
+                              en: 'How is your career energy shifting — rising, stable, dipping, transforming? Why?' },
+  work_boldest_move_window: { th: 'จังหวะ "ก้าวที่กล้าที่สุด" ของปีอยู่ช่วงไหน? + ลงมือทำอะไร?',
+                              en: 'When is your boldest move of the year — and what should it be?' },
+  money_flow_direction:     { th: 'กระแสเงินปีนี้ เข้า > ออก หรือ ออก > เข้า? ทำไม?',
+                              en: 'Net cash flow this year — inflow or outflow? Why?' },
+  money_leak_or_windfall:   { th: 'ปีนี้มี "รูรั่ว" หรือ "ก้อนทอง" ที่จุดไหน? + จะปรากฏเมื่อไร?',
+                              en: 'Where is the leak — or the windfall — and when does it surface?' },
+  love_energy_state:        { th: 'พลังความรักของคุณปีนี้ เปิด / ปิด / กำลังเปลี่ยน? แปลว่ายังไง?',
+                              en: 'Is your love energy open, closed, or transforming? What does that mean?' },
+  love_timing_windows:      { th: 'ช่วงเดือนไหนคือ "หน้าต่างสำคัญ" ของความสัมพันธ์? (เริ่ม · พัฒนา · ตัดสินใจ · ปล่อย)',
+                              en: 'Which months are the key relationship windows — to begin, deepen, decide, or release?' },
+  health_weak_point:        { th: 'ปีนี้ "จุดอ่อน" ของร่างกายคืออะไร? ช่วงไหนต้องดูแลพิเศษ?',
+                              en: 'What is your body\'s weak point — and which months need extra care?' },
+  people_who_changes_you:   { th: 'ใครคือ "คนที่จะเปลี่ยนชีวิตคุณ" ปีนี้? + เปลี่ยนยังไง?',
+                              en: 'Who will change your life this year — and how?' },
+  warning_high_risk_window: { th: 'ช่วงเดือนไหน "เสี่ยงสุด"? เสี่ยงเรื่องอะไร?',
+                              en: 'Which months are highest-risk — and about what?' },
+  warning_specific:         { th: 'ปีนี้ต้องระวัง "อะไร / ใคร" เป็นพิเศษ? (คน · สัญญา · การตัดสินใจ · วัตถุ)',
+                              en: 'What — or who — needs special caution? (People, contracts, decisions, objects?)' },
+};
 
 function _escapeHtml(s){
   return String(s == null ? '' : s)
@@ -7306,7 +7339,10 @@ function _renderOracleAnswer(answer) {
   const monthChips = (answer.month_refs || []).map(m =>
     `<span style="display:inline-block;font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:1px;color:${c.text};background:${c.bg};border:1px solid ${c.border};padding:2px 8px;border-radius:10px;margin-right:5px;margin-top:4px">${_escapeHtml(m)}</span>`
   ).join('');
-  const qLabel = isTh ? answer.q_label_th : answer.q_label_en;
+  // q_label comes from static map (LLM emits only q_key — saves output tokens).
+  const qMap = ORACLE_QUESTIONS_DISPLAY[answer.q_key] || {};
+  const qLabel = isTh ? (qMap.th || answer.q_label_th || answer.q_key)
+                      : (qMap.en || answer.q_label_en || answer.q_key);
   // Body: split on \n\n for paragraphs
   const bodyHtml = String(answer.body || '').split(/\n{2,}/)
     .map(p => `<p style="margin:0 0 10px 0;font-family:'Cormorant Garamond','Sarabun',serif;font-size:14px;line-height:1.85;color:var(--text)">${_escapeHtml(p)}</p>`)
@@ -7326,7 +7362,11 @@ function _renderOracleAnswer(answer) {
 /** Render one of the 6 sections */
 function _renderOracleSection(section) {
   const isTh = LANG === 'th';
-  const label = isTh ? section.category_label_th : section.category_label_en;
+  // Static-map lookup — LLM emits only the category key.
+  const catMap = ORACLE_CATEGORIES_DISPLAY[section.category] || {};
+  const label = isTh ? (catMap.th || section.category_label_th || section.category)
+                     : (catMap.en || section.category_label_en || section.category);
+  const glyph = catMap.glyph || section.glyph || '';
   const framingHtml = String(section.framing || '').split(/\n{2,}/)
     .map(p => `<p style="margin:0 0 10px 0;font-family:'Cormorant Garamond','Sarabun',serif;font-size:14.5px;line-height:1.85;color:var(--text)">${_escapeHtml(p)}</p>`)
     .join('');
@@ -7334,7 +7374,7 @@ function _renderOracleSection(section) {
   return `
     <div class="oracle-section" data-category="${_escapeHtml(section.category)}" style="margin-bottom:36px;padding:0">
       <div style="text-align:center;margin-bottom:18px">
-        <div style="font-family:'Noto Serif TC','Cormorant Garamond',serif;font-size:38px;color:var(--gold);opacity:0.6;line-height:1;margin-bottom:4px">${_escapeHtml(section.glyph || '')}</div>
+        <div style="font-family:'Noto Serif TC','Cormorant Garamond',serif;font-size:38px;color:var(--gold);opacity:0.6;line-height:1;margin-bottom:4px">${_escapeHtml(glyph)}</div>
         <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:4px;color:var(--gold3);text-transform:uppercase">${isTh?'หมวด':'CATEGORY'}</div>
         <div style="font-family:'Cinzel Decorative',serif;font-size:22px;color:var(--gold2);letter-spacing:1.5px;margin-top:2px">${_escapeHtml(label)}</div>
       </div>

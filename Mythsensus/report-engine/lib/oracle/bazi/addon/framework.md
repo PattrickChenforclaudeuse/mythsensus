@@ -26,49 +26,13 @@ For the 6-cat-10-Q output, the most load-bearing fields are:
 | `context.work_country` + `context.domain` | Path Resonance — which work environment amplifies your chart |
 | `context.relationship_status` | Adjust love-category emphasis only |
 
-## Mandarin Thai phonetic table (mandatory whenever Chinese char appears)
+## Mandarin terms — use Chinese characters + Thai phonetic on first occurrence
 
-Use 干支 / Ten God / Na Yin in raw Chinese characters in the prose. Add Thai phonetic in brackets the FIRST time each term appears in the reading. Never invent phonetics.
-
-| Term | Pinyin | Thai phonetic |
-|---|---|---|
-| 甲 | jiǎ | เจี่ย |
-| 乙 | yǐ | อี่ |
-| 丙 | bǐng | ปิ่ง |
-| 丁 | dīng | ติง |
-| 戊 | wù | อู้ |
-| 己 | jǐ | จี่ |
-| 庚 | gēng | เกิง |
-| 辛 | xīn | ซิน |
-| 壬 | rén | เหริน |
-| 癸 | guǐ | กุ่ย |
-| 子 | zǐ | จื่อ |
-| 丑 | chǒu | โฉ่ว |
-| 寅 | yín | หยิน |
-| 卯 | mǎo | เหม่า |
-| 辰 | chén | เฉิน |
-| 巳 | sì | ซื่อ |
-| 午 | wǔ | อู่ |
-| 未 | wèi | เว่ย |
-| 申 | shēn | เซิน |
-| 酉 | yǒu | โหย่ว |
-| 戌 | xū | ซวี |
-| 亥 | hài | ไฮ่ |
-| 七殺 | qī shā | ชี ซา |
-| 正官 | zhèng guān | เจิ้ง กวน |
-| 食神 | shí shén | สือ เสิน |
-| 傷官 | shāng guān | ซาง กวน |
-| 偏財 | piān cái | เพียน ไฉ |
-| 正財 | zhèng cái | เจิ้ง ไฉ |
-| 偏印 | piān yìn | เพียน ยิ่น |
-| 正印 | zhèng yìn | เจิ้ง ยิ่น |
-| 比肩 | bǐ jiān | ปี่ เจียน |
-| 劫財 | jié cái | เจี๋ย ไฉ |
-| 用神 | yòng shén | ย่ง เสิน |
-| 大運 | dà yùn | ต้า ยุ่น |
-| 流年 | liú nián | หลิว เหนียน |
-| 沖 | chōng | ชง |
-| 合 | hé | เหอ |
+Sample (use as guide; common stems/branches/ten-gods):
+甲=เจี่ย · 乙=อี่ · 丙=ปิ่ง · 丁=ติง · 戊=อู้ · 己=จี่ · 庚=เกิง · 辛=ซิน · 壬=เหริน · 癸=กุ่ย
+寅=หยิน · 卯=เหม่า · 辰=เฉิน · 巳=ซื่อ · 午=อู่ · 未=เว่ย · 申=เซิน · 酉=โหย่ว · 戌=ซวี · 亥=ไฮ่ · 子=จื่อ · 丑=โฉ่ว
+七殺=ชี ซา · 正官=เจิ้ง กวน · 食神=สือ เสิน · 偏財=เพียน ไฉ · 正財=เจิ้ง ไฉ · 正印=เจิ้ง ยิ่น · 比肩=ปี่ เจียน · 劫財=เจี๋ย ไฉ
+用神=ย่ง เสิน · 大運=ต้า ยุ่น · 流年=หลิว เหนียน · 沖=ชง · 合=เหอ
 
 ## How BaZi answers each of the 10 universal questions
 
