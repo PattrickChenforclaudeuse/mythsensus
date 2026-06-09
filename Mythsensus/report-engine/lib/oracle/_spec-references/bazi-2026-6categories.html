@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ดวงชะตา 2026 · 6 หมวด</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;700&family=Noto+Sans+Thai:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');
+
+:root {
+  --ink: #070605;
+  --deep: #0c0a07;
+  --s1: #111008;
+  --s2: #181510;
+  --s3: #201c14;
+  --gold: #c8a84b;
+  --gold2: #e8d080;
+  --gold-dim: #6a5820;
+  --ember: #b83010;
+  --text: #ddd0b0;
+  --text2: #9a8868;
+  --text3: #4a4030;
+  --border: rgba(200,168,75,0.1);
+  --border2: rgba(200,168,75,0.05);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: 'Noto Sans Thai', sans-serif;
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.95;
+  overflow-x: hidden;
+}
+
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 100% 40% at 50% 0%, rgba(184,48,16,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 90% 100%, rgba(200,168,75,0.05) 0%, transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.wrap {
+  position:relative;
+  z-index:1;
+  max-width:700px;
+  margin:0 auto;
+  padding:0 24px 120px;
+}
+
+/* HERO */
+.hero {
+  padding: 80px 0 56px;
+  text-align: center;
+  position: relative;
+}
+
+.bg-glyph {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Noto Serif TC', serif;
+  font-size: 140px;
+  color: var(--gold);
+  opacity: 0.04;
+  letter-spacing: -8px;
+  line-height: 1;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.hero-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  letter-spacing: 7px;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 20px;
+}
+
+.hero-title {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 48px;
+  color: var(--gold);
+  letter-spacing: 6px;
+  margin-bottom: 6px;
+  line-height: 1;
+}
+
+.hero-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  color: var(--text2);
+  letter-spacing: 3px;
+  font-style: italic;
+  margin-bottom: 36px;
+}
+
+.hero-statement {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 21px;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.75;
+  max-width: 500px;
+  margin: 0 auto 36px;
+}
+
+.hero-statement strong {
+  color: var(--gold2);
+  font-style: normal;
+  font-weight: 600;
+}
+
+.line-ornament {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: center;
+  margin: 32px 0;
+}
+
+.line-ornament::before,
+.line-ornament::after {
+  content:'';
+  width: 80px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold-dim));
+}
+
+.line-ornament::after {
+  background: linear-gradient(to left, transparent, var(--gold-dim));
+}
+
+.ornament-glyph {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 14px;
+  color: var(--gold-dim);
+}
+
+/* NAV */
+.nav {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin-bottom: 64px;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 8px;
+  background: var(--s1);
+  border: 1px solid var(--border2);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.nav-item:hover { background: var(--s2); }
+
+.nav-icon {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 20px;
+  color: var(--gold);
+}
+
+.nav-label {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--text3);
+}
+
+/* CHAPTER */
+.chapter {
+  padding: 72px 0;
+  border-bottom: 1px solid var(--border2);
+  position: relative;
+}
+
+.chapter:last-child { border-bottom: none; }
+
+.chapter-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 10px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 8px;
+}
+
+.chapter-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 34px;
+  color: var(--gold2);
+  font-weight: 400;
+  margin-bottom: 40px;
+  line-height: 1.2;
+}
+
+/* Opening statement - bold prediction */
+.opening {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.7;
+  margin-bottom: 36px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border2);
+}
+
+.opening strong {
+  color: var(--gold2);
+  font-style: normal;
+}
+
+/* Body reading */
+.reading-block {
+  margin-bottom: 28px;
+}
+
+.reading-block p {
+  font-size: 15px;
+  line-height: 2;
+  color: var(--text);
+  margin-bottom: 18px;
+}
+
+.reading-block p strong { color: var(--gold2); font-weight: 500; }
+.reading-block p em { color: var(--text2); font-style: italic; }
+
+/* Bold call-out */
+.callout {
+  background: var(--s2);
+  border-left: 2px solid var(--gold);
+  padding: 18px 22px;
+  margin: 28px 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.65;
+}
+
+.callout strong {
+  color: var(--gold2);
+  font-style: normal;
+}
+
+/* Timeline */
+.timeline {
+  margin: 32px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tl-item {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 0;
+  background: var(--s1);
+  border: 1px solid var(--border2);
+  overflow: hidden;
+}
+
+.tl-period {
+  padding: 14px 16px;
+  background: var(--s2);
+  border-right: 1px solid var(--border2);
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+}
+
+.tl-content {
+  padding: 14px 18px;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.tl-content strong { color: var(--gold2); }
+
+/* Warning */
+.warn-block {
+  background: rgba(184,48,16,0.07);
+  border: 1px solid rgba(184,48,16,0.18);
+  padding: 18px 22px;
+  margin: 28px 0;
+  font-size: 14px;
+  color: #c08070;
+  line-height: 1.85;
+}
+
+.warn-block strong { color: #e07050; }
+
+/* Closing line per chapter */
+.chapter-close {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-style: italic;
+  color: var(--text2);
+  line-height: 1.7;
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border2);
+  text-align: center;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 60px 0 0;
+  border-top: 1px solid var(--border2);
+  margin-top: 40px;
+}
+
+.footer-pillars {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 16px;
+  letter-spacing: 8px;
+  color: var(--gold-dim);
+  margin-bottom: 10px;
+}
+
+.footer-note {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--text3);
+}
+
+@media (max-width:600px) {
+  .nav { grid-template-columns: repeat(2,1fr); }
+  .chapter-title { font-size: 26px; }
+  .opening { font-size: 18px; }
+  .tl-item { grid-template-columns: 80px 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="bg-glyph">丙午</div>
+  <div class="hero-label">ดวงชะตาปี 2026</div>
+  <div class="hero-title">丙午</div>
+  <div class="hero-name">甲午 Day Master · LP 癸巳</div>
+
+  <div class="line-ornament"><span class="ornament-glyph">命</span></div>
+
+  <div class="hero-statement">
+    ปีนี้จะเป็นปีที่คุณ<strong>ไม่สามารถแกล้งทำเป็นว่าทุกอย่างโอเคได้อีกต่อไป</strong> — ไม่ใช่เพราะทุกอย่างพัง แต่เพราะคุณโตพอที่จะหยุดโกหกตัวเองแล้ว
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-item" href="#work">
+    <span class="nav-icon">事</span>
+    <span class="nav-label">การงาน</span>
+  </a>
+  <a class="nav-item" href="#money">
+    <span class="nav-icon">財</span>
+    <span class="nav-label">การเงิน</span>
+  </a>
+  <a class="nav-item" href="#love">
+    <span class="nav-icon">緣</span>
+    <span class="nav-label">ความรัก</span>
+  </a>
+  <a class="nav-item" href="#health">
+    <span class="nav-icon">身</span>
+    <span class="nav-label">สุขภาพ</span>
+  </a>
+  <a class="nav-item" href="#family">
+    <span class="nav-icon">家</span>
+    <span class="nav-label">ครอบครัว</span>
+  </a>
+  <a class="nav-item" href="#warning">
+    <span class="nav-icon">戒</span>
+    <span class="nav-label">สิ่งที่ต้องระวัง</span>
+  </a>
+</nav>
+
+<!-- WORK -->
+<div class="chapter" id="work">
+  <div class="chapter-number">หมวดที่หนึ่ง</div>
+  <div class="chapter-title">การงาน</div>
+
+  <div class="opening">
+    ปีนี้คุณจะได้รับการมองเห็นในแบบที่ไม่เคยได้รับมาก่อน — <strong>แต่ไม่ใช่เพราะโชค มันเพราะคุณจะหยุดซ่อนตัวเองไว้หลังงานของคนอื่น</strong>
+  </div>
+
+  <div class="reading-block">
+    <p>
+      มาตลอด คุณเป็นคนที่ทำงานได้ดีกว่าตำแหน่งที่ยืนอยู่ คิดได้ไกลกว่าที่พูดออกไป และเห็นสิ่งที่คนอื่นมองข้ามอยู่บ่อยครั้ง แต่คุณเลือกที่จะเงียบ — บางทีเพราะยังไม่มั่นใจพอ บางทีเพราะไม่อยากดูเว่อร์เกินไป ปีนี้ความเงียบนั้นจะเริ่มเป็นอุปสรรคแทนที่จะเป็นความปลอดภัย
+    </p>
+    <p>
+      จะมีจังหวะหนึ่งในปีนี้ที่คุณต้องเลือก ระหว่าง<strong>ทำตามที่คนอื่นวางไว้ให้</strong> กับ<strong>เดินหน้าตามสิ่งที่คุณเห็นว่าถูกต้อง</strong> — จังหวะนั้นจะมาเร็วกว่าที่คิด และคุณจะรู้ว่ามันมาถึงเมื่อรู้สึกว่ากำลังกลืนบางอย่างลงไป
+    </p>
+  </div>
+
+  <div class="callout">
+    สิ่งที่คุณสร้างอยู่นอกงานหลัก — <strong>ปีนี้มันจะเริ่มพิสูจน์ตัวเอง</strong> ไม่ใช่ต่อคนอื่น แต่ต่อตัวคุณเองก่อน
+  </div>
+
+  <div class="reading-block">
+    <p>
+      ช่วงพฤษภาคม–มิถุนายน คือจุดที่ดีที่สุดในรอบปีสำหรับการนำเสนอ การพิตช์ หรือการตัดสินใจเรื่องงานสำคัญ ถ้ามีอะไรที่รอมานาน — เดือนนั้นคือเวลา
+    </p>
+    <p>
+      แต่ต้องพูดตรงๆ ว่า — ปีนี้คุณจะเจอแรงต้านจากภายในองค์กรหรือจากคนที่คิดว่าสนับสนุนคุณ มากกว่าที่คาด <em>แรงต้านนั้นไม่ได้บอกว่าคุณผิดทาง มันบอกว่าคุณกำลังขยับออกจากพื้นที่ที่คนอื่นสบายใจให้คุณอยู่</em>
+    </p>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-period">ก.พ.–เม.ย.</div>
+      <div class="tl-content">ช่วงที่ถูกทดสอบ อย่าพิสูจน์ตัวเองด้วยการพูด พิสูจน์ด้วยการทำ</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-period">พ.ค.–มิ.ย.</div>
+      <div class="tl-content"><strong>จุดพีค</strong> — ลงมือ ตัดสินใจ นำเสนอ คนจะฟังคุณมากเป็นพิเศษ</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-period">ก.ค.–ต.ค.</div>
+      <div class="tl-content">ช่วงชะลอ อย่าฝืนผลักดัน ใช้เวลานี้สร้างให้แน่น</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-period">พ.ย.–ธ.ค.</div>
+      <div class="tl-content">โอกาสที่สองของปี เหมาะกับการ close สิ่งที่ค้างไว้</div>
+    </div>
+  </div>
+
+  <div class="chapter-close">
+    ปีนี้จะไม่ถามว่าคุณเก่งแค่ไหน — มันจะถามว่าคุณกล้าพอไหมที่จะให้คนอื่นเห็น
+  </div>
+</div>
+
+<!-- MONEY -->
+<div class="chapter" id="money">
+  <div class="chapter-number">หมวดที่สอง</div>
+  <div class="chapter-title">การเงิน</div>
+
+  <div class="opening">
+    เงินของคุณในปีนี้จะมา — <strong>แต่ไม่มาจากทางที่คุณวางแผนไว้</strong> และจะมาช้ากว่าที่คาดอย่างน้อยหนึ่งรอบ
+  </div>
+
+  <div class="reading-block">
+    <p>
+      คุณมีดวงการเงินที่แข็งแกร่ง แต่มีรูรั่วหนึ่งอย่างที่ดึงเงินออกจากคุณซ้ำๆ ทุกปี — มันไม่ใช่การใช้จ่ายฟุ่มเฟือย แต่คือ<strong>ความใจดีที่ไม่มีเส้น</strong> คุณปล่อยเงินออกไปกับคนที่รู้สึกว่าต้องช่วย แล้วสุดท้ายก็ไม่ได้คืนมาในแบบที่ควร
+    </p>
+    <p>
+      ปีนี้จะมีคนเข้ามาพร้อมโอกาสที่ฟังดูใหญ่มาก — ใหญ่จนคุณรู้สึกว่าต้องตัดสินใจเร็ว ให้จำไว้ว่า<strong>โอกาสจริงไม่เคยเร่ง</strong> ถ้าเขาบอกว่าต้องตัดสินใจภายในสัปดาห์นี้ คำตอบคือไม่
+    </p>
+  </div>
+
+  <div class="callout">
+    รายได้ก้อนใหม่ที่จะเข้ามาในปีนี้ <strong>จะไม่ได้มาจากงานประจำ</strong> — มันจะมาจากสิ่งที่คุณทำด้วยหัวและความคิด ไม่ใช่เวลา
+  </div>
+
+  <div class="reading-block">
+    <p>
+      ช่วงที่ดีที่สุดสำหรับการเงินในปีนี้คือ<strong>พฤษภาคม และพฤศจิกายน</strong> — สองเดือนนี้เหมาะกับการเซ็นสัญญา ปิด deal หรือเริ่มต้นอะไรที่ต้องการทุน ช่วงอื่นๆ ให้รักษา ไม่ใช่ขยาย
+    </p>
+    <p>
+      และมีอยู่หนึ่งอย่างที่ต้องพูดตรงๆ — <em>ถ้าคุณยังมีดีลหรือการลงทุนที่ไม่มีเอกสารชัดเจนอยู่กับใครก็ตาม ปีนี้คือปีที่ต้องเคลียร์ ถ้าไม่เคลียร์เอง ดวงจะบังคับให้เคลียร์เอง</em>
+    </p>
+  </div>
+
+  <div class="warn-block">
+    มกราคม 2027 — ห้ามลงทุน ห้ามเซ็นสัญญาใหม่ ห้ามให้ใครยืมเงินก้อนใหญ่ เดือนนั้นให้ผ่านไปเงียบๆ
+  </div>
+
+  <div class="chapter-close">
+    เงินที่คุณจะมีในชีวิตนี้จะไม่มาจากโชค มันจะมาจากการที่คุณหยุดให้คนอื่นตัดสินใจแทนว่าคุณคู่ควรกับมันแค่ไหน
+  </div>
+</div>
+
+<!-- LOVE -->
+<div class="chapter" id="love">
+  <div class="chapter-number">หมวดที่สาม</div>
+  <div class="chapter-title">ความรัก</div>
+
+  <div class="opening">
+    คุณไม่ได้โสดเพราะดวงไม่ดี — <strong>คุณโสดเพราะยังรอให้ตัวเองพร้อมก่อน และมาตรฐานของ "พร้อม" ในหัวคุณนั้น ไม่มีวันพอ</strong>
+  </div>
+
+  <div class="reading-block">
+    <p>
+      คุณรู้อยู่แล้วว่าความสัมพันธ์ที่ผ่านมามีรูปแบบซ้ำกัน — เจอคนที่ดูมั่นคง เข้าไป ยอมปรับตัวตามเขา อยู่ดีๆ รู้สึกว่าตัวเองหายไปในความสัมพันธ์นั้น แล้วก็ออกมา บางทีด้วยคำพูด บางทีด้วยความเงียบ รูปแบบนี้ไม่ได้บอกว่าคุณผิด มันบอกว่าคุณยังเลือกคนจากสิ่งที่ขาด ไม่ใช่สิ่งที่เข้ากัน
+    </p>
+    <p>
+      คนที่จะอยู่กับคุณได้จริง ต้องเป็นคนที่<strong>มีชีวิตของตัวเองอยู่แล้ว และไม่ต้องการให้คุณเป็นทุกอย่างให้เขา</strong> — เพราะคุณเองก็ต้องการพื้นที่คิด พื้นที่อยู่กับตัวเอง คนที่เข้ามาแล้วพยายามเติมทุกช่องว่างจะทำให้คุณหายใจไม่ออก
+    </p>
+  </div>
+
+  <div class="callout">
+    ปี 2026 มีหน้าต่างที่เปิดอยู่จริง — <strong>แต่คนที่ใช่จะไม่เดินเข้ามาหาคุณเอง</strong> เขาจะปรากฏในจังหวะที่คุณขยับออกจากที่เดิม
+  </div>
+
+  <div class="reading-block">
+    <p>
+      จะมีคนหนึ่งที่คุณเจอในปีนี้ผ่านงาน หรือสังคมที่คุณไม่คุ้นเคย ที่ทำให้คุณรู้สึกว่า "คุยด้วยแล้วไม่ต้องแสดง" — ความรู้สึกนั้นสำคัญ อย่าให้ตรรกะในหัวมาเถียงกับมัน
+    </p>
+    <p>
+      แต่ต้องพูดตรงๆ ด้วยว่า — <em>ถ้าคุณยังเลือกคนจากความรู้สึกว่า "เขาทำให้ชีวิตดูมีระเบียบขึ้น" โดยไม่ถามว่า "เขาทำให้ฉันเป็นตัวเองได้แค่ไหน" — คุณจะวนกลับมาที่รูปแบบเดิมอีกครั้ง</em>
+    </p>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-period">พ.ค.–มิ.ย.</div>
+      <div class="tl-content"><strong>หน้าต่างหลัก</strong> — ถ้าจะเจอ จะเจอช่วงนี้ และถ้าจะเริ่ม ให้เริ่มตอนนี้</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-period">มิ.ย.–ก.ค.</div>
+      <div class="tl-content">ช่วงที่ต้องซื่อสัตย์กับตัวเองว่าต้องการอะไรจริงๆ จากความสัมพันธ์</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-period">พ.ย.–ธ.ค.</div>
+      <div class="tl-content">หน้าต่างที่สอง เหมาะกับการ "ขยับ" ความสัมพันธ์ที่มีอยู่ให้ชัดขึ้น</div>
+    </div>
+  </div>
+
+  <div class="chapter-close">
+    คนที่ใช่จะไม่มาทำให้ชีวิตคุณสมบูรณ์ — เขาจะมาทำให้คุณรู้สึกว่าตัวเองสมบูรณ์อยู่แล้วโดยไม่ต้องพยายาม
+  </div>
+</div>
+
+<!-- HEALTH -->
+<div class="chapter" id="health">
+  <div class="chapter-number">หมวดที่สี่</div>
+  <div class="chapter-title">สุขภาพ</div>
+
+  <div class="opening">
+    ร่างกายคุณไม่ใช่ปัญหา — <strong>แต่สมองคุณไม่เคยหยุดทำงาน และนั่นคือสิ่งที่จะทำร้ายคุณมากที่สุดในปีนี้</strong>
+  </div>
+
+  <div class="reading-block">
+    <p>
+      คุณเป็นคนที่คิดเรื่องงาน แผน ความเสี่ยง และสิ่งที่ยังทำไม่เสร็จ ตลอดเวลา แม้แต่ตอนที่คิดว่ากำลังพักอยู่ ร่างกายอาจนอนอยู่บนโซฟา แต่หัวคุณยังวางแผนอยู่ นั่นคือความเหนื่อยที่คนอื่นไม่เห็น
+    </p>
+    <p>
+      ปีนี้จะมีช่วงหนึ่ง — น่าจะประมาณกลางปีถึงปลายปี ที่ร่างกายจะเริ่มส่งสัญญาณให้หยุด ไม่ว่าจะเป็น<strong>นอนไม่หลับ ปวดหัวบ่อยกว่าปกติ หรือระบบย่อยอาหารแปรปรวน</strong> — อย่ารอให้มันบังคับหยุด เพราะถ้ารอถึงจุดนั้น เวลาที่ต้องพักจะนานกว่าที่ต้องการมาก
+    </p>
+  </div>
+
+  <div class="callout">
+    สิ่งที่ร่างกายคุณต้องการในปีนี้ไม่ใช่ออกกำลังกายหนักขึ้น — <strong>มันต้องการความเงียบที่แท้จริง วันละอย่างน้อยหนึ่งชั่วโมงที่ไม่มีอะไรต้องคิด</strong>
+  </div>
+
+  <div class="reading-block">
+    <p>
+      ตับและระบบประสาทของคุณจะรับแรงกดดันมากที่สุดในปีนี้ — ดูแลตัวเองด้วยการนอนให้พอ ดื่มน้ำให้มาก และถ้ามีสัญญาณเตือนจากร่างกายให้จริงจังกับมันก่อนที่จะกลายเป็นเรื่องใหญ่
+    </p>
+    <p>
+      <em>ช่วงมิถุนายน–กันยายน จะเหนื่อยมากเป็นพิเศษ เพราะดวงช่วงนั้นดึงพลังออกจากคุณมากกว่าช่วงอื่น ถ้าวางแผนพักร้อนได้ ให้วางไว้ในช่วงนั้น</em>
+    </p>
+  </div>
+
+  <div class="chapter-close">
+    คนที่ดูแลตัวเองดีที่สุดไม่ใช่คนที่แข็งแกร่งที่สุด — แต่คือคนที่รู้ว่าตัวเองมีขีดจำกัด แล้วเคารพมัน
+  </div>
+</div>
+
+<!-- FAMILY -->
+<div class="chapter" id="family">
+  <div class="chapter-number">หมวดที่ห้า</div>
+  <div class="chapter-title">ครอบครัว</div>
+
+  <div class="opening">
+    ครอบครัวคือทั้งรากและเพดานของคุณในเวลาเดียวกัน — <strong>ปีนี้คุณจะต้องตัดสินใจว่าจะยืนในฐานะลูกหลาน หรือยืนในฐานะคนที่มีวิสัยทัศน์ของตัวเอง</strong>
+  </div>
+
+  <div class="reading-block">
+    <p>
+      ธุรกิจที่บ้านคุณมีรากฐานที่แข็งแกร่ง มีชื่อเสียง และมีสิ่งที่คนส่วนใหญ่ฝันอยากได้ — แต่คุณรู้อยู่แล้วว่ามีบางอย่างที่ต้องเปลี่ยน และคุณเห็นมันชัดกว่าคนอื่นในบ้าน ปัญหาไม่ใช่ว่าคุณเห็นผิด ปัญหาคือ<strong>คุณยังไม่ได้พูดมันออกไปด้วยน้ำหนักที่ถูกต้อง</strong>
+    </p>
+    <p>
+      ปีนี้จะมีจังหวะหนึ่งที่ความสัมพันธ์กับคนในครอบครัวจะถึงจุดที่ต้องชัดขึ้น — ไม่ใช่การทะเลาะ แต่เป็นการที่คุณต้องพูดในสิ่งที่กลั้นไว้มานาน <em>ถ้าพูดด้วยความเคารพ มันจะเปลี่ยนความสัมพันธ์ไปในทางที่ดี ถ้าพูดด้วยความเจ็บปวดสะสม มันจะยากกว่าที่ควร</em>
+    </p>
+  </div>
+
+  <div class="callout">
+    มีคนในครอบครัวคนหนึ่งที่คุณยังไม่ได้บอกบางอย่างที่สำคัญ — <strong>ปีนี้เป็นปีที่ควรพูด ก่อนที่โอกาสนั้นจะผ่านไป</strong>
+  </div>
+
+  <div class="reading-block">
+    <p>
+      ในเรื่องสุขภาพของคนในครอบครัว — ปีนี้ให้ใส่ใจมากกว่าปกติ โดยเฉพาะผู้ใหญ่ในบ้าน อาจมีเรื่องสุขภาพที่ต้องดูแลใกล้ชิดขึ้นในช่วงครึ่งปีหลัง
+    </p>
+  </div>
+
+  <div class="chapter-close">
+    รากที่แข็งแกร่งไม่ได้หมายความว่าต้นไม้โตไม่ได้ — มันหมายความว่าต้นไม้นั้นโตได้ไกลกว่าต้นไม้ที่ไม่มีราก
+  </div>
+</div>
+
+<!-- WARNING -->
+<div class="chapter" id="warning">
+  <div class="chapter-number">หมวดที่หก</div>
+  <div class="chapter-title">สิ่งที่ต้องระวัง</div>
+
+  <div class="opening">
+    อันตรายที่ใหญ่ที่สุดของคุณในปีนี้ไม่ใช่คนภายนอก — <strong>มันคือตัวคุณเองในจังหวะที่รู้สึกว่าทุกอย่างกำลังไปได้ดี</strong>
+  </div>
+
+  <div class="reading-block">
+    <p>
+      ปีนี้จะมีช่วงหนึ่งที่คุณรู้สึกว่าทุกอย่างกำลังเปิดออก พลังงานสูง ความมั่นใจพีค และโอกาสเข้ามาหลายทางพร้อมกัน — นั่นคือช่วงที่อันตรายที่สุด เพราะในจังหวะนั้นคุณมีแนวโน้มจะตัดสินใจด้วยความรู้สึก ไม่ใช่ข้อมูล
+    </p>
+  </div>
+
+  <div class="warn-block">
+    <strong>ระวังคนที่เข้ามาพร้อมสามอย่างพร้อมกัน</strong> — ตัวเลขที่ใหญ่มาก ความเร่งรีบที่ไม่มีเหตุผล และความสนิทที่เกิดขึ้นเร็วเกินไป คนแบบนี้จะเข้ามาในปีนี้มากกว่าทุกปีที่ผ่านมา
+  </div>
+
+  <div class="reading-block">
+    <p>
+      มีสี่อย่างที่ต้องระวังในปีนี้เป็นพิเศษ
+    </p>
+    <p>
+      <strong>หนึ่ง — การค้ำประกัน</strong> ไม่ว่าจะเป็นของใคร ปีนี้ห้ามเป็นคนค้ำประกันทางการเงินให้กับใครทั้งนั้น แม้จะเป็นคนที่ไว้ใจมากที่สุด
+    </p>
+    <p>
+      <strong>สอง — ดีลที่ไม่มีกระดาษ</strong> ถ้าคนที่คุณทำธุรกิจด้วยไม่พร้อมเซ็นเอกสาร แปลว่าเขาไม่ได้จริงจังในแบบที่คุณคิด
+    </p>
+    <p>
+      <strong>สาม — ความเร็วในการตัดสินใจ</strong> ปีนี้ดวงของคุณทำให้อยากเปลี่ยนแปลงทุกอย่างพร้อมกัน ให้ตั้งกฎกับตัวเองว่าการตัดสินใจใดๆ ที่มีมูลค่าเกินที่กำหนด ต้องรอสามวันก่อนเสมอ
+    </p>
+    <p>
+      <strong>สี่ — มกราคม 2027</strong> เดือนนั้นให้อยู่นิ่ง ไม่ตัดสินใจ ไม่ลงทุน ไม่เริ่มอะไรใหม่ รอให้ผ่านไปก่อน
+    </p>
+  </div>
+
+  <div class="callout">
+    และมีอยู่หนึ่งเรื่องที่ต้องพูดตรงๆ — <strong>ถ้าคุณยังมีสิ่งที่ทำโดยไม่มีเอกสาร ไม่มีข้อตกลงชัดเจน กับใครก็ตามในตอนนี้ ให้เคลียร์ก่อนสิ้นปีนี้</strong> เพราะปีหน้าดวงจะเปลี่ยนชั้น และสิ่งที่ยังค้างไว้จะกลายเป็นภาระที่หนักกว่าเดิม
+  </div>
+
+  <div class="chapter-close">
+    คนที่รอดจากปีที่ดวงแรงไม่ใช่คนที่กล้าที่สุด — แต่คือคนที่รู้ว่าอะไรควรทำและอะไรที่ควรหยุดก่อน
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-pillars">乙卯　甲午　己丑　辛未</div>
+  <div class="footer-note">LP 甲午 เริ่ม 4 กุมภาพันธ์ 2027 — ช่วงที่ดีที่สุดในชีวิตอยู่ข้างหน้า</div>
+</div>
+
+</div>
+</body>
+</html>
