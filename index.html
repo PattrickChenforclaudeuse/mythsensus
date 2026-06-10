@@ -2351,6 +2351,11 @@ try{
     <iframe id="cb-report-frame" style="width:100%;height:100%;border:none" title="Cosmic Blueprint"></iframe>
   </div>
 
+  <!-- CB PAYWALL — teaser + $19 unlock, shown when the full report is gated.
+       Lives in the parent document (NOT the iframe) so the purchase buttons
+       can call _purchaseItem / _purchaseSubscription. Populated by _cbShowPaywall(). -->
+  <div id="cb-paywall-wrap" style="display:none;max-width:760px;margin:8px auto 0;padding:0 14px"></div>
+
 </div>
 
 <!-- ═══ PANEL 6: HISTORY ═══ -->
@@ -5874,13 +5879,17 @@ const PRICING = {
 // We hash a normalised string so trivial whitespace/casing doesn't invalidate
 // a purchase. If you change birth date / time / gender / city / name the hash
 // changes → previous purchase no longer matches → repurchase required.
-function _chartInputHash(){
+function _chartInputHash(inp){
   try {
-    const dob    = (localStorage.getItem('mth_dob')    || '').trim();
-    const time   = (localStorage.getItem('mth_time')   || '').trim();
-    const gender = (localStorage.getItem('mth_gender') || '').trim();
-    const city   = (localStorage.getItem('mth_city')   || '').trim();
-    const name   = (localStorage.getItem('mth_name')   || '').trim().toLowerCase();
+    // Default = the live profile (localStorage). Pass an explicit {dob,time,
+    // gender,city,name} to hash a SAVED PROFILE the same way, so its full_report
+    // entitlement can be checked without making it the current chart.
+    const pick = (k, lk) => String(inp && inp[k] != null ? inp[k] : (localStorage.getItem(lk) || '')).trim();
+    const dob    = pick('dob',    'mth_dob');
+    const time   = pick('time',   'mth_time');
+    const gender = pick('gender', 'mth_gender');
+    const city   = pick('city',   'mth_city');
+    const name   = pick('name',   'mth_name').toLowerCase();
     const raw = [dob, time, gender, city, name].join('|');
     // FNV-1a 32-bit — short, deterministic, no crypto needed.
     let h = 0x811c9dc5;
@@ -13043,11 +13052,19 @@ function viewMultiProfile(idx) {
       industry:    p.industry    || '',
       lang: LANG,
     });
-    cbCurrentHTML = window.MS26.generateReport(chart);
     window._lastChartData = chart;
-    // Jump to the Premium → Generate panel and inject the iframe directly.
+    // Jump to the Premium → Generate panel.
     setGroup('premium');
     showSubTab('blueprint');
+    // GATE: a saved profile's full Blueprint is the same $19 full_report product,
+    // scoped to THAT profile's chart hash. Owner / subscriber / a buyer of THIS
+    // profile's chart pass; everyone else gets the teaser + paywall.
+    const _pHash = _chartInputHash({ dob: p.dob, time: p.time, gender: p.gender, city: p.city, name: p.name });
+    if (typeof _hasItemAccess === 'function' && !_hasItemAccess('full_report', _pHash)) {
+      setTimeout(() => { try { _cbShowPaywall(chart); } catch (e) { console.error('[viewMultiProfile paywall]', e); } }, 150);
+      return;
+    }
+    cbCurrentHTML = window.MS26.generateReport(chart);
     setTimeout(() => {
       try {
         _cbShowReport(cbCurrentHTML);
@@ -17425,6 +17442,55 @@ function _cbOnReaderResize() {
 window.addEventListener('resize', _cbOnReaderResize);
 window.addEventListener('orientationchange', _cbOnReaderResize);
 
+// Show the free TEASER + $19 paywall instead of the full report when the user
+// isn't entitled to full_report. The free taste = Cosmic Score + the "X systems
+// agree" Grand Convergence preview (our selling point); the 43-page detail is the
+// paid product. Lives in the parent doc (#cb-paywall-wrap) so the purchase
+// buttons reach _purchaseItem / _purchaseSubscription. (2026-06-10)
+function _cbShowPaywall(chart) {
+  const wrap = document.getElementById('cb-paywall-wrap');
+  if (!wrap) return;
+  ['cb-form-section','cb-loading','cb-report-wrap','cb-toolbar'].forEach(id => {
+    try { document.getElementById(id).style.display = 'none'; } catch(_){}
+  });
+  try { document.body.classList.remove('cb-report-active'); } catch(_){}
+  const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
+  const score = (chart && chart.score) || {};
+  const total = score.total || score.cosmicFinal || '—';
+  const tier  = ((typeof LANG !== 'undefined' && LANG === 'en') ? (score.tierEn || score.tier) : score.tier) || '';
+  let themes = [];
+  try { themes = (typeof _deriveConsensusThemes === 'function' ? _deriveConsensusThemes(chart) : []) || []; } catch(_){}
+  const themeCards = themes.slice(0, 3).map(th => `
+    <div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:8px;padding:12px 14px;margin:8px 0">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:5px">${th.icon || '✦'} ${(th.systems && th.systems.length) || ''} ${isTh ? 'ศาสตร์เห็นตรงกัน' : 'systems agree'}</div>
+      <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.55">${th.message || ''}</div>
+    </div>`).join('');
+  const benefits = isTh
+    ? ['✓ รายงานเต็ม 43 หน้า · ครบทั้ง 26 ศาสตร์', '✓ Grand Convergence แบบละเอียด — จุดที่ทุกศาสตร์ฟันธงตรงกัน', '✓ คำแนะนำชีวิต · ช่วงทอง · 5 จุดเจ็บ', '✓ บันทึก / พิมพ์ PDF · ดูซ้ำได้ตลอดสำหรับดวงนี้']
+    : ['✓ Full 43-page report · all 26 systems', '✓ Detailed Grand Convergence — where every system agrees', '✓ Life guidance · golden windows · 5 pain points', '✓ Save / print PDF · unlimited re-views for this chart'];
+  wrap.innerHTML =
+    `<div style="padding:10px 0 0"><button onclick="_cbBackToForm()" style="background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;padding:7px 13px;border-radius:4px;cursor:pointer">← ${isTh ? 'แก้ไขข้อมูลเกิด' : 'Edit birth data'}</button></div>` +
+    `<div style="text-align:center;padding:14px 14px 4px">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:3px;color:var(--gold);text-transform:uppercase">${isTh ? '✦ ตัวอย่างฟรี' : '✦ Free preview'}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:46px;color:var(--gold);font-weight:700;line-height:1.1;margin-top:6px">${_esc(String(total))}</div>
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:15px;color:var(--text)">${_esc(String(tier))}</div>
+    </div>` +
+    (themeCards ? `<div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:12px 0 2px">🌐 ${isTh ? 'จุดที่หลายศาสตร์ฟันธงตรงกัน (ตัวอย่าง)' : 'Where systems converge (preview)'}</div>${themeCards}` : '') +
+    _purchasePaywall('full_report', {
+      label: isTh ? 'Cosmic Blueprint — รายงานเต็ม 43 หน้า' : 'Cosmic Blueprint — full 43-page report',
+      blurb: isTh ? 'ปลดล็อกรายละเอียดครบทั้ง 26 ศาสตร์ + Grand Convergence แบบเต็ม สำหรับวันเกิดของคุณ · ดูซ้ำได้ตลอด' : 'Unlock the full detail across all 26 systems + the complete Grand Convergence for your exact chart · re-view anytime',
+      benefits,
+    });
+  wrap.style.display = 'block';
+  try { wrap.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch(_){}
+}
+
+// Dismiss the paywall and return to the Blueprint form (edit birth data / retry).
+function _cbBackToForm() {
+  try { document.getElementById('cb-paywall-wrap').style.display = 'none'; } catch(_){}
+  try { document.getElementById('cb-form-section').style.display = 'block'; } catch(_){}
+}
+
 function cb_generate() {
   if (_cbGenerating) return; // double-click / rapid re-call guard
   // ── 1. Read DOB: localStorage is ground truth; form is display layer ──
@@ -17475,6 +17541,24 @@ function cb_generate() {
   const domain      = localStorage.getItem('mth_career')       || '';
   const industry    = localStorage.getItem('mth_industry')     || '';
   const careerLevel = localStorage.getItem('mth_careerLevel')  || '';
+
+  // ── GATE: the full 43-page Cosmic Blueprint IS the $19 'full_report' product ──
+  // (Director 2026-06-10: Full Report = Cosmic Blueprint = Cosmic Premium = one
+  // $19 product.) Owner / subscriber / one-time buyer of THIS chart pass via
+  // _hasItemAccess; everyone else gets the free teaser (Cosmic Score + "systems
+  // agree" convergence preview) + the paywall instead of the full report. Keyed
+  // on the same localStorage chart hash the rest of the app uses.
+  if (typeof _hasItemAccess === 'function' && !_hasItemAccess('full_report')) {
+    let teaserChart = null;
+    try {
+      if (window.MS26 && typeof window.MS26.calculate === 'function') {
+        teaserChart = window.MS26.calculate({ name, gender, year: y, month: m, day: d, hour: h, minute: mi, lat, lon, timezone: tz, lang: LANG });
+      }
+    } catch(_) {}
+    _cbShowPaywall(teaserChart || {});
+    try { _logEngagement && _logEngagement('blueprint_paywall'); } catch(_) {}
+    return;
+  }
 
   _cbGenerating = true;
   document.getElementById('cb-form-section').style.display = 'none';
@@ -17619,6 +17703,7 @@ function _cbStartLoadingAnimation() {
 function cb_goBack() {
   document.getElementById('cb-toolbar').style.display = 'none';
   document.getElementById('cb-report-wrap').style.display = 'none';
+  try { document.getElementById('cb-paywall-wrap').style.display = 'none'; } catch(_){}
   document.getElementById('cb-form-section').style.display = 'block';
   // Restore side rails + page scrolling to whatever the user had before
   // generating, and clear the reader-mode geometry _cbShowReport() set.

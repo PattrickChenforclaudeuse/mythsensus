@@ -261,7 +261,16 @@
 // (plaintext codes intentionally shareable). Spend + consumed map now sync &
 // union-merge cross-device (mth_gift_used_codes + mth_gift_consumed in
 // _MAP_SYNC_KEYS) so the loophole can't reopen phone↔PC. Engine unchanged (?v=97).
-const CACHE = 'mythsensus-v100';
+// v101: 2026-06-10 — Cosmic Blueprint now PAID (Director decision: Full Report =
+// Cosmic Blueprint = Cosmic Premium = one $19 product). cb_generate (and the
+// viewMultiProfile path) now gate on _hasItemAccess('full_report'); owner /
+// subscriber / one-time buyer of that chart see the full 43-page report, everyone
+// else gets a free TEASER (Cosmic Score + the "X systems agree" Grand Convergence
+// preview — our selling point) + the $19 paywall (#cb-paywall-wrap, parent-doc so
+// purchase buttons work). _chartInputHash() now also hashes an explicit profile so
+// a saved profile's entitlement is checked correctly. Famous-people charts stay
+// free demos. Engine/bundle unchanged (?v=97).
+const CACHE = 'mythsensus-v101';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
