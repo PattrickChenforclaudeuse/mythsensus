@@ -246,7 +246,14 @@
 // capped) in _sbPush / _sbPullAndMerge, and explicitly skipped by the string-
 // clobber paths (_sbPullStringsAndApply, _onSignIn). Collection + History panels
 // auto-re-render after a pull. Engine/bundle unchanged (?v=97).
-const CACHE = 'mythsensus-v98';
+// v99: 2026-06-10 — same union-merge applied to the per-item purchase map
+// (mth_purchased = { 'itemKey:chartHash': true }) so a $9 unlock bought on the
+// phone and another on the PC can't overwrite each other in the local cache.
+// (Purchases are already account-authoritative: subscription via app_metadata.plan
+// + per-item via the server myth_purchases table, re-granted by _refreshPremium on
+// every device — this is defence-in-depth for the localStorage cache.) Engine
+// unchanged (?v=97).
+const CACHE = 'mythsensus-v99';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

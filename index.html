@@ -13342,6 +13342,23 @@ function _mergeHistoryKey(localStr, cloudStr) {
   return merged.slice(0, cap);
 }
 
+// mth_purchased is a MAP { 'itemKey:chartHash': true } of per-item unlocks. Same
+// last-write-wins hazard as the history log — a $9 purchase on the phone and a
+// different one on the PC must UNION, never overwrite, or a paid unlock vanishes.
+// (Per-item purchases are ALSO re-granted from the server's myth_purchases via
+// _refreshPremium, and subscriptions live in app_metadata.plan — both account-
+// scoped and authoritative — so this localStorage merge is defence-in-depth that
+// keeps the local cache correct between server refreshes / while offline.)
+const _MAP_SYNC_KEYS = new Set(['mth_purchased']);
+function _mergePurchaseMap(localStr, cloudStr) {
+  let local = {}, cloud = {};
+  try { local = JSON.parse(localStr || '{}') || {}; } catch (_) {}
+  try { cloud = JSON.parse(cloudStr || '{}') || {}; } catch (_) {}
+  const merged = { ...cloud, ...local };   // union — owned on EITHER device = owned
+  for (const k of Object.keys(merged)) { if (!merged[k]) delete merged[k]; }
+  return merged;
+}
+
 async function _sbPush(){
   if(!_sb||!_sbSession)return;
   const uid=_sbSession.user.id;
@@ -13366,6 +13383,11 @@ async function _sbPush(){
     } else if (_HISTORY_SYNC_KEYS.has(k)) {
       // History log: union local + cloud so neither device loses draws.
       const mergedStr = JSON.stringify(_mergeHistoryKey(localVal, cloud[k]));
+      if (localVal !== mergedStr) localStorage.setItem(k, mergedStr);
+      data[k] = mergedStr;
+    } else if (_MAP_SYNC_KEYS.has(k)) {
+      // Purchase map: union local + cloud so no paid unlock is overwritten.
+      const mergedStr = JSON.stringify(_mergePurchaseMap(localVal, cloud[k]));
       if (localVal !== mergedStr) localStorage.setItem(k, mergedStr);
       data[k] = mergedStr;
     } else if (localVal !== null && localVal !== '') {
@@ -13420,6 +13442,7 @@ async function _sbPullStringsAndApply() {
     for (const k of _SYNC_KEYS) {
       if (_ARRAY_SYNC_KEYS.has(k)) continue;
       if (_HISTORY_SYNC_KEYS.has(k)) continue;   // history is union-merged, never string-clobbered
+      if (_MAP_SYNC_KEYS.has(k)) continue;       // purchase map is union-merged too
       const local = localStorage.getItem(k);
       // Only adopt cloud value when it's NON-EMPTY and differs from local.
       // Empty cloud means "not set on the canonical side" — don't blindly
@@ -13456,6 +13479,14 @@ async function _sbPullAndMerge(){
     for (const k of _HISTORY_SYNC_KEYS) {
       const localStr = localStorage.getItem(k) || '[]';
       const mergedStr = JSON.stringify(_mergeHistoryKey(localStr, cloud[k]));
+      if (localStr !== mergedStr) {
+        localStorage.setItem(k, mergedStr);
+        changed = true;
+      }
+    }
+    for (const k of _MAP_SYNC_KEYS) {
+      const localStr = localStorage.getItem(k) || '{}';
+      const mergedStr = JSON.stringify(_mergePurchaseMap(localStr, cloud[k]));
       if (localStr !== mergedStr) {
         localStorage.setItem(k, mergedStr);
         changed = true;
@@ -13552,6 +13583,7 @@ async function _onSignIn(session){
     for (const k of _SYNC_KEYS) {
       if (_ARRAY_SYNC_KEYS.has(k)) continue;          // arrays already merged
       if (_HISTORY_SYNC_KEYS.has(k)) continue;        // history already union-merged above
+      if (_MAP_SYNC_KEYS.has(k)) continue;            // purchase map already union-merged above
       const localVal = localStorage.getItem(k);
       if ((localVal === null || localVal === '') && cloud[k] !== undefined && cloud[k] !== '') {
         localStorage.setItem(k, cloud[k]);
