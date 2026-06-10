@@ -1,0 +1,285 @@
+<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connect AI — Mythsensus</title>
+<meta name="description" content="ให้ Claude / ChatGPT / Cursor รู้จักดวงของคุณ — เชื่อม Mythsensus เข้ากับ AI assistant ของคุณผ่าน MCP. ใช้ส่วนตัวฟรี · open-source · MIT license · build apps on top of the 26-system engine.">
+<link rel="canonical" href="https://mythsensus.com/ai">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Josefin+Sans:wght@300;400;600&family=Prompt:wght@300;400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#040407">
+<meta property="og:site_name" content="Mythsensus">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Connect AI — Mythsensus">
+<meta property="og:description" content="ให้ Claude / ChatGPT / Cursor รู้จักดวงของคุณ — เชื่อม Mythsensus เข้ากับ AI assistant ของคุณผ่าน MCP.">
+<meta property="og:url" content="https://mythsensus.com/ai">
+<meta property="og:image" content="https://mythsensus.com/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Connect AI — Mythsensus">
+<meta name="twitter:description" content="ChatGPT / Claude / Cursor รู้จักดวงคุณ — เชื่อมผ่าน MCP (open-source, MIT).">
+<meta name="twitter:image" content="https://mythsensus.com/og-default.png">
+<script defer src="/_vercel/insights/script.js"></script>
+<style>
+:root{--bg:#040407;--bg2:#0a0a10;--bg3:#0d0d14;--gold:#c8a45a;--gold2:#e8c87a;--gold3:#a8843a;--text:#e6e2d8;--muted:#9a8a72;--border:rgba(200,164,90,0.22)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:17px;line-height:1.7;min-height:100vh}
+a{color:var(--gold);text-decoration:none}
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(4,4,7,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:clamp(16px,1.8vw,22px);cursor:pointer;letter-spacing:5px}
+.logo-myth{color:var(--gold)}.logo-sensus{color:var(--text);opacity:.65}
+.nav-right{display:flex;gap:1.5rem;align-items:center}
+.nav-link{font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text);opacity:.7}
+.nav-link:hover{opacity:1;color:var(--gold)}
+.btn-gold{background:var(--gold);color:#040407;font-family:'Josefin Sans',sans-serif;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;padding:.55rem 1.4rem;border:none;border-radius:2px;cursor:pointer;text-decoration:none;display:inline-block}
+.page-wrap{max-width:1040px;margin:0 auto;padding:110px 5% 80px}
+.eyebrow{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:1rem;text-align:center}
+.title{font-family:'Cinzel Decorative',serif;font-size:clamp(1.9rem,4vw,2.8rem);color:var(--text);margin-bottom:.6rem;text-align:center}
+.sub{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--muted);margin-bottom:2.5rem;text-align:center;font-style:italic;max-width:680px;margin-left:auto;margin-right:auto;line-height:1.6}
+
+/* Section divider — clear consumer/dev split */
+.divider{margin:4rem 0 3rem;display:flex;align-items:center;gap:1.2rem}
+.divider-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold3),transparent)}
+.divider-text{font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);opacity:.7;white-space:nowrap}
+
+.section{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:2.4rem 2rem;margin-bottom:1.6rem}
+.section.featured{border-color:var(--gold3);background:linear-gradient(180deg,rgba(200,164,90,.06),rgba(200,164,90,.02))}
+.section-tag{display:inline-block;font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);background:rgba(200,164,90,.08);border:1px solid var(--gold3);border-radius:14px;padding:.32rem .9rem;margin-bottom:.8rem}
+.section-title{font-family:'Cinzel Decorative',serif;font-size:1.4rem;color:var(--gold);letter-spacing:.05em;margin-bottom:.5rem}
+.section-sub{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--muted);margin-bottom:1.6rem;font-style:italic;line-height:1.55}
+
+.step{display:flex;gap:1rem;margin-bottom:1.4rem}
+.step-num{flex-shrink:0;width:28px;height:28px;border:1px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cinzel Decorative',serif;color:var(--gold);font-size:.85rem;font-weight:700}
+.step-body{flex:1;padding-top:.15rem}
+.step-title{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--text);margin-bottom:.4rem;font-weight:600}
+.step-desc{font-family:'Cormorant Garamond',serif;font-size:.94rem;color:var(--muted);line-height:1.55;margin-bottom:.6rem}
+
+pre{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.9rem 1rem;overflow-x:auto;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.78rem;line-height:1.6;color:var(--text)}
+pre.code-snippet{margin:.6rem 0;color:var(--text)}
+pre .k{color:#e8c87a}
+pre .s{color:#a8c8e8}
+pre .c{color:#7a8090}
+code{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.85em;background:rgba(200,164,90,.08);padding:.12rem .4rem;border-radius:3px;color:var(--gold2)}
+
+.path-note{font-family:'Cormorant Garamond',serif;font-size:.85rem;color:var(--muted);margin-top:.3rem;line-height:1.5}
+.path-note code{font-size:.78rem}
+
+.example-list{list-style:none;padding:0;margin-top:.8rem}
+.example-list li{padding:.7rem 1rem;background:rgba(200,164,90,.04);border-left:2px solid var(--gold3);border-radius:0 6px 6px 0;margin-bottom:.55rem;font-family:'Cormorant Garamond',serif;font-size:.95rem;color:var(--text);line-height:1.5}
+.example-list li::before{content:"💬 ";margin-right:.3rem}
+
+.tool-grid{display:grid;grid-template-columns:1fr;gap:.8rem;margin-top:1rem}
+.tool-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem 1.2rem}
+.tool-name{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.82rem;color:var(--gold2);margin-bottom:.4rem;letter-spacing:.02em}
+.tool-desc{font-family:'Cormorant Garamond',serif;font-size:.92rem;color:var(--muted);line-height:1.55}
+
+.links-row{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.4rem}
+.link-pill{display:inline-flex;align-items:center;gap:.5rem;border:1px solid var(--gold3);color:var(--gold);font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;padding:.6rem 1.1rem;border-radius:6px;transition:all .15s}
+.link-pill:hover{background:rgba(200,164,90,.12);color:var(--gold2)}
+
+.hero-cta{display:flex;gap:.8rem;justify-content:center;margin-top:1.6rem;flex-wrap:wrap}
+
+footer{border-top:1px solid var(--border);padding:2rem 5%;text-align:center;margin-top:3rem;font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+footer a{color:var(--muted);margin:0 .5rem}footer a:hover{color:var(--gold)}
+
+.lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
+.lang-pill button{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45)}
+.lang-pill button.active{background:var(--gold);color:#040407}
+
+html[lang="th"] body,html[lang="th"] .section-sub,html[lang="th"] .sub,html[lang="th"] .step-title,html[lang="th"] .step-desc,html[lang="th"] .tool-desc,html[lang="th"] .example-list li,html[lang="th"] .path-note{font-family:'Prompt',sans-serif;font-weight:300}
+html[lang="th"] .title,html[lang="th"] .section-title{font-family:'Prompt',sans-serif;font-weight:500}
+html[lang="th"] pre,html[lang="th"] code,html[lang="th"] .tool-name{font-family:'JetBrains Mono',ui-monospace,monospace}
+</style>
+</head><body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
+  <div class="nav-right">
+    <a href="/cosmic-score" class="nav-link" data-en="Cosmic Score" data-th="Cosmic Score">Cosmic Score</a>
+    <a href="/pricing" class="nav-link" data-en="Pricing" data-th="ราคา">ราคา</a>
+    <a href="/blog/" class="nav-link" data-en="Library" data-th="ห้องสมุด">ห้องสมุด</a>
+    <a href="/" class="btn-gold" data-en="Open App" data-th="เปิดแอป">เปิดแอป</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <div class="eyebrow" data-en="✦ FREE · MIT LICENSE · NO ACCOUNT REQUIRED" data-th="✦ ฟรี · MIT LICENSE · ไม่ต้องสมัครสมาชิก">✦ ฟรี · MIT LICENSE · ไม่ต้องสมัครสมาชิก</div>
+  <h1 class="title" data-en="Connect AI to your chart" data-th="เชื่อม AI กับดวงของคุณ">เชื่อม AI กับดวงของคุณ</h1>
+  <p class="sub" data-en="Bring the 26-system Mythsensus engine into Claude Desktop, ChatGPT, Cursor — or any MCP-aware AI assistant. Ask deep questions and get answers grounded in your real cosmic profile." data-th="ให้ ChatGPT / Claude / Cursor รู้จักดวงของคุณ — ถามอะไรก็ตอบโดยอ้างอิงรายงาน 26 ศาสตร์ของคุณจริงๆ ไม่ใช่คำตอบทั่วไป">ให้ ChatGPT / Claude / Cursor รู้จักดวงของคุณ — ถามอะไรก็ตอบโดยอ้างอิงรายงาน 26 ศาสตร์ของคุณจริงๆ ไม่ใช่คำตอบทั่วไป</p>
+
+  <div class="hero-cta">
+    <a href="#personal" class="link-pill" data-en="📱 Personal use" data-th="📱 ใช้ส่วนตัว">📱 ใช้ส่วนตัว</a>
+    <a href="#developers" class="link-pill" data-en="🛠 For developers" data-th="🛠 สำหรับ developer">🛠 สำหรับ developer</a>
+    <a href="https://github.com/PattrickChenforclaudeuse/mythsensus-mcp" class="link-pill" target="_blank" rel="noopener">⭐ GitHub</a>
+    <a href="https://www.npmjs.com/package/mythsensus-mcp" class="link-pill" target="_blank" rel="noopener">📦 npm</a>
+  </div>
+
+  <!-- ═══ CONSUMER SECTION ═══════════════════════════════ -->
+  <div id="personal" class="divider">
+    <span class="divider-line"></span>
+    <span class="divider-text" data-en="For Everyone" data-th="สำหรับทุกคน">สำหรับทุกคน</span>
+    <span class="divider-line"></span>
+  </div>
+
+  <div class="section featured">
+    <div class="section-tag" data-en="📱 PERSONAL USE" data-th="📱 ใช้ส่วนตัว">📱 ใช้ส่วนตัว</div>
+    <h2 class="section-title" data-en="Talk to Claude or ChatGPT about your own chart" data-th="คุย Claude / ChatGPT เรื่องดวงคุณเอง">คุย Claude / ChatGPT เรื่องดวงคุณเอง</h2>
+    <p class="section-sub" data-en="Install once. Ask your AI assistant about your future, relationships, business decisions — it will reference your 26-system reading every time." data-th="ติดตั้งครั้งเดียว ถาม AI เรื่องอนาคต ความรัก งาน การตัดสินใจ — AI จะอ้างอิงรายงาน 26 ศาสตร์ของคุณเสมอ">ติดตั้งครั้งเดียว ถาม AI เรื่องอนาคต ความรัก งาน การตัดสินใจ — AI จะอ้างอิงรายงาน 26 ศาสตร์ของคุณเสมอ</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title" data-en="Open Claude Desktop config" data-th="เปิดไฟล์ config ของ Claude Desktop">เปิดไฟล์ config ของ Claude Desktop</div>
+        <div class="step-desc" data-en="If you don't have Claude Desktop yet, download it free at" data-th="ถ้ายังไม่มี Claude Desktop ดาวน์โหลดฟรีที่">ถ้ายังไม่มี Claude Desktop ดาวน์โหลดฟรีที่ <a href="https://claude.ai/download" target="_blank" rel="noopener">claude.ai/download</a></div>
+        <div class="path-note" data-en="Config file path:" data-th="ตำแหน่งไฟล์ config:">ตำแหน่งไฟล์ config:</div>
+        <div class="path-note">• <strong>macOS</strong> <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></div>
+        <div class="path-note">• <strong>Windows</strong> <code>%APPDATA%\Claude\claude_desktop_config.json</code></div>
+        <div class="path-note">• <strong>Linux</strong> <code>~/.config/Claude/claude_desktop_config.json</code></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title" data-en="Paste this config" data-th="วาง config นี้ลงไป">วาง config นี้ลงไป</div>
+        <div class="step-desc" data-en="Replace the file contents (or merge with your existing mcpServers block):" data-th="ใส่แทนทั้งไฟล์ (หรือรวมกับ mcpServers ที่มีอยู่):">ใส่แทนทั้งไฟล์ (หรือรวมกับ mcpServers ที่มีอยู่):</div>
+<pre class="code-snippet">{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"mythsensus"</span>: {
+      <span class="k">"command"</span>: <span class="s">"npx"</span>,
+      <span class="k">"args"</span>: [<span class="s">"-y"</span>, <span class="s">"mythsensus-mcp"</span>]
+    }
+  }
+}</pre>
+        <div class="path-note" data-en="Note: Requires Node.js 18+ installed. Check with" data-th="หมายเหตุ: ต้องติดตั้ง Node.js 18+ ก่อน เช็คด้วย">หมายเหตุ: ต้องติดตั้ง Node.js 18+ ก่อน เช็คด้วย <code>node --version</code> — ถ้ายังไม่มี <a href="https://nodejs.org" target="_blank" rel="noopener">nodejs.org</a></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title" data-en="Restart Claude Desktop" data-th="ปิดแล้วเปิด Claude Desktop ใหม่">ปิดแล้วเปิด Claude Desktop ใหม่</div>
+        <div class="step-desc" data-en="When Claude restarts, you'll see a 🔌 tools icon — click it to confirm Mythsensus is connected. Now ask Claude anything about your chart." data-th="พอ Claude เปิดใหม่ จะเห็น icon 🔌 tools — กดดูว่ามี Mythsensus ขึ้นหรือยัง แล้วถามอะไรเกี่ยวกับดวงได้เลย">พอ Claude เปิดใหม่ จะเห็น icon 🔌 tools — กดดูว่ามี Mythsensus ขึ้นหรือยัง แล้วถามอะไรเกี่ยวกับดวงได้เลย</div>
+      </div>
+    </div>
+
+    <div style="margin-top:2rem">
+      <div class="step-title" style="margin-bottom:.6rem" data-en="✦ Try asking" data-th="✦ ลองถาม">✦ ลองถาม</div>
+      <ul class="example-list">
+        <li data-en="What's my Cosmic Score? I was born 15 May 1990, 8 AM, Bangkok." data-th="ดูดวงให้หน่อย เกิด 15 พฤษภาคม 2533 เวลา 8 โมง กรุงเทพฯ">ดูดวงให้หน่อย เกิด 15 พฤษภาคม 2533 เวลา 8 โมง กรุงเทพฯ</li>
+        <li data-en="Read my BaZi (Four Pillars) deeply — what does my Day Master mean for career?" data-th="อ่าน BaZi ของฉันลึกๆ — Day Master หมายความว่ายังไงเรื่องอาชีพ">อ่าน BaZi ของฉันลึกๆ — Day Master หมายความว่ายังไงเรื่องอาชีพ</li>
+        <li data-en="Should I take this job offer? Use 108 Organum to get a consensus answer." data-th="ควรรับงานนี้ไหม ใช้ 108 Organum หาคำตอบให้หน่อย">ควรรับงานนี้ไหม ใช้ 108 Organum หาคำตอบให้หน่อย</li>
+        <li data-en="What deity is blessing me today? My chart hash is xyz123." data-th="วันนี้เทพองค์ไหนคุ้มครองฉัน ดวงฉันรหัส xyz123">วันนี้เทพองค์ไหนคุ้มครองฉัน ดวงฉันรหัส xyz123</li>
+        <li data-en="Compare my chart with someone born 22 Aug 1992, 6 PM, Chiang Mai. Are we compatible?" data-th="เทียบดวงฉันกับคนเกิด 22 สิงหาคม 2535 18:00 เชียงใหม่ เข้ากันมั้ย">เทียบดวงฉันกับคนเกิด 22 สิงหาคม 2535 18:00 เชียงใหม่ เข้ากันมั้ย</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ═══ DEVELOPER SECTION ═══════════════════════════════ -->
+  <div id="developers" class="divider">
+    <span class="divider-line"></span>
+    <span class="divider-text" data-en="For Builders" data-th="สำหรับนักพัฒนา">สำหรับนักพัฒนา</span>
+    <span class="divider-line"></span>
+  </div>
+
+  <div class="section">
+    <div class="section-tag" data-en="🛠 BUILD WITH MYTHSENSUS" data-th="🛠 BUILD ด้วย MYTHSENSUS">🛠 BUILD ด้วย MYTHSENSUS</div>
+    <h2 class="section-title" data-en="Embed the 26-system engine in your app" data-th="ฝัง engine 26 ศาสตร์ ลง app ของคุณ">ฝัง engine 26 ศาสตร์ ลง app ของคุณ</h2>
+    <p class="section-sub" data-en="Open-source MCP server. Deterministic — same birth data always returns the same Cosmic Score. MIT-licensed. Build horoscope chatbots, daily-blessing widgets, astrology APIs, or anything where AI needs to know who someone is." data-th="MCP server แบบ open-source · deterministic — วันเกิดเดียวกันได้ Cosmic Score เหมือนเดิมทุกครั้ง · MIT license · เอาไปทำ horoscope chatbot, daily blessing, astrology API หรืออะไรที่ AI ต้องรู้จักผู้ใช้">MCP server แบบ open-source · deterministic — วันเกิดเดียวกันได้ Cosmic Score เหมือนเดิมทุกครั้ง · MIT license · เอาไปทำ horoscope chatbot, daily blessing, astrology API หรืออะไรที่ AI ต้องรู้จักผู้ใช้</p>
+
+    <div class="step-title" style="margin-top:1.6rem;margin-bottom:.5rem" data-en="Install" data-th="ติดตั้ง">ติดตั้ง</div>
+<pre class="code-snippet"><span class="c"># Use directly via npx (recommended for MCP clients)</span>
+npx -y mythsensus-mcp
+
+<span class="c"># Or install globally</span>
+npm install -g mythsensus-mcp
+
+<span class="c"># Or as a dependency in your project</span>
+npm install mythsensus-mcp</pre>
+
+    <div class="step-title" style="margin-top:1.6rem;margin-bottom:.5rem" data-en="Available tools" data-th="Tools ที่ใช้ได้">Tools ที่ใช้ได้</div>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <div class="tool-name">calculate_cosmic_score(year, month, day, [hour, lat, lon, tz])</div>
+        <div class="tool-desc" data-en="Compute the 1–1,000 Cosmic Score from a birth date. Returns numeric score, tier (Common → Mythic), percentile, and per-system breakdown across all 26 ancient divination systems. Deterministic." data-th="คำนวณ Cosmic Score 1–1,000 จากวันเกิด · คืน score + tier (Common → Mythic) + percentile + breakdown 26 ศาสตร์ · deterministic">คำนวณ Cosmic Score 1–1,000 จากวันเกิด · คืน score + tier (Common → Mythic) + percentile + breakdown 26 ศาสตร์ · deterministic</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-name">get_deep_reading(chart, system)</div>
+        <div class="tool-desc" data-en="500–800 word interpretation for ONE specific system: bazi, vedic, western, ninestar, numerology, thai_seven_number, mayan_tzolkin, norse_runes, human_design, and 17 others. Returns en or th text." data-th="คำอ่านลึก 500–800 คำของ 1 ศาสตร์: bazi, vedic, western, ninestar, numerology, thai_seven_number, mayan_tzolkin, norse_runes, human_design และอีก 17 ศาสตร์ · เลือกภาษา en/th">คำอ่านลึก 500–800 คำของ 1 ศาสตร์: bazi, vedic, western, ninestar, numerology, thai_seven_number, mayan_tzolkin, norse_runes, human_design และอีก 17 ศาสตร์ · เลือกภาษา en/th</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-name">draw_daily_blessing(date, chart_hash)</div>
+        <div class="tool-desc" data-en="Pull today's deity from the 1,069-deity collection (Common → Mythic tiers). Returns deity name, mythology, today's blessing message. Deterministic: same chart + same date = same deity." data-th="ดึงเทพประจำวันจากคลัง 1,069 องค์ (Common → Mythic) · คืนชื่อเทพ + ตำนาน + ข้อความพรประจำวัน · deterministic ตาม chart + date">ดึงเทพประจำวันจากคลัง 1,069 องค์ (Common → Mythic) · คืนชื่อเทพ + ตำนาน + ข้อความพรประจำวัน · deterministic ตาม chart + date</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-name">ask_108_organum(question, chart)</div>
+        <div class="tool-desc" data-en="Ask a question. 108 deities are selected (biased to question topic: love → Lakshmi/Aphrodite, wealth → Caishen/Hermes, etc). Each casts a vote with domain words. Consensus words form the answer. Deterministic." data-th="ถามคำถาม · เลือกเทพ 108 องค์ (bias ตามหัวข้อ: ความรัก → Lakshmi/Aphrodite, เงิน → Caishen/Hermes ฯลฯ) · แต่ละองค์ลงคะแนน · คำที่ consensus = คำตอบ · deterministic">ถามคำถาม · เลือกเทพ 108 องค์ (bias ตามหัวข้อ: ความรัก → Lakshmi/Aphrodite, เงิน → Caishen/Hermes ฯลฯ) · แต่ละองค์ลงคะแนน · คำที่ consensus = คำตอบ · deterministic</div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-name">list_26_systems()</div>
+        <div class="tool-desc" data-en="Return canonical metadata for all 26 systems: name, English name, region of origin, required birth-data fields, one-line description. Use to discover what's possible." data-th="คืน metadata 26 ศาสตร์: ชื่อ + ชื่ออังกฤษ + ภูมิภาคต้นกำเนิด + ฟิลด์ที่ต้องใช้ + คำอธิบาย 1 บรรทัด · ใช้ดูว่าทำอะไรได้บ้าง">คืน metadata 26 ศาสตร์: ชื่อ + ชื่ออังกฤษ + ภูมิภาคต้นกำเนิด + ฟิลด์ที่ต้องใช้ + คำอธิบาย 1 บรรทัด · ใช้ดูว่าทำอะไรได้บ้าง</div>
+      </div>
+    </div>
+
+    <div class="step-title" style="margin-top:1.6rem;margin-bottom:.5rem" data-en="Use cases" data-th="Use cases">Use cases</div>
+    <ul class="example-list">
+      <li data-en="Horoscope chatbot — Discord/Telegram bot that gives daily readings to subscribers" data-th="Horoscope chatbot — บอท Discord / Telegram ส่งคำทำนายประจำวันให้สมาชิก">Horoscope chatbot — บอท Discord / Telegram ส่งคำทำนายประจำวันให้สมาชิก</li>
+      <li data-en="Spiritual coaching app — embed deep readings inside a wellness or therapy product" data-th="แอป spiritual coaching — ฝัง deep reading ลงในแอป wellness หรือ therapy">แอป spiritual coaching — ฝัง deep reading ลงในแอป wellness หรือ therapy</li>
+      <li data-en="Astrology API for journalists — auto-generate daily horoscope columns from real chart data" data-th="Astrology API สำหรับสำนักข่าว — gen คอลัมน์ดูดวงประจำวันจาก chart จริง">Astrology API สำหรับสำนักข่าว — gen คอลัมน์ดูดวงประจำวันจาก chart จริง</li>
+      <li data-en="Dating app personality match — score compatibility using BaZi + Western + Vedic in one call" data-th="แอป dating — คำนวณ compatibility จาก BaZi + Western + Vedic ในการเรียก 1 ครั้ง">แอป dating — คำนวณ compatibility จาก BaZi + Western + Vedic ในการเรียก 1 ครั้ง</li>
+      <li data-en="Show HN / portfolio demo — most-starred MCP server in the divination space (be the first)" data-th="Show HN / portfolio demo — MCP server ในวงการดูดวงที่ดาวเยอะที่สุด (เป็นเจ้าแรก)">Show HN / portfolio demo — MCP server ในวงการดูดวงที่ดาวเยอะที่สุด (เป็นเจ้าแรก)</li>
+    </ul>
+
+    <div class="links-row">
+      <a href="https://github.com/PattrickChenforclaudeuse/mythsensus-mcp" class="link-pill" target="_blank" rel="noopener">⭐ GitHub repo</a>
+      <a href="https://www.npmjs.com/package/mythsensus-mcp" class="link-pill" target="_blank" rel="noopener">📦 npm package</a>
+      <a href="https://modelcontextprotocol.io" class="link-pill" target="_blank" rel="noopener">📖 MCP spec</a>
+      <a href="https://github.com/PattrickChenforclaudeuse/mythsensus-mcp/issues" class="link-pill" target="_blank" rel="noopener">🐛 Report issue</a>
+    </div>
+
+    <div style="margin-top:1.6rem;padding:1rem 1.2rem;background:rgba(200,164,90,.04);border-left:2px solid var(--gold3);border-radius:0 6px 6px 0;font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--muted);line-height:1.55">
+      <span data-en="License: " data-th="License: ">License: </span><strong style="color:var(--gold)">MIT</strong> · <span data-en="No attribution required, but a star on GitHub is appreciated 🌟. The same engine powers " data-th="ไม่ต้องให้ credit แต่ขอดาวบน GitHub ก็ดี 🌟 — engine เดียวกันกับที่ขับเคลื่อน ">ไม่ต้องให้ credit แต่ขอดาวบน GitHub ก็ดี 🌟 — engine เดียวกันกับที่ขับเคลื่อน </span><a href="https://mythsensus.com">mythsensus.com</a>.
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <a href="/" data-en="Home" data-th="หน้าหลัก">หน้าหลัก</a> ·
+  <a href="/cosmic-score" data-en="Cosmic Score" data-th="Cosmic Score">Cosmic Score</a> ·
+  <a href="/pricing" data-en="Pricing" data-th="ราคา">ราคา</a> ·
+  <a href="/blog/" data-en="Library" data-th="ห้องสมุด">ห้องสมุด</a> ·
+  <a href="/support" data-en="Support" data-th="ติดต่อ">ติดต่อ</a> ·
+  <a href="/disclaimer" data-en="Disclaimer" data-th="ข้อจำกัด">ข้อจำกัด</a>
+  <div style="margin-top:.8rem;opacity:.6">© Mythsensus · MIT-licensed MCP server</div>
+</footer>
+
+<div class="lang-pill">
+  <button id="langTh" class="active" onclick="setLang('th')">TH</button>
+  <button id="langEn" onclick="setLang('en')">EN</button>
+</div>
+
+<script>
+function setLang(lang){
+  document.documentElement.setAttribute('lang', lang);
+  document.getElementById('langTh').classList.toggle('active', lang === 'th');
+  document.getElementById('langEn').classList.toggle('active', lang === 'en');
+  for (const el of document.querySelectorAll('[data-en][data-th]')) {
+    const txt = el.getAttribute(lang === 'th' ? 'data-th' : 'data-en');
+    if (txt != null) {
+      // Preserve any child <code>/<strong>/<a> markup if the text contains them — for simple cases just replace.
+      // If the data-* attribute looks like plain text, set as innerHTML to keep things simple.
+      el.innerHTML = txt;
+    }
+  }
+  try { localStorage.setItem('mth_lang', lang); } catch(_) {}
+}
+try {
+  const saved = localStorage.getItem('mth_lang');
+  if (saved === 'en') setLang('en');
+} catch(_) {}
+</script>
+
+</body></html>

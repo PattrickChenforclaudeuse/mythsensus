@@ -212,7 +212,20 @@
 //   strong-system names under each family bar, theme chips now carry
 //   per-system scores. Taksa added to wealth votes + finance/timing
 //   signal pools. /build/ms26-bundle.js regenerated.
-const CACHE = 'mythsensus-v95';
+// v96: 2026-06-10 — audit P1/P2 follow-ups:
+// • Mobile (≤520px) group-tab labels (e.g. "COSMIC BLUEPRINT") wrap to 2 lines
+//   instead of overprinting the neighbouring tab.
+// • Reader mode re-fits the report iframe height on resize/orientation (was
+//   frozen at first load → clipped content after rotating). Swipe-to-tab and
+//   pull-to-refresh disabled while the reader is open; #cb-report-wrap gets
+//   overscroll-behavior:contain (no native pull-to-refresh / scroll chaining).
+// • Consistency: Biorhythm reframed from "one of the 26 scoring systems" to the
+//   27th daily layer (Thai Taksa is the 26th) across /cosmic-score FAQ+JSON-LD,
+//   /blog/biorhythm (meta/FAQ/article/body EN+TH), /how-it-works (26 voting).
+// • api/oracle/addon CORS locked to mythsensus.com origin(s) (was '*').
+// • build:engine auto-copies bundle to served root /build; test SYS adds taksa.
+//   Engine math unchanged — bundle still ?v=95.
+const CACHE = 'mythsensus-v96';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

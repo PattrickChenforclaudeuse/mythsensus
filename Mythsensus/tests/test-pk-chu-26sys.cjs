@@ -26,10 +26,14 @@ console.log('══════════════════════�
 
 const chart = calculate(d);
 
-// Expected 26-system keys
+// Expected chart-data keys the engine must produce. Thai Taksa (8 Houses)
+// became the 26th SCORING system on 2026-06-10, replacing Biorhythm in the
+// public 26. Biorhythm is still COMPUTED (chart.biorhythm) as the daily layer —
+// it just no longer votes in the Cosmic Score (scoring:false) — so it stays in
+// this presence-check list alongside the new `taksa` key.
 const SYS = [
   'western', 'bazi', 'ninestar', 'numerology', 'vedic', 'humandesign',
-  'mayan', 'celtic', 'thai',
+  'mayan', 'celtic', 'thai', 'taksa',
   'saju', 'tibetan', 'ziwei', 'onmyodo', 'hellenistic',
   'norseRune', 'ogham', 'arabicParts', 'kabbalistic', 'zoroastrian',
   'aztec', 'nativeAmerican', 'ifaYoruba', 'aboriginal',

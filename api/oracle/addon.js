@@ -334,8 +334,20 @@ async function readUserDailyRenders(chart_hash) {
 // ─── Handler ─────────────────────────────────────────────
 
 export default async function handler(req, res) {
-  // CORS — same-origin only in production, allow any for dev
-  res.setHeader('Access-Control-Allow-Origin', '*')
+  // CORS — lock to the Mythsensus origin(s) instead of '*' (2026-06-10).
+  // Same-origin app calls don't need an ACAO header, so the real site is
+  // unaffected; this only stops OTHER websites' browsers from invoking this
+  // paid endpoint cross-origin. NOTE: CORS is browser-enforced only — it does
+  // NOT stop curl/script abuse (that needs auth/rate-limiting, tracked
+  // separately). Preview deploys (*.vercel.app) are reflected for QA.
+  const origin = req.headers.origin || ''
+  const allowed = origin === 'https://mythsensus.com'
+    || origin === 'https://www.mythsensus.com'
+    || /^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin)
+  if (allowed) {
+    res.setHeader('Access-Control-Allow-Origin', origin)
+    res.setHeader('Vary', 'Origin')
+  }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   if (req.method === 'OPTIONS') return res.status(204).end()
