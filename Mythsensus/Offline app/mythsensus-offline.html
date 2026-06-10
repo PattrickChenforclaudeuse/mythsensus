@@ -1717,49 +1717,133 @@ function calcThai(d) {
     };
 }
 // ============================================================
+// THAI TAKSA — 8-house classical astrology (ทักษา)
+// ============================================================
+// Birth weekday determines which planet sits in which life-arena house.
+// The 8 houses rotate around a fixed-order wheel:
+//   บริวาร (Borivar / Retainers) → อายุ (Ayu / Life) → เดช (Det / Power) →
+//   ศรี (Sri / Dignity) → มูละ (Mula / Wealth) → อุตสาหะ (Utsaha / Effort) →
+//   มนตรี (Montri / Advisors) → กาลกิณี (Kalakini / Misfortune)
+// 8 planet-deities rotate in the same order:
+//   อาทิตย์ Sun → จันทร์ Moon → อังคาร Mars → พุธ Mercury → พฤหัสบดี Jupiter →
+//   ศุกร์ Venus → เสาร์ Saturn → ราหู Rahu
+// For weekday X (0=Sunday), the day-lord planet[X] sits in house 0 (บริวาร),
+// and the remaining planets rotate around so each house has a different
+// planet-tenant per weekday — that's what makes the wheel personalised.
+const TAKSA_HOUSE_NAMES_TH = ['บริวาร', 'อายุ', 'เดช', 'ศรี', 'มูละ', 'อุตสาหะ', 'มนตรี', 'กาลกิณี'];
+const TAKSA_HOUSE_NAMES_EN = ['Retainers', 'Life', 'Power', 'Dignity', 'Wealth', 'Effort', 'Advisors', 'Misfortune'];
+const TAKSA_PLANET_NAMES_TH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์', 'ราหู'];
+const TAKSA_PLANET_NAMES_EN = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu'];
+// Planet "strength" buckets used to score the wealth (มูละ) and misfortune
+// (กาลกิณี) house placements. Classical Thai-Brahmin labels:
+//   strong benefic: Jupiter, Sun, Venus, Mercury (warm)
+//   neutral:        Moon, Mars
+//   challenging:    Saturn, Rahu
+function _taksaPlanetWeight(planetIdx, isMula) {
+    // Returns a delta added to the base score.
+    // Strong benefic in มูละ = +60..+80 (big wealth potential)
+    // Strong benefic in กาลกิณี = -50 (the day they sit on is the unlucky day)
+    // Challenging in มูละ = -40 (wealth obstacles)
+    // Challenging in กาลกิณี = +20 (less harm; the malefic is contained there)
+    const STRONG = [0, 4, 5, 3]; // Sun, Jupiter, Venus, Mercury
+    const CHALLENGING = [6, 7]; // Saturn, Rahu
+    if (STRONG.indexOf(planetIdx) >= 0)
+        return isMula ? 70 : -50;
+    if (CHALLENGING.indexOf(planetIdx) >= 0)
+        return isMula ? -40 : 20;
+    return isMula ? 20 : -10; // neutral planets (Moon, Mars)
+}
+function calcTaksa(d) {
+    const jd = toJD(d.year, d.month, d.day, 12);
+    const dow = ((Math.floor(jd + 1.5) % 7) + 7) % 7; // 0=Sunday
+    // Build the 8-house wheel for this weekday.
+    const wheel = [];
+    for (let h = 0; h < 8; h++) {
+        const planetIdx = (dow + h) % 8;
+        wheel.push({
+            house: h,
+            houseNameTh: TAKSA_HOUSE_NAMES_TH[h],
+            houseNameEn: TAKSA_HOUSE_NAMES_EN[h],
+            planet: planetIdx,
+            planetNameTh: TAKSA_PLANET_NAMES_TH[planetIdx],
+            planetNameEn: TAKSA_PLANET_NAMES_EN[planetIdx],
+        });
+    }
+    // House 4 = มูละ (wealth), House 7 = กาลกิณี (misfortune)
+    const mula = wheel[4];
+    const kalakini = wheel[7];
+    // Score formula:
+    //   base 700
+    //   + weight from planet sitting in มูละ (wealth potential)
+    //   + weight from planet sitting in กาลกิณี (misfortune containment)
+    //   + small DOB jitter so identical-weekday births still differ slightly
+    const baseScore = 700
+        + _taksaPlanetWeight(mula.planet, true)
+        + _taksaPlanetWeight(kalakini.planet, false)
+        + ((d.day * 13 + d.month * 7) % 60) - 30;
+    const score = Math.max(400, Math.min(960, baseScore));
+    // Compact bilingual reading (the deep narrative pattern used by other
+    // systems via buildRichReading is a larger writeup that we'll add in a
+    // later session — this short form already powers the score breakdown
+    // line + a usable per-system tile).
+    const readingTh = `ทักษา · เกิด${TAKSA_PLANET_NAMES_TH[dow]} วันลอร์ดสถิตในบริวาร · มูละ (ทรัพย์) ปกครองโดย${mula.planetNameTh} · กาลกิณีปกครองโดย${kalakini.planetNameTh} = วัน${TAKSA_PLANET_NAMES_TH[kalakini.planet]}เป็นวันต้องระวังของคุณ`;
+    const readingEn = `Taksa · ${TAKSA_PLANET_NAMES_EN[dow]} day-lord sits in Retainers · Wealth house (Mula) ruled by ${mula.planetNameEn} · Misfortune house (Kalakini) ruled by ${kalakini.planetNameEn}, so ${TAKSA_PLANET_NAMES_EN[kalakini.planet]}'s weekday is the day to handle with care.`;
+    return {
+        dayOfWeek: dow,
+        dayLordTh: TAKSA_PLANET_NAMES_TH[dow],
+        dayLordEn: TAKSA_PLANET_NAMES_EN[dow],
+        wheel,
+        mulaTh: mula.planetNameTh, mulaEn: mula.planetNameEn,
+        kalakiniTh: kalakini.planetNameTh, kalakiniEn: kalakini.planetNameEn,
+        reading: _reportLang === 'en' ? readingEn : readingTh,
+        score,
+    };
+}
+// ============================================================
 // COSMIC SCORE
 // ============================================================
-// 26 systems, equal weight 1/26 ≈ 3.85% each. Sum = 1.00 exactly after normalization.
+// 27 systems, equal weight 1/27 ≈ 3.70% each. Sum = 1.00 exactly after normalization.
 // system   = Thai/native label (used when _reportLang === 'th')
 // systemEn = English label    (used when _reportLang === 'en')
 const SCORE_WEIGHTS = [
     // East Asia
-    { system: 'BaZi สี่เสา', systemEn: 'BaZi Four Pillars', weight: 1 / 26 },
-    { system: 'Nine Star Ki', systemEn: 'Nine Star Ki', weight: 1 / 26 },
-    { system: 'Saju (Korean)', systemEn: 'Saju (Korean)', weight: 1 / 26 },
-    { system: 'Zi Wei Dou Shu', systemEn: 'Zi Wei Dou Shu', weight: 1 / 26 },
-    { system: 'Onmyōdō', systemEn: 'Onmyōdō', weight: 1 / 26 },
+    { system: 'BaZi สี่เสา', systemEn: 'BaZi Four Pillars', weight: 1 / 27 },
+    { system: 'Nine Star Ki', systemEn: 'Nine Star Ki', weight: 1 / 27 },
+    { system: 'Saju (Korean)', systemEn: 'Saju (Korean)', weight: 1 / 27 },
+    { system: 'Zi Wei Dou Shu', systemEn: 'Zi Wei Dou Shu', weight: 1 / 27 },
+    { system: 'Onmyōdō', systemEn: 'Onmyōdō', weight: 1 / 27 },
     // South Asia
-    { system: 'Vedic Jyotish', systemEn: 'Vedic Jyotish', weight: 1 / 26 },
-    { system: 'Vedic Mahadasha', systemEn: 'Vedic Mahadasha', weight: 1 / 26 },
-    { system: 'ไทยพราหมณ์', systemEn: 'Thai Brahmin', weight: 1 / 26 },
+    { system: 'Vedic Jyotish', systemEn: 'Vedic Jyotish', weight: 1 / 27 },
+    { system: 'Vedic Mahadasha', systemEn: 'Vedic Mahadasha', weight: 1 / 27 },
+    { system: 'ไทยพราหมณ์', systemEn: 'Thai Brahmin', weight: 1 / 27 },
+    { system: 'ทักษา 8 บ้าน', systemEn: 'Thai Taksa (8 Houses)', weight: 1 / 27 },
     // Europe/West
-    { system: 'โหราศาสตร์ตะวันตก', systemEn: 'Western Astrology', weight: 1 / 26 },
-    { system: 'Hellenistic', systemEn: 'Hellenistic', weight: 1 / 26 },
-    { system: 'เซลติก Tree', systemEn: 'Celtic Tree', weight: 1 / 26 },
-    { system: 'Norse Rune', systemEn: 'Norse Rune', weight: 1 / 26 },
-    { system: 'Ogham', systemEn: 'Ogham', weight: 1 / 26 },
+    { system: 'โหราศาสตร์ตะวันตก', systemEn: 'Western Astrology', weight: 1 / 27 },
+    { system: 'Hellenistic', systemEn: 'Hellenistic', weight: 1 / 27 },
+    { system: 'เซลติก Tree', systemEn: 'Celtic Tree', weight: 1 / 27 },
+    { system: 'Norse Rune', systemEn: 'Norse Rune', weight: 1 / 27 },
+    { system: 'Ogham', systemEn: 'Ogham', weight: 1 / 27 },
     // Middle East
-    { system: 'Arabic Parts', systemEn: 'Arabic Parts', weight: 1 / 26 },
-    { system: 'Kabbalistic', systemEn: 'Kabbalistic', weight: 1 / 26 },
-    { system: 'Zoroastrian', systemEn: 'Zoroastrian', weight: 1 / 26 },
+    { system: 'Arabic Parts', systemEn: 'Arabic Parts', weight: 1 / 27 },
+    { system: 'Kabbalistic', systemEn: 'Kabbalistic', weight: 1 / 27 },
+    { system: 'Zoroastrian', systemEn: 'Zoroastrian', weight: 1 / 27 },
     // Americas
-    { system: 'มายัน Tzolk\'in', systemEn: 'Mayan Tzolk\'in', weight: 1 / 26 },
-    { system: 'Aztec Tonalpohualli', systemEn: 'Aztec Tonalpohualli', weight: 1 / 26 },
-    { system: 'Native American', systemEn: 'Native American', weight: 1 / 26 },
+    { system: 'มายัน Tzolk\'in', systemEn: 'Mayan Tzolk\'in', weight: 1 / 27 },
+    { system: 'Aztec Tonalpohualli', systemEn: 'Aztec Tonalpohualli', weight: 1 / 27 },
+    { system: 'Native American', systemEn: 'Native American', weight: 1 / 27 },
     // Africa/Oceania
-    { system: 'Ifa/Yoruba', systemEn: 'Ifa/Yoruba', weight: 1 / 26 },
-    { system: 'Aboriginal Dreamtime', systemEn: 'Aboriginal Dreamtime', weight: 1 / 26 },
+    { system: 'Ifa/Yoruba', systemEn: 'Ifa/Yoruba', weight: 1 / 27 },
+    { system: 'Aboriginal Dreamtime', systemEn: 'Aboriginal Dreamtime', weight: 1 / 27 },
     // Modern/Global
-    { system: 'ระบบประเภทพลังงาน', systemEn: 'Energy Type', weight: 1 / 26 },
-    { system: 'เลขศาสตร์ Pythagorean', systemEn: 'Pythagorean Numerology', weight: 1 / 26 },
-    { system: 'เลข ๗ ตัว ๙ ฐาน', systemEn: 'Thai 7-Number', weight: 1 / 26 },
-    { system: 'Tibetan Astrology', systemEn: 'Tibetan Astrology', weight: 1 / 26 },
-    { system: 'Biorhythm', systemEn: 'Biorhythm', weight: 1 / 26 },
+    { system: 'ระบบประเภทพลังงาน', systemEn: 'Energy Type', weight: 1 / 27 },
+    { system: 'เลขศาสตร์ Pythagorean', systemEn: 'Pythagorean Numerology', weight: 1 / 27 },
+    { system: 'เลข ๗ ตัว ๙ ฐาน', systemEn: 'Thai 7-Number', weight: 1 / 27 },
+    { system: 'Tibetan Astrology', systemEn: 'Tibetan Astrology', weight: 1 / 27 },
+    { system: 'Biorhythm', systemEn: 'Biorhythm', weight: 1 / 27 },
 ];
 const SCORE_COLORS = [
     '#1a6a10', '#3a6a50', '#2a6a40', '#1a5a60', '#3a5040',
-    '#3a5a80', '#2a4a90', '#5a3070',
+    '#3a5a80', '#2a4a90', '#5a3070', '#b07840',
     '#8a6820', '#7a5830', '#6a4840', '#5a4a6a', '#4a5060',
     '#804020', '#704030', '#605040',
     '#4a4a10', '#5a3a10', '#6a2a20',
@@ -1803,6 +1887,7 @@ function calcScore(d, data) {
         data.vedic.score ?? 700,
         data.vedicMahadasha.score,
         data.thai.score ?? 700,
+        data.taksa.score ?? 700,
         data.western.score ?? 700,
         data.hellenistic.score,
         data.celtic.score ?? 700,
@@ -1822,7 +1907,7 @@ function calcScore(d, data) {
         data.tibetan.score,
         data.biorhythm.score,
     ];
-    // 26 per-system "finding" lines for the cosmic-blueprint score breakdown.
+    // 27 per-system "finding" lines for the cosmic-blueprint score breakdown.
     // The Thai versions interpolate the existing chart fields verbatim; the EN
     // versions translate or strip Thai-prefixed phrasing so EN users see clean
     // English summaries. Each Thai/EN pair must read the SAME chart data so
@@ -1836,6 +1921,7 @@ function calcScore(d, data) {
         `Nakshatra ${data.vedic.moonNakshatra} ลัคนา${data.vedic.lagnaSign}`,
         `${data.vedicMahadasha.currentDasha} Dasha — ${data.vedicMahadasha.dashaQuality}`,
         `${data.thai.dayName}ปกครองโดย${data.thai.dayGodTh} สี${data.thai.dayColor}`,
+        `ทักษา · เจ้าวัน${data.taksa.dayLordTh} · มูละ ${data.taksa.mulaTh} · กาลกิณี ${data.taksa.kalakiniTh}`,
         `${data.western.sunSignTh} ☽${data.western.moonSignTh} ASC${data.western.ascSignTh}`,
         `${data.hellenistic.sectTh} Lot of Fortune ใน${data.hellenistic.lotSignTh ?? data.hellenistic.lotSign}`,
         `${data.celtic.treeNameTh} (${data.celtic.treeName}) ธาตุ${data.celtic.element}`,
@@ -1864,6 +1950,7 @@ function calcScore(d, data) {
         `Nakshatra ${data.vedic.moonNakshatra} · ${data.vedic.lagna ?? data.vedic.lagnaSign} ascendant`,
         `${data.vedicMahadasha.currentDasha} Dasha — ${data.vedicMahadasha.dashaQuality}`,
         `${data.thai.dayName} ruled by ${data.thai.dayGod} · colour ${data.thai.dayColor}`,
+        `Taksa · ${data.taksa.dayLordEn} day-lord · Wealth/Mula ${data.taksa.mulaEn} · Misfortune/Kalakini ${data.taksa.kalakiniEn}`,
         `${data.western.sunSign} Sun · ☽${data.western.moonSign} · ASC ${data.western.ascSign}`,
         `${data.hellenistic.sect} sect · Lot of Fortune in ${data.hellenistic.lotSign}`,
         `${data.celtic.treeName} · ${data.celtic.element} element`,
@@ -1888,17 +1975,35 @@ function calcScore(d, data) {
         const rawScore = systemScores[i] ?? 700;
         const score = Math.max(400, Math.min(999, rawScore));
         const sysLabel = _reportLang === 'en' ? w.systemEn || w.system : w.system;
-        // Display weight as percentage rounded to 1 decimal
-        return { system: sysLabel, weight: Math.round(w.weight * 1000) / 10, score, finding: findings[i] ?? '', color: SCORE_COLORS[i] ?? '#5a5a5a' };
+        // Biorhythm (last entry) is a DAILY layer — Director feedback 2026-06-04:
+        // "biorhythm ไม่ควรอยู่ใน cosmic score สิถ้ามันไม่นิ่ง". It's still shown
+        // in the breakdown (so users see all 26 systems) but flagged
+        // `scoring:false` to exclude it from the median voting that produces the
+        // Cosmic Score. The user-facing displays (Pet/Exercise/Mirror/Biorhythm
+        // tile) all read biorhythm via the renderer-side _liveBio helper that
+        // computes against today's date — so the FROZEN engine biorhythm score
+        // has no effect on either the user's UI or their Cosmic Score now.
+        const isDailyOnly = w.systemEn === 'Biorhythm' || w.system === 'Biorhythm';
+        return {
+            system: sysLabel,
+            weight: isDailyOnly ? 0 : Math.round(w.weight * 1000) / 10,
+            score,
+            finding: findings[i] ?? '',
+            color: SCORE_COLORS[i] ?? '#5a5a5a',
+            scoring: !isDailyOnly,
+        };
     });
-    // Cosmic Score = MEDIAN of 26 systems (resistant to outliers, true consensus)
-    const sorted = [...breakdown.map(b => b.score)].sort((a, b) => a - b);
+    // Cosmic Score = MEDIAN of 25 stable identity systems (biorhythm excluded —
+    // see scoring:false flag on the breakdown entry). Median is resistant to
+    // outliers and represents true cross-system consensus.
+    const votingScores = breakdown.filter(b => b.scoring !== false).map(b => b.score);
+    const sorted = [...votingScores].sort((a, b) => a - b);
     const n = sorted.length;
     const median = n % 2 === 0
         ? Math.round((sorted[n / 2 - 1] + sorted[n / 2]) / 2)
         : sorted[Math.floor(n / 2)];
-    const mean = Math.round(breakdown.reduce((acc, b) => acc + b.score, 0) / n);
-    // Modal bin (50-pt range with most systems)
+    const mean = Math.round(votingScores.reduce((acc, s) => acc + s, 0) / Math.max(1, n));
+    // Modal bin (50-pt range with most systems) — also from voting set only
     const binCounts = {};
     sorted.forEach(s => { const bin = Math.floor(s / 50) * 50; binCounts[bin] = (binCounts[bin] || 0) + 1; });
     const modalBin = +Object.entries(binCounts).sort((a, b) => b[1] - a[1])[0][0];
@@ -1906,13 +2011,15 @@ function calcScore(d, data) {
     const tier = TIERS.find(t => total >= t.min) ?? TIERS[TIERS.length - 1];
     const entityIdx = total % COSMIC_ENTITIES.length;
     const godIdx = (d.month + d.day) % GODS.length;
-    // maxAchievable: gap between current average and best individual system score × 0.6
-    const maxIndividualScore = Math.max(...breakdown.map(b => b.score));
+    // maxAchievable + tier counts: computed from the voting set only (excludes
+    // biorhythm) so a daily-shifting biorhythm doesn't change these stats.
+    const votingBreakdown = breakdown.filter(b => b.scoring !== false);
+    const maxIndividualScore = Math.max(...votingBreakdown.map(b => b.score));
     const gap = maxIndividualScore - total;
     const maxAchievable = Math.min(999, total + Math.round(gap * 0.6));
-    const starCount = breakdown.filter(b => b.score >= 780).length;
-    const midCount = breakdown.filter(b => b.score >= 650 && b.score < 780).length;
-    const warnCount = breakdown.filter(b => b.score < 650).length;
+    const starCount = votingBreakdown.filter(b => b.score >= 780).length;
+    const midCount = votingBreakdown.filter(b => b.score >= 650 && b.score < 780).length;
+    const warnCount = votingBreakdown.filter(b => b.score < 650).length;
     return {
         total,
         // tier follows UI lang; tierTh + tierEn are the canonical pair.
@@ -2118,6 +2225,9 @@ const ADDON_MIRROR_BY_ELEMENT = {
         shadow: 'Loki · เทพแห่งความปั่นป่วน',
         shadowDesc: 'เมื่อธาตุไม้ไม่สมดุล มักแสดงออกผ่านความหุนหันพลันแล่นหรือการบงการ',
         shadowStory: 'เทพเพื่อนของธอร์แต่ทรยศครั้งแล้วครั้งเล่า ฉลาดเกินไปจนใช้สติปัญญาหลอกตัวเองได้ — เงาสะท้อนไม้ที่ยืดหยุ่นเกินไปจนลื่นไหลไปกับสถานการณ์ แทนที่จะหยั่งราก',
+        primaryReflect: 'คุณนำคนได้โดยธรรมชาติเหมือนพระอินทร์ แต่กระจกบานนี้เตือนว่าพลังไม้ที่พุ่งขึ้นเร็วก็ล้มได้ง่าย — จุดแข็งของคุณไม่ใช่การไม่เคยล้ม แต่คือการยอมรับผิดแล้วลุกขึ้นใหม่',
+        secondaryReflect: 'ด้านที่โอบอุ้มคนอื่นในตัวคุณคือกวนอิม — ไม้ที่สูงขึ้นไม่ใช่เพื่อตัวเอง แต่เพื่อเป็นร่มเงา คุณเติบโตได้เต็มที่ที่สุดเมื่อมีคนได้พักใต้ร่มของคุณ',
+        tertiaryReflect: 'เหมือนต้นไม้ที่ผลัดใบ คุณมีจังหวะ "ตายแล้วเกิดใหม่" เหมือนโอซิริส — ช่วงที่รู้สึกว่าทุกอย่างพังทลายคือการลอกคราบ ไม่ใช่จุดจบ',
         mantra: 'ॐ शक्राय नमः (Om Shakraya Namah)'
     },
     'ไฟ': {
@@ -2133,7 +2243,10 @@ const ADDON_MIRROR_BY_ELEMENT = {
         tertiaryStory: 'ทุกคืน Ra ต่อสู้กับงูอาเปปในดินแดนมืด ชนะทุกวันจึงขึ้นรุ่งสางอีกครั้ง — เตือนว่าไฟไม่เคยพักผ่อน ต้องสู้ความมืดภายในทุกคืนเพื่อให้รุ่งเช้ามีความหมาย',
         shadow: 'Prometheus · ผู้ล้ำเส้น',
         shadowDesc: 'เมื่อธาตุไฟไม่สมดุล มักแสดงออกผ่านความหยิ่งผยองหรือการเผาพลาญตัวเอง',
-        shadowStory: 'ขโมยไฟจากสวรรค์ให้มนุษย์ · ถูก Zeus ลงโทษให้นกอินทรีจิกตับตลอดกาล ตับงอกใหม่ทุกคืน — เงาของไฟที่อยากช่วยคนจนลืมดูแลตัวเอง · burnout คือราคา',
+        shadowStory: 'ขโมยไฟจากสวรรค์ให้มนุษย์ · ถูก Zeus ลงโทษให้นกอินทรีจิกตับตลอดกาล ตับงอกใหม่ทุกคืน — เงาของไฟที่อยากช่วยคนจนลืมดูแลตัวเอง การหมดไฟคือราคาที่ต้องจ่าย',
+        primaryReflect: 'ไฟในตัวคุณคือสุรยะ — ไม่ใช่ประกายไฟที่วูบเดียวดับ แต่คือดวงอาทิตย์ที่ขึ้นทุกเช้าอย่างสม่ำเสมอ กระจกบานนี้ถามว่าคุณส่องแสงคงที่ หรือลุกโชนเป็นพักๆ แล้วมอดลง',
+        secondaryReflect: 'ด้านศิลปินในตัวคุณคืออพอลโล — เปล่งประกายและสร้างสรรค์ แต่บทเรียนคือ ไม่ใช่ทุกคนอยากรับแสงของคุณ การถูกปฏิเสธไม่ได้แปลว่าแสงในตัวคุณหรี่ลง',
+        tertiaryReflect: 'เหมือนรา (Ra) ที่ต่อสู้กับงูอาเปปทุกค่ำคืน คุณต้องเอาชนะความมืดในใจตัวเองซ้ำแล้วซ้ำเล่า เพื่อให้รุ่งเช้ามีความหมาย — ไฟไม่เคยได้พักอย่างแท้จริง',
         mantra: 'ॐ सूर्याय नमः (Om Suryaya Namah)'
     },
     'ดิน': {
@@ -2150,6 +2263,9 @@ const ADDON_MIRROR_BY_ELEMENT = {
         shadow: 'Cronos · ผู้กักขัง',
         shadowDesc: 'เมื่อธาตุดินไม่สมดุล มักแสดงออกผ่านความดื้อรั้นหรือความกลัวการเปลี่ยนแปลง',
         shadowStory: 'Cronos โค่น Ouranos พ่อตัวเองแล้วกินลูกตัวเองทุกคนเพราะกลัวถูกโค่นบ้าง — เงาของดินที่แข็งจนกลัวการผลัดใบ เก็บทุกอย่างไว้จนตายเอง',
+        primaryReflect: 'ดินในตัวคุณคือไกอา — อดทนรอจังหวะที่ใช่ ไม่ใช่เพิกเฉย กระจกบานนี้ช่วยแยก "ความนิ่งเพื่อรอเวลา" ออกจาก "ความนิ่งเพราะกลัวเปลี่ยนแปลง"',
+        secondaryReflect: 'ความมั่งคั่งของคุณเหมือนพระลักษมี — เกิดจากความเพียรที่ทำร่วมกันและความอดทน ไม่ใช่โชคที่ลอยมา คุณสร้างได้จริงเมื่อลงแรงอย่างต่อเนื่อง',
+        tertiaryReflect: 'เหมือนเดมิเทอร์ที่ยอมรับฤดูกาล คุณทำงานสอดคล้องกับวัฏจักร ไม่ฝืนเวลา — ช่วงที่ดูเหมือนหยุดนิ่งคือฤดูหนาวที่จำเป็น ก่อนที่ดอกจะผลิ',
         mantra: 'ॐ भूम्यै नमः (Om Bhumyai Namah)'
     },
     'โลหะ': {
@@ -2166,6 +2282,9 @@ const ADDON_MIRROR_BY_ELEMENT = {
         shadow: 'Ares · ด้านมืด',
         shadowDesc: 'เมื่อธาตุโลหะไม่สมดุล มักแสดงออกผ่านความเย็นชาหรือความก้าวร้าว',
         shadowStory: 'ในสงครามโทรจัน Ares เปลี่ยนฝ่ายไปมาตามอารมณ์ · ถูก Athena (ยุทธปัญญา) เอาชนะเสมอ — เงาของโลหะที่ใช้พลังโดยไร้กลยุทธ์ ชนะวันนี้ แพ้ระยะยาว',
+        primaryReflect: 'โลหะในตัวคุณคือพระพรหมสี่หน้า — มองได้รอบด้าน คิดเป็นระบบ สร้างจากโครงสร้างไม่ใช่อารมณ์ชั่ววูบ จุดแข็งที่สุดของคุณคือความชัดเจน',
+        secondaryReflect: 'ด้านที่ยอมแลกเพื่อปัญญาในตัวคุณคือโอดิน — เขาสละดวงตาข้างหนึ่งเพื่อความรู้ คุณก็เข้าใจดีว่าความชัดเจนมีราคา และคุณยอมจ่ายโดยไม่ต่อรอง',
+        tertiaryReflect: 'ความเด็ดขาดในตัวคุณคือเอรีส — คมและตรงไปตรงมา แต่บางครั้งก็โดดเดี่ยว กระจกบานนี้เตือนว่าคุณต้องการคนที่มองเห็นด้านอ่อนโยนใต้คมดาบ',
         mantra: 'ॐ ब्रह्मणे नमः (Om Brahmane Namah)'
     },
     'น้ำ': {
@@ -2182,6 +2301,9 @@ const ADDON_MIRROR_BY_ELEMENT = {
         shadow: 'Hades · ผู้กักเก็บ',
         shadowDesc: 'เมื่อธาตุน้ำไม่สมดุล มักแสดงออกผ่านการหมกมุ่นหรือการแยกตัว',
         shadowStory: 'Hades ลักพา Persephone ไปกักในยมโลกเพราะเหงา แม้เทพคนอื่นไม่ยอมมาหาเขา — เงาของน้ำที่ลึกจนกลายเป็นบ่อกักตัวเอง ดูดเอาของดีเข้ามาแต่ไม่ปล่อยให้เติบโต',
+        primaryReflect: 'น้ำในตัวคุณคือคงคา — ยิ่งใหญ่และชำระล้าง แต่ต้องมี "ภูเขารับ" เหมือนที่ศิวะรับนางไว้ในมวยผม ถ้าไม่มีจุดยึด พลังน้ำจะไหลกระจายจนหายไป',
+        secondaryReflect: 'ด้านพลังลึกในตัวคุณคือโพไซดอน — กว้างใหญ่และไม่หยุดยั้ง แต่บทเรียนคือ ต้องแปลงพลังเป็นสิ่งที่คนเข้าถึงและใช้ได้จริง ไม่ใช่แค่ทรงพลังอยู่ในที่ลึก',
+        tertiaryReflect: 'สัญชาตญาณของคุณคืออนูบิส — ชั่งใจคนได้ว่าใครจริงใครปลอม คุณรู้ลึกๆ เสมอแม้ปากจะไม่เอ่ย นี่คือพลังเงียบของน้ำ',
         mantra: 'ॐ गङ्गायै नमः (Om Gangayai Namah)'
     }
 };
@@ -2191,13 +2313,48 @@ const ADDON_MIRROR_BY_ELEMENT = {
 // back to 'Resonant' (Tai Yi) — a Top-1% user saw the mid-tier entity. The 5
 // cosmic archetypes are mapped across the 7 tiers by elevation.
 const ADDON_COSMIC_BY_TIER = {
-    'Celestial': { name: 'พรหมัน · The Absolute', desc: '26 ศาสตร์เห็นตรงกัน — บุคลิกภาพของคุณสะท้อนหลักจักรวาลที่เหนือกาลเวลา' },
-    'Radiant': { name: 'โพธิสัตว์ · Bodhisattva', desc: 'พลังงานที่เอื้อเฟื้อ ปัญญาสูง พร้อมยกระดับผู้รอบข้าง' },
-    'Luminous': { name: 'โพธิสัตว์ · Bodhisattva', desc: 'พลังงานที่เอื้อเฟื้อ ปัญญาสูง พร้อมยกระดับผู้รอบข้าง' },
-    'Resonant': { name: 'ไท้ยี่ · Tai Yi', desc: 'สมดุลระหว่างยิน-หยาง พลังงานที่กลมกลืนและทรงพลัง' },
-    'Grounded': { name: 'วายุ · Vayu', desc: 'พลังงานแห่งการเปลี่ยนแปลงและการเคลื่อนไหว — ยืดหยุ่นและปรับตัวเก่ง' },
-    'Seeking': { name: 'อาร์เจส · Arges', desc: 'พลังงานที่กำลังค้นหาตัวเอง — ศักยภาพสูงรอการปลดปล่อย' },
-    'Emerging': { name: 'อาร์เจส · Arges', desc: 'พลังงานที่กำลังก่อตัว — เมล็ดพันธุ์ของศักยภาพที่รอการเติบโต' },
+    'Celestial': {
+        name: 'พรหมัน · The Absolute',
+        desc: 'ยอดสุดของความสอดคล้อง — บุคลิกของคุณสะท้อนหลักจักรวาลที่อยู่เหนือกาลเวลา',
+        story: 'อุปนิษัทเล่าว่า Brahman คือสิ่งที่อยู่เบื้องหลังทุกสรรพสิ่ง · ฤาษีอุททาลกะอธิบายให้ลูกชาย Svetaketu ฟังว่า "เกลือละลายในน้ำ มองไม่เห็นแต่ลิ้มรสได้ทุกหยด — ตัวเจ้าก็ละลายอยู่ในจักรวาลแบบนั้น" และสรุปด้วยประโยคที่กลายเป็นปริศนาธรรมที่สะเทือนใจที่สุดในอินเดียโบราณ คือ "ตตฺ ตฺวมฺ อสิ — เจ้าคือสิ่งนั้น". การที่ ๒๖ ศาสตร์เห็นตรงกันในระดับนี้ บอกว่าคุณไม่ได้สะท้อนเพียงระบบใดระบบหนึ่ง แต่สะท้อนหลักที่ระบบทั้งหลายต่างพยายามอธิบาย',
+        practice: 'ก่อนตัดสินใจเรื่องใหญ่ ให้นั่งเงียบสักสิบนาที · ถามตัวเองว่า "สิ่งนี้สอดคล้องกับหลักการที่ลึกที่สุดของเรา หรือเป็นเพียงการตอบสนองต่อภาวะชั่วคราว?" · ของขวัญในตัวคุณคือความนิ่งที่คนรอบข้างเข้ามาพึ่ง ใช้ในจังหวะที่จำเป็น ไม่จำเป็นต้องใช้ทุกครั้ง',
+    },
+    'Radiant': {
+        name: 'โพธิสัตว์ · Bodhisattva',
+        desc: 'พลังที่เอื้อเฟื้อ ปัญญาแจ่มชัด พร้อมยกระดับคนรอบข้างโดยไม่ต้องเรียกร้อง',
+        story: 'โพธิสัตว์คือผู้บรรลุธรรมแล้วแต่ตั้งปณิธานว่าจะไม่เข้านิพพาน จนกว่าจะช่วยสรรพสัตว์พ้นทุกข์ครบทุกตน · พระอวโลกิเตศวร (กวนอิมในจีน) จึงปรากฏในรูปที่มีหนึ่งพันมือ แต่ละมือถือเครื่องมือคนละชนิด เพราะวิธีช่วยคนนั้นมีนับพันแบบ ไม่อาจมีคำตอบเดียวสำหรับทุกชีวิต. ระดับ Radiant แปลว่าพลังของคุณเกินกว่าจะใช้สำหรับตนเองคนเดียว มันล้นออกมาหล่อเลี้ยงคนรอบข้างโดยอัตโนมัติ และนั่นคือสาเหตุที่ผู้คนถูกดึงเข้ามาในวงโคจรของคุณ',
+        practice: 'ทุกสัปดาห์ ระบุคนหนึ่งคนในชีวิตที่คุณสามารถยกระดับให้ได้ — ไม่ว่าจะด้วยการสอน การแนะนำ หรือการเปิดประตูบางบานให้ · ลงมือทำโดยไม่หวังผลตอบแทน · พลังโพธิสัตว์เป็นสิ่งที่ทวีคูณเมื่อใช้ ไม่ใช่เมื่อเก็บไว้',
+    },
+    'Luminous': {
+        name: 'โพธิสัตว์ · Bodhisattva (เฉพาะทาง)',
+        desc: 'พลังเอื้อเฟื้อที่โฟกัสเฉพาะด้าน — เก่งลึกในความถนัด ช่วยคนได้ตรงประเด็น',
+        story: 'ในระดับ Luminous พลังโพธิสัตว์ของคุณรวมตัวกันอย่างโฟกัสกว่าระดับ Radiant เปรียบเหมือนแสงเลเซอร์เทียบกับโคมไฟส่อง · พระอวโลกิเตศวรในปางอวโลกิตะ (รูปประทับนิ่งเพ่งภาวนา) สะท้อนสภาวะนี้ — ไม่ใช่ช่วยทุกอย่างกับทุกคน แต่ตรงจุดกับผู้ที่ต้องการความเชี่ยวชาญลึก ๆ. คุณคือผู้รู้เฉพาะทางที่ผู้คนตามหา ไม่ใช่ผู้รู้กว้างที่ทุกคนรู้จัก',
+        practice: 'ระบุสิ่งที่คุณทำได้ดีกว่าคนทั่วไปจริง ๆ หนึ่งอย่าง · มอบความเชี่ยวชาญนั้นให้กับใครก็ตามที่เข้ามาขอผ่านคุณ · อย่ารับงานที่ไม่ใช่ความถนัด เพราะการกระจายตัวมากเกินไปจะทำให้พลังเฉพาะทางของคุณเจือจางจนหายไป',
+    },
+    'Resonant': {
+        name: 'ไท้ยี่ · Tai Yi',
+        desc: 'สมดุลของหยินและหยาง — พลังที่กลมกลืน ทรงพลังโดยไม่ต้องโดดเด่น',
+        story: 'ไท้ยี่ (太一) เป็นเทพดวงดาวสูงสุดในศาสนาเต๋า · ประจำอยู่ที่ขั้วฟ้าทิศเหนือ — เป็นจุดที่ดาวดวงอื่น ๆ ทั้งหมดต้องหมุนรอบ แต่ตัวเองนิ่งสนิทอยู่ตรงนั้น · ตำราเต๋ากล่าวว่าผู้ที่ "เป็นไท้ยี่" คือผู้ที่หาความสมดุลระหว่างหยิน (ความสงบ) กับหยาง (การเคลื่อนไหว) ได้พอดี. เมื่อ ๒๖ ศาสตร์เห็นตรงกันในระดับ Resonant ตัวคุณคือจุดศูนย์กลางที่ผู้คนรอบข้างรู้สึกได้ มีเสน่ห์เพราะความสมดุล ไม่ใช่เพราะเด่นเป็นพิเศษด้านใดด้านหนึ่ง',
+        practice: 'ฝึก "ไม่ตอบทันที" เมื่อเผชิญกับความขัดแย้ง · รอยี่สิบสี่ชั่วโมงก่อนตัดสินใจ · เมื่อพักจิตแล้ว ความเร่งด่วนจะลดลง และเรื่องที่สำคัญจริง ๆ จะปรากฏชัดขึ้น · พลังของไท้ยี่เพิ่มขึ้นเมื่อไม่รีบเร่ง',
+    },
+    'Grounded': {
+        name: 'วายุ · Vayu',
+        desc: 'พลังของการเคลื่อนไหวที่มีราก — ยืดหยุ่นและปรับตัวเก่ง โดยไม่หลุดเป้าหมาย',
+        story: 'วายุในพระเวทคือเทพแห่งสายลม — มองไม่เห็น แต่รู้สึกได้ทุกหนแห่ง · เป็นบิดาของหนุมาน (พลังกายในรามายณะ) และของภีมะ (พลังกายในมหาภารตะ) สะท้อนว่าพลังลมเมื่อปลดปล่อยอย่างมีจุดหมาย คือพลังที่ทรงอำนาจที่สุดในจักรวาล. พลังของวายุคือ "การเคลื่อนที่ที่ปรับตัวได้" — ไม่ฝืน แต่ไม่หลุดจากทิศที่มุ่งไป. ระดับ Grounded แปลว่าคุณมีรากที่มั่นคงแต่ไม่แข็งเกินไปจนหัก เหมือนต้นไผ่ในพายุที่โน้มเอียงได้แต่ไม่ขาดสะบั้น',
+        practice: 'เมื่อรู้สึกติดขัด ให้ลองเปลี่ยนสภาพแวดล้อมเล็ก ๆ — เดินทาง ย้ายโต๊ะทำงาน หรือปรับกิจวัตรประจำวัน · พลังวายุมาจากการเคลื่อนไหวที่ไม่เปลี่ยนจุดหมายปลายทาง · จำไว้ว่า "งานหนัก คือการขุดรากให้ลึก ไม่ใช่การฝืนจนหัก"',
+    },
+    'Seeking': {
+        name: 'อาร์เจส · Arges',
+        desc: 'พลังที่กำลังค้นหาตัวเอง — ศักยภาพสูงที่รอการปลดปล่อย',
+        story: 'อาร์เจสเป็นหนึ่งในยักษ์ตาเดียวสามตน (Cyclopes) ในเทพปกรณัมกรีก — เป็นผู้สร้างอาวุธให้แก่เทพชั้นสูง คือสายฟ้าให้ Zeus, สามง่ามให้ Poseidon, และหมวกล่องหนให้ Hades. พลังของอาร์เจสคือพลังของ "ผู้สร้างที่อยู่เบื้องหลัง" — ไม่ใช่ผู้ใช้ แต่เป็นผู้ทำ. ระดับ Seeking แปลว่าคุณอยู่ในช่วง "สะสมเครื่องมือ" — ทุกสิ่งที่เรียนรู้ในตอนนี้คือเครื่องมือที่เตรียมไว้สำหรับการสร้างสิ่งใหญ่กว่าในภายหลัง',
+        practice: 'หาผู้รู้ในสายที่อยากเก่งหนึ่งคน · ใช้เวลาเดือนละไม่กี่ชั่วโมงไปเรียนรู้กับเขา · ถามมากกว่าตอบ · พลังของอาร์เจสเพิ่มขึ้นจากการสะสมความสามารถ ไม่ใช่จากการประกาศตนก่อนพร้อม',
+    },
+    'Emerging': {
+        name: 'อาร์เจส · Arges (กำลังก่อตัว)',
+        desc: 'พลังที่กำลังก่อตัวขึ้น — เมล็ดพันธุ์ของศักยภาพที่รอวันเติบโต',
+        story: 'ในระดับ Emerging อาร์เจสยังเพิ่งเริ่มเรียนรู้เครื่องมือเบื้องต้น · คัมภีร์ Theogony ของ Hesiod เล่าว่ายักษ์ตาเดียวถูก Cronus จับขังไว้ในดินดำลึกใต้ Tartarus จนกระทั่ง Zeus ปลดปล่อยพวกเขาออกมา — และพวกเขาตอบแทนด้วยการตีสายฟ้าให้ Zeus ใช้ปราบ Cronus ในเวลาต่อมา. บทเรียนคือ "พลังที่ถูกกดทับไว้นานคือพลังที่จะเปลี่ยนโลกในวันที่ได้ปล่อย" · ตอนนี้คุณอยู่ในช่วง "ดินดำ" ของยักษ์ตาเดียว — สะสมเงียบ ๆ ก่อนวันที่จะเปล่งแสง',
+        practice: 'ทุกวัน ลงมือทำสิ่งเล็ก ๆ หนึ่งอย่างที่ไม่มีใครเห็น — เรียนรู้ ฝึกฝน หรือบันทึก · หกเดือนต่อมา การสะสมเล็ก ๆ เหล่านี้จะรวมตัวกันเป็นการก้าวกระโดดครั้งใหญ่ · พลัง Emerging คือดอกเบี้ยทบต้น ไม่ใช่การปะทุครั้งเดียวแล้วจบ',
+    },
 };
 const ADDON_COMPAT_BY_ELEMENT = {
     'ไม้': { best: ['น้ำ', 'ไม้'], good: ['ไฟ'], neutral: ['ดิน'], avoid: ['โลหะ'] },
@@ -2424,6 +2581,9 @@ const ADDON_MIRROR_BY_ELEMENT_EN = {
         shadow: 'Loki · god of mischief',
         shadowDesc: 'When Wood is unbalanced, it shows up as impulsiveness or manipulation',
         shadowStory: 'Thor\'s companion who betrayed the gods over and over — too clever, until his cunning fooled even himself. The shadow of Wood that bends so flexibly with circumstance it never sets down roots.',
+        primaryReflect: 'You lead naturally like Indra — but this mirror reminds you that Wood energy which shoots up fast can also topple. Your strength isn\'t never falling; it\'s owning the fall and rising again.',
+        secondaryReflect: 'The part of you that shelters others is Guanyin — Wood grows tall not for itself but to give shade. You\'re at your fullest when someone can rest beneath your canopy.',
+        tertiaryReflect: 'Like a tree shedding its leaves, you carry a "die-and-rise" rhythm like Osiris — the season when everything seems to collapse is a moulting, not an ending.',
         mantra: 'ॐ शक्राय नमः (Om Shakraya Namah)'
     },
     'ไฟ': {
@@ -2440,6 +2600,9 @@ const ADDON_MIRROR_BY_ELEMENT_EN = {
         shadow: 'Prometheus · the boundary-crosser',
         shadowDesc: 'When Fire is unbalanced, it shows up as arrogance or self-immolation',
         shadowStory: 'He stole fire from heaven for humanity and was punished by Zeus to have his liver eaten by an eagle every day, regenerating each night. The shadow of Fire that wants to save everyone but forgets to tend itself — burnout is the price.',
+        primaryReflect: 'Your fire is Surya — not a single spark that flares and dies, but the sun that rises every morning, steady. This mirror asks: do you shine consistently, or only flare in bursts and then fade?',
+        secondaryReflect: 'Your artist side is Apollo — radiant and creative, but the lesson is that not everyone wants your light. Being refused doesn\'t dim the flame inside you.',
+        tertiaryReflect: 'Like Ra battling the serpent Apep each night, you must overcome your own inner darkness again and again to give the dawn its meaning — Fire never truly rests.',
         mantra: 'ॐ सूर्याय नमः (Om Suryaya Namah)'
     },
     'ดิน': {
@@ -2456,6 +2619,9 @@ const ADDON_MIRROR_BY_ELEMENT_EN = {
         shadow: 'Cronos · the imprisoner',
         shadowDesc: 'When Earth is unbalanced, it shows up as stubbornness or fear of change',
         shadowStory: 'Cronos overthrew his father Ouranos and then devoured each of his own children to prevent the same fate. The shadow of Earth that hardens until it fears any shedding, hoarding everything until it suffocates itself.',
+        primaryReflect: 'Your earth is Gaia — patient, waiting for the right moment, never passive. This mirror helps you tell apart "stillness to wait" from "stillness out of fear of change."',
+        secondaryReflect: 'Your wealth is like Lakshmi — born of sustained, shared effort and patience, not luck that drifts in. You build something real when you put in continuous effort.',
+        tertiaryReflect: 'Like Demeter accepting the seasons, you work in tune with the cycle and never force time — the stretch that looks like a standstill is the winter needed before the bloom.',
         mantra: 'ॐ भूम्यै नमः (Om Bhumyai Namah)'
     },
     'โลหะ': {
@@ -2472,6 +2638,9 @@ const ADDON_MIRROR_BY_ELEMENT_EN = {
         shadow: 'Ares · dark side',
         shadowDesc: 'When Metal is unbalanced, it shows up as coldness or aggression',
         shadowStory: 'In the Trojan War, Ares switched sides on whim and was always defeated by Athena (strategic warfare). The shadow of Metal that uses force without strategy — wins today, loses the long game.',
+        primaryReflect: 'Your metal is four-faced Brahma — seeing every direction, thinking systematically, building from structure rather than passing emotion. Clarity is your single greatest strength.',
+        secondaryReflect: 'The part of you that trades for wisdom is Odin — he gave up an eye for knowledge; you too understand that clarity has a price, and you pay it without negotiating.',
+        tertiaryReflect: 'Your decisiveness is Ares — sharp and direct, but sometimes lonely. This mirror reminds you that you need someone who can see the softness beneath the blade.',
         mantra: 'ॐ ब्रह्मणे नमः (Om Brahmane Namah)'
     },
     'น้ำ': {
@@ -2488,6 +2657,9 @@ const ADDON_MIRROR_BY_ELEMENT_EN = {
         shadow: 'Hades · the hoarder',
         shadowDesc: 'When Water is unbalanced, it shows up as obsession or withdrawal',
         shadowStory: 'Hades abducted Persephone to the underworld out of loneliness because no other god would visit him. The shadow of Water grown so deep it becomes a private well — pulling good things in but never letting them grow.',
+        primaryReflect: 'Your water is Ganga — vast and purifying, but it needs a "mountain to receive it," the way Shiva caught her in his hair. Without an anchor, Water power scatters until it\'s lost.',
+        secondaryReflect: 'Your deep-power side is Poseidon — vast and unstoppable, but the lesson is to translate that power into something people can actually reach and use, not just be mighty in the depths.',
+        tertiaryReflect: 'Your instinct is Anubis — you weigh people and sense who is real and who is false. You always know, deep down, even when you never say it aloud — the quiet power of Water.',
         mantra: 'ॐ गङ्गायै नमः (Om Gangayai Namah)'
     }
 };
@@ -2782,6 +2954,7 @@ function calculate(d) {
     const mayan = calcMayan(d);
     const celtic = calcCeltic(d);
     const thai = calcThai(d);
+    const taksa = calcTaksa(d);
     // ── 16 new systems ──
     const saju = calcSaju(d);
     const tibetan = calcTibetan(d);
@@ -2800,7 +2973,7 @@ function calculate(d) {
     const biorhythm = calcBiorhythm(d);
     const vedicMahadasha = calcVedicMahadasha(d, vedic);
     const partial = {
-        input: d, western, bazi, ninestar, numerology, vedic, humandesign, mayan, celtic, thai,
+        input: d, western, bazi, ninestar, numerology, vedic, humandesign, mayan, celtic, thai, taksa,
         saju, tibetan, ziwei, onmyodo, hellenistic, norseRune, ogham, arabicParts,
         kabbalistic, zoroastrian, aztec, nativeAmerican, ifaYoruba, aboriginal, biorhythm, vedicMahadasha,
     };
@@ -4652,11 +4825,16 @@ function p_threeScores(c) {
   `);
 }
 function p02_scoreBreakdown(c) {
-    // Group into 🌟 ≥780 / 〰 650-779 / ⚠ <650
-    const sorted = c.score.breakdown.slice().sort((a, b) => b.score - a.score);
-    const stars = sorted.filter(b => b.score >= 780);
-    const mids = sorted.filter(b => b.score >= 650 && b.score < 780);
-    const warns = sorted.filter(b => b.score < 650);
+    // Group into 🌟 ≥780 / 〰 650-779 / ⚠ <650, EXCLUDING the daily-only layer
+    // (biorhythm). Director feedback 2026-06-04: biorhythm is intentionally a
+    // daily-changing snapshot, so it doesn't belong in the identity consensus.
+    // Show it separately at the bottom as a "daily layer · not scoring" card.
+    const allSorted = c.score.breakdown.slice().sort((a, b) => b.score - a.score);
+    const voting = allSorted.filter(b => b.scoring !== false);
+    const daily = allSorted.filter(b => b.scoring === false);
+    const stars = voting.filter(b => b.score >= 780);
+    const mids = voting.filter(b => b.score >= 650 && b.score < 780);
+    const warns = voting.filter(b => b.score < 650);
     const systemRow = (b, icon) => `
     <div style="display:flex;align-items:center;gap:8px;margin:3px 0;padding:5px 8px;background:#141210;border-radius:6px">
       <span style="min-width:20px;text-align:center">${icon}</span>
@@ -4666,9 +4844,20 @@ function p02_scoreBreakdown(c) {
         <div style="width:${Math.round((b.score - 400) / 6)}%;height:6px;background:${b.color}"></div>
       </div>
     </div>`;
+    const dailyRow = (b) => `
+    <div style="display:flex;align-items:center;gap:8px;margin:3px 0;padding:6px 10px;background:#0f120e;border:1px dashed #3a4030;border-radius:6px;opacity:.88">
+      <span style="min-width:22px;text-align:center;color:#7090a0">📈</span>
+      <span style="flex:1;font-size:12px;color:#a0b090">${esc(trDF(b.system))}
+        <span style="font-size:9.5px;letter-spacing:1px;color:#5a7060;margin-left:4px;text-transform:uppercase;font-family:'Josefin Sans',sans-serif">${tr('ระดับรายวัน · ไม่ vote', 'Daily layer · not scoring')}</span>
+      </span>
+      <span style="font-size:12px;color:#7a9080;min-width:34px;text-align:right">${b.score}</span>
+      <div style="width:80px;background:#1a1510;border-radius:3px;height:6px;overflow:hidden;opacity:.5">
+        <div style="width:${Math.round((b.score - 400) / 6)}%;height:6px;background:#5a7060"></div>
+      </div>
+    </div>`;
     return section(3, tr('26-System Consensus — ทุกศาสตร์เห็นอะไร', '26-System Consensus — what every tradition sees'), '🌐', `
     <div style="font-size:11px;color:#7a6a52;margin-bottom:12px;line-height:1.6">
-      ${tr('Equal weight · แต่ละระบบ 3.8% · คะแนน Median', 'Equal weight · each system 3.8% · Median score')} = <strong style="color:#d4aa50">${c.score.total}</strong>
+      ${tr('Cosmic Score = Median จาก 26 ศาสตร์ที่นิ่ง (Biorhythm เป็นรายวัน แสดงแยก)', 'Cosmic Score = Median of 26 stable identity systems (Biorhythm is daily-only, shown separately)')} = <strong style="color:#d4aa50">${c.score.total}</strong>
       · Mean = ${c.score.mean} · Modal range = ${c.score.modalBin}–${c.score.modalBin + 49}
     </div>
 
@@ -4700,26 +4889,41 @@ function p02_scoreBreakdown(c) {
       </div>
     </div>` : ''}
 
-    <!-- Stats summary -->
+    <!-- Daily-only layer (biorhythm) -->
+    ${daily.length > 0 ? `
+    <div style="margin-bottom:12px">
+      <div style="font-size:13px;font-weight:600;color:#7090a0;margin-bottom:6px">
+        📈 ${tr('ระดับรายวัน', 'Daily layer')} — ${daily.length} ${tr('ระบบ · ไม่นับใน Cosmic Score', 'system · not part of Cosmic Score')}
+      </div>
+      ${daily.map(dailyRow).join('')}
+      <div style="font-size:10px;color:#5a7060;margin-top:6px;line-height:1.6">
+        ${tr('ⓘ Biorhythm เปลี่ยนทุกวันตามรอบ 23/28/33 — เก็บแยกออกจาก Cosmic Score เพื่อให้คะแนน identity ไม่เลื่อนตามวัน', 'ⓘ Biorhythm shifts every day along 23/28/33-day cycles — kept out of the Cosmic Score so your identity number stays stable.')}
+      </div>
+    </div>` : ''}
+
+    <!-- Stats summary — voting set only (excludes biorhythm) -->
     <div style="background:#1a1510;border-radius:8px;padding:12px;margin-top:12px">
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">
         ${[
         ['Median', c.score.total, '#d4aa50'],
         ['Mean', c.score.mean, '#b09040'],
-        [tr('ต่ำสุด', 'Lowest'), Math.min(...c.score.breakdown.map(b => b.score)), '#c07050'],
-        [tr('สูงสุด', 'Highest'), Math.max(...c.score.breakdown.map(b => b.score)), '#70c070'],
+        [tr('ต่ำสุด', 'Lowest'), Math.min(...voting.map(b => b.score)), '#c07050'],
+        [tr('สูงสุด', 'Highest'), Math.max(...voting.map(b => b.score)), '#70c070'],
     ].map(([l, v, col]) => `<div><div style="font-size:18px;font-weight:700;color:${col}">${v}</div><div style="font-size:10px;color:#6a5a42">${l}</div></div>`).join('')}
       </div>
     </div>
   `);
 }
 function p03_convergence(c) {
-    const all26 = c.score.breakdown; // all 26 systems with scores
+    // The 26 identity systems only — Biorhythm carries scoring:false (daily
+    // layer, 2026-06-10) so it must not vote in any convergence theme,
+    // family bar, or dissent box. Taksa IS in this set.
+    const all26 = c.score.breakdown.filter(b => b.scoring !== false);
     const medianScore = c.score.total;
     const hi = (s) => s >= medianScore; // "votes yes" if at or above median
     // Helper: get system score by name fragment
     const sc = (nameFragment) => all26.find(b => b.system.includes(nameFragment))?.score ?? 0;
-    const { score, bazi, western, ninestar, numerology, vedic, humandesign, mayan, celtic, thai, saju, tibetan, ziwei, onmyodo, hellenistic, norseRune, ogham, arabicParts, kabbalistic, zoroastrian, aztec, nativeAmerican, ifaYoruba, aboriginal, biorhythm, vedicMahadasha } = c;
+    const { score, bazi, western, ninestar, numerology, vedic, humandesign, mayan, celtic, thai, saju, tibetan, ziwei, onmyodo, hellenistic, norseRune, ogham, arabicParts, kabbalistic, zoroastrian, aztec, nativeAmerican, ifaYoruba, aboriginal, vedicMahadasha } = c;
     const dmEl = bazi.dayMasterElement;
     const themes = [];
     // ─── 1. Element Resonance (ธาตุ Day Master แผ่ซึมทุกศาสตร์) ─────────────
@@ -4781,8 +4985,6 @@ function p03_convergence(c) {
         timeVotes.push({ system: 'Numerology PY' + numerology.personalYear2026, score: sc('Pythagorean') });
     if (['Jupiter', 'Sun', 'Venus'].includes(vedicMahadasha.currentDasha))
         timeVotes.push({ system: 'Vedic ' + vedicMahadasha.currentDasha + ' Dasha', score: sc('Vedic M') });
-    if (biorhythm.intellectual > 20 || biorhythm.emotional > 20)
-        timeVotes.push({ system: 'Biorhythm (peak ' + Math.max(biorhythm.intellectual, biorhythm.emotional) + '%)', score: sc('Biorhythm') });
     if (!['รุ่งเรือง', 'เข้มแข็ง', 'มั่นคง', 'เติบโต'].every(q => !tibetan.mewaQuality.includes(q)))
         timeVotes.push({ system: 'Tibetan Mewa ' + tibetan.mewa + ' (' + tibetan.mewaQuality + ')', score: sc('Tibetan') });
     if (['大安', '友引'].includes(onmyodo.rokuyo))
@@ -4853,6 +5055,9 @@ function p03_convergence(c) {
         wlthVotes.push({ system: 'Vedic ' + vedicMahadasha.currentDasha + ' Dasha', score: sc('Vedic M') });
     if ([8, 4, 22].includes(numerology.pythagorean))
         wlthVotes.push({ system: 'Pythagorean ' + numerology.pythagorean, score: sc('Pythagorean') });
+    // Taksa's มูละ house IS the wealth house — it always has a wealth signal.
+    if (hi(c.taksa.score))
+        wlthVotes.push({ system: tr('ทักษา มูละ ' + c.taksa.mulaTh, 'Taksa Mula ' + c.taksa.mulaEn), score: c.taksa.score });
     themes.push({ icon: '💎',
         theme: tr('ศักยภาพความมั่งคั่ง', 'Wealth Potential'),
         color: '#50b080', votes: wlthVotes,
@@ -4928,14 +5133,17 @@ function p03_convergence(c) {
     };
     const FAMILY_MAP = [
         ['BaZi', 'east'], ['Nine Star', 'east'], ['Saju', 'east'], ['Zi Wei', 'east'],
-        ['Onmyōdō', 'east'], ['Tibetan', 'east'], ['ไทยพราหมณ์', 'east'], ['เลข ๗ ตัว', 'east'],
+        ['Onmyōdō', 'east'], ['Tibetan', 'east'],
+        ['ไทยพราหมณ์', 'east'], ['Thai Brahmin', 'east'],
+        ['เลข ๗ ตัว', 'east'], ['Thai 7-Number', 'east'],
+        ['ทักษา', 'east'], ['Thai Taksa', 'east'],
         ['Vedic Jyotish', 'east'], ['Vedic Mahadasha', 'east'],
-        ['ตะวันตก', 'west'], ['Hellenistic', 'west'], ['Pythagorean', 'west'],
-        ['Kabbalistic', 'west'], ['เซลติก', 'west'], ['Ogham', 'west'], ['Arabic', 'west'],
-        ['มายัน', 'indigenous'], ['Aztec', 'indigenous'], ['Native', 'indigenous'],
+        ['ตะวันตก', 'west'], ['Western Astrology', 'west'], ['Hellenistic', 'west'], ['Pythagorean', 'west'],
+        ['Kabbalistic', 'west'], ['เซลติก', 'west'], ['Celtic', 'west'], ['Ogham', 'west'], ['Arabic', 'west'],
+        ['มายัน', 'indigenous'], ['Mayan', 'indigenous'], ['Aztec', 'indigenous'], ['Native', 'indigenous'],
         ['Aboriginal', 'indigenous'], ['Ifa', 'indigenous'],
-        ['Norse', 'esoteric'], ['Zoroastrian', 'esoteric'], ['ระบบประเภทพลังงาน', 'esoteric'],
-        ['Biorhythm', 'esoteric'],
+        ['Norse', 'esoteric'], ['Zoroastrian', 'esoteric'],
+        ['ระบบประเภทพลังงาน', 'esoteric'], ['Energy Type', 'esoteric'],
     ];
     const familyOf = (sys) => {
         for (const [frag, fam] of FAMILY_MAP)
@@ -4985,10 +5193,10 @@ function p03_convergence(c) {
     // ── Variant Perception ──────────────────────────────────────────────────
     // Surface systems that genuinely DISAGREE with the consensus — not just
     // "three lowest scores". Two filters:
-    //   1. Exclude TIME-VARIABLE systems (Biorhythm = today's energy,
-    //      Vedic Mahadasha = current planetary period). They speak about the
-    //      moment, not the person, so they can't meaningfully "dissent" from
-    //      an identity-level read.
+    //   1. Exclude TIME-VARIABLE systems (Vedic Mahadasha = current planetary
+    //      period; Biorhythm is already absent from all26). They speak about
+    //      the moment, not the person, so they can't meaningfully "dissent"
+    //      from an identity-level read.
     //   2. Require the score to be meaningfully BELOW the chart's own median
     //      (gap ≥ 50). Three lowest could be one point under median for a
     //      cohesive chart — that's coherence, not dissent.
@@ -5041,7 +5249,12 @@ function p03_convergence(c) {
         const wPct = d.total ? (d.weak / d.total) * 100 : 0;
         const lbl = _lang === 'en' ? familyLabels[f].en : familyLabels[f].th;
         const star = (f === dominantFamily) ? ' ⭐' : '';
-        return `<div style="display:flex;align-items:center;gap:10px;margin:5px 0">
+        // Name the strong systems under each bar — a bar alone says "3/10"
+        // without telling the reader WHICH traditions carried the family.
+        const strongLine = d.strongNames.length
+            ? `<div style="margin:1px 0 6px 100px;font-size:9.5px;color:#6a8ab0;line-height:1.5">⭐ ${d.strongNames.map(n => esc(trDF(n))).join(' · ')}</div>`
+            : '';
+        return `<div style="display:flex;align-items:center;gap:10px;margin:5px 0 2px">
       <div style="width:90px;font-size:11px;color:#c8b890">${esc(lbl)}${star}</div>
       <div style="flex:1;display:flex;height:14px;border-radius:3px;overflow:hidden;border:1px solid #2a2545;background:#0a0815">
         <div style="width:${sPct.toFixed(1)}%;background:#50b050" title="${d.strong} ${tr('ยืนยันชัด', 'strong')}"></div>
@@ -5049,6 +5262,30 @@ function p03_convergence(c) {
         <div style="width:${wPct.toFixed(1)}%;background:#a04030" title="${d.weak} ${tr('จุดท้าทาย', 'challenge')}"></div>
       </div>
       <div style="width:60px;font-size:11px;color:#9a8a72;text-align:right">${d.strong}/${d.total}</div>
+    </div>${strongLine}`;
+    }).join('');
+    // ── Per-system verdict table — the raw finding from each of the 26 ──
+    // Director feedback 2026-06-10: "grand convergence ขาดความละเอียด".
+    // The themes show WHO agreed; this table shows WHAT each tradition
+    // actually said (the engine's per-system finding line), grouped by
+    // cultural family and sorted by score within each family.
+    const famColor = { east: '#d4aa50', west: '#7aaae0', indigenous: '#70c080', esoteric: '#b080d0' };
+    const verdictRows = fams.map(f => {
+        const rows = all26.filter(b => familyOf(b.system) === f)
+            .sort((a, b) => b.score - a.score)
+            .map(b => {
+            const icon = b.score >= 780 ? '🌟' : b.score >= 650 ? '〰' : '⚠';
+            const scoreCol = b.score >= 780 ? '#60c060' : b.score >= 650 ? '#c0b040' : '#c06030';
+            return `<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 8px;margin:2px 0;background:#100e16;border-left:2px solid ${famColor[f]};border-radius:0 6px 6px 0">
+          <span style="font-size:10px;flex-shrink:0;width:14px">${icon}</span>
+          <span style="font-size:10.5px;color:#c8b890;flex-shrink:0;width:118px">${esc(trDF(b.system))}</span>
+          <span style="flex:1;font-size:10.5px;color:#9a8a72;line-height:1.55;min-width:0">${esc(trDF(b.finding))}</span>
+          <span style="font-size:11px;font-weight:700;color:${scoreCol};flex-shrink:0">${b.score}</span>
+        </div>`;
+        }).join('');
+        return `<div style="margin:8px 0">
+      <div style="font-size:10px;letter-spacing:2px;color:${famColor[f]};margin-bottom:3px">${esc((_lang === 'en' ? familyLabels[f].en : familyLabels[f].th).toUpperCase())} · ${families[f].total} ${tr('ศาสตร์', 'systems')}</div>
+      ${rows}
     </div>`;
     }).join('');
     return section(4, tr('Grand Convergence — 26 ศาสตร์ส่งคำตอบเดียวกัน', 'Grand Convergence — All 26 Systems Speak Together'), '🌐', `
@@ -5070,11 +5307,18 @@ function p03_convergence(c) {
       </div>
     </div>
 
+    <!-- 2.5 Per-system verdicts — what each of the 26 actually said -->
+    <div style="background:#0c0a14;border:1px solid #2a2545;border-radius:12px;padding:12px 14px;margin-bottom:14px">
+      <div style="font-size:10px;letter-spacing:3px;color:#9a8a72;margin-bottom:4px">📋 ${tr('คำวินิจฉัยรายศาสตร์ — ทั้ง 26 ระบบบอกอะไร', 'PER-SYSTEM VERDICTS — WHAT EACH OF THE 26 SAID')}</div>
+      <div style="font-size:10.5px;color:#6a7a90;margin-bottom:8px;line-height:1.6">${tr('นี่คือ "เสียงดิบ" ของแต่ละศาสตร์ก่อนรวมเป็น consensus — อ่านคู่กับ theme ด้านล่างเพื่อเห็นว่าข้อสรุปแต่ละข้อมาจากศาสตร์ไหนบ้าง', 'The raw voice of every tradition before synthesis — read alongside the themes below to see exactly which systems back each conclusion.')}</div>
+      ${verdictRows}
+    </div>
+
     <!-- 3. Themes (the existing 8 with consensus rows) -->
     <div style="font-size:11px;color:#7a6a52;margin:14px 0 8px;line-height:1.6">
       ${tr('🎯 ภาพหลัก ' + visible.length + ' theme — แต่ละ theme คือจุดที่ระบบหลายตัวยืนยัน', `🎯 ${visible.length} main themes — each is a point where multiple systems agree`)}
     </div>
-    ${visible.map(t => consensusRow(t.icon, t.theme, t.votes.map(v => v.system), t.msg, t.votes.length, t.color, narratives[t.icon] ?? '')).join('')}
+    ${visible.map(t => consensusRow(t.icon, t.theme, t.votes, t.msg, t.votes.length, t.color, narratives[t.icon] ?? '')).join('')}
 
     <!-- 4. Variant Perception — minority dissent insight (or coherence note) -->
     ${variantBox}
@@ -5111,7 +5355,7 @@ function p_new16systems(c) {
         { name: 'Native American', icon: '🦅', data: trDF(c.nativeAmerican.birthTotemTh), detail: c.nativeAmerican.clansmother, score: c.nativeAmerican.score },
         { name: 'Ifa/Yoruba', icon: '🥁', data: `Odù ${c.ifaYoruba.odu}`, detail: trDF(c.ifaYoruba.fortune), score: c.ifaYoruba.score },
         { name: 'Aboriginal', icon: '🌈', data: trDF(c.aboriginal.dreamingTh), detail: c.aboriginal.clan, score: c.aboriginal.score },
-        { name: 'Biorhythm', icon: '📈', data: `P:${c.biorhythm.physical}% E:${c.biorhythm.emotional}%`, detail: trDF(c.biorhythm.intellectualPhase), score: c.biorhythm.score },
+        { name: tr('ทักษา ๘ บ้าน', 'Thai Taksa'), icon: '🪷', data: tr(`เจ้าวัน${c.taksa.dayLordTh}`, `Day-lord ${c.taksa.dayLordEn}`), detail: tr(`มูละ ${c.taksa.mulaTh} · กาลกิณี ${c.taksa.kalakiniTh}`, `Mula ${c.taksa.mulaEn} · Kalakini ${c.taksa.kalakiniEn}`), score: c.taksa.score },
         { name: 'Vedic Mahadasha', icon: '🕉️', data: `${c.vedicMahadasha.currentDasha} Dasha`, detail: `${tr('ถึงปี', 'until')} ${c.vedicMahadasha.currentDashaEnd}`, score: c.vedicMahadasha.score },
     ];
     return section(5, tr('16 ระบบเพิ่มเติม — ภาพรวม', '16 Additional Systems — Overview'), '🌍', `
@@ -6440,7 +6684,8 @@ function generateReport(c) {
         p_nativeAmerican, // 25. Native American Totem
         p_ifaYoruba, // 26. Ifa/Yoruba
         p_aboriginal, // 27. Aboriginal Dreamtime
-        p_biorhythm, // 28. Biorhythm
+        p_taksa, // 28. Thai Taksa 8 Houses (replaced Biorhythm page 2026-06-10 —
+        //     Biorhythm is the daily layer, not one of the 26 identity systems)
         p_vedicMahadasha, // 29. Vedic Mahadasha
         // ─── 30-35: Life guidance (multi-system) ─────────────────────
         p13_luckPillars, // 30. 80-Year Path (BaZi+Vedic+NSK+Numerology)
@@ -6488,23 +6733,26 @@ function extractSignals(c, topic) {
         all.push({ system: 'BaZi', score: bazi.score, finding: tr(`ธาตุขาด ${bazi.missingElement} ควรเสริมผ่านสีและอาหาร`, `Missing ${bazi.missingElement} element — reinforce via colour and food`), category: 'health', value: healthEl }, { system: 'Nine Star Ki', score: ninestar.score, finding: tr(`ทิศนอน ${ninestar.directionSleep} เสริมสุขภาพ`, `Sleep direction ${ninestar.directionSleep} supports health`), category: 'health', value: ninestar.directionSleep }, { system: 'Vedic', score: vedic.score, finding: `${vedic.mahadasha} Dasha: ${vedicMahadasha.dashaQuality}`, category: 'health', value: vedicMahadasha.dashaElement }, { system: 'Biorhythm', score: biorhythm.score, finding: `Physical ${biorhythm.physical}% (${biorhythm.physicalPhase})`, category: 'health', value: biorhythm.physicalPhase }, { system: 'Celtic', score: celtic.score, finding: tr(`ต้น${celtic.treeNameTh} — gem ${celtic.gemstone}`, `${celtic.treeName} — gem ${celtic.gemstone}`), category: 'health', value: celtic.gemstone }, { system: 'Energy Type', score: humandesign.score, finding: tr(`Strategy "${humandesign.strategy}" ลดการต้านพลังงาน`, `Strategy "${humandesign.strategy}" reduces energetic resistance`), category: 'health', value: humandesign.strategy }, { system: 'Native American', score: nativeAmerican.score, finding: tr(`${nativeAmerican.birthTotemTh} ธาตุ${nativeAmerican.element}`, `${nativeAmerican.birthTotem} (${nativeAmerican.element} element)`), category: 'health', value: nativeAmerican.element }, { system: 'Tibetan', score: tibetan.score, finding: tr(`Mewa ${tibetan.mewa} ธาตุ${tibetan.mewaElement}`, `Mewa ${tibetan.mewa} (${tibetan.mewaElement} element)`), category: 'health', value: tibetan.mewaElement }, { system: tr('ไทยพราหมณ์', 'Thai Brahmin'), score: thai.score, finding: tr(`สีมงคล${thai.dayColor} วัน${thai.dayName}`, `Lucky colour ${thai.dayColor} on ${thai.dayName}`), category: 'health', value: thai.dayColor }, { system: 'Zoroastrian', score: zoroastrian.score, finding: tr(`${zoroastrian.dayYazataTh} ปกครองสุขภาพ`, `${zoroastrian.dayYazataTh} rules health`), category: 'health', value: tr(zoroastrian.harmony ? 'สมดุล' : 'ต้องสร้างสมดุล', zoroastrian.harmony ? 'balanced' : 'needs balance') });
     }
     if (topic === 'finance') {
-        all.push({ system: 'BaZi', score: bazi.score, finding: tr(`ธาตุมงคล ${bazi.luckyElement}`, `Lucky element ${bazi.luckyElement}`), category: 'finance', value: bazi.luckyElement }, { system: 'Nine Star Ki', score: ninestar.score, finding: tr(`ทิศ ${ninestar.starDirection} เสริมการเงิน`, `Direction ${ninestar.starDirection} supports finance`), category: 'finance', value: ninestar.starDirection }, { system: 'Numerology', score: numerology.score, finding: `Personal Year ${numerology.personalYear2026}: ${numerology.personalYearMeaning.split('—')[0]}`, category: 'finance', value: String(numerology.personalYear2026) }, { system: 'Vedic', score: vedic.score, finding: `${vedicMahadasha.currentDasha} Dasha`, category: 'finance', value: vedicMahadasha.dashaElement }, { system: 'Arabic Parts', score: arabicParts.score, finding: tr(`Part of Fortune ใน ${arabicParts.fortuneSign}`, `Part of Fortune in ${arabicParts.fortuneSign}`), category: 'finance', value: arabicParts.fortuneSign }, { system: 'Hellenistic', score: hellenistic.score, finding: tr(`${hellenistic.sectTh} กับ ${hellenistic.trigonLord}`, `${hellenistic.sectTh} with ${hellenistic.trigonLord}`), category: 'finance', value: hellenistic.trigonLord.split(' ')[0] }, { system: 'Kabbalistic', score: kabbalistic.score, finding: `${kabbalistic.sephira} (${kabbalistic.archangel})`, category: 'finance', value: kabbalistic.sephira }, { system: 'Ifa/Yoruba', score: ifaYoruba.score, finding: `Odù ${ifaYoruba.odu}: ${ifaYoruba.fortune}`, category: 'finance', value: ifaYoruba.fortune }, { system: 'Zoroastrian', score: zoroastrian.score, finding: `${zoroastrian.dayYazataTh}`, category: 'finance', value: tr(zoroastrian.harmony ? 'สอดคล้อง' : 'ระวัง', zoroastrian.harmony ? 'aligned' : 'caution') }, { system: 'Biorhythm', score: biorhythm.score, finding: tr(`สติปัญญา ${biorhythm.intellectual}% (${biorhythm.intellectualPhase})`, `Intellect ${biorhythm.intellectual}% (${biorhythm.intellectualPhase})`), category: 'finance', value: biorhythm.intellectualPhase });
+        all.push({ system: 'BaZi', score: bazi.score, finding: tr(`ธาตุมงคล ${bazi.luckyElement}`, `Lucky element ${bazi.luckyElement}`), category: 'finance', value: bazi.luckyElement }, { system: 'Nine Star Ki', score: ninestar.score, finding: tr(`ทิศ ${ninestar.starDirection} เสริมการเงิน`, `Direction ${ninestar.starDirection} supports finance`), category: 'finance', value: ninestar.starDirection }, { system: 'Numerology', score: numerology.score, finding: `Personal Year ${numerology.personalYear2026}: ${numerology.personalYearMeaning.split('—')[0]}`, category: 'finance', value: String(numerology.personalYear2026) }, { system: 'Vedic', score: vedic.score, finding: `${vedicMahadasha.currentDasha} Dasha`, category: 'finance', value: vedicMahadasha.dashaElement }, { system: 'Arabic Parts', score: arabicParts.score, finding: tr(`Part of Fortune ใน ${arabicParts.fortuneSign}`, `Part of Fortune in ${arabicParts.fortuneSign}`), category: 'finance', value: arabicParts.fortuneSign }, { system: 'Hellenistic', score: hellenistic.score, finding: tr(`${hellenistic.sectTh} กับ ${hellenistic.trigonLord}`, `${hellenistic.sectTh} with ${hellenistic.trigonLord}`), category: 'finance', value: hellenistic.trigonLord.split(' ')[0] }, { system: 'Kabbalistic', score: kabbalistic.score, finding: `${kabbalistic.sephira} (${kabbalistic.archangel})`, category: 'finance', value: kabbalistic.sephira }, { system: 'Ifa/Yoruba', score: ifaYoruba.score, finding: `Odù ${ifaYoruba.odu}: ${ifaYoruba.fortune}`, category: 'finance', value: ifaYoruba.fortune }, { system: 'Zoroastrian', score: zoroastrian.score, finding: `${zoroastrian.dayYazataTh}`, category: 'finance', value: tr(zoroastrian.harmony ? 'สอดคล้อง' : 'ระวัง', zoroastrian.harmony ? 'aligned' : 'caution') }, { system: tr('ทักษา', 'Thai Taksa'), score: c.taksa.score, finding: tr(`มูละ (ฐานทรัพย์) = ${c.taksa.mulaTh}`, `Mula wealth house = ${c.taksa.mulaEn}`), category: 'finance', value: c.taksa.mulaTh }, { system: 'Biorhythm', score: biorhythm.score, finding: tr(`สติปัญญา ${biorhythm.intellectual}% (${biorhythm.intellectualPhase})`, `Intellect ${biorhythm.intellectual}% (${biorhythm.intellectualPhase})`), category: 'finance', value: biorhythm.intellectualPhase });
     }
     if (topic === 'timing') {
-        all.push({ system: 'BaZi', score: bazi.score, finding: `LP ${bazi.currentLuckPillar} ${bazi.currentLuckPillarTh}`, category: 'timing', value: bazi.currentLuckPillar }, { system: 'Nine Star Ki', score: ninestar.score, finding: ninestar.year2026Analysis.substring(0, 60), category: 'timing', value: ninestar.star === 9 ? 'peak' : 'normal' }, { system: 'Vedic', score: vedic.score, finding: tr(`${vedicMahadasha.currentDasha} Dasha ถึง ${vedicMahadasha.currentDashaEnd}`, `${vedicMahadasha.currentDasha} Dasha until ${vedicMahadasha.currentDashaEnd}`), category: 'timing', value: String(vedicMahadasha.currentDashaEnd) }, { system: 'Numerology', score: numerology.score, finding: `PY ${numerology.personalYear2026}: ${numerology.personalYearMeaning.substring(0, 40)}`, category: 'timing', value: String(numerology.personalYear2026) }, { system: 'Biorhythm', score: biorhythm.score, finding: `E:${biorhythm.emotional}% I:${biorhythm.intellectual}% P:${biorhythm.physical}%`, category: 'timing', value: biorhythm.intellectualPhase }, { system: 'Tibetan', score: tibetan.score, finding: `Mewa ${tibetan.mewa} ${tibetan.mewaQuality}`, category: 'timing', value: tibetan.mewaQuality }, { system: 'Onmyōdō', score: onmyodo.score, finding: `${onmyodo.rokuyo} ${onmyodo.rokuyoTh}`, category: 'timing', value: onmyodo.rokuyo }, { system: 'Aztec', score: aztec.score, finding: `${aztec.daySignTh} Tone ${aztec.toneNumber}`, category: 'timing', value: aztec.daySignQuality });
+        all.push({ system: 'BaZi', score: bazi.score, finding: `LP ${bazi.currentLuckPillar} ${bazi.currentLuckPillarTh}`, category: 'timing', value: bazi.currentLuckPillar }, { system: 'Nine Star Ki', score: ninestar.score, finding: ninestar.year2026Analysis.substring(0, 60), category: 'timing', value: ninestar.star === 9 ? 'peak' : 'normal' }, { system: 'Vedic', score: vedic.score, finding: tr(`${vedicMahadasha.currentDasha} Dasha ถึง ${vedicMahadasha.currentDashaEnd}`, `${vedicMahadasha.currentDasha} Dasha until ${vedicMahadasha.currentDashaEnd}`), category: 'timing', value: String(vedicMahadasha.currentDashaEnd) }, { system: 'Numerology', score: numerology.score, finding: `PY ${numerology.personalYear2026}: ${numerology.personalYearMeaning.substring(0, 40)}`, category: 'timing', value: String(numerology.personalYear2026) }, { system: 'Biorhythm', score: biorhythm.score, finding: `E:${biorhythm.emotional}% I:${biorhythm.intellectual}% P:${biorhythm.physical}%`, category: 'timing', value: biorhythm.intellectualPhase }, { system: 'Tibetan', score: tibetan.score, finding: `Mewa ${tibetan.mewa} ${tibetan.mewaQuality}`, category: 'timing', value: tibetan.mewaQuality }, { system: 'Onmyōdō', score: onmyodo.score, finding: `${onmyodo.rokuyo} ${onmyodo.rokuyoTh}`, category: 'timing', value: onmyodo.rokuyo }, { system: 'Aztec', score: aztec.score, finding: `${aztec.daySignTh} Tone ${aztec.toneNumber}`, category: 'timing', value: aztec.daySignQuality }, { system: tr('ทักษา', 'Thai Taksa'), score: c.taksa.score, finding: tr(`กาลกิณี ${c.taksa.kalakiniTh} — พลัง/วันที่ควรเลี่ยง`, `Kalakini ${c.taksa.kalakiniEn} — the energy/day to avoid`), category: 'timing', value: c.taksa.kalakiniTh });
     }
     return all;
 }
 /** Render a consensus row: icon + count + systems + message */
-function consensusRow(icon, theme, systems, msg, count, color = '#d4aa50', narrative = '') {
+function consensusRow(icon, theme, votes, msg, count, color = '#d4aa50', narrative = '') {
     const strength = count >= 10 ? '██████' : count >= 7 ? '████' : count >= 4 ? '██' : '█';
-    // Show ALL systems as chips — no truncation
-    const chips = systems.map(s => {
+    // Show ALL systems as chips — no truncation. Each chip carries the
+    // system's own score so the reader sees how strongly each voice voted,
+    // not just that it voted (Director: convergence ขาดความละเอียด 2026-06-10).
+    const chips = votes.map(v => {
         // Translate any embedded Thai data fields in the chip label.
         // System labels are constructed like 'Tibetan Mewa 5' or 'Aboriginal งูรุ้ง'
         // — split-and-translate on whitespace so Thai tokens get hit by trDF.
-        const label = s.split('(')[0].trim().split(/\s+/).map(tok => trDF(tok)).join(' ');
-        return `<span style="display:inline-block;background:${color}18;color:${color};border:1px solid ${color}44;border-radius:4px;padding:1px 7px;font-size:10px;margin:2px">${esc(label)}</span>`;
+        const label = v.system.split('(')[0].trim().split(/\s+/).map(tok => trDF(tok)).join(' ');
+        const scoreDot = v.score ? `<span style="opacity:.75;font-weight:700"> · ${v.score}</span>` : '';
+        return `<span style="display:inline-block;background:${color}18;color:${color};border:1px solid ${color}44;border-radius:4px;padding:1px 7px;font-size:10px;margin:2px">${esc(label)}${scoreDot}</span>`;
     }).join('');
     return `<div style="border-left:3px solid ${color};padding:10px 14px;margin:10px 0;background:#141210;border-radius:0 8px 8px 0">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -6794,32 +7042,56 @@ function p_aboriginal(c) {
     <p style="font-size:11px;color:#6a5a42">${tr(`Dreamtime เป็นปรัชญาชาวอะบอริจินออสเตรเลีย — บรรพบุรุษ ${a.dreamingTh} ชี้แนะเส้นทางผ่านกฎธรรมชาติ`, `Dreamtime is the Aboriginal Australian philosophy — your Ancestor ${a.dreamingAncestor} (${a.dreamingTh}) guides your path through natural law.`)}</p>
   `);
 }
-function p_biorhythm(c) {
-    const b = c.biorhythm;
-    const phaseColor = (v) => v > 40 ? '#4a9a40' : v > 0 ? '#8a8a30' : v > -40 ? '#8a5a20' : '#9a3020';
-    return section(0, tr('Biorhythm — วัฏจักรชีวิต', 'Biorhythm — Life Cycles'), '📈', `
-    <div class="grid-3" style="margin-bottom:12px;text-align:center">
-      ${[
-        [tr('ร่างกาย', 'Physical'), b.physical, b.physicalPhase, 'Physical (23d)'],
-        [tr('อารมณ์', 'Emotional'), b.emotional, b.emotionalPhase, 'Emotional (28d)'],
-        [tr('สติปัญญา', 'Intellectual'), b.intellectual, b.intellectualPhase, 'Intellectual (33d)'],
-    ].map(([l, v, p, en]) => `
-        <div class="stat-card">
-          <div class="val" style="color:${phaseColor(+v)}">${+v > 0 ? '+' : ''}${v}%</div>
-          <div class="lbl">${esc(String(l))}</div>
-          <div style="font-size:10px;color:#6a5a42;margin-top:2px">${esc(String(p))}</div>
-        </div>`).join('')}
+function p_taksa(c) {
+    const t8 = c.taksa;
+    const isEn = _lang === 'en';
+    // Life-arena meaning of each of the 8 Taksa houses (classical Thai reading)
+    const HOUSE_MEANING = {
+        'บริวาร': ['ผู้คนรอบตัว — ครอบครัว ลูกน้อง ทีมงาน', 'people around you — family, team, followers'],
+        'อายุ': ['สุขภาพและอายุขัย', 'health & longevity'],
+        'เดช': ['อำนาจ บารมี ชื่อเสียง', 'power, authority, reputation'],
+        'ศรี': ['สิริมงคล เสน่ห์ โชคลาภ', 'grace, charm, fortune'],
+        'มูละ': ['ทรัพย์สิน มรดก ฐานเงิน', 'wealth, assets, inheritance'],
+        'อุตสาหะ': ['ความเพียร การงาน ความสำเร็จจากแรงตน', 'diligence — success earned by effort'],
+        'มนตรี': ['ผู้อุปถัมภ์ ผู้ใหญ่เกื้อหนุน', 'mentors & patrons'],
+        'กาลกิณี': ['เคราะห์และอุปสรรค — พลังที่ควรเลี่ยง', 'misfortune — the energy to avoid'],
+    };
+    const isKey = (nameTh) => nameTh === 'มูละ' || nameTh === 'กาลกิณี';
+    const wheelRows = (t8.wheel || []).map(h => {
+        const meaning = HOUSE_MEANING[h.houseNameTh];
+        const meaningTxt = meaning ? (isEn ? meaning[1] : meaning[0]) : '';
+        const hl = isKey(h.houseNameTh);
+        return `<tr style="${hl ? 'background:#1e1a0e' : ''}">
+      <td class="lbl" style="${hl ? 'color:#d4aa50;font-weight:700' : ''}">${esc(isEn ? `${h.houseNameEn} (${h.houseNameTh})` : h.houseNameTh)}</td>
+      <td style="${hl ? 'color:#f0d060;font-weight:600' : ''}">${esc(isEn ? h.planetNameEn : h.planetNameTh)}</td>
+      <td style="font-size:11px;color:#9a8a72">${esc(meaningTxt)}</td>
+    </tr>`;
+    }).join('');
+    return section(0, tr('ทักษา ๘ บ้าน — โหราไทยคลาสสิก', 'Thai Taksa — Classical 8-House Astrology'), '🪷', `
+    <div class="grid-2" style="margin-bottom:12px">
+      <div class="stat-card">
+        <div class="val" style="font-size:18px">${esc(isEn ? t8.dayLordEn : t8.dayLordTh)}</div>
+        <div class="lbl">${tr('เจ้าวัน (ดาวประจำวันเกิด)', 'Day-lord planet')}</div>
+      </div>
+      <div class="stat-card"><div class="val">${t8.score}</div><div class="lbl">Taksa Score</div></div>
     </div>
-    <div style="background:#0a1008;border-radius:8px;padding:12px;margin:8px 0">
-      <div style="font-size:12px;color:#5a8a40;margin-bottom:6px">${tr('วัฏจักร ณ 14 เม.ย. 2026', 'Cycles as of 14 April 2026')}</div>
-      ${[['Physical 23d', b.physical, '#4a9a40'], ['Emotional 28d', b.emotional, '#5a6a90'], ['Intellectual 33d', b.intellectual, '#9a7a30']].map(([l, v, col]) => `<div style="margin:6px 0"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span style="color:#9a8a72">${esc(String(l))}</span><span style="color:${col};font-weight:600">${+v > 0 ? '+' : ''}${v}%</span></div>
-        <div style="background:#1a2010;border-radius:3px;height:6px"><div style="width:${Math.round((+v + 100) / 2)}%;height:6px;background:${col};border-radius:3px"></div></div></div>`).join('')}
+    ${bar(t8.score, '#b07840')}
+    <div class="grid-2" style="margin:12px 0">
+      <div class="stat-card" style="border-color:#50b050">
+        <div class="val" style="font-size:16px;color:#70c070">${esc(isEn ? t8.mulaEn : t8.mulaTh)}</div>
+        <div class="lbl">${tr('มูละ — ฐานทรัพย์', 'Mula — wealth house')}</div>
+      </div>
+      <div class="stat-card" style="border-color:#a04030">
+        <div class="val" style="font-size:16px;color:#d07050">${esc(isEn ? t8.kalakiniEn : t8.kalakiniTh)}</div>
+        <div class="lbl">${tr('กาลกิณี — พลังที่ควรเลี่ยง', 'Kalakini — energy to avoid')}</div>
+      </div>
     </div>
-    <div class="stat-card" style="margin-top:8px">
-      <div class="val">${b.score}</div><div class="lbl">Biorhythm Score</div>
-    </div>
-    ${bar(b.score, '#5a7a30')}
-    ${b.reading}
+    <table style="margin:12px 0"><tbody>
+      <tr><td class="lbl" style="color:#7a6a52">${tr('บ้าน', 'House')}</td><td style="color:#7a6a52">${tr('ดาวประจำ', 'Planet')}</td><td style="color:#7a6a52">${tr('ความหมาย', 'Arena')}</td></tr>
+      ${wheelRows}
+    </tbody></table>
+    ${box(tr('การตีความทักษา', 'Taksa Reading'), t8.reading, 'gold')}
+    <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:', 'Origin:')}</strong> ${tr('ทักษาเป็นระบบโหราศาสตร์ไทยคลาสสิกที่จัดดาวพระเคราะห์ ๘ ดวงลงใน ๘ บ้านชีวิตตามวันเกิด — ใช้ตั้งชื่อ เลือกฤกษ์ และดูทิศทางชีวิตมาตั้งแต่สมัยอยุธยา ต่างจากไทยพราหมณ์ (เทพประจำวัน) ตรงที่ทักษาให้ "แผนที่ ๘ มิติชีวิต" ว่าดาวใดคุมเรื่องใดของคุณ', 'Taksa is the classical Thai system that places the eight planets into eight life-arena houses according to your birth weekday — used since the Ayutthaya era for naming, choosing auspicious dates, and reading life direction. Where Thai Brahmin reads the day-deity, Taksa maps which planet governs each of your eight life arenas.')}</p>
   `);
 }
 function p_vedicMahadasha(c) {
@@ -6857,6 +7129,7 @@ function p_vedicMahadasha(c) {
 })(typeof window !== "undefined" ? window : globalThis);
 
 /* MS26_BUNDLE_END */
+
 const _SB_URL = 'https://woamqrhifuxsscnihqco.supabase.co';
 const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvYW1xcmhpZnV4c3NjbmlocWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NjA1MzQsImV4cCI6MjA5MDQzNjUzNH0.idjUJce9t3tDrbNIFkWEtY49kexfWU3R8QABXpYVOo8';
 let _sb        = null;  // Supabase client — set in DOMContentLoaded

@@ -34,15 +34,16 @@ const injectedBlock = new RegExp(
 html = html.replace(injectedBlock, '');
 
 // ── 2. Inject bundle right after the opening <script> ────────
-const scriptOpen = html.indexOf('<script>\n');
-if (scriptOpen < 0) throw new Error('Could not find <script> tag');
-const afterOpen = scriptOpen + '<script>\n'.length;
+// Tolerate both LF and CRLF line endings after the tag.
+const scriptMatch = html.match(/<script>\r?\n/);
+if (!scriptMatch) throw new Error('Could not find <script> tag');
+const afterOpen = scriptMatch.index + scriptMatch[0].length;
 
 const block = `${START}\n${bundle}\n${END}\n`;
 html = html.slice(0, afterOpen) + block + html.slice(afterOpen);
 
 // ── 3. Rewire cb_generate() to use MS26 ───────────────────────
-const cbMatch = html.match(/function cb_generate\(\) \{[\s\S]*?^\}\n/m);
+const cbMatch = html.match(/function cb_generate\(\) \{[\s\S]*?^\}\r?\n/m);
 if (!cbMatch) throw new Error('Could not locate cb_generate()');
 
 const newCbGenerate = `function cb_generate() {
