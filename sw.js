@@ -253,7 +253,15 @@
 // + per-item via the server myth_purchases table, re-granted by _refreshPremium on
 // every device — this is defence-in-depth for the localStorage cache.) Engine
 // unchanged (?v=97).
-const CACHE = 'mythsensus-v99';
+// v100: 2026-06-10 — gift-code loophole fix. A gift code granted ONE free Deep
+// Reading PER CHART HASH, so editing any input field (DOB/time/name/…) minted a
+// fresh free $9 reading from the SAME code — unlimited until expiry. Now each
+// code is one-shot: _markGiftCodeUsed / _isGiftCodeUsed gate redemption by code,
+// not by hash (mth_gift_used_codes). Distinct codes still each grant one reading
+// (plaintext codes intentionally shareable). Spend + consumed map now sync &
+// union-merge cross-device (mth_gift_used_codes + mth_gift_consumed in
+// _MAP_SYNC_KEYS) so the loophole can't reopen phone↔PC. Engine unchanged (?v=97).
+const CACHE = 'mythsensus-v100';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

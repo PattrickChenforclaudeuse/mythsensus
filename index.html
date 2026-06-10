@@ -5817,6 +5817,30 @@ function _giftMarkConsumed(itemKey, hash){
   } catch(_) { return ''; }
 }
 
+// One free Deep Reading PER GIFT CODE (not per chart hash). Before 2026-06-10 the
+// consumed map was keyed by chart hash alone, so editing any input field minted a
+// fresh free reading from the SAME code — unlimited until expiry. Now each code is
+// marked used after its single redemption. Distinct codes still each grant their
+// own reading (the plaintext codes are intentionally shareable for explorers).
+// Stored as a { code: true } map so it rides the same cross-device union-merge as
+// mth_purchased (_MAP_SYNC_KEYS) — a code used on the phone can't be reused on PC.
+function _giftUsedCodes(){
+  try { return JSON.parse(localStorage.getItem('mth_gift_used_codes') || '{}') || {}; }
+  catch(_) { return {}; }
+}
+function _isGiftCodeUsed(code){ return !!code && !!_giftUsedCodes()[code]; }
+function _markGiftCodeUsed(code){
+  try {
+    if (!code) return;
+    const m = _giftUsedCodes();
+    if (!m[code]) {
+      m[code] = true;
+      localStorage.setItem('mth_gift_used_codes', JSON.stringify(m));
+      if (typeof _sbPushSoon === 'function') _sbPushSoon();   // sync the spend cross-device
+    }
+  } catch(_) {}
+}
+
 // ── Per-input purchase model ──────────────────────────────
 // Pricing model decided 2026-05-02:
 //   • $19  one-time = Full Report 43-page PDF for ONE chart input
@@ -7511,8 +7535,13 @@ function _showDeep(k, isUserClick){
   if (isUserClick && _hasActiveGift()) {
     const hash = _chartInputHash();
     const itemKey = 'deep_' + k;
-    if (!_giftConsumedFor(hash) && !_hasItemAccess(itemKey, hash)) {
+    const code = localStorage.getItem('mth_gift') || '';
+    // One redemption per CODE — once this code has been spent, changing the chart
+    // input no longer mints a new free reading (loophole fix). A different code is
+    // still independently redeemable.
+    if (!_isGiftCodeUsed(code) && !_giftConsumedFor(hash) && !_hasItemAccess(itemKey, hash)) {
       _giftMarkConsumed(itemKey, hash);
+      _markGiftCodeUsed(code);
       _toastGiftRedeemed(k);
       try { renderDeepReadings(); return; } catch(_) {}
     }
@@ -7532,9 +7561,12 @@ function _showDeep(k, isUserClick){
   const deepKey = 'deep_' + k;
   const deepLocked = !_hasItemAccess(deepKey);
   const hasReading = data.reading && data.reading.trim().length > 20;
-  // Gift-free flag — every locked tile can swap its $9 badge for "FREE" while
-  // the gift code is active and not yet redeemed on this chart hash.
-  const _giftFreeHere = _hasActiveGift() && !_giftConsumedFor(_chartInputHash());
+  // Gift-free flag — a locked tile shows "FREE" only while the gift code is
+  // active, NOT yet spent (one redemption per code), and not already consumed
+  // on this chart hash. Once the code is used the badge reverts to the $9 price.
+  const _giftFreeHere = _hasActiveGift()
+    && !_isGiftCodeUsed(localStorage.getItem('mth_gift') || '')
+    && !_giftConsumedFor(_chartInputHash());
 
   // Build the secondary-systems compact grid (16 tiles, each with 1-liner insight).
   const secondary = DEEP_SYSTEMS.filter(([sk]) => !PRIMARY_KEYS.has(sk));
@@ -13292,6 +13324,7 @@ function importUserData(e){
 const _SYNC_KEYS = [
   'mth_name','mth_dob','mth_time','mth_gender','mth_city',
   'mth_country','mth_career','mth_careerLevel','mth_industry','mth_lang','mth_gift','mth_gift_expiry','mth_purchased',
+  'mth_gift_used_codes','mth_gift_consumed',
   'mth_bless_date','mth_bless_count','mth_bless_history','mth_full_history',
   'mth_coll_tier','ms_profiles','ms_saved_reports','ms_last_group'
 ];
@@ -13353,7 +13386,7 @@ function _mergeHistoryKey(localStr, cloudStr) {
 // _refreshPremium, and subscriptions live in app_metadata.plan — both account-
 // scoped and authoritative — so this localStorage merge is defence-in-depth that
 // keeps the local cache correct between server refreshes / while offline.)
-const _MAP_SYNC_KEYS = new Set(['mth_purchased']);
+const _MAP_SYNC_KEYS = new Set(['mth_purchased', 'mth_gift_used_codes', 'mth_gift_consumed']);
 function _mergePurchaseMap(localStr, cloudStr) {
   let local = {}, cloud = {};
   try { local = JSON.parse(localStr || '{}') || {}; } catch (_) {}
