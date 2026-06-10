@@ -270,7 +270,16 @@
 // purchase buttons work). _chartInputHash() now also hashes an explicit profile so
 // a saved profile's entitlement is checked correctly. Famous-people charts stay
 // free demos. Engine/bundle unchanged (?v=97).
-const CACHE = 'mythsensus-v101';
+// v102: 2026-06-10 — Biorhythm fully removed from the STATIC 43-page report. It's
+// a daily-changing value (the engine computes it against a fixed reference, so it
+// was a frozen, misleading number in a one-time report). Removed: the p02 daily
+// card, the p_threeScores line, the "current biorhythm pulse" block, the health/
+// finance/timing consensus signals, the activation/pain-point references, and the
+// p18 Monthly forecast's Bio column (now NSK + Numerology). Top-5/Bottom-3 and
+// the watch-list now filter scoring:false so Biorhythm can't slip back in.
+// Biorhythm lives ONLY in the live Daily Pulse (computed against today). Engine
+// bundle changed → ?v=102; sample-report regenerated.
+const CACHE = 'mythsensus-v102';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

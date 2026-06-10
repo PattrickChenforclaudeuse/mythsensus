@@ -4313,7 +4313,7 @@ function p_threeScores(c) {
     <!-- Top contributors -->
     <div style="margin-bottom:14px">
       <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">${tr('ระบบที่ให้คะแนนสูงสุด (Top 5)', 'Top-5 highest-scoring systems')}</div>
-      ${c.score.breakdown.slice().sort((a, b) => b.score - a.score).slice(0, 5).map(b => `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 10px;background:#1a1510;border-radius:6px">
+      ${c.score.breakdown.slice().filter(b => b.scoring !== false).sort((a, b) => b.score - a.score).slice(0, 5).map(b => `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 10px;background:#1a1510;border-radius:6px">
           <span style="font-size:12px;color:#c8b890">${esc(trDF(b.system))}</span>
           <span style="font-size:13px;font-weight:700;color:#d4aa50">${b.score}</span>
         </div>`).join('')}
@@ -4322,7 +4322,7 @@ function p_threeScores(c) {
     <!-- Bottom contributors -->
     <div>
       <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">${tr('ระบบที่ให้คะแนนต่ำสุด (Bottom 3) — ดาบสองคม', 'Bottom-3 lowest-scoring systems — double-edged sword')}</div>
-      ${c.score.breakdown.slice().sort((a, b) => a.score - b.score).slice(0, 3).map(b => `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 10px;background:#1a1008;border-radius:6px;border-left:2px solid #6a3010">
+      ${c.score.breakdown.slice().filter(b => b.scoring !== false).sort((a, b) => a.score - b.score).slice(0, 3).map(b => `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 10px;background:#1a1008;border-radius:6px;border-left:2px solid #6a3010">
           <span style="font-size:12px;color:#a87050">${esc(trDF(b.system))}</span>
           <div style="text-align:right">
             <span style="font-size:13px;font-weight:700;color:#d07040">${b.score}</span>
@@ -4336,13 +4336,11 @@ function p_threeScores(c) {
   `);
 }
 function p02_scoreBreakdown(c) {
-    // Group into 🌟 ≥780 / 〰 650-779 / ⚠ <650, EXCLUDING the daily-only layer
-    // (biorhythm). Director feedback 2026-06-04: biorhythm is intentionally a
-    // daily-changing snapshot, so it doesn't belong in the identity consensus.
-    // Show it separately at the bottom as a "daily layer · not scoring" card.
-    const allSorted = c.score.breakdown.slice().sort((a, b) => b.score - a.score);
-    const voting = allSorted.filter(b => b.scoring !== false);
-    const daily = allSorted.filter(b => b.scoring === false);
+    // Group into 🌟 ≥780 / 〰 650-779 / ⚠ <650. Biorhythm carries scoring:false and
+    // is a DAILY-changing layer (it would be a frozen, meaningless value in a static
+    // report), so it's excluded here entirely — it lives only in the live Daily Pulse.
+    const allSorted = c.score.breakdown.slice().filter(b => b.scoring !== false).sort((a, b) => b.score - a.score);
+    const voting = allSorted;
     const stars = voting.filter(b => b.score >= 780);
     const mids = voting.filter(b => b.score >= 650 && b.score < 780);
     const warns = voting.filter(b => b.score < 650);
@@ -4355,20 +4353,9 @@ function p02_scoreBreakdown(c) {
         <div style="width:${Math.round((b.score - 400) / 6)}%;height:6px;background:${b.color}"></div>
       </div>
     </div>`;
-    const dailyRow = (b) => `
-    <div style="display:flex;align-items:center;gap:8px;margin:3px 0;padding:6px 10px;background:#0f120e;border:1px dashed #3a4030;border-radius:6px;opacity:.88">
-      <span style="min-width:22px;text-align:center;color:#7090a0">📈</span>
-      <span style="flex:1;font-size:12px;color:#a0b090">${esc(trDF(b.system))}
-        <span style="font-size:9.5px;letter-spacing:1px;color:#5a7060;margin-left:4px;text-transform:uppercase;font-family:'Josefin Sans',sans-serif">${tr('ระดับรายวัน · ไม่ vote', 'Daily layer · not scoring')}</span>
-      </span>
-      <span style="font-size:12px;color:#7a9080;min-width:34px;text-align:right">${b.score}</span>
-      <div style="width:80px;background:#1a1510;border-radius:3px;height:6px;overflow:hidden;opacity:.5">
-        <div style="width:${Math.round((b.score - 400) / 6)}%;height:6px;background:#5a7060"></div>
-      </div>
-    </div>`;
     return section(3, tr('26-System Consensus — ทุกศาสตร์เห็นอะไร', '26-System Consensus — what every tradition sees'), '🌐', `
     <div style="font-size:11px;color:#7a6a52;margin-bottom:12px;line-height:1.6">
-      ${tr('Cosmic Score = Median จาก 26 ศาสตร์ที่นิ่ง (Biorhythm เป็นรายวัน แสดงแยก)', 'Cosmic Score = Median of 26 stable identity systems (Biorhythm is daily-only, shown separately)')} = <strong style="color:#d4aa50">${c.score.total}</strong>
+      ${tr('Cosmic Score = Median จาก 26 ศาสตร์ที่นิ่ง (วัดตัวตน ไม่เลื่อนตามวัน)', 'Cosmic Score = Median of 26 stable identity systems (fixed, not daily-changing)')} = <strong style="color:#d4aa50">${c.score.total}</strong>
       · Mean = ${c.score.mean} · Modal range = ${c.score.modalBin}–${c.score.modalBin + 49}
     </div>
 
@@ -4400,19 +4387,8 @@ function p02_scoreBreakdown(c) {
       </div>
     </div>` : ''}
 
-    <!-- Daily-only layer (biorhythm) -->
-    ${daily.length > 0 ? `
-    <div style="margin-bottom:12px">
-      <div style="font-size:13px;font-weight:600;color:#7090a0;margin-bottom:6px">
-        📈 ${tr('ระดับรายวัน', 'Daily layer')} — ${daily.length} ${tr('ระบบ · ไม่นับใน Cosmic Score', 'system · not part of Cosmic Score')}
-      </div>
-      ${daily.map(dailyRow).join('')}
-      <div style="font-size:10px;color:#5a7060;margin-top:6px;line-height:1.6">
-        ${tr('ⓘ Biorhythm เปลี่ยนทุกวันตามรอบ 23/28/33 — เก็บแยกออกจาก Cosmic Score เพื่อให้คะแนน identity ไม่เลื่อนตามวัน', 'ⓘ Biorhythm shifts every day along 23/28/33-day cycles — kept out of the Cosmic Score so your identity number stays stable.')}
-      </div>
-    </div>` : ''}
-
-    <!-- Stats summary — voting set only (excludes biorhythm) -->
+    <!-- Stats summary — voting set only (Biorhythm lives in the live Daily Pulse,
+         not in this static report) -->
     <div style="background:#1a1510;border-radius:8px;padding:12px;margin-top:12px">
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">
         ${[
@@ -4637,7 +4613,7 @@ function p03_convergence(c) {
     const visible = themes.filter(t => t.votes.length >= 3).sort((a, b) => b.votes.length - a.votes.length);
     // Generate narrative for each theme based on chart data
     const narratives = {
-        '🔥': tr(`จาก ${c.score.breakdown.filter(b => b.score >= 780).length} ระบบที่ให้คะแนนสูง ธาตุ${dmEl}ปรากฏชัดเจนที่สุด — Day Master ${bazi.dayStem} (${bazi.dayMasterTh}) กำหนดวิธีที่คุณประมวลผลโลก ไม่ใช่แค่ "นิสัย" แต่คือโครงสร้างพื้นฐานของการตัดสินใจและพลังงานชีวิต ศาสตร์ทั้งในและตะวันตกต่างยืนยันสิ่งเดียวกันโดยไม่รู้จักกัน`, `Across the ${c.score.breakdown.filter(b => b.score >= 780).length} highest-scoring systems, the ${trDF(dmEl)} element shows up most clearly. Day Master ${bazi.dayStem} (${trDF(bazi.dayMasterTh)}) shapes how you process the world — not as "personality", but as the underlying structure of how you make decisions and where your life-force flows. Eastern and Western traditions, computed independently, both confirm the same signal.`),
+        '🔥': tr(`จาก ${c.score.breakdown.filter(b => b.score >= 780 && b.scoring !== false).length} ระบบที่ให้คะแนนสูง ธาตุ${dmEl}ปรากฏชัดเจนที่สุด — Day Master ${bazi.dayStem} (${bazi.dayMasterTh}) กำหนดวิธีที่คุณประมวลผลโลก ไม่ใช่แค่ "นิสัย" แต่คือโครงสร้างพื้นฐานของการตัดสินใจและพลังงานชีวิต ศาสตร์ทั้งในและตะวันตกต่างยืนยันสิ่งเดียวกันโดยไม่รู้จักกัน`, `Across the ${c.score.breakdown.filter(b => b.score >= 780 && b.scoring !== false).length} highest-scoring systems, the ${trDF(dmEl)} element shows up most clearly. Day Master ${bazi.dayStem} (${trDF(bazi.dayMasterTh)}) shapes how you process the world — not as "personality", but as the underlying structure of how you make decisions and where your life-force flows. Eastern and Western traditions, computed independently, both confirm the same signal.`),
         '🌟': tr(`เมื่อมีระบบจากหลายวัฒนธรรม (ตะวันออก ตะวันตก แอฟริกา อเมริกา โอเชียเนีย) ต่างให้คะแนนสูงพร้อมกัน — นั่นคือ consensus ที่แท้จริง ไม่ใช่แค่ระบบใดระบบหนึ่งชอบ แต่ "ดวงชาตา" นี้แข็งแกร่งข้ามวัฒนธรรม`, `When systems from multiple cultures (East, West, Africa, the Americas, Oceania) score high simultaneously — that's true consensus. Not one tradition that happens to favour you, but a chart that holds up across cultural lenses.`),
         '⏰': tr(`ปี 2026 ไม่ใช่แค่ปีดีโดยบังเอิญ แต่มีกลไกทางโหราศาสตร์หลายชั้นเปิดพร้อมกัน — BaZi Ben Ming Nian หมายถึงพลังงานของคุณ "กลับบ้าน" ครบรอบ 12 ปี, NSK Star 9 Honmei Kaiki หมายถึงดาวเกิดตรงกับดาวปี, Vedic Dasha ชี้ช่วงปกครอง ${vedicMahadasha.currentDasha} — นี่คือ window ที่ควรลงมือ`, `2026 is not just incidentally good — multiple astrological mechanisms open at once. BaZi Ben Ming Nian means your energy "comes home" on its 12-year cycle. NSK Star 9 Honmei Kaiki means your birth star aligns with the year-star. Vedic Dasha currently rules ${vedicMahadasha.currentDasha} — this is the window for action.`),
         '👑': tr(`ลักษณะผู้นำในดวงชาตาไม่ได้มาจากความทะเยอทะยาน แต่มาจากโครงสร้างของพลังงาน — ${humandesign.typeTh} Strategy "${humandesign.strategy}" ประกอบกับ NSK Star ${ninestar.star} และ LP${numerology.lifePath} บ่งว่าคุณถูกออกแบบให้ "guide" มากกว่า "push"`, `The leadership signature in your chart isn't ambition — it's energetic structure. ${trDF(humandesign.typeTh)} Strategy "${trDF(humandesign.strategy)}" combined with NSK Star ${ninestar.star} and LP${numerology.lifePath} indicates you're designed to "guide" rather than "push".`),
@@ -5201,7 +5177,6 @@ function p13_luckPillars(c) {
     <h2 style="font-size:14px;color:#d0a060;margin:14px 0 8px">🔢 ${tr('Numerology — รอบชีวิต 9 ปี', 'Numerology — 9-Year Life Cycle')}</h2>
     <div style="background:#1a1208;border-radius:8px;padding:10px">
       <div style="font-size:12px;color:#c0a060">Personal Year 2026: <strong>${esc(String(numerology.personalYear2026))}</strong> — ${esc(numerology.personalYearMeaning.split('—')[0])}</div>
-      <div style="font-size:11px;color:#8a7040;margin-top:4px">Biorhythm Physical ${esc(String(biorhythm.physical))}% | Emotional ${esc(String(biorhythm.emotional))}% | Intellectual ${esc(String(biorhythm.intellectual))}%</div>
     </div>
     ${box(tr('จุดบรรจบของสามเส้นเวลา', 'Where these timelines converge'), tr(`สามศาสตร์มองช่วงนี้ของคุณพร้อมกัน — BaZi อยู่เสา ${cur ? `${cur.stemTh} ${cur.branchTh}` : '—'}, Vedic อยู่ช่วงดาว ${esc(vedicMahadasha.currentDasha)} (ถึงปี ${esc(String(vedicMahadasha.currentDashaEnd))}) ${esc(vedicMahadasha.dashaQuality)}, และเลขศาสตร์เป็น Personal Year ${esc(String(numerology.personalYear2026))} เมื่อทั้งสามจังหวะชี้ไปทางเดียวกันคือช่วงเร่งเครื่องที่ควรลงแรง เมื่อชี้คนละทางให้ยึดกระแสของเสา BaZi เป็นหลัก เพราะมันคือคลื่นพลังที่ยาวที่สุดในชีวิตคุณ`, `Three systems read this season of your life at once — BaZi places you in the ${cur ? `${cur.stem}${cur.branch}` : '—'} pillar, Vedic in your ${esc(vedicMahadasha.currentDasha)} planetary period (until ${esc(String(vedicMahadasha.currentDashaEnd))}) ${esc(vedicMahadasha.dashaQuality)}, and numerology at Personal Year ${esc(String(numerology.personalYear2026))}. When all three point the same way it's an accelerate window worth your effort; when they diverge, follow the BaZi pillar first — it's the longest energy wave in your life.`), 'gold')}
   `);
@@ -5264,19 +5239,6 @@ function p14_health(c) {
     </div>` : ''}
 
     ${box(tr('ออกกำลังกายที่ร่างกายของคุณตอบสนองดีที่สุด', 'Movement your body responds to best'), tr(`<strong>${esc(EL_EXERCISE[bazi.dayStem] || 'เดิน/โยคะ')}</strong><br><br>เหตุผล: Day Master <strong>${esc(bazi.dayStem)} ${esc(bazi.dayMasterTh)}</strong> เป็นธาตุ <strong>${esc(dmEl)}</strong> — กีฬานี้เสริมการไหลเวียนของ ${esc(organ)} โดยตรง นี่ไม่ใช่กฎหนึ่งสำหรับทุกคน แต่เป็นการจับคู่ระหว่างธาตุของคุณกับชนิดการเคลื่อนไหวที่ธาตุนั้นต้องการ`, `<strong>${esc(EL_EXERCISE[bazi.dayStem] || 'Walking / Yoga')}</strong><br><br>Why: your Day Master <strong>${esc(bazi.dayStem)} ${esc(bazi.dayMasterTh)}</strong> is the <strong>${esc(dmEl)}</strong> element — this kind of movement directly supports circulation in your ${esc(organ)} system. Not a one-size-fits-all rule, but a pairing of your element with the type of motion that element naturally craves.`), 'green')}
-
-    <!-- Biorhythm — reframed as "natural rhythm" not "today" -->
-    <div style="background:#0a1510;border:1px solid #2a4a20;border-radius:8px;padding:12px 14px;margin:14px 0">
-      <div style="font-size:12px;color:#5a9a40;font-weight:600;margin-bottom:6px">📊 ${tr('จังหวะ Biorhythm ของคุณตอนนี้', 'Your current biorhythm pulse')}</div>
-      <div style="font-size:10.5px;color:#7a9a70;margin-bottom:10px">${tr('สามวงจรจากวันเกิด: กาย 23 วัน · อารมณ์ 28 วัน · สติปัญญา 33 วัน — วันนี้อยู่ช่วงใดของวงจร', 'Three cycles from birth: Physical 23 days · Emotional 28 days · Intellectual 33 days — where today sits in each cycle')}</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
-        ${[
-        [tr('ร่างกาย', 'Physical'), biorhythm.physical, biorhythm.physicalPhase],
-        [tr('อารมณ์', 'Emotional'), biorhythm.emotional, biorhythm.emotionalPhase],
-        [tr('สติปัญญา', 'Intellectual'), biorhythm.intellectual, biorhythm.intellectualPhase],
-    ].map(([l, v, p]) => `<div><div style="font-size:22px;font-weight:700;color:${+v > 30 ? '#60c060' : +v < -30 ? '#c06060' : '#c0c040'}">${v}%</div><div style="font-size:10px;color:#6a8a60">${esc(String(l))}</div><div style="font-size:10px;color:#4a6a40">${esc(String(p))}</div></div>`).join('')}
-      </div>
-    </div>
 
     <div style="font-size:11px;color:#5a6a50;margin-top:8px">
       🏥 ${tr('รายงานนี้เพื่อการสำรวจตนเอง ไม่ใช่การวินิจฉัยทางการแพทย์ · หากมีอาการผิดปกติ ควรปรึกษาแพทย์ (ในไทย สายด่วน 1323 สุขภาพจิต)', 'This report is for self-exploration, not medical diagnosis. Consult a qualified physician for any concerning symptoms.')}
@@ -5372,8 +5334,8 @@ function p16_activation(c) {
             systems: ['Thai Brahmin', 'Zoroastrian', 'Onmyōdō'] },
         { icon: '🌿', pts: 0,
             title: tr(`ออกกำลังกาย 3x/สัปดาห์`, `Exercise 3× per week`),
-            body: tr(`Biorhythm Physical ${biorhythm.physical}% (${biorhythm.physicalPhase}) + ${celtic.treeNameTh} ธาตุ${celtic.element}`, `Biorhythm Physical ${biorhythm.physical}% (${trDF(biorhythm.physicalPhase)}) + Celtic ${trDF(celtic.treeNameTh)} (${trDF(celtic.element)})`),
-            systems: ['Biorhythm', 'Celtic', 'Native American'] },
+            body: tr(`${celtic.treeNameTh} ธาตุ${celtic.element} + Native American ${nativeAmerican.birthTotemTh}: เคลื่อนไหวให้เข้ากับธาตุของคุณ`, `Celtic ${trDF(celtic.treeNameTh)} (${trDF(celtic.element)}) + Native American ${trDF(nativeAmerican.birthTotemTh)}: move in tune with your element`),
+            systems: ['Celtic', 'Native American', 'Energy Type'] },
         { icon: '💬', pts: 0,
             title: tr(`รอ Response ก่อนลงมือ`, `Wait for the inner response before acting`),
             body: tr(`${humandesign.typeTh} Authority ${humandesign.authority}: ตัดสินใจตาม inner response`, `${trDF(humandesign.typeTh)} Authority ${humandesign.authority}: decide via inner response`),
@@ -5397,7 +5359,7 @@ function p16_activation(c) {
             title: tr(`ระวัง Self-Punishment 午午`, `Watch for Self-Punishment 午午`),
             body: tr(`BaZi: ${bazi.dayStem}${bazi.dayBranch} + ${bazi.yearStem}${bazi.yearBranch} มีแรงกดดันตัวเอง — อย่า overthink`, `BaZi: ${bazi.dayStem}${bazi.dayBranch} + ${bazi.yearStem}${bazi.yearBranch} carries self-pressure — don't overthink`),
             source: 'BaZi Self-Punch' },
-        ...(c.score.breakdown.filter(b => b.score < 650).map(b => ({
+        ...(c.score.breakdown.filter(b => b.score < 650 && b.scoring !== false).map(b => ({
             icon: '⚠️',
             title: tr(`ระวัง: ${b.system}`, `Watch: ${trDF(b.system)}`),
             body: trDF(b.finding),
@@ -5552,21 +5514,19 @@ function p18_monthly2026(c) {
     const SHENG = { Wood: 'Fire', Fire: 'Earth', Earth: 'Metal', Metal: 'Water', Water: 'Wood' };
     const KE = { Wood: 'Earth', Earth: 'Water', Water: 'Fire', Fire: 'Metal', Metal: 'Wood' };
     const natal = c.ninestar.star;
-    // Biorhythm monthly peaks (approximate by days elapsed)
-    const birthJD = Math.floor(2451545 + (c.input.year - 2000) * 365.25 + c.input.month * 30 + c.input.day);
-    const monthBiorhythm = months.map((_, mi) => {
-        const days = Math.round((2026 - c.input.year) * 365.25) + (mi * 30);
-        const phy = Math.round(Math.sin(2 * Math.PI * days / 23) * 100);
-        const emo = Math.round(Math.sin(2 * Math.PI * days / 28) * 100);
-        const int = Math.round(Math.sin(2 * Math.PI * days / 33) * 100);
-        return { phy, emo, int, avg: Math.round((phy + emo + int) / 3) };
-    });
+    // (Biorhythm removed from this static report 2026-06-10 — it's a daily-changing
+    // value that lives in the live Daily Pulse, not in a one-time monthly forecast.)
     // Vedic monthly quality (based on dasha sub-period)
     const vedicMonthQuality = months.map((_, mi) => {
         const py = ((c.numerology.personalYear2026 - 1 + mi) % 9) + 1;
         return [1, 3, 6, 8].includes(py) ? tr('ดี', 'Good') : [5].includes(py) ? tr('ระวัง', 'Caution') : tr('ปานกลาง', 'Mixed');
     });
-    function monthRating(ms, bioAvg) {
+    // PY bonus (Numerology) replaces the old biorhythm bonus as the second voice.
+    const pyBonus = (mi) => {
+        const py = ((c.numerology.personalYear2026 - 1 + mi) % 9) + 1;
+        return [1, 3, 6, 8].includes(py) ? 1 : py === 5 ? -1 : 0;
+    };
+    function monthRating(ms, mi) {
         let base = 0;
         if (ms === natal)
             base = 3;
@@ -5576,28 +5536,26 @@ function p18_monthly2026(c) {
             base = -1;
         if (ms === 5)
             base -= 1;
-        const bioBonus = bioAvg > 40 ? 1 : bioAvg < -40 ? -1 : 0;
-        const total = base + bioBonus;
+        const total = base + pyBonus(mi);
         const icon = ms === natal ? '🌟' : total >= 2 ? '🟢' : total >= 0 ? '🟡' : '🔴';
         return { icon, score: total };
     }
     // Synthesis: surface the standout months instead of leaving them in the table.
     const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const lbl = (i) => _lang === 'en' ? monthsEn[i] : months[i];
-    const monthEval = months.map((_, i) => ({ i, r: monthRating(monthStars[i], monthBiorhythm[i].avg), honmei: monthStars[i] === natal }));
+    const monthEval = months.map((_, i) => ({ i, r: monthRating(monthStars[i], i), honmei: monthStars[i] === natal }));
     const bestM = monthEval.filter(e => e.r.icon === '🌟' || e.r.icon === '🟢').map(e => lbl(e.i));
     const honmeiM = (() => { const h = monthEval.find(e => e.honmei); return h ? lbl(h.i) : ''; })();
     const cautionM = monthEval.filter(e => e.r.icon === '🔴').map(e => lbl(e.i));
     const monthSynthesis = tr(`เดือนที่พลังหนุนที่สุดของปี 2026 คือ <strong>${bestM.join(', ') || '—'}</strong>${honmeiM ? ` (โดยเฉพาะ <strong>${honmeiM}</strong> ที่เป็น Honmei — เดือนดาวเกิดของคุณซึ่งมาปีละครั้ง)` : ''} — เก็บเรื่องใหญ่ เปิดตัว หรือเริ่มสิ่งสำคัญไว้ทำช่วงนี้ · ส่วนเดือนที่ควรตั้งหลักคือ <strong>${cautionM.join(', ') || 'ไม่มีเดือนที่ท้าทายเด่นชัด'}</strong> ใช้ช่วงนั้นทบทวนและเตรียมตัวแทนการบุก`, `Your most supported months in 2026 are <strong>${bestM.join(', ') || '—'}</strong>${honmeiM ? ` (especially <strong>${honmeiM}</strong>, your Honmei — the birth-star month that comes once a year)` : ''} — save your big launches and important starts for these. The months to steady yourself are <strong>${cautionM.join(', ') || 'none stand out as challenging'}</strong>; use them to reflect and prepare rather than push.`);
-    return section(16, tr('พยากรณ์รายเดือน 2026 — 3 ศาสตร์ Consensus', 'Monthly Forecast 2026 — 3-System Consensus'), '🗓️', `
+    return section(16, tr('พยากรณ์รายเดือน 2026 — NSK + Numerology', 'Monthly Forecast 2026 — NSK + Numerology'), '🗓️', `
     <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
       <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">${tr('วิธีอ่านตารางนี้', 'How to read this table')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">
-        ${tr('ตารางนี้เทียบ 3 ศาสตร์ <strong>ที่คำนวณอิสระจากกัน</strong> ในแต่ละเดือนของปี 2026 — เดือนที่ 3 ศาสตร์เห็นพ้องว่า "ดี" คือเดือนที่ควรลงมือ; เดือนที่ไม่สอดคล้อง ควรนิ่งและสังเกต', 'This table compares 3 systems <strong>that calculate independently</strong> for each month of 2026 — months where all three agree on "good" are months to act; months that disagree are for stillness and observation.')}
+        ${tr('ตารางนี้เทียบ 2 ศาสตร์ <strong>ที่คำนวณอิสระจากกัน</strong> ในแต่ละเดือนของปี 2026 — เดือนที่ทั้งสองเห็นพ้องว่า "ดี" คือเดือนที่ควรลงมือ; เดือนที่ไม่สอดคล้อง ควรนิ่งและสังเกต', 'This table compares 2 systems <strong>that calculate independently</strong> for each month of 2026 — months where both agree on "good" are months to act; months that disagree are for stillness and observation.')}
         <br><br>
         <strong style="color:#c8a840">NSK</strong> = ${tr(`ดาวประจำเดือน (เทียบกับดาวเกิด ${natal} ${esc(c.ninestar.starChinese || '')})`, `monthly star (vs your birth star ${natal} ${esc(c.ninestar.starChinese || '')})`)} ·
         ${natal} ${tr('ตรงเมื่อไหร่', 'aligning')} = <strong>Honmei</strong> = ${tr('ปีเกิดทุก 9 ปี', 'your birth-star month every 9 years')}<br>
-        <strong style="color:#c8a840">Bio</strong> = ${tr('ค่าเฉลี่ย Biorhythm 3 วงจร (กาย + อารมณ์ + สมอง) ในกลางเดือนนั้น', 'average of 3 biorhythm cycles (Physical + Emotional + Intellectual) at mid-month')}<br>
         <strong style="color:#c8a840">PY-pattern</strong> = ${tr(`สถานะ Numerology ของเดือน (คำนวณจาก Personal Year ${c.numerology.personalYear2026})`, `numerology month status (derived from your Personal Year ${c.numerology.personalYear2026})`)}
       </div>
     </div>
@@ -5606,7 +5564,6 @@ function p18_monthly2026(c) {
         <tr>
           <th>${tr('เดือน', 'Month')}</th>
           <th>${tr('NSK ดาวเดือน', 'NSK Month Star')}</th>
-          <th>Bio avg</th>
           <th>PY-pattern</th>
           <th>Consensus</th>
           <th>${tr('แนะนำ', 'Advice')}</th>
@@ -5615,8 +5572,7 @@ function p18_monthly2026(c) {
       <tbody>
         ${months.map((m, i) => {
         const ms = monthStars[i];
-        const bio = monthBiorhythm[i];
-        const nskRating = monthRating(ms, bio.avg);
+        const nskRating = monthRating(ms, i);
         const isHonmei = ms === natal;
         const adviceTh = nskRating.icon === '🌟' ? tr('Honmei — ตั้งเป้าหมายใหญ่', 'Honmei — set big goals')
             : nskRating.icon === '🟢' ? tr('ลงมือทำได้เลย · พลังเสริม', 'Act now · energy supports')
@@ -5625,7 +5581,6 @@ function p18_monthly2026(c) {
         return `<tr>
             <td style="font-weight:600">${esc(lbl(i))}</td>
             <td style="font-size:11px">${ms} ${esc(starNames[ms])}${isHonmei ? ' ★' : ''}</td>
-            <td style="font-size:11px;color:${bio.avg > 30 ? '#60c060' : bio.avg < -30 ? '#c06060' : '#c0a060'}">${bio.avg > 0 ? '+' : ''}${bio.avg}%</td>
             <td style="font-size:11px;color:#9a8a72">${esc(vedicMonthQuality[i])}</td>
             <td style="text-align:center;font-size:16px">${nskRating.icon}</td>
             <td style="font-size:11px;color:#9a8a72">${esc(adviceTh)}</td>
@@ -5635,7 +5590,7 @@ function p18_monthly2026(c) {
     </table>
     ${box(tr('สรุป: เดือนไหนควรลงมือ', 'At a glance: when to act'), monthSynthesis, 'green')}
     <div style="font-size:10.5px;color:#9a8a72;margin-top:10px;line-height:1.7">
-      ${tr(`🌟 <strong>Honmei</strong> (ดาวเดือนตรงกับดาวเกิด ${natal} — เกิดปีละ 1 เดือน) · 🟢 <strong>Positive</strong> (NSK+Bio หนุนกัน) · 🟡 <strong>Neutral</strong> (หนึ่งหนุนหนึ่งต้าน) · 🔴 <strong>Challenging</strong> (NSK ขัด + Bio ตก)`, `🌟 <strong>Honmei</strong> (month star matches your birth star ${natal} — once per year) · 🟢 <strong>Positive</strong> (NSK + Bio aligned) · 🟡 <strong>Neutral</strong> (one supports, one resists) · 🔴 <strong>Challenging</strong> (NSK clashes + Bio dips)`)}
+      ${tr(`🌟 <strong>Honmei</strong> (ดาวเดือนตรงกับดาวเกิด ${natal} — เกิดปีละ 1 เดือน) · 🟢 <strong>Positive</strong> (NSK+Numerology หนุนกัน) · 🟡 <strong>Neutral</strong> (หนึ่งหนุนหนึ่งต้าน) · 🔴 <strong>Challenging</strong> (NSK ขัด + PY ตก)`, `🌟 <strong>Honmei</strong> (month star matches your birth star ${natal} — once per year) · 🟢 <strong>Positive</strong> (NSK + Numerology aligned) · 🟡 <strong>Neutral</strong> (one supports, one resists) · 🔴 <strong>Challenging</strong> (NSK clashes + PY dips)`)}
       <br>
       <span style="color:#6a5a42">${tr('หมายเหตุ: ไม่ใช่ "ดวงดี / ดวงแย่" — เป็นสัญญาณของช่วงเวลาที่ <strong>พลังงานสอดคล้อง vs ต้องระวัง</strong> เท่านั้น', 'Note: not "good fate / bad fate" — only a signal of when <strong>energy aligns vs. when caution is warranted</strong>.')}</span>
     </div>
@@ -5901,7 +5856,7 @@ function p22_painPoints(c) {
             solution: tr(`ทดลองใช้ Strategy "${c.humandesign.strategy}" อย่างตั้งใจ 90 วัน → สังเกตระดับพลังงานก่อนและหลัง · ถ้าดีขึ้น → วิธีตัดสินใจนี้คือของคุณตลอดชีวิต`, `Run a 90-day experiment using "${c.humandesign.strategy}" deliberately → track your energy before vs after. If it improves, this decision style is yours for life.`)
         },
         { icon: '🌿', topic: tr('สุขภาพ & ธาตุที่ขาด', 'Health & Missing Element'),
-            systems: ['BaZi (missing element)', 'TCM organ pairing', 'Biorhythm'],
+            systems: ['BaZi (missing element)', 'TCM organ pairing', 'Tibetan Mewa'],
             why: tr(`BaZi ของคุณขาดธาตุ <strong>${missingEl}</strong> — ธาตุที่ขาดในชาร์ตตาม TCM มักสัมพันธ์กับอวัยวะที่ต้องดูแลพิเศษ · ต่างจาก "โรคภัยทำนาย" — นี่คือ <em>จุดที่ต้องเติมอย่างสม่ำเสมอ</em> ในฐานะการป้องกัน`, `Your BaZi is missing the <strong>${missingEl}</strong> element. Per TCM, a missing element correlates with organ systems that need extra care. This isn\'t illness prediction — it\'s the <em>spot that needs steady supplementation</em> as prevention.`),
             challenge: tr(`เมื่อธาตุ${missingEl}ขาด ระบบที่เกี่ยวข้องจะเป็นจุดแรกที่ "บ่น" เวลาร่างกายตึงเครียด — ไม่ใช่ป่วยหนัก แต่ทำงานไม่เต็มประสิทธิภาพ`, `When ${missingEl} is missing, the corresponding system is the first to "complain" under stress — not severe illness, but underperformance.`),
             solution: tr(`เสริมธาตุ${missingEl} 3 ทางพร้อมกัน — <strong>สี</strong> (ดูหน้าสีมงคล) · <strong>อาหาร</strong> (รส${missingTaste}) · <strong>กิจกรรม</strong> (${missingActivity})`, `Supplement ${missingEl} on 3 channels at once — <strong>colour</strong> (see the lucky-colour page) · <strong>food</strong> (${missingTaste} flavours) · <strong>activity</strong> (${missingActivity}).`)
@@ -6245,13 +6200,13 @@ function extractSignals(c, topic) {
     }
     if (topic === 'health') {
         const healthEl = bazi.missingElement.split(' ')[0] || 'ดิน';
-        all.push({ system: 'BaZi', score: bazi.score, finding: tr(`ธาตุขาด ${bazi.missingElement} ควรเสริมผ่านสีและอาหาร`, `Missing ${bazi.missingElement} element — reinforce via colour and food`), category: 'health', value: healthEl }, { system: 'Nine Star Ki', score: ninestar.score, finding: tr(`ทิศนอน ${ninestar.directionSleep} เสริมสุขภาพ`, `Sleep direction ${ninestar.directionSleep} supports health`), category: 'health', value: ninestar.directionSleep }, { system: 'Vedic', score: vedic.score, finding: `${vedic.mahadasha} Dasha: ${vedicMahadasha.dashaQuality}`, category: 'health', value: vedicMahadasha.dashaElement }, { system: 'Biorhythm', score: biorhythm.score, finding: `Physical ${biorhythm.physical}% (${biorhythm.physicalPhase})`, category: 'health', value: biorhythm.physicalPhase }, { system: 'Celtic', score: celtic.score, finding: tr(`ต้น${celtic.treeNameTh} — gem ${celtic.gemstone}`, `${celtic.treeName} — gem ${celtic.gemstone}`), category: 'health', value: celtic.gemstone }, { system: 'Energy Type', score: humandesign.score, finding: tr(`Strategy "${humandesign.strategy}" ลดการต้านพลังงาน`, `Strategy "${humandesign.strategy}" reduces energetic resistance`), category: 'health', value: humandesign.strategy }, { system: 'Native American', score: nativeAmerican.score, finding: tr(`${nativeAmerican.birthTotemTh} ธาตุ${nativeAmerican.element}`, `${nativeAmerican.birthTotem} (${nativeAmerican.element} element)`), category: 'health', value: nativeAmerican.element }, { system: 'Tibetan', score: tibetan.score, finding: tr(`Mewa ${tibetan.mewa} ธาตุ${tibetan.mewaElement}`, `Mewa ${tibetan.mewa} (${tibetan.mewaElement} element)`), category: 'health', value: tibetan.mewaElement }, { system: tr('ไทยพราหมณ์', 'Thai Brahmin'), score: thai.score, finding: tr(`สีมงคล${thai.dayColor} วัน${thai.dayName}`, `Lucky colour ${thai.dayColor} on ${thai.dayName}`), category: 'health', value: thai.dayColor }, { system: 'Zoroastrian', score: zoroastrian.score, finding: tr(`${zoroastrian.dayYazataTh} ปกครองสุขภาพ`, `${zoroastrian.dayYazataTh} rules health`), category: 'health', value: tr(zoroastrian.harmony ? 'สมดุล' : 'ต้องสร้างสมดุล', zoroastrian.harmony ? 'balanced' : 'needs balance') });
+        all.push({ system: 'BaZi', score: bazi.score, finding: tr(`ธาตุขาด ${bazi.missingElement} ควรเสริมผ่านสีและอาหาร`, `Missing ${bazi.missingElement} element — reinforce via colour and food`), category: 'health', value: healthEl }, { system: 'Nine Star Ki', score: ninestar.score, finding: tr(`ทิศนอน ${ninestar.directionSleep} เสริมสุขภาพ`, `Sleep direction ${ninestar.directionSleep} supports health`), category: 'health', value: ninestar.directionSleep }, { system: 'Vedic', score: vedic.score, finding: `${vedic.mahadasha} Dasha: ${vedicMahadasha.dashaQuality}`, category: 'health', value: vedicMahadasha.dashaElement }, { system: 'Celtic', score: celtic.score, finding: tr(`ต้น${celtic.treeNameTh} — gem ${celtic.gemstone}`, `${celtic.treeName} — gem ${celtic.gemstone}`), category: 'health', value: celtic.gemstone }, { system: 'Energy Type', score: humandesign.score, finding: tr(`Strategy "${humandesign.strategy}" ลดการต้านพลังงาน`, `Strategy "${humandesign.strategy}" reduces energetic resistance`), category: 'health', value: humandesign.strategy }, { system: 'Native American', score: nativeAmerican.score, finding: tr(`${nativeAmerican.birthTotemTh} ธาตุ${nativeAmerican.element}`, `${nativeAmerican.birthTotem} (${nativeAmerican.element} element)`), category: 'health', value: nativeAmerican.element }, { system: 'Tibetan', score: tibetan.score, finding: tr(`Mewa ${tibetan.mewa} ธาตุ${tibetan.mewaElement}`, `Mewa ${tibetan.mewa} (${tibetan.mewaElement} element)`), category: 'health', value: tibetan.mewaElement }, { system: tr('ไทยพราหมณ์', 'Thai Brahmin'), score: thai.score, finding: tr(`สีมงคล${thai.dayColor} วัน${thai.dayName}`, `Lucky colour ${thai.dayColor} on ${thai.dayName}`), category: 'health', value: thai.dayColor }, { system: 'Zoroastrian', score: zoroastrian.score, finding: tr(`${zoroastrian.dayYazataTh} ปกครองสุขภาพ`, `${zoroastrian.dayYazataTh} rules health`), category: 'health', value: tr(zoroastrian.harmony ? 'สมดุล' : 'ต้องสร้างสมดุล', zoroastrian.harmony ? 'balanced' : 'needs balance') });
     }
     if (topic === 'finance') {
-        all.push({ system: 'BaZi', score: bazi.score, finding: tr(`ธาตุมงคล ${bazi.luckyElement}`, `Lucky element ${bazi.luckyElement}`), category: 'finance', value: bazi.luckyElement }, { system: 'Nine Star Ki', score: ninestar.score, finding: tr(`ทิศ ${ninestar.starDirection} เสริมการเงิน`, `Direction ${ninestar.starDirection} supports finance`), category: 'finance', value: ninestar.starDirection }, { system: 'Numerology', score: numerology.score, finding: `Personal Year ${numerology.personalYear2026}: ${numerology.personalYearMeaning.split('—')[0]}`, category: 'finance', value: String(numerology.personalYear2026) }, { system: 'Vedic', score: vedic.score, finding: `${vedicMahadasha.currentDasha} Dasha`, category: 'finance', value: vedicMahadasha.dashaElement }, { system: 'Arabic Parts', score: arabicParts.score, finding: tr(`Part of Fortune ใน ${arabicParts.fortuneSign}`, `Part of Fortune in ${arabicParts.fortuneSign}`), category: 'finance', value: arabicParts.fortuneSign }, { system: 'Hellenistic', score: hellenistic.score, finding: tr(`${hellenistic.sectTh} กับ ${hellenistic.trigonLord}`, `${hellenistic.sectTh} with ${hellenistic.trigonLord}`), category: 'finance', value: hellenistic.trigonLord.split(' ')[0] }, { system: 'Kabbalistic', score: kabbalistic.score, finding: `${kabbalistic.sephira} (${kabbalistic.archangel})`, category: 'finance', value: kabbalistic.sephira }, { system: 'Ifa/Yoruba', score: ifaYoruba.score, finding: `Odù ${ifaYoruba.odu}: ${ifaYoruba.fortune}`, category: 'finance', value: ifaYoruba.fortune }, { system: 'Zoroastrian', score: zoroastrian.score, finding: `${zoroastrian.dayYazataTh}`, category: 'finance', value: tr(zoroastrian.harmony ? 'สอดคล้อง' : 'ระวัง', zoroastrian.harmony ? 'aligned' : 'caution') }, { system: tr('ทักษา', 'Thai Taksa'), score: c.taksa.score, finding: tr(`มูละ (ฐานทรัพย์) = ${c.taksa.mulaTh}`, `Mula wealth house = ${c.taksa.mulaEn}`), category: 'finance', value: c.taksa.mulaTh }, { system: 'Biorhythm', score: biorhythm.score, finding: tr(`สติปัญญา ${biorhythm.intellectual}% (${biorhythm.intellectualPhase})`, `Intellect ${biorhythm.intellectual}% (${biorhythm.intellectualPhase})`), category: 'finance', value: biorhythm.intellectualPhase });
+        all.push({ system: 'BaZi', score: bazi.score, finding: tr(`ธาตุมงคล ${bazi.luckyElement}`, `Lucky element ${bazi.luckyElement}`), category: 'finance', value: bazi.luckyElement }, { system: 'Nine Star Ki', score: ninestar.score, finding: tr(`ทิศ ${ninestar.starDirection} เสริมการเงิน`, `Direction ${ninestar.starDirection} supports finance`), category: 'finance', value: ninestar.starDirection }, { system: 'Numerology', score: numerology.score, finding: `Personal Year ${numerology.personalYear2026}: ${numerology.personalYearMeaning.split('—')[0]}`, category: 'finance', value: String(numerology.personalYear2026) }, { system: 'Vedic', score: vedic.score, finding: `${vedicMahadasha.currentDasha} Dasha`, category: 'finance', value: vedicMahadasha.dashaElement }, { system: 'Arabic Parts', score: arabicParts.score, finding: tr(`Part of Fortune ใน ${arabicParts.fortuneSign}`, `Part of Fortune in ${arabicParts.fortuneSign}`), category: 'finance', value: arabicParts.fortuneSign }, { system: 'Hellenistic', score: hellenistic.score, finding: tr(`${hellenistic.sectTh} กับ ${hellenistic.trigonLord}`, `${hellenistic.sectTh} with ${hellenistic.trigonLord}`), category: 'finance', value: hellenistic.trigonLord.split(' ')[0] }, { system: 'Kabbalistic', score: kabbalistic.score, finding: `${kabbalistic.sephira} (${kabbalistic.archangel})`, category: 'finance', value: kabbalistic.sephira }, { system: 'Ifa/Yoruba', score: ifaYoruba.score, finding: `Odù ${ifaYoruba.odu}: ${ifaYoruba.fortune}`, category: 'finance', value: ifaYoruba.fortune }, { system: 'Zoroastrian', score: zoroastrian.score, finding: `${zoroastrian.dayYazataTh}`, category: 'finance', value: tr(zoroastrian.harmony ? 'สอดคล้อง' : 'ระวัง', zoroastrian.harmony ? 'aligned' : 'caution') }, { system: tr('ทักษา', 'Thai Taksa'), score: c.taksa.score, finding: tr(`มูละ (ฐานทรัพย์) = ${c.taksa.mulaTh}`, `Mula wealth house = ${c.taksa.mulaEn}`), category: 'finance', value: c.taksa.mulaTh });
     }
     if (topic === 'timing') {
-        all.push({ system: 'BaZi', score: bazi.score, finding: `LP ${bazi.currentLuckPillar} ${bazi.currentLuckPillarTh}`, category: 'timing', value: bazi.currentLuckPillar }, { system: 'Nine Star Ki', score: ninestar.score, finding: ninestar.year2026Analysis.substring(0, 60), category: 'timing', value: ninestar.star === 9 ? 'peak' : 'normal' }, { system: 'Vedic', score: vedic.score, finding: tr(`${vedicMahadasha.currentDasha} Dasha ถึง ${vedicMahadasha.currentDashaEnd}`, `${vedicMahadasha.currentDasha} Dasha until ${vedicMahadasha.currentDashaEnd}`), category: 'timing', value: String(vedicMahadasha.currentDashaEnd) }, { system: 'Numerology', score: numerology.score, finding: `PY ${numerology.personalYear2026}: ${numerology.personalYearMeaning.substring(0, 40)}`, category: 'timing', value: String(numerology.personalYear2026) }, { system: 'Biorhythm', score: biorhythm.score, finding: `E:${biorhythm.emotional}% I:${biorhythm.intellectual}% P:${biorhythm.physical}%`, category: 'timing', value: biorhythm.intellectualPhase }, { system: 'Tibetan', score: tibetan.score, finding: `Mewa ${tibetan.mewa} ${tibetan.mewaQuality}`, category: 'timing', value: tibetan.mewaQuality }, { system: 'Onmyōdō', score: onmyodo.score, finding: `${onmyodo.rokuyo} ${onmyodo.rokuyoTh}`, category: 'timing', value: onmyodo.rokuyo }, { system: 'Aztec', score: aztec.score, finding: `${aztec.daySignTh} Tone ${aztec.toneNumber}`, category: 'timing', value: aztec.daySignQuality }, { system: tr('ทักษา', 'Thai Taksa'), score: c.taksa.score, finding: tr(`กาลกิณี ${c.taksa.kalakiniTh} — พลัง/วันที่ควรเลี่ยง`, `Kalakini ${c.taksa.kalakiniEn} — the energy/day to avoid`), category: 'timing', value: c.taksa.kalakiniTh });
+        all.push({ system: 'BaZi', score: bazi.score, finding: `LP ${bazi.currentLuckPillar} ${bazi.currentLuckPillarTh}`, category: 'timing', value: bazi.currentLuckPillar }, { system: 'Nine Star Ki', score: ninestar.score, finding: ninestar.year2026Analysis.substring(0, 60), category: 'timing', value: ninestar.star === 9 ? 'peak' : 'normal' }, { system: 'Vedic', score: vedic.score, finding: tr(`${vedicMahadasha.currentDasha} Dasha ถึง ${vedicMahadasha.currentDashaEnd}`, `${vedicMahadasha.currentDasha} Dasha until ${vedicMahadasha.currentDashaEnd}`), category: 'timing', value: String(vedicMahadasha.currentDashaEnd) }, { system: 'Numerology', score: numerology.score, finding: `PY ${numerology.personalYear2026}: ${numerology.personalYearMeaning.substring(0, 40)}`, category: 'timing', value: String(numerology.personalYear2026) }, { system: 'Tibetan', score: tibetan.score, finding: `Mewa ${tibetan.mewa} ${tibetan.mewaQuality}`, category: 'timing', value: tibetan.mewaQuality }, { system: 'Onmyōdō', score: onmyodo.score, finding: `${onmyodo.rokuyo} ${onmyodo.rokuyoTh}`, category: 'timing', value: onmyodo.rokuyo }, { system: 'Aztec', score: aztec.score, finding: `${aztec.daySignTh} Tone ${aztec.toneNumber}`, category: 'timing', value: aztec.daySignQuality }, { system: tr('ทักษา', 'Thai Taksa'), score: c.taksa.score, finding: tr(`กาลกิณี ${c.taksa.kalakiniTh} — พลัง/วันที่ควรเลี่ยง`, `Kalakini ${c.taksa.kalakiniEn} — the energy/day to avoid`), category: 'timing', value: c.taksa.kalakiniTh });
     }
     return all;
 }
