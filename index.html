@@ -13319,6 +13319,29 @@ function _mergeArrayKey(localStr, cloudStr) {
 
 const _ARRAY_SYNC_KEYS = new Set(['ms_profiles', 'ms_saved_reports']);
 
+// mth_full_history is an append-only event log (blessing draws + organum
+// questions) — the God Collection is DERIVED from it (renderCollection reads
+// getFullHistory). It was synced as a plain STRING key (last-write-wins), so a
+// draw on the phone and a different draw on the PC never merged — whichever
+// device pushed last clobbered the other's history, and the two collections
+// diverged. Merge it as an array instead, union by a stable per-entry identity
+// (type + ts + god/question), newest-first, capped. (fix 2026-06-10)
+const _HISTORY_SYNC_KEYS = new Set(['mth_full_history']);
+function _mergeHistoryKey(localStr, cloudStr) {
+  let local = [], cloud = [];
+  try { local = JSON.parse(localStr || '[]'); } catch (_) {}
+  try { cloud = JSON.parse(cloudStr || '[]'); } catch (_) {}
+  if (!Array.isArray(local)) local = [];
+  if (!Array.isArray(cloud)) cloud = [];
+  const idOf = (e) => `${(e && e.type) || 'b'}|${(e && e.ts) || 0}|${(e && (e.godName || e.question || e.topWord)) || ''}`;
+  const map = new Map();
+  for (const e of cloud) map.set(idOf(e), e);   // cloud first…
+  for (const e of local) map.set(idOf(e), e);   // …local wins on identical id (same event, harmless)
+  const merged = [...map.values()].sort((a, b) => (b.ts || 0) - (a.ts || 0));
+  const cap = (typeof MAX_HISTORY_ITEMS === 'number') ? MAX_HISTORY_ITEMS : 500;
+  return merged.slice(0, cap);
+}
+
 async function _sbPush(){
   if(!_sb||!_sbSession)return;
   const uid=_sbSession.user.id;
@@ -13338,6 +13361,11 @@ async function _sbPush(){
       // the full set (this is the fix for "I added Alice on PC, mobile pushed
       // an empty list and wiped her").
       const mergedStr = JSON.stringify(merged);
+      if (localVal !== mergedStr) localStorage.setItem(k, mergedStr);
+      data[k] = mergedStr;
+    } else if (_HISTORY_SYNC_KEYS.has(k)) {
+      // History log: union local + cloud so neither device loses draws.
+      const mergedStr = JSON.stringify(_mergeHistoryKey(localVal, cloud[k]));
       if (localVal !== mergedStr) localStorage.setItem(k, mergedStr);
       data[k] = mergedStr;
     } else if (localVal !== null && localVal !== '') {
@@ -13391,6 +13419,7 @@ async function _sbPullStringsAndApply() {
     const changed = [];
     for (const k of _SYNC_KEYS) {
       if (_ARRAY_SYNC_KEYS.has(k)) continue;
+      if (_HISTORY_SYNC_KEYS.has(k)) continue;   // history is union-merged, never string-clobbered
       const local = localStorage.getItem(k);
       // Only adopt cloud value when it's NON-EMPTY and differs from local.
       // Empty cloud means "not set on the canonical side" — don't blindly
@@ -13419,6 +13448,14 @@ async function _sbPullAndMerge(){
       const localStr = localStorage.getItem(k) || '[]';
       const merged = _mergeArrayKey(localStr, cloud[k]);
       const mergedStr = JSON.stringify(merged);
+      if (localStr !== mergedStr) {
+        localStorage.setItem(k, mergedStr);
+        changed = true;
+      }
+    }
+    for (const k of _HISTORY_SYNC_KEYS) {
+      const localStr = localStorage.getItem(k) || '[]';
+      const mergedStr = JSON.stringify(_mergeHistoryKey(localStr, cloud[k]));
       if (localStr !== mergedStr) {
         localStorage.setItem(k, mergedStr);
         changed = true;
@@ -13454,6 +13491,8 @@ async function _sbAutoPull(reason) {
       if (cur === 'multi' && typeof renderMultiProfiles === 'function') renderMultiProfiles();
       if (cur === 'reports' && typeof renderSavedReports === 'function') renderSavedReports();
       if (cur === 'pulse' && typeof renderDailyPulse === 'function') renderDailyPulse();
+      if (cur === 'collection' && typeof renderCollection === 'function') renderCollection();
+      if (cur === 'history' && typeof renderHistoryPanel === 'function') renderHistoryPanel();
       console.log('[sync] cloud → local (' + reason + '):',
         arrChanged ? 'arrays merged' : '',
         strChanged.length ? 'strings: ' + strChanged.join(',') : '');
@@ -13512,6 +13551,7 @@ async function _onSignIn(session){
     let restored = false;
     for (const k of _SYNC_KEYS) {
       if (_ARRAY_SYNC_KEYS.has(k)) continue;          // arrays already merged
+      if (_HISTORY_SYNC_KEYS.has(k)) continue;        // history already union-merged above
       const localVal = localStorage.getItem(k);
       if ((localVal === null || localVal === '') && cloud[k] !== undefined && cloud[k] !== '') {
         localStorage.setItem(k, cloud[k]);

@@ -237,7 +237,16 @@
 //   "1,684,800" / "1.7M". Garbled TH footer "จาก ลูกหลาน" → "เพียงลำพัง".
 // • sample-report/sunthorn-phu regenerated from the live engine (Taksa page +
 //   per-system verdicts; old Biorhythm page gone).
-const CACHE = 'mythsensus-v97';
+// v98: 2026-06-10 — God Collection cross-device sync fix:
+// The Collection is derived from mth_full_history, which synced as a plain STRING
+// key (last-write-wins) — a draw on the phone and a different draw on the PC never
+// merged; whichever device pushed last clobbered the other's history, so the two
+// collections diverged. mth_full_history is now union-merged across devices
+// (_HISTORY_SYNC_KEYS + _mergeHistoryKey, dedup by type+ts+god, newest-first,
+// capped) in _sbPush / _sbPullAndMerge, and explicitly skipped by the string-
+// clobber paths (_sbPullStringsAndApply, _onSignIn). Collection + History panels
+// auto-re-render after a pull. Engine/bundle unchanged (?v=97).
+const CACHE = 'mythsensus-v98';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
