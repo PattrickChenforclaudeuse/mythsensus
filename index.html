@@ -247,6 +247,34 @@ main{max-width:820px;margin:0 auto;padding:22px 14px 60px;}
    Combines with the loading drama for a smoother handoff. */
 #cb-report-frame { animation: ms-fade-in 0.6s ease-out; }
 
+/* ── Cosmic Blueprint READER MODE (2026-06-10) ──────────────────────────
+   When a report is open the toolbar + iframe take over the viewport as a
+   fixed full-screen reader with ONE scroll area (#cb-report-wrap).
+   Why: previously the report revealed in normal flow ~700-1000px below the
+   fold (after Generate the screen looked unchanged), and scrolling was
+   split between the outer page and the iframe's internal scroll — which
+   breaks entirely on iOS where iframes don't sub-scroll reliably.
+   _cbShowReport() expands the iframe to its content height so the wrap is
+   the single scroller; cb_goBack() undoes everything. */
+body.cb-report-active { overflow: hidden; }
+body.cb-report-active #cb-toolbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 8800;
+}
+body.cb-report-active #cb-report-wrap {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  top: 52px; /* corrected to the real (possibly wrapped) toolbar height by _cbShowReport() */
+  height: auto !important;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: #06060c;
+  z-index: 8790;
+}
+body.cb-report-active #cb-report-frame { display: block; width: 100%; }
+/* Floating pills would overlap the reader — hide while reading. */
+body.cb-report-active .web-nav,
+body.cb-report-active .web-share,
+body.cb-report-active .share-menu,
+body.cb-report-active .lang-pill { display: none !important; }
+
 /* Birthday banner — appears in today-bar when DOB matches today (m+d). */
 .birthday-banner {
   display:flex; align-items:center; justify-content:center; gap:8px;
@@ -1109,7 +1137,7 @@ let _authEmail = '';    // Email pending OTP verification
         "Native American Totems",
         "Ifá Yoruba",
         "Aboriginal Dreamtime",
-        "Biorhythm",
+        "Thai Taksa (8 Houses)",
         "Vedic Mahādaśā"
       ],
       "offers": [
@@ -2247,7 +2275,7 @@ try{
         <span class="cb-badge">🏔️ Tibetan</span><span class="cb-badge"><span data-t="badge_thai_brahmin">🙏 ไทยพราหมณ์</span></span><span class="cb-badge"><span data-t="badge_lek7">🔢 เลข ๗ ตัว</span></span><span class="cb-badge">🔢 Pythagorean</span>
         <span class="cb-badge">⚡ Energy Type</span><span class="cb-badge">🌀 Mayan</span><span class="cb-badge">🪶 Aztec</span><span class="cb-badge">🦅 Native American</span>
         <span class="cb-badge">🌳 Celtic</span><span class="cb-badge">ᚦ Norse Rune</span><span class="cb-badge">ᚂ Ogham</span><span class="cb-badge">✡️ Kabbalistic</span>
-        <span class="cb-badge">🔥 Zoroastrian</span><span class="cb-badge">🌴 Ifa/Yoruba</span><span class="cb-badge">🦘 Aboriginal</span><span class="cb-badge">📈 Biorhythm</span>
+        <span class="cb-badge">🔥 Zoroastrian</span><span class="cb-badge">🌴 Ifa/Yoruba</span><span class="cb-badge">🦘 Aboriginal</span><span class="cb-badge"><span data-t="badge_taksa">🪷 ทักษา ๘ บ้าน</span></span>
       </p>
     </div>
     <!-- Consensus Preview — appears once profile is saved, before user even hits Generate. -->
@@ -2748,6 +2776,7 @@ en:{
   addon_deep_lock:"🔒 Cosmic Blueprint",
   badge_thai_brahmin:"🙏 Thai Brahmin",
   badge_lek7:"🔢 Lek 7 Tua",
+  badge_taksa:"🪷 Thai Taksa",
   cb_note_top:"100% browser calculation · zero data leaves your device · works offline · 26 systems across 4 continents",
   cb_loading:"Calculating 26 systems…",
   cb_compare_empty:"Enter your birth data above · tap ✦ Generate to see where you stand",
@@ -2965,6 +2994,7 @@ th:{
   addon_deep_lock:"🔒 Cosmic Blueprint",
   badge_thai_brahmin:"🙏 ไทยพราหมณ์",
   badge_lek7:"🔢 เลข ๗ ตัว",
+  badge_taksa:"🪷 ทักษา ๘ บ้าน",
   cb_note_top:"คำนวณ 100% ใน Browser · ไม่ส่งข้อมูลออก · ทำงาน Offline ได้ · 26 ศาสตร์จาก 4 ทวีป",
   cb_loading:"กำลังคำนวณ 26 ศาสตร์โบราณ...",
   cb_compare_empty:"กรอกข้อมูลเกิดของคุณด้านบน · แล้วกด ✦ สร้างรายงาน เพื่อดูว่าคุณอยู่ระดับไหน",
@@ -12972,12 +13002,7 @@ function viewMultiProfile(idx) {
     showSubTab('blueprint');
     setTimeout(() => {
       try {
-        document.getElementById('cb-form-section').style.display = 'none';
-        document.getElementById('cb-loading').style.display = 'none';
-        document.getElementById('cb-toolbar').style.display = 'flex';
-        document.getElementById('cb-report-wrap').style.display = 'block';
-        document.getElementById('cb-report-frame').srcdoc = cbCurrentHTML;
-        document.body.classList.add('cb-report-active');
+        _cbShowReport(cbCurrentHTML);
         try { showCompareScore && showCompareScore(chart.score); } catch(_){}
       } catch (e) { console.error('[viewMultiProfile show]', e); }
     }, 150);
@@ -17209,6 +17234,61 @@ ${p1}${p3}${p4}${p5}${p6}${p7}${p8}${p9}${p10}${p11}${p12}${p13}${p14}${p15}${p1
 let cbCurrentHTML = '';
 let _cbGenerating = false;   // guard: prevents concurrent generate calls
 
+// ── Reader-mode reveal (2026-06-10) ─────────────────────────────────────
+// Single entry point for showing a generated report. Injects the HTML into
+// the iframe, switches the page into fixed full-screen reader mode (CSS on
+// body.cb-report-active), then expands the iframe to its content height so
+// #cb-report-wrap is the ONE scroll area. Fixes "report appears below the
+// fold + nested page/iframe scrolling" — which on iOS meant no scrolling
+// at all. Every report path (generate / saved profile / famous chart)
+// goes through here so behaviour stays identical.
+function _cbShowReport(html) {
+  const tb    = document.getElementById('cb-toolbar');
+  const wrap  = document.getElementById('cb-report-wrap');
+  const frame = document.getElementById('cb-report-frame');
+  if (!tb || !wrap || !frame) return;
+  // Make sure the hosting panel is actually visible — a report revealed
+  // inside a hidden panel (e.g. user left the sub-tab on "My Reports")
+  // renders 0px tall and looks like the button did nothing.
+  try { setGroup('premium'); showSubTab('blueprint'); } catch(_){}
+  try { document.getElementById('cb-form-section').style.display = 'none'; } catch(_){}
+  try { document.getElementById('cb-loading').style.display = 'none'; } catch(_){}
+  tb.style.display = 'flex';
+  wrap.style.display = 'block';
+  document.body.classList.add('cb-report-active');
+  // Single-scroller: expand the iframe to its full content height so the
+  // wrap scrolls it like normal page content (reliable on touch devices).
+  const fit = () => {
+    try {
+      const d = frame.contentDocument;
+      if (!d || !d.body) return;
+      d.documentElement.style.overflow = 'hidden';
+      const h = Math.max(d.body.scrollHeight, d.documentElement.scrollHeight);
+      if (h > 200) frame.style.height = h + 'px';
+    } catch(_){}
+  };
+  frame.onload = () => { fit(); setTimeout(fit, 600); setTimeout(fit, 2200); };
+  frame.srcdoc = html;
+  wrap.scrollTop = 0;
+  // Pin the reader directly under the toolbar (it wraps to 2 rows on narrow
+  // screens, so measure instead of hardcoding) and jump the page to the top
+  // so the fixed reader and the page scroll state can't disagree.
+  requestAnimationFrame(() => {
+    try {
+      wrap.style.top = tb.offsetHeight + 'px';
+      window.scrollTo(0, 0);
+    } catch(_){}
+  });
+}
+// Keep the reader pinned under the toolbar across rotation / window resize
+// (the toolbar re-wraps between 1 and 2 rows as the width changes).
+window.addEventListener('resize', () => {
+  if (!document.body.classList.contains('cb-report-active')) return;
+  const tb = document.getElementById('cb-toolbar');
+  const wrap = document.getElementById('cb-report-wrap');
+  if (tb && wrap) wrap.style.top = tb.offsetHeight + 'px';
+});
+
 function cb_generate() {
   if (_cbGenerating) return; // double-click / rapid re-call guard
   // ── 1. Read DOB: localStorage is ground truth; form is display layer ──
@@ -17300,14 +17380,9 @@ function cb_generate() {
       try { _logEngagement('blueprint_gen'); } catch(_){}
 
       document.getElementById('cb-loading').style.display = 'none';
-      document.getElementById('cb-toolbar').style.display = 'flex';
-      document.getElementById('cb-report-wrap').style.display = 'block';
-      document.getElementById('cb-report-frame').srcdoc = cbCurrentHTML;
-      // Auto-minimise side rails so they don't overlap the report iframe.
-      // We mark `body` so CSS hides .desk-rail without losing the user's
-      // own toggle preference (`mth_rails_hidden`). cb_goBack() removes the
-      // class to restore whatever state the user had before generating.
-      try { document.body.classList.add('cb-report-active'); } catch(_){}
+      // Reader-mode reveal — also auto-minimises side rails via the
+      // body.cb-report-active class; cb_goBack() restores everything.
+      _cbShowReport(cbCurrentHTML);
     } catch (err) {
       document.getElementById('cb-loading').style.display = 'none';
       document.getElementById('cb-form-section').style.display = 'block';
@@ -17352,7 +17427,7 @@ function _cbStartLoadingAnimation() {
     ['Pythagorean',      'เลขศาสตร์กรีก'],
     ['เลข ๗ ตัว ๙ ฐาน',  'เลขศาสตร์ไทย'],
     ['Tibetan Mewa',     'มีวา 9 — โหราทิเบต'],
-    ['Biorhythm',        'กาย-ใจ-สมอง วันนี้'],
+    ['ทักษา ๘ บ้าน',     'เจ้าวัน · มูละ · กาลกิณี'],
     ['Synthesizing...',  'รวมทุกศาสตร์เป็นภาพเดียว'],
   ] : [
     ['BaZi 四柱',          'Four Pillars of Destiny'],
@@ -17380,7 +17455,7 @@ function _cbStartLoadingAnimation() {
     ['Pythagorean',        'Greek numerology'],
     ['Thai 7-number',      'Thai numerology base'],
     ['Tibetan Mewa',       '9-Mewa Tibetan astrology'],
-    ['Biorhythm',          'Body · emotion · mind'],
+    ['Thai Taksa',         '8-house classical Thai astrology'],
     ['Synthesizing...',    'Weaving 26 systems into one'],
   ];
   const sysEl    = document.getElementById('cb-loading-system');
@@ -17409,8 +17484,16 @@ function cb_goBack() {
   document.getElementById('cb-toolbar').style.display = 'none';
   document.getElementById('cb-report-wrap').style.display = 'none';
   document.getElementById('cb-form-section').style.display = 'block';
-  // Restore side rails to whatever state the user had before generating.
+  // Restore side rails + page scrolling to whatever the user had before
+  // generating, and clear the reader-mode geometry _cbShowReport() set.
   try { document.body.classList.remove('cb-report-active'); } catch(_){}
+  try {
+    const wrap = document.getElementById('cb-report-wrap');
+    const frame = document.getElementById('cb-report-frame');
+    wrap.style.top = '';
+    frame.style.height = '';
+    frame.onload = null;
+  } catch(_){}
 }
 
 function cb_goBackAndCompare() {
@@ -17650,12 +17733,7 @@ function _viewFamousChart(idx) {
     showSubTab('blueprint');
     setTimeout(() => {
       try {
-        document.getElementById('cb-form-section').style.display = 'none';
-        document.getElementById('cb-loading').style.display = 'none';
-        document.getElementById('cb-toolbar').style.display = 'flex';
-        document.getElementById('cb-report-wrap').style.display = 'block';
-        document.getElementById('cb-report-frame').srcdoc = cbCurrentHTML;
-        document.body.classList.add('cb-report-active');
+        _cbShowReport(cbCurrentHTML);
       } catch (e) { console.error('[viewFamous show]', e); }
     }, 120);
   } catch (e) { console.error('[viewFamousChart]', e); }

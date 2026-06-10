@@ -192,7 +192,27 @@
 //   not supervised ML, why frozen, honest gap disclosure. Linked from
 //   /how-it-works methodology section. Closes P2 HN-killer signal.
 // • Sitemap updated with new blog URL + lastmod.
-const CACHE = 'mythsensus-v94';
+// v95: 2026-06-10 — Cosmic Blueprint fixes (Director feedback):
+// • Reader mode: generated report now takes over the viewport as a fixed
+//   full-screen reader (toolbar pinned, ONE scroll area, iframe expanded
+//   to content height). Fixes report revealing below the fold ("nothing
+//   happened" after Generate) + nested page/iframe scrolling that broke
+//   touch scrolling entirely on mobile. All report paths (generate /
+//   saved profile / famous chart) share _cbShowReport(); cb_goBack()
+//   restores page scroll + rails.
+// • Biorhythm fully split out of the 26: loading animation + cb-badge
+//   strip + JSON-LD featureList now show Thai Taksa (8 Houses) instead.
+//   Engine report: page 28 Biorhythm → new ทักษา ๘ บ้าน page (8-house
+//   wheel, มูละ/กาลกิณี highlights); Grand Convergence votes/family bars/
+//   dissent now use the 26 voting systems only (scoring:false excluded).
+//   EN family map fragments added — EN reports previously dropped 6
+//   systems from the cross-cultural bars.
+// • Grand Convergence detail: new "Per-system verdicts" table (every
+//   tradition's raw finding, grouped by cultural family, score-coded),
+//   strong-system names under each family bar, theme chips now carry
+//   per-system scores. Taksa added to wealth votes + finance/timing
+//   signal pools. /build/ms26-bundle.js regenerated.
+const CACHE = 'mythsensus-v95';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
