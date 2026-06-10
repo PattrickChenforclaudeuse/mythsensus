@@ -1,0 +1,72 @@
+# .vercelignore — keep internal & sensitive files OUT of the public deploy.
+#
+# Vercel deploys the WORKING TREE, not git — so .gitignore gives ZERO edge
+# protection and every non-excluded file is served at https://mythsensus.com.
+# Added 2026-06-10 after an audit found live credentials served at HTTP 200
+# (_credentials.local.md, _qa-out/gumroad-create-9.cjs).
+#
+# RULE: anchored (leading /) or full-path patterns ONLY. A bare "*.md" would
+# match RECURSIVELY and delete Mythsensus/report-engine/lib/oracle/**/*.md,
+# which api/oracle/addon.js reads at runtime (process.cwd()) — breaking the
+# paid Oracle Deep Reading. Never add an unanchored glob here.
+
+# ── Live credentials / tokens (the P0) ──
+/_credentials.local.md
+/_qa-out/
+
+# ── Internal docs: architecture, strategy, handoffs ──
+/CLAUDE.md
+/README.md
+/COMPETITOR-RESEARCH.md
+/mythsensus-cowork-brief.md
+/HANDOFF-2026-04-27.md
+/HANDOFF-2026-05-02.md
+/HANDOFF-2026-05-02-v2.md
+/HANDOFF-2026-05-04.md
+/Mythsensus_ClaudeCode_Handoff.docx
+/Mythsensus_Master_Brief.docx
+/_n8n_oracle_deep_reading_DEPLOY_GUIDE.md
+/_oracle_cache_test.json
+/migrations/
+/Sample for acceptable template/
+
+# ── Other internal / underscore-prefixed dirs ──
+/_legacy/
+/_mockups/
+/_launch-drafts/
+/_audit-screens-2026-06-04/
+
+# ── QA / simulator / audit artifacts (regenerated on demand) ──
+/qa-report.html
+/qa-screenshots/
+/user-sim-report.html
+/user-sim-screenshots/
+/audit-bilingual-report.json
+/audit-bilingual-screenshots/
+/visual-qa-report.json
+/visual-qa-screenshots/
+
+# ── Engine SOURCE + heavy nested build/test tree ──
+# The browser loads the COMPILED bundle from ROOT /build/ only. api/oracle/addon.js
+# reads .md prompts from Mythsensus/report-engine/lib/oracle/** — those MUST stay,
+# so only the source .ts + heavy subdirs are excluded, never the oracle/ path.
+/Mythsensus/Mythsensus/
+/Mythsensus/build/
+/Mythsensus/tests/
+/Mythsensus/html-mockups/
+/Mythsensus/test-artifacts/
+/Mythsensus/brief/
+/Mythsensus/report-engine/lib/calc.ts
+/Mythsensus/report-engine/lib/report.ts
+/Mythsensus/report-engine/lib/report.ts.mojibake.bak
+
+# ── Data backups + seeds (only data/gods.json + data/sacred-places.json ship) ──
+/data/gods.json.pre-epic.bak
+/data/gods.json.pre-legendary.bak
+/data/gods.json.pre-mythic.bak
+/data/gods.json.pre-tags.bak
+/data/_pilgrimage_seed/
+
+# ── Build deps (Vercel reinstalls from package.json) + CI config ──
+/node_modules/
+/.github/
