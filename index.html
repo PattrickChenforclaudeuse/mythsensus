@@ -5961,7 +5961,11 @@ function _addToLibrary(itemKey, opts){
 // Payment is LIVE via Gumroad (2026-05-28). Gating model = HYBRID:
 //   - Active subscriber (Gumroad $8.99/mo → auth.users.app_metadata.plan
 //     === 'premium', surfaced via /api/me/plan) unlocks EVERYTHING.
-//   - Gift code unlocks everything (beta access).
+//   - Gift code unlocks ONE Deep Reading per chart hash (user picks which) and
+//     EXPIRES (mth_gift_expiry). It does NOT grant the subscription, add-ons, or
+//     the $19 Cosmic Blueprint — see _hasActiveGift / _hasItemAccess (deep_ only).
+//     (Earlier this comment said "unlocks everything (beta access)" — that was
+//     stale; the code has always scoped gifts to Deep Readings.)
 //   - Per-item one-time purchases ($9 system / $19 report) — Phase 2:
 //     real per-item Gumroad products + server-side purchase records. For
 //     now the local purchase map is still honoured (kept for forward-compat).
