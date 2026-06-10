@@ -1489,6 +1489,7 @@ function calcScore(d, data) {
         const isDailyOnly = w.systemEn === 'Biorhythm' || w.system === 'Biorhythm';
         return {
             system: sysLabel,
+            systemEn: w.systemEn || w.system, // canonical, for language-agnostic lookups
             weight: isDailyOnly ? 0 : Math.round(w.weight * 1000) / 10,
             score,
             finding: findings[i] ?? '',
@@ -3781,11 +3782,18 @@ function calcVedicMahadasha(d, vedic) {
         'Ketu': { quality: 'จิตวิญญาณและการปล่อยวาง', qualityEn: 'Spirit and release', el: 'ดิน', score: 700 },
         'Venus': { quality: 'ความรักและความสร้างสรรค์', qualityEn: 'Love and creativity', el: 'โลหะ', score: 800 },
     };
-    const dq = DASHA_QUALITY[vedic.mahadasha] ?? { quality: 'พลังงานปรับสมดุล', qualityEn: 'Balanced energy', el: 'ดิน', score: 730 };
+    // vedic.mahadasha is LOCALIZED (Thai in TH reports); DASHA_QUALITY is keyed by
+    // canonical English planet names. tPlanet() maps Thai→English and passes English
+    // through, so it yields the right key in both languages. Before 2026-06-10 the
+    // raw localized value missed this table in TH and silently fell to the 730
+    // fallback — giving Thai users a wrong, EN-divergent Mahadasha score (and the
+    // convergence vote checks below never fired in TH). (audit P2)
+    const dashaKey = tPlanet(vedic.mahadasha);
+    const dq = DASHA_QUALITY[dashaKey] ?? { quality: 'พลังงานปรับสมดุล', qualityEn: 'Balanced energy', el: 'ดิน', score: 730 };
     const variation = (d.day * 7 + d.month * 13) % 80 - 40;
     const score = Math.max(430, Math.min(950, dq.score + variation));
     return {
-        currentDasha: vedic.mahadasha, currentDashaEnd: vedic.mahadashaEnd, antardasha: vedic.antardasha,
+        currentDasha: vedic.mahadasha, currentDashaKey: dashaKey, currentDashaEnd: vedic.mahadashaEnd, antardasha: vedic.antardasha,
         dashaQuality: tPick(dq.quality, dq.qualityEn), dashaElement: pEl(dq.el),
         score,
         reading: buildRichReading({
@@ -4424,8 +4432,12 @@ function p03_convergence(c) {
     const all26 = c.score.breakdown.filter(b => b.scoring !== false);
     const medianScore = c.score.total;
     const hi = (s) => s >= medianScore; // "votes yes" if at or above median
-    // Helper: get system score by name fragment
-    const sc = (nameFragment) => all26.find(b => b.system.includes(nameFragment))?.score ?? 0;
+    // Helper: get system score by name fragment. Matches the localized `system`
+    // OR the canonical `systemEn`, so English-keyed fragments (e.g. 'Celtic',
+    // 'Western', 'Energy') resolve in BOTH languages. Before 2026-06-10 EN reports
+    // returned 0 for systems looked up by a Thai-only fragment, rendering "· 0"
+    // on convergence chips. (audit P3)
+    const sc = (nameFragment) => all26.find(b => b.system.includes(nameFragment) || (b.systemEn || '').includes(nameFragment))?.score ?? 0;
     const { score, bazi, western, ninestar, numerology, vedic, humandesign, mayan, celtic, thai, saju, tibetan, ziwei, onmyodo, hellenistic, norseRune, ogham, arabicParts, kabbalistic, zoroastrian, aztec, nativeAmerican, ifaYoruba, aboriginal, vedicMahadasha } = c;
     const dmEl = bazi.dayMasterElement;
     const themes = [];
@@ -4448,7 +4460,7 @@ function p03_convergence(c) {
         elVotes.push({ system: 'Ogham ' + ogham.ogham + ' ' + ogham.treeName, score: sc('Ogham') });
     // Systems that produce dmEl's element OR compatible element
     if (celtic.element === dmEl || SHENG[ELEM_EL_MAP[celtic.element] ?? ''] === dmElEn)
-        elVotes.push({ system: 'Celtic ' + celtic.treeNameTh + ' (' + celtic.element + ')', score: sc('เซลติก') });
+        elVotes.push({ system: 'Celtic ' + celtic.treeNameTh + ' (' + celtic.element + ')', score: sc('Celtic') });
     if (tibetan.mewaElement === dmEl || SHENG[ELEM_EL_MAP[tibetan.mewaElement] ?? ''] === dmElEn)
         elVotes.push({ system: 'Tibetan Mewa ' + tibetan.mewa + ' (' + tibetan.mewaElement + ')', score: sc('Tibetan') });
     if (nativeAmerican.element === dmEl || SHENG[ELEM_EL_MAP[nativeAmerican.element] ?? ''] === dmElEn)
@@ -4486,7 +4498,7 @@ function p03_convergence(c) {
         timeVotes.push({ system: 'NSK Star 9 Honmei Kaiki', score: sc('Nine Star') });
     if ([1, 3, 8, 9].includes(numerology.personalYear2026))
         timeVotes.push({ system: 'Numerology PY' + numerology.personalYear2026, score: sc('Pythagorean') });
-    if (['Jupiter', 'Sun', 'Venus'].includes(vedicMahadasha.currentDasha))
+    if (['Jupiter', 'Sun', 'Venus'].includes(vedicMahadasha.currentDashaKey))
         timeVotes.push({ system: 'Vedic ' + vedicMahadasha.currentDasha + ' Dasha', score: sc('Vedic M') });
     if (!['รุ่งเรือง', 'เข้มแข็ง', 'มั่นคง', 'เติบโต'].every(q => !tibetan.mewaQuality.includes(q)))
         timeVotes.push({ system: 'Tibetan Mewa ' + tibetan.mewa + ' (' + tibetan.mewaQuality + ')', score: sc('Tibetan') });
@@ -4520,7 +4532,7 @@ function p03_convergence(c) {
             strVotes.push({ system: labels[i], score: s });
     });
     if (['Projector', 'Manifesting Generator', 'Manifestor'].includes(humandesign.type))
-        strVotes.push({ system: 'Energy Type ' + humandesign.typeTh, score: sc('พลังงาน') });
+        strVotes.push({ system: 'Energy Type ' + humandesign.typeTh, score: sc('Energy') });
     if ([1, 8, 11, 22, 33].includes(numerology.lifePath) || numerology.lifePath >= 7)
         strVotes.push({ system: 'Life Path ' + numerology.lifePath + ' ' + numerology.lifePathName.split('—')[0], score: sc('Pythagorean') });
     if (hi(sc('Hellenistic')))
@@ -4554,7 +4566,7 @@ function p03_convergence(c) {
             wlthVotes.push({ system: labels[name] ?? name, score: s });
         }
     });
-    if (['Jupiter', 'Venus', 'Sun'].includes(vedicMahadasha.currentDasha))
+    if (['Jupiter', 'Venus', 'Sun'].includes(vedicMahadasha.currentDashaKey))
         wlthVotes.push({ system: 'Vedic ' + vedicMahadasha.currentDasha + ' Dasha', score: sc('Vedic M') });
     if ([8, 4, 22].includes(numerology.pythagorean))
         wlthVotes.push({ system: 'Pythagorean ' + numerology.pythagorean, score: sc('Pythagorean') });
@@ -4570,7 +4582,7 @@ function p03_convergence(c) {
     if ([7, 9, 11, 33].includes(numerology.lifePath))
         deptVotes.push({ system: 'Life Path ' + numerology.lifePath, score: sc('Pythagorean') });
     if (humandesign.profile.startsWith('6') || humandesign.profile.startsWith('5'))
-        deptVotes.push({ system: 'HD Profile ' + humandesign.profile, score: sc('พลังงาน') });
+        deptVotes.push({ system: 'HD Profile ' + humandesign.profile, score: sc('Energy') });
     ['Kabbalistic', 'Aboriginal', 'Ifa', 'Norse', 'Ogham', 'Tibetan', 'Aztec', 'Zoroastrian', 'Native'].forEach(name => {
         const s = all26.find(b => b.system.toLowerCase().includes(name.toLowerCase()))?.score ?? 0;
         if (s >= 760) {
@@ -4585,7 +4597,7 @@ function p03_convergence(c) {
         }
     });
     if (['กรกฎ', 'พิจิก', 'มีน'].includes(western.moonSignTh))
-        deptVotes.push({ system: 'Western Moon ' + western.moonSignTh, score: sc('ตะวันตก') });
+        deptVotes.push({ system: 'Western Moon ' + western.moonSignTh, score: sc('Western') });
     themes.push({ icon: '🔮',
         theme: tr('ความลึกภายใน — จิตวิญญาณและสัญชาตญาณ', 'Inner Depth — Spirit & Intuition'),
         color: '#9060c0', votes: deptVotes,
@@ -4594,7 +4606,7 @@ function p03_convergence(c) {
     const warnVotes = all26.filter(b => b.score < 650).map(b => ({ system: b.system + ' (' + b.score + ')', score: b.score }));
     if (bazi.missingElement && bazi.missingElement !== 'ครบทุกธาตุ')
         warnVotes.push({ system: 'BaZi ขาดธาตุ' + bazi.missingElement, score: sc('BaZi') });
-    if (['Rahu', 'Saturn', 'Ketu'].includes(vedicMahadasha.currentDasha))
+    if (['Rahu', 'Saturn', 'Ketu'].includes(vedicMahadasha.currentDashaKey))
         warnVotes.push({ system: 'Vedic Dasha ' + vedicMahadasha.currentDasha, score: sc('Vedic M') });
     themes.push({ icon: '⚡',
         theme: tr('จุดท้าทาย — พลังงานสร้างการเติบโต', 'Challenge Points — Energy that drives growth'),
@@ -4603,7 +4615,7 @@ function p03_convergence(c) {
     // ─── 8. Relationship / Network ───────────────────────────────────────────
     const relVotes = [];
     if (humandesign.profile.includes('4') || humandesign.profile.includes('6'))
-        relVotes.push({ system: 'HD Profile ' + humandesign.profile, score: sc('พลังงาน') });
+        relVotes.push({ system: 'HD Profile ' + humandesign.profile, score: sc('Energy') });
     ['Ifa', 'Aboriginal', 'Native', 'Zoroastrian', 'Kabbalistic', 'Ogham', 'Norse'].forEach(name => {
         const s = all26.find(b => b.system.toLowerCase().includes(name.toLowerCase()))?.score ?? 0;
         if (s >= 760) {
@@ -4617,7 +4629,7 @@ function p03_convergence(c) {
         }
     });
     if (['ตุลย์', 'กรกฎ', 'มีน', 'พฤษภ'].includes(western.sunSignTh))
-        relVotes.push({ system: 'Western Sun ' + western.sunSignTh, score: sc('ตะวันตก') });
+        relVotes.push({ system: 'Western Sun ' + western.sunSignTh, score: sc('Western') });
     themes.push({ icon: '💞',
         theme: tr('พลังความสัมพันธ์ — เครือข่ายและการเชื่อมต่อ', 'Relational Power — Networks & Connection'),
         color: '#c06080', votes: relVotes,
@@ -4738,7 +4750,7 @@ function p03_convergence(c) {
     </div>`;
     // ── Headline TL;DR — one-paragraph summary ──
     const elemConsensusEl = dmEl; // we already established cover's element consensus
-    const tldrCore = tr(`26 ศาสตร์มอง <strong style="color:#f0d060">${esc(c.input.name || 'คุณ')}</strong> = พลังธาตุ<strong>${esc(dmEl)}</strong> · <strong style="color:#f0d060">"${esc(score.cosmicEntity)}"</strong> · Life Path <strong>${numerology.lifePath}</strong> "${esc((numerology.lifePathName || '').split('—')[0].trim())}" · ${bazi.benMingNian2026 ? 'Ben Ming Nian + ' : ''}${ninestar.star === 9 ? 'NSK Honmei + ' : ''}Personal Year <strong>${numerology.personalYear2026}</strong> · ${totalStrong}/26 ศาสตร์ยืนยันชัด, ${totalWeak}/26 เห็นจุดท้าทาย · ลายเซ็นจักรวาล ~1 ใน ${(totalCombos / 1000).toFixed(0)}k คน`, `26 systems see <strong style="color:#f0d060">${esc(c.input.name || 'you')}</strong> as <strong>${esc(dmEl)}</strong>-element energy · <strong style="color:#f0d060">"${esc(score.cosmicEntity)}"</strong> · Life Path <strong>${numerology.lifePath}</strong> "${esc((numerology.lifePathName || '').split('—').slice(-1)[0].trim())}" · ${bazi.benMingNian2026 ? 'Ben Ming Nian + ' : ''}${ninestar.star === 9 ? 'NSK Honmei + ' : ''}Personal Year <strong>${numerology.personalYear2026}</strong> · ${totalStrong}/26 systems strongly agree, ${totalWeak}/26 flag challenges · cosmic fingerprint ~1 in ${(totalCombos / 1000).toFixed(0)}k people`);
+    const tldrCore = tr(`26 ศาสตร์มอง <strong style="color:#f0d060">${esc(c.input.name || 'คุณ')}</strong> = พลังธาตุ<strong>${esc(dmEl)}</strong> · <strong style="color:#f0d060">"${esc(score.cosmicEntity)}"</strong> · Life Path <strong>${numerology.lifePath}</strong> "${esc((numerology.lifePathName || '').split('—')[0].trim())}" · ${bazi.benMingNian2026 ? 'Ben Ming Nian + ' : ''}${ninestar.star === 9 ? 'NSK Honmei + ' : ''}Personal Year <strong>${numerology.personalYear2026}</strong> · ${totalStrong}/26 ศาสตร์ยืนยันชัด, ${totalWeak}/26 เห็นจุดท้าทาย · ลายเซ็นจักรวาล ~1 ใน ${(totalCombos / 1e6).toFixed(1)}M คน`, `26 systems see <strong style="color:#f0d060">${esc(c.input.name || 'you')}</strong> as <strong>${esc(dmEl)}</strong>-element energy · <strong style="color:#f0d060">"${esc(score.cosmicEntity)}"</strong> · Life Path <strong>${numerology.lifePath}</strong> "${esc((numerology.lifePathName || '').split('—').slice(-1)[0].trim())}" · ${bazi.benMingNian2026 ? 'Ben Ming Nian + ' : ''}${ninestar.star === 9 ? 'NSK Honmei + ' : ''}Personal Year <strong>${numerology.personalYear2026}</strong> · ${totalStrong}/26 systems strongly agree, ${totalWeak}/26 flag challenges · cosmic fingerprint ~1 in ${(totalCombos / 1e6).toFixed(1)}M people`);
     const familyLabels = {
         east: { th: 'ตะวันออก', en: 'Eastern' },
         west: { th: 'ตะวันตก', en: 'Western' },
@@ -4806,7 +4818,7 @@ function p03_convergence(c) {
       </div>
       ${familyBars}
       <div style="font-size:10px;color:#6a7a90;margin-top:10px;padding-top:10px;border-top:1px solid #2a3a5a;line-height:1.65">
-        🟢 ${tr('ยืนยันชัด (≥780)', 'Strong (≥780)')} · 🟡 ${tr('เห็นสอดคล้อง (650–779)', 'Resonate (650–779)')} · 🔴 ${tr('จุดท้าทาย (<650)', 'Challenge (<650)')} · ${tr(`จุดแข็งสุด: <strong style="color:#aac8ff">${esc(_lang === 'en' ? familyLabels[dominantFamily].en : familyLabels[dominantFamily].th)}</strong> — เมื่อศาสตร์จากหลายอารยธรรมเห็นตรงกัน ความน่าเชื่อถือสูงกว่าศาสตร์เดี่ยวจาก ลูกหลาน`, `Strongest: <strong style="color:#aac8ff">${esc(familyLabels[dominantFamily].en)}</strong> — when systems from multiple civilisations agree, the read is more reliable than any single tradition alone`)}
+        🟢 ${tr('ยืนยันชัด (≥780)', 'Strong (≥780)')} · 🟡 ${tr('เห็นสอดคล้อง (650–779)', 'Resonate (650–779)')} · 🔴 ${tr('จุดท้าทาย (<650)', 'Challenge (<650)')} · ${tr(`จุดแข็งสุด: <strong style="color:#aac8ff">${esc(_lang === 'en' ? familyLabels[dominantFamily].en : familyLabels[dominantFamily].th)}</strong> — เมื่อศาสตร์จากหลายอารยธรรมเห็นตรงกัน ความน่าเชื่อถือย่อมสูงกว่าศาสตร์เดี่ยวเพียงลำพัง`, `Strongest: <strong style="color:#aac8ff">${esc(familyLabels[dominantFamily].en)}</strong> — when systems from multiple civilisations agree, the read is more reliable than any single tradition alone`)}
       </div>
     </div>
 
@@ -4836,7 +4848,7 @@ function p03_convergence(c) {
         <div>🀄 BaZi Day Pillar <strong style="color:#f0d060">${esc(bazi.dayStem)}${esc(bazi.dayBranch)}</strong> · ~1 ${tr('ใน 60', 'in 60')}</div>
         <div>🕉️ Vedic Nakshatra <strong style="color:#f0d060">${esc(nakshatra)}${pada ? ' ' + tr('บาท', 'pada') + ' ' + esc(String(pada)) : ''}</strong> · ~1 ${tr('ใน 108', 'in 108')}</div>
         <div>🌀 Mayan Kin <strong style="color:#f0d060">${esc(mayanLbl)}</strong> · ~1 ${tr('ใน 260', 'in 260')}</div>
-        <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #3a2c1a;color:#f0d060;font-size:13px">${tr(`= ลายเซ็นรูปนี้ มีเพียง <strong>~${peopleSharing.toLocaleString()} คน</strong> บนโลก หรือ <strong>1 ใน ${(totalCombos / 1000).toFixed(0)},000</strong> คน`, `= this exact signature shared by only <strong>~${peopleSharing.toLocaleString()} people</strong> worldwide, or <strong>1 in ${(totalCombos / 1000).toFixed(0)},000</strong>`)}</div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #3a2c1a;color:#f0d060;font-size:13px">${tr(`= ลายเซ็นรูปนี้ มีเพียง <strong>~${peopleSharing.toLocaleString()} คน</strong> บนโลก หรือ <strong>1 ใน ${totalCombos.toLocaleString()}</strong> คน`, `= this exact signature shared by only <strong>~${peopleSharing.toLocaleString()} people</strong> worldwide, or <strong>1 in ${totalCombos.toLocaleString()}</strong>`)}</div>
       </div>
       <div style="font-size:10.5px;color:#8a7050;margin-top:8px;line-height:1.65">${tr('💡 คุณไม่ใช่ "ราศีเมษ" หรือ "Life Path 4" — คุณคือผลคูณที่หาเหมือนไม่ได้ของหลายระบบที่ต่างวัฒนธรรมต่างยุค ลายเซ็นนี้คือ fingerprint ของคุณในจักรวาล', '💡 You are not just "Aries" or "Life Path 4" — you are the unrepeatable intersection of many systems across cultures and eras. This signature is your fingerprint in the cosmos.')}</div>
     </div>
@@ -5312,7 +5324,7 @@ function p15_finance(c) {
     </div>` : ''}
 
     <!-- Key synthesis -->
-    ${box(tr('สรุปทิศทางการเงิน', 'Financial direction summary'), tr(`ธาตุมงคล${bazi.luckyElement} + Part of Fortune ใน${arabicParts.fortuneSign} + ${vedicMahadasha.currentDasha} Dasha → ${['Jupiter', 'Sun', 'Venus'].includes(vedicMahadasha.currentDasha) ? 'ช่วงขยายตัวทางการเงิน' : 'ช่วงสะสมและระมัดระวัง'}`, `Lucky element ${bazi.luckyElement} + Part of Fortune in ${arabicParts.fortuneSign} + ${vedicMahadasha.currentDasha} Dasha → ${['Jupiter', 'Sun', 'Venus'].includes(vedicMahadasha.currentDasha) ? 'a phase of financial expansion' : 'a phase of accumulation and prudence'}`), 'gold')}
+    ${box(tr('สรุปทิศทางการเงิน', 'Financial direction summary'), tr(`ธาตุมงคล${bazi.luckyElement} + Part of Fortune ใน${arabicParts.fortuneSign} + ${vedicMahadasha.currentDasha} Dasha → ${['Jupiter', 'Sun', 'Venus'].includes(vedicMahadasha.currentDashaKey) ? 'ช่วงขยายตัวทางการเงิน' : 'ช่วงสะสมและระมัดระวัง'}`, `Lucky element ${bazi.luckyElement} + Part of Fortune in ${arabicParts.fortuneSign} + ${vedicMahadasha.currentDasha} Dasha → ${['Jupiter', 'Sun', 'Venus'].includes(vedicMahadasha.currentDashaKey) ? 'a phase of financial expansion' : 'a phase of accumulation and prudence'}`), 'gold')}
 
     <!-- 3-step plan -->
     <div style="font-size:13px;color:#d0a050;font-weight:600;margin:12px 0 8px">${tr('แผน 3 ขั้นจาก Consensus', '3-step plan from consensus')}</div>
@@ -6620,7 +6632,7 @@ function p_vedicMahadasha(c) {
       ${row2(tr('คุณภาพ', 'Quality'), v.dashaQuality)}
       ${row2(tr('ธาตุ Dasha', 'Dasha Element'), v.dashaElement)}
     </tbody></table>
-    ${box(tr('การตีความ Mahadasha', 'Mahadasha Reading'), v.reading, ['Jupiter', 'Venus', 'Sun'].includes(v.currentDasha) ? 'green' : ['Saturn', 'Rahu', 'Ketu'].includes(v.currentDasha) ? 'red' : 'gold')}
+    ${box(tr('การตีความ Mahadasha', 'Mahadasha Reading'), v.reading, ['Jupiter', 'Venus', 'Sun'].includes(v.currentDashaKey) ? 'green' : ['Saturn', 'Rahu', 'Ketu'].includes(v.currentDashaKey) ? 'red' : 'gold')}
     <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:', 'Origin:')}</strong> ${tr('Vimshottari Dasha เป็นระบบ planetary periods ใน Vedic Jyotish รวม 120 ปี ประกอบด้วย 9 ดาว แต่ละดาวปกครอง 6-20 ปี คำนวณจาก Nakshatra ของดวงจันทร์ณ เวลาเกิด — ถือเป็นหนึ่งในเครื่องมือทำนาย timing ที่แม่นยำที่สุดใน Vedic system ยังใช้แพร่หลายในอินเดียสำหรับการตัดสินใจสำคัญ', 'Vimshottari Dasha is the planetary-period system at the heart of Vedic Jyotish — a 120-year cycle spread across nine planets, each ruling 6–20 years. Calculated from the Moon\'s Nakshatra at birth, it is considered the most precise timing tool in Vedic astrology. Still widely consulted in India for major life decisions.')}</p>
     <p style="font-size:11px;color:#6a5a42">${tr(`Vedic Mahadasha กำหนด "ช่วงเวลา" ที่ดาวแต่ละดวงปกครองชีวิต — ${v.currentDasha} (${v.dashaQuality}) ครองจนถึงปี ${v.currentDashaEnd}`, `Vedic Mahadasha defines the periods during which each planet rules your life — ${v.currentDasha} (${v.dashaQuality}) rules through ${v.currentDashaEnd}.`)}</p>
   `);

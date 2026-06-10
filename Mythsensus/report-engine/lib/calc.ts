@@ -224,6 +224,10 @@ export interface ScoreData {
 
 export interface ScoreBreakdown {
   system: string; weight: number; score: number; finding: string; color: string;
+  // Canonical English system name (language-independent). `system` is localized
+  // (Thai in TH reports), so consensus lookups that search by a fixed fragment
+  // must use systemEn to work in both languages. (added 2026-06-10)
+  systemEn?: string;
   // OPTIONAL — false means this system is shown in the breakdown but is NOT
   // included in the Cosmic Score median (e.g. Biorhythm = daily-changing,
   // excluded so the identity score stays stable day-to-day). Omitted/true
@@ -1708,6 +1712,7 @@ function calcScore(d: BirthData, data: Omit<ChartData, 'score'>): ScoreData {
     const isDailyOnly = w.systemEn === 'Biorhythm' || w.system === 'Biorhythm';
     return {
       system: sysLabel,
+      systemEn: (w as any).systemEn || w.system,   // canonical, for language-agnostic lookups
       weight: isDailyOnly ? 0 : Math.round(w.weight * 1000) / 10,
       score,
       finding: findings[i] ?? '',
@@ -2856,7 +2861,9 @@ export interface BiorhythmData {
   refDate: string;
 }
 export interface VedicMahadashaData {
-  currentDasha: string; currentDashaEnd: number; antardasha: string;
+  currentDasha: string;        // localized display name (Thai in TH reports)
+  currentDashaKey: string;     // canonical English planet name — for scoring/vote logic
+  currentDashaEnd: number; antardasha: string;
   dashaQuality: string; dashaElement: string;
   score: number; reading: string;
 }
@@ -4241,11 +4248,18 @@ function calcVedicMahadasha(d: BirthData, vedic: VedicData): VedicMahadashaData 
     'Ketu':   {quality:'จิตวิญญาณและการปล่อยวาง',     qualityEn:'Spirit and release',                  el:'ดิน',score:700},
     'Venus':  {quality:'ความรักและความสร้างสรรค์',     qualityEn:'Love and creativity',                 el:'โลหะ',score:800},
   };
-  const dq = DASHA_QUALITY[vedic.mahadasha] ?? {quality:'พลังงานปรับสมดุล',qualityEn:'Balanced energy',el:'ดิน',score:730};
+  // vedic.mahadasha is LOCALIZED (Thai in TH reports); DASHA_QUALITY is keyed by
+  // canonical English planet names. tPlanet() maps Thai→English and passes English
+  // through, so it yields the right key in both languages. Before 2026-06-10 the
+  // raw localized value missed this table in TH and silently fell to the 730
+  // fallback — giving Thai users a wrong, EN-divergent Mahadasha score (and the
+  // convergence vote checks below never fired in TH). (audit P2)
+  const dashaKey = tPlanet(vedic.mahadasha);
+  const dq = DASHA_QUALITY[dashaKey] ?? {quality:'พลังงานปรับสมดุล',qualityEn:'Balanced energy',el:'ดิน',score:730};
   const variation = (d.day * 7 + d.month * 13) % 80 - 40;
   const score = Math.max(430, Math.min(950, dq.score + variation));
   return {
-    currentDasha: vedic.mahadasha, currentDashaEnd: vedic.mahadashaEnd, antardasha: vedic.antardasha,
+    currentDasha: vedic.mahadasha, currentDashaKey: dashaKey, currentDashaEnd: vedic.mahadashaEnd, antardasha: vedic.antardasha,
     dashaQuality: tPick(dq.quality, dq.qualityEn), dashaElement: pEl(dq.el),
     score,
     reading: buildRichReading({

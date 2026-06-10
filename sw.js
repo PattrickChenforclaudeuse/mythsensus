@@ -225,7 +225,19 @@
 // • api/oracle/addon CORS locked to mythsensus.com origin(s) (was '*').
 // • build:engine auto-copies bundle to served root /build; test SYS adds taksa.
 //   Engine math unchanged — bundle still ?v=95.
-const CACHE = 'mythsensus-v96';
+// v97: 2026-06-10 — engine bundle CHANGED (now ?v=97):
+// • Vedic Mahadasha TH scoring fix: calcVedicMahadasha looked up DASHA_QUALITY
+//   with the localized planet name, so Thai reports silently fell to the 730
+//   fallback — a wrong, EN-divergent Mahadasha score. Now keyed via canonical
+//   English (tPlanet); currentDashaKey added; report.ts vote/colour checks use
+//   it. Verified: EN scores 0/200 changed, TH 77/200 shift (max 21), and
+//   TH==EN now 200/200 (was 123/200) — pure consistency fix, EN untouched.
+// • Convergence sc() lookups now match systemEn → EN reports no longer render
+//   "· 0" on Celtic/Western/Energy chips. Rarity number "1685,000"/"1685k" →
+//   "1,684,800" / "1.7M". Garbled TH footer "จาก ลูกหลาน" → "เพียงลำพัง".
+// • sample-report/sunthorn-phu regenerated from the live engine (Taksa page +
+//   per-system verdicts; old Biorhythm page gone).
+const CACHE = 'mythsensus-v97';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
