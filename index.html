@@ -3600,13 +3600,37 @@ async function drawBlessing(){
  * godSymbol / godName / godOrigin / godMessage / godRepresents / godShareBtn.
  * Side effect: mutates _currentDraw to the rendered values + shows share button.
  */
+// ── God artwork (Epic+ tiers, 2026-06-10) ──────────────────────────
+// 216 pixel-art portraits at /assets/god-art/<slug>.webp. Only Mythic/
+// Legendary/Epic have art — the tier gate avoids 852 guaranteed-404
+// requests for lower tiers, which keep their emoji symbol. The slug
+// transform MUST match god-art-tests/gen-batch.mjs.
+const _ART_TIERS = { Mythic: 1, Legendary: 1, Epic: 1 };
+function _godArtUrl(name, tier){
+  if (!name || !_ART_TIERS[tier]) return null;
+  return '/assets/god-art/' + String(name).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') + '.webp';
+}
+// Swap an element's content to the god's artwork, falling back to the emoji
+// symbol if the art is missing or fails to load.
+function _godArtInto(el, god, sizePx, extraCss){
+  if (!el) return;
+  const url = _godArtUrl(god.name, god.tier);
+  if (!url) { el.textContent = god.symbol || '✦'; return; }
+  el.innerHTML = '';
+  const im = document.createElement('img');
+  im.src = url; im.alt = god.name; im.loading = 'lazy';
+  im.style.cssText = `width:${sizePx}px;height:${sizePx}px;border-radius:10px;image-rendering:pixelated;${extraCss||''}`;
+  im.onerror = () => { el.textContent = god.symbol || '✦'; };
+  el.appendChild(im);
+}
+
 function _renderGodCard(god, T, msgIdx, explicitMsg) {
   const card = document.getElementById('godCard');
   if (!card) return;
   card.classList.remove('revealed'); void card.offsetWidth;
   document.getElementById('tierBadge').textContent = (LANG==='th') ? (T.nameTH||T.name) : (T.nameEN||T.name);
   document.getElementById('tierBadge').style.cssText = `background:${T.color}22;color:${T.color};border:1px solid ${T.color}55`;
-  document.getElementById('godSymbol').textContent = god.symbol || '✦';
+  _godArtInto(document.getElementById('godSymbol'), god, 160, 'box-shadow:0 8px 30px rgba(200,164,90,.25)');
   document.getElementById('godName').textContent = god.name;
   document.getElementById('godOrigin').textContent = god.mythology || '';
   // explicitMsg wins over the msgIdx lookup so a friend's deep-link can
@@ -9247,8 +9271,12 @@ function renderCollection(){
         const T = TIERS.find(x => x.name === info.tier) || {color:'var(--gold)'};
         const esc = name.replace(/'/g, "\\'");
         const catChip = (typeof _godCategoryChips === 'function') ? _godCategoryChips(_godByName[name], 1) : '';
+        const art = (typeof _godArtUrl === 'function') ? _godArtUrl(name, info.tier) : null;
+        const symCell = art
+          ? `<img src="${art}" alt="" loading="lazy" style="width:76px;height:76px;border-radius:6px;image-rendering:pixelated" onerror="this.replaceWith(document.createTextNode('${info.symbol}'))">`
+          : info.symbol;
         return `<div onclick="openGodDetail('${esc}')" style="background:var(--bg2);border:1px solid var(--border);border-top:2px solid ${T.color};border-radius:6px;padding:14px 10px;text-align:center;cursor:pointer;transition:transform .15s,border-color .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='var(--gold3)'" onmouseout="this.style.transform='';this.style.borderColor='var(--border)'">
-          <div style="font-size:34px;margin-bottom:6px">${info.symbol}</div>
+          <div style="font-size:34px;margin-bottom:6px;line-height:1">${symCell}</div>
           <div style="font-family:'Cinzel Decorative',serif;font-size:12px;color:var(--gold);line-height:1.3">${name}</div>
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:${T.color};letter-spacing:1px;margin-top:3px">${info.tier}</div>
           ${catChip ? `<div style="margin-top:6px">${catChip}</div>` : ''}
@@ -9319,7 +9347,7 @@ function openGodDetail(name){
   const $ = (id) => document.getElementById(id);
   const tierLabel = isTh ? (T.nameTH || god.tier) : (T.nameEN || god.tier);
   $('gdTier').innerHTML = `<span style="color:${T.color}">${tierLabel}</span>`;
-  $('gdSymbol').textContent = god.symbol || '✦';
+  _godArtInto($('gdSymbol'), god, 140);
   $('gdName').textContent = god.name;
   $('gdMyth').textContent = (god.mythology || '').toUpperCase();
 

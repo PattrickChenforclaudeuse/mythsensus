@@ -279,7 +279,7 @@
 // the watch-list now filter scoring:false so Biorhythm can't slip back in.
 // Biorhythm lives ONLY in the live Daily Pulse (computed against today). Engine
 // bundle changed → ?v=102; sample-report regenerated.
-const CACHE = 'mythsensus-v104';
+const CACHE = 'mythsensus-v105';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
