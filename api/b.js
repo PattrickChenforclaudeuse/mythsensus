@@ -77,6 +77,21 @@ export default function handler(req, res) {
     god ? { g: god.name, ...(tier && { t: tier }), m: String(mIdx), l: lang } : {}
   ).toString()
 
+  // Per-god OG image when the deity has artwork (Epic+ canonical tiers). JPG,
+  // not the webp the app uses — social crawlers (esp. LINE, the dominant share
+  // channel) handle webp og:image unreliably; JPG is universally supported.
+  // 1080x1080 square: LINE renders it square, FB/X center-crop the centered
+  // portrait acceptably. Falls back to the generic banner for emoji-tier gods.
+  const ART_TIERS = { Mythic: 1, Legendary: 1, Epic: 1 }
+  const artSlug = god && ART_TIERS[god.tier]
+    ? god.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    : null
+  const ogImage = artSlug ? `https://mythsensus.com/assets/god-og/${artSlug}.jpg` : 'https://mythsensus.com/og-default.png'
+  const ogType = artSlug ? 'image/jpeg' : 'image/png'
+  const ogW = artSlug ? '1080' : '1200'
+  const ogH = artSlug ? '1080' : '630'
+  const twCard = artSlug ? 'summary' : 'summary_large_image'
+
   res.setHeader('Content-Type', 'text/html; charset=utf-8')
   res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400')
   res.status(200).send(`<!doctype html>
@@ -91,14 +106,14 @@ export default function handler(req, res) {
 <meta property="og:url" content="${esc(pageUrl)}">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
-<meta property="og:image" content="https://mythsensus.com/og-default.png">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image">
+<meta property="og:image" content="${ogImage}">
+<meta property="og:image:type" content="${ogType}">
+<meta property="og:image:width" content="${ogW}">
+<meta property="og:image:height" content="${ogH}">
+<meta name="twitter:card" content="${twCard}">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(desc)}">
-<meta name="twitter:image" content="https://mythsensus.com/og-default.png">
+<meta name="twitter:image" content="${ogImage}">
 <style>body{background:#0b0b12;color:#e8e0c9;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}a{color:#c8a45a}</style>
 </head>
 <body>

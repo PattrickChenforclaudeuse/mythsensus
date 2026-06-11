@@ -4327,9 +4327,13 @@ const _SKY_DOM_ELEM_DESC = {
 function _skyDomainSummary(dom, cards){
   const isTh = LANG === 'th';
   if (!Array.isArray(cards) || cards.length === 0) return null;
-  if (dom === 'all' || !SKY_DOMAIN_PLANETS[dom]) return null; // fall back to default static hint
-  const allowed = SKY_DOMAIN_PLANETS[dom];
-  const subset = cards.filter(c => allowed.includes(c.p));
+  if (dom !== 'all' && !SKY_DOMAIN_PLANETS[dom]) return null;
+  // 'all' summarises every planet; a specific domain summarises its rulers.
+  // Previously 'all' returned null → the section's default view showed only a
+  // static "these are positions" line and read as inert (director feedback
+  // 2026-06-10). Now even the default tab gets a live element+rhythm read.
+  const allowed = SKY_DOMAIN_PLANETS[dom] || SKY_DOMAIN_PLANETS.all;
+  const subset = (dom === 'all') ? cards : cards.filter(c => allowed.includes(c.p));
   if (subset.length === 0) return null;
   const elemCounts = {};
   let rxCount = 0;
@@ -4338,11 +4342,18 @@ function _skyDomainSummary(dom, cards){
     if (c.isRx) rxCount++;
   }
   const dominantElem = Object.entries(elemCounts).sort((a,b) => b[1]-a[1])[0]?.[0];
-  const desc = dominantElem && _SKY_DOM_ELEM_DESC[dominantElem];
+  // c.elem is lowercase ('fire'/'earth'/'air'/'water') but _SKY_DOM_ELEM_DESC
+  // is keyed Capitalized — normalise or the lookup always misses and every
+  // domain reads "mixed energy" (latent bug surfaced 2026-06-10).
+  const elemKey = dominantElem ? dominantElem.charAt(0).toUpperCase() + dominantElem.slice(1) : '';
+  const desc = elemKey && _SKY_DOM_ELEM_DESC[elemKey];
   const elemPart = desc ? (isTh ? desc.th : desc.en) : (isTh ? 'พลังผสมผสาน' : 'mixed energy');
+  // Rhythm clause: retrogrades → "review"; an all-direct sky → "green light".
+  // Stays a rhythm cue, not a good/bad verdict (the full per-system reasoning
+  // is the paid Daily Pulse — this just makes the free strip feel alive).
   const rxPart = rxCount > 0
-    ? (isTh ? ` · ${rxCount} ดาวถอยหลัง — เน้นทบทวนมากกว่าริเริ่ม` : ` · ${rxCount} retrograde — review over launch`)
-    : '';
+    ? (isTh ? ` · ${rxCount} ดาวถอยหลัง — จังหวะทบทวนมากกว่าริเริ่ม` : ` · ${rxCount} retrograde — a review rhythm, not a launch one`)
+    : (isTh ? ' · ดาวเดินหน้าทุกดวง — จังหวะของการลงมือ' : ' · every planet direct — a rhythm for action');
   return elemPart + rxPart;
 }
 

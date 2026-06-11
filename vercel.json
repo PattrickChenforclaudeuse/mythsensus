@@ -74,6 +74,12 @@
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=2592000, stale-while-revalidate=604800" }
       ]
+    },
+    {
+      "source": "/assets/god-og/:slug*",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=2592000, stale-while-revalidate=604800" }
+      ]
     }
   ]
 }
