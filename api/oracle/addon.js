@@ -68,6 +68,18 @@ const RENDER_TIMEOUT_MS = 58_000      // Vercel function ceiling 60s; tight 2s b
 const DEFAULT_DAILY_BUDGET_CENTS = 3000
 const DEFAULT_USER_DAILY_RENDERS = 10
 
+// ─── Auth / entitlement (2026-06-10) ─────────────────────
+// The Deep Reading is a paid product, but this endpoint shipped with NO
+// server-side auth: a full audit confirmed any unauthenticated curl triggered
+// a real (paid) Anthropic call — denial-of-wallet + free $9 readings. The
+// client paywall (_hasItemAccess) is UI-only and trivially bypassed. This gate
+// (director-approved 2026-06-10) requires a valid Supabase session AND an
+// entitlement before any LLM/cache work. Owner emails always pass so the
+// product owner can verify the paid path without a test purchase.
+const OWNER_EMAILS = ['chaiyapat.c@yoohui.co.th', 'garsell@hotmail.com']
+// myth_purchases item_keys that include Deep Reading access.
+const DEEP_ENTITLEMENT_ITEMS = ['deep', 'full_report']
+
 // Lazy-loaded prompt + framework, keyed by system
 const _promptCache = new Map()
 
@@ -265,6 +277,53 @@ async function supabaseQuery(sql) {
 
 function sqlEscape(v) { return String(v).replace(/'/g, "''") }
 
+// Verify the caller is a signed-in, entitled user before any paid work.
+// Returns { ok:true, userKey, via } or { ok:false, status, error, message }.
+// Fails CLOSED on every uncertainty (misconfig, network, DB error) so a fault
+// can never re-open the denial-of-wallet hole — owners/premium short-circuit
+// before the DB query, so a purchase-table outage never blocks subscribers.
+async function requireOracleAccess(req) {
+  const SUPABASE_URL = process.env.SUPABASE_URL
+  const ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
+  if (!SUPABASE_URL || !ANON) {
+    return { ok: false, status: 503, error: 'auth_unconfigured', message: 'Oracle is temporarily unavailable.' }
+  }
+  const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim()
+  if (!token) {
+    return { ok: false, status: 401, error: 'auth_required', message: 'Please sign in to use Deep Reading.' }
+  }
+  // 1. token → user (server-validated; returns current DB app_metadata)
+  let user
+  try {
+    const r = await fetch(SUPABASE_URL.replace(/\/+$/, '') + '/auth/v1/user', {
+      headers: { apikey: ANON, Authorization: 'Bearer ' + token },
+    })
+    if (!r.ok) return { ok: false, status: 401, error: 'invalid_token', message: 'Your session expired — please sign in again.' }
+    user = await r.json()
+  } catch (_) {
+    return { ok: false, status: 503, error: 'auth_check_failed', message: 'Could not verify your session — please try again.' }
+  }
+  const email = (user && user.email || '').toLowerCase()
+  const plan = (user && user.app_metadata && user.app_metadata.plan) || 'free'
+  if (!email) return { ok: false, status: 403, error: 'no_email', message: 'Account email is missing.' }
+  const userKey = 'u:' + email
+  // 2. entitlement — owner (verification), premium subscriber, or deep purchase
+  if (OWNER_EMAILS.includes(email)) return { ok: true, userKey, via: 'owner' }
+  if (plan === 'premium') return { ok: true, userKey, via: 'premium' }
+  try {
+    const sql = `SELECT 1 FROM public.myth_purchases
+                 WHERE lower(email) = '${sqlEscape(email)}'
+                   AND refunded = false
+                   AND item_key IN (${DEEP_ENTITLEMENT_ITEMS.map((k) => `'${sqlEscape(k)}'`).join(',')})
+                 LIMIT 1`
+    const rows = await supabaseQuery(sql)
+    if (Array.isArray(rows) && rows.length > 0) return { ok: true, userKey, via: 'purchase' }
+  } catch (_) {
+    return { ok: false, status: 503, error: 'entitlement_check_failed', message: 'Could not verify your purchase — please try again.' }
+  }
+  return { ok: false, status: 403, error: 'not_entitled', message: 'Deep Reading requires a Mythsensus subscription or purchase.' }
+}
+
 async function readCache({ chart_hash, system, lang, relationship_status, prompt_version }) {
   try {
     const sql = `SELECT oracle_json, cost_cents, model, generated_at_iso
@@ -365,6 +424,13 @@ export default async function handler(req, res) {
 
   const inputErr = validateInput(body)
   if (inputErr) return res.status(400).json({ error: inputErr })
+
+  // AUTH GATE — before any cache read or LLM call. Cached reads are still paid
+  // content, so unauthenticated/unentitled callers are blocked here too.
+  const access = await requireOracleAccess(req)
+  if (!access.ok) {
+    return res.status(access.status).json({ error: access.error, message: access.message })
+  }
 
   const relationship_status = body.context?.relationship_status || 'unknown'
   const cache_key = {

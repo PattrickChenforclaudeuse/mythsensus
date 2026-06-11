@@ -5828,9 +5828,19 @@ async function _fetchOracle(systemKey) {
     },
   };
 
+  // The oracle endpoint requires a signed-in, entitled user (server-side gate;
+  // the client paywall is UI-only). Attach the Supabase session token — no
+  // session → server 401, surfaced by the catch below as a sign-in prompt.
+  const _oh = { 'Content-Type': 'application/json' };
+  try {
+    if (typeof _sb !== 'undefined' && _sb && _sb.auth) {
+      const { data: { session } } = await _sb.auth.getSession();
+      if (session && session.access_token) _oh['Authorization'] = 'Bearer ' + session.access_token;
+    }
+  } catch(_) {}
   const r = await fetch('/api/oracle/addon', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: _oh,
     body: JSON.stringify(body),
   });
   if (!r.ok) {
