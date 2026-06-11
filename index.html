@@ -2403,6 +2403,7 @@ try{
     <div id="gdName" style="font-family:'Cinzel Decorative',serif;font-size:22px;color:var(--gold);text-align:center;margin-bottom:3px"></div>
     <div id="gdMyth" style="font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:18px"></div>
     <div id="gdReps" style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--gold2);text-align:center;margin-bottom:16px;font-style:italic"></div>
+    <div id="gdLore" style="display:none;border-top:1px solid var(--border);padding-top:14px;margin-bottom:16px;font-size:14.5px;line-height:1.75;color:var(--text)"></div>
     <div id="gdMessages" style="border-top:1px solid var(--border);padding-top:16px"></div>
     <div id="gdSeen" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-align:center"></div>
   </div>
@@ -9277,9 +9278,23 @@ function filterCollectionByTier(tier){
   renderCollection();
 }
 
+// ── God lore (ตำนาน) — lazy-loaded from data/gods-lore.json on first open.
+// Kept OUT of gods.json (~700 KB, downloaded by everyone) so lore only costs
+// bytes for users who actually open a Pokédex entry. The section stays hidden
+// for gods whose lore hasn't shipped yet (rollout: Epic+ tiers first).
+let _godLoreCache = null;
+async function _loadGodLore(){
+  if (_godLoreCache) return _godLoreCache;
+  try {
+    const r = await fetch('/data/gods-lore.json');
+    _godLoreCache = r.ok ? await r.json() : {};
+  } catch(_) { _godLoreCache = {}; }
+  return _godLoreCache;
+}
+
 // ── Pokédex entry modal: opens when user clicks a god in Collection ─
-// Shows the god's mythology, what it represents, its messages, and when
-// the user first saw it in their blessing history.
+// Shows the god's mythology, lore, what it represents, its messages, and
+// when the user first saw it in their blessing history.
 function openGodDetail(name){
   const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
   const pool = (typeof GODS_FULL !== 'undefined' && Array.isArray(GODS_FULL))
@@ -9314,6 +9329,22 @@ function openGodDetail(name){
   $('gdReps').innerHTML = reps.length
     ? `${catChips ? `<div style="margin-bottom:6px">${catChips}</div>` : ''}<span style="color:var(--muted)">${isTh ? 'เป็นตัวแทนของ' : 'Represents'}</span>  ${reps.map(r=>`<span style="color:var(--gold2)">${r}</span>`).join(' · ')}`
     : (catChips || '');
+
+  // Lore section — async fill, hidden until (and unless) lore exists for this
+  // god. Text is escaped (agent-authored content) and a stale-modal guard
+  // checks the open god hasn't changed while the fetch resolved.
+  const loreEl = $('gdLore');
+  if (loreEl) {
+    loreEl.style.display = 'none'; loreEl.innerHTML = '';
+    _loadGodLore().then((L) => {
+      const lore = L && L[name];
+      const txt = lore && (isTh ? lore.th : lore.en);
+      if (!txt || $('gdName').textContent !== name) return;
+      const esc = String(txt).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      loreEl.innerHTML = `<div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;text-align:center">${isTh ? '✦ ตำนาน ✦' : '✦ THE MYTH ✦'}</div><div>${esc}</div>`;
+      loreEl.style.display = 'block';
+    });
+  }
 
   const msgs = Array.isArray(god.messages) ? god.messages : [];
   $('gdMessages').innerHTML = msgs.length
