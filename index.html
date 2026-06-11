@@ -3599,7 +3599,7 @@ async function drawBlessing(){
   _currentDraw={god,tier:T,msgIdx,message};
   const sb=document.getElementById('godShareBtn');
   if(sb){sb.style.display='inline-block';sb.textContent=(LANG==='th'?'✦ แชร์พรนี้':'✦ Share this blessing');}
-  card.classList.add('revealed');updateBlessingStatus();blessHistory.unshift({T,god});renderHistory();saveBlessings();saveBlessingToHistory(god, T, message, msgIdx);
+  card.classList.add('revealed');updateBlessingStatus();blessHistory.unshift({T,god});renderHistory();saveBlessings();saveBlessingToHistory(god, T, message, msgIdx);markMsgSeen(god.name, msgIdx);
   if(draws>=MAX_DRAWS){const b=document.getElementById('drawBtn');b.disabled=true;b.textContent=t('blessing_used');}
 }
 
@@ -9391,7 +9391,11 @@ function openGodDetail(name){
   // TH/EN arrays are parallel translations so the slot unlock is language-agnostic.
   const hist = (typeof getFullHistory === 'function') ? getFullHistory() : [];
   let firstSeen = null, seenCount = 0;
+  // Discovered message slots: the durable ledger is authoritative; union the
+  // (capped, lossy) full-history too so users who drew before the ledger
+  // existed still keep what survived there.
   const _seenMsgIdx = new Set();
+  try { (getMsgSeen()[name] || []).forEach(i => { if (typeof i === 'number') _seenMsgIdx.add(i); }); } catch(_) {}
   for (const h of hist) {
     const hName = (h.god && h.god.name) || h.godName;
     if (hName === name) {
@@ -9442,12 +9446,16 @@ function openGodDetail(name){
   // msgIdx for this god (legacy entries / shared-link views), reveal all so we
   // never hide content the user legitimately had before this feature.
   const msgs = (isTh ? god.messages_th : god.messages_en) || god.messages || [];
-  const _revealAll = _seenMsgIdx.size === 0;           // no per-slot data → don't mask
-  const _discovered = _revealAll ? msgs.length : msgs.reduce((n,_,i)=> n + (_seenMsgIdx.has(i)?1:0), 0);
+  // If we have zero slot data (god in collection but no draw ledger — e.g. a
+  // pre-ledger draw fully trimmed from history), reveal only slot 0 as a
+  // conservative "you've seen at least one" — never reveal everything, or the
+  // mask would be meaningless for that god.
+  if (_seenMsgIdx.size === 0 && msgs.length) _seenMsgIdx.add(0);
+  const _discovered = msgs.reduce((n,_,i)=> n + (_seenMsgIdx.has(i)?1:0), 0);
   const _msgRow = (inner, masked) => `<div style="font-style:italic;font-size:14.5px;line-height:1.7;color:${masked?'var(--muted)':'var(--text)'};${masked?'opacity:.6;':''}padding:10px 0;border-bottom:1px solid rgba(200,164,90,.08)">${inner}</div>`;
   $('gdMessages').innerHTML = msgs.length
     ? `<div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px">${isTh ? '✦ ข้อความจากเทพ ✦' : '✦ DIVINE MESSAGES ✦'}${msgs.length>1?` <span style="color:var(--gold3)">· ${isTh?'ค้นพบ':'found'} ${_discovered}/${msgs.length}</span>`:''}</div>`
-      + msgs.map((m,i)=> (_revealAll || _seenMsgIdx.has(i))
+      + msgs.map((m,i)=> _seenMsgIdx.has(i)
           ? _msgRow(`"${_e(m)}"`, false)
           : _msgRow(`<span style="letter-spacing:2px">"??????"</span> <span style="font-style:normal;font-size:9px;letter-spacing:1.5px;color:var(--gold3);text-transform:uppercase">${isTh?'· ยังไม่ค้นพบ':'· undiscovered'}</span>`, true)
         ).join('')
@@ -13477,7 +13485,7 @@ const _SYNC_KEYS = [
   'mth_name','mth_dob','mth_time','mth_gender','mth_city',
   'mth_country','mth_career','mth_careerLevel','mth_industry','mth_lang','mth_gift','mth_gift_expiry','mth_purchased',
   'mth_gift_used_codes','mth_gift_consumed',
-  'mth_bless_date','mth_bless_count','mth_bless_history','mth_full_history',
+  'mth_bless_date','mth_bless_count','mth_bless_history','mth_full_history','mth_msg_seen',
   'mth_coll_tier','ms_profiles','ms_saved_reports','ms_last_group'
 ];
 
@@ -18286,6 +18294,25 @@ function saveToFullHistory(item) {
     if (hist.length > MAX_HISTORY_ITEMS) hist.splice(MAX_HISTORY_ITEMS);
     localStorage.setItem('mth_full_history', JSON.stringify(hist));
   } catch(e) {}
+}
+
+// ── Discovered-blessing ledger (mth_msg_seen) ────────────────────────────
+// The Pokédex "discovery" mask needs to know which message SLOTS the user has
+// drawn per god. mth_full_history can't be the source: it's capped at
+// MAX_HISTORY_ITEMS and mixes draws/organum/pulse, so older draws get trimmed
+// → the mask would wrongly reveal-all for those gods. This dedicated ledger is
+// tiny ({godName:[slotIdx,...]}), append-only, never trimmed.
+function getMsgSeen() {
+  try { return JSON.parse(localStorage.getItem('mth_msg_seen') || '{}') || {}; }
+  catch(_) { return {}; }
+}
+function markMsgSeen(godName, msgIdx) {
+  if (!godName || typeof msgIdx !== 'number') return;
+  try {
+    const m = getMsgSeen();
+    const arr = m[godName] || (m[godName] = []);
+    if (!arr.includes(msgIdx)) { arr.push(msgIdx); localStorage.setItem('mth_msg_seen', JSON.stringify(m)); }
+  } catch(_) {}
 }
 
 function saveOrganumToHistory(question, topWord, topCount, godName1, godSymbol1) {
