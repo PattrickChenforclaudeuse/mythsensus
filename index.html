@@ -1234,11 +1234,17 @@ function _webNavBack(e) {
 // ── Share menu (online only) ─────────────────────────────────────────
 /**
  * Builds the share URL — draw-aware. When the user is in panel-blessing AND
- * _currentDraw is set, returns a deep-link `#g=&t=&m=&l=&msg=` that carries
- * the god name, tier, msgIdx, source language, and the literal rendered
- * blessing (the literal text wins over msgIdx in the recipient render to
- * survive cross-language array-length differences). Otherwise returns the
- * site-wide marketing URL.
+ * _currentDraw is set, returns the `/b?g=&t=&m=&l=` share permalink
+ * (api/b.js). That route serves per-god OG tags (deity symbol + blessing in
+ * the LINE/FB preview card) then JS-redirects humans to the `#g=` hash
+ * deep-link the SPA renders. Otherwise returns the site-wide marketing URL.
+ *
+ * The literal `msg=` param was DROPPED (2026-06-10): it %-encoded the whole
+ * Thai blessing into the URL — a wall of percent-escapes in chat apps that
+ * made shares look broken. It was also redundant: _maybeRenderSharedDraw
+ * switches LANG to the sender's `l` BEFORE rendering, so the `m` index into
+ * the same-language array reproduces the sender's exact text. Dropping it
+ * also closes the forged-blessing hole (arbitrary text in crafted links).
  *
  * Depends on: globals _currentDraw, LANG; DOM state .panel.active.
  * No side effects.
@@ -1247,10 +1253,9 @@ function _webShareUrl() {
   // PRIVACY INVARIANT (verified 2026-06-08): the share URL must NEVER encode
   // birth data (DOB, time, city, name, email). Only the publicly-shareable
   // blessing-draw artifacts are included: god name, tier name, message index,
-  // language code, and the rendered message text. If you add a new share
-  // surface (chart share, score share, etc.), preserve this invariant —
-  // generate a chart hash server-side or use a short opaque token, never
-  // raw DOB.
+  // language code. If you add a new share surface (chart share, score share,
+  // etc.), preserve this invariant — generate a chart hash server-side or
+  // use a short opaque token, never raw DOB.
   try {
     if (_currentDraw && document.querySelector('.panel.active')?.id === 'panel-blessing') {
       const d = _currentDraw;
@@ -1258,13 +1263,8 @@ function _webShareUrl() {
       p.set('g', d.god.name);
       if (d.tier && d.tier.name) p.set('t', d.tier.name);
       p.set('m', String(d.msgIdx || 0));
-      // Encode source language + the literal rendered message so the recipient
-      // sees EXACTLY what the sender saw, even if their LANG differs or the
-      // god's msgIdx array length differs across languages (cross-language
-      // msgIdx drift was breaking the "see what your friend saw" promise).
       if (typeof LANG !== 'undefined') p.set('l', LANG === 'th' ? 'th' : 'en');
-      if (d.message) p.set('msg', d.message);
-      return 'https://mythsensus.com/#' + p.toString();
+      return 'https://mythsensus.com/b?' + p.toString();
     }
   } catch(_) {}
   return 'https://mythsensus.com/';
@@ -1289,9 +1289,12 @@ function _webShareText() {
       const tierLabel = d.tier ? ((isTh ? d.tier.nameTH : d.tier.nameEN) || d.tier.name) : '';
       const origin = g.mythology || '';
       const meta = origin + (tierLabel ? ' · ' + tierLabel : '');
+      // Per-god symbol from gods.json (every god has one) — a generic 🔮 made
+      // every share look identical regardless of which deity was drawn.
+      const sym = g.symbol || '🔮';
       return isTh
-        ? `🔮 พรจาก ${g.name} (${meta}): "${d.message}"`
-        : `🔮 A blessing from ${g.name} (${meta}): "${d.message}"`;
+        ? `${sym} พรจาก ${g.name} (${meta}): "${d.message}"`
+        : `${sym} A blessing from ${g.name} (${meta}): "${d.message}"`;
     }
   } catch(_) {}
   return isTh
