@@ -9385,15 +9385,20 @@ function openGodDetail(name){
   if (!god) return;
   const T = TIERS.find(x => x.name === god.tier) || { color:'var(--gold)', nameEN:god.tier||'', nameTH:god.tier||'' };
 
-  // Find first-seen timestamp from history.
+  // Find first-seen timestamp + which message slots the user has actually
+  // drawn for this god (the Pokédex "discovery" mechanic — undrawn blessings
+  // stay masked as ?????? until the user rolls them). msgIdx is the slot index;
+  // TH/EN arrays are parallel translations so the slot unlock is language-agnostic.
   const hist = (typeof getFullHistory === 'function') ? getFullHistory() : [];
   let firstSeen = null, seenCount = 0;
+  const _seenMsgIdx = new Set();
   for (const h of hist) {
     const hName = (h.god && h.god.name) || h.godName;
     if (hName === name) {
       seenCount++;
       const ts = h.ts || 0;
       if (!firstSeen || (ts && ts < firstSeen)) firstSeen = ts;
+      if (typeof h.msgIdx === 'number') _seenMsgIdx.add(h.msgIdx);
     }
   }
 
@@ -9430,14 +9435,22 @@ function openGodDetail(name){
     });
   }
 
-  // Bilingual blessings (messages_th/en have 5 each). god.messages is a stale
-  // 1-line generic placeholder for Epic+ gods — was the ONLY thing shown here,
-  // so every Epic+ deity displayed the same generic English line. Match the
-  // other render paths: prefer the language-specific array.
+  // Bilingual blessings (messages_th/en have 4-5 each). god.messages is a stale
+  // 1-line generic placeholder — prefer the language-specific array.
+  // DISCOVERY MECHANIC: only reveal slots the user has actually drawn; mask the
+  // rest as ?????? so collecting every blessing is a goal. If history has no
+  // msgIdx for this god (legacy entries / shared-link views), reveal all so we
+  // never hide content the user legitimately had before this feature.
   const msgs = (isTh ? god.messages_th : god.messages_en) || god.messages || [];
+  const _revealAll = _seenMsgIdx.size === 0;           // no per-slot data → don't mask
+  const _discovered = _revealAll ? msgs.length : msgs.reduce((n,_,i)=> n + (_seenMsgIdx.has(i)?1:0), 0);
+  const _msgRow = (inner, masked) => `<div style="font-style:italic;font-size:14.5px;line-height:1.7;color:${masked?'var(--muted)':'var(--text)'};${masked?'opacity:.6;':''}padding:10px 0;border-bottom:1px solid rgba(200,164,90,.08)">${inner}</div>`;
   $('gdMessages').innerHTML = msgs.length
-    ? `<div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px">${isTh ? '✦ ข้อความจากเทพ ✦' : '✦ DIVINE MESSAGES ✦'}</div>`
-      + msgs.map(m=>`<div style="font-style:italic;font-size:14.5px;line-height:1.7;color:var(--text);padding:10px 0;border-bottom:1px solid rgba(200,164,90,.08)">"${_e(m)}"</div>`).join('')
+    ? `<div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px">${isTh ? '✦ ข้อความจากเทพ ✦' : '✦ DIVINE MESSAGES ✦'}${msgs.length>1?` <span style="color:var(--gold3)">· ${isTh?'ค้นพบ':'found'} ${_discovered}/${msgs.length}</span>`:''}</div>`
+      + msgs.map((m,i)=> (_revealAll || _seenMsgIdx.has(i))
+          ? _msgRow(`"${_e(m)}"`, false)
+          : _msgRow(`<span style="letter-spacing:2px">"??????"</span> <span style="font-style:normal;font-size:9px;letter-spacing:1.5px;color:var(--gold3);text-transform:uppercase">${isTh?'· ยังไม่ค้นพบ':'· undiscovered'}</span>`, true)
+        ).join('')
     : `<div style="text-align:center;color:var(--muted);font-style:italic;font-size:13px">${isTh ? '(ไม่มีข้อความ)' : '(No messages yet)'}</div>`;
 
   if (firstSeen) {
