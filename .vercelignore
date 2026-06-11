@@ -60,6 +60,23 @@
 /Mythsensus/report-engine/lib/report.ts
 /Mythsensus/report-engine/lib/report.ts.mojibake.bak
 
+# ── /Mythsensus/ subdir internal docs/SQL/HTML (audit 2026-06-10: served at
+#    single-level /Mythsensus/<file> URLs — architecture doc, DB schemas,
+#    security changelog). SINGLE-LEVEL globs ONLY: the oracle prompts at
+#    /Mythsensus/report-engine/lib/oracle/**/*.md are DEEPER and MUST stay
+#    served (api/oracle/addon.js reads them at runtime via process.cwd()).
+/Mythsensus/*.md
+/Mythsensus/*.sql
+/Mythsensus/*.html
+/Mythsensus/articles/
+/Mythsensus/data-enrich/
+/Mythsensus/launch-plan/
+/Mythsensus/pdf-templates/
+/Mythsensus/reference-pdfs/
+/Mythsensus/cosmic-blueprint-fix/
+/Mythsensus/Offline app/
+/Mythsensus/GitHub for Mythsensus/
+
 # ── Data backups + seeds (only data/gods.json + data/sacred-places.json ship) ──
 /data/gods.json.pre-epic.bak
 /data/gods.json.pre-legendary.bak

@@ -43,8 +43,16 @@ export default function handler(req, res) {
   const lang = q.l === 'en' ? 'en' : 'th'
   const mIdx = Math.max(0, parseInt(q.m, 10) || 0)
 
+  // Case-insensitive match: app-generated shares use the exact gods.json name,
+  // but hand-crafted / copy-pasted /b links with different casing must still
+  // resolve to the per-god OG card instead of silently falling back to generic.
   let god = null
-  try { god = loadGods().find((x) => x.name === gName) || null } catch (_) {}
+  try {
+    const gods = loadGods()
+    god = gods.find((x) => x.name === gName)
+       || gods.find((x) => x.name.toLowerCase() === gName.toLowerCase())
+       || null
+  } catch (_) {}
 
   // Hash deep-link for the SPA (legacy renderer path — unchanged client code).
   let target = 'https://mythsensus.com/'
@@ -73,9 +81,9 @@ export default function handler(req, res) {
     if (msg) desc = `"${msg}"` + (meta ? ' — ' + meta : '')
   }
 
-  const pageUrl = 'https://mythsensus.com/b?' + new URLSearchParams(
-    god ? { g: god.name, ...(tier && { t: tier }), m: String(mIdx), l: lang } : {}
-  ).toString()
+  const pageUrl = god
+    ? 'https://mythsensus.com/b?' + new URLSearchParams({ g: god.name, ...(tier && { t: tier }), m: String(mIdx), l: lang }).toString()
+    : 'https://mythsensus.com/'
 
   // Per-god OG image when the deity has artwork (Epic+ canonical tiers). JPG,
   // not the webp the app uses — social crawlers (esp. LINE, the dominant share
