@@ -9178,14 +9178,26 @@ function renderCollection(){
   // {god:{name,symbol}, tier} which never matched — that's why the grid
   // appeared empty after every draw. Below we support both shapes so any
   // legacy entries survive.
+  // CANONICAL tier lookup. A blessing DRAW rolls a random rarity (pickTier),
+  // stored in history as h.tierName — that is the rarity of THAT pull, NOT the
+  // god's inherent tier. The collection is a catalogue of gods, so it must key
+  // off each god's CANONICAL tier (gods.json). Using the rolled draw-tier was
+  // a bug: it filed gods under the wrong rarity (e.g. Kokopelli, canonically
+  // Uncommon, drawn at Legendary, showed under Legendary and mismatched its
+  // own modal), and made the tier numerators count a different tier definition
+  // than the denominators (which are canonical-tier god counts). The modal and
+  // the artwork gate both already use canonical god.tier — this aligns the grid.
+  const _canonPool = (typeof GODS_FULL !== 'undefined' && Array.isArray(GODS_FULL)) ? GODS_FULL : (Array.isArray(GODS) ? GODS : []);
+  const _canonByName = {}; for (const g of _canonPool) if (g && g.name) _canonByName[g.name] = g;
+
   const seen = {};
   for (const h of hist) {
     if (h.type && h.type !== 'blessing') continue;   // only blessings have gods
     const name  = (h.god && h.god.name)   || h.godName;
     if (!name) continue;
-    const symbol = (h.god && h.god.symbol) || h.godSymbol || '✦';
-    const tier   = (h.tier && h.tier.name) || h.tierName || 'Common';
-    // Keep first-seen entry (oldest symbol/tier).
+    const canon  = _canonByName[name];
+    const symbol = (canon && canon.symbol) || (h.god && h.god.symbol) || h.godSymbol || '✦';
+    const tier   = (canon && canon.tier) || (h.tier && h.tier.name) || h.tierName || 'Common';
     if (!seen[name]) seen[name] = { symbol, tier };
   }
 
