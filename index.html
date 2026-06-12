@@ -3391,7 +3391,12 @@ function _godCategories(god, max){
 // every one of the 1,069 gods carries a "what is this about?" tag.
 function _godCategoryChips(god, max){
   const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
-  const chip = (label, color) => `<span style="display:inline-block;background:${color}22;color:${color};border:1px solid ${color}66;border-radius:20px;padding:2px 9px;font-size:10.5px;font-family:'Josefin Sans','Sarabun',sans-serif;letter-spacing:.3px;margin:2px 3px 2px 0;white-space:nowrap">${label}</span>`;
+  // max-width:100% + ellipsis: a long category label (e.g. "📜 Creation &
+  // Cosmos") used to overflow a narrow Collection-grid card to the right,
+  // spilling past the card border. The chip now truncates with "…" inside
+  // whatever container it sits in — no-op on the wide draw card / modal
+  // (their 100% is plenty), self-clipping in the tight grid cell.
+  const chip = (label, color) => `<span style="display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;background:${color}22;color:${color};border:1px solid ${color}66;border-radius:20px;padding:2px 9px;font-size:10.5px;font-family:'Josefin Sans','Sarabun',sans-serif;letter-spacing:.3px;margin:2px 3px 2px 0;white-space:nowrap">${label}</span>`;
   const cats = _godCategories(god, max);
   if (cats.length) return cats.map(c => chip(`${c.emoji} ${isTh?c.th:c.en}`, c.color)).join('');
   // Fallback: surface the god's own domains as plain chips (capitalized).
@@ -3474,11 +3479,11 @@ function _updateGodCountDisplay() {
 
 const TIERS=[
   {name:'Common',nameEN:'Common',nameTH:'ทั่วไป',color:'#9a8a72',weight:40},
-  {name:'Uncommon',nameEN:'Uncommon',nameTH:'ไม่ค่อยพบ',color:'#6090c0',weight:28},
-  {name:'Rare',nameEN:'Rare',nameTH:'หายาก',color:'#4aba50',weight:18},
+  {name:'Uncommon',nameEN:'Uncommon',nameTH:'ไม่ค่อยพบ',color:'#4aba50',weight:28},
+  {name:'Rare',nameEN:'Rare',nameTH:'หายาก',color:'#6090c0',weight:18},
   {name:'Epic',nameEN:'Epic',nameTH:'มหากาพย์',color:'#b070e0',weight:9},
   {name:'Legendary',nameEN:'Legendary',nameTH:'ตำนาน',color:'#c8a45a',weight:4},
-  {name:'Mythic',nameEN:'Mythic',nameTH:'เทพปกรณัม',color:'#ff9030',weight:.9},
+  {name:'Mythic',nameEN:'Mythic',nameTH:'เทพปกรณัม',color:'#ff6060',weight:.9},
   {name:'Hidden',nameEN:'???',nameTH:'???',color:'#ffffff',weight:.1},
 ];
 function pickTier(){const r=Math.random()*100;let c=0;for(const T of TIERS){c+=T.weight;if(r<c)return T;}return TIERS[0];}
@@ -9323,25 +9328,27 @@ function renderCollection(){
   // Active tier filter — clicking any stat box below toggles it on/off.
   const activeTier = localStorage.getItem('mth_coll_tier') || 'all';
 
-  const stats = TIERS.map(T => {
+  // The Hidden ("???") tier stays a TRUE secret: its stat box is omitted
+  // entirely until the user has actually collected a Hidden-tier deity — no
+  // "0/0" teaser, no dimmed placeholder. Nobody learns the tier exists until
+  // they draw it. collectedByTier['Hidden'] only becomes >0 once a god whose
+  // CANONICAL tier is Hidden lands in the collection (see note below — the
+  // tier currently has 0 designed gods, so the row is hidden for everyone).
+  const _hiddenDiscovered = (collectedByTier['Hidden'] || 0) > 0;
+  const stats = TIERS.filter(T => T.name !== 'Hidden' || _hiddenDiscovered).map(T => {
     const got   = collectedByTier[T.name] || 0;
     const total = totalByTier[T.name] || 0;
     const pct   = total > 0 ? Math.round((got/total)*100) : 0;
     const label = isTh ? T.nameTH : T.nameEN;
     const on    = activeTier === T.name;
     const esc   = T.name.replace(/'/g, "\\'");
-    // Hidden tier ("???") is the 1-in-a-million Easter egg row — reduce its
-    // visual weight so first-time visitors don't read 0/0 as "broken empty
-    // state". Opacity dims it without removing it (see review L2).
-    const isHidden = T.name === 'Hidden';
-    const dim = isHidden ? 'opacity:0.55;' : '';
     // Box is click-to-filter. Active tier gets a thicker border + gentle bg.
     return `
       <div onclick="filterCollectionByTier('${esc}')"
            role="button" tabindex="0" aria-pressed="${on}"
            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterCollectionByTier('${esc}')}"
            title="${isTh?'คลิกเพื่อกรองแสดงเฉพาะระดับนี้':'Click to filter to this tier'}"
-           style="${dim}background:${on?('rgba(200,164,90,.08)'):('var(--bg2)')};border:1px solid ${on?T.color:'var(--border)'};border-left:3px solid ${T.color};border-radius:6px;padding:10px 12px;cursor:pointer;transition:all .15s"
+           style="background:${on?('rgba(200,164,90,.08)'):('var(--bg2)')};border:1px solid ${on?T.color:'var(--border)'};border-left:3px solid ${T.color};border-radius:6px;padding:10px 12px;cursor:pointer;transition:all .15s"
            onmouseover="this.style.background='rgba(200,164,90,.05)';this.style.borderColor='${T.color}'"
            onmouseout="this.style.background='${on?'rgba(200,164,90,.08)':'var(--bg2)'}';this.style.borderColor='${on?T.color:'var(--border)'}';this.style.borderLeftColor='${T.color}'">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px">
@@ -9400,7 +9407,7 @@ function renderCollection(){
         const symCell = art
           ? `<img src="${art}" alt="" loading="lazy" style="width:76px;height:76px;border-radius:6px;image-rendering:pixelated" onerror="this.replaceWith(document.createTextNode('${info.symbol}'))">`
           : info.symbol;
-        return `<div onclick="openGodDetail('${esc}')" role="button" tabindex="0" aria-label="${esc} — ${info.tier}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openGodDetail('${esc}')}" style="background:var(--bg2);border:1px solid var(--border);border-top:2px solid ${T.color};border-radius:6px;padding:14px 10px;text-align:center;cursor:pointer;transition:transform .15s,border-color .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='var(--gold3)'" onmouseout="this.style.transform='';this.style.borderColor='var(--border)'" onfocus="this.style.borderColor='var(--gold3)'" onblur="this.style.borderColor='var(--border)'">
+        return `<div onclick="openGodDetail('${esc}')" role="button" tabindex="0" aria-label="${esc} — ${info.tier}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openGodDetail('${esc}')}" style="background:var(--bg2);border:1px solid var(--border);border-top:2px solid ${T.color};border-radius:6px;padding:14px 10px;text-align:center;cursor:pointer;overflow:hidden;transition:transform .15s,border-color .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='var(--gold3)'" onmouseout="this.style.transform='';this.style.borderColor='var(--border)'" onfocus="this.style.borderColor='var(--gold3)'" onblur="this.style.borderColor='var(--border)'">
           <div style="font-size:34px;margin-bottom:6px;line-height:1">${symCell}</div>
           <div style="font-family:'Cinzel Decorative',serif;font-size:12px;color:var(--gold);line-height:1.3">${name}</div>
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:${T.color};letter-spacing:1px;margin-top:3px">${info.tier}</div>

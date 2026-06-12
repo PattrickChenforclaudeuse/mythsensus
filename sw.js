@@ -319,7 +319,12 @@
 // email with the signed-in account email (real emails only) so the sale is
 // recorded under the same address the app queries → auto-restores. LINE
 // pseudo-emails still use the manual "Unlock with email" / need LINE email scope.
-const CACHE = 'mythsensus-v114';
+// v115: 2026-06-12 — god tier colours corrected to the standard rarity ramp +
+// the app's own --green/--blue/--red palette: Uncommon was blue / Rare was green
+// (swapped) → Uncommon #4aba50 green, Rare #6090c0 blue; Mythic #ff9030 orange →
+// #ff6060 red. Single TIERS source, so collection grid / blessing card / history
+// all follow.
+const CACHE = 'mythsensus-v115';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
