@@ -6249,6 +6249,24 @@ function _gumroadCheckout(itemKey){
     : { url: _GUMROAD_SUBSCRIBE_URL, kind: 'subscription', permalink: 'tlkfx' };
 }
 
+// Open a Gumroad checkout robustly. In a STANDALONE / installed PWA (esp. iOS
+// Safari), window.open(url,'_blank') silently fails — there is no browser chrome
+// to host a new tab — so the buy button appears to "do nothing". Popup blockers
+// produce the same null/blocked return. Detect standalone, and treat a
+// null/immediately-closed window as the cue to navigate THIS window instead.
+// Gumroad redirects back to /?gr=1 after purchase, which _handleGumroadReturn()
+// already restores, so same-window checkout round-trips cleanly. (2026-06-12)
+function _openCheckout(url){
+  try {
+    const standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+      || window.navigator.standalone === true;
+    if (!standalone) {
+      const w = window.open(url, '_blank', 'noopener');
+      if (w && !w.closed) return;   // new tab opened fine — keep the app open
+    }
+  } catch(_) { /* fall through to same-window navigation */ }
+  try { location.href = url; } catch(__){}
+}
 function _purchaseItem(itemKey, opts){
   const isTh = LANG === 'th';
   const checkout = _gumroadCheckout(itemKey);
@@ -6260,7 +6278,7 @@ function _purchaseItem(itemKey, opts){
       : (isTh ? '✦ สมัครสมาชิก $8.99/เดือน → ปลดล็อกทุกศาสตร์' : '✦ Subscribe $8.99/mo → unlock everything'));
   } catch(_){}
   try { if (typeof _logEngagement === 'function') _logEngagement('purchase_click:' + (itemKey || 'unknown') + ':' + checkout.kind); } catch(_){}
-  window.open(checkout.url, '_blank', 'noopener');
+  _openCheckout(checkout.url);
   return false;
 }
 
@@ -6272,7 +6290,7 @@ function _purchaseSubscription(source){
     _showSyncToast(isTh ? '✦ สมัครสมาชิก $8.99/เดือน → ปลดล็อกทุกศาสตร์' : '✦ Subscribe $8.99/mo → unlock everything');
   } catch(_){}
   try { if (typeof _logEngagement === 'function') _logEngagement('subscribe_click:' + (source || 'unknown')); } catch(_){}
-  window.open(_GUMROAD_SUBSCRIBE_URL, '_blank', 'noopener');
+  _openCheckout(_GUMROAD_SUBSCRIBE_URL);
   return false;
 }
 

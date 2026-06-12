@@ -304,7 +304,14 @@
 // soft cap (no server cost to a draw).
 // Bump CACHE so clients re-fetch the corrected index.html + gods.json instead
 // of serving the stale copies.
-const CACHE = 'mythsensus-v112';
+// v113: 2026-06-12 — buy buttons did nothing inside the installed PWA. The
+// Cosmic Blueprint ($19) + all add-on checkouts called window.open(url,'_blank'),
+// which silently fails in a standalone/iOS PWA (no browser chrome for a new tab)
+// and is killed by popup blockers. New _openCheckout() detects standalone (and a
+// null/blocked popup) and falls back to same-window navigation; Gumroad redirects
+// back to /?gr=1 (_handleGumroadReturn) so the round-trip still unlocks. Product
+// mbkayz confirmed PUBLISHED at $19 via Gumroad API — this was purely the opener.
+const CACHE = 'mythsensus-v113';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
