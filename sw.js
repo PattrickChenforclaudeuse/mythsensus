@@ -331,7 +331,14 @@
 // an engine change between saves → 757 vs 771 rows) — renderSavedReports now
 // dedupes by normalized name+dob keeping the newest ts and persists the cleaned
 // list, so re-opening matches the row shown.
-const CACHE = 'mythsensus-v116';
+// v117: 2026-06-12 — Secret "YOUR DESTINY HAS CHANGED" event (the 1-in-a-million
+// Hidden "???" tier): every draw now plays a ~2.5s reveal spin so the rare pull
+// can't be spotted by timing; the ??? roll branches to a glitch sequence
+// (tremor → garbled murky signal → void → a presence types broken fragments
+// that accumulate → the verdict, close-only), true 1-in-a-million odds, and a
+// masked collection row that only appears once hit. Plus God Collection chip
+// overflow fix + the ??? row stays hidden until drawn. Bump to evict stale HTML.
+const CACHE = 'mythsensus-v117';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

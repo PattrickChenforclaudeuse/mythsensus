@@ -11398,7 +11398,10 @@ function renderCollection(){
   // Active tier filter — clicking any stat box below toggles it on/off.
   const activeTier = localStorage.getItem('mth_coll_tier') || 'all';
 
-  const stats = TIERS.map(T => {
+  // Hidden ("???") tier stays a true secret — its stat box is omitted until
+  // the user has actually collected a Hidden-tier deity. No "0/0" teaser.
+  const _hiddenDiscovered = (collectedByTier['Hidden'] || 0) > 0;
+  const stats = TIERS.filter(T => T.name !== 'Hidden' || _hiddenDiscovered).map(T => {
     const got   = collectedByTier[T.name] || 0;
     const total = totalByTier[T.name] || 0;
     const pct   = total > 0 ? Math.round((got/total)*100) : 0;

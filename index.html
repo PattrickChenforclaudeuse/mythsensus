@@ -3483,8 +3483,13 @@ const TIERS=[
   {name:'Rare',nameEN:'Rare',nameTH:'หายาก',color:'#6090c0',weight:18},
   {name:'Epic',nameEN:'Epic',nameTH:'มหากาพย์',color:'#b070e0',weight:9},
   {name:'Legendary',nameEN:'Legendary',nameTH:'ตำนาน',color:'#c8a45a',weight:4},
-  {name:'Mythic',nameEN:'Mythic',nameTH:'เทพปกรณัม',color:'#ff6060',weight:.9},
-  {name:'Hidden',nameEN:'???',nameTH:'???',color:'#ffffff',weight:.1},
+  // Mythic absorbs Hidden's old 0.0999 so TIERS still sum to exactly 100.
+  {name:'Mythic',nameEN:'Mythic',nameTH:'เทพปกรณัม',color:'#ff6060',weight:.9999},
+  // Hidden ("???") = the secret "YOUR DESTINY HAS CHANGED" event, NOT a god.
+  // weight 0.0001 / 100 = 1e-6 → a true 1-in-1,000,000 roll (director intent,
+  // confirmed 2026-06-12; the old 0.1 was a drift from the 2026-03-29 design
+  // chat). Rolling it hands off to the glitch event, not a god card.
+  {name:'Hidden',nameEN:'???',nameTH:'???',color:'#ffffff',weight:.0001},
 ];
 function pickTier(){const r=Math.random()*100;let c=0;for(const T of TIERS){c+=T.weight;if(r<c)return T;}return TIERS[0];}
 function godsOfTier(T){
@@ -3580,55 +3585,250 @@ function renderBlessingRecentPreview(){
     </div>`).join('');
   wrap.style.display='block';
 }
-async function drawBlessing(){
-  if(draws>=_maxDraws())return;
-  await loadGods();
-  const T=pickTier();
-  // Build the candidate pool, then exclude deities the user has already
-  // drawn in the last 7 days. This stops "Nanna Sumerian" landing twice
-  // in a single week with an identical message — looked spammy and broke
-  // the sense of cosmic novelty.
-  let pool=godsOfTier(T);
-  try {
-    const cutoff = Date.now() - 7 * 86400_000;
-    const recent = (typeof getFullHistory==='function' ? getFullHistory() : [])
-      .filter(h => h && h.type === 'blessing' && h.timestamp >= cutoff)
-      .map(h => h.god?.name)
-      .filter(Boolean);
-    const recentSet = new Set(recent);
-    const filtered = pool.filter(g => !recentSet.has(g.name));
-    // Only apply the filter if it leaves a viable pool. Tiny tiers
-    // (e.g. Hidden = 1-in-a-million) might empty out — fall back to the
-    // unfiltered pool rather than block the draw entirely.
-    if (filtered.length >= 3) pool = filtered;
-  } catch(_) { /* fall through with original pool */ }
-  const god=pool[Math.floor(Math.random()*pool.length)];draws++;
-  // Pick the message + remember its index so share can deep-link back to
-  // exactly this card. For single-message gods msgIdx is always 0; once the
-  // dataset gains multi-message arrays (rare tiers first), the random pick
-  // happens here and the index travels through to the shared URL.
-  const arr=(LANG==='th'?god.messages_th:god.messages_en)||god.messages||[];
-  const msgIdx=arr.length>1?Math.floor(Math.random()*arr.length):0;
-  const message=arr[msgIdx]||randMsg(god);
-  const card=document.getElementById('godCard');card.classList.remove('revealed');void card.offsetWidth;
-  document.getElementById('tierBadge').textContent=LANG==='th'?T.nameTH:T.nameEN;
-  document.getElementById('tierBadge').style.cssText=`background:${T.color}22;color:${T.color};border:1px solid ${T.color}55`;
-  // Show the Epic+ pixel-art portrait on the freshly-drawn card (falls back to
-  // god.symbol for tiers without art / on load error). Was textContent=symbol,
-  // so the draw card always rendered the bare emoji and NEVER the webp — the
-  // 216 portraits only appeared on shared deep-links + the modal (_godArtInto
-  // there). Now the draw flow matches _renderGodCard / the god-detail modal.
-  _godArtInto(document.getElementById('godSymbol'), god, 160, 'box-shadow:0 8px 30px rgba(200,164,90,.25)');
-  document.getElementById('godName').textContent=god.name;
-  document.getElementById('godOrigin').textContent=god.mythology||'';
-  document.getElementById('godMessage').textContent='"'+message+'"';
-  document.getElementById('godRepresents').innerHTML=(typeof _godCategoryChips==='function'?_godCategoryChips(god,4):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).map(esc).join(' · ')}</div>`;
-  _currentDraw={god,tier:T,msgIdx,message};
-  const sb=document.getElementById('godShareBtn');
-  if(sb){sb.style.display='inline-block';sb.textContent=(LANG==='th'?'✦ แชร์พรนี้':'✦ Share this blessing');}
-  card.classList.add('revealed');updateBlessingStatus();blessHistory.unshift({T,god});renderHistory();saveBlessings();saveBlessingToHistory(god, T, message, msgIdx);markMsgSeen(god.name, msgIdx);
-  if(draws>=_maxDraws()){const b=document.getElementById('drawBtn');b.disabled=true;b.textContent=t('blessing_used');}
+// ════════════════════════════════════════
+// DRAW INTERIM + the secret ??? "YOUR DESTINY HAS CHANGED" event
+// ════════════════════════════════════════
+// The ??? (Hidden) tier is NOT a god — it's a 1-in-a-million glitch event,
+// retraced from the 2026-03-29 design chat (see memory
+// project_hidden_tier_destiny_event). EVERY draw now plays a short "revealing"
+// interim first, so a ??? roll can't be spotted by its timing — it only reveals
+// itself once the corruption starts. The event: a card tries to show a god but
+// its name + text come out glitched/unreadable → dissolves → void → types
+// "YOUR DESTINY HAS CHANGED" (no god, no tier) → SHARE.
+const _REVEAL_GLYPHS = ['✦','✧','⟡','✷','✶','❂','✴','⟐','✹','❉','⊹','✺'];
+const _GLITCH_CHARS  = 'АБВГДΣΩΔΦΨ0123456789#%&@$≈≠∞▲▼◆●█░▒▓ᚠᚢᚦᚨᚱᚲ⟁⟐✦✷ฬฆฑฌญ';
+function _glitchStr(n){ let s=''; for(let i=0;i<n;i++) s+=_GLITCH_CHARS[Math.floor(Math.random()*_GLITCH_CHARS.length)]; return s; }
+// The app's other sleep() lives in a different closure — not reachable here.
+// Provide a local one used by every function in this block.
+const _sleep = ms => new Promise(r => setTimeout(r, ms));
+let _glitchStylesInjected=false;
+function _injectGlitchStyles(){
+  if(_glitchStylesInjected)return; _glitchStylesInjected=true;
+  const st=document.createElement('style');
+  st.textContent='@keyframes msPulse{0%,100%{opacity:.5;transform:scale(1);filter:blur(0)}50%{opacity:.95;transform:scale(1.06);filter:blur(.4px)}}@keyframes msShake{0%{transform:translate(-2px,1px)}20%{transform:translate(2px,-2px)}40%{transform:translate(-2px,2px)}60%{transform:translate(2px,1px)}80%{transform:translate(-1px,-2px)}100%{transform:translate(1px,0)}}@keyframes msCardGlitch{0%{transform:translate(0,0) skewX(0)}25%{transform:translate(-3px,1px) skewX(-1deg);box-shadow:-3px 0 #ff003c66,3px 0 #00ffcc66}50%{transform:translate(2px,-1px) skewX(.5deg)}75%{transform:translate(-1px,2px) skewX(-.5deg);box-shadow:3px 0 #ff003c66,-3px 0 #00ffcc66}100%{transform:translate(1px,-1px) skewX(0)}}@keyframes msFragFade{0%{opacity:0}15%{opacity:.6}80%{opacity:.6}100%{opacity:0}}';
+  document.head.appendChild(st);
 }
+// Slot-reel symbol spin shared by every draw.
+let _interimTimer=null;
+function _stopInterim(){ if(_interimTimer){clearInterval(_interimTimer);_interimTimer=null;} }
+async function _playDrawInterim(ms){
+  _injectGlitchStyles();
+  const card=document.getElementById('godCard'); if(!card)return;
+  card.classList.remove('revealed'); void card.offsetWidth;
+  card.style.cssText='';
+  const badge=document.getElementById('tierBadge'); if(badge){badge.textContent='';badge.style.cssText='';}
+  const nm=document.getElementById('godName'); if(nm){nm.textContent='';nm.style.cssText='';}
+  const og=document.getElementById('godOrigin'); if(og){og.textContent='';og.style.cssText='';}
+  const rep=document.getElementById('godRepresents'); if(rep)rep.innerHTML='';
+  const msg=document.getElementById('godMessage'); if(msg){msg.style.cssText='';msg.textContent=(LANG==='th'?'กำลังเปิดเผย…':'REVEALING…');}
+  const sb=document.getElementById('godShareBtn'); if(sb)sb.style.display='none';
+  const sym=document.getElementById('godSymbol');
+  card.classList.add('revealed');
+  if(sym){ sym.innerHTML=''; sym.style.cssText='font-size:60px;color:var(--gold);opacity:.85;animation:msPulse 1s ease-in-out infinite'; let i=0; sym.textContent=_REVEAL_GLYPHS[0];
+    _interimTimer=setInterval(()=>{ i=(i+1)%_REVEAL_GLYPHS.length; sym.textContent=_REVEAL_GLYPHS[i]; },90); }
+  await _sleep(ms); _stopInterim();
+}
+// WebAudio hum — ??? glitch only (director: sound on ??? only). Needs the draw
+// click as the user gesture; if the context can't start it just stays silent.
+let _glitchAudio=null;
+function _startGlitchHum(){
+  try{ const Ctx=window.AudioContext||window.webkitAudioContext; if(!Ctx)return;
+    const ac=new Ctx(); const osc=ac.createOscillator(); const g=ac.createGain();
+    osc.type='sine'; osc.frequency.setValueAtTime(42,ac.currentTime);
+    g.gain.setValueAtTime(0,ac.currentTime); osc.connect(g); g.connect(ac.destination); osc.start();
+    g.gain.linearRampToValueAtTime(0.16,ac.currentTime+1.2);
+    osc.frequency.linearRampToValueAtTime(28,ac.currentTime+3);
+    _glitchAudio={ac,osc,g};
+  }catch(_){}
+}
+function _stopGlitchHum(){ try{ if(!_glitchAudio)return; const {ac,osc,g}=_glitchAudio; g.gain.linearRampToValueAtTime(0,ac.currentTime+0.5); setTimeout(()=>{try{osc.stop();ac.close();}catch(_){}} ,600); _glitchAudio=null; }catch(_){} }
+async function _typeGlitch(el,text){
+  if(!el)return; el.textContent=''; el.style.opacity='1';
+  for(let i=0;i<text.length;i++){ const ch=text[i];
+    if(ch!==' '&&Math.random()>0.55){ el.textContent+=_GLITCH_CHARS[Math.floor(Math.random()*_GLITCH_CHARS.length)]; await _sleep(35+Math.random()*55); el.textContent=el.textContent.slice(0,-1)+ch; }
+    else el.textContent+=ch;
+    await _sleep(45+Math.random()*90);
+  }
+}
+// Broken, cryptic fragments that drift up in the void BEFORE the verdict — an
+// unseen presence transmitting through the corruption, half-legible, never
+// resolving (director: "text ขาดๆหายๆ อ่านแล้วไม่เข้าใจ").
+const _FRAG_TH=['ข้าเดินทางมานาน......','......ในทุกช่วงเวลา......','......เห็นเจ้า......ก่อนเจ้าจะมี','เส้นด้ายที่ถักไว้......คลายแล้ว','......สิ่งที่เคยถูกเขียน......ถูกลบได้','......ไม่ใช่ที่นี่......ไม่ใช่ตอนนี้......','......ข้าจำเจ้าได้......เจ้าจำข้าได้ไหม','......อย่าเพิ่งกลัว......'];
+const _FRAG_EN=['i have walked so long......','......through every age......','......i saw you......before you were','the thread once woven......comes loose','......what was written......is unwritten','......not here......not now......','......i remember you......do you remember','......do not be afraid......yet'];
+async function _floatFragments(el){
+  if(!el)return;
+  const pool=(typeof LANG!=='undefined'&&LANG==='th')?_FRAG_TH:_FRAG_EN;
+  const arr=pool.slice();
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;}
+  // A vast presence writes through the corruption, line by line. Typed char by
+  // char with DELIBERATELY UNEVEN rhythm + hesitations (director: it read too
+  // metronomic), and the lines ACCUMULATE — nothing fades; the whole transmission
+  // stays on screen right up to the verdict (director: "ค้างอยู่จนขึ้น your
+  // destiny"). JS-driven (CSS anims don't advance on the fresh overlay here).
+  el.style.transition='none'; el.style.animation=''; el.style.opacity='0.6';
+  const lines=[];
+  // Random count (2–4) so the transmission length varies each time — never the
+  // same fixed number of lines (director: "มันยังมีจำนวนเท่ากัน").
+  for(const frag of arr.slice(0, 2+Math.floor(Math.random()*3))){
+    const prefix = lines.length ? lines.join('\n')+'\n' : '';
+    let typed='';
+    for(let i=0;i<frag.length;i++){
+      const ch=frag[i];
+      // occasional wrong glyph that settles to the real character
+      if(ch!=='.'&&ch!==' '&&Math.random()>0.76){ el.textContent=prefix+typed+_GLITCH_CHARS[Math.floor(Math.random()*_GLITCH_CHARS.length)]; await _sleep(26+Math.random()*40); }
+      typed+=ch; el.textContent=prefix+typed;
+      // uneven cadence: long breaths at spaces, slow varied letters, dots that
+      // trail; plus a random hesitation as if searching for the next word
+      let d = ch==='.' ? 40+Math.random()*120 : (ch===' ' ? 130+Math.random()*260 : 55+Math.random()*210);
+      if(Math.random()<0.09) d += 280+Math.random()*560;
+      await _sleep(d);
+    }
+    lines.push(frag); el.textContent=lines.join('\n');
+    await _sleep(560+Math.random()*620);
+  }
+  // leave the full transmission on screen — the verdict types in below it
+}
+function _buildGlitchOverlay(){
+  const old=document.getElementById('destinyOverlay'); if(old)old.remove();
+  const ov=document.createElement('div'); ov.id='destinyOverlay';
+  ov.style.cssText="position:fixed;inset:0;z-index:99999;pointer-events:none;font-family:'Courier New',monospace";
+  ov.innerHTML=`<div class="ms-chars" style="position:absolute;inset:0;overflow:hidden"></div>
+    <div class="ms-black" style="position:absolute;inset:0;background:#000;opacity:0;transition:opacity .15s"></div>
+    <div class="ms-center" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;width:92%">
+      <div class="ms-frag" style="font-family:'Courier New',monospace;font-size:13px;letter-spacing:1.5px;line-height:2.1;color:#8a857a;text-shadow:1px 0 #ff003c55,-1px 0 #00ffcc55;opacity:0;max-width:290px;margin-bottom:22px;white-space:pre-line"></div>
+      <div class="ms-msg" style="font-size:clamp(18px,5.2vw,34px);letter-spacing:4px;color:#c2bcb0;text-shadow:2px 0 #ff003c66,-2px 0 #00ffcc66;white-space:nowrap;opacity:0"></div>
+      <div class="ms-sub" style="margin-top:14px;font-size:13px;letter-spacing:3px;color:rgba(154,148,138,.6)"></div>
+      <div class="ms-exit" style="display:none;margin-top:32px;font-size:12px;letter-spacing:2px;color:rgba(154,148,138,.55);cursor:pointer;pointer-events:all">— close —</div>
+    </div>`;
+  document.body.appendChild(ov); return ov;
+}
+function _saveDestinyEvent(){
+  // Durable flag so the collection ??? row stays revealed even after the capped
+  // mth_full_history trims the event row. (Lighter than a hardened ledger.)
+  try{ localStorage.setItem('mth_destiny_hit', new Date().toISOString()); }catch(_){}
+  try{ if(typeof saveToFullHistory==='function') saveToFullHistory({type:'destiny',ts:Date.now(),
+      date:new Date().toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}),
+      time:new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}),
+      message:'YOUR DESTINY HAS CHANGED'}); }catch(_){}
+}
+function _exitDestiny(ov,card){
+  _stopGlitchHum(); if(ov)ov.remove();
+  if(card){ card.classList.remove('revealed'); card.style.cssText=''; }
+  _destinyRunning=false;
+  try{ if(typeof renderCollection==='function') renderCollection(); }catch(_){}
+}
+let _destinyRunning=false;
+async function _playDestinyGlitch(){
+  if(_destinyRunning)return; _destinyRunning=true;
+  _injectGlitchStyles(); _stopInterim(); _startGlitchHum();
+  const card=document.getElementById('godCard');
+  const sym=document.getElementById('godSymbol'), nm=document.getElementById('godName'), msg=document.getElementById('godMessage');
+  const badge=document.getElementById('tierBadge'), og=document.getElementById('godOrigin'), rep=document.getElementById('godRepresents');
+  const sb=document.getElementById('godShareBtn'); if(sb)sb.style.display='none';
+  if(og)og.textContent=''; if(rep)rep.innerHTML='';
+  // ── Phase 0: tremor — the card SHAKES first (still mid-reveal), a warning
+  // before anything corrupts. Murky desaturated tone, no clean white. ──
+  if(sym)sym.style.cssText='font-size:60px;color:#8f897e;opacity:.85;text-shadow:1px 0 #ff003c55,-1px 0 #00ffcc55';
+  if(card)card.style.animation='msShake .07s steps(2) infinite';
+  await _sleep(750);
+  // ── Phase A: text then breaks down into garbled ???? — grimy/glitchy, ash
+  // tones + chromatic aberration so it reads as a corrupted signal, not clean ──
+  const _gc='color:#9a948a;text-shadow:1px 0 #ff003c66,-1px 0 #00ffcc66';
+  if(badge){badge.textContent='????';badge.style.cssText='background:rgba(150,148,138,.08);color:#9a948a;border:1px solid rgba(150,148,138,.32);letter-spacing:3px;text-shadow:1px 0 #ff003c55,-1px 0 #00ffcc55';}
+  if(card)card.style.animation='msCardGlitch .12s steps(2) infinite';
+  const scA=setInterval(()=>{
+    if(nm){nm.textContent=_glitchStr(5+Math.floor(Math.random()*7));nm.style.cssText=_gc;}
+    if(msg){msg.textContent='"'+_glitchStr(12+Math.floor(Math.random()*18))+'"';msg.style.cssText='font-style:italic;'+_gc;}
+    if(sym)sym.textContent=_GLITCH_CHARS[Math.floor(Math.random()*_GLITCH_CHARS.length)];
+  },70);
+  await _sleep(1500); clearInterval(scA);
+  // ── Phase B: dissolve the card + corruption flood ──
+  const ov=_buildGlitchOverlay(); const charLayer=ov.querySelector('.ms-chars'); const black=ov.querySelector('.ms-black');
+  const flood=setInterval(()=>{
+    if(charLayer.children.length>140){ for(let i=0;i<12&&charLayer.firstChild;i++)charLayer.removeChild(charLayer.firstChild); }
+    const s=document.createElement('span'); s.textContent=_GLITCH_CHARS[Math.floor(Math.random()*_GLITCH_CHARS.length)];
+    const col=Math.random()>0.85?'#ff003c':(Math.random()>0.7?'#00ffcc':'#8c8880');
+    s.style.cssText=`position:absolute;left:${Math.random()*100}%;top:${Math.random()*100}%;font-size:${12+Math.random()*34}px;opacity:${0.05+Math.random()*0.3};color:${col};transform:rotate(${Math.random()*360}deg)`;
+    charLayer.appendChild(s); setTimeout(()=>{try{s.remove();}catch(_){}},200+Math.random()*350);
+  },28);
+  if(card){ card.style.animation=''; card.style.transition='opacity .9s,filter .9s,transform .9s'; card.style.opacity='0'; card.style.filter='blur(16px) brightness(2)'; card.style.transform='scale(.55) skewX(9deg)'; }
+  await _sleep(450);
+  for(let i=0;i<7;i++){ black.style.opacity=Math.random()>0.4?'1':'0'; await _sleep(70+Math.random()*160); }
+  // ── Phase C: the void ──
+  clearInterval(flood); while(charLayer.firstChild)charLayer.removeChild(charLayer.firstChild);
+  black.style.transition='opacity .25s'; black.style.opacity='1'; _stopGlitchHum();
+  await _sleep(700);
+  // ── Phase D: a vast presence writes through the void, fragment by fragment ──
+  await _floatFragments(ov.querySelector('.ms-frag'));
+  await _sleep(450);
+  // ── Phase E: the verdict — no god, no tier, just the words ──
+  await _typeGlitch(ov.querySelector('.ms-msg'),'YOUR DESTINY HAS CHANGED');
+  if(LANG==='th'){ const sub=ov.querySelector('.ms-sub'); if(sub)sub.textContent='โชคชะตาของคุณ…ได้เปลี่ยนไปแล้ว'; }
+  // ── Phase F: close only — NO share button (director) ──
+  await _sleep(1100);
+  const exitBtn=ov.querySelector('.ms-exit');
+  if(exitBtn){ exitBtn.style.display='block'; exitBtn.onclick=()=>_exitDestiny(ov,card); }
+  _saveDestinyEvent();
+}
+
+let _drawing=false, _forceHidden=false;
+async function drawBlessing(){
+  if(_drawing || draws>=_maxDraws())return;
+  _drawing=true;
+  await loadGods();
+  // Roll rarity. Test hook: window._forceNextHidden() forces the next ??? event.
+  let T = _forceHidden ? (TIERS.find(x=>x.name==='Hidden')||pickTier()) : pickTier();
+  _forceHidden=false;
+  // Lock the draw NOW so the ~1.5s interim can't be double-spent by spamming.
+  draws++; updateBlessingStatus();
+  try{
+    await _playDrawInterim(2500);   // ~2.5s reveal spin (director: longer build-up before the result)
+    // ── The 1-in-a-million: hand off to the glitch event (NOT a god) ──
+    if(T.name==='Hidden'){
+      await _playDestinyGlitch();
+      try{ blessHistory.unshift({T,god:{name:'???',symbol:'❔',mythology:''}}); renderHistory(); saveBlessings(); }catch(_){}
+      return;
+    }
+    // ── Normal reveal (Common→Mythic) ──
+    // Candidate pool minus deities drawn in the last 7 days (kills back-to-back
+    // duplicate blessings); fall back to the full pool if that empties it.
+    let pool=godsOfTier(T);
+    try {
+      const cutoff = Date.now() - 7 * 86400_000;
+      const recent = (typeof getFullHistory==='function' ? getFullHistory() : [])
+        .filter(h => h && h.type === 'blessing' && h.timestamp >= cutoff)
+        .map(h => h.god?.name).filter(Boolean);
+      const recentSet = new Set(recent);
+      const filtered = pool.filter(g => !recentSet.has(g.name));
+      if (filtered.length >= 3) pool = filtered;
+    } catch(_) {}
+    const god=pool[Math.floor(Math.random()*pool.length)];
+    const arr=(LANG==='th'?god.messages_th:god.messages_en)||god.messages||[];
+    const msgIdx=arr.length>1?Math.floor(Math.random()*arr.length):0;
+    const message=arr[msgIdx]||randMsg(god);
+    const card=document.getElementById('godCard');card.classList.remove('revealed');void card.offsetWidth;
+    const badge=document.getElementById('tierBadge'); badge.textContent=LANG==='th'?T.nameTH:T.nameEN;
+    badge.style.cssText=`background:${T.color}22;color:${T.color};border:1px solid ${T.color}55`;
+    const sym=document.getElementById('godSymbol'); sym.style.cssText='';   // clear interim spin styles
+    _godArtInto(sym, god, 160, 'box-shadow:0 8px 30px rgba(200,164,90,.25)');
+    document.getElementById('godName').textContent=god.name;
+    document.getElementById('godOrigin').textContent=god.mythology||'';
+    document.getElementById('godMessage').textContent='"'+message+'"';
+    document.getElementById('godRepresents').innerHTML=(typeof _godCategoryChips==='function'?_godCategoryChips(god,4):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).map(esc).join(' · ')}</div>`;
+    _currentDraw={god,tier:T,msgIdx,message};
+    const sb=document.getElementById('godShareBtn');
+    if(sb){sb.style.display='inline-block';sb.textContent=(LANG==='th'?'✦ แชร์พรนี้':'✦ Share this blessing');}
+    card.classList.add('revealed');blessHistory.unshift({T,god});renderHistory();saveBlessings();saveBlessingToHistory(god, T, message, msgIdx);markMsgSeen(god.name, msgIdx);
+    updateBlessingStatus();   // refresh status + hide the recent-preview now that a card is revealed
+  } finally {
+    _drawing=false;
+    if(draws>=_maxDraws()){const b=document.getElementById('drawBtn');if(b){b.disabled=true;b.textContent=t('blessing_used');}}
+  }
+}
+// Test hooks (preview/DevTools): force the next draw to be the ??? event, or
+// play the glitch sequence directly without consuming a draw.
+window._forceNextHidden=()=>{_forceHidden=true;};
+window._forceDestinyGlitch=()=>_playDestinyGlitch();
 
 // Render an arbitrary god card without consuming a draw. Used by drawBlessing
 // (indirectly — drawBlessing inlines the same logic for animation control)
@@ -9329,11 +9529,14 @@ function renderCollection(){
   const activeTier = localStorage.getItem('mth_coll_tier') || 'all';
 
   // The Hidden ("???") tier stays a TRUE secret: its stat box is omitted
-  // entirely until the user has actually collected a Hidden-tier deity — no
-  // "0/0" teaser, no dimmed placeholder. Nobody learns the tier exists until
-  // they draw it. collectedByTier['Hidden'] only becomes >0 once a god whose
-  // CANONICAL tier is Hidden lands in the collection (see note below — the
-  // tier currently has 0 designed gods, so the row is hidden for everyone).
+  // entirely until the user has actually triggered the "YOUR DESTINY HAS
+  // CHANGED" event — no "0/0" teaser, no dimmed placeholder. The ??? is NOT a
+  // god (no catalogued entry), so the reveal keys off a durable flag set by the
+  // event (mth_destiny_hit) + any 'destiny' history row, then shows as 1/1.
+  let _destinyHit=false;
+  try{ _destinyHit=!!localStorage.getItem('mth_destiny_hit'); }catch(_){}
+  if(!_destinyHit) _destinyHit = hist.some(h => h && h.type === 'destiny');
+  if(_destinyHit){ totalByTier['Hidden']=1; collectedByTier['Hidden']=1; }
   const _hiddenDiscovered = (collectedByTier['Hidden'] || 0) > 0;
   const stats = TIERS.filter(T => T.name !== 'Hidden' || _hiddenDiscovered).map(T => {
     const got   = collectedByTier[T.name] || 0;
@@ -9394,6 +9597,9 @@ function renderCollection(){
   const entries = activeTier === 'all'
     ? allEntries
     : allEntries.filter(([,info]) => info.tier === activeTier);
+  // The secret ??? event has no catalogued god — surface a single masked card
+  // once hit (original design: "no name, no image, just ???").
+  if (_destinyHit && (activeTier === 'all' || activeTier === 'Hidden')) entries.push(['???', {symbol:'❔', tier:'Hidden'}]);
 
   // Name → full god lookup so each grid card can show its category tag.
   const _godPool = (typeof GODS_FULL !== 'undefined' && Array.isArray(GODS_FULL)) ? GODS_FULL : (Array.isArray(GODS) ? GODS : []);
@@ -9402,7 +9608,7 @@ function renderCollection(){
     ? entries.map(([name,info])=>{
         const T = TIERS.find(x => x.name === info.tier) || {color:'var(--gold)'};
         const esc = name.replace(/'/g, "\\'");
-        const catChip = (typeof _godCategoryChips === 'function') ? _godCategoryChips(_godByName[name], 1) : '';
+        const catChip = (typeof _godCategoryChips === 'function' && _godByName[name]) ? _godCategoryChips(_godByName[name], 1) : '';
         const art = (typeof _godArtUrl === 'function') ? _godArtUrl(name, info.tier) : null;
         const symCell = art
           ? `<img src="${art}" alt="" loading="lazy" style="width:76px;height:76px;border-radius:6px;image-rendering:pixelated" onerror="this.replaceWith(document.createTextNode('${info.symbol}'))">`
@@ -9410,7 +9616,7 @@ function renderCollection(){
         return `<div onclick="openGodDetail('${esc}')" role="button" tabindex="0" aria-label="${esc} — ${info.tier}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openGodDetail('${esc}')}" style="background:var(--bg2);border:1px solid var(--border);border-top:2px solid ${T.color};border-radius:6px;padding:14px 10px;text-align:center;cursor:pointer;overflow:hidden;transition:transform .15s,border-color .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='var(--gold3)'" onmouseout="this.style.transform='';this.style.borderColor='var(--border)'" onfocus="this.style.borderColor='var(--gold3)'" onblur="this.style.borderColor='var(--border)'">
           <div style="font-size:34px;margin-bottom:6px;line-height:1">${symCell}</div>
           <div style="font-family:'Cinzel Decorative',serif;font-size:12px;color:var(--gold);line-height:1.3">${name}</div>
-          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:${T.color};letter-spacing:1px;margin-top:3px">${info.tier}</div>
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:${T.color};letter-spacing:1px;margin-top:3px">${info.tier==='Hidden'?'???':info.tier}</div>
           ${catChip ? `<div style="margin-top:6px">${catChip}</div>` : ''}
         </div>`;
       }).join('')
@@ -13591,7 +13797,7 @@ const _SYNC_KEYS = [
   'mth_name','mth_dob','mth_time','mth_gender','mth_city',
   'mth_country','mth_career','mth_careerLevel','mth_industry','mth_lang','mth_gift','mth_gift_expiry','mth_purchased',
   'mth_gift_used_codes','mth_gift_consumed',
-  'mth_bless_date','mth_bless_count','mth_bless_history','mth_full_history','mth_msg_seen',
+  'mth_bless_date','mth_bless_count','mth_bless_history','mth_full_history','mth_msg_seen','mth_destiny_hit',
   'mth_coll_tier','ms_profiles','ms_saved_reports','ms_last_group'
 ];
 
