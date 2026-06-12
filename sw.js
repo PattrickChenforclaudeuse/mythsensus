@@ -338,7 +338,12 @@
 // that accumulate → the verdict, close-only), true 1-in-a-million odds, and a
 // masked collection row that only appears once hit. Plus God Collection chip
 // overflow fix + the ??? row stays hidden until drawn. Bump to evict stale HTML.
-const CACHE = 'mythsensus-v117';
+// v118: 2026-06-12 — first-party engagement tracking. Vercel Web Analytics
+// can't measure a single-page app (everything happens on '/' → engaged users
+// look like bounces, no dwell time). Added /api/track + a tiny client beacon
+// that logs ACTIVE dwell time + draw/rare/destiny/paywall/checkout counts to
+// public.myth_events on woam (PII-free, no AI cost). Bump to refresh HTML.
+const CACHE = 'mythsensus-v118';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

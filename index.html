@@ -3771,6 +3771,45 @@ async function _playDestinyGlitch(){
   _saveDestinyEvent();
 }
 
+// ════════════════════════════════════════
+// ENGAGEMENT TRACKING → /api/track → woam (public.myth_events)
+// ════════════════════════════════════════
+// Vercel Web Analytics can't measure engagement on this SPA — every in-app
+// action (draw, collection, organum) happens on '/' with no new pageview, so
+// engaged visitors register as "bounces". This logs ACTIVE dwell time + draw /
+// rare / destiny / paywall / checkout counts to our own table. PII-free (random
+// session id only), no AI cost. sendBeacon survives tab close.
+const _msAnalytics = (function(){
+  let sid;
+  try { sid = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now()+'-'+Math.random().toString(36).slice(2)); }
+  catch(_) { sid = Date.now()+'-'+Math.random().toString(36).slice(2); }
+  const s = { activeMs:0, lastTick:Date.now(), visible:(document.visibilityState!=='hidden'), draws:0, rare:0, paywall:0, sent:false };
+  function device(){ try { const w=Math.min(screen.width||9999, screen.height||9999); return w<600?'mobile':(w<1024?'tablet':'desktop'); } catch(_){ return 'desktop'; } }
+  function accrue(){ if(s.visible){ const now=Date.now(); s.activeMs += Math.max(0, now-s.lastTick); s.lastTick=now; } }
+  function post(payload){
+    try {
+      const data=JSON.stringify(payload);
+      if(navigator.sendBeacon){ navigator.sendBeacon('/api/track', new Blob([data],{type:'application/json'})); return; }
+      fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:data,keepalive:true}).catch(()=>{});
+    } catch(_){}
+  }
+  function row(extra){ return Object.assign({ sid, lang:(typeof LANG!=='undefined'?LANG:''), device:device(), path:location.pathname }, extra||{}); }
+  function track(event, extra){ post(row(Object.assign({event}, extra||{}))); }   // immediate beacon (rare/intent moments)
+  function sessionEnd(){ if(s.sent)return; accrue(); s.sent=true; track('session', { active_ms:s.activeMs, draws:s.draws, ref:((document.referrer||'').replace(/^https?:\/\//,'').split('/')[0])||null, meta:{rare:s.rare,paywall:s.paywall} }); }
+  // visibilitychange→hidden is the most reliable "leaving" signal (incl. mobile
+  // backgrounding); pagehide covers the rest. Fires once per page load (s.sent).
+  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden'){ accrue(); s.visible=false; sessionEnd(); } else { s.visible=true; s.lastTick=Date.now(); } });
+  window.addEventListener('pagehide', sessionEnd);
+  return {
+    drew(tier){ s.draws++; if(tier && /Legendary|Mythic/i.test(tier)) s.rare++; },
+    destiny(){ s.rare++; track('destiny'); },        // the 1-in-a-million — capture immediately
+    paywall(){ s.paywall++; },                        // counter only (paywall HTML can re-render) — count rides the session beacon
+    checkout(item){ track('checkout', { god:item||null }); },
+    track,
+  };
+})();
+window._msTrack = _msAnalytics;
+
 let _drawing=false, _forceHidden=false;
 async function drawBlessing(){
   if(_drawing || draws>=_maxDraws())return;
@@ -3786,6 +3825,7 @@ async function drawBlessing(){
     // ── The 1-in-a-million: hand off to the glitch event (NOT a god) ──
     if(T.name==='Hidden'){
       await _playDestinyGlitch();
+      try{ _msTrack.destiny(); }catch(_){}
       try{ blessHistory.unshift({T,god:{name:'???',symbol:'❔',mythology:''}}); renderHistory(); saveBlessings(); }catch(_){}
       return;
     }
@@ -3819,6 +3859,7 @@ async function drawBlessing(){
     const sb=document.getElementById('godShareBtn');
     if(sb){sb.style.display='inline-block';sb.textContent=(LANG==='th'?'✦ แชร์พรนี้':'✦ Share this blessing');}
     card.classList.add('revealed');blessHistory.unshift({T,god});renderHistory();saveBlessings();saveBlessingToHistory(god, T, message, msgIdx);markMsgSeen(god.name, msgIdx);
+    try{ _msTrack.drew(T.name); }catch(_){}
     updateBlessingStatus();   // refresh status + hide the recent-preview now that a card is revealed
   } finally {
     _drawing=false;
@@ -6462,6 +6503,7 @@ function _gumroadCheckout(itemKey){
 // Gumroad redirects back to /?gr=1 after purchase, which _handleGumroadReturn()
 // already restores, so same-window checkout round-trips cleanly. (2026-06-12)
 function _openCheckout(url){
+  try{ if(window._msTrack) _msTrack.checkout(); }catch(_){}
   try {
     const standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
       || window.navigator.standalone === true;
@@ -6672,6 +6714,7 @@ function _redeemGiftCodeSubmit(){
 }
 
 function _purchasePaywall(itemKey, opts){
+  try{ if(window._msTrack) _msTrack.paywall(); }catch(_){}
   const isTh = LANG === 'th';
   const price = PRICING[itemKey] || PRICING[String(itemKey).split('_')[0]] || { usd: 9, thb: 320 };
   const label   = (opts && opts.label)    || itemKey;
