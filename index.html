@@ -3518,7 +3518,14 @@ function randMsg(g){
 // ════════════════════════════════════════
 // GOD BLESSING
 // ════════════════════════════════════════
-const MAX_DRAWS=3;let draws=0,blessHistory=[];
+// Daily blessing quota by entitlement: free / guest = 1 draw, paying users
+// (active Gumroad subscriber, or owner) = 3. Still a CLIENT-SIDE soft cap
+// (localStorage mth_bless_count, per device) — blessings draw from local
+// gods.json with zero server/LLM cost, so this is a UX limit, not a hardened
+// entitlement gate. _IS_PREMIUM resolves async after login; _refreshPremium()
+// re-calls updateBlessingStatus() so the cap + button update the moment it flips.
+function _maxDraws(){ return (_OWNER_MODE || _IS_PREMIUM) ? 3 : 1; }
+let draws=0,blessHistory=[];
 // Most-recent revealed card — drives the draw-aware share text/URL and the
 // "Share this blessing" CTA. Set by drawBlessing() and _renderGodCard().
 let _currentDraw=null;
@@ -3526,7 +3533,17 @@ let _currentDraw=null;
 // supported way for tests + DevTools to read internal state.
 window._getDrawState = () => ({ currentDraw: _currentDraw, draws });
 window._getGodsAPI = () => ({ GODS, TIERS });
-function updateBlessingStatus(){const el=document.getElementById('blessingStatus');if(!el)return;const l=MAX_DRAWS-draws;el.textContent=l>0?`${l} ${t('blessing_draws_left')}`:t('blessing_used');renderBlessingRecentPreview();}
+function updateBlessingStatus(){
+  const max=_maxDraws(), left=max-draws, used=draws>=max;
+  const el=document.getElementById('blessingStatus');
+  if(el) el.textContent=left>0?`${left} ${t('blessing_draws_left')}`:t('blessing_used');
+  // Keep the draw button in sync with the LIVE quota so it re-enables the moment
+  // a subscriber's premium status resolves and bumps the cap (1→3). Restores the
+  // draw label when not used (data-t='draw_btn'), shows "used" when capped.
+  const b=document.getElementById('drawBtn');
+  if(b){ b.disabled=used; b.textContent=used?t('blessing_used'):t('draw_btn'); }
+  renderBlessingRecentPreview();
+}
 function renderBlessingRecentPreview(){
   const wrap=document.getElementById('blessingRecentPreview');
   const list=document.getElementById('blessingRecentList');
@@ -3559,7 +3576,7 @@ function renderBlessingRecentPreview(){
   wrap.style.display='block';
 }
 async function drawBlessing(){
-  if(draws>=MAX_DRAWS)return;
+  if(draws>=_maxDraws())return;
   await loadGods();
   const T=pickTier();
   // Build the candidate pool, then exclude deities the user has already
@@ -3605,7 +3622,7 @@ async function drawBlessing(){
   const sb=document.getElementById('godShareBtn');
   if(sb){sb.style.display='inline-block';sb.textContent=(LANG==='th'?'✦ แชร์พรนี้':'✦ Share this blessing');}
   card.classList.add('revealed');updateBlessingStatus();blessHistory.unshift({T,god});renderHistory();saveBlessings();saveBlessingToHistory(god, T, message, msgIdx);markMsgSeen(god.name, msgIdx);
-  if(draws>=MAX_DRAWS){const b=document.getElementById('drawBtn');b.disabled=true;b.textContent=t('blessing_used');}
+  if(draws>=_maxDraws()){const b=document.getElementById('drawBtn');b.disabled=true;b.textContent=t('blessing_used');}
 }
 
 // Render an arbitrary god card without consuming a draw. Used by drawBlessing
@@ -5458,7 +5475,7 @@ function initBlessings(){
       localStorage.removeItem('mth_bless_history');
     }
   }catch(e){draws=0;blessHistory=[];}
-  if(draws>=MAX_DRAWS){const b=document.getElementById('drawBtn');if(b){b.disabled=true;b.textContent=t('blessing_used');}}
+  if(draws>=_maxDraws()){const b=document.getElementById('drawBtn');if(b){b.disabled=true;b.textContent=t('blessing_used');}}
 }
 
 function saveBlessings(){
@@ -6150,6 +6167,11 @@ async function _refreshPremium(){
       try { if (typeof setGroup === 'function' && typeof CUR_GROUP === 'string') setGroup(CUR_GROUP); } catch(_){}
       try { if (typeof showSubTab === 'function' && typeof CUR_SUB === 'string') showSubTab(CUR_SUB); } catch(_){}
     }
+    // Sync the daily blessing quota + draw button to the resolved entitlement
+    // (covers subscriber premium AND the owner auto-detect above). Cheap → run
+    // unconditionally so a premium user who booted at the free cap (1) gets
+    // bumped to 3 and the button re-enables without a reload.
+    try { if (typeof updateBlessingStatus === 'function') updateBlessingStatus(); } catch(_){}
     // Restore one-time purchases tied to this account → unlock them on this
     // device too (server-recorded by the Gumroad webhook into myth_purchases).
     try {

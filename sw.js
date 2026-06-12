@@ -297,6 +297,11 @@
 // Extracted _renderSkyTeaser() and call it from both calcSky() and applyLang()
 // so the teaser rebuilds under the current LANG on every toggle (verified: TH
 // "วันทอง…" → EN "Peak day…").
+// Also v112 — daily blessing quota is now tiered: free / guest = 1 draw/day,
+// paying users (active subscriber or owner) = 3. MAX_DRAWS const → _maxDraws()
+// (reads _IS_PREMIUM/_OWNER_MODE); updateBlessingStatus() now also drives the
+// draw button so it re-enables when premium resolves async. Still a client-side
+// soft cap (no server cost to a draw).
 // Bump CACHE so clients re-fetch the corrected index.html + gods.json instead
 // of serving the stale copies.
 const CACHE = 'mythsensus-v112';
