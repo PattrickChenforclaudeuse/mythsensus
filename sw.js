@@ -311,7 +311,15 @@
 // null/blocked popup) and falls back to same-window navigation; Gumroad redirects
 // back to /?gr=1 (_handleGumroadReturn) so the round-trip still unlocks. Product
 // mbkayz confirmed PUBLISHED at $19 via Gumroad API — this was purely the opener.
-const CACHE = 'mythsensus-v113';
+// v114: 2026-06-12 — purchases bought while signed in via LINE (or any social
+// login whose account email ≠ the email typed at Gumroad) never auto-unlocked:
+// the webhook records myth_purchases under the Gumroad email, but
+// /api/me/purchases looks up by the session email (LINE = a synthetic
+// line_*@line.mythsensus.local). _withBuyerEmail() now prefills the checkout
+// email with the signed-in account email (real emails only) so the sale is
+// recorded under the same address the app queries → auto-restores. LINE
+// pseudo-emails still use the manual "Unlock with email" / need LINE email scope.
+const CACHE = 'mythsensus-v114';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

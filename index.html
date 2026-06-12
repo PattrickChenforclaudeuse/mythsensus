@@ -6267,6 +6267,22 @@ function _openCheckout(url){
   } catch(_) { /* fall through to same-window navigation */ }
   try { location.href = url; } catch(__){}
 }
+// Prefill the Gumroad buyer email with the signed-in account email, so the sale
+// is recorded (by the webhook) under the SAME email /api/me/purchases + the
+// subscription plan-setter look up → the unlock auto-restores on return / next
+// sign-in instead of silently mismatching. KEY FIX for LINE / social logins whose
+// account email differs from whatever the buyer types at checkout. Skips LINE
+// pseudo-emails (line_*@line.mythsensus.local — no real inbox); those still rely
+// on the manual "Already bought? Unlock with email" flow or LINE email scope.
+function _withBuyerEmail(url){
+  try {
+    const em = (typeof _sbSession !== 'undefined' && _sbSession && _sbSession.user && _sbSession.user.email || '').trim().toLowerCase();
+    if (em && em.indexOf('@') > 0 && !/@line\.mythsensus\.local$/i.test(em)) {
+      return url + (url.indexOf('?') >= 0 ? '&' : '?') + 'email=' + encodeURIComponent(em);
+    }
+  } catch(_){}
+  return url;
+}
 function _purchaseItem(itemKey, opts){
   const isTh = LANG === 'th';
   const checkout = _gumroadCheckout(itemKey);
@@ -6278,7 +6294,7 @@ function _purchaseItem(itemKey, opts){
       : (isTh ? '✦ สมัครสมาชิก $8.99/เดือน → ปลดล็อกทุกศาสตร์' : '✦ Subscribe $8.99/mo → unlock everything'));
   } catch(_){}
   try { if (typeof _logEngagement === 'function') _logEngagement('purchase_click:' + (itemKey || 'unknown') + ':' + checkout.kind); } catch(_){}
-  _openCheckout(checkout.url);
+  _openCheckout(_withBuyerEmail(checkout.url));
   return false;
 }
 
@@ -6290,7 +6306,7 @@ function _purchaseSubscription(source){
     _showSyncToast(isTh ? '✦ สมัครสมาชิก $8.99/เดือน → ปลดล็อกทุกศาสตร์' : '✦ Subscribe $8.99/mo → unlock everything');
   } catch(_){}
   try { if (typeof _logEngagement === 'function') _logEngagement('subscribe_click:' + (source || 'unknown')); } catch(_){}
-  _openCheckout(_GUMROAD_SUBSCRIBE_URL);
+  _openCheckout(_withBuyerEmail(_GUMROAD_SUBSCRIBE_URL));
   return false;
 }
 
