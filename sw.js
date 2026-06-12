@@ -324,7 +324,14 @@
 // (swapped) → Uncommon #4aba50 green, Rare #6090c0 blue; Mythic #ff9030 orange →
 // #ff6060 red. Single TIERS source, so collection grid / blessing card / history
 // all follow.
-const CACHE = 'mythsensus-v115';
+// v116: 2026-06-12 — Premium → My Reports cleanup. (1) Dates rendered from the
+// stored locale STRING, so a report saved while the UI was English showed
+// "May 1, 2026" among Thai พ.ศ. dates — now formatted from r.ts under the
+// current LANG. (2) The same chart could appear twice (cross-device union +
+// an engine change between saves → 757 vs 771 rows) — renderSavedReports now
+// dedupes by normalized name+dob keeping the newest ts and persists the cleaned
+// list, so re-opening matches the row shown.
+const CACHE = 'mythsensus-v116';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

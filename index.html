@@ -9797,8 +9797,35 @@ function renderStreak(){
 function renderSavedReports(){
   const el = document.getElementById('reportsList');
   const raw = localStorage.getItem('ms_saved_reports');
-  const reports = raw ? (JSON.parse(raw)||[]) : [];
+  let reports = raw ? (JSON.parse(raw)||[]) : [];
   const isTh = LANG === 'th';
+  // Collapse duplicates of the same chart. ms_saved_reports is union-merged
+  // across devices, and an engine change between two saves can leave two rows
+  // for the SAME person with different scores (e.g. 757 then 771). Keep the
+  // newest ts per normalized name+dob, persist the cleaned list back (so the
+  // open/delete indices stay valid AND the dedupe syncs out), newest-first.
+  {
+    const norm = r => String(r.name||'').trim().toLowerCase() + '|'
+      + String(r.dob||'').trim().replace(/\b(\d)\b/g, '0$1');
+    const byKey = new Map();
+    for (const r of reports) {
+      const k = norm(r), prev = byKey.get(k);
+      if (!prev || (r.ts||0) > (prev.ts||0)) byKey.set(k, r);
+    }
+    const deduped = [...byKey.values()].sort((a,b)=>(b.ts||0)-(a.ts||0));
+    if (deduped.length !== reports.length) {
+      try { localStorage.setItem('ms_saved_reports', JSON.stringify(deduped)); } catch(_){}
+    }
+    reports = deduped;
+  }
+  // Format the saved date from its timestamp under the CURRENT language, so an
+  // older report saved while the UI was in English no longer shows a stray
+  // "May 1, 2026" among Thai dates. Falls back to the frozen string for very
+  // old entries saved before the ts field existed.
+  const fmtDate = r => {
+    if (r && r.ts) { try { return new Date(r.ts).toLocaleDateString(isTh?'th-TH':'en-US',{day:'numeric',month:'short',year:'numeric'}); } catch(_){} }
+    return (r && r.date) || '';
+  };
   if (!reports.length) {
     el.innerHTML = `<div class="tier-lock" style="border-color:var(--border)">
       <div class="tier-lock-icon">📂</div>
@@ -9813,7 +9840,7 @@ function renderSavedReports(){
   // or use the inline 🗑 delete button to remove it from the saved list.
   el.innerHTML = reports.map((r,i) => {
     const safeName = (r.name || 'Profile').replace(/</g,'&lt;');
-    const safeDate = (r.date || '').replace(/</g,'&lt;');
+    const safeDate = fmtDate(r).replace(/</g,'&lt;');
     return `<div class="hist-item" style="margin-bottom:8px;display:flex;align-items:flex-start;gap:10px">
       <div onclick="_openSavedReport(${i})" style="flex:1;cursor:pointer;min-width:0" role="button" tabindex="0" title="${isTh?'เปิดรายงานนี้อีกครั้ง':'Open this report again'}">
         <div class="hist-item-header">
