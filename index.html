@@ -3120,7 +3120,7 @@ function applyLang(){
     if (v != null) el.textContent = v;
   });
   renderDate();updateBlessingStatus();
-  if(_lastSkyCards)renderSkyCards(_lastSkyCards);
+  if(_lastSkyCards){renderSkyCards(_lastSkyCards);_renderSkyTeaser();}
   if(_lastChartData){renderChart(_lastChartData);switchLifeTab(_lifeTab,null);}
   if(_lastWordData)renderWordTabs(null,_lastWordData);
   // Side rails (Today's Sky / Day's Deity / Cosmic Tip / Your Journey) and
@@ -3591,7 +3591,12 @@ async function drawBlessing(){
   const card=document.getElementById('godCard');card.classList.remove('revealed');void card.offsetWidth;
   document.getElementById('tierBadge').textContent=LANG==='th'?T.nameTH:T.nameEN;
   document.getElementById('tierBadge').style.cssText=`background:${T.color}22;color:${T.color};border:1px solid ${T.color}55`;
-  document.getElementById('godSymbol').textContent=god.symbol||'✦';
+  // Show the Epic+ pixel-art portrait on the freshly-drawn card (falls back to
+  // god.symbol for tiers without art / on load error). Was textContent=symbol,
+  // so the draw card always rendered the bare emoji and NEVER the webp — the
+  // 216 portraits only appeared on shared deep-links + the modal (_godArtInto
+  // there). Now the draw flow matches _renderGodCard / the god-detail modal.
+  _godArtInto(document.getElementById('godSymbol'), god, 160, 'box-shadow:0 8px 30px rgba(200,164,90,.25)');
   document.getElementById('godName').textContent=god.name;
   document.getElementById('godOrigin').textContent=god.mythology||'';
   document.getElementById('godMessage').textContent='"'+message+'"';
@@ -4390,11 +4395,25 @@ function calcSky(){
   });
   document.getElementById('skyPersonName').textContent=name||'✦';
   _lastSkyCards=cards;renderSkyCards(cards);
-  // Enrichment block above the planet strip: Daily Pulse verdict + glance bar.
-  // Built from already-cached MS26 data — no extra calc on the planet path.
+  // Enrichment block above the planet strip (Daily Pulse verdict + glance bar).
+  // Extracted to _renderSkyTeaser() so applyLang() can rebuild it on a language
+  // toggle — renderSkyCards() only repaints #planetStrip, so #skyTeaser (the
+  // วันทอง verdict + glance cells) was left stuck in the previous language.
+  _renderSkyTeaser();
+  document.getElementById('skyBirthForm').style.display='none';
+  document.getElementById('skyResults').classList.add('active');
+  savePrefs();
+}
+// Build the #skyTeaser block (Daily Pulse verdict + glance cells). Recomputes
+// jdN ("now") + the MS26 pulse under the CURRENT LANG so it can be called both
+// on first calc (calcSky) and on every language toggle (applyLang). All work is
+// guarded — a missing chart / MS26 just renders the glance cells without a verdict.
+function _renderSkyTeaser(){
   try {
     const teaser = document.getElementById('skyTeaser');
     if (teaser) {
+      const now = new Date();
+      const jdN = dateToJD(now.getFullYear(), now.getMonth()+1, now.getDate(), now.getHours()+now.getMinutes()/60);
       let pulse = null;
       try {
         const chart = (typeof _getMS26ChartFromProfile === 'function') ? _getMS26ChartFromProfile() : null;
@@ -4409,13 +4428,10 @@ function calcSky(){
     // Refresh the dynamic per-domain hint (no-op for 'all').
     const hintEl = document.getElementById('skyDomHint');
     if (hintEl) {
-      const dyn = _skyDomainSummary(_skyDomain, cards);
+      const dyn = _skyDomainSummary(_skyDomain, _lastSkyCards);
       if (dyn) hintEl.textContent = dyn;
     }
   } catch(_) {}
-  document.getElementById('skyBirthForm').style.display='none';
-  document.getElementById('skyResults').classList.add('active');
-  savePrefs();
 }
 // ── 5 Life-Domain sub-tab filter (MASTER-BRIEF §5.1) ──
 // Planets are grouped by traditional astrological rulership.
@@ -6358,7 +6374,7 @@ function _redeemGiftCodePrompt(){
   overlay.innerHTML =
     '<div style="background:var(--bg);border:1px solid var(--gold);border-radius:12px;padding:24px 24px 20px;max-width:380px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.6)" onclick="event.stopPropagation()">' +
       '<div style="font-family:\'Josefin Sans\',sans-serif;font-size:11px;letter-spacing:2.5px;color:var(--gold);text-align:center;margin-bottom:6px">✦ ' + (isTh?'ใส่รหัสส่วนลด / โค้ดของขวัญ':'REDEEM A CODE') + '</div>' +
-      '<div style="font-family:\'Cormorant Garamond\',\'Songti SC\',\'PingFang SC\',\'Microsoft YaHei\',\'Sarabun\',serif;font-size:13px;color:var(--muted);text-align:center;margin-bottom:18px;line-height:1.55">' + (isTh?'กรอกรหัสที่ได้รับ — ปลดล็อก Cosmic Blueprint ทันที':'Enter the code you received to unlock Cosmic Blueprint instantly') + '</div>' +
+      '<div style="font-family:\'Cormorant Garamond\',\'Songti SC\',\'PingFang SC\',\'Microsoft YaHei\',\'Sarabun\',serif;font-size:13px;color:var(--muted);text-align:center;margin-bottom:18px;line-height:1.55">' + (isTh?'กรอกรหัสที่ได้รับ — ปลดล็อก Deep Reading ฟรี 1 ครั้ง':'Enter the code you received to unlock one free Deep Reading') + '</div>' +
       '<input id="giftCodeInput" placeholder="MYTH-XXXX" autocapitalize="characters" autocomplete="off" spellcheck="false" style="width:100%;background:var(--bg2);border:1px solid var(--gold3);color:var(--text);padding:13px 14px;border-radius:8px;font-family:\'Josefin Sans\',sans-serif;font-size:15px;letter-spacing:3px;text-align:center;text-transform:uppercase;box-sizing:border-box;outline:none">' +
       '<div id="giftCodeStatus" style="margin-top:10px;text-align:center;font-size:12.5px;min-height:18px;color:var(--muted);font-family:\'Cormorant Garamond\',\'Songti SC\',\'PingFang SC\',\'Microsoft YaHei\',\'Sarabun\',serif"></div>' +
       '<div style="display:flex;gap:10px;margin-top:14px">' +

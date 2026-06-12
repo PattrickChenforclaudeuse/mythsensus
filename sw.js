@@ -279,7 +279,27 @@
 // the watch-list now filter scoring:false so Biorhythm can't slip back in.
 // Biorhythm lives ONLY in the live Daily Pulse (computed against today). Engine
 // bundle changed → ?v=102; sample-report regenerated.
-const CACHE = 'mythsensus-v111';
+// v112: 2026-06-11 — blessing DRAW card never showed the Epic+ pixel art.
+// Root cause: drawBlessing() rendered #godSymbol via `textContent = god.symbol`
+// (the emoji) and NEVER called _godArtInto, so the 216 portraits (v105) only
+// ever appeared on shared deep-links + the god-detail modal — the primary draw
+// flow always painted the bare emoji. For Caishen that emoji was ⚔️ (a war
+// glyph wrong for the God of Wealth), so the gold-ingot caishen.webp (deployed,
+// HTTP 200) was invisible and users saw "crossed swords". Fixes: (1) drawBlessing
+// now calls _godArtInto on #godSymbol like _renderGodCard, so Epic+ draws show
+// the webp (verified: an Epic draw renders <img src=/assets/god-art/…webp>,
+// lower tiers still fall back to emoji); (2) Caishen gods.json symbol ⚔️→💰 so
+// the fallback is wealth-appropriate too.
+// Also v112 — Today's Sky language leak: toggling EN/TH only repainted the
+// planet strip (renderSkyCards), never #skyTeaser, so the วันทอง / "Peak day"
+// verdict card + glance cells (Moon Phase / Day's Deity / Nakshatra) stayed in
+// the language they were first calc'd in (Thai content under an English UI).
+// Extracted _renderSkyTeaser() and call it from both calcSky() and applyLang()
+// so the teaser rebuilds under the current LANG on every toggle (verified: TH
+// "วันทอง…" → EN "Peak day…").
+// Bump CACHE so clients re-fetch the corrected index.html + gods.json instead
+// of serving the stale copies.
+const CACHE = 'mythsensus-v112';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
