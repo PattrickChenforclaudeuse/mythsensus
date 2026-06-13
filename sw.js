@@ -343,7 +343,14 @@
 // look like bounces, no dwell time). Added /api/track + a tiny client beacon
 // that logs ACTIVE dwell time + draw/rare/destiny/paywall/checkout counts to
 // public.myth_events on woam (PII-free, no AI cost). Bump to refresh HTML.
-const CACHE = 'mythsensus-v118';
+// v119: 2026-06-13 — disambiguate "ฟ้าวันนี้" (Today's Sky) vs "ดวงวันนี้"
+// (Daily Pulse). The two tabs both end in "...วันนี้" and read as duplicates;
+// users conflate them and miss the Pulse (a subscriber feature) → lost upsell.
+// Reframed both subtitles to state their ROLE: Sky = the raw facts, not a
+// verdict ("ข้อเท็จจริงล้วน ยังไม่ตีความ"); Pulse = Sky + 7-10 systems
+// synthesised into one reading ("รวมฟ้าวันนี้ + 7-10 ศาสตร์ → คำอ่านเดียว").
+// Copy-only (sky_dom_hint_all + pulse_hint, EN+TH + HTML fallbacks).
+const CACHE = 'mythsensus-v119';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
