@@ -119,7 +119,7 @@ export interface WesternData {
   ascSign: string; ascSignTh: string; ascDeg: number;
   jupiterSign: string; saturnSign: string;
   transitNote2026: string; score: number;
-  reading: string;
+  reading: string; deepReading: string;
 }
 export interface BaziData {
   yearStem: string; yearBranch: string; yearStemTh: string; yearBranchTh: string;
@@ -131,7 +131,7 @@ export interface BaziData {
   luckyElement: string; avoidElement: string;
   currentLuckPillar: string; currentLuckPillarTh: string;
   benMingNian2026: boolean; luckPillars: LuckPillar[];
-  reading: string; score: number;
+  reading: string; deepReading: string; score: number;
 }
 export interface LuckPillar {
   stem: string; branch: string; stemTh: string; branchTh: string;
@@ -141,7 +141,7 @@ export interface NineStarData {
   star: number; starName: string; starChinese: string; starElement: string;
   starColor: string; starDirection: string; directionSleep: string;
   year2026Analysis: string; auspicious2026: string;
-  reading: string; score: number;
+  reading: string; deepReading: string; score: number;
 }
 export interface NumerologyData {
   lifePath: number; lifePathName: string;
@@ -149,37 +149,37 @@ export interface NumerologyData {
   pythagorean: number; pythagoreanName: string;
   thaiSeven: number[]; thaiSevenReading: string;
   destinyNumber: number;
-  reading: string; score: number; thaiScore: number;
+  reading: string; deepReading: string; score: number; thaiScore: number;
 }
 export interface VedicData {
   lagna: string; lagnaSign: string;
   moonNakshatra: string; nakshatraLord: string; nakshathraPada: number;
   mahadasha: string; mahadashaPeriod: string; mahadashaEnd: number;
   antardasha: string; yogas: string[];
-  reading: string; score: number;
+  reading: string; deepReading: string; score: number;
 }
 export interface HDData {
   type: string; typeTh: string; strategy: string;
   authority: string; profile: string; profileDesc: string;
   definition: string; incarnationCross: string;
   sunGate: number; earthGate: number; channels: string[];
-  reading: string; score: number;
+  reading: string; deepReading: string; score: number;
 }
 export interface MayanData {
   kin: number; daySign: number; daySignName: string; daySignNameTh: string;
   toneNumber: number; toneName: string; toneNameTh: string;
   wavespell: string; direction: string; color: string;
-  reading: string; score: number;
+  reading: string; deepReading: string; score: number;
 }
 export interface CelticData {
   treeName: string; treeNameTh: string; symbol: string;
   rulingPlanet: string; gemstone: string; element: string;
-  personality: string; reading: string; score: number;
+  personality: string; reading: string; deepReading: string; score: number;
 }
 export interface ThaiData {
   dayOfWeek: number; dayName: string; dayColor: string; dayGod: string;
   dayGodTh: string; nakshatra: string; fortuneDay: string;
-  reading: string; score: number;
+  reading: string; deepReading: string; score: number;
 }
 export interface TaksaData {
   // Thai classical 8-house astrology (ทักษา) — birth weekday determines
@@ -287,15 +287,50 @@ function moonLongitude(jd: number): number {
   );
 }
 
+// Low-precision GEOCENTRIC ecliptic longitude via Schlyter's formulae (orbital
+// elements + Kepler solve + heliocentric→geocentric). Accurate to ~1-2 arcmin —
+// reliable for sign placement. Replaces the previous broken approximation
+// (Jupiter/Saturn moved ~12× too fast). Epoch d = days since 1999-12-31 00:00 UT.
+const _ORB: Record<string, number[]> = {
+  // [N0,Nr, i0,ir, w0,wr, a0,ar, e0,er, M0,Mr]
+  Sun:     [0,0, 0,0, 282.9404,4.70935e-5, 1,0, 0.016709,-1.151e-9, 356.0470,0.9856002585],
+  Mercury: [48.3313,3.24587e-5, 7.0047,5.00e-8, 29.1241,1.01444e-5, 0.387098,0, 0.205635,5.59e-10, 168.6562,4.0923344368],
+  Venus:   [76.6799,2.46590e-5, 3.3946,2.75e-8, 54.8910,1.38374e-5, 0.723330,0, 0.006773,-1.302e-9, 48.0052,1.6021302244],
+  Mars:    [49.5574,2.11081e-5, 1.8497,-1.78e-8, 286.5016,2.92961e-5, 1.523688,0, 0.093405,2.516e-9, 18.6021,0.5240207766],
+  Jupiter: [100.4542,2.76854e-5, 1.3030,-1.557e-7, 273.8777,1.64505e-5, 5.20256,0, 0.048498,4.469e-9, 19.8950,0.0830853001],
+  Saturn:  [113.6634,2.38980e-5, 2.4886,-1.081e-7, 339.3939,2.97661e-5, 9.55475,0, 0.055546,-9.499e-9, 316.9670,0.0334442282],
+  Uranus:  [74.0005,1.3978e-5, 0.7733,1.9e-8, 96.6612,3.0565e-5, 19.18171,-1.55e-8, 0.047318,7.45e-9, 142.5905,0.011725806],
+  Neptune: [131.7806,3.0173e-5, 1.7700,-2.55e-7, 272.8461,-6.027e-6, 30.05826,3.313e-8, 0.008606,2.15e-9, 260.2471,0.005995147],
+};
+function _helioRect(jd: number, planet: string) {
+  const d = jd - 2451543.5;
+  const rad = Math.PI / 180;
+  const e0 = _ORB[planet] || _ORB.Sun;
+  const N = mod360(e0[0] + e0[1] * d) * rad;
+  const inc = (e0[2] + e0[3] * d) * rad;
+  const w = mod360(e0[4] + e0[5] * d) * rad;
+  const a = e0[6] + e0[7] * d;
+  const ec = e0[8] + e0[9] * d;
+  const M = mod360(e0[10] + e0[11] * d) * rad;
+  let E = M + ec * Math.sin(M) * (1 + ec * Math.cos(M));
+  for (let k = 0; k < 6; k++) E = E - (E - ec * Math.sin(E) - M) / (1 - ec * Math.cos(E));
+  const xv = a * (Math.cos(E) - ec), yv = a * Math.sqrt(1 - ec * ec) * Math.sin(E);
+  const v = Math.atan2(yv, xv), r = Math.sqrt(xv * xv + yv * yv);
+  const xh = r * (Math.cos(N) * Math.cos(v + w) - Math.sin(N) * Math.sin(v + w) * Math.cos(inc));
+  const yh = r * (Math.sin(N) * Math.cos(v + w) + Math.cos(N) * Math.sin(v + w) * Math.cos(inc));
+  const zh = r * (Math.sin(v + w) * Math.sin(inc));
+  return { xh, yh, zh };
+}
+// Geocentric ecliptic longitude (degrees) for any planet ('Mercury'..'Neptune', 'Sun')
+function _eclLon(jd: number, planet: string): number {
+  const deg = 180 / Math.PI;
+  const sun = _helioRect(jd, 'Sun');
+  if (planet === 'Sun') return mod360(Math.atan2(sun.yh, sun.xh) * deg);
+  const pl = _helioRect(jd, planet);
+  return mod360(Math.atan2(pl.yh + sun.yh, pl.xh + sun.xh) * deg);
+}
 function planetLongitude(jd: number, p: 'jupiter' | 'saturn'): number {
-  const D = jd - 2451545.0;
-  if (p === 'jupiter') {
-    const M = toRad(mod360(19.895 + 0.083 * D));
-    return mod360(34.4 + 0.083 * D * 12 + 5.5 * Math.sin(M));
-  } else {
-    const M = toRad(mod360(316.967 + 0.0334 * D));
-    return mod360(50.1 + 0.0334 * D * 12 + 6.4 * Math.sin(M));
-  }
+  return _eclLon(jd, p === 'jupiter' ? 'Jupiter' : 'Saturn');
 }
 
 function ascLongitude(jd: number, hour: number, lat: number, lon: number): number {
@@ -312,6 +347,307 @@ function ascLongitude(jd: number, hour: number, lat: number, lon: number): numbe
   return mod360(asc);
 }
 
+// ── WESTERN ASTROLOGY DEEP READING (clean rewrite) ───────────────────────────
+function _westernDeepSections(a: {
+  sun: { en: string; th: string }; moon: { en: string; th: string }; asc: { en: string; th: string };
+  jup: { en: string; th: string }; sat: { en: string; th: string };
+  mer: { en: string; th: string }; ven: { en: string; th: string }; mar: { en: string; th: string };
+  sunDeg: number; moonDeg: number; ascDeg: number; jupDeg: number; satDeg: number;
+  merDeg: number; venDeg: number; marDeg: number;
+  transitNote: string; transitNoteEn: string;
+}): string {
+  const isEn = _reportLang === 'en';
+  const pick = (th: string, en: string) => isEn ? en : th;
+  const elD = (el: string) => isEn ? ({ 'ไฟ':'Fire','ดิน':'Earth','ลม':'Air','น้ำ':'Water' }[el] ?? el) : el;
+  type SM = { el: string; elEn: string; mod: string; modEn: string; glyph: string };
+  const META: Record<string, SM> = {
+    Aries:{el:'ไฟ',elEn:'Fire',mod:'ริเริ่ม',modEn:'Cardinal',glyph:'♈'}, Taurus:{el:'ดิน',elEn:'Earth',mod:'มั่นคง',modEn:'Fixed',glyph:'♉'},
+    Gemini:{el:'ลม',elEn:'Air',mod:'ปรับตัว',modEn:'Mutable',glyph:'♊'}, Cancer:{el:'น้ำ',elEn:'Water',mod:'ริเริ่ม',modEn:'Cardinal',glyph:'♋'},
+    Leo:{el:'ไฟ',elEn:'Fire',mod:'มั่นคง',modEn:'Fixed',glyph:'♌'}, Virgo:{el:'ดิน',elEn:'Earth',mod:'ปรับตัว',modEn:'Mutable',glyph:'♍'},
+    Libra:{el:'ลม',elEn:'Air',mod:'ริเริ่ม',modEn:'Cardinal',glyph:'♎'}, Scorpio:{el:'น้ำ',elEn:'Water',mod:'มั่นคง',modEn:'Fixed',glyph:'♏'},
+    Sagittarius:{el:'ไฟ',elEn:'Fire',mod:'ปรับตัว',modEn:'Mutable',glyph:'♐'}, Capricorn:{el:'ดิน',elEn:'Earth',mod:'ริเริ่ม',modEn:'Cardinal',glyph:'♑'},
+    Aquarius:{el:'ลม',elEn:'Air',mod:'มั่นคง',modEn:'Fixed',glyph:'♒'}, Pisces:{el:'น้ำ',elEn:'Water',mod:'ปรับตัว',modEn:'Mutable',glyph:'♓'},
+  };
+  const FB: SM = {el:'ไฟ',elEn:'Fire',mod:'ริเริ่ม',modEn:'Cardinal',glyph:'★'};
+  const sm = META[a.sun.en] ?? FB, mm = META[a.moon.en] ?? FB, am = META[a.asc.en] ?? FB;
+  const sTh: Record<string,string> = { Aries:'เมษ',Taurus:'พฤษภ',Gemini:'เมถุน',Cancer:'กรกฎ',Leo:'สิงห์',Virgo:'กันย์',Libra:'ตุลย์',Scorpio:'พิจิก',Sagittarius:'ธนู',Capricorn:'มกร',Aquarius:'กุมภ์',Pisces:'มีน' };
+  const sD = (en: string) => isEn ? en : (sTh[en] ?? en);
+  // element + modality balance across the Big Three
+  const elC: Record<string,number> = {}; const modC: Record<string,number> = {};
+  for (const m of [sm,mm,am]) { elC[m.el]=(elC[m.el]??0)+1; modC[m.modEn]=(modC[m.modEn]??0)+1; }
+  const domEl = Object.entries(elC).sort((x,y)=>y[1]-x[1])[0]?.[0] ?? sm.el;
+  const domModEn = Object.entries(modC).sort((x,y)=>y[1]-x[1])[0]?.[0] ?? sm.modEn;
+  const MOD_DESC: Record<string,[string,string]> = {
+    Cardinal:['"ผู้เริ่มต้น" — ริเริ่มสิ่งใหม่ ผลักดันออกหน้าได้ง่าย','"the initiator" — you start things and push forward naturally'],
+    Fixed:['"ผู้สร้างความมั่นคง" — ต่อเนื่อง มุ่งมั่น ไม่เลิกกลางทาง','"the builder" — consistent, determined, you see things through'],
+    Mutable:['"นักปรับตัว" — ยืดหยุ่น เปลี่ยนเร็ว เห็นหลายมุม','"the adapter" — flexible, quick to shift, multi-perspective'],
+  };
+  const SUN_CORE: Record<string,[string,string]> = {
+    Aries:['ผู้บุกเบิก กล้าหาญ ตรงไปตรงมา ชอบเริ่มต้นและนำ','a pioneer — brave, direct, loves to initiate and lead'],
+    Taurus:['มั่นคง อดทน รักความงามและความสบาย สร้างสิ่งยั่งยืน','stable, patient, loves beauty and comfort, builds lasting things'],
+    Gemini:['ฉลาด ช่างพูด ปรับตัวเร็ว สื่อสารกับทุกคนได้','clever, talkative, adaptable, communicates easily with anyone'],
+    Cancer:['มีสัญชาตญาณ อ่อนโยน รักบ้าน ปกป้องคนที่รัก','intuitive, nurturing, home-loving, protective of loved ones'],
+    Leo:['เปล่งประกาย ใจกว้าง ผู้นำโดยธรรมชาติ ดึงดูดความสนใจ','radiant, generous, a natural leader who draws attention'],
+    Virgo:['วิเคราะห์เก่ง ละเอียด มุ่งพัฒนา เห็นรายละเอียดที่คนอื่นมองข้าม','analytical, precise, improvement-driven, sees overlooked details'],
+    Libra:['รักความยุติธรรม มีเสน่ห์สังคม ชอบความสมดุล','fair-minded, socially graceful, balance-seeking'],
+    Scorpio:['ลึกซึ้ง เข้มข้น พลังสูง เปลี่ยนแปลงตัวเองและสิ่งรอบข้างได้','deep, intense, transformative of self and surroundings'],
+    Sagittarius:['กว้างขวาง รักผจญภัย ซื่อตรง นักปรัชญาและนักสำรวจ','expansive, adventurous, frank — a philosopher and explorer'],
+    Capricorn:['มีวินัย ทะเยอทะยาน อดทน ขึ้นสู่จุดสูงสุดอย่างมั่นคง','disciplined, ambitious, patient, climbs steadily to the top'],
+    Aquarius:['คิดล้ำยุค รักอิสรภาพ ห่วงใยส่วนรวม นักปฏิวัติเงียบ','visionary, freedom-loving, humanitarian — a quiet revolutionary'],
+    Pisces:['ลึกซึ้งทางใจ เห็นอกเห็นใจ มีจินตนาการ ศิลปินและนักฝัน','soulful, compassionate, imaginative — an artist and dreamer'],
+  };
+  const MOON_IN: Record<string,[string,string]> = {
+    Aries:['ต้องการสิ่งใหม่และการเคลื่อนที่ อารมณ์พุ่งเร็วฟื้นเร็ว','needs novelty and movement; feelings fire fast and recover fast'],
+    Taurus:['ต้องการความมั่นคงและสัมผัส อยู่กับสิ่งคุ้นเคยคือพลัง','needs security and comfort; familiarity is your anchor'],
+    Gemini:['ต้องการการพูดคุยและข้อมูล ประมวลอารมณ์ผ่านคำพูด','needs conversation and information; processes feelings in words'],
+    Cancer:['ต้องการความอบอุ่นและความเป็นส่วนตัว บ้านคือที่ชาร์จพลัง','needs warmth and privacy; home is your recharge'],
+    Leo:['ต้องการการยอมรับและความรัก อยากเด่นในสายตาคนรัก','needs recognition and love; wants to shine for loved ones'],
+    Virgo:['ต้องการระเบียบและความมีประโยชน์ สงบเมื่อทำสิ่งให้ถูกต้อง','needs order and usefulness; peace from doing things right'],
+    Libra:['ต้องการความสัมพันธ์ที่ดีและความสมดุล','needs harmony and good relationships as a baseline'],
+    Scorpio:['ต้องการความลึกและความจริง ผิวเผินไม่พอ','needs depth and truth; can\'t stay on the surface'],
+    Sagittarius:['ต้องการอิสรภาพและความหมาย กลัวการถูกกักขัง','needs freedom and meaning; fears feeling trapped'],
+    Capricorn:['ต้องการการควบคุมตัวเองและความสำเร็จ','needs self-control and achievement; pride is your fuel'],
+    Aquarius:['ต้องการพื้นที่ส่วนตัวและอุดมคติ กรองอารมณ์ผ่านเหตุผล','needs space and ideals; filters feelings through reason'],
+    Pisces:['ต้องการการเชื่อมต่อและความเงียบ ซึมซับสิ่งแวดล้อม','needs connection and quiet; absorbs the environment'],
+  };
+  const ASC_MASK: Record<string,[string,string]> = {
+    Aries:['มีพลัง กล้าหาญ ตรงไปตรงมา','energetic, bold, and direct'], Taurus:['สงบ น่าเชื่อถือ มีรสนิยม','calm, trustworthy, and refined'],
+    Gemini:['ฉลาด ช่างพูด ปรับตัวได้','clever, talkative, and adaptable'], Cancer:['อ่อนโยน อบอุ่น น่าเข้าหา','gentle, warm, and approachable'],
+    Leo:['มีเสน่ห์ โดดเด่น มั่นใจ','charismatic, distinctive, and confident'], Virgo:['เรียบร้อย ละเอียด เชื่อถือได้','composed, meticulous, and reliable'],
+    Libra:['สุภาพ มีเสน่ห์ ยุติธรรม','polished, charming, and fair'], Scorpio:['ลึกลับ เข้มข้น ดึงดูดใจ','mysterious, intense, and magnetic'],
+    Sagittarius:['เปิดกว้าง สนุก ตรงไปตรงมา','open, fun-loving, and frank'], Capricorn:['จริงจัง มืออาชีพ น่าเคารพ','serious, professional, and respected'],
+    Aquarius:['แปลกใหม่ เป็นกันเอง อิสระ','unique, friendly, and free-spirited'], Pisces:['อ่อนโยน ฝันกลางวัน เข้าใจคน','gentle, dreamy, and empathetic'],
+  };
+  type EF = { career:[string,string]; do:[string,string]; avoid:[string,string]; money:[string,string]; love:[string,string]; partner:[string,string]; health:[string,string] };
+  const EL_F: Record<string,EF> = {
+    'ไฟ':{ career:['งานสาธารณะ ผู้นำ บันเทิง การตลาด ผู้ประกอบการ','public-facing roles, leadership, entertainment, marketing, entrepreneurship'],
+      do:['นำเสนอ เป็นหน้าตา สร้างแบรนด์ตัวเอง','present, be the face, build your own brand'],
+      avoid:['ตัดสินใจหุนหัน เผาพลังจนหมดไฟ','impulsive decisions; burning out'],
+      money:['รายได้จากชื่อเสียงและการแสดงออก ระวังใช้จ่ายตามอารมณ์','income through reputation; watch impulse spending'],
+      love:['ดึงดูดด้วยพลังงาน','magnetic through energy'], partner:['ลม (เมถุน ตุลย์ กุมภ์) เติมเชื้อไฟ + ไฟด้วยกัน','Air (Gemini, Libra, Aquarius) fuels you; fellow Fire matches your spark'],
+      health:['หัวใจ ระบบไหลเวียน พลังประสาท','heart, circulation, nervous energy'] },
+    'ดิน':{ career:['การเงิน อสังหาฯ บริหาร เกษตร โลจิสติกส์','finance, real estate, management, agriculture, logistics'],
+      do:['สร้างระบบ รับบทที่ไว้ใจได้ สะสมสินทรัพย์','build systems, take trusted roles, accumulate assets'],
+      avoid:['ยึดติดความปลอดภัยจนไม่โต เก็บเครียดเงียบๆ','clinging to safety; bottling stress'],
+      money:['สร้างทรัพย์จากความมั่นคง เหมาะลงทุนระยะยาว','build wealth through stability; long-term investing'],
+      love:['ซื่อสัตย์ ภักดี','loyal and steadfast'], partner:['น้ำ (กรกฎ พิจิก มีน) บำรุงดิน + ดินด้วยกัน','Water (Cancer, Scorpio, Pisces) nourishes you; fellow Earth shares your ground'],
+      health:['กระดูก ข้อต่อ ระบบย่อย ผิวหนัง','bones, joints, digestion, skin'] },
+    'ลม':{ career:['สื่อสาร เขียน สอน กฎหมาย ที่ปรึกษา เทคโนโลยี','communication, writing, teaching, law, consulting, technology'],
+      do:['เจรจา เชื่อมคน ทำหลายโปรเจกต์','negotiate, connect people, run multiple projects'],
+      avoid:['ไม่แน่วแน่ หนีงานด้วยการพูดมาก','indecisiveness; escaping work behind talk'],
+      money:['รายได้หลายทาง เก่งหาโอกาส ระวังกระจัดกระจาย','multiple streams; opportunity-spotting; watch spreading thin'],
+      love:['ต้องการคู่ที่คุยกันได้ทางใจ','needs intellectual partnership'], partner:['ไฟ (เมษ สิงห์ ธนู) จุดแรงบันดาลใจ + ลมด้วยกัน','Fire (Aries, Leo, Sagittarius) inspires you; fellow Air matches your mind'],
+      health:['ปอด ระบบหายใจ ประสาท การนอน','lungs, breathing, nerves, sleep'] },
+    'น้ำ':{ career:['จิตวิทยา ศิลปะ การดูแล ดนตรี วิจัย การแพทย์ทางเลือก','psychology, art, caregiving, music, research, alternative healing'],
+      do:['ใช้สัญชาตญาณ ทำงานที่มีความหมาย ดูแลคน','use intuition, do meaningful work, care for people'],
+      avoid:['หลีกหนีความจริง จมความเศร้าเรื้อรัง','escapism; sinking into chronic sadness'],
+      money:['สัญชาตญาณการเงินดี แต่ต้องมีระบบกันปล่อยเงินเพราะสงสาร','strong money intuition; need systems against over-giving'],
+      love:['ลึกซึ้ง อุทิศตัวสูง','deep and devoted'], partner:['ดิน (พฤษภ กันย์ มกร) ให้ฝั่งมั่นคง + น้ำด้วยกัน','Earth (Taurus, Virgo, Capricorn) steadies you; fellow Water shares your depth'],
+      health:['ไต กระเพาะปัสสาวะ น้ำเหลือง สุขภาพจิต','kidneys, bladder, lymph, mental health'] },
+  };
+  const ef = EL_F[domEl] ?? EL_F['ไฟ'];
+  const COLOR_W: Record<string,[string,string]> = { 'ไฟ':['แดง ส้ม ทอง','red · orange · gold'],'ดิน':['เขียวมะกอก น้ำตาล เหลืองดิน','olive · brown · earthy yellow'],'ลม':['เหลืองอ่อน ฟ้าอ่อน เทาเงิน','pale yellow · sky blue · silver-grey'],'น้ำ':['น้ำเงินเข้ม เงิน ขาวอมม่วง','deep blue · silver · iridescent white'] };
+  const STONE_W: Record<string,[string,string]> = { 'ไฟ':['ทับทิม การ์เนต ซันสโตน','Ruby · Garnet · Sunstone'],'ดิน':['มรกต มาลาไคท์ หยก','Emerald · Malachite · Jade'],'ลม':['อเมทิสต์ อะเกต บลูโทแพซ','Amethyst · Agate · Blue Topaz'],'น้ำ':['มูนสโตน อะความารีน ลาพิสลาซูลี','Moonstone · Aquamarine · Lapis Lazuli'] };
+  const OPP: Record<string,string> = { 'ไฟ':'น้ำ','น้ำ':'ไฟ','ดิน':'ลม','ลม':'ดิน' };
+  const avoidEl = OPP[domEl] ?? 'น้ำ';
+
+  const blk = (icon: string, thT: string, enT: string, body: string) =>
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+  const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
+  const sec: string[] = [];
+
+  // 1. Big Three chart
+  const cell = (lblTh: string, lblEn: string, s: {en:string}, m: SM, deg: number) =>
+    `<td style="padding:8px 4px;border:1px solid #2a2545;text-align:center;vertical-align:top"><div style="font-size:9px;color:#6a5a42;letter-spacing:1px">${pick(lblTh,lblEn)}</div><div style="font-size:26px;color:#d4aa50;line-height:1.2">${m.glyph}</div><div style="font-size:14px;color:#d4aa50">${sD(s.en)}</div><div style="font-size:10px;color:#9a8a72">${(deg%30).toFixed(1)}°</div><div style="font-size:10px;color:#c8b080">${pick(m.el,m.elEn)} · ${pick(m.mod,m.modEn)}</div></td>`;
+  const chart = `<table style="width:100%;border-collapse:collapse;margin:8px 0 12px;table-layout:fixed"><tr>${cell('อาทิตย์ ☉','Sun ☉',a.sun,sm,a.sunDeg)}${cell('จันทร์ ☽','Moon ☽',a.moon,mm,a.moonDeg)}${cell('ราศีขึ้น ↑','Asc ↑',a.asc,am,a.ascDeg)}</tr></table>`;
+  const elTot = (elC['ไฟ']||0)+(elC['ดิน']||0)+(elC['ลม']||0)+(elC['น้ำ']||0) || 1;
+  const bars = (['ไฟ','ดิน','ลม','น้ำ'] as string[]).map(e => { const c = elC[e]||0; return `<div style="display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px"><span style="width:52px;color:${e===domEl?'#d4aa50':'#9a8a72'}">${elD(e)}</span><span style="flex:1;height:9px;background:#1a1730;border-radius:5px;overflow:hidden"><span style="display:block;height:100%;width:${Math.round(c/3*100)}%;background:${e===domEl?'#d4aa50':'#7a6a9a'}"></span></span><span style="width:40px;color:#c8b080;text-align:right">${c}/3</span></div>`; }).join('');
+  sec.push(blk('📜','The Big Three — อาทิตย์ · จันทร์ · ราศีขึ้น','The Big Three — Sun · Moon · Ascendant',
+    P(pick(`สามจุดนี้อธิบายบุคลิกคุณราว 80% — ${B('อาทิตย์')}=ตัวตนหลัก ${B('จันทร์')}=โลกอารมณ์ภายใน ${B('ราศีขึ้น')}=หน้ากากที่โลกเห็นก่อน`,`These three explain ~80% of your personality — ${B('Sun')}=core self, ${B('Moon')}=inner emotional world, ${B('Ascendant')}=the mask the world sees first.`)) + chart + P(pick('สมดุลธาตุของ Big Three:','Element balance of your Big Three:')) + bars));
+
+  // 2. core personality
+  sec.push(blk('🌟','บุคลิก — สังเคราะห์ Sun + Moon + Asc','Core Personality — Sun + Moon + Ascendant',
+    P(pick(`ดวงคุณเด่นธาตุ${B(elD(domEl))} แบบ${B(MOD_DESC[domModEn]?.[0]||'')}`,`Your chart leans ${B(elD(domEl))} element, ${B(MOD_DESC[domModEn]?.[1]||'')}.`)) +
+    P(`${B(pick('☉ อาทิตย์ใน'+sD(a.sun.en),'☉ Sun in '+a.sun.en))}: ${pick(SUN_CORE[a.sun.en]?.[0]||'',SUN_CORE[a.sun.en]?.[1]||'')}`) +
+    P(`${B(pick('☽ จันทร์ใน'+sD(a.moon.en),'☽ Moon in '+a.moon.en))}: ${pick(MOON_IN[a.moon.en]?.[0]||'',MOON_IN[a.moon.en]?.[1]||'')}`) +
+    P(`${B(pick('↑ ราศีขึ้น'+sD(a.asc.en),'↑ Ascendant '+a.asc.en))}: ${pick('คนแรกพบเห็นว่าคุณ'+(ASC_MASK[a.asc.en]?.[0]||''),'Others first see you as '+(ASC_MASK[a.asc.en]?.[1]||''))}`)));
+
+  // 2b. Personal planets — Mercury / Venus / Mars in sign
+  const MERC: Record<string,[string,string]> = {
+    Aries:['คิดเร็ว พูดตรง กล้าโต้แย้ง','quick, blunt, loves to debate'], Taurus:['คิดช้าแต่มั่นคง ปฏิบัติได้จริง','slow but solid, practical thinker'],
+    Gemini:['คิดไว หลายเรื่องพร้อมกัน ช่างพูด','fast, multi-track, talkative'], Cancer:['คิดด้วยความรู้สึก ความจำดี','thinks through feeling, strong memory'],
+    Leo:['คิดใหญ่ พูดมีพลัง โน้มน้าวเก่ง','big ideas, dramatic, persuasive'], Virgo:['วิเคราะห์ละเอียด แม่นยำ จับผิดเก่ง','analytical, precise, detail-catching'],
+    Libra:['คิดสองด้าน เจรจาเก่ง เป็นกลาง','weighs both sides, diplomatic'], Scorpio:['คิดลึก สืบเก่ง มองทะลุ','deep, investigative, sees beneath'],
+    Sagittarius:['คิดกว้าง มองภาพใหญ่ ตรงไปตรงมา','big-picture, frank, philosophical'], Capricorn:['คิดเป็นระบบ มีโครงสร้าง รอบคอบ','structured, strategic, careful'],
+    Aquarius:['คิดนอกกรอบ ล้ำ มองอนาคต','original, inventive, future-facing'], Pisces:['คิดด้วยจินตนาการและสัญชาตญาณ','imaginative, intuitive, non-linear'],
+  };
+  const VEN: Record<string,[string,string]> = {
+    Aries:['รักแบบไล่ล่า ตื่นเต้น ตรงไปตรงมา','loves the chase — passionate and direct'], Taurus:['รักมั่นคง สัมผัสได้ ภักดี','steady, sensual, loyal'],
+    Gemini:['รักการคุย สนุก ต้องการความหลากหลาย','loves talk, fun, variety'], Cancer:['รักอบอุ่น ดูแล ผูกพันลึก','nurturing, tender, deeply bonded'],
+    Leo:['รักโรแมนติก ภูมิใจ ต้องการการชื่นชม','romantic, proud, wants adoration'], Virgo:['รักผ่านการดูแลด้วยการกระทำ ใส่ใจ','love through acts of service, attentive'],
+    Libra:['รักความสมดุล โรแมนติก ต้องการคู่','harmony-seeking, romantic, partner-focused'], Scorpio:['รักเข้มข้น ลึก หวงแหน','intense, deep, all-or-nothing'],
+    Sagittarius:['รักอิสระ ผจญภัย ตรงไปตรงมา','freedom-loving, adventurous'], Capricorn:['รักจริงจัง มุ่งมั่น สร้างระยะยาว','serious, committed, long-term builder'],
+    Aquarius:['รักแบบเพื่อน อิสระ ไม่ชอบผูกมัด','friendship-based, free, unconventional'], Pisces:['รักโรแมนติกฝัน อุทิศตัว เห็นอกเห็นใจ','dreamy, devoted, compassionate'],
+  };
+  const MARS: Record<string,[string,string]> = {
+    Aries:['ลงมือทันที กล้า แรงขับสูง','acts instantly — bold, high drive'], Taurus:['ช้าแต่ทนทาน ไม่ยอมแพ้','slow but relentless, unstoppable'],
+    Gemini:['พลังหลายทิศ คล่อง เปลี่ยนเร็ว','multi-directional, agile, restless'], Cancer:['ขับเคลื่อนด้วยอารมณ์ ปกป้อง','emotionally driven, protective'],
+    Leo:['ลงมืออย่างมีสง่า ต้องการเด่น','acts with flair, wants the spotlight'], Virgo:['ลงมืออย่างมีระบบ ขยัน แม่น','methodical, hardworking, precise'],
+    Libra:['ลงมือผ่านความร่วมมือ เลี่ยงปะทะ','acts through cooperation, avoids conflict'], Scorpio:['แรงขับลึก เด็ดเดี่ยว ไม่ลดละ','deep, strategic, relentless drive'],
+    Sagittarius:['ลงมือแบบผจญภัย กล้าเสี่ยง','adventurous, risk-taking'], Capricorn:['ลงมืออย่างมีวินัย มุ่งเป้า อดทน','disciplined, goal-driven, patient'],
+    Aquarius:['ลงมือเพื่ออุดมการณ์ นอกกรอบ','acts for ideals, unconventional'], Pisces:['ลงมือตามสัญชาตญาณ อ้อม ไม่ตรง','acts intuitively, indirectly'],
+  };
+  sec.push(blk('☿','ดาวส่วนตัว — พุธ · ศุกร์ · อังคาร','Personal Planets — Mercury · Venus · Mars',
+    P(pick('นอกจาก Big Three "ดาวส่วนตัว" 3 ดวงนี้ตรึงรายละเอียดว่าคุณ คิด · รัก · ลงมือ อย่างไรเฉพาะตัว','Beyond the Big Three, these three personal planets pin down exactly how you think, love, and act.')) +
+    P(`${B(pick('☿ พุธใน'+sD(a.mer.en),'☿ Mercury in '+a.mer.en))} — ${pick('วิธีคิดและสื่อสาร','mind & communication')}: ${pick(MERC[a.mer.en]?.[0]||'',MERC[a.mer.en]?.[1]||'')}`) +
+    P(`${B(pick('♀ ศุกร์ใน'+sD(a.ven.en),'♀ Venus in '+a.ven.en))} — ${pick('วิธีรักและรสนิยม','love & values')}: ${pick(VEN[a.ven.en]?.[0]||'',VEN[a.ven.en]?.[1]||'')}`) +
+    P(`${B(pick('♂ อังคารใน'+sD(a.mar.en),'♂ Mars in '+a.mar.en))} — ${pick('แรงขับและการลงมือ','drive & action')}: ${pick(MARS[a.mar.en]?.[0]||'',MARS[a.mar.en]?.[1]||'')}`)));
+
+  // 3-6 domains
+  sec.push(blk('💼','การงาน — ควรทำ / ควรเลี่ยง','Career — What to Do / What to Avoid',
+    P(`${B(pick('สาขาที่เข้าทาง','Best fields'))}: ${pick(ef.career[0],ef.career[1])}`) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick(ef.do[0],ef.do[1])}`) + P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick(ef.avoid[0],ef.avoid[1])}`)));
+  sec.push(blk('💰','การเงิน — ควรทำ / ควรเลี่ยง','Money — What to Do / What to Avoid',
+    P(pick(ef.money[0],ef.money[1])) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('สร้างรายได้จากจุดแข็งธาตุ'+elD(domEl)+' ใช้สัญชาตญาณจันทร์อ่านจังหวะ','build income from your '+elD(domEl)+' strengths; use Moon-sign intuition for timing')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('ตัดสินใจการเงินตอนอารมณ์พุ่ง ปล่อยเงินโดยไม่มีข้อตกลง','financial decisions while emotional; lending without clear agreements')}`)));
+  sec.push(blk('❤️','ความรัก — ควรทำ / ควรเลี่ยง','Love — What to Do / What to Avoid',
+    P(pick(`ดวงจันทร์ใน${B(sD(a.moon.en))}คือแผนที่ความต้องการในรัก คู่ที่ใช่ตอบสนองสิ่งนั้น`,`Moon in ${B(a.moon.en)} is your needs-blueprint in love; the right partner satisfies it.`)) +
+    P(`${B(pick('ธาตุคู่ที่เข้ากัน','Compatible partner element'))}: ${pick(ef.partner[0],ef.partner[1])}`) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('ให้ความสัมพันธ์มีโครงสร้างและเวลา ค่อยเปิดโลกภายใน','give it structure and time; reveal your inner world gradually')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('คาดหวังให้คู่อ่านใจ ฉายความต้องการใส่คนที่ตอบสนองไม่ได้','expecting mind-reading; projecting needs onto someone who can\'t meet them')}`)));
+  sec.push(blk('🩺','สุขภาพ — ควรทำ / ควรเลี่ยง','Health — What to Do / What to Avoid',
+    P(pick(`อาทิตย์ใน${B(sD(a.sun.en))}ดูแล${ef.health[0]} จันทร์เพิ่มมิติประสาท — ความเครียดลงร่างกาย`,`Sun in ${B(a.sun.en)} governs ${ef.health[1]}; the Moon adds the nervous-system layer where stress lands.`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('พักช่วงจันทร์อยู่ราศีอาทิตย์ของคุณ ออกกำลังให้เข้าธาตุ','rest when the Moon is in your Sun sign; pick exercise that suits your element')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick(ef.avoid[0]+' และฝืนทำงานทั้งที่ล้า',ef.avoid[1]+'; and pushing through fatigue')}`)));
+
+  // 7. FAQ
+  sec.push(blk('💬','คำถามยอดฮิต — ตอบจากดวงคุณ','Popular Questions — Answered from Your Chart',
+    faqQ(pick('จุดแข็งที่สุดของฉัน?','My single biggest strength?'),
+      pick(`อาทิตย์${sD(a.sun.en)}ให้ ${SUN_CORE[a.sun.en]?.[0]||''} — รวมกับพลัง${B(MOD_DESC[domModEn]?.[0]||'')}และธาตุ${elD(domEl)}`,`Your ${a.sun.en} Sun gives ${SUN_CORE[a.sun.en]?.[1]||''} — combined with ${B(MOD_DESC[domModEn]?.[1]||'')} and ${elD(domEl)} strengths.`)) +
+    faqQ(pick('ปี 2026 ดวงเป็นยังไง?','How is 2026 for me?'),
+      pick(`${a.transitNote} ดาวเสาร์ในมีนให้ทุกคนแยกความจริงจากภาพลวง — ปีของวิจารณญาณ`,`${a.transitNoteEn}. Saturn in Pisces asks everyone to separate truth from illusion — a year of discernment.`)) +
+    faqQ(pick('อาชีพไหนเหมาะ?','Which careers suit me?'),
+      pick(ef.career[0],ef.career[1])) +
+    faqQ(pick('คู่แบบไหนเหมาะ?','What partner suits me?'),
+      pick(`ด้านธาตุ: ${ef.partner[0]} ด้านอารมณ์: คนที่ตอบโจทย์จันทร์${sD(a.moon.en)} (${MOON_IN[a.moon.en]?.[0]||''})`,`Elementally: ${ef.partner[1]}. Emotionally: someone who meets your ${a.moon.en} Moon (${MOON_IN[a.moon.en]?.[1]||''}).`)) +
+    faqQ(pick('ใช้ดวงรายวันยังไง?','How do I use my chart daily?'),
+      pick(`ตามดวงจันทร์ (เปลี่ยนราศีทุก 2-3 วัน) วันจันทร์อยู่${sD(a.moon.en)}=พลังอารมณ์สูงสุด เลี่ยงตัดสินใจใหญ่ช่วง Mercury Retrograde`,`Track the Moon (shifts every 2-3 days); when it's in ${a.moon.en} your emotional bandwidth peaks. Avoid big decisions during Mercury Retrograde.`)) +
+    faqQ(pick('สุขภาพต้องระวังอะไร?','What health area to watch?'),
+      pick(`ระบบของอาทิตย์${sD(a.sun.en)}: ${ef.health[0]} โดยเฉพาะปีที่ดาวเสาร์โคจรผ่านราศีนี้`,`Your Sun-sign system: ${ef.health[1]}, especially in years Saturn transits ${a.sun.en}.`))));
+
+  // 8. 2026 transits
+  sec.push(blk('🪐','ดาวพฤหัส & เสาร์ 2026','Jupiter & Saturn in 2026',
+    P(pick(`${B('ดาวพฤหัสใน'+a.jup.th)}: ${a.transitNote} — พฤหัสขยายด้านที่มันโคจรผ่าน นำโอกาส`,`${B('Jupiter in '+a.jup.en)}: ${a.transitNoteEn} — Jupiter expands the area it transits, bringing opportunity.`)) +
+    P(pick(`${B('ดาวเสาร์ใน'+a.sat.th)}: จัดโครงสร้างและทดสอบความซื่อตรง — ปีที่ต้องยึดความจริง ไม่ใช่ความปรารถนา`,`${B('Saturn in '+a.sat.en)}: structures and tests integrity — a year to stand on facts, not wishful thinking.`))));
+
+  // 7b. The 12 Houses — whole-sign, from the Ascendant
+  const ORDER = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+  const idxOf = (en: string) => Math.max(0, ORDER.indexOf(en));
+  const houseOf = (en: string) => ((idxOf(en) - idxOf(a.asc.en) + 12) % 12) + 1;
+  const HOUSE: Record<number,[string,string]> = {
+    1:['ตัวตน ภาพลักษณ์ ร่างกาย','self, image, body'], 2:['เงิน ทรัพย์สิน คุณค่าตัวเอง','money, possessions, self-worth'],
+    3:['การสื่อสาร พี่น้อง การเรียนระยะสั้น','communication, siblings, short learning'], 4:['บ้าน ครอบครัว รากเหง้า','home, family, roots'],
+    5:['ความรัก ความคิดสร้างสรรค์ ลูก','romance, creativity, children'], 6:['งานประจำ สุขภาพ การบริการ','daily work, health, service'],
+    7:['คู่ครอง หุ้นส่วน สัญญา','partnership, marriage, contracts'], 8:['การเปลี่ยนแปลง ทรัพย์ร่วม เรื่องลึก','transformation, shared resources, the hidden'],
+    9:['ปรัชญา การเดินทางไกล การศึกษาสูง','philosophy, long travel, higher study'], 10:['อาชีพ ชื่อเสียง สถานะ','career, reputation, status'],
+    11:['เครือข่าย เพื่อน ความหวัง','networks, friends, hopes'], 12:['จิตใต้สำนึก จิตวิญญาณ ความสันโดษ','subconscious, spirituality, solitude'],
+  };
+  const sunH = houseOf(a.sun.en), moonH = houseOf(a.moon.en);
+  sec.push(blk('🏛','บ้านสำคัญ — ชีวิตด้านไหนเด่น','Key Houses — Where Your Life Concentrates',
+    P(pick(`ใช้ราศีขึ้น${sD(a.asc.en)}เป็น "บ้านที่ 1" แล้วนับไป — จุดที่ดาวสำคัญตกบอกว่าชีวิตคุณ "หนัก" ไปทางด้านไหน`,`Taking your ${a.asc.en} Ascendant as the 1st house and counting onward, where your key lights fall shows which life areas carry the most weight.`)) +
+    P(`${B(pick('☉ อาทิตย์ในบ้านที่ '+sunH,'☉ Sun in House '+sunH))} — ${pick(HOUSE[sunH][0],HOUSE[sunH][1])}: ${pick('เวทีหลักที่ตัวตนคุณฉายแสงและอยากเป็นที่จดจำ','the main stage where your identity shines and seeks to be remembered')}`) +
+    P(`${B(pick('☽ จันทร์ในบ้านที่ '+moonH,'☽ Moon in House '+moonH))} — ${pick(HOUSE[moonH][0],HOUSE[moonH][1])}: ${pick('ที่ที่หัวใจคุณต้องการความอิ่มเอมและความปลอดภัย','where your heart seeks fulfilment and emotional safety')}`) +
+    P(pick('สองบ้านนี้คือ "จุดโฟกัสพลังงาน" — ลงแรงตรงนี้ได้ผลคูณ ส่วนบ้านตรงข้าม (บวก 6) คือด้านที่ต้องฝึกให้สมดุล','These two houses are your energy focus — effort here compounds. Their opposite houses (+6) are the areas you must consciously balance.'))));
+
+  // 7c. 2026 month-by-month — the Sun's transit through the zodiac
+  const SUN_CAL: [string,string,string,[string,string]][] = [
+    ['Jan','มกร','Capricorn',['อาชีพ ชื่อเสียง เป้าหมายระยะยาว','career, reputation, long-term goals']],
+    ['Feb','กุมภ์','Aquarius',['นวัตกรรม เครือข่าย ชุมชน','innovation, networks, community']],
+    ['Mar','มีน','Pisces',['ฟื้นฟู จินตนาการ ชำระใจ','restoration, imagination, cleansing']],
+    ['Apr','เมษ','Aries',['พลังใหม่ เริ่มโครงการ กล้าก้าว','new energy, launch projects, dare to move']],
+    ['May','พฤษภ','Taurus',['สะสม รายได้ ความสบาย','accumulate, income, comfort']],
+    ['Jun','เมถุน','Gemini',['สื่อสาร เรียนรู้ เครือข่าย','communicate, learn, network']],
+    ['Jul','กรกฎ','Cancer',['บ้าน ครอบครัว อารมณ์','home, family, emotions']],
+    ['Aug','สิงห์','Leo',['สร้างสรรค์ ความรัก โชว์ตัว','creativity, romance, shine']],
+    ['Sep','กันย์','Virgo',['จัดระบบ สุขภาพ รายละเอียด','organise, health, details']],
+    ['Oct','ตุลย์','Libra',['ความสัมพันธ์ ความร่วมมือ ความยุติธรรม','relationships, partnership, balance']],
+    ['Nov','พิจิก','Scorpio',['ลึกซึ้ง แปลงร่าง ตัดสิ่งที่ไม่จำเป็น','depth, transformation, release']],
+    ['Dec','ธนู','Sagittarius',['วิสัยทัศน์ ผจญภัย วางแผนปีหน้า','vision, adventure, plan ahead']],
+  ];
+  const calRows = SUN_CAL.map(([en,th,sign,thm]) => { const me = sign === a.sun.en;
+    return `<tr style="${me?'background:rgba(212,175,55,0.10)':''}"><td style="padding:4px 8px;border-bottom:1px solid #2a2545;white-space:nowrap;color:#9a8a72">${en} 2026</td><td style="padding:4px 8px;border-bottom:1px solid #2a2545">${pick(th,sign)}${me?pick(' ☉ ราศีคุณ',' ☉ your Sun'):''}</td><td style="padding:4px 8px;border-bottom:1px solid #2a2545;color:#c8b080">${pick(thm[0],thm[1])}</td></tr>`; }).join('');
+  sec.push(blk('📅','ปี 2026 รายเดือน — ดวงอาทิตย์โคจร','2026 Month by Month — The Sun\'s Journey',
+    P(pick(`ดวงอาทิตย์โคจรราศีละเดือน จุดแสงให้ชีวิตด้านต่างๆ เมื่อถึง${B(sD(a.sun.en))} (ราศีคุณ) พลังงาน "คือคุณ" ที่สุด — วางแผนผลักดันใหญ่ช่วงนั้น และฟื้นตัวในเดือนก่อนหน้า`,`The Sun moves one sign per month, lighting different life areas. When it reaches ${B(a.sun.en)} (your sign), the energy is most "you" — plan big pushes then, and restore in the preceding month.`)) +
+    `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:6px">${calRows}</table>`));
+
+  // 8b. Aspects — angular relationships between the key points
+  const PTS = [
+    {th:'อาทิตย์',en:'Sun',deg:a.sunDeg}, {th:'จันทร์',en:'Moon',deg:a.moonDeg}, {th:'ราศีขึ้น',en:'Ascendant',deg:a.ascDeg},
+    {th:'พุธ',en:'Mercury',deg:a.merDeg}, {th:'ศุกร์',en:'Venus',deg:a.venDeg}, {th:'อังคาร',en:'Mars',deg:a.marDeg},
+    {th:'พฤหัส',en:'Jupiter',deg:a.jupDeg}, {th:'เสาร์',en:'Saturn',deg:a.satDeg},
+  ];
+  const THEME: Record<string,[string,string]> = {
+    Sun:['ตัวตน เจตจำนง','identity & will'], Moon:['อารมณ์ ความต้องการภายใน','emotion & inner needs'],
+    Ascendant:['บุคลิกภายนอก วิธีเข้าหาโลก','outer persona & approach'], Jupiter:['การขยาย โอกาส ความเชื่อ','expansion, luck & belief'], Saturn:['วินัย ขีดจำกัด ความรับผิดชอบ','discipline, limits & duty'],
+    Mercury:['ความคิด การสื่อสาร','mind & communication'], Venus:['ความรัก คุณค่า','love & values'], Mars:['แรงขับ การลงมือ','drive & action'],
+  };
+  const ASP = [
+    {ang:0,th:'ทับกัน (Conjunction 0°)',en:'Conjunction (0°)',kind:'fuse'},
+    {ang:60,th:'สามเหลี่ยมเล็ก (Sextile 60°)',en:'Sextile (60°)',kind:'flow'},
+    {ang:90,th:'ฉาก (Square 90°)',en:'Square (90°)',kind:'tension'},
+    {ang:120,th:'สามเหลี่ยม (Trine 120°)',en:'Trine (120°)',kind:'flow'},
+    {ang:180,th:'ตรงข้าม (Opposition 180°)',en:'Opposition (180°)',kind:'tension'},
+  ];
+  const kindTxt: Record<string,[string,string]> = {
+    fuse:['หลอมรวม เข้มข้น พลังสองด้านทำงานเป็นหนึ่ง','fused and intense — the two energies act as one'],
+    flow:['ไหลลื่น เสริมกันเอง เป็นพรที่ใช้ได้ฟรี','flowing and supportive — a natural-born gift'],
+    tension:['ตึง ต้องปรับ — แรงเสียดทานที่ผลักให้โต','tense — friction that pushes growth when you work it'],
+  };
+  const aspFound: { a: typeof PTS[0]; b: typeof PTS[0]; asp: typeof ASP[0]; orb: number }[] = [];
+  for (let i=0;i<PTS.length;i++) for (let j=i+1;j<PTS.length;j++) {
+    let diff = Math.abs(PTS[i].deg - PTS[j].deg) % 360; if (diff > 180) diff = 360 - diff;
+    for (const x of ASP) { if (Math.abs(diff - x.ang) <= 7) { aspFound.push({ a:PTS[i], b:PTS[j], asp:x, orb:Math.round(Math.abs(diff-x.ang)*10)/10 }); break; } }
+  }
+  aspFound.sort((x,y)=>x.orb-y.orb);
+  const aspRows = aspFound.length ? aspFound.map(f => {
+    const t1 = THEME[f.a.en], t2 = THEME[f.b.en];
+    return P(`${B(pick(f.a.th,f.a.en)+' '+(isEn?f.asp.en:f.asp.th)+' '+pick(f.b.th,f.b.en))} (orb ${f.orb}°) — ${pick(kindTxt[f.asp.kind][0],kindTxt[f.asp.kind][1])}: ${pick(t1[0],t1[1])} ${pick('พบกับ','meets')} ${pick(t2[0],t2[1])}`);
+  }).join('') : P(pick('ดาวหลักของคุณไม่ทำมุมเด่นต่อกัน — บุคลิกแต่ละด้านทำงานค่อนข้างอิสระจากกัน','Your key points form no tight aspects — each facet of you operates fairly independently.'));
+  sec.push(blk('🔗','Aspects — มุมระหว่างดาว (จุดที่ลึกที่สุด)','Aspects — How Your Planets Talk to Each Other',
+    P(pick('Aspect คือ "มุม" ที่ดาวทำต่อกัน — นักโหราศาสตร์ว่า "insight ที่ลึกที่สุดอยู่ตรงนี้" เพราะมันบอกว่าพลังแต่ละด้านของคุณ "คุยกัน" แบบไหน (ไหลลื่นหรือตึง)','Aspects are the angles your planets make — astrologers say the deepest insight lives here, because they show how the different forces in you talk to each other (smoothly or with friction).')) + aspRows));
+
+  // 8c. Natal Sun-Moon phase
+  const phase = ((a.moonDeg - a.sunDeg) % 360 + 360) % 360;
+  const PH: [number,string,string,string][] = [
+    [45,'จันทร์เสี้ยวข้างขึ้น (New)','New-phase','เกิดมาเพื่อ "เริ่ม" — ขับเคลื่อนด้วยสัญชาตญาณและความใหม่ ไม่ต้องรอให้พร้อม'],
+    [90,'ข้างขึ้นเสี้ยว (Crescent)','Crescent','ดิ้นรนผ่านอุปสรรคแรกเพื่อสร้างตัว — มีแรงผลักให้ก้าวข้ามอดีต'],
+    [135,'กึ่งดวงข้างขึ้น (First Quarter)','First Quarter','คนแห่งการกระทำและวิกฤต — เติบโตผ่านการตัดสินใจและลงมือสร้าง'],
+    [180,'ข้างขึ้นโป่ง (Gibbous)','Gibbous','มุ่งพัฒนา ปรับแต่ง วิเคราะห์ — อยากทำให้สมบูรณ์และมีความหมาย'],
+    [225,'จันทร์เพ็ญ (Full)','Full','เกิดมาเพื่อ "เห็นภาพรวม" และสัมพันธ์กับคนอื่น — ตระหนักรู้สูง'],
+    [270,'ข้างแรมโป่ง (Disseminating)','Disseminating','คนแห่งการแบ่งปันและสอน — อยากส่งต่อสิ่งที่เรียนรู้'],
+    [315,'กึ่งดวงข้างแรม (Last Quarter)','Last Quarter','คนแห่งการทบทวนและปฏิรูป — เปลี่ยนระบบเก่าด้วยหลักการของตัวเอง'],
+    [360,'จันทร์เสี้ยวข้างแรม (Balsamic)','Balsamic','จิตวิญญาณเก่าแก่ — ปล่อยวาง เตรียมรอบใหม่ มีปัญญาเชิงลึก'],
+  ];
+  const phEN: Record<string,string> = { 'New-phase':'born to begin — driven by instinct and the new; don\'t wait to feel ready','Crescent':'pushing through early obstacles to establish yourself; a drive to move past the past','First Quarter':'a person of action and crisis — you grow through decisions and building','Gibbous':'devoted to refining, analysing, perfecting — you want things meaningful and right','Full':'born to see the whole picture and relate to others — highly aware','Disseminating':'a sharer and teacher — you want to pass on what you\'ve learned','Last Quarter':'a reviewer and reformer — you change old systems by your own principles','Balsamic':'an old soul — releasing, preparing a new cycle, with deep wisdom' };
+  const ph = PH.find(p => phase < p[0]) || PH[0];
+  sec.push(blk('🌗','พระอาทิตย์–พระจันทร์ — เฟสเกิดของคุณ','Your Natal Sun-Moon Phase',
+    P(pick(`มุมระหว่างอาทิตย์กับจันทร์ตอนคุณเกิด = ${B(Math.round(phase)+'°')} → ${B(ph[1])} — ${ph[3]}`,`The angle between your Sun and Moon at birth = ${B(Math.round(phase)+'°')} → ${B(ph[2])} — ${phEN[ph[2]]}.`))));
+
+  // 9. enhance/avoid
+  sec.push(blk('🎨','เสริม / เลี่ยง — ภาพรวม','Enhance / Avoid — Overall',
+    P(pick(`ธาตุเด่นของคุณคือ${B(elD(domEl))} เสริมด้วยสี${B(COLOR_W[domEl]?.[0]||'')} และหิน${B(STONE_W[domEl]?.[0]||'')} ธาตุที่มักดูดพลังเมื่อมากเกินคือ${B(elD(avoidEl))}`,`Your dominant element is ${B(elD(domEl))}. Amplify with ${B(COLOR_W[domEl]?.[1]||'')} and ${B(STONE_W[domEl]?.[1]||'')}. The element that drains you when overdone is ${B(elD(avoidEl))}.`)) +
+    P(`✅ ${B(pick('เสริม','Enhance'))}: ${pick('แต่งที่ทำงาน/เสื้อผ้าด้วยสีธาตุเด่น ตั้งเจตนาในช่วง New Moon ราศีอาทิตย์คุณทุกปี','decorate workspace/wardrobe with your element colours; set intentions on the New Moon in your Sun sign yearly')}`) +
+    P(`⚠️ ${B(pick('เลี่ยง','Avoid'))}: ${pick('รับธาตุ'+elD(avoidEl)+'มากเกินยามล้า และตัดสินใจใหญ่ช่วงอารมณ์พุ่งใน Sun-season ของคุณ','overloading '+elD(avoidEl)+' when depleted; big decisions during your emotional Sun-season — sleep on it')}`)));
+
+  const _ord = ['📜','🌟','☿','🔗','🌗','🏛','💼','💰','❤️','🩺','🪐','📅','🎨','💬'];
+  const _rk = (s: string) => { let b = 99, bp = 1e9; _ord.forEach((ic, i) => { const p = s.indexOf(ic); if (p >= 0 && p < bp) { bp = p; b = i; } }); return b; };
+  sec.sort((p, q) => _rk(p) - _rk(q));
+  return sec.join('');
+}
+
 function calcWestern(d: BirthData): WesternData {
   const utcHour = d.hour - d.timezone + d.minute / 60;
   const jd = toJD(d.year, d.month, d.day, utcHour);
@@ -320,12 +656,18 @@ function calcWestern(d: BirthData): WesternData {
   const ascLon  = ascLongitude(jd, utcHour, d.lat, d.lon);
   const jupLon  = planetLongitude(jd, 'jupiter');
   const satLon  = planetLongitude(jd, 'saturn');
+  const merLon  = _eclLon(jd, 'Mercury');
+  const venLon  = _eclLon(jd, 'Venus');
+  const marLon  = _eclLon(jd, 'Mars');
 
   const sun  = lonToSign(sunLon);
   const moon = lonToSign(moonLon);
   const asc  = lonToSign(ascLon);
   const jup  = lonToSign(jupLon);
   const sat  = lonToSign(satLon);
+  const mer  = lonToSign(merLon);
+  const ven  = lonToSign(venLon);
+  const mar  = lonToSign(marLon);
 
   const TRANSIT: Record<number, string> = {
     0: 'ดาวพฤหัสฯ เคลื่อนผ่านราศีเมษ — ปีแห่งการเริ่มต้นใหม่ พลังงานของคุณพุ่งสูง',
@@ -380,7 +722,7 @@ function calcWestern(d: BirthData): WesternData {
     closingTh: 'Carl Jung กล่าวว่า "เราเกิดในช่วงเวลาที่จักรวาลกำลังพูดเรื่องเรา" — โหราศาสตร์ตะวันตกคือการเรียนภาษาที่จักรวาลใช้พูดถึงคุณ',
     closingEn: 'Carl Jung wrote: "We are born at the moment the cosmos is speaking about us." Western astrology is the work of learning the language the cosmos uses to talk about you.',
   });
-  return {
+  const westernResult: WesternData = {
     sunSign: sun.en, sunSignTh: sun.th, sunDeg: sunLon,
     moonSign: moon.en, moonSignTh: moon.th, moonDeg: moonLon,
     ascSign: asc.en, ascSignTh: asc.th, ascDeg: ascLon,
@@ -388,7 +730,15 @@ function calcWestern(d: BirthData): WesternData {
     transitNote2026: transitNote,
     score: wScore,
     reading,
+    deepReading: '',
   };
+  westernResult.deepReading = _westernDeepSections({
+    sun, moon, asc, jup, sat, mer, ven, mar,
+    sunDeg: sunLon, moonDeg: moonLon, ascDeg: ascLon, jupDeg: jupLon, satDeg: satLon,
+    merDeg: merLon, venDeg: venLon, marDeg: marLon,
+    transitNote, transitNoteEn,
+  });
+  return westernResult;
 }
 
 // ============================================================
@@ -507,6 +857,436 @@ const DM_READINGS: Record<string, string> = {
   '癸': 'เจ้าชีวิตน้ำอ่อน 癸 คือน้ำค้าง — ละเอียดอ่อน มีสัญชาตญาณ บำรุงเลี้ยง สะท้อนความจริง เหมาะกับงานวิจัยและงานจิตวิทยา',
 };
 
+// ── BaZi DEEP READING ───────────────────────────────────────────────
+// Extra sections appended ONLY to the in-app Deep Reading panel
+// (`deepReading`), never to the 43-page Blueprint (`reading` is untouched).
+// Authored entirely from fields calcBazi already computes → deterministic,
+// instant, client-side, $0, no Vercel/LLM. Pilot system: the same pattern
+// rolls out to the other 25 systems via their own *DeepSections() builders.
+// ── BaZi professional computation helpers (deterministic classical tables) ──
+const _EL_IDX: Record<string, number> = { 'ไม้':0,'ไฟ':1,'ดิน':2,'โลหะ':3,'น้ำ':4 };
+// Hidden Stems (藏干): branch index (子=0..亥=11) → hidden Heavenly-Stem indices (甲=0..癸=9)
+const _BAZI_HIDDEN: number[][] = [
+  [9],[5,9,7],[0,2,4],[1],[4,1,9],[2,4,6],[3,5],[5,3,1],[6,8,4],[7],[4,7,3],[8,0],
+];
+// Ten Gods (十神): key → [Chinese, Thai short, English short]
+const _TEN_GODS: Record<string,[string,string,string]> = {
+  bi:   ['比肩','เพื่อนพ้อง (ตัวตน)','Friend'],
+  jie:  ['劫財','พี่น้อง/คู่แข่ง','Rob Wealth'],
+  shi:  ['食神','ผลิตภาพ/ความสุข','Eating God'],
+  shang:['傷官','พรสวรรค์/ขบถ','Hurting Officer'],
+  pcai: ['偏財','ทรัพย์ลอย/โอกาส','Indirect Wealth'],
+  zcai: ['正財','ทรัพย์มั่นคง','Direct Wealth'],
+  qsha: ['七殺','อำนาจดิบ/แรงผลัก','Seven Killings'],
+  zguan:['正官','เกียรติ/ระเบียบ','Direct Officer'],
+  pyin: ['偏印','ปัญญาเฉพาะทาง','Indirect Resource'],
+  zyin: ['正印','วิชา/ผู้อุปถัมภ์','Direct Resource'],
+};
+function _baziTenGod(dmIdx: number, oIdx: number) {
+  const di = _EL_IDX[STEMS_EL[dmIdx]] ?? 0, oi = _EL_IDX[STEMS_EL[oIdx]] ?? 0;
+  const same = STEMS_POL[dmIdx] === STEMS_POL[oIdx];
+  let key: string;
+  if (oi === di) key = same ? 'bi' : 'jie';
+  else if (oi === (di + 1) % 5) key = same ? 'shi' : 'shang';   // DM produces o → output
+  else if (oi === (di + 2) % 5) key = same ? 'pcai' : 'zcai';   // DM controls o → wealth
+  else if (oi === (di + 3) % 5) key = same ? 'qsha' : 'zguan';  // o controls DM → officer
+  else key = same ? 'pyin' : 'zyin';                            // o produces DM → resource
+  const t = _TEN_GODS[key];
+  return { key, cn: t[0], th: t[1], en: t[2] };
+}
+// Day Master strength — support (self + resource) vs drain (output/wealth/officer)
+function _baziDMStrength(dmIdx: number, p: { year:{si:number;bi:number}; month:{si:number;bi:number}; day:{si:number;bi:number}; hour:{si:number;bi:number} }) {
+  const di = _EL_IDX[STEMS_EL[dmIdx]] ?? 0;
+  const isSup = (si: number) => { const ei = _EL_IDX[STEMS_EL[si]] ?? 0; return ei === di || ei === (di + 4) % 5; };
+  let sup = 0, tot = 0;
+  const add = (si: number, w: number) => { tot += w; if (isSup(si)) sup += w; };
+  add(p.year.si, 1); add(p.month.si, 2); add(p.hour.si, 1);
+  ([[p.year.bi,1],[p.month.bi,2],[p.day.bi,1],[p.hour.bi,1]] as [number,number][]).forEach(([br,w]) => {
+    for (const hs of (_BAZI_HIDDEN[br] || [])) add(hs, w);
+  });
+  const pct = tot ? Math.round(sup / tot * 100) : 50;
+  return { pct, verdict: (pct >= 55 ? 'strong' : (pct <= 38 ? 'weak' : 'balanced')) as 'strong'|'weak'|'balanced' };
+}
+// Symbolic Stars (神煞) present among the four branches
+const _SS_NOBLE: Record<number, number[]> = { 0:[1,7],4:[1,7],6:[1,7], 1:[0,8],5:[0,8], 2:[11,9],3:[11,9], 8:[3,5],9:[3,5], 7:[2,6] };
+const _SS_ACADEMIC: Record<number, number> = { 0:5,1:6,2:8,4:8,3:9,5:9,6:11,7:0,8:2,9:3 };
+function _baziShenSha(dmIdx: number, dayBi: number, branches: number[]): Array<[string,string]> {
+  const out: Array<[string,string]> = [];
+  const has = (b: number) => branches.includes(b);
+  const grp = (bi: number) => [8,0,4].includes(bi) ? 'A' : [2,6,10].includes(bi) ? 'B' : [5,9,1].includes(bi) ? 'C' : 'D';
+  for (const b of (_SS_NOBLE[dmIdx] || [])) if (has(b)) { out.push(['เทียนอี๋กุ้ยเหริน (貴人) — มีผู้ใหญ่อุปถัมภ์ ช่วยให้พ้นวิกฤต','Nobleman (貴人) — powerful mentors appear, especially in crises']); break; }
+  { const t = _SS_ACADEMIC[dmIdx]; if (t != null && has(t)) out.push(['เหวินชาง (文昌) — ปัญญา การเรียน งานวิชาการ/งานเขียน','Academic Star (文昌) — intellect, study, writing, scholarship']); }
+  const g = grp(dayBi);
+  const PEACH: Record<string,number> = { A:9, B:3, C:6, D:0 };
+  const HORSE: Record<string,number> = { A:2, B:8, C:11, D:5 };
+  const CANOPY: Record<string,number> = { A:4, B:10, C:1, D:7 };
+  if (has(PEACH[g])) out.push(['ดอกท้อ (桃花) — เสน่ห์ดึงดูดคน เด่นเรื่องความรัก/ศิลปะ','Peach Blossom (桃花) — charisma and magnetism; romance and art']);
+  if (has(HORSE[g])) out.push(['อี้หม่า (驛馬) — เดินทาง ย้ายถิ่น เปลี่ยนแปลง โอกาสไกลตัว','Travelling Horse (驛馬) — travel, relocation, change, distant opportunity']);
+  if (has(CANOPY[g])) out.push(['หัวก้าย (華蓋) — ปัญญาเชิงจิตวิญญาณ ศิลปะ ความโดดเดี่ยวสร้างสรรค์','Canopy (華蓋) — spirituality, art, the gift of creative solitude']);
+  return out;
+}
+// Clashes (六冲) and Combinations (六合) among the four branches
+function _baziClashCombo(branches: number[]) {
+  const COMBOS: [number,number][] = [[0,1],[2,11],[3,10],[4,9],[5,8],[6,7]];
+  const clashes: [number,number][] = [], combos: [number,number][] = [];
+  const uniq = Array.from(new Set(branches));
+  for (let i=0;i<uniq.length;i++) for (let j=i+1;j<uniq.length;j++) {
+    const a = uniq[i], b = uniq[j];
+    if (Math.abs(a-b) === 6) clashes.push([a,b]);
+    if (COMBOS.some(([x,y]) => (x===a&&y===b)||(x===b&&y===a))) combos.push([a,b]);
+  }
+  return { clashes, combos };
+}
+type _PillarLite = { s: string; b: string; sTh: string; bTh: string; si: number; bi: number };
+function _baziDeepSections(a: {
+  dmIdx: number; dmEl: string; missing: string; dominant: string; luckyEl: string; avoidEl: string;
+  polarity: string; dayStemTh: string; elCount: Record<string, number>;
+  pillars: { year: _PillarLite; month: _PillarLite; day: _PillarLite; hour: _PillarLite };
+  lps: LuckPillar[]; currentLP: LuckPillar; benMing: boolean; gender: string;
+}): string {
+  const isEn = _reportLang === 'en';
+  // Element display — handles multi-element strings ('ไม้ ไฟ', 'ไฟ ดิน') so EN
+  // mode never leaks Thai: translate each token, join with ' & '.
+  const elD = (el: string) => isEn ? String(el||'').split(/\s+/).filter(Boolean).map(e=>tEl(e)).join(' & ') : el;
+  const dmEl = a.dmEl;
+  // First token for single-keyed lookups (colour/direction/organ maps).
+  const missing1 = String(a.missing||'').split(/\s+/)[0] || dmEl;
+  const lucky1   = String(a.luckyEl||'').split(/\s+/)[0] || dmEl;
+  // Five-element cycles (Thai-keyed — the engine's canonical element labels)
+  const PRODUCES: Record<string,string>      = { 'ไม้':'ไฟ','ไฟ':'ดิน','ดิน':'โลหะ','โลหะ':'น้ำ','น้ำ':'ไม้' };
+  const PRODUCED_BY: Record<string,string>   = { 'ไม้':'น้ำ','ไฟ':'ไม้','ดิน':'ไฟ','โลหะ':'ดิน','น้ำ':'โลหะ' };
+  const CONTROLS: Record<string,string>      = { 'ไม้':'ดิน','ไฟ':'โลหะ','ดิน':'น้ำ','โลหะ':'ไม้','น้ำ':'ไฟ' };
+  const CONTROLLED_BY: Record<string,string> = { 'ไม้':'โลหะ','ไฟ':'น้ำ','ดิน':'ไม้','โลหะ':'ไฟ','น้ำ':'ดิน' };
+  const wealthEl   = CONTROLS[dmEl]      ?? 'ดิน';   // 財 — element the Day Master controls
+  const officerEl  = CONTROLLED_BY[dmEl] ?? 'โลหะ';  // 官殺 — element that controls the DM
+  const resourceEl = PRODUCED_BY[dmEl]   ?? 'น้ำ';   // 印 — element that produces the DM
+  const outputEl   = PRODUCES[dmEl]      ?? 'ไฟ';    // 食傷 — element the DM produces
+
+  // ── Professional computations (deterministic) ──
+  const P4 = a.pillars;
+  const strength = _baziDMStrength(a.dmIdx, { year: P4.year, month: P4.month, day: P4.day, hour: P4.hour });
+  const allBranches = [P4.year.bi, P4.month.bi, P4.day.bi, P4.hour.bi];
+  const shenSha = _baziShenSha(a.dmIdx, P4.day.bi, allBranches);
+  const cc = _baziClashCombo(allBranches);
+  const tgYear = _baziTenGod(a.dmIdx, P4.year.si);
+  const tgMonth = _baziTenGod(a.dmIdx, P4.month.si);
+  const tgHour = _baziTenGod(a.dmIdx, P4.hour.si);
+  // Dominant Ten-God FAMILY (for the archetype) across stems + hidden stems
+  const TG_FAMILY: Record<string,string> = { bi:'self',jie:'self', shi:'output',shang:'output', pcai:'wealth',zcai:'wealth', qsha:'power',zguan:'power', pyin:'resource',zyin:'resource' };
+  const famCount: Record<string,number> = {};
+  const bumpFam = (si: number, w: number) => { const f = TG_FAMILY[_baziTenGod(a.dmIdx, si).key]; famCount[f] = (famCount[f]||0)+w; };
+  bumpFam(P4.year.si,1); bumpFam(P4.month.si,2); bumpFam(P4.hour.si,1);
+  ([[P4.year.bi,1],[P4.month.bi,2],[P4.day.bi,1],[P4.hour.bi,1]] as [number,number][]).forEach(([bi,w]) => { for (const hs of (_BAZI_HIDDEN[bi]||[])) bumpFam(hs, w); });
+  const topFam = Object.entries(famCount).sort((x,y)=>y[1]-x[1])[0]?.[0] || 'self';
+  const FAM_ARCHE: Record<string,[string,string]> = {
+    self:    ['ตัวตน-เอกราช (比劫เด่น) — เป็นตัวของตัวเอง พึ่งตนเอง เหมาะเป็นเจ้าของกิจการ/ผู้เชี่ยวชาญอิสระ','Self-Independence (比劫) — self-reliant and individual; suits founders & independent experts'],
+    output:  ['ผลิตภาพ-สร้างสรรค์ (食傷เด่น) — ความคิดไหล แสดงออกเก่ง เหมาะงานสร้างสรรค์/สอน/สื่อ','Output-Creativity (食傷) — ideas flow, expressive; suits creative/teaching/media work'],
+    wealth:  ['ทรัพย์-การจัดการ (財เด่น) — มองโอกาสเป็นเงิน เก่งบริหารทรัพยากร เหมาะค้าขาย/ลงทุน','Wealth-Management (財) — turns opportunity into money; suits commerce/investing'],
+    power:   ['อำนาจ-วินัย (官殺เด่น) — รับผิดชอบสูง เป็นผู้นำในระบบ เหมาะบริหาร/ราชการ/องค์กรใหญ่','Power-Discipline (官殺) — responsible leader within systems; suits management/public office'],
+    resource:['ปัญญา-อุปถัมภ์ (印เด่น) — รักการเรียนรู้ มีผู้ใหญ่หนุน เหมาะวิชาการ/ที่ปรึกษา/ดูแล','Resource-Wisdom (印) — loves learning, well-supported; suits academia/advisory/care'],
+  };
+  // Career fit + DO/AVOID by Day-Master element
+  const INDUSTRY: Record<string,[string,string]> = {
+    'ไม้':['การศึกษา สิ่งพิมพ์ สุขภาพ ออกแบบ สิ่งแวดล้อม เกษตร','education, publishing, health, design, environment, agriculture'],
+    'ไฟ':['การตลาด บันเทิง เทคโนโลยี ความงาม งานผู้นำ/พรีเซนต์','marketing, entertainment, tech, beauty, leadership/presenting'],
+    'ดิน':['อสังหาฯ ก่อสร้าง บริหาร ประกัน อาหาร โลจิสติกส์','real estate, construction, management, insurance, food, logistics'],
+    'โลหะ':['การเงิน กฎหมาย วิศวกรรม ทหาร/ตำรวจ เครื่องจักร','finance, law, engineering, military/police, machinery'],
+    'น้ำ':['การค้า ท่องเที่ยว สื่อสาร วิจัย ที่ปรึกษา โลจิสติกส์','trade, travel, communication, research, consulting, logistics'],
+  };
+  const WORK_DO: Record<string,[string,string]> = {
+    'ไม้':['วางแผนยาว สร้างทีม ลงทุนในความรู้','plan long, build teams, invest in learning'],
+    'ไฟ':['นำเสนอ เป็นหน้าตา สร้างแบรนด์ตัวเอง','present, be the face, build your own brand'],
+    'ดิน':['สร้างระบบ รับบทที่ไว้ใจได้ สะสมสินทรัพย์','build systems, take trusted roles, accumulate assets'],
+    'โลหะ':['ตั้งมาตรฐาน ตัดสินใจเด็ดขาด งานแม่นยำ','set standards, decide firmly, do precision work'],
+    'น้ำ':['เจรจา เชื่อมคน ทำงานยืดหยุ่น/หลายโปรเจกต์','negotiate, connect people, stay flexible/multi-project'],
+  };
+  const WORK_AVOID: Record<string,[string,string]> = {
+    'ไม้':['รีบเก็บเกี่ยว งานซ้ำซากตายตัว','rushing the harvest; rigid repetitive work'],
+    'ไฟ':['งานเงียบหลังฉาก เผาตัวจนหมดไฟ','invisible back-office work; burning out'],
+    'ดิน':['เปลี่ยนงานบ่อย เก็งกำไรเสี่ยงสูง','frequent job-hopping; high-risk speculation'],
+    'โลหะ':['งานคลุมเครือไร้กติกา ยอมประนีประนอมหลักการ','rule-less ambiguous work; compromising principles'],
+    'น้ำ':['ถูกมัดอยู่กับที่ งานตายตัวไร้อิสระ','being pinned down; rigid no-freedom roles'],
+  };
+
+  // ── Useful God 用神 / Avoid God 忌神 — STRENGTH-AWARE (overrides the fixed
+  //    luckyElement map). Weak DM → feed self (resource+peer); strong DM →
+  //    drain excess (output+wealth). This is the "overall" remedy layer; each
+  //    life-domain still has its own governing element + its own pitfall.
+  const splitEls = (arr: string[]) => Array.from(new Set(arr.flatMap(e => String(e).split(/\s+/)).filter(Boolean)));
+  const yong = splitEls(strength.verdict === 'weak' ? [resourceEl, dmEl] : strength.verdict === 'strong' ? [outputEl, wealthEl] : [resourceEl]);
+  const ji   = splitEls(strength.verdict === 'weak' ? [officerEl, wealthEl] : strength.verdict === 'strong' ? [resourceEl, dmEl] : [a.dominant]);
+  // FAQ support computations
+  const lpElOf = (lp: LuckPillar) => STEMS_EL[STEMS.indexOf(lp.stem)] ?? dmEl;
+  const bestLP = a.lps.find(lp => yong.includes(lpElOf(lp)));
+  const worstLP = a.lps.find(lp => ji.includes(lpElOf(lp)));
+  const wealthLPs = a.lps.filter(lp => lpElOf(lp) === wealthEl);
+  const _MTH = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const _MTH_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const _MEL = ['ดิน','ไม้','ไม้','ดิน','ไฟ','ไฟ','ดิน','โลหะ','โลหะ','ดิน','น้ำ','น้ำ'];
+  const wealthMonths = _MEL.map((e,i) => e === wealthEl ? i : -1).filter(i => i >= 0);
+  const supportMonths = _MEL.map((e,i) => yong.includes(e) ? i : -1).filter(i => i >= 0);
+  const year2026El = 'ไฟ'; // 2026 = 丙午 Fire Horse
+  const rel2026 = a.benMing ? 'benming' : yong.includes(year2026El) ? 'good' : ji.includes(year2026El) ? 'tough' : 'mixed';
+  const entrepLean = (topFam === 'self' || topFam === 'output' || topFam === 'wealth');
+
+  const blk = (icon: string, thT: string, enT: string, body: string) =>
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545">
+       <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+  const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+
+  // Element → strength/career flavour (Thai + English)
+  const EL_TRAIT: Record<string,[string,string]> = {
+    'ไม้':['การเติบโต การวางแผนระยะยาว และการบ่มเพาะ','growth, long-range planning, and cultivation'],
+    'ไฟ':['การเปล่งประกาย การนำ และการสร้างแรงบันดาลใจ','radiance, leadership, and inspiring others'],
+    'ดิน':['ความมั่นคง ความน่าเชื่อถือ และการสร้างรากฐาน','stability, reliability, and building foundations'],
+    'โลหะ':['ความแม่นยำ หลักการ และระบบระเบียบ','precision, principle, and disciplined systems'],
+    'น้ำ':['ปัญญา ความยืดหยุ่น และการอ่านสถานการณ์','wisdom, adaptability, and reading the room'],
+  };
+  // Element → TCM organ system (for the health block)
+  const ORGAN: Record<string,[string,string]> = {
+    'ไม้':['ตับ ถุงน้ำดี ดวงตา และเส้นเอ็น','liver, gallbladder, eyes, and tendons'],
+    'ไฟ':['หัวใจ ลำไส้เล็ก ระบบไหลเวียนเลือด','heart, small intestine, and circulation'],
+    'ดิน':['ม้าม กระเพาะอาหาร และระบบย่อยอาหาร','spleen, stomach, and digestion'],
+    'โลหะ':['ปอด ลำไส้ใหญ่ ผิวหนัง และระบบหายใจ','lungs, large intestine, skin, and breathing'],
+    'น้ำ':['ไต กระเพาะปัสสาวะ กระดูก และหู','kidneys, bladder, bones, and ears'],
+  };
+  // Element → lucky colour / direction (remedy block)
+  const EL_COLOR: Record<string,[string,string]> = {
+    'ไม้':['เขียว · ฟ้าน้ำทะเล','green · teal'], 'ไฟ':['แดง · ส้ม · ม่วง','red · orange · purple'],
+    'ดิน':['เหลือง · น้ำตาล · เบจ','yellow · brown · beige'], 'โลหะ':['ขาว · เงิน · ทอง','white · silver · gold'],
+    'น้ำ':['ดำ · กรมท่า','black · navy'],
+  };
+  const EL_DIR: Record<string,[string,string]> = {
+    'ไม้':['ทิศตะวันออก','East'], 'ไฟ':['ทิศใต้','South'], 'ดิน':['ทิศกลาง/ตะวันออกเฉียงเหนือ','Centre / North-East'],
+    'โลหะ':['ทิศตะวันตก','West'], 'น้ำ':['ทิศเหนือ','North'],
+  };
+
+  const sections: string[] = [];
+
+  // ── 1. THE 八字 CHART — your 8 characters displayed ─────────────────
+  const pCol = (lblTh: string, lblEn: string, pl: _PillarLite, tg: {cn:string;en:string}|null) => {
+    const hid = (_BAZI_HIDDEN[pl.bi]||[]).map(h=>STEMS[h]).join(' ');
+    return `<td style="padding:7px 3px;border:1px solid #2a2545;text-align:center;vertical-align:top">
+      <div style="font-size:9px;color:#6a5a42;letter-spacing:1px">${isEn?lblEn:lblTh}</div>
+      <div style="font-size:23px;color:#d4aa50;line-height:1.25">${pl.s}</div>
+      <div style="font-size:9.5px;color:#9a8a72">${elD(STEMS_EL[pl.si])}<br>${tg?(isEn?tg.en:tg.cn):(isEn?'Self 日主':'ตัวคุณ 日主')}</div>
+      <div style="font-size:21px;color:#c8b080;line-height:1.3;margin-top:4px">${pl.b}</div>
+      <div style="font-size:9.5px;color:#9a8a72">${pl.bTh}</div>
+      <div style="font-size:8.5px;color:#6a5a42;margin-top:4px">${isEn?'hidden':'ซ่อน'}: ${hid||'—'}</div></td>`;
+  };
+  const chartTable = `<table style="width:100%;border-collapse:collapse;margin:6px 0 12px;table-layout:fixed">
+    <tr>${pCol('เสาชั่วโมง','Hour',P4.hour,tgHour)}${pCol('เสาวัน ★','Day ★',P4.day,null)}${pCol('เสาเดือน','Month',P4.month,tgMonth)}${pCol('เสาปี','Year',P4.year,tgYear)}</tr></table>`;
+  const elFull: Record<string,number> = {'ไม้':0,'ไฟ':0,'ดิน':0,'โลหะ':0,'น้ำ':0};
+  [P4.year.si,P4.month.si,P4.day.si,P4.hour.si].forEach(si => { elFull[STEMS_EL[si]]++; });
+  [P4.year.bi,P4.month.bi,P4.day.bi,P4.hour.bi].forEach(bi => { for (const hs of (_BAZI_HIDDEN[bi]||[])) elFull[STEMS_EL[hs]]++; });
+  const elTot = Object.values(elFull).reduce((s,v)=>s+v,0) || 1;
+  const maxC = Math.max(1, ...Object.values(elFull));
+  const elBars = (['ไม้','ไฟ','ดิน','โลหะ','น้ำ'] as string[]).map(e => {
+    const c = elFull[e]||0;
+    return `<div style="display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px">
+      <span style="width:52px;color:${e===dmEl?'#d4aa50':'#9a8a72'}">${elD(e)}</span>
+      <span style="flex:1;height:9px;background:#1a1730;border-radius:5px;overflow:hidden"><span style="display:block;height:100%;width:${Math.round(c/maxC*100)}%;background:${e===dmEl?'#d4aa50':'#7a6a9a'}"></span></span>
+      <span style="width:54px;color:#c8b080;text-align:right">${c} · ${Math.round(c/elTot*100)}%</span></div>`;
+  }).join('');
+  sections.push(blk('📜', 'ผังสี่เสา 八字 — อักษรทั้ง 8 ของคุณ', 'Your 八字 Chart — The Eight Characters',
+    P(isEn
+      ? `These are your eight characters — four ${B('Heavenly Stems')} (top) over four ${B('Earthly Branches')} (bottom), each branch hiding 1–3 more stems. The starred Day stem is ${B('YOU')}; everything else is read in relation to it.`
+      : `นี่คือ "แปดอักษร" ของคุณ — ${B('ก้านฟ้า (天干)')} 4 ตัว (บน) คู่กับ ${B('กิ่งดิน (地支)')} 4 ตัว (ล่าง) แต่ละกิ่งยังซ่อนก้านอีก 1–3 ตัว เสาวันที่มีดาว ★ คือ ${B('ตัวคุณ')} ที่เหลืออ่านโดยเทียบกับเสานี้`) +
+    chartTable +
+    P(`${B(isEn?'Five-Element balance':'สมดุล 5 ธาตุ')} ${isEn?'(stems + hidden)':'(ก้าน + ธาตุซ่อน)'}:`) + elBars
+  ));
+
+  // ── 2. DAY MASTER STRENGTH ──────────────────────────────────────────
+  const strV = strength.verdict;
+  const usefulDir = strV === 'strong'
+    ? (isEn ? 'release & express — output, wealth, and officer energy suit you; you do NOT need more of your own element'
+            : 'ระบายออก — ธาตุผลงาน/ทรัพย์/อำนาจเหมาะกับคุณ คุณ "ไม่" ต้องเพิ่มธาตุตัวเองอีก')
+    : strV === 'weak'
+    ? (isEn ? 'reinforce — rest enough, gather allies, keep learning; your own element and your Resource element are your fuel'
+            : 'เสริมกำลัง — พักให้พอ หาพันธมิตร เรียนรู้ต่อ ธาตุตัวเองและธาตุอุปถัมภ์ (印) คือเชื้อเพลิงของคุณ')
+    : (isEn ? 'flexible — you adapt to the year and season; let your Lucky Element steer the fine-tuning'
+            : 'ยืดหยุ่น — ปรับตามปี/ฤดูได้ ใช้ธาตุมงคลเป็นตัวชี้ปรับละเอียด');
+  sections.push(blk('⚖️', 'Day Master แข็ง/อ่อน — กลยุทธ์หลักของดวง', 'Day Master Strength — Your Core Strategy',
+    P(`${B(isEn?'Verdict':'ผลวิเคราะห์')}: Day Master ${a.dayStemTh} (${elD(dmEl)}) — ${B(strV==='strong'?(isEn?'STRONG':'แข็ง'):strV==='weak'?(isEn?'WEAK':'อ่อน'):(isEn?'BALANCED':'สมดุล'))} · ${strength.pct}% ${isEn?'support':'แรงหนุน'}.`) +
+    P(isEn
+      ? `Strength decides everything downstream. Your chart leans toward ${B(strV)}, so your winning move is to ${usefulDir}.`
+      : `ความแข็ง/อ่อนเป็นตัวตัดสินการตีความทั้งหมดต่อจากนี้ ดวงคุณเอียงไปทาง ${B(strV==='strong'?'แข็ง':strV==='weak'?'อ่อน':'สมดุล')} ดังนั้นเกมที่ชนะของคุณคือ ${usefulDir}`)
+  ));
+
+  // ── 3. TEN GODS PROFILE (archetype) ─────────────────────────────────
+  sections.push(blk('🎴', 'สิบเทพ 十神 — แม่แบบบุคลิกของคุณ', 'Ten Gods (十神) — Your Archetype',
+    P(isEn
+      ? `The Ten Gods describe how each character relates to you (wealth, power, resource, output, peers). Your chart is dominated by the ${B(FAM_ARCHE[topFam][1])} family.`
+      : `สิบเทพคือ "ความสัมพันธ์" ของแต่ละอักษรกับตัวคุณ (ทรัพย์ อำนาจ อุปถัมภ์ ผลงาน พวกพ้อง) ดวงคุณเด่นในกลุ่ม ${B(FAM_ARCHE[topFam][0])}`) +
+    P(isEn
+      ? `Your three supporting stems read as: Year ${B(tgYear.en)} (${tgYear.cn}), Month ${B(tgMonth.en)} (${tgMonth.cn}), Hour ${B(tgHour.en)} (${tgHour.cn}) — the Month god weighs most for career.`
+      : `ก้านสนับสนุน 3 ตัวของคุณคือ: ปี ${B(tgYear.th)} (${tgYear.cn}), เดือน ${B(tgMonth.th)} (${tgMonth.cn}), ชั่วโมง ${B(tgHour.th)} (${tgHour.cn}) — เทพประจำ "เดือน" มีน้ำหนักมากที่สุดเรื่องอาชีพ`)
+  ));
+
+  // ── POPULAR QUESTIONS (FAQ) — direct answers from the chart ─────────
+  const faqQ = (q: string, ans: string) => P(`${B('Q: ' + q)}<br>A: ${ans}`);
+  const _loveEl = a.gender === 'male' ? wealthEl : officerEl;
+  const hasPeach = shenSha.some(s => s[0].includes('ดอกท้อ'));
+  const mList = (idxs: number[]) => idxs.map(i => isEn ? _MTH_EN[i] : _MTH[i]).join(' / ');
+  sections.push(blk('💬', 'คำถามยอดฮิต — ตอบจากดวงคุณ', 'Popular Questions — Answered from Your Chart',
+    faqQ(isEn?'How is 2026 for me — rising or rough?':'ปี 2026 ดวงรุ่งหรือร่วง?',
+      rel2026==='benming' ? (isEn?'2026 is your zodiac-return (Ben Ming Nian) — high-voltage, amplifying both good and bad; a testing year that rewards care, not a coast.':'2026 เป็น "ปีชง" ของคุณ — พลังแรงสูง ขยายผลทั้งดีและร้าย เป็นปีทดสอบที่ตอบแทนคนระวัง ไม่ใช่ปีไหลลื่นสบาย')
+      : rel2026==='good' ? (isEn?'2026 (Fire) supports your chart — a green-light year to push forward.':'2026 (ธาตุไฟ) หนุนดวงคุณ — เป็นจังหวะไฟเขียวให้เดินหน้า')
+      : rel2026==='tough' ? (isEn?'2026 (Fire) is a push-hard, stay-careful year — watch money and health; not a year to coast.':'2026 (ธาตุไฟ) เป็นปีที่ต้องลงแรงและระวัง โดยเฉพาะการเงิน/สุขภาพ ไม่ใช่ปีปล่อยตามสบาย')
+      : (isEn?'2026 is mixed — it rewards focus more than luck.':'2026 กลางๆ — อยู่ที่คุณเลือกโฟกัสด้านไหน มากกว่าดวงพาไป')) +
+    faqQ(isEn?'When does money come in?':'เมื่อไหร่เงินเข้า / ช่วงทรัพย์?',
+      (isEn?`Wealth months in 2026: ${mList(wealthMonths)||'—'}`:`เดือนทรัพย์ปี 2026: ${mList(wealthMonths)||'—'}`) +
+      (wealthLPs.length?(isEn?` · wealth decades: ${wealthLPs.map(l=>l.period).join(', ')}`:` · ทศวรรษทรัพย์: ${wealthLPs.map(l=>l.period).join(', ')}`):'') +
+      ` — ${strV==='weak'?(isEn?'but with a weak Day Master, accumulate steadily and partner up rather than borrow heavily.':'แต่ DM อ่อน เน้นสะสมทีละน้อย หาหุ้นส่วน อย่ากู้หนัก'):(isEn?'you can chase it directly.':'ไล่ทรัพย์ตรงๆ ได้')}`) +
+    faqQ(isEn?'What kind of partner — and when?':'เนื้อคู่แบบไหน + เจอเมื่อไหร่?',
+      (isEn?`The "right" partner usually carries strong ${elD(_loveEl)} energy (${EL_TRAIT[_loveEl]?EL_TRAIT[_loveEl][1]:''}). `:`คู่ที่ "ใช่" มักมีธาตุ${elD(_loveEl)}เด่น (${EL_TRAIT[_loveEl]?EL_TRAIT[_loveEl][0]:''}) `) +
+      (hasPeach?(isEn?'You carry the Peach Blossom star — natural charm, you meet people easily. ':'ดวงมีดาวดอกท้อ — เสน่ห์ดี เจอคนง่าย '):'') +
+      (isEn?`Romance windows open in years/months when ${elD(_loveEl)} is prominent.`:`จังหวะรักเปิดในปี/เดือนที่ธาตุ${elD(_loveEl)}เด่น`)) +
+    faqQ(isEn?'Which careers suit me best?':'อาชีพไหนเหมาะที่สุด?',
+      `${isEn?INDUSTRY[dmEl][1]:INDUSTRY[dmEl][0]} — ${entrepLean?(isEn?'with a lean toward running your own thing.':'และมีแววทำเอง/อิสระ'):(isEn?'thriving inside a structured organisation.':'รุ่งในองค์กรที่มีระบบ')}`) +
+    faqQ(isEn?'Best vs riskiest periods of my life?':'ช่วงไหนรุ่งสุด / ระวังสุดในชีวิต?',
+      (bestLP?(isEn?`Peak: ${bestLP.period} (age ${bestLP.ageStart}–${bestLP.ageEnd}, ${elD(lpElOf(bestLP))} supports). `:`ช่วงรุ่ง: ${bestLP.period} (อายุ ${bestLP.ageStart}–${bestLP.ageEnd}, ธาตุ${elD(lpElOf(bestLP))}หนุน) `):'') +
+      (worstLP?(isEn?`Watch: ${worstLP.period} (age ${worstLP.ageStart}–${worstLP.ageEnd}, ${elD(lpElOf(worstLP))} weighs).`:`ช่วงต้องระวัง: ${worstLP.period} (อายุ ${worstLP.ageStart}–${worstLP.ageEnd}, ธาตุ${elD(lpElOf(worstLP))}ถ่วง)`):'')) +
+    faqQ(isEn?'Run my own business, or be employed?':'ควรเป็นเจ้าของกิจการ หรือลูกจ้าง?',
+      entrepLean
+        ? (strV==='weak'?(isEn?'You have the founder streak, but a weak Day Master means you should bring in partners/a support team — don\'t carry it all alone.':'มีแววเจ้าของกิจการ/อิสระ แต่ DM อ่อน ควรมีหุ้นส่วน/ทีมหนุน อย่าแบกเดี่ยว'):(isEn?'Well-suited to running your own thing — you self-drive and decide well.':'เหมาะเป็นเจ้าของกิจการ/งานอิสระ — ขับเคลื่อนตัวเองได้ดี กล้าตัดสินใจ'))
+        : (strV==='strong'?(isEn?'You excel within organisations, and your Day Master is strong enough to step out and lead your own when ready — you can mix both.':'เก่งในระบบองค์กร และ DM แข็งพอจะออกมาคุมเองได้เมื่อพร้อม — ผสมได้'):(isEn?'You thrive in a structured org with mentors backing you, more than going solo — stability is your ally.':'รุ่งในองค์กรที่มีโครงสร้าง/ผู้ใหญ่หนุน มากกว่าลุยเดี่ยว — ความมั่นคงคือมิตรของคุณ'))) +
+    faqQ(isEn?'My single greatest strength?':'จุดแข็งที่สุดของดวง?',
+      `${isEn?FAM_ARCHE[topFam][1]:FAM_ARCHE[topFam][0]}${EL_TRAIT[a.dominant]?(isEn?` Backed by strong ${elD(a.dominant)}: ${EL_TRAIT[a.dominant][1]}.`:` หนุนด้วยพลังธาตุ${elD(a.dominant)}: ${EL_TRAIT[a.dominant][0]}`):''}`) +
+    faqQ(isEn?'What should I watch in health?':'สุขภาพต้องระวังอะไรเป็นพิเศษ?',
+      isEn?`Watch-zone: the ${ORGAN[missing1]?ORGAN[missing1][1]:'related'} system (from your missing element), and don\'t let ${elD(a.dominant)} run too strong and stress its organs.`:`จุดเฝ้าระวัง: ระบบ${ORGAN[missing1]?ORGAN[missing1][0]:'ที่เกี่ยวข้อง'} (จากธาตุที่ขาด) และอย่าให้ธาตุ${elD(a.dominant)}แรงเกินจนกดอวัยวะของมัน`)
+  ));
+
+  // ── 2. THE 10-YEAR LUCK PILLARS — your decade journey ───────────────
+  const lpRows = a.lps.map(lp => {
+    const lpEl = STEMS_EL[STEMS.indexOf(lp.stem)] ?? dmEl;
+    const rel = lpEl === resourceEl ? (isEn?'support & learning':'ได้แรงหนุน · เรียนรู้')
+      : lpEl === outputEl ? (isEn?'expression & output':'ได้แสดงออก · สร้างผลงาน')
+      : lpEl === wealthEl ? (isEn?'wealth & opportunity':'โอกาสทรัพย์ · ต้องลงแรง')
+      : lpEl === officerEl ? (isEn?'pressure & discipline':'แรงกดดัน · วินัย')
+      : (isEn?'allies & rivalry':'พวกพ้อง · การแข่งขัน');
+    const cur = (lp.ageStart === a.currentLP.ageStart);
+    return `<tr style="${cur?'background:rgba(212,175,55,0.10)':''}">
+      <td style="padding:5px 8px;border-bottom:1px solid #2a2545;white-space:nowrap">${lp.period}</td>
+      <td style="padding:5px 8px;border-bottom:1px solid #2a2545;color:#9a8a72">${isEn?`age ${lp.ageStart}–${lp.ageEnd}`:`อายุ ${lp.ageStart}–${lp.ageEnd}`}</td>
+      <td style="padding:5px 8px;border-bottom:1px solid #2a2545">${lp.stem}${lp.branch} · ${elD(lpEl)}</td>
+      <td style="padding:5px 8px;border-bottom:1px solid #2a2545;color:#c8b080">${rel}${cur?(isEn?' ◀ now':' ◀ ตอนนี้'):''}</td></tr>`;
+  }).join('');
+  sections.push(blk('🧭', 'เส้นทางโชค 10 ปี — รอบชีวิตของคุณ', 'The 10-Year Luck Pillars — Your Life Cycles',
+    P(isEn
+      ? `Beyond your fixed chart, BaZi adds a 10-year "Luck Pillar" that re-colours your base energy each decade. You're now in ${B(a.currentLP.stem+a.currentLP.branch)} (${a.currentLP.period}). Read the whole table to see which decades push and which support.`
+      : `นอกจากดวงคงที่ BaZi ยังเพิ่ม "ต้นโชค" รอบ 10 ปี ที่ระบายสีพลังงานพื้นฐานของคุณใหม่ทุกทศวรรษ ตอนนี้คุณอยู่ในช่วง ${B(a.currentLP.stem+a.currentLP.branch)} (${a.currentLP.period}) อ่านทั้งตารางจะเห็นว่าทศวรรษไหนหนุน ทศวรรษไหนท้าทาย`) +
+    `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:6px">${lpRows}</table>`
+  ));
+
+  // ── 4. CAREER — do / avoid ──────────────────────────────────────────
+  sections.push(blk('💼', 'การงาน — ควรทำ / ควรเลี่ยง', 'Career — What to Do / What to Avoid',
+    P(isEn
+      ? `Your gift is ${EL_TRAIT[dmEl][1]}, and your dominant archetype is ${B(FAM_ARCHE[topFam][1].split(' — ')[0])}. You shine when the work runs with that grain.`
+      : `จุดแข็งของคุณคือ${EL_TRAIT[dmEl][0]} และแม่แบบเด่นคือ ${B(FAM_ARCHE[topFam][0].split(' — ')[0])} คุณจะเปล่งประกายเมื่องานเข้าทางนี้`) +
+    P(`${B(isEn?'Suited fields':'อาชีพที่เข้าทาง')}: ${isEn?INDUSTRY[dmEl][1]:INDUSTRY[dmEl][0]}`) +
+    P(`✅ ${B(isEn?'Do':'ควรทำ')}: ${isEn?WORK_DO[dmEl][1]:WORK_DO[dmEl][0]}`) +
+    P(`⚠️ ${B(isEn?'Avoid':'ควรเลี่ยง')}: ${isEn?WORK_AVOID[dmEl][1]:WORK_AVOID[dmEl][0]}`)
+  ));
+
+  // ── 5. MONEY — do / avoid ───────────────────────────────────────────
+  sections.push(blk('💰', 'การเงิน — ควรทำ / ควรเลี่ยง', 'Money — What to Do / What to Avoid',
+    P(isEn
+      ? `Your Wealth element is ${B(elD(wealthEl))} — the element you control. ${strV==='strong'?'A strong Day Master can hold big wealth — pursue it directly.':strV==='weak'?'A weaker Day Master should build steadily and partner up rather than over-leverage alone.':'You can pursue wealth flexibly as conditions allow.'}`
+      : `ธาตุทรัพย์ของคุณคือ${B(elD(wealthEl))} — ธาตุที่คุณ "ควบคุม" ${strV==='strong'?'Day Master แข็ง "รับ" ทรัพย์ก้อนใหญ่ได้ ไล่ล่าตรงๆ ได้เลย':strV==='weak'?'Day Master ค่อนข้างอ่อน ควรสร้างทรัพย์ค่อยเป็นค่อยไป หาหุ้นส่วนแบ่งความเสี่ยง อย่ากู้/เสี่ยงเกินตัว':'ไล่ทรัพย์แบบยืดหยุ่นตามจังหวะได้'}`) +
+    P(`✅ ${B(isEn?'Do':'ควรทำ')}: ${isEn?`work in ${elD(wealthEl)}-rich environments; turn skills into income streams; track cash actively`:`อยู่ในสภาพแวดล้อม/ธุรกิจที่มีธาตุ${elD(wealthEl)}เด่น เปลี่ยนทักษะเป็นรายได้ จับกระแสเงินเอง`}`) +
+    P(`⚠️ ${B(isEn?'Avoid':'ควรเลี่ยง')}: ${isEn?`lending out of boundary-less kindness; passive waiting; ignoring small leaks`:`ปล่อยเงินเพราะ "ใจดีไม่มีเส้น" รอแบบ passive และมองข้ามรูรั่วเล็กๆ`}`)
+  ));
+
+  // ── 6. LOVE — do / avoid ────────────────────────────────────────────
+  const forMale = a.gender === 'male';
+  const loveEl = forMale ? wealthEl : officerEl;
+  sections.push(blk('❤️', 'ความรัก — ควรทำ / ควรเลี่ยง', 'Love — What to Do / What to Avoid',
+    P(isEn
+      ? `Your partner element reads as ${B(elD(loveEl))}; your Spouse Palace is the Day branch ${B(P4.day.bTh)}. People strong in ${elD(loveEl)} feel like "home"; a ${elD(resourceEl)}-heavy partner nurtures you.`
+      : `ธาตุคู่ครองของคุณอ่านได้เป็น${B(elD(loveEl))} "วังคู่ครอง" คือกิ่งเสาวัน ${B(P4.day.bTh)} คนที่มีธาตุ${elD(loveEl)}เด่นจะให้ความรู้สึกเหมือน "บ้าน" ส่วนคู่ที่ธาตุ${elD(resourceEl)}เด่นจะคอยหล่อเลี้ยงคุณ`) +
+    P(`✅ ${B(isEn?'Do':'ควรทำ')}: ${isEn?`give the relationship structure & honesty; meet people through ${elD(loveEl)}-flavoured settings`:`ให้ความสัมพันธ์มีโครงสร้างและความจริงใจ เจอคนผ่านวง/กิจกรรมที่มีกลิ่นธาตุ${elD(loveEl)}`}`) +
+    P(`⚠️ ${B(isEn?'Avoid':'ควรเลี่ยง')}: ${isEn?`${strV==='strong'?'over-controlling or out-competing your partner':'losing yourself or over-depending'}; ignoring clash years (see timeline)`:`${strV==='strong'?'คุมเกินไปหรือแข่งกับคู่':'หลงลืมตัวเองหรือพึ่งพาเกินไป'} และอย่ามองข้ามปีชง (ดูไทม์ไลน์)`}`)
+  ));
+
+  // ── 7. HEALTH — do / avoid ──────────────────────────────────────────
+  sections.push(blk('🩺', 'สุขภาพ — ควรทำ / ควรเลี่ยง', 'Health — What to Do / What to Avoid',
+    P(isEn
+      ? `Day Master ${elD(dmEl)} governs ${ORGAN[dmEl][1]}. Your missing ${B(elD(a.missing))} makes the ${ORGAN[missing1]?ORGAN[missing1][1]:'related'} system your watch-zone; an over-strong ${B(elD(a.dominant))} can over-stress its organs.`
+      : `Day Master ธาตุ${elD(dmEl)}ดูแล${ORGAN[dmEl][0]} ธาตุที่ขาด ${B(elD(a.missing))} ทำให้ระบบ${ORGAN[missing1]?ORGAN[missing1][0]:'ที่เกี่ยวข้อง'}เป็นจุดเฝ้าระวัง ส่วนธาตุ${B(elD(a.dominant))}ที่แรงเกินอาจกดดันอวัยวะของมัน`) +
+    P(`✅ ${B(isEn?'Do':'ควรทำ')}: ${isEn?`preventive care for the watch-zone organs; balance over maximising; rest in pressure months`:`ดูแลเชิงป้องกันอวัยวะกลุ่มเฝ้าระวัง เน้น "สมดุล" ไม่ใช่เพิ่มธาตุใดสุด พักในเดือนกดดัน`}`) +
+    P(`⚠️ ${B(isEn?'Avoid':'ควรเลี่ยง')}: ${isEn?`overloading ${elD(a.avoidEl)} (food/colour/direction); pushing through fatigue`:`รับธาตุ${elD(a.avoidEl)}เกิน (อาหาร/สี/ทิศ) และอย่าฝืนทำงานทั้งที่ล้า`}`)
+  ));
+
+  // ── 8. SYMBOLIC STARS (神煞) ─────────────────────────────────────────
+  if (shenSha.length) sections.push(blk('⭐', 'ดาวสัญลักษณ์ 神煞 ในดวงคุณ', 'Symbolic Stars (神煞) in Your Chart',
+    P(isEn?`Classical auxiliary stars found in your four branches — each adds a specific flavour:`:`ดาวเสริมตามตำราโบราณที่ปรากฏในกิ่งทั้งสี่ของคุณ — แต่ละดวงเติมสีเฉพาะตัว:`) +
+    shenSha.map(([th,en])=>P('• '+(isEn?en:th))).join('')
+  ));
+
+  // ── 9. CLASHES & COMBINATIONS (合冲) ─────────────────────────────────
+  const A_TH = ['ชวด','ฉลู','ขาล','เถาะ','มะโรง','มะเส็ง','มะเมีย','มะแม','วอก','ระกา','จอ','กุน'];
+  const A_EN = ['Rat','Ox','Tiger','Rabbit','Dragon','Snake','Horse','Goat','Monkey','Rooster','Dog','Pig'];
+  const nm = (b: number) => isEn ? A_EN[b] : A_TH[b];
+  const ccBody =
+    (cc.clashes.length ? P(`${B(isEn?'Clashes (冲)':'ชง (冲)')}: ${cc.clashes.map(([x,y])=>`${nm(x)}↔${nm(y)}`).join(', ')} — ${isEn?'tension/change between those pillars\' life-areas; not "bad", but a hinge to handle consciously.':'ความตึง/การเปลี่ยนแปลงระหว่างด้านชีวิตของเสานั้น ไม่ใช่ "ร้าย" แต่เป็นบานพับที่ต้องจัดการอย่างรู้ตัว'}`) : '') +
+    (cc.combos.length ? P(`${B(isEn?'Combinations (合)':'รวม (合)')}: ${cc.combos.map(([x,y])=>`${nm(x)}+${nm(y)}`).join(', ')} — ${isEn?'harmony/bonding between those areas; cooperation flows there.':'ความกลมเกลียว/ผูกพันระหว่างด้านนั้น ความร่วมมือมาง่ายในจุดนี้'}`) : '') +
+    ((!cc.clashes.length && !cc.combos.length) ? P(isEn?'No major clash or combination among your four branches — a relatively stable, self-contained chart.':'ไม่มีชงหรือรวมเด่นในกิ่งทั้งสี่ — ดวงค่อนข้างนิ่งและพึ่งตัวเองได้') : '');
+  sections.push(blk('🔀', 'ชง & รวม 合冲 — โครงสร้างปฏิสัมพันธ์', 'Clashes & Combinations (合冲)', ccBody));
+
+  // ── OVERALL REMEDY — Useful God 用神 / Avoid God 忌神 (strength-aware) ──
+  const yc = (els: string[]) => els.map(e => (EL_COLOR[e] ? EL_COLOR[e][isEn?1:0] : '—')).join(' · ');
+  const yd = (els: string[]) => els.map(e => (EL_DIR[e] ? EL_DIR[e][isEn?1:0] : '—')).join(' · ');
+  sections.push(blk('🎨', 'ธาตุใช้ดี / ต้องเลี่ยง (用神 / 忌神) — ภาพรวม', 'Useful vs Avoid Element (用神 / 忌神) — Overall',
+    P(isEn
+      ? `Because your Day Master is ${B(strV==='weak'?'WEAK':strV==='strong'?'STRONG':'BALANCED')}, your whole-chart fuel is ${B(yong.map(elD).join(' & '))} and your whole-chart drain is ${B(ji.map(elD).join(' & '))}. This is the OVERALL balance — it can differ from a single domain's own element below.`
+      : `เพราะ Day Master ของคุณ ${B(strV==='weak'?'อ่อน':strV==='strong'?'แข็ง':'สมดุล')} เชื้อเพลิงของทั้งดวงคือ ${B(yong.map(elD).join(' & '))} และตัวถ่วงคือ ${B(ji.map(elD).join(' & '))} — นี่คือ "ภาพรวม" อาจต่างจากธาตุเจ้าของแต่ละด้านข้างล่าง`) +
+    P(`✅ ${B(isEn?'Feed (用神)':'เสริม (用神)')}: ${isEn?'colours':'สี'} ${yc(yong)} · ${isEn?'directions':'ทิศ'} ${yd(yong)} — ${isEn?'wear them, face your desk that way, surround yourself with these.':'สวมใส่ หันโต๊ะทำงานไปทางนี้ อยู่ท่ามกลางธาตุเหล่านี้'}`) +
+    P(`⚠️ ${B(isEn?'Ease off (忌神)':'เลี่ยง (忌神)')}: ${isEn?'colours':'สี'} ${yc(ji)} · ${isEn?'directions':'ทิศ'} ${yd(ji)} — ${isEn?'too much of these quietly drains you (colour, food, direction).':'มากเกินไปจะดูดพลังเงียบๆ (สี อาหาร ทิศ)'}`) +
+    P(isEn
+      ? `Note: your chart "lacks" ${B(elD(a.missing))}, but a missing element isn't automatically good to add. Here it matters most for HEALTH (weaker organs, see above) — not as a lucky tonic.`
+      : `หมายเหตุ: ดวงคุณ "ขาด" ธาตุ${B(elD(a.missing))} แต่ธาตุที่ขาดไม่ได้แปลว่าควรเติมเสมอ ในเคสนี้มันสำคัญกับ "สุขภาพ" (อวัยวะอ่อนกว่า ดูหมวดบน) มากกว่าจะเป็นของมงคล`)
+  ));
+
+  // ── 5. 2026 MONTH-BY-MONTH ──────────────────────────────────────────
+  const MONTHS_TH = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // BaZi month branch element by calendar month (Jan→丑Earth … Dec→子Water)
+  const MONTH_EL = ['ดิน','ไม้','ไม้','ดิน','ไฟ','ไฟ','ดิน','โลหะ','โลหะ','ดิน','น้ำ','น้ำ'];
+  const monthRows = MONTH_EL.map((mEl, i) => {
+    const rel = mEl === resourceEl ? (isEn?'✦ support — recharge, learn, lean on mentors':'✦ หนุน — เติมพลัง เรียนรู้ พึ่งครูบาอาจารย์')
+      : mEl === outputEl ? (isEn?'◆ output — ship work, perform, create':'◆ ผลงาน — ปล่อยของ แสดงออก สร้างสรรค์')
+      : mEl === wealthEl ? (isEn?'$ wealth — chase deals, but put in the work':'$ ทรัพย์ — ไล่ดีล แต่ต้องลงแรง')
+      : mEl === officerEl ? (isEn?'△ pressure — deadlines, authority, stay disciplined':'△ กดดัน — เดดไลน์ อำนาจ รักษาวินัย')
+      : (isEn?'= peers — teamwork or rivalry, guard your turf':'= พวกพ้อง — ทีมเวิร์กหรือแข่งขัน ระวังพื้นที่ตัวเอง');
+    return `<tr><td style="padding:4px 8px;border-bottom:1px solid #2a2545;white-space:nowrap">${isEn?MONTHS_EN[i]:MONTHS_TH[i]} 2026</td>
+      <td style="padding:4px 8px;border-bottom:1px solid #2a2545;color:#9a8a72">${elD(mEl)}</td>
+      <td style="padding:4px 8px;border-bottom:1px solid #2a2545;color:#c8b080">${rel}</td></tr>`;
+  }).join('');
+  sections.push(blk('📅', 'ปี 2026 เดือนต่อเดือน', 'Your 2026, Month by Month',
+    P(isEn
+      ? `Each month of 2026 carries its own elemental tone. Match your big moves to the months that feed your Day Master (${elD(dmEl)}); ease off in pressure months.`
+      : `แต่ละเดือนของปี 2026 มีโทนธาตุของมันเอง จับจังหวะก้าวสำคัญให้ตรงกับเดือนที่หนุน Day Master (${elD(dmEl)}) ของคุณ และผ่อนในเดือนที่กดดัน`) +
+    `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:6px">${monthRows}</table>`
+  ));
+
+  // ── 6. BEN MING NIAN (conditional) ──────────────────────────────────
+  if (a.benMing) sections.push(blk('🔴', '2026 = ปีชง (Ben Ming Nian 本命年) ของคุณ', '2026 Is Your Ben Ming Nian (本命年)',
+    P(isEn
+      ? `2026 (Fire Horse) matches your own birth-year branch — your zodiac-return year. Tradition says everything amplifies, good and bad, and the year tends to "test" you. This is not bad luck; it's a high-voltage year that rewards care.`
+      : `ปี 2026 (ม้าไฟ) ตรงกับกิ่งปีเกิดของคุณ — เป็น "ปีชง/ปีนักษัตรกลับ" ตำราว่าทุกสิ่งขยายผลทั้งดีและร้าย และเป็นปีที่มักจะ "ทดสอบ" คุณ ไม่ใช่ปีโชคร้าย แต่เป็นปีไฟแรงสูงที่ตอบแทนคนที่ระมัดระวัง`) +
+    P(isEn
+      ? `Remedies: wear one red item daily (a thread, socks, or underlayer), avoid major risky launches on impulse, and do one quiet good deed monthly. Keep big commitments for the months your chart supports above.`
+      : `วิธีแก้: สวมของสีแดง 1 ชิ้นทุกวัน (สายแดง ถุงเท้า หรือเสื้อชั้นใน) เลี่ยงเปิดตัว/เสี่ยงใหญ่แบบหุนหัน และทำความดีเงียบๆ เดือนละครั้ง เก็บการตัดสินใจใหญ่ไว้ทำในเดือนที่ดวงหนุนตามตารางข้างบน`)
+  ));
+
+  const _ord = ['📜','⚖️','🎴','⭐','🔀','💼','💰','❤️','🩺','🧭','📅','🔴','🎨','💬'];
+  const _rk = (s: string) => { let b = 99, bp = 1e9; _ord.forEach((ic, i) => { const p = s.indexOf(ic); if (p >= 0 && p < bp) { bp = p; b = i; } }); return b; };
+  sections.sort((p, q) => _rk(p) - _rk(q));
+  return sections.join('');
+}
+
 function calcBazi(d: BirthData): BaziData {
   const yp = yearPillar(d.year, d.month, d.day);
   const mp = monthPillar(d.year, d.month, d.day);
@@ -550,7 +1330,7 @@ function calcBazi(d: BirthData): BaziData {
   const hasSelfPunch = yp.bi === dp.bi;
   const mpStemIdx = STEMS.indexOf(mp.stem);
   const baziScore = Math.max(400, Math.min(960, (BAZI_EL_BASE[STEMS_EL[dp.si]]??700) + (hasSelfPunch?40:0) + (benMing?30:0) + ((dp.si*13+(mpStemIdx>=0?mpStemIdx:0)*7)%100)-50));
-  return {
+  const baziResult: BaziData = {
     yearStem: yp.stem, yearBranch: yp.branch, yearStemTh: pStem(yp.si), yearBranchTh: pBranch(yp.bi),
     monthStem: mp.stem, monthBranch: mp.branch, monthStemTh: pStem(mp.si), monthBranchTh: pBranch(mp.bi),
     dayStem: dp.stem, dayBranch: dp.branch, dayStemTh: pStem(dp.si), dayBranchTh: pBranch(dp.bi),
@@ -603,8 +1383,23 @@ function calcBazi(d: BirthData): BaziData {
         closingEn: 'BaZi teaches: "Fate is the map — the walking is yours." Know your own map, walk in alignment, and life flows instead of fighting your chart.',
       });
     })(),
+    deepReading: '',
     score: baziScore,
   };
+  baziResult.deepReading = baziResult.reading + _baziDeepSections({
+    dmIdx: dp.si, elCount,
+    dmEl: dmElement, missing: missingEl, dominant: dominantEl,
+    luckyEl: luckyMap[dp.stem] ?? 'ดิน', avoidEl: avoidMap[dp.stem] ?? 'น้ำ',
+    polarity: dmPolarity, dayStemTh: pStem(dp.si),
+    pillars: {
+      year:  { s: yp.stem, b: yp.branch, sTh: pStem(yp.si), bTh: pBranch(yp.bi), si: yp.si, bi: yp.bi },
+      month: { s: mp.stem, b: mp.branch, sTh: pStem(mp.si), bTh: pBranch(mp.bi), si: mp.si, bi: mp.bi },
+      day:   { s: dp.stem, b: dp.branch, sTh: pStem(dp.si), bTh: pBranch(dp.bi), si: dp.si, bi: dp.bi },
+      hour:  { s: hp.stem, b: hp.branch, sTh: hp.stemTh, bTh: hp.branchTh, si: STEMS.indexOf(hp.stem), bi: BRANCHES.indexOf(hp.branch) },
+    },
+    lps, currentLP, benMing, gender: d.gender,
+  });
+  return baziResult;
 }
 
 // ============================================================
@@ -645,6 +1440,268 @@ const NSK_READINGS_EN: Record<number, string> = {
   9: 'Star 9 Purple Fire — a creator and performer, high energy, distinctive. In 2026 (Honmei-sei Kaiki) everything amplifies — success and risk grow together.',
 };
 
+// ── NINE STAR KI DEEP READING ────────────────────────────────────────────────
+function _nineStarDeepSections(a: {
+  star: number; el: string; color: string; dir: string; sleepDir: string;
+  year2026Analysis: string; auspicious2026: string; isHonmei: boolean;
+}): string {
+  const isEn = _reportLang === 'en';
+  const EL_TH_EN_L: Record<string, string> = { 'ไฟ':'Fire','ไม้':'Wood','น้ำ':'Water','โลหะ':'Metal','ดิน':'Earth' };
+  const DIR_TH_EN_L: Record<string, string> = {
+    'เหนือ':'North','ใต้':'South','ตะวันออก':'East','ตะวันตก':'West',
+    'ตะวันออกเฉียงเหนือ':'Northeast','ตะวันออกเฉียงใต้':'Southeast',
+    'ตะวันตกเฉียงเหนือ':'Northwest','ตะวันตกเฉียงใต้':'Southwest',
+    'ตามปี':'by year','ศูนย์กลาง':'Centre',
+  };
+  const COLOR_TH_EN_L: Record<string, string> = {
+    'แดง':'Red','ขาว':'White','น้ำเงิน':'Blue','เหลือง':'Yellow','ดำ':'Black',
+    'ดำ/น้ำตาล':'Black/Brown','เขียว':'Green','เขียวฟ้า':'Cyan',
+    'ขาว/เงิน':'White/Silver','แดง/ชมพู':'Red/Pink','ขาว/เบจ':'White/Beige',
+    'ม่วง/แดง':'Purple/Red','ทอง':'Gold',
+  };
+  const eDir   = (th: string) => isEn ? (DIR_TH_EN_L[th]   ?? th) : th;
+  const eColor = (th: string) => isEn ? (COLOR_TH_EN_L[th] ?? th) : th;
+  const eEl    = (th: string) => isEn ? (EL_TH_EN_L[th]    ?? th) : th;
+
+  const star = a.star, el = a.el, color = a.color, dir = a.dir, sleepDir = a.sleepDir;
+  const PRODUCES: Record<string,string>      = { 'ไม้':'ไฟ','ไฟ':'ดิน','ดิน':'โลหะ','โลหะ':'น้ำ','น้ำ':'ไม้' };
+  const PRODUCED_BY: Record<string,string>   = { 'ไม้':'น้ำ','ไฟ':'ไม้','ดิน':'ไฟ','โลหะ':'ดิน','น้ำ':'โลหะ' };
+  const CONTROLS: Record<string,string>      = { 'ไม้':'ดิน','ไฟ':'โลหะ','ดิน':'น้ำ','โลหะ':'ไม้','น้ำ':'ไฟ' };
+  const CONTROLLED_BY: Record<string,string> = { 'ไม้':'โลหะ','ไฟ':'น้ำ','ดิน':'ไม้','โลหะ':'ไฟ','น้ำ':'ดิน' };
+  const fuelEl   = PRODUCED_BY[el]   ?? 'น้ำ';
+  const drainEl  = PRODUCES[el]      ?? 'ไฟ';
+  const weakenEl = CONTROLS[el]      ?? 'ดิน';
+  const stressEl = CONTROLLED_BY[el] ?? 'โลหะ';
+  const EL_TRAIT: Record<string,[string,string]> = {
+    'ไม้':['การเติบโต การวางแผนระยะยาว ความอดทนบ่มเพาะ','growth, long-range vision, patient cultivation'],
+    'ไฟ':['ความสว่าง ความกล้า การสร้างแรงบันดาลใจและการนำ','brilliance, courage, inspiring and leading others'],
+    'ดิน':['ความมั่นคง ความน่าเชื่อถือ การสร้างรากฐาน','stability, reliability, laying foundations'],
+    'โลหะ':['ความแม่นยำ หลักการ วินัยและระบบ','precision, principle, discipline and order'],
+    'น้ำ':['ปัญญา ความยืดหยุ่น สัญชาตญาณและการปรับตัว','wisdom, flexibility, intuition and adaptation'],
+  };
+  const ORGAN: Record<string,[string,string]> = {
+    'ไม้':['ตับ ถุงน้ำดี ดวงตา เส้นเอ็น','liver, gallbladder, eyes, tendons'],
+    'ไฟ':['หัวใจ ลำไส้เล็ก ระบบไหลเวียนเลือด','heart, small intestine, circulation'],
+    'ดิน':['ม้าม กระเพาะ ระบบย่อยอาหาร','spleen, stomach, digestion'],
+    'โลหะ':['ปอด ลำไส้ใหญ่ ผิวหนัง ระบบหายใจ','lungs, large intestine, skin, breathing'],
+    'น้ำ':['ไต กระเพาะปัสสาวะ กระดูก หู','kidneys, bladder, bones, ears'],
+  };
+  const STAR_EL: Record<number,string> = { 1:'น้ำ',2:'ดิน',3:'ไม้',4:'ไม้',5:'ดิน',6:'โลหะ',7:'โลหะ',8:'ดิน',9:'ไฟ' };
+  const compatStars = ([1,2,3,4,5,6,7,8,9] as number[]).filter(s => STAR_EL[s] === fuelEl);
+  const challengeStars = ([1,2,3,4,5,6,7,8,9] as number[]).filter(s => STAR_EL[s] === stressEl);
+  const compatList = compatStars.length ? compatStars.join(', ') : '—';
+  const challengeList = challengeStars.length ? challengeStars.join(', ') : '—';
+  const CORE_CHAR: Record<number,[string,string]> = {
+    1:['ดาว 1 ขาวน้ำ (一白水星) คือน้ำที่ไหลลึกและงาม คุณมีสัญชาตญาณแหลมคมอ่านสถานการณ์ได้ก่อนใคร บุคลิกภายนอกสงบเงียบซ่อนความลึกไว้ภายใน คนดาว 1 มักเป็นนักสื่อสาร นักคิด นักสังเกต ที่มีเสน่ห์เงียบๆ ดึงดูดโดยไม่ต้องพยายาม ความยืดหยุ่นคือพลังสูงสุด','Star 1 White Water (一白水星) is deep, beautiful, flowing water. You read situations before anyone else, with sharp intuition hidden behind a calm exterior. Star 1 people are natural communicators, thinkers, quiet observers — magnetic without effort. Adaptability is your greatest power.'],
+    2:['ดาว 2 ดำดิน (二黒土星) คือดินที่บ่มเพาะและหล่อเลี้ยง คุณเป็นผู้รับใช้โดยธรรมชาติ มีความอดทนที่คนอื่นอิจฉา สามารถดูแล จัดการ และประสานงานได้อย่างเชี่ยวชาญ คนดาว 2 เป็นแกนสำคัญของทีมและครอบครัว — ไม่ค่อยโดดเด่นแต่ขาดไม่ได้','Star 2 Black Earth (二黒土星) is nourishing, cultivating soil. You are a natural caretaker — patient in a way others envy, expert at managing, organising, and bridging people. Star 2 people are the unsung axis of any team or family: rarely in the spotlight, but irreplaceable.'],
+    3:['ดาว 3 ไม้เขียวสด (三碧木星) คือฟ้าผ่าแรกของฤดูใบไม้ผลิ คุณเป็นผู้บุกเบิกที่กล้าหาญ ไอเดียไหลไม่หยุด พลังงานสูงและติดไฟผู้อื่นได้ง่าย คนดาว 3 เกิดมาเพื่อริเริ่มและเปิดทาง มีความสามารถ "ทะลุ" อุปสรรคที่คนอื่นเห็นเป็นกำแพง','Star 3 Bright Green Wood (三碧木星) is the first thunderbolt of spring — a brave pioneer whose ideas never stop flowing. High energy, quick to ignite others. Star 3 people are born to start things and open paths, capable of piercing barriers others see as walls.'],
+    4:['ดาว 4 ไม้เขียวอ่อน (四緑木星) คือลมที่พัดไปทั่วฟ้า คุณเป็นนักสื่อสารและผู้เชื่อมคนโดยธรรมชาติ มีทักษะการเจรจาและการสร้างเครือข่ายที่โดดเด่น ชอบการเดินทาง การเรียนรู้ และการแลกเปลี่ยนความรู้','Star 4 Soft Green Wood (四緑木星) is the wind that crosses the whole sky — a natural communicator and connector. You have outstanding negotiation and networking skills, love travel, learning, and exchanging knowledge.'],
+    5:['ดาว 5 ดินเหลือง (五黄土星) คือศูนย์กลางของจัตุรัสเวทย์ Lo Shu — ดาวที่ทรงพลังที่สุดในทั้ง 9 คุณมีพลังงานที่แข็งแกร่ง ซับซ้อน และมักมีบทบาทสำคัญที่ส่งผลต่อคนรอบข้าง คนดาว 5 มีแรงดึงดูดธรรมชาติและมักกลายเป็น "จุดศูนย์กลาง" ของทุกสถานการณ์','Star 5 Yellow Earth (五黄土星) is the centre of the Lo Shu magic square — the most potent star of all nine. Your energy is powerful, complex, and often pivotal: what you do touches everyone around you. Star 5 people carry a natural gravitational pull and tend to become the axis of any situation.'],
+    6:['ดาว 6 โลหะขาว (六白金星) คือฟ้าหลวง (乾天) — ผู้นำโดยธรรมชาติที่มีศักดิ์ศรีและหลักการ คุณมีสไตล์ที่ชัดเจน เด็ดขาด และให้ความเชื่อถือ คนดาว 6 เหมาะกับตำแหน่งบริหารและอำนาจที่ใช้ตามหลักการ','Star 6 White Metal (六白金星) is the celestial sovereign (乾天) — a principled, dignified natural leader. You have a clear, decisive style that commands respect. Star 6 people fit executive and authoritative roles built on principle.'],
+    7:['ดาว 7 โลหะแดง (七赤金星) คือทะเลสาบที่มีเสน่ห์ (兌澤) — คุณมีพลังสื่อสารและความน่าดึงดูดที่แรงมาก พูดเก่ง เจรจาเก่ง และสร้างความสัมพันธ์ได้ง่ายดาย คนดาว 7 มักประสบความสำเร็จในงานที่ต้องการทักษะคน','Star 7 Red Metal (七赤金星) is the charmed lake (兌澤) — strong communication magnetism and allure. Articulate, skilled at negotiation, and naturally easy with relationships. Star 7 people succeed in people-facing work.'],
+    8:['ดาว 8 ดินขาว (八白土星) คือภูเขา (艮山) — มั่นคง อดทน และมีวิสัยทัศน์ระยะยาว คุณสะสมทรัพย์ สะสมทักษะ และสร้างสิ่งที่ยั่งยืนได้อย่างเป็นธรรมชาติ คนดาว 8 เหมาะกับการลงทุนระยะยาว อสังหาริมทรัพย์','Star 8 White Earth (八白土星) is the mountain (艮山) — steady, patient, long-range vision. You accumulate wealth, skills, and build lasting things naturally. Star 8 people fit long-term investment and real estate.'],
+    9:['ดาว 9 ไฟม่วง (九紫火星) คือไฟส่องทาง (離火) — ฉลาด มองการณ์ไกล และชอบเป็นที่รู้จัก คุณมีสัญชาตญาณในการมองทะลุสถานการณ์และสร้างแรงบันดาลใจให้ผู้อื่น คนดาว 9 โดดเด่นในงานที่ต้องการความคิดสร้างสรรค์','Star 9 Purple Fire (九紫火星) is the guiding fire (離火) — intelligent, far-sighted, and drawn to recognition. You see through situations with intuitive clarity and inspire those around you. Star 9 people stand out in creative, expressive work.'],
+  };
+  const CAREER: Record<number,[string,string]> = {
+    1:['การสื่อสาร นักเขียน นักวิเคราะห์ นักการทูต ที่ปรึกษา','communication, writing, analysis, diplomacy, consulting'],
+    2:['งานดูแล การแพทย์ บริหาร อาหาร เกษตร งานบริการ','caregiving, healthcare, management, food, agriculture, service'],
+    3:['สตาร์ทอัพ ผู้ประกอบการ สื่อสร้างสรรค์ ไอที การกีฬา','startups, entrepreneurship, creative media, IT, sports'],
+    4:['การค้าระหว่างประเทศ สื่อ การเดินทาง การตลาด การศึกษา','international trade, media, travel, marketing, education'],
+    5:['ผู้นำองค์กร ที่ปรึกษาระดับสูง การเมือง วิจัย','executive leadership, high-level consulting, politics, research'],
+    6:['บริหารระดับสูง กฎหมาย การทหาร การเงิน อสังหา','senior management, law, military, finance, real estate'],
+    7:['การขาย การตลาด ความบันเทิง บริการลูกค้า เจรจา','sales, marketing, entertainment, customer service, negotiation'],
+    8:['อสังหาริมทรัพย์ ลงทุน การก่อสร้าง บริหารทรัพย์สิน','real estate, investment, construction, asset management'],
+    9:['งานสร้างสรรค์ ศิลปะ แฟชั่น สื่อ วิชาการ บันเทิง','creative work, art, fashion, media, academia, entertainment'],
+  };
+  const WORK_DO: Record<number,[string,string]> = {
+    1:['สร้างความสัมพันธ์เชิงลึก ฟังก่อนพูด ทำงานที่เล่นกับสัญชาตญาณ','build deep one-on-one connections; listen before speaking; work where intuition counts'],
+    2:['รับบทบาทประสาน สร้างระบบสนับสนุน มุ่งมั่นระยะยาว','take coordination roles; build support systems; commit for the long haul'],
+    3:['ริเริ่มก่อน ลองวิธีใหม่ ทำงานกับคนพลังสูง','initiate first; try new methods; work alongside high-energy people'],
+    4:['สร้างเครือข่ายกว้าง เดินทาง เรียนรู้ต่างวัฒนธรรม','build a wide network; travel often; learn across cultures'],
+    5:['เป็นหัวหน้าโครงการ ตัดสินใจชัดเจน ใช้พลังงานสูงสร้างผล','lead major projects; decide clearly; channel high energy into outcomes'],
+    6:['วางมาตรฐานสูง รับตำแหน่งผู้นำ สร้างระบบที่ยั่งยืน','set high standards; accept leadership; build lasting systems'],
+    7:['ใช้เสน่ห์ส่วนตัว พัฒนาทักษะการพูด ทำงานกับลูกค้า','leverage personal charm; develop speaking skills; work with clients'],
+    8:['ลงทุนระยะยาว สะสมความรู้เฉพาะทาง สร้างก่อนเก็บเกี่ยว','invest long-term; accumulate specialist knowledge; build before harvesting'],
+    9:['แสดงออกอย่างกล้าหาญ สร้างแบรนด์ตัวเอง ทำงานบนเวทีสาธารณะ','express boldly; build a personal brand; work on a public stage'],
+  };
+  const WORK_AVOID: Record<number,[string,string]> = {
+    1:['งานที่ต้องตัดสินใจรวดเร็วโดยไม่มีข้อมูล การอยู่กับคนที่ดูดพลัง','snap decisions without data; energy-draining environments'],
+    2:['รับงานมากกว่าที่รับได้ ให้โดยไม่มีเส้น งานโดดเดี่ยวไร้การสนับสนุน','taking on too much; giving without limits; isolated unsupported work'],
+    3:['เริ่มสิ่งใหม่มากจนไม่จบ ทำงานกับคนที่ช้าและไม่ยืดหยุ่น','starting too many things; working with slow, inflexible people'],
+    4:['ไม่มีทิศทางที่ชัดเจน กระจายพลังมากเกินไป ไว้วางใจคนง่ายเกินไป','no clear direction; spreading too thin; trusting too easily'],
+    5:['ทำแบบสุดโต่ง ขาดความสมดุล ก้าวร้าวเกินไปในความขัดแย้ง','extremes; lack of balance; over-aggression in conflict'],
+    6:['งานที่ต้องให้ยืดหยุ่นหลักการ ทีมที่ขาดวินัย บทบาทที่ไม่มีอำนาจชัดเจน','work forcing you to bend principles; undisciplined teams; powerless roles'],
+    7:['ใช้จ่ายตามอารมณ์ รักสบายเกินไปจนขาดวินัย รับสัญญาปากเปล่า','impulse spending; too much comfort; verbal-only commitments'],
+    8:['เปลี่ยนแผนบ่อย เก็งกำไรระยะสั้น รีบเก็บเกี่ยวก่อนครบกำหนด','frequent plan changes; short-term speculation; harvesting too early'],
+    9:['งานซ้ำซากที่ไม่มีการยอมรับ ซ่อนตัวเองไม่ให้ใครเห็น เผาพลังจนหมด','unrecognised repetitive work; staying invisible; burning out'],
+  };
+  const MONEY_DO: Record<number,[string,string]> = {
+    1:['ออมก่อนใช้ ลงทุนในการเรียนรู้และทักษะ ระวังสัญญาที่ซับซ้อน','save first; invest in learning; scrutinise complex contracts'],
+    2:['สะสมอย่างสม่ำเสมอ ทำงานร่วมกับผู้เชี่ยวชาญ ลงทุนในกระแสเงินคงที่','accumulate steadily; partner with specialists; invest in stable cash flow'],
+    3:['ลงทุนในไอเดียใหม่ๆ หารายได้หลายทาง ตั้งงบที่ยืดหยุ่น','invest in new ideas; multiple income streams; flexible budgets'],
+    4:['สร้างเครือข่ายที่ให้ผลตอบแทน ทำธุรกิจค้าขาย/สื่อสาร ระวังค่าเดินทาง','build rewarding networks; trade/communication business; watch travel costs'],
+    5:['จัดการทรัพย์สินอย่างมีระบบ หลีกเลี่ยงความสุดโต่ง รักษาสมดุลพอร์ต','manage assets systematically; avoid extremes; balance your portfolio'],
+    6:['ลงทุนในสินทรัพย์ที่มีหลักการ อสังหาฯ และตราสาร','invest in principled assets, real estate, and bonds'],
+    7:['ใช้ทักษะการขายสร้างรายได้ ระวังการใช้จ่ายเพื่อภาพลักษณ์ ตั้งกองทุนฉุกเฉิน','monetise sales skills; watch image spending; build an emergency fund'],
+    8:['ลงทุนระยะยาวในอสังหาฯ หุ้นปันผล กองทุนรวม','invest long-term in real estate, dividend stocks, funds'],
+    9:['สร้างรายได้จากงานสร้างสรรค์ ลงทุนในทรัพย์สินทางปัญญา','income from creative work; invest in intellectual property'],
+  };
+  const MONEY_AVOID: Record<number,[string,string]> = {
+    1:['ตัดสินใจการเงินตามอารมณ์ ให้เงินคนที่ไม่รับผิดชอบ','emotion-driven financial decisions; lending to irresponsible people'],
+    2:['ให้เงินเพราะ "ใจดีไม่มีเส้น" ลงทุนในสิ่งที่ไม่เข้าใจ','boundaryless generosity; investing in what you don\'t understand'],
+    3:['เดิมพันทุกอย่างกับไอเดียเดียว ลืมติดตามรายรับรายจ่าย','betting everything on one idea; not tracking income/expenses'],
+    4:['เชื่อคนง่ายเกินไปเรื่องเงิน ค่าใช้จ่ายเดินทาง/สังสรรค์เกิน','trusting too easily; overspending on travel and socialising'],
+    5:['เสี่ยงสูงเกินไป ตัดสินใจแบบขาวดำ ไม่มีแผนสำรอง','excessive risk; black-or-white decisions; no contingency'],
+    6:['ลงทุนในธุรกิจที่ขาดความโปร่งใส ยืดหยุ่นหลักการเพื่อกำไร','opaque businesses; bending principles for profit'],
+    7:['ใช้จ่ายเพื่อโชว์ หนี้บัตรเครดิต','spending to impress; credit card debt'],
+    8:['รีบขายสินทรัพย์ก่อนครบกำหนด ลงทุนในธุรกิจเปลี่ยนแปลงเร็ว','selling assets too early; rapidly changing businesses'],
+    9:['ใช้จ่ายเพื่อภาพลักษณ์ลืมออม ลงทุนตาม "กระแส" โดยไม่ศึกษา','image spending over saving; trend-chasing without research'],
+  };
+  const LOVE_DO: Record<number,[string,string]> = {
+    1:['ให้เวลาในความสัมพันธ์ เปิดใจแบ่งปันความรู้สึกลึกๆ','invest time; open up and share deep feelings'],
+    2:['แสดงความรักด้วยการดูแล หาคู่ที่ซาบซึ้งความสม่ำเสมอ','show love through care; seek a partner who values consistency'],
+    3:['สร้างประสบการณ์ใหม่กับคู่ กล้าแสดงความรู้สึก','create new experiences; be bold in expressing feelings'],
+    4:['สื่อสารอย่างเปิดเผย ให้อิสระคู่รัก','communicate openly; give your partner freedom'],
+    5:['ตั้งกฎชัดเจนในความสัมพันธ์ ให้คู่มีส่วนร่วมตัดสินใจ','set clear boundaries; include your partner in decisions'],
+    6:['เป็นคู่ที่น่าเชื่อถือและซื่อสัตย์ แสดงความใส่ใจผ่านการกระทำ','be reliable and honest; show care through action'],
+    7:['ใช้ทักษะการสื่อสารสร้างความใกล้ชิด ทำให้คู่รู้สึกพิเศษ','use communication to build closeness; make your partner feel special'],
+    8:['ให้ความมั่นคงเป็นของขวัญ วางแผนอนาคตร่วมกัน','offer stability as a gift; plan the future together'],
+    9:['แสดงความรักอย่างกล้าหาญ ชวนคู่สำรวจสิ่งใหม่','love boldly; invite your partner to explore new things'],
+  };
+  const LOVE_AVOID: Record<number,[string,string]> = {
+    1:['ซ่อนความรู้สึกจนคู่ไม่เข้าใจ โลเลในความสัมพันธ์','hiding feelings; being indecisive in the relationship'],
+    2:['เสียสละจนไม่มีตัวตน เก็บความเครียดไว้คนเดียว','self-sacrificing until you vanish; bottling stress alone'],
+    3:['ใจร้อนทะเลาะเรื่องเล็ก เบื่อคู่เร็วเกินไป','quarrelling over small things; losing interest too quickly'],
+    4:['โลเลในความรู้สึก ถูกหลอกเพราะเชื่อง่าย','wavering feelings; being deceived through over-trust'],
+    5:['ครอบงำคู่เกินไป ขาดความอ่อนโยน','dominating too much; lacking gentleness'],
+    6:['คาดหวังสูงจนคู่กดดัน ไม่ยืดหยุ่น','expectations so high your partner feels crushed; inflexibility'],
+    7:['รักสนุกไม่คิดยาว ใช้เสน่ห์เกินจนคู่หึง','loving without long-term thought; over-charming until jealousy'],
+    8:['ไม่ยืดหยุ่นในความสัมพันธ์ ช้าในการแสดงความรัก','inflexible; slow to express love'],
+    9:['หมกมุ่นกับตัวเอง/งานจนละเลยคู่','self/work absorption that neglects your partner'],
+  };
+  const HEALTH_DO: Record<number,[string,string]> = {
+    1:['ดื่มน้ำมากขึ้น ออกกำลังกายในน้ำหรือใกล้น้ำ นอนให้พอ','drink more water; exercise in or near water; sleep enough'],
+    2:['กินอาหารสม่ำเสมอ หลีกเลี่ยงความเครียดสะสม','eat regularly; avoid accumulated stress'],
+    3:['ระบายพลังด้วยการออกกำลังกาย ฝึกสมาธิคุมอารมณ์','discharge energy through exercise; meditate for emotional control'],
+    4:['เดินทางและเคลื่อนไหว หายใจลึก ออกกำลังกลางแจ้ง','keep moving and travelling; breathe deeply; exercise outdoors'],
+    5:['รักษาสมดุลทุกด้าน หลีกเลี่ยงสุดโต่ง พักจริงจัง','keep balance; avoid extremes; rest genuinely'],
+    6:['ออกกำลังกายมีระบบ ดูแลปอด/ระบบหายใจ ไม่ทำงานหนักเกิน','structured exercise; care for lungs/breathing; avoid overwork'],
+    7:['ดูแลช่องปาก/ทางเดินหายใจ พักผ่อนคุณภาพ','care for oral/respiratory health; quality rest'],
+    8:['ออกกำลังกายสม่ำเสมอ ดูแลข้อต่อและกระดูก','exercise consistently; care for joints and bones'],
+    9:['ไม่เผาพลังจนหมด ดูแลหัวใจและสายตา นอนก่อนเที่ยงคืน','don\'t burn out; care for heart and eyes; sleep before midnight'],
+  };
+  const HEALTH_AVOID: Record<number,[string,string]> = {
+    1:['สภาพแวดล้อมชื้นเกิน อาหารเย็นมาก ดูดพลังลบจากคนรอบข้าง','overly damp settings; too much cold food; absorbing negativity'],
+    2:['ทำงานหนักจนเครียดสะสม กินไม่ตรงเวลา ละเลยสุขภาพตัวเอง','overwork stress; skipping meals; neglecting your own health'],
+    3:['ใช้พลังจนหมดโดยไม่พัก กระตุ้นมากเกินไป','depleting energy without rest; over-stimulation'],
+    4:['นั่งนานไม่เคลื่อนไหว ดูแลสุขภาพจิตน้อยเกินไป','sitting too long; neglecting mental health'],
+    5:['ทำงานหนักไม่พัก เสี่ยงอุบัติเหตุจากความประมาท','overwork without rest; accident risk from carelessness'],
+    6:['ออกกำลังแข่งขันสูงเกินวัย ละเลยสัญญาณเตือนร่างกาย','over-competitive exercise; ignoring body warnings'],
+    7:['สังสรรค์มากจนพักน้อย กินดื่มเกินพอดี','too much socialising; overindulging in food and drink'],
+    8:['เคลื่อนไหวน้อยเกินไป สะสมความเครียดเรื้อรัง','too little movement; chronic stress'],
+    9:['ทำงานดึกเกิน เผาพลังโดยไม่คิดถึงระยะยาว','working too late; burning energy without long-term care'],
+  };
+  const blk = (icon: string, thT: string, enT: string, body: string): string =>
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545">
+       <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+  const P = (s: string): string => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
+  const B = (s: string): string => `<strong style="color:#d4aa50">${s}</strong>`;
+  const faqQ = (q: string, ans: string): string => P(`${B('Q: ' + q)}<br>A: ${ans}`);
+  const LO_SHU_LAYOUT = [[4,9,2],[3,5,7],[8,1,6]];
+  const loShuTable = `<table style="border-collapse:collapse;margin:8px auto 12px">` +
+    LO_SHU_LAYOUT.map(row => `<tr>${row.map(n => { const isMe = n === star;
+      return `<td style="width:44px;height:44px;text-align:center;vertical-align:middle;border:1px solid #2a2545;` +
+        (isMe ? `background:rgba(212,175,55,0.18);color:#d4aa50;font-weight:bold;font-size:19px` : `color:#9a8a72;font-size:16px`) +
+        `">${n}${isMe ? ' ★' : ''}</td>`; }).join('')}</tr>`).join('') + `</table>`;
+  const sections: string[] = [];
+  const starDirTable = `<table style="width:100%;border-collapse:collapse;font-size:12px;margin:8px 0">
+    <tr><td style="padding:6px 10px;border:1px solid #2a2545;color:#9a8a72">${isEn?'Element':'ธาตุ'}</td><td style="padding:6px 10px;border:1px solid #2a2545;color:#c8b080">${B(eEl(el))}</td><td style="padding:6px 10px;border:1px solid #2a2545;color:#9a8a72">${isEn?'Power colour':'สีพลัง'}</td><td style="padding:6px 10px;border:1px solid #2a2545;color:#c8b080">${B(eColor(color))}</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #2a2545;color:#9a8a72">${isEn?'Work direction':'ทิศทำงาน'}</td><td style="padding:6px 10px;border:1px solid #2a2545;color:#c8b080">${B(eDir(dir))}</td><td style="padding:6px 10px;border:1px solid #2a2545;color:#9a8a72">${isEn?'Sleep direction':'ทิศนอน'}</td><td style="padding:6px 10px;border:1px solid #2a2545;color:#c8b080">${B(eDir(sleepDir))}</td></tr></table>`;
+  sections.push(blk('📜', `ดาว ${star} ของคุณในจัตุรัส Lo Shu (洛書)`, `Your Star ${star} in the Lo Shu Square (洛書)`,
+    P(isEn ? `Your birth star is ${B(`Star ${star}`)} in Nine Star Ki (九星気学). The Lo Shu (洛書) — a 4,000-year-old magic square where every row, column, and diagonal sums to 15 — is the cosmic map your star travels over a 9-year cycle. Your cell is highlighted.`
+           : `ดาวเกิดของคุณคือ ${B(`ดาว ${star}`)} ในระบบ Nine Star Ki (九星気学) จัตุรัส Lo Shu (洛書) — ตารางเวทย์จีนอายุ 4,000 ปี ที่ทุกแถว คอลัมน์ และแนวทแยงบวกได้ 15 เสมอ — คือแผนที่จักรวาลที่ดาวของคุณเดินทางในรอบ 9 ปี ช่องของคุณถูกไฮไลต์`) + loShuTable + starDirTable
+  ));
+  const [coreTh, coreEn] = CORE_CHAR[star] ?? ['ดาวที่มีเอกลักษณ์','A unique star'];
+  sections.push(blk('🌟', `แก่นบุคลิก — ดาว ${star} คือใคร`, `Core Character — Who Is Star ${star}`,
+    P(isEn ? coreEn : coreTh) +
+    P(isEn ? `The ${B(eEl(el))} element governing your star shapes everything — career instincts, relationship style, health focus. ${EL_TRAIT[el] ? EL_TRAIT[el][1] : ''} — the thread through every domain below.`
+           : `ธาตุ${B(eEl(el))}ที่ปกครองดาวของคุณหล่อหลอมทุกสิ่ง — สัญชาตญาณอาชีพ สไตล์ความสัมพันธ์ จุดเน้นสุขภาพ ${EL_TRAIT[el] ? EL_TRAIT[el][0] : ''} — ด้ายสีทองที่ร้อยผ่านทุกด้านข้างล่าง`)
+  ));
+  const [careerTh, careerEn] = CAREER[star] ?? ['หลากหลาย','diverse fields'];
+  sections.push(blk('💼', 'การงาน — ควรทำ / ควรเลี่ยง', 'Career — What to Do / What to Avoid',
+    P(isEn ? `Star ${star}'s natural gift is ${EL_TRAIT[el]?.[1] ?? eEl(el)}. You shine most naturally in: ${B(careerEn)}.`
+           : `พรธรรมชาติของดาว ${star} คือ ${EL_TRAIT[el]?.[0] ?? eEl(el)} สาขาที่คุณเปล่งประกายที่สุด: ${B(careerTh)}`) +
+    P(`✅ ${B(isEn?'Do':'ควรทำ')}: ${isEn ? WORK_DO[star]?.[1] : WORK_DO[star]?.[0]}`) +
+    P(`⚠️ ${B(isEn?'Avoid':'ควรเลี่ยง')}: ${isEn ? WORK_AVOID[star]?.[1] : WORK_AVOID[star]?.[0]}`)
+  ));
+  sections.push(blk('💰', 'การเงิน — ควรทำ / ควรเลี่ยง', 'Money — What to Do / What to Avoid',
+    P(isEn ? `Star ${star} (${eEl(el)}) has a wealth relationship shaped by the five-element cycle. ${B(eEl(fuelEl))} fuels you; ${B(eEl(weakenEl))} shows where wealth opportunities appear — while ${B(eEl(stressEl))} demands extra caution in money matters.`
+           : `ดาว ${star} (ธาตุ${eEl(el)}) มีความสัมพันธ์กับทรัพย์ตามวัฏจักร 5 ธาตุ ธาตุ${B(eEl(fuelEl))}เป็นแรงหนุน ธาตุ${B(eEl(weakenEl))}แสดงโอกาสทรัพย์ — แต่ธาตุ${B(eEl(stressEl))}ต้องระวังเป็นพิเศษเรื่องการเงิน`) +
+    P(`✅ ${B(isEn?'Do':'ควรทำ')}: ${isEn ? MONEY_DO[star]?.[1] : MONEY_DO[star]?.[0]}`) +
+    P(`⚠️ ${B(isEn?'Avoid':'ควรเลี่ยง')}: ${isEn ? MONEY_AVOID[star]?.[1] : MONEY_AVOID[star]?.[0]}`)
+  ));
+  sections.push(blk('❤️', 'ความรัก — ควรทำ / ควรเลี่ยง', 'Love — What to Do / What to Avoid',
+    P(isEn ? `The most naturally aligned partners carry a star element that ${B('feeds')} yours (${eEl(fuelEl)}-element stars: ${compatList}). Stars with ${B(eEl(stressEl))} element (${challengeList}) bring growth through friction — possible but require conscious effort.`
+           : `คู่ที่ "เข้ากัน" ธรรมชาติที่สุดมักมีธาตุที่ ${B('หนุน')} ธาตุของคุณ (ดาวธาตุ${eEl(fuelEl)}: ดาว ${compatList}) ส่วนดาวธาตุ${B(eEl(stressEl))} (ดาว ${challengeList}) ให้การเติบโตผ่านแรงเสียดทาน — เป็นไปได้แต่ต้องใช้ความตั้งใจ`) +
+    P(`✅ ${B(isEn?'Do':'ควรทำ')}: ${isEn ? LOVE_DO[star]?.[1] : LOVE_DO[star]?.[0]}`) +
+    P(`⚠️ ${B(isEn?'Avoid':'ควรเลี่ยง')}: ${isEn ? LOVE_AVOID[star]?.[1] : LOVE_AVOID[star]?.[0]}`)
+  ));
+  const [organTh, organEn] = ORGAN[el] ?? ['อวัยวะที่เกี่ยวข้อง','related organ systems'];
+  sections.push(blk('🩺', 'สุขภาพ — ควรทำ / ควรเลี่ยง', 'Health — What to Do / What to Avoid',
+    P(isEn ? `Star ${star} (${eEl(el)}) governs the ${B(organEn)} in the five-element body map. Your watch-zone is the organ system of ${B(eEl(stressEl))}: ${ORGAN[stressEl] ? ORGAN[stressEl][1] : 'related systems'}.`
+           : `ดาว ${star} (ธาตุ${eEl(el)}) ปกครอง${B(organTh)} ในแผนที่ร่างกาย 5 ธาตุ จุดเฝ้าระวังคือระบบอวัยวะของธาตุ${B(eEl(stressEl))}: ${ORGAN[stressEl] ? ORGAN[stressEl][0] : 'ระบบที่เกี่ยวข้อง'}`) +
+    P(`✅ ${B(isEn?'Do':'ควรทำ')}: ${isEn ? HEALTH_DO[star]?.[1] : HEALTH_DO[star]?.[0]}`) +
+    P(`⚠️ ${B(isEn?'Avoid':'ควรเลี่ยง')}: ${isEn ? HEALTH_AVOID[star]?.[1] : HEALTH_AVOID[star]?.[0]}`)
+  ));
+  sections.push(blk('🧭', 'ทิศและฮวงจุ้ย — การปฏิบัติประจำวัน', 'Directions & Feng Shui — Daily Practice',
+    P(isEn ? `Nine Star Ki is inseparable from directional Feng Shui. ${B(eDir(dir))} is where you receive the strongest positive Qi — orient your work desk to face it. For sleep, point your head toward ${B(eDir(sleepDir))} to align with your star's nightly energy.`
+           : `Nine Star Ki แยกไม่ออกจากฮวงจุ้ยทิศทาง ทิศ${B(eDir(dir))}คือที่ที่คุณรับ Qi เชิงบวกแรงที่สุด — หันหน้าโต๊ะทำงานไปทางนี้ สำหรับการนอน หันหัวไปทาง${B(eDir(sleepDir))}เพื่อให้สอดคล้องกับพลังกลางคืนของดาวคุณ`) +
+    P(isEn ? `In 2026, the ${B('Southwest')} carries Star 5 (Five Yellow — the most volatile energy). Avoid major construction or ground-breaking in the Southwest of your home or office this year.`
+           : `ในปี 2026 ทิศ${B('ตะวันตกเฉียงใต้')}มีดาว 5 (ห้าเหลือง — พลังงานผันผวนที่สุด) หลีกเลี่ยงการก่อสร้างหรือขุดดินในทิศนั้นปีนี้`) +
+    P(`✅ ${B(isEn?'Enhance':'เสริม')}: ${isEn ? `work desk facing ${eDir(dir)} · head toward ${eDir(sleepDir)} at night · wear ${eColor(color)} daily` : `โต๊ะทำงานหันไปทาง${eDir(dir)} · นอนหันหัวไปทาง${eDir(sleepDir)} · ใส่สี${eColor(color)}ทุกวัน`}`) +
+    P(`⚠️ ${B(isEn?'Reduce':'ลด')}: ${isEn ? `Southwest in 2026 (Star 5) · the element/colour of your controlling element (${eEl(stressEl)})` : `ทิศตะวันตกเฉียงใต้ปี 2026 (ดาว 5) · ธาตุหรือสีของธาตุที่ควบคุมคุณ (${eEl(stressEl)})`}`)
+  ));
+  sections.push(blk('💬', 'คำถามยอดฮิต — ตอบจากดวง Nine Star Ki ของคุณ', 'Popular Questions — Answered from Your Nine Star Ki',
+    faqQ(isEn?'How is 2026 — a peak or a caution year?':'ปี 2026 ปีพีคหรือปีระวัง?',
+      isEn ? (a.isHonmei ? `2026 is your ${B('Honmei-sei Kaiki')} (本命星回帰) — the most powerful year in your 9-year cycle; the annual star (9 Fire) matches your own. Everything amplifies: successes multiply, but so do missteps. Act with intention.` : `${a.year2026Analysis} Use your lucky direction (${eDir(dir)}) and colour (${eColor(color)}) consistently this year.`)
+            : (a.isHonmei ? `2026 เป็นปี ${B('Honmei-sei Kaiki')} (本命星回帰) ของคุณ — ปีทรงพลังที่สุดในวงจร 9 ปี ดาวปี (9 ไฟ) ตรงกับดาวคุณพอดี ทุกสิ่งขยายผล ทั้งสำเร็จและพลาด ทำด้วยเจตนา` : `${a.year2026Analysis} ใช้ทิศนำโชค (${eDir(dir)}) และสี (${eColor(color)}) อย่างสม่ำเสมอปีนี้`)) +
+    faqQ(isEn?'What is my greatest natural strength?':'จุดแข็งที่สุดโดยธรรมชาติของฉัน?',
+      isEn ? (coreEn.split('.')[0] + '.') : (coreTh.split(' ').slice(0,18).join(' ') + '…')) +
+    faqQ(isEn?'Which star numbers are most compatible?':'ดาวเลขไหนเข้ากันได้ดีที่สุด?',
+      isEn ? `Stars ${compatList} (${eEl(fuelEl)} — feeds your ${eEl(el)}) align most naturally. Stars ${challengeList} (${eEl(stressEl)}) need deliberate effort but spark growth.` : `ดาว ${compatList} (ธาตุ${eEl(fuelEl)} — หนุนธาตุ${eEl(el)}) เข้ากันธรรมชาติที่สุด ดาว ${challengeList} (ธาตุ${eEl(stressEl)}) ต้องใช้ความพยายามแต่จุดประกายการเติบโต`) +
+    faqQ(isEn?'Which careers suit Star '+star+' best?':'อาชีพไหนเหมาะกับดาว '+star+' ที่สุด?', isEn ? careerEn : careerTh) +
+    faqQ(isEn?'What is my key shadow to watch?':'เงาสำคัญที่ต้องระวังในตัวเอง?',
+      isEn ? `Work: ${WORK_AVOID[star]?.[1] ?? '—'} Love: ${LOVE_AVOID[star]?.[1] ?? '—'}` : `งาน: ${WORK_AVOID[star]?.[0] ?? '—'} ความรัก: ${LOVE_AVOID[star]?.[0] ?? '—'}`) +
+    faqQ(isEn?'What is my single best daily practice?':'การปฏิบัติเดียวที่ดีที่สุดทุกวัน?',
+      isEn ? `Orient your sleep — head toward ${B(eDir(sleepDir))}. Japanese Feng Shui masters cite sleep direction as the highest-ROI Nine Star Ki practice: it affects every night's recovery, at no cost.` : `จัดทิศการนอน — หันหัวไปทาง${B(eDir(sleepDir))} โหราจารย์ฮวงจุ้ยญี่ปุ่นถือว่าทิศการนอนคือการปฏิบัติที่คุ้มที่สุด: กระทบการฟื้นฟูทุกคืน ไม่มีต้นทุน`)
+  ));
+  const MONTH_STAR_2026 = [8,7,6,5,4,3,2,1,9,8,7,6];
+  const MONTHS_TH_L = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const MONTHS_EN_L = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const monthRowData = MONTH_STAR_2026.map((ms, i) => {
+    const msEl = STAR_EL[ms];
+    const tone = msEl === fuelEl ? (isEn?'✦ supportive — recharge, learn, lean on allies':'✦ หนุน — เติมพลัง เรียนรู้ พึ่งพันธมิตร')
+      : msEl === el ? (isEn?'= same — teamwork or rivalry, stay focused':'= ตัวเอง — ทีมเวิร์กหรือแข่งขัน โฟกัส')
+      : msEl === drainEl ? (isEn?'◆ output — push work, perform, create':'◆ ผลงาน — ปล่อยงาน แสดงออก สร้างสรรค์')
+      : msEl === weakenEl ? (isEn?'$ wealth — chase deals, put in effort':'$ ทรัพย์ — ไล่โอกาส ลงแรง')
+      : (isEn?'△ pressure — discipline, watch health':'△ กดดัน — รักษาวินัย ระวังสุขภาพ');
+    return `<tr><td style="padding:4px 8px;border-bottom:1px solid #2a2545;white-space:nowrap">${isEn?MONTHS_EN_L[i]:MONTHS_TH_L[i]} 2026</td><td style="padding:4px 8px;border-bottom:1px solid #2a2545;color:#9a8a72">${isEn?'Star':'ดาว'} ${ms}</td><td style="padding:4px 8px;border-bottom:1px solid #2a2545;color:#c8b080">${tone}</td></tr>`;
+  }).join('');
+  sections.push(blk('📅', 'แนวโน้มปี 2026 — รายเดือน', 'Your 2026 Outlook — Month by Month',
+    P(isEn ? `In 2026 (Year of Star 9 Fire), each month carries a different guest star colouring your birth star's energy. Use ${B('supportive')} months for major launches, ${B('wealth')} months for financial moves, and ease off in ${B('pressure')} months.`
+           : `ในปี 2026 (ปีดาว 9 ไฟ) แต่ละเดือนมีดาวแขกที่ระบายสีพลังงานของดาวเกิดคุณ ใช้เดือน${B('หนุน')}สำหรับเปิดตัวงานใหญ่ เดือน${B('ทรัพย์')}สำหรับการเงิน และผ่อนในเดือน${B('กดดัน')}`) +
+    `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:6px">${monthRowData}</table>`
+  ));
+  sections.push(blk('🎨', 'เสริมและเลี่ยง — ภาพรวม', 'Enhance & Avoid — Overall Summary',
+    P(`✅ ${B(isEn?'Enhance your star':'เสริมพลังดาว')}: ${isEn ? `colour ${B(eColor(color))} · work direction ${B(eDir(dir))} · sleep direction ${B(eDir(sleepDir))} · element ${B(eEl(el))} and ${B(eEl(fuelEl))} (feeds your star)` : `สี${B(eColor(color))} · ทิศทำงาน${B(eDir(dir))} · ทิศนอน${B(eDir(sleepDir))} · ธาตุ${B(eEl(el))} และ ${B(eEl(fuelEl))} (หนุนดาวคุณ)`}`) +
+    P(`⚠️ ${B(isEn?'Avoid (what weighs on your star)':'เลี่ยง (สิ่งที่ถ่วงดาว)')}: ${isEn ? `element ${B(eEl(stressEl))} (controls/weakens you) · ${B('Southwest')} in 2026 (Star 5) · overloading watch-zone organs (${ORGAN[stressEl]?.[1] ?? 'related systems'})` : `ธาตุ${B(eEl(stressEl))} (ควบคุม/ทำให้อ่อน) · ทิศ${B('ตะวันตกเฉียงใต้')}ปี 2026 (ดาว 5) · โหลดอวัยวะเฝ้าระวังเกิน (${ORGAN[stressEl]?.[0] ?? 'ระบบที่เกี่ยวข้อง'})`}`)
+  ));
+  const _ord = ['📜','🌟','🧭','💼','💰','❤️','🩺','📅','🎨','💬'];
+  const _rk = (s: string) => { let b = 99, bp = 1e9; _ord.forEach((ic, i) => { const p = s.indexOf(ic); if (p >= 0 && p < bp) { bp = p; b = i; } }); return b; };
+  sections.sort((p, q) => _rk(p) - _rk(q));
+  return sections.join('');
+}
+
 function calcNineStar(d: BirthData): NineStarData {
   let y = d.year;
   // Before Risshun (~Feb 4): use previous year
@@ -665,7 +1722,7 @@ function calcNineStar(d: BirthData): NineStarData {
 
   const NSK_BASE: Record<number,number> = {1:700,2:650,3:730,4:720,5:580,6:750,7:720,8:760,9:800};
   const nskScore = Math.max(400, Math.min(960, (NSK_BASE[star]??700) + (star===9?50:0) + ((d.day*11+d.month*5)%80)-40));
-  return {
+  const nskResult: NineStarData = {
     star, starName: data.name, starChinese: data.chinese,
     starElement: pEl(data.el), starColor: pColor(data.color),
     starDirection: pDir(data.dir), directionSleep: pDir(data.sleepDir),
@@ -700,8 +1757,16 @@ function calcNineStar(d: BirthData): NineStarData {
       closingTh: 'Nine Star Ki บอกไว้ว่า — "รู้จังหวะของฟ้า คุณไม่ต้องฝืน จะลื่นไหลไปเอง" — ฟ้าไม่เคยผิด ดาวไม่เคยโกหก เรียนรู้ที่จะฟังคือศิลปะของ 九星気学',
       closingEn: 'Nine Star Ki teaches: "Know the rhythm of the heavens, and you won\'t need to force — life will flow on its own." The sky never errs, the stars never lie. Learning to listen is the art of 九星気学.',
     }),
+    deepReading: '',
     score: nskScore,
   };
+  // deepReading = sections only (the legacy `reading` uses raw Thai in its EN
+  // branches → would leak; the deep sections are self-contained + bilingual-clean).
+  nskResult.deepReading = _nineStarDeepSections({
+    star, el: data.el, color: data.color, dir: data.dir, sleepDir: data.sleepDir,
+    year2026Analysis: analysis2026, auspicious2026: nskResult.auspicious2026, isHonmei,
+  });
+  return nskResult;
 }
 
 // ============================================================
@@ -828,6 +1893,183 @@ function pyMeaning(n: number): string {
   return _reportLang === 'en' ? (PY_MEANINGS_EN[n] ?? `Personal Year ${n}`) : (PY_MEANINGS[n] ?? `ปีส่วนตัว ${n}`);
 }
 
+// ── NUMEROLOGY DEEP READING (Pythagorean + Thai 7-number) ────────────────────
+// Cross-checked vs numerologist.com / palashthhakur (25+pg): Life Path · Birthday ·
+// Personal Year + cycle · Pinnacles & Challenges (4 phases) · domains · lucky.
+function _numerologyDeepSections(a: {
+  lp: number; py: number; pyt: number; destiny: number; thai7: number[];
+  bM: number; bD: number; bY: number;
+}): string {
+  const isEn = _reportLang === 'en';
+  const pick = (th: string, en: string) => isEn ? en : th;
+  const base = a.lp >= 11 ? (a.lp === 11 ? 2 : a.lp === 22 ? 4 : 6) : a.lp;
+  const LPN: Record<number,[string,string]> = { 1:['ผู้นำ','The Leader'],2:['ผู้ประสาน','The Diplomat'],3:['ผู้สร้างสรรค์','The Creator'],4:['ผู้สร้าง','The Builder'],5:['นักผจญภัย','The Adventurer'],6:['ผู้ดูแล','The Nurturer'],7:['นักปราชญ์','The Sage'],8:['นักบริหาร','The Executive'],9:['นักมนุษยธรรม','The Humanitarian'],11:['แสงประภาคาร (Master)','The Lighthouse (Master)'],22:['สถาปนิกหลัก (Master)','The Master Builder'],33:['ผู้รักษา (Master)','The Master Healer'] };
+  const CORE: Record<number,[string,string]> = {
+    1:['อิสระ ริเริ่ม ทะเยอทะยาน เกิดมานำไม่ใช่ตาม','independent, pioneering, ambitious — born to lead, not follow'],
+    2:['ละเอียดอ่อน ประสานคน รักความสงบ เป็นสะพานเชื่อม','sensitive, peace-making, a natural bridge between people'],
+    3:['สร้างสรรค์ ช่างพูด สดใส เกิดมาเพื่อแสดงออก','creative, expressive, joyful — born to communicate'],
+    4:['มีวินัย เป็นระบบ น่าเชื่อถือ สร้างรากฐานยั่งยืน','disciplined, systematic, reliable — builds lasting foundations'],
+    5:['รักอิสระ ปรับตัว ผจญภัย เบื่อสิ่งซ้ำซาก','freedom-loving, adaptable, adventurous — bores of routine'],
+    6:['รับผิดชอบ ดูแล รักครอบครัว เป็นที่พึ่ง','responsible, nurturing, family-centred — the one others lean on'],
+    7:['ลึกซึ้ง วิเคราะห์ ค้นหาความจริง รักความสันโดษ','deep, analytical, truth-seeking, values solitude'],
+    8:['ทะเยอทะยาน บริหารเก่ง มองทรัพย์และอำนาจ','ambitious, executive-minded, drawn to wealth and power'],
+    9:['เมตตา ให้ มองภาพรวมมนุษยชาติ ศิลปะในใจ','compassionate, giving, humanitarian, artistic at heart'],
+  };
+  const CAR: Record<number,[string,string]> = {
+    1:['ผู้ก่อตั้ง ผู้บริหาร งานอิสระ ผู้นำโครงการ','founder, executive, solo work, project lead'],
+    2:['ที่ปรึกษา HR นักประสาน นักการทูต งานคู่','advisor, HR, mediator, diplomacy, partnerships'],
+    3:['ศิลปะ สื่อ การตลาด สอน บันเทิง','art, media, marketing, teaching, entertainment'],
+    4:['วิศวกร บัญชี บริหารระบบ กฎหมาย ก่อสร้าง','engineering, accounting, systems, law, construction'],
+    5:['ขาย การตลาด ท่องเที่ยว สื่อ งานที่เปลี่ยนบ่อย','sales, marketing, travel, media, varied roles'],
+    6:['ครู สาธารณสุข บริการ งานดูแล ความงาม','teaching, healthcare, service, caregiving, beauty'],
+    7:['วิจัย วิทยาศาสตร์ ปรัชญา จิตวิญญาณ วิเคราะห์','research, science, philosophy, spirituality, analysis'],
+    8:['ธุรกิจ การเงิน กฎหมาย อสังหา ผู้บริหารระดับสูง','business, finance, law, real estate, senior management'],
+    9:['องค์กรการกุศล ศิลปะ การรักษา งานเพื่อสังคม','nonprofit, art, healing, social-impact work'],
+  };
+  const LOVE: Record<number,[string,string]> = {
+    1:['ต้องการความเคารพและพื้นที่ อย่าคุมคู่','needs respect and space; don\'t dominate your partner'],
+    2:['อุทิศตัว ต้องการความกลมเกลียว ระวังเสียตัวตน','devoted, needs harmony; watch losing yourself'],
+    3:['สนุก ต้องการการสื่อสาร ระวังผิวเผิน','fun, needs communication; watch superficiality'],
+    4:['ภักดี มั่นคง ระวังแข็งเกินไป','loyal, steady; watch being too rigid'],
+    5:['ต้องการอิสระและความตื่นเต้น ระวังหนีพันธะ','needs freedom and excitement; watch commitment-avoidance'],
+    6:['ดูแลคู่ดี รักครอบครัว ระวังดูแลจนอึดอัด','nurturing, family-focused; watch over-caring into control'],
+    7:['ต้องการความลึกและพื้นที่ส่วนตัว ระวังห่างเหิน','needs depth and private space; watch emotional distance'],
+    8:['จริงจัง มองอนาคต ระวังเอางานนำความรัก','serious, future-minded; watch letting work eclipse love'],
+    9:['ให้และอุดมคติ ระวังเสียสละจนหมดตัว','giving and idealistic; watch over-sacrificing'],
+  };
+  const HEALTH: Record<number,[string,string]> = {
+    1:['หัว ความดัน ความเครียดจากการแบกคนเดียว','head, blood pressure, stress from carrying it all alone'],
+    2:['ระบบประสาท การย่อย อารมณ์สะสม','nerves, digestion, bottled emotion'],
+    3:['คอ-ลำคอ การกินดื่มเกิน พลังงานกระจาย','throat, overindulgence, scattered energy'],
+    4:['กระดูก ข้อต่อ ความตึงจากความเข้มงวด','bones, joints, tension from rigidity'],
+    5:['ความกระวนกระวาย การใช้ชีวิตเกินพอดี','restlessness, living in excess'],
+    6:['หัวใจ ความเครียดจากการดูแลคนอื่น','heart, stress from over-caring'],
+    7:['ระบบประสาท การโดดเดี่ยว นอนไม่หลับจากคิดมาก','nerves, isolation, insomnia from overthinking'],
+    8:['ความเครียดจากงานหนัก ความดัน หัวใจ','stress from overwork, blood pressure, heart'],
+    9:['burnout จากการให้ อารมณ์ท่วม','burnout from giving, emotional flooding'],
+  };
+  const LUCKY: Record<number,[string,string]> = {
+    1:['เลข 1,4 · สีแดง/ทอง · วันอาทิตย์','numbers 1,4 · red/gold · Sunday'],
+    2:['เลข 2,7 · สีขาว/ครีม/เงิน · วันจันทร์','numbers 2,7 · white/cream/silver · Monday'],
+    3:['เลข 3,6,9 · สีเหลือง/ม่วง · วันพฤหัส','numbers 3,6,9 · yellow/purple · Thursday'],
+    4:['เลข 4,8 · สีเขียว/น้ำตาล · วันเสาร์','numbers 4,8 · green/brown · Saturday'],
+    5:['เลข 5 · สีฟ้า/เทา · วันพุธ','number 5 · blue/grey · Wednesday'],
+    6:['เลข 6,3 · สีชมพู/เขียว · วันศุกร์','numbers 6,3 · pink/green · Friday'],
+    7:['เลข 7 · สีม่วง/น้ำเงินเข้ม · วันจันทร์','number 7 · purple/deep blue · Monday'],
+    8:['เลข 8,4 · สีดำ/ทอง · วันเสาร์','numbers 8,4 · black/gold · Saturday'],
+    9:['เลข 9,3,6 · สีแดง/ทอง · วันอังคาร','numbers 9,3,6 · red/gold · Tuesday'],
+  };
+  const PY_TXT: Record<number,[string,string]> = {
+    1:['เริ่มรอบ 9 ปีใหม่ ตั้งเป้าใหญ่ ลงมือ','start of a new 9-year cycle — set big goals, take action'],
+    2:['สร้างพันธมิตร ความสัมพันธ์ อดทนรอจังหวะ','build alliances and relationships; patience pays'],
+    3:['แสดงออก สร้างชื่อ โชว์ผลงาน เข้าสังคม','express, build your name, show your work, socialise'],
+    4:['วางรากฐาน ทำงานหนัก ไม่ใช่ปีเสี่ยง','lay foundations, work hard — not a year for risk'],
+    5:['เปลี่ยนแปลงใหญ่ โอกาสจากทิศที่ไม่คาด','major change; opportunity from unexpected directions'],
+    6:['ครอบครัว ความรัก ความรับผิดชอบ','family, love, responsibility'],
+    7:['ไตร่ตรอง เรียนรู้ลึก พักใจ ไม่ใช่ปีขยาย','reflect, learn deeply, rest — not an expansion year'],
+    8:['เก็บเกี่ยวผล การเงิน อำนาจ ความสำเร็จ','harvest, finances, power, achievement'],
+    9:['ปิดวงจร ปล่อยวาง เตรียมเริ่มใหม่','close cycles, release, prepare to begin again'],
+  };
+  const cn = CORE[base]||CORE[1], cr = CAR[base]||CAR[1], lv = LOVE[base]||LOVE[1], hl = HEALTH[base]||HEALTH[1], lk = LUCKY[base]||LUCKY[1], pyt2 = PY_TXT[a.py]||PY_TXT[1];
+
+  // Pinnacles & Challenges (Pythagorean, from reduced birth date)
+  const rm = reduceToSingle(a.bM, false), rd = reduceToSingle(a.bD, false), ry = reduceToSingle(digitSum(a.bY), false);
+  const P1 = reduceToSingle(rm+rd,false), P2 = reduceToSingle(rd+ry,false), P3 = reduceToSingle(P1+P2,false), P4 = reduceToSingle(rm+ry,false);
+  const C1 = Math.abs(rm-rd), C2 = Math.abs(rd-ry), C3 = Math.abs(C1-C2), C4 = Math.abs(rm-ry);
+  const p1End = 36 - a.lp;
+  const PINN_TXT: Record<number,[string,string]> = { 0:['สมดุล เป็นตัวเอง','balance, be yourself'],1:['เป็นผู้นำ พึ่งตนเอง','lead, be self-reliant'],2:['ร่วมมือ อดทน','cooperate, be patient'],3:['สร้างสรรค์ สื่อสาร','create, communicate'],4:['สร้างรากฐาน ทำงานหนัก','build foundations, work'],5:['เปลี่ยนแปลง อิสระ','change, freedom'],6:['ครอบครัว ความรับผิดชอบ','family, responsibility'],7:['เรียนรู้ จิตวิญญาณ','learning, spirituality'],8:['อำนาจ ความสำเร็จทางวัตถุ','power, material success'],9:['ให้ มนุษยธรรม','giving, humanitarianism'] };
+  const pinT = (n:number) => pick((PINN_TXT[n]||PINN_TXT[0])[0],(PINN_TXT[n]||PINN_TXT[0])[1]);
+
+  const blk = (icon: string, thT: string, enT: string, body: string) =>
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+  const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
+  const lpNm = pick(LPN[a.lp]?.[0]||'',LPN[a.lp]?.[1]||'');
+  const sec: string[] = [];
+  const masterNote = a.lp>=11 ? pick(` (Master Number — พลังสูงระดับเลข ${base} ยกกำลัง ต้องใช้สติกำกับ)`,` (a Master Number — Life Path ${base} raised to a higher octave; demands conscious mastery)`) : '';
+
+  // 1. Core numbers table
+  const bday = reduceToSingle(a.bD, true);
+  const rows = [
+    [pick('เลขชีวิต (Life Path)','Life Path'), `${a.lp} · ${lpNm}`],
+    [pick('เลขวันเกิด (Birthday)','Birthday'), `${bday}`],
+    [pick('Pythagorean','Pythagorean'), `${a.pyt}`],
+    [pick('เลขพรหมลิขิต (Destiny)','Destiny'), `${a.destiny}`],
+    [pick('Personal Year 2026','Personal Year 2026'), `${a.py}`],
+    [pick('เลข ๗ ตัว (ไทย)','Thai 7-Number'), a.thai7.join(' · ')],
+  ].map(([l,v]) => `<tr><td style="padding:5px 10px;border-bottom:1px solid #2a2545;color:#9a8a72">${l}</td><td style="padding:5px 10px;border-bottom:1px solid #2a2545;color:#c8b080">${B(v)}</td></tr>`).join('');
+  sec.push(blk('📜','ชุดเลขหลักของคุณ','Your Core Numbers',
+    P(pick('เลขศาสตร์อ่านคุณจาก "ตัวเลข" ที่ถอดจากวันเกิด — แต่ละตัวเปิดมิติชีวิตที่ต่างกัน','Numerology reads you from numbers derived from your birth date — each opens a different life dimension.')) +
+    `<table style="width:100%;border-collapse:collapse;font-size:13px">${rows}</table>`));
+
+  // 2. Life Path deep
+  sec.push(blk('🔢',`เลขชีวิต ${a.lp} — ${lpNm}`,`Life Path ${a.lp} — ${LPN[a.lp]?.[1]||''}`,
+    P(pick(`Life Path คือ "พันธกิจหลัก" ของชีวิต ของคุณคือ ${B(String(a.lp))}${masterNote} — ${cn[0]}`,`Your Life Path is your core life mission. Yours is ${B(String(a.lp))}${masterNote} — ${cn[1]}.`)) +
+    P(pick(`เส้นทางที่เติมใจ: ${cr[0]}`,`Paths that fulfil you: ${cr[1]}`))));
+
+  // 3. Thai 7-number
+  sec.push(blk('🧬','เลข ๗ ตัว ๙ ฐาน (ระบบไทย)','Thai 7-Number System',
+    P(pick(`ระบบไทยโบราณ 700 ปี ใช้ 7 ตำแหน่งอธิบายชีวิต ของคุณคือ ${B(a.thai7.join(' · '))}`,`A 700-year-old Thai system using 7 positions to map a life. Yours is ${B(a.thai7.join(' · '))}.`)) +
+    P(pick(`ตำแหน่งที่ 4 (${a.thai7[3]}) = แกนพลังปัจจุบัน · ตำแหน่ง 3-4 บ่งสุขภาพ — เลข 3/5/7 ให้ระวังการกระแทก/อุบัติเหตุ`,`Position 4 (${a.thai7[3]}) is your current energy core; positions 3-4 indicate health — a 3/5/7 there flags impact/accident caution.`))));
+
+  // 4. Pinnacles & Challenges
+  const pinnRows = [
+    [pick(`ช่วง 1 (เกิด–${p1End} ปี)`,`Phase 1 (birth–age ${p1End})`), P1, C1],
+    [pick(`ช่วง 2 (${p1End+1}–${p1End+9})`,`Phase 2 (${p1End+1}–${p1End+9})`), P2, C2],
+    [pick(`ช่วง 3 (${p1End+10}–${p1End+18})`,`Phase 3 (${p1End+10}–${p1End+18})`), P3, C3],
+    [pick(`ช่วง 4 (${p1End+19}+)`,`Phase 4 (${p1End+19}+)`), P4, C4],
+  ].map(([lbl,pn,ch]) => `<tr><td style="padding:4px 8px;border-bottom:1px solid #2a2545;white-space:nowrap">${lbl}</td><td style="padding:4px 8px;border-bottom:1px solid #2a2545;color:#c8b080">${pick('พีค','Pinnacle')} ${pn}: ${pinT(pn as number)}</td><td style="padding:4px 8px;border-bottom:1px solid #2a2545;color:#9a8a72">${pick('บททดสอบ','Challenge')} ${ch}: ${pinT(ch as number)}</td></tr>`).join('');
+  sec.push(blk('⛰','พีค & บททดสอบ — 4 ช่วงชีวิต','Pinnacles & Challenges — Your Four Life Phases',
+    P(pick('เลขศาสตร์แบ่งชีวิตเป็น 4 ช่วง แต่ละช่วงมี "พีค" (โอกาส/ธีม) และ "บททดสอบ" (สิ่งที่ต้องข้าม)','Numerology splits life into 4 phases, each with a "Pinnacle" (theme/opportunity) and a "Challenge" (what to overcome).')) +
+    `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:6px">${pinnRows}</table>`));
+
+  // 5-8 domains
+  sec.push(blk('💼','การงาน — ควรทำ / ควรเลี่ยง','Career — What to Do / What to Avoid',
+    P(`${B(pick('อาชีพที่เข้าทาง','Best fields'))}: ${pick(cr[0],cr[1])}`) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick(`เลือกงานที่ให้ได้เป็น "${LPN[a.lp]?.[0]}" ใช้ Personal Year ${a.py} เป็นจังหวะ`,`choose work that lets you be "${LPN[a.lp]?.[1]}"; use Personal Year ${a.py} as your timing`)}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('ฝืนทำงานที่ขัด Life Path — จะรู้สึกว่างเปล่าแม้สำเร็จ',`work that fights your Life Path — it feels empty even when "successful"`)}`)));
+  sec.push(blk('💰','การเงิน — ควรทำ / ควรเลี่ยง','Money — What to Do / What to Avoid',
+    P(pick(`เลข ${base} จัดการเงินแบบ ${base===8?'มองทรัพย์เป็นเกมระยะยาว สะสมอำนาจ':base===4?'มั่นคง ระบบ ออมเป็นนิสัย':base===5?'หลายทาง คล่อง แต่ระวังใช้เพลิน':base===1?'กล้าลงทุนในตัวเอง':'ตามจังหวะของเลขชีวิต'}`,`Number ${base} handles money by ${base===8?'treating wealth as a long game and accumulating power':base===4?'staying steady, systematic, saving by habit':base===5?'multiple streams and agility — but watch fun-spending':base===1?'boldly investing in yourself':'following your Life Path rhythm'}`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick(`ใช้เลข/วันมงคล (${lk[0]}) จับจังหวะ ออมในปีฐาน 4/8`,`use your lucky numbers/day (${lk[1]}); save hardest in 4/8 personal years`)}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('เสี่ยงใหญ่ในปีฐาน 5/9 (ผันผวน/ปิดวงจร)','big risks in 5/9 personal years (volatile/closing)')}`)));
+  sec.push(blk('❤️','ความรัก — ควรทำ / ควรเลี่ยง','Love — What to Do / What to Avoid',
+    P(pick(`ในความรัก เลข ${base}: ${lv[0]}`,`In love, number ${base}: ${lv[1]}`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('หาคู่ที่เลขชีวิตเข้ากัน (1-3-5-9 พลังนำ / 2-4-6-8 พลังมั่นคง) สื่อสารความต้องการตรงๆ','seek a partner whose Life Path complements (1-3-5-9 active / 2-4-6-8 stabilising); state needs directly')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('คาดหวังให้คู่เดาใจ และละเลยด้านเงาของเลขตัวเอง','expecting your partner to mind-read; ignoring your number\'s shadow')}`)));
+  sec.push(blk('🩺','สุขภาพ — ควรทำ / ควรเลี่ยง','Health — What to Do / What to Avoid',
+    P(pick(`จุดเฝ้าระวังของเลข ${base}: ${hl[0]}`,`Watch-zone for number ${base}: ${hl[1]}`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('กิจวัตรที่สมดุลกับธรรมชาติเลข พักในปีฐาน 7','a routine balanced to your number; rest in 7 personal years')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('ปล่อยให้ด้านเงาของเลขลามเป็นปัญหากาย',`letting your number\'s shadow harden into physical issues`)}`)));
+
+  // 9. Personal Year 2026 + cycle
+  sec.push(blk('📅',`Personal Year 2026 = ${a.py}`,`Your 2026 Personal Year = ${a.py}`,
+    P(pick(`ปี 2026 ของคุณคือ Personal Year ${B(String(a.py))} — ${pyt2[0]}`,`Your 2026 is Personal Year ${B(String(a.py))} — ${pyt2[1]}.`)) +
+    P(pick('Personal Year วนรอบ 1→9 ทุก 9 ปี · ปี 1 = เริ่ม, ปี 9 = ปิดวงจร — จับจังหวะชีวิตให้ตรงคลื่นนี้','The Personal Year cycles 1→9 every nine years: year 1 = begin, year 9 = close. Ride the wave instead of fighting it.'))));
+
+  // 10. Lucky
+  sec.push(blk('🎨','เลข/สี/วันมงคล — เสริม / เลี่ยง','Lucky Numbers, Colours & Days — Enhance / Avoid',
+    P(`✅ ${B(pick('เสริม','Enhance'))}: ${pick(lk[0],lk[1])} — ${pick('ใช้กับเบอร์โทร ทะเบียน บ้านเลขที่ วันสำคัญ','use for phone, plates, house numbers, key dates')}`) +
+    P(`⚠️ ${B(pick('เลี่ยง','Avoid'))}: ${pick('ตัดสินใจใหญ่ในวันที่ลดรูปขัดกับ Life Path และฝืนคลื่น Personal Year','big decisions on days that reduce against your Life Path; fighting the Personal-Year wave')}`)));
+
+  // 11. FAQ
+  sec.push(blk('💬','คำถามยอดฮิต — ตอบจากเลขของคุณ','Popular Questions — Answered from Your Numbers',
+    faqQ(pick('พันธกิจชีวิตของฉันคืออะไร?','What is my life purpose?'),
+      pick(`Life Path ${a.lp} (${lpNm}) — ${cn[0]}`,`Life Path ${a.lp} (${LPN[a.lp]?.[1]}) — ${cn[1]}`)) +
+    faqQ(pick('ปี 2026 ควรโฟกัสอะไร?','What should 2026 focus on?'),
+      pick(`Personal Year ${a.py}: ${pyt2[0]}`,`Personal Year ${a.py}: ${pyt2[1]}`)) +
+    faqQ(pick('อาชีพไหนเหมาะ?','Which careers fit me?'), pick(cr[0],cr[1])) +
+    faqQ(pick('ช่วงไหนของชีวิตคือพีค?','Which life phase is my peak?'),
+      pick(`ดูตารางพีค: ช่วงที่พีคตรงกับ Life Path ${a.lp} คือช่วงที่ "เป็นตัวเอง" ที่สุด`,`See the Pinnacle table — the phase whose Pinnacle matches Life Path ${a.lp} is when you're most "you".`)) +
+    faqQ(pick('เลข/วันมงคลของฉัน?','My lucky numbers and day?'), pick(lk[0],lk[1])) +
+    faqQ(pick('สุขภาพต้องระวังอะไร?','Health to watch?'), pick(hl[0],hl[1]))));
+
+  const _ord = ['📜','🔢','🧬','⛰','💼','💰','❤️','🩺','📅','🎨','💬'];
+  const _rk = (s: string) => { let b = 99, bp = 1e9; _ord.forEach((ic, i) => { const p = s.indexOf(ic); if (p >= 0 && p < bp) { bp = p; b = i; } }); return b; };
+  sec.sort((p, q) => _rk(p) - _rk(q));
+  return sec.join('');
+}
+
 function calcNumerology(d: BirthData): NumerologyData {
   const lp = calcLifePath(d.year, d.month, d.day);
   const py = calcPersonalYear(d.year, d.month, d.day, 2026);
@@ -839,7 +2081,7 @@ function calcNumerology(d: BirthData): NumerologyData {
   const LP_SCORE: Record<number,number> = {1:750,2:720,3:780,4:730,5:790,6:760,7:810,8:770,9:740,11:820,22:830,33:840};
   const numScore = Math.max(400, Math.min(960, (LP_SCORE[lp]??700) + ((d.year%100*3+d.day*7)%80)-40));
   const thaiScoreVal = Math.max(400, Math.min(960, 700 + ((thai7[0]??0)*13+(thai7[1]??0)*7)%100-50));
-  return {
+  const numResult: NumerologyData = {
     lifePath: lp, lifePathName: lpName(lp),
     personalYear2026: py, personalYearMeaning: pyMeaning(py),
     pythagorean: pyt, pythagoreanName: lpName(pyt),
@@ -875,8 +2117,13 @@ function calcNumerology(d: BirthData): NumerologyData {
       closingTh: 'Pythagoras สอนว่า "ตัวเลขเป็นภาษาของจักรวาล" — เรียนตัวเลขของตัวเอง คุณจะพบว่าโลกพูดเรื่องคุณตลอดเวลา แค่คุณไม่เคยได้ยิน',
       closingEn: 'Pythagoras taught: "Number is the language of the cosmos." Learn your own numbers, and you\'ll find the world has been speaking about you all along — you just hadn\'t learned to listen.',
     }),
+    deepReading: '',
     score: numScore, thaiScore: thaiScoreVal,
   };
+  numResult.deepReading = _numerologyDeepSections({
+    lp, py, pyt, destiny, thai7, bM: d.month, bD: d.day, bY: d.year,
+  });
+  return numResult;
 }
 
 // ============================================================
@@ -930,6 +2177,122 @@ function lahiriAyanamsa(year: number, month: number, day: number): number {
   const REF_AYAN_DEG = 23.85310;        // 23°51'11.18" at 2000-01-01 UT
   const RATE_PER_YEAR_DEG = 0.013968;   // 50.288"/yr / 3600
   return REF_AYAN_DEG + (decYear - REF_YEAR) * RATE_PER_YEAR_DEG;
+}
+
+// ── VEDIC (JYOTISH) DEEP READING ─────────────────────────────────────────────
+// Cross-checked vs real Jyotish reports (vedicplanet, onlinejyotish): planetary
+// positions (sidereal) · Lagna+Rashi · Nakshatra · Mahadasha timeline · yogas ·
+// life-areas · remedies. sections-only (legacy `reading` leaks Thai in EN).
+function _vedicDeepSections(a: {
+  lagna: { en: string; th: string }; rashi: { en: string; th: string };
+  nakshatra: string; pada: number; lordTh: string;
+  curDashaTh: string; antarTh: string; dashEnd: number;
+  dashaSeq: { p: string; start: number; end: number }[];
+  planets: { th: string; s: { en: string; th: string } }[];
+  yogas: string[];
+}): string {
+  const isEn = _reportLang === 'en';
+  const pick = (th: string, en: string) => isEn ? en : th;
+  const sgn = (s: { en: string; th: string }) => isEn ? s.en : s.th;
+  // Graha (planet) themes — keyed by raw Thai name (matches DASHA_ORDER / lord)
+  const PL: Record<string, { nat: [string,string]; car: [string,string]; gem: [string,string]; day: [string,string] }> = {
+    'อาทิตย์': { nat:['อำนาจ ความเป็นผู้นำ ตัวตน จิตวิญญาณ','authority, leadership, self, soul'], car:['ราชการ ผู้บริหาร แพทย์ การเมือง','government, executive, medicine, politics'], gem:['ทับทิม','Ruby'], day:['อาทิตย์','Sunday'] },
+    'จันทร์': { nat:['จิตใจ อารมณ์ การดูแล สัญชาตญาณ','mind, emotion, nurture, instinct'], car:['งานดูแล สาธารณะ ของเหลว อาหาร','care, public, hospitality, food'], gem:['มุก','Pearl'], day:['จันทร์','Monday'] },
+    'อังคาร': { nat:['พลัง ความกล้า วินัย การแข่งขัน','energy, courage, drive, competition'], car:['ทหาร วิศวกร กีฬา ศัลยกรรม อสังหา','military, engineering, sports, surgery, property'], gem:['ปะการังแดง','Red Coral'], day:['อังคาร','Tuesday'] },
+    'พุธ': { nat:['ปัญญา การสื่อสาร การค้า ตรรกะ','intellect, communication, commerce, logic'], car:['ค้าขาย เขียน บัญชี IT สื่อสาร','trade, writing, accounting, IT, media'], gem:['มรกต','Emerald'], day:['พุธ','Wednesday'] },
+    'พฤหัส': { nat:['ปัญญา ธรรมะ การขยาย โชควาสนา','wisdom, dharma, expansion, fortune'], car:['ครู ที่ปรึกษา กฎหมาย การเงิน ศาสนา','teacher, advisor, law, finance, religion'], gem:['บุษราคัม','Yellow Sapphire'], day:['พฤหัส','Thursday'] },
+    'ศุกร์': { nat:['ความรัก ศิลปะ ความสุข ความหรูหรา','love, art, pleasure, luxury'], car:['ศิลปะ บันเทิง ความงาม แฟชั่น การทูต','art, entertainment, beauty, fashion, diplomacy'], gem:['เพชร','Diamond'], day:['ศุกร์','Friday'] },
+    'เสาร์': { nat:['วินัย ความอดทน กรรม โครงสร้าง','discipline, endurance, karma, structure'], car:['แรงงาน อสังหา เหมือง วิจัยระยะยาว ราชการ','labour, real estate, mining, long research, civil service'], gem:['ไพลิน','Blue Sapphire'], day:['เสาร์','Saturday'] },
+    'ราหู': { nat:['ความทะเยอทะยาน สิ่งแปลกใหม่ ต่างแดน','ambition, the unconventional, foreign lands'], car:['เทคโนโลยี ต่างประเทศ การเมือง สิ่งดิสรัปต์','technology, foreign, politics, disruption'], gem:['โกเมน','Hessonite'], day:['เสาร์','Saturday'] },
+    'เกตุ': { nat:['จิตวิญญาณ การปล่อยวาง ปัญญาเร้นลับ','spirituality, detachment, hidden wisdom'], car:['วิจัย จิตวิญญาณ การแพทย์ทางเลือก','research, spirituality, alternative healing'], gem:['ไพฑูรย์','Cat\'s Eye'], day:['อังคาร','Tuesday'] },
+  };
+  const plOf = (th: string) => PL[th] || PL['พฤหัส'];
+  const blk = (icon: string, thT: string, enT: string, body: string) =>
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+  const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
+  const lord = plOf(a.lordTh), cur = plOf(a.curDashaTh), antar = plOf(a.antarTh);
+  const sec: string[] = [];
+
+  // 1. Chart
+  sec.push(blk('📜','ผังภารตะ — ลัคนา · ราศีจันทร์ · นักษัตร','Your Jyotish Chart — Lagna · Rashi · Nakshatra',
+    P(pick('Jyotish ใช้ราศีแบบ Sidereal (ตามดาวจริง) ต่างจากตะวันตก จุดหลัก 3 จุด:','Jyotish uses the sidereal zodiac (aligned to the real stars), unlike Western. Three core points:')) +
+    P(`${B(pick('ลัคนา (Lagna)','Lagna / Ascendant'))}: ${sgn(a.lagna)} — ${pick('ตัวตน ร่างกาย ทิศชีวิต','the self, body, life direction')}`) +
+    P(`${B(pick('ราศีจันทร์ (Rashi)','Moon Rashi'))}: ${sgn(a.rashi)} — ${pick('ใจและอารมณ์ (คนอินเดียถามราศีนี้ก่อน)','mind & emotions — the sign Indians ask first')}`) +
+    P(`${B(pick('นักษัตร (Nakshatra)','Nakshatra'))}: ${a.nakshatra} ${pick('บาท','pada')} ${a.pada} — ${pick('ปกครองโดย','ruled by')} ${B(pPlanet(a.lordTh))}. ${pick('นักษัตรละเอียดกว่าราศี 27 เท่า เป็นแก่นบุคลิกที่แท้จริง','27× finer than signs — the true core of personality')}`)));
+
+  // 2. Nakshatra core (via lord theme)
+  sec.push(blk('🌙','นักษัตรเกิด — แก่นบุคลิก','Your Birth Nakshatra — Core Self',
+    P(pick(`นักษัตร ${a.nakshatra} ปกครองโดย${B(pPlanet(a.lordTh))} ซึ่งฉีดธรรมชาติ "${lord.nat[0]}" เข้าสู่บุคลิกแก่นของคุณ`,`Nakshatra ${a.nakshatra} is ruled by ${B(pPlanet(a.lordTh))}, injecting "${lord.nat[1]}" into your core self.`)) +
+    P(pick(`เส้นทางที่เข้าทางธรรมชาตินี้: ${lord.car[0]} — งานแนวนี้จะรู้สึก "ใช่" โดยไม่ต้องฝืน`,`Paths that run with this grain: ${lord.car[1]} — such work feels right without forcing.`))));
+
+  // 3. Sidereal planets
+  const planetRows = a.planets.map(p => `<tr><td style="padding:5px 10px;border-bottom:1px solid #2a2545;color:#c8b080">${B(pPlanet(p.th))}</td><td style="padding:5px 10px;border-bottom:1px solid #2a2545">${sgn(p.s)}</td><td style="padding:5px 10px;border-bottom:1px solid #2a2545;color:#9a8a72;font-size:11px">${pick(plOf(p.th).nat[0],plOf(p.th).nat[1])}</td></tr>`).join('');
+  sec.push(blk('🪐','ดาวเคราะห์ในราศี Sidereal','Your Planets in Sidereal Signs',
+    P(pick('ตำแหน่งดาวจริงตามท้องฟ้า (หักอายนางศะ Lahiri) — แต่ละดวงปกครองด้านชีวิตที่ต่างกัน','Real sky positions (Lahiri ayanamsa applied) — each planet governs a different life arena.')) +
+    `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:6px">${planetRows}</table>`));
+
+  // 4. Yogas
+  sec.push(blk('🕉','โยคะในดวง (Yogas)','Yogas — Special Combinations in Your Chart',
+    P(pick('โยคะคือ "การจับคู่ดาว" ที่ให้พรพิเศษ ที่เด่นในดวงคุณ:','Yogas are planetary combinations that grant special blessings. Prominent in your chart:')) +
+    a.yogas.map(y => P('• ' + y)).join('')));
+
+  // 5-8 domains
+  sec.push(blk('💼','การงาน — ควรทำ / ควรเลี่ยง','Career — What to Do / What to Avoid',
+    P(pick(`มหาทศาปัจจุบัน ${B(pPlanet(a.curDashaTh))} ชี้นำอาชีพช่วงนี้ไปทาง: ${cur.car[0]}`,`Your current Mahadasha ${B(pPlanet(a.curDashaTh))} steers this era's career toward: ${cur.car[1]}`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('ทำงานที่เข้าทางธาตุของลัคนาลอร์ดและดาวมหาทศา ใช้ช่วงทศานี้ลงแรงด้านที่ดาวหนุน','align work with your Lagna-lord and Mahadasha planet; pour effort into what this dasha favours')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('ฝืนทำงานที่ขัดธรรมชาติดาวมหาทศา — จะเหนื่อยและไม่ขึ้น','forcing work that fights your Mahadasha planet — draining and unrewarded')}`)));
+  sec.push(blk('💰','การเงิน — ควรทำ / ควรเลี่ยง','Money — What to Do / What to Avoid',
+    P(pick(`Jyotish ดูทรัพย์จากเรือน 2 (เงินสะสม) และเรือน 11 (รายได้/ผลกำไร) ช่วงมหาทศา ${pPlanet(a.curDashaTh)} กระแสเงินมีสีของดาวนี้`,`Jyotish reads wealth from the 2nd house (savings) and 11th (gains). Under ${pPlanet(a.curDashaTh)} dasha, cash flow takes on this planet's colour.`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('สะสมจากงานที่เข้าทางดาวมหาทศา บริจาคตามวันของดาว (เสริมกรรมดี)','accumulate via Mahadasha-aligned work; give on the planet\'s day to build good karma')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick(['ราหู','Rahu'].includes(a.curDashaTh)?'การเก็งกำไร/คนชวนรวยเร็วในยุคราหู — กับดักชัด':'กู้/เสี่ยงเกินตัวในช่วงดาวที่ไม่หนุนทรัพย์',['ราหู','Rahu'].includes(a.curDashaTh)?'speculation / get-rich-quick lures in a Rahu era — a clear trap':'over-leverage in a dasha that doesn\'t favour wealth')}`)));
+  sec.push(blk('❤️','ความรัก — ควรทำ / ควรเลี่ยง','Love — What to Do / What to Avoid',
+    P(pick('Jyotish ดูคู่จากเรือน 7 และดาวศุกร์ (ความรัก) + Navamsha (ผังย่อยเรื่องคู่) คู่ที่ดีมักมาในช่วงทศาของศุกร์/พฤหัส','Jyotish reads partnership from the 7th house, Venus, and the Navamsha sub-chart. Good unions often arrive in Venus/Jupiter dasha periods.')) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('ตรวจ Manglik/ความเข้ากันของนักษัตรก่อนแต่ง ให้เวลาช่วงทศาที่หนุนความรัก','check Manglik & nakshatra compatibility before marriage; lean into love-favouring dasha windows')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('ตัดสินใจแต่งงานในช่วงทศาเสาร์/ราหูที่กดดัน โดยไม่ตรวจดวงคู่','marrying during a heavy Saturn/Rahu dasha without checking compatibility')}`)));
+  sec.push(blk('🩺','สุขภาพ — ควรทำ / ควรเลี่ยง','Health — What to Do / What to Avoid',
+    P(pick(`Jyotish โยงสุขภาพกับลัคนา (${sgn(a.lagna)}) เรือน 6 และดาวที่อ่อนในดวง ช่วงทศา ${pPlanet(a.curDashaTh)} ให้ดูแลอวัยวะของดาวนี้เป็นพิเศษ`,`Jyotish links health to the Lagna (${sgn(a.lagna)}), 6th house, and weak planets. In ${pPlanet(a.curDashaTh)} dasha, tend this planet's body-zone especially.`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('กิจวัตรแบบอายุรเวท ตื่นเช้า (Brahma Muhurta) สวดมนตราประจำดาวมหาทศา','Ayurvedic routine, early rising (Brahma Muhurta), chant your Mahadasha planet\'s mantra')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('ละเลย remedy ในช่วงทศาดาวร้าย ฝืนสังขารช่วงเสาร์/ราหู','skipping remedies during a malefic dasha; over-straining the body in Saturn/Rahu periods')}`)));
+
+  // 9. Mahadasha timeline (signature of Vedic)
+  const dRows = a.dashaSeq.map(x => { const me = 2026 >= x.start && 2026 <= x.end;
+    return `<tr style="${me?'background:rgba(212,175,55,0.10)':''}"><td style="padding:5px 8px;border-bottom:1px solid #2a2545;white-space:nowrap">${x.start}–${x.end}</td><td style="padding:5px 8px;border-bottom:1px solid #2a2545">${B(pPlanet(x.p))}</td><td style="padding:5px 8px;border-bottom:1px solid #2a2545;color:#c8b080;font-size:11px">${pick(plOf(x.p).nat[0],plOf(x.p).nat[1])}${me?pick(' ◀ ตอนนี้',' ◀ now'):''}</td></tr>`; }).join('');
+  sec.push(blk('⏳','มหาทศา — ไทม์ไลน์ 120 ปี (จุดเด่นของ Vedic)','Mahadasha — Your 120-Year Timeline (Vedic\'s Signature)',
+    P(pick(`ระบบ Vimshottari Dasha คือสิ่งที่ Jyotish แม่นกว่าทุกศาสตร์เรื่อง "เมื่อไหร่" — ชีวิตถูกแบ่งเป็น "ยุค" ของดาวแต่ละดวง ตอนนี้คุณอยู่ยุค ${B(pPlanet(a.curDashaTh))} (ถึงปี ${a.dashEnd}) ทศาย่อย (Antardasha) = ${B(pPlanet(a.antarTh))}`,`The Vimshottari Dasha is where Jyotish beats every system at "when" — life is split into planetary "eras". You're now in the ${B(pPlanet(a.curDashaTh))} era (until ${a.dashEnd}); the sub-period (Antardasha) is ${B(pPlanet(a.antarTh))}.`)) +
+    `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:6px">${dRows}</table>` +
+    P(pick(`ยุค ${pPlanet(a.curDashaTh)} เน้นเรื่อง ${cur.nat[0]} — จัดชีวิตให้สอดคล้องจะลื่นไหล`,`The ${pPlanet(a.curDashaTh)} era emphasises ${cur.nat[1]} — align your life with it and things flow.`))));
+
+  // 10. 2026
+  sec.push(blk('📅','ปี 2026 — ทศา/ทศาย่อย + ดาวพฤหัสจร','2026 — Your Dasha Period + Jupiter Transit',
+    P(pick(`ปี 2026 คุณอยู่ใต้ ${B(pPlanet(a.curDashaTh))}-${pPlanet(a.antarTh)} (ทศา-ทศาย่อย) = ผสมพลัง "${cur.nat[0]}" กับ "${antar.nat[0]}" ดาวพฤหัส (Guru) จรเข้าเมถุน→กรกฎปีนี้ นำโอกาสด้านการเรียน/ที่ปรึกษา/การเงิน`,`In 2026 you're under ${B(pPlanet(a.curDashaTh))}-${pPlanet(a.antarTh)} (dasha-antardasha) — blending "${cur.nat[1]}" with "${antar.nat[1]}". Jupiter (Guru) transits into Gemini→Cancer this year, opening study/advisory/finance opportunities.`))));
+
+  // 11. Remedies
+  sec.push(blk('🎨','อุปายะ (Remedies) — เสริม / เลี่ยง','Upaya (Remedies) — Enhance / Avoid',
+    P(pick(`Jyotish ไม่ทิ้งให้ "ดวงร้าย" — มี Upaya (อุปายะ/การแก้) เสมอ สำหรับยุค ${pPlanet(a.curDashaTh)} ของคุณ:`,`Jyotish never leaves you stuck with a "bad chart" — there's always an Upaya (remedy). For your ${pPlanet(a.curDashaTh)} era:`)) +
+    P(`✅ ${B(pick('เสริม','Enhance'))}: ${pick(`อัญมณี${cur.gem[0]} (ของดาวมหาทศา) · ทำบุญ/สวดมนตราวัน${cur.day[0]} · อัญมณีลัคนา`,`${cur.gem[1]} gemstone (your Mahadasha planet) · give & chant on ${cur.day[1]} · your Lagna gemstone`)}`) +
+    P(`⚠️ ${B(pick('เลี่ยง','Avoid'))}: ${pick('ละเลยพิธี/มนตราในยุคดาวที่กดดัน และอย่าตัดสินใจใหญ่วันที่ดาวมหาทศาอ่อน','skipping ritual/mantra during a heavy dasha; avoid major moves on days your Mahadasha planet is weak')}`)));
+
+  // 12. FAQ
+  sec.push(blk('💬','คำถามยอดฮิต — ตอบจากดวงภารตะ','Popular Questions — Answered from Your Jyotish Chart',
+    faqQ(pick('ตอนนี้ชีวิตอยู่ "ยุค" ไหน?','Which life "era" am I in now?'),
+      pick(`ยุค ${B(pPlanet(a.curDashaTh))} ถึงปี ${a.dashEnd} เน้น ${cur.nat[0]} (ทศาย่อย ${pPlanet(a.antarTh)})`,`The ${B(pPlanet(a.curDashaTh))} era until ${a.dashEnd}, emphasising ${cur.nat[1]} (sub-period ${pPlanet(a.antarTh)}).`)) +
+    faqQ(pick('อาชีพไหนเข้าทางดวง?','Which careers fit my chart?'),
+      pick(`ตามนักษัตรลอร์ด: ${lord.car[0]} · ตามยุคปัจจุบัน: ${cur.car[0]}`,`By nakshatra lord: ${lord.car[1]} · by current era: ${cur.car[1]}`)) +
+    faqQ(pick('จุดแข็งที่สุดของดวง?','My greatest strength?'),
+      pick(`ลัคนา${sgn(a.lagna)} + นักษัตร ${a.nakshatra} (${pPlanet(a.lordTh)}) — ${lord.nat[0]} และโยคะ: ${a.yogas[0]||'-'}`,`Lagna ${sgn(a.lagna)} + Nakshatra ${a.nakshatra} (${pPlanet(a.lordTh)}) — ${lord.nat[1]}; plus the yoga: ${a.yogas[0]||'-'}`)) +
+    faqQ(pick('เนื้อคู่/แต่งงานช่วงไหนดี?','When is a good time for marriage?'),
+      pick('ช่วงทศา/ทศาย่อยของศุกร์หรือพฤหัส และเมื่อพฤหัสจรหนุนเรือน 7 — ตรวจ Navamsha + Manglik ก่อนเสมอ','during Venus or Jupiter dasha/antardasha, and when Jupiter transits supports the 7th house — always check the Navamsha & Manglik first.')) +
+    faqQ(pick('ควรทำ remedy อะไรก่อน?','Which remedy should I do first?'),
+      pick(`เริ่มที่อัญมณี${cur.gem[0]} + สวดมนตราดาวมหาทศาในวัน${cur.day[0]} — ทำต่อเนื่อง 40 วันเห็นผล`,`Start with the ${cur.gem[1]} gemstone + your Mahadasha mantra on ${cur.day[1]} — done for 40 days, effects show.`)) +
+    faqQ(pick('สุขภาพต้องระวังอะไร?','What should I watch in health?'),
+      pick(`ดูแลอวัยวะของดาวมหาทศา (${pPlanet(a.curDashaTh)}) และจุดอ่อนของลัคนา${sgn(a.lagna)} เน้นกิจวัตรอายุรเวท`,`Tend the body-zone of your Mahadasha planet (${pPlanet(a.curDashaTh)}) and your Lagna ${sgn(a.lagna)} weak points; keep an Ayurvedic routine.`))));
+
+  const _ord = ['📜','🌙','🪐','🕉','💼','💰','❤️','🩺','⏳','📅','🎨','💬'];
+  const _rk = (s: string) => { let b = 99, bp = 1e9; _ord.forEach((ic, i) => { const p = s.indexOf(ic); if (p >= 0 && p < bp) { bp = p; b = i; } }); return b; };
+  sec.sort((p, q) => _rk(p) - _rk(q));
+  return sec.join('');
 }
 
 function calcVedic(d: BirthData, w: WesternData): VedicData {
@@ -1001,7 +2364,7 @@ function calcVedic(d: BirthData, w: WesternData): VedicData {
 
   const NAKSH_SCORES: Record<string,number> = {'Ashwini':800,'Bharani':700,'Krittika':780,'Rohini':800,'Mrigashira':760,'Ardra':710,'Punarvasu':790,'Pushya':820,'Ashlesha':710,'Magha':800,'Purva Phalguni':770,'Uttara Phalguni':780,'Hasta':790,'Chitra':770,'Swati':780,'Vishakha':760,'Anuradha':790,'Jyeshtha':730,'Mula':700,'Purva Ashadha':770,'Uttara Ashadha':780,'Shravana':780,'Dhanishtha':760,'Shatabhisha':750,'Purva Bhadrapada':730,'Uttara Bhadrapada':760,'Revati':780};
   const vedicScore = Math.max(400, Math.min(960, (NAKSH_SCORES[nakshatra]??700) + ((d.day*9+d.month*13)%80)-40));
-  return {
+  const vedicResult: VedicData = {
     lagna: lagnaSign.en, lagnaSign: lagnaSign.th,
     moonNakshatra: nakshatra, nakshatraLord: pPlanet(lord), nakshathraPada: pada,
     mahadasha: pPlanet(currentDasha), mahadashaPeriod: tPick(`ถึง ${dashEnd}`, `until ${dashEnd}`), mahadashaEnd: dashEnd,
@@ -1034,8 +2397,27 @@ function calcVedic(d: BirthData, w: WesternData): VedicData {
       closingTh: 'Jyotish ไม่ใช่ "ดวง" — คือ "ดวงตา" (Jyoti = แสง) ที่ช่วยให้คุณมองชีวิตได้ชัดขึ้น รู้แล้วใช้ให้เป็นคุณไม่ใช่ให้เป็นเรื่อง',
       closingEn: 'Jyotish is not "fortune" — it\'s an "eye" (Jyoti = light) that lets you see life more clearly. Knowing the chart is so you can use it, not be ruled by it.',
     }),
+    deepReading: '',
     score: vedicScore,
   };
+  const _utcV = d.hour - d.timezone + d.minute / 60;
+  const _jdV = toJD(d.year, d.month, d.day, _utcV);
+  const _sid = (trop: number) => lonToSign(mod360(trop - AYANAMSA));
+  const _vedPlanets = [
+    { th: 'อาทิตย์', s: _sid(w.sunDeg) }, { th: 'จันทร์', s: lonToSign(siderealMoon) },
+    { th: 'อังคาร', s: _sid(_eclLon(_jdV, 'Mars')) }, { th: 'พุธ', s: _sid(_eclLon(_jdV, 'Mercury')) },
+    { th: 'พฤหัส', s: _sid(_eclLon(_jdV, 'Jupiter')) }, { th: 'ศุกร์', s: _sid(_eclLon(_jdV, 'Venus')) },
+    { th: 'เสาร์', s: _sid(_eclLon(_jdV, 'Saturn')) },
+  ];
+  const _dashaSeq: { p: string; start: number; end: number }[] = [];
+  { let acc = 0; for (let i = 0; i < 9; i++) { const idx = (lordIdx + i) % 9; const nm = DASHA_ORDER[idx]; const yrs = i === 0 ? remainingYears : DASHA_YEARS[nm]; const s = Math.round(d.year + acc); const e = Math.round(s + yrs); _dashaSeq.push({ p: nm, start: s, end: e }); acc += yrs; } }
+  vedicResult.deepReading = _vedicDeepSections({
+    lagna: lagnaSign, rashi: lonToSign(siderealMoon),
+    nakshatra, pada, lordTh: lord,
+    curDashaTh: currentDasha, antarTh: antardasha, dashEnd,
+    dashaSeq: _dashaSeq, planets: _vedPlanets, yogas,
+  });
+  return vedicResult;
 }
 
 // ============================================================
@@ -1103,6 +2485,114 @@ function profileDesc(p: string): string {
   return _reportLang === 'en' ? (PROFILE_DESC_EN[p] ?? `Profile ${p}`) : (PROFILE_DESC[p] ?? `บุคลิกภาพที่ไม่ซ้ำใคร`);
 }
 
+// ── HUMAN DESIGN DEEP READING ────────────────────────────────────────────────
+// Cross-checked vs humandesignhd (50+ sections): Type · Strategy · Authority ·
+// Profile · Incarnation Cross · gates/channels · deconditioning · domains.
+function _hdDeepSections(a: {
+  typeKey: string; strategy: string; authority: string; profile: string; profileDesc: string;
+  definition: string; cross: string; sunGate: number; earthGate: number; channels: string[];
+}): string {
+  const isEn = _reportLang === 'en';
+  const pick = (th: string, en: string) => isEn ? en : th;
+  const TYPE: Record<string, { sig:[string,string]; ns:[string,string]; work:[string,string]; car:[string,string]; love:[string,string]; health:[string,string] }> = {
+    'Generator': { sig:['ความพึงพอใจ','Satisfaction'], ns:['ความหงุดหงิด','Frustration'], work:['ตอบสนองสิ่งที่ "จุดประกาย" ในตัว ไม่ใช่ไล่ล่า ใช้พลัง Sacral ที่ไม่มีวันหมดถ้าทำสิ่งที่ใช่','respond to what lights you up rather than chasing; your Sacral energy is endless when aligned'], car:['ฝึกงานที่รักจนเชี่ยวชาญ — โลกมาหาคุณเอง','master a craft you love — the world comes to you'], love:['ตอบสนอง ไม่ใช่เริ่มไล่จีบ รอสิ่งที่ทำให้ "อืม ใช่"','respond, don\'t pursue; wait for the gut "uh-huh" yes'], health:['พลังเหลือเฟือเมื่อทำสิ่งที่ใช่ ล้าหนักถ้าฝืนทำสิ่งที่ไม่ใช่ — ใช้พลังให้หมดก่อนนอน','abundant energy when aligned, deep fatigue when not — spend your energy fully before sleep'] },
+    'Manifesting Generator': { sig:['ความพึงพอใจ + สงบ','Satisfaction & Peace'], ns:['หงุดหงิด + โกรธ','Frustration & Anger'], work:['ตอบสนองก่อน แล้ว "แจ้ง" คนรอบข้างก่อนลงมือ ทำหลายอย่างพร้อมกันได้ ข้ามขั้นตอนเป็น','respond first, then inform others before acting; multi-passionate, you\'re allowed to skip steps'], car:['หลายสายอาชีพพร้อมกัน — อย่ายอมให้ใครบีบให้เลือกอย่างเดียว','multiple careers at once — never let anyone force you into just one lane'], love:['ตอบสนอง + แจ้งคู่ก่อนเปลี่ยนทิศ','respond, and inform your partner before changing course'], health:['เร็วและหลายทิศ ระวังเริ่มหลายอย่างจนเผาตัว','fast and multi-directional — watch starting so much you burn out'] },
+    'Projector': { sig:['ความสำเร็จ','Success'], ns:['ความขมขื่น','Bitterness'], work:['รอ "คำเชิญ" และการยอมรับก่อนนำ คุณเกิดมาเพื่อ "นำทาง" คนอื่น ไม่ใช่ลุยแรงงานเอง','wait for the invitation and recognition before guiding; you\'re here to guide others, not grind'], car:['ที่ปรึกษา ผู้จัดการ ผู้เชี่ยวชาญ โค้ช — งานที่ใช้ "สายตาเห็นคน"','advisor, manager, expert, coach — work that uses your gift of seeing people'], love:['รอถูกเห็นค่าและเชิญ อย่ายัดเยียดตัวเอง','wait to be recognised and invited; don\'t force yourself in'], health:['พลังไม่ยั่งยืนแบบ Generator — ต้องพักจริง ไม่ต้องทำงาน 8 ชม.เต็ม','energy isn\'t sustainable like a Generator\'s — real rest matters; you don\'t owe anyone a full 8-hour grind'] },
+    'Manifestor': { sig:['ความสงบ','Peace'], ns:['ความโกรธ','Anger'], work:['ริเริ่มได้เลย แต่ "แจ้ง" คนที่กระทบก่อน ทำงานเป็นช่วงพลังพุ่ง','initiate freely — but inform those affected first; you work in bursts of power'], car:['ผู้ก่อตั้ง ผู้ริเริ่ม ศิลปินเดี่ยว — เปิดทางให้คนอื่นตาม','founder, initiator, solo creator — you open doors others follow through'], love:['ต้องการอิสระ แจ้งไม่ใช่ขออนุญาต','needs freedom — inform, not ask permission'], health:['พลังมาเป็นช่วง พักเป็นช่วง อย่าฝืนความสม่ำเสมอแบบคนอื่น','energy comes in waves — rest between; don\'t force others\' steady rhythm on yourself'] },
+    'Reflector': { sig:['ความประหลาดใจ','Surprise'], ns:['ความผิดหวัง','Disappointment'], work:['รอ 1 รอบจันทร์ (~28 วัน) ก่อนตัดสินใจใหญ่ คุณคือ "กระจก" สะท้อนสุขภาพของชุมชน','wait one lunar cycle (~28 days) before big decisions; you are a "mirror" of your community\'s health'], car:['ผู้ประเมิน นักวิจารณ์ งานชุมชน — มองเห็นภาพรวมที่คนอื่นมองไม่เห็น','evaluator, critic, community work — you see the whole that others miss'], love:['ต้องการสภาพแวดล้อม/คนที่ "ใช่" มากเป็นพิเศษ','needs an especially "right" environment and people'], health:['ไวต่อสิ่งแวดล้อมสูงสุด — เลือกที่อยู่และคนรอบตัวอย่างพิถีพิถัน','the most environment-sensitive type — choose where and with whom you live carefully'] },
+  };
+  const t = TYPE[a.typeKey] || TYPE['Generator'];
+  const LINE: Record<string,[string,string]> = {
+    '1':['ผู้สืบค้น — ต้องมีฐานความรู้มั่นคงก่อนถึงมั่นใจ','Investigator — needs a solid foundation of knowledge before feeling secure'],
+    '2':['ฤๅษี — มีพรสวรรค์ธรรมชาติ ต้องการเวลาส่วนตัว รอถูก "เรียก" ออกมา','Hermit — natural talent, needs alone time, waits to be "called" out'],
+    '3':['ผู้ทดลอง — เรียนผ่านลองผิดลองถูก ล้มแล้วลุกคือวิธีของคุณ','Martyr/Experimenter — learns by trial and error; falling then rising is your way'],
+    '4':['ผู้สร้างเครือข่าย — โอกาสมาผ่านความสัมพันธ์ที่ไว้ใจ','Opportunist — opportunity arrives through trusted relationships'],
+    '5':['ผู้กอบกู้ — คนคาดหวังให้คุณแก้ปัญหา ระวังภาพลักษณ์ที่คนฉายใส่','Heretic — people project solutions onto you; mind the image others cast'],
+    '6':['แบบอย่าง — ชีวิต 3 เฟส ปลายทางเป็นแบบอย่างให้คนอื่น','Role Model — three life phases; ultimately a model for others'],
+  };
+  const lines = a.profile.split('/');
+  const blk = (icon: string, thT: string, enT: string, body: string) =>
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+  const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
+  const sec: string[] = [];
+
+  // 1. Design chart
+  const rows = [
+    [pick('ประเภท (Type)','Type'), pick(({'Generator':'ผู้สร้างพลังงาน','Manifesting Generator':'MG ผู้สร้างและริเริ่ม','Projector':'ผู้นำทาง','Manifestor':'ผู้ริเริ่ม','Reflector':'ผู้สะท้อน'}[a.typeKey]||a.typeKey)+' · '+a.typeKey, a.typeKey)],
+    [pick('กลยุทธ์ (Strategy)','Strategy'), a.strategy],
+    [pick('อำนาจตัดสินใจ (Authority)','Authority'), a.authority],
+    [pick('โปรไฟล์ (Profile)','Profile'), a.profile],
+    [pick('นิยาม (Definition)','Definition'), a.definition],
+    [pick('Sun/Earth Gate','Sun/Earth Gate'), `${a.sunGate} / ${a.earthGate}`],
+  ].map(([l,v]) => `<tr><td style="padding:5px 10px;border-bottom:1px solid #2a2545;color:#9a8a72;white-space:nowrap">${l}</td><td style="padding:5px 10px;border-bottom:1px solid #2a2545;color:#c8b080">${B(v)}</td></tr>`).join('');
+  sec.push(blk('📜','ผังการออกแบบของคุณ','Your Human Design Chart',
+    P(pick('Human Design ผสม I Ching + โหราศาสตร์ + Chakra + Kabbalah — บอก "วิธีใช้พลังงาน" ที่ถูกต้องของคุณ จุดหลักคือ ประเภท + กลยุทธ์ + อำนาจตัดสินใจ','Human Design fuses the I Ching, astrology, chakras, and Kabbalah — it tells you the correct way to use your energy. The core is Type + Strategy + Authority.')) +
+    `<table style="width:100%;border-collapse:collapse;font-size:13px">${rows}</table>`));
+
+  // 2. Type + Strategy
+  sec.push(blk('⚡',`ประเภท ${a.typeKey} + กลยุทธ์`,`Your Type: ${a.typeKey} + Strategy`,
+    P(pick(`กลยุทธ์ของคุณคือ "${B(a.strategy)}" — เมื่อทำตามจะรู้สึก ${B(t.sig[0])} เมื่อฝืนจะเจอ ${B(t.ns[0])} (สัญญาณว่าหลงทาง)`,`Your Strategy is "${B(a.strategy)}" — follow it and you feel ${B(t.sig[1])}; override it and you hit ${B(t.ns[1])} (the signal you're off-track).`)) +
+    P(pick(t.work[0],t.work[1]))));
+
+  // 3. Authority
+  sec.push(blk('🧭','อำนาจตัดสินใจ (Authority) — เข็มทิศในกาย','Your Authority — Your Inner Decision Compass',
+    P(pick(`อำนาจตัดสินใจของคุณ = ${B(a.authority)} นี่คือ "วิธีที่ร่างกายคุณบอกใช่/ไม่" ที่เชื่อถือได้กว่าหัวสมอง`,`Your Authority = ${B(a.authority)}. This is how your body says yes/no — more reliable than your mind.`)) +
+    P(pick('ฝึกถามตัวเองแล้ว "รอ" ให้ authority ตอบ ก่อนตัดสินใจใหญ่ทุกครั้ง — อย่าให้หัวสมอง (ที่ไม่ใช่ authority) ตัดสินแทน','Before any big decision, ask then "wait" for your Authority to answer — don\'t let the mind (which is never the Authority) decide for you.'))));
+
+  // 4. Profile
+  sec.push(blk('🎭',`โปรไฟล์ ${a.profile} — บทบาทชีวิต`,`Profile ${a.profile} — Your Life Role`,
+    (lines[0]?P(`${B(pick('เส้นที่ 1','Line 1')+': '+(LINE[lines[0]]?(isEn?LINE[lines[0]][1]:LINE[lines[0]][0]):''))}`):'') +
+    (lines[1]?P(`${B(pick('เส้นที่ 2','Line 2')+': '+(LINE[lines[1]]?(isEn?LINE[lines[1]][1]:LINE[lines[1]][0]):''))}`):'') +
+    P(pick('สองเส้นนี้รวมกันเป็น "ลายเซ็น" ว่าคุณมีปฏิสัมพันธ์กับโลกอย่างไร','Together these two lines form the signature of how you engage the world.'))));
+
+  // 5. Incarnation Cross
+  sec.push(blk('✚','Incarnation Cross — พันธกิจชีวิต','Your Incarnation Cross — Life Purpose',
+    P(pick(`Incarnation Cross ของคุณคือ ${B(a.cross)} — "ธีมพันธกิจ" ระยะยาวที่คุณมาเรียนรู้และทำให้สำเร็จในชาตินี้ (มาจาก Sun Gate ${a.sunGate} / Earth Gate ${a.earthGate})`,`Your Incarnation Cross is ${B(a.cross)} — the long-arc life theme you came to learn and fulfil (derived from Sun Gate ${a.sunGate} / Earth Gate ${a.earthGate}).`)) +
+    P(pick('Cross ไม่ใช่สิ่งที่ "ทำทันที" แต่เป็นทิศที่ชีวิตค่อยๆ เผยเมื่อคุณใช้ชีวิตตาม Type + Strategy ของตัวเอง','The Cross isn\'t something you "do" immediately — it\'s a direction life reveals as you live by your Type and Strategy.'))));
+
+  // 6-9 domains
+  sec.push(blk('💼','การงาน — ควรทำ / ควรเลี่ยง','Career — What to Do / What to Avoid',
+    P(`${B(pick('เข้าทาง','Best fit'))}: ${pick(t.car[0],t.car[1])}`) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick(`ใช้กลยุทธ์ "${a.strategy}" ในการรับงาน/โอกาส รอ authority ตอบก่อนรับ`,`use your "${a.strategy}" strategy for taking on work; wait for your Authority before saying yes`)}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick(`ฝืนทำงานแบบที่ไม่ใช่ Type ของคุณ — จะเจอ ${t.ns[0]}`,`forcing a work-style that isn't your Type — you'll hit ${t.ns[1]}`)}`)));
+  sec.push(blk('💰','การเงิน — ควรทำ / ควรเลี่ยง','Money — What to Do / What to Avoid',
+    P(pick(`เงินไหลดีที่สุดเมื่อคุณทำตาม Type — ${a.typeKey} หาเงินจาก ${pick(t.car[0],t.car[1])}`,`Money flows best when you honour your Type — a ${a.typeKey} earns through ${pick(t.car[0],t.car[1])}.`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('ตัดสินใจการเงินผ่าน authority ไม่ใช่ความกลัวหรือความเร่ง','make money decisions through your Authority, not fear or urgency')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('ลงทุน/รับดีลเพราะหัวสมองคิดว่า "ควร" ทั้งที่ authority ยังไม่ตอบ','investing/taking deals because the mind says you "should" while your Authority hasn\'t answered')}`)));
+  sec.push(blk('❤️','ความรัก — ควรทำ / ควรเลี่ยง','Love — What to Do / What to Avoid',
+    P(pick(t.love[0],t.love[1])) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('ให้ความสัมพันธ์เดินตามกลยุทธ์ Type ของคุณ และเคารพ authority ของคู่','let the relationship move at your Type\'s strategy; respect your partner\'s Authority too')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('ฝืนเริ่ม/เร่งความสัมพันธ์ที่ขัดกับ Type จะเจอด้านไม่ใช่ตัวเอง (not-self)','forcing or rushing love against your Type — you slip into the not-self')}`)));
+  sec.push(blk('🩺','สุขภาพ / พลังงาน — ควรทำ / ควรเลี่ยง','Health & Energy — What to Do / What to Avoid',
+    P(pick(t.health[0],t.health[1])) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('จัดจังหวะพลังงานให้ตรงกับ Type — นอน/พักแบบที่ร่างกายคุณต้องการจริง','match your rhythm to your Type — sleep/rest the way your body actually needs')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('ใช้ตารางพลังงานของคนอื่น (เช่นทำงาน 9-5 ทั้งที่เป็น Projector/Manifestor)','running on someone else\'s energy schedule (e.g. 9-5 grind when you\'re a Projector/Manifestor)')}`)));
+
+  // 10. Deconditioning
+  sec.push(blk('🔄','การถอดเงื่อนไข (Deconditioning) — ตัวจริง vs ตัวปลอม','Deconditioning — True Self vs Not-Self',
+    P(pick(`Human Design บอกว่าเรามี "ตัวปลอม" (Not-Self) ที่สังคมหล่อหลอม — สัญญาณของตัวปลอมในคุณคือ ${B(t.ns[0])} ส่วนสัญญาณว่ากลับมาเป็นตัวจริงคือ ${B(t.sig[0])}`,`Human Design says we carry a conditioned "Not-Self". Your Not-Self signal is ${B(t.ns[1])}; the sign you're back to your true self is ${B(t.sig[1])}.`)) +
+    P(pick('ทดลอง 7 วัน: ทุกการตัดสินใจ รอ authority ตอบก่อน แล้วสังเกตว่าเจอ "ความพึงพอใจ" หรือ "ความหงุดหงิด" — นี่คือจุดเริ่มถอดเงื่อนไข','Try a 7-day experiment: on every decision, wait for your Authority, then notice whether you feel your signature or your not-self. That\'s where deconditioning begins.'))));
+
+  // 11. FAQ
+  sec.push(blk('💬','คำถามยอดฮิต — ตอบจาก Human Design','Popular Questions — Answered from Your Design',
+    faqQ(pick('ฉันควรตัดสินใจยังไงให้ถูกต้อง?','How should I make decisions correctly?'),
+      pick(`ใช้กลยุทธ์ "${a.strategy}" + รอ ${a.authority} ตอบ — อย่าให้หัวสมองตัดสินแทนกาย`,`Use your "${a.strategy}" strategy + wait for your ${a.authority} — don\'t let the mind decide for the body.`)) +
+    faqQ(pick('ฉันรู้ได้ไงว่ากำลัง "หลงทาง"?','How do I know I\'m off-track?'),
+      pick(`เมื่อเจอ ${t.ns[0]} บ่อยๆ = สัญญาณว่าไม่ได้ใช้ชีวิตตาม Type · เมื่อเจอ ${t.sig[0]} = มาถูกทาง`,`Frequent ${t.ns[1]} = you're not living your Type; ${t.sig[1]} = you're on track.`)) +
+    faqQ(pick('อาชีพแบบไหนเหมาะ?','What kind of work fits me?'), pick(t.car[0],t.car[1])) +
+    faqQ(pick('พันธกิจชีวิตของฉัน?','My life purpose?'),
+      pick(`Incarnation Cross: ${a.cross} — เผยทีละน้อยเมื่อใช้ชีวิตตาม Type`,`Incarnation Cross: ${a.cross} — it unfolds as you live your Type.`)) +
+    faqQ(pick('เรื่องความรัก/พลังงานต้องระวังอะไร?','What to watch in love/energy?'),
+      pick(`รัก: ${t.love[0]} · พลังงาน: ${t.health[0]}`,`Love: ${t.love[1]} · Energy: ${t.health[1]}`))));
+
+  const _ord = ['📜','⚡','🧭','🎭','✚','💼','💰','❤️','🩺','🔄','💬'];
+  const _rk = (s: string) => { let b = 99, bp = 1e9; _ord.forEach((ic, i) => { const p = s.indexOf(ic); if (p >= 0 && p < bp) { bp = p; b = i; } }); return b; };
+  sec.sort((p, q) => _rk(p) - _rk(q));
+  return sec.join('');
+}
+
 function calcHD(d: BirthData, w: WesternData): HDData {
   // Determine type based on sun position (simplified)
   const sunSignIdx = Math.floor(w.sunDeg / 30);
@@ -1132,7 +2622,7 @@ function calcHD(d: BirthData, w: WesternData): HDData {
   const TYPE_SCORE: Record<string,number> = {'Generator':760,'Manifesting Generator':790,'Projector':750,'Manifestor':780,'Reflector':720};
   const hdScore = Math.max(400, Math.min(960, (TYPE_SCORE[hdType.type]??700) + ((d.day*7+d.month*11)%80)-40));
   const authority = pickHdAuthority(hdType.type, d, w.sunDeg);
-  return {
+  const hdResult: HDData = {
     type: hdType.type, typeTh: tPick(hdType.typeTh, hdType.typeEn), strategy: tPick(hdType.strategy, hdType.strategyEn),
     authority, profile, profileDesc: profileDesc(profile),
     definition, incarnationCross: cross,
@@ -1164,8 +2654,14 @@ function calcHD(d: BirthData, w: WesternData): HDData {
       closingTh: 'Ra Uru Hu กล่าวว่า "Human Design ไม่ใช่ความเชื่อ — มันคือการทดลอง" — ทำตามกลยุทธ์ 7 ปี แล้วดูผล คุณไม่จำเป็นต้องเชื่อก่อน',
       closingEn: 'Ra Uru Hu said: "Human Design isn\'t a belief — it\'s an experiment." Follow the strategy for 7 years, then judge by results. You don\'t need to believe first.',
     }),
+    deepReading: '',
     score: hdScore,
   };
+  hdResult.deepReading = _hdDeepSections({
+    typeKey: hdType.type, strategy: tPick(hdType.strategy, hdType.strategyEn), authority,
+    profile, profileDesc: profileDesc(profile), definition, cross, sunGate, earthGate, channels,
+  });
+  return hdResult;
 }
 
 // ============================================================
@@ -1210,6 +2706,113 @@ const MAYAN_TONES = [
   { n: 13, name: 'Cosmic',       th: 'คอสมิก — การเคลื่อนที่', thEn: 'Cosmic — Movement' },
 ];
 
+// ── MAYAN TZOLK'IN DEEP READING ──────────────────────────────────────────────
+// Cross-checked vs mayan.org: Day Sign (Nawal, 20) + Galactic Tone (1-13) +
+// direction/colour + life-areas. sections-only, canonical order, FAQ last.
+function _mayanDeepSections(a: {
+  signEn: string; signDisp: string; toneNum: number; toneDisp: string;
+  direction: string; color: string; kin: number; wavespell: string;
+}): string {
+  const isEn = _reportLang === 'en';
+  const pick = (th: string, en: string) => isEn ? en : th;
+  const NAWAL: Record<string,[string,string]> = {
+    Imix:['ต้นกำเนิด การหล่อเลี้ยง การเริ่มต้น — พลังแม่/น้ำดึกดำบรรพ์','the primal source — nurturing, new beginnings, the mother-waters'],
+    Ik:['ลมและลมหายใจ — การสื่อสาร แรงบันดาลใจ จิตวิญญาณ','wind & breath — communication, inspiration, spirit'],
+    Akbal:['ราตรี — ความฝัน ปัญญาภายใน ความเป็นที่พึ่ง','the night — dreams, inner wisdom, sanctuary'],
+    Kan:['เมล็ดพันธุ์ — การเติบโต ศักยภาพ ความอุดมสมบูรณ์','the seed — growth, potential, abundance'],
+    Chikchan:['งู — พลังชีวิต สัญชาตญาณกาย การเปลี่ยนแปลง','the serpent — life force, body instinct, transformation'],
+    Kimi:['ผู้แปรเปลี่ยน — การปล่อยวาง การเปลี่ยนผ่าน ความสงบ','the transformer — surrender, transition, peace'],
+    Manik:['กวาง/มือ — การรักษา การให้ ความกลมกลืน','the deer/hand — healing, giving, harmony'],
+    Lamat:['ดาว/กระต่าย — ความงาม ศิลปะ ความอุดม ความรัก','the star/rabbit — beauty, art, abundance, love'],
+    Muluk:['น้ำ/จันทร์ — อารมณ์ การชำระล้าง สัญชาตญาณ','water/moon — emotion, purification, intuition'],
+    Ok:['สุนัข — ความภักดี ความรัก มิตรภาพ','the dog — loyalty, love, companionship'],
+    Chuen:['ลิง — ความสร้างสรรค์ การเล่น ศิลปะ','the monkey — creativity, play, artistry'],
+    Eb:['ถนน/มนุษย์ — การรับใช้ เส้นทางโชคชะตา ความอ่อนน้อม','the road/human — service, destiny path, humility'],
+    Ben:['ต้นอ้อ — หลักการ ครอบครัว การเป็นเสาหลัก','the reed — principle, family, the pillar'],
+    Ix:['เสือจากัวร์ — พลังเวทย์ สัญชาตญาณ ความลึกลับ','the jaguar — magic, instinct, the mystic'],
+    Men:['อินทรี — วิสัยทัศน์ ความทะเยอทะยาน อิสระ','the eagle — vision, ambition, freedom'],
+    Kib:['นักรบ/นกฮูก — ปัญญา การให้อภัย ความกล้า','the warrior/owl — wisdom, forgiveness, courage'],
+    Kaban:['โลก — ปัญญา การคิด ความสอดประสาน','the earth — intelligence, thought, synchronicity'],
+    Etznab:['กระจก/มีดหินเหล็กไฟ — ความจริง การสะท้อน ความคม','the mirror/flint — truth, reflection, the blade'],
+    Kawak:['พายุ — การเปลี่ยนแปลง พลัง การฟื้นฟู','the storm — transformation, energy, renewal'],
+    Ahau:['พระอาทิตย์/เจ้า — การรู้แจ้ง ความรักไร้เงื่อนไข ความเป็นเลิศ','the sun/lord — enlightenment, unconditional love, mastery'],
+  };
+  const TONE: Record<number,[string,string]> = {
+    1:['แม่เหล็ก — ดึงดูด รวมจุดประสงค์ เริ่มต้น','Magnetic — attract, unify purpose, begin'],
+    2:['จันทรา — ท้าทาย ขั้วตรงข้าม หาสมดุล','Lunar — challenge, polarity, find balance'],
+    3:['ไฟฟ้า — กระตุ้น สร้างพันธะ รับใช้','Electric — activate, bond, serve'],
+    4:['ก่อตัว — นิยาม สร้างรูปแบบ วัดผล','Self-Existing — define, form, measure'],
+    5:['แกนกลาง — เสริมพลัง สั่งการ เปล่งรัศมี','Overtone — empower, command, radiate'],
+    6:['จังหวะ — สมดุล จัดระเบียบ ความเท่าเทียม','Rhythmic — balance, organise, equalise'],
+    7:['สะท้อน — ปรับจูน เป็นช่องทาง สร้างแรงบันดาลใจ','Resonant — attune, channel, inspire'],
+    8:['กาแลกติก — ซื่อสัตย์ ทำให้กลมกลืน เป็นแบบอย่าง','Galactic — integrity, harmonise, model'],
+    9:['สุริยะ — ตั้งใจ ทำให้สำเร็จ เต้นเป็นจังหวะ','Solar — intend, realise, pulse'],
+    10:['ดาวเคราะห์ — ทำให้เป็นจริง สมบูรณ์แบบ ผลิต','Planetary — manifest, perfect, produce'],
+    11:['สเปกตรัม — ปลดปล่อย สลาย ปล่อยวาง','Spectral — release, dissolve, liberate'],
+    12:['ผลึก — ร่วมมือ อุทิศ เข้าใจสากล','Crystal — cooperate, dedicate, universalise'],
+    13:['จักรวาล — ก้าวข้าม คงอยู่ เวทมนตร์','Cosmic — transcend, endure, magic'],
+  };
+  const nw = NAWAL[a.signEn] || NAWAL.Imix, tn = TONE[a.toneNum] || TONE[1];
+  const blk = (icon: string, thT: string, enT: string, body: string) =>
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+  const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
+  const sec: string[] = [];
+
+  sec.push(blk('📜','Kin ของคุณ — วันสัญลักษณ์ + โทน','Your Kin — Day Sign + Galactic Tone',
+    P(pick(`ปฏิทินมายัน Tzolk’in หมุน 260 วัน คุณคือ ${B('Kin '+a.kin)} = ${B(a.signDisp)} โทน ${B(String(a.toneNum)+' '+a.toneDisp)}`,`The Mayan Tzolk’in turns over 260 days. You are ${B('Kin '+a.kin)} = ${B(a.signDisp)}, Galactic Tone ${B(String(a.toneNum)+' '+a.toneDisp)}.`)) +
+    P(`${B(pick('ทิศ','Direction'))}: ${a.direction} · ${B(pick('สี','Colour'))}: ${a.color} · ${a.wavespell}`)));
+
+  sec.push(blk('🐆',`วันสัญลักษณ์ (Nawal) — ${a.signDisp}`,`Your Day Sign (Nawal) — ${a.signDisp}`,
+    P(pick(`Nawal คือ "พลังจิตวิญญาณ" ที่คุณรับตอนหายใจครั้งแรก ของคุณคือ ${B(a.signDisp)} — ${nw[0]}`,`Your Nawal is the spiritual essence you received at your first breath. Yours is ${B(a.signDisp)} — ${nw[1]}.`)) +
+    P(pick('นี่คือแก่นบุคลิกและของขวัญที่คุณนำมาในชาตินี้ — เรียนรู้ใช้มันคือภารกิจหลัก','This is the core gift and personality you brought into this life — learning to wield it is the main task.'))));
+
+  sec.push(blk('🔢',`โทนกาแลกติก ${a.toneNum} — ${a.toneDisp}`,`Galactic Tone ${a.toneNum} — ${a.toneDisp}`,
+    P(pick(`โทนบอก "วิธีแสดงออก" ของพลัง Nawal ของคุณคือโทน ${B(String(a.toneNum)+' — '+tn[0])}`,`The tone is how you express your Nawal's energy. Yours is tone ${B(String(a.toneNum)+' — '+tn[1])}.`))));
+
+  sec.push(blk('💼','การงาน — ควรทำ / ควรเลี่ยง','Career — What to Do / What to Avoid',
+    P(pick(`พลัง ${a.signDisp} (${nw[0]}) ทำให้คุณเปล่งประกายในงานที่ได้ใช้ธรรมชาตินี้`,`The energy of ${a.signDisp} (${nw[1]}) shines in work that uses that nature.`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick(`แสดงพลัง Nawal ผ่านงาน + ใช้สไตล์ของโทน ${a.toneNum} (${tn[0]})`,`express your Nawal through work, in the style of tone ${a.toneNum} (${tn[1]})`)}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('ฝืนทำงานที่ตัดขาดจากธรรมชาติ Nawal — พลังจะหรี่ลง','work disconnected from your Nawal — your light dims')}`)));
+  sec.push(blk('💰','การเงิน — ควรทำ / ควรเลี่ยง','Money — What to Do / What to Avoid',
+    P(pick(`ความอุดมในแบบมายันมาเมื่อคุณ "เป็นตัวเอง" ตามวันสัญลักษณ์ ไม่ใช่เลียนแบบคนอื่น`,`Mayan abundance flows when you live as your true Nawal, not by imitating others.`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('ลงแรงในวัน Kin ของตัวเอง (ทุก 260 วัน) เป็นวันตั้งเจตนาเรื่องทรัพย์','set wealth intentions on your own Kin day, which returns every 260 days')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('ตัดสินใจเงินก้อนใหญ่ในวันที่พลังขัดกับ Nawal','big money moves on days whose energy clashes with your Nawal')}`)));
+  sec.push(blk('❤️','ความรัก — ควรทำ / ควรเลี่ยง','Love — What to Do / What to Avoid',
+    P(pick(`ในความรัก ${a.signDisp} นำพลัง "${nw[0]}" มาสู่ความสัมพันธ์`,`In love, ${a.signDisp} brings "${nw[1]}" into the relationship.`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('หาคู่ที่เคารพธรรมชาติ Nawal ของคุณ และเสริมโทนกัน','seek a partner who respects your Nawal and complements your tone')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('กดธรรมชาติตัวเองเพื่อให้เข้ากับคู่','suppressing your true nature to fit a partner')}`)));
+  sec.push(blk('🩺','สุขภาพ — ควรทำ / ควรเลี่ยง','Health — What to Do / What to Avoid',
+    P(pick(`มายันโยงสุขภาพกับสมดุลของพลัง Nawal และทิศ ${a.direction}`,`Mayan links health to the balance of your Nawal energy and your ${a.direction} direction.`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('ใช้สี '+a.color+' และทิศ '+a.direction+' เสริมพลัง พักในวันที่พลังต่ำ','use your '+a.color+' colour and '+a.direction+' direction to recharge; rest on low-energy days')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('ฝืนพลังจนหมด โดยไม่ฟังจังหวะ Tzolk’in','draining yourself without listening to the Tzolk’in rhythm')}`)));
+
+  sec.push(blk('📅','ปี 2026 — จังหวะ Tzolk’in','2026 — Your Tzolk’in Rhythm',
+    P(pick(`วัน Kin ของคุณ (${a.signDisp} โทน ${a.toneNum}) กลับมาทุก 260 วัน — ในปี 2026 จะมี 1-2 ครั้ง เป็นวัน "พลังตรงตัว" ที่สุด เหมาะตั้งเจตนาและเริ่มสิ่งสำคัญ`,`Your Kin day (${a.signDisp}, tone ${a.toneNum}) returns every 260 days — once or twice in 2026, your most "on-energy" days, ideal for intentions and launches.`))));
+
+  sec.push(blk('🎨','เสริม / เลี่ยง — ภาพรวม','Enhance / Avoid — Overall',
+    P(`✅ ${B(pick('เสริม','Enhance'))}: ${pick(`สี ${a.color} · ทิศ ${a.direction} · ใช้ชีวิตตามธรรมชาติ Nawal ${a.signDisp}`,`colour ${a.color} · direction ${a.direction} · live by your ${a.signDisp} Nawal`)}`) +
+    P(`⚠️ ${B(pick('เลี่ยง','Avoid'))}: ${pick('ฝืนเป็นคนอื่น ขัดกับวันสัญลักษณ์ของตัวเอง','forcing yourself to be someone other than your Day Sign')}`)));
+
+  sec.push(blk('💬','คำถามยอดฮิต — ตอบจาก Kin ของคุณ','Popular Questions — Answered from Your Kin',
+    faqQ(pick('แก่นตัวตนของฉันคืออะไร?','What is my core essence?'),
+      pick(`${a.signDisp} — ${nw[0]}`,`${a.signDisp} — ${nw[1]}`)) +
+    faqQ(pick('ฉันแสดงออกแบบไหน?','How do I express myself?'),
+      pick(`โทน ${a.toneNum}: ${tn[0]}`,`Tone ${a.toneNum}: ${tn[1]}`)) +
+    faqQ(pick('อาชีพ/เส้นทางที่เหมาะ?','Which path fits me?'),
+      pick(`งานที่ให้คุณใช้พลัง "${nw[0]}" ได้เต็มที่`,`work that lets you fully use "${nw[1]}"`)) +
+    faqQ(pick('วันไหนคือวันพลังของฉัน?','Which is my power day?'),
+      pick(`วัน Kin ${a.kin} (${a.signDisp} โทน ${a.toneNum}) — กลับมาทุก 260 วัน`,`Kin ${a.kin} day (${a.signDisp}, tone ${a.toneNum}) — returns every 260 days`)) +
+    faqQ(pick('สี/ทิศมงคลของฉัน?','My lucky colour/direction?'),
+      pick(`สี ${a.color} · ทิศ ${a.direction}`,`colour ${a.color} · direction ${a.direction}`))));
+
+  const _ord = ['📜','🐆','🔢','💼','💰','❤️','🩺','📅','🎨','💬'];
+  const _rk = (s: string) => { let b = 99, bp = 1e9; _ord.forEach((ic, i) => { const p = s.indexOf(ic); if (p >= 0 && p < bp) { bp = p; b = i; } }); return b; };
+  sec.sort((p, q) => _rk(p) - _rk(q));
+  return sec.join('');
+}
+
 function calcMayan(d: BirthData): MayanData {
   // Anchor: Jan 1, 2000 = Kin 1 (1 Imix)
   // JDN of Jan 1, 2000 (noon) = 2451545
@@ -1227,7 +2830,7 @@ function calcMayan(d: BirthData): MayanData {
 
   const SIGN_SCORE_M: Record<string,number> = {'Imix':760,'Ik':780,'Akbal':750,'Kan':790,'Chikchan':770,'Kimi':680,'Manik':780,'Lamat':790,'Muluk':760,'Ok':780,'Chuen':790,'Eb':740,'Ben':800,'Ix':810,'Men':800,'Kib':740,'Kaban':760,'Etznab':750,'Kawak':730,'Ahau':830};
   const mayanScore = Math.max(400, Math.min(960, (SIGN_SCORE_M[MAYAN_SIGNS[signIdx]?.en??'']??700) + ((d.year%100+d.hour*7)%60)-30));
-  return {
+  const mayanResult: MayanData = {
     kin: kin + 1, daySign: signIdx + 1, daySignName: sign.en, daySignNameTh: tPick(sign.th, sign.thEn),
     toneNumber: toneIdx + 1, toneName: tone.name, toneNameTh: tPick(tone.th, tone.thEn),
     wavespell: tPick(`Wavespell ของ${wavespellSign.th}`, `Wavespell of ${wavespellSign.thEn}`),
@@ -1259,8 +2862,15 @@ function calcMayan(d: BirthData): MayanData {
       closingTh: 'Mayan Elders กล่าวว่า "In Lak\'ech" — ฉันคืออีกคุณ · Tzolk\'in ไม่ใช่ปฏิทินสำหรับทำนาย — มันคือแผนที่ว่าพลังงานไหลอย่างไรในเวลา เดินตามคลื่น คุณจะไม่ต้องเหนื่อยฝืน',
       closingEn: 'Mayan elders say "In Lak\'ech" — I am another you. Tzolk\'in isn\'t a calendar for prediction — it\'s a map of how energy flows through time. Walk with the wave and you won\'t need to fight.',
     }),
+    deepReading: '',
     score: mayanScore,
   };
+  mayanResult.deepReading = _mayanDeepSections({
+    signEn: sign.en, signDisp: tPick(sign.th, sign.thEn), toneNum: toneIdx + 1, toneDisp: tPick(tone.th, tone.thEn),
+    direction: pDir(sign.dir), color: pColor(sign.color), kin: kin + 1,
+    wavespell: tPick(`Wavespell ของ${wavespellSign.th}`, `Wavespell of ${wavespellSign.thEn}`),
+  });
+  return mayanResult;
 }
 
 // ============================================================
@@ -1316,6 +2926,67 @@ function celticPersonality(name: string): string {
   return _reportLang === 'en' ? (CELTIC_PERSONALITY_EN[name] ?? 'A magnetic, unique personality') : (CELTIC_PERSONALITY[name] ?? 'บุคลิกภาพที่มีเสน่ห์และไม่ซ้ำใคร');
 }
 
+// ── CELTIC TREE DEEP READING ─────────────────────────────────────────────────
+// Cross-checked vs treecouncil.ie / whats-your-sign: 13 sacred trees (Ogham),
+// personality + strengths + life path + element/planet/gem. sections-only.
+function _celticDeepSections(a: {
+  treeEn: string; treeTh: string; elRaw: string; elDisp: string; planet: string; gem: string; personality: string;
+}): string {
+  const isEn = _reportLang === 'en';
+  const pick = (th: string, en: string) => isEn ? en : th;
+  const ELT: Record<string, { car:[string,string]; health:[string,string]; doo:[string,string]; av:[string,string] }> = {
+    'ไม้': { car:['การเติบโต การศึกษา การให้คำปรึกษา สิ่งแวดล้อม','growth, education, advising, environment'], health:['ตับ เส้นเอ็น ดวงตา ความเครียดสะสม','liver, tendons, eyes, accumulated stress'], doo:['วางแผนยาว บ่มเพาะคนและไอเดีย','plan long, cultivate people and ideas'], av:['ใจร้อนรีบเก็บเกี่ยว ยึดติดความสมบูรณ์แบบ','rushing the harvest, perfectionism'] },
+    'ไฟ': { car:['ผู้นำ การนำเสนอ ศิลปะการแสดง การตลาด','leadership, presenting, performance, marketing'], health:['หัวใจ การไหลเวียน ภาวะหมดไฟ','heart, circulation, burnout'], doo:['เป็นหน้าตา จุดประกายคน','be the face, inspire others'], av:['เผาตัวจนหมดแรง ใจร้อนตัดสินใจ','burning out, impulsive decisions'] },
+    'ดิน': { car:['ก่อสร้าง การเงิน บริหาร เกษตร อสังหา','construction, finance, management, agriculture, property'], health:['กระดูก ข้อต่อ ระบบย่อย','bones, joints, digestion'], doo:['สร้างรากฐาน ทำงานที่ไว้ใจได้','build foundations, take trusted roles'], av:['ต้านการเปลี่ยนแปลง เก็บเครียดเงียบ','resisting change, bottling stress'] },
+    'โลหะ': { car:['กฎหมาย วิศวกรรม การเงิน งานที่ต้องแม่นยำ','law, engineering, finance, precision work'], health:['ปอด ผิวหนัง ระบบหายใจ','lungs, skin, breathing'], doo:['ตั้งมาตรฐาน ตัดสินใจเด็ดขาด','set standards, decide firmly'], av:['แข็งกระด้าง วิจารณ์เกินไป','rigidity, over-criticism'] },
+    'น้ำ': { car:['จิตวิทยา ศิลปะ การเขียน การดูแล วิจัย','psychology, art, writing, caregiving, research'], health:['ไต น้ำเหลือง สุขภาพจิต','kidneys, lymph, mental health'], doo:['ใช้สัญชาตญาณ ปรับตัวยืดหยุ่น','use intuition, adapt fluidly'], av:['ดูดอารมณ์ผู้อื่น ขาดขอบเขต','absorbing others\' moods, no boundaries'] },
+    'ลม': { car:['การสื่อสาร การเขียน เทคโนโลยี การเดินทาง การสอน','communication, writing, technology, travel, teaching'], health:['ระบบหายใจ ประสาท การนอน','respiratory, nerves, sleep'], doo:['ใช้ความคิดและการสื่อสาร เชื่อมโยงผู้คน','use ideas and communication; connect people'], av:['ฟุ้งซ่าน คิดมากไม่ลงมือ','scatter, overthinking without grounding'] },
+  };
+  const e = ELT[a.elRaw] || ELT['ลม'];
+  const blk = (icon: string, thT: string, enT: string, body: string) =>
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+  const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
+  const treeDisp = pick(a.treeTh, a.treeEn);
+  const sec: string[] = [];
+  sec.push(blk('📜','ต้นไม้เกิดของคุณ','Your Birth Tree',
+    P(pick(`ปฏิทินจันทรคติเซลติกมี 13 ต้นไม้ศักดิ์สิทธิ์ (อักษร Ogham ของดรูอิด) ต้นไม้ประจำเดือนจันทร์เกิดกำหนดนิสัยและเส้นทาง ของคุณคือ ${B(treeDisp)} (${a.treeEn})`,`The Celtic lunar calendar has 13 sacred trees (the Druids' Ogham). Your birth-moon tree shapes character and path. Yours is ${B(treeDisp)} (${a.treeEn}).`)) +
+    P(`${B(pick('ธาตุ','Element'))}: ${a.elDisp} · ${B(pick('ดาวปกครอง','Ruling planet'))}: ${a.planet} · ${B(pick('อัญมณี','Gemstone'))}: ${a.gem}`)));
+  sec.push(blk('🌳',`บุคลิก — ${treeDisp}`,`Personality — ${treeDisp}`,
+    P(a.personality) +
+    P(pick(`ธาตุ${a.elDisp}ของต้นไม้คุณเสริมด้วย ${e.car[0]} — เส้นทางที่ขับเคลื่อนด้วยธรรมชาตินี้จะรู้สึก "ใช่"`,`Your tree's ${a.elDisp} element adds ${e.car[1]} — paths driven by this nature feel right.`))));
+  sec.push(blk('💼','การงาน — ควรทำ / ควรเลี่ยง','Career — What to Do / What to Avoid',
+    P(`${B(pick('เข้าทาง','Best fit'))}: ${pick(e.car[0],e.car[1])}`) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick(e.doo[0],e.doo[1])}`) + P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick(e.av[0],e.av[1])}`)));
+  sec.push(blk('💰','การเงิน — ควรทำ / ควรเลี่ยง','Money — What to Do / What to Avoid',
+    P(pick(`ความมั่งคั่งมาเมื่อคุณทำงานที่เข้ากับธรรมชาติต้นไม้ (${a.elDisp})`,`Wealth flows from work aligned with your tree's ${a.elDisp} nature.`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('สะสมจากจุดแข็งของธาตุ ใช้ความสม่ำเสมอ','accumulate from your element\'s strengths; be consistent')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('เสี่ยงในด้านที่ขัดธรรมชาติต้นไม้','risking in areas that fight your tree\'s nature')}`)));
+  sec.push(blk('❤️','ความรัก — ควรทำ / ควรเลี่ยง','Love — What to Do / What to Avoid',
+    P(pick(`ในความรัก ${treeDisp} ให้ความ ${e.doo[0]}`,`In love, ${treeDisp} brings ${e.doo[1]}.`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('หาคู่ที่เคารพธรรมชาติต้นไม้ของคุณ','seek a partner who respects your tree-nature')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick(e.av[0],e.av[1])}`)));
+  sec.push(blk('🩺','สุขภาพ — ควรทำ / ควรเลี่ยง','Health — What to Do / What to Avoid',
+    P(pick(`จุดเฝ้าระวังตามธาตุ${a.elDisp}: ${e.health[0]}`,`Watch-zone for your ${a.elDisp} element: ${e.health[1]}`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('ใกล้ชิดธรรมชาติ/ต้นไม้ ใช้อัญมณี '+a.gem+' เสริมพลัง','spend time in nature/with trees; use your '+a.gem+' gemstone')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('ปล่อยด้านเงาของธาตุลามเป็นปัญหากาย','letting your element\'s shadow harden into physical issues')}`)));
+  sec.push(blk('📅','ปี 2026','Your 2026',
+    P(pick(`ปีนี้เน้นให้คุณ "หยั่งราก" ในจุดแข็งของ ${treeDisp} — ดรูอิดถือว่าช่วงจันทร์เต็มดวงในเดือนเกิดต้นไม้คุณคือเวลาตั้งเจตนาที่ทรงพลังสุด`,`This year favours rooting deeper into the strengths of ${treeDisp}. Druids hold the full moon in your tree-month as your most powerful intention window.`))));
+  sec.push(blk('🎨','เสริม / เลี่ยง — ภาพรวม','Enhance / Avoid — Overall',
+    P(`✅ ${B(pick('เสริม','Enhance'))}: ${pick(`อัญมณี ${a.gem} · ใกล้ชิดต้นไม้/ธรรมชาติ · ใช้จุดแข็งธาตุ${a.elDisp}`,`${a.gem} gemstone · time with trees/nature · lean on your ${a.elDisp} strengths`)}`) +
+    P(`⚠️ ${B(pick('เลี่ยง','Avoid'))}: ${pick(e.av[0],e.av[1])}`)));
+  sec.push(blk('💬','คำถามยอดฮิต — ตอบจากต้นไม้ของคุณ','Popular Questions — Answered from Your Tree',
+    faqQ(pick('นิสัยหลักของฉัน?','My core nature?'), a.personality.split('.')[0] + (a.personality.includes('.')?'.':'')) +
+    faqQ(pick('อาชีพที่เหมาะ?','Fitting career?'), pick(e.car[0],e.car[1])) +
+    faqQ(pick('อัญมณี/ของเสริมดวง?','My power gemstone?'), pick(`${a.gem} (ดาวปกครอง ${a.planet})`,`${a.gem} (ruling planet ${a.planet})`)) +
+    faqQ(pick('สุขภาพต้องระวัง?','Health to watch?'), pick(e.health[0],e.health[1]))));
+  const _ord = ['📜','🌳','💼','💰','❤️','🩺','📅','🎨','💬'];
+  const _rk = (s: string) => { let b = 99, bp = 1e9; _ord.forEach((ic, i) => { const p = s.indexOf(ic); if (p >= 0 && p < bp) { bp = p; b = i; } }); return b; };
+  sec.sort((p, q) => _rk(p) - _rk(q));
+  return sec.join('');
+}
+
 function calcCeltic(d: BirthData): CelticData {
   const m = d.month, day = d.day;
   let found = CELTIC_TREES[0];
@@ -1337,7 +3008,7 @@ function calcCeltic(d: BirthData): CelticData {
 
   const TREE_SCORE: Record<string,number> = {'Birch':750,'Rowan':790,'Ash':770,'Alder':760,'Willow':720,'Hawthorn':640,'Oak':830,'Holly':760,'Hazel':800,'Vine':740,'Ivy':710,'Reed':730,'Blackthorn':650,'Elder':700,'Fir':720,'Gorse':710,'Heather':760,'Aspen':720,'Yew':750,'Mistletoe':800};
   const celticScore = Math.max(400, Math.min(960, (TREE_SCORE[found?.name??'']??700) + ((d.day*13+d.month*5)%60)-30));
-  return {
+  const celticResult: CelticData = {
     treeName: found.name, treeNameTh: found.th,
     // Apply LANG-aware translators so Resonance/Mirror/Product tabs render
     // English in EN mode without each renderer having to wrap the field.
@@ -1377,8 +3048,14 @@ function calcCeltic(d: BirthData): CelticData {
       closingTh: 'Druid กล่าวว่า "The tree you\'re born under is the teacher that will walk with you forever" — ต้นไม้คือครูที่เดินไปกับคุณทั้งชีวิต รู้จักมันให้ดี',
       closingEn: 'The Druids said: "The tree you\'re born under is the teacher that will walk with you forever." Know it well.',
     }),
+    deepReading: '',
     score: celticScore,
   };
+  celticResult.deepReading = _celticDeepSections({
+    treeEn: found.name, treeTh: found.th, elRaw: found.el, elDisp: celticResult.element,
+    planet: celticResult.rulingPlanet, gem: celticResult.gemstone, personality: celticResult.personality,
+  });
+  return celticResult;
 }
 
 // ============================================================
@@ -1394,13 +3071,75 @@ const THAI_DAYS = [
   { name: 'วันเสาร์',  nameEn: 'Saturday',  color: 'ม่วง/ดำ',       colorEn: 'Purple/Black',   god: 'Shani',      godTh: 'พระเสาร์',    nakshatra: 'อนุราธา', nakshatraEn: 'Anuradha',   fortune: 'ความอดทนและรากฐาน',     fortuneEn: 'Endurance and foundation' },
 ];
 
+// ── THAI-BRAHMIN DEEP READING ────────────────────────────────────────────────
+// Cross-checked vs sanook/myhora: day-deity + lucky colour + fortune day +
+// ทักษา concept + per-day personality. sections-only, canonical order, FAQ last.
+function _thaiDeepSections(a: {
+  dow: number; dayName: string; dayColor: string; deity: string; nakshatra: string; fortuneDay: string;
+}): string {
+  const isEn = _reportLang === 'en';
+  const pick = (th: string, en: string) => isEn ? en : th;
+  const DAY: Record<number, { p:[string,string]; car:[string,string]; doo:[string,string]; av:[string,string]; health:[string,string] }> = {
+    0: { p:['ผู้นำ มีอำนาจ ทะเยอทะยาน ตรงไปตรงมา ใจร้อน','a leader — authoritative, ambitious, direct, fiery'], car:['ผู้บริหาร ราชการ งานสาธารณะ ผู้นำองค์กร','executive, government, public roles, leadership'], doo:['รับบทผู้นำ กล้าตัดสินใจ ยืนเด่น','take the lead, decide boldly, stand out'], av:['เผด็จการ ใจร้อนจนทำลายงาน','becoming a tyrant; impatience that wrecks the work'], health:['หัวใจ ความดัน ความเครียดจากการแบกคนเดียว','heart, blood pressure, stress from carrying it alone'] },
+    1: { p:['อ่อนโยน มีเสน่ห์ อารมณ์ไว ขี้เกรงใจ จินตนาการดี','gentle, charming, sensitive, considerate, imaginative'], car:['บริการ ดูแล ศิลปะ สื่อสาร งานคนหมู่มาก','service, care, art, communication, public-facing'], doo:['ใช้เสน่ห์และความเห็นอกเห็นใจ','use your charm and empathy'], av:['โลเล เก็บอารมณ์จนเครียด','indecision; bottling emotions into stress'], health:['ระบบประสาท การย่อย อารมณ์สะสม','nerves, digestion, accumulated emotion'] },
+    2: { p:['กล้า ใจนักเลง ขยัน ใจร้อน เป็นนักสู้','brave, bold, hardworking, fiery — a fighter'], car:['ทหาร/ตำรวจ กีฬา วิศวกร ผู้ประกอบการ','military/police, sports, engineering, entrepreneurship'], doo:['ใช้พลังและความกล้าบุก','use your energy and courage to push forward'], av:['ใจร้อนวู่วาม ทะเลาะวิวาท','impulsiveness; picking fights'], health:['ความดัน อุบัติเหตุ การอักเสบ','blood pressure, accidents, inflammation'] },
+    3: { p:['ฉลาด เจรจาเก่ง ปรับตัวดี ค้าขายเก่ง','clever, articulate, adaptable, a born trader'], car:['ค้าขาย สื่อสาร การตลาด เขียน บัญชี','trade, communication, marketing, writing, accounting'], doo:['ใช้ปัญญาและการพูดให้เป็นประโยชน์','put your intellect and speech to work'], av:['โลเล พูดมากเกินทำ','indecision; talking more than doing'], health:['ระบบประสาท ลำไส้ การนอน','nerves, gut, sleep'] },
+    4: { p:['มีเมตตา เป็นครู มีหลักการ น่าเคารพ มีปัญญา','kind, teacherly, principled, respected, wise'], car:['ครู ที่ปรึกษา กฎหมาย ศาสนา การเงิน','teaching, advising, law, religion, finance'], doo:['เป็นที่พึ่ง ใช้ความรู้และความเมตตา','be the one others lean on; lead with knowledge and kindness'], av:['ยึดมั่นหลักการเกิน สอนคนที่ไม่ได้ขอ','over-rigid principles; lecturing the unasking'], health:['ตับ การเผาผลาญ น้ำหนัก','liver, metabolism, weight'] },
+    5: { p:['รักสวยรักงาม มีเสน่ห์ รักศิลปะ สังคมเก่ง','loves beauty, charming, artistic, socially gifted'], car:['ศิลปะ บันเทิง ความงาม แฟชั่น บริการ','art, entertainment, beauty, fashion, hospitality'], doo:['ใช้เสน่ห์และรสนิยมสร้างคุณค่า','turn your charm and taste into value'], av:['ใช้จ่ายฟุ่มเฟือย รักสบายจนขาดวินัย','overspending; comfort over discipline'], health:['ไต ฮอร์โมน ผิวพรรณ','kidneys, hormones, skin'] },
+    6: { p:['อดทน หนักแน่น เก็บตัว จริงจัง ขยันอึด','patient, solid, reserved, serious, persevering'], car:['งานหนัก อสังหา วิจัยระยะยาว เกษตร งานช่าง','heavy work, real estate, long research, agriculture, craft'], doo:['ใช้ความอดทนสร้างสิ่งยั่งยืน','use your endurance to build what lasts'], av:['เก็บกด มองโลกแง่ร้าย โดดเดี่ยวเกิน','repression, pessimism, over-isolation'], health:['กระดูก ข้อ ระบบหายใจ ภาวะซึมเศร้า','bones, joints, breathing, low mood'] },
+  };
+  const dd = DAY[a.dow] || DAY[0];
+  const blk = (icon: string, thT: string, enT: string, body: string) =>
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+  const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
+  const sec: string[] = [];
+  sec.push(blk('📜','วันเกิด · เทพประจำวัน · สีมงคล','Your Birth Day · Deity · Lucky Colour',
+    P(pick(`โหราศาสตร์ไทยพราหมณ์ถือ "วันเกิด" เป็นแก่น — กำหนดเทพผู้ปกครองและคุณสมบัติติดตัว คุณเกิด${B(a.dayName)} ปกครองโดย${B(a.deity)}`,`Thai-Brahmin astrology treats your day of birth as the core — it sets your ruling deity and innate qualities. You were born on ${B(a.dayName)}, ruled by ${B(a.deity)}.`)) +
+    P(`${B(pick('สีมงคล','Lucky colour'))}: ${a.dayColor} · ${B(pick('นักษัตร/ดาว','Star'))}: ${a.nakshatra} · ${B(pick('วันเสริมดวง','Power day'))}: ${a.fortuneDay}`)));
+  sec.push(blk('🙏',`นิสัยประจำวัน${a.dayName}`,`Character of a ${a.dayName}-born`,
+    P(pick(`คนเกิด${a.dayName}โดยทั่วไป: ${dd.p[0]}`,`Those born on ${a.dayName} are typically: ${dd.p[1]}.`)) +
+    P(pick('ตามหลักทักษา ดาวประจำวันเกิดส่งอิทธิพล 8 ด้าน (บริวาร อายุ เดช ศรี มูละ อุตสาหะ มนตรี กาลกิณี) — รู้จุดเด่นและจุดที่ต้องระวังของวันตัวเองช่วยใช้ชีวิตได้แม่นขึ้น','In the Taksa system, your day-planet influences 8 areas (followers, longevity, power, glory, wealth, diligence, mentors, misfortune) — knowing your day\'s strengths and pitfalls sharpens how you live.'))));
+  sec.push(blk('💼','การงาน — ควรทำ / ควรเลี่ยง','Career — What to Do / What to Avoid',
+    P(`${B(pick('เข้าทาง','Best fit'))}: ${pick(dd.car[0],dd.car[1])}`) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick(dd.doo[0],dd.doo[1])}`) + P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick(dd.av[0],dd.av[1])}`)));
+  sec.push(blk('💰','การเงิน — ควรทำ / ควรเลี่ยง','Money — What to Do / What to Avoid',
+    P(pick(`คนเกิด${a.dayName}มั่งคั่งเมื่อใช้จุดแข็งของวันเกิด และเสริมด้วยสีมงคล ${a.dayColor}`,`A ${a.dayName}-born prospers by using their day-strengths, supported by the lucky colour ${a.dayColor}.`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('ทำบุญ/ออมในวันเสริมดวง ('+a.fortuneDay+') ใช้สีมงคลในของใช้การเงิน','give & save on your power day ('+a.fortuneDay+'); use your lucky colour on money items')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('ตัดสินใจเงินก้อนใหญ่ในวัน/สีกาลกิณี และเสี่ยงในด้านที่ขัดนิสัยวันเกิด','big money moves on your misfortune (kalakini) day/colour; risking against your day-nature')}`)));
+  sec.push(blk('❤️','ความรัก — ควรทำ / ควรเลี่ยง','Love — What to Do / What to Avoid',
+    P(pick(`ในความรัก คนเกิด${a.dayName}: ${dd.p[0]}`,`In love, a ${a.dayName}-born is ${dd.p[1]}.`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('หาคู่ที่วันเกิดเสริมกัน (ไม่เป็นกาลกิณีต่อกัน) สื่อสารตรงๆ','seek a partner whose birth-day complements yours (not mutually kalakini); communicate openly')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick(dd.av[0],dd.av[1])}`)));
+  sec.push(blk('🩺','สุขภาพ — ควรทำ / ควรเลี่ยง','Health — What to Do / What to Avoid',
+    P(pick(`จุดเฝ้าระวังของคนเกิด${a.dayName}: ${dd.health[0]}`,`Watch-zone for a ${a.dayName}-born: ${dd.health[1]}`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('ดูแลเชิงป้องกัน ใช้สีมงคลเสริมพลังใจ','preventive care; use your lucky colour to lift your spirits')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('ปล่อยด้านเงาของวันเกิดลามเป็นปัญหากาย','letting your day-shadow harden into physical issues')}`)));
+  sec.push(blk('📅','ปี 2026 — เสริมดวงแบบไทย','2026 — Thai-Style Boosting',
+    P(pick(`ปีนี้ใช้ "วันเสริมดวง" (${a.fortuneDay}) เป็นวันเริ่มสิ่งสำคัญ ทำบุญตามเทพประจำวัน (${a.deity}) และสวมสีมงคล ${a.dayColor} ในวันสำคัญ`,`This year, use your power day (${a.fortuneDay}) to launch important things, make merit to your day-deity (${a.deity}), and wear your lucky colour ${a.dayColor} on key dates.`))));
+  sec.push(blk('🎨','เสริม / เลี่ยง — ภาพรวม','Enhance / Avoid — Overall',
+    P(`✅ ${B(pick('เสริม','Enhance'))}: ${pick(`สีมงคล ${a.dayColor} · วันเสริมดวง ${a.fortuneDay} · บูชาเทพ ${a.deity}`,`lucky colour ${a.dayColor} · power day ${a.fortuneDay} · honour your deity ${a.deity}`)}`) +
+    P(`⚠️ ${B(pick('เลี่ยง','Avoid'))}: ${pick('สี/วันกาลกิณีของวันเกิด และด้านเงาของนิสัยประจำวัน','your kalakini colour/day, and the shadow side of your day-character')}`)));
+  sec.push(blk('💬','คำถามยอดฮิต — ตอบจากวันเกิดไทย','Popular Questions — Answered from Your Thai Day',
+    faqQ(pick('นิสัยหลักของฉันตามวันเกิด?','My core nature by birth-day?'), pick(dd.p[0],dd.p[1])) +
+    faqQ(pick('สีมงคลของฉัน?','My lucky colour?'), a.dayColor) +
+    faqQ(pick('วันไหนเสริมดวงฉัน?','My power day?'), a.fortuneDay) +
+    faqQ(pick('อาชีพที่เหมาะ?','Fitting career?'), pick(dd.car[0],dd.car[1])) +
+    faqQ(pick('เทพองค์ใดปกครองฉัน?','Which deity rules me?'), a.deity)));
+  const _ord = ['📜','🙏','💼','💰','❤️','🩺','📅','🎨','💬'];
+  const _rk = (s: string) => { let b = 99, bp = 1e9; _ord.forEach((ic, i) => { const p = s.indexOf(ic); if (p >= 0 && p < bp) { bp = p; b = i; } }); return b; };
+  sec.sort((p, q) => _rk(p) - _rk(q));
+  return sec.join('');
+}
+
 function calcThai(d: BirthData): ThaiData {
   const jd = toJD(d.year, d.month, d.day, 12);
   const dow = ((Math.floor(jd + 1.5) % 7) + 7) % 7; // 0=Sunday
   const day = THAI_DAYS[dow];
   const DAY_SCORES: Record<string,number> = {'จันทร์':750,'อังคาร':720,'พุธ':760,'พฤหัสบดี':800,'ศุกร์':780,'เสาร์':710,'อาทิตย์':790};
   const thaiDayScore = Math.max(400, Math.min(960, (DAY_SCORES[day?.name??'']??700) + ((d.year%100+d.day*7)%80)-40));
-  return {
+  const thaiResult: ThaiData = {
     dayOfWeek: dow, dayName: tPick(day.name, day.nameEn), dayColor: tPick(day.color, day.colorEn),
     dayGod: day.god, dayGodTh: tPick(day.godTh, day.god),
     nakshatra: tPick(day.nakshatra, day.nakshatraEn),
@@ -1432,8 +3171,14 @@ function calcThai(d: BirthData): ThaiData {
       closingTh: 'ไทยพราหมณ์สอนว่า "วันเกิดไม่ใช่แค่วันที่เกิด — คือวันที่เทพสัญญาจะเดินกับคุณทั้งชีวิต" — บูชาเทพประจำวัน คุณจะไม่เดินคนเดียว',
       closingEn: 'Thai-Brahmin teaches: "Your birthday isn\'t just the day you were born — it\'s the day a deity promised to walk with you for life." Honour your day-deity, and you\'ll never walk alone.',
     }),
+    deepReading: '',
     score: thaiDayScore,
   };
+  thaiResult.deepReading = _thaiDeepSections({
+    dow, dayName: thaiResult.dayName, dayColor: thaiResult.dayColor,
+    deity: thaiResult.dayGodTh, nakshatra: thaiResult.nakshatra, fortuneDay: thaiResult.fortuneDay,
+  });
+  return thaiResult;
 }
 
 // ============================================================
@@ -2782,7 +4527,7 @@ export function calculate(d: BirthData): ChartData {
 export interface SajuData {
   yearPillar: string; monthPillar: string; dayPillar: string; hourPillar: string;
   sajuElement: string; kwarsal: string; // annual fortune cycle
-  dominantEnergy: string; score: number; reading: string;
+  dominantEnergy: string; score: number; reading: string; deepReading: string;
 }
 export interface TibetanData {
   mewa: number; mewaName: string; mewaElement: string; mewaQuality: string;
@@ -2868,6 +4613,112 @@ export interface VedicMahadashaData {
   score: number; reading: string;
 }
 
+// ── SAJU DEEP READING ────────────────────────────────────────────────────────
+// Cross-checked vs Korean commercial 사주명리 readings (사주 원국 / 오행 분포 /
+// 십성 / 용신·기신 / 대운 / 신살·궁합 / 직업·재물·애정·건강). sections-only,
+// canonical order, FAQ last. Built only from what the engine computes
+// (4 pillars, day-master element, month relation, kwarsal) — no fabricated 십성.
+function _sajuDeepSections(a: {
+  yearP: string; monthP: string; dayP: string; hourP: string;
+  dmElRaw: string; monthElRaw: string; feeds: boolean; same: boolean; kwarsal: string; score: number;
+}): string {
+  const isEn = _reportLang === 'en';
+  const pick = (th: string, en: string) => isEn ? en : th;
+  const elD = (raw: string) => pEl(raw); // lang-aware element display
+  // Five-element relations from the day-master element (생/극 cycles).
+  const REL: Record<string, { producer: string; output: string; wealth: string; authority: string }> = {
+    'ไฟ':   { producer:'ไม้',   output:'ดิน',   wealth:'โลหะ', authority:'น้ำ'  },
+    'ไม้':   { producer:'น้ำ',   output:'ไฟ',   wealth:'ดิน',  authority:'โลหะ' },
+    'น้ำ':   { producer:'โลหะ', output:'ไม้',   wealth:'ไฟ',  authority:'ดิน'  },
+    'โลหะ': { producer:'ดิน',   output:'น้ำ',   wealth:'ไม้',  authority:'ไฟ'  },
+    'ดิน':   { producer:'ไฟ',   output:'โลหะ', wealth:'น้ำ',  authority:'ไม้'  },
+  };
+  const FE: Record<string, { id:[string,string]; nick:[string,string]; car:[string,string]; money:[string,string]; love:[string,string]; health:[string,string]; doo:[string,string]; av:[string,string] }> = {
+    'ไฟ': { id:['ผู้จุดประกายและผู้นำ เปิดเผย มีพลังดึงดูด ใจร้อน','an igniter and leader — open, magnetic, passionate, fiery'], nick:['불같은 사람 (คนเหมือนไฟ)','불같은 사람 (a fire-like person)'], car:['ผู้นำ การตลาด บันเทิง การเมือง งานบนเวที','leadership, marketing, entertainment, politics, spotlight work'], money:['รายได้มาเป็นช่วงพุ่ง อย่าใช้ตามอารมณ์','income arrives in bursts — don\'t spend on impulse'], love:['ร้อนแรงและทุ่มเท ระวังหึงและวูบวาบ','fiery and devoted — watch jealousy and flare-ups'], health:['หัวใจ ความดัน การนอน สายตา','heart, blood pressure, sleep, eyes'], doo:['รับบทเปล่งประกาย จุดไฟให้ทีม','take the spotlight; light a fire under the team'], av:['เผาตัวจนหมดไฟ ตัดสินใจตอนโกรธ','burning out; deciding while angry'] },
+    'ไม้': { id:['นักวางแผนและผู้บ่มเพาะ ใจกว้าง มองยาว','a planner and cultivator — generous, long-sighted'], nick:['큰 나무 (ต้นไม้ใหญ่)','큰 나무 (a great tree)'], car:['การศึกษา วางแผน งานออกแบบ HR งานพัฒนา','education, planning, design, HR, development work'], money:['โตแบบค่อยเป็นค่อยไป เหมาะลงทุนระยะยาว','grows steadily — suited to long-term investing'], love:['ดูแลเอาใจใส่ ระวังให้มากจนลืมตัวเอง','nurturing — watch over-giving until you forget yourself'], health:['ตับ เส้นเอ็น ดวงตา ความเครียดสะสม','liver, tendons, eyes, accumulated stress'], doo:['บ่มเพาะคนและไอเดีย วางแผนยาว','cultivate people and ideas; plan long'], av:['ยึดติดความสมบูรณ์แบบ ใจร้อนเก็บเกี่ยว','perfectionism; rushing the harvest'] },
+    'น้ำ': { id:['นักปรับตัวและนักคิดลึก อ่านคนเก่ง ลึกลับ','an adapter and deep thinker — reads people, private'], nick:['깊은 물 (น้ำลึก)','깊은 물 (deep water)'], car:['วิจัย จิตวิทยา การเงิน โลจิสติกส์ IT การค้า','research, psychology, finance, logistics, IT, trade'], money:['คล่องตัวเรื่องกระแสเงิน แต่ระวัง "รั่ว"','fluid with cash flow — but watch leaks'], love:['ลึกซึ้งและเป็นส่วนตัว อ่านยาก','deep and private — hard to read'], health:['ไต ระบบสืบพันธุ์ หู สุขภาพจิต','kidneys, reproductive system, ears, mental health'], doo:['ใช้สัญชาตญาณ ปรับตัวยืดหยุ่น','use intuition; adapt fluidly'], av:['คิดมากเกินจนไม่ลงมือ ดูดอารมณ์คนอื่น','overthinking into inaction; absorbing others\' moods'] },
+    'โลหะ': { id:['ผู้มีมาตรฐานและหลักการ แม่นยำ เด็ดขาด','a person of standards and principle — precise, decisive'], nick:['빛나는 금 (ทองคำเปล่งประกาย)','빛나는 금 (gleaming gold)'], car:['กฎหมาย การเงิน วิศวกรรม ศัลยกรรม งานในระบบ','law, finance, engineering, surgery, structured roles'], money:['ออมมีวินัย เหมาะสะสมสินทรัพย์มั่นคง','disciplined saver — suited to stable assets'], love:['ภักดีแต่บางครั้งเย็นชาหรือวิจารณ์เกิน','loyal but can be cold or over-critical'], health:['ปอด ผิวหนัง ลำไส้ใหญ่ ระบบหายใจ','lungs, skin, large intestine, breathing'], doo:['ตั้งมาตรฐาน ตัดสินใจเด็ดขาด','set standards; decide firmly'], av:['แข็งกระด้าง วิจารณ์คนรอบข้างเกินไป','rigidity; over-criticising those around you'] },
+    'ดิน': { id:['ผู้มั่นคงและเป็นที่พึ่ง อดทน จริงใจ','steady and dependable — patient, sincere'], nick:['큰 바위 (หินใหญ่)','큰 바위 (a great rock)'], car:['อสังหา ก่อสร้าง เกษตร บริหาร งานไกล่เกลี่ย','real estate, construction, agriculture, management, mediation'], money:['สะสมทีละน้อยอย่างมั่นคง ไม่ชอบเสี่ยง','accumulates steadily — risk-averse'], love:['ซื่อสัตย์มั่นคง บางครั้งดื้อรั้น','faithful and steady — sometimes stubborn'], health:['ระบบย่อย กระเพาะ ม้าม น้ำหนัก','digestion, stomach, spleen, weight'], doo:['สร้างรากฐาน รับบทที่คนไว้ใจ','build foundations; take trusted roles'], av:['ต้านการเปลี่ยนแปลง เก็บเครียดเงียบ','resisting change; bottling stress quietly'] },
+  };
+  const COL: Record<string, [string, string]> = {
+    'ไม้':['เขียว/ฟ้าคราม (청 ธาตุไม้)','green / teal (청, the Wood colour)'],
+    'ไฟ':['แดง (적 ธาตุไฟ)','red (적, the Fire colour)'],
+    'ดิน':['เหลือง/น้ำตาลดิน (황 ธาตุดิน)','yellow / earth-brown (황, the Earth colour)'],
+    'โลหะ':['ขาว/เงิน (백 ธาตุโลหะ)','white / silver (백, the Metal colour)'],
+    'น้ำ':['ดำ/กรมท่า (흑 ธาตุน้ำ)','black / navy (흑, the Water colour)'],
+  };
+  const dm = a.dmElRaw;
+  const rel = REL[dm] || REL['ไฟ'];
+  const fe = FE[dm] || FE['ไฟ'];
+  // 용신 (favorable) / 기신 (unfavorable) from the month-vs-day pattern.
+  // 극 (pressured/weak) → support with producer + self; 생조 (well-fed) → express
+  // via output + wealth; 비겁 (same/strong) → drain via output + authority + wealth.
+  let favRaw: string[], unfavRaw: string[], strengthLabel: [string, string];
+  if (a.same) {
+    strengthLabel = ['일간이 강함 (비겁 — พลังงานเดียวกันเสริมจนแข็ง)','a strong Day Master (비겁 — same-energy reinforcement)'];
+    favRaw = [rel.output, rel.authority, rel.wealth]; unfavRaw = [dm, rel.producer];
+  } else if (a.feeds) {
+    strengthLabel = ['일간이 หล่อเลี้ยงดี (생조 — เดือนหนุนวัน)','a well-nourished Day Master (생조 — month feeds the day)'];
+    favRaw = [rel.output, rel.wealth]; unfavRaw = [rel.producer];
+  } else {
+    strengthLabel = ['일간이 ถูกกดดัน (극 — เดือนข่มวัน)','a pressured Day Master (극 — month presses the day)'];
+    favRaw = [rel.producer, dm]; unfavRaw = [rel.authority, rel.wealth];
+  }
+  const favDisp = favRaw.map(elD).join(' · ');
+  const unfavDisp = unfavRaw.map(elD).join(' · ');
+  const favCol = favRaw.map(r => pick(COL[r]?.[0] || elD(r), COL[r]?.[1] || elD(r))).join(' · ');
+  const blk = (icon: string, thT: string, enT: string, body: string) =>
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+  const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
+  const sec: string[] = [];
+  sec.push(blk('📜','사주 원국 — เสาทั้งสี่ของคุณ','사주 원국 — Your Four Pillars',
+    P(pick('Saju (사주팔자 — "สี่เสาแปดอักษร") อ่านชีวิตจากเสา 4 ต้น ปี·เดือน·วัน·ยาม แต่ละต้นมี 1 ฟ้า (천간) + 1 ดิน (지지) รวมเป็น 8 อักษรที่เป็นพิมพ์เขียวของคุณ','Saju (사주팔자 — "four pillars, eight characters") reads your life from four pillars — year, month, day, hour — each carrying one Heavenly Stem (천간) and one Earthly Branch (지지), eight characters in all: your blueprint.')) +
+    P(`<table style="width:100%;border-collapse:collapse;font-size:13px;margin:4px 0"><tr style="color:#9a8a72"><td>${pick('ปี (年)','Year (年)')}</td><td>${pick('เดือน (月)','Month (月)')}</td><td>${pick('วัน (日 · ตัวคุณ)','Day (日 · you)')}</td><td>${pick('ยาม (時)','Hour (時)')}</td></tr><tr style="color:#e0d0b0;font-weight:600"><td>${a.yearP}</td><td>${a.monthP}</td><td>${B(a.dayP)}</td><td>${a.hourP}</td></tr></table>`) +
+    P(pick(`หัวใจของ Saju คือ ${B('일간 (Il-gan)')} — ฟ้าของเสาวัน = "ตัวคุณ" ของคุณคือธาตุ${B(elD(dm))} และทั้งดวงคือ${pick(strengthLabel[0],strengthLabel[1])}`,`The heart of Saju is your ${B('일간 (Il-gan)')} — the Day Stem = "you". Yours is a ${B(elD(dm))} element, and the whole chart reads as ${strengthLabel[1]}.`))));
+  sec.push(blk('🧬','일간 + 오행 — ตัวตนและธาตุทั้งห้า','일간 + 오행 — Your Self & the Five Elements',
+    P(pick(`일간 ธาตุ${elD(dm)} ทำให้คุณเป็น ${fe.id[0]} — Saju เกาหลีเรียกคนธาตุนี้ว่า ${B(fe.nick[0])}`,`A ${elD(dm)} Day Master makes you ${fe.id[1]} — Korean Saju calls this element ${B(fe.nick[1])}.`)) +
+    P(pick(`ในวงจรห้าธาตุ (오행) ธาตุที่ "หล่อเลี้ยง" คุณคือ${B(elD(rel.producer))} (인성 — ผู้สนับสนุน/ความรู้) ธาตุที่คุณ "ก่อ" คือ${B(elD(rel.output))} (식상 — การสร้างสรรค์/ผลงาน) ธาตุที่คุณ "คุม" คือ${B(elD(rel.wealth))} (재성 — ทรัพย์) และธาตุที่ "คุม" คุณคือ${B(elD(rel.authority))} (관성 — อำนาจ/วินัย)`,`In the five-element cycle (오행), the element that ${B('nourishes')} you is ${B(elD(rel.producer))} (인성 — support/knowledge); the one you ${B('produce')} is ${B(elD(rel.output))} (식상 — creativity/output); the one you ${B('control')} is ${B(elD(rel.wealth))} (재성 — wealth); and the one that ${B('controls')} you is ${B(elD(rel.authority))} (관성 — authority/discipline).`))));
+  sec.push(blk('⚙️','용신 / 기신 — ธาตุที่ใช้ดี / ต้องเลี่ยง','용신 / 기신 — Your Useful & Unfavorable Elements',
+    P(pick('용신 (Yongsin — "ธาตุที่ใช้การได้") คือแนวคิดสำคัญที่สุดของ Saju — ธาตุที่ทำให้ดวงคุณสมดุล ใช้แล้วชีวิตลื่น ส่วน 기신 (Gisin) คือธาตุที่ดูดพลัง','용신 (Yongsin — your "useful element") is the single most important concept in Saju — the element that balances your chart and makes life flow. 기신 (Gisin) is the element that drains you.')) +
+    P(`✅ ${B('용신 ('+pick('ใช้ดี','use')+')')}: ${favDisp} — ${pick('เพราะดวงคุณเป็น'+strengthLabel[0],'because your chart is '+strengthLabel[1])}`) +
+    P(`⚠️ ${B('기신 ('+pick('เลี่ยง','avoid')+')')}: ${unfavDisp}`) +
+    P(pick(`เคล็ดเกาหลี: เสริม 용신 ผ่าน "สีและทิศ" — สีมงคลของคุณคือ ${favCol}`,`Korean tip: feed your 용신 through colour and direction — your lucky colours are ${favCol}.`))));
+  sec.push(blk('💼','직업 — การงาน (ควรทำ / ควรเลี่ยง)','직업 — Career (Do / Avoid)',
+    P(`${B(pick('เข้าทาง','Best fit'))}: ${pick(fe.car[0],fe.car[1])}`) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick(fe.doo[0],fe.doo[1])}`) + P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick(fe.av[0],fe.av[1])}`)));
+  sec.push(blk('💰','재물 — การเงิน (ควรทำ / ควรเลี่ยง)','재물 — Money (Do / Avoid)',
+    P(pick(`재성 (ธาตุทรัพย์) ของคุณคือ${B(elD(rel.wealth))} — เงินเข้าทางที่เกี่ยวกับธาตุนี้ ${fe.money[0]}`,`Your 재성 (wealth element) is ${B(elD(rel.wealth))} — money flows through ${elD(rel.wealth)}-related paths. ${fe.money[1]}.`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('ลงทุน/หารายได้ในด้านที่ตรงกับ 용신 ('+favDisp+')','invest & earn in areas aligned with your 용신 ('+favDisp+')')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('เสี่ยงเงินก้อนในด้านที่ตรงกับ 기신 ('+unfavDisp+')','risking large sums in 기신 areas ('+unfavDisp+')')}`)));
+  sec.push(blk('❤️','궁합 — ความรักและความเข้ากันของคู่','궁합 — Love & Couple Compatibility',
+    P(pick(`궁합 (Gung-hap) คือการดู "ความเข้ากันของคู่" — พิธีสำคัญในครอบครัวเกาหลีจนถึงวันนี้ ในความรัก คุณ ${fe.love[0]}`,`궁합 (Gung-hap) is "couple compatibility" — still a key ritual in Korean families. In love, you are ${fe.love[1]}.`)) +
+    P(`✅ ${B(pick('คู่ที่เข้ากัน','Best match'))}: ${pick(`คนธาตุ${elD(rel.producer)} (หล่อเลี้ยงคุณ) หรือ${elD(rel.output)} (คุณหล่อเลี้ยงเขา)`,`a ${elD(rel.producer)} person (nourishes you) or ${elD(rel.output)} (you nourish them)`)}`) +
+    P(`⚠️ ${B(pick('ต้องสื่อสารเป็น 2 เท่า','Needs 2× communication'))}: ${pick(`คนธาตุ${elD(rel.authority)} (ข่มคุณ) — ไม่ใช่คู่ผิด แค่ต้องเข้าใจกันให้ชัด`,`a ${elD(rel.authority)} person (controls you) — not wrong, just demands clarity`)}`)));
+  sec.push(blk('🩺','건강 — สุขภาพ (ควรทำ / ควรเลี่ยง)','건강 — Health (Do / Avoid)',
+    P(pick(`จุดเฝ้าระวังตามธาตุ${elD(dm)}: ${fe.health[0]}`,`Watch-zone for your ${elD(dm)} element: ${fe.health[1]}`)) +
+    P(`✅ ${B(pick('ควรทำ','Do'))}: ${pick('ปรับสมดุลด้วยอาหาร/กิจกรรมของธาตุ 용신 ('+favDisp+')','rebalance with foods & activities of your 용신 elements ('+favDisp+')')}`) +
+    P(`⚠️ ${B(pick('ควรเลี่ยง','Avoid'))}: ${pick('ปล่อยให้ธาตุ'+elD(dm)+'แรงหรืออ่อนเกินจนกระทบอวัยวะข้างต้น','letting your '+elD(dm)+' element run too strong or too weak until those organs suffer')}`)));
+  sec.push(blk('📅','2026 — 세운 & 대운','2026 — Annual & Decade Luck',
+    P(pick(`세운 (โชคประจำปี) 2026 ของคุณคือ ${B(a.kwarsal)} — ${a.kwarsal.includes('화개')?'ปีแห่งการเรียนรู้ลึก ศิลปะ และจิตวิญญาณ เหมาะ "ถอยเพื่อเรียน"':a.kwarsal.includes('천을')?'천을귀인 พรสูงสุดของ Saju มีผู้ใหญ่มาเปิดประตู กล้าขอความช่วยเหลือได้เลย':a.kwarsal.includes('역마')?'ปีแห่งการเดินทาง ย้ายถิ่น เปลี่ยนงาน — สัญญาณให้เคลื่อนไหว':a.kwarsal.includes('재성')?'ปีแห่งทรัพย์ โอกาสการเงินและความสัมพันธ์เปิดกว้าง':a.kwarsal.includes('관성')?'ปีแห่งตำแหน่งและอำนาจ ตำแหน่งใหม่มาถึง':a.kwarsal.includes('인성')?'ปีแห่งการเรียนและการลงทุนกับตัวเอง':'ปีที่ต้องใช้พลังวันเกิดอย่างระมัดระวัง'}`,`Your 세운 (annual luck) for 2026 is ${B(a.kwarsal)} — ${a.kwarsal.includes('화개')?'a year of deep learning, art, and spirit; better to "withdraw to learn"':a.kwarsal.includes('천을')?'천을귀인, Saju\'s highest blessing — a powerful elder opens doors; ask for help boldly':a.kwarsal.includes('역마')?'a year of travel, relocation, job change — the signal to move':a.kwarsal.includes('재성')?'a wealth year — money and relationship openings widen':a.kwarsal.includes('관성')?'a year of position and authority — a new role finds you':a.kwarsal.includes('인성')?'a year of study and investing in yourself':'a year to spend your day-pillar energy carefully'}.`)) +
+    P(pick('대운 (Daeun) คือ "วัฏจักรโชค 10 ปี" ของ Saju — ทุก 10 ปีธาตุแวดล้อมเปลี่ยน เมื่อ 대운 พาธาตุ 용신 ('+favDisp+') เข้ามา คือทศวรรษทองของคุณ เมื่อพาธาตุ 기신 เข้ามา คือทศวรรษที่ต้องตั้งรับ','대운 (Daeun) is Saju\'s "10-year luck cycle" — every decade the surrounding elements shift. When 대운 brings in your 용신 ('+favDisp+'), it\'s your golden decade; when it brings 기신, it\'s a decade to play defence.'))));
+  sec.push(blk('🎨','เสริม / เลี่ยง — ภาพรวม','Enhance / Avoid — Overall',
+    P(`✅ ${B(pick('เสริม','Enhance'))}: ${pick(`สี ${favCol} · เดินทาง/จัดบ้านไปทางธาตุ 용신 · ทำงานที่ใช้ ${favDisp}`,`colours ${favCol} · orient travel/home toward 용신 elements · work that uses ${favDisp}`)}`) +
+    P(`⚠️ ${B(pick('เลี่ยง','Avoid'))}: ${pick(`ธาตุ 기신 (${unfavDisp}) มากเกินไป และด้านเงาของธาตุ${elD(dm)}`,`too much 기신 (${unfavDisp}) and the shadow side of your ${elD(dm)} element`)}`)));
+  sec.push(blk('💬','คำถามยอดฮิต — ตอบจากดวง Saju','Popular Questions — Answered from Your Saju',
+    faqQ(pick('일간 (ตัวฉัน) คือธาตุอะไร?','What is my 일간 (self) element?'), pick(`ธาตุ${elD(dm)} — ${fe.id[0]}`,`${elD(dm)} — ${fe.id[1]}`)) +
+    faqQ(pick('용신 (ธาตุนำโชค) ของฉัน?','My 용신 (lucky element)?'), `${favDisp}`) +
+    faqQ(pick('สีและของเสริมดวง?','My lucky colours?'), favCol) +
+    faqQ(pick('คู่แบบไหนเข้ากับฉัน?','Who matches me?'), pick(`คนธาตุ${elD(rel.producer)} หรือ${elD(rel.output)}`,`a ${elD(rel.producer)} or ${elD(rel.output)} person`)) +
+    faqQ(pick('ปี 2026 เป็นปีแบบไหน?','What kind of year is 2026?'), a.kwarsal) +
+    faqQ(pick('อาชีพที่เหมาะ?','Fitting career?'), pick(fe.car[0],fe.car[1]))));
+  const _ord = ['📜','🧬','⚙️','💼','💰','❤️','🩺','📅','🎨','💬'];
+  const _rk = (s: string) => { let b = 99, bp = 1e9; _ord.forEach((ic, i) => { const p = s.indexOf(ic); if (p >= 0 && p < bp) { bp = p; b = i; } }); return b; };
+  sec.sort((p, q) => _rk(p) - _rk(q));
+  return sec.join('');
+}
+
 // ── SAJU (Korean Four Pillars) ────────────────────────────────
 // Same pillar system as BaZi; score emphasizes month-day harmony
 function calcSaju(d: BirthData): SajuData {
@@ -2902,7 +4753,7 @@ function calcSaju(d: BirthData): SajuData {
   const base = feeds ? 740 : same ? 700 : 660;
   const score = Math.max(450, Math.min(950, base + seed - 60));
 
-  return {
+  const sajuResult: SajuData = {
     yearPillar: `${KO_STEMS[yp.stem]??yp.stem}${KO_BRANCHES[yp.branch]??yp.branch}`,
     monthPillar: `${KO_STEMS[mp.stem]??mp.stem}${KO_BRANCHES[mp.branch]??mp.branch}`,
     dayPillar: `${KO_STEMS[dp.stem]??dp.stem}${KO_BRANCHES[dp.branch]??dp.branch}`,
@@ -2938,7 +4789,14 @@ function calcSaju(d: BirthData): SajuData {
         `<p><strong>In closing:</strong> In the Saju system, you are in a "${feeds?'heaven open':same?'energy balanced':'tested'}" phase of life — a Saju reading isn\'t fixed fate; it\'s an energy map. Used wisely, it can lift your Saju score from ${score} to a higher number over the next decade. Korea has the saying: "운명은 바꾸지 못해도, 팔자는 바꾼다" — Fate cannot be changed, but fortune can.</p>`,
       ].join('');
     })(),
+    deepReading: '',
   };
+  sajuResult.deepReading = _sajuDeepSections({
+    yearP: sajuResult.yearPillar, monthP: sajuResult.monthPillar,
+    dayP: sajuResult.dayPillar, hourP: sajuResult.hourPillar,
+    dmElRaw: dmEl, monthElRaw: monthEl, feeds, same, kwarsal, score,
+  });
+  return sajuResult;
 }
 
 // ── Shared prose builder for all 26 systems ─────────────────

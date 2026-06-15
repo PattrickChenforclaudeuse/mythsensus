@@ -38,7 +38,7 @@
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=102">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=104">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
@@ -2608,7 +2608,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=102" defer></script>
+<script src="/build/ms26-bundle.js?v=104" defer></script>
 <script>
 
 
@@ -8031,7 +8031,11 @@ function _showDeep(k, isUserClick){
       bodyContent = _renderOracleLoading();
     }
   } else if (hasReading) {
-    bodyContent = `<div class="deep-sys-reading" style="margin-top:14px">${data.reading}</div>`;
+    // Deep Reading panel shows the full engine reading. For systems with an
+    // enriched `deepReading` (BaZi pilot 2026-06-13) use that — 8-10 pages,
+    // engine-deterministic. Others fall back to the standard `reading`. The
+    // 43-page Blueprint keeps using `reading` (unchanged).
+    bodyContent = `<div class="deep-sys-reading" style="margin-top:14px">${data.deepReading || data.reading}</div>`;
   } else {
     bodyContent = '';
   }
