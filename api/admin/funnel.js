@@ -46,6 +46,10 @@ export default async function handler(req, res) {
   const shares   = rows.filter(x => x.event === 'share');
   const checkouts= rows.filter(x => x.event === 'checkout');
   const destinies= rows.filter(x => x.event === 'destiny');
+  // New primary-path funnel steps (fire-once/session): read hero → fill
+  // birthday → see the consensus reading. Added 2026-06-16.
+  const births   = rows.filter(x => x.event === 'birth_submit');
+  const consensus= rows.filter(x => x.event === 'consensus_view');
   const nS = sessions.length;
 
   const ms = sessions.map(x => +x.active_ms || 0).sort((a, b) => a - b);
@@ -73,6 +77,8 @@ export default async function handler(req, res) {
     row('Sessions', nS, `${days}-day window`),
     row('Active time (median)', fmtS(med), `p75 ${fmtS(p75)} · p90 ${fmtS(p90)}`),
     row('Bounce &lt;5s', pct(bounce, nS) + '%', `${bounce} sess · &gt;60s: ${pct(over60, nS)}%`),
+    row('Filled birthday', pct(births.length, nS) + '%', `${births.length} sess · the new core path`),
+    row('Saw consensus', pct(consensus.length, nS) + '%', `${consensus.length} sess · "what 26 systems agree on"`),
     row('Drew a god ≥1', pct(drew, nS) + '%', `${drew}/${nS} · ${totalDraws} draws total`),
     row('Reached paywall', pct(paywall, nS) + '%', `${paywall} sess`),
     row('Shares', shares.length, `share-rate ${pct(shares.length, nS)}% of sessions`),
