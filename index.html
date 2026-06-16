@@ -1292,9 +1292,13 @@ function _webShareText() {
       // Per-god symbol from gods.json (every god has one) — a generic 🔮 made
       // every share look identical regardless of which deity was drawn.
       const sym = g.symbol || '🔮';
+      // Append today's lucky numbers — Thai lottery culture makes "เลขนำโชค"
+      // highly shareable (esp. near a งวด), so it rides into the share text.
+      const lk = (typeof _luckyNumbers === 'function') ? _luckyNumbers(g) : null;
+      const lucky = lk ? (isTh ? ` 🎰 เลขนำโชควันนี้ ${lk.two}·${lk.three}` : ` 🎰 Lucky numbers today ${lk.two}·${lk.three}`) : '';
       return isTh
-        ? `${sym} พรจาก ${g.name} (${meta}): "${d.message}"`
-        : `${sym} A blessing from ${g.name} (${meta}): "${d.message}"`;
+        ? `${sym} พรจาก ${g.name} (${meta}): "${d.message}"${lucky}`
+        : `${sym} A blessing from ${g.name} (${meta}): "${d.message}"${lucky}`;
     }
   } catch(_) {}
   return isTh
