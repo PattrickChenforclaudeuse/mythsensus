@@ -1434,8 +1434,8 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <div style="text-align:center;margin:0 0 16px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--muted)">When 26 ancient systems disagree about you — we reconcile</div>
       <div style="text-align:center;margin:0 0 18px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.7">BaZi · โหราศาสตร์ตะวันตก · เลข ๗ ตัว · Human Design · เวท · มายา · เซลติก · และอีก 19 ศาสตร์ — เราอ่านพร้อมกัน แล้วบอกว่าพวกเขาเห็นตรงกันเรื่องไหน ขัดกันเรื่องไหน</div>
       <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:20px;font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:.5px;color:var(--gold3)"><span>✨ เริ่มฟรี</span><span>🔒 ข้อมูลอยู่ในเครื่อง</span><span>⚡ ไม่ต้องสมัคร</span></div>
-      <button class="login-confirm-btn" onclick="entryShowForm()" style="font-size:15px">✨ เริ่มดูดวงฟรี · Start free</button>
-      <div style="text-align:center;margin-top:11px"><button onclick="entrySkip()" style="background:transparent;border:1px solid var(--gold3);border-radius:8px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--gold2);cursor:pointer;padding:9px 20px">👁 สำรวจก่อน · Explore first</button></div>
+      <button class="login-confirm-btn" onclick="entryDrawFirst()" style="font-size:15px">🔮 เปิดพรเทพวันนี้ฟรี · Open today's blessing</button>
+      <div style="text-align:center;margin-top:11px"><button onclick="entryShowForm()" style="background:transparent;border:1px solid var(--gold3);border-radius:8px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--gold2);cursor:pointer;padding:9px 20px">🔭 ดูดวงเต็มจากวันเกิด · 26 ศาสตร์ →</button></div>
       <div style="text-align:center;margin-top:14px;font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px">มีบัญชีแล้ว? <button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">ลงชื่อเข้าใช้ / Sign in →</button></div>
     </div>
 
@@ -15113,6 +15113,22 @@ function entrySkip(){
   _showSyncToast(LANG==='th'
     ? '👀 โหมดทดลอง — กรอกวันเกิดใน Profile เพื่อปลดล็อกดวง'
     : '👀 Preview mode — add birth data in Profile to unlock readings');
+}
+
+// Draw-first entry: dismiss the overlay straight onto the (already-active)
+// blessing panel and auto-reveal today's god — so a cold share-visitor gets an
+// instant, zero-input payoff (the hook) instead of a birth-data form. The full
+// 26-system reading is the secondary path (entryShowForm). Returning users who
+// already drew today are a safe no-op (drawBlessing guards on _maxDraws()).
+function entryDrawFirst(){
+  // Land on the blessing draw (free group's default sub is the chart preview, so
+  // preset last-group/sub before boot) — then auto-reveal today's god.
+  try { localStorage.setItem('ms_last_group','free'); localStorage.setItem('ms_last_sub_free','blessing'); } catch(_){}
+  try { entrySkip(); } catch(_){}
+  setTimeout(function(){
+    try { if (typeof showSubTab === 'function') showSubTab('blessing'); } catch(_){}
+    try { if (typeof drawBlessing === 'function') drawBlessing(); } catch(_){}
+  }, 350);
 }
 
 // Legacy stubs — kept so older onclick handlers in remaining code don't crash.
