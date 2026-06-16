@@ -3246,24 +3246,43 @@ function calcLifeTerrain(d, dmElement) {
     return { score, detail };
 }
 // ── PATH RESONANCE — domain + industry Wuxing fit ─────────────
+// Element grouping MUST match index.html DOMAINS_BY_EL / INDUSTRIES_BY_EL
+// (ไฟ=Fire · โลหะ=Metal · น้ำ=Water · ดิน=Earth · ไม้=Wood). Unknown → 'Fire'/'Earth'.
 const DOMAIN_ELEMENT = {
-    'Business Development': 'Fire', 'Sales': 'Fire', 'Marketing': 'Fire',
-    'Engineering': 'Metal', 'Software': 'Water', 'Data': 'Water',
-    'Finance': 'Metal', 'Accounting': 'Earth', 'Legal': 'Metal',
-    'HR': 'Earth', 'Operations': 'Earth', 'Supply Chain': 'Earth',
-    'Art': 'Wood', 'Design': 'Wood', 'Architecture': 'Wood',
-    'Interior Construction': 'Wood', 'Construction': 'Earth',
-    'Healthcare': 'Water', 'Education': 'Wood', 'Research': 'Water',
-    'Leadership': 'Fire', 'Management': 'Earth', 'Consulting': 'Fire',
+    // Fire
+    'Business Development': 'Fire', 'Sales': 'Fire', 'Marketing': 'Fire', 'Leadership': 'Fire',
+    'Consulting': 'Fire', 'Entertainment': 'Fire', 'Public Relations': 'Fire', 'Advertising': 'Fire', 'Sports': 'Fire',
+    // Metal
+    'Engineering': 'Metal', 'Finance': 'Metal', 'Legal': 'Metal', 'Banking': 'Metal',
+    'Insurance': 'Metal', 'Military': 'Metal', 'Police': 'Metal', 'Auditing': 'Metal',
+    // Water
+    'Software': 'Water', 'Data': 'Water', 'Healthcare': 'Water', 'Research': 'Water',
+    'Medicine': 'Water', 'Nursing': 'Water', 'Pharmacy': 'Water', 'Science': 'Water', 'Journalism': 'Water',
+    // Earth
+    'Accounting': 'Earth', 'HR': 'Earth', 'Operations': 'Earth', 'Supply Chain': 'Earth',
+    'Management': 'Earth', 'Construction': 'Earth', 'Government': 'Earth', 'Agriculture': 'Earth',
+    'Real Estate': 'Earth', 'Logistics': 'Earth', 'Retail': 'Earth', 'Food & Beverage': 'Earth',
+    // Wood
+    'Art': 'Wood', 'Design': 'Wood', 'Architecture': 'Wood', 'Interior Construction': 'Wood',
+    'Education': 'Wood', 'Media': 'Wood', 'Writing': 'Wood', 'Beauty & Wellness': 'Wood',
+    'Spirituality': 'Wood', 'Photography & Film': 'Wood', 'Fashion': 'Wood',
 };
 const INDUSTRY_ELEMENT = {
-    'Interior Construction': 'Earth', 'Construction': 'Earth', 'Real Estate': 'Earth',
-    'Finance': 'Metal', 'Banking': 'Metal', 'Investment': 'Metal',
-    'Tech': 'Water', 'Software': 'Water', 'AI': 'Water',
-    'Healthcare': 'Water', 'Pharma': 'Water',
-    'Education': 'Wood', 'Media': 'Wood', 'Entertainment': 'Fire',
-    'Retail': 'Earth', 'Food': 'Earth', 'Hospitality': 'Wood',
-    'Energy': 'Fire', 'Manufacturing': 'Metal',
+    // Fire
+    'Entertainment': 'Fire', 'Energy': 'Fire', 'Advertising': 'Fire', 'Sports & Fitness': 'Fire',
+    // Metal
+    'Finance': 'Metal', 'Banking': 'Metal', 'Investment': 'Metal', 'Manufacturing': 'Metal',
+    'Insurance': 'Metal', 'Automotive': 'Metal',
+    // Water
+    'Tech': 'Water', 'Software': 'Water', 'AI': 'Water', 'Healthcare': 'Water',
+    'Pharma': 'Water', 'Telecom': 'Water', 'E-commerce': 'Water',
+    // Earth
+    'Interior Construction': 'Earth', 'Construction': 'Earth', 'Real Estate': 'Earth', 'Retail': 'Earth',
+    'Food': 'Earth', 'Agriculture': 'Earth', 'Government': 'Earth', 'Tourism': 'Earth',
+    'Transportation': 'Earth', 'Logistics': 'Earth',
+    // Wood
+    'Education': 'Wood', 'Media': 'Wood', 'Hospitality': 'Wood', 'Fashion': 'Wood',
+    'Beauty': 'Wood', 'Publishing': 'Wood', 'Nonprofit': 'Wood',
 };
 function calcPathResonance(d, dmElement) {
     // Gate on EXPLICIT user-provided domain or industry — neither defaulting to

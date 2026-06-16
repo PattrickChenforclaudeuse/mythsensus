@@ -38,7 +38,7 @@
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=105">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=106">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
@@ -2648,7 +2648,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=105" defer></script>
+<script src="/build/ms26-bundle.js?v=106" defer></script>
 <script>
 
 
@@ -8318,26 +8318,36 @@ function renderResonance(){
     { name:'Fiji',      flag:'🇫🇯', el:'น้ำ',   score:720 },
   ];
   const LEVELS = [
-    { name:'Junior',    icon:'🌱', bonus:-20, descTh:'1-3 ปีแรก',     descEn:'1-3 yrs' },
-    { name:'Mid',       icon:'🔧', bonus:0,   descTh:'มืออาชีพ',       descEn:'Pro' },
-    { name:'Senior',    icon:'🎯', bonus:30,  descTh:'นำทีม / lead',  descEn:'Team lead' },
-    { name:'Director',  icon:'🏛',  bonus:60,  descTh:'นำหลายทีม',     descEn:'Multi-team' },
-    { name:'Executive', icon:'👑', bonus:80,  descTh:'C-level / VP',  descEn:'C-level / VP' },
+    { name:'Intern',    icon:'🐣', bonus:-30, descTh:'ฝึกงาน',         descEn:'Internship' },
+    { name:'Junior',    icon:'🌱', bonus:-20, descTh:'1-3 ปีแรก',      descEn:'1-3 yrs' },
+    { name:'Mid',       icon:'🔧', bonus:0,   descTh:'มืออาชีพ',        descEn:'Pro' },
+    { name:'Senior',    icon:'🎯', bonus:30,  descTh:'นำทีม / lead',   descEn:'Team lead' },
+    { name:'Manager',   icon:'👔', bonus:45,  descTh:'ผู้จัดการ',       descEn:'Manager' },
+    { name:'Director',  icon:'🏛',  bonus:60,  descTh:'นำหลายทีม',      descEn:'Multi-team' },
+    { name:'Executive', icon:'👑', bonus:80,  descTh:'C-level / VP',   descEn:'C-level / VP' },
+    { name:'Founder',   icon:'🚀', bonus:70,  descTh:'เจ้าของกิจการ',   descEn:'Founder / owner' },
+    { name:'Freelance', icon:'🎒', bonus:15,  descTh:'อิสระ',          descEn:'Self-employed' },
+    { name:'Student',   icon:'📚', bonus:-25, descTh:'นักศึกษา',        descEn:'Student' },
+    { name:'Retired',   icon:'🌅', bonus:10,  descTh:'เกษียณ',         descEn:'Retired' },
   ];
   // Domain groups by element so selection feels meaningful (Wuxing colour-coded).
+  // NOTE: element grouping here MUST match calc.ts DOMAIN_ELEMENT / INDUSTRY_ELEMENT
+  // (Thai key ↔ English: ไฟ=Fire · โลหะ=Metal · น้ำ=Water · ดิน=Earth · ไม้=Wood).
+  // The engine defaults unknown strings to Fire/Earth, so any name added here
+  // must also be added there or the headline score won't match this ranking.
   const DOMAINS_BY_EL = {
-    'ไฟ':   ['Business Development','Sales','Marketing','Leadership','Consulting'],
-    'โลหะ': ['Engineering','Finance','Legal'],
-    'น้ำ':  ['Software','Data','Healthcare','Research'],
-    'ดิน':  ['Accounting','HR','Operations','Supply Chain','Management','Construction'],
-    'ไม้':  ['Art','Design','Architecture','Interior Construction','Education'],
+    'ไฟ':   ['Business Development','Sales','Marketing','Leadership','Consulting','Entertainment','Public Relations','Advertising','Sports'],
+    'โลหะ': ['Engineering','Finance','Legal','Banking','Insurance','Military','Police','Auditing'],
+    'น้ำ':  ['Software','Data','Healthcare','Research','Medicine','Nursing','Pharmacy','Science','Journalism'],
+    'ดิน':  ['Accounting','HR','Operations','Supply Chain','Management','Construction','Government','Agriculture','Real Estate','Logistics','Retail','Food & Beverage'],
+    'ไม้':  ['Art','Design','Architecture','Interior Construction','Education','Media','Writing','Beauty & Wellness','Spirituality','Photography & Film','Fashion'],
   };
   const INDUSTRIES_BY_EL = {
-    'ไฟ':   ['Entertainment','Energy'],
-    'โลหะ': ['Finance','Banking','Investment','Manufacturing'],
-    'น้ำ':  ['Tech','Software','AI','Healthcare','Pharma'],
-    'ดิน':  ['Interior Construction','Construction','Real Estate','Retail','Food'],
-    'ไม้':  ['Education','Media','Hospitality'],
+    'ไฟ':   ['Entertainment','Energy','Advertising','Sports & Fitness'],
+    'โลหะ': ['Finance','Banking','Investment','Manufacturing','Insurance','Automotive'],
+    'น้ำ':  ['Tech','Software','AI','Healthcare','Pharma','Telecom','E-commerce'],
+    'ดิน':  ['Interior Construction','Construction','Real Estate','Retail','Food','Agriculture','Government','Tourism','Transportation','Logistics'],
+    'ไม้':  ['Education','Media','Hospitality','Fashion','Beauty','Publishing','Nonprofit'],
   };
   const EL_COLOR = { 'ไฟ':'#c66030', 'โลหะ':'#a8a098', 'น้ำ':'#3a7090', 'ดิน':'#a08040', 'ไม้':'#5a8a4a' };
   const elDot = (el) => `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${EL_COLOR[el]||'#888'};vertical-align:middle;margin-right:4px"></span>`;
@@ -13807,6 +13817,9 @@ const _PET_SPECIES = [
   {key:'hamster', emoji:'🐹', th:'หนู / แฮมสเตอร์', en:'Hamster / Rodent'},
   {key:'reptile', emoji:'🦎', th:'สัตว์เลื้อยคลาน', en:'Reptile'},
   {key:'turtle',  emoji:'🐢', th:'เต่า',            en:'Turtle'},
+  {key:'snake',   emoji:'🐍', th:'งู',              en:'Snake'},
+  {key:'hedgehog',emoji:'🦔', th:'เม่นแคระ',        en:'Hedgehog'},
+  {key:'poultry', emoji:'🐔', th:'ไก่ / สัตว์ปีก',  en:'Poultry'},
   {key:'horse',   emoji:'🐴', th:'ม้า',             en:'Horse'},
   {key:'other',   emoji:'✨', th:'อื่นๆ',           en:'Other'},
 ];
