@@ -97,25 +97,31 @@ expects ONE subscription product (currently live) + 9 one-time products. Until e
 one-time `url` is filled in, the paywall's "Unlock $X" button falls back to the
 subscription URL (still works, just bypasses the per-item flow).
 
-| Product | Price | Type | `_GUMROAD_PRODUCTS` key | Permalink | Status |
-|---|---:|---|---|---|---|
-| Mythsensus Subscription — Monthly tier | $8.99/mo | Subscription | (subscribe url) | `tlkfx` ?recurrence=monthly | ⚠ Director must update Monthly tier price 499→899 cents via dashboard (API doesn't support tier price update for membership products — confirmed 2026-06-01) |
-| Mythsensus Subscription — Annual tier | $89.99/yr | Subscription | (subscribe url) | `tlkfx` ?recurrence=yearly | ⚠ Director must update Annual tier price 4999→8999 cents via dashboard. **NOTE: same product `tlkfx`, just different recurrence tier** — no new product needed (Gumroad tiered-membership pattern) |
-| Deep Reading (any system) | $9 | One-time | `deep` | `oziji` | ✓ created (draft) — review + publish |
-| Divine Mirror | $9 | One-time | `mirror` | `luqkbx` | ✓ created (draft) — review + publish |
-| Cosmic Pet | $5 | One-time | `pet` | `nxezj` | ✓ created (draft) — review + publish |
-| Spirit Companions | $7 | One-time | `companions` | `wlgmbp` | ✓ created (draft) — review + publish |
-| Cosmic Exercise | $7 | One-time | `exercise` | `intvj` | ✓ created (draft) — review + publish |
-| Cosmic Food | $7 | One-time | `food` | `vwzkgz` | ✓ created (draft) — review + publish |
-| Product Personality | $5 | One-time | `product` | `howzdo` | ✓ created (draft) — review + publish |
-| Compatibility Check | $9 | One-time | `compat` | `mdjeln` | ✓ created (draft) — review + publish |
-| Full Report (43-page PDF) | $19 | One-time | `full_report` | `mbkayz` | ✓ created (draft) — review + publish |
+**⚠️ STATUS VERIFIED LIVE 2026-06-16 via Gumroad API (GET /v2/products) — the old
+"all draft" note below was STALE.** Ground truth that day: ALL 9 one-time products
+were PUBLISHED (live, sellable), NOT draft. Then per Director: `pet` + `compat` were
+set to **$9 each and DISABLED → draft** (`PUT /v2/products/:id` price=900 +
+`/disable`) pending his own re-publish (he wants to polish copy/cover first). The
+other 7 remain published at their listed prices. To re-check status, query the API —
+do not trust this table's Status column blind (Rule #0).
 
-**Before launching:** open each draft product on Gumroad dashboard → review the
-auto-generated description (currently English-only one-liner from
-`_qa-out/gumroad-create-9.cjs`) → add a cover image + Thai copy if desired →
-click **Publish**. The paywall already points to the correct URLs; once a
-product is published the button works end-to-end.
+| Product | Price | Type | `_GUMROAD_PRODUCTS` key | Permalink | Status (as of 2026-06-16) |
+|---|---:|---|---|---|---|
+| Mythsensus Subscription | $8.99/mo · $89.99/yr | Subscription | (subscribe url) | `tlkfx` | published (tiered membership; price changes via dashboard only — API can't update membership tier price, confirmed 2026-06-01) |
+| Deep Reading (any system) | $9 | One-time | `deep` | `oziji` | 🟢 published |
+| Divine Mirror | $9 | One-time | `mirror` | `luqkbx` | 🟢 published |
+| Cosmic Pet | **$9** | One-time | `pet` | `nxezj` | 🟡 **DRAFT** (disabled 6-16; price 5→9; Director to re-publish) |
+| Spirit Companions | $7 | One-time | `companions` | `wlgmbp` | 🟢 published |
+| Cosmic Exercise | $7 | One-time | `exercise` | `intvj` | 🟢 published |
+| Cosmic Food | $7 | One-time | `food` | `vwzkgz` | 🟢 published |
+| Product Personality | $5 | One-time | `product` | `howzdo` | 🟢 published |
+| Compatibility Check | **$9** | One-time | `compat` | `mdjeln` | 🟡 **DRAFT** (disabled 6-16; Director to re-publish) |
+| Full Report (43-page PDF) | $19 | One-time | `full_report` | `mbkayz` | 🟢 published |
+
+**Re-publishing pet/compat (Director's step):** Gumroad dashboard → open Cosmic Pet +
+Compatibility Check (now draft) → polish description/cover/Thai copy → **Publish**.
+The paywall + `PRICING` map already show $9 for both; once re-published the buy
+button works end-to-end. (API can re-enable too: `PUT /v2/products/:id/enable`.)
 
 **Webhook contract:** `api/gumroad/webhook.js` should read the incoming
 `product_permalink` and grant the matching item — e.g. write
