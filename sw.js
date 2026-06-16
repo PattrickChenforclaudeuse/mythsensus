@@ -350,7 +350,7 @@
 // verdict ("ข้อเท็จจริงล้วน ยังไม่ตีความ"); Pulse = Sky + 7-10 systems
 // synthesised into one reading ("รวมฟ้าวันนี้ + 7-10 ศาสตร์ → คำอ่านเดียว").
 // Copy-only (sky_dom_hint_all + pulse_hint, EN+TH + HTML fallbacks).
-const CACHE = 'mythsensus-v133';
+const CACHE = 'mythsensus-v134';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

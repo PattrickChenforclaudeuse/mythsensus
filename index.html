@@ -1440,12 +1440,19 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 
     <!-- STEP 0: hero first-impression card. Form lives behind via entryShowForm. -->
     <div id="entryHeroStep">
-      <div style="text-align:center;margin:22px 0 4px;font-family:'Cinzel Decorative',serif;font-size:20px;color:var(--gold);line-height:1.4">🔮 วันนี้เทพองค์ไหนมีสารถึงคุณ?</div>
-      <div style="text-align:center;margin:0 0 16px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--muted)">Which of 1,069 gods has a message for you today?</div>
-      <div style="text-align:center;margin:0 0 18px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.7">BaZi · โหราศาสตร์ตะวันตก · เลข ๗ ตัว · Human Design · เวท · มายา · เซลติก · และอีก 19 ศาสตร์ — เราอ่านพร้อมกัน แล้วบอกว่าพวกเขาเห็นตรงกันเรื่องไหน ขัดกันเรื่องไหน</div>
-      <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:20px;font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:.5px;color:var(--gold3)"><span>✨ เริ่มฟรี</span><span>🔒 ข้อมูลอยู่ในเครื่อง</span><span>⚡ ไม่ต้องสมัคร</span></div>
-      <button class="login-confirm-btn" onclick="entryDrawFirst()" style="font-size:15px">🔮 เปิดพรเทพวันนี้ฟรี · Open today's blessing</button>
-      <div style="text-align:center;margin-top:11px"><button onclick="entryShowForm()" style="background:transparent;border:1px solid var(--gold3);border-radius:8px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--gold2);cursor:pointer;padding:9px 20px">🔭 ดูดวงเต็มจากวันเกิด · 26 ศาสตร์ →</button></div>
+      <!-- 10-second message: lead with the CORE differentiator (26-system
+           consensus), felt via a 1-vs-26 contrast — not a list of system names.
+           The payoff (the "N/10 systems agree" banner + Cosmic Score meaning)
+           already exists downstream in the chart preview, so the primary CTA
+           goes there. Daily god draw demoted to a lighter secondary. -->
+      <div style="text-align:center;margin:20px 0 5px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14px;color:var(--muted);line-height:1.5;font-style:italic">หมอดูทั่วไปใช้ศาสตร์เดียว — เถียงได้</div>
+      <div style="text-align:center;margin:0 0 8px;font-family:'Cinzel Decorative',serif;font-size:21px;color:var(--gold);line-height:1.4">ศาสตร์โบราณ <span style="font-size:27px">26</span> ชาติ<br>ดูดวงคุณ<span style="color:var(--gold2)">พร้อมกัน</span></div>
+      <div style="text-align:center;margin:0 0 6px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14.5px;color:var(--text);line-height:1.7">แล้วบอกว่าพวกเขา <strong style="color:var(--gold2)">"พูดตรงกัน"</strong> เรื่องไหนเกี่ยวกับคุณ</div>
+      <div style="text-align:center;margin:0 0 14px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--muted);line-height:1.6">ศาสตร์เดียวเถียงได้ — แต่ <strong style="color:var(--gold3)">26 ศาสตร์เห็นพ้องกัน</strong> นั่นแหละคือ "ฉันทามติของจักรวาล" เรื่องคุณ</div>
+      <div style="text-align:center;margin:0 0 16px;font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold3);text-transform:uppercase">Where 26 ancient systems reach consensus — about you</div>
+      <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:18px;font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:.5px;color:var(--gold3)"><span>✨ เริ่มฟรี</span><span>🔒 ข้อมูลอยู่ในเครื่อง</span><span>⚡ ไม่ต้องสมัคร</span></div>
+      <button class="login-confirm-btn" onclick="entryShowForm()" style="font-size:15px">🔮 ดูว่า 26 ศาสตร์เห็นตรงกันว่าอะไร · ฟรี →</button>
+      <div style="text-align:center;margin-top:11px"><button onclick="entryDrawFirst()" style="background:transparent;border:1px solid var(--gold3);border-radius:8px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--gold2);cursor:pointer;padding:9px 20px">หรือ เปิดพรเทพวันนี้ก่อน 1 องค์ →</button></div>
       <div style="text-align:center;margin-top:14px;font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px">มีบัญชีแล้ว? <button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">ลงชื่อเข้าใช้ / Sign in →</button></div>
     </div>
 
@@ -5124,6 +5131,10 @@ function calcChart(){
 }
 
 function renderChart(data){
+  // FUNNEL: user reached the consensus payoff (the chart preview = the "what
+  // 26 systems agree on" reveal). Fire once/session so we can measure how many
+  // complete read→fill→see-consensus. (2026-06-16)
+  try { if (window._msTrack && !window._consensusViewed) { window._consensusViewed = true; _msTrack.track('consensus_view'); } } catch(_){}
   // ── Consensus + Minority signal (free preview = 10-system arbitration demo) ──
   // The "Minority signal" panel surfaces themes that fewer systems voted for —
   // proof-of-concept for the arbitrator framing: it's not just "what they agree
@@ -15871,10 +15882,24 @@ function entryAccept(){
   // complex paid Cosmic Blueprint. Instead we land on the free daily Blessing —
   // a one-tap, welcoming first experience. The Blueprint form is still
   // pre-filled below so it's ready the moment they choose to generate a report.
+  // FUNNEL: birthday submitted — the key step of the new primary path
+  // (read hero → curious → fill). Tracked so we can see completion, not just
+  // active time. (2026-06-16)
+  try { if (window._msTrack && !window._birthSubmitted) { window._birthSubmitted = true; _msTrack.track('birth_submit'); } } catch(_){}
   _bootAfterEntry();
+  // Prefill the chart-preview inputs so the CONSENSUS reading computes the
+  // moment we land — this matches the new hero's promise ("see what 26 systems
+  // agree on") instead of dropping the user on a single-god blessing.
+  try {
+    const pD=document.getElementById('profDob'), pN=document.getElementById('profName'), pT=document.getElementById('profTime');
+    if (pD) pD.value = dob;
+    if (pN && name) pN.value = name;
+    if (pT) pT.value = time;
+  } catch(_){}
   setGroup('free');
-  showSubTab('blessing');
+  showSubTab('preview');   // free 'preview' → panel-chart → calcChart → consensus banner
   setTimeout(() => {
+    // Blueprint generator inputs (prefilled, ready the moment they go premium).
     const dInp = document.getElementById('cb-f-dob');
     const nInp = document.getElementById('cb-f-name');
     const hInp = document.getElementById('cb-f-time-h');
@@ -15887,15 +15912,12 @@ function entryAccept(){
     if (mInp) mInp.value = parseInt(time.split(':')[1])||0;
     if (gInp) gInp.value = gender;
     if (cInp) cInp.value = city;
-    // Gentle welcome onto the free page — the "tap Generate" hint was tied to
-    // the Blueprint generator and would confuse a user landing on Blessing.
+    // Welcome onto the consensus payoff (matches the hero, not "draw a blessing").
     _showSyncToast(LANG==='th'
-      ? '✨ ยินดีต้อนรับ — รับพรประจำวันฟรีของคุณได้เลย'
-      : '✨ Welcome — draw your free daily blessing');
-    // First-visit tab tour: introduce the 5 group tabs so they don't feel
-    // overwhelming. Delayed 900ms so the page settles + welcome toast appears
-    // first. The tour itself checks localStorage.mth_tab_tour_done so it's a
-    // no-op on subsequent visits.
+      ? '✨ 26 ศาสตร์อ่านคุณแล้ว — เลื่อนดูว่าพวกเขาเห็นตรงกันว่าอะไร'
+      : '✨ All 26 systems have read you — see what they agree on');
+    // First-visit tab tour: introduce the group tabs. Delayed so the page
+    // settles first. No-op on subsequent visits (mth_tab_tour_done).
     setTimeout(maybeShowTabTour, 900);
   }, 200);
 }
