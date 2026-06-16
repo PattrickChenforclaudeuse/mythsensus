@@ -94,7 +94,15 @@ export default function handler(req, res) {
   const artSlug = god && ART_TIERS[god.tier]
     ? god.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
     : null
-  const ogImage = artSlug ? `https://mythsensus.com/assets/god-og/${artSlug}.jpg` : 'https://mythsensus.com/og-default.png'
+  // Per-god OG image: hand-drawn JPG for Epic+ (artwork exists), else a dynamic
+  // branded card via /api/og for the 852 lower-tier gods (so every shared deity
+  // gets a unique preview), and the generic banner only when there's no god.
+  const dynOg = !artSlug && god
+    ? 'https://mythsensus.com/api/og?' + new URLSearchParams({ g: god.name, t: god.tier || '', s: god.symbol || '🔮', myth: god.mythology || '' }).toString()
+    : null
+  const ogImage = artSlug
+    ? `https://mythsensus.com/assets/god-og/${artSlug}.jpg`
+    : (dynOg || 'https://mythsensus.com/og-default.png')
   const ogType = artSlug ? 'image/jpeg' : 'image/png'
   const ogW = artSlug ? '1080' : '1200'
   const ogH = artSlug ? '1080' : '630'
