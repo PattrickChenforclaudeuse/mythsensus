@@ -8974,8 +8974,9 @@ function renderDailyPulse() {
   const reflectKey = 'mth_pulse_reflect_' + pulse.isoDate;
   const savedReflect = localStorage.getItem(reflectKey) || '';
 
-  // First-of-day fanfare + streak milestone celebrations (no-ops on repeat views).
-  try { _maybeDailyPulseFanfare(); } catch(_) {}
+  // Daily first-open fanfare REMOVED per director 2026-06-16 (the per-day
+  // pop-up on entering Daily Pulse was unwanted). Rare streak milestones
+  // (7/30/100/365 days) kept — they're occasional rewards, not a daily pop-up.
   try { _maybeStreakCelebration(streak); } catch(_) {}
 
   // Verdict card colours
