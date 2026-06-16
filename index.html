@@ -1430,8 +1430,8 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 
     <!-- STEP 0: hero first-impression card. Form lives behind via entryShowForm. -->
     <div id="entryHeroStep">
-      <div style="text-align:center;margin:22px 0 4px;font-family:'Cinzel Decorative',serif;font-size:18px;color:var(--gold);line-height:1.4">เมื่อ <span style="color:var(--gold2)">26 ศาสตร์โบราณ</span> พูดถึงคุณไม่ตรงกัน · เราหาคำตอบที่ลงตัว</div>
-      <div style="text-align:center;margin:0 0 16px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--muted)">When 26 ancient systems disagree about you — we reconcile</div>
+      <div style="text-align:center;margin:22px 0 4px;font-family:'Cinzel Decorative',serif;font-size:20px;color:var(--gold);line-height:1.4">🔮 วันนี้เทพองค์ไหนมีสารถึงคุณ?</div>
+      <div style="text-align:center;margin:0 0 16px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--muted)">Which of 1,069 gods has a message for you today?</div>
       <div style="text-align:center;margin:0 0 18px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.7">BaZi · โหราศาสตร์ตะวันตก · เลข ๗ ตัว · Human Design · เวท · มายา · เซลติก · และอีก 19 ศาสตร์ — เราอ่านพร้อมกัน แล้วบอกว่าพวกเขาเห็นตรงกันเรื่องไหน ขัดกันเรื่องไหน</div>
       <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:20px;font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:.5px;color:var(--gold3)"><span>✨ เริ่มฟรี</span><span>🔒 ข้อมูลอยู่ในเครื่อง</span><span>⚡ ไม่ต้องสมัคร</span></div>
       <button class="login-confirm-btn" onclick="entryDrawFirst()" style="font-size:15px">🔮 เปิดพรเทพวันนี้ฟรี · Open today's blessing</button>
@@ -2021,8 +2021,9 @@ try{
       <div class="god-name" id="godName"></div>
       <div class="god-origin" id="godOrigin"></div>
       <div class="god-message" id="godMessage"></div>
+      <div id="godLucky" style="display:none;margin:14px auto 2px;max-width:300px;padding:10px 14px;border:1px dashed var(--gold3);border-radius:10px;background:linear-gradient(180deg,rgba(200,164,90,.08),rgba(200,164,90,.02))"></div>
       <div class="god-represents" id="godRepresents"></div>
-      <button id="godShareBtn" onclick="_shareDraw()" style="display:none;margin-top:16px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;background:transparent;color:var(--gold);border:1px solid var(--gold3);padding:8px 18px;border-radius:4px;cursor:pointer">✦ Share this blessing</button>
+      <button id="godShareBtn" onclick="_shareDraw()" style="display:none;margin-top:18px;font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1.5px;font-weight:700;background:var(--gold);color:var(--bg);border:none;padding:12px 26px;border-radius:8px;cursor:pointer;box-shadow:0 4px 16px rgba(200,164,90,.3)">✦ แชร์พรนี้ให้เพื่อน · Share</button>
     </div>
     <div class="history-list" id="historyList"></div>
     <!-- RECENT BLESSINGS PREVIEW (shown when today's card is empty) -->
@@ -3854,10 +3855,11 @@ async function drawBlessing(){
     document.getElementById('godName').textContent=god.name;
     document.getElementById('godOrigin').textContent=god.mythology||'';
     document.getElementById('godMessage').textContent='"'+message+'"';
+    _renderLucky(god);
     document.getElementById('godRepresents').innerHTML=(typeof _godCategoryChips==='function'?_godCategoryChips(god,4):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).map(esc).join(' · ')}</div>`;
     _currentDraw={god,tier:T,msgIdx,message};
     const sb=document.getElementById('godShareBtn');
-    if(sb){sb.style.display='inline-block';sb.textContent=(LANG==='th'?'✦ แชร์พรนี้':'✦ Share this blessing');}
+    if(sb){sb.style.display='inline-block';sb.textContent=(LANG==='th'?'✦ แชร์พรนี้ให้เพื่อน':'✦ Share your blessing');}
     card.classList.add('revealed');blessHistory.unshift({T,god});renderHistory();saveBlessings();saveBlessingToHistory(god, T, message, msgIdx);markMsgSeen(god.name, msgIdx);
     try{ _msTrack.drew(T.name); }catch(_){}
     updateBlessingStatus();   // refresh status + hide the recent-preview now that a card is revealed
@@ -3908,6 +3910,29 @@ function _godArtInto(el, god, sizePx, extraCss){
   el.appendChild(im);
 }
 
+// Daily "lucky numbers" derived deterministically from the drawn god + today's
+// date (entertainment, $0). Thai lottery formats: 2-digit + 3-digit. Ties the
+// draw to the lottery cadence (twice-monthly งวด) = a recurring reason to come
+// back and to share. FNV-1a hash for an even spread.
+function _luckyNumbers(god){
+  const d = new Date();
+  const s = (god && god.name ? god.name : '?') + '|' + d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+  let h = 2166136261 >>> 0;
+  for (let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  return { two: String(h % 100).padStart(2,'0'), three: String(Math.floor(h/97) % 1000).padStart(3,'0') };
+}
+// Render the lucky-numbers block into #godLucky. Shared by both card-render
+// paths (drawBlessing inline + _renderGodCard) so they never drift.
+function _renderLucky(god){
+  const gl = document.getElementById('godLucky'); if (!gl) return;
+  try {
+    const lk = _luckyNumbers(god);
+    const lbl = (LANG==='th') ? ('🎰 เลขนำโชควันนี้จาก ' + esc(god.name)) : ('🎰 ' + esc(god.name) + "'s lucky numbers today");
+    gl.innerHTML = `<div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold2);margin-bottom:5px">${lbl}</div><div style="font-family:'Cinzel Decorative',serif;font-size:26px;color:var(--gold);letter-spacing:3px">${lk.two} <span style="opacity:.45">·</span> ${lk.three}</div>`;
+    gl.style.display = 'block';
+  } catch(_){}
+}
+
 function _renderGodCard(god, T, msgIdx, explicitMsg) {
   const card = document.getElementById('godCard');
   if (!card) return;
@@ -3924,10 +3949,11 @@ function _renderGodCard(god, T, msgIdx, explicitMsg) {
   const idx = Math.max(0, Math.min(Math.max(0, arr.length-1), msgIdx | 0));
   const message = explicitMsg || arr[idx] || randMsg(god);
   document.getElementById('godMessage').textContent = '"' + message + '"';
+  _renderLucky(god);
   document.getElementById('godRepresents').innerHTML = (typeof _godCategoryChips==='function'?_godCategoryChips(god,4):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).map(esc).join(' · ')}</div>`;
   _currentDraw = { god, tier: T, msgIdx: idx, message };
   const sb = document.getElementById('godShareBtn');
-  if (sb) { sb.style.display = 'inline-block'; sb.textContent = (LANG==='th'?'✦ แชร์พรนี้':'✦ Share this blessing'); }
+  if (sb) { sb.style.display = 'inline-block'; sb.textContent = (LANG==='th'?'✦ แชร์พรนี้ให้เพื่อน':'✦ Share your blessing'); }
   card.classList.add('revealed');
 }
 
