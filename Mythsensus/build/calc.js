@@ -2791,6 +2791,51 @@ function _taksaPlanetWeight(planetIdx, isMula) {
         return isMula ? -40 : 20;
     return isMula ? 20 : -10; // neutral planets (Moon, Mars)
 }
+// ── THAI TAKSA DEEP READING (ทักษา 8 บ้าน) ───────────────────────────────────
+function _taksaDeepSections(a) {
+    const K = _dsKit();
+    const { pick, blk, P, B, faqQ } = K;
+    const PL = {
+        'อาทิตย์': { trait: ['ผู้นำ มีอำนาจ ทะเยอทะยาน', 'a leader — authoritative, ambitious'], car: ['ผู้บริหาร ราชการ งานสาธารณะ', 'executive, government, public roles'], day: ['วันอาทิตย์', 'Sunday'], color: ['แดง', 'red'] },
+        'จันทร์': { trait: ['อ่อนโยน มีเสน่ห์ อารมณ์ไว', 'gentle, charming, sensitive'], car: ['บริการ ดูแล ศิลปะ สื่อสาร', 'service, care, art, communication'], day: ['วันจันทร์', 'Monday'], color: ['เหลือง/ครีม', 'yellow/cream'] },
+        'อังคาร': { trait: ['กล้า ขยัน เป็นนักสู้', 'brave, hardworking, a fighter'], car: ['ทหาร/ตำรวจ กีฬา วิศวกร', 'military/police, sports, engineering'], day: ['วันอังคาร', 'Tuesday'], color: ['ชมพู/แดง', 'pink/red'] },
+        'พุธ': { trait: ['ฉลาด เจรจาเก่ง ปรับตัวดี', 'clever, articulate, adaptable'], car: ['ค้าขาย สื่อสาร การตลาด เขียน', 'trade, communication, marketing, writing'], day: ['วันพุธ', 'Wednesday'], color: ['เขียว', 'green'] },
+        'พฤหัสบดี': { trait: ['มีเมตตา เป็นครู มีหลักการ', 'kind, teacherly, principled'], car: ['ครู ที่ปรึกษา กฎหมาย การเงิน', 'teaching, advising, law, finance'], day: ['วันพฤหัสบดี', 'Thursday'], color: ['ส้ม/เหลือง', 'orange/yellow'] },
+        'ศุกร์': { trait: ['รักสวยงาม มีเสน่ห์ รักศิลปะ', 'loves beauty, charming, artistic'], car: ['ศิลปะ บันเทิง ความงาม แฟชั่น', 'art, entertainment, beauty, fashion'], day: ['วันศุกร์', 'Friday'], color: ['ฟ้า', 'sky-blue'] },
+        'เสาร์': { trait: ['อดทน หนักแน่น จริงจัง', 'patient, solid, serious'], car: ['งานหนัก อสังหา วิจัยยาว เกษตร', 'heavy work, real estate, long research, agriculture'], day: ['วันเสาร์', 'Saturday'], color: ['ม่วง/ดำ', 'purple/black'] },
+        'ราหู': { trait: ['ลึกลับ ไม่ธรรมดา เปลี่ยนเร็ว', 'mysterious, unconventional, fast-changing'], car: ['ต่างประเทศ เทคโนโลยี งานกลางคืน', 'foreign affairs, technology, night work'], day: ['วันพุธกลางคืน', 'Wednesday night'], color: ['เทา/ควัน', 'grey/smoke'] },
+    };
+    const g = (name) => PL[name] || PL['อาทิตย์'];
+    const T2E = { 'อาทิตย์': 'Sun', 'จันทร์': 'Moon', 'อังคาร': 'Mars', 'พุธ': 'Mercury', 'พฤหัสบดี': 'Jupiter', 'ศุกร์': 'Venus', 'เสาร์': 'Saturn', 'ราหู': 'Rahu' };
+    const pn = (name) => pick(name, T2E[name] || name); // lang-aware planet-name display
+    const dech = a.housePlanetsTh[2] || a.dayLordTh; // เดช (power)
+    const montri = a.housePlanetsTh[6] || a.dayLordTh; // มนตรี (mentors)
+    const sri = a.housePlanetsTh[3] || a.dayLordTh; // ศรี (glory/charm)
+    const ayu = a.housePlanetsTh[1] || a.dayLordTh; // อายุ (life/health)
+    const dl = g(a.dayLordTh);
+    const ka = g(a.kalakiniTh);
+    const mu = g(a.mulaTh);
+    const sec = [];
+    sec.push(blk('📜', 'ทักษา — วงล้อ 8 บ้าน', 'Taksa — The 8-House Wheel', P(pick(`ทักษาคือโหราศาสตร์ไทยที่วางดาวประจำวันเกิดลงใน 8 บ้านชีวิต (บริวาร·อายุ·เดช·ศรี·มูละ·อุตสาหะ·มนตรี·กาลกิณี) ดาวเจ้าเรือนวันเกิดคุณคือ ${B(pn(a.dayLordTh))} สถิตในบริวาร`, `Taksa is Thai astrology that places your birth-weekday planet across 8 life-houses (Followers·Life·Power·Glory·Wealth·Effort·Mentors·Misfortune). Your day-lord planet is ${B(pn(a.dayLordTh))}, seated in the Followers house.`)) +
+        P(`${B(pick('มูละ (ทรัพย์)', 'Mula (Wealth)'))}: ${pn(a.mulaTh)} · ${B(pick('กาลกิณี (ระวัง)', 'Kalakini (caution)'))}: ${pn(a.kalakiniTh)}`)));
+    sec.push(blk('🧬', 'ตัวตน — ดาวเจ้าเรือน', 'Identity — Your Day-Lord Planet', P(pick(`ดาวเจ้าเรือน ${pn(a.dayLordTh)} ทำให้คุณเป็น${dl.trait[0]} นี่คือแกนบุคลิกที่ทักษาให้น้ำหนักมากที่สุด`, `Your day-lord ${pn(a.dayLordTh)} makes you ${dl.trait[1]}. This is the personality core Taksa weighs most heavily.`))));
+    sec.push(blk('💼', 'การงาน — ควรทำ / ควรเลี่ยง', 'Career — Do / Avoid', P(`${B(pick('เข้าทาง', 'Best fit'))}: ${pick(dl.car[0], dl.car[1])} ${pick('— หนุนด้วยเดช (' + pn(dech) + ') และมนตรี (' + pn(montri) + ')', '— backed by Power (' + pn(dech) + ') and Mentors (' + pn(montri) + ')')}`) +
+        P(`✅ ${pick('ควรทำ', 'Do')}: ${pick('ใช้ดาวเดช (' + g(dech).car[0] + ') เป็นจุดแข็ง และหาที่ปรึกษาแบบดาวมนตรี', 'lean on your Power planet (' + g(dech).car[1] + ') and seek mentors of the Mentor planet\'s type')}`) +
+        P(`⚠️ ${pick('ควรเลี่ยง', 'Avoid')}: ${pick('ตัดสินใจงานใหญ่ใน' + ka.day[0] + ' (วันกาลกิณี)', 'big career moves on ' + ka.day[1] + ' (your kalakini day)')}`)));
+    sec.push(blk('💰', 'การเงิน — บ้านมูละ', 'Money — The Wealth House', P(pick(`มูละ (บ้านทรัพย์) ปกครองโดย ${pn(a.mulaTh)} — เงินเข้าทางที่เกี่ยวกับ${mu.car[0]} เสริมด้วยสีมงคล ${dl.color[0]} ของดาวเจ้าเรือน`, `Your Wealth house (Mula) is ruled by ${pn(a.mulaTh)} — money flows through ${mu.car[1]}-related paths, supported by your day-lord lucky colour ${dl.color[1]}.`)) +
+        P(`⚠️ ${pick('ควรเลี่ยง', 'Avoid')}: ${pick('ลงทุนก้อนใหญ่ใน' + ka.day[0] + ' หรือใช้สี ' + ka.color[0] + ' (กาลกิณี) กับเรื่องเงิน', 'big investments on ' + ka.day[1] + ' or using the ' + ka.color[1] + ' (kalakini) colour for money matters')}`)));
+    sec.push(blk('❤️', 'ความรัก — ศรี & บริวาร', 'Love — Glory & Followers', P(pick(`บ้านศรี (เสน่ห์) ปกครองโดย ${pn(sri)} ให้คุณดึงดูดคนแบบ${g(sri).trait[0]} ในความรัก คุณ${dl.trait[0]}`, `Your Glory house (charm) is ruled by ${pn(sri)}, drawing people who are ${g(sri).trait[1]}. In love, you are ${dl.trait[1]}.`)) +
+        P(`✅ ${pick('ควรทำ', 'Do')}: ${pick('นัดสำคัญของความรักใน' + dl.day[0] + ' (วันดาวเจ้าเรือน)', 'schedule key relationship moments on ' + dl.day[1] + ' (your day-lord\'s day)')}`)));
+    sec.push(blk('🩺', 'สุขภาพ — บ้านอายุ', 'Health — The Life House', P(pick(`บ้านอายุ (สุขภาพ/อายุขัย) ปกครองโดย ${pn(ayu)} — เฝ้าระวังด้านที่สัมพันธ์กับดาวนี้ ใช้สีมงคล ${dl.color[0]} เสริมพลังใจในวันที่อ่อนล้า`, `Your Life house (health/longevity) is ruled by ${pn(ayu)} — watch areas tied to this planet. Use your lucky colour ${dl.color[1]} to lift your spirits on tired days.`))));
+    sec.push(blk('📅', 'ปี 2026', '2026', P(pick(`ปีนี้ใช้ ${dl.day[0]} (วันดาวเจ้าเรือน) เป็นวันเริ่มสิ่งสำคัญ และระวัง ${ka.day[0]} (วันกาลกิณี) เป็นพิเศษ — ทักษาถือว่าวันกาลกิณีคือวันที่พลังคุณอ่อนสุดในสัปดาห์`, `This year, use ${dl.day[1]} (your day-lord day) to launch important things, and treat ${ka.day[1]} (your kalakini day) with extra care — Taksa holds it as your weakest day of the week.`))));
+    sec.push(blk('🎨', 'เสริม / เลี่ยง — ภาพรวม', 'Enhance / Avoid — Overall', P(`✅ ${B(pick('เสริม', 'Enhance'))}: ${pick(`สี ${dl.color[0]} · วันมงคล ${dl.day[0]} · ใช้จุดแข็งดาวเดช (${pn(dech)})`, `colour ${dl.color[1]} · power day ${dl.day[1]} · use your Power-planet strength (${pn(dech)})`)}`) +
+        P(`⚠️ ${B(pick('เลี่ยง', 'Avoid'))}: ${pick(`สี ${ka.color[0]} และ ${ka.day[0]} (ดาว/วันกาลกิณี)`, `the ${ka.color[1]} colour and ${ka.day[1]} (your kalakini planet/day)`)}`)));
+    sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('ดาวเจ้าเรือนของฉัน?', 'My day-lord planet?'), pick(`${pn(a.dayLordTh)} — ${dl.trait[0]}`, `${pn(a.dayLordTh)} — ${dl.trait[1]}`)) +
+        faqQ(pick('เงินมาทางไหน?', 'Where does my money come from?'), pick(mu.car[0] + ' (ดาวมูละ ' + pn(a.mulaTh) + ')', mu.car[1] + ' (Mula planet ' + pn(a.mulaTh) + ')')) +
+        faqQ(pick('วัน/สีกาลกิณีที่ต้องเลี่ยง?', 'My kalakini day/colour to avoid?'), pick(`${ka.day[0]} · สี ${ka.color[0]}`, `${ka.day[1]} · ${ka.color[1]} colour`)) +
+        faqQ(pick('วัน/สีมงคล?', 'My lucky day/colour?'), pick(`${dl.day[0]} · สี ${dl.color[0]}`, `${dl.day[1]} · ${dl.color[1]} colour`))));
+    return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
+}
 function calcTaksa(d) {
     const jd = toJD(d.year, d.month, d.day, 12);
     const dow = ((Math.floor(jd + 1.5) % 7) + 7) % 7; // 0=Sunday
@@ -2826,7 +2871,7 @@ function calcTaksa(d) {
     // line + a usable per-system tile).
     const readingTh = `ทักษา · เกิด${TAKSA_PLANET_NAMES_TH[dow]} วันลอร์ดสถิตในบริวาร · มูละ (ทรัพย์) ปกครองโดย${mula.planetNameTh} · กาลกิณีปกครองโดย${kalakini.planetNameTh} = วัน${TAKSA_PLANET_NAMES_TH[kalakini.planet]}เป็นวันต้องระวังของคุณ`;
     const readingEn = `Taksa · ${TAKSA_PLANET_NAMES_EN[dow]} day-lord sits in Retainers · Wealth house (Mula) ruled by ${mula.planetNameEn} · Misfortune house (Kalakini) ruled by ${kalakini.planetNameEn}, so ${TAKSA_PLANET_NAMES_EN[kalakini.planet]}'s weekday is the day to handle with care.`;
-    return {
+    const taksaResult = {
         dayOfWeek: dow,
         dayLordTh: TAKSA_PLANET_NAMES_TH[dow],
         dayLordEn: TAKSA_PLANET_NAMES_EN[dow],
@@ -2835,7 +2880,13 @@ function calcTaksa(d) {
         kalakiniTh: kalakini.planetNameTh, kalakiniEn: kalakini.planetNameEn,
         reading: _reportLang === 'en' ? readingEn : readingTh,
         score,
+        deepReading: '',
     };
+    taksaResult.deepReading = _taksaDeepSections({
+        dayLordTh: taksaResult.dayLordTh, housePlanetsTh: wheel.map(h => h.planetNameTh),
+        mulaTh: taksaResult.mulaTh, kalakiniTh: taksaResult.kalakiniTh,
+    });
+    return taksaResult;
 }
 // ============================================================
 // COSMIC SCORE
@@ -4553,6 +4604,182 @@ function buildRichReading(args) {
     return paragraphs.filter(Boolean).join('');
 }
 // ── TIBETAN ASTROLOGY (Mewa & Parkha) ─────────────────────────
+// ── SHARED DEEP-READING HELPERS (used by the 16 secondary systems) ───────────
+// One canonical kit so every secondary deepReading shares the exact same block
+// markup, FAQ-last sort, and 5-element→4-domain map (no per-function copy).
+function _dsKit() {
+    const isEn = _reportLang === 'en';
+    const pick = (th, en) => isEn ? en : th;
+    const blk = (icon, thT, enT, body) => `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn ? enT : thT}</div>${body}</div>`;
+    const P = (s) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
+    const B = (s) => `<strong style="color:#d4aa50">${s}</strong>`;
+    const faqQ = (q, ans) => P(`${B('Q: ' + q)}<br>A: ${ans}`);
+    return { isEn, pick, blk, P, B, faqQ };
+}
+// Order by the earliest order-icon found in each section; FAQ 💬 always last.
+function _dsSort(sec, ord) {
+    const rk = (s) => { let b = 99, bp = 1e9; ord.forEach((ic, i) => { const p = s.indexOf(ic); if (p >= 0 && p < bp) {
+        bp = p;
+        b = i;
+    } }); return b; };
+    sec.sort((p, q) => rk(p) - rk(q));
+    return sec.join('');
+}
+const _EL_DOM = {
+    'ไฟ': { car: ['ผู้นำ การตลาด บันเทิง งานบนเวที', 'leadership, marketing, entertainment, stage work'], money: ['รายได้พุ่งเป็นช่วง อย่าใช้ตามอารมณ์', 'bursty income — don\'t spend on impulse'], love: ['ร้อนแรงทุ่มเท ระวังหึงและวูบวาบ', 'fiery and devoted — watch jealousy and flare-ups'], health: ['หัวใจ ความดัน การนอน', 'heart, blood pressure, sleep'], doo: ['จุดประกาย เป็นหน้าตา', 'ignite, be the face'], av: ['เผาตัวจนหมดไฟ ใจร้อน', 'burning out, impatience'], color: ['แดง ส้ม ม่วงแดง', 'red, orange, magenta'] },
+    'ไม้': { car: ['การศึกษา วางแผน ออกแบบ พัฒนาคน', 'education, planning, design, people development'], money: ['โตค่อยเป็นค่อยไป เหมาะลงทุนยาว', 'steady growth — suited to long-term investing'], love: ['ดูแลเอาใจใส่ ระวังให้มากจนลืมตัว', 'nurturing — watch over-giving'], health: ['ตับ เส้นเอ็น ดวงตา', 'liver, tendons, eyes'], doo: ['บ่มเพาะคนและไอเดีย วางแผนยาว', 'cultivate people and ideas; plan long'], av: ['ยึดความสมบูรณ์แบบ', 'perfectionism'], color: ['เขียว ฟ้าคราม', 'green, teal'] },
+    'ดิน': { car: ['อสังหา ก่อสร้าง บริหาร เกษตร', 'real estate, construction, management, agriculture'], money: ['สะสมมั่นคง ไม่ชอบเสี่ยง', 'accumulates steadily, risk-averse'], love: ['ซื่อสัตย์มั่นคง บางครั้งดื้อ', 'faithful and steady — sometimes stubborn'], health: ['ระบบย่อย กระเพาะ น้ำหนัก', 'digestion, stomach, weight'], doo: ['สร้างรากฐาน เป็นที่พึ่ง', 'build foundations, be dependable'], av: ['ต้านการเปลี่ยนแปลง เก็บเครียดเงียบ', 'resisting change, bottling stress'], color: ['เหลือง น้ำตาลดิน', 'yellow, earth-brown'] },
+    'โลหะ': { car: ['กฎหมาย การเงิน วิศวกรรม งานแม่นยำ', 'law, finance, engineering, precision work'], money: ['ออมมีวินัย สะสมสินทรัพย์มั่นคง', 'disciplined saver — stable assets'], love: ['ภักดี แต่บางครั้งเย็นชาหรือวิจารณ์', 'loyal but can be cold or critical'], health: ['ปอด ผิวหนัง ระบบหายใจ', 'lungs, skin, breathing'], doo: ['ตั้งมาตรฐาน ตัดสินใจเด็ดขาด', 'set standards, decide firmly'], av: ['แข็งกระด้าง วิจารณ์เกิน', 'rigidity, over-criticism'], color: ['ขาว เงิน ทอง', 'white, silver, gold'] },
+    'น้ำ': { car: ['วิจัย จิตวิทยา การเงิน การค้า IT', 'research, psychology, finance, trade, IT'], money: ['คล่องกระแสเงิน ระวัง "รั่ว"', 'fluid cashflow — watch leaks'], love: ['ลึกซึ้งและเป็นส่วนตัว อ่านยาก', 'deep and private — hard to read'], health: ['ไต ระบบสืบพันธุ์ สุขภาพจิต', 'kidneys, reproductive system, mental health'], doo: ['ใช้สัญชาตญาณ ปรับตัวยืดหยุ่น', 'use intuition, adapt fluidly'], av: ['คิดมากเกินจนไม่ลงมือ', 'overthinking into inaction'], color: ['ดำ กรมท่า น้ำเงินเข้ม', 'black, navy, deep blue'] },
+    'ลม': { car: ['สื่อสาร เขียน เทคโนโลยี การสอน', 'communication, writing, technology, teaching'], money: ['หลายแหล่งรายได้ ระวังกระจาย', 'multiple income streams — watch scatter'], love: ['สนุก คุยถูกคอ ระวังไม่ลงลึก', 'fun and talkative — watch staying on the surface'], health: ['ระบบหายใจ ประสาท การนอน', 'respiratory, nerves, sleep'], doo: ['เชื่อมโยงคน ใช้ความคิด', 'connect people, use ideas'], av: ['ฟุ้งซ่าน ไม่โฟกัส', 'scattered, unfocused'], color: ['ฟ้า ขาว เทาอ่อน', 'sky-blue, white, light grey'] },
+};
+function _elDom(raw) { return _EL_DOM[raw] || _EL_DOM['ดิน']; }
+// Standard 4-domain block builder (work/money/love/health) from an element.
+function _domainBlocks(rawEl, K) {
+    const e = _elDom(rawEl);
+    const { pick, blk, P, B } = K;
+    return [
+        blk('💼', 'การงาน — ควรทำ / ควรเลี่ยง', 'Career — Do / Avoid', P(`${B(pick('เข้าทาง', 'Best fit'))}: ${pick(e.car[0], e.car[1])}`) + P(`✅ ${pick('ควรทำ', 'Do')}: ${pick(e.doo[0], e.doo[1])}`) + P(`⚠️ ${pick('ควรเลี่ยง', 'Avoid')}: ${pick(e.av[0], e.av[1])}`)),
+        blk('💰', 'การเงิน — ควรทำ / ควรเลี่ยง', 'Money — Do / Avoid', P(pick(e.money[0], e.money[1])) + P(`✅ ${pick('ควรทำ', 'Do')}: ${pick('ใช้จุดแข็งของธาตุ ลงทุนในทางที่ถนัด', 'lean on your element\'s strengths; invest where you\'re strong')}`) + P(`⚠️ ${pick('ควรเลี่ยง', 'Avoid')}: ${pick('เสี่ยงในด้านที่ขัดธรรมชาติธาตุ', 'risking against your element\'s nature')}`)),
+        blk('❤️', 'ความรัก — ควรทำ / ควรเลี่ยง', 'Love — Do / Avoid', P(pick(e.love[0], e.love[1])) + P(`✅ ${pick('ควรทำ', 'Do')}: ${pick('สื่อสารตรง หาคู่ที่เข้าใจจังหวะคุณ', 'communicate openly; find a partner who gets your rhythm')}`) + P(`⚠️ ${pick('ควรเลี่ยง', 'Avoid')}: ${pick(e.av[0], e.av[1])}`)),
+        blk('🩺', 'สุขภาพ — ควรทำ / ควรเลี่ยง', 'Health — Do / Avoid', P(`${B(pick('จุดเฝ้าระวัง', 'Watch-zone'))}: ${pick(e.health[0], e.health[1])}`) + P(`✅ ${pick('ควรทำ', 'Do')}: ${pick('ดูแลเชิงป้องกัน สมดุลธาตุ', 'preventive care; keep the element balanced')}`) + P(`⚠️ ${pick('ควรเลี่ยง', 'Avoid')}: ${pick('ปล่อยด้านเงาของธาตุลามเป็นปัญหากาย', 'letting the element\'s shadow harden into physical issues')}`)),
+    ];
+}
+// ── TIBETAN DEEP READING (Mewa + Parkha) ─────────────────────────────────────
+function _tibetanDeepSections(a) {
+    const K = _dsKit();
+    const { pick, blk, P, B, faqQ } = K;
+    const e = _elDom(a.mewaElRaw);
+    const sec = [];
+    sec.push(blk('📜', 'Mewa & Parkha — ตารางเกิดของคุณ', 'Mewa & Parkha — Your Birth Grid', P(pick(`โหราศาสตร์ทิเบตรวม Lo Shu จีน + พุทธอินเดีย + Bön ทิเบต ศูนย์กลางคือ Mewa (จัตุรัสเวทมนตร์ 9 ช่อง) + Parkha (8 ตรีสัญลักษณ์) คุณเกิดใน ${B(a.mewaName)}`, `Tibetan astrology fuses Chinese Lo Shu + Indian Buddhism + Tibetan Bön. Its core is Mewa (a 9-square magic grid) + Parkha (8 trigrams). You were born into ${B(a.mewaName)}.`)) +
+        P(`${B(pick('ธาตุหลัก', 'Core element'))}: ${pEl(a.mewaElRaw)} · ${B(pick('คุณภาพปี', 'Year quality'))}: ${a.mewaQuality} · ${B('Parkha')}: ${a.parkhaName} (${pEl(a.parkhaElRaw)})`)));
+    sec.push(blk('🧬', 'ตัวตน — ดินที่ปลูก + ลมที่พัด', 'Identity — The Soil & The Wind', P(pick(`ปรัชญาทิเบตว่า Mewa บอก "ดินที่คุณปลูก" ส่วน Parkha บอก "ลมที่พัดผ่านคุณ" ธาตุ${pEl(a.mewaElRaw)}ทำให้คุณโน้มไปทาง ${e.doo[0]}`, `Tibetan philosophy: Mewa is "the soil you grow in", Parkha is "the wind that blows through you". Your ${pEl(a.mewaElRaw)} element inclines you toward ${e.doo[1]}.`)) +
+        P(pick(`Parkha ${a.parkhaName} (ธาตุ${pEl(a.parkhaElRaw)}) เพิ่มพรสวรรค์ด้าน${_elDom(a.parkhaElRaw).doo[0]}`, `Parkha ${a.parkhaName} (${pEl(a.parkhaElRaw)}) adds a gift for ${_elDom(a.parkhaElRaw).doo[1]}.`))));
+    _domainBlocks(a.mewaElRaw, K).forEach(b => sec.push(b));
+    sec.push(blk('📅', 'ปี 2026 (ปีม้าไฟ)', '2026 — Year of the Fire Horse', P(pick(`${a.mewaElRaw === 'ไฟ' || a.mewaElRaw === 'ดิน' ? 'ปีนี้หล่อเลี้ยง Mewa ของคุณ เหมาะก้าวไปข้างหน้าและริเริ่ม' : a.mewaElRaw === 'น้ำ' || a.mewaElRaw === 'โลหะ' ? 'ปีนี้ท้าทาย Mewa ของคุณ โฟกัสที่รักษาและเรียนรู้ มากกว่าขยาย' : 'ปีนี้ให้พลังสมดุล รุกหรือรับได้ตามสถานการณ์'} พระลามะแนะนำจัดพิธีเล็กในวันเกิดเพื่อ "ทบทวน Parkha" ก่อนเริ่มปี`, `${a.mewaElRaw === 'ไฟ' || a.mewaElRaw === 'ดิน' ? 'This year nourishes your Mewa — good for stepping forward and initiating' : a.mewaElRaw === 'น้ำ' || a.mewaElRaw === 'โลหะ' ? 'This year challenges your Mewa — focus on preserving and learning rather than expanding' : 'A balanced year — push or hold depending on the situation'}. Lamas recommend a small birthday ritual to "review the Parkha" before the year begins.`))));
+    sec.push(blk('🎨', 'เสริม / เลี่ยง', 'Enhance / Avoid', P(`✅ ${B(pick('เสริม', 'Enhance'))}: ${pick(`สี ${e.color[0]} · สวด Om Mani Padme Hum 108 จบตอนเช้า · หินธาตุ${pEl(a.mewaElRaw)}`, `colours ${e.color[1]} · chant Om Mani Padme Hum 108× each morning · ${pEl(a.mewaElRaw)}-element stones`)}`) +
+        P(`⚠️ ${B(pick('เลี่ยง', 'Avoid'))}: ${pick(e.av[0], e.av[1])}`)));
+    sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('ธาตุหลักของฉัน?', 'My core element?'), pEl(a.mewaElRaw)) +
+        faqQ(pick('อาชีพที่เหมาะ?', 'Fitting career?'), pick(e.car[0], e.car[1])) +
+        faqQ(pick('สีเสริมดวง?', 'My power colours?'), pick(e.color[0], e.color[1])) +
+        faqQ(pick('2026 เป็นปีแบบไหน?', 'What kind of year is 2026?'), pick(a.mewaElRaw === 'ไฟ' || a.mewaElRaw === 'ดิน' ? 'ปีหนุน — ก้าวไปข้างหน้า' : a.mewaElRaw === 'น้ำ' || a.mewaElRaw === 'โลหะ' ? 'ปีท้าทาย — รักษาและเรียนรู้' : 'ปีสมดุล', a.mewaElRaw === 'ไฟ' || a.mewaElRaw === 'ดิน' ? 'a supportive year — step forward' : a.mewaElRaw === 'น้ำ' || a.mewaElRaw === 'โลหะ' ? 'a challenging year — preserve and learn' : 'a balanced year'))));
+    return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
+}
+// ── ZI WEI DOU SHU DEEP READING (紫微斗數) ────────────────────────────────────
+function _ziweiDeepSections(a) {
+    const K = _dsKit();
+    const { pick, blk, P, B, faqQ } = K;
+    const s = a.starCJK;
+    // Per-star career + do/avoid (dominant stars; generic fallback).
+    const car = () => s.includes('紫微') ? ['ผู้บริหารระดับสูง ราชการ องค์กรใหญ่', 'senior executive, government, large organisations'] :
+        s.includes('天機') ? ['ที่ปรึกษา นักวิเคราะห์ กลยุทธ์ วิจัย', 'advisory, analysis, strategy, research'] :
+            s.includes('太陽') ? ['งานสาธารณะ ผู้นำ การสอน การเมือง', 'public roles, leadership, teaching, politics'] :
+                s.includes('武曲') ? ['การเงิน การลงทุน วิศวกรรม ทหาร', 'finance, investment, engineering, military'] :
+                    s.includes('天府') ? ['บริหารทรัพย์สิน ธนาคาร อสังหา', 'asset management, banking, real estate'] :
+                        s.includes('太陰') ? ['ศิลปะ การดูแล จิตวิทยา งานละเอียดอ่อน', 'art, care, psychology, refined work'] :
+                            s.includes('貪狼') ? ['ธุรกิจ การขาย บันเทิง การเจรจา', 'business, sales, entertainment, dealmaking'] :
+                                s.includes('巨門') ? ['สื่อสาร กฎหมาย การพูด สอน', 'communication, law, speaking, teaching'] :
+                                    ['งานที่ใช้จุดเด่นของดาวประจำตัว', 'work that leverages your signature star'];
+    const trait = () => s.includes('紫微') ? ['ผู้นำที่คนขอความเห็น', 'the leader others consult'] :
+        s.includes('天機') ? ['นักคิดเชิงกลยุทธ์', 'a strategic thinker'] :
+            s.includes('太陽') ? ['มีเสน่ห์ดึงคนเข้าหา', 'charismatic, drawing people in'] :
+                s.includes('武曲') ? ['เด็ดขาดเรื่องเงินและการตัดสินใจ', 'decisive with money and choices'] :
+                    s.includes('天府') ? ['เก่งสะสมและรักษาความมั่นคง', 'great at accumulating and safeguarding'] :
+                        s.includes('太陰') ? ['สัญชาตญาณสูง เห็นสิ่งที่คนมองข้าม', 'highly intuitive, sees what others miss'] :
+                            s.includes('貪狼') ? ['มีแรงปรารถนาและเสน่ห์', 'driven by desire and charm'] :
+                                s.includes('巨門') ? ['ปากกล้า สื่อสารทรงพลัง', 'bold-spoken, powerful communicator'] :
+                                    ['มีพลังเฉพาะตัวของดาวประจำ', 'carries your star\'s unique force'];
+    const av = () => s.includes('紫微') ? ['หยิ่ง ไม่ฟังใคร', 'pride, refusing to listen'] :
+        s.includes('貪狼') ? ['โลภ หลงสิ่งที่ยังไม่ได้', 'greed, chasing what you lack'] :
+            s.includes('太陰') ? ['เก็บอารมณ์จนเป็นพิษ', 'bottling emotion until toxic'] :
+                s.includes('巨門') ? ['พูดมากจนเสียน้ำหนัก', 'talking past your point'] :
+                    ['ใช้จุดแข็งมากเกินจนกลายเป็นจุดอ่อน', 'overusing your strength until it weakens you'];
+    const sec = [];
+    sec.push(blk('📜', 'ดวงดาว + วังชีวิต', 'Your Star + Life Palace', P(pick(`紫微斗數 (Zi Wei Dou Shu) คือ "BaZi ของชนชั้นสูง" จีน ใช้ 12 วัง (宮) + 100+ ดาว แม่นถึงระดับคู่ชีวิต ดาวเด่นของคุณคือ ${B(a.mainStarTh)} (${s}) ในวัง ${B(a.palaceName)}`, `紫微斗數 (Zi Wei Dou Shu) is China\'s "elite BaZi" — 12 Palaces (宮) × 100+ stars, precise down to your future spouse. Your dominant star is ${B(a.mainStarTh)} (${s}) in the ${B(a.palaceName)} palace.`)) +
+        P(`${B(pick('คุณภาพดาว', 'Star quality'))}: ${a.palaceQuality}`)));
+    sec.push(blk('🧬', 'ตัวตนที่โลกเห็น', 'The Self the World Sees', P(pick(`วังชีวิต (命宮) บอก "ตัวตนตามที่โลกเห็น" ดาว ${a.mainStarTh} ทำให้คุณเป็น${trait()[0]} — คนรอบข้างรู้สึกได้แม้คุณไม่พูด`, `The Life Palace (命宮) describes "the self the world sees". Star ${a.mainStarTh} makes you ${trait()[1]} — others feel it before you speak.`))));
+    // Star-driven career + generic money/love/health framed by star
+    sec.push(blk('💼', 'การงาน — ควรทำ / ควรเลี่ยง', 'Career — Do / Avoid', P(`${B(pick('เข้าทาง', 'Best fit'))}: ${pick(car()[0], car()[1])}`) + P(`✅ ${pick('ควรทำ', 'Do')}: ${pick('ให้ดาวประจำตัวนำ เลือกบทบาทที่ตรงพลังดาว', 'let your star lead; choose roles that fit its energy')}`) + P(`⚠️ ${pick('ควรเลี่ยง', 'Avoid')}: ${pick(av()[0], av()[1])}`)));
+    sec.push(blk('💰', 'การเงิน', 'Money', P(pick(`ในระบบ Zi Wei วังทรัพย์ (財帛) สัมพันธ์กับดาวประจำตัว — ${s.includes('武曲') || s.includes('天府') ? 'ดาวคุณเป็นดาวทรัพย์โดยตรง การเงินคือจุดแข็ง สะสมและบริหารได้ดี' : 'ทรัพย์มาเมื่อใช้จุดแข็งของดาวประจำตัวสร้างคุณค่า ไม่ใช่ไล่ตามเงินตรงๆ'}`, `In Zi Wei the Wealth Palace (財帛) ties to your star — ${s.includes('武曲') || s.includes('天府') ? 'yours is a wealth star directly; money is a strength, you accumulate and manage well' : 'wealth comes when your star\'s strength creates value, not from chasing money directly'}.`))));
+    sec.push(blk('❤️', 'ความรัก', 'Love', P(pick('Zi Wei อ่านวังคู่ครอง (夫妻) ได้ละเอียดที่สุดในศาสตร์จีน คู่ที่เข้ากันคือคนที่เคารพ "ดาว" ของคุณ ไม่แข่งกับมัน', 'Zi Wei reads the Spouse Palace (夫妻) more finely than any Chinese system. Your best match respects your "star" rather than competing with it.'))));
+    sec.push(blk('🩺', 'สุขภาพ', 'Health', P(pick('วังสุขภาพ (疾厄) เตือนให้ระวังการ "ใช้ดาวเกินกำลัง" — ผู้นำ/ดาวแรงมักเครียดสะสมที่หัวใจและการนอน ดาวเย็น (太陰) ระวังระบบฮอร์โมนและอารมณ์', 'The Health Palace (疾厄) warns against "overspending your star" — strong/leader stars accumulate stress in the heart and sleep; cool stars (太陰) watch hormones and mood.'))));
+    sec.push(blk('📅', 'ปี 2026 — 流年', '2026 — Annual Transit', P(pick('ทุกปีมี "ดาวผ่านปี" (流年星) วิ่งผ่านวังต่างๆ ปีที่ดาวดีผ่านวังชีวิต = ขยายเต็มที่ ปีที่ดาวร้ายผ่าน = ถอยและรักษา ตำรา 三命通會 แนะนำไหว้บรรพบุรุษอย่างน้อย 2 ครั้งในปีนี้', 'Each year "transiting stars" (流年星) move through the palaces. A benefic over your Life Palace = expand fully; a malefic = withdraw and preserve. The classical 三命通會 advises ancestor offerings at least twice this year.'))));
+    sec.push(blk('🎨', 'เสริม / เลี่ยง', 'Enhance / Avoid', P(`✅ ${B(pick('เสริม', 'Enhance'))}: ${pick('ติดตามดาวผ่านปีก่อนตัดสินใจใหญ่ · จดบันทึกการตัดสินใจรายวัน (ดาวคุณทำงานดีเมื่อได้ไตร่ตรองย้อนหลัง)', 'track the year\'s transiting stars before big moves · journal daily decisions (your star works best reflecting backwards)')}`) +
+        P(`⚠️ ${B(pick('เลี่ยง', 'Avoid'))}: ${pick(av()[0], av()[1])}`)));
+    sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('ดาวประจำตัวฉัน?', 'My signature star?'), `${a.mainStarTh} (${s})`) +
+        faqQ(pick('ตัวตนที่คนเห็น?', 'How others see me?'), pick(trait()[0], trait()[1])) +
+        faqQ(pick('อาชีพที่เหมาะ?', 'Fitting career?'), pick(car()[0], car()[1])) +
+        faqQ(pick('จุดที่ต้องระวัง?', 'What to watch?'), pick(av()[0], av()[1]))));
+    return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
+}
+// ── ONMYŌDŌ DEEP READING (陰陽道) ─────────────────────────────────────────────
+function _onmyodoDeepSections(a) {
+    const K = _dsKit();
+    const { pick, blk, P, B, faqQ } = K;
+    const r = a.rokuyoCJK;
+    const yang = a.isYang;
+    const trait = () => r === '大安' ? ['มงคลสูงสุด มีโชคและผู้ใหญ่หนุน', 'most auspicious — luck and elder support'] :
+        r === '友引' ? ['ดึงคนเป็นพันธมิตรโดยอัตโนมัติ', 'turns people into allies automatically'] :
+            r === '先勝' ? ['ทำงานเร็ว ได้เปรียบตอนเช้า', 'fast worker, edge in the morning'] :
+                r === '先負' ? ['รอบคอบ ไม่รีบ แต่ลงมือแล้วสำเร็จ', 'careful, unhurried — but finishes once you act'] :
+                    r === '赤口' ? ['พลังดิบสูง เด็ดขาด', 'high raw power, decisive'] :
+                        ['พลังจิตวิญญาณลึก เหมาะงานเยียวยา', 'deep spiritual force, suited to healing'];
+    const sec = [];
+    sec.push(blk('📜', 'Rokuyo + พลังหยินหยาง', 'Your Rokuyo + Yin-Yang', P(pick(`Onmyōdō (陰陽道) คือเวทวิทยาญี่ปุ่นยุค Heian (Abe no Seimei) รวมหยินหยาง + ห้าธาตุ + ชินโต เทคนิคหลักคือ Rokuyo (六曜) — แบ่งวันเป็น 6 ประเภท วันเกิดคุณคือ ${B(r)} (${a.rokuyoTh})`, `Onmyōdō (陰陽道) is Heian-era Japanese esoterica (Abe no Seimei) fusing yin-yang + Five Elements + Shintō. Its core is Rokuyo (六曜) — six day-types. Your birth day is ${B(r)} (${a.rokuyoTh}).`)) +
+        P(`${B(pick('ขั้วพลัง', 'Polarity'))}: ${pick(yang ? 'หยาง (陽) — ผู้กระทำ ขับเคลื่อน' : 'หยิน (陰) — ผู้รับ สังเกต วิเคราะห์', yang ? 'Yang (陽) — the actor, the driver' : 'Yin (陰) — the receiver, observer, analyst')}`)));
+    sec.push(blk('🧬', 'ตัวตนตาม Rokuyo', 'Identity by Rokuyo', P(pick(`พลัง Rokuyo วันเกิดเป็น "ฐานพลังชีวิต" ที่ติดตัวตลอด ${B(r)} ทำให้คุณ${trait()[0]}`, `Your birth Rokuyo is your "life-power foundation". ${B(r)} makes you ${trait()[1]}.`))));
+    // Domains framed by yin/yang outward vs inward
+    sec.push(blk('💼', 'การงาน — ควรทำ / ควรเลี่ยง', 'Career — Do / Avoid', P(`${B(pick('เข้าทาง', 'Best fit'))}: ${pick(yang ? 'บทบาทสาธารณะ ผู้นำ การขับเคลื่อน' : 'งานปัญญาลึก การอ่านคน เบื้องหลังที่ทรงพลัง', yang ? 'public roles, leadership, driving things' : 'deep intellectual work, people-reading, powerful behind-the-scenes roles')}`) + P(`✅ ${pick('ควรทำ', 'Do')}: ${pick('ลงมือสิ่งสำคัญในวันที่ Rokuyo ตรงกับวันเกิด', 'act on important things on days whose Rokuyo matches your birth')}`) + P(`⚠️ ${pick('ควรเลี่ยง', 'Avoid')}: ${pick(yang ? 'หักโหมจนพลังหมด' : 'ลังเลจนพลาดจังหวะ', yang ? 'overdriving until depleted' : 'hesitating until the window closes')}`)));
+    sec.push(blk('💰', 'การเงิน', 'Money', P(pick(`เงินมาเมื่อคุณใช้พลัง${yang ? 'หยาง — บุกหาโอกาส ปิดดีลเร็ว' : 'หยิน — วางแผนรอบคอบ อ่านตลาดก่อนลงมือ'} ตรวจ Rokuyo ก่อนตัดสินใจการเงินใหญ่`, `Money flows when you use your ${yang ? 'Yang energy — go after opportunity, close fast' : 'Yin energy — plan carefully, read the market first'}. Check the Rokuyo before big money decisions.`))));
+    sec.push(blk('❤️', 'ความรัก', 'Love', P(pick(`${r === '友引' ? '友引 บ่งเสน่ห์ "ดึงเพื่อน" — คุณดึงดูดคนง่าย' : 'พลัง' + (yang ? 'หยางทำให้คุณเป็นฝ่ายเข้าหา' : 'หยินทำให้คุณเป็นฝ่ายให้คนเข้าหา')} จัดเรื่องสำคัญของความรักในวันมงคล (大安)`, `${r === '友引' ? '友引 carries "pulling friends" charm — you attract people easily' : (yang ? 'Yang energy makes you the one who approaches' : 'Yin energy makes you the one others approach')}. Schedule big relationship moments on auspicious (大安) days.`))));
+    sec.push(blk('🩺', 'สุขภาพ', 'Health', P(pick(`Onmyōji แนะนำในวันพลังต่ำ ล้างหน้าด้วยน้ำสะอาด 3 ครั้งแล้วหันหน้าทิศตะวันออก (ทิศพลังใหม่) พลัง${yang ? 'หยางระวังหักโหม/หัวใจ' : 'หยินระวังเก็บกด/ระบบประสาท'}`, `On low-energy days Onmyōji advise washing the face 3× with clean water then facing East (the direction of new energy). ${yang ? 'Yang types watch overexertion/heart' : 'Yin types watch repression/nerves'}.`))));
+    sec.push(blk('📅', 'ปี 2026', '2026', P(pick(`ปี 2026 ปฏิทิน Rokuyo จะมีวัน ${r} ราว 60 วัน — คือ 60 วันที่ดวงคุณตรงจังหวะฟ้าเต็มที่ จดบันทึกสิ่งที่ทำในวันเหล่านี้ แล้วดูว่า ${r} ให้ผลดีเรื่องใดสุด`, `In 2026 the Rokuyo calendar shows ${r} about 60 times — 60 days your chart aligns fully with the heavens. Journal what you do on them, then see where ${r} delivers best for you.`))));
+    sec.push(blk('🎨', 'เสริม / เลี่ยง', 'Enhance / Avoid', P(`✅ ${B(pick('เสริม', 'Enhance'))}: ${pick((yang ? 'สีสว่าง แดง ส้ม (เสริมหยาง)' : 'สีเข้ม น้ำเงิน ม่วง (เสริมหยิน)') + ' · ทำสิ่งสำคัญในวัน ' + r, (yang ? 'bright tones — red, orange (amplify Yang)' : 'dark tones — deep blue, purple (amplify Yin)') + ' · act on important things on ' + r + ' days')}`) +
+        P(`⚠️ ${B(pick('เลี่ยง', 'Avoid'))}: ${pick('ตัดสินใจใหญ่ในวัน 仏滅/赤口 (พลังกระจาย)', 'big decisions on 仏滅/赤口 days (scattered energy)')}`)));
+    sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('Rokuyo วันเกิดฉัน?', 'My birth Rokuyo?'), `${r} (${a.rokuyoTh})`) +
+        faqQ(pick('ฉันหยินหรือหยาง?', 'Am I Yin or Yang?'), pick(yang ? 'หยาง (陽)' : 'หยิน (陰)', yang ? 'Yang (陽)' : 'Yin (陰)')) +
+        faqQ(pick('นิสัยหลัก?', 'Core nature?'), pick(trait()[0], trait()[1])) +
+        faqQ(pick('สีเสริมดวง?', 'Power colours?'), pick(yang ? 'แดง ส้ม สีสว่าง' : 'น้ำเงิน ม่วง สีเข้ม', yang ? 'red, orange, bright tones' : 'blue, purple, dark tones'))));
+    return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
+}
+// ── HELLENISTIC DEEP READING ─────────────────────────────────────────────────
+function _hellenisticDeepSections(a) {
+    const K = _dsKit();
+    const { pick, blk, P, B, faqQ } = K;
+    const day = a.isDaySect;
+    const ls = a.lotSignTh;
+    const jup = a.trigonLord.includes('Jupiter');
+    const SIGN_EN = { 'เมษ': 'Aries', 'พฤษภ': 'Taurus', 'เมถุน': 'Gemini', 'กรกฎ': 'Cancer', 'สิงห์': 'Leo', 'กันย์': 'Virgo', 'ตุลย์': 'Libra', 'พิจิก': 'Scorpio', 'ธนู': 'Sagittarius', 'มกร': 'Capricorn', 'กุมภ์': 'Aquarius', 'มีน': 'Pisces' };
+    const moneyChannel = () => ls === 'เมถุน' ? ['การสื่อสาร การเขียน การสอน', 'communication, writing, teaching'] :
+        ls === 'กรกฎ' ? ['ครอบครัว บ้าน อสังหาริมทรัพย์', 'family, home, real estate'] :
+            ls === 'สิงห์' ? ['การแสดง ความคิดสร้างสรรค์ บันเทิง', 'performance, creativity, entertainment'] :
+                ls === 'กันย์' ? ['บริการ การวิเคราะห์ สาธารณสุข', 'service, analysis, public health'] :
+                    ls === 'พฤษภ' ? ['การเงิน ที่ดิน ของมีค่า', 'finance, land, valuables'] :
+                        ls === 'ตุลย์' ? ['ความสัมพันธ์ ดีไซน์ การทูต', 'relationships, design, diplomacy'] :
+                            ls === 'พิจิก' ? ['การวิจัย การเงินคนอื่น การเปลี่ยนผ่าน', 'research, other people\'s money, transformation'] :
+                                ls === 'ธนู' ? ['การสอน การต่างประเทศ การพิมพ์', 'teaching, foreign affairs, publishing'] :
+                                    ls === 'มกร' ? ['การบริหาร โครงสร้าง อำนาจ', 'management, structure, authority'] :
+                                        ls === 'กุมภ์' ? ['เทคโนโลยี เครือข่าย นวัตกรรม', 'technology, networks, innovation'] :
+                                            ls === 'มีน' ? ['ศิลปะ การเยียวยา จิตวิญญาณ', 'art, healing, spirituality'] :
+                                                ['การบุกเบิก การแข่งขัน ความเป็นผู้นำ', 'pioneering, competition, leadership'];
+    const sec = [];
+    sec.push(blk('📜', 'Sect · Trigon Lord · Lot of Fortune', 'Sect · Trigon Lord · Lot of Fortune', P(pick(`โหราศาสตร์เฮลเลนิสติก (อเล็กซานเดรีย 2,200 ปี) คือรากของโหรตะวันตกทั้งหมด ใช้เทคนิคที่ระบบใหม่ทิ้งไป — Sect, Triplicity, Lots คุณเกิดใน ${B(a.sectTh)}`, `Hellenistic astrology (Alexandria, 2,200 years old) is the root of all Western astrology — using techniques newer systems dropped: Sect, Triplicity, Lots. You were born under ${B(a.sectTh)}.`)) +
+        P(`${B('Trigon Lord')}: ${a.trigonLord} · ${B('Lot of Fortune')}: ${pick(ls, SIGN_EN[ls] || ls)} (${a.lotDeg}°)`)));
+    sec.push(blk('🧬', 'ตัวตน — Sect', 'Identity — Your Sect', P(pick(`${day ? 'เกิดกลางวัน (Diurnal): Sun, Jupiter, Saturn แสดงด้านดีสุด — กลุ่มที่สร้างโครงสร้างยั่งยืน' : 'เกิดกลางคืน (Nocturnal): Moon, Venus, Mars แสดงด้านดีสุด — กลุ่มศิลปิน นักเขียน ผู้นำจิตวิญญาณ'} Trigon Lord ${a.trigonLord} คือผู้ปกป้องดวง — ในวิกฤติให้ใช้พลังของมันเป็นเครื่องเตือนใจ`, `${day ? 'A day (Diurnal) chart: Sun, Jupiter, Saturn show their best — builders of durable structures' : 'A night (Nocturnal) chart: Moon, Venus, Mars show their best — artists, writers, spiritual leaders'}. Your Trigon Lord ${jup ? 'Jupiter' : 'Venus'} is your chart\'s protector — in a crisis, make its energy your touchstone.`))));
+    sec.push(blk('💼', 'การงาน — ควรทำ / ควรเลี่ยง', 'Career — Do / Avoid', P(`${B(pick('เข้าทาง', 'Best fit'))}: ${pick(day ? 'งานที่สร้างโครงสร้าง สถาบัน อำนาจระยะยาว' : 'งานสร้างสรรค์ ความสัมพันธ์ การเยียวยา', day ? 'institution-building, structure, long-term authority' : 'creative, relational, healing work')}`) + P(`✅ ${pick('ควรทำ', 'Do')}: ${pick('คำนวณ Profection (อายุ mod 12 = บ้านธีมปีนี้) ทำงานตามธีมนั้น', 'compute your Profection (age mod 12 = this year\'s theme house); work that theme')}`) + P(`⚠️ ${pick('ควรเลี่ยง', 'Avoid')}: ${pick('ฝืนบทบาทที่ขัด sect ของคุณ', day ? 'forcing nocturnal-style roles against your day sect' : 'forcing diurnal-style roles against your night sect')}`)));
+    sec.push(blk('💰', 'การเงิน — Lot of Fortune', 'Money — Lot of Fortune', P(pick(`Lot of Fortune ใน${ls}บอกว่า "ทรัพย์ทางโลก" ของคุณต้องไหลผ่าน${moneyChannel()[0]} ไม่ใช่ช่องอื่น — ฝืนหาเงินนอกช่องนี้จะเหนื่อย 3 เท่า`, `Lot of Fortune in ${SIGN_EN[ls] || ls} says your worldly wealth must flow through ${moneyChannel()[1]} — not other channels. Forcing money through a non-Lot path tires you 3× harder.`)) +
+        P(`✅ ${pick('ควรทำ', 'Do')}: ${pick('หารายได้ผ่านช่องของ Lot · ใช้ Lot of Spirit เป็นเข็มทิศอาชีพ', 'earn through the Lot\'s channel · use Lot of Spirit as your career compass')}`)));
+    sec.push(blk('❤️', 'ความรัก', 'Love', P(pick(`เฮลเลนิสติกใช้ Lot of Eros เป็นเข็มทิศความรัก คู่ที่เข้ากับ ${day ? 'day chart' : 'night chart'} ของคุณคือคนที่เสริมดาว sect ของคุณ (${day ? 'Sun/Jupiter/Saturn' : 'Moon/Venus/Mars'})`, `Hellenistic uses the Lot of Eros as a love compass. Partners who fit your ${day ? 'day chart' : 'night chart'} support your sect planets (${day ? 'Sun/Jupiter/Saturn' : 'Moon/Venus/Mars'}).`))));
+    sec.push(blk('🩺', 'สุขภาพ', 'Health', P(pick(`ดูแลสุขภาพตามดาว sect — ${day ? 'Saturn เตือนเรื่องกระดูก ข้อ และการพักผ่อน' : 'Moon เตือนเรื่องอารมณ์ ระบบย่อย และการนอน'} ใช้ Trigon Lord ${a.trigonLord} เป็นแหล่งฟื้นพลัง`, `Mind your health by your sect planets — ${day ? 'Saturn warns of bones, joints, rest' : 'the Moon warns of mood, digestion, sleep'}. Draw recovery from your Trigon Lord ${jup ? 'Jupiter' : 'Venus'}.`))));
+    sec.push(blk('📅', 'ปี 2026 — Time Lord', '2026 — Time Lord', P(pick(`ปี 2026 Time Lord เลื่อนเข้าสู่ Jupiter ในหลายดวง — "Great Benefic" ที่ขยายทุกสิ่ง แต่ต้องผ่านช่องของ ${a.trigonLord} ก่อน โฟกัสสิ่งที่ ${a.trigonLord} ปกป้องก่อนปล่อยให้ Jupiter ขยาย`, `In 2026 the Time Lord shifts to Jupiter in many charts — the "Great Benefic" that expands everything, but it must flow through ${jup ? 'Jupiter' : 'Venus'} first. Focus on what ${jup ? 'Jupiter' : 'Venus'} protects before letting Jupiter scale it.`))));
+    sec.push(blk('🎨', 'เสริม / เลี่ยง', 'Enhance / Avoid', P(`✅ ${B(pick('เสริม', 'Enhance'))}: ${pick(`ใช้ Profection หา "บ้านของปี" · หาเงินผ่านช่อง Lot (${moneyChannel()[0]}) · พึ่ง Trigon Lord ${a.trigonLord}`, `use Profection to find your "house of the year" · earn through your Lot channel (${moneyChannel()[1]}) · lean on Trigon Lord ${jup ? 'Jupiter' : 'Venus'}`)}`) +
+        P(`⚠️ ${B(pick('เลี่ยง', 'Avoid'))}: ${pick('ฝืนหาเงิน/บทบาทนอกช่องที่ดวงเปิดให้', 'forcing money or roles outside the channels your chart opens')}`)));
+    sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('ฉัน sect ไหน?', 'Which sect am I?'), a.sectTh) +
+        faqQ(pick('เงินฉันมาทางไหน?', 'Where does my money flow?'), pick(moneyChannel()[0], moneyChannel()[1])) +
+        faqQ(pick('Trigon Lord ของฉัน?', 'My Trigon Lord?'), a.trigonLord) +
+        faqQ(pick('2026 เด่นเรื่องอะไร?', '2026 highlight?'), pick('Jupiter ขยายผ่านช่อง Trigon Lord', 'Jupiter expands through your Trigon Lord'))));
+    return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
+}
 function calcTibetan(d) {
     const MEWA_NAMES = ['', 'น้ำขาว', 'ดินดำ', 'ไม้เขียว', 'ไม้เขียว', 'ดินเหลือง', 'โลหะขาว', 'โลหะแดง', 'ดินขาว', 'ไฟม่วง'];
     const MEWA_NAMES_EN = ['', 'White Water', 'Black Earth', 'Green Wood', 'Green Wood', 'Yellow Earth', 'White Metal', 'Red Metal', 'White Earth', 'Purple Fire'];
@@ -4572,7 +4799,7 @@ function calcTibetan(d) {
     const baseScore = MEWA_QUALITY_SCORE[mewa] ?? 700;
     const variation = (d.day * 3 + d.month * 7) % 80 - 40;
     const score = Math.max(420, Math.min(950, baseScore + variation));
-    return {
+    const tibetanResult = {
         mewa, mewaName: `Mewa ${mewa} — ${tPick(MEWA_NAMES[mewa], MEWA_NAMES_EN[mewa])}`, mewaElement: pEl(MEWA_EL[mewa]),
         mewaQuality: tPick(MEWA_QUALITY[mewa], MEWA_QUALITY_EN[mewa]),
         parkha: PARKHA[parkhaIdx], parkhaElement: pEl(PARKHA_EL[parkhaIdx]), parkhaName: tPick(PARKHA_NAMES[parkhaIdx], PARKHA_NAMES_EN[parkhaIdx]),
@@ -4604,7 +4831,13 @@ function calcTibetan(d) {
             closingTh: `โหราศาสตร์ทิเบตไม่ได้ทำนายอนาคต — มันแสดงให้เห็นว่า "สายน้ำของคาร์มาไหลไปทิศไหน" เพื่อให้คุณว่ายตามได้อย่างมีสติ`,
             closingEn: `Tibetan astrology doesn't predict the future — it shows the direction the river of karma is flowing, so you can swim with awareness instead of against it.`,
         }),
+        deepReading: '',
     };
+    tibetanResult.deepReading = _tibetanDeepSections({
+        mewa, mewaName: tibetanResult.mewaName, mewaElRaw: MEWA_EL[mewa], mewaQuality: tibetanResult.mewaQuality,
+        parkhaName: tibetanResult.parkhaName, parkhaElRaw: PARKHA_EL[parkhaIdx],
+    });
+    return tibetanResult;
 }
 // ── ZI WEI DOU SHU (紫微斗數) ──────────────────────────────────
 function calcZiWei(d) {
@@ -4631,7 +4864,7 @@ function calcZiWei(d) {
     const star = STAR_MAP[starIdx] ?? STAR_MAP[1];
     const variation = (d.year % 100 + d.hour * 3) % 60 - 30;
     const score = Math.max(420, Math.min(960, star.baseScore + variation));
-    return {
+    const ziweiResult = {
         lifepalace, lifePalaceName: tPick(PALACES_TH[lifepalace] ?? 'ชีวิต', PALACES_EN[lifepalace] ?? 'Life'),
         mainStar: star.star, mainStarTh: tPick(star.starTh, star.starEn), palaceQuality: tPick(star.quality, star.qualityEn),
         score,
@@ -4662,7 +4895,13 @@ function calcZiWei(d) {
             closingTh: 'Zi Wei คือศาสตร์ที่บอกว่า "ดวงไม่ได้กำหนดคุณ — คุณเลือกดาวที่จะเดินตาม" เมื่อรู้ดาวของตัวเอง การเลือกจะง่ายขึ้น',
             closingEn: 'Zi Wei teaches: "Fate doesn\'t define you — you choose which star to follow." Once you know your star, choosing gets easier.',
         }),
+        deepReading: '',
     };
+    ziweiResult.deepReading = _ziweiDeepSections({
+        mainStar: ziweiResult.mainStar, mainStarTh: ziweiResult.mainStarTh,
+        palaceName: ziweiResult.lifePalaceName, palaceQuality: ziweiResult.palaceQuality, starCJK: star.star,
+    });
+    return ziweiResult;
 }
 // ── ONMYŌDŌ (陰陽道) ────────────────────────────────────────────
 function calcOnmyodo(d) {
@@ -4682,7 +4921,7 @@ function calcOnmyodo(d) {
     const isYang = d.year % 2 === 0;
     const variation = (d.day * 5 + d.month * 9) % 80 - 40;
     const score = Math.max(420, Math.min(950, rokuyo.score + variation));
-    return {
+    const onmyodoResult = {
         rokuyo: rokuyo.name, rokuyoTh: tPick(rokuyo.th, rokuyo.thEn), rokuyoScore: rokuyo.score,
         onmyoPolarity: tPick(isYang ? 'หยาง (陽)' : 'หยิน (陰)', isYang ? 'Yang (陽)' : 'Yin (陰)'),
         juniShiNakshatra: JUSHI_NAKSHATRA[d.month % 12],
@@ -4714,7 +4953,12 @@ function calcOnmyodo(d) {
             closingTh: 'Onmyōdō ไม่ใช่การคาดเดา — มันคือการฟังจังหวะของฟ้าแล้วเลือกเดินให้ตรงจังหวะ',
             closingEn: 'Onmyōdō isn\'t guesswork — it\'s the practice of hearing the rhythm of the heavens and choosing to walk in step.',
         }),
+        deepReading: '',
     };
+    onmyodoResult.deepReading = _onmyodoDeepSections({
+        rokuyoCJK: rokuyo.name, rokuyoTh: onmyodoResult.rokuyoTh, isYang,
+    });
+    return onmyodoResult;
 }
 // ── HELLENISTIC ASTROLOGY ───────────────────────────────────────
 function calcHellenistic(d) {
@@ -4742,7 +4986,7 @@ function calcHellenistic(d) {
     const sectBonus = isDaySect ? 30 : 20;
     const variation = (d.day * 7 + d.month * 5) % 60 - 30;
     const score = Math.max(440, Math.min(950, SIGN_SCORES[lotSign] + sectBonus + variation));
-    return {
+    const hellenisticResult = {
         sect, sectTh, trigonLord,
         // lotSign mirrors UI lang; lotSignTh kept as Thai canonical for any caller
         // that needs the Thai form regardless of LANG (parallel to fortuneSign).
@@ -4777,9 +5021,38 @@ function calcHellenistic(d) {
             closingTh: 'เฮลเลนิสติกสอนว่า "อย่าถามว่าดาวส่งผลอะไรให้ฉัน — ถามว่าฉันเกิดในช่วงที่ฟ้ากำลังทำอะไร และฉันจะไหลตามฟ้านั้นยังไง"',
             closingEn: 'Hellenistic teaches: "Don\'t ask what the planets do TO me — ask what the heavens were doing when I was born, and how I can flow with that."',
         }),
+        deepReading: '',
     };
+    hellenisticResult.deepReading = _hellenisticDeepSections({
+        isDaySect, sectTh: hellenisticResult.sectTh, trigonLord: hellenisticResult.trigonLord,
+        lotSignTh: SIGNS_TH[lotSign], lotDeg: Math.round(lotRaw),
+    });
+    return hellenisticResult;
 }
 // ── NORSE RUNE ──────────────────────────────────────────────────
+// ── NORSE RUNE DEEP READING (Elder Futhark) ──────────────────────────────────
+function _norseRuneDeepSections(a) {
+    const K = _dsKit();
+    const { pick, blk, P, B, faqQ } = K;
+    const n = a.name;
+    const aett = () => ['Fehu', 'Uruz', 'Thurisaz', 'Ansuz', 'Raidho', 'Kenaz', 'Gebo', 'Wunjo'].includes(n) ? ['Freyja (เทพีความรักและความมั่งคั่ง)', 'Freyja (goddess of love and wealth)'] :
+        ['Hagalaz', 'Nauthiz', 'Isa', 'Jera', 'Eihwaz', 'Perthro', 'Algiz', 'Sowilo'].includes(n) ? ['Heimdall (เทพเฝ้าสะพานสายรุ้ง)', 'Heimdall (guardian of the rainbow bridge)'] :
+            ['Tyr (เทพแห่งความยุติธรรมและการต่อสู้)', 'Tyr (god of justice and battle)'];
+    const sec = [];
+    sec.push(blk('📜', 'รูนประจำตัว', 'Your Rune', P(pick(`รูนโบราณ (Elder Futhark) คืออักษรเวทไวกิ้ง 24 ตัว แต่ละตัวเป็นทั้งอักษร พลัง และเทพ Odin แขวนตัว 9 คืนบน Yggdrasil เพื่อรับมัน รูนวันเกิดของคุณคือ ${B(a.glyph + ' ' + n)} (${a.nameTh})`, `The Elder Futhark are 24 Viking magical letters — each at once a letter, a power, and a god. Odin hung nine nights on Yggdrasil to receive them. Your birth rune is ${B(a.glyph + ' ' + n)}.`)) +
+        P(`${B(pick('คำสำคัญ', 'Keyword'))}: ${a.keyword} · ${B(pick('ธาตุ', 'Element'))}: ${pEl(a.elRaw)} · ${B('Ætt')}: ${pick(aett()[0], aett()[1])}`)));
+    sec.push(blk('🧬', 'ตัวตน', 'Identity', P(pick(`${a.keyword} คือพลังที่คุณมีโดยไม่ต้องพยายาม ผสานธาตุ${pEl(a.elRaw)}ทำให้คุณโน้มไปทาง ${_elDom(a.elRaw).doo[0]}`, `${a.keyword} is the power you carry effortlessly. Blended with the ${pEl(a.elRaw)} element, you lean toward ${_elDom(a.elRaw).doo[1]}.`)) +
+        P(pick(`Ætt ของคุณปกครองโดย ${aett()[0]} — เรียกพลังเทพองค์นี้ในวันที่ต้องการแรงหนุน`, `Your Ætt is ruled by ${aett()[1]} — call on this god on days you need backing.`))));
+    _domainBlocks(a.elRaw, K).forEach(b => sec.push(b));
+    sec.push(blk('📅', 'ปี 2026', '2026', P(pick(`ปฏิทินรูน 2026 เน้นรูน ${n} + Raidho (การเดินทาง) เข้ากับพลังชีวิตคุณ เริ่มการเดินทาง/โครงการใหม่ช่วงครีษมายัน (20 มิ.ย.) และวิษุวัต (22 ก.ย.)`, `The 2026 rune calendar emphasises ${n} + Raidho (travel), a good fit for your life force. Begin journeys or new projects around the solstice (Jun 20) and equinox (Sep 22).`))));
+    sec.push(blk('🎨', 'เสริม / เลี่ยง', 'Enhance / Avoid', P(`✅ ${B(pick('เสริม', 'Enhance'))}: ${pick(`เขียน ${a.glyph} ใส่กระเป๋าเงิน/ที่ทำงาน · กล่าว "${n}, help me with ${a.keyword}" 3 ครั้ง · สี ${_elDom(a.elRaw).color[0]}`, `write ${a.glyph} in your wallet/workspace · say "${n}, help me with ${a.keyword}" 3× · colours ${_elDom(a.elRaw).color[1]}`)}`) +
+        P(`⚠️ ${B(pick('เลี่ยง', 'Avoid'))}: ${pick('โหมด "Murkstave" (รูนกลับหัว) — ' + _elDom(a.elRaw).av[0] + ' เมื่อรู้สึกเข้าโหมดนี้ให้ถอยและไตร่ตรอง', '"Murkstave" mode (the reversed rune) — ' + _elDom(a.elRaw).av[1] + '; withdraw and reflect when it creeps in')}`)));
+    sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('รูนของฉัน?', 'My rune?'), pick(`${a.glyph} ${n} (${a.nameTh})`, `${a.glyph} ${n}`)) +
+        faqQ(pick('พลังหลัก?', 'Core power?'), a.keyword) +
+        faqQ(pick('เทพประจำ Ætt?', 'My Ætt deity?'), pick(aett()[0], aett()[1])) +
+        faqQ(pick('อาชีพที่เหมาะ?', 'Fitting career?'), pick(_elDom(a.elRaw).car[0], _elDom(a.elRaw).car[1]))));
+    return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
+}
 function calcNorseRune(d) {
     // Elder Futhark 24 runes; birth date → rune via day-of-year
     const doy = Math.floor((new Date(d.year, d.month - 1, d.day).getTime() - new Date(d.year, 0, 0).getTime()) / 86400000);
@@ -4826,7 +5099,7 @@ function calcNorseRune(d) {
     };
     const variation = (d.day * 11 + d.month * 7) % 60 - 30;
     const score = Math.max(430, Math.min(940, rune.score + variation));
-    return {
+    const norseRuneResult = {
         rune: rune.r, runeName: rune.n, runeNameTh: rune.th,
         runeElement: pEl(rune.el),
         runeKeyword: _reportLang === 'en' ? (RUNE_KW_EN[rune.kw] || rune.kw) : rune.kw,
@@ -4858,7 +5131,47 @@ function calcNorseRune(d) {
             closingTh: 'รูนไม่ใช่การทำนาย — รูนคือเครื่องมือขอความเห็นจากเทพเจ้า ถามด้วยความเคารพ จะได้รับคำตอบที่ชัด',
             closingEn: 'Runes are not prediction — they are a tool for asking the gods. Ask with respect, and you receive a clear answer.',
         }),
+        deepReading: '',
     };
+    norseRuneResult.deepReading = _norseRuneDeepSections({
+        glyph: rune.r, name: rune.n, nameTh: norseRuneResult.runeNameTh, keyword: norseRuneResult.runeKeyword, elRaw: rune.el,
+    });
+    return norseRuneResult;
+}
+// ── OGHAM DEEP READING (Tree Alphabet) ───────────────────────────────────────
+function _oghamDeepSections(a) {
+    const K = _dsKit();
+    const { pick, blk, P, B, faqQ } = K;
+    const meaning = () => {
+        const c = a.classRaw;
+        return c === 'ต้นใหม่' ? ['การเริ่มต้นใหม่ — คุณคือพลังของการเริ่ม', 'fresh starts — you embody beginnings'] :
+            c === 'ต้นปกป้อง' ? ['การปกป้อง — คนพึ่งพิงคุณ', 'protection — others lean on you'] :
+                c === 'ต้นเชื่อมโยง' ? ['การเชื่อมโลก — คุณเป็นสะพานระหว่างกลุ่ม', 'connection — you bridge worlds'] :
+                    c === 'ต้นผู้นำ' ? ['ความเป็นผู้นำโดยธรรมชาติ', 'natural leadership'] :
+                        c === 'ต้นจันทร์' ? ['สัญชาตญาณจันทร์ — อ่านสิ่งที่ซ่อนอยู่', 'lunar intuition — you read the hidden'] :
+                            c === 'ต้นอุปสรรค' ? ['เปลี่ยนอุปสรรคเป็นครู', 'turning obstacles into teachers'] :
+                                c === 'ต้นกษัตริย์' ? ['ความสูงส่ง — คนมาขอคำปรึกษา', 'royalty — others seek your counsel'] :
+                                    c === 'ต้นนักรบ' ? ['พลังนักรบ — สู้เพื่อสิ่งที่สำคัญ', 'warrior energy — you fight for what matters'] :
+                                        c === 'ต้นปัญญา' ? ['ปัญญาลึก', 'deep wisdom'] :
+                                            c === 'ต้นมีสวรรค์' ? ['ความงดงาม — คุณนำความสวยงามมา', 'heavenly grace — you bring beauty'] :
+                                                c === 'ต้นผู้แสวงหา' ? ['การแสวงหา — คุณท่องไปเพื่อเรียนรู้', 'seeking — you wander to learn'] :
+                                                    c === 'ต้นผู้ส่งสาร' ? ['การส่งสาร — คุณรับสัญญาณที่คนอื่นพลาด', 'messaging — you catch signals others miss'] :
+                                                        ['เวทมนตร์ — คุณปั้นพลังที่มองไม่เห็น', 'magic — you shape unseen forces'];
+    };
+    const sec = [];
+    sec.push(blk('📜', 'อักษรต้นไม้ของคุณ', 'Your Tree Letter', P(pick(`Ogham คืออักษรไอริชโบราณ 1,500 ปี ที่ทุกตัวแทนต้นไม้ ("Tree Alphabet") Druid สร้างเพื่อบันทึกปฏิทินพิธีและทำนาย อักษรวันเกิดคุณคือ ${B(a.glyph + ' ' + a.tree)} (${a.treeTh})`, `Ogham is a 1,500-year-old Irish "Tree Alphabet" where every letter is a tree. Druids made it to record ritual calendars and to divine. Your birth letter is ${B(a.glyph + ' ' + a.tree)}.`)) +
+        P(`${B(pick('หมวดต้นไม้', 'Tree class'))}: ${a.classDisp} · ${B(pick('ธาตุ', 'Element'))}: ${pEl(a.elRaw)}`)));
+    sec.push(blk('🧬', 'ตัวตน — ต้นไม้ในป่าชีวิต', 'Identity — Your Tree in the Forest', P(pick(`ในภูมิปัญญา Druid ต้น ${a.tree} เป็นสัญลักษณ์ของ${meaning()[0]} ธาตุ${pEl(a.elRaw)}เสริมด้วย ${_elDom(a.elRaw).doo[0]}`, `In Druidic wisdom, ${a.tree} symbolises ${meaning()[1]}. Your ${pEl(a.elRaw)} element adds ${_elDom(a.elRaw).doo[1]}.`)) +
+        P(pick('Druid เชื่อทุกต้นมี "Dryad" วิญญาณประจำ เชื่อมกับคนที่เกิดในฤดูของมันผ่านสายจิตวิญญาณ', 'Druids believe every tree has a "Dryad" spirit, linked to those born in its season through a soul-cord.'))));
+    _domainBlocks(a.elRaw, K).forEach(b => sec.push(b));
+    sec.push(blk('📅', 'ปี 2026', '2026', P(pick(`ปฏิทิน Druid 2026 คือ "ปีแห่ง ${a.tree.length < 7 ? 'Oak' : 'Hazel'}" ซึ่ง${a.elRaw === 'ไฟ' || a.elRaw === 'ดิน' ? 'เสริมการเติบโตของ ' + a.tree : 'ขอให้ ' + a.tree + ' ปรับตัวมากขึ้น'} ใช้ Samhain (31 ต.ค.) เป็นจุดทบทวน · Imbolc (1 ก.พ.) เป็นจุดเริ่มใหม่`, `The 2026 Druid calendar is the "Year of ${a.tree.length < 7 ? 'Oak' : 'Hazel'}", which ${a.elRaw === 'ไฟ' || a.elRaw === 'ดิน' ? 'supports your ' + a.tree + ' growth' : 'asks your ' + a.tree + ' to adapt more'}. Use Samhain (Oct 31) to review · Imbolc (Feb 1) to begin anew.`))));
+    sec.push(blk('🎨', 'เสริม / เลี่ยง', 'Enhance / Avoid', P(`✅ ${B(pick('เสริม', 'Enhance'))}: ${pick(`เก็บใบ/กิ่ง ${a.tree} ในบ้าน · สลัก ${a.glyph} บนหินพกเป็น talisman · สี ${_elDom(a.elRaw).color[0]}`, `keep ${a.tree} leaves/twigs at home · carve ${a.glyph} on a stone as a talisman · colours ${_elDom(a.elRaw).color[1]}`)}`) +
+        P(`⚠️ ${B(pick('เลี่ยง', 'Avoid'))}: ${pick('พยายามเป็นทุกอย่างให้ทุกคนจนลืมราก — ' + _elDom(a.elRaw).av[0], 'trying to be everything for everyone until you forget your roots — ' + _elDom(a.elRaw).av[1])}`)));
+    sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('ต้นไม้ของฉัน?', 'My tree?'), pick(`${a.glyph} ${a.tree} (${a.treeTh})`, `${a.glyph} ${a.tree}`)) +
+        faqQ(pick('หมวดของฉัน?', 'My class?'), a.classDisp) +
+        faqQ(pick('นิสัยหลัก?', 'Core nature?'), pick(meaning()[0], meaning()[1])) +
+        faqQ(pick('อาชีพที่เหมาะ?', 'Fitting career?'), pick(_elDom(a.elRaw).car[0], _elDom(a.elRaw).car[1]))));
+    return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
 }
 // ── OGHAM ────────────────────────────────────────────────────────
 function calcOgham(d) {
@@ -4890,7 +5203,7 @@ function calcOgham(d) {
     const og = OGHAM[oghamIdx];
     const variation = (d.year % 100 + d.day * 3) % 60 - 30;
     const score = Math.max(430, Math.min(940, og.score + variation));
-    return {
+    const oghamResult = {
         ogham: og.o, treeName: og.tree, treeNameTh: og.th,
         oghamClass: _reportLang === 'en' ? (OGHAM_CLS_EN[og.cls] || og.cls) : og.cls,
         element: pEl(og.el),
@@ -4922,7 +5235,55 @@ function calcOgham(d) {
             closingTh: 'Ogham บอกว่า — คุณไม่ใช่คนโดดเดี่ยว คุณเป็นส่วนหนึ่งของป่าใหญ่ที่เชื่อมกันใต้ดินผ่านราก รู้ราก คุณจะรู้ตัวเอง',
             closingEn: 'Ogham teaches — you are never alone. You are part of a vast forest connected underground through roots. Know your roots, and you will know yourself.',
         }),
+        deepReading: '',
     };
+    oghamResult.deepReading = _oghamDeepSections({
+        glyph: og.o, tree: og.tree, treeTh: og.th, classDisp: oghamResult.oghamClass, elRaw: og.el, classRaw: og.cls,
+    });
+    return oghamResult;
+}
+// Shared: money/career channel by zodiac sign (Thai-keyed) — Arabic Parts uses it.
+const _SIGN_CHANNEL = {
+    'เมษ': ['การบุกเบิก การแข่งขัน ความเป็นผู้นำ', 'pioneering, competition, leadership'],
+    'พฤษภ': ['การเงิน ที่ดิน ของมีค่า', 'finance, land, valuables'],
+    'เมถุน': ['การสื่อสาร การเขียน การสอน', 'communication, writing, teaching'],
+    'กรกฎ': ['ครอบครัว บ้าน อสังหาริมทรัพย์', 'family, home, real estate'],
+    'สิงห์': ['การแสดง ความคิดสร้างสรรค์ บันเทิง', 'performance, creativity, entertainment'],
+    'กันย์': ['บริการ การวิเคราะห์ สาธารณสุข', 'service, analysis, public health'],
+    'ตุลย์': ['ความสัมพันธ์ ดีไซน์ การทูต', 'relationships, design, diplomacy'],
+    'พิจิก': ['การวิจัย การเงินคนอื่น การเปลี่ยนผ่าน', 'research, other people\'s money, transformation'],
+    'ธนู': ['การสอน การต่างประเทศ การพิมพ์', 'teaching, foreign affairs, publishing'],
+    'มกร': ['การบริหาร โครงสร้าง อำนาจ', 'management, structure, authority'],
+    'กุมภ์': ['เทคโนโลยี เครือข่าย นวัตกรรม', 'technology, networks, innovation'],
+    'มีน': ['ศิลปะ การเยียวยา จิตวิญญาณ', 'art, healing, spirituality'],
+};
+const _SIGN_TH2EN = { 'เมษ': 'Aries', 'พฤษภ': 'Taurus', 'เมถุน': 'Gemini', 'กรกฎ': 'Cancer', 'สิงห์': 'Leo', 'กันย์': 'Virgo', 'ตุลย์': 'Libra', 'พิจิก': 'Scorpio', 'ธนู': 'Sagittarius', 'มกร': 'Capricorn', 'กุมภ์': 'Aquarius', 'มีน': 'Pisces' };
+// ── ARABIC PARTS DEEP READING (Lots) ─────────────────────────────────────────
+function _arabicPartsDeepSections(a) {
+    const K = _dsKit();
+    const { pick, blk, P, B, faqQ } = K;
+    const fEn = _SIGN_TH2EN[a.fSignTh] || a.fSignTh;
+    const sEn = _SIGN_TH2EN[a.sSignTh] || a.sSignTh;
+    const ch = _SIGN_CHANNEL[a.fSignTh] || ['วิธีที่ตรงกับราศีโชค', 'ways aligned with your fortune sign'];
+    const sc = _SIGN_CHANNEL[a.sSignTh] || ['งานที่ตรงกับราศีจิต', 'work aligned with your spirit sign'];
+    const sec = [];
+    sec.push(blk('📜', 'Lot of Fortune & Lot of Spirit', 'Lot of Fortune & Lot of Spirit', P(pick(`Arabic Parts ("Lots") คือสูตรคณิตศาสตร์เปอร์เซีย-อาหรับหา "จุดโชค" เฉพาะเรื่อง สำคัญสุด 2 จุด: Lot of Fortune (โชควัตถุ) และ Lot of Spirit (โชคจิตใจ/อาชีพ)`, `Arabic Parts ("Lots") are Persian-Arab mathematical formulas pinpointing domain-specific "luck points". The two key ones: Lot of Fortune (material luck) and Lot of Spirit (spiritual/career luck).`)) +
+        P(`${B('Lot of Fortune')}: ${pick(a.fSignTh, fEn)} (${a.fortuneDeg}°) · ${B('Lot of Spirit')}: ${pick(a.sSignTh, sEn)}`)));
+    sec.push(blk('🧬', 'ตัวตน — โชควัตถุ vs โชคจิตใจ', 'Identity — Material vs Spiritual Luck', P(pick(`Lot of Fortune ใน${a.fSignTh}บอกว่า "โชควัตถุ" ของคุณไหลมาจากทิศทางของราศีนี้ ส่วน Lot of Spirit ใน${a.sSignTh}บอกว่า "อาชีพที่เติมใจ" อยู่ที่นั่น`, `Lot of Fortune in ${fEn} says your "material luck" flows from this sign\'s direction; Lot of Spirit in ${sEn} says the "career that fulfils you" lives there.`)) +
+        P(a.sameSign ? pick('Fortune กับ Spirit อยู่ราศีเดียวกัน — หายากและเป็นพรใหญ่: งานที่รักและงานที่ทำเงินจะเป็นสิ่งเดียวกัน', 'Fortune and Spirit share a sign — rare, a big blessing: the work you love and the work that pays are the same') : pick('Fortune กับ Spirit คนละราศี — ช่วงต้นอาจต้องเลือกระหว่าง "งานที่ทำเงิน" กับ "งานที่เติมใจ" แต่หลัง 40 มักรวมกันได้', 'Fortune and Spirit in different signs — early on you may choose between "work that pays" and "work that fulfils", but after 40 they tend to merge'))));
+    sec.push(blk('💼', 'การงาน — Lot of Spirit', 'Career — Lot of Spirit', P(`${B(pick('อาชีพที่เติมใจ', 'Fulfilling career'))}: ${pick(sc[0], sc[1])}`) + P(`✅ ${pick('ควรทำ', 'Do')}: ${pick('ให้ Lot of Spirit นำการเลือกอาชีพ', 'let your Lot of Spirit lead career choices')}`) + P(`⚠️ ${pick('ควรเลี่ยง', 'Avoid')}: ${pick('เลือกงานเพราะเงินอย่างเดียวจนใจแห้ง', 'choosing work for money alone until you run dry')}`)));
+    sec.push(blk('💰', 'การเงิน — Lot of Fortune', 'Money — Lot of Fortune', P(pick(`เงินของคุณต้องไหลผ่าน${ch[0]} — ฝืนหาเงินนอกช่องนี้จะเหนื่อย 3 เท่าและได้ผลน้อย Arabic Parts ว่า "ไม่ใช่ความล้มเหลว — จักรวาลบอกว่าเดินผิดเส้น"`, `Your money must flow through ${ch[1]} — forcing it elsewhere tires you 3× for little. Arabic Parts says "not failure — the cosmos telling you you\'re on the wrong line".`)) +
+        P(`✅ ${pick('ควรทำ', 'Do')}: ${pick('หารายได้ผ่านช่องของ Fortune (' + ch[0] + ')', 'earn through the Fortune channel (' + ch[1] + ')')}`)));
+    sec.push(blk('❤️', 'ความรัก — Lot of Eros', 'Love — Lot of Eros', P(pick('Arabic Parts ใช้ Lot of Eros (Asc + Venus − Spirit) เป็นเข็มทิศความรัก — ความสัมพันธ์ที่ดีที่สุดมักโผล่มาในบริบทเดียวกับ Lot of Spirit ของคุณ (ที่ที่คุณรู้สึกเป็นตัวเอง)', 'Arabic Parts uses the Lot of Eros (Asc + Venus − Spirit) as a love compass — your best relationships tend to appear in the same context as your Lot of Spirit (where you feel most yourself).'))));
+    sec.push(blk('🩺', 'สุขภาพ — สมดุล Fortune/Spirit', 'Health — Fortune/Spirit Balance', P(pick('ไล่ตาม Fortune แต่ละเลย Spirit = รวยแต่ไม่มีความสุข (เครียดสะสม) ไล่ Spirit แต่ละเลย Fortune = อิ่มใจแต่ตึงเรื่องเงิน สุขภาพดีที่สุดเมื่อสองจุดสมดุล', 'Chasing Fortune while ignoring Spirit = wealthy but unhappy (chronic stress); chasing Spirit while ignoring Fortune = fulfilled but money-strained. Health is best when the two balance.'))));
+    sec.push(blk('📅', 'ปี 2026', '2026', P(pick(`ปี 2026 ดาวพฤหัส (ผู้ให้พร) กำลังใกล้ Lot of Fortune ใน${a.fSignTh} — โอกาสทางวัตถุเปิด แต่ต้องคว้าจริงจัง เทคนิคเก่า: สวมสีประจำ${a.fSignTh}ในวันศุกร์เพื่อเรียก Lot of Fortune`, `In 2026 Jupiter (the great benefic) approaches your Lot of Fortune in ${fEn} — material openings appear, but you must catch them. Classical tip: wear ${fEn}\'s colour on Fridays to call the Lot of Fortune.`))));
+    sec.push(blk('🎨', 'เสริม / เลี่ยง', 'Enhance / Avoid', P(`✅ ${B(pick('เสริม', 'Enhance'))}: ${pick('หาเงินผ่านช่อง Fortune · เลือกอาชีพผ่าน Spirit · ใช้ Lot of Eros นำความรัก', 'earn through Fortune · choose career through Spirit · let Lot of Eros lead love')}`) +
+        P(`⚠️ ${B(pick('เลี่ยง', 'Avoid'))}: ${pick('ฝืนหาเงิน/อาชีพนอกช่องที่ Lots เปิดให้', 'forcing money or career outside the channels your Lots open')}`)));
+    sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('เงินฉันมาทางไหน?', 'Where does my money flow?'), pick(ch[0], ch[1])) +
+        faqQ(pick('อาชีพที่เติมใจ?', 'My fulfilling career?'), pick(sc[0], sc[1])) +
+        faqQ(pick('งานรักกับงานเงินรวมกันได้ไหม?', 'Can love-work and money-work merge?'), a.sameSign ? pick('ได้ — อยู่ราศีเดียวกัน', 'yes — they share a sign') : pick('มักรวมได้หลังอายุ 40', 'usually after 40')) +
+        faqQ(pick('2026 เด่นเรื่องอะไร?', '2026 highlight?'), pick('Jupiter ใกล้ Lot of Fortune — ปีโชควัตถุ', 'Jupiter near Lot of Fortune — a material-luck year'))));
+    return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
 }
 // ── ARABIC PARTS ─────────────────────────────────────────────────
 function calcArabicParts(d) {
@@ -4939,7 +5300,7 @@ function calcArabicParts(d) {
     const sSign = Math.floor(spirit / 30);
     const variation = (d.day * 9 + d.month * 3) % 60 - 30;
     const score = Math.max(440, Math.min(950, SIGN_SCORES[fSign] + variation));
-    return {
+    const arabicPartsResult = {
         // fortuneSign mirrors UI lang: EN sign in EN mode, TH sign in TH mode.
         // fortuneSignTh is always the Thai canonical for systems that need it
         // regardless of UI language (eg the report's Lot-of-Fortune callout).
@@ -4976,7 +5337,46 @@ function calcArabicParts(d) {
             closingTh: 'Arabic Parts เตือนว่า — โชคมีสูตรของมัน ไม่ใช่สิ่งสุ่ม เมื่อรู้สูตร คุณร่วมเขียนมันได้',
             closingEn: 'Arabic Parts teaches — luck has its formula, it isn\'t random. Once you know the formula, you co-author it.',
         }),
+        deepReading: '',
     };
+    arabicPartsResult.deepReading = _arabicPartsDeepSections({
+        fortuneDeg: Math.round(fortune), fSignTh: SIGNS_TH[fSign], sSignTh: SIGNS_TH[sSign], sameSign: fSign === sSign,
+    });
+    return arabicPartsResult;
+}
+// ── KABBALISTIC DEEP READING (Tree of Life) ──────────────────────────────────
+function _kabbalisticDeepSections(a) {
+    const K = _dsKit();
+    const { pick, blk, P, B, faqQ } = K;
+    const SEPH = {
+        'Keter': { mean: 'Crown — the highest sanctity', car: ['ผู้นำวิสัยทัศน์ จิตวิญญาณ ศิลปะชั้นสูง', 'visionary leadership, spirituality, peak art'], trait: ['ผู้นำทางจิตวิญญาณ/visionary', 'a spiritual leader / visionary'], av: ['หยิ่งว่าตนมีคำตอบของจักรวาล', 'pride that you hold the cosmos\' answers'] },
+        'Chokmah': { mean: 'Wisdom — cosmic inspiration', car: ['นวัตกรรม กลยุทธ์ ปรัชญา วิจัย', 'innovation, strategy, philosophy, research'], trait: ['เห็นภาพใหญ่ก่อนใคร', 'you see the big picture first'], av: ['คิดโดยไม่ลงมือ', 'thinking without acting'] },
+        'Binah': { mean: 'Understanding — depth of mind', car: ['วิเคราะห์ลึก กฎหมาย จิตวิทยา วางแผน', 'deep analysis, law, psychology, planning'], trait: ['ไม่ตัดสินเร็ว แต่ตัดสินแล้วถูก', 'slow to judge, but right when you do'], av: ['จมในความคิดจนไม่เริ่ม', 'drowning in thought without starting'] },
+        'Chesed': { mean: 'Mercy — abundance', car: ['การกุศล การสอน การดูแล การเงินเพื่อสังคม', 'philanthropy, teaching, care, social finance'], trait: ['เป็นผู้ "ให้" โดยธรรมชาติ', 'a natural giver'], av: ['ให้จนหมดตัวไม่มีขอบเขต', 'giving until you have nothing left'] },
+        'Geburah': { mean: 'Strength — discipline and power', car: ['การบริหาร กฎ การเงินวินัย วิศวกรรม', 'management, law enforcement, disciplined finance, engineering'], trait: ['วินัยสูง เด็ดขาด', 'highly disciplined, decisive'], av: ['เข้มงวดจนกลายเป็นความโหด', 'strictness hardening into harshness'] },
+        'Tiphareth': { mean: 'Beauty — life\'s balance', car: ['ผู้นำที่สมดุล ศิลปะ การไกล่เกลี่ย แบรนด์', 'balanced leadership, art, mediation, branding'], trait: ['หาสมดุลระหว่างสุดขั้วได้', 'you find balance between extremes'], av: ['อยากให้ทุกอย่างสวยจนรับความจริงหยาบไม่ได้', 'wanting all beautiful until rough truth is unbearable'] },
+        'Netzach': { mean: 'Victory — love and beauty', car: ['ศิลปะ การตลาด ความสัมพันธ์ งานสร้างแรงบันดาลใจ', 'art, marketing, relationships, inspiring work'], trait: ['มีเสน่ห์และแรงปรารถนา', 'charming and driven by feeling'], av: ['ตามอารมณ์จนขาดวินัย', 'chasing feeling at the cost of discipline'] },
+        'Hod': { mean: 'Glory — communication and intellect', car: ['สื่อสาร เขียน วิทยาศาสตร์ การสอน', 'communication, writing, science, teaching'], trait: ['สื่อสารคมและมีเหตุผล', 'sharp, rational communicator'], av: ['วิเคราะห์จนไม่รู้สึก', 'over-analysing until you stop feeling'] },
+        'Yesod': { mean: 'Foundation — the unconscious and the Moon', car: ['จิตวิทยา การเยียวยา สื่อ งานเกี่ยวกับความฝัน', 'psychology, healing, media, dreamwork'], trait: ['สัญชาตญาณและจินตนาการสูง', 'high intuition and imagination'], av: ['หลงในจินตนาการจนหลุดความจริง', 'lost in fantasy, detached from reality'] },
+        'Malkuth': { mean: 'Kingdom — the material world', car: ['ธุรกิจ อสังหา การผลิต งานลงมือจริง', 'business, real estate, manufacturing, hands-on work'], trait: ['ลงมือจริง สร้างผลที่จับต้องได้', 'practical, you build tangible results'], av: ['ติดวัตถุจนลืมมิติจิตวิญญาณ', 'materialism that forgets the spiritual'] },
+    };
+    const s = SEPH[a.sephira] || SEPH['Tiphareth'];
+    const sec = [];
+    sec.push(blk('📜', 'Sephira · Archangel · Mazal', 'Sephira · Archangel · Mazal', P(pick(`คับบาลาห์คือศาสตร์ลี้ลับยิว ศูนย์กลางคือ "Tree of Life" — 10 Sephirot (ทรงกลมพลังงาน) ที่แทนวิธีพระเจ้าแสดงในจักรวาล Sephira ประจำคุณคือ ${B(a.sephira)} (${a.hebrew}) — ${a.meaningTh}`, `Kabbalah is a Jewish esoteric science centred on the "Tree of Life" — 10 Sephirot (energy spheres) describing how God manifests. Your Sephira is ${B(a.sephira)} (${a.hebrew}) — ${s.mean}.`)) +
+        P(`${B('Archangel')}: ${a.archangel} · ${B('Mazal')}: ${a.mazalDisp} · ${B(pick('ปีฮีบรู', 'Hebrew year'))}: ${a.hebrewYear}`)));
+    sec.push(blk('🧬', 'ตัวตน — Sephira ของคุณ', 'Identity — Your Sephira', P(pick(`Sephira ${a.sephira} ทำให้คุณเป็น${s.trait[0]} Archangel ${a.archangel} จะปรากฏเป็น "ลางสังหรณ์/ความฝัน" เมื่อคุณต้องตัดสินใจใหญ่`, `Sephira ${a.sephira} makes you ${s.trait[1]}. Archangel ${a.archangel} appears as "intuitions/dreams" when you face a big decision.`))));
+    sec.push(blk('💼', 'การงาน — ควรทำ / ควรเลี่ยง', 'Career — Do / Avoid', P(`${B(pick('เข้าทาง', 'Best fit'))}: ${pick(s.car[0], s.car[1])}`) + P(`✅ ${pick('ควรทำ', 'Do')}: ${pick('ให้พลังของ Sephira นำ เลือกบทบาทที่ตรงธรรมชาติ', 'let your Sephira lead; choose roles fitting its nature')}`) + P(`⚠️ ${pick('ควรเลี่ยง', 'Avoid')}: ${pick(s.av[0], s.av[1])}`)));
+    sec.push(blk('💰', 'การเงิน', 'Money', P(pick(`ในคับบาลาห์ ความมั่งคั่งคือพลังงานที่ไหลผ่านช่อง Sephira ของคุณ — มาเมื่อคุณใช้ ${s.car[0]} สร้างคุณค่า ไม่ใช่ไล่ตามเงินตรงๆ`, `In Kabbalah, wealth is energy flowing through your Sephira\'s channel — it comes when you create value via ${s.car[1]}, not by chasing money directly.`))));
+    sec.push(blk('❤️', 'ความรัก', 'Love', P(pick(`Sephira Netzach (ชัยชนะ/ความรัก) บน Tree of Life คือเสาความรัก คู่ที่ดีที่สุดของคุณคือคนที่เคารพพลัง ${a.sephira} ของคุณ ไม่กดมัน`, `On the Tree of Life, Netzach (Victory/Love) is the pillar of love. Your best partner respects your ${a.sephira} energy rather than suppressing it.`))));
+    sec.push(blk('🩺', 'สุขภาพ — Qliphoth', 'Health — The Qliphoth', P(pick(`ทุก Sephira มี "Qliphoth" (เปลือก/ด้านเงา) ของ ${a.sephira} คือ${s.av[0]} ปล่อยไว้จะกลายเป็นความเครียดเรื้อรัง คับบาลาห์ให้ถามทุกวัน "วันนี้ฉันเสริม Sephira หรือ Qliphoth?"`, `Every Sephira has its "Qliphoth" (shell/shadow). For ${a.sephira} it is ${s.av[1]}; left unchecked it becomes chronic stress. Kabbalah asks daily: "Today did I feed the Sephira, or the Qliphoth?"`))));
+    sec.push(blk('📅', 'ปี 2026', '2026', P(pick(`ปี 2026 ในปฏิทินฮีบรูคือ ${a.hebrewYear}/${a.hebrewYear + 1} Mazal ${a.mazalDisp} ของคุณจะเข้มข้นสุดในเดือน Tishrei (ก.ย.-ต.ค.) — ช่วงไตร่ตรองและขอขมาเพื่อปิดวงจร`, `In 2026 the Hebrew year is ${a.hebrewYear}/${a.hebrewYear + 1}. Your Mazal ${a.mazalDisp} is most intense in Tishrei (Sep-Oct) — a season of reflection and atonement to close the cycle.`))));
+    sec.push(blk('🎨', 'เสริม / เลี่ยง', 'Enhance / Avoid', P(`✅ ${B(pick('เสริม', 'Enhance'))}: ${pick(`เรียก Archangel ${a.archangel} ก่อนตัดสินใจใหญ่ ("${a.archangel}, guide me" 3 ครั้ง) · ทำสมาธิวันสะบาโต (ศุกร์เย็น-เสาร์เย็น)`, `call Archangel ${a.archangel} before big decisions ("${a.archangel}, guide me" 3×) · meditate on Shabbat (Fri eve–Sat eve)`)}`) +
+        P(`⚠️ ${B(pick('เลี่ยง', 'Avoid'))}: ${pick('Qliphoth ของคุณ — ' + s.av[0], 'your Qliphoth — ' + s.av[1])}`)));
+    sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('Sephira ของฉัน?', 'My Sephira?'), `${a.sephira} (${a.hebrew}) — ${pick(a.meaningTh, s.mean)}`) +
+        faqQ(pick('Archangel ประจำตัว?', 'My Archangel?'), a.archangel) +
+        faqQ(pick('อาชีพที่เหมาะ?', 'Fitting career?'), pick(s.car[0], s.car[1])) +
+        faqQ(pick('ด้านเงา (Qliphoth)?', 'My shadow (Qliphoth)?'), pick(s.av[0], s.av[1]))));
+    return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
 }
 // ── KABBALISTIC ───────────────────────────────────────────────────
 function calcKabbalistic(d) {
@@ -5000,7 +5400,7 @@ function calcKabbalistic(d) {
     const hebrewYear = d.year + 3760;
     const variation = (d.day * 13 + d.hour * 7) % 60 - 30;
     const score = Math.max(440, Math.min(950, sephira.score + variation));
-    return {
+    const kabbalisticResult = {
         sephira: sephira.n, sephiraHebrew: sephira.heb, archangel: sephira.arch,
         hebrewYear, mazal: MAZALOT[mazalIdx], mazalTh: MAZALOT_TH[mazalIdx],
         score,
@@ -5031,9 +5431,34 @@ function calcKabbalistic(d) {
             closingTh: 'คับบาลาห์สอนว่า — ทุกสิ่งที่เกิดขึ้นกับคุณ เกิดขึ้นผ่านช่องของ Sephira คุณเอง รู้ Sephira ตัวเอง คือรู้ว่าพระเจ้ากำลังพูดกับคุณผ่านช่องไหน',
             closingEn: 'Kabbalah teaches — everything that happens to you flows through your own Sephira\'s channel. To know your Sephira is to know which channel God is speaking through to you.',
         }),
+        deepReading: '',
     };
+    kabbalisticResult.deepReading = _kabbalisticDeepSections({
+        sephira: sephira.n, hebrew: sephira.heb, archangel: sephira.arch, meaningTh: sephira.th,
+        mazalDisp: _reportLang === 'en' ? (['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'][mazalIdx] + ' (' + MAZALOT[mazalIdx] + ')') : kabbalisticResult.mazalTh,
+        hebrewYear,
+    });
+    return kabbalisticResult;
 }
 // ── ZOROASTRIAN ───────────────────────────────────────────────────
+// ── ZOROASTRIAN DEEP READING ─────────────────────────────────────────────────
+function _zoroastrianDeepSections(a) {
+    const K = _dsKit();
+    const { pick, blk, P, B, faqQ } = K;
+    const sec = [];
+    sec.push(blk('📜', 'Yazata · Amesha Spenta', 'Yazata · Amesha Spenta', P(pick(`โซโรแอสเตอร์คือศาสนาเอกเทวะที่เก่าแก่สุดในโลก (3,500 ปี) แก่นคือศึกระหว่าง Ahura Mazda (แสง/ความจริง) กับ Ahriman (มืด/โกหก) ทุกวันมี Yazata (เทพพิทักษ์) ปกครอง ของคุณคือ ${B(a.yazata)}`, `Zoroastrianism is the world\'s oldest monotheism (3,500 years), centred on the struggle between Ahura Mazda (light/truth) and Ahriman (dark/lies). Each day has a ruling Yazata (guardian). Yours is ${B(a.yazata)}.`)) +
+        P(`${B('Amesha Spenta')}: ${a.ameshaDisp} · ${B(pick('ธาตุเดือน', 'Month element'))}: ${pEl(a.ameshaElRaw)} · ${B(pick('สมดุล', 'Integration'))}: ${pick(a.harmony ? 'บูรณาการเต็ม (เป็นตัวเองโดยธรรมชาติ)' : 'โครงสร้างสร้างสมดุล (มี 2 ด้านต้องบาลานซ์)', a.harmony ? 'full integration (naturally yourself)' : 'a balancing structure (two sides to balance)')}`)));
+    sec.push(blk('🧬', 'ตัวตน — Khvarenah', 'Identity — Your Khvarenah', P(pick(`คุณได้รับ "Khvarenah" (โอรัสแสงแห่งโชค) ในด้านที่ ${a.yazata} ปกครอง โซโรแอสเตรียนว่า Khvarenah ติดตามคนดีและหายจากคนชั่ว ธาตุ${pEl(a.ameshaElRaw)}ของเดือนเสริมด้วย ${_elDom(a.ameshaElRaw).doo[0]}`, `You carry "Khvarenah" (the divine glow of fortune) in the domain ${a.yazata} rules. Zoroastrians say Khvarenah follows the righteous and fades from the wicked. Your month\'s ${pEl(a.ameshaElRaw)} element adds ${_elDom(a.ameshaElRaw).doo[1]}.`))));
+    _domainBlocks(a.ameshaElRaw, K).forEach(b => sec.push(b));
+    sec.push(blk('📅', 'ปี 2026', '2026', P(pick(`ปี 2026 (Zoroastrian 3764 YZ) คือปีของ Asha Vahishta (ความจริงสูงสุด) ที่ผลักให้เลือกชัดระหว่างจริงกับโกหก ${a.harmony ? 'ปีนี้หล่อเลี้ยงพลังคุณ' : 'ปีนี้ทดสอบสมดุลคุณ'} เทศกาล Nowruz (21 มี.ค.) คือจุดเริ่มใหม่`, `2026 (Zoroastrian 3764 YZ) is the year of Asha Vahishta (Highest Truth), forcing clear choice between truth and lies. ${a.harmony ? 'This year nourishes your power' : 'This year tests your balance'}. Nowruz (Mar 21) is the fresh-start point.`))));
+    sec.push(blk('🎨', 'เสริม / เลี่ยง', 'Enhance / Avoid', P(`✅ ${B(pick('เสริม', 'Enhance'))}: ${pick(`หลัก 3 ดี — Humata (คิดดี)·Hukhta (พูดดี)·Hvarshta (ทำดี) รักษา Khvarenah · จุดเทียน "ไฟศักดิ์สิทธิ์" · ใส่ขาว · สี ${_elDom(a.ameshaElRaw).color[0]}`, `the Three Goods — Humata (good thought)·Hukhta (good speech)·Hvarshta (good deed) preserve Khvarenah · light a "sacred fire" candle · wear white · colours ${_elDom(a.ameshaElRaw).color[1]}`)}`) +
+        P(`⚠️ ${B(pick('เลี่ยง', 'Avoid'))}: ${pick('ใช้พลัง Yazata เพื่อตัวเองอย่างเดียว = เรียก Ahriman; สัญญาณ Khvarenah หรี่คือเบื่อสิ่งที่เคยรัก คนถอยห่าง', 'using your Yazata\'s power only for yourself = summoning Ahriman; the signs of a dimming Khvarenah are weariness with what you loved and people drifting away')}`)));
+    sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('Yazata ประจำตัว?', 'My Yazata?'), a.yazata) +
+        faqQ(pick('Amesha Spenta เดือนเกิด?', 'My month Amesha Spenta?'), a.ameshaDisp) +
+        faqQ(pick('ธาตุของฉัน?', 'My element?'), pEl(a.ameshaElRaw)) +
+        faqQ(pick('อาชีพที่เหมาะ?', 'Fitting career?'), pick(_elDom(a.ameshaElRaw).car[0], _elDom(a.ameshaElRaw).car[1]))));
+    return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
+}
 function calcZoroastrian(d) {
     const DAY_YAZATA = [
         'Ahura Mazda', 'Vohu Manah', 'Asha Vahishta', 'Khshathra Vairya', 'Spenta Armaiti',
@@ -5069,7 +5494,7 @@ function calcZoroastrian(d) {
     // entries (Atar/ไฟ, Aban/น้ำ, Mahraspand/วาจา…). Drop the Thai annotation
     // when the UI is English so we don't leak Thai into English render paths.
     const yazataDisplay = _reportLang === 'en' ? yazata.replace(/\s*\([^)]*[฀-๿][^)]*\)\s*$/, '') : yazata;
-    return {
+    const zoroastrianResult = {
         dayYazata: yazataDisplay, dayYazataTh: yazata,
         monthAmesha: amesha.n, monthAmeshaTh: tPick(amesha.th, amesha.thEn),
         harmony, score,
@@ -5100,7 +5525,36 @@ function calcZoroastrian(d) {
             closingTh: 'โซโรแอสเตรียนเชื่อว่า — ทุกคนเกิดเป็นทหารของ Ahura Mazda ด้วยภารกิจเฉพาะ ภารกิจของคุณซ่อนอยู่ในวันเกิด',
             closingEn: 'Zoroastrians believe — everyone is born a soldier of Ahura Mazda with a unique mission. Yours is hidden in your birth date.',
         }),
+        deepReading: '',
     };
+    zoroastrianResult.deepReading = _zoroastrianDeepSections({
+        yazata: zoroastrianResult.dayYazata, ameshaName: amesha.n, ameshaDisp: zoroastrianResult.monthAmeshaTh,
+        ameshaElRaw: amesha.el, harmony,
+    });
+    return zoroastrianResult;
+}
+// ── AZTEC TONALPOHUALLI DEEP READING ─────────────────────────────────────────
+function _aztecDeepSections(a) {
+    const K = _dsKit();
+    const { pick, blk, P, B, faqQ } = K;
+    const t = a.tone;
+    const role = () => t <= 4 ? ['ผู้วางรากฐาน (โทน 1-4) — สร้างสิ่งที่อยู่ทน', 'a foundation-layer (tones 1-4) — building what lasts'] : t <= 9 ? ['ผู้พัฒนา (โทน 5-9) — ขยายสิ่งที่มีไปขั้นถัดไป', 'a developer (tones 5-9) — taking what exists to the next level'] : ['ผู้ส่งต่อ (โทน 10-13) — ปิดวงจรเก่า เปิดบทใหม่', 'a transmitter (tones 10-13) — closing old cycles, opening new chapters'];
+    const sec = [];
+    sec.push(blk('📜', 'Tonalli — โทน × สัญลักษณ์', 'Tonalli — Tone × Sign', P(pick(`Tonalpohualli คือปฏิทิน 260 วันของแอซเทค (คู่แฝด Tzolk'in มายัน) ทุกวัน = Trecena (โทน 1-13) + Tonalli (20 สัญลักษณ์) วันเกิดกำหนด "Tonalli" (วิญญาณลมหายใจ) ของคุณคือ ${B(a.tone + '-' + a.signEn)} (${a.signTh})`, `Tonalpohualli is the Aztec 260-day calendar (twin of the Mayan Tzolk'in). Each day = a Trecena (tone 1-13) + a Tonalli (20 signs). Your birth day sets your "Tonalli" (breath-soul): ${B(a.tone + '-' + a.signEn)} (${a.signTh}).`)) +
+        P(`${B(pick('คุณสมบัติสัญลักษณ์', 'Sign quality'))}: ${a.qualityDisp} · ${B(pick('โทน', 'Tone'))}: ${a.tone} (${a.toneName})`)));
+    sec.push(blk('🧬', 'ตัวตน — โทนของคุณ', 'Identity — Your Tone', P(pick(`โทน ${a.tone} ทำให้คุณเป็น${role()[0]} ผสานกับสัญลักษณ์ ${a.signEn} (${a.qualityDisp}) = พลังชีวิตเฉพาะตัวของคุณ`, `Tone ${a.tone} makes you ${role()[1]}. Combined with the ${a.signEn} sign (${a.qualityDisp}) = your signature life-force.`))));
+    sec.push(blk('💼', 'การงาน — ควรทำ / ควรเลี่ยง', 'Career — Do / Avoid', P(`${B(pick('เข้าทาง', 'Best fit'))}: ${pick(t <= 4 ? 'งานสร้างรากฐาน ก่อตั้ง วางระบบ' : t <= 9 ? 'งานขยายผล สเกล พัฒนาทีม' : 'งานผู้นำ ปิดดีล เปลี่ยนผ่าน', t <= 4 ? 'founding, system-building, groundwork' : t <= 9 ? 'scaling, development, team-building' : 'leadership, deal-closing, transformation')} (${a.qualityDisp})`) + P(`✅ ${pick('ควรทำ', 'Do')}: ${pick('ใช้บทบาทตามโทน + จุดแข็งของสัญลักษณ์', 'play the role your tone gives + your sign\'s strength')}`) + P(`⚠️ ${pick('ควรเลี่ยง', 'Avoid')}: ${pick(t <= 4 ? 'เริ่มใหม่เรื่อยจนไม่จบ' : t <= 9 ? 'ขยายเกินกำลังจนพัง' : 'ปิดวงจรจนลืมเริ่มใหม่', t <= 4 ? 'starting over endlessly, never finishing' : t <= 9 ? 'over-expanding until you break' : 'closing cycles until you forget to begin again')}`)));
+    sec.push(blk('💰', 'การเงิน', 'Money', P(pick(`เงินมาเมื่อคุณทำงานตรงกับโทน — ${role()[0]} แอซเทคใช้ cacao เป็น "เงินของเทพ" คุณค่าของคุณมาจากการสร้างคุณค่าจริง ไม่ใช่เก็งกำไรเร็ว`, `Money comes when you work in tune with your tone — ${role()[1]}. Aztecs used cacao as "the gods' money"; your value comes from creating real value, not fast speculation.`))));
+    sec.push(blk('❤️', 'ความรัก', 'Love', P(pick(`สัญลักษณ์ ${a.signEn} (${a.qualityDisp}) นำสีสันมาสู่ความรักของคุณ คู่ที่ดีคือคนที่เคารพ "Tonalli" ของคุณ ไม่ฝืนจังหวะลมหายใจของคุณ`, `Your ${a.signEn} sign (${a.qualityDisp}) colours your love life. Your best partner respects your "Tonalli" rather than fighting your breath-rhythm.`))));
+    sec.push(blk('🩺', 'สุขภาพ', 'Health', P(pick(`เงาของ ${a.signEn}${a.tone} คือ${t <= 4 ? 'ความกระวนกระวายเริ่มใหม่' : t <= 9 ? 'การหักโหมขยายตัว' : 'ความเศร้าจากการปิดวงจร'} ปล่อยไว้จะกระทบกายและใจ แอซเทคทำพิธี Tlazolteotl (ชำระล้าง) ปีละครั้ง`, `The shadow of ${a.signEn}${a.tone} is ${t <= 4 ? 'restless restarting' : t <= 9 ? 'over-expansion strain' : 'sadness from cycle-closing'}; left unchecked it affects body and mind. Aztecs perform the Tlazolteotl (purification) ritual yearly.`))));
+    sec.push(blk('📅', 'ปี 2026', '2026', P(pick(`ปี 2026 วัน ${a.signEn} จะปรากฏราว 13 ครั้ง (ทุก 20 วัน) = "วันพลังสูงสุด" สำหรับเริ่มสิ่งใหม่/ตัดสินใจใหญ่ ภาพรวมปีเน้นรากฐานและครอบครัว`, `In 2026, ${a.signEn} days appear about 13 times (every 20 days) — your "peak power days" for new beginnings and big decisions. The year emphasises foundations and family.`))));
+    sec.push(blk('🎨', 'เสริม / เลี่ยง', 'Enhance / Avoid', P(`✅ ${B(pick('เสริม', 'Enhance'))}: ${pick('เผา Copal/กำยานในวันพลังต่ำ (เรียก Tonalli กลับ) · กิน cacao บริสุทธิ์วันเกิด · จด Codex ส่วนตัว', 'burn Copal/incense on low days (call your Tonalli back) · eat pure cacao on your birthday · keep a personal Codex')}`) +
+        P(`⚠️ ${B(pick('เลี่ยง', 'Avoid'))}: ${pick('ด้านเงาของโทน ' + a.tone, 'the shadow of tone ' + a.tone)}`)));
+    sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('Tonalli ของฉัน?', 'My Tonalli?'), `${a.tone}-${a.signEn} (${a.signTh})`) +
+        faqQ(pick('โทนของฉันคือบทบาทอะไร?', 'What role is my tone?'), pick(role()[0], role()[1])) +
+        faqQ(pick('วันพลังสูงสุด?', 'My peak-power days?'), pick(`วัน ${a.signEn} (ทุก 20 วัน)`, `${a.signEn} days (every 20 days)`)) +
+        faqQ(pick('คุณสมบัติสัญลักษณ์?', 'My sign quality?'), a.qualityDisp)));
+    return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
 }
 // ── AZTEC TONALPOHUALLI ────────────────────────────────────────
 function calcAztec(d) {
@@ -5136,7 +5590,7 @@ function calcAztec(d) {
     const sign = DAY_SIGNS[daySignIdx];
     const variation = (d.year % 100 + d.hour * 5) % 60 - 30;
     const score = Math.max(430, Math.min(950, sign.score + variation));
-    return {
+    const aztecResult = {
         daySign: sign.s, daySignTh: tPick(sign.th, sign.s), toneNumber,
         toneName: TONE_NAMES[toneNumber] ?? `${toneNumber}`, daySignQuality: tPick(sign.qTh, sign.qEn),
         score,
@@ -5167,7 +5621,39 @@ function calcAztec(d) {
             closingTh: 'แอซเทคบอกว่า — Tonalli ไม่ใช่ลมหายใจที่คุณควบคุม แต่เป็นลมที่พัดผ่านคุณ เรียนรู้จังหวะของมัน คุณจะบินไปกับมันได้',
             closingEn: 'The Aztecs taught: Tonalli isn\'t a breath you control — it\'s a wind blowing through you. Learn its rhythm and you can fly with it.',
         }),
+        deepReading: '',
     };
+    aztecResult.deepReading = _aztecDeepSections({
+        signEn: sign.s, signTh: aztecResult.daySignTh, tone: toneNumber, toneName: aztecResult.toneName, qualityDisp: aztecResult.daySignQuality,
+    });
+    return aztecResult;
+}
+// ── NATIVE AMERICAN TOTEM DEEP READING ───────────────────────────────────────
+function _nativeAmericanDeepSections(a) {
+    const K = _dsKit();
+    const { pick, blk, P, B, faqQ } = K;
+    const t = a.totemEn;
+    const trait = () => t === 'Wolf' ? ['ผู้นำฝูง ปกป้องคนรักดุดัน จงรักต่อกลุ่ม', 'a pack leader — fiercely protective, loyal to the group'] :
+        t === 'Falcon' ? ['ผู้มองจากที่สูง เห็นภาพใหญ่ก่อนใคร', 'a high-flyer — sees the big picture first'] :
+            t === 'Brown Bear' ? ['ความแข็งแกร่งและการเยียวยา มีจังหวะพักฟื้น', 'strength and healing — with a rhythm of retreat and renewal'] :
+                t === 'Otter' ? ['ผู้เล่นและนักแก้ปัญหา ใช้ชีวิตเล่นเป็นงาน', 'a player and problem-solver — makes a living of play'] :
+                    t === 'Raven' ? ['ผู้ถือเวทมนตร์และความเปลี่ยนแปลง', 'a carrier of magic and change'] :
+                        t === 'Salmon' ? ['มุ่งมั่นทวนกระแส ไปให้ถึงเป้า', 'determined, swims upstream to the goal'] :
+                            ['พลังเฉพาะตัวของสัตว์โทเท็ม', 'the unique power of your totem animal'];
+    const dir = a.elRaw === 'ไฟ' ? ['ใต้', 'South'] : a.elRaw === 'ดิน' ? ['เหนือ', 'North'] : a.elRaw === 'น้ำ' ? ['ตะวันตก', 'West'] : ['ตะวันออก', 'East'];
+    const sec = [];
+    sec.push(blk('📜', 'Birth Totem · Clan', 'Birth Totem · Clan', P(pick(`ชนเผ่าอินเดียนแดง (Sioux, Lakota, Cherokee) แบ่งปีเป็น 12 ช่วงจันทร์ แต่ละช่วงมี "Birth Totem" (สัตว์ประจำเกิด) + Clan (ตระกูล 4 ธาตุ) ของคุณคือ ${B(a.totemTh)} (${t})`, `Native American tribes (Sioux, Lakota, Cherokee) divide the year into 12 lunar segments, each with a "Birth Totem" (your birth animal) + a Clan (4-element family). Yours is ${B(a.totemTh)} (${t}).`)) +
+        P(`${B(pick('ดวงจันทร์', 'Moon'))}: ${a.moon} · ${B('Clan')}: ${a.clan} · ${B(pick('ธาตุ', 'Element'))}: ${pEl(a.elRaw)}`)));
+    sec.push(blk('🧬', 'ตัวตน — วิญญาณสัตว์คู่ชีวิต', 'Identity — Your Lifelong Animal Spirit', P(pick(`อินเดียนแดงเชื่อ Totem คือวิญญาณสัตว์ที่ "เดินข้าง" คุณตั้งแต่เกิดจนตาย ${a.totemTh}ทำให้คุณเป็น${trait()[0]} Clan ${a.clan} ธาตุ${pEl(a.elRaw)}เสริม ${_elDom(a.elRaw).doo[0]}`, `Native peoples believe the Totem is an animal spirit that "walks beside you" from birth to death. ${t} makes you ${trait()[1]}. The ${a.clan} (${pEl(a.elRaw)} element) adds ${_elDom(a.elRaw).doo[1]}.`))));
+    _domainBlocks(a.elRaw, K).forEach(b => sec.push(b));
+    sec.push(blk('📅', 'ปี 2026', '2026', P(pick(`ปี 2026 (Wheel of the Year) — Summer Solstice (21 มิ.ย.) และ Winter Solstice (21 ธ.ค.) คือจุดพลังของ ${a.totemTh} Medicine Wheel เปิดในทิศ${dir[0]} ใช้เป็นทิศโชคประจำปี`, `2026 (Wheel of the Year) — the Summer (Jun 21) and Winter (Dec 21) Solstices are power points for ${t}. The Medicine Wheel opens in the ${dir[1]} — use it as your direction of fortune this year.`))));
+    sec.push(blk('🎨', 'เสริม / เลี่ยง', 'Enhance / Avoid', P(`✅ ${B(pick('เสริม', 'Enhance'))}: ${pick(`เก็บภาพ/วัตถุของ ${a.totemTh} ในที่ทำงาน · จินตนาการ ${a.totemTh} เดินข้างคุณ 5 นาที · Full Moon เดือน ${a.moon} = พลังสูงสุด · สี ${_elDom(a.elRaw).color[0]}`, `keep an image/object of ${t} at work · visualise ${t} walking beside you 5 min · the Full Moon of ${a.moon} is your peak window · colours ${_elDom(a.elRaw).color[1]}`)}`) +
+        P(`⚠️ ${B(pick('เลี่ยง', 'Avoid'))}: ${pick('Shadow Side — กลายเป็นสัตว์โดดเดี่ยวที่ตัดขาดจากฝูง; ทำ Vision Quest เมื่อรู้สึกห่าง', 'the Shadow Side — becoming a lone animal cut off from your tribe; do a Vision Quest when you feel distant')}`)));
+    sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('Totem ของฉัน?', 'My Totem?'), `${a.totemTh} (${t})`) +
+        faqQ(pick('นิสัยหลัก?', 'Core nature?'), pick(trait()[0], trait()[1])) +
+        faqQ(pick('ทิศโชคปีนี้?', 'My fortune direction?'), pick(dir[0], dir[1])) +
+        faqQ(pick('อาชีพที่เหมาะ?', 'Fitting career?'), pick(_elDom(a.elRaw).car[0], _elDom(a.elRaw).car[1]))));
+    return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
 }
 // ── NATIVE AMERICAN TOTEM ──────────────────────────────────────
 function calcNativeAmerican(d) {
@@ -5204,7 +5690,7 @@ function calcNativeAmerican(d) {
     const totem = TOTEMS[Math.min(idx, 12)];
     const variation = (d.year % 100 + d.day * 7) % 60 - 30;
     const score = Math.max(440, Math.min(950, totem.score + variation));
-    return {
+    const nativeAmericanResult = {
         birthTotem: totem.t, birthTotemTh: tPick(totem.th, totem.t), moonCycle: totem.moon,
         clansmother: totem.clan, element: pEl(totem.el),
         score,
@@ -5235,7 +5721,40 @@ function calcNativeAmerican(d) {
             closingTh: 'Medicine Man กล่าวไว้ — "เมื่อคุณรู้จัก Totem ของตัวเอง คุณไม่เดินคนเดียวอีกต่อไป"',
             closingEn: 'A Medicine Man said: "When you know your Totem, you no longer walk alone."',
         }),
+        deepReading: '',
     };
+    nativeAmericanResult.deepReading = _nativeAmericanDeepSections({
+        totemEn: totem.t, totemTh: nativeAmericanResult.birthTotemTh, moon: totem.moon, clan: totem.clan, elRaw: totem.el,
+    });
+    return nativeAmericanResult;
+}
+// ── IFÁ / YORUBA DEEP READING ────────────────────────────────────────────────
+function _ifaYorubaDeepSections(a) {
+    const K = _dsKit();
+    const { pick, blk, P, B, faqQ } = K;
+    const th = a.themeRaw;
+    const orisha = () => th.includes('รัก') ? ['Oshun (เทพีแม่น้ำและความรัก)', 'Oshun (river goddess of love)'] :
+        (th.includes('สำเร็จ') || th.includes('ภาคภูมิ') || th.includes('กษัตริย์')) ? ['Shango (เทพสายฟ้าและความยุติธรรม)', 'Shango (god of thunder and justice)'] :
+            th.includes('ปัญญา') ? ['Obatala (เทพผู้สร้างและปัญญา)', 'Obatala (creator and god of wisdom)'] :
+                (th.includes('การงาน') || th.includes('เหล็ก')) ? ['Ogun (เทพเหล็กและการงาน)', 'Ogun (god of iron and work)'] :
+                    ['Orisha ประจำธีมของคุณ', 'the Orisha of your theme'];
+    const sec = [];
+    sec.push(blk('📜', 'Odù · ธีม · โชค', 'Odù · Theme · Fortune', P(pick(`Ifá คือศาสตร์ทำนายของชาว Yoruba (แอฟริกาตะวันตก 2,000 ปี, มรดก UNESCO) ใช้ระบบ 256 Odù — Babalawo จำคำสอนกว่า 250,000 บท Odù ประจำคุณคือ ${B(a.oduEn)} (${a.oduTh})`, `Ifá is the divination science of the Yoruba (West Africa, 2,000 years, UNESCO heritage) using 256 Odù — Babalawo priests memorise ~250,000 verses. Your Odù is ${B(a.oduEn)} (${a.oduTh}).`)) +
+        P(`${B(pick('ธีม', 'Theme'))}: ${a.themeDisp} · ${B(pick('โชค', 'Fortune'))}: ${a.fortuneDisp}`)));
+    sec.push(blk('🧬', 'ตัวตน — Ori (เส้นทางที่คุณเลือก)', 'Identity — Ori (the path you chose)', P(pick(`Yoruba เชื่อว่า Odù คือ "เส้นทางชีวิต" ที่คุณเลือกเองก่อนเกิด (ไม่ใช่ฟ้ากำหนด) แล้วลืมหลังเกิด — Babalawo ช่วยให้ "จำทางเดิม" Ori (หัวจิตวิญญาณ) ของคุณถูกออกแบบเพื่อ ${a.themeDisp}`, `Yoruba teaches the Odù is a "life path" you chose yourself before birth (not fate), then forgot — the Babalawo helps you "remember the path". Your Ori (spirit-head) was designed for ${a.themeDisp}.`)) +
+        P(pick(`Orisha (เทพ Yoruba) ที่สัมพันธ์กับ Odù ของคุณคือ ${orisha()[0]} — จะปรากฏเป็นลางและความฝันเมื่อคุณต้องการที่สุด`, `The Orisha (Yoruba deity) tied to your Odù is ${orisha()[1]} — appearing as omens and dreams when you most need them.`))));
+    sec.push(blk('💼', 'การงาน — ควรทำ / ควรเลี่ยง', 'Career — Do / Avoid', P(`${B(pick('เข้าทาง', 'Best fit'))}: ${pick('งานที่ตรงกับธีม Odù (' + a.themeDisp + ') และให้ Ogun (เทพการงาน) หนุน', 'work aligned with your Odù theme (' + a.themeDisp + '), backed by Ogun (god of work)')}`) + P(`✅ ${pick('ควรทำ', 'Do')}: ${pick('เดินตามเส้นทาง Ori ที่เลือกไว้ ทำพิธี Ebo เปิดทางเมื่อสะดุด', 'walk the Ori path you chose; do Ebo rituals to clear blocks')}`) + P(`⚠️ ${pick('ควรเลี่ยง', 'Avoid')}: ${pick('ฝืนธีม Odù = เรียก "Eshu block" ทุกประตูปิด', 'fighting your Odù theme = an "Eshu block", every door shuts')}`)));
+    sec.push(blk('💰', 'การเงิน', 'Money', P(pick(`Ifá ว่าความมั่งคั่งไหลมาเมื่อคุณเดินตรงเส้นทาง Ori — ${a.fortuneDisp} โชคของ Odù นี้แปลว่า${a.fortuneDisp.includes('เยี่ยม') || a.fortuneDisp.includes('excellent') || a.fortuneDisp.includes('highest') ? 'เปิดกว้างเมื่อทำพิธีถูกต้อง' : 'ต้องทำ Ebo (พิธีเปิดทาง) สม่ำเสมอ'}`, `Ifá says wealth flows when you walk your Ori path straight — ${a.fortuneDisp}. This Odù's fortune means ${a.fortuneDisp.includes('excellent') || a.fortuneDisp.includes('highest') || a.fortuneDisp.includes('good') ? 'it opens wide when rituals are done right' : 'you must do Ebo (path-clearing) regularly'}.`))));
+    sec.push(blk('❤️', 'ความรัก', 'Love', P(pick('Oshun (เทพีแม่น้ำและความรัก) คือผู้พิทักษ์ความรักใน Ifá คู่ที่ดีของคุณคือคนที่เคารพ Ori (เส้นทาง) ของคุณ ไม่ดึงให้ออกนอกทาง', 'Oshun (river goddess of love) guards love in Ifá. Your best partner respects your Ori (path) rather than pulling you off it.'))));
+    sec.push(blk('🩺', 'สุขภาพ — Ibi (เงา)', 'Health — Ibi (the shadow)', P(pick(`ทุก Odù มี "Ibi" (ด้านมืด) เงาของ ${a.oduEn} คือการฝืนโชค/ไม่ยอมรับธีม สัญญาณ Eshu block: ทุกสิ่งไม่สำเร็จ คนหายไป โชคหด ปล่อยไว้กลายเป็นความเครียดเรื้อรัง`, `Every Odù has its "Ibi" (shadow). For ${a.oduEn} it is fighting your fortune or refusing your theme. Signs of an Eshu block: nothing succeeds, people vanish, luck shrinks — left unchecked it becomes chronic stress.`))));
+    sec.push(blk('📅', 'ปี 2026', '2026', P(pick(`ปี 2026 ในปฏิทิน Ifá เป็นปีของ Odù "Ogbè" (แสงสว่าง) ที่เปิดประตูให้ทุก Odù ที่พร้อม — ${a.fortuneDisp.includes('เยี่ยม') || a.fortuneDisp.includes('excellent') ? 'โดยเฉพาะ Odù ของคุณ ปีนี้ Ori เปิดกว้าง' : 'สำหรับ Odù ของคุณ ปีนี้ทำ Ebo อย่างน้อย 2 ครั้งเพื่อเปิดทาง'}`, `2026 in the Ifá calendar is the year of Odù "Ogbè" (Light), opening doors for any prepared Odù — ${a.fortuneDisp.includes('excellent') || a.fortuneDisp.includes('highest') ? 'especially yours; your Ori opens wide' : 'for yours, do at least two Ebo rituals to open the way'}.`))));
+    sec.push(blk('🎨', 'เสริม / เลี่ยง', 'Enhance / Avoid', P(`✅ ${B(pick('เสริม', 'Enhance'))}: ${pick(`สวด "Orí mi, gbà mí" (หัวจิตวิญญาณ นำฉัน) ก่อนตัดสินใจใหญ่ · ตั้ง Igbá Orí (ขันน้ำ+3 เหรียญ) ที่บ้าน · จุดเทียนขาวทุก Ose Ifá (ทุก 4 วัน)`, `chant "Orí mi, gbà mí" (My spirit-head, lead me) before big decisions · set an Igbá Orí (a bowl of water + 3 coins) at home · light a white candle each Ose Ifá (every 4 days)`)}`) +
+        P(`⚠️ ${B(pick('เลี่ยง', 'Avoid'))}: ${pick('ฝืนเส้นทาง Ori — เมื่อเจอ Eshu block วางเครื่องบูชาที่ทางแยกแล้วกลับมาเดินทางถูก', 'fighting your Ori path — when an Eshu block hits, place an offering at a crossroads and return to the right path')}`)));
+    sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('Odù ของฉัน?', 'My Odù?'), `${a.oduEn} (${a.oduTh})`) +
+        faqQ(pick('ธีมชีวิตที่เลือกไว้?', 'My chosen life theme?'), a.themeDisp) +
+        faqQ(pick('Orisha ประจำตัว?', 'My Orisha?'), pick(orisha()[0], orisha()[1])) +
+        faqQ(pick('โชคของ Odù?', 'My Odù\'s fortune?'), a.fortuneDisp)));
+    return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
 }
 // ── IFA / YORUBA ─────────────────────────────────────────────────
 function calcIfaYoruba(d) {
@@ -5261,7 +5780,7 @@ function calcIfaYoruba(d) {
     const odu = ODU[oduNumber];
     const variation = (d.day * 9 + d.hour * 13) % 80 - 40;
     const score = Math.max(420, Math.min(950, odu.score + variation));
-    return {
+    const ifaYorubaResult = {
         odu: odu.n, oduTh: tPick(odu.th, odu.thEn), oduNumber,
         oduTheme: tPick(odu.theme, odu.themeEn), fortune: tPick(odu.fortune, odu.fortuneEn),
         score,
@@ -5292,9 +5811,38 @@ function calcIfaYoruba(d) {
             closingTh: 'Ifa ไม่ใช่คำทำนาย — มันคือกระจกที่ให้คุณเห็น Ori ของตัวเอง เห็นแล้ว การเดินก็ง่ายขึ้น',
             closingEn: 'Ifa isn\'t prediction — it\'s a mirror in which you see your own Ori. Once you see it, the walking gets easier.',
         }),
+        deepReading: '',
     };
+    ifaYorubaResult.deepReading = _ifaYorubaDeepSections({
+        oduEn: odu.n, oduTh: ifaYorubaResult.oduTh, themeDisp: ifaYorubaResult.oduTheme, fortuneDisp: ifaYorubaResult.fortune, themeRaw: odu.theme,
+    });
+    return ifaYorubaResult;
 }
 // ── ABORIGINAL DREAMTIME ──────────────────────────────────────
+// ── ABORIGINAL DREAMTIME DEEP READING ────────────────────────────────────────
+function _aboriginalDeepSections(a) {
+    const K = _dsKit();
+    const { pick, blk, P, B, faqQ } = K;
+    const c = a.clan;
+    const elRaw = (c.indexOf('Water') >= 0) ? 'น้ำ' : (c.indexOf('Sky') >= 0 || c.indexOf('Star') >= 0 || c.indexOf('Cloud') >= 0) ? 'ลม' : (c.indexOf('Storm') >= 0) ? 'ไฟ' : (c.indexOf('Dream') >= 0 || c.indexOf('Shadow') >= 0) ? 'น้ำ' : 'ดิน';
+    const role = () => c.indexOf('Sky') >= 0 || c.indexOf('Star') >= 0 || c.indexOf('Cloud') >= 0 ? ['ผู้เชื่อมสวรรค์กับดิน', 'a bridge between sky and earth'] :
+        c.indexOf('Water') >= 0 ? ['ผู้รักษาและเยียวยา', 'a healer and caretaker'] :
+            c.indexOf('Forest') >= 0 || c.indexOf('Rock') >= 0 || c.indexOf('Creation') >= 0 ? ['ผู้ดูแลดินแดนและประเพณี', 'a keeper of land and tradition'] :
+                ['ผู้ส่งสารระหว่างเผ่า', 'a messenger between tribes'];
+    const sec = [];
+    sec.push(blk('📜', 'Dreaming Ancestor · Clan', 'Dreaming Ancestor · Clan', P(pick(`Dreamtime (Tjukurrpa) คือจักรวาลวิทยาของชนพื้นเมืองออสเตรเลีย — เก่าแก่สุดในโลก (65,000 ปี) แก่นคือ "บรรพบุรุษ Dreaming" ที่ "เดินออกจากดิน" สร้างทุกสิ่ง ของคุณคือ ${B(a.ancestorTh)} (${a.ancestorEn})`, `Dreamtime (Tjukurrpa) is the cosmology of Australia\'s Indigenous peoples — the world\'s oldest (65,000 years). Its core is the "Dreaming Ancestors" who "walked out of the earth" and made all things. Yours is ${B(a.ancestorTh)} (${a.ancestorEn}).`)) +
+        P(`${B('Clan')}: ${a.clan} · ${B(pick('ฤดูเกิด', 'Birth season'))}: ${a.season} · ${B(pick('ธาตุ', 'Element'))}: ${pEl(elRaw)}`)));
+    sec.push(blk('🧬', 'ตัวตน — Songlines & Skin Name', 'Identity — Songlines & Skin Name', P(pick(`บรรพบุรุษยังคงอยู่ในรูป "Songlines" (เส้นทางเพลง) และเชื่อมกับคุณผ่านวันเกิด Clan ${a.clan} ให้ "Skin Name" ที่บอกบทบาทในเผ่า — คุณเหมาะเป็น${role()[0]}`, `The Ancestors persist as "Songlines" (song-paths), linked to you through your birth day. The ${a.clan} grants a "Skin Name" telling your tribal role — you fit as ${role()[1]}.`))));
+    _domainBlocks(elRaw, K).forEach(b => sec.push(b));
+    sec.push(blk('📅', 'ปี 2026', '2026', P(pick(`ปี 2026 ปฏิทิน Aboriginal ตรงกับช่วง "Pleiades" (7 ดวง / Seven Sisters) ขึ้นก่อนอรุณ — ช่วงที่ Dreaming หญิงเปิดกว้าง เหมาะทำพิธีและเรียนรู้`, `2026 in the Aboriginal calendar coincides with the "Pleiades" (Seven Sisters) rising before dawn — when the feminine Dreaming opens widely. A season for ceremony and learning.`))));
+    sec.push(blk('🎨', 'เสริม / เลี่ยง', 'Enhance / Avoid', P(`✅ ${B(pick('เสริม', 'Enhance'))}: ${pick(`"Welcome to Country" เมื่อเข้าที่ใหม่ · เดินเท้าเปล่าบนดิน 10 นาที/สัปดาห์ · จินตนาการ ${a.ancestorTh} ในความฝัน · Dot Painting · สี ${_elDom(elRaw).color[0]}`, `"Welcome to Country" when entering new places · walk barefoot on earth 10 min/week · visualise ${a.ancestorEn} in dreams · Dot Painting · colours ${_elDom(elRaw).color[1]}`)}`) +
+        P(`⚠️ ${B(pick('เลี่ยง', 'Avoid'))}: ${pick('การตัดขาดจาก Songlines (Elders ว่าเป็น "โรคจิตวิญญาณ") — แก้ด้วย "Walk on Country" สม่ำเสมอ', 'disconnection from Songlines (Elders call it a "spiritual illness") — remedy with regular "Walk on Country"')}`)));
+    sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('Dreaming Ancestor ของฉัน?', 'My Dreaming Ancestor?'), `${a.ancestorTh} (${a.ancestorEn})`) +
+        faqQ(pick('บทบาทในเผ่า?', 'My tribal role?'), pick(role()[0], role()[1])) +
+        faqQ(pick('ธาตุของฉัน?', 'My element?'), pEl(elRaw)) +
+        faqQ(pick('อาชีพที่เหมาะ?', 'Fitting career?'), pick(_elDom(elRaw).car[0], _elDom(elRaw).car[1]))));
+    return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
+}
 function calcAboriginal(d) {
     const ANCESTORS = [
         { a: 'Rainbow Serpent', th: 'งูรุ้ง', season: 'ฤดูฝน', seasonEn: 'rainy season', clan: 'Water Clan', score: 800 },
@@ -5314,7 +5862,7 @@ function calcAboriginal(d) {
     const a = ANCESTORS[ancestorIdx];
     const variation = (d.day * 11 + d.year % 100 * 3) % 60 - 30;
     const score = Math.max(430, Math.min(940, a.score + variation));
-    return {
+    const aboriginalResult = {
         dreamingAncestor: a.a, dreamingTh: tPick(a.th, a.a),
         season: tPick(a.season, a.seasonEn), clan: a.clan,
         score,
@@ -5345,7 +5893,12 @@ function calcAboriginal(d) {
             closingTh: 'Aboriginal Elders บอกว่า — "The land owns us, not the other way around" เมื่อคุณเข้าใจ Dreaming คุณรู้ว่าคุณเป็นของโลก ไม่ใช่ให้โลกเป็นของคุณ',
             closingEn: 'Aboriginal Elders say — "The land owns us, not the other way around." When you understand Dreaming, you know you belong to the earth, not the earth to you.',
         }),
+        deepReading: '',
     };
+    aboriginalResult.deepReading = _aboriginalDeepSections({
+        ancestorEn: a.a, ancestorTh: aboriginalResult.dreamingTh, season: aboriginalResult.season, clan: a.clan,
+    });
+    return aboriginalResult;
 }
 // ── BIORHYTHM ─────────────────────────────────────────────────────
 // Single source of truth for the Biorhythm reference date. FIXED (never
@@ -5353,6 +5906,28 @@ function calcAboriginal(d) {
 // never changes. Exposed as biorhythm.refDate for every display surface.
 const BIORHYTHM_REF = { y: 2026, m: 4, d: 14 };
 const BIORHYTHM_REF_ISO = `${BIORHYTHM_REF.y}-${String(BIORHYTHM_REF.m).padStart(2, '0')}-${String(BIORHYTHM_REF.d).padStart(2, '0')}`;
+// ── BIORHYTHM DEEP READING (daily snapshot, NOT a blueprint) ─────────────────
+function _biorhythmDeepSections(a) {
+    const K = _dsKit();
+    const { pick, blk, P, B, faqQ } = K;
+    const band = (v) => v > 50 ? ['พีค (เหนือเส้น)', 'peak (above the line)'] : v > 0 ? ['ขาขึ้น', 'rising'] : v > -50 ? ['ขาลง', 'falling'] : ['ต่ำวิกฤต', 'critical low'];
+    const doAdvice = (v, hi, lo) => v > 50 ? hi : v < -50 ? lo : ['ทำตามที่ร่างกาย/ใจส่งสัญญาณ', 'follow what your body/mind signals'];
+    const sec = [];
+    sec.push(blk('📜', 'คลื่นพลังประจำวัน (ณ ' + a.refDate + ')', 'Daily Energy Snapshot (as of ' + a.refDate + ')', P(pick(`Biorhythm คือศาสตร์สมัยใหม่ (ปลายศตวรรษ 19, Fliess & Swoboda) ที่ต่างจากอีก 25 ศาสตร์ — เป็น "คลื่นรายวัน" ไม่ใช่ "พิมพ์เขียวถาวร" ใช้เป็นชั้น tactical เสริม ไม่ใช่แกนตัวตน`, `Biorhythm is a modern system (late 19th c., Fliess & Swoboda) unlike the other 25 here — a "daily wave", not a "permanent blueprint". Use it as a tactical layer, not an identity axis.`)) +
+        P(`💪 ${B(pick('ร่างกาย', 'Body'))}: ${a.phys}% (${a.physPhase}) · 💗 ${B(pick('อารมณ์', 'Emotion'))}: ${a.emo}% (${a.emoPhase}) · 🧠 ${B(pick('สติปัญญา', 'Intellect'))}: ${a.intel}% (${a.intelPhase})`)));
+    sec.push(blk('🧬', '3 วงจรทำงานอย่างไร', 'How the 3 Cycles Work', P(pick('นับจากวันเกิด ร่างกายมี 3 วงจร sin: Physical 23 วัน · Emotional 28 วัน · Intellectual 33 วัน เหนือเส้น 0 = มีพลัง ใต้เส้น = ช่วงฟื้นฟู ใกล้ 0 = "Critical Day" (วงจรเปลี่ยนทิศ)', 'From your birth day, the body runs 3 sine cycles: Physical 23 days · Emotional 28 days · Intellectual 33 days. Above the 0-line = energy; below = recovery; near 0 = a "Critical Day" (the cycle reverses).'))));
+    sec.push(blk('💪', 'ร่างกายวันนี้', 'Body Today', P(pick(`อยู่ใน${band(a.phys)[0]} (${a.phys}%) — ${doAdvice(a.phys, ['เหมาะออกกำลังหนัก งานใช้แรง แข่งกีฬา', 'great for heavy exercise, physical work, competition'], ['นอนมากขึ้น ลดความเข้มของกิจกรรมกาย', 'sleep more, ease off physical intensity'])[0]}`, `In a ${band(a.phys)[1]} (${a.phys}%) — ${doAdvice(a.phys, ['great for heavy exercise, physical work, competition', 'great for heavy exercise, physical work, competition'], ['sleep more, ease off physical intensity', 'sleep more, ease off physical intensity'])[1]}.`))));
+    sec.push(blk('💗', 'อารมณ์วันนี้', 'Emotion Today', P(pick(`อยู่ใน${band(a.emo)[0]} (${a.emo}%) — ${doAdvice(a.emo, ['เข้าใจคนได้ดี เหมาะเจรจา แสดง เข้าสังคม', 'strong empathy — good for negotiation, performance, socialising'], ['อย่าตัดสินใจที่ใช้อารมณ์ คุณอ่อนไหวผิดปกติ', 'avoid emotional decisions; you\'re unusually sensitive'])[0]}`, `In a ${band(a.emo)[1]} (${a.emo}%) — ${doAdvice(a.emo, ['strong empathy — good for negotiation, performance, socialising', 'strong empathy — good for negotiation, performance, socialising'], ['avoid emotional decisions; you\'re unusually sensitive', 'avoid emotional decisions; you\'re unusually sensitive'])[1]}.`))));
+    sec.push(blk('🧠', 'สติปัญญาวันนี้', 'Mind Today', P(pick(`อยู่ใน${band(a.intel)[0]} (${a.intel}%) — ${doAdvice(a.intel, ['คมเฉียบ เหมาะวิเคราะห์ เขียน งานซับซ้อน ตัดสินใจยาก', 'sharp — good for analysis, writing, complex work, hard decisions'], ['ตรวจงานสองรอบ ไม่พึ่งความจำ เลี่ยงตัดสินใจสำคัญ', 'double-check work, don\'t rely on memory, avoid key decisions'])[0]}`, `In a ${band(a.intel)[1]} (${a.intel}%) — ${doAdvice(a.intel, ['sharp — good for analysis, writing, complex work, hard decisions', 'sharp — good for analysis, writing, complex work, hard decisions'], ['double-check work, don\'t rely on memory, avoid key decisions', 'double-check work, don\'t rely on memory, avoid key decisions'])[1]}.`))));
+    sec.push(blk('📅', 'วางแผนรายวัน', 'Daily Planning', P(pick('พล็อตกราฟล่วงหน้า: วัน "Triple High" (3 วงจรสูงพร้อมกัน, ~2-3 ครั้ง/ปี) = ทำสิ่งสำคัญสุด · วัน "Triple Low" = ลาหรือลดกิจกรรม · วัน Critical (วงจรข้ามเส้น 0) = เลี่ยงเดินทางไกล/ผ่าตัด/ตัดสินใจการเงิน', 'Plot ahead: a "Triple High" (all 3 cycles up, ~2-3×/year) = do what matters most · a "Triple Low" = take leave or reduce activity · a Critical day (a cycle crossing 0) = avoid long travel/surgery/financial decisions.'))));
+    sec.push(blk('🎨', 'วิธีใช้ + ข้อควรระวัง', 'How to Use + Caveat', P(`✅ ${B(pick('ใช้', 'Use'))}: ${pick('จดสังเกต 3 เดือนแล้วเทียบกับชีวิตจริง — ดูว่า Biorhythm ส่วนตัวคุณแม่นแค่ไหน', 'track 3 months against real life — see how accurate Biorhythm is for you personally')}`) +
+        P(`⚠️ ${B(pick('ข้อควรระวัง', 'Caveat'))}: ${pick('งานวิจัยสมัยใหม่ยังไม่ยืนยันความแม่นของ Biorhythm — ใช้เป็นเครื่องสะท้อนตัวเอง ไม่ใช่กฎตายตัว ถ้าไม่ resonate ก็ข้ามได้', 'modern research hasn\'t confirmed Biorhythm\'s accuracy — use it as self-reflection, not a hard rule. If it doesn\'t resonate, skip it')}`)));
+    sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('นี่คือบุคลิกของฉันไหม?', 'Is this my personality?'), pick('ไม่ใช่ — เป็นคลื่น "วันนี้" ไม่ใช่ตัวตนถาวร', 'no — it\'s "today\'s" wave, not a fixed self')) +
+        faqQ(pick('วันไหนทำงานใหญ่ดี?', 'Best day for big work?'), pick('วัน Triple High (3 วงจรสูงพร้อมกัน)', 'a Triple High day (all 3 cycles up)')) +
+        faqQ(pick('Critical Day คืออะไร?', 'What is a Critical Day?'), pick('วันที่วงจรข้ามเส้น 0% — ความผิดพลาดเพิ่มตามสถิติ', 'a day a cycle crosses 0% — error rates rise statistically')) +
+        faqQ(pick('เชื่อได้แค่ไหน?', 'How much to trust it?'), pick('เป็นเครื่องมือ tactical เสริม ไม่ใช่คำทำนาย', 'a supplementary tactical tool, not a prediction'))));
+    return _dsSort(sec, ['📜', '🧬', '💪', '💗', '🧠', '📅', '🎨', '💬']);
+}
 function calcBiorhythm(d) {
     // Physical: 23-day cycle; Emotional: 28-day; Intellectual: 33-day
     // Sampled at the FIXED reference date (NOT new Date()) — see BIORHYTHM_REF.
@@ -5376,7 +5951,7 @@ function calcBiorhythm(d) {
     const normalize = (v) => Math.round(700 + v * 200);
     const avgScore = Math.round((normalize(physical) + normalize(emotional) + normalize(intellectual)) / 3);
     const score = Math.max(430, Math.min(950, avgScore));
-    return {
+    const biorhythmResult = {
         physical: Math.round(physical * 100), emotional: Math.round(emotional * 100), intellectual: Math.round(intellectual * 100),
         physicalPhase: phaseLabel(physical), emotionalPhase: phaseLabel(emotional), intellectualPhase: phaseLabel(intellectual),
         score,
@@ -5408,7 +5983,46 @@ function calcBiorhythm(d) {
             closingTh: 'Biorhythm ต่างจาก 25 ศาสตร์อื่นในรายงาน — ศาสตร์อื่นวาด "blueprint ตลอดชีวิต" ส่วน Biorhythm วัด "คลื่นประจำวัน" · ใช้เป็นเครื่องมือ tactical ประจำวัน ไม่ใช่คำทำนายอะไร',
             closingEn: 'Biorhythm differs from the other 25 systems in this report — they paint a "lifetime blueprint", while Biorhythm measures the "daily wave". Use it as a tactical daily tool, not a prediction.',
         }),
+        deepReading: '',
     };
+    biorhythmResult.deepReading = _biorhythmDeepSections({
+        phys: biorhythmResult.physical, emo: biorhythmResult.emotional, intel: biorhythmResult.intellectual,
+        physPhase: biorhythmResult.physicalPhase, emoPhase: biorhythmResult.emotionalPhase, intelPhase: biorhythmResult.intellectualPhase,
+        refDate: biorhythmResult.refDate,
+    });
+    return biorhythmResult;
+}
+// ── VEDIC MAHADASHA DEEP READING (Vimshottari) ───────────────────────────────
+function _vedicMahadashaDeepSections(a) {
+    const K = _dsKit();
+    const { pick, blk, P, B, faqQ } = K;
+    const p = a.planetKey;
+    const meaning = () => p === 'Jupiter' ? ['"มหาทศาครู" 16 ปีของการขยาย การเรียนรู้ การยอมรับ การหาครู', 'the "Guru Mahadasha" — 16 years of expansion, learning, recognition, mentors'] :
+        p === 'Saturn' ? ['"มหาทศาแห่งวินัย" 19 ปีของการสร้างรากฐาน ผลช้าแต่ยั่งยืน', 'the "Mahadasha of discipline" — 19 years of foundations; slow but durable returns'] :
+            p === 'Venus' ? ['"มหาทศาแห่งความสุข" 20 ปีของความรัก ศิลปะ ความมั่งคั่ง', 'the "Mahadasha of joy" — 20 years of love, art, abundance'] :
+                p === 'Mars' ? ['"มหาทศาแห่งการกระทำ" 7 ปีของการต่อสู้ การเป็นผู้นำ', 'the "Mahadasha of action" — 7 years of fighting and leading'] :
+                    p === 'Rahu' ? ['"มหาทศาแห่งความปรารถนา" 18 ปีของการทลายขีดจำกัด โอกาสแปลกใหม่', 'the "Mahadasha of desire" — 18 years of breaking limits, unusual openings'] :
+                        p === 'Ketu' ? ['"มหาทศาแห่งจิตวิญญาณ" 7 ปีของการหันเข้าใน การปล่อยวาง', 'the "Mahadasha of spirit" — 7 years of turning inward and release'] :
+                            p === 'Sun' ? ['"มหาทศาแห่งอำนาจ" 6 ปีของตำแหน่ง ชื่อเสียง', 'the "Mahadasha of authority" — 6 years of position and fame'] :
+                                p === 'Moon' ? ['"มหาทศาแห่งอารมณ์และครอบครัว" 10 ปีของบ้าน ความสัมพันธ์', 'the "Mahadasha of feeling and family" — 10 years of home and relationships'] :
+                                    ['"มหาทศาแห่งการสื่อสาร" 17 ปีของธุรกิจ การค้า การพูด', 'the "Mahadasha of communication" — 17 years of business, trade, speech'];
+    const mantra = () => p === 'Jupiter' ? 'Om Brihaspataye Namaha' : p === 'Saturn' ? 'Om Shanishcharaya Namaha' : p === 'Venus' ? 'Om Shukraya Namaha' : p === 'Mars' ? 'Om Mangalaya Namaha' : p === 'Rahu' ? 'Om Rahave Namaha' : p === 'Ketu' ? 'Om Ketave Namaha' : p === 'Sun' ? 'Om Suryaya Namaha' : p === 'Moon' ? 'Om Chandraya Namaha' : 'Om Budhaya Namaha';
+    const gem = () => p === 'Jupiter' ? ['บุษราคัมเหลือง', 'Yellow Sapphire'] : p === 'Saturn' ? ['ไพลิน', 'Blue Sapphire'] : p === 'Venus' ? ['เพชร', 'Diamond'] : p === 'Mars' ? ['ปะการังแดง', 'Red Coral'] : p === 'Rahu' ? ['Hessonite Garnet', 'Hessonite Garnet'] : p === 'Ketu' ? ["Cat's Eye", "Cat's Eye"] : p === 'Sun' ? ['ทับทิม', 'Ruby'] : p === 'Moon' ? ['มุก', 'Pearl'] : ['มรกต', 'Emerald'];
+    const dark = ['Saturn', 'Rahu', 'Ketu'].includes(p);
+    const sec = [];
+    sec.push(blk('📜', 'Mahadasha · Antardasha', 'Mahadasha · Antardasha', P(pick(`Vimshottari Dasha คือระบบ "ยุคของดาว" ใน Vedic Jyotish (3,000 ปี) ครอบทั้งชีวิต 120 ปี × 9 ดาว — เครื่องมือทำนาย timing ที่แม่นสุด คุณอยู่ใน Mahadasha ของ ${B(a.planetDisp)} ถึงปี ${a.mahadashaEnd}`, `Vimshottari Dasha is the "planetary era" system of Vedic Jyotish (3,000 years), spanning a 120-year life × 9 planets — the most precise timing tool. You are in the ${B(a.planetDisp)} Mahadasha until ${a.mahadashaEnd}.`)) +
+        P(`${B('Antardasha')} (${pick('ช่วงย่อยที่เปิด', 'active sub-period')}): ${a.antardasha} · ${B(pick('คุณภาพ', 'Quality'))}: ${a.qualityDisp} · ${B(pick('ธาตุ', 'Element'))}: ${pEl(a.dashaElRaw)}`)));
+    sec.push(blk('🧬', 'ตัวตน — ยุคที่คุณกำลังอยู่', 'Identity — The Era You Are In', P(pick(`"ดวงกำหนดคุณภาพ Dasha กำหนดเวลา" — ดวงคือแผนที่ Dasha คือ GPS Mahadasha ${a.planetDisp} ของคุณคือ ${meaning()[0]}`, `"The chart sets the quality, the Dasha sets the timing" — the chart is the map, the Dasha is the GPS. Your ${a.planetDisp} Mahadasha is ${meaning()[1]}.`)) +
+        P(pick(`Antardasha ${a.antardasha} เพิ่มชั้นที่สอง — ผสม Mahadasha+Antardasha คืออารมณ์ของช่วงนี้`, `Antardasha ${a.antardasha} adds a second layer — Mahadasha + Antardasha combined is the mood of this moment.`))));
+    _domainBlocks(a.dashaElRaw, K).forEach(b => sec.push(b));
+    sec.push(blk('📅', 'ปี 2026', '2026', P(pick(`ปี 2026 ใน Mahadasha ${a.planetDisp} — ${dark ? 'ดาวมืด (Saturn/Rahu/Ketu) ไม่ใช่ช่วงร้าย แต่คือหน้าต่างเปลี่ยนแปลงสูงสุด ผ่านได้ออกมาแกร่งขึ้น' : 'ดาวสว่างให้พลังดี แต่ระวัง "ติดสบาย" — ใช้โอกาสให้คุ้ม'} Antardasha ${a.antardasha} อาจเปลี่ยนภายในปีนี้/ปีหน้า สังเกตทิศที่เปลี่ยน`, `2026 in your ${a.planetDisp} Mahadasha — ${dark ? 'dark planets (Saturn/Rahu/Ketu) are not bad eras but the biggest transformation windows; pass through and emerge stronger' : 'bright planets give good energy, but watch the "comfort trap" — use the opening fully'}. Antardasha ${a.antardasha} may change this year or next — watch for the direction shift.`))));
+    sec.push(blk('🎨', 'เสริม / เลี่ยง', 'Enhance / Avoid', P(`✅ ${B(pick('เสริม', 'Enhance'))}: ${pick(`สวด "${mantra()}" 108 ครั้งในวันของดาว · ใส่อัญมณี ${gem()[0]} · บริจาคสิ่งที่สัมพันธ์กับดาวเดือนละครั้ง`, `chant "${mantra()}" 108× on the planet\'s day · wear ${gem()[1]} · donate something tied to the planet monthly`)}`) +
+        P(`⚠️ ${B(pick('เลี่ยง', 'Avoid'))}: ${pick('คิดว่า "Dasha นี้ร้าย" — โหราจารย์ว่า "ไม่มี Dasha ร้าย มีแต่ใช้ผิดหรือถูก"', 'thinking "this Dasha is bad" — teachers say "there is no bad Dasha, only Dashas used rightly or wrongly"')}`)));
+    sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('ฉันอยู่ยุคดาวอะไร?', 'Which planetary era am I in?'), pick(`${a.planetDisp} (ถึงปี ${a.mahadashaEnd})`, `${a.planetDisp} (until ${a.mahadashaEnd})`)) +
+        faqQ(pick('ช่วงนี้เน้นเรื่องอะไร?', 'What does this era emphasise?'), pick(meaning()[0], meaning()[1])) +
+        faqQ(pick('มนตราประจำดาว?', 'My planet mantra?'), mantra()) +
+        faqQ(pick('อัญมณีเสริมดวง?', 'My power gemstone?'), pick(gem()[0], gem()[1]))));
+    return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
 }
 // ── VEDIC MAHADASHA (extracted as separate system) ────────────────
 function calcVedicMahadasha(d, vedic) {
@@ -5433,7 +6047,7 @@ function calcVedicMahadasha(d, vedic) {
     const dq = DASHA_QUALITY[dashaKey] ?? { quality: 'พลังงานปรับสมดุล', qualityEn: 'Balanced energy', el: 'ดิน', score: 730 };
     const variation = (d.day * 7 + d.month * 13) % 80 - 40;
     const score = Math.max(430, Math.min(950, dq.score + variation));
-    return {
+    const vedicMahadashaResult = {
         currentDasha: vedic.mahadasha, currentDashaKey: dashaKey, currentDashaEnd: vedic.mahadashaEnd, antardasha: vedic.antardasha,
         dashaQuality: tPick(dq.quality, dq.qualityEn), dashaElement: pEl(dq.el),
         score,
@@ -5464,5 +6078,11 @@ function calcVedicMahadasha(d, vedic) {
             closingTh: 'Vedic Mahadasha ไม่ทำนาย "อะไรจะเกิด" — มันทำนาย "ความรู้สึก" ของช่วงเวลานั้น รู้ไว้ก่อน คุณก็เตรียมใจได้',
             closingEn: 'Vedic Mahadasha doesn\'t predict "what will happen" — it predicts the "feeling" of a period. Know it in advance and you can prepare your mind.',
         }),
+        deepReading: '',
     };
+    vedicMahadashaResult.deepReading = _vedicMahadashaDeepSections({
+        planetKey: dashaKey, planetDisp: vedicMahadashaResult.currentDasha, antardasha: vedic.antardasha,
+        qualityDisp: vedicMahadashaResult.dashaQuality, dashaElRaw: dq.el, mahadashaEnd: vedic.mahadashaEnd,
+    });
+    return vedicMahadashaResult;
 }
