@@ -1359,15 +1359,21 @@ function _webShareToggle(anchor){
   const txt = encodeURIComponent(_webShareText());
   // Wrap each link so a click also logs engagement (heavier weight = real
   // share intent, not just "opened menu and walked away").
+  // Log share intent to BOTH the local engagement log (legacy) AND the server
+  // sink (myth_events) so the funnel dashboard can measure share-rate per wave.
+  const _trackShare = (ch) => {
+    try { _logEngagement('share_click'); } catch(_){}
+    try { if (window._msTrack) _msTrack.track('share', { god:(typeof _currentDraw!=='undefined'&&_currentDraw&&_currentDraw.god)?_currentDraw.god.name:null, meta:{ ch } }); } catch(_){}
+  };
   const l = document.getElementById('shareLine');
   if (l) { l.href = `https://line.me/R/msg/text/?${txt}%20${url}`;
-           l.onclick = () => { try { _logEngagement('share_click'); } catch(_){} }; }
+           l.onclick = () => _trackShare('line'); }
   const t = document.getElementById('shareTwitter');
   if (t) { t.href = `https://twitter.com/intent/tweet?text=${txt}&url=${url}`;
-           t.onclick = () => { try { _logEngagement('share_click'); } catch(_){} }; }
+           t.onclick = () => _trackShare('x'); }
   const f = document.getElementById('shareFb');
   if (f) { f.href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-           f.onclick = () => { try { _logEngagement('share_click'); } catch(_){} }; }
+           f.onclick = () => _trackShare('fb'); }
   // Click outside (or Escape) to close
   if (m.classList.contains('show')) {
     setTimeout(()=>{
