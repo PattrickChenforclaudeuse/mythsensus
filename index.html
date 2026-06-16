@@ -3222,7 +3222,6 @@ const GROUPS = {
       ['pulse',     'pulse',     'sub_pulse',        false],
       ['sky',       'sky',       'sub_sky',          false],
       ['resonance', 'resonance', 'sub_resonance',    false],
-      ['organum',   'organum',   'sub_organum_plus', false],
       ['brief',     'brief',     'sub_brief',        false],
       ['freq',      'freq',      'sub_freq',         false],
       ['lucky',     'lucky',     'sub_lucky',        false],
@@ -4097,6 +4096,24 @@ function updateWordBars(wordCount,activeWord){
   }).join('');
 }
 
+// Result-view bars grouped by the ~13 categories (legible "what they voted for")
+// instead of raw domain words. Fed the catEntries rollup from showOrganumResult.
+function _renderOrganumCatBars(catEntries){
+  const barsEl=document.getElementById('atBars'); if(!barsEl) return;
+  const isTh=LANG==='th';
+  const max=(catEntries[0]&&catEntries[0][1].count)||1;
+  barsEl.innerHTML=catEntries.slice(0,13).map(([k,d])=>{
+    const ci=_GOD_CATEGORIES[k]||{emoji:'✦',th:k,en:k,color:'var(--gold3)'};
+    const pct=Math.max(5,Math.round(d.count/max*100));
+    return `<div class="at-row" style="padding:3px 0">
+      <div class="at-icon" style="font-size:14px;width:26px;text-align:center;flex-shrink:0">${ci.emoji}</div>
+      <div class="at-label" style="width:120px;color:var(--text);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_esc(isTh?ci.th:ci.en)}</div>
+      <div class="at-track"><div class="at-fill" style="width:${pct}%;background:${ci.color||'var(--gold3)'};transition:width .3s"></div></div>
+      <div class="at-count">${d.count}</div>
+    </div>`;
+  }).join('');
+}
+
 // ── Organum responsiveness helpers ───────────────────────────────────────
 // Previously runOrganum picked 108 RANDOM gods and tallied their `represents`
 // domains. Because a handful of domains dominate the 1,069-god dataset
@@ -4322,27 +4339,50 @@ function showOrganumResult(wordCount,godContrib){
   const entries=Object.entries(wordCount).sort((a,b)=>(b[1].weight||b[1].count)-(a[1].weight||a[1].count));
   const top1=entries[0],top2=entries[1];
 
-  // Primary word
-  if(top1){
+  // Roll the raw domain-word votes up into the ~13 meaningful CATEGORIES so the
+  // result reads as a clear theme ("💰 ทรัพย์·โชค · 34 เสียง") instead of a
+  // scatter of obscure god tags ("literature", "epic compiler", "ferocity")
+  // that made it impossible to tell WHAT the 108 voted for. Same fix as
+  // Frequency Alerts — raw god tags are too granular to be legible. (2026-06-16)
+  const _isTh = LANG==='th';
+  const catAgg = {};
+  for (const [w,d] of Object.entries(wordCount)){
+    const ck = (typeof _DOMAIN_TO_CAT !== 'undefined') ? _DOMAIN_TO_CAT[String(w).toLowerCase()] : null;
+    if (!ck || !_GOD_CATEGORIES[ck]) continue;
+    catAgg[ck] = catAgg[ck] || { count:0, gods:[] };
+    catAgg[ck].count += d.count;
+    (d.gods||[]).forEach(g => { if (g) catAgg[ck].gods.push(g); });
+  }
+  const catEntries = Object.entries(catAgg).sort((a,b)=>b[1].count-a[1].count);
+  const c1 = catEntries[0], c2 = catEntries[1];
+
+  // Primary consensus = top CATEGORY (fall back to top raw word if nothing mapped).
+  if (c1){
+    const ci=_GOD_CATEGORIES[c1[0]], lbl=_isTh?ci.th:ci.en, n1=c1[1].count;
+    document.getElementById('crsIcon').textContent=ci.emoji;
+    document.getElementById('crsType').textContent=lbl;
+    document.getElementById('crsSub').textContent=_isTh?`${n1} เสียงโหวตให้ธีมนี้`:`${n1} votes for this theme`;
+    document.getElementById('crsMsg').textContent=_isTh
+      ?`เสียงของ 108 เทพรวมกันชี้ไปที่ธีม "${lbl}" (${n1} เสียง) — ไม่ใช่คำตอบใช่/ไม่ใช่ แต่คือธีมที่จักรวาลขอให้คุณพิจารณา · ลองถามตัวเองว่า "${lbl}" เกี่ยวกับสถานการณ์นี้อย่างไร`
+      :`The collective voice of the 108 gods converges on the theme "${lbl}" (${n1} votes) — not a yes/no answer, but the theme the universe asks you to reflect on. How does "${lbl}" relate to your situation?`;
+  } else if (top1){
     document.getElementById('crsIcon').textContent='✦';
     document.getElementById('crsType').textContent=top1[0].toUpperCase();
-    const n1=top1[1].count;
-    document.getElementById('crsSub').textContent=LANG==='th'?`${n1} เทพพูดถึงคำนี้`:`${n1} gods named this`;
-    // Transparency note: clarify that the 108 don't read your literal
-    // question — they sample randomly and the consensus theme is what
-    // YOU should reflect on, not a yes/no answer. Picky-customer feedback:
-    // "ฉันถามเรื่อง algorithm — เทพตอบ love???". The system was working
-    // as designed; the design just wasn't transparent enough.
-    document.getElementById('crsMsg').textContent=LANG==='th'
-      ?`เสียงส่วนใหญ่ของ 108 เทพชี้ไปที่ "${top1[0]}" — นี่ไม่ใช่คำตอบตรงตัวของคำถามคุณ แต่คือ "ธีม" ที่จักรวาลขอให้พิจารณา · ลองถามตัวเองว่า "${top1[0]}" เกี่ยวข้องกับสถานการณ์นี้อย่างไร`
-      :`The collective voice of 108 gods points to "${top1[0]}" — this isn't a literal answer to your question, but the theme the universe asks you to reflect on. Ask yourself: how does "${top1[0]}" relate to your situation?`;
+    document.getElementById('crsSub').textContent=_isTh?`${top1[1].count} เทพพูดถึงคำนี้`:`${top1[1].count} gods named this`;
+    document.getElementById('crsMsg').textContent=_isTh
+      ?`เสียงส่วนใหญ่ของ 108 เทพชี้ไปที่ "${top1[0]}" — ธีมที่จักรวาลขอให้พิจารณา`
+      :`The 108 gods point to "${top1[0]}" — a theme to reflect on.`;
   }
-  // Secondary word
-  if(top2){
+  // Secondary = 2nd category (fall back to 2nd raw word).
+  if (c2){
+    const ci2=_GOD_CATEGORIES[c2[0]];
+    document.getElementById('secIcon').textContent=ci2.emoji;
+    document.getElementById('secName').textContent=_isTh?ci2.th:ci2.en;
+    document.getElementById('secMsg').textContent=_isTh?`${c2[1].count} เสียง · ก็ดังเช่นกัน`:`${c2[1].count} votes · also heard`;
+  } else if (top2){
     document.getElementById('secIcon').textContent='∿';
     document.getElementById('secName').textContent=top2[0].toUpperCase();
-    const n2=top2[1].count;
-    document.getElementById('secMsg').textContent=LANG==='th'?`${n2} เทพ · ${LANG==='th'?'ก็พูดถึงคำนี้ด้วย':''}`:`${n2} gods · also heard clearly`;
+    document.getElementById('secMsg').textContent=_isTh?`${top2[1].count} เทพ`:`${top2[1].count} gods`;
   }
 
   // Loudest gods = the deities that VOTED FOR THE WINNING THEMES — so the two
@@ -4358,9 +4398,10 @@ function showOrganumResult(wordCount,godContrib){
   if(loud1){fillLoudBox('rl1',loud1);document.getElementById('rl1msg').textContent='"'+randMsg(loud1)+'"';}
   if(loud2){fillLoudBox('rl2',loud2);document.getElementById('rl2msg').textContent='"'+randMsg(loud2)+'"';}
 
-  // Word tabs (top 12 words)
+  // Result bars = CATEGORY rollup (legible) when any vote mapped; else raw words.
   _activeWord=top1?.[0]||null;
-  updateWordBars(wordCount,_activeWord);
+  if (catEntries.length) _renderOrganumCatBars(catEntries);
+  else updateWordBars(wordCount,_activeWord);
   renderWordTabs(entries.slice(0,12),wordCount);
   document.getElementById('consensusBox').classList.add('active');
   // Save to persistent history
