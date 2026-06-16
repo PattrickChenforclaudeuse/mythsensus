@@ -9541,26 +9541,44 @@ function renderFreqHistory(){
   // (the promise the intro copy makes).
   const godFreq = {};   // name → {count, symbol, lastMsg}
   const themeFreq = {}; // organum topWord → count
+  const catFreq = {};   // category key → count (THEME of each drawn deity)
   let blessings = 0, organa = 0;
+
+  // Name→god lookup + reverse {category-object → key} map so we can read each
+  // drawn deity's THEME. The ~13 categories repeat fast; individual gods
+  // (1000+) almost never do — so the category tally is the real pattern signal
+  // (the old version counted god names only → "no recurrence" almost always).
+  const _godPool = (typeof GODS_FULL !== 'undefined' && Array.isArray(GODS_FULL)) ? GODS_FULL : (Array.isArray(GODS) ? GODS : []);
+  const _byName = {}; for (const g of _godPool) if (g && g.name) _byName[g.name] = g;
+  const _OBJ2KEY = new Map(Object.entries(_GOD_CATEGORIES).map(([k, v]) => [v, k]));
+  const _primaryCat = (nm, godObj) => {
+    const g = godObj || _byName[nm];
+    if (!g || typeof _godCategories !== 'function') return null;
+    const arr = _godCategories(g, 1);
+    return arr.length ? _OBJ2KEY.get(arr[0]) : null;
+  };
+
   for (const h of hist) {
-    if (h.type === 'blessing') {
-      blessings++;
-      const nm = h.godName || (h.god && h.god.name);
-      if (nm) { godFreq[nm] = godFreq[nm] || {count:0, symbol:h.godSymbol||'✦', lastMsg:''}; godFreq[nm].count++; if (h.message) godFreq[nm].lastMsg = h.message; }
-    } else if (h.type === 'organum') {
-      organa++;
-      const nm = h.godName;
-      if (nm) { godFreq[nm] = godFreq[nm] || {count:0, symbol:h.godSymbol||'✦', lastMsg:''}; godFreq[nm].count++; }
-      if (h.topWord) themeFreq[h.topWord] = (themeFreq[h.topWord]||0) + 1;
+    let nm = null, godObj = null;
+    if (h.type === 'blessing') { blessings++; nm = h.godName || (h.god && h.god.name); godObj = h.god; }
+    else if (h.type === 'organum') {
+      organa++; nm = h.godName; godObj = h.god;
+      if (h.topWord) themeFreq[h.topWord] = (themeFreq[h.topWord] || 0) + 1;
+    } else continue;   // daily_pulse, group_switch, … = engagement noise
+    if (nm) {
+      godFreq[nm] = godFreq[nm] || { count:0, symbol:h.godSymbol||'✦', lastMsg:'' };
+      godFreq[nm].count++; if (h.message) godFreq[nm].lastMsg = h.message;
+      const ck = _primaryCat(nm, godObj);
+      if (ck && _GOD_CATEGORIES[ck]) catFreq[ck] = (catFreq[ck] || 0) + 1;
     }
-    // All other types (daily_pulse, group_switch, …) are engagement noise — skip.
   }
 
   const gods   = Object.entries(godFreq).sort((a,b)=>b[1].count-a[1].count).slice(0,8);
   const themes = Object.entries(themeFreq).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const cats   = Object.entries(catFreq).sort((a,b)=>b[1]-a[1]);   // [key, count]
   const totalSignals = blessings + organa;
 
-  if (!gods.length && !themes.length) {
+  if (!gods.length && !cats.length && !themes.length) {
     panel.innerHTML = `<div class="tier-lock" style="border-color:var(--border)">
       <div class="tier-lock-icon">📡</div>
       <div class="tier-lock-title">${t('freq_empty_title')}</div>
@@ -9569,26 +9587,59 @@ function renderFreqHistory(){
     return;
   }
 
-  // Headline interpretation: the single loudest recurring deity.
+  // Headline: prefer the loudest recurring THEME (categories repeat fast → a
+  // meaningful pattern), then a recurring deity, then a "keep going" note.
+  // Escape all history-derived strings before innerHTML (defense-in-depth).
+  const topCat = cats[0];   // [key, count]
   const topGod = gods[0];
-  // Escape all history-derived strings before they enter innerHTML (god names,
-  // blessing message, theme words) — defense-in-depth so a future deity name or
-  // user-influenced field can never inject markup.
-  const gName = topGod ? _esc(topGod[0]) : '';
-  const gSym  = topGod ? _esc(topGod[1].symbol || '✦') : '✦';
-  const gMsg  = topGod ? _esc(topGod[1].lastMsg || '') : '';
-  const headline = topGod && topGod[1].count >= 2
-    ? `<div style="background:linear-gradient(135deg,#1a1408,#0e0a18);border:1px solid var(--gold3);border-radius:10px;padding:14px 16px;margin-bottom:14px">
+  let headline;
+  if (topCat && topCat[1] >= 2) {
+    const ci = _GOD_CATEGORIES[topCat[0]] || { emoji:'✦', th:'—', en:'—' };
+    const cLabel = _esc(isTh ? ci.th : ci.en);
+    headline = `<div style="background:linear-gradient(135deg,#1a1408,#0e0a18);border:1px solid var(--gold3);border-radius:10px;padding:14px 16px;margin-bottom:14px">
+        <div style="font-size:10px;letter-spacing:2px;color:var(--gold2);margin-bottom:6px">${isTh?'✦ ธีมที่ดังที่สุดของคุณ ✦':'✦ YOUR LOUDEST THEME ✦'}</div>
+        <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:16px;color:var(--gold);margin-bottom:4px">${ci.emoji} ${cLabel} <span style="font-size:12px;color:var(--muted)">· ${topCat[1]}×</span></div>
+        <div style="font-size:12px;color:var(--text);line-height:1.7">${isTh
+          ? `จักรวาลส่งเทพสาย <strong>${cLabel}</strong> มาหาคุณ <strong>${topCat[1]} ครั้ง</strong> — คนละองค์ แต่ "ธีม" เดียวกันที่วนกลับมาคือสารที่ชัดสุดว่าช่วงนี้ชีวิตคุณกำลังโฟกัสเรื่องนี้`
+          : `The cosmos keeps sending <strong>${cLabel}</strong> deities — <strong>${topCat[1]} times</strong>. Different gods, one recurring theme: the clearest signal of what your life is centring on right now.`}</div>
+      </div>`;
+  } else if (topGod && topGod[1].count >= 2) {
+    const gName=_esc(topGod[0]), gSym=_esc(topGod[1].symbol||'✦'), gMsg=_esc(topGod[1].lastMsg||'');
+    headline = `<div style="background:linear-gradient(135deg,#1a1408,#0e0a18);border:1px solid var(--gold3);border-radius:10px;padding:14px 16px;margin-bottom:14px">
         <div style="font-size:10px;letter-spacing:2px;color:var(--gold2);margin-bottom:6px">${isTh?'✦ สัญญาณที่ดังที่สุดของคุณ ✦':'✦ YOUR LOUDEST SIGNAL ✦'}</div>
         <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:16px;color:var(--gold);margin-bottom:4px">${gSym} ${gName} <span style="font-size:12px;color:var(--muted)">· ${topGod[1].count}×</span></div>
         <div style="font-size:12px;color:var(--text);line-height:1.7">${isTh
-          ? `<strong>${gName}</strong> กลับมาหาคุณ <strong>${topGod[1].count} ครั้ง</strong> — ในศาสตร์โอเรกุรัม การที่เทพองค์เดิมวนกลับมาแปลว่า "ยังมีสารที่คุณยังไม่ได้รับเต็มที่" ลองทบทวนว่าครั้งก่อนๆ ${gName} พยายามบอกอะไร`
-          : `<strong>${gName}</strong> has returned to you <strong>${topGod[1].count} times</strong> — in the Organum tradition, the same deity recurring means there's a message you haven't fully received. Reflect on what ${gName} has been trying to tell you.`}
+          ? `<strong>${gName}</strong> กลับมาหาคุณ <strong>${topGod[1].count} ครั้ง</strong> — เทพองค์เดิมวนกลับมาแปลว่ายังมีสารที่คุณยังไม่ได้รับเต็มที่`
+          : `<strong>${gName}</strong> has returned <strong>${topGod[1].count} times</strong> — the same deity recurring means a message you haven't fully received.`}
           ${gMsg?`<br><span style="font-style:italic;color:var(--muted)">"${gMsg}"</span>`:''}</div>
-      </div>`
-    : `<div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:12px">${isTh
-        ? `จากทั้งหมด <strong style="color:var(--gold)">${totalSignals}</strong> สัญญาณ ยังไม่มีเทพองค์ใดวนกลับมาซ้ำ — pattern จะชัดขึ้นเมื่อคุณใช้ต่อเนื่อง`
-        : `Across <strong style="color:var(--gold)">${totalSignals}</strong> signals so far, no deity has recurred yet — patterns sharpen as you keep using the app.`}</div>`;
+      </div>`;
+  } else {
+    headline = `<div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:12px">${isTh
+        ? `จากทั้งหมด <strong style="color:var(--gold)">${totalSignals}</strong> สัญญาณ ยังไม่มี pattern วนซ้ำ — จะชัดขึ้นเมื่อใช้ต่อเนื่อง`
+        : `Across <strong style="color:var(--gold)">${totalSignals}</strong> signals so far, no pattern has recurred yet — it sharpens as you keep using the app.`}</div>`;
+  }
+
+  // Category bars — the primary pattern view (themes repeat, gods don't).
+  const maxCat = cats.length ? cats[0][1] : 1;
+  const catRows = cats.map(([k,n]) => {
+    const ci = _GOD_CATEGORIES[k] || { emoji:'✦', th:k, en:k, color:'var(--gold)' };
+    const pct = Math.max(6, Math.round((n/maxCat)*100));
+    return `<div style="padding:7px 0;border-top:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:8px;font-size:12.5px">
+        <span style="font-size:15px">${ci.emoji}</span>
+        <span style="flex:1;color:var(--text)">${_esc(isTh?ci.th:ci.en)}</span>
+        ${n>=2?`<span style="font-size:9px;color:var(--gold);background:rgba(212,170,80,0.12);border:1px solid var(--gold3);border-radius:8px;padding:1px 7px">${isTh?'วนกลับมา':'recurring'}</span>`:''}
+        <span style="font-family:'Josefin Sans',sans-serif;font-weight:700;color:var(--gold);min-width:30px;text-align:right">${n}×</span>
+      </div>
+      <div style="height:4px;background:var(--bg3);border-radius:3px;margin-top:5px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${ci.color||'var(--gold)'};border-radius:3px"></div></div>
+    </div>`;
+  }).join('');
+  const catCard = cats.length ? `
+    <div class="deep-sys-card">
+      <div class="deep-sys-title">${isTh?'🎯 หมวดที่จักรวาลย้ำ':'🎯 Themes the universe keeps sending'}</div>
+      <div class="deep-sys-origin">${isTh?`ธีมของเทพทุกองค์ที่จั่วได้ · จาก ${blessings} พร + ${organa} โอเรกุรัม`:`Theme of every deity drawn · from ${blessings} blessings + ${organa} Organum`}</div>
+      <div style="margin-top:4px">${catRows}</div>
+    </div>` : '';
 
   const godRows = gods.map(([nm,d])=>`
     <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--border)">
@@ -9597,24 +9648,23 @@ function renderFreqHistory(){
       ${d.count>=2?`<span style="font-size:9px;color:var(--gold);background:rgba(212,170,80,0.12);border:1px solid var(--gold3);border-radius:8px;padding:1px 7px">${isTh?'วนกลับมา':'recurring'}</span>`:''}
       <span style="font-family:'Josefin Sans',sans-serif;font-weight:700;color:var(--gold);min-width:32px;text-align:right">${d.count}×</span>
     </div>`).join('');
+  const godCard = `
+    <div class="deep-sys-card" style="margin-top:14px">
+      <div class="deep-sys-title">${isTh?'เทพที่กลับมาหาคุณบ่อย (รายองค์)':'Deities that keep returning (individual)'}</div>
+      <div class="deep-sys-origin">${isTh?`จาก ${blessings} พร + ${organa} คำถามโอเรกุรัม`:`From ${blessings} blessings + ${organa} Organum readings`}</div>
+      ${godRows || `<div style="font-size:12px;color:var(--muted);padding-top:8px">${isTh?'ยังไม่มีเทพที่บันทึก':'No deities recorded yet'}</div>`}
+    </div>`;
 
   const themeRows = themes.length ? `
     <div class="deep-sys-card" style="margin-top:14px">
-      <div class="deep-sys-title">${isTh?'ธีมที่จักรวาลย้ำ':'Themes the universe repeats'}</div>
+      <div class="deep-sys-title">${isTh?'คำที่โอเรกุรัมย้ำ':'Words the Organum repeats'}</div>
       <div class="deep-sys-origin">${isTh?'คำที่ 108 เทพโหวตให้บ่อยสุดในคำถามของคุณ':'Words the 108 gods voted for most across your questions'}</div>
       <div class="deep-sys-stats">
         ${themes.map(([w,n])=>`<div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${_esc(w)}</div><div class="deep-sys-stat-val">${n}×</div></div>`).join('')}
       </div>
     </div>` : '';
 
-  panel.innerHTML = `
-    ${headline}
-    <div class="deep-sys-card">
-      <div class="deep-sys-title">${isTh?'เทพที่กลับมาหาคุณบ่อย':'Deities that keep returning'}</div>
-      <div class="deep-sys-origin">${isTh?`จาก ${blessings} พร + ${organa} คำถามโอเรกุรัม`:`From ${blessings} blessings + ${organa} Organum readings`}</div>
-      ${godRows || `<div style="font-size:12px;color:var(--muted);padding-top:8px">${isTh?'ยังไม่มีเทพที่บันทึก':'No deities recorded yet'}</div>`}
-    </div>
-    ${themeRows}`;
+  panel.innerHTML = `${headline}${catCard}${godCard}${themeRows}`;
 }
 
 // ── God Collection grid (from history) ─────────────────────
