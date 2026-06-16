@@ -4362,6 +4362,9 @@ function showOrganumResult(wordCount,godContrib){
   }
   const catEntries = Object.entries(catAgg).sort((a,b)=>b[1].count-a[1].count);
   const c1 = catEntries[0], c2 = catEntries[1];
+  // Reset the "also heard" secondary slot first, so a previous question's value
+  // can't linger when THIS question maps to only one category/word. (QA 2026-06-17)
+  try { ['secIcon','secName','secMsg'].forEach(function(id){ var e=document.getElementById(id); if(e) e.textContent='—'; }); } catch(_){}
 
   // Primary consensus = top CATEGORY (fall back to top raw word if nothing mapped).
   if (c1){
@@ -9584,6 +9587,13 @@ function renderFreqHistory(){
   }
   const isTh = LANG === 'th';
 
+  // If the god dataset hasn't loaded yet, the CATEGORY rollup (which needs the
+  // name→god lookup) silently comes up empty → re-render once GODS arrive so the
+  // category bars + theme headline appear. (overnight QA fix 2026-06-17)
+  if (!GODS_LOADED && typeof loadGods === 'function') {
+    loadGods().then(() => { try { if (typeof CUR_SUB !== 'undefined' && CUR_SUB === 'freq') renderFreqHistory(); } catch(_){} });
+  }
+
   // Two separate signals, each with meaning — NOT a raw key tally. Previously
   // this mixed god names with event types ("DAILY_PULSE 12×") and attached no
   // interpretation, so it read as noise. Now:
@@ -14060,7 +14070,7 @@ function savePetFromForm(){
   let dob = g('pet-f-dob'), dobApprox = false, ageApprox = null;
   if (unknownDob){
     const age = parseFloat((document.getElementById('pet-f-age')||{}).value);
-    if (isNaN(age)){ warn(LANG==='th'?'กรอกอายุโดยประมาณของน้อง (ปี)':'Enter your pet’s approximate age (years)'); return; }
+    if (isNaN(age) || age < 0 || age > 40){ warn(LANG==='th'?'กรอกอายุโดยประมาณของน้อง (0–40 ปี)':'Enter your pet’s approximate age (0–40 years)'); return; }
     ageApprox = age; dobApprox = true;
     const by = (new Date()).getFullYear() - Math.floor(age);
     dob = by + '-07-01';
@@ -14225,7 +14235,11 @@ function _lpRel(a,b){
 function _petPairCompute(aChart, aYear, bChart, bYear){
   const isTh = LANG==='th';
   const cz = _czRel(_czIndex(aYear), _czIndex(bYear));
-  const elA = _elKey(aChart.bazi && aChart.bazi.dayMasterElement), elB = _elKey(bChart.bazi && bChart.bazi.dayMasterElement);
+  // Only normalise when the element actually exists — otherwise pass null so
+  // _elRel scores it neutral (0) instead of defaulting both to Wood (a false
+  // "same element" +1). (overnight QA fix 2026-06-17)
+  const elA = (aChart.bazi && aChart.bazi.dayMasterElement) ? _elKey(aChart.bazi.dayMasterElement) : null;
+  const elB = (bChart.bazi && bChart.bazi.dayMasterElement) ? _elKey(bChart.bazi.dayMasterElement) : null;
   const el = _elRel(elA, elB);
   const sun = _sunRel(_wIdx(aChart.western && aChart.western.sunSign), _wIdx(bChart.western && bChart.western.sunSign));
   const lp = _lpRel(aChart.numerology && aChart.numerology.lifePath, bChart.numerology && bChart.numerology.lifePath);
