@@ -84,6 +84,9 @@
 /data/gods.json.pre-tags.bak
 /data/_pilgrimage_seed/
 
+# ── Backups (full-file copies kept before edits — internal only) ──
+/_backups/
+
 # ── Build deps (Vercel reinstalls from package.json) + CI config ──
 /node_modules/
 /.github/

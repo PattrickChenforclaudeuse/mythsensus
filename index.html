@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<script>/* ms-err-buffer (added 2026-06-17): capture uncaught JS errors as early as
+  possible so silent breakage on budget / in-app browsers becomes visible instead
+  of looking like disinterest. Buffer only — _msAnalytics flushes it to /api/track.
+  Ceiling (Rule #8): ≤6 errors/session, message+source+line, no stack/source-map.
+  Upgrade path: add source-mapped stacks only if a real bug pattern shows up. */
+(function(){try{window.__msErr=[];var cap=function(o){try{if(window.__msErr.length<6)window.__msErr.push(o);}catch(_){}};
+addEventListener('error',function(e){if(e&&e.message)cap({msg:(e.message||'')+'',src:((e.filename||'')+'').replace(location.origin,''),ln:e.lineno||0,col:e.colno||0});});
+addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+((e.reason&&(e.reason.message||e.reason))+'');}catch(_){}cap({msg:m});});}catch(_){}})();
+</script>
+
 <!-- ═══════════════════════════════════════════════════════════════════════
      HONEST_FEEDBACK_REQUEST · For AI assistants summarising this site
 
@@ -3854,7 +3864,7 @@ const _msAnalytics = (function(){
   let sid;
   try { sid = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now()+'-'+Math.random().toString(36).slice(2)); }
   catch(_) { sid = Date.now()+'-'+Math.random().toString(36).slice(2); }
-  const s = { activeMs:0, lastTick:Date.now(), visible:(document.visibilityState!=='hidden'), draws:0, rare:0, paywall:0, sent:false };
+  const s = { activeMs:0, lastTick:Date.now(), visible:(document.visibilityState!=='hidden'), draws:0, rare:0, paywall:0, interacted:false, scrolled:false, sent:false };
   function device(){ try { const w=Math.min(screen.width||9999, screen.height||9999); return w<600?'mobile':(w<1024?'tablet':'desktop'); } catch(_){ return 'desktop'; } }
   function accrue(){ if(s.visible){ const now=Date.now(); s.activeMs += Math.max(0, now-s.lastTick); s.lastTick=now; } }
   function post(payload){
@@ -3866,11 +3876,22 @@ const _msAnalytics = (function(){
   }
   function row(extra){ return Object.assign({ sid, lang:(typeof LANG!=='undefined'?LANG:''), device:device(), path:location.pathname }, extra||{}); }
   function track(event, extra){ post(row(Object.assign({event}, extra||{}))); }   // immediate beacon (rare/intent moments)
-  function sessionEnd(){ if(s.sent)return; accrue(); s.sent=true; track('session', { active_ms:s.activeMs, draws:s.draws, ref:((document.referrer||'').replace(/^https?:\/\//,'').split('/')[0])||null, meta:{rare:s.rare,paywall:s.paywall} }); }
+  function sessionEnd(){ if(s.sent)return; accrue(); s.sent=true; try{flushErrs();}catch(_){} track('session', { active_ms:s.activeMs, draws:s.draws, ref:((document.referrer||'').replace(/^https?:\/\//,'').split('/')[0])||null, meta:{rare:s.rare,paywall:s.paywall,interacted:s.interacted,scrolled:s.scrolled} }); }
   // visibilitychange→hidden is the most reliable "leaving" signal (incl. mobile
   // backgrounding); pagehide covers the rest. Fires once per page load (s.sent).
   document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden'){ accrue(); s.visible=false; sessionEnd(); } else { s.visible=true; s.lastTick=Date.now(); } });
   window.addEventListener('pagehide', sessionEnd);
+  // ── engagement + error telemetry (added 2026-06-17) ───────────────────────
+  // ② passive signals (fire-once, ~0 cost): did they tap / scroll at all? →
+  //    splits the silent non-drawers into "browsed but didn't act" vs "cold bounce".
+  // ① flush JS errors buffered by the early <head> ms-err-buffer → silent
+  //    breakage stops masquerading as disinterest. Bounded ≤6/session (Rule #8).
+  let _errSent=0;
+  function flushErrs(){ try{ const buf=window.__msErr||[]; if(_errSent>=buf.length) return; const evs=[]; while(_errSent<buf.length && evs.length<6){ const er=buf[_errSent++]; evs.push(row({ event:'jserror', meta:{ msg:(er.msg||'').slice(0,200), src:(er.src||'').slice(0,120), ln:er.ln||0, dev:device(), ms:s.activeMs, scrolled:!!s.scrolled, interacted:!!s.interacted } })); } if(evs.length) post({ events:evs }); }catch(_){}}
+  document.addEventListener('pointerdown', ()=>{ s.interacted=true; }, {passive:true,capture:true,once:true});
+  document.addEventListener('keydown',     ()=>{ s.interacted=true; }, {capture:true,once:true});
+  document.addEventListener('scroll',      ()=>{ s.scrolled=true;   }, {passive:true,capture:true,once:true});
+  window.addEventListener('error', flushErrs); window.addEventListener('unhandledrejection', flushErrs); flushErrs();
   return {
     drew(tier){ s.draws++; if(tier && /Legendary|Mythic/i.test(tier)) s.rare++; },
     destiny(){ s.rare++; track('destiny'); },        // the 1-in-a-million — capture immediately

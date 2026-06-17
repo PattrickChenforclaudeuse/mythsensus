@@ -350,7 +350,12 @@
 // verdict ("ข้อเท็จจริงล้วน ยังไม่ตีความ"); Pulse = Sky + 7-10 systems
 // synthesised into one reading ("รวมฟ้าวันนี้ + 7-10 ศาสตร์ → คำอ่านเดียว").
 // Copy-only (sky_dom_hint_all + pulse_hint, EN+TH + HTML fallbacks).
-const CACHE = 'mythsensus-v137';
+// v138: 2026-06-17 — engagement + error telemetry. (1) early <head> error buffer
+// + flush via _msAnalytics → silent JS breakage on budget/in-app browsers stops
+// looking like disinterest. (2) fire-once interacted/scrolled flags on the
+// session beacon → splits silent non-drawers into "browsed" vs "cold bounce".
+// Funnel dashboard surfaces both. Bump to evict stale HTML.
+const CACHE = 'mythsensus-v138';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

@@ -58,6 +58,13 @@ export default async function handler(req, res) {
   const drew = sessions.filter(x => (+x.draws || 0) > 0).length;
   const totalDraws = sessions.reduce((a, x) => a + (+x.draws || 0), 0);
   const paywall = sessions.filter(x => x.meta && +x.meta.paywall > 0).length;
+  // Engagement + error telemetry (added 2026-06-17). interacted/scrolled only
+  // exist on sessions logged AFTER the deploy — older sessions count as cold.
+  const engaged = sessions.filter(x => x.meta && (x.meta.interacted || x.meta.scrolled)).length;
+  const jserrs  = rows.filter(x => x.event === 'jserror');
+  const errByDev = jserrs.reduce((m, x) => { const d = (x.meta && x.meta.dev) || x.device || '?'; m[d] = (m[d] || 0) + 1; return m; }, {});
+  const errTop  = Object.entries(errByDev).sort((a, b) => b[1] - a[1]);
+  const errMsg  = jserrs.length ? ((jserrs[0].meta && jserrs[0].meta.msg) || '') : '';
 
   // Per-day (Bangkok-ish: just use the ISO date of ts). sessions + draw% + shares.
   const byDay = {};
@@ -77,6 +84,7 @@ export default async function handler(req, res) {
     row('Sessions', nS, `${days}-day window`),
     row('Active time (median)', fmtS(med), `p75 ${fmtS(p75)} · p90 ${fmtS(p90)}`),
     row('Bounce &lt;5s', pct(bounce, nS) + '%', `${bounce} sess · &gt;60s: ${pct(over60, nS)}%`),
+    row('Engaged (tapped/scrolled)', pct(engaged, nS) + '%', `${engaged} sess · cold-bounce ${pct(nS - engaged, nS)}% · (post-deploy only)`),
     row('Filled birthday', pct(births.length, nS) + '%', `${births.length} sess · the new core path`),
     row('Saw consensus', pct(consensus.length, nS) + '%', `${consensus.length} sess · "what 26 systems agree on"`),
     row('Drew a god ≥1', pct(drew, nS) + '%', `${drew}/${nS} · ${totalDraws} draws total`),
@@ -84,6 +92,7 @@ export default async function handler(req, res) {
     row('Shares', shares.length, `share-rate ${pct(shares.length, nS)}% of sessions`),
     row('Checkout clicks', checkouts.length, ''),
     row('Destiny (1-in-M)', destinies.length, ''),
+    row('JS errors', jserrs.length, jserrs.length ? `⚠️ ${errTop.map(([d, n]) => `${esc(d)}:${n}`).join(' · ')} — “${esc(errMsg.slice(0, 60))}”` : 'none — running clean'),
   ].join('');
 
   const dayRows = days7.map(d => { const o = byDay[d]; return `<tr><td style="padding:5px 10px;color:#c8c0a8">${d}</td><td style="padding:5px 10px;text-align:right">${o.sess}</td><td style="padding:5px 10px;text-align:right;color:#9a8a72">${pct(o.drew, o.sess)}%</td><td style="padding:5px 10px;text-align:right;color:#c8a45a">${o.share}</td></tr>`; }).join('');
