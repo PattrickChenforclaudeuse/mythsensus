@@ -358,7 +358,10 @@
 // v139: 2026-06-17 — new-vs-returning split. Durable `mth_seen_v1` marker → the
 // session beacon carries meta.returning, so the funnel dashboard can split bounce
 // /draw/engaged by first-time (saw the entry wall) vs returning (skipped it).
-const CACHE = 'mythsensus-v139';
+// v140: 2026-06-17 — entry hero opening line reworked from the abstract
+// "หมอดูทั่วไปใช้ศาสตร์เดียว — เถียงได้" to a concrete, relatable pain:
+// "ดูดวงไทยบอกอย่างนึง ดูดวงจีนบอกอีกอย่างนึง — แล้วเราจะเชื่ออะไรดี?" (sets up the 26-system payoff).
+const CACHE = 'mythsensus-v140';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
