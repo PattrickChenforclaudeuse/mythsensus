@@ -364,7 +364,9 @@
 // v141: 2026-06-17 — entry hero made all-Thai: dropped the EN tagline + EN
 // reinforcement sentence (rely on the in-app language toggle, no TH/EN stacking)
 // + "agree" wording upgraded — "พูดตรงกัน"→"บรรจบ" (signature word), "เห็นพ้อง" kept.
-const CACHE = 'mythsensus-v141';
+// v142: 2026-06-17 — finish all-Thai entry: drop "/ Sign in" from the hero's
+// sign-in link (Thai-only "ลงชื่อเข้าใช้ →").
+const CACHE = 'mythsensus-v142';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
