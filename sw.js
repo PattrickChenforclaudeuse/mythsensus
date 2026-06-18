@@ -372,7 +372,10 @@
 // v144: 2026-06-17 — entry hero made language-reactive (was static Thai-only, so
 // the EN toggle did nothing on the first screen). _refreshEntryHero() swaps TH/EN
 // innerHTML per LANG via data-eh, hooked into applyLang(). Payoff → "ในเรื่องราวของคุณ".
-const CACHE = 'mythsensus-v144';
+// v145: 2026-06-17 — restore the original EN tagline "Where myriad myths reach
+// consensus — about you" (brand line, matches the main page + <title>); my v144
+// reword was unnecessary. TH tagline + the new EN hook/headline/payoff unchanged.
+const CACHE = 'mythsensus-v145';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
