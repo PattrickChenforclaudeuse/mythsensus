@@ -361,7 +361,10 @@
 // v140: 2026-06-17 — entry hero opening line reworked from the abstract
 // "หมอดูทั่วไปใช้ศาสตร์เดียว — เถียงได้" to a concrete, relatable pain:
 // "ดูดวงไทยบอกอย่างนึง ดูดวงจีนบอกอีกอย่างนึง — แล้วเราจะเชื่ออะไรดี?" (sets up the 26-system payoff).
-const CACHE = 'mythsensus-v140';
+// v141: 2026-06-17 — entry hero made all-Thai: dropped the EN tagline + EN
+// reinforcement sentence (rely on the in-app language toggle, no TH/EN stacking)
+// + "agree" wording upgraded — "พูดตรงกัน"→"บรรจบ" (signature word), "เห็นพ้อง" kept.
+const CACHE = 'mythsensus-v141';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
