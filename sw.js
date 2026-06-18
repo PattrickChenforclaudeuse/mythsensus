@@ -355,7 +355,10 @@
 // looking like disinterest. (2) fire-once interacted/scrolled flags on the
 // session beacon → splits silent non-drawers into "browsed" vs "cold bounce".
 // Funnel dashboard surfaces both. Bump to evict stale HTML.
-const CACHE = 'mythsensus-v138';
+// v139: 2026-06-17 — new-vs-returning split. Durable `mth_seen_v1` marker → the
+// session beacon carries meta.returning, so the funnel dashboard can split bounce
+// /draw/engaged by first-time (saw the entry wall) vs returning (skipped it).
+const CACHE = 'mythsensus-v139';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

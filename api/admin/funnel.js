@@ -65,6 +65,20 @@ export default async function handler(req, res) {
   const errByDev = jserrs.reduce((m, x) => { const d = (x.meta && x.meta.dev) || x.device || '?'; m[d] = (m[d] || 0) + 1; return m; }, {});
   const errTop  = Object.entries(errByDev).sort((a, b) => b[1] - a[1]);
   const errMsg  = jserrs.length ? ((jserrs[0].meta && jserrs[0].meta.msg) || '') : '';
+  // New vs returning split (added 2026-06-17). Only post-deploy sessions carry
+  // meta.returning, so exclude older ones — otherwise all 121 legacy sessions
+  // would pollute the "new" cohort. New ≈ saw the entry wall; returning ≈ skipped it.
+  const tagged = sessions.filter(x => x.meta && typeof x.meta.returning === 'boolean');
+  const cohort = (arr) => {
+    const n = arr.length;
+    const b = arr.filter(x => (+x.active_ms || 0) < 5000).length;
+    const o = arr.filter(x => (+x.active_ms || 0) >= 60000).length;
+    const d = arr.filter(x => (+x.draws || 0) > 0).length;
+    const e = arr.filter(x => x.meta && (x.meta.interacted || x.meta.scrolled)).length;
+    return { n, bounce: pct(b, n), over60: pct(o, n), draw: pct(d, n), engaged: pct(e, n) };
+  };
+  const cNew = cohort(tagged.filter(x => !x.meta.returning));
+  const cRet = cohort(tagged.filter(x => x.meta.returning));
 
   // Per-day (Bangkok-ish: just use the ISO date of ts). sessions + draw% + shares.
   const byDay = {};
@@ -95,6 +109,10 @@ export default async function handler(req, res) {
     row('JS errors', jserrs.length, jserrs.length ? `⚠️ ${errTop.map(([d, n]) => `${esc(d)}:${n}`).join(' · ')} — “${esc(errMsg.slice(0, 60))}”` : 'none — running clean'),
   ].join('');
 
+  const nvrCell = (v) => `<td style="padding:6px 10px;text-align:right;color:#9a8a72">${v}</td>`;
+  const nvrRow = (label, c) => `<tr><td style="padding:6px 10px;color:#c8c0a8">${label}</td><td style="padding:6px 10px;text-align:right;color:#e9d9a8;font-weight:700">${c.n}</td>${nvrCell(c.bounce + '%')}${nvrCell(c.over60 + '%')}${nvrCell(c.draw + '%')}${nvrCell(c.engaged + '%')}</tr>`;
+  const nvrRows = nvrRow('New · saw entry wall', cNew) + nvrRow('Returning · skipped wall', cRet);
+
   const dayRows = days7.map(d => { const o = byDay[d]; return `<tr><td style="padding:5px 10px;color:#c8c0a8">${d}</td><td style="padding:5px 10px;text-align:right">${o.sess}</td><td style="padding:5px 10px;text-align:right;color:#9a8a72">${pct(o.drew, o.sess)}%</td><td style="padding:5px 10px;text-align:right;color:#c8a45a">${o.share}</td></tr>`; }).join('');
   const listRows = (arr) => arr.map(([k, v]) => `<tr><td style="padding:4px 10px;color:#c8c0a8">${esc(k)}</td><td style="padding:4px 10px;text-align:right;color:#e9d9a8">${v}</td></tr>`).join('');
 
@@ -104,6 +122,7 @@ export default async function handler(req, res) {
 <h1>🔮 MYTHSENSUS · ENGAGEMENT FUNNEL</h1>
 <div class="muted">Source: myth_events (first-party) · window ${days}d · ${nS} sessions · <a href="?k=${esc(q.k)}&days=7">7d</a> · <a href="?k=${esc(q.k)}&days=30">30d</a> · <a href="?k=${esc(q.k)}&days=90">90d</a></div>
 <h2>Funnel</h2><table>${funnelRows}</table>
+<h2>New vs returning <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(post-deploy only · ${tagged.length} tagged)</span></h2><table><tr><th>Cohort</th><th style="text-align:right">Sessions</th><th style="text-align:right">Bounce&lt;5s</th><th style="text-align:right">&gt;60s</th><th style="text-align:right">Draw%</th><th style="text-align:right">Engaged%</th></tr>${nvrRows}</table>
 <h2>By day (latest 14)</h2><table><tr><th>Date</th><th style="text-align:right">Sessions</th><th style="text-align:right">Draw%</th><th style="text-align:right">Shares</th></tr>${dayRows || '<tr><td colspan=4 style="padding:10px;color:#6a5a42">no data</td></tr>'}</table>
 <h2>Top referrers</h2><table>${listRows(refs) || ''}</table>
 <div style="display:flex;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px"><h2>Device</h2><table>${listRows(devices)}</table></div><div style="flex:1;min-width:200px"><h2>Language</h2><table>${listRows(langs)}</table></div></div>

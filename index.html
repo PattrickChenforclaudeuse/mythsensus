@@ -3864,7 +3864,13 @@ const _msAnalytics = (function(){
   let sid;
   try { sid = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now()+'-'+Math.random().toString(36).slice(2)); }
   catch(_) { sid = Date.now()+'-'+Math.random().toString(36).slice(2); }
-  const s = { activeMs:0, lastTick:Date.now(), visible:(document.visibilityState!=='hidden'), draws:0, rare:0, paywall:0, interacted:false, scrolled:false, sent:false };
+  const s = { activeMs:0, lastTick:Date.now(), visible:(document.visibilityState!=='hidden'), draws:0, rare:0, paywall:0, interacted:false, scrolled:false, returning:false, sent:false };
+  // new vs returning: durable per-browser first-visit marker (added 2026-06-17).
+  // returning=true means this browser loaded the site before → can split the
+  // funnel by "saw the entry wall (new)" vs "skipped it (returning)". Caveat:
+  // some in-app browsers (LINE/FB) don't persist localStorage across opens → a
+  // few true-returning visitors read as new (errs toward over-counting "new").
+  try { s.returning = !!localStorage.getItem('mth_seen_v1'); localStorage.setItem('mth_seen_v1','1'); } catch(_){}
   function device(){ try { const w=Math.min(screen.width||9999, screen.height||9999); return w<600?'mobile':(w<1024?'tablet':'desktop'); } catch(_){ return 'desktop'; } }
   function accrue(){ if(s.visible){ const now=Date.now(); s.activeMs += Math.max(0, now-s.lastTick); s.lastTick=now; } }
   function post(payload){
@@ -3876,7 +3882,7 @@ const _msAnalytics = (function(){
   }
   function row(extra){ return Object.assign({ sid, lang:(typeof LANG!=='undefined'?LANG:''), device:device(), path:location.pathname }, extra||{}); }
   function track(event, extra){ post(row(Object.assign({event}, extra||{}))); }   // immediate beacon (rare/intent moments)
-  function sessionEnd(){ if(s.sent)return; accrue(); s.sent=true; try{flushErrs();}catch(_){} track('session', { active_ms:s.activeMs, draws:s.draws, ref:((document.referrer||'').replace(/^https?:\/\//,'').split('/')[0])||null, meta:{rare:s.rare,paywall:s.paywall,interacted:s.interacted,scrolled:s.scrolled} }); }
+  function sessionEnd(){ if(s.sent)return; accrue(); s.sent=true; try{flushErrs();}catch(_){} track('session', { active_ms:s.activeMs, draws:s.draws, ref:((document.referrer||'').replace(/^https?:\/\//,'').split('/')[0])||null, meta:{rare:s.rare,paywall:s.paywall,interacted:s.interacted,scrolled:s.scrolled,returning:s.returning} }); }
   // visibilitychange→hidden is the most reliable "leaving" signal (incl. mobile
   // backgrounding); pagehide covers the rest. Fires once per page load (s.sent).
   document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden'){ accrue(); s.visible=false; sessionEnd(); } else { s.visible=true; s.lastTick=Date.now(); } });
