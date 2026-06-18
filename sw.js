@@ -366,7 +366,10 @@
 // + "agree" wording upgraded — "พูดตรงกัน"→"บรรจบ" (signature word), "เห็นพ้อง" kept.
 // v142: 2026-06-17 — finish all-Thai entry: drop "/ Sign in" from the hero's
 // sign-in link (Thai-only "ลงชื่อเข้าใช้ →").
-const CACHE = 'mythsensus-v142';
+// v143: 2026-06-17 — entry hero de-duplicated: "26 ศาสตร์/ชาติ" was stated 3×
+// in the body; collapsed the two payoff lines into one ("ทุกศาสตร์บรรจบ → ฉันทามติ
+// ของจักรวาล") and dropped "26" from the tagline, so the number lands once (headline).
+const CACHE = 'mythsensus-v143';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
