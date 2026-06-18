@@ -1446,7 +1446,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 <div class="login-overlay" id="entryOverlay" style="display:flex" role="dialog" aria-modal="true" aria-labelledby="entryOverlayTitle">
   <div class="login-box" style="max-width:460px">
     <div class="login-logo" id="entryOverlayTitle"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></div>
-    <div class="login-tagline-sm">ที่ซึ่งศาสตร์โบราณทั้งมวลมาบรรจบ — เรื่องของคุณ</div>
+    <div class="login-tagline-sm" data-eh="tagline">ที่ซึ่งศาสตร์โบราณทั้งมวลมาบรรจบ — เรื่องของคุณ</div>
 
     <!-- STEP 0: hero first-impression card. Form lives behind via entryShowForm. -->
     <div id="entryHeroStep">
@@ -1455,13 +1455,13 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
            The payoff (the "N/10 systems agree" banner + Cosmic Score meaning)
            already exists downstream in the chart preview, so the primary CTA
            goes there. Daily god draw demoted to a lighter secondary. -->
-      <div style="text-align:center;margin:20px 0 5px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14px;color:var(--muted);line-height:1.5;font-style:italic">ดูดวงไทยบอกอย่างนึง ดูดวงจีนบอกอีกอย่างนึง — แล้วเราจะเชื่ออะไรดี?</div>
-      <div style="text-align:center;margin:0 0 8px;font-family:'Cinzel Decorative',serif;font-size:21px;color:var(--gold);line-height:1.4">ศาสตร์โบราณ <span style="font-size:27px">26</span> ชาติ<br>ดูดวงคุณ<span style="color:var(--gold2)">พร้อมกัน</span></div>
-      <div style="text-align:center;margin:0 0 16px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.7">แล้วเผยจุดที่ทุกศาสตร์ <strong style="color:var(--gold2)">"บรรจบ"</strong> — นั่นคือ "<strong style="color:var(--gold3)">ฉันทามติของจักรวาล</strong>" เรื่องของคุณ</div>
-      <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:18px;font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:.5px;color:var(--gold3)"><span>✨ เริ่มฟรี</span><span>🔒 ข้อมูลอยู่ในเครื่อง</span><span>⚡ ไม่ต้องสมัคร</span></div>
-      <button class="login-confirm-btn" onclick="entryShowForm()" style="font-size:15px">🔮 ดูว่า 26 ศาสตร์เห็นตรงกันว่าอะไร · ฟรี →</button>
-      <div style="text-align:center;margin-top:11px"><button onclick="entryDrawFirst()" style="background:transparent;border:1px solid var(--gold3);border-radius:8px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--gold2);cursor:pointer;padding:9px 20px">หรือ เปิดพรเทพวันนี้ก่อน 1 องค์ →</button></div>
-      <div style="text-align:center;margin-top:14px;font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px">มีบัญชีแล้ว? <button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">ลงชื่อเข้าใช้ →</button></div>
+      <div style="text-align:center;margin:20px 0 5px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14px;color:var(--muted);line-height:1.5;font-style:italic" data-eh="hook">ดูดวงไทยบอกอย่างนึง ดูดวงจีนบอกอีกอย่างนึง — แล้วเราจะเชื่ออะไรดี?</div>
+      <div style="text-align:center;margin:0 0 8px;font-family:'Cinzel Decorative',serif;font-size:21px;color:var(--gold);line-height:1.4" data-eh="headline">ศาสตร์โบราณ <span style="font-size:27px">26</span> ชาติ<br>ดูดวงคุณ<span style="color:var(--gold2)">พร้อมกัน</span></div>
+      <div style="text-align:center;margin:0 0 16px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.7" data-eh="payoff">แล้วเผยจุดที่ทุกศาสตร์ <strong style="color:var(--gold2)">"บรรจบ"</strong> — นั่นคือ "<strong style="color:var(--gold3)">ฉันทามติของจักรวาล</strong>" ในเรื่องราวของคุณ</div>
+      <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:18px;font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:.5px;color:var(--gold3)" data-eh="badges"><span>✨ เริ่มฟรี</span><span>🔒 ข้อมูลอยู่ในเครื่อง</span><span>⚡ ไม่ต้องสมัคร</span></div>
+      <button class="login-confirm-btn" onclick="entryShowForm()" style="font-size:15px" data-eh="cta">🔮 ดูว่า 26 ศาสตร์เห็นตรงกันว่าอะไร · ฟรี →</button>
+      <div style="text-align:center;margin-top:11px"><button onclick="entryDrawFirst()" style="background:transparent;border:1px solid var(--gold3);border-radius:8px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--gold2);cursor:pointer;padding:9px 20px" data-eh="drawalt">หรือ เปิดพรเทพวันนี้ก่อน 1 องค์ →</button></div>
+      <div style="text-align:center;margin-top:14px;font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px" data-eh="signin">มีบัญชีแล้ว? <button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">ลงชื่อเข้าใช้ →</button></div>
     </div>
 
     <!-- ════ STEP 1 — the birth-data form (revealed by the hero CTA) ════ -->
@@ -3160,6 +3160,29 @@ function setLangExplicit(lang){
   document.documentElement.lang = LANG;
   applyLang();
 }
+// Entry-overlay hero is language-reactive (added 2026-06-17). The hero is the
+// first screen; its text is styled HTML (big "26", <strong>, <br>) so it can't
+// use the textContent-based [data-t]/[data-en] path — applyLang() calls this to
+// swap full innerHTML per LANG, keyed by data-eh. Default (inline HTML) is Thai.
+function _refreshEntryHero(){
+  var isTh = (typeof LANG === 'undefined') || LANG === 'th';
+  try { if (typeof _entryLang !== 'undefined') _entryLang = isTh ? 'th' : 'en'; } catch(_){}
+  var sgn = '<button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">';
+  var M = {
+    tagline:  { th:'ที่ซึ่งศาสตร์โบราณทั้งมวลมาบรรจบ — เรื่องของคุณ', en:'Where every ancient system converges — about you' },
+    hook:     { th:'ดูดวงไทยบอกอย่างนึง ดูดวงจีนบอกอีกอย่างนึง — แล้วเราจะเชื่ออะไรดี?', en:'Thai astrology says one thing, Chinese says another — so which do you trust?' },
+    headline: { th:'ศาสตร์โบราณ <span style="font-size:27px">26</span> ชาติ<br>ดูดวงคุณ<span style="color:var(--gold2)">พร้อมกัน</span>', en:'<span style="font-size:27px">26</span> ancient systems<br>read you <span style="color:var(--gold2)">at once</span>' },
+    payoff:   { th:'แล้วเผยจุดที่ทุกศาสตร์ <strong style="color:var(--gold2)">"บรรจบ"</strong> — นั่นคือ "<strong style="color:var(--gold3)">ฉันทามติของจักรวาล</strong>" ในเรื่องราวของคุณ', en:'then reveal where they all <strong style="color:var(--gold2)">converge</strong> — the "<strong style="color:var(--gold3)">consensus of the universe</strong>" about you' },
+    badges:   { th:'<span>✨ เริ่มฟรี</span><span>🔒 ข้อมูลอยู่ในเครื่อง</span><span>⚡ ไม่ต้องสมัคร</span>', en:'<span>✨ Free to start</span><span>🔒 Data stays on your device</span><span>⚡ No signup</span>' },
+    cta:      { th:'🔮 ดูว่า 26 ศาสตร์เห็นตรงกันว่าอะไร · ฟรี →', en:'🔮 See what 26 systems agree on · Free →' },
+    drawalt:  { th:'หรือ เปิดพรเทพวันนี้ก่อน 1 องค์ →', en:'or draw a blessing first →' },
+    signin:   { th:'มีบัญชีแล้ว? ' + sgn + 'ลงชื่อเข้าใช้ →</button>', en:'Already have an account? ' + sgn + 'Sign in →</button>' }
+  };
+  document.querySelectorAll('#entryOverlay [data-eh]').forEach(function(el){
+    var m = M[el.getAttribute('data-eh')];
+    if (m) el.innerHTML = isTh ? m.th : m.en;
+  });
+}
 function applyLang(){
   // Keep the top-nav lang pill in sync — toggleLang() also updates this,
   // but applyLang() runs at boot too (so EN-preferring returning users see
@@ -3182,6 +3205,7 @@ function applyLang(){
     const v = (LANG === 'th') ? el.getAttribute('data-th') : el.getAttribute('data-en');
     if (v != null) el.textContent = v;
   });
+  try{_refreshEntryHero();}catch(_){}
   renderDate();updateBlessingStatus();
   if(_lastSkyCards){renderSkyCards(_lastSkyCards);_renderSkyTeaser();}
   if(_lastChartData){renderChart(_lastChartData);switchLifeTab(_lifeTab,null);}

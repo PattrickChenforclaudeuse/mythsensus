@@ -369,7 +369,10 @@
 // v143: 2026-06-17 — entry hero de-duplicated: "26 ศาสตร์/ชาติ" was stated 3×
 // in the body; collapsed the two payoff lines into one ("ทุกศาสตร์บรรจบ → ฉันทามติ
 // ของจักรวาล") and dropped "26" from the tagline, so the number lands once (headline).
-const CACHE = 'mythsensus-v143';
+// v144: 2026-06-17 — entry hero made language-reactive (was static Thai-only, so
+// the EN toggle did nothing on the first screen). _refreshEntryHero() swaps TH/EN
+// innerHTML per LANG via data-eh, hooked into applyLang(). Payoff → "ในเรื่องราวของคุณ".
+const CACHE = 'mythsensus-v144';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
