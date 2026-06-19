@@ -372,10 +372,11 @@
 // v144: 2026-06-17 — entry hero made language-reactive (was static Thai-only, so
 // the EN toggle did nothing on the first screen). _refreshEntryHero() swaps TH/EN
 // innerHTML per LANG via data-eh, hooked into applyLang(). Payoff → "ในเรื่องราวของคุณ".
-// v145: 2026-06-17 — restore the original EN tagline "Where myriad myths reach
-// consensus — about you" (brand line, matches the main page + <title>); my v144
-// reword was unnecessary. TH tagline + the new EN hook/headline/payoff unchanged.
-const CACHE = 'mythsensus-v145';
+// v146: 2026-06-19 — entry hook rework: primary CTA now the instant zero-form
+// daily draw (entryDrawFirst), 26-system reading demoted to secondary; post-draw
+// upsell card funnels draw → full reading; entry form's time/gender/city collapsed
+// by default. Attacks 11.5s median / 1% birthday-fill / 0 shares.
+const CACHE = 'mythsensus-v146';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

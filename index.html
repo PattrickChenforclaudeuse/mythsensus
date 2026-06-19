@@ -1459,8 +1459,8 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <div style="text-align:center;margin:0 0 8px;font-family:'Cinzel Decorative',serif;font-size:21px;color:var(--gold);line-height:1.4" data-eh="headline">ศาสตร์โบราณ <span style="font-size:27px">26</span> ชาติ<br>ดูดวงคุณ<span style="color:var(--gold2)">พร้อมกัน</span></div>
       <div style="text-align:center;margin:0 0 16px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.7" data-eh="payoff">แล้วเผยจุดที่ทุกศาสตร์ <strong style="color:var(--gold2)">"บรรจบ"</strong> — นั่นคือ "<strong style="color:var(--gold3)">ฉันทามติของจักรวาล</strong>" ในเรื่องราวของคุณ</div>
       <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:18px;font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:.5px;color:var(--gold3)" data-eh="badges"><span>✨ เริ่มฟรี</span><span>🔒 ข้อมูลอยู่ในเครื่อง</span><span>⚡ ไม่ต้องสมัคร</span></div>
-      <button class="login-confirm-btn" onclick="entryShowForm()" style="font-size:15px" data-eh="cta">🔮 ดูว่า 26 ศาสตร์เห็นตรงกันว่าอะไร · ฟรี →</button>
-      <div style="text-align:center;margin-top:11px"><button onclick="entryDrawFirst()" style="background:transparent;border:1px solid var(--gold3);border-radius:8px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--gold2);cursor:pointer;padding:9px 20px" data-eh="drawalt">หรือ เปิดพรเทพวันนี้ก่อน 1 องค์ →</button></div>
+      <button class="login-confirm-btn" onclick="entryDrawFirst()" style="font-size:15px" data-eh="cta">🔮 เปิดพรเทพวันนี้ของคุณ · ฟรี ไม่ต้องกรอกอะไร →</button>
+      <div style="text-align:center;margin-top:11px"><button onclick="entryShowForm()" style="background:transparent;border:1px solid var(--gold3);border-radius:8px;font-family:'Josefin Sans',sans-serif;font-size:12.5px;letter-spacing:1px;color:var(--gold2);cursor:pointer;padding:11px 22px" data-eh="drawalt">หรือ ดูดวงเต็มจาก 26 ศาสตร์ — ใส่วันเกิด →</button></div>
       <div style="text-align:center;margin-top:14px;font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px" data-eh="signin">มีบัญชีแล้ว? <button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">ลงชื่อเข้าใช้ →</button></div>
     </div>
 
@@ -1551,9 +1551,9 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
            accuracy, so they live behind a single tap to reduce the "too much
            info" feeling. All fields stay in the DOM (entryAccept reads them
            with safe defaults) whether the section is open or not. -->
-      <details id="entryMoreWrap" open style="margin-top:2px">
+      <details id="entryMoreWrap" style="margin-top:2px">
         <summary style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--gold2);text-align:center;list-style:none;padding:6px 0;letter-spacing:0.3px;cursor:pointer" id="entryMoreToggle">
-          ✦ เวลา · เพศ · เมืองเกิด (กดเพื่อย่อ) / Birth time · gender · city (tap to collapse)
+          ✦ เวลา · เพศ · เมืองเกิด (ไม่บังคับ · กดเพิ่ม) / Birth time · gender · city (optional · tap to add)
         </summary>
       <!-- เวลาเกิด: HH | MM (default 12:00 — many users don't have birth time) -->
       <div style="margin-top:8px">
@@ -2050,6 +2050,13 @@ try{
       <div id="godLucky" style="display:none;margin:14px auto 2px;max-width:300px;padding:10px 14px;border:1px dashed var(--gold3);border-radius:10px;background:linear-gradient(180deg,rgba(200,164,90,.08),rgba(200,164,90,.02))"></div>
       <div class="god-represents" id="godRepresents"></div>
       <button id="godShareBtn" onclick="_shareDraw()" style="display:none;margin-top:18px;font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1.5px;font-weight:700;background:var(--gold);color:var(--bg);border:none;padding:12px 26px;border-radius:8px;cursor:pointer;box-shadow:0 4px 16px rgba(200,164,90,.3)">✦ แชร์พรนี้ให้เพื่อน · Share</button>
+      <!-- Post-draw upsell → the full 26-system reading. Shown only to visitors with no
+           saved DOB, so a cold draw-first visitor discovers the core product instead of
+           dead-ending on the daily blessing (the likely reason draw-first was reverted). -->
+      <div id="godUpsell" style="display:none;margin:20px auto 2px;max-width:340px;padding:14px 16px;border:1px solid var(--gold3);border-radius:12px;background:linear-gradient(180deg,rgba(200,164,90,.07),rgba(200,164,90,.015))">
+        <div id="godUpsellText" style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13.5px;color:var(--text);line-height:1.6;margin-bottom:10px">นี่คือพรประจำวัน — อยากรู้ไหมว่า <strong style="color:var(--gold2)">26 ศาสตร์</strong> เห็นตรงกันเรื่องอะไรในตัว <strong>คุณ</strong>?</div>
+        <button id="godUpsellBtn" onclick="_drawUpsellToFull()" style="font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1px;font-weight:700;background:transparent;color:var(--gold);border:1px solid var(--gold);padding:10px 22px;border-radius:8px;cursor:pointer">🔮 ดูดวงเต็มจาก 26 ศาสตร์ · ใส่วันเกิด →</button>
+      </div>
     </div>
     <div class="history-list" id="historyList"></div>
     <!-- RECENT BLESSINGS PREVIEW (shown when today's card is empty) -->
@@ -3174,8 +3181,8 @@ function _refreshEntryHero(){
     headline: { th:'ศาสตร์โบราณ <span style="font-size:27px">26</span> ชาติ<br>ดูดวงคุณ<span style="color:var(--gold2)">พร้อมกัน</span>', en:'<span style="font-size:27px">26</span> ancient systems<br>read you <span style="color:var(--gold2)">at once</span>' },
     payoff:   { th:'แล้วเผยจุดที่ทุกศาสตร์ <strong style="color:var(--gold2)">"บรรจบ"</strong> — นั่นคือ "<strong style="color:var(--gold3)">ฉันทามติของจักรวาล</strong>" ในเรื่องราวของคุณ', en:'then reveal where they all <strong style="color:var(--gold2)">converge</strong> — the "<strong style="color:var(--gold3)">consensus of the universe</strong>" about you' },
     badges:   { th:'<span>✨ เริ่มฟรี</span><span>🔒 ข้อมูลอยู่ในเครื่อง</span><span>⚡ ไม่ต้องสมัคร</span>', en:'<span>✨ Free to start</span><span>🔒 Data stays on your device</span><span>⚡ No signup</span>' },
-    cta:      { th:'🔮 ดูว่า 26 ศาสตร์เห็นตรงกันว่าอะไร · ฟรี →', en:'🔮 See what 26 systems agree on · Free →' },
-    drawalt:  { th:'หรือ เปิดพรเทพวันนี้ก่อน 1 องค์ →', en:'or draw a blessing first →' },
+    cta:      { th:'🔮 เปิดพรเทพวันนี้ของคุณ · ฟรี ไม่ต้องกรอกอะไร →', en:'🔮 Draw your blessing for today · Free · no form →' },
+    drawalt:  { th:'หรือ ดูดวงเต็มจาก 26 ศาสตร์ — ใส่วันเกิด →', en:'or get your full 26-system reading — enter birth date →' },
     signin:   { th:'มีบัญชีแล้ว? ' + sgn + 'ลงชื่อเข้าใช้ →</button>', en:'Already have an account? ' + sgn + 'Sign in →</button>' }
   };
   document.querySelectorAll('#entryOverlay [data-eh]').forEach(function(el){
@@ -3981,6 +3988,7 @@ async function drawBlessing(){
     if(sb){sb.style.display='inline-block';sb.textContent=(LANG==='th'?'✦ แชร์พรนี้ให้เพื่อน':'✦ Share your blessing');}
     card.classList.add('revealed');blessHistory.unshift({T,god});renderHistory();saveBlessings();saveBlessingToHistory(god, T, message, msgIdx);markMsgSeen(god.name, msgIdx);
     try{ _msTrack.drew(T.name); }catch(_){}
+    try{ _maybeShowDrawUpsell(); }catch(_){}
     updateBlessingStatus();   // refresh status + hide the recent-preview now that a card is revealed
   } finally {
     _drawing=false;
@@ -4052,6 +4060,29 @@ function _renderLucky(god){
   } catch(_){}
 }
 
+// Post-draw upsell → the full 26-system reading. Re-opens the entry overlay's
+// birth-data form (maybeShowOnboarding's dedicated overlay was retired). Only
+// surfaced to visitors with no saved DOB, so the daily draw becomes a doorway
+// to the core product instead of a dead end.
+function _drawUpsellToFull(){
+  try { const ov=document.getElementById('entryOverlay'); if(ov) ov.style.display='flex'; } catch(_){}
+  try { if (typeof entryShowForm==='function') entryShowForm(); } catch(_){}
+  try { window.scrollTo(0,0); } catch(_){}
+  try { if (window._msTrack && typeof _msTrack.track==='function') _msTrack.track('upsell_click'); } catch(_){}
+}
+function _maybeShowDrawUpsell(){
+  const u=document.getElementById('godUpsell'); if(!u) return;
+  let hasDob=false; try{ hasDob=!!localStorage.getItem('mth_dob'); }catch(_){}
+  if (hasDob){ u.style.display='none'; return; }
+  const isTh=(typeof LANG==='undefined')||LANG==='th';
+  const tx=document.getElementById('godUpsellText'), bt=document.getElementById('godUpsellBtn');
+  if (tx) tx.innerHTML = isTh
+    ? 'นี่คือพรประจำวัน — อยากรู้ไหมว่า <strong style="color:var(--gold2)">26 ศาสตร์</strong> เห็นตรงกันเรื่องอะไรในตัว <strong>คุณ</strong>?'
+    : 'This is today\'s blessing — want to see what <strong style="color:var(--gold2)">26 systems</strong> agree on about <strong>you</strong>?';
+  if (bt) bt.textContent = isTh ? '🔮 ดูดวงเต็มจาก 26 ศาสตร์ · ใส่วันเกิด →' : '🔮 Get your full 26-system reading · enter birth date →';
+  u.style.display='block';
+}
+
 function _renderGodCard(god, T, msgIdx, explicitMsg) {
   const card = document.getElementById('godCard');
   if (!card) return;
@@ -4073,6 +4104,7 @@ function _renderGodCard(god, T, msgIdx, explicitMsg) {
   _currentDraw = { god, tier: T, msgIdx: idx, message };
   const sb = document.getElementById('godShareBtn');
   if (sb) { sb.style.display = 'inline-block'; sb.textContent = (LANG==='th'?'✦ แชร์พรนี้ให้เพื่อน':'✦ Share your blessing'); }
+  try{ _maybeShowDrawUpsell(); }catch(_){}
   card.classList.add('revealed');
 }
 
