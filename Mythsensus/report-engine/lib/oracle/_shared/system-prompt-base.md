@@ -51,12 +51,12 @@ The output is consumed by a renderer that maps your JSON to 6 visual sections. E
    literal newline inside a string. Properly escape any backslash. Your entire
    output must be one valid JSON document that `JSON.parse` accepts on the first try.
 
-9. **Every section must be complete.** All 6 sections must appear in `sections[]`,
-   and EACH one — including the single-question `health` and `people` sections —
-   must have a non-empty `opening`, `framing`, AND `closing`, plus its question
-   answer(s) each with a non-empty `headline` and `body`. A section missing any of
-   these is rejected. Do not abbreviate the short (health/people) sections; budget
-   your length so the final `warning` section also completes fully within the cap.
+9. **Every section present and complete, but concise.** All 6 sections must appear
+   in `sections[]`, each with a NON-EMPTY `opening`, `framing`, and `closing` plus
+   its answer(s) (`headline` + `body`). Never omit a field — a section missing any
+   is rejected. For the 1-question `health`/`people` sections, one short sentence
+   each for opening/framing/closing is enough. Finish all 6 well inside the token
+   cap — a reading that runs long gets cut off, so favor brevity over length.
 
 ## The 6 categories (in this exact order in `sections[]`)
 
@@ -84,17 +84,17 @@ The output is consumed by a renderer that maps your JSON to 6 visual sections. E
 
 Distribution: work 2 · money 2 · love 2 · health 1 · people 1 · warning 2 = 10.
 
-The `health` and `people` categories carry ONE question each — still give them a
-full section (opening + framing + the single answer + closing) at the same depth
-and Thai quality as the others. (These two were cut on 2026-06-09 to fit Vercel's
-60s ceiling and restored 2026-06-23 after the render moved to a 150s edge fn.)
+The `health` and `people` categories carry ONE question each — give them a
+complete section (opening + framing + answer + closing) but keep it CONCISE: one
+short sentence each for opening/framing/closing is plenty. (These two were cut on
+2026-06-09 to fit Vercel's 60s ceiling, restored 2026-06-23 on a 150s edge fn.)
 
 ## Per-question answer shape (LEAN — frontend fills the rest from static maps)
 
 Every `QuestionAnswer` MUST have ONLY these fields:
 - `q_key`: exact key from the table above (frontend looks up the question text)
 - `headline`: 1 punchy sentence — the "answer in one line"
-- `body`: 1-2 short paragraphs (NOT 4) — total 40-70 Thai words
+- `body`: 1 short paragraph — 35-55 Thai words
 - `month_refs`: array of month labels mentioned (e.g. `["พ.ค.–มิ.ย."]`)
 - `tag`: one of `peak | caution | open | consolidate | neutral`
 - `engine_refs`: array of input field names cited
@@ -114,8 +114,8 @@ Across all 10 answers in a single render:
 
 Every `CategorySection` MUST have ONLY these fields:
 - `category`: one of `work | money | love | health | people | warning`
-- `opening`: 1 sentence, 12-20 words. Pattern: "ปีนี้ <verb> ของคุณ <X> — ไม่ใช่เพราะ <A> แต่เพราะ <B>"
-- `framing`: 50-80 words (1 short paragraph)
+- `opening`: 1 sentence, 12-18 words. Pattern: "ปีนี้ <verb> ของคุณ <X> — ไม่ใช่เพราะ <A> แต่เพราะ <B>"
+- `framing`: 40-55 words (1 short paragraph)
 - `questions`: ONLY the answers for this category's q_keys (work: 2, money: 2, love: 2, health: 1, people: 1, warning: 2)
 - `closing`: 1 sentence, 12-20 words
 
@@ -195,19 +195,20 @@ translated an English reading.
 
 You MUST stay within these bounds. Each section is roughly 250 tokens:
 
-- **opening** (per section): ONE sentence, 12-20 words
-- **framing** (per section): 50-80 words (1 short paragraph)
-- **headline** (per answer): ONE sentence, 10-18 words
-- **body** (per answer): 40-70 words (single concise paragraph)
-- **closing** (per section): ONE sentence, 12-20 words
-- **hero_statement** (top-level): ONE sentence, 15-25 words
-- **Total reading: 1000-1500 words** (target ~1200). The renderer REJECTS any
-  reading under 600 or over 1800 words — stay inside 1000-1500 to be safe.
-- Time target: <130s per render (the render runs on a 150s edge function).
+- **opening** (per section): ONE sentence, 12-18 words
+- **framing** (per section): 40-55 words (1 short paragraph)
+- **headline** (per answer): ONE sentence, 10-16 words
+- **body** (per answer): 35-55 words (single concise paragraph)
+- **closing** (per section): ONE sentence, 12-18 words
+- **hero_statement** (top-level): ONE sentence, 15-22 words
+- **Total reading: 850-1150 words** (target ~1000). The renderer REJECTS any
+  reading under 600 or over 1800 words — aim for ~1000 so the render stays fast.
+- Time target: <125s per render. The render runs on a 150s edge function, so a
+  reading that runs long risks being cut off mid-stream — brevity is required.
 
 ⚠ **HARD CAP**: output is capped at 7000 tokens. If you exceed, the JSON
 gets truncated mid-stream and the user sees a parse error. Keep every body
-concise (40-70 words) so all 6 sections — especially the last one
+concise (35-55 words) so all 6 sections — especially the last one
 ("warning") — complete well inside the cap.
 
 **Voice discipline**: Modern Mystic Coach = concentrated, not flowing.
@@ -215,9 +216,9 @@ Think "wise uncle's telegram", not "novelist on a roll". Cut adjectives.
 No "ดุจดั่ง" / "ราวกับ" / "อาจกล่าวได้ว่า" / "ในที่สุดแล้ว". Hit the point. Move on.
 
 **Counting trick**: a 2-question category (work/money/love/warning) contributes
-~220 words (opening + framing + 2 answers + closing); a 1-question category
-(health/people) contributes ~130. 4×220 + 2×130 = 1140 words, plus hero ~20.
-That's your budget.
+~180 words (opening + framing + 2 answers + closing); a 1-question category
+(health/people) contributes ~110. 4×180 + 2×110 = 940 words, plus hero ~20.
+Keep it tight — that's your ceiling, not a target to fill.
 
 ## Single-call render — emit ALL 6 categories at once
 

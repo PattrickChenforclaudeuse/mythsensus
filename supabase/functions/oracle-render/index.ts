@@ -26,7 +26,9 @@ const SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const REST = SUPABASE_URL.replace(/\/+$/, '') + '/rest/v1'
 const DEFAULT_MODEL = 'claude-sonnet-4-6'
 const MAX_TOKENS = 7000 // 6 cat × 10 Q — raised from 5500 when health + people returned (2026-06-23)
-const RENDER_TIMEOUT_MS = 145_000 // margin under the 150s wall-clock ceiling
+const RENDER_TIMEOUT_MS = 140_000 // abort early enough that the 'error' write lands
+// before Supabase kills the instance at the 150s wall-clock ceiling — a slow render
+// then flips to 'error' and auto-retries on the next poll, instead of sticking 'running'.
 
 const sbHeaders = { apikey: SERVICE, Authorization: 'Bearer ' + SERVICE, 'Content-Type': 'application/json' }
 
