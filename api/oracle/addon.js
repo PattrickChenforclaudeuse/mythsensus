@@ -36,7 +36,7 @@ const SYSTEMS = [
   'vedicMahadasha', 'taksa',
 ]
 
-const SCHEMA_VERSION = '2.0'
+const SCHEMA_VERSION = '2.1' // 6 cat × 10 Q (health + people restored 2026-06-23)
 // ── Decoupled render (2026-06-23) ────────────────────────────────────────────
 // The Deep Reading takes ~100s on Sonnet 4.6 (whose Thai is native, unlike Haiku's
 // translationese). That's over Vercel Hobby's 60s function ceiling, so this
@@ -107,9 +107,9 @@ function buildSystemPrompt(system) {
 }
 
 // Format the user payload exactly as the prompt expects: chart + months + context.
-// When `half` is given, add the partial-render protocol fields so this call emits
-// only that half's categories (see system-prompt-base.md "Partial-render protocol").
-function buildUserMessage(body, half) {
+// The edge fn renders all 6 categories in one call — the split / partial-render
+// protocol was dropped when the render was decoupled (2026-06-23).
+function buildUserMessage(body) {
   const payload = {
     system: body.system,
     lang: body.lang,
@@ -117,10 +117,6 @@ function buildUserMessage(body, half) {
     chart: body.chart,
     months: body.months || [],
     context: body.context || {},
-  }
-  if (half) {
-    payload.render_only = half.categories
-    payload.include_header = half.includeHeader
   }
   return JSON.stringify(payload, null, 2)
 }
@@ -139,57 +135,10 @@ function validateInput(body) {
   return null
 }
 
-// Output validation — mirrors _shared/schema.ts validateOutput() inline.
-// Kept inline (not imported) because Vercel functions don't easily import TS.
-function validateOracleOutput(out) {
-  if (!out || typeof out !== 'object') return 'oracle output not an object'
-  if (!out.title || !out.hero_statement) return 'missing title/hero_statement'
-  if (!Array.isArray(out.sections) || out.sections.length !== 4) {
-    return `sections must be exactly 4, got ${out.sections ? out.sections.length : 0}`
-  }
-  const VALID_CATEGORIES = ['work', 'money', 'love', 'warning']
-  const VALID_TAGS = ['peak', 'caution', 'open', 'consolidate', 'neutral']
-  const VALID_Q_KEYS_BY_CATEGORY = {
-    work:    ['work_energy_direction', 'work_boldest_move_window'],
-    money:   ['money_flow_direction', 'money_leak_or_windfall'],
-    love:    ['love_energy_state', 'love_timing_windows'],
-    warning: ['warning_high_risk_window', 'warning_specific'],
-  }
-  const seenCategories = new Set()
-  let totalAnswers = 0
-  const tagCounts = { peak: 0, caution: 0, open: 0, consolidate: 0, neutral: 0 }
-  for (const sec of out.sections) {
-    if (!VALID_CATEGORIES.includes(sec.category)) return `unknown category: ${sec.category}`
-    if (seenCategories.has(sec.category)) return `duplicate category: ${sec.category}`
-    seenCategories.add(sec.category)
-    if (!sec.opening || !sec.closing || !sec.framing) {
-      return `section ${sec.category} missing opening/framing/closing`
-    }
-    if (!Array.isArray(sec.questions)) return `section ${sec.category} missing questions`
-    const allowedQs = VALID_Q_KEYS_BY_CATEGORY[sec.category]
-    for (const a of sec.questions) {
-      if (!allowedQs.includes(a.q_key)) {
-        return `q_key ${a.q_key} not allowed in category ${sec.category}`
-      }
-      if (!a.headline || !a.body) return `answer ${a.q_key} missing headline/body`
-      if (!Array.isArray(a.engine_refs) || a.engine_refs.length === 0) {
-        return `answer ${a.q_key} must cite >=1 engine_refs`
-      }
-      if (!VALID_TAGS.includes(a.tag)) return `answer ${a.q_key} invalid tag: ${a.tag}`
-      tagCounts[a.tag]++
-      totalAnswers++
-    }
-  }
-  if (totalAnswers !== 8) return `must have exactly 8 answers, got ${totalAnswers}`
-  // cap 4 (matches prompt "1-4"); each parallel half is told to use ≤2 each so the
-  // merged reading lands ≤4 without the two halves having to coordinate tags.
-  if (tagCounts.peak > 4) return `peak ${tagCounts.peak} > cap 4`
-  if (tagCounts.caution > 4) return `caution ${tagCounts.caution} > cap 4`
-  const wc = Number(out.word_count) || 0
-  // Scope-reduced schema (2026-06-09): 4 sections × 2 Qs each. Bounds 500-1300 words.
-  if (wc < 500 || wc > 1300) return `word_count ${wc} out of bounds`
-  return null
-}
+// NOTE: output validation lives in the woam edge fn (supabase/functions/
+// oracle-render/index.ts) — it renders, validates, and caches. This endpoint
+// only triggers it + polls the cache, so it does not validate output itself.
+// (A dead 4-section mirror of the validator was removed here on 2026-06-23.)
 
 // ─── Render worker trigger (woam edge function) ───
 // Fire the long render OFF this request. We await only the worker's fast 202 ack;

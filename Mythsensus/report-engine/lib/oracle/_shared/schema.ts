@@ -40,26 +40,30 @@ export type RelationshipStatus =
 
 // ─── Category + question contracts ──────────────────────────
 
-// 4 core categories (reduced from 6 on 2026-06-09 to fit Vercel 60s ceiling).
-// Health + People absorbed into other categories: health hints surface in
-// warning answers when relevant; people-who-changes-you was deemed
-// less load-bearing than the 4 retained.
+// 6 categories. Health + People were cut to 4 on 2026-06-09 to fit the Vercel
+// 60s function ceiling; restored 2026-06-23 once the render was decoupled to a
+// 150s woam edge function (supabase/functions/oracle-render), so the time
+// pressure that forced the cut no longer applies.
 export type CategoryKey =
   | 'work'     // 事 — การงาน
   | 'money'    // 財 — การเงิน
   | 'love'     // 緣 — ความรัก
+  | 'health'   // 身 — สุขภาพ
+  | 'people'   // 家 — ครอบครัว/คนใกล้ตัว
   | 'warning'  // 戒 — สิ่งที่ต้องระวัง
 
 export const CATEGORIES: Record<CategoryKey, { th: string; en: string; glyph: string }> = {
   work:    { th: 'การงาน',                 en: 'Work',         glyph: '事' },
   money:   { th: 'การเงิน',                 en: 'Money',        glyph: '財' },
   love:    { th: 'ความรัก',                 en: 'Love',         glyph: '緣' },
+  health:  { th: 'สุขภาพ',                  en: 'Health',       glyph: '身' },
+  people:  { th: 'ครอบครัว / คนใกล้ตัว',     en: 'People',       glyph: '家' },
   warning: { th: 'สิ่งที่ต้องระวัง',          en: 'Cautions',     glyph: '戒' },
 }
 
-/** Universal question set — 8 questions across 4 core categories.
- *  Distribution: work 2 · money 2 · love 2 · warning 2 = 8.
- *  (Reduced from 10 on 2026-06-09 to fit Vercel 60s function ceiling.)
+/** Universal question set — 10 questions across 6 categories.
+ *  Distribution: work 2 · money 2 · love 2 · health 1 · people 1 · warning 2 = 10.
+ *  (health + people restored 2026-06-23 after the render moved to a 150s edge fn.)
  */
 export const UNIVERSAL_QUESTIONS: Array<{
   q_key: string
@@ -85,6 +89,12 @@ export const UNIVERSAL_QUESTIONS: Array<{
   { q_key: 'love_timing_windows', category: 'love',
     th: 'ช่วงเดือนไหนคือ "หน้าต่างสำคัญ" ของความสัมพันธ์? (เริ่ม · พัฒนา · ตัดสินใจ · ปล่อย)',
     en: 'Which months are the key relationship windows — to begin, deepen, decide, or release?' },
+  { q_key: 'health_weak_point', category: 'health',
+    th: 'ปีนี้ "จุดอ่อน" ของร่างกายคืออะไร? ช่วงไหนต้องดูแลพิเศษ?',
+    en: 'What is your body\'s weak point — and which months need extra care?' },
+  { q_key: 'people_who_changes_you', category: 'people',
+    th: 'ใครคือ "คนที่จะเปลี่ยนชีวิตคุณ" ปีนี้? + เปลี่ยนยังไง?',
+    en: 'Who will change your life this year — and how?' },
   { q_key: 'warning_high_risk_window', category: 'warning',
     th: 'ช่วงเดือนไหน "เสี่ยงสุด"? เสี่ยงเรื่องอะไร?',
     en: 'Which months are highest-risk — and about what?' },
@@ -195,17 +205,19 @@ export interface OracleAddonResponse {
 // ─── Acceptance checks ──────────────────────────────────────
 
 export const ACCEPTANCE = {
-  /** Total word count of all section bodies + answers (sanity bounds) */
-  MIN_WORDS: 1500,
-  MAX_WORDS: 3500,
-  TARGET_WORDS: 2200,
+  /** Total word count (LEAN v2 register: 40-70-word bodies). 10 answers across
+   *  6 sections targets ~1150; bounds widened from the 8-Q (500-1300) numbers. */
+  MIN_WORDS: 600,
+  MAX_WORDS: 1800,
+  TARGET_WORDS: 1150,
   /** Each section must mention at least this many engine fields total */
   MIN_ENGINE_REFS_PER_SECTION: 3,
   /** Tag distribution — falsifiability matters; no "all peak" answers */
   MAX_PEAK_ANSWERS: 4,
   MAX_CAUTION_ANSWERS: 4,
-  /** API hard timeout (Vercel function ceiling is 60s; oracle render budget) */
-  MAX_GENERATE_MS: 25000,
+  /** Render budget. The render now runs OFF-request on a 150s woam edge fn
+   *  (decoupled 2026-06-23) — no longer bound by the Vercel 60s ceiling. */
+  MAX_GENERATE_MS: 150000,
   /** Daily cost guard — soft cap, configurable via env */
   DEFAULT_DAILY_BUDGET_CENTS: 3000,
   /** Per-user daily cap */

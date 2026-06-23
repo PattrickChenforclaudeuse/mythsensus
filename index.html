@@ -6199,7 +6199,7 @@ function _getMS26ChartFromProfile(){
 }
 
 // ══════════════════════════════════════════════════════════════════
-// ORACLE DEEP READING — 4 categories × 8 questions × 2 voice modes
+// ORACLE DEEP READING — 6 categories × 10 questions × 2 voice modes
 // Locked 2026-06-09. See Mythsensus/report-engine/lib/oracle/_shared/
 // schema.ts + system-prompt-base.md for full spec. API at
 // /api/oracle/addon. Cache key (chart_hash, system, lang,
@@ -8000,7 +8000,7 @@ function renderDeepReadings(){
 // ── Oracle deep-reading state + renderer ────────────────────
 // Per-system voice mode toggle. Default 'engineer' (existing static
 // `c.<sys>.reading`); 'oracle' lazy-fetches /api/oracle/addon and
-// renders 4 categories × 8 questions.
+// renders 6 categories × 10 questions.
 const _deepMode = {}; // systemKey -> 'engineer' | 'oracle'
 const _deepOracleCache = {}; // systemKey -> OracleAddonOutput (per-render memo)
 const _deepOracleErrors = {}; // systemKey -> err message (sticky until next try)
@@ -8018,11 +8018,14 @@ const ORACLE_TAG_LABEL_EN = { peak:'Peak', caution:'Caution', open:'Open', conso
 // Static maps that mirror _shared/schema.ts → CATEGORIES + UNIVERSAL_QUESTIONS.
 // LLM emits only the keys; frontend fills the display strings. Saves ~30%
 // output tokens (= shorter generation time + lower cost).
-// 4 categories × 8 questions (reduced from 6×10 on 2026-06-09 to fit Vercel 60s).
+// 6 categories × 10 questions (health + people restored 2026-06-23 after the
+// render was decoupled to a 150s edge fn — the Vercel 60s cut no longer applies).
 const ORACLE_CATEGORIES_DISPLAY = {
   work:    { th: 'การงาน',                en: 'Work',     glyph: '事' },
   money:   { th: 'การเงิน',                en: 'Money',    glyph: '財' },
   love:    { th: 'ความรัก',                en: 'Love',     glyph: '緣' },
+  health:  { th: 'สุขภาพ',                 en: 'Health',   glyph: '身' },
+  people:  { th: 'ครอบครัว / คนใกล้ตัว',    en: 'People',   glyph: '家' },
   warning: { th: 'สิ่งที่ต้องระวัง',         en: 'Cautions', glyph: '戒' },
 };
 const ORACLE_QUESTIONS_DISPLAY = {
@@ -8038,6 +8041,10 @@ const ORACLE_QUESTIONS_DISPLAY = {
                               en: 'Is your love energy open, closed, or transforming? What does that mean?' },
   love_timing_windows:      { th: 'ช่วงเดือนไหนคือ "หน้าต่างสำคัญ" ของความสัมพันธ์? (เริ่ม · พัฒนา · ตัดสินใจ · ปล่อย)',
                               en: 'Which months are the key relationship windows — to begin, deepen, decide, or release?' },
+  health_weak_point:        { th: 'ปีนี้ "จุดอ่อน" ของร่างกายคืออะไร? ช่วงไหนต้องดูแลพิเศษ?',
+                              en: 'What is your body\'s weak point — and which months need extra care?' },
+  people_who_changes_you:   { th: 'ใครคือ "คนที่จะเปลี่ยนชีวิตคุณ" ปีนี้? + เปลี่ยนยังไง?',
+                              en: 'Who will change your life this year — and how?' },
   warning_high_risk_window: { th: 'ช่วงเดือนไหน "เสี่ยงสุด"? เสี่ยงเรื่องอะไร?',
                               en: 'Which months are highest-risk — and about what?' },
   warning_specific:         { th: 'ปีนี้ต้องระวัง "อะไร / ใคร" เป็นพิเศษ? (คน · สัญญา · การตัดสินใจ · วัตถุ)',
@@ -8133,7 +8140,7 @@ function _renderOracleLoading() {
   return `
     <div style="text-align:center;padding:36px 20px">
       <div style="font-family:'Cinzel Decorative',serif;font-size:14px;color:var(--gold);letter-spacing:3px;margin-bottom:14px">${isTh?'กำลังสังเคราะห์การอ่าน':'SYNTHESIZING'}</div>
-      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:13px;color:var(--muted);font-style:italic;line-height:1.7;max-width:340px;margin:0 auto">${isTh?'ระบบกำลังเตรียมการอ่านเชิงลึกของคุณผ่าน 4 หมวด × 8 คำถาม — ใช้เวลาประมาณ 1-2 นาที · รออยู่หน้านี้ หรือกลับมาดูใหม่ภายหลังก็ได้ (เราเก็บผลไว้ให้)':'Preparing your deep reading across 4 categories × 8 questions — about 1-2 minutes · stay here, or come back later (we save it for you)'}</div>
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:13px;color:var(--muted);font-style:italic;line-height:1.7;max-width:340px;margin:0 auto">${isTh?'ระบบกำลังเตรียมการอ่านเชิงลึกของคุณผ่าน 6 หมวด × 10 คำถาม — ใช้เวลาประมาณ 1-2 นาที · รออยู่หน้านี้ หรือกลับมาดูใหม่ภายหลังก็ได้ (เราเก็บผลไว้ให้)':'Preparing your deep reading across 6 categories × 10 questions — about 1-2 minutes · stay here, or come back later (we save it for you)'}</div>
       <div style="display:flex;justify-content:center;gap:6px;margin-top:18px">
         <span style="width:8px;height:8px;border-radius:50%;background:var(--gold);animation:oracle-pulse 1.4s infinite ease-in-out;"></span>
         <span style="width:8px;height:8px;border-radius:50%;background:var(--gold);animation:oracle-pulse 1.4s 0.2s infinite ease-in-out;"></span>

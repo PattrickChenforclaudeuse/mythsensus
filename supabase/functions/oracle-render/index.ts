@@ -25,8 +25,8 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
 const SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const REST = SUPABASE_URL.replace(/\/+$/, '') + '/rest/v1'
 const DEFAULT_MODEL = 'claude-sonnet-4-6'
-const MAX_TOKENS = 5500
-const RENDER_TIMEOUT_MS = 140_000 // margin under the 150s wall-clock ceiling
+const MAX_TOKENS = 7000 // 6 cat × 10 Q — raised from 5500 when health + people returned (2026-06-23)
+const RENDER_TIMEOUT_MS = 145_000 // margin under the 150s wall-clock ceiling
 
 const sbHeaders = { apikey: SERVICE, Authorization: 'Bearer ' + SERVICE, 'Content-Type': 'application/json' }
 
@@ -51,20 +51,22 @@ async function upsertCache(ck: any, oracle: any, costCents: number, model: strin
   if (!r.ok) throw new Error('cache upsert ' + r.status + ': ' + (await r.text()).slice(0, 160))
 }
 
-// Mirrors validateOracleOutput() in api/oracle/addon.js (4 sections / 8 answers,
-// tag caps 4, word_count 500-1300). Never cache an invalid reading.
+// Source-of-truth output validator (6 sections / 10 answers, tag caps 4,
+// word_count 600-1800). Mirrors _shared/schema.ts. Never cache an invalid reading.
 function validateOracleOutput(out: any): string | null {
   if (!out || typeof out !== 'object') return 'not an object'
   if (!out.title || !out.hero_statement) return 'missing title/hero_statement'
-  if (!Array.isArray(out.sections) || out.sections.length !== 4) {
-    return `sections must be exactly 4, got ${out.sections ? out.sections.length : 0}`
+  if (!Array.isArray(out.sections) || out.sections.length !== 6) {
+    return `sections must be exactly 6, got ${out.sections ? out.sections.length : 0}`
   }
-  const VALID_CATEGORIES = ['work', 'money', 'love', 'warning']
+  const VALID_CATEGORIES = ['work', 'money', 'love', 'health', 'people', 'warning']
   const VALID_TAGS = ['peak', 'caution', 'open', 'consolidate', 'neutral']
   const VALID_Q_KEYS: Record<string, string[]> = {
     work: ['work_energy_direction', 'work_boldest_move_window'],
     money: ['money_flow_direction', 'money_leak_or_windfall'],
     love: ['love_energy_state', 'love_timing_windows'],
+    health: ['health_weak_point'],
+    people: ['people_who_changes_you'],
     warning: ['warning_high_risk_window', 'warning_specific'],
   }
   const seen = new Set<string>()
@@ -86,11 +88,11 @@ function validateOracleOutput(out: any): string | null {
       total++
     }
   }
-  if (total !== 8) return `must have exactly 8 answers, got ${total}`
+  if (total !== 10) return `must have exactly 10 answers, got ${total}`
   if (tags.peak > 4) return `peak ${tags.peak} > cap 4`
   if (tags.caution > 4) return `caution ${tags.caution} > cap 4`
   const wc = Number(out.word_count) || 0
-  if (wc < 500 || wc > 1300) return `word_count ${wc} out of bounds`
+  if (wc < 600 || wc > 1800) return `word_count ${wc} out of bounds`
   return null
 }
 
