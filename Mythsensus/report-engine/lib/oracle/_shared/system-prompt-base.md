@@ -45,6 +45,12 @@ The output is consumed by a renderer that maps your JSON to 4 visual sections. E
 
 7. **Output JSON only.** Match `OracleAddonOutput` from `_shared/schema.ts` exactly. No markdown fence. No preamble.
 
+8. **JSON string safety (critical — a malformed string breaks the whole reading).**
+   Inside any string VALUE, never use a raw double-quote `"` — for emphasis or
+   quoting use the Thai marks 「…」 or single quotes 'like this'. Never put a
+   literal newline inside a string. Properly escape any backslash. Your entire
+   output must be one valid JSON document that `JSON.parse` accepts on the first try.
+
 ## The 4 categories (in this exact order in `sections[]`)
 
 1. `work` (事) — การงาน

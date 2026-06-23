@@ -37,32 +37,16 @@ const SYSTEMS = [
 ]
 
 const SCHEMA_VERSION = '2.0'
-// ── Model: Sonnet 4.6 via a PARALLEL PER-SECTION split (2026-06-23) ───────────
-// Director feedback: Haiku 4.5's Thai reads as translationese (e.g. "คู่สัญญา"
-// for spouse) — a model-level limitation the prompt can't fix. Sonnet 4.6's Thai
-// is native/fluent, BUT a full 4-section reading takes ~100s, over Vercel Hobby's
-// 60s function ceiling. Rather than pay for Vercel Pro (300s), we render the four
-// sections CONCURRENTLY in one function (1 Sonnet call each), then merge.
-// Promise.all wall-clock ≈ the slowest single section, not the sum.
-// Why ONE section per call (not two): each call uses forced tool-use for
-// guaranteed-valid JSON (Sonnet otherwise emits unescaped quotes in Thai bodies),
-// and tool-use is ~20% slower — two sections/call measured ~65s (over ceiling),
-// one section/call measures ~37s with comfortable margin. Merge → validate →
-// cache the full reading under one key, so every later read is one instant hit.
-const MODEL = 'claude-sonnet-4-6'
-const PART_MAX_TOKENS = 2000          // per call (1 section ≈ 230 words ≈ 1400 tok;
-                                       // 2000 leaves headroom without truncating).
-const RENDER_TIMEOUT_MS = 56_000      // per call. All run in parallel, so the
-                                       // function's total wall-clock ≈ one call, not
-                                       // the sum — stays under Vercel's 60s ceiling.
-// One render call per category, all fired in parallel. The 'work' call also
-// carries the header (title/subtitle/hero); the rest omit it. Merge → 4 sections.
-const RENDER_PARTS = [
-  { categories: ['work'], includeHeader: true },
-  { categories: ['money'], includeHeader: false },
-  { categories: ['love'], includeHeader: false },
-  { categories: ['warning'], includeHeader: false },
-]
+// ── Decoupled render (2026-06-23) ────────────────────────────────────────────
+// The Deep Reading takes ~100s on Sonnet 4.6 (whose Thai is native, unlike Haiku's
+// translationese). That's over Vercel Hobby's 60s function ceiling, so this
+// endpoint does NOT render. It checks the cache + enforces auth/cost guards, then
+// fires a Supabase Edge Function on woam (oracle-render, 150s ceiling) that does
+// ONE Sonnet call and writes the cache. The browser polls this endpoint until the
+// cached row appears. See supabase/functions/oracle-render/index.ts.
+const RENDER_MODEL = 'claude-sonnet-4-6'
+const ORACLE_RENDER_URL = process.env.ORACLE_RENDER_URL || 'https://woamqrhifuxsscnihqco.supabase.co/functions/v1/oracle-render'
+const JOB_FRESH_MS = 3 * 60 * 1000 // a 'running' job newer than this is not re-triggered
 const DEFAULT_DAILY_BUDGET_CENTS = 3000
 const DEFAULT_USER_DAILY_RENDERS = 10
 
@@ -207,98 +191,20 @@ function validateOracleOutput(out) {
   return null
 }
 
-// ─── Anthropic API call (raw fetch — no SDK dependency) ───
-// FULLY-FLAT, SCALAR-ONLY tool schema (one section per call). Hard-won: Sonnet
-// under forced tool-use intermittently emits ANY nested array/object field
-// (sections[], then questions[], then even a named answer object) as a *malformed
-// JSON string* — because the Thai text inside carries quotes the model fails to
-// escape when it hand-stringifies. The cure is to leave NOTHING nested: every
-// field is a plain string or number, so there is nothing for the model to
-// stringify and the API guarantees each scalar string is correctly escaped.
-// The two answers are split into a1_* / a2_* scalar fields; *_engine_refs and
-// *_month_refs are comma-separated strings that the merge splits back to arrays.
-const TAG_ENUM = ['peak', 'caution', 'open', 'consolidate', 'neutral']
-const answerFields = (pre) => ({
-  [`${pre}_q_key`]: { type: 'string', description: 'exact q_key from the prompt table' },
-  [`${pre}_headline`]: { type: 'string' },
-  [`${pre}_body`]: { type: 'string', description: '40-70 Thai words' },
-  [`${pre}_tag`]: { type: 'string', enum: TAG_ENUM },
-  [`${pre}_month_refs`]: { type: 'string', description: 'comma-separated month labels, e.g. "ม.ค., พ.ค.–มิ.ย." (may be empty)' },
-  [`${pre}_engine_refs`]: { type: 'string', description: 'comma-separated input field names you used, e.g. "bazi.dayMaster, months[0].ten_god"' },
-})
-const ORACLE_TOOL = {
-  name: 'emit_oracle_section',
-  description: 'Return ONE section of the oracle reading for this chart, as flat scalar fields. The work call also fills the shared header (title/subtitle/hero_statement). Each section has exactly two answers: a1_* and a2_*.',
-  input_schema: {
-    type: 'object',
-    properties: {
-      // Shared header — only the call with include_header:true fills these.
-      title: { type: 'string' },
-      subtitle: { type: 'string' },
-      hero_statement: { type: 'string' },
-      // The one section this call renders.
-      category: { type: 'string', enum: ['work', 'money', 'love', 'warning'] },
-      opening: { type: 'string' },
-      framing: { type: 'string' },
-      closing: { type: 'string' },
-      ...answerFields('a1'),
-      ...answerFields('a2'),
-      word_count: { type: 'number' },
-    },
-    required: [
-      'category', 'opening', 'framing', 'closing', 'word_count',
-      'a1_q_key', 'a1_headline', 'a1_body', 'a1_tag', 'a1_engine_refs',
-      'a2_q_key', 'a2_headline', 'a2_body', 'a2_tag', 'a2_engine_refs',
-    ],
-  },
-}
-
-// Returns { data: <structured object>, costCents, ... }. `data` is already a
-// parsed object (from the forced tool call) — no JSON.parse needed.
-async function callAnthropic(systemPrompt, userMessage, maxTokens = PART_MAX_TOKENS) {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) throw new Error('ANTHROPIC_API_KEY not set in env')
-
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), RENDER_TIMEOUT_MS)
-  let resp
-  try {
-    resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: maxTokens,
-        system: systemPrompt,
-        tools: [ORACLE_TOOL],
-        tool_choice: { type: 'tool', name: ORACLE_TOOL.name },
-        messages: [{ role: 'user', content: userMessage }],
-      }),
-      signal: controller.signal,
-    })
-  } finally {
-    clearTimeout(timer)
-  }
-
-  if (!resp.ok) {
-    const errText = await resp.text().catch(() => '<no body>')
-    throw new Error(`Anthropic ${resp.status}: ${errText.slice(0, 300)}`)
-  }
-  const data = await resp.json()
-  const toolBlock = (data.content || []).find((b) => b.type === 'tool_use')
-  if (!toolBlock || !toolBlock.input) {
-    throw new Error('no tool_use block in response (stop_reason: ' + (data.stop_reason || '?') + ')')
-  }
-  const usage = data.usage || {}
-  // Sonnet 4.6 pricing — input $3/MTok, output $15/MTok (2 parallel calls/render).
-  const inputTokens = usage.input_tokens || 0
-  const outputTokens = usage.output_tokens || 0
-  const costCents = Math.ceil((inputTokens * 0.0003 + outputTokens * 0.0015) * 100) / 100
-  return { data: toolBlock.input, costCents, inputTokens, outputTokens }
+// ─── Render worker trigger (woam edge function) ───
+// Fire the long render OFF this request. We await only the worker's fast 202 ack;
+// it marks the job 'running' then renders in its own 150s background task and
+// writes the cache. The browser polls this endpoint until the cached row appears.
+async function triggerRender(payload) {
+  const secret = process.env.ORACLE_RENDER_SECRET
+  if (!secret) throw new Error('ORACLE_RENDER_SECRET not set')
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || ''
+  const r = await fetch(ORACLE_RENDER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: anon, Authorization: 'Bearer ' + anon },
+    body: JSON.stringify({ secret, ...payload }),
+  })
+  if (!r.ok) throw new Error('worker ' + r.status + ': ' + (await r.text().catch(() => '')).slice(0, 160))
 }
 
 // ─── Supabase cache (Management API — raw SQL via PAT) ───
@@ -402,25 +308,18 @@ async function readCache({ chart_hash, system, lang, relationship_status, prompt
   }
 }
 
-async function writeCache({ chart_hash, system, lang, relationship_status, prompt_version, oracle_json, cost_cents, model }) {
+// Read the current render job for a cache key + whether it is still fresh (the
+// freshness window is computed in SQL to avoid timestamp-format parsing). Lets the
+// handler decide whether to (re)trigger the worker without double-firing a render.
+async function readJob(jobKey) {
   try {
-    const json = sqlEscape(JSON.stringify(oracle_json))
-    const sql = `INSERT INTO public.myth_addon_reading
-                   (chart_hash, system, lang, relationship_status, prompt_version,
-                    oracle_json, cost_cents, model, generated_at_iso)
-                 VALUES
-                   ('${sqlEscape(chart_hash)}', '${sqlEscape(system)}', '${sqlEscape(lang)}',
-                    '${sqlEscape(relationship_status)}', '${sqlEscape(prompt_version)}',
-                    '${json}'::jsonb, ${Number(cost_cents)}, '${sqlEscape(model)}', NOW())
-                 ON CONFLICT (chart_hash, system, lang, relationship_status, prompt_version)
-                 DO UPDATE SET
-                   oracle_json = EXCLUDED.oracle_json,
-                   cost_cents = EXCLUDED.cost_cents,
-                   model = EXCLUDED.model,
-                   generated_at_iso = EXCLUDED.generated_at_iso`
-    await supabaseQuery(sql)
+    const sql = `SELECT status, (updated_at > now() - interval '3 minutes') AS fresh
+                 FROM public.oracle_render_jobs WHERE job_key = '${sqlEscape(jobKey)}' LIMIT 1`
+    const rows = await supabaseQuery(sql)
+    return Array.isArray(rows) && rows[0] ? rows[0] : null
   } catch (e) {
-    console.warn('[oracle/addon] cache write failed:', e.message)
+    console.warn('[oracle/addon] job read failed:', e.message)
+    return null
   }
 }
 
@@ -533,93 +432,26 @@ export default async function handler(req, res) {
     })
   }
 
-  // 3. Live render — four sections IN PARALLEL (RENDER_PARTS), 1 Sonnet call each.
-  //    Promise.all wall-clock ≈ the slowest single call, so the function stays
-  //    under Vercel's 60s ceiling while keeping Sonnet's native Thai.
-  let oracle, costCents
-  try {
-    const systemPrompt = buildSystemPrompt(body.system)
-    const halves = await Promise.all(
-      RENDER_PARTS.map((part) =>
-        callAnthropic(systemPrompt, buildUserMessage(body, part), PART_MAX_TOKENS)
-      )
-    )
-    costCents = halves.reduce((sum, h) => sum + (h.costCents || 0), 0)
-
-    // Each call returns ONE flat section as scalar fields (forced tool-use). Build
-    // the sections array ourselves. validateOracleOutput() below enforces the
-    // 4-section / 8-answer whole (a part that returned nothing usable → <4 → 502).
-    const parsed = halves.map((h) => h.data)
-    // Every tool field is a scalar. Split the comma-separated *_refs back into
-    // arrays and assemble each section's two answers from its a1_* / a2_* fields.
-    const splitCsv = (s) => Array.isArray(s)
-      ? s
-      : (typeof s === 'string' ? s.split(',').map((x) => x.trim()).filter(Boolean) : [])
-    const mkAnswer = (p, pre) => (p && p[`${pre}_q_key`]) ? {
-      q_key: p[`${pre}_q_key`],
-      headline: p[`${pre}_headline`],
-      body: p[`${pre}_body`],
-      tag: p[`${pre}_tag`],
-      month_refs: splitCsv(p[`${pre}_month_refs`]),
-      engine_refs: splitCsv(p[`${pre}_engine_refs`]),
-    } : null
-
-    // Merge: header from whichever part carried it, sections assembled in canonical
-    // work→money→love→warning order, word_count summed. Validate the merged whole.
-    const header = parsed.find((p) => p && p.hero_statement) || parsed[0] || {}
-    const ORDER = { work: 0, money: 1, love: 2, warning: 3 }
-    const allSections = parsed
-      .filter((p) => p && p.category)
-      .map((p) => ({
-        category: p.category,
-        opening: p.opening,
-        framing: p.framing,
-        closing: p.closing,
-        questions: [mkAnswer(p, 'a1'), mkAnswer(p, 'a2')].filter(Boolean),
-      }))
-      .sort((a, b) => (ORDER[a.category] ?? 9) - (ORDER[b.category] ?? 9))
-    oracle = {
-      title: header.title || '',
-      subtitle: header.subtitle || '',
-      hero_statement: header.hero_statement || '',
-      sections: allSections,
-      word_count: parsed.reduce((sum, p) => sum + (Number(p && p.word_count) || 0), 0),
-    }
-
-    // Ensure system + lang + prompt_version are stamped even if LLM forgets
-    oracle.system = body.system
-    oracle.lang = body.lang
-    oracle.year = body.year
-    oracle.prompt_version = cache_key.prompt_version
-
-    const validErr = validateOracleOutput(oracle)
-    if (validErr) {
-      return res.status(502).json({
-        error: 'oracle_validation_failed',
-        message: validErr,
-        partial: oracle,
+  // 3. Not cached → make sure a render job is running on the woam worker, then ask
+  //    the client to poll. The ~100s Sonnet render runs OFF this request (Vercel
+  //    Hobby caps functions at 60s); the worker writes the cache when it finishes.
+  const jobKey = [cache_key.chart_hash, cache_key.system, cache_key.lang, cache_key.relationship_status, cache_key.prompt_version].join('|')
+  const job = await readJob(jobKey)
+  const jobFresh = !!(job && job.status === 'running' && job.fresh)
+  if (!jobFresh) {
+    // No active job (or it errored / went stale) → (re)trigger. We await only the
+    // worker's fast 202 ack; the render continues in its background task. A failed
+    // prior render therefore auto-retries on the next poll.
+    try {
+      await triggerRender({
+        cache_key: { ...cache_key, year: body.year },
+        systemPrompt: buildSystemPrompt(body.system),
+        userMessage: buildUserMessage(body),
+        model: RENDER_MODEL,
       })
+    } catch (e) {
+      return res.status(502).json({ error: 'oracle_trigger_failed' })
     }
-  } catch (e) {
-    if (e.name === 'AbortError') {
-      return res.status(504).json({ error: 'render_timeout', message: `> ${RENDER_TIMEOUT_MS}ms` })
-    }
-    return res.status(502).json({ error: 'oracle_render_failed', message: e.message })
   }
-
-  // 4. Persist cache (fire-and-forget — don't block response)
-  writeCache({
-    ...cache_key,
-    oracle_json: oracle,
-    cost_cents: costCents,
-    model: MODEL,
-  }).catch(() => {})
-
-  return res.status(200).json({
-    oracle,
-    cached: false,
-    generated_ms: Date.now() - t0,
-    cost_cents: costCents,
-    model: MODEL,
-  })
+  return res.status(202).json({ status: 'generating', generated_ms: Date.now() - t0 })
 }
