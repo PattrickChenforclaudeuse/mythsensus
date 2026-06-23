@@ -6348,12 +6348,13 @@ async function _fetchOracle(systemKey) {
     }
   } catch(_) {}
   // The render runs OFF the request on a woam edge function (Vercel Hobby caps
-  // functions at 60s; a full Sonnet reading takes ~100s). So POST to kick it off;
-  // if the server returns 202 {status:'generating'} we POLL the same endpoint —
-  // each poll re-checks the cache — until the reading is ready or we time out.
-  // The reading is cached on completion regardless, so leaving and returning later
-  // shows it instantly.
-  const POLL_MS = 4000, MAX_WAIT_MS = 170000;
+  // functions at 60s; the 6-category Sonnet reading takes ~130-150s). So POST to
+  // kick it off; if the server returns 202 {status:'generating'} we POLL the same
+  // endpoint — each poll re-checks the cache — until the reading is ready or we
+  // time out. MAX_WAIT comfortably exceeds the edge fn's 145s render ceiling so a
+  // successful render is always caught. The reading is cached on completion
+  // regardless, so leaving and returning later shows it instantly.
+  const POLL_MS = 4000, MAX_WAIT_MS = 210000;
   const started = Date.now();
   while (true) {
     const r = await fetch('/api/oracle/addon', { method: 'POST', headers: _oh, body: JSON.stringify(body) });
@@ -8140,7 +8141,7 @@ function _renderOracleLoading() {
   return `
     <div style="text-align:center;padding:36px 20px">
       <div style="font-family:'Cinzel Decorative',serif;font-size:14px;color:var(--gold);letter-spacing:3px;margin-bottom:14px">${isTh?'กำลังสังเคราะห์การอ่าน':'SYNTHESIZING'}</div>
-      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:13px;color:var(--muted);font-style:italic;line-height:1.7;max-width:340px;margin:0 auto">${isTh?'ระบบกำลังเตรียมการอ่านเชิงลึกของคุณผ่าน 6 หมวด × 10 คำถาม — ใช้เวลาประมาณ 1-2 นาที · รออยู่หน้านี้ หรือกลับมาดูใหม่ภายหลังก็ได้ (เราเก็บผลไว้ให้)':'Preparing your deep reading across 6 categories × 10 questions — about 1-2 minutes · stay here, or come back later (we save it for you)'}</div>
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:13px;color:var(--muted);font-style:italic;line-height:1.7;max-width:340px;margin:0 auto">${isTh?'ระบบกำลังเตรียมการอ่านเชิงลึกของคุณผ่าน 6 หมวด × 10 คำถาม — ใช้เวลาประมาณ 1-3 นาที · รออยู่หน้านี้ หรือกลับมาดูใหม่ภายหลังก็ได้ (เราเก็บผลไว้ให้)':'Preparing your deep reading across 6 categories × 10 questions — about 1-3 minutes · stay here, or come back later (we save it for you)'}</div>
       <div style="display:flex;justify-content:center;gap:6px;margin-top:18px">
         <span style="width:8px;height:8px;border-radius:50%;background:var(--gold);animation:oracle-pulse 1.4s infinite ease-in-out;"></span>
         <span style="width:8px;height:8px;border-radius:50%;background:var(--gold);animation:oracle-pulse 1.4s 0.2s infinite ease-in-out;"></span>
