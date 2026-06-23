@@ -51,6 +51,13 @@ The output is consumed by a renderer that maps your JSON to 6 visual sections. E
    literal newline inside a string. Properly escape any backslash. Your entire
    output must be one valid JSON document that `JSON.parse` accepts on the first try.
 
+9. **Every section must be complete.** All 6 sections must appear in `sections[]`,
+   and EACH one — including the single-question `health` and `people` sections —
+   must have a non-empty `opening`, `framing`, AND `closing`, plus its question
+   answer(s) each with a non-empty `headline` and `body`. A section missing any of
+   these is rejected. Do not abbreviate the short (health/people) sections; budget
+   your length so the final `warning` section also completes fully within the cap.
+
 ## The 6 categories (in this exact order in `sections[]`)
 
 1. `work` (事) — การงาน
