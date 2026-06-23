@@ -6199,7 +6199,7 @@ function _getMS26ChartFromProfile(){
 }
 
 // ══════════════════════════════════════════════════════════════════
-// ORACLE DEEP READING — 6 categories × 10 questions × 2 voice modes
+// ORACLE DEEP READING — 4 categories × 8 questions × 2 voice modes
 // Locked 2026-06-09. See Mythsensus/report-engine/lib/oracle/_shared/
 // schema.ts + system-prompt-base.md for full spec. API at
 // /api/oracle/addon. Cache key (chart_hash, system, lang,
@@ -7983,7 +7983,7 @@ function renderDeepReadings(){
 // ── Oracle deep-reading state + renderer ────────────────────
 // Per-system voice mode toggle. Default 'engineer' (existing static
 // `c.<sys>.reading`); 'oracle' lazy-fetches /api/oracle/addon and
-// renders 6 categories × 10 questions.
+// renders 4 categories × 8 questions.
 const _deepMode = {}; // systemKey -> 'engineer' | 'oracle'
 const _deepOracleCache = {}; // systemKey -> OracleAddonOutput (per-render memo)
 const _deepOracleErrors = {}; // systemKey -> err message (sticky until next try)
@@ -8238,7 +8238,7 @@ function _showDeep(k, isUserClick){
   }).join('');
 
   // Voice mode for this system. Default engineer (existing static reading).
-  // Oracle mode lazy-fetches the 6-cat × 10-Q reading from /api/oracle/addon.
+  // Oracle mode lazy-fetches the 4-cat × 8-Q reading from /api/oracle/addon.
   if (!_deepMode[k]) _deepMode[k] = 'engineer';
   const mode = _deepMode[k];
 
@@ -8284,7 +8284,7 @@ function _showDeep(k, isUserClick){
   }
 
   // Mode toggle pill — visible only when unlocked + a chart exists.
-  // Engineer = existing static reading. Oracle = lazy-fetched 6-cat × 10-Q.
+  // Engineer = existing static reading. Oracle = lazy-fetched 4-cat × 8-Q.
   const showModeToggle = !deepLocked;
   const modeTogglePill = showModeToggle ? `
     <div style="display:flex;justify-content:center;margin:14px 0 18px">

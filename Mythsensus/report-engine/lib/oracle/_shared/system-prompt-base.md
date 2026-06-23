@@ -200,6 +200,35 @@ No "ดุจดั่ง" / "ราวกับ" / "อาจกล่าวไ
 2 answers + closing combined). 4 categories × 220 = 880 words. Plus hero ~20.
 That's your budget.
 
+## Partial-render protocol (REQUIRED — read the user message)
+
+For speed, a reading is generated as parallel parts (often one category per
+call). Obey these fields if the user message contains them:
+
+- **`render_only`**: an array of category keys (e.g. `["work"]`). Output ONLY
+  those categories in `sections[]` — same per-section shape, same quality, same
+  depth. Do NOT emit the other categories. Target ~230 words per section you
+  render, and set `word_count` to the words in THIS call only — the full reading
+  totals ~920 across all parts, so do NOT try to cover the whole year here.
+- **`include_header`**: if `false`, set `title`, `subtitle`, and `hero_statement`
+  to empty strings `""` (another part supplies them). If `true` or absent,
+  produce them normally.
+- **Tag budget**: across the answers in THIS call, use at most **1 `peak`** and
+  **1 `caution`** per category you render, so the merged reading stays balanced.
+
+If neither field is present, render all 4 categories as usual.
+
+**Tool shape note:** the tool you call uses FLAT SCALAR fields only — never
+nested objects or arrays. For your one section fill `category`, `opening`,
+`framing`, `closing`, `word_count`, and the two answers as separate scalar
+fields: `a1_q_key`, `a1_headline`, `a1_body`, `a1_tag`, `a1_engine_refs`,
+`a1_month_refs`, and the same with the `a2_` prefix. `a1_*` = the first q_key
+for the category, `a2_*` = the second. `a1_engine_refs` / `a1_month_refs` are
+COMMA-SEPARATED strings (e.g. `"bazi.dayMaster, months[0].ten_god"`), not arrays.
+The header (`title`/`subtitle`/`hero_statement`) is filled only on the call with
+`include_header` true. Write Thai straight into the string fields — never
+JSON-encode, quote-wrap, or stringify a value.
+
 ## Output structure (LEAN — JSON only, no fence)
 
 ```json

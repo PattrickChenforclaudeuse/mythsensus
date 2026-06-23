@@ -37,34 +37,32 @@ const SYSTEMS = [
 ]
 
 const SCHEMA_VERSION = '2.0'
-// Haiku 4.5 chosen for production after benchmarking:
-//   - Sonnet 4.6 emits ~45 tok/s. 2500 token output ≈ 56s — too close to Vercel's
-//     60s ceiling; first prod call timed out. Sonnet 4.6 at 3000+ tokens consistently
-//     hits Vercel's max even with tight system-prompt constraints.
-//   - Haiku 4.5 emits ~90 tok/s. Same 3000 token output ≈ 33s — fits inside Vercel
-//     ceiling with healthy margin. Output quality on Thai structured-JSON narrative
-//     was verified acceptable in fixed-input tests.
-// CLAUDE.md ban "Haiku for Thai PDF" doesn't apply — this is structured narrative
-// output, not extraction. If quality issues surface in production, switch back to
-// Sonnet 4.6 AND upgrade Vercel to Pro plan (300s function ceiling).
-const MODEL = 'claude-haiku-4-5'
-// ⚠ Empirically the model is verbose: a full 6-section × 10-answer reading
-// emits 5500-6000 tokens for full bodies. At Haiku's ~94 tok/s that's 60s+
-// which exceeds Vercel's 60s function ceiling.
-//
-// Trade-off chosen for v1 ship:
-//   - max_tokens = 4500 (~48s render, fits Vercel)
-//   - Accepts that some renders truncate the last 1-2 answers in the
-//     'warning' section. validateOutput rejects truncated JSON; frontend
-//     shows the "Oracle unavailable, try again" fallback when this happens.
-//   - Director upgrade Vercel Pro plan (300s ceiling) → bump to 8000 tokens →
-//     full quality readings. Until then, ~10-20% of renders may need retry.
-const MAX_TOKENS = 5500               // ~58s render with Haiku 4.5
-                                       // Production observation: Haiku is sometimes more verbose
-                                       // than local tests (model variance). 4500 was truncating
-                                       // mid-JSON in ~50% of production calls. 5500 trades a few
-                                       // seconds of headroom against schema reliability.
-const RENDER_TIMEOUT_MS = 58_000      // Vercel function ceiling 60s; tight 2s buffer
+// ── Model: Sonnet 4.6 via a PARALLEL PER-SECTION split (2026-06-23) ───────────
+// Director feedback: Haiku 4.5's Thai reads as translationese (e.g. "คู่สัญญา"
+// for spouse) — a model-level limitation the prompt can't fix. Sonnet 4.6's Thai
+// is native/fluent, BUT a full 4-section reading takes ~100s, over Vercel Hobby's
+// 60s function ceiling. Rather than pay for Vercel Pro (300s), we render the four
+// sections CONCURRENTLY in one function (1 Sonnet call each), then merge.
+// Promise.all wall-clock ≈ the slowest single section, not the sum.
+// Why ONE section per call (not two): each call uses forced tool-use for
+// guaranteed-valid JSON (Sonnet otherwise emits unescaped quotes in Thai bodies),
+// and tool-use is ~20% slower — two sections/call measured ~65s (over ceiling),
+// one section/call measures ~37s with comfortable margin. Merge → validate →
+// cache the full reading under one key, so every later read is one instant hit.
+const MODEL = 'claude-sonnet-4-6'
+const PART_MAX_TOKENS = 2000          // per call (1 section ≈ 230 words ≈ 1400 tok;
+                                       // 2000 leaves headroom without truncating).
+const RENDER_TIMEOUT_MS = 56_000      // per call. All run in parallel, so the
+                                       // function's total wall-clock ≈ one call, not
+                                       // the sum — stays under Vercel's 60s ceiling.
+// One render call per category, all fired in parallel. The 'work' call also
+// carries the header (title/subtitle/hero); the rest omit it. Merge → 4 sections.
+const RENDER_PARTS = [
+  { categories: ['work'], includeHeader: true },
+  { categories: ['money'], includeHeader: false },
+  { categories: ['love'], includeHeader: false },
+  { categories: ['warning'], includeHeader: false },
+]
 const DEFAULT_DAILY_BUDGET_CENTS = 3000
 const DEFAULT_USER_DAILY_RENDERS = 10
 
@@ -125,15 +123,22 @@ function buildSystemPrompt(system) {
 }
 
 // Format the user payload exactly as the prompt expects: chart + months + context.
-function buildUserMessage(body) {
-  return JSON.stringify({
+// When `half` is given, add the partial-render protocol fields so this call emits
+// only that half's categories (see system-prompt-base.md "Partial-render protocol").
+function buildUserMessage(body, half) {
+  const payload = {
     system: body.system,
     lang: body.lang,
     year: body.year,
     chart: body.chart,
     months: body.months || [],
     context: body.context || {},
-  }, null, 2)
+  }
+  if (half) {
+    payload.render_only = half.categories
+    payload.include_header = half.includeHeader
+  }
+  return JSON.stringify(payload, null, 2)
 }
 
 function validateInput(body) {
@@ -192,8 +197,10 @@ function validateOracleOutput(out) {
     }
   }
   if (totalAnswers !== 8) return `must have exactly 8 answers, got ${totalAnswers}`
-  if (tagCounts.peak > 3) return `peak ${tagCounts.peak} > cap 3`
-  if (tagCounts.caution > 3) return `caution ${tagCounts.caution} > cap 3`
+  // cap 4 (matches prompt "1-4"); each parallel half is told to use ≤2 each so the
+  // merged reading lands ≤4 without the two halves having to coordinate tags.
+  if (tagCounts.peak > 4) return `peak ${tagCounts.peak} > cap 4`
+  if (tagCounts.caution > 4) return `caution ${tagCounts.caution} > cap 4`
   const wc = Number(out.word_count) || 0
   // Scope-reduced schema (2026-06-09): 4 sections × 2 Qs each. Bounds 500-1300 words.
   if (wc < 500 || wc > 1300) return `word_count ${wc} out of bounds`
@@ -201,7 +208,54 @@ function validateOracleOutput(out) {
 }
 
 // ─── Anthropic API call (raw fetch — no SDK dependency) ───
-async function callAnthropic(systemPrompt, userMessage) {
+// FULLY-FLAT, SCALAR-ONLY tool schema (one section per call). Hard-won: Sonnet
+// under forced tool-use intermittently emits ANY nested array/object field
+// (sections[], then questions[], then even a named answer object) as a *malformed
+// JSON string* — because the Thai text inside carries quotes the model fails to
+// escape when it hand-stringifies. The cure is to leave NOTHING nested: every
+// field is a plain string or number, so there is nothing for the model to
+// stringify and the API guarantees each scalar string is correctly escaped.
+// The two answers are split into a1_* / a2_* scalar fields; *_engine_refs and
+// *_month_refs are comma-separated strings that the merge splits back to arrays.
+const TAG_ENUM = ['peak', 'caution', 'open', 'consolidate', 'neutral']
+const answerFields = (pre) => ({
+  [`${pre}_q_key`]: { type: 'string', description: 'exact q_key from the prompt table' },
+  [`${pre}_headline`]: { type: 'string' },
+  [`${pre}_body`]: { type: 'string', description: '40-70 Thai words' },
+  [`${pre}_tag`]: { type: 'string', enum: TAG_ENUM },
+  [`${pre}_month_refs`]: { type: 'string', description: 'comma-separated month labels, e.g. "ม.ค., พ.ค.–มิ.ย." (may be empty)' },
+  [`${pre}_engine_refs`]: { type: 'string', description: 'comma-separated input field names you used, e.g. "bazi.dayMaster, months[0].ten_god"' },
+})
+const ORACLE_TOOL = {
+  name: 'emit_oracle_section',
+  description: 'Return ONE section of the oracle reading for this chart, as flat scalar fields. The work call also fills the shared header (title/subtitle/hero_statement). Each section has exactly two answers: a1_* and a2_*.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      // Shared header — only the call with include_header:true fills these.
+      title: { type: 'string' },
+      subtitle: { type: 'string' },
+      hero_statement: { type: 'string' },
+      // The one section this call renders.
+      category: { type: 'string', enum: ['work', 'money', 'love', 'warning'] },
+      opening: { type: 'string' },
+      framing: { type: 'string' },
+      closing: { type: 'string' },
+      ...answerFields('a1'),
+      ...answerFields('a2'),
+      word_count: { type: 'number' },
+    },
+    required: [
+      'category', 'opening', 'framing', 'closing', 'word_count',
+      'a1_q_key', 'a1_headline', 'a1_body', 'a1_tag', 'a1_engine_refs',
+      'a2_q_key', 'a2_headline', 'a2_body', 'a2_tag', 'a2_engine_refs',
+    ],
+  },
+}
+
+// Returns { data: <structured object>, costCents, ... }. `data` is already a
+// parsed object (from the forced tool call) — no JSON.parse needed.
+async function callAnthropic(systemPrompt, userMessage, maxTokens = PART_MAX_TOKENS) {
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) throw new Error('ANTHROPIC_API_KEY not set in env')
 
@@ -218,8 +272,10 @@ async function callAnthropic(systemPrompt, userMessage) {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: MAX_TOKENS,
+        max_tokens: maxTokens,
         system: systemPrompt,
+        tools: [ORACLE_TOOL],
+        tool_choice: { type: 'tool', name: ORACLE_TOOL.name },
         messages: [{ role: 'user', content: userMessage }],
       }),
       signal: controller.signal,
@@ -233,13 +289,16 @@ async function callAnthropic(systemPrompt, userMessage) {
     throw new Error(`Anthropic ${resp.status}: ${errText.slice(0, 300)}`)
   }
   const data = await resp.json()
-  const content = data.content?.[0]?.text || ''
+  const toolBlock = (data.content || []).find((b) => b.type === 'tool_use')
+  if (!toolBlock || !toolBlock.input) {
+    throw new Error('no tool_use block in response (stop_reason: ' + (data.stop_reason || '?') + ')')
+  }
   const usage = data.usage || {}
-  // Haiku 4.5 pricing — input $1/MTok, output $5/MTok
+  // Sonnet 4.6 pricing — input $3/MTok, output $15/MTok (2 parallel calls/render).
   const inputTokens = usage.input_tokens || 0
   const outputTokens = usage.output_tokens || 0
-  const costCents = Math.ceil((inputTokens * 0.0001 + outputTokens * 0.0005) * 100) / 100
-  return { text: content, costCents, inputTokens, outputTokens }
+  const costCents = Math.ceil((inputTokens * 0.0003 + outputTokens * 0.0015) * 100) / 100
+  return { data: toolBlock.input, costCents, inputTokens, outputTokens }
 }
 
 // ─── Supabase cache (Management API — raw SQL via PAT) ───
@@ -474,27 +533,57 @@ export default async function handler(req, res) {
     })
   }
 
-  // 3. Live render
+  // 3. Live render — four sections IN PARALLEL (RENDER_PARTS), 1 Sonnet call each.
+  //    Promise.all wall-clock ≈ the slowest single call, so the function stays
+  //    under Vercel's 60s ceiling while keeping Sonnet's native Thai.
   let oracle, costCents
   try {
     const systemPrompt = buildSystemPrompt(body.system)
-    const userMessage = buildUserMessage(body)
-    const result = await callAnthropic(systemPrompt, userMessage)
-    costCents = result.costCents
+    const halves = await Promise.all(
+      RENDER_PARTS.map((part) =>
+        callAnthropic(systemPrompt, buildUserMessage(body, part), PART_MAX_TOKENS)
+      )
+    )
+    costCents = halves.reduce((sum, h) => sum + (h.costCents || 0), 0)
 
-    // Parse JSON. Sonnet is told "no fence", but be lenient.
-    let txt = result.text.trim()
-    if (txt.startsWith('```')) {
-      txt = txt.replace(/^```(?:json)?\n?/i, '').replace(/```\s*$/, '').trim()
-    }
-    try {
-      oracle = JSON.parse(txt)
-    } catch (parseErr) {
-      return res.status(502).json({
-        error: 'oracle_invalid_json',
-        message: parseErr.message,
-        sample: txt.slice(0, 200),
-      })
+    // Each call returns ONE flat section as scalar fields (forced tool-use). Build
+    // the sections array ourselves. validateOracleOutput() below enforces the
+    // 4-section / 8-answer whole (a part that returned nothing usable → <4 → 502).
+    const parsed = halves.map((h) => h.data)
+    // Every tool field is a scalar. Split the comma-separated *_refs back into
+    // arrays and assemble each section's two answers from its a1_* / a2_* fields.
+    const splitCsv = (s) => Array.isArray(s)
+      ? s
+      : (typeof s === 'string' ? s.split(',').map((x) => x.trim()).filter(Boolean) : [])
+    const mkAnswer = (p, pre) => (p && p[`${pre}_q_key`]) ? {
+      q_key: p[`${pre}_q_key`],
+      headline: p[`${pre}_headline`],
+      body: p[`${pre}_body`],
+      tag: p[`${pre}_tag`],
+      month_refs: splitCsv(p[`${pre}_month_refs`]),
+      engine_refs: splitCsv(p[`${pre}_engine_refs`]),
+    } : null
+
+    // Merge: header from whichever part carried it, sections assembled in canonical
+    // work→money→love→warning order, word_count summed. Validate the merged whole.
+    const header = parsed.find((p) => p && p.hero_statement) || parsed[0] || {}
+    const ORDER = { work: 0, money: 1, love: 2, warning: 3 }
+    const allSections = parsed
+      .filter((p) => p && p.category)
+      .map((p) => ({
+        category: p.category,
+        opening: p.opening,
+        framing: p.framing,
+        closing: p.closing,
+        questions: [mkAnswer(p, 'a1'), mkAnswer(p, 'a2')].filter(Boolean),
+      }))
+      .sort((a, b) => (ORDER[a.category] ?? 9) - (ORDER[b.category] ?? 9))
+    oracle = {
+      title: header.title || '',
+      subtitle: header.subtitle || '',
+      hero_statement: header.hero_statement || '',
+      sections: allSections,
+      word_count: parsed.reduce((sum, p) => sum + (Number(p && p.word_count) || 0), 0),
     }
 
     // Ensure system + lang + prompt_version are stamped even if LLM forgets
