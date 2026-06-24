@@ -35,7 +35,8 @@
     "api/b.js": { "maxDuration": 10 }
   },
   "rewrites": [
-    { "source": "/b", "destination": "/api/b" }
+    { "source": "/b", "destination": "/api/b" },
+    { "source": "/.well-known/mcp-registry-auth", "destination": "/api/mcp-registry-auth" }
   ],
   "headers": [
     {
