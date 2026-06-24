@@ -32,11 +32,13 @@
     "api/me/plan.js": { "maxDuration": 10 },
     "api/public-env.js": { "maxDuration": 5 },
     "api/oracle/addon.js": { "maxDuration": 60 },
-    "api/b.js": { "maxDuration": 10 }
+    "api/b.js": { "maxDuration": 10 },
+    "api/mcp.js": { "maxDuration": 15, "includeFiles": "api/_mcp/**" }
   },
   "rewrites": [
     { "source": "/b", "destination": "/api/b" },
-    { "source": "/.well-known/mcp-registry-auth", "destination": "/api/mcp-registry-auth" }
+    { "source": "/.well-known/mcp-registry-auth", "destination": "/api/mcp-registry-auth" },
+    { "source": "/mcp", "destination": "/api/mcp" }
   ],
   "headers": [
     {

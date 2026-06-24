@@ -90,3 +90,12 @@
 # ── Build deps (Vercel reinstalls from package.json) + CI config ──
 /node_modules/
 /.github/
+
+# ── Supabase CLI local state — linked-project ref + cached CLI version.
+#    No secrets today, but the CLI caches access tokens here on `supabase login`,
+#    so block the whole dir (audit 2026-06-24, found via git before a deploy). ──
+/supabase/
+
+# ── IndexNow: the <key>.txt MUST stay served (engines verify it), but the
+#    submit helper is internal-only. ──
+/_indexnow-submit.mjs
