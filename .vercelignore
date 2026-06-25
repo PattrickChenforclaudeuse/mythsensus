@@ -17,7 +17,10 @@
 # ── Internal docs: architecture, strategy, handoffs ──
 /CLAUDE.md
 /README.md
-/COMPETITOR-RESEARCH.md
+/COMPETITOR-*.md
+/_PLAN-*.md
+/_PARKING-ideas.md
+/_mock-*.html
 /mythsensus-cowork-brief.md
 /HANDOFF-2026-04-27.md
 /HANDOFF-2026-05-02.md
