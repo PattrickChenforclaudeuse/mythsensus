@@ -8761,7 +8761,7 @@ function renderResonance(){
         </div>
         ${Object.entries(DOMAINS_BY_EL).map(([el, list]) => `
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
-            <span style="font-size:10px;color:${EL_COLOR[el]};letter-spacing:1px;min-width:32px;font-family:'Josefin Sans',sans-serif">${elDot(el)}${el}</span>
+            <span style="font-size:10px;color:${EL_COLOR[el]};letter-spacing:1px;min-width:32px;font-family:'Josefin Sans',sans-serif">${elDot(el)}${elLabel(el)}</span>
             ${list.map(name => chipBtn('mth_career', name, career === name, name, `font-size:10.5px;padding:4px 8px`)).join('')}
           </div>
         `).join('')}
@@ -8775,7 +8775,7 @@ function renderResonance(){
         </div>
         ${Object.entries(INDUSTRIES_BY_EL).map(([el, list]) => `
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
-            <span style="font-size:10px;color:${EL_COLOR[el]};letter-spacing:1px;min-width:32px;font-family:'Josefin Sans',sans-serif">${elDot(el)}${el}</span>
+            <span style="font-size:10px;color:${EL_COLOR[el]};letter-spacing:1px;min-width:32px;font-family:'Josefin Sans',sans-serif">${elDot(el)}${elLabel(el)}</span>
             ${list.map(name => chipBtn('mth_industry', name, industry === name, name, `font-size:10.5px;padding:4px 8px`)).join('')}
           </div>
         `).join('')}
