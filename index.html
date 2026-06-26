@@ -1881,12 +1881,12 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     <div class="hp-cell">
       <span class="hp-glyph">☉</span>
       <span class="hp-k" data-en="Western Sun" data-th="ราศีอาทิตย์">ราศีอาทิตย์</span>
-      <span class="hp-v">Pisces · มีน</span>
+      <span class="hp-v" data-en="Pisces" data-th="Pisces · มีน">Pisces · มีน</span>
     </div>
     <div class="hp-cell">
       <span class="hp-glyph">五</span>
       <span class="hp-k" data-en="BaZi Day Master" data-th="ธาตุของวัน BaZi">ธาตุของวัน BaZi</span>
-      <span class="hp-v">戊 · ดินหยาง</span>
+      <span class="hp-v" data-en="戊 · Earth Yang" data-th="戊 · ดินหยาง">戊 · ดินหยาง</span>
     </div>
     <div class="hp-cell">
       <span class="hp-glyph">✦</span>
@@ -7183,8 +7183,8 @@ function _buildDeepAddon(chart, key){
       subtEn:'Each system sees you differently · Here is the cross-system consensus',
       sys:[
         {lbl:'BaZi Day Master',icon:'☲',vTh:dmTh,vEn:dmTh,
-         iTh:`Day Master ${dmTh} (${dmEl}) — archetype รากของตัวตน พลังงานที่ฝังอยู่ในจิตใจลึกสุด`,
-         iEn:`Day Master ${dmTh} (${dmEl}) — the root archetype, energy embedded deepest in your psyche`},
+         iTh:`Day Master ${dmTh} (${elLabel(dmEl)}) — archetype รากของตัวตน พลังงานที่ฝังอยู่ในจิตใจลึกสุด`,
+         iEn:`Day Master ${dmTh} (${elLabel(dmEl)}) — the root archetype, energy embedded deepest in your psyche`},
         {lbl:'Western Sun',icon:'☀',vTh:sunTh,vEn:sunEn,
          iTh:`Sun ${sunTh} — บุคลิกที่โลกมองเห็น ด้านที่คุณสื่อสารออกไปภายนอก`,
          iEn:`Sun ${sunEn} — how the world perceives you, the face you project outward`},
@@ -7214,9 +7214,9 @@ function _buildDeepAddon(chart, key){
       subtTh:'26 ศาสตร์ต่างมีคำแนะนำเรื่องสัตว์ประจำตัว · สังเคราะห์รวมกันได้ข้อสรุปเหล่านี้',
       subtEn:'26 systems each hold wisdom on companion animals · Here is the cross-system synthesis',
       sys:[
-        {lbl:'BaZi 5-Element',icon:'☲',vTh:dmTh+' ('+dmEl+')',vEn:dmTh+' ('+dmEl+')',
-         iTh:`วงจร 5 ธาตุ: ${dmEl} ต้องการสัตว์ที่นำ ${tr.core} — เสริมสมดุลพลังงานในชีวิต`,
-         iEn:`5-element cycle: ${dmEl} needs an animal that brings ${tr.core} — balancing your life energy`},
+        {lbl:'BaZi 5-Element',icon:'☲',vTh:dmTh+' ('+elLabel(dmEl)+')',vEn:dmTh+' ('+elLabel(dmEl)+')',
+         iTh:`วงจร 5 ธาตุ: ${elLabel(dmEl)} ต้องการสัตว์ที่นำ ${tr.core} — เสริมสมดุลพลังงานในชีวิต`,
+         iEn:`5-element cycle: ${elLabel(dmEl)} needs an animal that brings ${tr.core} — balancing your life energy`},
         {lbl:'Nine Star Direction',icon:'★',vTh:'ทิศ '+nskDir,vEn:nskDir+' direction',
          iTh:`ทิศ NSK ${nskDir} — วางที่นอนสัตว์เลี้ยงทิศนี้เพื่อให้ chi ไหลเสริมพลังงานของคุณ`,
          iEn:`NSK direction ${nskDir} — position the pet bed this way for optimal chi flow`},
@@ -7272,9 +7272,9 @@ function _buildDeepAddon(chart, key){
       subtTh:'26 ศาสตร์มองการเคลื่อนไหวของร่างกายต่างกัน · สังเคราะห์เป็นแผนที่เหมาะสมที่สุดสำหรับคุณ',
       subtEn:'26 systems each carry movement principles · Synthesised into your optimal training plan',
       sys:[
-        {lbl:'BaZi Element',icon:'☲',vTh:dmTh+' ('+dmEl+')',vEn:dmTh+' ('+dmEl+')',
-         iTh:`ธาตุ ${dmEl}: ${dmEl==='ไม้'?'ยืดหยุ่น โยคะ ไทชิ ว่ายน้ำ':dmEl==='ไฟ'?'HIIT ระบำ ออกกำลังสูงเกิน 70% MHR':dmEl==='ดิน'?'เดิน ปีนเขา ออกกลางแจ้ง stability training':dmEl==='โลหะ'?'วิ่ง Weight training ทำสม่ำเสมอ':dmEl==='น้ำ'?'ว่ายน้ำ โยคะ qigong ลมปราณ':'ออกกำลังตามธาตุ'}`,
-         iEn:`${dmEl} element: ${dmEl==='ไม้'?'stretching, yoga, tai chi, swimming':dmEl==='ไฟ'?'HIIT, dance, high-intensity above 70% MHR':dmEl==='ดิน'?'walking, hiking, outdoor, stability training':dmEl==='โลหะ'?'running, weight training, consistent routines':dmEl==='น้ำ'?'swimming, yoga, qigong, flow-based movement':'element-aligned movement'}`},
+        {lbl:'BaZi Element',icon:'☲',vTh:dmTh+' ('+elLabel(dmEl)+')',vEn:dmTh+' ('+elLabel(dmEl)+')',
+         iTh:`ธาตุ ${elLabel(dmEl)}: ${dmEl==='ไม้'?'ยืดหยุ่น โยคะ ไทชิ ว่ายน้ำ':dmEl==='ไฟ'?'HIIT ระบำ ออกกำลังสูงเกิน 70% MHR':dmEl==='ดิน'?'เดิน ปีนเขา ออกกลางแจ้ง stability training':dmEl==='โลหะ'?'วิ่ง Weight training ทำสม่ำเสมอ':dmEl==='น้ำ'?'ว่ายน้ำ โยคะ qigong ลมปราณ':'ออกกำลังตามธาตุ'}`,
+         iEn:`${elLabel(dmEl)} element: ${dmEl==='ไม้'?'stretching, yoga, tai chi, swimming':dmEl==='ไฟ'?'HIIT, dance, high-intensity above 70% MHR':dmEl==='ดิน'?'walking, hiking, outdoor, stability training':dmEl==='โลหะ'?'running, weight training, consistent routines':dmEl==='น้ำ'?'swimming, yoga, qigong, flow-based movement':'element-aligned movement'}`},
         {lbl:'Biorhythm Today',icon:'〰',vTh:'กาย '+bp(bioPhys)+' · ปัญญา '+bp(bioInt),vEn:'Physical '+bp(bioPhys)+' · Intellectual '+bp(bioInt),
          iTh:bioPhys>=20?'พลังกายสูง — เหมาะ HIIT หรือ workout หนัก':bioPhys>=0?'พลังกายปานกลาง — moderate session เหมาะสุด':'พลังกายต่ำ — ยืดเหยียด เดิน หรือนั่งสมาธิแทน',
          iEn:bioPhys>=20?'High physical day — perfect for HIIT or heavy workout':bioPhys>=0?'Moderate physical — steady moderate session best':'Low physical day — stretch, walk, or meditate instead'},
@@ -7298,9 +7298,9 @@ function _buildDeepAddon(chart, key){
       subtTh:'วิทยาศาสตร์โหราศาสตร์ทุกสำนักมีความเชื่อเรื่องอาหารตามดวง · นี่คือภาพรวมสังเคราะห์',
       subtEn:'Every astrological tradition holds nutritional principles · Here is the synthesis',
       sys:[
-        {lbl:'BaZi 5-Element Diet',icon:'☲',vTh:dmTh+' ('+dmEl+')',vEn:dmTh+' ('+dmEl+')',
-         iTh:`ธาตุ ${dmEl}: ${dmEl==='ไม้'?'รสเปรี้ยว ผักใบเขียว หน่อไม้ ธัญพืช เสริมตับ':dmEl==='ไฟ'?'รสขม ขิง พริก อาหารร้อน เสริมหัวใจ':dmEl==='ดิน'?'รสหวาน ฟักทอง มัน เห็ด เสริมม้าม':dmEl==='โลหะ'?'รสเผ็ดฉุน กระเทียม หัวหอม เสริมปอด':dmEl==='น้ำ'?'รสเค็ม อาหารทะเล ถั่วดำ เสริมไต':'อาหารตามธาตุ'}`,
-         iEn:`${dmEl} element: ${dmEl==='ไม้'?'sour flavour, green vegetables, sprouts, grains, liver support':dmEl==='ไฟ'?'bitter flavour, ginger, chilli, warm foods, heart support':dmEl==='ดิน'?'sweet flavour, pumpkin, yam, mushrooms, spleen support':dmEl==='โลหะ'?'spicy pungent, garlic, onion, radish, lung support':dmEl==='น้ำ'?'salty flavour, seafood, black beans, kidney support':'element-aligned diet'}`},
+        {lbl:'BaZi 5-Element Diet',icon:'☲',vTh:dmTh+' ('+elLabel(dmEl)+')',vEn:dmTh+' ('+elLabel(dmEl)+')',
+         iTh:`ธาตุ ${elLabel(dmEl)}: ${dmEl==='ไม้'?'รสเปรี้ยว ผักใบเขียว หน่อไม้ ธัญพืช เสริมตับ':dmEl==='ไฟ'?'รสขม ขิง พริก อาหารร้อน เสริมหัวใจ':dmEl==='ดิน'?'รสหวาน ฟักทอง มัน เห็ด เสริมม้าม':dmEl==='โลหะ'?'รสเผ็ดฉุน กระเทียม หัวหอม เสริมปอด':dmEl==='น้ำ'?'รสเค็ม อาหารทะเล ถั่วดำ เสริมไต':'อาหารตามธาตุ'}`,
+         iEn:`${elLabel(dmEl)} element: ${dmEl==='ไม้'?'sour flavour, green vegetables, sprouts, grains, liver support':dmEl==='ไฟ'?'bitter flavour, ginger, chilli, warm foods, heart support':dmEl==='ดิน'?'sweet flavour, pumpkin, yam, mushrooms, spleen support':dmEl==='โลหะ'?'spicy pungent, garlic, onion, radish, lung support':dmEl==='น้ำ'?'salty flavour, seafood, black beans, kidney support':'element-aligned diet'}`},
         {lbl:'Vedic Mahadasha',icon:'✦',vTh:mahadasha+' Dasha',vEn:mahadasha+' Dasha',
          iTh:`${mahadasha} Dasha: ${mahadasha==='Sun'?'ผลไม้ตระกูลส้ม ข้าวสาลี พลังงานสูง':mahadasha==='Moon'?'นม โยเกิร์ต อาหารสีขาว บำรุงอารมณ์':mahadasha==='Mars'?'โปรตีนสูง เนื้อแดง เมล็ดพันธุ์':mahadasha==='Mercury'?'ผัก สลัด ธัญพืชหลากหลาย light diet':mahadasha==='Jupiter'?'ไขมันดี ถั่ว อะโวคาโด อุดมสมบูรณ์':mahadasha==='Venus'?'ผลไม้รสหวาน อาหารไขมันต่ำ':mahadasha==='Saturn'?'มื้อน้อย ปลา ผัก ถั่ว discipline':mahadasha==='Rahu'?'อาหาร exotic เผ็ดจัด ลองสิ่งใหม่':mahadasha==='Ketu'?'intermittent fasting สมาธิก่อนกิน':'อาหารตามธรรมชาติ'}`,
          iEn:`${mahadasha} Dasha: ${mahadasha==='Sun'?'citrus, wheat, energising foods':mahadasha==='Moon'?'dairy, yogurt, white nurturing foods':mahadasha==='Mars'?'high protein, red meat, seeds':mahadasha==='Mercury'?'vegetables, salads, variety, light':mahadasha==='Jupiter'?'healthy fats, nuts, avocado, abundance':mahadasha==='Venus'?'sweet fruits, gentle low-fat flavours':mahadasha==='Saturn'?'minimal, fish, vegetables, seeds, discipline':mahadasha==='Rahu'?'exotic spicy unusual cuisines':mahadasha==='Ketu'?'fasting, mindful eating, intermittent':'natural whole foods'}`},
@@ -7324,9 +7324,9 @@ function _buildDeepAddon(chart, key){
       subtTh:'แต่ละศาสตร์แนะนำสี วัสดุ และพลังงานต่างกัน · รวมกันเป็น palette เฉพาะตัวของคุณ',
       subtEn:'Every tradition recommends different colours, materials, and energies · Combined into your personal palette',
       sys:[
-        {lbl:'BaZi Lucky Colours',icon:'☲',vTh:dmTh+' ('+dmEl+')',vEn:dmTh+' ('+dmEl+')',
-         iTh:`ธาตุ ${dmEl}: ${dmEl==='ไม้'?'สีเขียว น้ำตาลอ่อน ไม้ธรรมชาติ':dmEl==='ไฟ'?'สีแดง ส้ม ชมพูสด':dmEl==='ดิน'?'สีเหลือง น้ำตาล ครีม':dmEl==='โลหะ'?'สีขาว เทา เงิน ทอง':dmEl==='น้ำ'?'สีน้ำเงิน ดำ ม่วงเข้ม':'—'}`,
-         iEn:`${dmEl} element boosting colours: ${dmEl==='ไม้'?'green, light brown, natural wood':dmEl==='ไฟ'?'red, orange, hot pink':dmEl==='ดิน'?'yellow, brown, cream':dmEl==='โลหะ'?'white, grey, silver, gold':dmEl==='น้ำ'?'blue, black, deep purple':'—'}`},
+        {lbl:'BaZi Lucky Colours',icon:'☲',vTh:dmTh+' ('+elLabel(dmEl)+')',vEn:dmTh+' ('+elLabel(dmEl)+')',
+         iTh:`ธาตุ ${elLabel(dmEl)}: ${dmEl==='ไม้'?'สีเขียว น้ำตาลอ่อน ไม้ธรรมชาติ':dmEl==='ไฟ'?'สีแดง ส้ม ชมพูสด':dmEl==='ดิน'?'สีเหลือง น้ำตาล ครีม':dmEl==='โลหะ'?'สีขาว เทา เงิน ทอง':dmEl==='น้ำ'?'สีน้ำเงิน ดำ ม่วงเข้ม':'—'}`,
+         iEn:`${elLabel(dmEl)} element boosting colours: ${dmEl==='ไม้'?'green, light brown, natural wood':dmEl==='ไฟ'?'red, orange, hot pink':dmEl==='ดิน'?'yellow, brown, cream':dmEl==='โลหะ'?'white, grey, silver, gold':dmEl==='น้ำ'?'blue, black, deep purple':'—'}`},
         {lbl:'Western Sun Aesthetic',icon:'☀',vTh:sunTh,vEn:sunEn,
          iTh:`Sun ${sunTh}: ${sunEn.includes('Aries')?'bold statement ตัดสายตา สีแดงแซม':sunEn.includes('Taurus')?'luxury ของดี ผ้านุ่ม earthy':sunEn.includes('Gemini')?'colorful eclecticมีชีวิตชีวา':sunEn.includes('Cancer')?'cozy home สีขาว ครีม ฝ้ายนุ่ม':sunEn.includes('Leo')?'dramatic สีทองเหลือง ประดับประดา':sunEn.includes('Virgo')?'minimal functional earthy tones':sunEn.includes('Libra')?'สมดุล pastel สวยงาม':sunEn.includes('Scorpio')?'dark intense ดำ เบอร์กันดี':sunEn.includes('Sagittarius')?'adventure ethnic world textiles':sunEn.includes('Capricorn')?'classic tailored navy charcoal':sunEn.includes('Aquarius')?'avant-garde electric silver':'ethereal dreamy lavender'}`,
          iEn:`Sun ${sunEn}: ${sunEn.includes('Aries')?'bold statement pieces, red accents':sunEn.includes('Taurus')?'luxury tactile quality, natural greens':sunEn.includes('Gemini')?'colourful eclectic lively':sunEn.includes('Cancer')?'cozy home whites, creams, soft cotton':sunEn.includes('Leo')?'dramatic gold yellow embellishment':sunEn.includes('Virgo')?'minimal functional earthy':sunEn.includes('Libra')?'balanced pastel beautiful':sunEn.includes('Scorpio')?'dark intense black burgundy':sunEn.includes('Sagittarius')?'adventure global ethnic textiles':sunEn.includes('Capricorn')?'classic tailored navy charcoal':sunEn.includes('Aquarius')?'electric avant-garde silver':'ethereal dreamy lavender seafoam'}`},
@@ -7390,8 +7390,8 @@ function _buildDeepAddon(chart, key){
         `Schedule play during physical biorhythm ≥ 0% (now ${bp(bioPhys)})`,
         `${hdType==='Projector'?'Set a "no play longer than 20 min" rule — Projectors burn out':hdType==='Generator'?'Use the pet as a sacral test — if play feels alive, it is a yes':'Sync your aura weekly — check if you are still vibing'}`,
       ],
-      avoidTh: `อย่าเลือกสัตว์ที่ขัดธาตุ${dmEl}ของคุณเพราะ "น่ารัก" — ความ stress จะสะสม`,
-      avoidEn: `Don't pick a pet that clashes with your ${dmEl} element just because "it's cute" — stress compounds`,
+      avoidTh: `อย่าเลือกสัตว์ที่ขัดธาตุ${elLabel(dmEl)}ของคุณเพราะ "น่ารัก" — ความ stress จะสะสม`,
+      avoidEn: `Don't pick a pet that clashes with your ${elLabel(dmEl)} element just because "it's cute" — stress compounds`,
       mantraTh: `สัตว์ที่เข้ากับฉันคือสัตว์ที่เคารพจังหวะของฉัน — ไม่ใช่สัตว์ที่สวยที่สุด`,
       mantraEn: `The right companion respects my rhythm — not the prettiest one`,
     },
@@ -7441,8 +7441,8 @@ function _buildDeepAddon(chart, key){
         `Low emotional biorhythm (${bp(bioEmo)}) day — add omega-3 + tryptophan (fish/avocado/dark chocolate)`,
         `${dmCore.drains?`Avoid ${dmCore.drains} at main meals`:'Log foods that cause sluggishness for 1 week — eliminate'}`,
       ],
-      avoidTh: `อย่ากินตามกระแสอาหารที่ขัดกับธาตุ${dmEl} — keto/raw/vegan ไม่เหมาะกับทุกคน`,
-      avoidEn: `Don't follow diet trends against your ${dmEl} — keto/raw/vegan aren't for everyone`,
+      avoidTh: `อย่ากินตามกระแสอาหารที่ขัดกับธาตุ${elLabel(dmEl)} — keto/raw/vegan ไม่เหมาะกับทุกคน`,
+      avoidEn: `Don't follow diet trends against your ${elLabel(dmEl)} — keto/raw/vegan aren't for everyone`,
       mantraTh: `อาหารของฉันต้องสอดคล้องกับธาตุของฉัน ไม่ใช่ตามกระแส Instagram`,
       mantraEn: `My food has to resonate with my element, not Instagram's trend`,
     },
@@ -7467,11 +7467,11 @@ function _buildDeepAddon(chart, key){
       titleTh: '✦ การ์ดตรวจความสัมพันธ์ 7 วัน',
       titleEn: '✦ 7-Day Relationship Audit',
       actions: isTh ? [
-        `เลือก 1 คนใกล้ตัว — เช็กว่าธาตุของเขาเสริม/ขัดธาตุ${dmEl}ของคุณยังไง`,
+        `เลือก 1 คนใกล้ตัว — เช็กว่าธาตุของเขาเสริม/ขัดธาตุ${elLabel(dmEl)}ของคุณยังไง`,
         `วันที่ Biorhythm อารมณ์สูง (≥50%) ใช้คุยเรื่องที่ค้าง · วันต่ำ (≤-30%) เลื่อน`,
         `${hdType.includes('Projector')||hdType.includes('โปรเจก')?'รอ "คำเชิญ" ก่อนให้คำแนะนำ — Projector ไม่ push':hdType.includes('Generator')||hdType.includes('เจเนอ')?'ตอบสนองด้วย "uh-huh"/"uh-uh" — ฟัง sacral ก่อนพูด':'ใช้กลยุทธ์ของคุณเป็นกฎ — '+hdStrategy}`,
       ] : [
-        `Pick one close person — check how their element supports/clashes with your ${dmEl}`,
+        `Pick one close person — check how their element supports/clashes with your ${elLabel(dmEl)}`,
         `High emotional biorhythm days (≥50%) → tackle pending talks · low (≤-30%) → postpone`,
         `${hdType==='Projector'?'Wait for the invitation before giving advice — Projectors do not push':hdType==='Generator'?'Respond with uh-huh / uh-uh — sacral first':'Run your HD strategy as the rule — '+hdStrategy}`,
       ],
@@ -7487,52 +7487,52 @@ function _buildDeepAddon(chart, key){
   // Built for the CURRENT language only (so element-trait words resolve right).
   const SYNTHESIS = {
     mirror: isTh ? [
-      `เมื่อวาง 26 ศาสตร์ซ้อนทับกัน แกนที่ทุกศาสตร์ชี้ตรงกันคือพลังงานธาตุ<strong>${dmEl}</strong> (${dmTh}) — "${tr.core}" คือสิ่งที่คุณปล่อยออกมาโดยไม่ต้องพยายาม. แต่จุดที่น่าสนใจคือ "รอยต่อ" ระหว่างชั้น: Western Sun <strong>${sunTh}</strong> คือหน้ากากที่โลกเห็น ส่วน Vedic Nakshatra <strong>${moonNak}</strong> คือแรงขับใต้สำนึกที่บางครั้งสวนทางกับหน้ากากนั้น — ความไม่ลงรอยตรงนี้ไม่ใช่ข้อบกพร่อง แต่คือบ่อเกิดของความลึกในตัวคุณ.`,
+      `เมื่อวาง 26 ศาสตร์ซ้อนทับกัน แกนที่ทุกศาสตร์ชี้ตรงกันคือพลังงานธาตุ<strong>${elLabel(dmEl)}</strong> (${dmTh}) — "${tr.core}" คือสิ่งที่คุณปล่อยออกมาโดยไม่ต้องพยายาม. แต่จุดที่น่าสนใจคือ "รอยต่อ" ระหว่างชั้น: Western Sun <strong>${sunTh}</strong> คือหน้ากากที่โลกเห็น ส่วน Vedic Nakshatra <strong>${moonNak}</strong> คือแรงขับใต้สำนึกที่บางครั้งสวนทางกับหน้ากากนั้น — ความไม่ลงรอยตรงนี้ไม่ใช่ข้อบกพร่อง แต่คือบ่อเกิดของความลึกในตัวคุณ.`,
       `Life Path <strong>${lp}</strong> คือบทที่วิญญาณมาเรียนในชีวิตนี้ และ Human Design <strong>${hdType}</strong> คือ "วิธีใช้พลังงาน" ที่ถูกต้องสำหรับคุณ. เมื่อสองอย่างนี้ทำงานพร้อมกัน คุณจะรู้สึก "เป็นตัวเอง"; แต่ทุกครั้งที่ฝืนใช้กลยุทธ์ของคนอื่น พลังจะรั่วผ่าน "${tr.drains}". กระจกบานนี้ไม่ได้บอกว่าคุณควรเป็นใคร — มันสะท้อนว่าคุณเป็นใครอยู่แล้ว เมื่อหยุดเทียบตัวเองกับค่าเฉลี่ยของคนอื่น.`
     ] : [
-      `Overlay all 26 systems and the axis they agree on is your <strong>${dmEl}</strong>-element core (${dmTh}) — "${tr.core}" is what you radiate without trying. The revealing part is the <em>seam</em> between layers: your Western Sun <strong>${sunEn}</strong> is the mask the world sees, while your Vedic Nakshatra <strong>${moonNak}</strong> is the subconscious drive that sometimes pulls against that mask — and that mismatch isn't a flaw, it's where your depth comes from.`,
+      `Overlay all 26 systems and the axis they agree on is your <strong>${elLabel(dmEl)}</strong>-element core (${dmTh}) — "${tr.core}" is what you radiate without trying. The revealing part is the <em>seam</em> between layers: your Western Sun <strong>${sunEn}</strong> is the mask the world sees, while your Vedic Nakshatra <strong>${moonNak}</strong> is the subconscious drive that sometimes pulls against that mask — and that mismatch isn't a flaw, it's where your depth comes from.`,
       `Life Path <strong>${lp}</strong> is the role your soul came to master, and Human Design <strong>${hdType}</strong> is the <em>correct way to spend your energy</em>. When the two run together you feel most like yourself; every time you borrow someone else's strategy, power leaks out through "${tr.drains}". This mirror doesn't tell you who to become — it reflects who you already are once you stop measuring yourself against everyone else's average.`
     ],
     pet: isTh ? [
-      `ในวงจร 5 ธาตุ ธาตุ<strong>${dmEl}</strong>ของคุณไม่ได้ต้องการ "สัตว์ที่น่ารักที่สุด" แต่ต้องการสัตว์ที่นำ "${tr.core}" เข้ามาเติมสมดุล. นี่คือเหตุผลที่บางคนเลี้ยงหมาแล้วสงบ บางคนเลี้ยงแมวแล้วรู้สึกเข้าใจกัน — ไม่ใช่เรื่องรสนิยม แต่เป็นเรื่องพลังงานที่ขาด/เกินในดวง.`,
+      `ในวงจร 5 ธาตุ ธาตุ<strong>${elLabel(dmEl)}</strong>ของคุณไม่ได้ต้องการ "สัตว์ที่น่ารักที่สุด" แต่ต้องการสัตว์ที่นำ "${tr.core}" เข้ามาเติมสมดุล. นี่คือเหตุผลที่บางคนเลี้ยงหมาแล้วสงบ บางคนเลี้ยงแมวแล้วรู้สึกเข้าใจกัน — ไม่ใช่เรื่องรสนิยม แต่เป็นเรื่องพลังงานที่ขาด/เกินในดวง.`,
       `Human Design <strong>${hdType}</strong> กำหนดจังหวะการอยู่ร่วม: ${hdType.includes('Projector')||hdType.includes('โปรเจก')?'คุณเหนื่อยกับสัตว์ที่ขอความสนใจตลอดเวลา — เลือกตัวที่อยู่เป็น':hdType.includes('Generator')||hdType.includes('เจเนอ')?'สัตว์พลังงานสูงจะช่วยปลุก sacral response ให้คุณตื่นเต็มที่':'เลือกสัตว์ที่เคารพพื้นที่ของคุณ ไม่เกาะติด'}. และ Life Path ${lp} บอกว่าความผูกพันแบบไหนที่เติมเต็มคุณจริง — สัตว์เลี้ยงที่ "ใช่" จะรู้สึกเหมือนส่วนขยายของพลังคุณ ไม่ใช่ภาระอีกอย่าง.`
     ] : [
-      `In the 5-element cycle your <strong>${dmEl}</strong> element doesn't need the "cutest" animal — it needs one that brings in "${tr.core}" to balance you. That's why some people calm down around a dog and others feel understood by a cat: it isn't taste, it's which energy your chart is missing or over-carrying.`,
+      `In the 5-element cycle your <strong>${elLabel(dmEl)}</strong> element doesn't need the "cutest" animal — it needs one that brings in "${tr.core}" to balance you. That's why some people calm down around a dog and others feel understood by a cat: it isn't taste, it's which energy your chart is missing or over-carrying.`,
       `Human Design <strong>${hdType}</strong> sets the rhythm of cohabiting: ${hdType==='Projector'?'animals that demand constant attention drain you — pick a self-contained one':hdType==='Generator'?'a high-energy animal helps fire up your sacral response':'choose an animal that respects your space rather than clinging'}. And Life Path ${lp} hints at the bond that actually fills you — the <em>right</em> pet feels like an extension of your energy, not one more thing to carry.`
     ],
     companions: isTh ? [
       `สัตว์ในตำนานจากแต่ละวัฒนธรรมไม่ได้สุ่มมา — มันสะท้อนธีมเดียวกันที่ปรากฏซ้ำในดวงคุณผ่านสัญลักษณ์ต่างกัน. ลองสังเกตว่ากลุ่มสัตว์ของคุณเอนไปทาง "ผู้พิทักษ์", "นักเดินทาง", หรือ "ผู้สร้าง" — รูปแบบที่ซ้ำคือข้อความที่จักรวาลหลายสายส่งตรงกัน.`,
-      `ธาตุ<strong>${dmEl}</strong>ของคุณให้ "โทน" กับทั้งกลุ่ม: ${tr.core} คือเส้นด้ายที่ร้อยสัตว์เหล่านี้เข้าด้วยกัน. ใช้พวกมันเป็น archetype นำทาง — เวลาตัดสินใจยาก ลองถามว่า "สัตว์ประจำตัวของฉันจะทำยังไง" แล้วคำตอบจะชัดขึ้น เพราะมันคือสัญชาตญาณของคุณที่ถูกแปลเป็นภาพ.`
+      `ธาตุ<strong>${elLabel(dmEl)}</strong>ของคุณให้ "โทน" กับทั้งกลุ่ม: ${tr.core} คือเส้นด้ายที่ร้อยสัตว์เหล่านี้เข้าด้วยกัน. ใช้พวกมันเป็น archetype นำทาง — เวลาตัดสินใจยาก ลองถามว่า "สัตว์ประจำตัวของฉันจะทำยังไง" แล้วคำตอบจะชัดขึ้น เพราะมันคือสัญชาตญาณของคุณที่ถูกแปลเป็นภาพ.`
     ] : [
       `The mythic animals from each culture aren't random — they echo one recurring theme in your chart through different symbols. Notice whether your companions lean toward "guardian", "traveller", or "creator": the repeated pattern is the message many cosmologies are sending you at once.`,
-      `Your <strong>${dmEl}</strong> element sets the whole group's tone — "${tr.core}" is the thread that strings these animals together. Use them as guiding archetypes: when a decision is hard, ask "what would my companion animal do?" and the answer sharpens, because it's your own instinct translated into an image.`
+      `Your <strong>${elLabel(dmEl)}</strong> element sets the whole group's tone — "${tr.core}" is the thread that strings these animals together. Use them as guiding archetypes: when a decision is hard, ask "what would my companion animal do?" and the answer sharpens, because it's your own instinct translated into an image.`
     ],
     exercise: isTh ? [
-      `ร่างกายของธาตุ<strong>${dmEl}</strong>ตอบสนองการเคลื่อนไหวต่างจากคนอื่น: ${dmEl==='ไฟ'?'ไฟต้องการ burst สั้นแรงแล้วพัก — คาร์ดิโอยาวๆ จะเผาคุณหมดไฟ':dmEl==='ไม้'?'ไม้ต้องการการยืดและการเติบโตต่อเนื่อง ไม่ใช่ max effort':dmEl==='ดิน'?'ดินสร้างจากความสม่ำเสมอและน้ำหนัก ไม่ใช่ความหวือหวา':dmEl==='โลหะ'?'โลหะรักความแม่นยำและฟอร์มที่คม มากกว่าปริมาณ':'น้ำต้องการ flow ต่อเนื่อง — ว่ายน้ำ เต้น เคลื่อนไหวลื่นไหล'}. ฝืนระบบของธาตุอื่นเมื่อไหร่ การออกกำลังจะกลายเป็นการรีดพลังแทนที่จะเติม.`,
+      `ร่างกายของธาตุ<strong>${elLabel(dmEl)}</strong>ตอบสนองการเคลื่อนไหวต่างจากคนอื่น: ${dmEl==='ไฟ'?'ไฟต้องการ burst สั้นแรงแล้วพัก — คาร์ดิโอยาวๆ จะเผาคุณหมดไฟ':dmEl==='ไม้'?'ไม้ต้องการการยืดและการเติบโตต่อเนื่อง ไม่ใช่ max effort':dmEl==='ดิน'?'ดินสร้างจากความสม่ำเสมอและน้ำหนัก ไม่ใช่ความหวือหวา':dmEl==='โลหะ'?'โลหะรักความแม่นยำและฟอร์มที่คม มากกว่าปริมาณ':'น้ำต้องการ flow ต่อเนื่อง — ว่ายน้ำ เต้น เคลื่อนไหวลื่นไหล'}. ฝืนระบบของธาตุอื่นเมื่อไหร่ การออกกำลังจะกลายเป็นการรีดพลังแทนที่จะเติม.`,
       `Biorhythm กายรอบ 23 วันบอก "ปริมาณ" ที่ปลอดภัยในแต่ละช่วง และ Human Design ${hdType} บอก "วิธี" เริ่ม: ${hdType.includes('Projector')||hdType.includes('โปรเจก')?'เซสชันสั้นเข้มข้น ดีกว่าลากยาว':hdType.includes('Generator')||hdType.includes('เจเนอ')?'ฟังร่างกายก่อนทุกเซต อย่าฝืนตามตาราง':'ปรับตาม cue ของร่างกาย ไม่ใช่ตาม coach app'}. รวมกันคือสูตรที่ทำให้ออกกำลังแล้ว "มีพลังมากขึ้น" ไม่ใช่ "หมดแรง".`
     ] : [
-      `A <strong>${dmEl}</strong>-element body responds to movement differently: ${dmEl==='ไฟ'?'Fire wants short hard bursts then rest — long cardio burns it out':dmEl==='ไม้'?'Wood wants stretch and steady growth, not max effort':dmEl==='ดิน'?'Earth is built on consistency and load, not flashy intensity':dmEl==='โลหะ'?'Metal loves precision and clean form over volume':'Water needs continuous flow — swim, dance, move fluidly'}. The moment you force another element's system, training drains you instead of filling you.`,
+      `A <strong>${elLabel(dmEl)}</strong>-element body responds to movement differently: ${dmEl==='ไฟ'?'Fire wants short hard bursts then rest — long cardio burns it out':dmEl==='ไม้'?'Wood wants stretch and steady growth, not max effort':dmEl==='ดิน'?'Earth is built on consistency and load, not flashy intensity':dmEl==='โลหะ'?'Metal loves precision and clean form over volume':'Water needs continuous flow — swim, dance, move fluidly'}. The moment you force another element's system, training drains you instead of filling you.`,
       `Your 23-day physical biorhythm sets the safe <em>dose</em> for each window, and Human Design ${hdType} sets the <em>way</em> to start: ${hdType==='Projector'?'short intense sessions beat long grinds':hdType==='Generator'?'sacral-check before each set; don\'t train by the calendar':'adjust to body cues, not a coach app'}. Together they're the formula that leaves you with <em>more</em> energy after exercise, not less.`
     ],
     food: isTh ? [
-      `ธาตุ<strong>${dmEl}</strong>มีแนวโน้มเมตาบอลิกเฉพาะตัว — "${tr.core}" คือสิ่งที่ร่างกายคุณใช้ได้ดี ส่วน "${tr.drains}" คือสิ่งที่ทำให้หนักและล้าแม้กินของ "เพื่อสุขภาพ" ตามเทรนด์. นี่คือเหตุผลที่ diet เดียวกันทำให้คนหนึ่งเบาสบาย อีกคนบวมและเพลีย.`,
+      `ธาตุ<strong>${elLabel(dmEl)}</strong>มีแนวโน้มเมตาบอลิกเฉพาะตัว — "${tr.core}" คือสิ่งที่ร่างกายคุณใช้ได้ดี ส่วน "${tr.drains}" คือสิ่งที่ทำให้หนักและล้าแม้กินของ "เพื่อสุขภาพ" ตามเทรนด์. นี่คือเหตุผลที่ diet เดียวกันทำให้คนหนึ่งเบาสบาย อีกคนบวมและเพลีย.`,
       `กฎง่ายๆ สำหรับคุณ: เลือกอาหารที่ทำให้รู้สึก "ตื่น-เบา" หลังมื้อ ไม่ใช่ "อิ่ม-ง่วง". ${dmEl==='ไฟ'?'ของเย็น-ชุ่มชื้นช่วยลดความร้อนเกิน':dmEl==='ไม้'?'ของเขียวสดและขมเล็กน้อยช่วยให้ตับ-ไม้ไหลลื่น':dmEl==='ดิน'?'ของปรุงสุก-อุ่นย่อยง่ายกว่าของดิบ':dmEl==='โลหะ'?'ของแห้ง-คั่วและเผ็ดน้อยช่วยปอด-โลหะ':'ของอุ่น-มีน้ำเช่นซุปช่วยไต-น้ำ'} — ฟังร่างกายมากกว่าฟัง Instagram.`
     ] : [
-      `Your <strong>${dmEl}</strong> element carries a specific metabolic tendency — "${tr.core}" is what your body uses well, while "${tr.drains}" is what weighs you down even when it's a trendy "healthy" food. That's why the same diet leaves one person light and another bloated and tired.`,
+      `Your <strong>${elLabel(dmEl)}</strong> element carries a specific metabolic tendency — "${tr.core}" is what your body uses well, while "${tr.drains}" is what weighs you down even when it's a trendy "healthy" food. That's why the same diet leaves one person light and another bloated and tired.`,
       `A simple rule for you: choose foods that leave you "alert and light" after a meal, not "full and sleepy". ${dmEl==='ไฟ'?'Cooling, hydrating foods ease excess heat':dmEl==='ไม้'?'Fresh greens and a touch of bitter keep your Wood-liver flowing':dmEl==='ดิน'?'Cooked, warm food digests easier than raw for Earth':dmEl==='โลหะ'?'Dry, roasted, lightly spiced supports Metal-lungs':'Warm, water-rich foods like soup support Water-kidneys'} — listen to your body over Instagram.`
     ],
     product: isTh ? [
-      `สิ่งที่คุณนำเข้าบ้าน-เข้าตัวส่งผลต่อพลังงานมากกว่าที่คิด. ธาตุ<strong>${dmEl}</strong>ถูกขับเน้นด้วยสี-วัสดุที่เข้าคู่ และถูกทอนลงด้วยของที่ขัดธาตุ — ของที่ "สวยแต่ไม่ใช่ของคุณ" จะให้ความสุขแค่ตอนซื้อ แล้วกลายเป็นของรกที่ดูดพลังเงียบๆ.`,
+      `สิ่งที่คุณนำเข้าบ้าน-เข้าตัวส่งผลต่อพลังงานมากกว่าที่คิด. ธาตุ<strong>${elLabel(dmEl)}</strong>ถูกขับเน้นด้วยสี-วัสดุที่เข้าคู่ และถูกทอนลงด้วยของที่ขัดธาตุ — ของที่ "สวยแต่ไม่ใช่ของคุณ" จะให้ความสุขแค่ตอนซื้อ แล้วกลายเป็นของรกที่ดูดพลังเงียบๆ.`,
       `ตัวกรองของคุณ: ${dmEl==='ไฟ'?'โทนแดง-ส้ม วัสดุอบอุ่น (ผ้า/หนัง/ไม้)':dmEl==='ไม้'?'โทนเขียว วัสดุธรรมชาติ (ไม้/ผ้าฝ้าย/ต้นไม้)':dmEl==='ดิน'?'โทนน้ำตาล-เหลือง วัสดุดิน (เซรามิก/หิน/ดินเผา)':dmEl==='โลหะ'?'โทนขาว-เงิน วัสดุโลหะแท้-แก้ว':'โทนน้ำเงิน-ดำ วัสดุลื่น-สะท้อน (แก้ว/กระจก/น้ำ)'} เสริมคุณ. ก่อนซื้อของชิ้นใหญ่ ถามสั้นๆ ว่า "มันเสริม ${tr.core} ของฉันไหม" — ถ้าลังเล แปลว่าไม่ใช่.`
     ] : [
-      `What you bring into your home and onto your body shapes your energy more than you'd think. Your <strong>${dmEl}</strong> element is amplified by matching colours and materials and dulled by clashing ones — something "pretty but not yours" gives a buyer's-high then becomes quiet clutter that drains you.`,
+      `What you bring into your home and onto your body shapes your energy more than you'd think. Your <strong>${elLabel(dmEl)}</strong> element is amplified by matching colours and materials and dulled by clashing ones — something "pretty but not yours" gives a buyer's-high then becomes quiet clutter that drains you.`,
       `Your filter: ${dmEl==='ไฟ'?'red-orange tones, warm materials (fabric/leather/wood)':dmEl==='ไม้'?'green tones, natural materials (wood/cotton/plants)':dmEl==='ดิน'?'brown-yellow tones, earthy materials (ceramic/stone/clay)':dmEl==='โลหะ'?'white-silver tones, real metal and glass':'blue-black tones, sleek reflective materials (glass/mirror/water)'} amplify you. Before any big purchase, ask "does this amplify my ${tr.core}?" — if you hesitate, it's a no.`
     ],
     compat: isTh ? [
-      `วิธีที่คุณ "รัก" ถูกเขียนไว้ในดวง: ธาตุ<strong>${dmEl}</strong>ให้ "${tr.core}" กับความสัมพันธ์ และอ่อนไหวเป็นพิเศษเมื่อเจอ "${tr.drains}". คุณไม่ได้เข้ากับทุกคน — และนั่นเป็นเรื่องดี เพราะความเข้ากันจริงคือเรื่องของธาตุที่เสริมกัน ไม่ใช่ความพยายามที่จะปรับตัวให้เข้าหากัน.`,
+      `วิธีที่คุณ "รัก" ถูกเขียนไว้ในดวง: ธาตุ<strong>${elLabel(dmEl)}</strong>ให้ "${tr.core}" กับความสัมพันธ์ และอ่อนไหวเป็นพิเศษเมื่อเจอ "${tr.drains}". คุณไม่ได้เข้ากับทุกคน — และนั่นเป็นเรื่องดี เพราะความเข้ากันจริงคือเรื่องของธาตุที่เสริมกัน ไม่ใช่ความพยายามที่จะปรับตัวให้เข้าหากัน.`,
       `Human Design ${hdType} บอกกฎทองของคุณในความสัมพันธ์: ${hdType.includes('Projector')||hdType.includes('โปรเจก')?'รอ "คำเชิญ" ก่อนให้คำแนะนำ — คุณถูกมองข้ามเมื่อ push, แต่ถูกเห็นค่าเมื่อถูกเชิญ':hdType.includes('Generator')||hdType.includes('เจเนอ')?'เชื่อ "ตอบสนอง" ของร่างกาย — ใช่หรือไม่ใช่รู้ได้ก่อนหัวคิด':'ใช้กลยุทธ์ HD ของคุณเป็นเข็มทิศ ไม่ใช่ตามใจคนอื่น'}. คนที่ใช่จะไม่ทำให้คุณต้อง "ทำงานหนัก" เพื่อรู้สึกถูกรัก.`
     ] : [
-      `The way you <em>love</em> is written in your chart: your <strong>${dmEl}</strong> element brings "${tr.core}" to a relationship and is especially sensitive to "${tr.drains}". You don't click with everyone — and that's good, because real compatibility is about elements that complement, not effort spent forcing a fit.`,
+      `The way you <em>love</em> is written in your chart: your <strong>${elLabel(dmEl)}</strong> element brings "${tr.core}" to a relationship and is especially sensitive to "${tr.drains}". You don't click with everyone — and that's good, because real compatibility is about elements that complement, not effort spent forcing a fit.`,
       `Human Design ${hdType} gives your golden rule in relationships: ${hdType==='Projector'?'wait for the invitation before advising — you\'re overlooked when you push, valued when you\'re invited':hdType==='Generator'?'trust your body\'s response — yes or no is known before the mind argues':'run your HD strategy as the compass, not other people\'s moods'}. The right person never makes you "work hard" to feel loved.`
     ],
   };
@@ -8706,7 +8706,7 @@ function renderResonance(){
       <div class="deep-sys-title">${isTh?'3 จุดยึดจากดวงคุณ':'3 anchors from your chart'}</div>
       <div class="deep-sys-origin">${isTh?'ใช้สำหรับคำนวณ resonance ทั้งหมด':'these 3 values drive the resonance math'}</div>
       <div class="deep-sys-stats" style="margin-top:8px">
-        <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${isTh?'ธาตุ':'Element'}</div><div class="deep-sys-stat-val">${dmEl}</div></div>
+        <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${isTh?'ธาตุ':'Element'}</div><div class="deep-sys-stat-val">${elLabel(dmEl)}</div></div>
         <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${isTh?'ทิศนำโชค':'Lucky Dir'}</div><div class="deep-sys-stat-val">${nskDir}</div></div>
         <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">Life Path</div><div class="deep-sys-stat-val">${lpNum}</div></div>
         <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${isTh?'Energy Type':'Energy Type'}</div><div class="deep-sys-stat-val" style="font-size:12px">${hdType}</div></div>
@@ -8917,7 +8917,7 @@ function renderResonance(){
     <!-- 🌍 Top 5 countries — ranked by your specific chart -->
     <div class="deep-sys-card" style="margin-top:14px">
       <div class="deep-sys-title">🌍 ${isTh?'5 ประเทศที่เข้ากับดวงคุณมากที่สุด':'Top 5 countries for your chart'}</div>
-      <div class="deep-sys-origin">${isTh?`คำนวณจากธาตุ${dmEl} × ระดับ${careerLevel||'Mid'}${levelBonus?` (${levelBonus>=0?'+':''}${levelBonus})`:''} · แตะเพื่อเลือก`:`Computed from your ${dmEl} element × ${careerLevel||'Mid'} level${levelBonus?` (${levelBonus>=0?'+':''}${levelBonus})`:''} · tap to pick`}</div>
+      <div class="deep-sys-origin">${isTh?`คำนวณจากธาตุ${elLabel(dmEl)} × ระดับ${careerLevel||'Mid'}${levelBonus?` (${levelBonus>=0?'+':''}${levelBonus})`:''} · แตะเพื่อเลือก`:`Computed from your ${elLabel(dmEl)} element × ${careerLevel||'Mid'} level${levelBonus?` (${levelBonus>=0?'+':''}${levelBonus})`:''} · tap to pick`}</div>
       <div style="margin-top:10px">
         ${top(countryRanked,5).map((c,i) => rankRow(c, i+1, country, 'mth_country', `${elLabel(c.el)} ${c.match>0?'+':c.match<0?'':''}${c.match!==0?c.match:''}`)).join('')}
       </div>
@@ -8927,7 +8927,7 @@ function renderResonance(){
     <!-- 💼 Top 5 domains — ranked by your specific chart -->
     <div class="deep-sys-card" style="margin-top:14px">
       <div class="deep-sys-title">💼 ${isTh?'5 สายอาชีพที่เหมาะกับธาตุคุณ':'Top 5 career domains for your element'}</div>
-      <div class="deep-sys-origin">${isTh?`ธาตุ${dmEl} ของคุณเข้ากับสายเหล่านี้ที่สุด · แตะเพื่อเลือก`:`Your ${dmEl} element fits these domains best · tap to pick`}</div>
+      <div class="deep-sys-origin">${isTh?`ธาตุ${elLabel(dmEl)} ของคุณเข้ากับสายเหล่านี้ที่สุด · แตะเพื่อเลือก`:`Your ${elLabel(dmEl)} element fits these domains best · tap to pick`}</div>
       <div style="margin-top:10px">
         ${top(domainRanked,5).map((d,i) => rankRow(d, i+1, career, 'mth_career', elLabel(d.el))).join('')}
       </div>
@@ -8937,7 +8937,7 @@ function renderResonance(){
     <!-- 🏭 Top 5 industries — ranked by your specific chart -->
     <div class="deep-sys-card" style="margin-top:14px">
       <div class="deep-sys-title">🏭 ${isTh?'5 อุตสาหกรรมที่หนุนพลังคุณ':'Top 5 industries that amplify you'}</div>
-      <div class="deep-sys-origin">${isTh?`ธาตุ${dmEl} ของคุณสอดคล้องกับอุตสาหกรรมเหล่านี้ · แตะเพื่อเลือก`:`Your ${dmEl} element resonates with these · tap to pick`}</div>
+      <div class="deep-sys-origin">${isTh?`ธาตุ${elLabel(dmEl)} ของคุณสอดคล้องกับอุตสาหกรรมเหล่านี้ · แตะเพื่อเลือก`:`Your ${elLabel(dmEl)} element resonates with these · tap to pick`}</div>
       <div style="margin-top:10px">
         ${top(industryRanked,5).map((d,i) => rankRow(d, i+1, industry, 'mth_industry', elLabel(d.el))).join('')}
       </div>
@@ -8979,11 +8979,11 @@ function renderResonance(){
       <div class="deep-sys-title">${isTh?'ทำไมธาตุคุณเหมาะกับประเทศนี้':'Why your element fits these countries'}</div>
       <div class="deep-sys-origin">${isTh?'อิงจาก BaZi 5-element + geography tradition':'from BaZi 5-element + geography tradition'}</div>
       <div style="margin-top:10px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13.5px;color:var(--text);line-height:1.7">
-        <div style="margin-bottom:8px"><strong style="color:var(--gold)">${isTh?'ประเทศที่ธาตุ':'Countries that match your'} ${dmEl} ${isTh?'เข้ากัน':'element'}:</strong> ${elFit.examples}</div>
+        <div style="margin-bottom:8px"><strong style="color:var(--gold)">${isTh?'ประเทศที่ธาตุ':'Countries that match your'} ${elLabel(dmEl)} ${isTh?'เข้ากัน':'element'}:</strong> ${elFit.examples}</div>
         <div style="color:var(--muted);font-style:italic">${elFit.why}</div>
         ${country ? `
           <div style="margin-top:10px;padding:8px 12px;background:${elFit.examples.includes(country)?'rgba(40,100,40,0.08)':'rgba(160,100,40,0.08)'};border-left:3px solid ${elFit.examples.includes(country)?'#60a060':'#c0a060'};border-radius:0 6px 6px 0">
-            <strong style="color:${elFit.examples.includes(country)?'#60c060':'#c8a840'}">${country}</strong> — ${elFit.examples.includes(country) ? (isTh?'อยู่ในรายชื่อประเทศที่เสริมธาตุ'+dmEl+'ของคุณ 👍':'is on the '+dmEl+'-friendly list for your chart 👍') : (isTh?'ไม่อยู่ในรายชื่อโดยตรง แต่ไม่ใช่ปัญหา — Life Terrain ยังคำนวณจาก country quality + career level ให้อยู่ดี':'not on the direct-match list, but not a problem — Life Terrain still computes from country quality + career level')}
+            <strong style="color:${elFit.examples.includes(country)?'#60c060':'#c8a840'}">${country}</strong> — ${elFit.examples.includes(country) ? (isTh?'อยู่ในรายชื่อประเทศที่เสริมธาตุ'+elLabel(dmEl)+'ของคุณ 👍':'is on the '+elLabel(dmEl)+'-friendly list for your chart 👍') : (isTh?'ไม่อยู่ในรายชื่อโดยตรง แต่ไม่ใช่ปัญหา — Life Terrain ยังคำนวณจาก country quality + career level ให้อยู่ดี':'not on the direct-match list, but not a problem — Life Terrain still computes from country quality + career level')}
           </div>
         ` : ''}
       </div>
@@ -8999,7 +8999,7 @@ function renderResonance(){
         ${career ? `
           <div style="margin-top:10px;padding:8px 12px;background:rgba(64,192,160,0.06);border-left:3px solid #40c0a0;border-radius:0 6px 6px 0">
             <strong style="color:#60d0a0">${isTh?'อาชีพปัจจุบัน':'Current career'}:</strong> ${career}${industry?' · '+industry:''}<br>
-            <span style="font-size:11.5px;color:var(--muted);font-style:italic">${isTh?'Path Resonance ด้านบนบอกว่าสายนี้เข้ากับธาตุ'+dmEl+'แค่ไหน':'The Path Resonance score above tells you how well this fits your '+dmEl+' element'}</span>
+            <span style="font-size:11.5px;color:var(--muted);font-style:italic">${isTh?'Path Resonance ด้านบนบอกว่าสายนี้เข้ากับธาตุ'+elLabel(dmEl)+'แค่ไหน':'The Path Resonance score above tells you how well this fits your '+elLabel(dmEl)+' element'}</span>
           </div>
         ` : ''}
       </div>
@@ -11130,8 +11130,8 @@ function renderMirror(){
     ],
     whyFits: [
       isTh
-        ? `ธาตุ <strong>${dmEl}</strong> ของคุณเน้นพลังงาน <strong>${tr.core}</strong> — เทพที่เลือกจึงสะท้อนคุณสมบัติเหล่านี้ในรูปแบบที่สูงสุด`
-        : `Your <strong>${dmEl}</strong> Day Master accents <strong>${tr.core}</strong> — the chosen deities mirror these qualities at their peak expression`,
+        ? `ธาตุ <strong>${elLabel(dmEl)}</strong> ของคุณเน้นพลังงาน <strong>${tr.core}</strong> — เทพที่เลือกจึงสะท้อนคุณสมบัติเหล่านี้ในรูปแบบที่สูงสุด`
+        : `Your <strong>${elLabel(dmEl)}</strong> Day Master accents <strong>${tr.core}</strong> — the chosen deities mirror these qualities at their peak expression`,
       isTh
         ? `Cosmic Score <strong>${score}</strong> (tier <strong>${tier}</strong>) ระบุว่า 26 ศาสตร์เห็นตรงกันระดับไหน — จึงเลือก Cosmic Entity ที่เทียบเท่าระดับจิตวิญญาณคุณ`
         : `Your Cosmic Score <strong>${score}</strong> (tier <strong>${tier}</strong>) indicates cross-system consensus — the Cosmic Entity chosen matches this spiritual level`,
@@ -11141,8 +11141,8 @@ function renderMirror(){
     ],
     whyAvoid: [
       isTh
-        ? `Shadow archetype คือพลังงานเดียวกันของคุณเมื่อ "ไม่สมดุล" — ถ้าคุณถูกบีบด้วย <strong>${tr.drains}</strong>, ธาตุ ${dmEl} จะพลิกเป็นด้านมืด`
-        : `The Shadow archetype is your same energy gone imbalanced — when pressed by <strong>${tr.drains}</strong>, your ${dmEl} flips into its darker expression`,
+        ? `Shadow archetype คือพลังงานเดียวกันของคุณเมื่อ "ไม่สมดุล" — ถ้าคุณถูกบีบด้วย <strong>${tr.drains}</strong>, ธาตุ ${elLabel(dmEl)} จะพลิกเป็นด้านมืด`
+        : `The Shadow archetype is your same energy gone imbalanced — when pressed by <strong>${tr.drains}</strong>, your ${elLabel(dmEl)} flips into its darker expression`,
     ],
   });
 
@@ -11154,7 +11154,7 @@ function renderMirror(){
       <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:stretch">
         <div style="text-align:center;padding:10px 12px;background:rgba(0,0,0,.18);border-radius:8px;border:1px solid rgba(212,175,55,0.18)">
           <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:2px;color:var(--gold);margin-bottom:4px">${isTh?'แกน 1 · ธาตุ':'AXIS 1 · ELEMENT'}</div>
-          <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:11.5px;color:var(--muted);font-style:italic;margin-bottom:6px">${isTh?'ตัวตนที่ฉายออก (Day Master '+dmEl+')':'Your projected self (Day Master '+dmEl+')'}</div>
+          <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:11.5px;color:var(--muted);font-style:italic;margin-bottom:6px">${isTh?'ตัวตนที่ฉายออก (Day Master '+elLabel(dmEl)+')':'Your projected self (Day Master '+elLabel(dmEl)+')'}</div>
           <div style="font-family:'Cinzel Decorative',serif;font-size:15px;color:var(--gold);line-height:1.3;letter-spacing:.3px">${gods.primary || '—'}</div>
         </div>
         <div style="align-self:center;color:var(--gold3);font-size:20px;font-family:'Cinzel Decorative',serif">×</div>
@@ -11172,7 +11172,7 @@ function renderMirror(){
     <!-- Primary Archetype (Axis 1 · Element) -->
     <div class="deep-sys-card" style="text-align:center;padding:24px 20px;margin-top:12px">
       <div style="font-size:52px;margin-bottom:10px">${gods.icon}</div>
-      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:6px">${isTh?'แกน 1 · เทพหลัก':'AXIS 1 · PRIMARY ARCHETYPE'} · ${isTh?'ธาตุ':'Element'} ${dmEl}</div>
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:6px">${isTh?'แกน 1 · เทพหลัก':'AXIS 1 · PRIMARY ARCHETYPE'} · ${isTh?'ธาตุ':'Element'} ${elLabel(dmEl)}</div>
       <div style="font-family:'Cinzel Decorative',serif;font-size:17px;color:var(--gold);letter-spacing:1px;margin-bottom:10px">${gods.primary}</div>
       <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.7;max-width:480px;margin:0 auto">${gods.primaryDesc}</div>
       ${gods.primaryReflect ? `<div style="margin-top:14px;padding:12px 14px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.28);border-radius:8px;text-align:left;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13.5px;color:var(--text);line-height:1.8"><div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold);margin-bottom:6px">🪞 ${isTh?'สะท้อนคุณอย่างไร':'HOW IT MIRRORS YOU'}</div>${gods.primaryReflect}</div>` : ''}
@@ -11822,8 +11822,8 @@ function renderPet(){
     ],
     whyFits: [
       isTh
-        ? `<strong>BaZi:</strong> ธาตุ ${dmEl} เน้น ${tr.core} — สัตว์ที่เลือกเสริมพลังงานนี้ในวงจร 5 ธาตุ`
-        : `<strong>BaZi:</strong> your ${dmEl} accents ${tr.core} — the chosen animal amplifies this within the 5-element cycle`,
+        ? `<strong>BaZi:</strong> ธาตุ ${elLabel(dmEl)} เน้น ${tr.core} — สัตว์ที่เลือกเสริมพลังงานนี้ในวงจร 5 ธาตุ`
+        : `<strong>BaZi:</strong> your ${elLabel(dmEl)} accents ${tr.core} — the chosen animal amplifies this within the 5-element cycle`,
       isTh
         ? `<strong>Nine Star Ki:</strong> ทิศ ${nskDir} กำหนดที่วางที่นอนสัตว์ + ช่วงเวลารับมาเลี้ยงเพื่อให้ chi ไหลถูก`
         : `<strong>Nine Star Ki:</strong> direction ${nskDir} sets the bed location + adoption window for chi flow`,
@@ -11837,8 +11837,8 @@ function renderPet(){
     ],
     whyAvoid: [
       isTh
-        ? `สัตว์ใน "ควรเลี่ยง" มีพลังงานที่ดูดธาตุ ${dmEl} ตาม 5-element destroy cycle + ขัดทิศ NSK ${nskDir} ของคุณ — ${tr.drains} จะตามมา`
-        : `Animals in "avoid" drain your ${dmEl} via the 5-element destroy cycle AND clash with your NSK direction ${nskDir} — ${tr.drains} follows`,
+        ? `สัตว์ใน "ควรเลี่ยง" มีพลังงานที่ดูดธาตุ ${elLabel(dmEl)} ตาม 5-element destroy cycle + ขัดทิศ NSK ${nskDir} ของคุณ — ${tr.drains} จะตามมา`
+        : `Animals in "avoid" drain your ${elLabel(dmEl)} via the 5-element destroy cycle AND clash with your NSK direction ${nskDir} — ${tr.drains} follows`,
     ],
   });
 
@@ -11874,8 +11874,8 @@ function renderPet(){
       '4 systems used to compute — understand the reasoning first, then read the picks',
       [
         { labelTh:'5-ELEMENT CYCLE (BAZI · TCM)', labelEn:'5-ELEMENT CYCLE (BAZI · TCM)',
-          textTh:`สัตว์ที่ธาตุ <em>หล่อเลี้ยง</em> ${dmEl} ของคุณ = ดีที่สุด (+2) · ธาตุเดียวกัน = supportive (+1) · ที่ ${dmEl} ทำลาย = neutral (0) · ที่ ${dmEl} หล่อเลี้ยง = drain (-1) · ที่ <em>ทำลาย</em> ${dmEl} = AVOID (-2)`,
-          textEn:`Pet element that <em>feeds</em> your ${dmEl} = best (+2) · same = supportive (+1) · ${dmEl} destroys it = neutral (0) · ${dmEl} feeds it = drain (-1) · it <em>destroys</em> ${dmEl} = AVOID (-2)` },
+          textTh:`สัตว์ที่ธาตุ <em>หล่อเลี้ยง</em> ${elLabel(dmEl)} ของคุณ = ดีที่สุด (+2) · ธาตุเดียวกัน = supportive (+1) · ที่ ${elLabel(dmEl)} ทำลาย = neutral (0) · ที่ ${elLabel(dmEl)} หล่อเลี้ยง = drain (-1) · ที่ <em>ทำลาย</em> ${elLabel(dmEl)} = AVOID (-2)`,
+          textEn:`Pet element that <em>feeds</em> your ${elLabel(dmEl)} = best (+2) · same = supportive (+1) · ${elLabel(dmEl)} destroys it = neutral (0) · ${elLabel(dmEl)} feeds it = drain (-1) · it <em>destroys</em> ${elLabel(dmEl)} = AVOID (-2)` },
         { labelTh:'PHYSICAL BIORHYTHM', labelEn:'PHYSICAL BIORHYTHM',
           textTh:`วงจร <strong>23-วัน</strong> · sine wave จากวันเกิด · บวก = peak พลังกาย / ลบ = ช่วงพักฟื้น · ของคุณตอนนี้ <strong style="color:${physical>0?'#4a9a40':'#c06060'}">${physical>=0?'+':''}${physical}%</strong> · ใช้ระบุช่วงรับเลี้ยง + peak bonding day`,
           textEn:`<strong>23-day</strong> sine cycle from your DOB · positive = energy peak / negative = recovery window · yours now <strong style="color:${physical>0?'#4a9a40':'#c06060'}">${physical>=0?'+':''}${physical}%</strong> · used to pick adoption window + peak bonding day` },
@@ -11890,7 +11890,7 @@ function renderPet(){
 
     <!-- Primary Pet -->
     <div class="deep-sys-card">
-      <div class="deep-sys-title">🐾 ${isTh?'สัตว์เลี้ยงหลัก':'Primary pet'} — ${isTh?'ธาตุ':'Element'} ${dmEl}</div>
+      <div class="deep-sys-title">🐾 ${isTh?'สัตว์เลี้ยงหลัก':'Primary pet'} — ${isTh?'ธาตุ':'Element'} ${elLabel(dmEl)}</div>
       <div class="deep-sys-origin">${isTh?'คำนวณจาก Day Master · Nine Star Ki · Biorhythm':'Based on Day Master · Nine Star Ki · Biorhythm'}</div>
       <div style="text-align:center;font-size:48px;margin:16px 0">${p.main.split(' ')[0]}</div>
       <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:18px;color:var(--gold);text-align:center;margin-bottom:12px">${p.main.slice(2)}</div>
@@ -11909,7 +11909,7 @@ function renderPet(){
     <!-- 🆕 20-Pet Compatibility Map (restore Top 3 + Avoid) -->
     <div class="deep-sys-card" style="margin-top:12px">
       <div class="deep-sys-title">🐾 ${isTh?'แผนที่สัตว์เลี้ยง 20 ชนิด':'20-Pet Compatibility Map'}</div>
-      <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${dmEl} · 5-element cycle`:`Ranked for your ${dmEl} element · 5-element cycle`}</div>
+      <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${elLabel(dmEl)} · 5-element cycle`:`Ranked for your ${elLabel(dmEl)} element · 5-element cycle`}</div>
 
       <div style="margin-top:14px">
         <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· เข้ากับคุณที่สุด':'· BEST FOR YOU'}</div>
@@ -11966,8 +11966,8 @@ function renderPet(){
       <div style="margin-top:14px">
         <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:var(--gold3);margin-bottom:6px">${isTh?'สัปดาห์ 2 · วันที่ 8-14':'WEEK 2 · DAYS 8-14'} — ${isTh?'สร้าง Routine':'Build Routine'}</div>
         <div style="font-size:13px;color:var(--text);line-height:1.7">${isTh
-          ? `ที่นอนของสัตว์ → วางทิศ <strong>${nskDir}</strong> (NSK ของคุณ); ให้อาหารช่วงเวลาเดิมทุกวัน — จังหวะนี้ทำให้ chi ไหลเข้าทั้งคู่ · พลัง <strong>${tr.core}</strong> ของธาตุ ${dmEl} จะเสริมความสบายของสัตว์ในช่วงนี้`
-          : `Pet bed → place facing <strong>${nskDir}</strong> (your NSK direction); feed at the same time daily — this rhythm channels chi to both of you · your ${dmEl} <strong>${tr.core}</strong> energy amplifies the pet's comfort during this phase`}</div>
+          ? `ที่นอนของสัตว์ → วางทิศ <strong>${nskDir}</strong> (NSK ของคุณ); ให้อาหารช่วงเวลาเดิมทุกวัน — จังหวะนี้ทำให้ chi ไหลเข้าทั้งคู่ · พลัง <strong>${tr.core}</strong> ของธาตุ ${elLabel(dmEl)} จะเสริมความสบายของสัตว์ในช่วงนี้`
+          : `Pet bed → place facing <strong>${nskDir}</strong> (your NSK direction); feed at the same time daily — this rhythm channels chi to both of you · your ${elLabel(dmEl)} <strong>${tr.core}</strong> energy amplifies the pet's comfort during this phase`}</div>
       </div>
 
       <div style="margin-top:14px">
@@ -12110,8 +12110,8 @@ function renderCompanions(){
     ],
     whyFits: [
       isTh
-        ? `<strong>BaZi:</strong> Spirit Companion คัดจากวัฒนธรรมโบราณที่จับคู่ธาตุ ${dmEl} กับสัตว์/สัญลักษณ์เฉพาะ — สะท้อน ${tr.core} ในรูป archetype`
-        : `<strong>BaZi:</strong> spirit companion drawn from cultures that paired ${dmEl} with specific creatures — reflects ${tr.core} as archetype`,
+        ? `<strong>BaZi:</strong> Spirit Companion คัดจากวัฒนธรรมโบราณที่จับคู่ธาตุ ${elLabel(dmEl)} กับสัตว์/สัญลักษณ์เฉพาะ — สะท้อน ${tr.core} ในรูป archetype`
+        : `<strong>BaZi:</strong> spirit companion drawn from cultures that paired ${elLabel(dmEl)} with specific creatures — reflects ${tr.core} as archetype`,
       isTh
         ? `<strong>Mahadasha ${mahadasha}:</strong> เทพ/ดาวครองช่วงชีวิตของคุณตอนนี้ — สถานที่ศักดิ์สิทธิ์และดนตรีเลือกจากสิ่งที่ ${mahadasha} resonates`
         : `<strong>Mahadasha ${mahadasha}:</strong> the planet ruling your current life chapter — sacred places + music chosen to resonate with ${mahadasha}'s frequency`,
@@ -12119,8 +12119,8 @@ function renderCompanions(){
         ? `<strong>Norse Rune ${rune}:</strong> รูนยืนยันเส้นทาง · <strong>Mayan Kin ${kin}:</strong> Kin ยืนยันจังหวะจักรวาล — คริสตัลถูกคัดจากแร่ที่ match ทั้ง 3 พิกัด`
         : `<strong>Rune ${rune}:</strong> confirms the path · <strong>Kin ${kin}:</strong> confirms cosmic timing — crystals filtered to minerals matching all 3 axes`,
       isTh
-        ? `<strong>Life Path ${lp}:</strong> มนตราประจำธาตุ${dmEl} ถูกเลือกจากเสียงที่ LP ${lp} ตอบสนองดี — แต่ละ LP มีความถี่ vocal ที่ต่างกัน`
-        : `<strong>Life Path ${lp}:</strong> mantra for ${dmEl} chosen by what LP ${lp} responds to — each LP has its own vocal frequency`,
+        ? `<strong>Life Path ${lp}:</strong> มนตราประจำธาตุ${elLabel(dmEl)} ถูกเลือกจากเสียงที่ LP ${lp} ตอบสนองดี — แต่ละ LP มีความถี่ vocal ที่ต่างกัน`
+        : `<strong>Life Path ${lp}:</strong> mantra for ${elLabel(dmEl)} chosen by what LP ${lp} responds to — each LP has its own vocal frequency`,
     ],
     whyAvoid: [
       isTh
@@ -12149,8 +12149,8 @@ function renderCompanions(){
       '4 systems used — understand the reasoning first',
       [
         { labelTh:'5-ELEMENT CYCLE', labelEn:'5-ELEMENT CYCLE',
-          textTh:`Creature ที่ธาตุ <em>หล่อเลี้ยง</em> ${dmEl} ของคุณ = ดีที่สุด (+2) · ที่ <em>ทำลาย</em> ${dmEl} = AVOID (-2) — เลือกใน 20 ตัวจาก East Asian guardians, Western myth, Hindu, Norse, Japanese`,
-          textEn:`Creature with element that <em>feeds</em> your ${dmEl} = best (+2) · that <em>destroys</em> ${dmEl} = AVOID (-2) — picked from 20 across East Asian guardians, Western myth, Hindu, Norse, Japanese` },
+          textTh:`Creature ที่ธาตุ <em>หล่อเลี้ยง</em> ${elLabel(dmEl)} ของคุณ = ดีที่สุด (+2) · ที่ <em>ทำลาย</em> ${elLabel(dmEl)} = AVOID (-2) — เลือกใน 20 ตัวจาก East Asian guardians, Western myth, Hindu, Norse, Japanese`,
+          textEn:`Creature with element that <em>feeds</em> your ${elLabel(dmEl)} = best (+2) · that <em>destroys</em> ${elLabel(dmEl)} = AVOID (-2) — picked from 20 across East Asian guardians, Western myth, Hindu, Norse, Japanese` },
         { labelTh:'VEDIC MAHADASHA → PILGRIMAGE', labelEn:'VEDIC MAHADASHA → PILGRIMAGE',
           textTh:`ดาวที่ครองช่วงชีวิตของคุณ = <strong>${mahadasha}</strong> · กำหนด 4 stage ของ Sacred Pilgrimage (cleanse → approach → encounter → integrate) · แต่ละ stage อ้างอิงสถานที่ตรงพลังของดาว`,
           textEn:`Planet ruling your life-chapter = <strong>${mahadasha}</strong> · sets the 4 Sacred Pilgrimage stages (cleanse → approach → encounter → integrate) · each stage references a place tuned to that planet's energy` },
@@ -12166,7 +12166,7 @@ function renderCompanions(){
     <!-- Spirit Companion -->
     <div class="deep-sys-card" style="text-align:center;padding:24px 20px">
       <div style="font-size:52px;margin-bottom:10px">${comp.creature.split(' ')[0]}</div>
-      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:6px">COSMIC COMPANION · ${isTh?'ธาตุ':'Element'} ${dmEl}</div>
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:6px">COSMIC COMPANION · ${isTh?'ธาตุ':'Element'} ${elLabel(dmEl)}</div>
       <div style="font-family:'Cinzel Decorative',serif;font-size:16px;color:var(--gold);margin-bottom:10px">${comp.creature.slice(2)}</div>
       <div style="font-size:13px;color:var(--text);line-height:1.7">${comp.creatureDesc}</div>
       ${comp.creatureStory ? `<div style="margin-top:14px;padding:12px 14px;background:rgba(0,0,0,.2);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;text-align:left">
@@ -12184,7 +12184,7 @@ function renderCompanions(){
     <!-- 🆕 20-Mythic-Creature Compatibility Map (restore Top 3 + Avoid pattern) -->
     <div class="deep-sys-card" style="margin-top:12px">
       <div class="deep-sys-title">🐉 ${isTh?'แผนที่สัตว์ตำนาน 20 ตัว':'20-Mythic-Creature Compatibility Map'}</div>
-      <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${dmEl} · 5-element cycle · 4 ตัว/ธาตุ จากหลายวัฒนธรรม`:`Ranked for your ${dmEl} element · 5-element cycle · 4 creatures per element across cultures`}</div>
+      <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${elLabel(dmEl)} · 5-element cycle · 4 ตัว/ธาตุ จากหลายวัฒนธรรม`:`Ranked for your ${elLabel(dmEl)} element · 5-element cycle · 4 creatures per element across cultures`}</div>
 
       <div style="margin-top:14px">
         <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· เข้ากับคุณที่สุด':'· BEST FOR YOU'}</div>
@@ -12216,8 +12216,8 @@ function renderCompanions(){
 
       <div style="margin-top:12px;padding:10px 12px;background:rgba(212,170,80,0.04);border:1px dashed var(--gold3);border-radius:6px;font-size:11.5px;color:var(--muted);line-height:1.65">
         ${isTh
-          ? `🔄 <strong>5-element cycle:</strong> ธาตุที่หล่อเลี้ยง ${dmEl} = ดีที่สุด · ทำลาย ${dmEl} = ไม่ควรอัญเชิญ (สร้างแรง<em>ขัด</em>กับ aura ของคุณ)`
-          : `🔄 <strong>5-element cycle:</strong> Element that feeds your ${dmEl} = best · element that destroys ${dmEl} = avoid (creates <em>resistance</em> against your aura)`}
+          ? `🔄 <strong>5-element cycle:</strong> ธาตุที่หล่อเลี้ยง ${elLabel(dmEl)} = ดีที่สุด · ทำลาย ${elLabel(dmEl)} = ไม่ควรอัญเชิญ (สร้างแรง<em>ขัด</em>กับ aura ของคุณ)`
+          : `🔄 <strong>5-element cycle:</strong> Element that feeds your ${elLabel(dmEl)} = best · element that destroys ${elLabel(dmEl)} = avoid (creates <em>resistance</em> against your aura)`}
       </div>
 
       ${_collapse(
@@ -12311,7 +12311,7 @@ function renderCompanions(){
 
       <div class="deep-sys-card" style="margin-top:12px;border-left:3px solid rgba(212,175,55,0.4)">
         <div style="font-size:9px;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px">✦ COSMIC KEYS (Rune · Kin)</div>
-        <div style="font-size:13px;color:var(--text)">Norse Rune <strong>${rune}</strong> · Mayan Kin <strong>${kin}</strong> — ${isTh?`รูนและ Kin ของคุณยืนยันพลังงาน ${dmEl}`:`your Rune and Kin both confirm your ${dmEl} energy`}</div>
+        <div style="font-size:13px;color:var(--text)">Norse Rune <strong>${rune}</strong> · Mayan Kin <strong>${kin}</strong> — ${isTh?`รูนและ Kin ของคุณยืนยันพลังงาน ${elLabel(dmEl)}`:`your Rune and Kin both confirm your ${elLabel(dmEl)} energy`}</div>
       </div>`
     )}`;
 }
@@ -12484,8 +12484,8 @@ async function renderPilgrimage(){
   el.innerHTML = `
     <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px">
       ${isTh
-        ? `จับคู่ตามธาตุ <strong style="color:var(--gold)">${dmEl}</strong> · เทพคู่ดวง${residence?` · อยู่ <strong>${residence}</strong>`:''}${birthCountry && !sameCountry?` · เกิด <strong>${birthCountry}</strong>`:''}`
-        : `Matched by <strong style="color:var(--gold)">${dmEl}</strong> element · companion deities${residence?` · residence <strong>${residence}</strong>`:''}${birthCountry && !sameCountry?` · birth <strong>${birthCountry}</strong>`:''}`
+        ? `จับคู่ตามธาตุ <strong style="color:var(--gold)">${elLabel(dmEl)}</strong> · เทพคู่ดวง${residence?` · อยู่ <strong>${residence}</strong>`:''}${birthCountry && !sameCountry?` · เกิด <strong>${birthCountry}</strong>`:''}`
+        : `Matched by <strong style="color:var(--gold)">${elLabel(dmEl)}</strong> element · companion deities${residence?` · residence <strong>${residence}</strong>`:''}${birthCountry && !sameCountry?` · birth <strong>${birthCountry}</strong>`:''}`
       }
     </div>
 
@@ -12548,8 +12548,8 @@ function renderExercise(){
     ],
     whyFits: [
       isTh
-        ? `<strong>BaZi:</strong> ธาตุ ${dmEl} เน้น ${tr.core} — กีฬาที่เลือกจึงใช้ <em>pattern การเคลื่อนไหว</em> ที่สอดคล้อง (ไหลลื่น-ไม้ · intensity สูง-ไฟ · stability-ดิน · precision-โลหะ · fluid-น้ำ)`
-        : `<strong>BaZi:</strong> your ${dmEl} accents ${tr.core} — chosen sports use <em>movement patterns</em> aligned with it`,
+        ? `<strong>BaZi:</strong> ธาตุ ${elLabel(dmEl)} เน้น ${tr.core} — กีฬาที่เลือกจึงใช้ <em>pattern การเคลื่อนไหว</em> ที่สอดคล้อง (ไหลลื่น-ไม้ · intensity สูง-ไฟ · stability-ดิน · precision-โลหะ · fluid-น้ำ)`
+        : `<strong>BaZi:</strong> your ${elLabel(dmEl)} accents ${tr.core} — chosen sports use <em>movement patterns</em> aligned with it`,
       isTh
         ? `<strong>Nine Star Ki ทิศ ${nskDir}:</strong> ทิศที่คุณควรหันหน้าขณะออกกำลัง (yoga facing · วิ่งไปทางนั้น) เพื่อให้ chi ไหลเต็มที่`
         : `<strong>Nine Star Ki ${nskDir}:</strong> the direction to face during exercise so chi flows fully`,
@@ -12580,8 +12580,8 @@ function renderExercise(){
       '5 systems used to pick your exercise',
       [
         { labelTh:'5-ELEMENT CYCLE (MOVEMENT PATTERN)', labelEn:'5-ELEMENT CYCLE (MOVEMENT PATTERN)',
-          textTh:`กีฬาที่ pattern การเคลื่อนไหวสอดคล้องกับธาตุ ${dmEl} ของคุณ — ไม้=ไหลลื่น · ไฟ=intensity · ดิน=stability · โลหะ=precision · น้ำ=fluid`,
-          textEn:`Sports whose movement pattern aligns with your ${dmEl} — Wood=flow · Fire=intensity · Earth=stability · Metal=precision · Water=fluid` },
+          textTh:`กีฬาที่ pattern การเคลื่อนไหวสอดคล้องกับธาตุ ${elLabel(dmEl)} ของคุณ — ไม้=ไหลลื่น · ไฟ=intensity · ดิน=stability · โลหะ=precision · น้ำ=fluid`,
+          textEn:`Sports whose movement pattern aligns with your ${elLabel(dmEl)} — Wood=flow · Fire=intensity · Earth=stability · Metal=precision · Water=fluid` },
         { labelTh:'PHYSICAL BIORHYTHM', labelEn:'PHYSICAL BIORHYTHM',
           textTh:`วงจร 23-วันของ "พลังกาย" · ของคุณตอนนี้ <strong style="color:${physical>0?'#4a9a40':'#c06060'}">${physical>=0?'+':''}${physical}%</strong> · ${physical>30?'full intensity OK':physical>-10?'medium intensity':'stretching/พักดีกว่า'}`,
           textEn:`23-day physical-energy cycle · yours now <strong style="color:${physical>0?'#4a9a40':'#c06060'}">${physical>=0?'+':''}${physical}%</strong> · ${physical>30?'full intensity OK':physical>-10?'medium intensity':'stretch/rest better'}` },
@@ -12598,7 +12598,7 @@ function renderExercise(){
     )}
 
     <div class="deep-sys-card">
-      <div class="deep-sys-title">🏃 ${isTh?'แผนออกกำลังกาย':'Exercise plan'} — ${isTh?'ธาตุ':'Element'} ${dmEl}</div>
+      <div class="deep-sys-title">🏃 ${isTh?'แผนออกกำลังกาย':'Exercise plan'} — ${isTh?'ธาตุ':'Element'} ${elLabel(dmEl)}</div>
       <div class="deep-sys-stats" style="margin-top:10px">
         <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${isTh?'กายวันนี้':'Physical today'}</div><div class="deep-sys-stat-val" style="color:${physical>0?'#5a9a40':'#c05050'}">${physical>0?'+':''}${physical}%</div></div>
         <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${isTh?'อารมณ์':'Emotional'}</div><div class="deep-sys-stat-val">${emotional>0?'+':''}${emotional}%</div></div>
@@ -12608,7 +12608,7 @@ function renderExercise(){
     </div>
 
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">✅ ${isTh?'กีฬาที่แนะนำสำหรับธาตุ':'Recommended sports for element'} ${dmEl}</div>
+      <div class="deep-sys-title">✅ ${isTh?'กีฬาที่แนะนำสำหรับธาตุ':'Recommended sports for element'} ${elLabel(dmEl)}</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
         ${ex.sports.map((s,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg2);border-radius:6px">
           <span style="font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--gold);width:20px">${i+1}</span>
@@ -12623,7 +12623,7 @@ function renderExercise(){
       const top3 = ranked.slice(0,3), bot3 = ranked.slice(-3).reverse();
       return `<div class="deep-sys-card" style="margin-top:12px">
         <div class="deep-sys-title">🏃 ${isTh?'แผนที่กีฬา 20 ชนิด':'20-Exercise Compatibility Map'}</div>
-        <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${dmEl} · 5-element cycle · 4 ชนิด/ธาตุ`:`Ranked for ${dmEl} · 5-element cycle · 4 per element`}</div>
+        <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${elLabel(dmEl)} · 5-element cycle · 4 ชนิด/ธาตุ`:`Ranked for ${elLabel(dmEl)} · 5-element cycle · 4 per element`}</div>
         <div style="margin-top:14px">
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· เข้ากับร่างคุณที่สุด':'· BEST FOR YOUR BODY'}</div>
           ${top3.map((it,idx) => `<div style="padding:9px 12px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:6px">
@@ -12740,8 +12740,8 @@ function renderFood(){
     ],
     whyFits: [
       isTh
-        ? `<strong>TCM · BaZi:</strong> จับคู่ธาตุ ${dmEl} กับอวัยวะ ${organ} — อาหารที่เลือกมีรสและธรรมชาติที่ <em>บำรุงอวัยวะ</em> โดยตรง (ไม่ใช่แค่ "คนธาตุไฟกินเผ็ดได้")`
-        : `<strong>TCM · BaZi:</strong> pairs ${dmEl} with ${organ} — foods' flavours tonify this organ directly (not just "fire types like spicy")`,
+        ? `<strong>TCM · BaZi:</strong> จับคู่ธาตุ ${elLabel(dmEl)} กับอวัยวะ ${organ} — อาหารที่เลือกมีรสและธรรมชาติที่ <em>บำรุงอวัยวะ</em> โดยตรง (ไม่ใช่แค่ "คนธาตุไฟกินเผ็ดได้")`
+        : `<strong>TCM · BaZi:</strong> pairs ${elLabel(dmEl)} with ${organ} — foods' flavours tonify this organ directly (not just "fire types like spicy")`,
       isTh
         ? `<strong>Vedic Nakshatra ${nakshatra}:</strong> Ayurveda จับคู่ Nakshatra กับ dosha (Vata/Pitta/Kapha) — ส่งผลต่อการย่อยของคุณ · อาหารในลิสต์คัดให้ balance dosha ที่ ${nakshatra} มักมี`
         : `<strong>Vedic Nakshatra ${nakshatra}:</strong> Ayurveda pairs Nakshatras with doshas — affects your digestion · list balances the dosha signature`,
@@ -12772,11 +12772,11 @@ function renderFood(){
       '5 systems used to pick your food',
       [
         { labelTh:'TCM 5-FLAVOR CYCLE (BAZI)', labelEn:'TCM 5-FLAVOR CYCLE (BAZI)',
-          textTh:`อาหารที่รสและธรรมชาติ <em>หล่อเลี้ยง</em> ธาตุ ${dmEl} = ดี (+2) · ที่ <em>ทำลาย</em> ${dmEl} = ควรเลี่ยง (-2) — เปรี้ยว/ไม้ · ขม-เผ็ด/ไฟ · หวาน/ดิน · เผ็ดร้อน-ขาว/โลหะ · เค็ม-ลึก/น้ำ`,
-          textEn:`Food flavour & nature that <em>feeds</em> your ${dmEl} = good (+2) · that <em>destroys</em> ${dmEl} = avoid (-2) — sour/Wood · bitter-spicy/Fire · sweet/Earth · pungent-white/Metal · salty-deep/Water` },
+          textTh:`อาหารที่รสและธรรมชาติ <em>หล่อเลี้ยง</em> ธาตุ ${elLabel(dmEl)} = ดี (+2) · ที่ <em>ทำลาย</em> ${elLabel(dmEl)} = ควรเลี่ยง (-2) — เปรี้ยว/ไม้ · ขม-เผ็ด/ไฟ · หวาน/ดิน · เผ็ดร้อน-ขาว/โลหะ · เค็ม-ลึก/น้ำ`,
+          textEn:`Food flavour & nature that <em>feeds</em> your ${elLabel(dmEl)} = good (+2) · that <em>destroys</em> ${elLabel(dmEl)} = avoid (-2) — sour/Wood · bitter-spicy/Fire · sweet/Earth · pungent-white/Metal · salty-deep/Water` },
         { labelTh:'TCM ORGAN PAIRING', labelEn:'TCM ORGAN PAIRING',
-          textTh:`ธาตุ ${dmEl} ของคุณคู่กับอวัยวะ <strong>${organ}</strong> · อาหารถูกคัดให้ <em>บำรุง</em> อวัยวะนี้ตรงๆ ไม่ใช่แค่ "คนธาตุไฟกินเผ็ดได้"`,
-          textEn:`Your ${dmEl} pairs with the <strong>${organ}</strong> organ · foods are selected to <em>tonify</em> this organ directly — not just "fire types like spicy"` },
+          textTh:`ธาตุ ${elLabel(dmEl)} ของคุณคู่กับอวัยวะ <strong>${organ}</strong> · อาหารถูกคัดให้ <em>บำรุง</em> อวัยวะนี้ตรงๆ ไม่ใช่แค่ "คนธาตุไฟกินเผ็ดได้"`,
+          textEn:`Your ${elLabel(dmEl)} pairs with the <strong>${organ}</strong> organ · foods are selected to <em>tonify</em> this organ directly — not just "fire types like spicy"` },
         { labelTh:'VEDIC MAHADASHA TUNING', labelEn:'VEDIC MAHADASHA TUNING',
           textTh:`ตอนนี้คุณอยู่ใน Mahadasha <strong>${dasha}</strong> · ปรับสมดุลเฉพาะ: ${dashaNote}`,
           textEn:`You're in Mahadasha <strong>${dasha}</strong> · this chapter needs: ${dashaNote}` },
@@ -12790,7 +12790,7 @@ function renderFood(){
     )}
 
     <div class="deep-sys-card">
-      <div class="deep-sys-title">🍽️ ${isTh?'อาหารตามธาตุ':'Diet by element'} — ${dmEl}</div>
+      <div class="deep-sys-title">🍽️ ${isTh?'อาหารตามธาตุ':'Diet by element'} — ${elLabel(dmEl)}</div>
       <div class="deep-sys-origin">Mahadasha: ${dasha} · Life Path: ${lp}</div>
 
       <div style="margin-top:14px">
@@ -12810,7 +12810,7 @@ function renderFood(){
       const top3 = ranked.slice(0,3), bot3 = ranked.slice(-3).reverse();
       return `<div class="deep-sys-card" style="margin-top:12px">
         <div class="deep-sys-title">🍽️ ${isTh?'แผนที่อาหาร 20 ชนิด':'20-Food Compatibility Map'}</div>
-        <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${dmEl} · TCM 5-flavor cycle`:`Ranked for ${dmEl} · TCM 5-flavor cycle`}</div>
+        <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${elLabel(dmEl)} · TCM 5-flavor cycle`:`Ranked for ${elLabel(dmEl)} · TCM 5-flavor cycle`}</div>
         <div style="margin-top:14px">
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· บำรุงร่างคุณที่สุด':'· BEST FOR YOUR BODY'}</div>
           ${top3.map((it,idx) => `<div style="padding:9px 12px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:6px">
@@ -12977,8 +12977,8 @@ function renderProduct(){
     ],
     whyAvoid: [
       isTh
-        ? `สี/วัสดุใน "ควรเลี่ยง" เป็นธาตุที่ <em>ทำลาย</em> ${dmEl} ใน 5-element cycle — สร้าง ${tr.drains} เมื่ออยู่รอบตัวนานๆ`
-        : `Colours/materials in "avoid" belong to the element that <em>destroys</em> ${dmEl} in the 5-element cycle — prolonged exposure creates ${tr.drains}`,
+        ? `สี/วัสดุใน "ควรเลี่ยง" เป็นธาตุที่ <em>ทำลาย</em> ${elLabel(dmEl)} ใน 5-element cycle — สร้าง ${tr.drains} เมื่ออยู่รอบตัวนานๆ`
+        : `Colours/materials in "avoid" belong to the element that <em>destroys</em> ${elLabel(dmEl)} in the 5-element cycle — prolonged exposure creates ${tr.drains}`,
     ],
   });
 
@@ -12995,8 +12995,8 @@ function renderProduct(){
           textTh:`Archetype "คุณคือ" คัดจาก 4 ศาสตร์พร้อมกัน — BaZi Day Master (${chart.bazi.dayMasterTh}) + Nine Star Ki (สี ${starColor}) + ไทยพราหมณ์ (วัน${chart.thai?.dayName||'—'}) + Celtic ต้นไม้ — convergence ของทั้ง 4 = หนึ่ง archetype`,
           textEn:`The "you are like" archetype is filtered through 4 systems at once — BaZi Day Master (${chart.bazi.dayMasterTh}) + Nine Star Ki (${starColor}) + Thai Brahmin (${chart.thai?.dayName||'—'} day) + Celtic tree — their convergence = one archetype` },
         { labelTh:'5-ELEMENT CYCLE (MATERIALS)', labelEn:'5-ELEMENT CYCLE (MATERIALS)',
-          textTh:`วัสดุ/สี ที่ธาตุ <em>หล่อเลี้ยง</em> ${dmEl} ของคุณ = ดีที่สุด (+2) · ที่ <em>ทำลาย</em> ${dmEl} = AVOID (-2) — ใช้คัด 20 วัสดุจาก linen, wool, ceramic, marble, indigo silk...`,
-          textEn:`Materials/colors whose element <em>feeds</em> your ${dmEl} = best (+2) · that <em>destroys</em> ${dmEl} = AVOID (-2) — across 20 items from linen, wool, ceramic, marble, indigo silk...` },
+          textTh:`วัสดุ/สี ที่ธาตุ <em>หล่อเลี้ยง</em> ${elLabel(dmEl)} ของคุณ = ดีที่สุด (+2) · ที่ <em>ทำลาย</em> ${elLabel(dmEl)} = AVOID (-2) — ใช้คัด 20 วัสดุจาก linen, wool, ceramic, marble, indigo silk...`,
+          textEn:`Materials/colors whose element <em>feeds</em> your ${elLabel(dmEl)} = best (+2) · that <em>destroys</em> ${elLabel(dmEl)} = AVOID (-2) — across 20 items from linen, wool, ceramic, marble, indigo silk...` },
         { labelTh:'NSK STAR COLOR (ACCENT)', labelEn:'NSK STAR COLOR (ACCENT)',
           textTh:`สี Star ของคุณคือ <strong>${starColor}</strong> · ใช้เป็น accent (1 ชิ้น/วัน) กระตุ้นพลังส่วนตัว — ไม่ใช่สีหลักของชุด`,
           textEn:`Your Star color is <strong>${starColor}</strong> · used as a daily accent (1 piece) to trigger personal power — not the dominant outfit color` },
@@ -13032,7 +13032,7 @@ function renderProduct(){
     ) : ''}
 
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">🎨 ${isTh?'บุคลิกผลิตภัณฑ์':'Product personality'} — ${isTh?'ธาตุ':'Element'} ${dmEl}</div>
+      <div class="deep-sys-title">🎨 ${isTh?'บุคลิกผลิตภัณฑ์':'Product personality'} — ${isTh?'ธาตุ':'Element'} ${elLabel(dmEl)}</div>
       <div class="deep-sys-origin">NSK Star Color: ${starColor} · Cosmic Score: ${score}</div>
 
       <div style="margin-top:14px">
@@ -13088,7 +13088,7 @@ function renderProduct(){
       const top3 = ranked.slice(0,3), bot3 = ranked.slice(-3).reverse();
       return `<div class="deep-sys-card" style="margin-top:12px">
         <div class="deep-sys-title">🎨 ${isTh?'แผนที่วัสดุ/สี 20 ชนิด':'20-Material Compatibility Map'}</div>
-        <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${dmEl} · ใช้กับ wardrobe + interior`:`Ranked for ${dmEl} · wardrobe + interior`}</div>
+        <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${elLabel(dmEl)} · ใช้กับ wardrobe + interior`:`Ranked for ${elLabel(dmEl)} · wardrobe + interior`}</div>
         <div style="margin-top:14px">
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· เสริม aura':'· AMPLIFY YOUR AURA'}</div>
           ${top3.map((it,idx) => `<div style="padding:9px 12px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:6px">
@@ -18615,7 +18615,7 @@ ${(()=>{
     '<div style="padding:10px 14px;border-right:1px solid #1a1840">'+
     '<div style="font-size:11px;font-weight:700;color:#5a7a9a;margin-bottom:6px">BaZi วิเคราะห์ช่วงนี้</div>'+
     '<div style="font-size:12px;color:#7a6a52;line-height:1.9">• '+decadeBaZi[i]+'<br>'+
-    '• LP ธาตุ<strong style="color:'+lpQuality+'">'+lpEl+'</strong> vs Day Master ธาตุ<strong style="color:#d4aa50">'+dmEl+'</strong>:<br>&nbsp;&nbsp;<span style="color:'+lpQuality+'">'+lpRel+'</span></div>'+
+    '• LP ธาตุ<strong style="color:'+lpQuality+'">'+lpEl+'</strong> vs Day Master ธาตุ<strong style="color:#d4aa50">'+elLabel(dmEl)+'</strong>:<br>&nbsp;&nbsp;<span style="color:'+lpQuality+'">'+lpRel+'</span></div>'+
     '<div style="margin-top:7px;font-size:11px;font-weight:700;color:#9a6020">⏱ TIMING สำคัญ</div>'+
     '<div style="font-size:11px;color:#7a6a52;line-height:1.8;margin-top:3px">• '+decadeTiming[i].join('<br>• ')+'</div>'+
     '</div>'+
@@ -18838,7 +18838,7 @@ ${(()=>{
     {
       i:'🌿', t:'สุขภาพและพลังงานชีวิต',
       tags:['BaZi DM ธาตุ'+dmEl,'ธาตุที่ขาด: '+missingEl],
-      challenge: 'Day Master ธาตุ'+dmEl+' มีความเสี่ยงเรื้อรังในระบบที่ควบคุมโดยธาตุตรงข้าม '+(
+      challenge: 'Day Master ธาตุ'+elLabel(dmEl)+' มีความเสี่ยงเรื้อรังในระบบที่ควบคุมโดยธาตุตรงข้าม '+(
         dmEl==='ไฟ'?'หัวใจและระบบไหลเวียนโลหิตต้องระวัง ความร้อนสะสมในร่างกาย':
         dmEl==='ไม้'?'ตับและถุงน้ำดีต้องระวัง ความเครียดสะสมและความโกรธที่เก็บไว้':
         dmEl==='น้ำ'?'ไตและกระเพาะปัสสาวะต้องระวัง ความกลัวและความวิตกกังวลเรื้อรัง':
@@ -18861,11 +18861,11 @@ ${(()=>{
     {
       i:'🪞', t:'การรู้จักและยอมรับตัวเอง',
       tags:['Moon '+moon.th,'DM ธาตุ'+dmEl,'Life Path '+lPath],
-      challenge: 'ดวงจันทร์'+moon.th+' + Day Master ธาตุ'+dmEl+' สร้างแรงดึงภายใน: ต้องการ'+
+      challenge: 'ดวงจันทร์'+moon.th+' + Day Master ธาตุ'+elLabel(dmEl)+' สร้างแรงดึงภายใน: ต้องการ'+
         (moon.idx===0||moon.idx===4||moon.idx===8||moon.idx===11?'ความอิสระและการผจญภัย':
          moon.idx===1||moon.idx===5||moon.idx===9?'ความมั่นคงและความงดงาม':
          moon.idx===2||moon.idx===6||moon.idx===10?'ปัญญาและการสื่อสาร':'ความลึกซึ้งและความหมาย')+
-        ' แต่ธาตุ'+dmEl+(dmEl==='ไฟ'?' ผลักดันให้ลงมือ'  :dmEl==='ไม้'?' ผลักดันให้เติบโต':dmEl==='น้ำ'?' ผลักดันให้ไหลและปรับตัว':dmEl==='โลหะ'?' ผลักดันให้มีหลักการ':' ผลักดันให้มั่นคง')+
+        ' แต่ธาตุ'+elLabel(dmEl)+(dmEl==='ไฟ'?' ผลักดันให้ลงมือ'  :dmEl==='ไม้'?' ผลักดันให้เติบโต':dmEl==='น้ำ'?' ผลักดันให้ไหลและปรับตัว':dmEl==='โลหะ'?' ผลักดันให้มีหลักการ':' ผลักดันให้มั่นคง')+
         ' ความขัดแย้งนี้ทำให้รู้สึก "แตกต่างจากคนอื่น" ซึ่งเป็นจริง — คุณไม่ได้เป็นคนปกติ',
       action: 'สิ่งที่คุณคิดว่าเป็น "ความผิดปกติ" ของตัวเองจริงๆ แล้วคือจุดแข็งที่ยังไม่ได้รับการพัฒนา Life Path '+lPath+' "'+
         (LP_NAMES[lPath]||'ผู้แสวงหา')+'" คือพันธกิจที่คุณมาเพื่อทำ — ไม่ใช่ทำให้ดีพอสำหรับคนอื่น แต่ทำให้สำเร็จสำหรับตัวเอง',
