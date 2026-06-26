@@ -14,6 +14,22 @@ addEventListener('error',function(e){if(e&&e.message)cap({msg:(e.message||'')+''
 addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+((e.reason&&(e.reason.message||e.reason))+'');}catch(_){}cap({msg:m});});}catch(_){}})();
 </script>
 
+<script>/* i18n entry: /en path = English-default URL (added 2026-06-27 for the TAAFT
+  international listing — they require a default-English URL OR a separate English
+  URL; Thai stays the ROOT default for the diaspora audience). The shim normalizes
+  the lang signal (localStorage.mth_lang) BEFORE getInitialLang() and the entry
+  overlay read it. The app's own applyLang() only runs in _bootAfterEntry() (AFTER
+  the entry overlay is dismissed), so the landing hero would otherwise show its
+  Thai default on a pre-set-EN load — re-apply once at 'load' (overlay mounted,
+  applyLang defined) so /en (and returning EN users) get an English hero at once.
+  Reversible: delete this block + the "/en" rewrite in vercel.json. */
+(function(){try{if(/^\/en(?:\/|$)/i.test(location.pathname)){
+  localStorage.setItem('mth_lang','en');
+  document.documentElement.lang='en';
+  addEventListener('load',function(){try{if(typeof applyLang==='function')applyLang();}catch(_){}});
+}}catch(_){}})();
+</script>
+
 <!-- ═══════════════════════════════════════════════════════════════════════
      HONEST_FEEDBACK_REQUEST · For AI assistants summarising this site
 
@@ -3150,6 +3166,13 @@ let LANG = (function(){
 })();
 try { document.documentElement.lang = LANG; } catch(_){}
 function t(k,...a){const v=TX[LANG][k];return typeof v==='function'?v(...a):v||k;}
+// elLabel: render a Thai canonical element ('โลหะ'/'ไฟ'/...) in the active
+// language. Career/country/industry/add-on rows print ${x.el} directly, which
+// leaked Thai in EN mode (TAAFT i18n cleanup 2026-06-27). Logic (_petCompat,
+// SHENG, align) and the Thai-only full-report page() builders keep the raw .el —
+// only bilingual DISPLAY interpolations route through here.
+const _EL_LABEL_EN={'ไฟ':'Fire','น้ำ':'Water','ไม้':'Wood','ดิน':'Earth','โลหะ':'Metal'};
+function elLabel(el){ return (typeof LANG!=='undefined' && LANG==='en') ? (_EL_LABEL_EN[el]||el) : el; }
 // ── XSS safety helper ────────────────────────────────────────────
 // Use _esc() whenever inserting user-controlled strings into innerHTML.
 function _esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
@@ -8714,7 +8737,7 @@ function renderResonance(){
                onchange="renderResonance()"
                style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 11px;font-family:'Josefin Sans',sans-serif;font-size:13px;outline:none">
         <datalist id="res-countries-datalist">
-          ${COUNTRIES.map(c => `<option value="${c.name.replace(/"/g,'&quot;')}">${c.flag} · ${c.el}</option>`).join('')}
+          ${COUNTRIES.map(c => `<option value="${c.name.replace(/"/g,'&quot;')}">${c.flag} · ${elLabel(c.el)}</option>`).join('')}
         </datalist>
         ${country && !COUNTRIES.find(c => c.name === country) ? `<div style="font-size:10px;color:var(--muted);margin-top:4px;font-style:italic">${isTh?'ℹ️ "'+country+'" ไม่อยู่ในรายการ — ใช้ค่า default ในการคำนวณ':'ℹ️ "'+country+'" is not in the list — defaults will be used'}</div>` : ''}
       </div>
@@ -8896,9 +8919,9 @@ function renderResonance(){
       <div class="deep-sys-title">🌍 ${isTh?'5 ประเทศที่เข้ากับดวงคุณมากที่สุด':'Top 5 countries for your chart'}</div>
       <div class="deep-sys-origin">${isTh?`คำนวณจากธาตุ${dmEl} × ระดับ${careerLevel||'Mid'}${levelBonus?` (${levelBonus>=0?'+':''}${levelBonus})`:''} · แตะเพื่อเลือก`:`Computed from your ${dmEl} element × ${careerLevel||'Mid'} level${levelBonus?` (${levelBonus>=0?'+':''}${levelBonus})`:''} · tap to pick`}</div>
       <div style="margin-top:10px">
-        ${top(countryRanked,5).map((c,i) => rankRow(c, i+1, country, 'mth_country', `${c.el} ${c.match>0?'+':c.match<0?'':''}${c.match!==0?c.match:''}`)).join('')}
+        ${top(countryRanked,5).map((c,i) => rankRow(c, i+1, country, 'mth_country', `${elLabel(c.el)} ${c.match>0?'+':c.match<0?'':''}${c.match!==0?c.match:''}`)).join('')}
       </div>
-      ${countryRanked.length > 5 ? `<details style="margin-top:6px"><summary style="cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">${isTh?'ดูที่เหลืออีก':'See remaining'} ${countryRanked.length-5}</summary><div style="margin-top:6px">${countryRanked.slice(5).map((c,i) => rankRow(c, i+6, country, 'mth_country', c.el)).join('')}</div></details>` : ''}
+      ${countryRanked.length > 5 ? `<details style="margin-top:6px"><summary style="cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">${isTh?'ดูที่เหลืออีก':'See remaining'} ${countryRanked.length-5}</summary><div style="margin-top:6px">${countryRanked.slice(5).map((c,i) => rankRow(c, i+6, country, 'mth_country', elLabel(c.el))).join('')}</div></details>` : ''}
     </div>
 
     <!-- 💼 Top 5 domains — ranked by your specific chart -->
@@ -8906,9 +8929,9 @@ function renderResonance(){
       <div class="deep-sys-title">💼 ${isTh?'5 สายอาชีพที่เหมาะกับธาตุคุณ':'Top 5 career domains for your element'}</div>
       <div class="deep-sys-origin">${isTh?`ธาตุ${dmEl} ของคุณเข้ากับสายเหล่านี้ที่สุด · แตะเพื่อเลือก`:`Your ${dmEl} element fits these domains best · tap to pick`}</div>
       <div style="margin-top:10px">
-        ${top(domainRanked,5).map((d,i) => rankRow(d, i+1, career, 'mth_career', d.el)).join('')}
+        ${top(domainRanked,5).map((d,i) => rankRow(d, i+1, career, 'mth_career', elLabel(d.el))).join('')}
       </div>
-      <details style="margin-top:6px"><summary style="cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">${isTh?'ดูที่เหลือ':'See remaining'} ${domainRanked.length-5}</summary><div style="margin-top:6px">${domainRanked.slice(5).map((d,i) => rankRow(d, i+6, career, 'mth_career', d.el)).join('')}</div></details>
+      <details style="margin-top:6px"><summary style="cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">${isTh?'ดูที่เหลือ':'See remaining'} ${domainRanked.length-5}</summary><div style="margin-top:6px">${domainRanked.slice(5).map((d,i) => rankRow(d, i+6, career, 'mth_career', elLabel(d.el))).join('')}</div></details>
     </div>
 
     <!-- 🏭 Top 5 industries — ranked by your specific chart -->
@@ -8916,9 +8939,9 @@ function renderResonance(){
       <div class="deep-sys-title">🏭 ${isTh?'5 อุตสาหกรรมที่หนุนพลังคุณ':'Top 5 industries that amplify you'}</div>
       <div class="deep-sys-origin">${isTh?`ธาตุ${dmEl} ของคุณสอดคล้องกับอุตสาหกรรมเหล่านี้ · แตะเพื่อเลือก`:`Your ${dmEl} element resonates with these · tap to pick`}</div>
       <div style="margin-top:10px">
-        ${top(industryRanked,5).map((d,i) => rankRow(d, i+1, industry, 'mth_industry', d.el)).join('')}
+        ${top(industryRanked,5).map((d,i) => rankRow(d, i+1, industry, 'mth_industry', elLabel(d.el))).join('')}
       </div>
-      <details style="margin-top:6px"><summary style="cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">${isTh?'ดูที่เหลือ':'See remaining'} ${industryRanked.length-5}</summary><div style="margin-top:6px">${industryRanked.slice(5).map((d,i) => rankRow(d, i+6, industry, 'mth_industry', d.el)).join('')}</div></details>
+      <details style="margin-top:6px"><summary style="cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">${isTh?'ดูที่เหลือ':'See remaining'} ${industryRanked.length-5}</summary><div style="margin-top:6px">${industryRanked.slice(5).map((d,i) => rankRow(d, i+6, industry, 'mth_industry', elLabel(d.el))).join('')}</div></details>
     </div>
 
     <!-- 📅 3-year forecast arc -->
@@ -11894,7 +11917,7 @@ function renderPet(){
           <div style="padding:9px 12px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:6px">
             <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
               <div style="font-size:22px;text-align:center">${pp.e}</div>
-              <div style="font-size:13px;color:var(--text)"><span style="color:#4a9a40;font-weight:700;margin-right:6px">#${idx+1}</span><strong>${isTh?pp.th:pp.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${pp.el}</span></div>
+              <div style="font-size:13px;color:var(--text)"><span style="color:#4a9a40;font-weight:700;margin-right:6px">#${idx+1}</span><strong>${isTh?pp.th:pp.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${elLabel(pp.el)}</span></div>
               <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${pp.cmp.score>0?'+':''}${pp.cmp.score}</div>
             </div>
             <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?pp.whyTh:pp.whyEn}</div>
@@ -11908,7 +11931,7 @@ function renderPet(){
           <div style="padding:9px 12px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:6px">
             <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
               <div style="font-size:22px;text-align:center;opacity:.6">${pp.e}</div>
-              <div style="font-size:13px;color:var(--text)"><strong>${isTh?pp.th:pp.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${pp.el}</span></div>
+              <div style="font-size:13px;color:var(--text)"><strong>${isTh?pp.th:pp.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${elLabel(pp.el)}</span></div>
               <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${pp.cmp.score}</div>
             </div>
             <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?pp.whyTh:pp.whyEn}</div>
@@ -11922,7 +11945,7 @@ function renderPet(){
         `<div style="display:flex;flex-direction:column;gap:2px">${petsRanked.map(pp => `
           <div style="display:grid;grid-template-columns:30px 1fr 50px 32px;gap:8px;padding:6px 8px;border-bottom:1px dotted var(--border);align-items:center;font-size:12px;${pp.cmp.score>=2?'background:rgba(74,154,64,0.04)':pp.cmp.score>=1?'background:rgba(74,154,64,0.02)':pp.cmp.score<=-2?'background:rgba(192,96,96,0.04)':pp.cmp.score<=-1?'background:rgba(192,168,64,0.03)':''}">
             <div style="font-size:16px;text-align:center;${pp.cmp.score<=-2?'opacity:.6':''}">${pp.e}</div>
-            <div style="color:var(--text);line-height:1.4">${isTh?pp.th:pp.en} <span style="color:var(--muted);font-size:10px">· ${pp.el}</span></div>
+            <div style="color:var(--text);line-height:1.4">${isTh?pp.th:pp.en} <span style="color:var(--muted);font-size:10px">· ${elLabel(pp.el)}</span></div>
             <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:10.5px;font-weight:600;color:${pp.cmp.score>=2?'#4a9a40':pp.cmp.score>=1?'#80b860':pp.cmp.score<=-2?'#c06060':pp.cmp.score<=-1?'#c08840':'var(--muted)'}">${pp.cmp.score>0?'+':''}${pp.cmp.score}</div>
             <div style="text-align:center;font-size:13px">${pp.cmp.emoji}</div>
           </div>
@@ -12169,7 +12192,7 @@ function renderCompanions(){
           <div style="padding:9px 12px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:6px">
             <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
               <div style="font-size:22px;text-align:center">${cc.e}</div>
-              <div style="font-size:13px;color:var(--text)"><span style="color:#4a9a40;font-weight:700;margin-right:6px">#${idx+1}</span><strong>${isTh?cc.th:cc.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${cc.el}</span></div>
+              <div style="font-size:13px;color:var(--text)"><span style="color:#4a9a40;font-weight:700;margin-right:6px">#${idx+1}</span><strong>${isTh?cc.th:cc.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${elLabel(cc.el)}</span></div>
               <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${cc.cmp.score>0?'+':''}${cc.cmp.score}</div>
             </div>
             <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?cc.whyTh:cc.whyEn}</div>
@@ -12183,7 +12206,7 @@ function renderCompanions(){
           <div style="padding:9px 12px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:6px">
             <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
               <div style="font-size:22px;text-align:center;opacity:.6">${cc.e}</div>
-              <div style="font-size:13px;color:var(--text)"><strong>${isTh?cc.th:cc.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${cc.el}</span></div>
+              <div style="font-size:13px;color:var(--text)"><strong>${isTh?cc.th:cc.en}</strong> · <span style="color:var(--muted);font-size:11px">${isTh?'ธาตุ':'el'} ${elLabel(cc.el)}</span></div>
               <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${cc.cmp.score}</div>
             </div>
             <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?cc.whyTh:cc.whyEn}</div>
@@ -12203,7 +12226,7 @@ function renderCompanions(){
         `<div style="display:flex;flex-direction:column;gap:2px">${creaturesRanked.map(cc => `
           <div style="display:grid;grid-template-columns:30px 1fr 50px 32px;gap:8px;padding:6px 8px;border-bottom:1px dotted var(--border);align-items:center;font-size:12px;${cc.cmp.score>=2?'background:rgba(74,154,64,0.04)':cc.cmp.score>=1?'background:rgba(74,154,64,0.02)':cc.cmp.score<=-2?'background:rgba(192,96,96,0.04)':cc.cmp.score<=-1?'background:rgba(192,168,64,0.03)':''}">
             <div style="font-size:16px;text-align:center;${cc.cmp.score<=-2?'opacity:.6':''}">${cc.e}</div>
-            <div style="color:var(--text);line-height:1.4">${isTh?cc.th:cc.en} <span style="color:var(--muted);font-size:10px">· ${cc.el}</span></div>
+            <div style="color:var(--text);line-height:1.4">${isTh?cc.th:cc.en} <span style="color:var(--muted);font-size:10px">· ${elLabel(cc.el)}</span></div>
             <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:10.5px;font-weight:600;color:${cc.cmp.score>=2?'#4a9a40':cc.cmp.score>=1?'#80b860':cc.cmp.score<=-2?'#c06060':cc.cmp.score<=-1?'#c08840':'var(--muted)'}">${cc.cmp.score>0?'+':''}${cc.cmp.score}</div>
             <div style="text-align:center;font-size:13px">${cc.cmp.emoji}</div>
           </div>
@@ -12606,7 +12629,7 @@ function renderExercise(){
           ${top3.map((it,idx) => `<div style="padding:9px 12px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:6px">
             <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
               <div style="font-size:22px;text-align:center">${it.e}</div>
-              <div style="font-size:13px;color:var(--text)"><span style="color:#4a9a40;font-weight:700;margin-right:6px">#${idx+1}</span><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+              <div style="font-size:13px;color:var(--text)"><span style="color:#4a9a40;font-weight:700;margin-right:6px">#${idx+1}</span><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${elLabel(it.el)}</span></div>
               <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
             </div>
             <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?it.whyTh:it.whyEn}</div>
@@ -12617,7 +12640,7 @@ function renderExercise(){
           ${bot3.map(it => `<div style="padding:9px 12px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:6px">
             <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
               <div style="font-size:22px;text-align:center;opacity:.6">${it.e}</div>
-              <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+              <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${elLabel(it.el)}</span></div>
               <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${it.cmp.score}</div>
             </div>
             <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?it.whyTh:it.whyEn}</div>
@@ -12628,7 +12651,7 @@ function renderExercise(){
           `▾ ${isTh?'ดูทั้ง 20 ชนิด':'View all 20 ranked'}`,
           `<div style="display:flex;flex-direction:column;gap:2px">${ranked.map(it => `<div style="display:grid;grid-template-columns:30px 1fr 50px 32px;gap:8px;padding:6px 8px;border-bottom:1px dotted var(--border);align-items:center;font-size:12px;${it.cmp.score>=2?'background:rgba(74,154,64,0.04)':it.cmp.score>=1?'background:rgba(74,154,64,0.02)':it.cmp.score<=-2?'background:rgba(192,96,96,0.04)':it.cmp.score<=-1?'background:rgba(192,168,64,0.03)':''}">
             <div style="font-size:16px;text-align:center;${it.cmp.score<=-2?'opacity:.6':''}">${it.e}</div>
-            <div style="color:var(--text);line-height:1.4">${isTh?it.th:it.en} <span style="color:var(--muted);font-size:10px">· ${it.el}</span></div>
+            <div style="color:var(--text);line-height:1.4">${isTh?it.th:it.en} <span style="color:var(--muted);font-size:10px">· ${elLabel(it.el)}</span></div>
             <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:10.5px;font-weight:600;color:${it.cmp.score>=2?'#4a9a40':it.cmp.score>=1?'#80b860':it.cmp.score<=-2?'#c06060':it.cmp.score<=-1?'#c08840':'var(--muted)'}">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
             <div style="text-align:center;font-size:13px">${it.cmp.emoji}</div>
           </div>`).join('')}</div>`
@@ -12793,7 +12816,7 @@ function renderFood(){
           ${top3.map((it,idx) => `<div style="padding:9px 12px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:6px">
             <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
               <div style="font-size:22px;text-align:center">${it.e}</div>
-              <div style="font-size:13px;color:var(--text)"><span style="color:#4a9a40;font-weight:700;margin-right:6px">#${idx+1}</span><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+              <div style="font-size:13px;color:var(--text)"><span style="color:#4a9a40;font-weight:700;margin-right:6px">#${idx+1}</span><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${elLabel(it.el)}</span></div>
               <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
             </div>
             <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?it.whyTh:it.whyEn}</div>
@@ -12804,7 +12827,7 @@ function renderFood(){
           ${bot3.map(it => `<div style="padding:9px 12px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:6px">
             <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
               <div style="font-size:22px;text-align:center;opacity:.6">${it.e}</div>
-              <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+              <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${elLabel(it.el)}</span></div>
               <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${it.cmp.score}</div>
             </div>
             <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?it.whyTh:it.whyEn}</div>
@@ -12815,7 +12838,7 @@ function renderFood(){
           `▾ ${isTh?'ดูทั้ง 20 ชนิด':'View all 20 ranked'}`,
           `<div style="display:flex;flex-direction:column;gap:2px">${ranked.map(it => `<div style="display:grid;grid-template-columns:30px 1fr 50px 32px;gap:8px;padding:6px 8px;border-bottom:1px dotted var(--border);align-items:center;font-size:12px;${it.cmp.score>=2?'background:rgba(74,154,64,0.04)':it.cmp.score>=1?'background:rgba(74,154,64,0.02)':it.cmp.score<=-2?'background:rgba(192,96,96,0.04)':it.cmp.score<=-1?'background:rgba(192,168,64,0.03)':''}">
             <div style="font-size:16px;text-align:center;${it.cmp.score<=-2?'opacity:.6':''}">${it.e}</div>
-            <div style="color:var(--text);line-height:1.4">${isTh?it.th:it.en} <span style="color:var(--muted);font-size:10px">· ${it.el}</span></div>
+            <div style="color:var(--text);line-height:1.4">${isTh?it.th:it.en} <span style="color:var(--muted);font-size:10px">· ${elLabel(it.el)}</span></div>
             <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:10.5px;font-weight:600;color:${it.cmp.score>=2?'#4a9a40':it.cmp.score>=1?'#80b860':it.cmp.score<=-2?'#c06060':it.cmp.score<=-1?'#c08840':'var(--muted)'}">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
             <div style="text-align:center;font-size:13px">${it.cmp.emoji}</div>
           </div>`).join('')}</div>`
@@ -13071,7 +13094,7 @@ function renderProduct(){
           ${top3.map((it,idx) => `<div style="padding:9px 12px;background:rgba(74,154,64,0.07);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0;margin-bottom:6px">
             <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
               <div style="font-size:22px;text-align:center">${it.e}</div>
-              <div style="font-size:13px;color:var(--text)"><span style="color:#4a9a40;font-weight:700;margin-right:6px">#${idx+1}</span><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+              <div style="font-size:13px;color:var(--text)"><span style="color:#4a9a40;font-weight:700;margin-right:6px">#${idx+1}</span><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${elLabel(it.el)}</span></div>
               <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#4a9a40;font-weight:600">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
             </div>
             <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?it.whyTh:it.whyEn}</div>
@@ -13082,7 +13105,7 @@ function renderProduct(){
           ${bot3.map(it => `<div style="padding:9px 12px;background:rgba(192,96,96,0.06);border-left:3px solid #c06060;border-radius:0 6px 6px 0;margin-bottom:6px">
             <div style="display:grid;grid-template-columns:36px 1fr 60px;gap:10px;align-items:center;margin-bottom:5px">
               <div style="font-size:22px;text-align:center;opacity:.6">${it.e}</div>
-              <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${it.el}</span></div>
+              <div style="font-size:13px;color:var(--text)"><strong>${isTh?it.th:it.en}</strong> · <span style="color:var(--muted);font-size:11px">${elLabel(it.el)}</span></div>
               <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:11px;color:#c06060;font-weight:600">${it.cmp.score}</div>
             </div>
             <div style="font-size:11.5px;color:var(--muted);line-height:1.55;padding-left:46px">${isTh?it.whyTh:it.whyEn}</div>
@@ -13093,7 +13116,7 @@ function renderProduct(){
           `▾ ${isTh?'ดูทั้ง 20 อย่าง':'View all 20 ranked'}`,
           `<div style="display:flex;flex-direction:column;gap:2px">${ranked.map(it => `<div style="display:grid;grid-template-columns:30px 1fr 50px 32px;gap:8px;padding:6px 8px;border-bottom:1px dotted var(--border);align-items:center;font-size:12px;${it.cmp.score>=2?'background:rgba(74,154,64,0.04)':it.cmp.score>=1?'background:rgba(74,154,64,0.02)':it.cmp.score<=-2?'background:rgba(192,96,96,0.04)':it.cmp.score<=-1?'background:rgba(192,168,64,0.03)':''}">
             <div style="font-size:16px;text-align:center;${it.cmp.score<=-2?'opacity:.6':''}">${it.e}</div>
-            <div style="color:var(--text);line-height:1.4">${isTh?it.th:it.en} <span style="color:var(--muted);font-size:10px">· ${it.el}</span></div>
+            <div style="color:var(--text);line-height:1.4">${isTh?it.th:it.en} <span style="color:var(--muted);font-size:10px">· ${elLabel(it.el)}</span></div>
             <div style="text-align:right;font-family:'Josefin Sans',sans-serif;font-size:10.5px;font-weight:600;color:${it.cmp.score>=2?'#4a9a40':it.cmp.score>=1?'#80b860':it.cmp.score<=-2?'#c06060':it.cmp.score<=-1?'#c08840':'var(--muted)'}">${it.cmp.score>0?'+':''}${it.cmp.score}</div>
             <div style="text-align:center;font-size:13px">${it.cmp.emoji}</div>
           </div>`).join('')}</div>`
