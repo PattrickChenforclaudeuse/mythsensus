@@ -2057,9 +2057,14 @@ try{
       <!-- Post-draw upsell → the full 26-system reading. Shown only to visitors with no
            saved DOB, so a cold draw-first visitor discovers the core product instead of
            dead-ending on the daily blessing (the likely reason draw-first was reverted). -->
-      <div id="godUpsell" style="display:none;margin:20px auto 2px;max-width:340px;padding:14px 16px;border:1px solid var(--gold3);border-radius:12px;background:linear-gradient(180deg,rgba(200,164,90,.07),rgba(200,164,90,.015))">
-        <div id="godUpsellText" style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13.5px;color:var(--text);line-height:1.6;margin-bottom:10px">นี่คือพรประจำวัน — อยากรู้ไหมว่า <strong style="color:var(--gold2)">26 ศาสตร์</strong> เห็นตรงกันเรื่องอะไรในตัว <strong>คุณ</strong>?</div>
-        <button id="godUpsellBtn" onclick="_drawUpsellToFull()" style="font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1px;font-weight:700;background:transparent;color:var(--gold);border:1px solid var(--gold);padding:10px 22px;border-radius:8px;cursor:pointer">🔮 ดูดวงเต็มจาก 26 ศาสตร์ · ใส่วันเกิด →</button>
+      <div id="godUpsell" style="display:none;margin:20px auto 2px;max-width:360px;padding:14px 16px;border:1px solid var(--gold3);border-radius:12px;background:linear-gradient(180deg,rgba(200,164,90,.07),rgba(200,164,90,.015))">
+        <div id="godUpsellText" style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13.5px;color:var(--text);line-height:1.6;margin-bottom:11px;text-align:center">เทพองค์นี้เลือกมาหาคุณวันนี้ — อยากรู้ไหมว่าตรงกับ <strong style="color:var(--gold2)">ดวงจริง</strong> ของคุณหรือเปล่า?</div>
+        <div id="godUpsellForm" style="display:flex;gap:7px">
+          <input type="date" id="godUpsellDob" style="flex:1;min-width:0;background:var(--bg);border:1px solid var(--gold3);border-radius:8px;color:var(--text);font-family:inherit;font-size:14px;padding:9px 10px;color-scheme:dark">
+          <button id="godUpsellBtn" onclick="_drawUpsellReveal()" style="font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1px;font-weight:700;background:var(--gold);color:var(--bg);border:none;padding:9px 16px;border-radius:8px;cursor:pointer;white-space:nowrap">ดูเลย →</button>
+        </div>
+        <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:7px">ใส่แค่วันเกิด · ไม่ต้องสมัคร · ฟรี</div>
+        <div id="godTeaser" style="display:none"></div>
       </div>
     </div>
     <div class="history-list" id="historyList"></div>
@@ -4074,16 +4079,67 @@ function _drawUpsellToFull(){
   try { window.scrollTo(0,0); } catch(_){}
   try { if (window._msTrack && typeof _msTrack.track==='function') _msTrack.track('upsell_click'); } catch(_){}
 }
+// Post-draw teaser — compute a partial chart from DATE ONLY (Bangkok-noon
+// default, exactly like _getMS26ChartFromProfile / pets) and reveal Cosmic
+// Score + element inline. This replaces the old "bounce straight to the 6-field
+// wall" flow (which got 0/18 clicks). Hour-dependent reads (rising, hour pillar)
+// are deferred — the "ดูเต็ม" CTA still opens the full form for those.
+function _drawUpsellReveal(){
+  const isTh=(typeof LANG==='undefined')||LANG==='th';
+  const dob=(document.getElementById('godUpsellDob')||{}).value;
+  if(!dob){ try{ document.getElementById('godUpsellDob').focus(); }catch(_){}; return; }
+  const [y,m,d]=dob.split('-').map(Number);
+  if(!y||!m||!d){ alert(isTh?'วันเกิดไม่ถูกต้อง':'Invalid birth date'); return; }
+  if(!window.MS26||typeof window.MS26.calculate!=='function'){ _drawUpsellToFull(); return; }
+  let chart=null;
+  try{ chart=window.MS26.calculate({ name:isTh?'คุณ':'You', gender:'', year:y, month:m, day:d, hour:12, minute:0, lat:13.75, lon:100.5, timezone:7, lang:LANG }); }
+  catch(e){ console.error('upsell teaser calc failed', e); }
+  if(!chart||!chart.score){ _drawUpsellToFull(); return; }
+  try{ localStorage.setItem('mth_dob',dob); }catch(_){}
+  try{ if(window._msTrack&&typeof _msTrack.track==='function') _msTrack.track('upsell_dob_submit'); }catch(_){}
+  const score=chart.score.total||chart.score.cosmicFinal||chart.score.soulFrequency||0;
+  const el=(chart.bazi&&chart.bazi.dayMasterElement)||'';
+  const elMap=isTh
+    ? {'ไฟ':'🔥 ธาตุไฟ · พลังจุดประกาย','น้ำ':'🌊 ธาตุน้ำ · สัญชาตญาณลึก','ไม้':'🌿 ธาตุไม้ · เติบโตไม่หยุด','ดิน':'⛰️ ธาตุดิน · มั่นคงเป็นหลัก','โลหะ':'⚙️ ธาตุโลหะ · เฉียบคมมีวินัย'}
+    : {'ไฟ':'🔥 Fire · the spark','น้ำ':'🌊 Water · deep instinct','ไม้':'🌿 Wood · ever-growing','ดิน':'⛰️ Earth · the anchor','โลหะ':'⚙️ Metal · sharp & disciplined'};
+  const elTxt=elMap[el]||(el?('✦ '+el):'');
+  const gname=(typeof _currentDraw!=='undefined'&&_currentDraw&&_currentDraw.god&&_currentDraw.god.name)?_currentDraw.god.name:'';
+  const form=document.getElementById('godUpsellForm'); if(form) form.style.display='none';
+  const txt=document.getElementById('godUpsellText'); if(txt) txt.style.display='none';
+  const t=document.getElementById('godTeaser'); if(!t){ _drawUpsellToFull(); return; }
+  const EL_EN={'ไฟ':'Fire','น้ำ':'Water','ไม้':'Wood','ดิน':'Earth','โลหะ':'Metal'};
+  const elNm=isTh?(el?('ธาตุ'+el):''):(EL_EN[el]||'');
+  const matchLine = gname
+    ? (isTh
+       ? ('ดวงคุณเด่น'+(elNm?'<strong style="color:var(--gold2)">'+esc(elNm)+'</strong>':'พลังเฉพาะตัว')+' — เทพ <strong style="color:var(--gold2)">'+esc(gname)+'</strong> ที่จั่วได้สะท้อนพลังนี้พอดี ✦')
+       : ('Your chart leans '+(elNm?'<strong style="color:var(--gold2)">'+elNm+'</strong>':'a unique blend')+' — <strong style="color:var(--gold2)">'+esc(gname)+'</strong> mirrors it perfectly ✦'))
+    : (isTh?'นี่คือพลังหลักในดวงของคุณ ✦':'This is your core chart energy ✦');
+  const ctaTxt=isTh?'ดูเต็ม 26 ศาสตร์เห็นตรงกันเรื่องอะไร →':'See what all 26 systems agree on →';
+  const moreTxt=isTh?'ใส่เวลา-เมืองเกิดเพื่อแม่นขึ้น (rising, ชั่วโมงเกิด)':'Add birth time & city for full accuracy (rising, hour pillar)';
+  t.innerHTML='<div style="text-align:center">'
+    +'<div style="font-size:10px;letter-spacing:2px;color:var(--gold2);margin-bottom:3px">COSMIC SCORE</div>'
+    +'<div style="font-family:\'Cinzel Decorative\',serif;font-size:30px;color:var(--gold);line-height:1.1">'+score+'</div>'
+    +(elTxt?('<div style="font-size:12.5px;color:var(--text);margin-top:5px">'+elTxt+'</div>'):'')
+    +(matchLine?('<div style="font-size:12.5px;color:var(--text);margin:11px 0;line-height:1.6">'+matchLine+'</div>'):'<div style="margin-top:11px"></div>')
+    +'<button onclick="_drawUpsellToFull()" style="width:100%;font-family:\'Josefin Sans\',sans-serif;font-size:12.5px;letter-spacing:1px;font-weight:700;background:transparent;color:var(--gold);border:1px solid var(--gold);padding:11px;border-radius:8px;cursor:pointer">'+ctaTxt+'</button>'
+    +'<div style="font-size:10px;color:var(--muted);margin-top:7px">'+moreTxt+'</div>'
+    +'</div>';
+  t.style.display='block';
+}
 function _maybeShowDrawUpsell(){
   const u=document.getElementById('godUpsell'); if(!u) return;
   let hasDob=false; try{ hasDob=!!localStorage.getItem('mth_dob'); }catch(_){}
   if (hasDob){ u.style.display='none'; return; }
   const isTh=(typeof LANG==='undefined')||LANG==='th';
-  const tx=document.getElementById('godUpsellText'), bt=document.getElementById('godUpsellBtn');
+  const gname=(typeof _currentDraw!=='undefined'&&_currentDraw&&_currentDraw.god&&_currentDraw.god.name)?_currentDraw.god.name:(isTh?'เทพองค์นี้':'this deity');
+  const tx=document.getElementById('godUpsellText');
   if (tx) tx.innerHTML = isTh
-    ? 'นี่คือพรประจำวัน — อยากรู้ไหมว่า <strong style="color:var(--gold2)">26 ศาสตร์</strong> เห็นตรงกันเรื่องอะไรในตัว <strong>คุณ</strong>?'
-    : 'This is today\'s blessing — want to see what <strong style="color:var(--gold2)">26 systems</strong> agree on about <strong>you</strong>?';
-  if (bt) bt.textContent = isTh ? '🔮 ดูดวงเต็มจาก 26 ศาสตร์ · ใส่วันเกิด →' : '🔮 Get your full 26-system reading · enter birth date →';
+    ? '<strong style="color:var(--gold2)">26 ศาสตร์โบราณ</strong> รู้ว่าทำไม <strong style="color:var(--gold2)">'+esc(gname)+'</strong> ถึงเลือกคุณวันนี้ — ใส่วันเกิด เดี๋ยวเฉลย ✦'
+    : '<strong style="color:var(--gold2)">26 ancient systems</strong> know why <strong style="color:var(--gold2)">'+esc(gname)+'</strong> chose you today — enter your birth date to find out ✦';
+  const form=document.getElementById('godUpsellForm'), tease=document.getElementById('godTeaser');
+  if (form) form.style.display='flex';
+  if (tx) tx.style.display='block';
+  if (tease){ tease.style.display='none'; tease.innerHTML=''; }
   u.style.display='block';
 }
 
