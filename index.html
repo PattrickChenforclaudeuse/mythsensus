@@ -4131,7 +4131,7 @@ function _godArtInto(el, god, sizePx, extraCss){
   if (!url) { el.innerHTML=''; el.textContent = god.symbol || '✦'; showLabs(true); return; }
   el.innerHTML=''; el.style.cssText='margin:0 auto';
   const wrap = document.createElement('div');
-  wrap.style.cssText = 'position:relative;display:inline-block;width:300px;max-width:80vw;border-radius:12px;overflow:hidden;line-height:0';
+  wrap.style.cssText = 'position:relative;display:block;width:100%;max-width:340px;margin:0 auto;border-radius:12px;overflow:hidden;line-height:0;box-shadow:0 10px 40px rgba(0,0,0,.45)';
   const im = document.createElement('img'); im.src = url; im.alt = god.name; im.decoding = 'async';
   im.style.cssText = 'width:100%;display:block';
   im.onerror = ()=>{ el.innerHTML=''; el.textContent = god.symbol || '✦'; showLabs(true); };
@@ -10142,9 +10142,9 @@ function renderCollection(){
         const T = TIERS.find(x => x.name === info.tier) || {color:'var(--gold)'};
         const esc = name.replace(/'/g, "\\'");
         const catChip = (typeof _godCategoryChips === 'function' && _godByName[name]) ? _godCategoryChips(_godByName[name], 1) : '';
-        const art = (typeof _godArtUrl === 'function') ? _godArtUrl(name, info.tier) : null;
+        const art = (typeof _cardUrl === 'function') ? _cardUrl({ name, tier: info.tier }) : null;
         const symCell = art
-          ? `<img src="${art}" alt="" loading="lazy" style="width:76px;height:76px;border-radius:6px;image-rendering:pixelated" onerror="this.replaceWith(document.createTextNode('${info.symbol}'))">`
+          ? `<img src="${art}" alt="" loading="lazy" style="width:100%;max-width:118px;aspect-ratio:2/3;object-fit:cover;border-radius:8px;display:block;margin:2px auto 0" onerror="this.replaceWith(document.createTextNode('${info.symbol}'))">`
           : info.symbol;
         return `<div onclick="openGodDetail('${esc}')" role="button" tabindex="0" aria-label="${esc} — ${info.tier}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openGodDetail('${esc}')}" style="background:var(--bg2);border:1px solid var(--border);border-top:2px solid ${T.color};border-radius:6px;padding:14px 10px;text-align:center;cursor:pointer;overflow:hidden;transition:transform .15s,border-color .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='var(--gold3)'" onmouseout="this.style.transform='';this.style.borderColor='var(--border)'" onfocus="this.style.borderColor='var(--gold3)'" onblur="this.style.borderColor='var(--border)'">
           <div style="font-size:34px;margin-bottom:6px;line-height:1">${symCell}</div>
