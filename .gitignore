@@ -18,3 +18,8 @@ _audit-screens-*/
 # Backup snapshots written by data-enrich + inject scripts before destructive ops.
 data/gods.json.pre-*.bak
 build/ms26-bundle.js.pre-*.bak
+# Secrets — vercel env pull writes .env / .env.* here; NEVER commit.
+.env
+.env.*
+# Pre-deploy backup snapshots (large; keep local only).
+_backups/

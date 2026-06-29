@@ -1346,6 +1346,26 @@ function _webShareText() {
  * _webShareUrl/_webShareText and provides a "📱 Share…" entry that fires
  * _webShareNative for users who still want the OS sheet.
  */
+// Share the actual CARD IMAGE (the viral unit) via the native share sheet when
+// supported (mobile), else download it + open the link menu. The card webp is
+// public on the woam CDN, so the real artwork travels — not just a link.
+async function _shareCardImage(){
+  try{
+    const g = (typeof _currentDraw !== 'undefined' && _currentDraw) ? _currentDraw.god : null;
+    const url = g ? _cardUrl(g) : null;
+    if (!url) { _shareDraw(); return; }
+    try { if (window._msTrack) _msTrack.track('share', { god: g.name, meta: { ch: 'image' } }); } catch(_){}
+    const blob = await (await fetch(url, { mode: 'cors' })).blob();
+    const file = new File([blob], (g.name || 'mythsensus') + '-card.webp', { type: 'image/webp' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], text: _webShareText(), url: _webShareUrl() });
+    } else {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>{ try{ _webShareToggle(document.getElementById('godShareBtn')); }catch(_){} }, 300);
+    }
+  } catch(_){ try{ _shareDraw(); }catch(__){} }
+}
 function _shareDraw() {
   try { if (typeof _logEngagement === 'function') _logEngagement('share_draw_click'); } catch(_) {}
   // Pass the godShareBtn as the anchor so the menu opens just under the
@@ -2069,7 +2089,7 @@ try{
       <div class="god-message" id="godMessage"></div>
       <div id="godLucky" style="display:none;margin:14px auto 2px;max-width:300px;padding:10px 14px;border:1px dashed var(--gold3);border-radius:10px;background:linear-gradient(180deg,rgba(200,164,90,.08),rgba(200,164,90,.02))"></div>
       <div class="god-represents" id="godRepresents"></div>
-      <button id="godShareBtn" onclick="_shareDraw()" style="display:none;margin-top:18px;font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1.5px;font-weight:700;background:var(--gold);color:var(--bg);border:none;padding:12px 26px;border-radius:8px;cursor:pointer;box-shadow:0 4px 16px rgba(200,164,90,.3)">✦ แชร์พรนี้ให้เพื่อน · Share</button>
+      <button id="godShareBtn" onclick="_shareCardImage()" style="display:none;margin-top:18px;font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1.5px;font-weight:700;background:var(--gold);color:var(--bg);border:none;padding:12px 26px;border-radius:8px;cursor:pointer;box-shadow:0 4px 16px rgba(200,164,90,.3)">✦ แชร์พรนี้ให้เพื่อน · Share</button>
       <!-- Post-draw upsell → the full 26-system reading. Shown only to visitors with no
            saved DOB, so a cold draw-first visitor discovers the core product instead of
            dead-ending on the daily blessing (the likely reason draw-first was reverted). -->
@@ -4055,18 +4075,69 @@ function _godArtUrl(name, tier){
   if (!name || !_ART_TIERS[tier]) return null;
   return '/assets/god-art/' + String(name).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') + '.webp';
 }
-// Swap an element's content to the god's artwork, falling back to the emoji
-// symbol if the art is missing or fails to load.
+// ── Full deity CARDS (2026-06-28): 1,060 anime-artbook cards on the woam
+// storage CDN, one per deity per tier. Slug MUST match batch-run.mjs:
+//   `<Tier>-<name.replace(/[^a-z0-9]+/gi,'-')>.webp`
+// Frame, name and rank are baked into the image, so _godArtInto renders the
+// full card (+ living FX) and hides the now-redundant tier/name labels. The
+// few deities still missing a card fall back to their emoji symbol.
+const _CARD_BASE = 'https://woamqrhifuxsscnihqco.supabase.co/storage/v1/object/public/god-cards/';
+const _CARD_MISSING = { Thor:1, Tiamat:1, 'Tiamat Primordial':1, Maui:1, Bharadwaja:1, Vasudeva:1, Mithras:1, Shezmu:1, 'Ember of the First Dawn':1 };
+function _cardUrl(god){
+  if (!god || !god.name || !god.tier || _CARD_MISSING[god.name]) return null;
+  return _CARD_BASE + god.tier + '-' + String(god.name).replace(/[^a-z0-9]+/gi,'-') + '.webp';
+}
+// Living-card FX (pure CSS/JS, free): matrix digit-rain rising + particle
+// embers rising + holographic mouse-tilt; gold glow for Epic+. One per card;
+// the previous card's timers are stopped before a new one mounts.
+let _lastFx = null;
+function _mountCardFX(wrap, tier){
+  try{
+    if (_lastFx && _lastFx._stop) _lastFx._stop();
+    _lastFx = wrap; wrap._stops = [];
+    const W = wrap.clientWidth || 300, H = wrap.clientHeight || 450;
+    const mc = document.createElement('canvas'); mc.width = W; mc.height = H;
+    mc.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;opacity:.26;mix-blend-mode:screen;pointer-events:none;-webkit-mask-image:radial-gradient(ellipse 60% 55% at 50% 45%,transparent 34%,#000 82%);mask-image:radial-gradient(ellipse 60% 55% at 50% 45%,transparent 34%,#000 82%)';
+    wrap.appendChild(mc);
+    const mx = mc.getContext('2d'), fsz = 12, cols = Math.max(1, Math.floor(W/fsz)), drops = [];
+    for (let i=0;i<cols;i++) drops[i] = H/fsz + Math.random()*20;
+    const mt = setInterval(()=>{ mx.fillStyle='rgba(8,12,16,0.13)'; mx.fillRect(0,0,W,H); mx.font=fsz+'px monospace'; mx.fillStyle='rgba(150,235,255,0.82)'; for(let i=0;i<cols;i++){ mx.fillText(Math.floor(Math.random()*10), i*fsz, drops[i]*fsz); if(drops[i]*fsz<0 && Math.random()>0.97) drops[i]=H/fsz; drops[i]-=0.5; } }, 80);
+    wrap._stops.push(()=>clearInterval(mt));
+    const pc = document.createElement('canvas'); pc.width = W; pc.height = H;
+    pc.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
+    wrap.appendChild(pc);
+    const pX = pc.getContext('2d'), P = []; for(let i=0;i<16;i++) P.push({x:Math.random()*W,y:Math.random()*H,s:1+Math.random()*2,v:.2+Math.random()*.6,a:.2+Math.random()*.5});
+    let raf; (function lp(){ pX.clearRect(0,0,W,H); for(const p of P){ p.y-=p.v; if(p.y<-4){p.y=H+4;p.x=Math.random()*W;} pX.beginPath(); pX.fillStyle='rgba(150,235,255,'+p.a+')'; pX.shadowBlur=6; pX.shadowColor='rgba(150,235,255,.8)'; pX.arc(p.x,p.y,p.s,0,7); pX.fill(); } raf=requestAnimationFrame(lp); })();
+    wrap._stops.push(()=>cancelAnimationFrame(raf));
+    const shine = document.createElement('div');
+    shine.style.cssText = 'position:absolute;inset:0;background-image:linear-gradient(115deg,transparent 18%,rgba(255,0,128,.32),rgba(255,210,0,.32),rgba(0,255,180,.32),rgba(0,160,255,.32),transparent 82%);background-size:300% 300%;mix-blend-mode:color-dodge;opacity:0;transition:opacity .25s;pointer-events:none';
+    wrap.appendChild(shine);
+    wrap.style.transition = 'transform .1s ease-out';
+    if (wrap.parentElement) wrap.parentElement.style.perspective = '800px';
+    const mm = e=>{ const r=wrap.getBoundingClientRect(), x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; wrap.style.transform='rotateY('+(x*16)+'deg) rotateX('+(-y*16)+'deg)'; shine.style.opacity=.55; shine.style.backgroundPosition=(50+x*120)+'% '+(50+y*120)+'%'; };
+    const ml = ()=>{ wrap.style.transform=''; shine.style.opacity=0; };
+    wrap.addEventListener('mousemove', mm); wrap.addEventListener('mouseleave', ml);
+    wrap._stops.push(()=>{ wrap.removeEventListener('mousemove',mm); wrap.removeEventListener('mouseleave',ml); });
+    if (tier==='Epic' || tier==='Legendary' || tier==='Mythic') wrap.style.boxShadow = '0 0 16px 1px rgba(232,200,120,.45)';
+    wrap._stop = ()=>{ (wrap._stops||[]).forEach(f=>{ try{ f(); }catch(_){} }); };
+  }catch(_){}
+}
 function _godArtInto(el, god, sizePx, extraCss){
   if (!el) return;
-  const url = _godArtUrl(god.name, god.tier);
-  if (!url) { el.textContent = god.symbol || '✦'; return; }
-  el.innerHTML = '';
-  const im = document.createElement('img');
-  im.src = url; im.alt = god.name; im.loading = 'lazy';
-  im.style.cssText = `width:${sizePx}px;height:${sizePx}px;border-radius:10px;image-rendering:pixelated;${extraCss||''}`;
-  im.onerror = () => { el.textContent = god.symbol || '✦'; };
-  el.appendChild(im);
+  const isDraw = (el.id === 'godSymbol');
+  const labs = isDraw ? ['tierBadge','godName','godOrigin'].map(i=>document.getElementById(i)) : [];
+  const showLabs = on => labs.forEach(x=>{ if(x) x.style.display = on ? '' : 'none'; });
+  const url = _cardUrl(god);
+  if (!url) { el.innerHTML=''; el.textContent = god.symbol || '✦'; showLabs(true); return; }
+  el.innerHTML=''; el.style.cssText='margin:0 auto';
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:relative;display:inline-block;width:300px;max-width:80vw;border-radius:12px;overflow:hidden;line-height:0';
+  const im = document.createElement('img'); im.src = url; im.alt = god.name; im.decoding = 'async';
+  im.style.cssText = 'width:100%;display:block';
+  im.onerror = ()=>{ el.innerHTML=''; el.textContent = god.symbol || '✦'; showLabs(true); };
+  im.onload = ()=>{ try{ _mountCardFX(wrap, god.tier); }catch(_){} };
+  wrap.appendChild(im); el.appendChild(wrap);
+  if (isDraw) showLabs(false);
 }
 
 // Daily "lucky numbers" derived deterministically from the drawn god + today's
