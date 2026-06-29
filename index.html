@@ -4082,7 +4082,7 @@ function _godArtUrl(name, tier){
 // full card (+ living FX) and hides the now-redundant tier/name labels. The
 // few deities still missing a card fall back to their emoji symbol.
 const _CARD_BASE = 'https://woamqrhifuxsscnihqco.supabase.co/storage/v1/object/public/god-cards/';
-const _CARD_MISSING = { Thor:1, Tiamat:1, 'Tiamat Primordial':1, Maui:1, Bharadwaja:1, Vasudeva:1, Mithras:1, Shezmu:1, 'Ember of the First Dawn':1 };
+const _CARD_MISSING = { Tiamat:1, 'Tiamat Primordial':1 };
 function _cardUrl(god){
   if (!god || !god.name || !god.tier || _CARD_MISSING[god.name]) return null;
   return _CARD_BASE + god.tier + '-' + String(god.name).replace(/[^a-z0-9]+/gi,'-') + '.webp';
