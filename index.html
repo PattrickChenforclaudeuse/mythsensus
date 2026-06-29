@@ -4094,6 +4094,9 @@ let _lastFx = null;
 function _mountCardFX(wrap, tier){
   try{
     if (_lastFx && _lastFx._stop) _lastFx._stop();
+    // FX = a rarity reward → Epic+ ONLY. Common/Uncommon/Rare stay clean
+    // (just the card + drop-shadow), so pulling an Epic+ feels special.
+    if (tier !== 'Epic' && tier !== 'Legendary' && tier !== 'Mythic') { _lastFx = null; return; }
     _lastFx = wrap; wrap._stops = [];
     const W = wrap.clientWidth || 300, H = wrap.clientHeight || 450;
     const mc = document.createElement('canvas'); mc.width = W; mc.height = H;
