@@ -1946,7 +1946,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     <div class="hp-cell hp-cell-score">
       <span class="hp-glyph">⟁</span>
       <span class="hp-k" data-en="Cosmic Score · how strongly 26 systems agree" data-th="Cosmic Score · 26 ศาสตร์เห็นตรงกันแค่ไหน">Cosmic Score · 26 ศาสตร์เห็นตรงกันแค่ไหน</span>
-      <span class="hp-v hp-v-big">754 / 999 · Resonant</span>
+      <span class="hp-v hp-v-big">754 / 1,000 · Resonant</span>
     </div>
   </div>
   <div class="hp-foot">
@@ -4010,6 +4010,17 @@ const _msAnalytics = (function(){
       if (saved && saved.utm && (Date.now()-saved.t) < 1800000) utm = saved.utm;   // 30-min window
     }
   } catch(_){}
+  // Internal/self-exclude marker (added 2026-07-01): open the site once with
+  // ?im=1 on each of the team's own devices → every future session is tagged
+  // internal:true so funnel queries can drop our own opens precisely (the
+  // "returning" flag is only a coarse proxy). ?im=0 clears it.
+  let internal = false;
+  try {
+    const im = new URLSearchParams(location.search).get('im');
+    if (im === '1') localStorage.setItem('mth_internal_v1','1');
+    else if (im === '0') localStorage.removeItem('mth_internal_v1');
+    internal = !!localStorage.getItem('mth_internal_v1');
+  } catch(_){}
   function refHost(){ return ((document.referrer||'').replace(/^https?:\/\//,'').split('/')[0])||null; }
   function srcRef(){ return utm ? ('utm:'+utm.s) : refHost(); }   // tagged campaign wins over raw referrer
   function device(){ try { const w=Math.min(screen.width||9999, screen.height||9999); return w<600?'mobile':(w<1024?'tablet':'desktop'); } catch(_){ return 'desktop'; } }
@@ -4023,7 +4034,7 @@ const _msAnalytics = (function(){
   }
   function row(extra){ return Object.assign({ sid, lang:(typeof LANG!=='undefined'?LANG:''), device:device(), path:location.pathname, ref:srcRef() }, extra||{}); }
   function track(event, extra){ post(row(Object.assign({event}, extra||{}))); }   // immediate beacon (rare/intent moments)
-  function sessionEnd(){ if(s.sent)return; accrue(); s.sent=true; try{flushErrs();}catch(_){} track('session', { active_ms:s.activeMs, draws:s.draws, ref:srcRef(), meta:{rare:s.rare,paywall:s.paywall,interacted:s.interacted,scrolled:s.scrolled,returning:s.returning,utm:utm} }); }
+  function sessionEnd(){ if(s.sent)return; accrue(); s.sent=true; try{flushErrs();}catch(_){} track('session', { active_ms:s.activeMs, draws:s.draws, ref:srcRef(), meta:{rare:s.rare,paywall:s.paywall,interacted:s.interacted,scrolled:s.scrolled,returning:s.returning,utm:utm,internal:internal} }); }
   // visibilitychange→hidden is the most reliable "leaving" signal (incl. mobile
   // backgrounding); pagehide covers the rest. Fires once per page load (s.sent).
   document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden'){ accrue(); s.visible=false; sessionEnd(); } else { s.visible=true; s.lastTick=Date.now(); } });
@@ -7896,7 +7907,7 @@ function _buildDeepAddon(chart, key){
       </div>` : ''}
 
       <div style="margin-top:14px;padding:9px 14px;background:rgba(212,175,55,0.05);border-radius:6px;font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold3);text-align:center">
-        ✦ ${isTh?'สังเคราะห์จากดวงชะตาของคุณ · Cosmic Score '+score+'/999':'Synthesised from your birth chart · Cosmic Score '+score+'/999'}
+        ✦ ${isTh?'สังเคราะห์จากดวงชะตาของคุณ · Cosmic Score '+score+'/1,000':'Synthesised from your birth chart · Cosmic Score '+score+'/1,000'}
       </div>
     </div>`;
 }
@@ -11424,7 +11435,7 @@ function renderMirror(){
   const reasoning = _addonReasoning(chart, {
     basedOn: [
       [isTh?'BaZi Day Master':'BaZi Day Master', chart.bazi.dayMasterTh],
-      [isTh?'Cosmic Score':'Cosmic Score', score+' / 999'],
+      [isTh?'Cosmic Score':'Cosmic Score', score+' / 1,000'],
       [isTh?'Life Path':'Life Path', 'LP '+lp],
       [isTh?'Nakshatra':'Nakshatra', nakshatra],
     ],
@@ -11508,7 +11519,7 @@ function renderMirror(){
         <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:2px;color:var(--gold)">${isTh?'✦ แกน 2 · COSMIC ENTITY — consensus 26 ศาสตร์':'✦ AXIS 2 · COSMIC ENTITY — 26-SYSTEM CONSENSUS'}</div>
         <div style="font-family:'Cinzel Decorative',serif;font-size:18px;color:var(--gold);margin:10px 0;letter-spacing:0.5px">${cosmic.name}</div>
         <div style="font-size:13px;color:var(--text);line-height:1.65;max-width:560px;margin:0 auto">${cosmic.desc}</div>
-        <div style="margin-top:10px;font-size:10.5px;color:var(--muted);letter-spacing:0.5px">Score ${score}/999 · LP ${lp} · ${nakshatra}</div>
+        <div style="margin-top:10px;font-size:10.5px;color:var(--muted);letter-spacing:0.5px">Score ${score}/1,000 · LP ${lp} · ${nakshatra}</div>
       </div>
       ${cosmic.story ? `<div style="margin-top:16px;padding:12px 14px;background:rgba(0,0,0,.18);border-left:2px solid var(--gold3);border-radius:0 6px 6px 0;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.8"><div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:2px;color:var(--gold3);margin-bottom:6px">📜 ${isTh?'ตำนาน · MYTH':'MYTH'}</div>${cosmic.story}</div>` : ''}
       ${cosmic.practice ? `<div style="margin-top:10px;padding:12px 14px;background:rgba(80,212,144,.05);border-left:2px solid rgba(80,212,144,.5);border-radius:0 6px 6px 0;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.8"><div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:2px;color:#50d490;margin-bottom:6px">🧭 ${isTh?'การปฏิบัติ · PRACTICE':'PRACTICE'}</div>${cosmic.practice}</div>` : ''}
@@ -17602,7 +17613,7 @@ function generateHTML(c) {
 <div style="background:#16142a;border:1px solid #d4aa50;border-radius:12px;padding:20px;margin:14px 0;display:flex;gap:20px;align-items:center">
   <div style="text-align:center;min-width:95px">
     <div style="font-size:54px;font-weight:700;color:#d4aa50;line-height:1">${score.total}</div>
-    <div style="font-size:11px;color:#9a8a72">/999 คะแนน</div>
+    <div style="font-size:11px;color:#9a8a72">/1,000 คะแนน</div>
   </div>
   <div style="flex:1">
     <div style="font-size:18px;font-weight:700;margin-bottom:3px">${esc(score.tier)}</div>
@@ -17610,7 +17621,7 @@ function generateHTML(c) {
     <div style="background:#252240;border-radius:6px;height:11px;overflow:hidden">
       <div style="width:${Math.round((score.total-300)/7)}%;height:11px;background:linear-gradient(90deg,#8a6820,#d4aa50)"></div>
     </div>
-    <div style="font-size:11px;color:#6a5a42;margin-top:3px">ศักยภาพสูงสุด: ${score.max}/999</div>
+    <div style="font-size:11px;color:#6a5a42;margin-top:3px">ศักยภาพสูงสุด: ${score.max}/1,000</div>
   </div>
 </div>
 <div class="g3">
@@ -17932,14 +17943,14 @@ ${(()=>{
 
   <!-- Para 5: Score + closing -->
   <div style="font-size:12px;color:#9a8a72;line-height:2;padding-top:12px;border-top:1px solid #1a1840">
-    Cosmic Score <strong style="color:#d4aa50">${score.total}/999</strong> ระดับ <strong style="color:#d4aa50">${score.tier}</strong> — ${_scoreInterp} ศักยภาพสูงสุดที่ชาร์ตนี้สามารถไปถึงคือ <strong style="color:#d4aa50">${score.max}/999</strong> — ช่องว่างระหว่างสองตัวเลขนี้คือสิ่งที่ Activation Plan ในหน้า 16 ถูกออกแบบมาเพื่อปิด รายละเอียดทั้ง 26 ศาสตร์พร้อมหลักฐานอยู่ในการ์ดด้านล่าง
+    Cosmic Score <strong style="color:#d4aa50">${score.total}/1,000</strong> ระดับ <strong style="color:#d4aa50">${score.tier}</strong> — ${_scoreInterp} ศักยภาพสูงสุดที่ชาร์ตนี้สามารถไปถึงคือ <strong style="color:#d4aa50">${score.max}/1,000</strong> — ช่องว่างระหว่างสองตัวเลขนี้คือสิ่งที่ Activation Plan ในหน้า 16 ถูกออกแบบมาเพื่อปิด รายละเอียดทั้ง 26 ศาสตร์พร้อมหลักฐานอยู่ในการ์ดด้านล่าง
   </div>
 </div>
 ${themeHTML}
 <div class="box box-r" style="margin-top:16px"><div class="bt">⚠️ ปัจจัยที่ทำให้คะแนนต่ำกว่าศักยภาพ — Score Reducers (${reducers.length} ปัจจัยที่พบ)</div>
 <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">สิ่งเหล่านี้ไม่ใช่ "คำสาป" — แต่คือสัญญาณเตือนที่ทุกศาสตร์เห็นตรงกันว่าต้องระวังพิเศษในช่วงนี้</div>
 <div>${reducerHTML}</div></div>
-<div class="box box-gr" style="margin-top:12px"><div class="bt">🚀 วิธีเข้าถึงศักยภาพ ${score.max}/999 — Activation Plan จาก 26 ศาสตร์</div>
+<div class="box box-gr" style="margin-top:12px"><div class="bt">🚀 วิธีเข้าถึงศักยภาพ ${score.max}/1,000 — Activation Plan จาก 26 ศาสตร์</div>
 <div style="font-size:12px;color:#9a8a72;margin-bottom:10px">Cosmic Score กำหนดจากดวง แต่การ "ใช้ชีวิตตามดวง" คือกุญแจที่ปลดล็อก — ทำ 5 ข้อนี้พร้อมกันให้ผลทบทวีคูณ</div>
 <div>${activatorHTML}</div></div>`;
 })()}`);
