@@ -3993,6 +3993,25 @@ const _msAnalytics = (function(){
   // some in-app browsers (LINE/FB) don't persist localStorage across opens → a
   // few true-returning visitors read as new (errs toward over-counting "new").
   try { s.returning = !!localStorage.getItem('mth_seen_v1'); localStorage.setItem('mth_seen_v1','1'); } catch(_){}
+  // Campaign attribution (added 2026-07-01): capture ?utm_source/medium/campaign
+  // from the landing URL so tagged traffic (PH / FB / directory outreach) stops
+  // collapsing into the "(direct)" bucket. Persist per-browser for the first 30
+  // min so the session-end beacon still knows the source even after in-app
+  // navigation strips the query string. Resolved source overrides document.referrer.
+  let utm = null;
+  try {
+    const q = new URLSearchParams(location.search);
+    const src = q.get('utm_source');
+    if (src) {
+      utm = { s: src.slice(0,32), m:(q.get('utm_medium')||'').slice(0,32)||null, c:(q.get('utm_campaign')||'').slice(0,48)||null };
+      localStorage.setItem('mth_utm_v1', JSON.stringify({ utm, t: Date.now() }));
+    } else {
+      const saved = JSON.parse(localStorage.getItem('mth_utm_v1')||'null');
+      if (saved && saved.utm && (Date.now()-saved.t) < 1800000) utm = saved.utm;   // 30-min window
+    }
+  } catch(_){}
+  function refHost(){ return ((document.referrer||'').replace(/^https?:\/\//,'').split('/')[0])||null; }
+  function srcRef(){ return utm ? ('utm:'+utm.s) : refHost(); }   // tagged campaign wins over raw referrer
   function device(){ try { const w=Math.min(screen.width||9999, screen.height||9999); return w<600?'mobile':(w<1024?'tablet':'desktop'); } catch(_){ return 'desktop'; } }
   function accrue(){ if(s.visible){ const now=Date.now(); s.activeMs += Math.max(0, now-s.lastTick); s.lastTick=now; } }
   function post(payload){
@@ -4002,9 +4021,9 @@ const _msAnalytics = (function(){
       fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:data,keepalive:true}).catch(()=>{});
     } catch(_){}
   }
-  function row(extra){ return Object.assign({ sid, lang:(typeof LANG!=='undefined'?LANG:''), device:device(), path:location.pathname }, extra||{}); }
+  function row(extra){ return Object.assign({ sid, lang:(typeof LANG!=='undefined'?LANG:''), device:device(), path:location.pathname, ref:srcRef() }, extra||{}); }
   function track(event, extra){ post(row(Object.assign({event}, extra||{}))); }   // immediate beacon (rare/intent moments)
-  function sessionEnd(){ if(s.sent)return; accrue(); s.sent=true; try{flushErrs();}catch(_){} track('session', { active_ms:s.activeMs, draws:s.draws, ref:((document.referrer||'').replace(/^https?:\/\//,'').split('/')[0])||null, meta:{rare:s.rare,paywall:s.paywall,interacted:s.interacted,scrolled:s.scrolled,returning:s.returning} }); }
+  function sessionEnd(){ if(s.sent)return; accrue(); s.sent=true; try{flushErrs();}catch(_){} track('session', { active_ms:s.activeMs, draws:s.draws, ref:srcRef(), meta:{rare:s.rare,paywall:s.paywall,interacted:s.interacted,scrolled:s.scrolled,returning:s.returning,utm:utm} }); }
   // visibilitychange→hidden is the most reliable "leaving" signal (incl. mobile
   // backgrounding); pagehide covers the rest. Fires once per page load (s.sent).
   document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden'){ accrue(); s.visible=false; sessionEnd(); } else { s.visible=true; s.lastTick=Date.now(); } });
