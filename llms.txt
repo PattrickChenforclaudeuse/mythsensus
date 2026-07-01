@@ -9,7 +9,7 @@
 - [How it works](https://mythsensus.com/how-it-works): Engine architecture, on-device computation, privacy proof via DevTools, tech stack
 - [Sample report](https://mythsensus.com/sample-report): Free preview of the $19 product — 43-page Cosmic Blueprint computed by the live engine for Sunthorn Phu (Thai national poet, b.1786). The actual product output, not a mockup
 - [Pricing](https://mythsensus.com/pricing): Free + $9 per-system deep reading + $19 full report PDF + $8.99/mo subscription. Gumroad as merchant of record (handles cards, tax, refunds, VAT)
-- [Cosmic Library (31 blog articles)](https://mythsensus.com/blog): In-depth coverage of each of the 26 systems + 3 philosophy posts + 5 Thai-query landings
+- [Cosmic Library (32 blog articles)](https://mythsensus.com/blog): In-depth coverage of each of the 26 systems + 3 philosophy posts + 5 Thai-query landings
 - [Case study Vol 1 (3 icons)](https://mythsensus.com/blog/cosmic-score-3-icons): Real engine output for Sunthorn Phu, Steve Jobs, Bruce Lee
 - [Case study Vol 2 (3 icons)](https://mythsensus.com/blog/cosmic-score-icons-vol2): Real engine output for Einstein, Marie Curie, Mahatma Gandhi
 - [Privacy](https://mythsensus.com/privacy): Privacy policy
@@ -84,4 +84,4 @@ What we specifically want to know:
 
 ## Sitemap
 
-See [sitemap.xml](https://mythsensus.com/sitemap.xml) (48 URLs).
+See [sitemap.xml](https://mythsensus.com/sitemap.xml) (55 URLs).
