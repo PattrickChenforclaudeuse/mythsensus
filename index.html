@@ -787,6 +787,11 @@ details.ms-more>.ms-more-body{padding-top:6px;animation:msMoreIn .25s ease}
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#040407">
   <link rel="canonical" href="https://mythsensus.com/">
+  <!-- hreflang: pair the TH default with the /en variant so Google serves the
+       right language + stops treating them as duplicate content (2026-07-01). -->
+  <link rel="alternate" hreflang="th" href="https://mythsensus.com/">
+  <link rel="alternate" hreflang="en" href="https://mythsensus.com/en">
+  <link rel="alternate" hreflang="x-default" href="https://mythsensus.com/">
   <meta property="og:site_name" content="Mythsensus">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Mythsensus — เมื่อ 26 ศาสตร์โบราณเห็นต่าง · เราหาคำตอบที่ลงตัวให้คุณ">
@@ -1218,6 +1223,31 @@ let _authEmail = '';    // Email pending OTP verification
 
 </head>
 <body>
+
+<!-- ═══ Crawlable landing content (SEO/LLM, added 2026-07-01) ═══════════════
+     The SPA boots behind an entry overlay, so crawlers/LLMs that don't run JS
+     saw a blank <body> on our top-priority URL. Give them a real <h1> +
+     <noscript> summary + internal links. JS users never see the noscript. ═══ -->
+<h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0">Mythsensus — 26 ancient divination systems reconciled into one Cosmic Score · ดูดวง 26 ศาสตร์โบราณพร้อมกัน สรุปเป็นคะแนนเดียว</h1>
+<noscript>
+  <div style="max-width:720px;margin:40px auto;padding:24px;font-family:Georgia,serif;color:#e6e2d8;background:#0a0a10;line-height:1.7;border:1px solid #2a2a33;border-radius:8px">
+    <h2>When 26 ancient systems disagree, we reconcile</h2>
+    <p>Mythsensus reads 26 ancient divination systems together — BaZi (Four Pillars), Vedic, Western astrology, Nine Star Ki, Mayan Tzolkin, Thai Brahmin day-deity, numerology and 19 more — and distils them into a single Cosmic Score from 1 to 1,000, showing where the systems agree and where they conflict. Free daily deity blessing from 1,000+ gods, a free 108 Organum oracle, and a free Cosmic Score. Cosmic Blueprint adds $9 per-system deep readings and a 43-page PDF full report.</p>
+    <p>ดูดวงหลายที่บอกไม่ตรงกัน? Mythsensus อ่าน 26 ศาสตร์โบราณพร้อมกัน แล้วบอกว่าศาสตร์ไหนเห็นตรงกัน ศาสตร์ไหนขัดกัน สรุปเป็น Cosmic Score เดียว · เทพประจำวันฟรี 1,000+ องค์ · เริ่มฟรีไม่ต้องสมัคร ใช้ออฟไลน์ได้</p>
+    <p><a href="/how-it-works">How it works</a> · <a href="/pricing">Pricing</a> · <a href="/cosmic-score">Free Cosmic Score</a></p>
+  </div>
+</noscript>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"Mythsensus","url":"https://mythsensus.com/","logo":"https://mythsensus.com/og-default.png","description":"26 ancient divination systems reconciled into one Cosmic Score."}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What is Mythsensus?","acceptedAnswer":{"@type":"Answer","text":"Mythsensus reads 26 ancient divination systems together — BaZi, Vedic, Western, Nine Star Ki, Mayan, Thai Brahmin and more — and reconciles them into a single Cosmic Score from 1 to 1,000, showing where the systems agree and disagree."}},
+{"@type":"Question","name":"Is Mythsensus free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The Cosmic Score, a daily deity blessing from over 1,000 gods, and the 108 Organum oracle are free with no signup. Cosmic Blueprint adds $9 per-system deep readings and a 43-page PDF full report."}},
+{"@type":"Question","name":"Which divination systems does Mythsensus use?","acceptedAnswer":{"@type":"Answer","text":"26 systems including Chinese BaZi (Four Pillars), Vedic astrology, Western astrology, Nine Star Ki, Mayan Tzolkin, Thai Brahmin day-deity, numerology and 19 more."}},
+{"@type":"Question","name":"Do I need to create an account?","acceptedAnswer":{"@type":"Answer","text":"No. You get your free Cosmic Score and daily deity draw instantly with just your birth date — no signup, and it works offline."}}
+]}
+</script>
 
 <!-- ═══ Back link (online only; JS enables .is-web class below) ═══ -->
 <a href="/" class="web-nav" id="webNav" onclick="return _webNavBack(event)" data-t="web_nav_back">← Back</a>
