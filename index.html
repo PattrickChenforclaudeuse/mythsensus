@@ -4125,6 +4125,11 @@ function _godArtUrl(name, tier){
 const _CARD_BASE = 'https://woamqrhifuxsscnihqco.supabase.co/storage/v1/object/public/god-cards/';        // classic anime-artbook (.webp)
 const _CARD_BASE_CYBER = 'https://woamqrhifuxsscnihqco.supabase.co/storage/v1/object/public/god-cards-v2/'; // cyber-robotic (.jpg), all 1069
 const _CARD_MISSING = { Tiamat:1, 'Tiamat Primordial':1 };  // classic set only; the cyber v2 set has every deity
+// Islamic sacred figures (angels + revered beings) — Islam forbids figural
+// depiction of these, so we render NO card image in EITHER theme and fall back
+// to the deity's symbol (respectful, non-figural). Applies before the theme
+// branch so it holds for classic + cyber alike (2026-07-01).
+const _NO_DEPICT = { 'Ruh al-Qudus':1, 'Israfil':1, 'Ridwan':1, 'Maalik':1, 'Harut and Marut':1, 'Khidr':1, 'Iblis (as cosmic force)':1 };
 // Card THEME = an A/B'd cosmetic skin over the SAME draw (god/score/tier/blessing
 // never change). New visitors get a stable random default so Classic vs Cyber can
 // be measured on the draw→share→return funnel; _toggleCardTheme() lets them switch.
@@ -4142,6 +4147,7 @@ function _cardTheme(){
 function _cardSlug(god){ return god.tier + '-' + String(god.name).replace(/[^a-z0-9]+/gi,'-'); }
 function _cardUrl(god){
   if (!god || !god.name || !god.tier) return null;
+  if (_NO_DEPICT[god.name]) return null;   // Islamic sacred figures → symbol fallback, no figural card (both themes)
   if (_cardTheme()==='cyber') return _CARD_BASE_CYBER + _cardSlug(god) + '.jpg';
   if (_CARD_MISSING[god.name]) return null;
   return _CARD_BASE + _cardSlug(god) + '.webp';

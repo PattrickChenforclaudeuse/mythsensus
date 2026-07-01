@@ -376,7 +376,7 @@
 // daily draw (entryDrawFirst), 26-system reading demoted to secondary; post-draw
 // upsell card funnels draw → full reading; entry form's time/gender/city collapsed
 // by default. Attacks 11.5s median / 1% birthday-fill / 0 shares.
-const CACHE = 'mythsensus-v159';
+const CACHE = 'mythsensus-v160';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
