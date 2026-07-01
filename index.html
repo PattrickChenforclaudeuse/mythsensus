@@ -4268,23 +4268,17 @@ function _godArtInto(el, god, sizePx, extraCss){
   if (!url) {
     el.innerHTML='';
     if (_NO_DEPICT[god.name]) {
-      // Respectful non-figural placeholder — Islam forbids depicting these. Render
-      // a THEME-AWARE 3D metallic geometric star (gold=classic / cyan=cyber) that
-      // slowly rotates, so it reads as an intentional, premium symbol — not a
-      // broken image. Matches whichever card skin is active.
+      // Respectful non-figural placeholder — Islam forbids depicting these. Use a
+      // theme-matched 3D geometric emblem (Fal-rendered, gold=classic / cyan=cyber,
+      // no figures) so it reads as an intentional premium symbol, not a broken
+      // image. Radial mask blends the emblem's square edge into the card.
       const isTh = (typeof LANG==='undefined') || LANG==='th';
       const cyber = (_cardTheme()==='cyber');
-      const C = cyber
-        ? { hi:'#bff4ff', mid:'#00e5ff', lo:'#0a6a85', ink:'#04121a', glow:'0,229,255', bg:'rgba(6,20,28,.95)' }
-        : { hi:'#f4e0a0', mid:'#d4aa50', lo:'#8a6520', ink:'#1a1408', glow:'212,170,80', bg:'rgba(34,28,16,.95)' };
-      const svg = `<svg viewBox="0 0 140 140" width="150" height="150" xmlns="http://www.w3.org/2000/svg" style="display:block;filter:drop-shadow(0 0 9px rgba(${C.glow},.6)) drop-shadow(0 8px 16px rgba(0,0,0,.55))">`
-        + `<defs><linearGradient id="ndG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${C.hi}"/><stop offset=".45" stop-color="${C.mid}"/><stop offset="1" stop-color="${C.lo}"/></linearGradient>`
-        + `<radialGradient id="ndC" cx=".5" cy=".38" r=".62"><stop offset="0" stop-color="${C.hi}"/><stop offset="1" stop-color="${C.lo}"/></radialGradient></defs>`
-        + `<polygon points="70,12 79,48 111,29 92,61 128,70 92,79 111,111 79,92 70,128 61,92 29,111 48,79 12,70 48,61 29,29 61,48" fill="url(#ndG)" stroke="${C.hi}" stroke-width="1.4"><animateTransform attributeName="transform" type="rotate" from="0 70 70" to="360 70 70" dur="48s" repeatCount="indefinite"/></polygon>`
-        + `<circle cx="70" cy="70" r="16" fill="url(#ndC)" stroke="${C.hi}" stroke-width="1.2"/><circle cx="70" cy="70" r="5.5" fill="${C.ink}"/></svg>`;
+      const glow = cyber ? '0,229,255' : '212,170,80';
+      const bg   = cyber ? 'rgba(6,20,28,.95)' : 'rgba(34,28,16,.95)';
       const ph = document.createElement('div');
-      ph.style.cssText = 'position:relative;width:100%;max-width:340px;aspect-ratio:2/3;margin:0 auto;border-radius:12px;border:1px solid rgba('+C.glow+',.4);background:radial-gradient(ellipse 70% 60% at 50% 38%,'+C.bg+',#08080e);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;box-shadow:0 0 32px rgba('+C.glow+',.16),0 12px 40px rgba(0,0,0,.55)';
-      ph.innerHTML = svg
+      ph.style.cssText = 'position:relative;width:100%;max-width:340px;aspect-ratio:2/3;margin:0 auto;border-radius:12px;border:1px solid rgba('+glow+',.4);background:radial-gradient(ellipse 70% 60% at 50% 38%,'+bg+',#08080e);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;box-shadow:0 0 32px rgba('+glow+',.16),0 12px 40px rgba(0,0,0,.55)';
+      ph.innerHTML = '<img src="/assets/no-depict-'+(cyber?'cyber':'classic')+'.jpg" alt="" decoding="async" style="width:74%;aspect-ratio:1;object-fit:contain;-webkit-mask-image:radial-gradient(circle at 50% 48%,#000 58%,transparent 80%);mask-image:radial-gradient(circle at 50% 48%,#000 58%,transparent 80%);filter:drop-shadow(0 0 14px rgba('+glow+',.35))">'
         + '<div style="font-family:\'Cormorant Garamond\',\'Sarabun\',serif;font-style:italic;font-size:13.5px;color:#9a9088;text-align:center;max-width:78%;line-height:1.55">'
         + (isTh ? 'ไม่แสดงรูปเคารพ — เพื่อความเคารพต่อความเชื่อ' : 'Depiction omitted out of respect')
         + '</div>';
