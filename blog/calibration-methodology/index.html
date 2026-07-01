@@ -81,6 +81,63 @@ a{color:var(--gold);text-decoration:none}
   "inLanguage":"th"
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "th",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Mythsensus calibrate 26 weights กับ dataset ไหน?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Weights ของ 26 ศาสตร์ถูก calibrate กับ Astrodatabank's AA-rated chart collection — เฉพาะระดับ AA (highest reliability tier: สูติบัตรหรือบันทึกราชการ) เพื่อไม่ให้ DOB ที่ผิด propagate noise เข้าไปใน weight. ขนาด dataset โดยประมาณหลายพันใบ (~1,500–3,000 ขึ้นกับ filter snapshot) freeze ในวันที่ calibrate."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "ทำไมไม่ใช้ dataset ที่ใหญ่กว่า เช่น users ของ Mythsensus เอง?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "เพราะเป็น circular problem: ถ้า calibrate กับ user ปัจจุบัน weights จะแค่ refit histogram ของ user ให้สวย ไม่ได้สะท้อนความจริงนอก app. AA-rated charts เป็น external reference ที่ engine ไม่เคยเห็น user เหล่านี้."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "objective function ที่ใช้ calibrate คืออะไร?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ไม่ใช่ supervised loss แต่เป็น internal-consistency criteria 3 ข้อที่ต้อง pass พร้อมกัน: (1) median ของ Cosmic Score ทั่ว AA dataset อยู่ในช่วง [490, 510] (~500), (2) สัดส่วนคะแนน Mythic (≥860) ≤ 1%, (3) Human Design type distribution ใน AA cohort ใกล้ค่าอ้างอิงจาก HD literature (~70% Generator · 20% Projector · 8% Manifestor · 1–2% Reflector). Weight tuning iterate จนทั้ง 3 pass simultaneously."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "ทำไมไม่ใช้ machine learning / supervised learning?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "สี่เหตุผล: (1) โหราศาสตร์ไม่มี label ground-truth ที่ไม่ subjective, (2) ML จะ overfit ไปหา self-reported satisfaction แทนที่จะเป็นโหราศาสตร์, (3) ML inference ไม่ deterministic — retrain แล้วคะแนนเปลี่ยน ซึ่ง break สัญญา 'วันเกิดเดียวกัน → คะแนนเดียวกันตลอดไป', (4) supervised ต้องเก็บ user data centrally ขัดกับสถาปัตยกรรมที่ engine รันใน browser ไม่ส่งวันเกิดออก. Mythsensus จึงใช้ aesthetic parameter fitting ภายใต้ 3 internal criteria แทน และเปิดเผยตรง ๆ ว่ามันคือ parameter tuning ไม่ใช่ AI learning."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "ทำไม weights ถูก freeze หลัง calibrate?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ถ้า weights เปลี่ยนได้ คะแนนวันนี้จะ ≠ คะแนนปีหน้าแม้วันเกิดเดิม ซึ่ง break สัญญา version-locked deterministic engine. Weights freeze ตั้งแต่ calibration ครั้งแรก (Apr 2026) และจะ re-calibrate เพียงครั้งเดียวตอน engine v2 (Q3–Q4 2026 ที่เพิ่ม IAU 2006 precession + precise jiéqì) พร้อม document ใน changelog. ค่าเลขจริงอยู่ใน SCORE_WEIGHTS ที่ report-engine/lib/calc.ts เป็น public git history + แจกผ่าน mythsensus-mcp (MIT) ให้ verify ได้."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "methodology นี้มี gap หรือข้อจำกัดอะไรบ้าง?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "เปิดเผย 3 gap: (1) exact dataset size ยังไม่ publish (snapshot ตอน calibrate ไม่ถูก archive), (2) selection bias — AA-rated charts over-represent Western European/American figures เพราะ infrastructure สูติบัตร ทำให้ cohort skew, (3) ไม่มี predictive validation — engine พิสูจน์เฉพาะ internal consistency ไม่ได้พิสูจน์ว่าคน Mythic 'ดวงดีจริง' หรือทำเงินได้มากกว่า. ทั้ง 3 มี mitigation plan ใน v2 calibration."
+      }
+    }
+  ]
+}
+</script>
 </head><body>
 
 <nav class="nav">
