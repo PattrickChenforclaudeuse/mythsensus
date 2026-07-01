@@ -4155,11 +4155,10 @@ function _godArtUrl(name, tier){
 const _CARD_BASE = 'https://woamqrhifuxsscnihqco.supabase.co/storage/v1/object/public/god-cards/';        // classic anime-artbook (.webp)
 const _CARD_BASE_CYBER = 'https://woamqrhifuxsscnihqco.supabase.co/storage/v1/object/public/god-cards-v2/'; // cyber-robotic (.jpg), all 1069
 const _CARD_MISSING = { Tiamat:1, 'Tiamat Primordial':1 };  // classic set only; the cyber v2 set has every deity
-// Islamic sacred figures (angels + revered beings) — Islam forbids figural
-// depiction of these, so we render NO card image in EITHER theme and fall back
-// to the deity's symbol (respectful, non-figural). Applies before the theme
-// branch so it holds for classic + cyber alike (2026-07-01).
-const _NO_DEPICT = { 'Ruh al-Qudus':1, 'Israfil':1, 'Ridwan':1, 'Maalik':1, 'Harut and Marut':1, 'Khidr':1, 'Iblis (as cosmic force)':1 };
+// Islamic sacred figures (Ruh al-Qudus, Israfil, Ridwan, Maalik, Harut and Marut,
+// Khidr, Iblis) — Islam forbids depicting them, so their CDN card art is a
+// respectful NON-FIGURAL 3D cosmic emblem (enforced at the image level on both
+// buckets + the _card-gen `nodepict` flag). They render as normal cards here.
 // Card THEME = an A/B'd cosmetic skin over the SAME draw (god/score/tier/blessing
 // never change). New visitors get a stable random default so Classic vs Cyber can
 // be measured on the draw→share→return funnel; _toggleCardTheme() lets them switch.
@@ -4177,7 +4176,6 @@ function _cardTheme(){
 function _cardSlug(god){ return god.tier + '-' + String(god.name).replace(/[^a-z0-9]+/gi,'-'); }
 function _cardUrl(god){
   if (!god || !god.name || !god.tier) return null;
-  if (_NO_DEPICT[god.name]) return null;   // Islamic sacred figures → symbol fallback, no figural card (both themes)
   if (_cardTheme()==='cyber') return _CARD_BASE_CYBER + _cardSlug(god) + '.jpg';
   if (_CARD_MISSING[god.name]) return null;
   return _CARD_BASE + _cardSlug(god) + '.webp';
@@ -4295,27 +4293,7 @@ function _godArtInto(el, god, sizePx, extraCss){
   const labs = isDraw ? ['tierBadge','godName','godOrigin'].map(i=>document.getElementById(i)) : [];
   const showLabs = on => labs.forEach(x=>{ if(x) x.style.display = on ? '' : 'none'; });
   const url = _cardUrl(god);
-  if (!url) {
-    el.innerHTML='';
-    if (_NO_DEPICT[god.name]) {
-      // Respectful non-figural placeholder — Islam forbids depicting these. Use a
-      // theme-matched 3D geometric emblem (Fal-rendered, gold=classic / cyan=cyber,
-      // no figures) so it reads as an intentional premium symbol, not a broken
-      // image. Radial mask blends the emblem's square edge into the card.
-      const isTh = (typeof LANG==='undefined') || LANG==='th';
-      const cyber = (_cardTheme()==='cyber');
-      const glow = cyber ? '0,229,255' : '212,170,80';
-      const bg   = cyber ? 'rgba(6,20,28,.95)' : 'rgba(34,28,16,.95)';
-      const ph = document.createElement('div');
-      ph.style.cssText = 'position:relative;width:100%;max-width:340px;aspect-ratio:2/3;margin:0 auto;border-radius:12px;border:1px solid rgba('+glow+',.4);background:radial-gradient(ellipse 70% 60% at 50% 38%,'+bg+',#08080e);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;box-shadow:0 0 32px rgba('+glow+',.16),0 12px 40px rgba(0,0,0,.55)';
-      ph.innerHTML = '<img src="/assets/no-depict-'+(cyber?'cyber':'classic')+'.jpg" alt="" decoding="async" style="width:74%;aspect-ratio:1;object-fit:contain;-webkit-mask-image:radial-gradient(circle at 50% 48%,#000 58%,transparent 80%);mask-image:radial-gradient(circle at 50% 48%,#000 58%,transparent 80%);filter:drop-shadow(0 0 14px rgba('+glow+',.35))">'
-        + '<div style="font-family:\'Cormorant Garamond\',\'Sarabun\',serif;font-style:italic;font-size:13.5px;color:#9a9088;text-align:center;max-width:78%;line-height:1.55">'
-        + (isTh ? 'ไม่แสดงรูปเคารพ — เพื่อความเคารพต่อความเชื่อ' : 'Depiction omitted out of respect')
-        + '</div>';
-      el.appendChild(ph); showLabs(true); return;
-    }
-    el.textContent = god.symbol || '✦'; showLabs(true); return;
-  }
+  if (!url) { el.innerHTML=''; el.textContent = god.symbol || '✦'; showLabs(true); return; }
   el.innerHTML=''; el.style.cssText='margin:0 auto';
   const _cyber = (_cardTheme()==='cyber');
   const wrap = document.createElement('div');
