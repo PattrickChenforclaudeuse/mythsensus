@@ -522,6 +522,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opa
 .loud-box{background:rgba(200,164,90,.05);border:1px solid rgba(200,164,90,.2);border-radius:4px;padding:12px;}
 .loud-num{font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
 .loud-sym{font-size:22px;margin-bottom:4px;}
+.loud-card{width:80px;height:112px;object-fit:cover;border-radius:3px;margin:2px 0 6px;display:none;border:1px solid rgba(200,164,90,.25);}
 .loud-name{font-family:'Cinzel Decorative',serif;font-size:13px;color:var(--gold);}
 .loud-origin{font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);margin-bottom:4px;}
 .loud-reps{font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--gold3);}
@@ -1158,7 +1159,7 @@ let _authEmail = '';    // Email pending OTP verification
       "inLanguage": ["th","en"],
       "datePublished": "2026-04-27",
       "dateModified": "2026-06-01",
-      "description": "Mythsensus synthesises 26 divination systems — BaZi, Vedic, Western, Nine Star Ki, Mayan, and 22 others — into a single Cosmic Score from 1 to 1,000. Free Cosmic Score, free daily deity blessing from more than 1,000 deities, free 108 Organum oracle. Cosmic Blueprint adds depth: $9 per-system deep readings, a $19 forty-three-page PDF full report, and a $8.99/month subscription for daily-refresh features.",
+      "description": "Mythsensus synthesises 26 divination systems — BaZi, Vedic, Western, Nine Star Ki, Mayan, and 22 others — into a single Cosmic Score from 1 to 1,000. Free Cosmic Score, free daily deity blessing from more than 1,000 deities, free 108 Oraculum oracle. Cosmic Blueprint adds depth: $9 per-system deep readings, a $19 forty-three-page PDF full report, and a $8.99/month subscription for daily-refresh features.",
       "featureList": [
         "BaZi (Four Pillars of Destiny)",
         "Vedic Jyotish",
@@ -1232,7 +1233,7 @@ let _authEmail = '';    // Email pending OTP verification
 <noscript>
   <div style="max-width:720px;margin:40px auto;padding:24px;font-family:Georgia,serif;color:#e6e2d8;background:#0a0a10;line-height:1.7;border:1px solid #2a2a33;border-radius:8px">
     <h2>When 26 ancient systems disagree, we reconcile</h2>
-    <p>Mythsensus reads 26 ancient divination systems together — BaZi (Four Pillars), Vedic, Western astrology, Nine Star Ki, Mayan Tzolkin, Thai Brahmin day-deity, numerology and 19 more — and distils them into a single Cosmic Score from 1 to 1,000, showing where the systems agree and where they conflict. Free daily deity blessing from 1,000+ gods, a free 108 Organum oracle, and a free Cosmic Score. Cosmic Blueprint adds $9 per-system deep readings and a 43-page PDF full report.</p>
+    <p>Mythsensus reads 26 ancient divination systems together — BaZi (Four Pillars), Vedic, Western astrology, Nine Star Ki, Mayan Tzolkin, Thai Brahmin day-deity, numerology and 19 more — and distils them into a single Cosmic Score from 1 to 1,000, showing where the systems agree and where they conflict. Free daily deity blessing from 1,000+ gods, a free 108 Oraculum oracle, and a free Cosmic Score. Cosmic Blueprint adds $9 per-system deep readings and a 43-page PDF full report.</p>
     <p>ดูดวงหลายที่บอกไม่ตรงกัน? Mythsensus อ่าน 26 ศาสตร์โบราณพร้อมกัน แล้วบอกว่าศาสตร์ไหนเห็นตรงกัน ศาสตร์ไหนขัดกัน สรุปเป็น Cosmic Score เดียว · เทพประจำวันฟรี 1,000+ องค์ · เริ่มฟรีไม่ต้องสมัคร ใช้ออฟไลน์ได้</p>
     <p><a href="/how-it-works">How it works</a> · <a href="/pricing">Pricing</a> · <a href="/cosmic-score">Free Cosmic Score</a></p>
   </div>
@@ -1243,7 +1244,7 @@ let _authEmail = '';    // Email pending OTP verification
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"What is Mythsensus?","acceptedAnswer":{"@type":"Answer","text":"Mythsensus reads 26 ancient divination systems together — BaZi, Vedic, Western, Nine Star Ki, Mayan, Thai Brahmin and more — and reconciles them into a single Cosmic Score from 1 to 1,000, showing where the systems agree and disagree."}},
-{"@type":"Question","name":"Is Mythsensus free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The Cosmic Score, a daily deity blessing from over 1,000 gods, and the 108 Organum oracle are free with no signup. Cosmic Blueprint adds $9 per-system deep readings and a 43-page PDF full report."}},
+{"@type":"Question","name":"Is Mythsensus free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The Cosmic Score, a daily deity blessing from over 1,000 gods, and the 108 Oraculum oracle are free with no signup. Cosmic Blueprint adds $9 per-system deep readings and a 43-page PDF full report."}},
 {"@type":"Question","name":"Which divination systems does Mythsensus use?","acceptedAnswer":{"@type":"Answer","text":"26 systems including Chinese BaZi (Four Pillars), Vedic astrology, Western astrology, Nine Star Ki, Mayan Tzolkin, Thai Brahmin day-deity, numerology and 19 more."}},
 {"@type":"Question","name":"Do I need to create an account?","acceptedAnswer":{"@type":"Answer","text":"No. You get your free Cosmic Score and daily deity draw instantly with just your birth date — no signup, and it works offline."}}
 ]}
@@ -2157,7 +2158,8 @@ try{
 
 <!-- ═══ PANEL 2: 108 ORGANUM ═══ -->
 <div class="panel" id="panel-organum">
-  <div class="section-title" data-t="organum_title">108 โอเรกุรัม</div>
+  <div class="section-title" data-t="organum_title">108 โอราคูลัม</div>
+  <div style="text-align:center;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2px;color:var(--gold3);text-transform:uppercase;margin:-12px 0 16px" data-en="The oracle of 108 voices" data-th="คำพยากรณ์จากเสียงเทพ 108 องค์">The oracle of 108 voices</div>
   <p class="panel-intro" data-en="Ask a question. 108 gods will vote on the words they want you to hear. The consensus — not a single god — is your answer." data-th="ตั้งคำถามหนึ่งคำ ให้เทพ 108 องค์ช่วยกันโหวตคำที่อยากให้คุณได้ยิน · คำตอบคือฉันทามติจากทั้งหมด ไม่ใช่เสียงเทพองค์เดียว">Ask a question. 108 gods will vote on the words they want you to hear. The consensus — not a single god — is your answer.</p>
   <div class="q-area">
     <textarea id="questionInput" rows="3" data-t-placeholder="organum_ph"></textarea>
@@ -2195,6 +2197,7 @@ try{
     <div class="loud-pair" id="liveLoudPair" style="display:none">
       <div class="loud-box">
         <div class="loud-num" data-t="loudest_1">#1 Loudest Voice</div>
+        <img class="loud-card" id="ll1card" alt="">
         <div class="loud-sym" id="ll1sym">—</div>
         <div class="loud-name" id="ll1name">—</div>
         <div class="loud-origin" id="ll1origin">—</div>
@@ -2202,6 +2205,7 @@ try{
       </div>
       <div class="loud-box">
         <div class="loud-num" data-t="loudest_2">#2 Loudest Voice</div>
+        <img class="loud-card" id="ll2card" alt="">
         <div class="loud-sym" id="ll2sym">—</div>
         <div class="loud-name" id="ll2name">—</div>
         <div class="loud-origin" id="ll2origin">—</div>
@@ -2233,6 +2237,7 @@ try{
     <div class="loud-pair" id="resultLoudPair">
       <div class="loud-box">
         <div class="loud-num" data-t="loudest_1">#1 Loudest Voice</div>
+        <img class="loud-card" id="rl1card" alt="">
         <div class="loud-sym" id="rl1sym">—</div>
         <div class="loud-name" id="rl1name">—</div>
         <div class="loud-origin" id="rl1origin">—</div>
@@ -2241,6 +2246,7 @@ try{
       </div>
       <div class="loud-box">
         <div class="loud-num" data-t="loudest_2">#2 Loudest Voice</div>
+        <img class="loud-card" id="rl2card" alt="">
         <div class="loud-sym" id="rl2sym">—</div>
         <div class="loud-name" id="rl2name">—</div>
         <div class="loud-origin" id="rl2origin">—</div>
@@ -2601,7 +2607,7 @@ try{
 <!-- ═══ SUBSCRIPTION ─ Frequency Alert History ═══ -->
 <div class="panel" id="panel-freq">
   <div class="section-title" data-t="freq_title">FREQUENCY ALERTS — ประวัติเต็ม</div>
-  <p class="panel-intro" data-en="Which gods, words, or themes keep returning to you. Repetition across 108 Organum questions often points at something you haven't fully heard yet." data-th="เทพองค์ไหน คำไหน หรือธีมไหน ชอบวนกลับมาหาคุณเรื่อยๆ · การซ้ำบ่อยใน 108 Organum มักแปลว่า &quot;คุณยังฟังไม่ครบ&quot;">Which gods, words, or themes keep returning to you. Repetition across 108 Organum questions often points at something you haven't fully heard yet.</p>
+  <p class="panel-intro" data-en="Which gods, words, or themes keep returning to you. Repetition across 108 Oraculum questions often points at something you haven't fully heard yet." data-th="เทพองค์ไหน คำไหน หรือธีมไหน ชอบวนกลับมาหาคุณเรื่อยๆ · การซ้ำบ่อยใน 108 โอราคูลัม มักแปลว่า &quot;คุณยังฟังไม่ครบ&quot;">Which gods, words, or themes keep returning to you. Repetition across 108 Oraculum questions often points at something you haven't fully heard yet.</p>
   <div class="sky-dom-hint" data-t="freq_hint">pattern ที่จักรวาลส่งสัญญาณซ้ำ · เก็บยาว ไม่จำกัด</div>
   <div id="freqPanel" style="max-width:720px;margin:0 auto;"></div>
 </div>
@@ -2783,11 +2789,11 @@ try{
 const TX={
 en:{
   tagline:"Where myriad myths reach consensus — about you",
-  tab_blessing:"God Blessing",tab_organum:"108 Organum",tab_sky:"Today's Sky",tab_chart:"My Chart",
+  tab_blessing:"God Blessing",tab_organum:"108 Oraculum",tab_sky:"Today's Sky",tab_chart:"My Chart",
   tab_profile:"👤 Profile",tab_blueprint:"🌟 Cosmic Blueprint",tab_history:"📜 History",
   draw_btn:"Receive Today's Blessing",
   blessing_draws_left:"draws remaining today",blessing_used:"Today's blessing received",blessing_history:"Earlier today",
-  organum_title:"108 Organum",organum_ph:"Ask a question… What guides me now? Where is my energy flowing?",
+  organum_title:"108 Oraculum",organum_ph:"Ask a question… What guides me now? Where is my energy flowing?",
   organum_ask:"Ask the 108 Gods",organum_voting_label:"GODS HAVE VOTED",organum_again:"Ask Another",
   loudest_1:"#1 Loudest Voice",loudest_2:"#2 Loudest Voice",also_heard:"Also heard strongly",
   browse_gods:"Words the gods are saying — click to see who",
@@ -2819,10 +2825,10 @@ en:{
   group_free:"✦ Free",group_premium:"👑 Cosmic Blueprint",group_subscription:"🔮 Subscription",
   group_addon:"🎁 Add-ons",group_profile:"👤 Profile",
   // ── sub-tabs
-  sub_blessing:"🎴 Blessing",sub_organum:"🔮 Organum",sub_preview:"📊 Preview",
+  sub_blessing:"🎴 Blessing",sub_organum:"🔮 Oraculum",sub_preview:"📊 Preview",
   sub_collection:"📚 Collection",sub_library:"📦 My Unlocks",sub_streak:"🔥 Streak",sub_history7:"📜 7-day",
   sub_generate:"✨ Generate",sub_reports:"📁 My Reports",
-  sub_sky:"🌌 Daily Sky",sub_resonance:"🧭 Resonance",sub_organum_plus:"🔮 Organum ∞",
+  sub_sky:"🌌 Daily Sky",sub_resonance:"🧭 Resonance",sub_organum_plus:"🔮 Oraculum ∞",
   sub_pulse:"⚡ Daily",sub_brief:"📰 Monthly",sub_freq:"📡 Frequency",sub_lucky:"🌟 Auspicious",sub_history_all:"📜 History",
   pulse_title:"DAILY COSMIC PULSE",
   pulse_hint:"Today's Sky + 7-10 systems → one reading of what today means for you",
@@ -2999,11 +3005,11 @@ en:{
 },
 th:{
   tagline:"ที่ที่ตำนานนับพันมาบรรจบกัน — เพื่อเล่าเรื่องของคุณ",
-  tab_blessing:"พรแห่งวัน",tab_organum:"108 โอเรกุรัม",tab_sky:"ฟ้าวันนี้",tab_chart:"แผนที่ชีวิต",
+  tab_blessing:"พรแห่งวัน",tab_organum:"108 โอราคูลัม",tab_sky:"ฟ้าวันนี้",tab_chart:"แผนที่ชีวิต",
   tab_profile:"👤 โปรไฟล์",tab_blueprint:"🌟 Cosmic Blueprint",tab_history:"📜 ประวัติ",
   draw_btn:"รับพรแห่งวันนี้",
   blessing_draws_left:"ครั้งที่เหลือวันนี้",blessing_used:"รับพรแห่งวันนี้แล้ว",blessing_history:"จั่วก่อนหน้า",
-  organum_title:"108 โอเรกุรัม",organum_ph:"ถามคำถาม… สิ่งใดกำลังชี้นำฉัน? พลังของฉันกำลังไหลไปทางไหน?",
+  organum_title:"108 โอราคูลัม",organum_ph:"ถามคำถาม… สิ่งใดกำลังชี้นำฉัน? พลังของฉันกำลังไหลไปทางไหน?",
   organum_ask:"ถาม 108 เทพ",organum_voting_label:"เทพลงคะแนนแล้ว",organum_again:"ถามอีกครั้ง",
   loudest_1:"#1 เสียงดังที่สุด",loudest_2:"#2 เสียงดังที่สุด",also_heard:"ได้ยินเสียงนี้ชัดเช่นกัน",
   browse_gods:"คำที่เทพพูดถึง — คลิกเพื่อดูว่าเทพไหนพูด",
@@ -3035,7 +3041,7 @@ th:{
   group_free:"✦ ฟรี",group_premium:"👑 Cosmic Blueprint",group_subscription:"🔮 สมาชิก",
   group_addon:"🎁 แอดออน",group_profile:"👤 โปรไฟล์",
   // ── sub-tabs
-  sub_blessing:"🎴 จั่วไพ่",sub_organum:"🔮 โอเรกุรัม",sub_preview:"📊 ดูตัวอย่าง",
+  sub_blessing:"🎴 จั่วไพ่",sub_organum:"🔮 โอราคูลัม",sub_preview:"📊 ดูตัวอย่าง",
   sub_collection:"📚 สะสมเทพ",sub_library:"📦 ที่ปลดล็อก",sub_streak:"🔥 Streak",sub_history7:"📜 7 วัน",
   sub_generate:"✨ สร้างรายงาน",sub_reports:"📁 รายงานของฉัน",
   sub_sky:"🌌 ฟ้าวันนี้",sub_resonance:"🧭 ดวงของเรากับสภาพแวดล้อม",sub_organum_plus:"🔮 เสียงจาก 108 เทพ",
@@ -4773,7 +4779,25 @@ async function runOrganum(){
 }
 
 function fillLoudBox(prefix,god){
-  document.getElementById(prefix+'sym').textContent=god.symbol||'✦';
+  const sym=document.getElementById(prefix+'sym');
+  const card=document.getElementById(prefix+'card');
+  sym.textContent=god.symbol||'✦';
+  // Show the deity's card art (respects the Classic/Cyber skin via _cardUrl);
+  // fall back to the emoji symbol when the god has no card or the image fails
+  // to load. Guard on data-god so rapid live-vote ticks don't re-fetch/flicker
+  // when the same god stays the loudest across frames.
+  if(card){
+    const url=(typeof _cardUrl==='function')?_cardUrl(god):null;
+    if(url&&card.getAttribute('data-god')!==god.name){
+      card.setAttribute('data-god',god.name);
+      card.onload=function(){card.style.display='block';sym.style.display='none';};
+      card.onerror=function(){card.style.display='none';sym.style.display='';};
+      card.src=url; card.alt=god.name;
+    }else if(!url){
+      card.removeAttribute('data-god'); card.removeAttribute('src');
+      card.style.display='none'; sym.style.display='';
+    }
+  }
   document.getElementById(prefix+'name').textContent=god.name;
   document.getElementById(prefix+'origin').textContent=god.mythology||'—';
   document.getElementById(prefix+'reps').textContent=(god.represents||[]).slice(0,5).join(' · ');
@@ -5826,7 +5850,7 @@ function renderDesktopRails(phase, moonSign, dow, dayIcons, dayNamesTH, dayNames
   // Right rail — Your Journey
   set('railStatsTitle', isTh ? '✦ เส้นทางของคุณ' : '✦ Your Journey');
   set('railStatBlessingsLabel', isTh ? 'รับพรแล้ว' : 'Blessings received');
-  set('railStatOrganumLabel',   isTh ? 'ถามโอเรกุรัม' : 'Oracles consulted');
+  set('railStatOrganumLabel',   isTh ? 'ถามโอราคูลัม' : 'Oracles consulted');
   set('railStatReportsLabel',   isTh ? 'สร้างรายงาน' : 'Reports generated');
   let blessings = 0, organum = 0, reports = 0;
   try {
@@ -10145,7 +10169,7 @@ function renderFreqHistory(){
     panel.innerHTML = `<div class="tier-lock" style="border-color:var(--border)">
       <div class="tier-lock-icon">📡</div>
       <div class="tier-lock-title">${t('freq_empty_title')}</div>
-      <div class="tier-lock-desc">${isTh?'จั่วพรหรือถามโอเรกุรัมสัก 2-3 ครั้ง แล้วกลับมาดู pattern ที่กลับมาซ้ำ':'Draw a few blessings or ask the Organum, then return to see what keeps recurring.'}</div>
+      <div class="tier-lock-desc">${isTh?'จั่วพรหรือถามโอราคูลัมสัก 2-3 ครั้ง แล้วกลับมาดู pattern ที่กลับมาซ้ำ':'Draw a few blessings or ask the Oraculum, then return to see what keeps recurring.'}</div>
     </div>`;
     return;
   }
@@ -10200,7 +10224,7 @@ function renderFreqHistory(){
   const catCard = cats.length ? `
     <div class="deep-sys-card">
       <div class="deep-sys-title">${isTh?'🎯 หมวดที่จักรวาลย้ำ':'🎯 Themes the universe keeps sending'}</div>
-      <div class="deep-sys-origin">${isTh?`ธีมของเทพทุกองค์ที่จั่วได้ · จาก ${blessings} พร + ${organa} โอเรกุรัม`:`Theme of every deity drawn · from ${blessings} blessings + ${organa} Organum`}</div>
+      <div class="deep-sys-origin">${isTh?`ธีมของเทพทุกองค์ที่จั่วได้ · จาก ${blessings} พร + ${organa} โอราคูลัม`:`Theme of every deity drawn · from ${blessings} blessings + ${organa} Oraculum`}</div>
       <div style="margin-top:4px">${catRows}</div>
     </div>` : '';
 
@@ -10214,13 +10238,13 @@ function renderFreqHistory(){
   const godCard = `
     <div class="deep-sys-card" style="margin-top:14px">
       <div class="deep-sys-title">${isTh?'เทพที่กลับมาหาคุณบ่อย (รายองค์)':'Deities that keep returning (individual)'}</div>
-      <div class="deep-sys-origin">${isTh?`จาก ${blessings} พร + ${organa} คำถามโอเรกุรัม`:`From ${blessings} blessings + ${organa} Organum readings`}</div>
+      <div class="deep-sys-origin">${isTh?`จาก ${blessings} พร + ${organa} คำถามโอราคูลัม`:`From ${blessings} blessings + ${organa} Oraculum readings`}</div>
       ${godRows || `<div style="font-size:12px;color:var(--muted);padding-top:8px">${isTh?'ยังไม่มีเทพที่บันทึก':'No deities recorded yet'}</div>`}
     </div>`;
 
   const themeRows = themes.length ? `
     <div class="deep-sys-card" style="margin-top:14px">
-      <div class="deep-sys-title">${isTh?'คำที่โอเรกุรัมย้ำ':'Words the Organum repeats'}</div>
+      <div class="deep-sys-title">${isTh?'คำที่โอราคูลัมย้ำ':'Words the Oraculum repeats'}</div>
       <div class="deep-sys-origin">${isTh?'คำที่ 108 เทพโหวตให้บ่อยสุดในคำถามของคุณ':'Words the 108 gods voted for most across your questions'}</div>
       <div class="deep-sys-stats">
         ${themes.map(([w,n])=>`<div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${_esc(w)}</div><div class="deep-sys-stat-val">${n}×</div></div>`).join('')}
@@ -10565,7 +10589,7 @@ function _planComparisonHtml(isTh){
       ${foot?`<div style="margin-top:10px;font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:.5px;color:var(--muted);line-height:1.5">${foot}</div>`:''}
     </div>`;
   const free = card(isTh?'ฟรี':'FREE', isTh?'พื้นฐาน':'Core', isTh?'฿0 · ใช้ได้เลย':'$0 · always', 'var(--border)',
-    isTh ? ['✓ รายงานดวง 26 ศาสตร์ (Cosmic Blueprint)','✓ ฟ้าวันนี้ (Daily Pulse)','✓ สะสมเทพ + จั่วพร 1,069 องค์','✓ 108 ออร์แกนุม (ถาม-ตอบ)','✓ สรุปเดือน + frequency'] : ['✓ Full 26-system Blueprint','✓ Daily Pulse','✓ Collect + draw 1,069 gods','✓ 108 Organum oracle','✓ Monthly brief + frequency'], '');
+    isTh ? ['✓ รายงานดวง 26 ศาสตร์ (Cosmic Blueprint)','✓ ฟ้าวันนี้ (Daily Pulse)','✓ สะสมเทพ + จั่วพร 1,069 องค์','✓ 108 โอราคูลัม (ถาม-ตอบ)','✓ สรุปเดือน + frequency'] : ['✓ Full 26-system Blueprint','✓ Daily Pulse','✓ Collect + draw 1,069 gods','✓ 108 Oraculum oracle','✓ Monthly brief + frequency'], '');
   const one = card(isTh?'ซื้อครั้งเดียว':'ONE-TIME', isTh?'เจาะลึกรายอย่าง':'Per add-on', isTh?'฿180–650 (ต่ออย่าง)':'$5–19 each', 'var(--gold3)',
     isTh ? ['✓ ปลดล็อก add-on ที่เลือก<br><span style="color:var(--muted);font-size:12px">(Deep Reading · Mirror · Pet · Food · Compat …)</span>','✓ ใช้กับ <strong>ดวงของคุณ</strong>','✓ ดูซ้ำได้ตลอด ไม่หมดอายุ'] : ['✓ Unlock the add-on you pick<br><span style="color:var(--muted);font-size:12px">(Deep Reading · Mirror · Pet · Food · Compat …)</span>','✓ For <strong>your chart</strong>','✓ Unlimited re-views, forever'],
     isTh ? 'เปลี่ยนวันเกิด/เวลา = ต้องซื้อใหม่' : 'Change birth data → re-purchase');
@@ -20208,7 +20232,7 @@ function renderHistoryPanel() {
       return `<div class="hist-item">
         <div class="hist-item-header">
           <span class="hist-type-tag" style="background:rgba(176,112,224,.15);color:#b070e0;border:1px solid rgba(176,112,224,.3)">
-            🔮 Organum
+            🔮 Oraculum
           </span>
           <span class="hist-date">${h.date||''} ${h.time||''}</span>
         </div>
