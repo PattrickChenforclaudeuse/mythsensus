@@ -3374,15 +3374,42 @@ const SCORE_COLORS = [
   '#5a3a80','#8a4010','#2a5a5a','#3a5a70','#2a4a70',
 ];
 
-// Tier boundaries calibrated from real dataset n=1,211 (Apr 2026)
+// ── Cosmic Score recalibration · cdf_v2_agreement · 2026-07-01 ────────────────
+// Cosmic Score = cross-system AGREEMENT (percentile-normalised INVERSE dispersion
+// of the 25 voting systems) — restores the original "when systems agree, the score
+// is high" design; the old plain median measured central tendency, not agreement.
+// Soul Frequency = the central archetype level (median), a distinct 2nd axis.
+// Frozen 21-pt quantile CDFs (each step = 5 percentile pts) from a 20k random-chart
+// reference sample. DO NOT auto-refit — bump the version on any deliberate change.
+const _CDF_MAD = [8,25,28,29,30,32,33,34,35,36,37,38,39,40,42,43,44,46,48,52,77];
+const _CDF_MED = [700,730,735,738,741,743,745,747,749,751,753,755,757,758,760,763,765,767,770,775,802];
+function _pctInCdf(Q: number[], v: number): number {
+  if (v <= Q[0]) return 0;
+  if (v >= Q[Q.length - 1]) return 1;
+  let lo = 0, hi = Q.length - 1;
+  while (lo < hi) { const m = (lo + hi) >> 1; if (Q[m] < v) lo = m + 1; else hi = m; }
+  const v0 = Q[lo - 1], v1 = Q[lo];
+  const frac = v1 > v0 ? (v - v0) / (v1 - v0) : 0;
+  return ((lo - 1) + frac) / (Q.length - 1);
+}
+function _dispMad(scores: number[]): number {
+  const s = [...scores].sort((a, b) => a - b);
+  const med = s[s.length >> 1];
+  const ad = s.map(x => Math.abs(x - med)).sort((a, b) => a - b);
+  return ad[ad.length >> 1];
+}
+function _toScale(pct: number): number { return Math.round((300 + 699 * pct) / 10) * 10; } // bucket-10
+
+// Tier boundaries = PERCENTILE cuts of the frozen CDF (Set B) — every tier now
+// reachable + "Top X%" labels are finally true. Low tiers = complex/multi-faceted, not "bad".
 const TIERS = [
-  { min: 860, tier: 'Celestial', tierTh: 'ฟ้า — Celestial', pct: 'Top 1%' },
-  { min: 810, tier: 'Radiant', tierTh: 'แสง — Radiant', pct: 'Top 5%' },
-  { min: 780, tier: 'Luminous', tierTh: 'เปล่งประกาย — Luminous', pct: 'Top 15%' },
-  { min: 730, tier: 'Resonant', tierTh: 'สั่นพ้อง — Resonant', pct: 'Top 35%' },
-  { min: 685, tier: 'Grounded', tierTh: 'หยั่งราก — Grounded', pct: 'Top 55%' },
-  { min: 650, tier: 'Seeking', tierTh: 'แสวงหา — Seeking', pct: 'Top 75%' },
-  { min: 0, tier: 'Emerging', tierTh: 'กำลังก่อตัว — Emerging', pct: 'Bottom 25%' },
+  { min: 980, tier: 'Divine',   tierTh: 'ทิพย์ — Divine',    pct: 'Top 3%' },
+  { min: 890, tier: 'Radiance', tierTh: 'รัศมี — Radiance',  pct: 'Top 15%' },
+  { min: 790, tier: 'Glimmer',  tierTh: 'ประกาย — Glimmer',  pct: 'Top 30%' },
+  { min: 650, tier: 'Balance',  tierTh: 'ดุลย์ — Balance',   pct: 'Top 50%' },
+  { min: 470, tier: 'Earth',    tierTh: 'ปฐพี — Earth',      pct: 'Top 75%' },
+  { min: 370, tier: 'Seeking',  tierTh: 'แสวง — Seeking',    pct: 'Top 90%' },
+  { min: 0,   tier: 'Dawn',     tierTh: 'อรุณ — Dawn',       pct: 'Foundational' },
 ];
 
 const COSMIC_ENTITIES = [
@@ -3538,7 +3565,12 @@ function calcScore(d: BirthData, data: Omit<ChartData, 'score'>): ScoreData {
   const binCounts: Record<number,number> = {};
   sorted.forEach(s => { const bin = Math.floor(s/50)*50; binCounts[bin] = (binCounts[bin]||0)+1; });
   const modalBin = +Object.entries(binCounts).sort((a,b)=>b[1]-a[1])[0][0];
-  const total = Math.min(999, Math.max(400, median));
+  // Cosmic Score = AGREEMENT: a tight cluster of systems (low dispersion) = high score,
+  // a wide scatter = low (the person the traditions read many different ways).
+  const _mad = _dispMad(votingScores);
+  const total = _toScale(1 - _pctInCdf(_CDF_MAD, _mad));
+  // Soul Frequency = central archetype level (median), a distinct second axis.
+  const _soulFreq = _toScale(_pctInCdf(_CDF_MED, median));
 
   const tier = TIERS.find(t => total >= t.min) ?? TIERS[TIERS.length - 1];
   const entityIdx = total % COSMIC_ENTITIES.length;
@@ -3575,7 +3607,7 @@ function calcScore(d: BirthData, data: Omit<ChartData, 'score'>): ScoreData {
     primaryGod: tPick(GODS[godIdx][0], (GODS[godIdx][0].match(/\(([^)]+)\)/) || [,GODS[godIdx][0]])[1]),
     secondaryGod: tPick(GODS[godIdx][1], (GODS[godIdx][1].match(/\(([^)]+)\)/) || [,GODS[godIdx][1]])[1]),
     // 3-score placeholders — filled by calcLifeTerrain below
-    soulFrequency: total, lifeTerrainScore: 0, pathResonanceScore: 0,
+    soulFrequency: _soulFreq, lifeTerrainScore: 0, pathResonanceScore: 0,
     cosmicFinal: total, lifeTerrainDetail: '', pathResonanceDetail: '',
   };
 }
