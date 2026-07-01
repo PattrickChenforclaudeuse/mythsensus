@@ -2114,6 +2114,7 @@ try{
     <div class="god-card" id="godCard">
       <div class="tier-badge" id="tierBadge"></div>
       <div class="god-symbol" id="godSymbol"></div>
+      <button id="cardThemeToggle" data-theme-label onclick="_toggleCardTheme()" style="display:none;margin:8px auto 2px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 13px;border-radius:14px;cursor:pointer" title="สลับสกินการ์ด (Classic ↔ Cyber) · draw เดิม">✦ Classic</button>
       <div class="god-name" id="godName"></div>
       <div class="god-origin" id="godOrigin"></div>
       <div class="god-message" id="godMessage"></div>
@@ -4111,39 +4112,105 @@ function _godArtUrl(name, tier){
 // Frame, name and rank are baked into the image, so _godArtInto renders the
 // full card (+ living FX) and hides the now-redundant tier/name labels. The
 // few deities still missing a card fall back to their emoji symbol.
-const _CARD_BASE = 'https://woamqrhifuxsscnihqco.supabase.co/storage/v1/object/public/god-cards/';
-const _CARD_MISSING = { Tiamat:1, 'Tiamat Primordial':1 };
-function _cardUrl(god){
-  if (!god || !god.name || !god.tier || _CARD_MISSING[god.name]) return null;
-  return _CARD_BASE + god.tier + '-' + String(god.name).replace(/[^a-z0-9]+/gi,'-') + '.webp';
+const _CARD_BASE = 'https://woamqrhifuxsscnihqco.supabase.co/storage/v1/object/public/god-cards/';        // classic anime-artbook (.webp)
+const _CARD_BASE_CYBER = 'https://woamqrhifuxsscnihqco.supabase.co/storage/v1/object/public/god-cards-v2/'; // cyber-robotic (.jpg), all 1069
+const _CARD_MISSING = { Tiamat:1, 'Tiamat Primordial':1 };  // classic set only; the cyber v2 set has every deity
+// Card THEME = an A/B'd cosmetic skin over the SAME draw (god/score/tier/blessing
+// never change). New visitors get a stable random default so Classic vs Cyber can
+// be measured on the draw→share→return funnel; _toggleCardTheme() lets them switch.
+function _cardTheme(){
+  try{
+    let t = localStorage.getItem('mth_theme');
+    if (t!=='classic' && t!=='cyber'){
+      t = (Math.random()<0.5) ? 'classic' : 'cyber';
+      localStorage.setItem('mth_theme', t);
+      try{ if(window._msTrack) _msTrack.track('theme_assigned',{theme:t}); }catch(_){}
+    }
+    return t;
+  }catch(_){ return 'classic'; }
 }
+function _cardSlug(god){ return god.tier + '-' + String(god.name).replace(/[^a-z0-9]+/gi,'-'); }
+function _cardUrl(god){
+  if (!god || !god.name || !god.tier) return null;
+  if (_cardTheme()==='cyber') return _CARD_BASE_CYBER + _cardSlug(god) + '.jpg';
+  if (_CARD_MISSING[god.name]) return null;
+  return _CARD_BASE + _cardSlug(god) + '.webp';
+}
+// Epic+ cyber FX: each culture's own sacred chant glyphs rise like matrix code.
+// System fonts cover CJK/Greek/Hebrew/Arabic; a lazily-injected Noto covers
+// Thai/Devanagari/Runic/Hieroglyph; everything else uses a romanized chant so
+// nothing renders as a tofu box.
+let _notoInjected = false;
+function _injectPrayerFonts(){
+  if (_notoInjected) return; _notoInjected = true;
+  try{ const l=document.createElement('link'); l.rel='stylesheet';
+    l.href='https://fonts.googleapis.com/css2?family=Noto+Sans+Runic&family=Noto+Sans+Egyptian+Hieroglyphs&family=Noto+Sans+Devanagari&family=Noto+Sans+Thai&display=swap';
+    document.head.appendChild(l);
+  }catch(_){}
+}
+const _PRAYER_FAMILIES = [
+  [/Hindu|Vedic|Tibet/i, 'ॐनमःशिवायभगवतेवासुदेवायभूर्भुवःस्वःतत्सवितुर्वरेण्यं', "'Noto Sans Devanagari',sans-serif"],
+  [/Thai/i,              'นโมตสฺสภควโตอรหโตสมฺมาสมฺพุทฺธสฺสพุทฺธํสรณํคจฺฉามิ', "'Noto Sans Thai',sans-serif"],
+  [/Chinese|Shinto|Buddh|Korea/i, '南無阿彌陀佛唵嘛呢叭咪吽祓給清天地人道', "'Noto Sans JP','Noto Serif SC',serif"],
+  [/Greek|Orphic/i,      'ΑΛΦΑΩΜΕΓΑΘΕΟΣΖΕΥΣΑΣΤΡΑΠΗΚΕΡΑΥΝΟΣΝΙΚΗ', 'serif'],
+  [/Norse/i,             'ᚨᚾᛋᚢᛉᚦᚢᚱᛁᛊᚨᛉᚠᛖᚺᚢᚦᚨᚱᚲᚷᚹᛟᛞᛖᛗᚪᛒᚳ', "'Noto Sans Runic',sans-serif"],
+  [/Egypt/i,             '𓂀𓁿𓆓𓅨𓊹𓈖𓎼𓇋𓏏𓄤𓋹𓊃𓆃𓇳𓅓𓂋', "'Noto Sans Egyptian Hieroglyphs',sans-serif"],
+  [/Judaism|Kabbal/i,    'אהיהאשראהיהיהוהאלוהיםאדוניאלשדי', 'serif'],
+  [/Persia|Zoroas|Islam|Arab|Sufi|Middle East/i, 'بسماللهالرحمنالرحيمالحمدللهرباالعالمين', 'serif'],
+];
+function _prayerFor(myth){
+  _injectPrayerFonts();
+  for (const [re,glyphs,font] of _PRAYER_FAMILIES) if (re.test(myth||'')) return { glyphs, font };
+  return { glyphs:'LVXAETERNADEVSSACERMYSTERIVMFATVMANIMAMVNDVS', font:'monospace' }; // romanized fallback
+}
+// Flip the card skin, persist, re-render the current draw, and log the switch
+// (voluntary switching is itself an A/B signal). Exposed on window for the UI.
+function _toggleCardTheme(){
+  try{
+    const next = (_cardTheme()==='cyber') ? 'classic' : 'cyber';
+    localStorage.setItem('mth_theme', next);
+    try{ if(window._msTrack) _msTrack.track('theme_toggle',{to:next}); }catch(_){}
+    const g = (typeof _currentDraw!=='undefined' && _currentDraw && _currentDraw.god) ? _currentDraw.god : null;
+    const el = document.getElementById('godSymbol');
+    if (g && el) _godArtInto(el, g, 160, '');
+    document.querySelectorAll('[data-theme-label]').forEach(n=>{ n.textContent = (next==='cyber'?'◈ Cyber':'✦ Classic'); });
+  }catch(_){}
+}
+try{ window._toggleCardTheme = _toggleCardTheme; window._cardTheme = _cardTheme; }catch(_){}
 // Living-card FX (pure CSS/JS, free): matrix digit-rain rising + particle
 // embers rising + holographic mouse-tilt; gold glow for Epic+. One per card;
 // the previous card's timers are stopped before a new one mounts.
 let _lastFx = null;
-function _mountCardFX(wrap, tier){
+function _mountCardFX(wrap, tier, god){
   try{
     if (_lastFx && _lastFx._stop) _lastFx._stop();
-    // FX = a rarity reward → Epic+ ONLY. Common/Uncommon/Rare stay clean
-    // (just the card + drop-shadow), so pulling an Epic+ feels special.
+    // FX = a rarity reward → Epic+ ONLY. Common/Uncommon/Rare stay clean.
     if (tier !== 'Epic' && tier !== 'Legendary' && tier !== 'Mythic') { _lastFx = null; return; }
     _lastFx = wrap; wrap._stops = [];
+    // Theme-aware: cyber = each culture's sacred chant glyphs in cyan at .8;
+    // classic = gold digit-rain at .26.
+    const cyber = (_cardTheme()==='cyber');
+    const RGB   = cyber ? '150,235,255' : '232,200,120';                 // cyan vs gold
+    const pr    = cyber ? _prayerFor(god && god.mythology) : null;
+    const nextGlyph = cyber ? (()=>pr.glyphs[Math.floor(Math.random()*pr.glyphs.length)]) : (()=>Math.floor(Math.random()*10));
     const W = wrap.clientWidth || 300, H = wrap.clientHeight || 450;
     const mc = document.createElement('canvas'); mc.width = W; mc.height = H;
-    mc.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;opacity:.26;mix-blend-mode:screen;pointer-events:none;-webkit-mask-image:radial-gradient(ellipse 60% 55% at 50% 45%,transparent 34%,#000 82%);mask-image:radial-gradient(ellipse 60% 55% at 50% 45%,transparent 34%,#000 82%)';
+    mc.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;opacity:'+(cyber?'.8':'.26')+';mix-blend-mode:screen;pointer-events:none;-webkit-mask-image:radial-gradient(ellipse 60% 55% at 50% 45%,transparent 34%,#000 82%);mask-image:radial-gradient(ellipse 60% 55% at 50% 45%,transparent 34%,#000 82%)';
     wrap.appendChild(mc);
-    const mx = mc.getContext('2d'), fsz = 12, cols = Math.max(1, Math.floor(W/fsz)), drops = [];
+    const mx = mc.getContext('2d'), fsz = cyber?15:12, cols = Math.max(1, Math.floor(W/fsz)), drops = [];
     for (let i=0;i<cols;i++) drops[i] = H/fsz + Math.random()*20;
-    const mt = setInterval(()=>{ mx.fillStyle='rgba(10,8,4,0.13)'; mx.fillRect(0,0,W,H); mx.font=fsz+'px monospace'; mx.fillStyle='rgba(232,200,120,0.8)'; for(let i=0;i<cols;i++){ mx.fillText(Math.floor(Math.random()*10), i*fsz, drops[i]*fsz); if(drops[i]*fsz<0 && Math.random()>0.97) drops[i]=H/fsz; drops[i]-=0.5; } }, 80);
+    const fxFont = cyber ? ('700 '+fsz+'px '+pr.font) : (fsz+'px monospace');
+    const trail  = cyber ? 'rgba(6,10,14,0.12)' : 'rgba(10,8,4,0.13)';
+    const mt = setInterval(()=>{ mx.fillStyle=trail; mx.fillRect(0,0,W,H); mx.font=fxFont; mx.fillStyle='rgba('+RGB+',0.85)'; for(let i=0;i<cols;i++){ mx.fillText(nextGlyph(), i*fsz, drops[i]*fsz); if(drops[i]*fsz<0 && Math.random()>0.97) drops[i]=H/fsz; drops[i]-=0.5; } }, 80);
     wrap._stops.push(()=>clearInterval(mt));
     const pc = document.createElement('canvas'); pc.width = W; pc.height = H;
     pc.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
     wrap.appendChild(pc);
     const pX = pc.getContext('2d'), P = []; for(let i=0;i<16;i++) P.push({x:Math.random()*W,y:Math.random()*H,s:1+Math.random()*2,v:.2+Math.random()*.6,a:.2+Math.random()*.5});
-    let raf; (function lp(){ pX.clearRect(0,0,W,H); for(const p of P){ p.y-=p.v; if(p.y<-4){p.y=H+4;p.x=Math.random()*W;} pX.beginPath(); pX.fillStyle='rgba(232,200,120,'+p.a+')'; pX.shadowBlur=6; pX.shadowColor='rgba(232,200,120,.8)'; pX.arc(p.x,p.y,p.s,0,7); pX.fill(); } raf=requestAnimationFrame(lp); })();
+    let raf; (function lp(){ pX.clearRect(0,0,W,H); for(const p of P){ p.y-=p.v; if(p.y<-4){p.y=H+4;p.x=Math.random()*W;} pX.beginPath(); pX.fillStyle='rgba('+RGB+','+p.a+')'; pX.shadowBlur=6; pX.shadowColor='rgba('+RGB+',.8)'; pX.arc(p.x,p.y,p.s,0,7); pX.fill(); } raf=requestAnimationFrame(lp); })();
     wrap._stops.push(()=>cancelAnimationFrame(raf));
     const shine = document.createElement('div');
-    shine.style.cssText = 'position:absolute;inset:0;background-image:linear-gradient(115deg,transparent 30%,rgba(232,200,120,.30),rgba(255,235,180,.22),transparent 70%);background-size:300% 300%;mix-blend-mode:soft-light;opacity:0;transition:opacity .25s;pointer-events:none';
+    shine.style.cssText = 'position:absolute;inset:0;background-image:linear-gradient(115deg,transparent 30%,rgba('+RGB+',.30),rgba(255,255,255,.18),transparent 70%);background-size:300% 300%;mix-blend-mode:'+(cyber?'color-dodge':'soft-light')+';opacity:0;transition:opacity .25s;pointer-events:none';
     wrap.appendChild(shine);
     wrap.style.transition = 'transform .1s ease-out';
     if (wrap.parentElement) wrap.parentElement.style.perspective = '800px';
@@ -4151,7 +4218,7 @@ function _mountCardFX(wrap, tier){
     const ml = ()=>{ wrap.style.transform=''; shine.style.opacity=0; };
     wrap.addEventListener('mousemove', mm); wrap.addEventListener('mouseleave', ml);
     wrap._stops.push(()=>{ wrap.removeEventListener('mousemove',mm); wrap.removeEventListener('mouseleave',ml); });
-    if (tier==='Epic' || tier==='Legendary' || tier==='Mythic') wrap.style.boxShadow = '0 0 16px 1px rgba(232,200,120,.45)';
+    wrap.style.boxShadow = '0 0 16px 1px rgba('+RGB+',.45)';
     wrap._stop = ()=>{ (wrap._stops||[]).forEach(f=>{ try{ f(); }catch(_){} }); };
   }catch(_){}
 }
@@ -4163,23 +4230,35 @@ function _godArtInto(el, god, sizePx, extraCss){
   const url = _cardUrl(god);
   if (!url) { el.innerHTML=''; el.textContent = god.symbol || '✦'; showLabs(true); return; }
   el.innerHTML=''; el.style.cssText='margin:0 auto';
+  const _cyber = (_cardTheme()==='cyber');
   const wrap = document.createElement('div');
-  // Harmonize (2026-07-01): the anime-artbook cards run bright/neon vs the site's
-  // near-black occult theme (--bg #040407). Tone-down + warm-multiply scrim +
-  // edge-vignette + thin gold frame sink the card INTO the dark instead of it
-  // floating like a sticker — pure CSS, art untouched. (Step A; B = pixel-level
-  // neon retone on the 1,060 source images comes later.)
-  wrap.style.cssText = 'position:relative;display:block;width:100%;max-width:340px;margin:0 auto;border-radius:12px;overflow:hidden;line-height:0;border:1px solid rgba(212,170,80,.38);box-shadow:0 0 34px 2px rgba(212,170,80,.14),0 14px 46px rgba(0,0,0,.6)';
+  // Classic (anime) art is bright → gold harmonize (tone-down + warm scrim + gold
+  // frame) sinks it into the dark theme. Cyber (v2) art is already dark-graded →
+  // just a cyan frame + light vignette, no sepia, no warm scrim.
+  wrap.style.cssText = 'position:relative;display:block;width:100%;max-width:340px;margin:0 auto;border-radius:12px;overflow:hidden;line-height:0;'
+    + (_cyber
+        ? 'border:1px solid rgba(0,229,255,.42);box-shadow:0 0 30px 2px rgba(0,229,255,.16),0 0 60px 8px rgba(255,45,149,.08),0 14px 46px rgba(0,0,0,.6)'
+        : 'border:1px solid rgba(212,170,80,.38);box-shadow:0 0 34px 2px rgba(212,170,80,.14),0 14px 46px rgba(0,0,0,.6)');
   const im = document.createElement('img'); im.src = url; im.alt = god.name; im.decoding = 'async';
-  im.style.cssText = 'width:100%;display:block;filter:brightness(.84) saturate(.72) contrast(1.06) sepia(.16)';
+  im.style.cssText = 'width:100%;display:block;' + (_cyber ? 'filter:contrast(1.04) saturate(1.03)' : 'filter:brightness(.84) saturate(.72) contrast(1.06) sepia(.16)');
   im.onerror = ()=>{ el.innerHTML=''; el.textContent = god.symbol || '✦'; showLabs(true); };
-  im.onload = ()=>{ try{ _mountCardFX(wrap, god.tier); }catch(_){} };
+  im.onload = ()=>{ try{ _mountCardFX(wrap, god.tier, god); }catch(_){} };
   const _scrim = document.createElement('div');
-  _scrim.style.cssText = 'position:absolute;inset:0;pointer-events:none;border-radius:12px;background:radial-gradient(ellipse 75% 70% at 50% 42%,rgba(150,110,40,.10),rgba(30,20,8,.30) 70%,rgba(8,6,3,.72));mix-blend-mode:multiply';
+  _scrim.style.cssText = 'position:absolute;inset:0;pointer-events:none;border-radius:12px;'
+    + (_cyber
+        ? 'background:radial-gradient(ellipse 80% 75% at 50% 45%,transparent 55%,rgba(4,6,12,.45))'
+        : 'background:radial-gradient(ellipse 75% 70% at 50% 42%,rgba(150,110,40,.10),rgba(30,20,8,.30) 70%,rgba(8,6,3,.72));mix-blend-mode:multiply');
   const _vig = document.createElement('div');
-  _vig.style.cssText = 'position:absolute;inset:0;pointer-events:none;border-radius:12px;box-shadow:inset 0 0 46px 14px rgba(4,4,7,.85),inset 0 0 90px 30px rgba(4,4,7,.5)';
+  _vig.style.cssText = 'position:absolute;inset:0;pointer-events:none;border-radius:12px;box-shadow:inset 0 0 46px 14px rgba(4,4,7,'+(_cyber?'.55':'.85')+'),inset 0 0 90px 30px rgba(4,4,7,'+(_cyber?'.3':'.5')+')';
   wrap.appendChild(im); wrap.appendChild(_scrim); wrap.appendChild(_vig); el.appendChild(wrap);
-  if (isDraw) showLabs(false);
+  // Classic art has the name/tier BAKED into the image → hide the HTML labels.
+  // Cyber (v2) art is clean (no baked text) → SHOW the HTML labels so the deity
+  // name/tier/origin still appear. Also reveal + label the theme toggle.
+  if (isDraw){
+    showLabs(_cyber);
+    const tb = document.getElementById('cardThemeToggle');
+    if (tb){ tb.style.display=''; tb.textContent = _cyber ? '◈ Cyber' : '✦ Classic'; }
+  }
 }
 
 // Daily "lucky numbers" derived deterministically from the drawn god + today's
