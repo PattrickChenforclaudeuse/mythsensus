@@ -3982,7 +3982,7 @@ const _msAnalytics = (function(){
   return {
     drew(tier){ s.draws++; if(tier && /Legendary|Mythic/i.test(tier)) s.rare++; },
     destiny(){ s.rare++; track('destiny'); },        // the 1-in-a-million — capture immediately
-    paywall(){ s.paywall++; },                        // counter only (paywall HTML can re-render) — count rides the session beacon
+    paywall(item){ s.paywall++; track('paywall_view', { god:item||null }); },  // immediate event (per-item CVR denominator) + session counter
     checkout(item){ track('checkout', { god:item||null }); },
     track,
   };
@@ -4539,7 +4539,22 @@ async function runOrganum(){
   let voted=0;
 
   const iv=setInterval(()=>{
-    if(voted>=108){clearInterval(iv);showOrganumResult(wordCount,godContrib);return;}
+    if(voted>=108){
+      clearInterval(iv);
+      // Free the UI as soon as voting completes: re-enable the primary "Ask the
+      // 108 Gods" button and drop the running-guard so the user can ask again
+      // WITHOUT needing "Ask Another" or a page refresh. try/finally guarantees
+      // the reset even if showOrganumResult throws on a given question (else the
+      // button stayed disabled + organumRunning stuck true → asks silently
+      // blocked until refresh). 2026-07-01 bug fix.
+      try{ showOrganumResult(wordCount,godContrib); }
+      catch(e){ console.error('showOrganumResult failed',e); }
+      finally{
+        organumRunning=false;
+        var _ob=document.getElementById('oracleBtn'); if(_ob) _ob.disabled=false;
+      }
+      return;
+    }
     const god=pool[voted];voted++;
     countEl.textContent=voted;
     const kws=(god.represents||[]);
@@ -6964,6 +6979,7 @@ function _purchaseItem(itemKey, opts){
       : (isTh ? `✦ สมัครสมาชิก ${_subPrice()} → ปลดล็อกทุกศาสตร์` : `✦ Subscribe ${_subPrice()} → unlock everything`));
   } catch(_){}
   try { if (typeof _logEngagement === 'function') _logEngagement('purchase_click:' + (itemKey || 'unknown') + ':' + checkout.kind); } catch(_){}
+  try { if (window._msTrack) _msTrack.track('purchase_click', { god: itemKey || null, kind: checkout.kind }); } catch(_){}
   _openCheckout(_withBuyerEmail(checkout.url));
   return false;
 }
@@ -6976,6 +6992,7 @@ function _purchaseSubscription(source){
     _showSyncToast(isTh ? `✦ สมัครสมาชิก ${_subPrice()} → ปลดล็อกทุกศาสตร์` : `✦ Subscribe ${_subPrice()} → unlock everything`);
   } catch(_){}
   try { if (typeof _logEngagement === 'function') _logEngagement('subscribe_click:' + (source || 'unknown')); } catch(_){}
+  try { if (window._msTrack) _msTrack.track('subscribe_click', { source: source || null }); } catch(_){}
   _openCheckout(_withBuyerEmail(_GUMROAD_SUBSCRIBE_URL));
   return false;
 }
@@ -7027,12 +7044,14 @@ async function _handleGumroadReturn(){
     if (j && j.ok){
       if (j.subscription || String(j.permalink || '').includes('tlkfx')){
         _unlockToast(isTh ? '✦ สมาชิกเปิดใช้งานแล้ว — ปลดล็อกทุก feature' : '✦ Subscription active — everything unlocked');
+        try { if (window._msTrack) _msTrack.track('purchase_success', { god:'subscription', via:'gumroad_return' }); } catch(_){}
         try { if (typeof _refreshPremium === 'function') _refreshPremium(); } catch(_){}
         return;
       }
       const key = _permalinkToItem(j.permalink);
       if (key){
         _grantItemLocally(key);
+        try { if (window._msTrack) _msTrack.track('purchase_success', { god:key, via:'gumroad_return' }); } catch(_){}
         _unlockToast(isTh ? '✦ ปลดล็อกเรียบร้อย! กำลังเปิดเนื้อหาที่ซื้อ' : '✦ Unlocked! Opening your purchase');
         try { const nav = _navForItem(key); if (nav){ setGroup(nav[0]); showSubTab(nav[1]); } } catch(_){}
         return;
@@ -7062,9 +7081,11 @@ async function _redeemByEmail(itemKey){
   if (j && j.ok){
     if (j.subscription){
       _unlockToast(isTh ? '✦ สมาชิกเปิดใช้งานแล้ว — ล็อกอินด้วยอีเมลนี้เพื่อใช้ทุกเครื่อง' : '✦ Subscription active — sign in with this email');
+      try { if (window._msTrack) _msTrack.track('purchase_success', { god:'subscription', via:'email_redeem' }); } catch(_){}
       try { if (typeof _refreshPremium === 'function') _refreshPremium(); } catch(_){}
     } else {
       _grantItemLocally(itemKey);
+      try { if (window._msTrack) _msTrack.track('purchase_success', { god:itemKey, via:'email_redeem' }); } catch(_){}
       _unlockToast(isTh ? '✦ ปลดล็อกเรียบร้อย!' : '✦ Unlocked!');
       try { const nav = _navForItem(itemKey); if (nav){ setGroup(nav[0]); showSubTab(nav[1]); } } catch(_){}
     }
@@ -7137,7 +7158,7 @@ function _redeemGiftCodeSubmit(){
 }
 
 function _purchasePaywall(itemKey, opts){
-  try{ if(window._msTrack) _msTrack.paywall(); }catch(_){}
+  try{ if(window._msTrack) _msTrack.paywall(itemKey); }catch(_){}
   const isTh = LANG === 'th';
   const price = PRICING[itemKey] || PRICING[String(itemKey).split('_')[0]] || { usd: 9, thb: 320 };
   const label   = (opts && opts.label)    || itemKey;
@@ -7147,6 +7168,13 @@ function _purchasePaywall(itemKey, opts){
   const benefits = (opts && opts.benefits) || [];
   const itemArg = JSON.stringify(itemKey).replace(/"/g,'&quot;');
   const labelArg = JSON.stringify(label).replace(/"/g,'&quot;');
+  // Guard (2026-07-01): items with no per-item Gumroad product (e.g. pilgrimage,
+  // empty url) resolve to the SUBSCRIPTION checkout — so a "$9 one-time" button
+  // would actually charge $8.99/mo (chargeback risk). Detect that and render a
+  // clearly-labeled membership CTA + membership price instead. Working per-item
+  // products (deep/mirror/…) are unaffected (_oneTimeAvail stays true).
+  const _co = (typeof _gumroadCheckout==='function') ? _gumroadCheckout(itemKey) : { kind:'one-time' };
+  const _oneTimeAvail = !!(_co && _co.kind === 'one-time');
   return `
     <div style="background:linear-gradient(135deg,rgba(212,175,55,0.06),rgba(212,175,55,0.02));border:1px solid var(--gold3);border-radius:10px;padding:18px 18px 16px;margin-top:14px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:10px">
@@ -7155,13 +7183,15 @@ function _purchasePaywall(itemKey, opts){
           <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--muted);line-height:1.55;max-width:520px">${blurb}</div>
         </div>
         <div style="text-align:right;flex-shrink:0">
-          <div style="font-family:'Cinzel Decorative',serif;font-size:22px;color:var(--gold);font-weight:700;line-height:1">${_priceStr(itemKey)}</div>
-          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:var(--muted);margin-top:2px">${isTh?'ต่อวันเกิด':'per chart'}</div>
+          <div style="font-family:'Cinzel Decorative',serif;font-size:22px;color:var(--gold);font-weight:700;line-height:1">${_oneTimeAvail?_priceStr(itemKey):_subPrice()}</div>
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;color:var(--muted);margin-top:2px">${_oneTimeAvail?(isTh?'ต่อวันเกิด':'per chart'):(isTh?'สมาชิก':'membership')}</div>
         </div>
       </div>
       ${benefits.length ? `<ul style="margin:10px 0 12px 18px;padding:0;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--text);line-height:1.7">${benefits.map(b=>`<li style="margin-bottom:2px">${b}</li>`).join('')}</ul>` : ''}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
-        <button onclick="_purchaseItem(${itemArg},{label:${labelArg}})" style="cursor:pointer;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:var(--bg);font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:9px 16px;border-radius:6px;font-weight:700">✦ ${isTh?'ปลดล็อค '+_priceStr(itemKey):'Unlock '+_priceStr(itemKey)}</button>
+        ${_oneTimeAvail
+          ? `<button onclick="_purchaseItem(${itemArg},{label:${labelArg}})" style="cursor:pointer;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:var(--bg);font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:9px 16px;border-radius:6px;font-weight:700">✦ ${isTh?'ปลดล็อค '+_priceStr(itemKey):'Unlock '+_priceStr(itemKey)}</button>`
+          : `<button onclick="_purchaseSubscription('paywall_nolisting:${itemKey}')" style="cursor:pointer;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:var(--bg);font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:9px 16px;border-radius:6px;font-weight:700">✦ ${isTh?'ปลดล็อกผ่านสมาชิก '+_subPriceShort():'Unlock via membership '+_subPrice()}</button>`}
         <button onclick="_purchaseSubscription('paywall:${itemKey}')" style="cursor:pointer;background:transparent;border:1px solid var(--gold3);color:var(--gold);font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:1.5px;padding:9px 14px;border-radius:6px" title="${isTh?'ปลดล็อกทุก feature ของ Mythsensus':'Unlock every Mythsensus feature'}">${isTh?'หรือสมัครสมาชิก '+_subPriceShort():'Or subscribe '+_subPrice()}</button>
         <button onclick="_redeemGiftCodePrompt()" style="cursor:pointer;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;padding:9px 12px;border-radius:6px">${isTh?'ใส่รหัสของขวัญ / ส่วนลด':'Redeem code'}</button>
       </div>
@@ -15874,6 +15904,7 @@ function showEntryOverlay(){
 
 // Reveal the birth-data form from the hero CTA (new-visitor first impression).
 function entryShowForm(){
+  try { if (window._msTrack) _msTrack.track('entry_choice', { door:'form' }); } catch(_){}
   try { const h = document.getElementById('entryHeroStep'); if (h) h.style.display = 'none'; } catch(_){}
   try { const f = document.getElementById('entryFormStep'); if (f) f.style.display = ''; } catch(_){}
   try { const n = document.getElementById('entryName'); if (n) setTimeout(()=>{ try{ n.focus(); }catch(_){} }, 60); } catch(_){}
@@ -16337,6 +16368,7 @@ function entrySkip(){
 // 26-system reading is the secondary path (entryShowForm). Returning users who
 // already drew today are a safe no-op (drawBlessing guards on _maxDraws()).
 function entryDrawFirst(){
+  try { if (window._msTrack) _msTrack.track('entry_choice', { door:'draw' }); } catch(_){}
   // Land on the blessing draw (free group's default sub is the chart preview, so
   // preset last-group/sub before boot) — then auto-reveal today's god.
   try { localStorage.setItem('ms_last_group','free'); localStorage.setItem('ms_last_sub_free','blessing'); } catch(_){}
