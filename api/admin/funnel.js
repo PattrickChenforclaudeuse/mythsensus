@@ -33,7 +33,7 @@ export default async function handler(req, res) {
   try {
     const sinceMs = Date.now() - days * 86400000;
     const sinceIso = new Date(sinceMs).toISOString();
-    const r = await fetch(base + '/rest/v1/myth_events?select=ts,event,active_ms,draws,ref,lang,device,meta&ts=gte.' + encodeURIComponent(sinceIso) + '&order=ts.desc&limit=50000', {
+    const r = await fetch(base + '/rest/v1/myth_events?select=sid,ts,event,active_ms,draws,ref,lang,device,meta&ts=gte.' + encodeURIComponent(sinceIso) + '&order=ts.desc&limit=50000', {
       headers: { apikey: SERVICE, Authorization: 'Bearer ' + SERVICE },
     });
     rows = await r.json();
@@ -42,7 +42,12 @@ export default async function handler(req, res) {
     res.status(502).send('query failed: ' + (e && e.message || e)); return;
   }
 
-  const sessions = rows.filter(x => x.event === 'session');
+  // Exclude the team's own opens (?im=1 → meta.internal) from every headline
+  // metric — added 2026-07-01 alongside the self-exclude tag. Kept as a count
+  // so the dashboard can show how many were dropped.
+  const sessionsAll = rows.filter(x => x.event === 'session');
+  const internalN   = sessionsAll.filter(x => x.meta && x.meta.internal === true).length;
+  const sessions    = sessionsAll.filter(x => !(x.meta && x.meta.internal === true));
   const shares   = rows.filter(x => x.event === 'share');
   const checkouts= rows.filter(x => x.event === 'checkout');
   const destinies= rows.filter(x => x.event === 'destiny');
@@ -50,6 +55,16 @@ export default async function handler(req, res) {
   // birthday → see the consensus reading. Added 2026-06-16.
   const births   = rows.filter(x => x.event === 'birth_submit');
   const consensus= rows.filter(x => x.event === 'consensus_view');
+  // Entry-choice + money-intent events (instrumented 2026-07-01). Count DISTINCT
+  // sessions (sid), since paywall_view/purchase_click can fire several times per
+  // session. uSid dedupes; entry_choice door tells draw-first vs form-first.
+  const uSid = (arr) => new Set(arr.map(x => x.sid).filter(Boolean)).size;
+  const entryDraw = rows.filter(x => x.event === 'entry_choice' && x.meta && x.meta.door === 'draw');
+  const entryForm = rows.filter(x => x.event === 'entry_choice' && x.meta && x.meta.door === 'form');
+  const pwViews   = rows.filter(x => x.event === 'paywall_view');
+  const pClicks   = rows.filter(x => x.event === 'purchase_click');
+  const subClicks = rows.filter(x => x.event === 'subscribe_click');
+  const pSuccess  = rows.filter(x => x.event === 'purchase_success');
   const nS = sessions.length;
 
   const ms = sessions.map(x => +x.active_ms || 0).sort((a, b) => a - b);
@@ -99,6 +114,7 @@ export default async function handler(req, res) {
     row('Active time (median)', fmtS(med), `p75 ${fmtS(p75)} · p90 ${fmtS(p90)}`),
     row('Bounce &lt;5s', pct(bounce, nS) + '%', `${bounce} sess · &gt;60s: ${pct(over60, nS)}%`),
     row('Engaged (tapped/scrolled)', pct(engaged, nS) + '%', `${engaged} sess · cold-bounce ${pct(nS - engaged, nS)}% · (post-deploy only)`),
+    row('Entry choice · Draw-first', uSid(entryDraw), `vs Form-first ${uSid(entryForm)} · which door they pick (new 7-01)`),
     row('Filled birthday', pct(births.length, nS) + '%', `${births.length} sess · the new core path`),
     row('Saw consensus', pct(consensus.length, nS) + '%', `${consensus.length} sess · "what 26 systems agree on"`),
     row('Drew a god ≥1', pct(drew, nS) + '%', `${drew}/${nS} · ${totalDraws} draws total`),
@@ -113,6 +129,14 @@ export default async function handler(req, res) {
   const nvrRow = (label, c) => `<tr><td style="padding:6px 10px;color:#c8c0a8">${label}</td><td style="padding:6px 10px;text-align:right;color:#e9d9a8;font-weight:700">${c.n}</td>${nvrCell(c.bounce + '%')}${nvrCell(c.over60 + '%')}${nvrCell(c.draw + '%')}${nvrCell(c.engaged + '%')}</tr>`;
   const nvrRows = nvrRow('New · saw entry wall', cNew) + nvrRow('Returning · skipped wall', cRet);
 
+  // Money-intent funnel (distinct sessions per step) — added 2026-07-01.
+  const moneyRows = [
+    row('Paywall views', uSid(pwViews), `${pwViews.length} events · per-item CVR denominator`),
+    row('Purchase clicks', uSid(pClicks), `${pClicks.length} events · tapped a one-time buy`),
+    row('Subscribe clicks', uSid(subClicks), `${subClicks.length} events`),
+    row('Purchase success', uSid(pSuccess), `${pSuccess.length} events · returned unlocked`),
+  ].join('');
+
   const dayRows = days7.map(d => { const o = byDay[d]; return `<tr><td style="padding:5px 10px;color:#c8c0a8">${d}</td><td style="padding:5px 10px;text-align:right">${o.sess}</td><td style="padding:5px 10px;text-align:right;color:#9a8a72">${pct(o.drew, o.sess)}%</td><td style="padding:5px 10px;text-align:right;color:#c8a45a">${o.share}</td></tr>`; }).join('');
   const listRows = (arr) => arr.map(([k, v]) => `<tr><td style="padding:4px 10px;color:#c8c0a8">${esc(k)}</td><td style="padding:4px 10px;text-align:right;color:#e9d9a8">${v}</td></tr>`).join('');
 
@@ -120,8 +144,9 @@ export default async function handler(req, res) {
   res.status(200).send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Mythsensus · Funnel</title>
 <style>body{background:#0b0b12;color:#e8e0c9;font-family:-apple-system,'Segoe UI',sans-serif;margin:0;padding:24px;max-width:760px;margin:0 auto}h1{font-size:18px;letter-spacing:2px;color:#c8a45a;font-weight:700}h2{font-size:12px;letter-spacing:2px;color:#8a7a5a;text-transform:uppercase;margin:26px 0 6px}table{width:100%;border-collapse:collapse;background:#13112a;border:1px solid #2a2545;border-radius:8px;overflow:hidden}tr+tr td{border-top:1px solid #211c3a}th{text-align:left;padding:6px 10px;font-size:11px;color:#7a6a52;font-weight:600}.muted{color:#6a5a42;font-size:12px}a{color:#c8a45a}</style></head><body>
 <h1>🔮 MYTHSENSUS · ENGAGEMENT FUNNEL</h1>
-<div class="muted">Source: myth_events (first-party) · window ${days}d · ${nS} sessions · <a href="?k=${esc(q.k)}&days=7">7d</a> · <a href="?k=${esc(q.k)}&days=30">30d</a> · <a href="?k=${esc(q.k)}&days=90">90d</a></div>
+<div class="muted">Source: myth_events (first-party) · window ${days}d · ${nS} sessions${internalN ? ` · <span style="color:#c8a45a">${internalN} internal (your ?im=1 opens) excluded</span>` : ''} · <a href="?k=${esc(q.k)}&days=7">7d</a> · <a href="?k=${esc(q.k)}&days=30">30d</a> · <a href="?k=${esc(q.k)}&days=90">90d</a></div>
 <h2>Funnel</h2><table>${funnelRows}</table>
+<h2>Money intent <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(distinct sessions · instrumented 2026-07-01)</span></h2><table>${moneyRows}</table>
 <h2>New vs returning <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(post-deploy only · ${tagged.length} tagged)</span></h2><table><tr><th>Cohort</th><th style="text-align:right">Sessions</th><th style="text-align:right">Bounce&lt;5s</th><th style="text-align:right">&gt;60s</th><th style="text-align:right">Draw%</th><th style="text-align:right">Engaged%</th></tr>${nvrRows}</table>
 <h2>By day (latest 14)</h2><table><tr><th>Date</th><th style="text-align:right">Sessions</th><th style="text-align:right">Draw%</th><th style="text-align:right">Shares</th></tr>${dayRows || '<tr><td colspan=4 style="padding:10px;color:#6a5a42">no data</td></tr>'}</table>
 <h2>Top referrers</h2><table>${listRows(refs) || ''}</table>
