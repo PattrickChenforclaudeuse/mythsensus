@@ -2114,7 +2114,10 @@ try{
     <div class="god-card" id="godCard">
       <div class="tier-badge" id="tierBadge"></div>
       <div class="god-symbol" id="godSymbol"></div>
-      <button id="cardThemeToggle" data-theme-label onclick="_toggleCardTheme()" style="display:none;margin:8px auto 2px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 13px;border-radius:14px;cursor:pointer" title="สลับสกินการ์ด (Classic ↔ Cyber) · draw เดิม">✦ Classic</button>
+      <span id="cardThemeToggle" data-theme-seg style="display:none;margin:8px auto 2px;border:1px solid var(--gold3);border-radius:16px;overflow:hidden" title="สลับสกินการ์ด — draw เดิม เปลี่ยนแค่หน้าตา">
+        <button data-theme="classic" onclick="_setCardTheme('classic')" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;background:transparent;border:none;color:var(--muted);padding:5px 14px;cursor:pointer;transition:all .2s">✦ Classic</button>
+        <button data-theme="cyber" onclick="_setCardTheme('cyber')" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;background:transparent;border:none;color:var(--muted);padding:5px 14px;cursor:pointer;transition:all .2s">◈ Cyber</button>
+      </span>
       <div class="god-name" id="godName"></div>
       <div class="god-origin" id="godOrigin"></div>
       <div class="god-message" id="godMessage"></div>
@@ -2514,7 +2517,13 @@ try{
   <div class="section-title" data-t="coll_title">GOD COLLECTION — สะสมเทพที่คุณเคยเห็น</div>
   <p class="panel-intro" data-en="Your God Pokédex. Every deity you've encountered is collected here — tap any card to open their full myth, symbols, and messages." data-th="คลังเทพส่วนตัวของคุณ · เทพทุกองค์ที่เคยจั่วได้มาอยู่ที่นี่ แตะการ์ดใดก็ได้เพื่ออ่านตำนาน สัญลักษณ์ และคำที่ท่านฝากไว้">Your God Pokédex. Every deity you've encountered is collected here — tap any card to open their full myth, symbols, and messages.</p>
   <div class="sky-dom-hint" id="collHint" data-t="coll_hint">เทพที่คุณได้พบเจอ · ทั้งหมด 1,069 องค์จาก 26 ศาสตร์</div>
-  <div style="text-align:center;margin:0 0 16px"><button data-theme-label onclick="_toggleCardTheme()" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;background:transparent;border:1px solid var(--gold3);color:var(--gold2);padding:6px 15px;border-radius:14px;cursor:pointer" title="สลับสกินการ์ดทั้งคลัง (Classic ↔ Cyber) · เปลี่ยนรูปเทพทุกใบ">✦ Classic</button></div>
+  <div style="text-align:center;margin:0 0 16px">
+    <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:2px;color:var(--muted);margin-bottom:5px">✦ สกินการ์ด · CARD SKIN</div>
+    <span data-theme-seg style="display:inline-flex;border:1px solid var(--gold3);border-radius:16px;overflow:hidden;vertical-align:middle" title="สลับสกินการ์ดทั้งคลัง — เปลี่ยนรูปเทพทุกใบ">
+      <button data-theme="classic" onclick="_setCardTheme('classic')" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;background:transparent;border:none;color:var(--muted);padding:6px 15px;cursor:pointer;transition:all .2s">✦ Classic</button>
+      <button data-theme="cyber" onclick="_setCardTheme('cyber')" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;background:transparent;border:none;color:var(--muted);padding:6px 15px;cursor:pointer;transition:all .2s">◈ Cyber</button>
+    </span>
+  </div>
   <div id="collectionGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;max-width:820px;margin:0 auto 30px;"></div>
 </div>
 
@@ -4166,24 +4175,39 @@ function _prayerFor(myth){
 }
 // Flip the card skin, persist, re-render the current draw, and log the switch
 // (voluntary switching is itself an A/B signal). Exposed on window for the UI.
-function _syncThemeLabels(){
-  try{ const t=(_cardTheme()==='cyber')?'◈ Cyber':'✦ Classic'; document.querySelectorAll('[data-theme-label]').forEach(n=>{ n.textContent=t; }); }catch(_){}
-}
-function _toggleCardTheme(){
+// Theme control = a two-segment switch (✦ Classic | ◈ Cyber), both visible so
+// it reads as switchable (a single "Classic" label looked like a static badge —
+// even the owner couldn't tell it toggled). _syncThemeToggles highlights the
+// active segment on every [data-theme-seg] control.
+function _syncThemeToggles(){
   try{
-    const next = (_cardTheme()==='cyber') ? 'classic' : 'cyber';
-    localStorage.setItem('mth_theme', next);
-    try{ if(window._msTrack) _msTrack.track('theme_toggle',{to:next}); }catch(_){}
-    // Re-render everywhere the toggle is reachable: the drawn card + the
-    // collection grid (both use _cardUrl → the new skin) so switching updates all.
+    const t = _cardTheme();
+    document.querySelectorAll('[data-theme-seg]').forEach(seg=>{
+      seg.querySelectorAll('button[data-theme]').forEach(b=>{
+        const on = (b.getAttribute('data-theme')===t);
+        b.style.background = on ? 'var(--gold)' : 'transparent';
+        b.style.color      = on ? 'var(--bg)'   : 'var(--muted)';
+        b.style.fontWeight = on ? '700' : '500';
+      });
+    });
+  }catch(_){}
+}
+function _setCardTheme(theme){
+  try{
+    if (theme!=='classic' && theme!=='cyber') return;
+    const cur = _cardTheme();
+    localStorage.setItem('mth_theme', theme);
+    if (theme!==cur){ try{ if(window._msTrack) _msTrack.track('theme_toggle',{to:theme}); }catch(_){} }
+    // Re-render the drawn card + the collection grid (both use _cardUrl → new skin).
     const g = (typeof _currentDraw!=='undefined' && _currentDraw && _currentDraw.god) ? _currentDraw.god : null;
     const el = document.getElementById('godSymbol');
     if (g && el) _godArtInto(el, g, 160, '');
     try{ if (typeof renderCollection==='function') renderCollection(); }catch(_){}
-    _syncThemeLabels();
+    _syncThemeToggles();
   }catch(_){}
 }
-try{ window._toggleCardTheme = _toggleCardTheme; window._cardTheme = _cardTheme; }catch(_){}
+function _toggleCardTheme(){ _setCardTheme(_cardTheme()==='cyber'?'classic':'cyber'); }   // legacy flip alias
+try{ window._setCardTheme=_setCardTheme; window._toggleCardTheme=_toggleCardTheme; window._cardTheme=_cardTheme; }catch(_){}
 // Living-card FX (pure CSS/JS, free): matrix digit-rain rising + particle
 // embers rising + holographic mouse-tilt; gold glow for Epic+. One per card;
 // the previous card's timers are stopped before a new one mounts.
@@ -4264,8 +4288,8 @@ function _godArtInto(el, god, sizePx, extraCss){
   if (isDraw){
     showLabs(_cyber);
     const tb = document.getElementById('cardThemeToggle');
-    if (tb) tb.style.display='';
-    _syncThemeLabels();
+    if (tb) tb.style.display='inline-flex';
+    _syncThemeToggles();
   }
 }
 
@@ -10322,7 +10346,7 @@ function renderCollection(){
   grid.style.display = 'block';
   grid.style.gridTemplateColumns = '';
   grid.style.gap = '';
-  try{ if (typeof _syncThemeLabels==='function') _syncThemeLabels(); }catch(_){}
+  try{ if (typeof _syncThemeToggles==='function') _syncThemeToggles(); }catch(_){}
 }
 
 // Tier filter for the God Collection grid. Clicking the currently-active
