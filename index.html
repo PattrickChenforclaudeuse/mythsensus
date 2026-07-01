@@ -4265,7 +4265,22 @@ function _godArtInto(el, god, sizePx, extraCss){
   const labs = isDraw ? ['tierBadge','godName','godOrigin'].map(i=>document.getElementById(i)) : [];
   const showLabs = on => labs.forEach(x=>{ if(x) x.style.display = on ? '' : 'none'; });
   const url = _cardUrl(god);
-  if (!url) { el.innerHTML=''; el.textContent = god.symbol || '✦'; showLabs(true); return; }
+  if (!url) {
+    el.innerHTML='';
+    if (_NO_DEPICT[god.name]) {
+      // Respectful non-figural placeholder — Islam forbids depicting these, so
+      // show a dignified geometric-star card + a note (not a broken-looking emoji).
+      const isTh = (typeof LANG==='undefined') || LANG==='th';
+      const ph = document.createElement('div');
+      ph.style.cssText = 'position:relative;width:100%;max-width:340px;aspect-ratio:2/3;margin:0 auto;border-radius:12px;border:1px solid rgba(212,170,80,.4);background:radial-gradient(ellipse 70% 60% at 50% 38%,rgba(34,28,16,.95),#08080e);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;box-shadow:0 0 30px rgba(212,170,80,.12),0 12px 40px rgba(0,0,0,.55)';
+      ph.innerHTML = '<div style="font-size:74px;line-height:1;color:#d4aa50;text-shadow:0 0 26px rgba(212,170,80,.5)">۞</div>'
+        + '<div style="font-family:\'Cormorant Garamond\',\'Sarabun\',serif;font-style:italic;font-size:13.5px;color:#9a9088;text-align:center;max-width:78%;line-height:1.55">'
+        + (isTh ? 'ไม่แสดงรูปเคารพ — เพื่อความเคารพต่อความเชื่อ' : 'Depiction omitted out of respect')
+        + '</div>';
+      el.appendChild(ph); showLabs(true); return;
+    }
+    el.textContent = god.symbol || '✦'; showLabs(true); return;
+  }
   el.innerHTML=''; el.style.cssText='margin:0 auto';
   const _cyber = (_cardTheme()==='cyber');
   const wrap = document.createElement('div');
