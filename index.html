@@ -4104,16 +4104,16 @@ function _mountCardFX(wrap, tier){
     wrap.appendChild(mc);
     const mx = mc.getContext('2d'), fsz = 12, cols = Math.max(1, Math.floor(W/fsz)), drops = [];
     for (let i=0;i<cols;i++) drops[i] = H/fsz + Math.random()*20;
-    const mt = setInterval(()=>{ mx.fillStyle='rgba(8,12,16,0.13)'; mx.fillRect(0,0,W,H); mx.font=fsz+'px monospace'; mx.fillStyle='rgba(150,235,255,0.82)'; for(let i=0;i<cols;i++){ mx.fillText(Math.floor(Math.random()*10), i*fsz, drops[i]*fsz); if(drops[i]*fsz<0 && Math.random()>0.97) drops[i]=H/fsz; drops[i]-=0.5; } }, 80);
+    const mt = setInterval(()=>{ mx.fillStyle='rgba(10,8,4,0.13)'; mx.fillRect(0,0,W,H); mx.font=fsz+'px monospace'; mx.fillStyle='rgba(232,200,120,0.8)'; for(let i=0;i<cols;i++){ mx.fillText(Math.floor(Math.random()*10), i*fsz, drops[i]*fsz); if(drops[i]*fsz<0 && Math.random()>0.97) drops[i]=H/fsz; drops[i]-=0.5; } }, 80);
     wrap._stops.push(()=>clearInterval(mt));
     const pc = document.createElement('canvas'); pc.width = W; pc.height = H;
     pc.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
     wrap.appendChild(pc);
     const pX = pc.getContext('2d'), P = []; for(let i=0;i<16;i++) P.push({x:Math.random()*W,y:Math.random()*H,s:1+Math.random()*2,v:.2+Math.random()*.6,a:.2+Math.random()*.5});
-    let raf; (function lp(){ pX.clearRect(0,0,W,H); for(const p of P){ p.y-=p.v; if(p.y<-4){p.y=H+4;p.x=Math.random()*W;} pX.beginPath(); pX.fillStyle='rgba(150,235,255,'+p.a+')'; pX.shadowBlur=6; pX.shadowColor='rgba(150,235,255,.8)'; pX.arc(p.x,p.y,p.s,0,7); pX.fill(); } raf=requestAnimationFrame(lp); })();
+    let raf; (function lp(){ pX.clearRect(0,0,W,H); for(const p of P){ p.y-=p.v; if(p.y<-4){p.y=H+4;p.x=Math.random()*W;} pX.beginPath(); pX.fillStyle='rgba(232,200,120,'+p.a+')'; pX.shadowBlur=6; pX.shadowColor='rgba(232,200,120,.8)'; pX.arc(p.x,p.y,p.s,0,7); pX.fill(); } raf=requestAnimationFrame(lp); })();
     wrap._stops.push(()=>cancelAnimationFrame(raf));
     const shine = document.createElement('div');
-    shine.style.cssText = 'position:absolute;inset:0;background-image:linear-gradient(115deg,transparent 18%,rgba(255,0,128,.32),rgba(255,210,0,.32),rgba(0,255,180,.32),rgba(0,160,255,.32),transparent 82%);background-size:300% 300%;mix-blend-mode:color-dodge;opacity:0;transition:opacity .25s;pointer-events:none';
+    shine.style.cssText = 'position:absolute;inset:0;background-image:linear-gradient(115deg,transparent 30%,rgba(232,200,120,.30),rgba(255,235,180,.22),transparent 70%);background-size:300% 300%;mix-blend-mode:soft-light;opacity:0;transition:opacity .25s;pointer-events:none';
     wrap.appendChild(shine);
     wrap.style.transition = 'transform .1s ease-out';
     if (wrap.parentElement) wrap.parentElement.style.perspective = '800px';
@@ -4134,12 +4134,21 @@ function _godArtInto(el, god, sizePx, extraCss){
   if (!url) { el.innerHTML=''; el.textContent = god.symbol || '✦'; showLabs(true); return; }
   el.innerHTML=''; el.style.cssText='margin:0 auto';
   const wrap = document.createElement('div');
-  wrap.style.cssText = 'position:relative;display:block;width:100%;max-width:340px;margin:0 auto;border-radius:12px;overflow:hidden;line-height:0;box-shadow:0 10px 40px rgba(0,0,0,.45)';
+  // Harmonize (2026-07-01): the anime-artbook cards run bright/neon vs the site's
+  // near-black occult theme (--bg #040407). Tone-down + warm-multiply scrim +
+  // edge-vignette + thin gold frame sink the card INTO the dark instead of it
+  // floating like a sticker — pure CSS, art untouched. (Step A; B = pixel-level
+  // neon retone on the 1,060 source images comes later.)
+  wrap.style.cssText = 'position:relative;display:block;width:100%;max-width:340px;margin:0 auto;border-radius:12px;overflow:hidden;line-height:0;border:1px solid rgba(212,170,80,.38);box-shadow:0 0 34px 2px rgba(212,170,80,.14),0 14px 46px rgba(0,0,0,.6)';
   const im = document.createElement('img'); im.src = url; im.alt = god.name; im.decoding = 'async';
-  im.style.cssText = 'width:100%;display:block';
+  im.style.cssText = 'width:100%;display:block;filter:brightness(.84) saturate(.72) contrast(1.06) sepia(.16)';
   im.onerror = ()=>{ el.innerHTML=''; el.textContent = god.symbol || '✦'; showLabs(true); };
   im.onload = ()=>{ try{ _mountCardFX(wrap, god.tier); }catch(_){} };
-  wrap.appendChild(im); el.appendChild(wrap);
+  const _scrim = document.createElement('div');
+  _scrim.style.cssText = 'position:absolute;inset:0;pointer-events:none;border-radius:12px;background:radial-gradient(ellipse 75% 70% at 50% 42%,rgba(150,110,40,.10),rgba(30,20,8,.30) 70%,rgba(8,6,3,.72));mix-blend-mode:multiply';
+  const _vig = document.createElement('div');
+  _vig.style.cssText = 'position:absolute;inset:0;pointer-events:none;border-radius:12px;box-shadow:inset 0 0 46px 14px rgba(4,4,7,.85),inset 0 0 90px 30px rgba(4,4,7,.5)';
+  wrap.appendChild(im); wrap.appendChild(_scrim); wrap.appendChild(_vig); el.appendChild(wrap);
   if (isDraw) showLabs(false);
 }
 
