@@ -214,7 +214,8 @@ export interface ScoreData {
   cosmicEntity: string; cosmicEntityDesc: string;
   primaryGod: string; secondaryGod: string;
   // 3-Score system
-  soulFrequency: number;       // born chart median (= total)
+  soulFrequency: number;       // = total = the LEVEL (median percentile)
+  agreement: number;           // cross-system consensus (inverse-MAD %); NOT the flagship — drives the consensus bar/verdict
   lifeTerrainScore: number;    // country+level alignment
   pathResonanceScore: number;  // domain+industry fit
   cosmicFinal: number;         // SF×40% + LT×30% + PR×30%
@@ -3381,8 +3382,12 @@ const SCORE_COLORS = [
 // Soul Frequency = the central archetype level (median), a distinct 2nd axis.
 // Frozen 21-pt quantile CDFs (each step = 5 percentile pts) from a 20k random-chart
 // reference sample. DO NOT auto-refit — bump the version on any deliberate change.
-const _CDF_MAD = [8,25,28,29,30,32,33,34,35,36,37,38,39,40,42,43,44,46,48,52,77];
-const _CDF_MED = [700,730,735,738,741,743,745,747,749,751,753,755,757,758,760,763,765,767,770,775,802];
+// cdf_v3_level (2026-07-02): refit on a fresh 3000-random-chart sample of the
+// CURRENT engine. MED range 709–789, MAD range 13–75. NOTE: the median band is
+// GENUINELY narrow (~80 pts), so percentile-normalising it to 300–999 amplifies
+// small raw gaps — inherent to the data (can't honestly widen), documented.
+const _CDF_MAD = [13,25,28,30,31,32,33,35,36,37,38,39,40,41,42,43,45,47,49,52,75];
+const _CDF_MED = [709,728,732,735,738,740,742,744,745,747,749,751,752,754,757,759,761,764,767,771,789];
 function _pctInCdf(Q: number[], v: number): number {
   if (v <= Q[0]) return 0;
   if (v >= Q[Q.length - 1]) return 1;
@@ -3565,12 +3570,19 @@ function calcScore(d: BirthData, data: Omit<ChartData, 'score'>): ScoreData {
   const binCounts: Record<number,number> = {};
   sorted.forEach(s => { const bin = Math.floor(s/50)*50; binCounts[bin] = (binCounts[bin]||0)+1; });
   const modalBin = +Object.entries(binCounts).sort((a,b)=>b[1]-a[1])[0][0];
-  // Cosmic Score = AGREEMENT: a tight cluster of systems (low dispersion) = high score,
-  // a wide scatter = low (the person the traditions read many different ways).
+  // AI COUNCIL 5/5 (2026-07-02): the FLAGSHIP Cosmic Score = the LEVEL
+  // (median percentile), NOT agreement. Agreement (inverse-MAD dispersion) had
+  // been the headline, but a spread statistic can't be the biggest number on the
+  // page (it's unrelated to the level-based sub-scores → reads as broken math,
+  // and a uniformly-weak chart scores the same "high agreement" as a strong one).
+  // Agreement now lives as a SECONDARY field + the consensus bar. total reunifies
+  // with soulFrequency (both = the level); the tier cuts are percentile-of-CDF so
+  // they stay accurate on the level.
   const _mad = _dispMad(votingScores);
-  const total = _toScale(1 - _pctInCdf(_CDF_MAD, _mad));
-  // Soul Frequency = central archetype level (median), a distinct second axis.
-  const _soulFreq = _toScale(_pctInCdf(_CDF_MED, median));
+  const _level = _toScale(_pctInCdf(_CDF_MED, median));
+  const _agreement = _toScale(1 - _pctInCdf(_CDF_MAD, _mad)); // dispersion → "how strongly the 26 converge" (consensus lens, not the headline)
+  const total = _level;
+  const _soulFreq = _level;
 
   const tier = TIERS.find(t => total >= t.min) ?? TIERS[TIERS.length - 1];
   const entityIdx = total % COSMIC_ENTITIES.length;
@@ -3607,7 +3619,7 @@ function calcScore(d: BirthData, data: Omit<ChartData, 'score'>): ScoreData {
     primaryGod: tPick(GODS[godIdx][0], (GODS[godIdx][0].match(/\(([^)]+)\)/) || [,GODS[godIdx][0]])[1]),
     secondaryGod: tPick(GODS[godIdx][1], (GODS[godIdx][1].match(/\(([^)]+)\)/) || [,GODS[godIdx][1]])[1]),
     // 3-score placeholders — filled by calcLifeTerrain below
-    soulFrequency: _soulFreq, lifeTerrainScore: 0, pathResonanceScore: 0,
+    soulFrequency: _soulFreq, agreement: _agreement, lifeTerrainScore: 0, pathResonanceScore: 0,
     cosmicFinal: total, lifeTerrainDetail: '', pathResonanceDetail: '',
   };
 }

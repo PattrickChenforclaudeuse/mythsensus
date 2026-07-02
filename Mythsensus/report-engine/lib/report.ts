@@ -240,7 +240,7 @@ function p01_cover(c: ChartData): string {
   const _birthdayThisYear = new Date(_now.getFullYear(), input.month - 1, input.day)
   if (_now < _birthdayThisYear) _age -= 1
   const ageStr = _lang === 'en' ? `${_age} years old` : `อายุ ${_age} ปี`
-  const pctBar = Math.round((score.total - 400) / 6)
+  const pctBar = Math.max(0, Math.min(100, Math.round((score.total - 300) / 6.99))) // 300–999 → 0–100, clamped (was (t-400)/6 → negative near the floor)
   // Tier label is only available in Thai from the engine. When rendering EN,
   // prefer score.tierEn (already English) and skip the secondary "TierEn ·"
   // line since it would duplicate. In TH we keep both to give the reader
@@ -264,7 +264,7 @@ function p01_cover(c: ChartData): string {
         <div style="text-align:center;min-width:90px">
           <div style="font-size:60px;font-weight:700;color:#d4aa50;line-height:1">${score.total}</div>
           <div style="font-size:10px;color:#6a5a42;letter-spacing:1px">COSMIC SCORE</div>
-          <div style="font-size:8px;color:#6a5a42;letter-spacing:.5px;margin-top:2px">${tr('ความสอดคล้องข้าม 26 ศาสตร์','26-system agreement')}</div>
+          <div style="font-size:8px;color:#6a5a42;letter-spacing:.5px;margin-top:2px">${tr('ระดับดวงเทียบ 26 ศาสตร์','your chart\'s level · vs 26 systems')}</div>
         </div>
         <div style="flex:1">
           <div style="font-size:20px;font-weight:700;color:#f0e8d0">${tierMain}</div>
@@ -273,7 +273,7 @@ function p01_cover(c: ChartData): string {
             <div style="width:${pctBar}%;height:10px;background:linear-gradient(90deg,#5a3810,#d4aa50)"></div>
           </div>
           <div style="font-size:10px;color:#6a5a42;margin-top:4px">
-            ${tr('ความสอดคล้อง 26 ศาสตร์','agreement across 26 systems')} · Mean ${score.mean} · Modal ${score.modalBin}–${score.modalBin+49}
+            ${tr('ระดับเทียบประชากร','level vs population')} · ${tr('มัธยฐาน','median')} ${_scoreMedian(c)} · Mean ${score.mean} · Modal ${score.modalBin}–${score.modalBin+49}
           </div>
         </div>
       </div>
@@ -289,40 +289,11 @@ function p01_cover(c: ChartData): string {
       </div>
     </div>
 
-    <!-- 3-Score Framework -->
-    <div style="margin:14px 0">
-      <div style="font-size:12px;color:#9a8a72;margin-bottom:8px;letter-spacing:2px">THE 3-SCORE FRAMEWORK</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-        <!-- Soul Frequency -->
-        <div style="background:#151a10;border:1px solid #4a6a20;border-radius:8px;padding:12px;text-align:center">
-          <div style="font-size:10px;color:#6a8a40;letter-spacing:1px;margin-bottom:4px">SOUL FREQUENCY</div>
-          <div style="font-size:28px;font-weight:700;color:#8aba50">${score.soulFrequency}</div>
-          <div style="font-size:10px;color:#6a8a40">${tr('Born chart · น้ำมันเกรดไหน','Born chart · petroleum grade')}</div>
-        </div>
-        <!-- Life Terrain -->
-        <div style="background:#1a1510;border:1px solid ${score.lifeTerrainScore > 0 ? '#8a6030' : '#3a2010'};border-radius:8px;padding:12px;text-align:center">
-          <div style="font-size:10px;color:#8a6030;letter-spacing:1px;margin-bottom:4px">LIFE TERRAIN</div>
-          <div style="font-size:28px;font-weight:700;color:${score.lifeTerrainScore > 0 ? '#d4a040' : '#6a4020'}">${score.lifeTerrainScore > 0 ? score.lifeTerrainScore : '—'}</div>
-          <div style="font-size:10px;color:#8a6030">${score.lifeTerrainScore > 0 ? 'Work environment' : tr('กรอกอาชีพ+ประเทศ','Add career + country')}</div>
-          ${score.lifeTerrainDetail ? `<div style="font-size:9px;color:#6a4020;margin-top:3px">${esc(score.lifeTerrainDetail.split('|')[0])}</div>` : ''}
-        </div>
-        <!-- Path Resonance -->
-        <div style="background:#10151a;border:1px solid ${score.pathResonanceScore > 0 ? '#205a5a' : '#103030'};border-radius:8px;padding:12px;text-align:center">
-          <div style="font-size:10px;color:#408080;letter-spacing:1px;margin-bottom:4px">PATH RESONANCE</div>
-          <div style="font-size:28px;font-weight:700;color:${score.pathResonanceScore > 0 ? '#40c0a0' : '#206050'}">${score.pathResonanceScore > 0 ? score.pathResonanceScore : '—'}</div>
-          <div style="font-size:10px;color:#408080">${score.pathResonanceScore > 0 ? 'Domain fit' : tr('กรอกสายงาน','Add domain')}</div>
-          ${score.pathResonanceDetail ? `<div style="font-size:9px;color:#205050;margin-top:3px">${esc(score.pathResonanceDetail.split('|')[0])}</div>` : ''}
-        </div>
-      </div>
-      <!-- These 3 are INDEPENDENT lenses, no longer blended into the Cosmic
-           Score (which now = cross-system agreement, shown above). The old
-           weighted-blend "Cosmic Final" was retired 2026-07-02 (Director): it
-           rode the recalibrated SoulFrequency (median-percentile, inflated) so
-           it contradicted the agreement headline. -->
-      <div style="background:#1a1510;border-radius:8px;padding:10px;margin-top:8px;font-size:10px;color:#6a5a42;text-align:center;line-height:1.5">
-        ${tr('3 มิตินี้เป็นเลนส์แยกกัน — ไม่ถูกนำมารวมเป็น Cosmic Score · Cosmic Score = ความสอดคล้องข้าม 26 ศาสตร์','Three independent lenses — not blended into the Cosmic Score · Cosmic Score = cross-system agreement')}
-      </div>
-    </div>
+    <!-- 3-Score Framework REMOVED from the cover (AI council 5/5, 2026-07-02):
+         four same-scale numbers on the cover (flagship + SF/LT/PR) read as
+         broken math since they don't sum. Cover now = flagship + consensus bar
+         only; Soul Frequency / Life Terrain / Path Resonance keep their own
+         deep-dive section (p_threeScores) further in the report. -->
 
     <!-- Key signals -->
     <div class="grid-3" style="margin:12px 0">
@@ -508,8 +479,8 @@ function p_threeScores(c: ChartData): string {
           <div style="font-size:11px;color:#5a8a30;letter-spacing:2px">SOUL FREQUENCY</div>
         </div>
         <div style="flex:1">
-          <div style="font-size:16px;font-weight:600;color:#c0e080">${tr('ระดับตัวตนพื้นฐาน (median 26 ศาสตร์)','Baseline identity level (median of 26 systems)')}</div>
-          <div style="font-size:12px;color:#7a9a50;margin:4px 0">${tr('คนละแกนกับ Cosmic Score (ความสอดคล้อง) — ดูหน้า 1','A separate axis from your Cosmic Score / agreement — see page 1')}</div>
+          <div style="font-size:16px;font-weight:600;color:#c0e080">${tr('= Cosmic Score ของคุณ · ระดับดวง (median 26 ศาสตร์)','= your Cosmic Score · chart level (median of 26 systems)')}</div>
+          <div style="font-size:12px;color:#7a9a50;margin:4px 0">${tr('นี่คือตัวเลขเดียวกับหน้าปก — อธิบายละเอียดว่ามาจากไหน','The same number as the cover — here is where it comes from')}</div>
           <div style="background:#0a1205;border-radius:4px;height:8px;overflow:hidden;margin:8px 0">
             <div style="width:${Math.round((score.soulFrequency-400)/6)}%;height:8px;background:linear-gradient(90deg,#2a5010,#8aba50)"></div>
           </div>
@@ -645,8 +616,8 @@ function p02_scoreBreakdown(c: ChartData): string {
 
   return section(3, tr('26-System Consensus — ทุกศาสตร์เห็นอะไร', '26-System Consensus — what every tradition sees'), '🌐', `
     <div style="font-size:11px;color:#7a6a52;margin-bottom:12px;line-height:1.6">
-      ${tr('Cosmic Score = ความสอดคล้องข้าม 26 ศาสตร์ที่นิ่ง (ยิ่งเห็นตรงกัน ยิ่งสูง)', 'Cosmic Score = agreement across 26 stable identity systems (the more they concur, the higher)')} = <strong style="color:#d4aa50">${c.score.total}</strong>
-      · ${tr('Median','Median')} = ${_scoreMedian(c)} · Mean = ${c.score.mean} · Modal = ${c.score.modalBin}–${c.score.modalBin+49}
+      ${tr('Cosmic Score = ระดับดวงของคุณ (median percentile ของ 26 ศาสตร์ที่นิ่ง)', 'Cosmic Score = your chart\'s level (median percentile of 26 stable systems)')} = <strong style="color:#d4aa50">${c.score.total}</strong>
+      · ${tr('ความสอดคล้อง','Consensus')} = ${c.score.agreement} · ${tr('Median','Median')} = ${_scoreMedian(c)} · Mean = ${c.score.mean} · Modal = ${c.score.modalBin}–${c.score.modalBin+49}
     </div>
 
     <!-- Stars -->
@@ -697,8 +668,9 @@ function p03_convergence(c: ChartData): string {
   // layer, 2026-06-10) so it must not vote in any convergence theme,
   // family bar, or dissent box. Taksa IS in this set.
   const all26 = c.score.breakdown.filter(b => (b as any).scoring !== false)
-  // Voting threshold = the REAL median of the per-system scores. (Was score.total,
-  // but post-recalibration total = agreement, not median → threshold was wrong.)
+  // Voting threshold = the REAL median of the per-system scores (computed from
+  // the breakdown, NOT score.total — total is a percentile-normalised level, not
+  // the raw median, so it's the wrong threshold for per-system voting).
   const medianScore = _scoreMedian(c)
   const hi = (s: number) => s >= medianScore  // "votes yes" if at or above median
 
