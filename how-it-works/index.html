@@ -364,7 +364,7 @@ Supabase woam project            # Auth + payment records
           </tr>
           <tr>
             <td><strong>Cosmic Score model</strong></td>
-            <td>Recalibrated: วัด <strong>cross-system agreement</strong> ของ 26 ศาสตร์ (ไม่ใช่ weighted median อีกต่อไป — ค่า weight เดิมเป็น display-only ไม่เคยถูกใช้จริงในการคำนวณ) แล้ว map ผ่าน frozen reference distribution เป็น <strong>percentile 1–1,000</strong> · Freeze แล้ว · <em>internal-consistency calibration</em> — ไม่ใช่ supervised learning (astrology ไม่มี ground truth)</td>
+            <td>Recalibrated: วัด <strong>ระดับดวงโดยรวม</strong> ข้าม 26 ศาสตร์ แล้ว map ผ่าน frozen reference distribution เป็น <strong>percentile 1–1,000 เทียบประชากร</strong> · ควบคู่กันมี <strong>Consensus reading</strong> วัดว่า 26 ศาสตร์เห็นตรงกันแค่ไหน (แสดงแยก ไม่ใช่ตัวคะแนน) · Freeze แล้ว · <em>internal-consistency calibration</em> — ไม่ใช่ supervised learning (astrology ไม่มี ground truth)</td>
             <td>Disclosure คงไว้ · methodology ไม่เปลี่ยน · reference distribution re-calibrate ตอน v2 upgrade</td>
           </tr>
           <tr>
@@ -382,25 +382,26 @@ Supabase woam project            # Auth + payment records
     <h2 id="methodology">"Reconcile" หมายความว่าอะไร · What "reconcile" actually means</h2>
     <p>คำว่า <em>"reconcile 26 systems"</em> ไม่ได้แปลว่า engine มีผู้พิพากษาภายในที่ตัดสินใจแทนคุณ — มันคือการวัด <strong>agreement</strong> ระหว่างเสียงของ 26 ศาสตร์ พร้อมเก็บเสียงที่เห็นต่างไว้ให้คุณเห็น 3 ระดับ</p>
 
-    <h3>ระดับ 1 · Cosmic Score = 26 ศาสตร์ "เห็นตรงกัน" แค่ไหน</h3>
-    <p>26 ศาสตร์ identity คำนวณ sub-score ของตัวเองจากวันเกิดคุณ · <em>Biorhythm</em> เป็นชั้นรายวัน (ศาสตร์ที่ 27) ที่เปลี่ยนทุกวัน — แสดงแยก ไม่นับใน scoring จึงเหลือ <strong>26 ศาสตร์</strong> · Cosmic Score <strong>ไม่ใช่ median หรือ average ของ 26 ค่านั้น</strong> — มันวัดว่า 26 ค่านั้น <strong>กระจุกตัว (cluster) แน่นแค่ไหน</strong> แล้ว map ความแน่นนั้นผ่าน frozen reference distribution เป็น percentile ประชากร <strong>1 ถึง 1,000</strong>:</p>
+    <h3>ระดับ 1 · Cosmic Score = ระดับดวงโดยรวมของคุณข้าม 26 ศาสตร์</h3>
+    <p>26 ศาสตร์ identity คำนวณ sub-score ของตัวเองจากวันเกิดคุณ · <em>Biorhythm</em> เป็นชั้นรายวัน (ศาสตร์ที่ 27) ที่เปลี่ยนทุกวัน — แสดงแยก ไม่นับใน scoring จึงเหลือ <strong>26 ศาสตร์</strong> · Cosmic Score คือ <strong>ระดับดวงโดยรวมของคุณข้ามทั้ง 26 ศาสตร์</strong> map ผ่าน frozen reference distribution เป็น percentile ประชากร <strong>1 ถึง 1,000</strong> (ยิ่งสูง = การอ่านโดยรวมยิ่งเข้มข้น) · ควบคู่กันมี <strong>Consensus reading</strong> ที่วัดว่า 26 ศาสตร์เห็นตรงกันแค่ไหน — แสดงแยกจากตัวคะแนน:</p>
     <ul class="proof-list" style="margin-left:0">
-      <li class="good"><strong>คะแนนสูง = ศาสตร์ทั้ง 26 "อ่าน" คุณไปทางเดียวกัน</strong> — เห็นตรงกันขนาดนี้ในทางสถิติหายาก เพราะแต่ละศาสตร์ใช้กรอบเวลา/ธาตุที่ <em>เข้ากันไม่ได้เลย</em> (BaZi 五行+jiéqì · Vedic sidereal · Western tropical+4-ธาตุ · Mayan Tzolk'in 260 วัน · ปฏิทินจันทรคติไทย ฯลฯ) — agreement ข้ามกรอบพวกนี้ไม่ใช่เรื่องบังเอิญ</li>
-      <li class="good"><strong>คะแนนต่ำ = ศาสตร์ทั้ง 26 "อ่าน" คุณหลายทาง</strong> — ไม่ใช่ "โชคไม่ดี" แต่คือ<em>ซับซ้อน/หลายมิติ</em> (multi-faceted) — เรา<strong>ไม่เคย</strong>ใส่กรอบว่าต่ำ = แย่</li>
+      <li class="good"><strong>คะแนนสูง = การอ่านโดยรวมของคุณเข้มข้นเมื่อเทียบประชากร</strong> — เป็นเปอร์เซ็นไทล์จริงเทียบ reference distribution</li>
+      <li class="good"><strong>คะแนนต่ำ = ดวงที่เงียบกว่าหรือหลายมิติ</strong> — ไม่ใช่ "โชคไม่ดี" แต่คือ<em>ซับซ้อน/หลายมิติ</em> (multi-faceted) — เรา<strong>ไม่เคย</strong>ใส่กรอบว่าต่ำ = แย่</li>
+      <li class="good"><strong>Consensus reading (แยกต่างหาก)</strong> — วัดว่า 26 ศาสตร์เห็นตรงกันแค่ไหน · เห็นตรงกันสูงในทางสถิติหายาก เพราะแต่ละศาสตร์ใช้กรอบเวลา/ธาตุที่ <em>เข้ากันไม่ได้เลย</em> (BaZi 五行+jiéqì · Vedic sidereal · Western tropical+4-ธาตุ · Mayan Tzolk'in 260 วัน · ปฏิทินจันทรคติไทย ฯลฯ) — agreement ข้ามกรอบพวกนี้ไม่ใช่เรื่องบังเอิญ</li>
       <li class="good"><strong>Percentile จริง</strong> — เพราะ map ผ่าน reference distribution ของประชากร ป้ายระดับ "Top X%" จึงเป็นตัวเลขจริง ไม่ใช่การตลาด</li>
     </ul>
     <p>ผลคือคะแนนไวต่อ<strong>เวลาเกิดถึงระดับนาที</strong> — เพราะแต่ละศาสตร์คำนวณตำแหน่งของมันเองบนกรอบเวลาของตัวเอง เวลาเกิดขยับ = sub-score ขยับไม่เท่ากันในแต่ละศาสตร์ · นี่คือ astrological fidelity ที่ถูกต้อง ไม่ใช่ bug</p>
     <p>7 ระดับ (Thai · EN): <strong>อรุณ Dawn · แสวง Seeking · ปฐพี Earth · ดุลย์ Balance · ประกาย Glimmer · รัศมี Radiance · ทิพย์ Divine</strong> — แบ่งตาม percentile band บน scale 1–1,000</p>
-    <p style="margin-top:.8rem;padding:1rem 1.2rem;background:rgba(200,164,90,.06);border-left:3px solid var(--gold);border-radius:4px"><strong>แยกจาก Soul Frequency</strong> — Soul Frequency คือเลขที่ 2 แยกต่างหาก วัด "คุณคืออะไร" (central/median archetype level ของ 26 ศาสตร์) ส่วน Cosmic Score วัด "จักรวาลเห็นตรงกันแค่ไหน" — คนละคำถาม อยู่คู่กันบนหน้ารายงาน</p>
+    <p style="margin-top:.8rem;padding:1rem 1.2rem;background:rgba(200,164,90,.06);border-left:3px solid var(--gold);border-radius:4px"><strong>แยกจาก Soul Frequency และ Consensus reading</strong> — Cosmic Score วัด "ระดับดวงโดยรวมของคุณเป็นเปอร์เซ็นไทล์เทียบประชากรแค่ไหน" · Soul Frequency คือเลขที่ 2 แยกต่างหาก วัด "คุณคืออะไร" (central/median archetype ของ 26 ศาสตร์) · ส่วนคำถาม "จักรวาลเห็นตรงกันแค่ไหน" คือ Consensus reading ที่แสดงคู่กัน — คนละคำถาม อยู่ด้วยกันบนหน้ารายงาน</p>
 
     <h3>ระดับ 2 · Domain-specific applications · ใครเป็น lead สำหรับเรื่องไหน</h3>
-    <p>Cosmic Score เป็น all-system reconciliation (วัด agreement ของทั้ง 26 ศาสตร์) · แต่ <strong>downstream applications</strong> (Career, Partnership, Pet, Food, Exercise, Cosmic Pulse) เป็นเรื่องที่แต่ละศาสตร์เชี่ยวชาญต่างกัน — เราจึง <em>ให้ศาสตร์ที่ specialize ในเรื่องนั้นเป็น lead</em> พร้อม cross-reference จากศาสตร์อื่น:</p>
+    <p>Cosmic Score เป็นระดับดวงโดยรวมข้ามทั้ง 26 ศาสตร์ (percentile เทียบประชากร) · แต่ <strong>downstream applications</strong> (Career, Partnership, Pet, Food, Exercise, Cosmic Pulse) เป็นเรื่องที่แต่ละศาสตร์เชี่ยวชาญต่างกัน — เราจึง <em>ให้ศาสตร์ที่ specialize ในเรื่องนั้นเป็น lead</em> พร้อม cross-reference จากศาสตร์อื่น:</p>
     <table>
       <thead>
         <tr><th>Application</th><th>Lead system(s)</th><th>Cross-reference</th></tr>
       </thead>
       <tbody>
-        <tr><td><strong>Cosmic Score</strong></td><td>All 26 systems (cross-system agreement / clustering)</td><td>—</td></tr>
+        <tr><td><strong>Cosmic Score</strong></td><td>All 26 systems (overall level · percentile vs population)</td><td>Consensus reading (cross-system agreement)</td></tr>
         <tr><td><strong>Path Resonance · career/location</strong></td><td>BaZi Day Master + Wu Xing element-flow</td><td>Vedic dasha · Pythagorean life path</td></tr>
         <tr><td><strong>Compatibility · partnership</strong></td><td>26-system per-row pairwise (full reconciliation)</td><td>—</td></tr>
         <tr><td><strong>Divine Mirror · self-archetype</strong></td><td>Median of top-3 archetypal voters · BaZi + Vedic + Human Design</td><td>Mayan tone · Celtic tree</td></tr>
@@ -413,7 +414,7 @@ Supabase woam project            # Auth + payment records
     <h3>ระดับ 3 · Disagreement Highlight (Free tier)</h3>
     <p>ใน free preview เราแสดง <em>"Minority Voices" panel</em> ใต้ consensus banner — ระบบที่ฟรีให้เห็นว่า <strong>ไม่ใช่ทุกศาสตร์เห็นตรงกัน</strong> · นี่คือ proof-of-concept ของความโปร่งใส: ไม่ใช่ "ทุกคนเห็นตรงกัน" แต่ "ศาสตร์กลุ่มนี้อ่านไปทางนี้ กลุ่มนี้อ่านต่างออกไป — <strong>นี่คือระดับ agreement จริงที่วัดได้ N/26</strong>" — โปร่งใส, falsifiable, ตรวจสอบได้</p>
 
-    <p style="margin-top:1.2rem;padding:1rem 1.2rem;background:rgba(200,164,90,.06);border-left:3px solid var(--gold);border-radius:4px"><strong>ทำไม "agreement" ไม่ใช่ "judge"</strong> — engine ไม่ตัดสิน <em>คุณ</em> แต่วัด <em>ว่าเสียงของศาสตร์เห็นตรงกันแค่ไหน</em> โดยใช้ clustering + frozen reference distribution ที่ freeze ตั้งแต่ calibration · เหมือนเครื่องวัดที่รายงานตามกติกาที่ประกาศไว้แล้ว — ไม่ใช่ผู้พิพากษาที่ใช้ดุลพินิจส่วนตัว · <a href="#engine" style="color:var(--gold)">ดูสูตร calibration + dataset →</a> · <a href="/blog/calibration-methodology" style="color:var(--gold)">ดู calibration methodology ฉบับเต็ม →</a></p>
+    <p style="margin-top:1.2rem;padding:1rem 1.2rem;background:rgba(200,164,90,.06);border-left:3px solid var(--gold);border-radius:4px"><strong>ทำไมนี่คือ "การวัด" ไม่ใช่ "judge"</strong> — engine ไม่ตัดสิน <em>คุณ</em> แต่วัด <em>ระดับดวงโดยรวมของคุณ</em> (และควบคู่กัน <em>ว่าเสียงของศาสตร์เห็นตรงกันแค่ไหน</em>) โดย map ผ่าน frozen reference distribution ที่ freeze ตั้งแต่ calibration · เหมือนเครื่องวัดที่รายงานตามกติกาที่ประกาศไว้แล้ว — ไม่ใช่ผู้พิพากษาที่ใช้ดุลพินิจส่วนตัว · <a href="#engine" style="color:var(--gold)">ดูสูตร calibration + dataset →</a> · <a href="/blog/calibration-methodology" style="color:var(--gold)">ดู calibration methodology ฉบับเต็ม →</a></p>
   </section>
 
   <section>

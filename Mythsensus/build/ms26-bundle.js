@@ -3175,7 +3175,11 @@ function calcScore(d, data) {
         tier: tPick(tier.tierTh, tier.tier),
         tierTh: tier.tierTh,
         tierEn: tier.tier,
-        percentile: tier.pct,
+        // Per-person percentile from the actual score (total = _toScale(pct)), NOT
+        // the tier band's floor label — 960 is the 94th pct = Top 6%, but the old
+        // tier.pct showed the Radiance band's entry "Top 15%" for everyone in it
+        // (Director 2026-07-02). Clamp [1,99].
+        percentile: `Top ${Math.min(99, Math.max(1, Math.round((1 - (total - 300) / 699) * 100)))}%`,
         maxAchievable, mean, modalBin,
         starCount, midCount, warnCount,
         breakdown,
