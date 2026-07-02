@@ -6668,31 +6668,14 @@ function p_threeScores(c) {
     const tierLabel = _lang === 'en' ? (score.tierEn || score.tier) : score.tier;
     const portrait = tr(`ถ้าจะสรุปคุณเป็นย่อหน้าเดียว: คุณคือพลังงานธาตุ${esc(dmEl)} ที่แกนกลางของดวงสั่นพ้องในระดับ "${esc(tierLabel)}" (${esc(score.percentile)}) · ศาสตร์ที่ขับตัวตนคุณออกมาชัดที่สุดคือ <strong style="color:#c0e080">${esc(trDF(topSys.system))}</strong> — ${esc(stripHtml(String(topSys.finding || '')))} เสริมด้วยเสียงของ ${esc(trDF(secondSys.system))} อีกแรง · ส่วน ${esc(trDF(lowSys.system))} ที่ให้คะแนนต่ำสุดไม่ได้แปลว่าคุณอ่อนด้านนั้น แต่คือมุมที่พลังงานของคุณเลือกไม่เดินเป็นทางหลัก — และความ "ไม่เท่ากันทุกด้าน" นี่เองที่ทำให้คุณเป็นคุณ ไม่ใช่ค่าเฉลี่ยของใคร`, `If we had to capture you in a single paragraph: you are ${esc(dmEl)}-element energy whose core resonates at the "${esc(tierLabel)}" level (${esc(score.percentile)}). The system that voices your identity most clearly is <strong style="color:#c0e080">${esc(trDF(topSys.system))}</strong> — ${esc(stripHtml(String(topSys.finding || '')))}, reinforced by ${esc(trDF(secondSys.system))}. Your lowest-scoring system, ${esc(trDF(lowSys.system))}, doesn't mean you're weak there — it's simply an angle your energy chooses not to travel as a main road. That very unevenness is what makes you <em>you</em>, not an average of anyone else.`);
     return section(2, tr('Soul Frequency — คุณเป็นใครตั้งแต่เกิด', 'Soul Frequency — Who You Are From Birth'), '🔥', `
-    <div style="font-size:12px;color:#7a8a60;margin-bottom:16px;line-height:1.6">
-      ${tr('Soul Frequency คือ', 'Soul Frequency is')} <strong style="color:#c0d080">${tr('คุณภาพดวงชะตาพื้นฐาน', 'your fundamental chart quality')}</strong> — ${tr('ไม่เปลี่ยนแปลง เหมือนเกรดน้ำมัน', 'unchanging, like the grade of petroleum')}<br>
-      ${tr('คำนวณจาก Median ของ 26 ศาสตร์โบราณ (ถ่วงน้ำหนักเท่ากัน)', 'Calculated from the median of 26 ancient systems (equal weight)')}
-    </div>
-
-    <!-- Soul Frequency big display -->
-    <div style="background:linear-gradient(135deg,#0e1a08,#1a2810);border:2px solid #4a7a20;border-radius:12px;padding:20px;margin-bottom:16px">
-      <div style="display:flex;align-items:center;gap:20px">
-        <div style="text-align:center">
-          <div style="font-size:64px;font-weight:700;color:#8aba50;line-height:1">${score.soulFrequency}</div>
-          <div style="font-size:11px;color:#5a8a30;letter-spacing:2px">SOUL FREQUENCY</div>
-        </div>
-        <div style="flex:1">
-          <div style="font-size:16px;font-weight:600;color:#c0e080">${tr('= Cosmic Score ของคุณ · ระดับดวง (median 26 ศาสตร์)', '= your Cosmic Score · chart level (median of 26 systems)')}</div>
-          <div style="font-size:12px;color:#7a9a50;margin:4px 0">${tr('นี่คือตัวเลขเดียวกับหน้าปก — อธิบายละเอียดว่ามาจากไหน', 'The same number as the cover — here is where it comes from')}</div>
-          <div style="background:#0a1205;border-radius:4px;height:8px;overflow:hidden;margin:8px 0">
-            <div style="width:${Math.round((score.soulFrequency - 400) / 6)}%;height:8px;background:linear-gradient(90deg,#2a5010,#8aba50)"></div>
-          </div>
-          <div style="display:flex;gap:8px;font-size:11px;color:#5a7a40">
-            <span>${tr('คะแนนดิบ 26 ศาสตร์', 'raw 26-system')} · ${tr('มัธยฐาน', 'median')} <strong style="color:#8aba50">${_scoreMedian(c)}</strong></span>
-            <span>${tr('เฉลี่ย', 'mean')} ${score.mean}</span>
-            <span>Modal ${score.modalBin}–${score.modalBin + 49}</span>
-          </div>
-        </div>
-      </div>
+    <!-- No restated big number here (AI council + Director 2026-07-02): Soul
+         Frequency == the cover Cosmic Score now, so a second big number under a
+         different name — with a raw "median 771" beside the normalised score —
+         read as redundant + contradictory. This page is the DEPTH behind the
+         cover number, not a competing score. -->
+    <div style="font-size:12.5px;color:#7a8a60;margin-bottom:16px;line-height:1.7">
+      ${tr('Soul Frequency คือ', 'Soul Frequency is')} <strong style="color:#c0d080">${tr('ระดับดวงพื้นฐานของคุณ', 'your fundamental chart level')}</strong> — ${tr('ก็คือ Cosmic Score บนหน้าปกนั่นเอง (มัธยฐานของ 26 ศาสตร์ · ไม่เปลี่ยนตลอดชีวิต เหมือนเกรดน้ำมัน)', 'the very Cosmic Score on your cover (the median across 26 systems, unchanging like the grade of petroleum)')}<br>
+      ${tr('หน้านี้เจาะว่าศาสตร์ไหนขับตัวตนคุณออกมาชัดที่สุด และคุณเป็นใครในหนึ่งย่อหน้า', 'This page shows which systems voice your identity most clearly — and who you are, in one paragraph.')}
     </div>
 
     ${box(tr('ภาพรวมตัวตนคุณในหนึ่งย่อหน้า', 'Your portrait in one paragraph'), portrait, 'green')}
