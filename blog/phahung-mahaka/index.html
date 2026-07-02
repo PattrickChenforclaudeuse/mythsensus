@@ -53,6 +53,18 @@ footer{text-align:center;padding:2.4rem;font-family:'Josefin Sans',sans-serif;fo
 .lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
 .lang-btn{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
 .lang-btn.active{background:var(--gold);color:#040407}.lang-btn:hover:not(.active){color:var(--gold)}
+.fulltext{margin:3rem 0 1rem;border-top:1px solid var(--border);padding-top:1.6rem}
+.ft-title{font-family:'Cinzel Decorative',serif;font-size:1.3rem;color:var(--gold);margin:.4rem 0 .4rem;font-weight:400;line-height:1.3}
+html[lang="th"] .ft-title{font-family:'Prompt',sans-serif;font-weight:500}
+.ft-note{font-size:.9rem;color:var(--muted);font-style:italic;margin-bottom:1.4rem}
+html[lang="th"] .ft-note{font-family:'Prompt',sans-serif}
+.ftv{border-left:2px solid rgba(200,164,90,.3);padding:.2rem 0 .9rem 1.2rem;margin-bottom:1.1rem}
+.ftv-num{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);opacity:.78;margin-bottom:.5rem}
+html[lang="th"] .ftv-num{font-family:'Prompt',sans-serif;letter-spacing:.03em;font-size:.76rem}
+.ftv-pali{color:var(--gold);font-style:italic;line-height:1.75;margin-bottom:.5rem;font-size:1.02rem;opacity:.92}
+html[lang="th"] .ftv-pali{font-family:'Prompt',sans-serif}
+.ftv-tr{opacity:.86;font-size:.98rem;line-height:1.75}
+html[lang="th"] .ftv-tr{font-family:'Prompt',sans-serif}
 </style>
   <meta name="ms-meta-v1" content="1">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -224,6 +236,71 @@ footer{text-align:center;padding:2.4rem;font-family:'Josefin Sans',sans-serif;fo
   <p data-en="Eight cases, eight adversaries, eight entirely different ways of winning — merit, patience, loving-kindness, skillful means, stillness, wisdom, delegation, and insight. Not once by force. This is what millions recite every morning, never knowing what playbook they are holding in their hands." data-th="แปดเคส แปดคู่ต่อสู้ แปดวิธีชนะที่ต่างกันโดยสิ้นเชิง — บารมี ขันติ เมตตา กุศโลบาย ความสงบ ปัญญา การมอบหมาย ญาณ ไม่มีสักครั้งที่ใช้กำลัง นี่คือสิ่งที่คนนับล้านสวดทุกเช้า โดยไม่รู้เลยว่ากำลังถือ playbook อะไรอยู่ในมือ">แปดเคส แปดคู่ต่อสู้ แปดวิธีชนะที่ต่างกันโดยสิ้นเชิง — บารมี ขันติ เมตตา กุศโลบาย ความสงบ ปัญญา การมอบหมาย ญาณ ไม่มีสักครั้งที่ใช้กำลัง นี่คือสิ่งที่คนนับล้านสวดทุกเช้า โดยไม่รู้เลยว่ากำลังถือ playbook อะไรอยู่ในมือ</p>
 
   <p data-en="In Mythsensus's Cosmic Library, we treat a prayer as an interface — the channel humans use to speak to something larger than themselves, whether they call it a god, the cosmos, or wisdom accumulated across generations. Phahung is the first entry in a series that decodes sacred chants across faiths. Coming next: the Kalama Sutta, the Heart Sutra, Al-Fatihah, the Gayatri Mantra, and the Shema." data-th="ในคลังจักรวาลของ Mythsensus เรามองบทสวดเป็น interface — ช่องทางที่มนุษย์ใช้สื่อสารกับสิ่งที่ใหญ่กว่าตัวเอง ไม่ว่าจะเรียกมันว่าเทพ จักรวาล หรือปัญญาที่สั่งสมข้ามรุ่น พาหุงฯ คือบทแรกของซีรีส์ถอดรหัสบทสวดข้ามศรัทธา บทต่อไป: กาลามสูตร, หัวใจพระสูตร (Heart Sutra), อัลฟาติฮะฮ์, คายตรีมนตรา และเชมา">ในคลังจักรวาลของ Mythsensus เรามองบทสวดเป็น interface — ช่องทางที่มนุษย์ใช้สื่อสารกับสิ่งที่ใหญ่กว่าตัวเอง ไม่ว่าจะเรียกมันว่าเทพ จักรวาล หรือปัญญาที่สั่งสมข้ามรุ่น พาหุงฯ คือบทแรกของซีรีส์ถอดรหัสบทสวดข้ามศรัทธา บทต่อไป: กาลามสูตร, หัวใจพระสูตร (Heart Sutra), อัลฟาติฮะฮ์, คายตรีมนตรา และเชมา</p>
+
+  <div class="fulltext">
+    <h2 class="ft-title" data-en="The Full Chant — Pali with Translation, Verse by Verse" data-th="บทสวดพาหุงมหากา ฉบับเต็ม — บาลี พร้อมคำแปลทีละบท">บทสวดพาหุงมหากา ฉบับเต็ม — บาลี พร้อมคำแปลทีละบท</h2>
+    <p class="ft-note" data-en="All eight victory verses, each closing with the refrain &lsquo;…by that power, may victory-blessings be yours,&rsquo; followed by the colophon and the Mahākāruṇiko verse commonly chanted after. Standard chanting-book text (not a critical edition)." data-th="แปดชัยชนะครบทุกบท แต่ละบทลงท้ายด้วย &lsquo;…ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่าน&rsquo; ตามด้วยบทสรุปและบทมะหาการุณิโกที่นิยมสวดต่อ · อ้างอิงฉบับสวดมนต์มาตรฐาน">แปดชัยชนะครบทุกบท แต่ละบทลงท้ายด้วย &lsquo;…ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่าน&rsquo; ตามด้วยบทสรุปและบทมะหาการุณิโกที่นิยมสวดต่อ · อ้างอิงฉบับสวดมนต์มาตรฐาน</p>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="Victory 1 · Māra" data-th="ชัยชนะที่ 1 · พญามาร">ชัยชนะที่ 1 · พญามาร</div>
+      <div class="ftv-pali">พาหุง สะหัสสะมะภินิมมิตะสาวุธันตัง ครีเมขะลัง อุทิตะโฆระสะเสนะมารัง<br>ทานาทิธัมมะวิธินา ชิตะวา มุนินโท<br>ตันเตชะสา ภะวะตุ เต ชะยะมังคะลานิ ฯ</div>
+      <div class="ftv-tr" data-en="Māra conjured a thousand arms, each with a weapon, and rode his elephant Girimekhala at the head of a howling demon army. The Lord of Sages defeated him not by force but by the power of his perfected virtues, above all generosity (dāna). By that power, may victory-blessings be yours." data-th="พระจอมมุนีได้เอาชนะพระยามารผู้เนรมิตแขนมากตั้งพัน ถืออาวุธครบทุกมือ ขี่ช้างครีเมขละ มาพร้อมเหล่าเสนามารซึ่งโห่ร้องกึกก้อง ด้วยวิธีอธิษฐานถึงทานบารมีเป็นต้น ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่านเถิด">พระจอมมุนีได้เอาชนะพระยามารผู้เนรมิตแขนมากตั้งพัน ถืออาวุธครบทุกมือ ขี่ช้างครีเมขละ มาพร้อมเหล่าเสนามารซึ่งโห่ร้องกึกก้อง ด้วยวิธีอธิษฐานถึงทานบารมีเป็นต้น ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่านเถิด</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="Victory 2 · Āḷavaka" data-th="ชัยชนะที่ 2 · อาฬวกยักษ์">ชัยชนะที่ 2 · อาฬวกยักษ์</div>
+      <div class="ftv-pali">มาราติเรกะมะภิยุชฌิตะสัพพะรัตติง โฆรัมปะนาฬะวะกะมักขะมะถัทธะยักขัง<br>ขันตีสุทันตะวิธินา ชิตะวา มุนินโท<br>ตันเตชะสา ภะวะตุ เต ชะยะมังคะลานิ ฯ</div>
+      <div class="ftv-tr" data-en="Āḷavaka, a fierce and merciless yakkha even more terrifying than Māra, assailed the Buddha all through the night. The Lord of Sages won through patient endurance (khantī) rather than retaliation. By that power, may victory-blessings be yours." data-th="พระจอมมุนีได้เอาชนะยักษ์ชื่ออาฬวกะ ผู้มีจิตหยาบกระด้าง ปราศจากความอดทน มีความพิลึกน่ากลัวยิ่งกว่าพระยามาร ซึ่งเข้ามาต่อสู้อย่างยิ่งยวดจนตลอดคืนยันรุ่ง ด้วยวิธีทรมานอันดีคือขันติความอดทน ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่านเถิด">พระจอมมุนีได้เอาชนะยักษ์ชื่ออาฬวกะ ผู้มีจิตหยาบกระด้าง ปราศจากความอดทน มีความพิลึกน่ากลัวยิ่งกว่าพระยามาร ซึ่งเข้ามาต่อสู้อย่างยิ่งยวดจนตลอดคืนยันรุ่ง ด้วยวิธีทรมานอันดีคือขันติความอดทน ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่านเถิด</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="Victory 3 · Nāḷāgiri (the elephant)" data-th="ชัยชนะที่ 3 · ช้างนาฬาคีรี">ชัยชนะที่ 3 · ช้างนาฬาคีรี</div>
+      <div class="ftv-pali">นาฬาคิริง คะชะวะรัง อะติมัตตะภูตัง ทาวัคคิจักกะมะสะนีวะ สุทารุณันตัง<br>เมตตัมพุเสกะวิธินา ชิตะวา มุนินโท<br>ตันเตชะสา ภะวะตุ เต ชะยะมังคะลานิ ฯ</div>
+      <div class="ftv-tr" data-en="The maddened war-elephant Nāḷāgiri, as destructive as wildfire, a war-discus, or lightning, was loosed to trample the Buddha. The Lord of Sages subdued it by &lsquo;sprinkling&rsquo; it with loving-kindness (mettā). By that power, may victory-blessings be yours." data-th="พระจอมมุนีได้เอาชนะช้างตัวประเสริฐชื่อนาฬาคิรี ซึ่งเมามันยิ่งนักและแสนจะดุร้าย ประดุจไฟป่า จักราวุธ และสายฟ้า ด้วยวิธีรดลงด้วยน้ำคือความมีพระทัยเมตตา ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่านเถิด">พระจอมมุนีได้เอาชนะช้างตัวประเสริฐชื่อนาฬาคิรี ซึ่งเมามันยิ่งนักและแสนจะดุร้าย ประดุจไฟป่า จักราวุธ และสายฟ้า ด้วยวิธีรดลงด้วยน้ำคือความมีพระทัยเมตตา ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่านเถิด</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="Victory 4 · Aṅgulimāla" data-th="ชัยชนะที่ 4 · องคุลิมาล">ชัยชนะที่ 4 · องคุลิมาล</div>
+      <div class="ftv-pali">อุกขิตตะขัคคะมะติหัตถะสุทารุณันตัง ธาวันติโย ชะนะปะถังคุลิมาละวันตัง<br>อิทธีภิสังขะตะมะโน ชิตะวา มุนินโท<br>ตันเตชะสา ภะวะตุ เต ชะยะมังคะลานิ ฯ</div>
+      <div class="ftv-tr" data-en="The murderous bandit Aṅgulimāla, sword raised, chased the Buddha for three leagues. The Lord of Sages won by a feat of psychic power — walking calmly yet staying always out of reach, until the bandit exhausted himself and surrendered. By that power, may victory-blessings be yours." data-th="พระจอมมุนีทรงคิดจะแสดงฤทธิ์ปาฏิหาริย์ จึงได้เอาชนะโจรชื่อองคุลิมาล ผู้แสนจะดุร้าย มีฝีมือ ถือดาบเงื้อวิ่งไล่พระองค์ไปตลอดระยะทาง ๓ โยชน์ ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่านเถิด">พระจอมมุนีทรงคิดจะแสดงฤทธิ์ปาฏิหาริย์ จึงได้เอาชนะโจรชื่อองคุลิมาล ผู้แสนจะดุร้าย มีฝีมือ ถือดาบเงื้อวิ่งไล่พระองค์ไปตลอดระยะทาง ๓ โยชน์ ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่านเถิด</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="Victory 5 · Ciñcamāṇavikā" data-th="ชัยชนะที่ 5 · จิญจมาณวิกา">ชัยชนะที่ 5 · จิญจมาณวิกา</div>
+      <div class="ftv-pali">กัตตวานะ กัฏฐะมุทะรัง อิวะ คัพภินียา จิญจายะ ทุฏฐะวะจะนัง ชะนะกายะมัชเฌ<br>สันเตนะ โสมะวิธินา ชิตะวา มุนินโท<br>ตันเตชะสา ภะวะตุ เต ชะยะมังคะลานิ ฯ</div>
+      <div class="ftv-tr" data-en="Ciñcamāṇavikā strapped a round piece of wood to her belly to fake pregnancy and publicly accused the Buddha of fathering her child. The Lord of Sages won by serene, unshaken composure — his calm alone let the truth reveal itself. By that power, may victory-blessings be yours." data-th="พระจอมมุนีได้เอาชนะคำกล่าวใส่ร้ายของนางจิญจมาณวิกา ซึ่งทำอาการเหมือนดั่งมีครรภ์ เพราะเอาท่อนไม้กลมผูกไว้ที่หน้าท้อง แล้วกล่าวคำใส่ร้ายท่ามกลางหมู่ชน ด้วยวิธีทรงสมาธิอันงามคือการทำพระทัยให้ตั้งมั่นสงบนิ่ง ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่านเถิด">พระจอมมุนีได้เอาชนะคำกล่าวใส่ร้ายของนางจิญจมาณวิกา ซึ่งทำอาการเหมือนดั่งมีครรภ์ เพราะเอาท่อนไม้กลมผูกไว้ที่หน้าท้อง แล้วกล่าวคำใส่ร้ายท่ามกลางหมู่ชน ด้วยวิธีทรงสมาธิอันงามคือการทำพระทัยให้ตั้งมั่นสงบนิ่ง ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่านเถิด</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="Victory 6 · Saccaka" data-th="ชัยชนะที่ 6 · สัจจกนิครนถ์">ชัยชนะที่ 6 · สัจจกนิครนถ์</div>
+      <div class="ftv-pali">สัจจัง วิหายะ มะติสัจจะกะวาทะเกตุง วาทาภิโรปิตะมะนัง อะติอันธะภูตัง<br>ปัญญาปะทีปะชะลิโต ชิตะวา มุนินโท<br>ตันเตชะสา ภะวะตุ เต ชะยะมังคะลานิ ฯ</div>
+      <div class="ftv-tr" data-en="Saccaka, an arrogant debater who abandoned truth to raise his own rhetoric like a banner, sought to defeat the Buddha in argument. Blazing with the lamp of wisdom (paññā), the Lord of Sages won by teaching that dispelled his blindness. By that power, may victory-blessings be yours." data-th="พระจอมมุนีผู้รุ่งเรืองด้วยแสงสว่างคือปัญญา ได้เอาชนะสัจจกนิครนถ์ ผู้มีความคิดมุ่งละทิ้งความสัตย์ ใฝ่ใจจะยกย่องถ้อยคำของตนให้สูงประดุจยกธง และมีใจมืดมนยิ่งนัก ด้วยการแสดงเทศนาให้ถูกใจ ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่านเถิด">พระจอมมุนีผู้รุ่งเรืองด้วยแสงสว่างคือปัญญา ได้เอาชนะสัจจกนิครนถ์ ผู้มีความคิดมุ่งละทิ้งความสัตย์ ใฝ่ใจจะยกย่องถ้อยคำของตนให้สูงประดุจยกธง และมีใจมืดมนยิ่งนัก ด้วยการแสดงเทศนาให้ถูกใจ ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่านเถิด</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="Victory 7 · Nandopananda (the nāga)" data-th="ชัยชนะที่ 7 · นันโทปนันทนาค">ชัยชนะที่ 7 · นันโทปนันทนาค</div>
+      <div class="ftv-pali">นันโทปะนันทะภุชะคัง วิพุธัง มะหิทธิง ปุตเตนะ เถระภุชะเคนะ ทะมาปะยันโต<br>อิทธูปะเทสะวิธินา ชิตะวา มุนินโท<br>ตันเตชะสา ภะวะตุ เต ชะยะมังคะลานิ ฯ</div>
+      <div class="ftv-tr" data-en="The mighty but wrong-viewed nāga king Nandopananda needed taming. The Lord of Sages did not fight him directly — he instructed his disciple, the Elder Moggallāna, to take the form of an even greater nāga and subdue him. By that power, may victory-blessings be yours." data-th="พระจอมมุนีได้เอาชนะพญานาคราชชื่อนันโทปนันทะ ผู้มีความรู้ผิดและมีฤทธิ์มาก ด้วยวิธีทรงบอกอุบายให้พระโมคคัลลานเถระพุทธชิโนรสแสดงฤทธิ์ นิรมิตกายเป็นนาคราชไปทรมานพญานาคนั้น ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่านเถิด">พระจอมมุนีได้เอาชนะพญานาคราชชื่อนันโทปนันทะ ผู้มีความรู้ผิดและมีฤทธิ์มาก ด้วยวิธีทรงบอกอุบายให้พระโมคคัลลานเถระพุทธชิโนรสแสดงฤทธิ์ นิรมิตกายเป็นนาคราชไปทรมานพญานาคนั้น ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่านเถิด</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="Victory 8 · Baka Brahmā" data-th="ชัยชนะที่ 8 · พกาพรหม">ชัยชนะที่ 8 · พกาพรหม</div>
+      <div class="ftv-pali">ทุคคาหะทิฏฐิภุชะเคนะ สุทัฏฐะหัตถัง พรัหมัง วิสุทธิชุติมิทธิพะกาภิธานัง<br>ญาณาคะเทนะ วิธินา ชิตะวา มุนินโท<br>ตันเตชะสา ภะวะตุ เต ชะยะมังคะลานิ ฯ</div>
+      <div class="ftv-tr" data-en="Baka Brahmā, a powerful deity, believed himself eternal and supreme, gripped by his own false view as if bound by a serpent. The Lord of Sages won by administering the &lsquo;medicine&rsquo; of insight (ñāṇa), freeing him from delusion. By that power, may victory-blessings be yours." data-th="พระจอมมุนีได้เอาชนะพระพรหมผู้มีนามว่าท้าวพกาพรหม ผู้มีฤทธิ์ คิดว่าตนเป็นผู้รุ่งเรืองด้วยคุณอันบริสุทธิ์ ผู้ถูกทิฏฐิอันชั่วรัดรึงมือไว้แน่นดุจถูกงูรัด ด้วยวิธีวางยาคือทรงแสดงเทศนาญาณให้ถูกใจ ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่านเถิด">พระจอมมุนีได้เอาชนะพระพรหมผู้มีนามว่าท้าวพกาพรหม ผู้มีฤทธิ์ คิดว่าตนเป็นผู้รุ่งเรืองด้วยคุณอันบริสุทธิ์ ผู้ถูกทิฏฐิอันชั่วรัดรึงมือไว้แน่นดุจถูกงูรัด ด้วยวิธีวางยาคือทรงแสดงเทศนาญาณให้ถูกใจ ด้วยเดชแห่งพระพุทธชัยมงคลนั้น ขอชัยมงคลทั้งหลายจงมีแก่ท่านเถิด</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="Colophon (chanted after the eight)" data-th="บทสรุป (สวดต่อจาก 8 บท)">บทสรุป (สวดต่อจาก 8 บท)</div>
+      <div class="ftv-pali">เอตาปิ พุทธะชะยะมังคะละอัฏฐะคาถา โย วาจะโน ทินะทิเน สะระเต มะตันที<br>หิตวานะเนกะวิวิธานิ จุปัททะวานิ โมกขัง สุขัง อะธิคะเมยยะ นะโร สะปัญโญ ฯ</div>
+      <div class="ftv-tr" data-en="Whoever, wise and diligent, recites and reflects on these eight verses of the Buddha's victories day by day will shed all manner of misfortune and reach liberation — the supreme bliss of Nibbāna." data-th="บุคคลใดมีปัญญา ไม่เกียจคร้าน สวดและระลึกถึงพระพุทธชัยมงคล ๘ คาถาเหล่านี้ทุกๆ วัน บุคคลนั้นจะพึงละความจัญไรอันตรายทั้งหลายทุกอย่างเสียได้ และเข้าถึงความหลุดพ้นคือพระนิพพานอันบรมสุขแล">บุคคลใดมีปัญญา ไม่เกียจคร้าน สวดและระลึกถึงพระพุทธชัยมงคล ๘ คาถาเหล่านี้ทุกๆ วัน บุคคลนั้นจะพึงละความจัญไรอันตรายทั้งหลายทุกอย่างเสียได้ และเข้าถึงความหลุดพ้นคือพระนิพพานอันบรมสุขแล</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="Closing · Mahākāruṇiko (Jayaparitta, opening stanza)" data-th="บทปิด · มะหาการุณิโก (ชยปริตร บทแรก)">บทปิด · มะหาการุณิโก (ชยปริตร บทแรก)</div>
+      <div class="ftv-pali">มะหาการุณิโก นาโถ หิตายะ สัพพะปาณินัง<br>ปูเรตวา ปาระมี สัพพา ปัตโต สัมโพธิมุตตะมัง<br>เอเตนะ สัจจะวัชเชนะ โหตุ เต ชะยะมังคะลัง ฯ</div>
+      <div class="ftv-tr" data-en="The Buddha, the great-compassionate refuge of all beings, perfected every pāramī and attained supreme enlightenment for the good of all. By the power of this truthful utterance, may victory-blessings be yours." data-th="สมเด็จพระสัมมาสัมพุทธเจ้า พระผู้ทรงเป็นที่พึ่งของสรรพสัตว์ ทรงประกอบด้วยพระมหากรุณา ทรงบำเพ็ญพระบารมีทั้งปวงเพื่อประโยชน์เกื้อกูลแก่สรรพสัตว์ ทรงบรรลุพระสัมโพธิญาณอันสูงสุด ด้วยการกล่าวสัจจวาจานี้ ขอชัยมงคลทั้งหลายจงมีแก่ท่าน">สมเด็จพระสัมมาสัมพุทธเจ้า พระผู้ทรงเป็นที่พึ่งของสรรพสัตว์ ทรงประกอบด้วยพระมหากรุณา ทรงบำเพ็ญพระบารมีทั้งปวงเพื่อประโยชน์เกื้อกูลแก่สรรพสัตว์ ทรงบรรลุพระสัมโพธิญาณอันสูงสุด ด้วยการกล่าวสัจจวาจานี้ ขอชัยมงคลทั้งหลายจงมีแก่ท่าน</div>
+    </div>
+  </div>
 </div>
 
 <div class="article-cta">
