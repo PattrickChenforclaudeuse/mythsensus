@@ -2140,7 +2140,7 @@ try{
           <input type="date" id="godUpsellDob" style="flex:1;min-width:0;background:var(--bg);border:1px solid var(--gold3);border-radius:8px;color:var(--text);font-family:inherit;font-size:14px;padding:9px 10px;color-scheme:dark">
           <button id="godUpsellBtn" onclick="_drawUpsellReveal()" style="font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1px;font-weight:700;background:var(--gold);color:var(--bg);border:none;padding:9px 16px;border-radius:8px;cursor:pointer;white-space:nowrap">ดูเลย →</button>
         </div>
-        <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:7px">ใส่แค่วันเกิด · ไม่ต้องสมัคร · ฟรี</div>
+        <div id="godUpsellHint" style="font-size:10px;color:var(--muted);text-align:center;margin-top:7px">ใส่แค่วันเกิด · ไม่ต้องสมัคร · ฟรี</div>
         <div id="godTeaser" style="display:none"></div>
       </div>
     </div>
@@ -2486,7 +2486,7 @@ try{
       <button onclick="cb_goBack()" data-t="cb_tb_back" style="padding:8px 15px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:inherit;font-size:12px;cursor:pointer">← กลับ</button>
       <button onclick="cb_goBackAndCompare()" data-t="cb_tb_compare" style="padding:8px 15px;border-radius:4px;border:1px solid rgba(200,164,90,.4);background:rgba(200,164,90,.08);color:var(--gold);font-family:inherit;font-size:12px;cursor:pointer">📊 เปรียบเทียบ</button>
       <button onclick="cb_saveHTML()" data-t="cb_tb_save" style="padding:8px 15px;border-radius:4px;border:none;background:var(--gold3);color:var(--bg);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">💾 บันทึก HTML</button>
-      <button onclick="cb_printPDF()" data-t="cb_tb_print" style="padding:8px 15px;border-radius:4px;border:none;background:#1a6a10;color:var(--text);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🖨️ Print / PDF</button>
+      <button onclick="cb_printPDF()" data-t="cb_tb_print" style="padding:8px 15px;border-radius:4px;border:1px solid var(--gold3);background:rgba(200,164,90,.08);color:var(--gold);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🖨️ Print / PDF</button>
     </div>
   </div>
 
@@ -4377,6 +4377,32 @@ function _drawUpsellToFull(){
   try { window.scrollTo(0,0); } catch(_){}
   try { if (window._msTrack && typeof _msTrack.track==='function') _msTrack.track('upsell_click'); } catch(_){}
 }
+// Shared element-resonance line for the post-draw upsell — used by BOTH the
+// new-visitor teaser (_drawUpsellReveal) and the returning-user hook
+// (_drawUpsellReturning). Pure: reads the chart's Day-Master element + the
+// drawn god's name, returns the element blurb + a "this god mirrors your
+// element" match line. (No fabricated "X/26" — we only state the real element
+// resonance, per data-integrity rules.)
+function _upsellElemLine(chart, gname, isTh){
+  const elRaw=(chart&&chart.bazi&&chart.bazi.dayMasterElement)||'';
+  // The chart returns the element in the active language ('ไฟ' in TH, 'Fire' in
+  // EN); normalise to a canonical Thai key so the lookup maps hit in BOTH modes
+  // (previously EN mode fell through to a bare "✦ Fire" / "a unique blend").
+  const _EN2TH={Fire:'ไฟ',Water:'น้ำ',Wood:'ไม้',Earth:'ดิน',Metal:'โลหะ'};
+  const el=_EN2TH[elRaw]||elRaw;
+  const elMap=isTh
+    ? {'ไฟ':'🔥 ธาตุไฟ · พลังจุดประกาย','น้ำ':'🌊 ธาตุน้ำ · สัญชาตญาณลึก','ไม้':'🌿 ธาตุไม้ · เติบโตไม่หยุด','ดิน':'⛰️ ธาตุดิน · มั่นคงเป็นหลัก','โลหะ':'⚙️ ธาตุโลหะ · เฉียบคมมีวินัย'}
+    : {'ไฟ':'🔥 Fire · the spark','น้ำ':'🌊 Water · deep instinct','ไม้':'🌿 Wood · ever-growing','ดิน':'⛰️ Earth · the anchor','โลหะ':'⚙️ Metal · sharp & disciplined'};
+  const EL_EN={'ไฟ':'Fire','น้ำ':'Water','ไม้':'Wood','ดิน':'Earth','โลหะ':'Metal'};
+  const elTxt=elMap[el]||(el?('✦ '+el):'');
+  const elNm=isTh?(el?('ธาตุ'+el):''):(EL_EN[el]||'');
+  const matchLine = gname
+    ? (isTh
+       ? ('ดวงคุณเด่น'+(elNm?'<strong style="color:var(--gold2)">'+esc(elNm)+'</strong>':'พลังเฉพาะตัว')+' — เทพ <strong style="color:var(--gold2)">'+esc(gname)+'</strong> ที่จั่วได้สะท้อนพลังนี้พอดี ✦')
+       : ('Your chart leans '+(elNm?'<strong style="color:var(--gold2)">'+elNm+'</strong>':'a unique blend')+' — <strong style="color:var(--gold2)">'+esc(gname)+'</strong> mirrors it perfectly ✦'))
+    : (isTh?'นี่คือพลังหลักในดวงของคุณ ✦':'This is your core chart energy ✦');
+  return { elTxt, matchLine };
+}
 // Post-draw teaser — compute a partial chart from DATE ONLY (Bangkok-noon
 // default, exactly like _getMS26ChartFromProfile / pets) and reveal Cosmic
 // Score + element inline. This replaces the old "bounce straight to the 6-field
@@ -4396,22 +4422,12 @@ function _drawUpsellReveal(){
   try{ localStorage.setItem('mth_dob',dob); }catch(_){}
   try{ if(window._msTrack&&typeof _msTrack.track==='function') _msTrack.track('upsell_dob_submit'); }catch(_){}
   const score=chart.score.total||chart.score.cosmicFinal||chart.score.soulFrequency||0;
-  const el=(chart.bazi&&chart.bazi.dayMasterElement)||'';
-  const elMap=isTh
-    ? {'ไฟ':'🔥 ธาตุไฟ · พลังจุดประกาย','น้ำ':'🌊 ธาตุน้ำ · สัญชาตญาณลึก','ไม้':'🌿 ธาตุไม้ · เติบโตไม่หยุด','ดิน':'⛰️ ธาตุดิน · มั่นคงเป็นหลัก','โลหะ':'⚙️ ธาตุโลหะ · เฉียบคมมีวินัย'}
-    : {'ไฟ':'🔥 Fire · the spark','น้ำ':'🌊 Water · deep instinct','ไม้':'🌿 Wood · ever-growing','ดิน':'⛰️ Earth · the anchor','โลหะ':'⚙️ Metal · sharp & disciplined'};
-  const elTxt=elMap[el]||(el?('✦ '+el):'');
   const gname=(typeof _currentDraw!=='undefined'&&_currentDraw&&_currentDraw.god&&_currentDraw.god.name)?_currentDraw.god.name:'';
   const form=document.getElementById('godUpsellForm'); if(form) form.style.display='none';
   const txt=document.getElementById('godUpsellText'); if(txt) txt.style.display='none';
+  const hint=document.getElementById('godUpsellHint'); if(hint) hint.style.display='none';
   const t=document.getElementById('godTeaser'); if(!t){ _drawUpsellToFull(); return; }
-  const EL_EN={'ไฟ':'Fire','น้ำ':'Water','ไม้':'Wood','ดิน':'Earth','โลหะ':'Metal'};
-  const elNm=isTh?(el?('ธาตุ'+el):''):(EL_EN[el]||'');
-  const matchLine = gname
-    ? (isTh
-       ? ('ดวงคุณเด่น'+(elNm?'<strong style="color:var(--gold2)">'+esc(elNm)+'</strong>':'พลังเฉพาะตัว')+' — เทพ <strong style="color:var(--gold2)">'+esc(gname)+'</strong> ที่จั่วได้สะท้อนพลังนี้พอดี ✦')
-       : ('Your chart leans '+(elNm?'<strong style="color:var(--gold2)">'+elNm+'</strong>':'a unique blend')+' — <strong style="color:var(--gold2)">'+esc(gname)+'</strong> mirrors it perfectly ✦'))
-    : (isTh?'นี่คือพลังหลักในดวงของคุณ ✦':'This is your core chart energy ✦');
+  const {elTxt, matchLine} = _upsellElemLine(chart, gname, isTh);
   const ctaTxt=isTh?'ดูเต็ม 26 ศาสตร์เห็นตรงกันเรื่องอะไร →':'See what all 26 systems agree on →';
   const moreTxt=isTh?'ใส่เวลา-เมืองเกิดเพื่อแม่นขึ้น (rising, ชั่วโมงเกิด)':'Add birth time & city for full accuracy (rising, hour pillar)';
   t.innerHTML='<div style="text-align:center">'
@@ -4427,7 +4443,10 @@ function _drawUpsellReveal(){
 function _maybeShowDrawUpsell(){
   const u=document.getElementById('godUpsell'); if(!u) return;
   let hasDob=false; try{ hasDob=!!localStorage.getItem('mth_dob'); }catch(_){}
-  if (hasDob){ u.style.display='none'; return; }
+  // Returning visitor (chart saved): don't dead-end on the daily card — show
+  // how THIS drawn god resonates with their chart + a route into the paid
+  // 26-system Blueprint. (Director 2026-07-02: "ตอนจั่วเทพไม่เห็นมี hook")
+  if (hasDob){ _drawUpsellReturning(u); return; }
   const isTh=(typeof LANG==='undefined')||LANG==='th';
   const gname=(typeof _currentDraw!=='undefined'&&_currentDraw&&_currentDraw.god&&_currentDraw.god.name)?_currentDraw.god.name:(isTh?'เทพองค์นี้':'this deity');
   const tx=document.getElementById('godUpsellText');
@@ -4435,10 +4454,42 @@ function _maybeShowDrawUpsell(){
     ? '<strong style="color:var(--gold2)">26 ศาสตร์โบราณ</strong> รู้ว่าทำไม <strong style="color:var(--gold2)">'+esc(gname)+'</strong> ถึงเลือกคุณวันนี้ — ใส่วันเกิด เดี๋ยวเฉลย ✦'
     : '<strong style="color:var(--gold2)">26 ancient systems</strong> know why <strong style="color:var(--gold2)">'+esc(gname)+'</strong> chose you today — enter your birth date to find out ✦';
   const form=document.getElementById('godUpsellForm'), tease=document.getElementById('godTeaser');
+  const hint=document.getElementById('godUpsellHint'); if(hint) hint.style.display='block';
   if (form) form.style.display='flex';
   if (tx) tx.style.display='block';
   if (tease){ tease.style.display='none'; tease.innerHTML=''; }
   u.style.display='block';
+}
+// Returning-user post-draw hook. The visitor already has a saved chart, so
+// instead of hiding the upsell we show how the god they just drew RESONATES
+// with their element + a CTA into the full 26-system Blueprint (free → paid).
+function _drawUpsellReturning(u){
+  const isTh=(typeof LANG==='undefined')||LANG==='th';
+  let chart=null; try{ chart=(typeof _getMS26ChartFromProfile==='function')?_getMS26ChartFromProfile():null; }catch(_){}
+  if(!chart||!chart.score){ u.style.display='none'; return; }   // no usable chart → stay hidden
+  const gname=(typeof _currentDraw!=='undefined'&&_currentDraw&&_currentDraw.god&&_currentDraw.god.name)?_currentDraw.god.name:'';
+  const {elTxt, matchLine}=_upsellElemLine(chart, gname, isTh);
+  // Returning user doesn't re-enter DOB → hide the input form, prompt & hint.
+  const form=document.getElementById('godUpsellForm'); if(form) form.style.display='none';
+  const txt=document.getElementById('godUpsellText'); if(txt) txt.style.display='none';
+  const hint=document.getElementById('godUpsellHint'); if(hint) hint.style.display='none';
+  const t=document.getElementById('godTeaser'); if(!t){ u.style.display='none'; return; }
+  const ctaTxt=isTh?'ดูเต็ม 26 ศาสตร์เห็นตรงกันเรื่องอะไร →':'See what all 26 systems agree on →';
+  t.innerHTML='<div style="text-align:center">'
+    +(matchLine?('<div style="font-size:13px;color:var(--text);margin:2px 0 4px;line-height:1.6">'+matchLine+'</div>'):'')
+    +(elTxt?('<div style="font-size:12px;color:var(--muted);margin-bottom:10px">'+elTxt+'</div>'):'<div style="margin-bottom:6px"></div>')
+    +'<button onclick="_drawUpsellToBlueprint()" style="width:100%;font-family:\'Josefin Sans\',sans-serif;font-size:12.5px;letter-spacing:1px;font-weight:700;background:transparent;color:var(--gold);border:1px solid var(--gold);padding:11px;border-radius:8px;cursor:pointer">'+ctaTxt+'</button>'
+    +'</div>';
+  t.style.display='block';
+  u.style.display='block';
+}
+// Returning-user CTA → open the Cosmic Blueprint generate view directly (they
+// already have a saved chart, so skip the birth-data form the new-user CTA opens).
+function _drawUpsellToBlueprint(){
+  try{ if(window._msTrack&&typeof _msTrack.track==='function') _msTrack.track('upsell_click'); }catch(_){}
+  try{ setGroup('premium'); showSubTab('blueprint'); }catch(_){}
+  try{ if(typeof cb_generate==='function') cb_generate(); }catch(_){}
+  try{ window.scrollTo(0,0); }catch(_){}
 }
 
 function _renderGodCard(god, T, msgIdx, explicitMsg) {
@@ -4530,11 +4581,14 @@ function updateWordBars(wordCount,activeWord){
   const entries=Object.entries(wordCount).sort((a,b)=>rank(b[1])-rank(a[1])).slice(0,12);
   if(!entries.length){barsEl.innerHTML='';return;}
   const maxC=rank(entries[0][1])||1;
-  barsEl.innerHTML=entries.map(([w,d])=>{
+  barsEl.innerHTML=entries.map(([w,d],i)=>{
     const isActive=w===activeWord;
     const esc=w.replace(/'/g,"\\'");
+    // Left column = rank ordinal (1. 2. 3.), NOT the vote count — the count
+    // already shows on the right (.at-count). Previously both showed d.count,
+    // so left "21×" and right "21" were identical (Director 2026-07-02).
     return`<div class="at-row" onclick="selectWord('${esc}')" style="cursor:pointer;padding:3px 0">
-      <div class="at-icon" style="font-size:10px;width:26px;color:var(--muted);text-align:right;flex-shrink:0">${d.count}×</div>
+      <div class="at-icon" style="font-size:10px;width:26px;color:var(--muted);text-align:right;flex-shrink:0">${i+1}.</div>
       <div class="at-label" style="width:85px;color:${isActive?'var(--gold)':'var(--text)'};font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w}</div>
       <div class="at-track"><div class="at-fill" style="width:${(rank(d)/maxC*100).toFixed(0)}%;background:${isActive?'var(--gold)':'var(--gold3)'};transition:width .2s"></div></div>
       <div class="at-count">${d.count}</div>
