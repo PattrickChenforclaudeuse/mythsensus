@@ -123,7 +123,7 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
   "mainEntity":[
     {"@type":"Question","name":"คำนวณดวงใน browser ของฉันจริง ๆ หรือ?","acceptedAnswer":{"@type":"Answer","text":"จริง — engine 26 ศาสตร์ (~250 KB JavaScript) ถูก compile จาก TypeScript และ load เข้า browser ของคุณตอนเปิดเว็บครั้งแรก หลังจากนั้นการคำนวณรันใน CPU/RAM ของอุปกรณ์คุณเอง วันเกิดที่คุณใส่อยู่ใน memory ของ browser tab เท่านั้น ไม่ถูกส่งไปที่ Mythsensus server ใด ๆ ในระหว่างการคำนวณ"}},
     {"@type":"Question","name":"วิธีพิสูจน์ว่าไม่ส่งข้อมูลออก?","acceptedAnswer":{"@type":"Answer","text":"เปิด DevTools (F12 หรือ Cmd+Option+I) ไปที่แท็บ Network กด Ctrl+R (Cmd+R) reload หน้า ใส่วันเกิดของคุณ กด Generate — ดูใน Network tab ว่ามี request ไปที่ mythsensus.com หรือไม่ คำตอบ: ไม่มี (ยกเว้น analytics ภายในที่ไม่ส่งวันเกิด) การคำนวณทั้งหมดเสร็จใน browser โดยไม่ต้องเชื่อมต่อ server"}},
-    {"@type":"Question","name":"แล้ว Cosmic Blueprint $19 ส่งข้อมูลออกไหม?","acceptedAnswer":{"@type":"Answer","text":"การชำระเงิน $19 ไปที่ Gumroad (merchant of record สำหรับ card processing + tax + receipt) — email และข้อมูล payment ส่งไปที่ Gumroad ไม่ใช่ Mythsensus. การคำนวณรายงาน 43 หน้ายังคงรันใน browser ของคุณเอง ไม่ใช่ server ของเรา — เราเก็บแค่ payment status (active/inactive) ผ่าน Gumroad webhook ไม่เก็บวันเกิดหรือเนื้อหารายงาน"}},
+    {"@type":"Question","name":"แล้ว Cosmic Blueprint $19 ส่งข้อมูลออกไหม?","acceptedAnswer":{"@type":"Answer","text":"การชำระเงิน $19 ไปที่ Gumroad (merchant of record สำหรับ card processing + tax + receipt) — email และข้อมูล payment ส่งไปที่ Gumroad ไม่ใช่ Mythsensus. การคำนวณรายงาน เชิงลึกยังคงรันใน browser ของคุณเอง ไม่ใช่ server ของเรา — เราเก็บแค่ payment status (active/inactive) ผ่าน Gumroad webhook ไม่เก็บวันเกิดหรือเนื้อหารายงาน"}},
     {"@type":"Question","name":"localStorage คืออะไร? ปลอดภัยไหม?","acceptedAnswer":{"@type":"Answer","text":"localStorage คือกล่องเก็บข้อมูลใน browser ของคุณเอง — แต่ละ origin (mythsensus.com) มีกล่องของตัวเอง ไม่ shared กับเว็บอื่น และไม่ส่งไปที่ server ใด ๆ ข้อมูลอยู่ใน hard drive ของอุปกรณ์คุณเท่านั้น เคลียร์ browser cache = ข้อมูลหายหมด เพราะ Mythsensus ไม่มี backup บน server (เป็นข้อจำกัดที่จงใจ — privacy-first)"}},
     {"@type":"Question","name":"Vercel Analytics เก็บข้อมูลอะไร?","acceptedAnswer":{"@type":"Answer","text":"Vercel Web Analytics คือ aggregated traffic data แบบ privacy-friendly — เก็บ page view count, country (ไม่ใช่ IP), browser type, referrer. ไม่ใช้ cookies. ไม่ track individual user. ไม่เก็บ IP. ไม่ส่งไปที่ Google/Facebook. ไม่ใช้สำหรับ advertising หรือ remarketing วันเกิดของคุณ ไม่ส่งไปที่ Vercel Analytics — เป็น analytics ของ page navigation เท่านั้น"}}
   ]
@@ -306,7 +306,7 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
           <tr><td><strong>Computation</strong> (26-system math)</td><td>Always client-side · ใน CPU ของคุณ · ไม่ว่า logged in หรือ guest</td><td>Nothing leaves device · verify ใน DevTools → Network tab</td></tr>
           <tr><td><strong>Account sync</strong> (optional · sign-in)</td><td>Server-side (Supabase woam)</td><td>Email + plan status เท่านั้น · <em>ไม่เก็บ DOB หรือ chart</em></td></tr>
           <tr><td><strong>Payment</strong></td><td>Gumroad (merchant of record)</td><td>Card + email + tax records ที่ Gumroad · Mythsensus ไม่เห็น</td></tr>
-          <tr><td><strong>43-page PDF</strong></td><td>Browser ของคุณ ประกอบหลัง payment unlock token</td><td>วันเกิดไม่ออกจาก device แม้ตอนซื้อ · Ctrl+P save เป็น PDF จริง</td></tr>
+          <tr><td><strong>in-depth PDF</strong></td><td>Browser ของคุณ ประกอบหลัง payment unlock token</td><td>วันเกิดไม่ออกจาก device แม้ตอนซื้อ · Ctrl+P save เป็น PDF จริง</td></tr>
         </tbody>
       </table>
       <p style="margin-top:1rem;font-size:.95rem;color:var(--muted)"><em>"Data stays on your device"</em> = computation + chart content. <em>"Server records minimal account state"</em> = email + plan only. ทั้งคู่จริงพร้อมกัน · ไม่มี contradiction.</p>
@@ -449,7 +449,7 @@ Supabase woam project            # Auth + payment records
 
     <div class="faq-block">
       <h3>แล้ว Cosmic Blueprint $19 ส่งข้อมูลออกไหม?</h3>
-      <p>การชำระเงิน $19 ไปที่ Gumroad (merchant of record สำหรับ card processing + tax + receipt) — email และข้อมูล payment ส่งไปที่ Gumroad ไม่ใช่ Mythsensus. การคำนวณรายงาน 43 หน้ายังคงรันใน browser ของคุณเอง ไม่ใช่ server ของเรา — เราเก็บแค่ payment status (active/inactive) ผ่าน Gumroad webhook ไม่เก็บวันเกิดหรือเนื้อหารายงาน</p>
+      <p>การชำระเงิน $19 ไปที่ Gumroad (merchant of record สำหรับ card processing + tax + receipt) — email และข้อมูล payment ส่งไปที่ Gumroad ไม่ใช่ Mythsensus. การคำนวณรายงาน เชิงลึกยังคงรันใน browser ของคุณเอง ไม่ใช่ server ของเรา — เราเก็บแค่ payment status (active/inactive) ผ่าน Gumroad webhook ไม่เก็บวันเกิดหรือเนื้อหารายงาน</p>
     </div>
 
     <div class="faq-block">
@@ -466,7 +466,7 @@ Supabase woam project            # Auth + payment records
 
   <h2>อ่านต่อ</h2>
   <p>· <a href="/cosmic-score">Cosmic Score คืออะไร · methodology</a><br>
-  · <a href="/sample-report">Sample Report 43 หน้า — ดูฟรีก่อนซื้อ</a><br>
+  · <a href="/sample-report">Sample Report เชิงลึก — ดูฟรีก่อนซื้อ</a><br>
   · <a href="/privacy">Privacy Policy</a><br>
   · <a href="/blog/ดูดวงฟรี-ไม่ต้องลงทะเบียน">ดูดวงฟรี ไม่ต้องลงทะเบียน — ทำได้จริงไหม</a></p>
 

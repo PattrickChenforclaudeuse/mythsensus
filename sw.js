@@ -264,13 +264,13 @@
 // v101: 2026-06-10 — Cosmic Blueprint now PAID (Director decision: Full Report =
 // Cosmic Blueprint = Cosmic Premium = one $19 product). cb_generate (and the
 // viewMultiProfile path) now gate on _hasItemAccess('full_report'); owner /
-// subscriber / one-time buyer of that chart see the full 43-page report, everyone
+// subscriber / one-time buyer of that chart see the full in-depth report, everyone
 // else gets a free TEASER (Cosmic Score + the "X systems agree" Grand Convergence
 // preview — our selling point) + the $19 paywall (#cb-paywall-wrap, parent-doc so
 // purchase buttons work). _chartInputHash() now also hashes an explicit profile so
 // a saved profile's entitlement is checked correctly. Famous-people charts stay
 // free demos. Engine/bundle unchanged (?v=97).
-// v102: 2026-06-10 — Biorhythm fully removed from the STATIC 43-page report. It's
+// v102: 2026-06-10 — Biorhythm fully removed from the STATIC in-depth report. It's
 // a daily-changing value (the engine computes it against a fixed reference, so it
 // was a frozen, misleading number in a one-time report). Removed: the p02 daily
 // card, the p_threeScores line, the "current biorhythm pulse" block, the health/
@@ -376,7 +376,7 @@
 // daily draw (entryDrawFirst), 26-system reading demoted to secondary; post-draw
 // upsell card funnels draw → full reading; entry form's time/gender/city collapsed
 // by default. Attacks 11.5s median / 1% birthday-fill / 0 shares.
-const CACHE = 'mythsensus-v176';
+const CACHE = 'mythsensus-v177';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

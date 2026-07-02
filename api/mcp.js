@@ -120,10 +120,10 @@ const ENGINE_INFO = {
     weight_calibration: 'Internal-consistency optimization (no supervised ground truth).',
     llm_narrative: 'Reading TEXT uses an LLM for phrasing only; the numbers are deterministic.',
   },
-  open_source: 'The compiled engine ships client-side on mythsensus.com and as the MIT npm package mythsensus-mcp — the math is fully inspectable. Durable edge: weight calibration + 1,069-deity curation + 43-page synthesis depth.',
+  open_source: 'The compiled engine ships client-side on mythsensus.com and as the MIT npm package mythsensus-mcp — the math is fully inspectable. Durable edge: weight calibration + 1,069-deity curation + in-depth synthesis depth.',
   pricing: {
     free: 'Cosmic Score + 5-system consensus preview (this MCP) · full 26-system reading free on the website',
-    deep_reading_one_time: '$9 per system', full_report_one_time: '$19 (43-page PDF, all 26 systems)',
+    deep_reading_one_time: '$9 per system', full_report_one_time: '$19 (in-depth PDF, all 26 systems)',
     subscription: '$8.99/month',
   },
   mcp_repo: 'https://github.com/PattrickChenforclaudeuse/mythsensus-mcp',
@@ -155,7 +155,7 @@ const TOOLS = [
   {
     name: 'get_deep_reading',
     description:
-      'Get a focused reading for ONE specific divination system from the 26. Free MCP tier covers the 5 preview systems (bazi, vedic, western, ninestar, thai); the other 21 + the 43-page Cosmic Blueprint PDF are at mythsensus.com/pricing.',
+      'Get a focused reading for ONE specific divination system from the 26. Free MCP tier covers the 5 preview systems (bazi, vedic, western, ninestar, thai); the other 21 + the in-depth Cosmic Blueprint PDF are at mythsensus.com/pricing.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -198,19 +198,19 @@ function callTool(name, a) {
         cosmicScore: summary.cosmicScore,
         consensus_preview: { bazi: summary.bazi, vedic: summary.vedic, western: summary.western, ninestar: summary.ninestar, thai: summary.thai },
         systems_in_preview: FREE_PREVIEW_SYSTEMS.length, systems_total: 26,
-        full_consensus: `This is a ${FREE_PREVIEW_SYSTEMS.length}-of-26 consensus preview. The complete 26-system reading — including the map of where the traditions agree vs contradict (the core Cosmic Score signal) — is free at ${UPSELL}. Per-system deep readings + the 43-page Cosmic Blueprint PDF are the paid layer (${UPSELL}/pricing).`,
+        full_consensus: `This is a ${FREE_PREVIEW_SYSTEMS.length}-of-26 consensus preview. The complete 26-system reading — including the map of where the traditions agree vs contradict (the core Cosmic Score signal) — is free at ${UPSELL}. Per-system deep readings + the in-depth Cosmic Blueprint PDF are the paid layer (${UPSELL}/pricing).`,
       };
       return text(JSON.stringify(preview, null, 2));
     }
     case 'get_deep_reading': {
       const slug = String(a.system);
       if (!FREE_PREVIEW_SYSTEMS.includes(slug)) {
-        return text(`Deep reading for "${slug}" is part of the full 26-system experience at ${UPSELL}. The free MCP tier includes deep readings for: ${FREE_PREVIEW_SYSTEMS.join(', ')}. For all 26 systems + the 43-page synthesis, see ${UPSELL}/pricing.`);
+        return text(`Deep reading for "${slug}" is part of the full 26-system experience at ${UPSELL}. The free MCP tier includes deep readings for: ${FREE_PREVIEW_SYSTEMS.join(', ')}. For all 26 systems + the in-depth synthesis, see ${UPSELL}/pricing.`);
       }
       const { chart } = calculate(a);
       const systemData = chart[slug];
       if (!systemData) return text(`System "${slug}" not found. Run list_26_systems for canonical slugs. Available chart keys: ${Object.keys(chart).join(', ')}.`, true);
-      return text(`# ${slug} reading\n\n${JSON.stringify(systemData, null, 2)}\n\nFor the full 43-page Cosmic Blueprint PDF synthesising all 26 systems, visit ${UPSELL}/pricing ($19 one-time).`);
+      return text(`# ${slug} reading\n\n${JSON.stringify(systemData, null, 2)}\n\nFor the full in-depth Cosmic Blueprint PDF synthesising all 26 systems, visit ${UPSELL}/pricing ($19 one-time).`);
     }
     case 'list_26_systems':
       return text(JSON.stringify(SYSTEMS_26, null, 2));
