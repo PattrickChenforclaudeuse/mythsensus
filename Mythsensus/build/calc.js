@@ -2939,15 +2939,49 @@ const SCORE_COLORS = [
     '#6a3a3a', '#5a4a3a',
     '#5a3a80', '#8a4010', '#2a5a5a', '#3a5a70', '#2a4a70',
 ];
-// Tier boundaries calibrated from real dataset n=1,211 (Apr 2026)
+// ── Cosmic Score recalibration · cdf_v2_agreement · 2026-07-01 ────────────────
+// Cosmic Score = cross-system AGREEMENT (percentile-normalised INVERSE dispersion
+// of the 25 voting systems) — restores the original "when systems agree, the score
+// is high" design; the old plain median measured central tendency, not agreement.
+// Soul Frequency = the central archetype level (median), a distinct 2nd axis.
+// Frozen 21-pt quantile CDFs (each step = 5 percentile pts) from a 20k random-chart
+// reference sample. DO NOT auto-refit — bump the version on any deliberate change.
+const _CDF_MAD = [8, 25, 28, 29, 30, 32, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 48, 52, 77];
+const _CDF_MED = [700, 730, 735, 738, 741, 743, 745, 747, 749, 751, 753, 755, 757, 758, 760, 763, 765, 767, 770, 775, 802];
+function _pctInCdf(Q, v) {
+    if (v <= Q[0])
+        return 0;
+    if (v >= Q[Q.length - 1])
+        return 1;
+    let lo = 0, hi = Q.length - 1;
+    while (lo < hi) {
+        const m = (lo + hi) >> 1;
+        if (Q[m] < v)
+            lo = m + 1;
+        else
+            hi = m;
+    }
+    const v0 = Q[lo - 1], v1 = Q[lo];
+    const frac = v1 > v0 ? (v - v0) / (v1 - v0) : 0;
+    return ((lo - 1) + frac) / (Q.length - 1);
+}
+function _dispMad(scores) {
+    const s = [...scores].sort((a, b) => a - b);
+    const med = s[s.length >> 1];
+    const ad = s.map(x => Math.abs(x - med)).sort((a, b) => a - b);
+    return ad[ad.length >> 1];
+}
+function _toScale(pct) { return Math.round((300 + 699 * pct) / 10) * 10; } // bucket-10
+// Tier boundaries = PERCENTILE cuts of the frozen CDF (Set B) — every tier now
+// reachable + "Top X%" labels are finally true. Low tiers = complex/multi-faceted, not "bad".
 const TIERS = [
-    { min: 860, tier: 'Celestial', tierTh: 'ฟ้า — Celestial', pct: 'Top 1%' },
-    { min: 810, tier: 'Radiant', tierTh: 'แสง — Radiant', pct: 'Top 5%' },
-    { min: 780, tier: 'Luminous', tierTh: 'เปล่งประกาย — Luminous', pct: 'Top 15%' },
-    { min: 730, tier: 'Resonant', tierTh: 'สั่นพ้อง — Resonant', pct: 'Top 35%' },
-    { min: 685, tier: 'Grounded', tierTh: 'หยั่งราก — Grounded', pct: 'Top 55%' },
-    { min: 650, tier: 'Seeking', tierTh: 'แสวงหา — Seeking', pct: 'Top 75%' },
-    { min: 0, tier: 'Emerging', tierTh: 'กำลังก่อตัว — Emerging', pct: 'Bottom 25%' },
+    { min: 980, tier: 'Divine', tierTh: 'ทิพย์ — Divine', pct: 'Top 3%' },
+    { min: 890, tier: 'Radiance', tierTh: 'รัศมี — Radiance', pct: 'Top 15%' },
+    { min: 790, tier: 'Glimmer', tierTh: 'ประกาย — Glimmer', pct: 'Top 30%' },
+    { min: 650, tier: 'Balance', tierTh: 'ดุลย์ — Balance', pct: 'Top 50%' },
+    { min: 470, tier: 'Earth', tierTh: 'ปฐพี — Earth', pct: 'Top 75%' },
+    { min: 370, tier: 'Seeking', tierTh: 'แสวง — Seeking', pct: 'Top 90%' },
+    { min: 0, tier: 'Dawn', tierTh: 'อรุณ — Dawn', pct: 'Foundational' },
 ];
 const COSMIC_ENTITIES = [
     'The Lighthouse at the Edge of Everything',
@@ -3097,7 +3131,12 @@ function calcScore(d, data) {
     const binCounts = {};
     sorted.forEach(s => { const bin = Math.floor(s / 50) * 50; binCounts[bin] = (binCounts[bin] || 0) + 1; });
     const modalBin = +Object.entries(binCounts).sort((a, b) => b[1] - a[1])[0][0];
-    const total = Math.min(999, Math.max(400, median));
+    // Cosmic Score = AGREEMENT: a tight cluster of systems (low dispersion) = high score,
+    // a wide scatter = low (the person the traditions read many different ways).
+    const _mad = _dispMad(votingScores);
+    const total = _toScale(1 - _pctInCdf(_CDF_MAD, _mad));
+    // Soul Frequency = central archetype level (median), a distinct second axis.
+    const _soulFreq = _toScale(_pctInCdf(_CDF_MED, median));
     const tier = TIERS.find(t => total >= t.min) ?? TIERS[TIERS.length - 1];
     const entityIdx = total % COSMIC_ENTITIES.length;
     const godIdx = (d.month + d.day) % GODS.length;
@@ -3127,7 +3166,7 @@ function calcScore(d, data) {
         primaryGod: tPick(GODS[godIdx][0], (GODS[godIdx][0].match(/\(([^)]+)\)/) || [, GODS[godIdx][0]])[1]),
         secondaryGod: tPick(GODS[godIdx][1], (GODS[godIdx][1].match(/\(([^)]+)\)/) || [, GODS[godIdx][1]])[1]),
         // 3-score placeholders — filled by calcLifeTerrain below
-        soulFrequency: total, lifeTerrainScore: 0, pathResonanceScore: 0,
+        soulFrequency: _soulFreq, lifeTerrainScore: 0, pathResonanceScore: 0,
         cosmicFinal: total, lifeTerrainDetail: '', pathResonanceDetail: '',
     };
 }
@@ -4913,7 +4952,7 @@ function calcZiWei(d) {
             keyValueEn: `${star.star} in the ${['', 'Life (命宮)', 'Siblings (兄弟)', 'Spouse (夫妻)', 'Children (子女)', 'Wealth (財帛)', 'Health (疾厄)', 'Travel (遷移)', 'Friends (交友)', 'Career (官祿)', 'Property (田宅)', 'Fortune (福德)', 'Parents (父母)'][lifepalace] || 'Life'} palace`,
             keyValueMeaning: `ดาวเด่นในดวงของคุณคือ <strong>${star.starTh}</strong> ซึ่งประจำอยู่ในวัง <strong>${PALACES_TH[lifepalace] ?? 'ชีวิต'}</strong> — ในระบบ Zi Wei วังชีวิต (命宮) คือตำแหน่งศูนย์กลางที่บอก "ตัวตนตามที่โลกเห็น" และดาวที่อยู่ในนั้นบอก "คุณภาพ" ของตัวตนนั้น ${star.quality} คือพลังงานที่คุณฉายออกโดยอัตโนมัติ — คนรอบข้างจะรู้สึกได้แม้คุณไม่พูดอะไร`,
             keyValueMeaningEn: `Your dominant star is <strong>${star.star}</strong>, sitting in the <strong>${['', 'Life (命宮)', 'Siblings (兄弟)', 'Spouse (夫妻)', 'Children (子女)', 'Wealth (財帛)', 'Health (疾厄)', 'Travel (遷移)', 'Friends (交友)', 'Career (官祿)', 'Property (田宅)', 'Fortune (福德)', 'Parents (父母)'][lifepalace] || 'Life'}</strong> palace. In Zi Wei, the Life Palace (命宮) is the central position describing "the self the world sees" — and the star in it describes the "quality" of that self. The energy you radiate automatically (others feel it without you speaking) is shaped by this star.`,
-            strengthTh: `ดาว ${star.starTh} ${star.star.includes('紫微') ? 'คือดาวจักรพรรดิ — คุณถูกออกแบบมาเพื่อเป็นผู้นำที่คนอื่นต้องขอความเห็น ไม่ว่าจะเป็นทางการหรือไม่' : star.star.includes('天機') ? 'คือดาวปัญญา — สมองของคุณคือเครื่องมือที่ทรงพลังที่สุด อาชีพที่ใช้การวิเคราะห์เจาะลึกจะประสบความสำเร็จสูง' : star.star.includes('太陽') ? 'คือดาวพระอาทิตย์ — คุณมีเสน่ห์ธรรมชาติที่ดึงผู้คนเข้าหา ตำแหน่งสาธารณะหรืองานที่ต้องปรากฏตัวเหมาะกับคุณ' : star.star.includes('武曲') ? 'คือดาวโลหะแกร่ง — คุณจัดการเงินและทรัพย์สินได้ดี และมีความกล้าตัดสินใจเรื่องการลงทุน' : star.star.includes('天府') ? 'คือดาวคลังสมบัติ — คุณเก่งในการ "สะสม" — เงิน ความรู้ คน — และทำให้มันปลอดภัย' : star.star.includes('太陰') ? 'คือดาวพระจันทร์ — คุณมีสัญชาตญาณสูงและเห็นในสิ่งที่คนอื่นมองข้าม งานที่ใช้ความละเอียดอ่อนเหมาะกับคุณ' : 'คือดาวที่ให้พลังพิเศษเฉพาะตัว — ${star.quality}'}`,
+            strengthTh: `ดาว ${star.starTh} ${star.star.includes('紫微') ? 'คือดาวจักรพรรดิ — คุณถูกออกแบบมาเพื่อเป็นผู้นำที่คนอื่นต้องขอความเห็น ไม่ว่าจะเป็นทางการหรือไม่' : star.star.includes('天機') ? 'คือดาวปัญญา — สมองของคุณคือเครื่องมือที่ทรงพลังที่สุด อาชีพที่ใช้การวิเคราะห์เจาะลึกจะประสบความสำเร็จสูง' : star.star.includes('太陽') ? 'คือดาวพระอาทิตย์ — คุณมีเสน่ห์ธรรมชาติที่ดึงผู้คนเข้าหา ตำแหน่งสาธารณะหรืองานที่ต้องปรากฏตัวเหมาะกับคุณ' : star.star.includes('武曲') ? 'คือดาวโลหะแกร่ง — คุณจัดการเงินและทรัพย์สินได้ดี และมีความกล้าตัดสินใจเรื่องการลงทุน' : star.star.includes('天府') ? 'คือดาวคลังสมบัติ — คุณเก่งในการ "สะสม" — เงิน ความรู้ คน — และทำให้มันปลอดภัย' : star.star.includes('太陰') ? 'คือดาวพระจันทร์ — คุณมีสัญชาตญาณสูงและเห็นในสิ่งที่คนอื่นมองข้าม งานที่ใช้ความละเอียดอ่อนเหมาะกับคุณ' : `คือดาวที่ให้พลังพิเศษเฉพาะตัว — ${star.quality}`}`,
             strengthEn: `Star ${star.star} — ${star.star.includes('紫微') ? 'the Emperor Star. You\'re built to be the leader others come to for opinion, formally or not' : star.star.includes('天機') ? 'the Wisdom Star. Your mind is your most powerful tool. Careers built on deep analysis succeed handsomely' : star.star.includes('太陽') ? 'the Sun Star. Natural charisma draws people. Public-facing roles or work requiring presence suit you' : star.star.includes('武曲') ? 'the Strong Metal Star. Excellent with money and property; brave with investment decisions' : star.star.includes('天府') ? 'the Treasury Star. You excel at accumulation — money, knowledge, people — and at keeping them safe' : star.star.includes('太陰') ? 'the Moon Star. High intuition; you see what others miss. Subtle, refined work fits you' : 'a star with a unique gift — ' + star.quality}.`,
             shadowTh: `ทุกดาวใน Zi Wei มี "เงา" (煞) ของมัน ${star.star.includes('紫微') ? 'เงาของดาวจักรพรรดิคือความหยิ่งและการไม่ฟังใคร — เมื่ออำนาจเริ่มแข็ง จะเสียคนรอบข้างอย่างเงียบๆ' : star.star.includes('貪狼') ? 'เงาของดาวหมาป่าคือความโลภและการหลงในสิ่งที่ยังไม่ได้ — ต้องฝึกพอใจกับสิ่งที่มีเป็นระยะ' : star.star.includes('太陰') ? 'เงาของดาวพระจันทร์คือการเก็บอารมณ์ไว้นานจนกลายเป็นพิษ — ต้องระบายกับคนที่ไว้ใจเสมอ' : 'เงาของดาวคุณคือการใช้จุดแข็งมากเกินไป จุดแข็งและจุดอ่อนคือด้านเดียวกันของเหรียญเสมอ'}`,
             shadowEn: `Every Zi Wei star has its shadow (煞). ${star.star.includes('紫微') ? 'The Emperor\'s shadow is pride and refusal to listen — when power solidifies, you lose people around you quietly' : star.star.includes('貪狼') ? 'The Wolf\'s shadow is greed, getting hooked on what you don\'t yet have — practice contentment in cycles' : star.star.includes('太陰') ? 'The Moon\'s shadow is bottling emotion until it turns toxic — vent regularly to someone you trust' : 'Your star\'s shadow is overusing your strength. Strength and weakness are always two sides of the same coin'}.`,

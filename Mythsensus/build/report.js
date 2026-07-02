@@ -75,13 +75,13 @@ const _DF_MAP = {
     'เซลติก Tree': 'Celtic Tree',
     'ไทยพราหมณ์': 'Thai Brahmin',
     // Tier labels (chart.score.tier still ships Thai-prefixed when not en-only)
-    'ฟ้า — Celestial': 'Celestial',
-    'แสง — Radiant': 'Radiant',
-    'เปล่งประกาย — Luminous': 'Luminous',
-    'สั่นพ้อง — Resonant': 'Resonant',
-    'หยั่งราก — Grounded': 'Grounded',
-    'แสวงหา — Seeking': 'Seeking',
-    'แสงเริ่มต้น — Awakening': 'Awakening',
+    'ทิพย์ — Divine': 'Divine',
+    'รัศมี — Radiance': 'Radiance',
+    'ประกาย — Glimmer': 'Glimmer',
+    'ดุลย์ — Balance': 'Balance',
+    'ปฐพี — Earth': 'Earth',
+    'แสวง — Seeking': 'Seeking',
+    'อรุณ — Dawn': 'Dawn',
     // Common short page-level fragments still surfacing in score breakdowns
     'เห็นด้วย': 'Agree', 'กลางๆ': 'Mixed', 'เสียงเตือน': 'Cautions',
     'ครบทุกธาตุ': 'all elements present',
@@ -243,9 +243,9 @@ function p01_cover(c) {
     <div style="background:#1a1510;border:2px solid #d4aa50;border-radius:14px;padding:20px;margin:12px 0">
       <div style="display:flex;gap:20px;align-items:center">
         <div style="text-align:center;min-width:90px">
-          <div style="font-size:60px;font-weight:700;color:#d4aa50;line-height:1">${score.cosmicFinal}</div>
+          <div style="font-size:60px;font-weight:700;color:#d4aa50;line-height:1">${score.total}</div>
           <div style="font-size:10px;color:#6a5a42;letter-spacing:1px">COSMIC SCORE</div>
-          <div style="font-size:8px;color:#6a5a42;letter-spacing:.5px;margin-top:2px">${score.cosmicFinal === score.total ? 'Soul Frequency' : 'SF×40% + LT×30% + PR×30%'}</div>
+          <div style="font-size:8px;color:#6a5a42;letter-spacing:.5px;margin-top:2px">${tr('ความสอดคล้องข้าม 26 ศาสตร์', '26-system agreement')}</div>
         </div>
         <div style="flex:1">
           <div style="font-size:20px;font-weight:700;color:#f0e8d0">${tierMain}</div>
@@ -295,13 +295,13 @@ function p01_cover(c) {
           ${score.pathResonanceDetail ? `<div style="font-size:9px;color:#205050;margin-top:3px">${esc(score.pathResonanceDetail.split('|')[0])}</div>` : ''}
         </div>
       </div>
-      <!-- Cosmic Final -->
-      <div style="background:#1a1510;border-radius:8px;padding:10px;margin-top:8px;display:flex;align-items:center;justify-content:space-between">
-        <div style="font-size:11px;color:#9a8a72">
-          Cosmic Final = SF×40% + LT×30% + PR×30%
-          ${score.lifeTerrainScore === 0 ? ' · ' + tr('(LT/PR ยังไม่กรอกข้อมูล)', '(LT/PR not filled yet)') : ''}
-        </div>
-        <div style="font-size:24px;font-weight:700;color:#d4aa50">${score.cosmicFinal}</div>
+      <!-- These 3 are INDEPENDENT lenses, no longer blended into the Cosmic
+           Score (which now = cross-system agreement, shown above). The old
+           weighted-blend "Cosmic Final" was retired 2026-07-02 (Director): it
+           rode the recalibrated SoulFrequency (median-percentile, inflated) so
+           it contradicted the agreement headline. -->
+      <div style="background:#1a1510;border-radius:8px;padding:10px;margin-top:8px;font-size:10px;color:#6a5a42;text-align:center;line-height:1.5">
+        ${tr('3 มิตินี้เป็นเลนส์แยกกัน — ไม่ถูกนำมารวมเป็น Cosmic Score · Cosmic Score = ความสอดคล้องข้าม 26 ศาสตร์', 'Three independent lenses — not blended into the Cosmic Score · Cosmic Score = cross-system agreement')}
       </div>
     </div>
 
@@ -2258,7 +2258,7 @@ function p25_summary(c) {
     const closingMsg = tr(`คุณคือ "<strong style="color:#d4aa50">${esc(score.cosmicEntity)}</strong>" — พลังของธาตุ${esc(dmEl)} ที่เดินอยู่บน Life Path ${esc(String(numerology.lifePath))} (${esc(numerology.lifePathName)}) ทั้ง 26 ศาสตร์ต่างมองคุณจากคนละมุม แต่ฉายภาพเดียวกันออกมา · ดวงชะตาไม่ใช่โชคที่ตายตัว มันคือแผนที่พลังงานที่ช่วยให้คุณรู้จักตัวเองและเลือกทางได้ฉลาดขึ้น · จุดแข็งทุกข้อในรายงานนี้จะเปล่งประกายก็ต่อเมื่อคุณกล้าหยิบมันมาใช้จริง — จงเดินต่อไปด้วยความมั่นใจ`, `You are "<strong style="color:#d4aa50">${esc(score.cosmicEntity)}</strong>" — the force of the ${esc(dmEl)} element walking Life Path ${esc(String(numerology.lifePath))} (${esc(numerology.lifePathName)}). All 26 systems look at you from different angles yet project the same image. Your chart is not a fixed fate — it is an energy map that helps you know yourself and choose your path with more wisdom. Every strength named in this report only shines once you dare to actually use it. Walk forward with confidence.`);
     return section(25, tr('สรุปภาพรวมและคำส่งท้าย', 'Final Summary & Closing Reflection'), '✨', `
     <div style="text-align:center;margin-bottom:20px">
-      <div style="font-size:48px;font-weight:700;color:#d4aa50">${score.cosmicFinal}</div>
+      <div style="font-size:48px;font-weight:700;color:#d4aa50">${score.total}</div>
       <div style="font-size:16px;color:#f0e8d0;margin-top:4px">${esc(_lang === 'en' ? (score.tierEn || score.tier) : score.tier)}</div>
       <div style="font-size:12px;color:#9a8a72">${esc(score.percentile)} ${tr('ของโลก', 'globally')}</div>
     </div>
