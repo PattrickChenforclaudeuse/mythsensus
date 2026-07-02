@@ -6701,9 +6701,9 @@ function p_threeScores(c) {
             <div style="width:${Math.round((score.soulFrequency - 400) / 6)}%;height:8px;background:linear-gradient(90deg,#2a5010,#8aba50)"></div>
           </div>
           <div style="display:flex;gap:8px;font-size:11px;color:#5a7a40">
-            <span>Median: <strong style="color:#8aba50">${score.soulFrequency}</strong></span>
-            <span>Mean: ${score.mean}</span>
-            <span>Modal: ${score.modalBin}–${score.modalBin + 49}</span>
+            <span>${tr('คะแนนดิบ 26 ศาสตร์', 'raw 26-system')} · ${tr('มัธยฐาน', 'median')} <strong style="color:#8aba50">${_scoreMedian(c)}</strong></span>
+            <span>${tr('เฉลี่ย', 'mean')} ${score.mean}</span>
+            <span>Modal ${score.modalBin}–${score.modalBin + 49}</span>
           </div>
         </div>
       </div>
