@@ -188,14 +188,17 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
 .warn{background:#1a0a0a;border:2px solid #c01020;border-radius:8px;padding:12px;margin:8px 0;color:#f0c8b0}
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;margin:2px}
 @media print{
-  .page{page-break-after:always;min-height:0}
-  body{background:#fff;color:#1a1510}
-  .page{background:#fff!important}
-  h2{color:#8a6820}
-  .page-title{color:#8a6820}
-  .stat-card,.pillar{background:#f8f5f0;border-color:#ccc}
-  td{border-color:#ddd}
-  .lbl{background:#f0ede8}
+  /* The report is a dark-theme design built almost entirely from INLINE
+     dark backgrounds + light text. The previous half-baked light override
+     (body→#fff, recolour ~6 selectors) left every inline-styled element +
+     the light .page-body/p/h3 text invisible on white paper — the "saved
+     PDF unreadable" bug (Director 2026-07-02). Fix: force the browser to
+     print the colours/backgrounds faithfully so the PDF == the screen.
+     print-color-adjust:exact overrides Chrome's "Background graphics: off"
+     default, which was dropping every dark box background. */
+  *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  html,body{ background:#0e0c08 !important; background-image:none !important; color:#f0e8d0 !important; }
+  .page{ page-break-after:always; min-height:0; background:#0e0c08 !important; }
 }`;
 // ── PAGES ─────────────────────────────────────────────────────
 // dd/mm/yyyy is ambiguous in international audiences (3/2 = March 2 or Feb 3?).
@@ -254,7 +257,7 @@ function p01_cover(c) {
             <div style="width:${pctBar}%;height:10px;background:linear-gradient(90deg,#5a3810,#d4aa50)"></div>
           </div>
           <div style="font-size:10px;color:#6a5a42;margin-top:4px">
-            ${tr('Median 26 ศาสตร์', 'Median 26 systems')} · Mean ${score.mean} · Modal ${score.modalBin}–${score.modalBin + 49}
+            ${tr('ความสอดคล้อง 26 ศาสตร์', 'agreement across 26 systems')} · Mean ${score.mean} · Modal ${score.modalBin}–${score.modalBin + 49}
           </div>
         </div>
       </div>
@@ -402,7 +405,7 @@ const _journeyTier = (score) => JOURNEY_TIERS.find(t => score >= t.min);
 // career/country/domain context, so we render the placeholder CTA instead of
 // inventing a tier from default fallbacks (see review H1).
 function _renderCosmicJourney(score) {
-    const fuelTier = _journeyTier(score.total);
+    const fuelTier = _journeyTier(score.soulFrequency);
     const ltFilled = score.lifeTerrainScore > 0;
     const prFilled = score.pathResonanceScore > 0;
     const ltTier = ltFilled ? _journeyTier(score.lifeTerrainScore) : null;
@@ -416,7 +419,7 @@ function _renderCosmicJourney(score) {
           <div style="font-size:20px;margin-bottom:4px">🛢️</div>
           <div style="color:#d4aa50;font-weight:600">${tr('น้ำมัน', 'Fuel')}</div>
           <div style="color:#7a5a40;margin-top:2px">Soul Frequency</div>
-          <div style="color:#aa8050;font-size:12px;margin-top:4px">${score.total} = ${tr(fuelTier.fuel.th, fuelTier.fuel.en)}</div>
+          <div style="color:#aa8050;font-size:12px;margin-top:4px">${score.soulFrequency} = ${tr(fuelTier.fuel.th, fuelTier.fuel.en)}</div>
         </div>
         <div style="background:#1a1206;border-radius:6px;padding:10px;opacity:${ltFilled ? '1' : '0.7'}">
           <div style="font-size:20px;margin-bottom:4px">${ltTier ? ltTier.vehicle.icon : '🚗'}</div>
@@ -462,17 +465,17 @@ function p_threeScores(c) {
     <div style="background:linear-gradient(135deg,#0e1a08,#1a2810);border:2px solid #4a7a20;border-radius:12px;padding:20px;margin-bottom:16px">
       <div style="display:flex;align-items:center;gap:20px">
         <div style="text-align:center">
-          <div style="font-size:64px;font-weight:700;color:#8aba50;line-height:1">${score.total}</div>
+          <div style="font-size:64px;font-weight:700;color:#8aba50;line-height:1">${score.soulFrequency}</div>
           <div style="font-size:11px;color:#5a8a30;letter-spacing:2px">SOUL FREQUENCY</div>
         </div>
         <div style="flex:1">
-          <div style="font-size:16px;font-weight:600;color:#c0e080">${_lang === 'en' ? esc(score.tierEn || score.tier) : esc(score.tier)}</div>
-          <div style="font-size:12px;color:#7a9a50;margin:4px 0">${esc(score.percentile)}</div>
+          <div style="font-size:16px;font-weight:600;color:#c0e080">${tr('ระดับตัวตนพื้นฐาน (median 26 ศาสตร์)', 'Baseline identity level (median of 26 systems)')}</div>
+          <div style="font-size:12px;color:#7a9a50;margin:4px 0">${tr('คนละแกนกับ Cosmic Score (ความสอดคล้อง) — ดูหน้า 1', 'A separate axis from your Cosmic Score / agreement — see page 1')}</div>
           <div style="background:#0a1205;border-radius:4px;height:8px;overflow:hidden;margin:8px 0">
-            <div style="width:${Math.round((score.total - 400) / 6)}%;height:8px;background:linear-gradient(90deg,#2a5010,#8aba50)"></div>
+            <div style="width:${Math.round((score.soulFrequency - 400) / 6)}%;height:8px;background:linear-gradient(90deg,#2a5010,#8aba50)"></div>
           </div>
           <div style="display:flex;gap:8px;font-size:11px;color:#5a7a40">
-            <span>Median: <strong style="color:#8aba50">${score.total}</strong></span>
+            <span>Median: <strong style="color:#8aba50">${score.soulFrequency}</strong></span>
             <span>Mean: ${score.mean}</span>
             <span>Modal: ${score.modalBin}–${score.modalBin + 49}</span>
           </div>
@@ -509,6 +512,18 @@ function p_threeScores(c) {
     </div>
   `);
 }
+// Raw median of the scoring (identity) systems' per-system scores. The old
+// code used score.total as "the median" — but post-recalibration (2026-07-01)
+// total = the cross-system AGREEMENT score, NOT the median. So the "Median"
+// stat and the per-system voting thresholds must compute the real median from
+// the breakdown, else they compare against the wrong (agreement) number.
+function _scoreMedian(c) {
+    const xs = c.score.breakdown.filter(b => b.scoring !== false).map(b => b.score).sort((a, b) => a - b);
+    const n = xs.length;
+    if (!n)
+        return 0;
+    return n % 2 ? xs[(n - 1) / 2] : Math.round((xs[n / 2 - 1] + xs[n / 2]) / 2);
+}
 function p02_scoreBreakdown(c) {
     // Group into 🌟 ≥780 / 〰 650-779 / ⚠ <650. Biorhythm carries scoring:false and
     // is a DAILY-changing layer (it would be a frozen, meaningless value in a static
@@ -529,8 +544,8 @@ function p02_scoreBreakdown(c) {
     </div>`;
     return section(3, tr('26-System Consensus — ทุกศาสตร์เห็นอะไร', '26-System Consensus — what every tradition sees'), '🌐', `
     <div style="font-size:11px;color:#7a6a52;margin-bottom:12px;line-height:1.6">
-      ${tr('Cosmic Score = Median จาก 26 ศาสตร์ที่นิ่ง (วัดตัวตน ไม่เลื่อนตามวัน)', 'Cosmic Score = Median of 26 stable identity systems (fixed, not daily-changing)')} = <strong style="color:#d4aa50">${c.score.total}</strong>
-      · Mean = ${c.score.mean} · Modal range = ${c.score.modalBin}–${c.score.modalBin + 49}
+      ${tr('Cosmic Score = ความสอดคล้องข้าม 26 ศาสตร์ที่นิ่ง (ยิ่งเห็นตรงกัน ยิ่งสูง)', 'Cosmic Score = agreement across 26 stable identity systems (the more they concur, the higher)')} = <strong style="color:#d4aa50">${c.score.total}</strong>
+      · ${tr('Median', 'Median')} = ${_scoreMedian(c)} · Mean = ${c.score.mean} · Modal = ${c.score.modalBin}–${c.score.modalBin + 49}
     </div>
 
     <!-- Stars -->
@@ -566,7 +581,7 @@ function p02_scoreBreakdown(c) {
     <div style="background:#1a1510;border-radius:8px;padding:12px;margin-top:12px">
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">
         ${[
-        ['Median', c.score.total, '#d4aa50'],
+        ['Median', _scoreMedian(c), '#d4aa50'],
         ['Mean', c.score.mean, '#b09040'],
         [tr('ต่ำสุด', 'Lowest'), Math.min(...voting.map(b => b.score)), '#c07050'],
         [tr('สูงสุด', 'Highest'), Math.max(...voting.map(b => b.score)), '#70c070'],
@@ -580,7 +595,9 @@ function p03_convergence(c) {
     // layer, 2026-06-10) so it must not vote in any convergence theme,
     // family bar, or dissent box. Taksa IS in this set.
     const all26 = c.score.breakdown.filter(b => b.scoring !== false);
-    const medianScore = c.score.total;
+    // Voting threshold = the REAL median of the per-system scores. (Was score.total,
+    // but post-recalibration total = agreement, not median → threshold was wrong.)
+    const medianScore = _scoreMedian(c);
     const hi = (s) => s >= medianScore; // "votes yes" if at or above median
     // Helper: get system score by name fragment. Matches the localized `system`
     // OR the canonical `systemEn`, so English-keyed fragments (e.g. 'Celtic',
