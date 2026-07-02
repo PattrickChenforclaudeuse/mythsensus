@@ -12,8 +12,9 @@
   <url><loc>https://mythsensus.com/sample-report/sunthorn-phu</loc><changefreq>yearly</changefreq><priority>0.7</priority><lastmod>2026-06-08</lastmod></url>
   <!-- Trust signal: how the engine works + privacy architecture -->
   <url><loc>https://mythsensus.com/how-it-works</loc><changefreq>monthly</changefreq><priority>0.9</priority><lastmod>2026-06-08</lastmod></url>
-  <!-- 3 score case-study articles removed 2026-07-02 (noindexed) — built on old
-       agreement-model scores, pending rewrite to the level model. -->
+  <url><loc>https://mythsensus.com/blog/cosmic-score-3-icons</loc><changefreq>monthly</changefreq><priority>0.85</priority><lastmod>2026-07-02</lastmod></url>
+  <url><loc>https://mythsensus.com/blog/cosmic-score-icons-vol2</loc><changefreq>monthly</changefreq><priority>0.85</priority><lastmod>2026-07-02</lastmod></url>
+  <url><loc>https://mythsensus.com/blog/cosmic-score-and-path-resonance</loc><changefreq>monthly</changefreq><priority>0.85</priority><lastmod>2026-07-02</lastmod></url>
   <url><loc>https://mythsensus.com/blog/calibration-methodology</loc><changefreq>monthly</changefreq><priority>0.9</priority><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://mythsensus.com/blog/phahung-mahaka</loc><changefreq>monthly</changefreq><priority>0.85</priority><lastmod>2026-07-02</lastmod></url>
   <url><loc>https://mythsensus.com/blog/heart-sutra</loc><changefreq>monthly</changefreq><priority>0.85</priority><lastmod>2026-07-02</lastmod></url>
@@ -28,6 +29,11 @@
   <url><loc>https://mythsensus.com/blog/abhidhamma-funeral</loc><changefreq>monthly</changefreq><priority>0.85</priority><lastmod>2026-07-02</lastmod></url>
   <url><loc>https://mythsensus.com/blog/matika</loc><changefreq>monthly</changefreq><priority>0.85</priority><lastmod>2026-07-02</lastmod></url>
   <url><loc>https://mythsensus.com/blog/anicca-vata-sankhara</loc><changefreq>monthly</changefreq><priority>0.85</priority><lastmod>2026-07-02</lastmod></url>
+  <url><loc>https://mythsensus.com/blog/lords-prayer</loc><changefreq>monthly</changefreq><priority>0.85</priority><lastmod>2026-07-02</lastmod></url>
+  <url><loc>https://mythsensus.com/blog/om-mani-padme-hum</loc><changefreq>monthly</changefreq><priority>0.85</priority><lastmod>2026-07-02</lastmod></url>
+  <url><loc>https://mythsensus.com/blog/bojjhanga</loc><changefreq>monthly</changefreq><priority>0.85</priority><lastmod>2026-07-02</lastmod></url>
+  <url><loc>https://mythsensus.com/blog/itipiso</loc><changefreq>monthly</changefreq><priority>0.85</priority><lastmod>2026-07-02</lastmod></url>
+  <url><loc>https://mythsensus.com/blog/five-remembrances</loc><changefreq>monthly</changefreq><priority>0.85</priority><lastmod>2026-07-02</lastmod></url>
   <!-- Thai-query landings (high-intent entry points) -->
   <url><loc>https://mythsensus.com/%E0%B8%94%E0%B8%B9%E0%B8%94%E0%B8%A7%E0%B8%87%E0%B8%AA%E0%B8%B1%E0%B8%95%E0%B8%A7%E0%B9%8C%E0%B9%80%E0%B8%A5%E0%B8%B5%E0%B9%89%E0%B8%A2%E0%B8%87</loc><changefreq>weekly</changefreq><priority>0.9</priority><lastmod>2026-06-17</lastmod></url>
   <url><loc>https://mythsensus.com/%E0%B8%94%E0%B8%B9%E0%B8%94%E0%B8%A7%E0%B8%87-26-%E0%B8%A8%E0%B8%B2%E0%B8%AA%E0%B8%95%E0%B8%A3%E0%B9%8C</loc><changefreq>weekly</changefreq><priority>0.9</priority><lastmod>2026-06-17</lastmod></url>
@@ -73,4 +79,7 @@
   <url><loc>https://mythsensus.com/blog/are-you-truly-awake</loc><changefreq>monthly</changefreq><priority>0.7</priority><lastmod>2026-06-08</lastmod></url>
   <url><loc>https://mythsensus.com/pantheon</loc><changefreq>weekly</changefreq><priority>0.85</priority><lastmod>2026-07-02</lastmod></url>
   <url><loc>https://mythsensus.com/pantheon/norse</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-07-02</lastmod></url>
+  <url><loc>https://mythsensus.com/pantheon/greek</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-07-02</lastmod></url>
+  <url><loc>https://mythsensus.com/pantheon/egyptian</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-07-02</lastmod></url>
+  <url><loc>https://mythsensus.com/pantheon/roman</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-07-02</lastmod></url>
 </urlset>
