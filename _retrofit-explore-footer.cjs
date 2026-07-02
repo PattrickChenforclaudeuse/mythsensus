@@ -41,6 +41,7 @@ const CAT = {
   'al-fatihah':{cat:'mantra'}, 'gayatri-mantra':{cat:'mantra'}, 'shema':{cat:'mantra'},
   'metta-sutta':{cat:'mantra'}, 'ratana-sutta':{cat:'mantra'}, 'mangala-sutta':{cat:'mantra'},
   'cross-faith-mantra':{cat:'mantra'},
+  'abhidhamma-funeral':{cat:'mantra'}, 'matika':{cat:'mantra'}, 'anicca-vata-sankhara':{cat:'mantra'},
   // Landing pages -> skip
   'เลข7ตัว-vs-bazi':{cat:'systems',landing:true}, 'ดูดวงตามวันเกิด-ออนไลน์':{cat:'start',landing:true},
   'ดูดวงรวมหลายศาสตร์':{cat:'start',landing:true}, 'ดูดวงฟรี-ไม่ต้องลงทะเบียน':{cat:'start',landing:true},
