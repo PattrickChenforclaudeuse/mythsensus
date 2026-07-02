@@ -64,7 +64,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=173">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=174">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
@@ -2768,7 +2768,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=173" defer></script>
+<script src="/build/ms26-bundle.js?v=174" defer></script>
 <script>
 
 
@@ -6393,6 +6393,33 @@ function initBlessings(){
     }
   }catch(e){draws=0;blessHistory=[];}
   if(draws>=_maxDraws()){const b=document.getElementById('drawBtn');if(b){b.disabled=true;b.textContent=t('blessing_used');}}
+}
+
+// Re-entry restore: show TODAY'S most-recent drawn card again (revealed +
+// shareable) so a returning visitor sees the SAME god they drew, instead of a
+// blank panel that makes the draw look like it reset every time. Does NOT
+// consume a draw (uses the shared _renderGodCard). Skips: deep-link shared
+// draws (#g= wins), the ??? Hidden glitch event (not a god), and days with no
+// draw yet. Called from _bootAfterEntry after setGroup clears the card.
+async function restoreLastBlessingCard(){
+  try{
+    if (location.hash && location.hash.includes('g=')) return;   // friend's shared card wins
+    const card = document.getElementById('godCard');
+    if (!card || card.classList.contains('revealed')) return;    // already showing something
+    const today = new Date().toDateString();
+    const last = (typeof getFullHistory==='function' ? getFullHistory() : []).find(h =>
+      h && h.type === 'blessing' && h.godName && h.godName !== '???' &&
+      h.ts && new Date(h.ts).toDateString() === today);
+    if (!last) return;
+    await loadGods();
+    if (typeof GODS === 'undefined' || !Array.isArray(GODS)) return;
+    const god = GODS.find(g => g.name === last.godName);
+    if (!god) return;
+    const T = (Array.isArray(TIERS) ? TIERS.find(x => x.nameEN === last.tierName) : null)
+           || { name:last.tierName||'?', color:last.tierColor||'#c8a45a', nameTH:last.tierName||'?', nameEN:last.tierName||'?' };
+    _renderGodCard(god, T, last.msgIdx || 0, last.message || '');
+    if (typeof renderBlessingRecentPreview === 'function') renderBlessingRecentPreview();
+  }catch(_){}
 }
 
 function saveBlessings(){
@@ -16019,6 +16046,10 @@ function _bootAfterEntry(){
   try {
     if (location.hash && location.hash.includes('g=') && typeof _maybeRenderSharedDraw === 'function') {
       setTimeout(() => _maybeRenderSharedDraw(), 100);
+    } else if (typeof restoreLastBlessingCard === 'function') {
+      // No shared-draw hash → restore today's own drawn card on re-entry so it
+      // doesn't look like the draw reset. (await loadGods inside handles timing.)
+      setTimeout(() => restoreLastBlessingCard(), 120);
     }
   } catch(_) {}
   // If we just came back from a Gumroad checkout (?gr=1&sale_id=…), verify the

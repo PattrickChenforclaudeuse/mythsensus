@@ -40,7 +40,7 @@ function pill(text, bg = '#2a2010', color = '#d4aa50') {
 }
 // Auto-incrementing page counter (reset per report generation)
 let _pageNum = 0;
-let _totalPages = 43;
+let _totalPages = 29;
 // Language for the currently-generating report. Set once by generateReport()
 // from chart.input.lang so page headers/footers respect the user's choice.
 let _lang = 'th';
@@ -121,11 +121,11 @@ function row2(label, value) {
 }
 function box(title, body, type = 'gold') {
     const styles = {
-        gold: 'background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0',
-        green: 'background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0',
-        red: 'background:#1a0a0a;border:2px solid #c01020;border-radius:8px;padding:14px;margin:8px 0',
-        dark: 'background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:14px;margin:8px 0',
-        purple: 'background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0',
+        gold: 'background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:10px;margin:6px 0',
+        green: 'background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:10px;margin:6px 0',
+        red: 'background:#1a0a0a;border:2px solid #c01020;border-radius:8px;padding:10px;margin:6px 0',
+        dark: 'background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:10px;margin:6px 0',
+        purple: 'background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:10px;margin:6px 0',
     };
     return `<div class="rbox" style="${styles[type]}"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">${esc(title)}</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">${body}</div></div>`;
 }
@@ -159,16 +159,16 @@ body{
 /* Each page uses transparent so the body star field shows through.
    min-height removed so content flows to next page when overflowing —
    UX first, hard pagination second. */
-.page{padding:14mm 16mm 16mm;page-break-after:always;position:relative;background:transparent}
-.page-header{display:flex;align-items:center;gap:10px;border-bottom:1px solid #3a3020;padding-bottom:10px;margin-bottom:18px}
+.page{padding:9mm 13mm 9mm;page-break-after:always;position:relative;background:transparent}
+.page-header{display:flex;align-items:center;gap:10px;border-bottom:1px solid #3a3020;padding-bottom:6px;margin-bottom:11px}
 .page-icon{font-size:22px}
 .page-title{font-size:16px;font-weight:700;color:#d4aa50;flex:1;letter-spacing:1px}
 .page-num{font-size:11px;color:#6a5a42}
-.page-body{font-size:13px;line-height:1.8;color:#c8c0a8;padding-bottom:40px}
-.page-footer{text-align:center;font-size:9px;color:#6a5a42;border-top:1px solid #2a2010;padding-top:6px;margin-top:18px}
-h2{font-size:15px;color:#d4aa50;font-weight:700;margin:16px 0 8px;border-left:3px solid #d4aa50;padding-left:10px}
+.page-body{font-size:13px;line-height:1.5;color:#c8c0a8;padding-bottom:10px}
+.page-footer{text-align:center;font-size:9px;color:#6a5a42;border-top:1px solid #2a2010;padding-top:5px;margin-top:10px}
+h2{font-size:15px;color:#d4aa50;font-weight:700;margin:10px 0 5px;border-left:3px solid #d4aa50;padding-left:10px}
 h3{font-size:13px;color:#c8a840;font-weight:600;margin:12px 0 6px}
-p{margin-bottom:8px;color:#c8c0a8}
+p{margin-bottom:5px;color:#c8c0a8}
 table{width:100%;border-collapse:collapse;margin:10px 0}
 th{background:#1a1510;color:#d4aa50;padding:8px 10px;text-align:left;font-size:12px}
 td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-align:top}
@@ -533,6 +533,62 @@ function _scoreMedian(c) {
     if (!n)
         return 0;
     return n % 2 ? xs[(n - 1) / 2] : Math.round((xs[n / 2 - 1] + xs[n / 2]) / 2);
+}
+// ── 16 secondary systems condensed to "at a glance" cards ────────────────
+// Was 16 full pages (one per system) — too long / dizzying (Director 2026-07-02).
+// Each system's essence = score + one-line personalised finding, both already in
+// score.breakdown, so we render them as compact ranked cards across 2 pages.
+const _SECONDARY_SYS = [
+    { en: 'Thai Taksa (8 Houses)', emoji: '🇹🇭' },
+    { en: 'Hellenistic', emoji: '🏛️' },
+    { en: 'Zoroastrian', emoji: '🔥' },
+    { en: 'Aztec Tonalpohualli', emoji: '🌋' },
+    { en: 'Native American', emoji: '🦅' },
+    { en: 'Ogham', emoji: '🌳' },
+    { en: 'Aboriginal Dreamtime', emoji: '🪃' },
+    { en: 'Kabbalistic', emoji: '✡️' },
+    { en: 'Zi Wei Dou Shu', emoji: '🟣' },
+    { en: 'Arabic Parts', emoji: '☪️' },
+    { en: 'Ifa/Yoruba', emoji: '🥁' },
+    { en: 'Vedic Mahadasha', emoji: '🪐' },
+    { en: 'Saju (Korean)', emoji: '🇰🇷' },
+    { en: 'Tibetan Astrology', emoji: '🏔️' },
+    { en: 'Norse Rune', emoji: 'ᚱ' },
+    { en: 'Onmyōdō', emoji: '⛩️' },
+];
+function _secondaryCards(c) {
+    const bd = c.score.breakdown;
+    return _SECONDARY_SYS
+        .map(k => {
+        const b = bd.find(x => (x.systemEn || '') === k.en);
+        if (!b)
+            return null;
+        return { emoji: k.emoji, name: trDF(b.system), score: b.score, finding: stripHtml(String(b.finding || '')), color: b.color };
+    })
+        .filter(Boolean)
+        .sort((a, b) => b.score - a.score);
+}
+function _secondaryGrid(cards) {
+    return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${cards.map(k => `
+    <div class="rbox" style="background:#141210;border:1px solid #2a2418;border-radius:8px;padding:9px 11px;margin:0">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px">
+        <span style="font-size:12px;color:#d4c090;font-weight:600;line-height:1.3">${k.emoji} ${esc(k.name)}</span>
+        <span style="font-size:13px;font-weight:700;color:${k.color || '#d4aa50'};flex-shrink:0">${k.score}</span>
+      </div>
+      <div style="font-size:10.5px;color:#9a8a72;margin-top:4px;line-height:1.5">${esc(k.finding)}</div>
+    </div>`).join('')}</div>`;
+}
+function p_secondarySystems1(c) {
+    const cards = _secondaryCards(c);
+    const half = Math.ceil(cards.length / 2);
+    return section(0, tr('16 ศาสตร์เพิ่มเติม — มองในหน้าเดียว (1/2)', '16 More Systems — At a Glance (1/2)'), '🌐', `
+    <div style="font-size:11px;color:#7a6a52;margin-bottom:10px;line-height:1.55">${tr('นอกจากศาสตร์หลัก ยังมีอีก 16 ศาสตร์ที่อ่านดวงคุณจากคนละมุม — นี่คือสิ่งที่แต่ละศาสตร์เห็นแบบย่อ เรียงจากคะแนนสูงสุด (เต็ม 999)', 'Beyond the core systems, 16 more read your chart from their own angle — each one\'s take at a glance, ranked by score (max 999).')}</div>
+    ${_secondaryGrid(cards.slice(0, half))}`);
+}
+function p_secondarySystems2(c) {
+    const cards = _secondaryCards(c);
+    const half = Math.ceil(cards.length / 2);
+    return section(0, tr('16 ศาสตร์เพิ่มเติม — มองในหน้าเดียว (2/2)', '16 More Systems — At a Glance (2/2)'), '🌐', _secondaryGrid(cards.slice(half)));
 }
 function p02_scoreBreakdown(c) {
     // Group into 🌟 ≥780 / 〰 650-779 / ⚠ <650. Biorhythm carries scoring:false and
@@ -2340,24 +2396,12 @@ function generateReport(c) {
         p09_mayan, // 11. Mayan Tzolk'in
         p10_celtic, // 12. Celtic Tree
         p11_thai, // 13. Thai Brahmin
-        // ─── 14-29: 16 New Systems (each own page) ───────────────────
-        p_saju, // 14. Saju (Korean)
-        p_tibetan, // 15. Tibetan Mewa & Parkha
-        p_ziwei, // 16. Zi Wei Dou Shu
-        p_onmyodo, // 17. Onmyōdō
-        p_hellenistic, // 18. Hellenistic Astrology
-        p_norseRune, // 19. Norse Rune
-        p_ogham, // 20. Ogham
-        p_arabicParts, // 21. Arabic Parts
-        p_kabbalistic, // 22. Kabbalistic
-        p_zoroastrian, // 23. Zoroastrian
-        p_aztec, // 24. Aztec Tonalpohualli
-        p_nativeAmerican, // 25. Native American Totem
-        p_ifaYoruba, // 26. Ifa/Yoruba
-        p_aboriginal, // 27. Aboriginal Dreamtime
-        p_taksa, // 28. Thai Taksa 8 Houses (replaced Biorhythm page 2026-06-10 —
-        //     Biorhythm is the daily layer, not one of the 26 identity systems)
-        p_vedicMahadasha, // 29. Vedic Mahadasha
+        // ─── 14-15: 16 secondary systems, condensed to 2 "at a glance" card
+        //     pages (was 16 full pages — too long; Director 2026-07-02). The 16
+        //     per-system deep-dive fns (p_saju … p_vedicMahadasha) still exist but
+        //     are no longer rendered; their essence (score + finding) is in the cards.
+        p_secondarySystems1, // 14. 16 secondary systems — cards 1/2
+        p_secondarySystems2, // 15. 16 secondary systems — cards 2/2
         // ─── 30-35: Life guidance (multi-system) ─────────────────────
         p13_luckPillars, // 30. 80-Year Path (BaZi+Vedic+NSK+Numerology)
         p19_decade, // 31. Decade by Decade
