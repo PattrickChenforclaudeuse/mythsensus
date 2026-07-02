@@ -36,8 +36,9 @@ const CAT = {
   'native-american-totems':{cat:'systems',region:'NAmerica'}, 'aboriginal-dreamtime':{cat:'systems',region:'Australia'},
   'human-design-system':{cat:'systems',region:'Modern'}, 'energy-type-system':{cat:'systems',region:'Modern'},
   'biorhythm':{cat:'systems',region:'Modern'},
-  // Mantra (phahung already has a hand-authored footer -> idempotency skips it)
-  'phahung-mahaka':{cat:'mantra'},
+  // Cross-Faith Mantra series (phahung already has a hand-authored footer -> idempotency skips it)
+  'phahung-mahaka':{cat:'mantra'}, 'heart-sutra':{cat:'mantra'}, 'kalama-sutta':{cat:'mantra'},
+  'al-fatihah':{cat:'mantra'}, 'gayatri-mantra':{cat:'mantra'}, 'shema':{cat:'mantra'},
   // Landing pages -> skip
   'เลข7ตัว-vs-bazi':{cat:'systems',landing:true}, 'ดูดวงตามวันเกิด-ออนไลน์':{cat:'start',landing:true},
   'ดูดวงรวมหลายศาสตร์':{cat:'start',landing:true}, 'ดูดวงฟรี-ไม่ต้องลงทะเบียน':{cat:'start',landing:true},
