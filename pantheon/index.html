@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>เทพปกรณัมโลก — สารานุกรมเทพเจ้าจากทุกวัฒนธรรม | Mythsensus</title>
+<meta name="description" content="สารานุกรมเทพเจ้ากว่า 1,000 องค์จากทุกตำนานทั่วโลก — ประวัติ สัญลักษณ์ archetype ข้ามวัฒนธรรม และความหมายในดวงชะตา 26 ศาสตร์">
+<link rel="canonical" href="https://mythsensus.com/pantheon">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Josefin+Sans:wght@400;500&family=Noto+Sans+Thai:wght@400;500&display=swap" rel="stylesheet">
+<style>:root{--bg:#040407;--gold:#c8a45a;--gold3:#a8843a;--text:#e6e2d8;--muted:#9a8a72}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:'Josefin Sans','Noto Sans Thai',sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:30px 18px 60px}h1{font-family:'Cinzel Decorative',serif;font-size:26px;color:var(--gold);text-align:center;margin:0 0 4px}
+.sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.pcard{display:block;text-decoration:none;color:var(--text);background:rgba(200,164,90,.05);border:1px solid rgba(200,164,90,.2);border-radius:8px;padding:14px 16px}
+.pn{font-family:'Cinzel Decorative',serif;font-size:16px;color:var(--gold)}.pc{font-size:12px;color:var(--muted);margin-top:4px}
+.langbtn{position:fixed;top:12px;right:12px;font-size:11px;background:rgba(200,164,90,.1);border:1px solid var(--gold3);color:var(--gold);padding:5px 12px;border-radius:14px;cursor:pointer;font-family:inherit}
+footer{margin-top:30px;text-align:center;font-size:11px;color:var(--muted)}footer a{color:var(--gold3)}</style></head><body>
+<button class="langbtn" id="langbtn" onclick="_tog()">EN</button>
+<div class="wrap">
+<h1 data-en="World Pantheons" data-th="เทพปกรณัมโลก">เทพปกรณัมโลก</h1>
+<div class="sub" data-en="A deity encyclopedia across every tradition — myths, symbols, and how each deity ties to your cosmic chart" data-th="สารานุกรมเทพเจ้าจากทุกตำนาน — ประวัติ สัญลักษณ์ และความหมายในดวงชะตาของคุณ">สารานุกรมเทพเจ้าจากทุกตำนาน — ประวัติ สัญลักษณ์ และความหมายในดวงชะตาของคุณ</div>
+<div class="grid"><a class="pcard" href="/pantheon/norse"><div class="pn"><span data-en="Norse" data-th="นอร์ส">นอร์ส</span></div><div class="pc">86 <span data-en="deities" data-th="องค์">องค์</span> · 49 <span data-en="with lore" data-th="มีตำนาน">มีตำนาน</span></div></a></div>
+<footer><a href="/">← Mythsensus</a></footer></div>
+<script>
+function _apply(l){document.documentElement.lang=l;document.querySelectorAll('[data-en]').forEach(function(e){var v=e.getAttribute('data-'+l);if(v!=null)e.textContent=v;});document.getElementById('langbtn').textContent=l==='th'?'EN':'ไทย';try{localStorage.setItem('mth_lang',l);}catch(_){}}
+function _tog(){_apply(document.documentElement.lang==='th'?'en':'th');}
+(function(){var p=new URLSearchParams(location.search).get('lang');var l=p||(function(){try{return localStorage.getItem('mth_lang');}catch(_){}})()||'th';_apply(l);})();
+</script></body></html>
