@@ -69,6 +69,16 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
   *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   html,body{ background:#0e0c08 !important; background-image:none !important; color:#f0e8d0 !important; }
   .page{ page-break-after:always; min-height:0; background:#0e0c08 !important; }
+  /* Keep boxes/tables/cards from being cut across A4 sheet boundaries. A ~43
+     logical-page report overflows to ~80+ physical sheets, and without this
+     content splits mid-box → hard to read (Director 2026-07-02). break-inside
+     :avoid is only a hint — an element taller than a page still breaks, so
+     this can't create blank pages. */
+  .rbox, table, tr, .stat-card, .pillar, .conv, .warn,
+  .grid-2 > div, .grid-3 > div,
+  div[style*="border-radius"]{ break-inside:avoid; page-break-inside:avoid; }
+  .page-header{ break-inside:avoid; }
+  h2, h3{ break-after:avoid; page-break-after:avoid; }
 }</style>
 </head>
 <body>
@@ -233,7 +243,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       </div>
     </div>
 
-    <div style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ภาพรวมตัวตนคุณในหนึ่งย่อหน้า</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ถ้าจะสรุปคุณเป็นย่อหน้าเดียว: คุณคือพลังงานธาตุไม้ ที่แกนกลางของดวงสั่นพ้องในระดับ "ปฐพี — Earth" (Top 75%) · ศาสตร์ที่ขับตัวตนคุณออกมาชัดที่สุดคือ <strong style="color:#c0e080">Zoroastrian</strong> — Asman (ฟ้า) | เดือนอำนาจดี เสริมด้วยเสียงของ Ifa/Yoruba อีกแรง · ส่วน Ogham ที่ให้คะแนนต่ำสุดไม่ได้แปลว่าคุณอ่อนด้านนั้น แต่คือมุมที่พลังงานของคุณเลือกไม่เดินเป็นทางหลัก — และความ "ไม่เท่ากันทุกด้าน" นี่เองที่ทำให้คุณเป็นคุณ ไม่ใช่ค่าเฉลี่ยของใคร</div></div>
+    <div class="rbox" style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ภาพรวมตัวตนคุณในหนึ่งย่อหน้า</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ถ้าจะสรุปคุณเป็นย่อหน้าเดียว: คุณคือพลังงานธาตุไม้ ที่แกนกลางของดวงสั่นพ้องในระดับ "ปฐพี — Earth" (Top 75%) · ศาสตร์ที่ขับตัวตนคุณออกมาชัดที่สุดคือ <strong style="color:#c0e080">Zoroastrian</strong> — Asman (ฟ้า) | เดือนอำนาจดี เสริมด้วยเสียงของ Ifa/Yoruba อีกแรง · ส่วน Ogham ที่ให้คะแนนต่ำสุดไม่ได้แปลว่าคุณอ่อนด้านนั้น แต่คือมุมที่พลังงานของคุณเลือกไม่เดินเป็นทางหลัก — และความ "ไม่เท่ากันทุกด้าน" นี่เองที่ทำให้คุณเป็นคุณ ไม่ใช่ค่าเฉลี่ยของใคร</div></div>
 
     
     <!-- Cosmic Journey analogy -->
@@ -948,7 +958,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">ทิศนอนหัว</td><td>ตะวันออก</td></tr>
       <tr><td class="lbl">สิ่งนำโชค 2026</td><td>สีนำโชค: ขาว/เงิน | ทิศทำงาน: ตะวันตกเฉียงเหนือ | ทิศนอน: ตะวันออก</td></tr>
     </tbody></table>
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">วิเคราะห์ปี 2026</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ปี 2026 (ดาวปี 9 ไฟ) กับดาว 6 ของคุณ — ตะวันตกเฉียงเหนือคือทิศนำโชค ใช้เสริมพลังงานการทำงานและการนอน</div></div>
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">วิเคราะห์ปี 2026</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ปี 2026 (ดาวปี 9 ไฟ) กับดาว 6 ของคุณ — ตะวันตกเฉียงเหนือคือทิศนำโชค ใช้เสริมพลังงานการทำงานและการนอน</div></div>
     <p style="font-size:11px;color:#5a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:10px"><strong>ต้นกำเนิด:</strong> ต้นกำเนิดจากจีนโบราณกว่า 3,000 ปี อิงจาก Lo Shu Magic Square (洛書) ถ่ายทอดสู่ญี่ปุ่นในสมัย Heian เป็น "Kyusei Kigaku (九星気学)" นิยมมากในญี่ปุ่นและเกาหลีสำหรับการเลือกทิศทาง วันมงคล และความเข้ากันของคน</p>
     <h2>การตีความ</h2>
     <div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
@@ -985,10 +995,10 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
 
     <p style="font-size:11px;color:#5a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:10px"><strong>ต้นกำเนิด:</strong> มีต้นกำเนิดจากอารยธรรม Babylonian กว่า 4,000 ปีก่อน ถูก Hellenistic Greeks พัฒนาเป็นระบบ Zodiac 12 ราศี และ Ptolemy (100 AD) รวบรวมเป็น "Tetrabiblos" — คัมภีร์โหราศาสตร์หลักจนถึงปัจจุบัน นิยมสูงสุดในโลกตะวันตก เพราะ Sun Sign ใน 5 นาทีทำให้ใครก็เข้าถึงได้</p>
     <h2>การตีความ</h2>
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ดวงอาทิตย์ ☉ — แกนตัวตน</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ดวงอาทิตย์ในกรกฎ — แกนตัวตนของคุณคือคนอ่อนไหวที่ผูกพันกับบ้านและคนที่รัก นี่คือพลังสร้างสรรค์ที่คุณฉายออกสู่โลก และเป็นตัวจริงของคุณเมื่อได้เป็นตัวเองเต็มที่</div></div>
-    <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ดวงจันทร์ ☽ — โลกภายใน</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ดวงจันทร์ในกรกฎ — ในโลกภายใน คุณต้องการความรู้สึกปลอดภัยทางใจเป็นอันดับแรก นี่คือวิธีที่อารมณ์และความต้องการลึกที่สุดของคุณทำงาน และคุณจะสงบก็ต่อเมื่อมันได้รับการเติมเต็ม</div></div>
-    <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ASC — หน้ากากโลก</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ราศีขึ้นเมถุน — สิ่งแรกที่คนรับรู้จากคุณคือความช่างคุย ว่องไว และมีหลายมุม ก่อนที่เขาจะได้รู้จักตัวจริงข้างใน — มันคือ "ประตูหน้า" ของบุคลิกคุณ</div></div>
-    <div style="background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">Transit 2026</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ดาวพฤหัสฯ ในราศีพฤษภ — เสริมความมั่นคงด้านการเงินและทรัพย์สิน</div></div>
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ดวงอาทิตย์ ☉ — แกนตัวตน</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ดวงอาทิตย์ในกรกฎ — แกนตัวตนของคุณคือคนอ่อนไหวที่ผูกพันกับบ้านและคนที่รัก นี่คือพลังสร้างสรรค์ที่คุณฉายออกสู่โลก และเป็นตัวจริงของคุณเมื่อได้เป็นตัวเองเต็มที่</div></div>
+    <div class="rbox" style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ดวงจันทร์ ☽ — โลกภายใน</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ดวงจันทร์ในกรกฎ — ในโลกภายใน คุณต้องการความรู้สึกปลอดภัยทางใจเป็นอันดับแรก นี่คือวิธีที่อารมณ์และความต้องการลึกที่สุดของคุณทำงาน และคุณจะสงบก็ต่อเมื่อมันได้รับการเติมเต็ม</div></div>
+    <div class="rbox" style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ASC — หน้ากากโลก</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ราศีขึ้นเมถุน — สิ่งแรกที่คนรับรู้จากคุณคือความช่างคุย ว่องไว และมีหลายมุม ก่อนที่เขาจะได้รู้จักตัวจริงข้างใน — มันคือ "ประตูหน้า" ของบุคลิกคุณ</div></div>
+    <div class="rbox" style="background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">Transit 2026</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ดาวพฤหัสฯ ในราศีพฤษภ — เสริมความมั่นคงด้านการเงินและทรัพย์สิน</div></div>
   
   </div>
   <div class="page-footer">✦ MYTHSENSUS COSMIC BLUEPRINT ✦ รายงานสร้างโดย AI วิเคราะห์จาก 26 ศาสตร์โบราณ เพื่อการสำรวจตนเอง ไม่ใช่คำแนะนำวิชาชีพ ✦</div>
@@ -1009,7 +1019,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">มหาทศาปัจจุบัน</td><td>ราหู (ถึง 2028)</td></tr>
       <tr><td class="lbl">อันตราทศา</td><td>พฤหัสฯ</td></tr>
     </tbody></table>
-    <div style="background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">Yogas (ดาวอำนวยผล)</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">• ดราวฺยะโยคะ — ทรัพย์สมบัติจากความพยายาม</div></div>
+    <div class="rbox" style="background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">Yogas (ดาวอำนวยผล)</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">• ดราวฺยะโยคะ — ทรัพย์สมบัติจากความพยายาม</div></div>
     <p style="font-size:11px;color:#5a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:10px"><strong>ต้นกำเนิด:</strong> เป็นศาสตร์ดาวเก่าแก่ที่สุดระบบหนึ่งของโลก มีอายุกว่า 5,000 ปี บันทึกใน Vedanga Jyotisha — หนึ่งในหกสาขา Vedic knowledge ใช้ระบบ Sidereal (ตามดาวจริง ไม่ใช่ฤดูกาล) Nakshatra 27 แห่ง และ Dasha ระบบช่วงดาวปกครอง — นิยมทั่วอินเดียและเอเชียใต้</p>
     <h2>การตีความ</h2>
     <div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
@@ -1054,7 +1064,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">เลข ๗ ตัว</td><td>8 · 6 · 5 · 5 · 5 · 9 · 2</td></tr>
       <tr><td class="lbl">Destiny Number</td><td>5</td></tr>
     </tbody></table>
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">เลขชีวิต</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">เลขชีวิต</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">เลขศาสตร์ Pythagorean + เลข ๗ ตัว ๙ ฐาน · <span style="color:#9a8a72;letter-spacing:1px">Pythagorean Numerology + Thai 7-Number System</span></div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
            <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">กรีก (Pythagoras) + ไทย-พราหมณ์</strong></div>
@@ -1063,7 +1073,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
          </div>
          <div style="margin-top:10px;padding-top:10px;border-top:1px solid #2a2545"><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">จุดเด่น</span><br><span style="color:#e0d0b0">ใช้ตัวเลขจากวันเกิดคำนวณ Life Path และธีมปี ไม่ต้องการเวลาเกิด</span></div>
        </div><p><strong>ดวงของคุณในศาสตร์นี้:</strong> Life Path 9 · นักมนุษยธรรม — The Humanitarian · Personal Year 2026: 6 Life Path ของคุณคือ <strong>9 (นักมนุษยธรรม — The Humanitarian)</strong> — นี่คือ "พันธกิจหลักของชีวิต" ในระบบ Pythagorean คำนวณจากวันเดือนปีเกิด ลดรูปเหลือเลขเดียว (ยกเว้น Master Numbers 11/22/33 ที่ไม่ลดรูป) Personal Year 2026 ของคุณคือ <strong>6</strong> ซึ่งเป็น "ธีมของปี" ที่ปรับทุก 12 เดือน ในระบบไทย เลข ๗ ตัว ๙ ฐานของคุณคือ 8 · 6 · 5 · 5 · 5 · 9 · 2 — 7 ตัวเลขนี้ร่วมกันอธิบายคุณใน 7 มิติ ตั้งแต่ตัวตน สุขภาพ ความรัก ไปถึงปลายทางชีวิต</p><p><strong>จุดแข็งที่ศาสตร์นี้มองเห็น:</strong> Life Path 9 (นักมนุษยธรรม) — คุณเกิดมาเพื่อรับใช้ส่วนรวม ศิลปิน-นักกิจกรรม ผู้นำการเปลี่ยนแปลงทางสังคม Personal Year 6 กำหนดธีมปีให้กับคุณ</p><p><strong>ด้านที่ต้องระมัดระวัง:</strong> ด้านเงาของ Life Path 9 คือ การ burnout จากการเสียสละ ตามเลข ๗ ตัวไทย ตำแหน่งตรีและจัตวาเป็นตัวบ่งสุขภาพและอุบัติเหตุ — หากเป็นเลข 3, 5, 7 ต้องระวังเรื่องอุบัติเหตุและการกระทบกระแทก</p><p><strong>แนวทางปฏิบัติรายวัน:</strong> การใช้เลขศาสตร์รายวัน: (1) เขียน Life Path 9 ที่โต๊ะทำงาน — ทุกครั้งที่ตัดสินใจสำคัญ ถามตัวเองว่า "การเลือกนี้ตรงกับ Life Path 9 ของฉันไหม?" (2) ในวันที่หมายเลขตรงกับ Personal Year (6) จะเป็นวันที่พลังงานตรงที่สุด (3) เลขโทรศัพท์ เลขทะเบียนรถ เลขบ้าน — เลือกที่ลดรูปแล้วตรงกับ Life Path หรือ Personal Year (4) ในระบบไทย ให้ตั้งอธิษฐานในวันของเลขวัน — ถือเป็นวันที่ "ดวงเบิกทาง"</p><p><strong>ปี 2026 ในศาสตร์นี้บอกอะไร:</strong> Personal Year 2026 ของคุณคือ <strong>6</strong> — ปีครอบครัวและความรัก ดูแลความสัมพันธ์สำคัญ Personal Month ที่พลังสูงสุดในปีนี้คือเดือนที่ตรงกับ Life Path 9 — เตรียมใช้โอกาสให้เต็มที่</p><p style="font-style:italic;color:#9a8a72"><strong>บทสรุป:</strong> Pythagoras สอนว่า "ตัวเลขเป็นภาษาของจักรวาล" — เรียนตัวเลขของตัวเอง คุณจะพบว่าโลกพูดเรื่องคุณตลอดเวลา แค่คุณไม่เคยได้ยิน</p></div></div>
-    <div style="background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ปีส่วนตัว 2026</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ปีแห่งครอบครัว — โฟกัสที่บ้าน ความสัมพันธ์ และการรับผิดชอบ โอกาสดีด้านอสังหาฯ</div></div>
+    <div class="rbox" style="background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ปีส่วนตัว 2026</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ปีแห่งครอบครัว — โฟกัสที่บ้าน ความสัมพันธ์ และการรับผิดชอบ โอกาสดีด้านอสังหาฯ</div></div>
     <p style="margin-top:8px">เลข 7 ตัวของคุณ: 8 · 6 · 5 · 5 · 5 · 9 · 2 — ตำแหน่งที่ 4 (5) บ่งบอกถึงพลังงานหลักในชีวิตปัจจุบัน</p>
   
   </div>
@@ -1096,8 +1106,8 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">Sun Gate</td><td>Gate 17</td></tr>
       <tr><td class="lbl">Earth Gate</td><td>Gate 49</td></tr>
     </tbody></table>
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">โปรไฟล์ความหมาย</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">Opportunist/Role Model — สร้างผลกระทบผ่านเครือข่ายและการเป็นแบบอย่าง</div></div>
-    <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">Channels สำคัญ</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">Channel 1-8: Inspiration<br>Channel 13-33: The Prodigal</div></div>
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">โปรไฟล์ความหมาย</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">Opportunist/Role Model — สร้างผลกระทบผ่านเครือข่ายและการเป็นแบบอย่าง</div></div>
+    <div class="rbox" style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">Channels สำคัญ</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">Channel 1-8: Inspiration<br>Channel 13-33: The Prodigal</div></div>
     <p style="font-size:11px;color:#5a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:10px"><strong>ต้นกำเนิด:</strong> Human Design ถูกรับรู้โดย Ra Uru Hu ในปี 1987 ที่ Ibiza — อ้างว่าได้รับจาก "Voice" ใน 8 คืน ผสม Astrology, I Ching, Kabbalah, Chakras และ Quantum Physics เข้าเป็น synthesis ใหม่ ใช้ planetary positions ณ เวลาเกิดคำนวณ "BodyGraph" — ปัจจุบันมีผู้ติดตามทั่วโลกหลายล้านคน</p>
     <h2>การตีความ</h2>
     <div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
@@ -1224,7 +1234,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
          </div>
          <div style="margin-top:10px;padding-top:10px;border-top:1px solid #2a2545"><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">จุดเด่น</span><br><span style="color:#e0d0b0">เทพประจำวันเกิด สีมงคล และวันเสริมดวงตลอดชีวิต</span></div>
        </div><p><strong>ดวงของคุณในศาสตร์นี้:</strong> เกิดวันจันทร์ · ปกครองโดยพระจันทร์ · สีมงคลเหลือง/ครีม คุณเกิด<strong>วันจันทร์</strong> ซึ่งในระบบไทยพราหมณ์ ปกครองโดย<strong>พระจันทร์</strong> (Chandra) นักษัตรประจำวันคือโรหิณี และสีมงคลของคุณคือ<strong>เหลือง/ครีม</strong> ไทยพราหมณ์เชื่อว่าในขณะเกิด วิญญาณของคุณได้รับ "พรแรก" จากเทพประจำวัน — พรนี้ติดตัวไปตลอดและใช้งานได้ผ่านการบูชาและการใช้สีที่ตรงกับเทพ โชคชะตาของคุณคือ<strong>ความอ่อนโยนและเสน่ห์</strong> ซึ่งคือ "ทิศทางพลังงาน" ที่จักรวาลเปิดให้คุณโดยธรรมชาติ</p><p><strong>จุดแข็งที่ศาสตร์นี้มองเห็น:</strong> ผู้เกิดวันจันทร์ ได้รับพรของพระจันทร์ — พระจันทร์ประทานสัญชาตญาณและความอ่อนโยน คนเกิดวันจันทร์มักเป็นคนที่มี "ใจ" เข้าถึงความรู้สึกผู้อื่นได้ลึก เหมาะงานดูแล ศิลปะ และการให้คำปรึกษา นักษัตรโรหิณี ให้คุณคุณสมบัติเฉพาะของนักษัตรประจำวัน</p><p><strong>ด้านที่ต้องระมัดระวัง:</strong> เงาของผู้เกิดวันจันทร์ คือ ความอ่อนไหวเกินไปและเก็บอารมณ์ไว้นาน — จันทร์เต็มกับข้างแรมสลับกันในใจคุณ ไทยพราหมณ์แนะนำว่าในวันที่รู้สึกเงาของคุณครอบงำ ให้บูชาพระจันทร์ด้วยดอกไม้สีเหลือง/ครีมและอธิษฐานขอพรใหม่</p><p><strong>แนวทางปฏิบัติรายวัน:</strong> การปฏิบัติไทยพราหมณ์: (1) ใส่เสื้อหรือเครื่องประดับสี<strong>เหลือง/ครีม</strong> ทุกวันจันทร์ — เป็น "วันของคุณ" ที่พลังงานตรงที่สุด (2) บูชาพระจันทร์ด้วยธูป 3 ดอก (หรือ 9 ดอกในวันสำคัญ) ในวันวันจันทร์ (3) ในพิธีมงคล (แต่งงาน ขึ้นบ้านใหม่) เลือกวันจันทร์เป็นวันจัด (4) สวดมนต์ประจำเทพ: "โอม อิติปิโสภะคะวา อรหังสัมมาสัมพุทโธ" 9 จบ (5) ในวันพระของเดือนทุกเดือน ถวายดอกไม้สีเหลือง/ครีมที่วัดใกล้บ้าน</p><p><strong>ปี 2026 ในศาสตร์นี้บอกอะไร:</strong> ปี 2026 ในปฏิทินจันทรคติไทย เป็นปีม้า (ปีมะเมีย) ซึ่งเป็นปีของ<strong>ปีที่ต้องปรับตัว — ม้าไฟแรงให้คุณต้องใช้พลังอย่างฉลาด</strong> วันพิเศษสำหรับคุณในปีนี้คือวันวันจันทร์ที่ 1 ของเดือนเกิด ให้เป็นวัน "ตั้งเจตนาประจำปี" — เขียนสิ่งที่อยากสำเร็จลงกระดาษสีเหลือง/ครีมแล้วเก็บใส่ตู้พระ</p><p style="font-style:italic;color:#9a8a72"><strong>บทสรุป:</strong> ไทยพราหมณ์สอนว่า "วันเกิดไม่ใช่แค่วันที่เกิด — คือวันที่เทพสัญญาจะเดินกับคุณทั้งชีวิต" — บูชาเทพประจำวัน คุณจะไม่เดินคนเดียว</p>
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">คำแนะนำไทยพราหมณ์</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ใส่สีเหลือง/ครีมในวันสำคัญ ทำบุญวันเกิดให้พระจันทร์ อธิษฐานด้านความอ่อนโยนและเสน่ห์</div></div>
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">คำแนะนำไทยพราหมณ์</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ใส่สีเหลือง/ครีมในวันสำคัญ ทำบุญวันเกิดให้พระจันทร์ อธิษฐานด้านความอ่อนโยนและเสน่ห์</div></div>
   
   </div>
   <div class="page-footer">✦ MYTHSENSUS COSMIC BLUEPRINT ✦ รายงานสร้างโดย AI วิเคราะห์จาก 26 ศาสตร์โบราณ เพื่อการสำรวจตนเอง ไม่ใช่คำแนะนำวิชาชีพ ✦</div>
@@ -1251,7 +1261,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">꽃살 Fortune Cycle 2026</td><td>상관</td></tr>
       <tr><td class="lbl">พลังงานหลัก</td><td>비겁 — พลังงานเดียวกัน</td></tr>
     </tbody></table>
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Saju</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">ดวงเกาหลี (Saju · 사주) · <span style="color:#9a8a72;letter-spacing:1px">Saju · Korean Four Pillars</span></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px"><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">เกาหลี (รากจาก BaZi จีน)</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">อายุ</span><br><strong style="color:#d4aa50">~ 700 ปี</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ความนิยม</span><br><strong style="color:#d4aa50">คนเกาหลียังใช้จริงในการแต่งงาน · K-drama หยิบไปพูดถึงบ่อย</strong></div></div><div style="margin-top:10px;padding-top:10px;border-top:1px solid #2a2545"><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">จุดเด่น</span><br><span style="color:#e0d0b0">เน้นเสาวันเป็นศูนย์กลาง · ใช้ดู "궁합" (ความเข้ากันของคู่)</span></div></div><p><strong>ดวงของคุณ:</strong> 일주 (Day Pillar) ของคุณคือ <strong>을(乙)해(亥)</strong> ซึ่งจัดอยู่ในกลุ่มธาตุไม้ — หมายความว่าเวลา Saju บอกว่าคุณ "เป็นใคร" มันตอบว่าคุณคือคนที่มีแกนธาตุไม้เป็นกระดูกสันหลัง เดือนเกิดของคุณอยู่ในธาตุไม้ ซึ่งความสัมพันธ์กับธาตุไม้ของคุณคือ <strong>비겁 (Bi-geop) — ธาตุเดียวกัน</strong> นี่คือรูปแบบที่ให้คุณพลังแต่ก็ต้องระวังไม่ให้แข็งเกินไป — พลังงานเหมือนกันมากเกินไปอาจหมายถึงการแข่งขันกับคนในครอบครัว</p><p><strong>꽃살 ปี 2026:</strong> <strong>상관</strong> คือคำนายเฉพาะของ Saju ที่เทียบพลังงานเสาวันกับปีปัจจุบัน ปีที่ต้องใช้พลังงานวันเกิดอย่างระมัดระวัง</p><p><strong>จุดแข็งที่ Saju บอก:</strong> การที่ 일주 ของคุณเป็น 을(乙) (ไม้) ทำให้คุณมีความเป็น ผู้วางแผนระยะยาวและผู้บ่มเพาะ — Saju เปรียบคนธาตุไม้เป็น "큰 나무" (ต้นไม้ใหญ่) ที่ให้ร่มเงาแก่ครอบครัว</p><p><strong>จุดที่ต้องระวัง:</strong> รูปแบบ 비겁 ทำให้ขัดแย้งกับคนธาตุเดียวกันได้ง่าย โดยเฉพาะพี่น้องและเพื่อนร่วมงาน Saju เกาหลีโบราณแนะนำให้คนธาตุไม้หลีกเลี่ยงสีขาวล้วนในงานสำคัญเพราะเป็นธาตุที่ขัดตรง</p><p><strong>Gung-hap (궁합) การจับคู่:</strong> Saju ยังใช้ในการดู "ความเข้ากันของคู่แต่งงาน" ซึ่งเป็นพิธีสำคัญในครอบครัวเกาหลีดั้งเดิมจนถึงปัจจุบัน สำหรับธาตุไม้ของคุณ คู่ที่เข้ากันดีที่สุดคือคนที่มีธาตุน้ำ (น้ำเลี้ยงไม้) หรือไฟ (ไม้ให้ไฟ) ส่วนคู่ที่ต้องใช้ความเข้าใจมากขึ้นคือคู่ที่ธาตุ"ข่ม"ธาตุคุณ — ไม่ใช่คู่ที่ผิด เพียงแต่ต้องสื่อสารชัดเจนกว่าเดิม 2 เท่า</p><p><strong>บทสรุป:</strong> ในระบบ Saju คุณอยู่ในช่วงที่ "พลังสมดุล" ของชีวิต — คำนายไม่ใช่โชคชะตาตายตัว แต่คือแผนที่พลังงาน ที่หากใช้ถูกจะเปลี่ยนคะแนน Saju ของคุณจาก 690 ไปเป็นตัวเลขที่สูงกว่าได้ในอีก 10 ปีข้างหน้า — เกาหลีมีคำว่า "운명은 바꾸지 못해도, 팔자는 바꾼다" (ดวงเปลี่ยนไม่ได้ แต่โชคเปลี่ยนได้)</p></div></div>
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Saju</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">ดวงเกาหลี (Saju · 사주) · <span style="color:#9a8a72;letter-spacing:1px">Saju · Korean Four Pillars</span></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px"><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">เกาหลี (รากจาก BaZi จีน)</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">อายุ</span><br><strong style="color:#d4aa50">~ 700 ปี</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ความนิยม</span><br><strong style="color:#d4aa50">คนเกาหลียังใช้จริงในการแต่งงาน · K-drama หยิบไปพูดถึงบ่อย</strong></div></div><div style="margin-top:10px;padding-top:10px;border-top:1px solid #2a2545"><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">จุดเด่น</span><br><span style="color:#e0d0b0">เน้นเสาวันเป็นศูนย์กลาง · ใช้ดู "궁합" (ความเข้ากันของคู่)</span></div></div><p><strong>ดวงของคุณ:</strong> 일주 (Day Pillar) ของคุณคือ <strong>을(乙)해(亥)</strong> ซึ่งจัดอยู่ในกลุ่มธาตุไม้ — หมายความว่าเวลา Saju บอกว่าคุณ "เป็นใคร" มันตอบว่าคุณคือคนที่มีแกนธาตุไม้เป็นกระดูกสันหลัง เดือนเกิดของคุณอยู่ในธาตุไม้ ซึ่งความสัมพันธ์กับธาตุไม้ของคุณคือ <strong>비겁 (Bi-geop) — ธาตุเดียวกัน</strong> นี่คือรูปแบบที่ให้คุณพลังแต่ก็ต้องระวังไม่ให้แข็งเกินไป — พลังงานเหมือนกันมากเกินไปอาจหมายถึงการแข่งขันกับคนในครอบครัว</p><p><strong>꽃살 ปี 2026:</strong> <strong>상관</strong> คือคำนายเฉพาะของ Saju ที่เทียบพลังงานเสาวันกับปีปัจจุบัน ปีที่ต้องใช้พลังงานวันเกิดอย่างระมัดระวัง</p><p><strong>จุดแข็งที่ Saju บอก:</strong> การที่ 일주 ของคุณเป็น 을(乙) (ไม้) ทำให้คุณมีความเป็น ผู้วางแผนระยะยาวและผู้บ่มเพาะ — Saju เปรียบคนธาตุไม้เป็น "큰 나무" (ต้นไม้ใหญ่) ที่ให้ร่มเงาแก่ครอบครัว</p><p><strong>จุดที่ต้องระวัง:</strong> รูปแบบ 비겁 ทำให้ขัดแย้งกับคนธาตุเดียวกันได้ง่าย โดยเฉพาะพี่น้องและเพื่อนร่วมงาน Saju เกาหลีโบราณแนะนำให้คนธาตุไม้หลีกเลี่ยงสีขาวล้วนในงานสำคัญเพราะเป็นธาตุที่ขัดตรง</p><p><strong>Gung-hap (궁합) การจับคู่:</strong> Saju ยังใช้ในการดู "ความเข้ากันของคู่แต่งงาน" ซึ่งเป็นพิธีสำคัญในครอบครัวเกาหลีดั้งเดิมจนถึงปัจจุบัน สำหรับธาตุไม้ของคุณ คู่ที่เข้ากันดีที่สุดคือคนที่มีธาตุน้ำ (น้ำเลี้ยงไม้) หรือไฟ (ไม้ให้ไฟ) ส่วนคู่ที่ต้องใช้ความเข้าใจมากขึ้นคือคู่ที่ธาตุ"ข่ม"ธาตุคุณ — ไม่ใช่คู่ที่ผิด เพียงแต่ต้องสื่อสารชัดเจนกว่าเดิม 2 เท่า</p><p><strong>บทสรุป:</strong> ในระบบ Saju คุณอยู่ในช่วงที่ "พลังสมดุล" ของชีวิต — คำนายไม่ใช่โชคชะตาตายตัว แต่คือแผนที่พลังงาน ที่หากใช้ถูกจะเปลี่ยนคะแนน Saju ของคุณจาก 690 ไปเป็นตัวเลขที่สูงกว่าได้ในอีก 10 ปีข้างหน้า — เกาหลีมีคำว่า "운명은 바꾸지 못해도, 팔자는 바꾼다" (ดวงเปลี่ยนไม่ได้ แต่โชคเปลี่ยนได้)</p></div></div>
     <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> Saju (사주) คือโหราศาสตร์เกาหลีที่ใช้ 4 เสา (ปี เดือน วัน ชั่วโมง) เหมือน BaZi แต่มีการตีความตามประเพณีเกาหลีที่เน้น 월주 (เดือนเกิด) เป็นหลัก มีอายุกว่า 1,000 ปี ยังใช้แพร่หลายในเกาหลีใต้ปัจจุบัน — มีแอปดูดวงหลายร้อยล้าน downloads ต่อปี</p>
     <p style="font-size:11px;color:#6a5a42">Saju ใช้ระบบเสาสี่เดียวกับ BaZi แต่เน้นการตีความตามประเพณีเกาหลี — ความสัมพันธ์ระหว่างเดือนและวันสำคัญที่สุด</p>
   
@@ -1278,7 +1288,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">คุณภาพ Mewa</td><td>กล้าหาญ</td></tr>
       <tr><td class="lbl">Parkha (ตรีศูล)</td><td>Zin (ดิน)</td></tr> <tr><td class="lbl">ธาตุ Parkha</td><td>ดิน</td></tr>
     </tbody></table>
-    <div style="background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความทิเบต</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+    <div class="rbox" style="background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความทิเบต</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">โหราศาสตร์ทิเบต (Mewa & Parkha) · <span style="color:#9a8a72;letter-spacing:1px">Tibetan Astrology · Mewa & Parkha</span></div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
            <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">ทิเบต</strong></div>
@@ -1313,7 +1323,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">วังชีวิต Life Palace</td><td>สามี/ภรรยา (夫妻)</td></tr>
       <tr><td class="lbl">คุณภาพวัง Palace Quality</td><td>ที่ปรึกษาผู้ดี</td></tr>
     </tbody></table>
-    <div style="background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ 紫微</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+    <div class="rbox" style="background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ 紫微</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">ซื่อเว่ย (紫微斗數) · <span style="color:#9a8a72;letter-spacing:1px">Zi Wei Dou Shu · Purple Star Astrology</span></div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
            <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">จีน (ราชวงศ์ซ่ง)</strong></div>
@@ -1349,7 +1359,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">Onmyo Polarity</td><td>หยาง (陽)</td></tr>
       <tr><td class="lbl">Jūnishi Nakshatra</td><td>午</td></tr>
     </tbody></table>
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Onmyōdō</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Onmyōdō</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">อนเมียวโด (陰陽道) · <span style="color:#9a8a72;letter-spacing:1px">Onmyōdō · Japanese Yin-Yang Way</span></div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
            <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">ญี่ปุ่น (ยุค Heian)</strong></div>
@@ -1403,7 +1413,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">Lot of Fortune</td><td>343° ใน มีน</td></tr>
 
     </tbody></table>
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Hellenistic</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Hellenistic</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">โหราศาสตร์เฮลเลนิสติก · <span style="color:#9a8a72;letter-spacing:1px">Hellenistic Astrology</span></div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
            <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">อเล็กซานเดรีย (อียิปต์-กรีก)</strong></div>
@@ -1438,7 +1448,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">ธาตุ</td><td>ดิน</td></tr>
       <tr><td class="lbl">คำสำคัญ</td><td>รางวัลแห่งแรงงาน</td></tr>
     </tbody></table>
-    <div style="background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความรูน</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+    <div class="rbox" style="background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความรูน</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">รูนไวกิ้ง (Elder Futhark) · <span style="color:#9a8a72;letter-spacing:1px">Norse Runes · Elder Futhark</span></div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
            <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">สแกนดิเนเวีย (ไวกิ้ง)</strong></div>
@@ -1473,7 +1483,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">กลุ่ม Ogham</td><td>ต้นอุปสรรค</td></tr>
       <tr><td class="lbl">ธาตุ</td><td>ไฟ</td></tr>
     </tbody></table>
-    <div style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Ogham</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+    <div class="rbox" style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Ogham</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">อักษรโอแฮม (Ogham) · <span style="color:#9a8a72;letter-spacing:1px">Ogham · Tree Alphabet</span></div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
            <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">ไอร์แลนด์</strong></div>
@@ -1507,7 +1517,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">Lot of Fortune</td><td>330° ใน กุมภ์</td></tr>
       <tr><td class="lbl">Lot of Spirit</td><td>86° ใน เมถุน</td></tr>
     </tbody></table>
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Arabic Parts</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Arabic Parts</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">จุดอาหรับ (Arabic Parts / Lots) · <span style="color:#9a8a72;letter-spacing:1px">Arabic Parts · Lots of Fortune</span></div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
            <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">เปอร์เซีย-อาหรับ (Al-Biruni)</strong></div>
@@ -1543,7 +1553,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">Hebrew Year</td><td>5546</td></tr>
       <tr><td class="lbl">Mazal (Zodiac)</td><td>กันย์ (בְּתוּלָה)</td></tr>
     </tbody></table>
-    <div style="background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Kabbalah</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+    <div class="rbox" style="background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Kabbalah</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">คับบาลาห์ (Kabbalah) · <span style="color:#9a8a72;letter-spacing:1px">Kabbalistic Astrology</span></div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
            <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">ยิวยุคกลาง (สเปน-ฝรั่งเศส)</strong></div>
@@ -1578,7 +1588,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">Amesha เดือนเกิด</td><td>เดือนอำนาจดี</td></tr>
       <tr><td class="lbl">ความสอดคล้อง</td><td>✓ ธาตุสอดคล้อง — เสริมพลัง</td></tr>
     </tbody></table>
-    <div style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Zoroastrian</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+    <div class="rbox" style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Zoroastrian</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">โซโรแอสเตอร์ (Zoroastrian) · <span style="color:#9a8a72;letter-spacing:1px">Zoroastrian Astrology</span></div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
            <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">เปอร์เซียโบราณ (อิหร่าน)</strong></div>
@@ -1613,7 +1623,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">Tone Number</td><td>10 — Mahtlaktli</td></tr>
       <tr><td class="lbl">Day Sign Quality</td><td>ความงามและศิลปะ</td></tr>
     </tbody></table>
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Tonalpohualli</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Tonalpohualli</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">โทนัลโปอัลลี (Aztec Tonalpohualli) · <span style="color:#9a8a72;letter-spacing:1px">Aztec Tonalpohualli</span></div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
            <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">เม็กซิโก (อารยธรรมแอซเทค)</strong></div>
@@ -1649,7 +1659,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">Clan</td><td>Frog Clan</td></tr>
       <tr><td class="lbl">ธาตุ</td><td>น้ำ</td></tr>
     </tbody></table>
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Native American</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Native American</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">โทเท็มอินเดียนแดง (Native American) · <span style="color:#9a8a72;letter-spacing:1px">Native American Birth Totems</span></div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
            <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">อเมริกาเหนือ (Sioux, Lakota, Cherokee)</strong></div>
@@ -1684,7 +1694,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">Theme</td><td>ความภาคภูมิใจและความสำเร็จ</td></tr>
       <tr><td class="lbl">Fortune</td><td>เยี่ยม</td></tr>
     </tbody></table>
-    <div style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Ifa</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+    <div class="rbox" style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Ifa</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">อิฟา-โยรูบา (Ifá) · <span style="color:#9a8a72;letter-spacing:1px">Ifá Divination · Yoruba</span></div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
            <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">ไนจีเรีย-กานา (ชาวโยรูบา)</strong></div>
@@ -1719,7 +1729,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">Season</td><td>ฤดูหิน</td></tr>
       <tr><td class="lbl">Clan</td><td>Rock Clan</td></tr>
     </tbody></table>
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Dreamtime</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Dreamtime</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">Dreamtime อะบอริจิน (Tjukurrpa) · <span style="color:#9a8a72;letter-spacing:1px">Aboriginal Australian Astrology · Tjukurrpa</span></div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
            <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">ออสเตรเลีย (ชนพื้นเมือง)</strong></div>
@@ -1798,7 +1808,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <td style="font-size:11px;color:#9a8a72">เคราะห์และอุปสรรค — พลังที่ควรเลี่ยง</td>
     </tr>
     </tbody></table>
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความทักษา</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ทักษา · เกิดจันทร์ วันลอร์ดสถิตในบริวาร · มูละ (ทรัพย์) ปกครองโดยศุกร์ · กาลกิณีปกครองโดยอาทิตย์ = วันอาทิตย์เป็นวันต้องระวังของคุณ</div></div>
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความทักษา</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ทักษา · เกิดจันทร์ วันลอร์ดสถิตในบริวาร · มูละ (ทรัพย์) ปกครองโดยศุกร์ · กาลกิณีปกครองโดยอาทิตย์ = วันอาทิตย์เป็นวันต้องระวังของคุณ</div></div>
     <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>ต้นกำเนิด:</strong> ทักษาเป็นระบบโหราศาสตร์ไทยคลาสสิกที่จัดดาวพระเคราะห์ ๘ ดวงลงใน ๘ บ้านชีวิตตามวันเกิด — ใช้ตั้งชื่อ เลือกฤกษ์ และดูทิศทางชีวิตมาตั้งแต่สมัยอยุธยา ต่างจากไทยพราหมณ์ (เทพประจำวัน) ตรงที่ทักษาให้ "แผนที่ ๘ มิติชีวิต" ว่าดาวใดคุมเรื่องใดของคุณ</p>
   
   </div>
@@ -1829,7 +1839,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <tr><td class="lbl">คุณภาพ</td><td>ความทะเยอทะยานและการเปลี่ยนแปลง</td></tr>
       <tr><td class="lbl">ธาตุ Dasha</td><td>โลหะ</td></tr>
     </tbody></table>
-    <div style="background:#1a0a0a;border:2px solid #c01020;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Mahadasha</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+    <div class="rbox" style="background:#1a0a0a;border:2px solid #c01020;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">การตีความ Mahadasha</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">มหาทศาวิมโชทตรี · <span style="color:#9a8a72;letter-spacing:1px">Vedic Mahadasha · Vimshottari</span></div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
            <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">อินเดีย (Brihat Parashara Hora Shastra)</strong></div>
@@ -1911,7 +1921,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
     </table>
 
     <!-- Current LP detail -->
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">Luck Pillar ปัจจุบัน</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">丁未 — ติง ไฟอ่อน มะแม (แพะ) (1794–1803)</div></div>
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">Luck Pillar ปัจจุบัน</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">丁未 — ติง ไฟอ่อน มะแม (แพะ) (1794–1803)</div></div>
 
     <!-- Vedic Mahadasha -->
     <h2 style="font-size:14px;color:#c090d0;margin:14px 0 8px">🕉️ Vedic Mahadasha — ช่วงปกครองดาว</h2>
@@ -1934,7 +1944,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
     <div style="background:#1a1208;border-radius:8px;padding:10px">
       <div style="font-size:12px;color:#c0a060">Personal Year 2026: <strong>6</strong> — ปีแห่งครอบครัว </div>
     </div>
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">จุดบรรจบของสามเส้นเวลา</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">สามศาสตร์มองช่วงนี้ของคุณพร้อมกัน — BaZi อยู่เสา จ่ย ไม้หยาง ขาล (เสือ), Vedic อยู่ช่วงดาว ราหู (ถึงปี 2028) ความทะเยอทะยานและการเปลี่ยนแปลง, และเลขศาสตร์เป็น Personal Year 6 เมื่อทั้งสามจังหวะชี้ไปทางเดียวกันคือช่วงเร่งเครื่องที่ควรลงแรง เมื่อชี้คนละทางให้ยึดกระแสของเสา BaZi เป็นหลัก เพราะมันคือคลื่นพลังที่ยาวที่สุดในชีวิตคุณ</div></div>
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">จุดบรรจบของสามเส้นเวลา</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">สามศาสตร์มองช่วงนี้ของคุณพร้อมกัน — BaZi อยู่เสา จ่ย ไม้หยาง ขาล (เสือ), Vedic อยู่ช่วงดาว ราหู (ถึงปี 2028) ความทะเยอทะยานและการเปลี่ยนแปลง, และเลขศาสตร์เป็น Personal Year 6 เมื่อทั้งสามจังหวะชี้ไปทางเดียวกันคือช่วงเร่งเครื่องที่ควรลงแรง เมื่อชี้คนละทางให้ยึดกระแสของเสา BaZi เป็นหลัก เพราะมันคือคลื่นพลังที่ยาวที่สุดในชีวิตคุณ</div></div>
   
   </div>
   <div class="page-footer">✦ MYTHSENSUS COSMIC BLUEPRINT ✦ รายงานสร้างโดย AI วิเคราะห์จาก 26 ศาสตร์โบราณ เพื่อการสำรวจตนเอง ไม่ใช่คำแนะนำวิชาชีพ ✦</div>
@@ -2039,7 +2049,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
         </div>
       </div>
 
-    <div style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ช่วงทองในชีวิต</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ตอนนี้คุณอยู่ใน <strong>Luck Pillar 丁未 (ติง ไฟอ่อน มะแม (แพะ) (1794–1803))</strong> + <strong>NSK Star 6 六白金星</strong> + <strong>Vedic ราหู Dasha</strong> — 3 ศาสตร์จาก 3 วัฒนธรรมที่คำนวณอย่างอิสระ ชี้ตรงกันว่าเป็นช่วงสำคัญของชีวิต</div></div>
+    <div class="rbox" style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ช่วงทองในชีวิต</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ตอนนี้คุณอยู่ใน <strong>Luck Pillar 丁未 (ติง ไฟอ่อน มะแม (แพะ) (1794–1803))</strong> + <strong>NSK Star 6 六白金星</strong> + <strong>Vedic ราหู Dasha</strong> — 3 ศาสตร์จาก 3 วัฒนธรรมที่คำนวณอย่างอิสระ ชี้ตรงกันว่าเป็นช่วงสำคัญของชีวิต</div></div>
   
   </div>
   <div class="page-footer">✦ MYTHSENSUS COSMIC BLUEPRINT ✦ รายงานสร้างโดย AI วิเคราะห์จาก 26 ศาสตร์โบราณ เพื่อการสำรวจตนเอง ไม่ใช่คำแนะนำวิชาชีพ ✦</div>
@@ -2149,7 +2159,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
           </tr>
       </tbody>
     </table>
-    <div style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">สรุป: เดือนไหนควรลงมือ</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">เดือนที่พลังหนุนที่สุดของปี 2026 คือ <strong>เม.ย., มิ.ย., ก.ค.</strong> (โดยเฉพาะ <strong>เม.ย.</strong> ที่เป็น Honmei — เดือนดาวเกิดของคุณซึ่งมาปีละครั้ง) — เก็บเรื่องใหญ่ เปิดตัว หรือเริ่มสิ่งสำคัญไว้ทำช่วงนี้ · ส่วนเดือนที่ควรตั้งหลักคือ <strong>ก.ย.</strong> ใช้ช่วงนั้นทบทวนและเตรียมตัวแทนการบุก</div></div>
+    <div class="rbox" style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">สรุป: เดือนไหนควรลงมือ</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">เดือนที่พลังหนุนที่สุดของปี 2026 คือ <strong>เม.ย., มิ.ย., ก.ค.</strong> (โดยเฉพาะ <strong>เม.ย.</strong> ที่เป็น Honmei — เดือนดาวเกิดของคุณซึ่งมาปีละครั้ง) — เก็บเรื่องใหญ่ เปิดตัว หรือเริ่มสิ่งสำคัญไว้ทำช่วงนี้ · ส่วนเดือนที่ควรตั้งหลักคือ <strong>ก.ย.</strong> ใช้ช่วงนั้นทบทวนและเตรียมตัวแทนการบุก</div></div>
     <div style="font-size:10.5px;color:#9a8a72;margin-top:10px;line-height:1.7">
       🌟 <strong>Honmei</strong> (ดาวเดือนตรงกับดาวเกิด 6 — เกิดปีละ 1 เดือน) · 🟢 <strong>Positive</strong> (NSK+Numerology หนุนกัน) · 🟡 <strong>Neutral</strong> (หนึ่งหนุนหนึ่งต้าน) · 🔴 <strong>Challenging</strong> (NSK ขัด + PY ตก)
       <br>
@@ -2258,8 +2268,8 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <div style="font-size:12px"><strong style="color:#d4aa50">2035</strong> · 🟡 PY6 ครอบครัว</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.6;margin-top:2px">ปีแห่งความรับผิดชอบต่อคนรอบข้าง บ้าน ครอบครัว และชุมชนต่างเรียกหาคุณ <span style="color:#90e0a0">→ ดูแลความสัมพันธ์ใกล้ตัวและสุขภาพ จัดบ้านจัดใจ และรักษาสมดุลระหว่างการให้กับการรับ</span></div>
     </div>
-    <div style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ช่วงทอง — ลงมือเรื่องใหญ่</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ปี <strong>2028, 2030, 2032</strong> คือ Personal Year ที่แรงที่สุดในรอบ 10 ปี (PY1 เริ่มต้น · PY3 ขยาย · PY8 เก็บเกี่ยว) ถ้าจะเปิดตัว ลงทุน เปลี่ยนงาน หรือตัดสินใจครั้งใหญ่ — จัดให้ตรงปีเหล่านี้</div></div>
-    <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ปีตั้งหลัก — สร้างและฟื้นฟู</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ปี <strong>2027, 2033</strong> ไม่ใช่ปี "แย่" แต่เป็นปีของการวางรากฐาน (PY4) และพักฟื้น (PY7) ผลงานเงียบๆ ของสองช่วงนี้คือสิ่งที่ทำให้ช่วงทองข้างบนเกิดขึ้นจริงได้ อย่าฝืนเร่งผลในปีเหล่านี้</div></div>
+    <div class="rbox" style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ช่วงทอง — ลงมือเรื่องใหญ่</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ปี <strong>2028, 2030, 2032</strong> คือ Personal Year ที่แรงที่สุดในรอบ 10 ปี (PY1 เริ่มต้น · PY3 ขยาย · PY8 เก็บเกี่ยว) ถ้าจะเปิดตัว ลงทุน เปลี่ยนงาน หรือตัดสินใจครั้งใหญ่ — จัดให้ตรงปีเหล่านี้</div></div>
+    <div class="rbox" style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ปีตั้งหลัก — สร้างและฟื้นฟู</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ปี <strong>2027, 2033</strong> ไม่ใช่ปี "แย่" แต่เป็นปีของการวางรากฐาน (PY4) และพักฟื้น (PY7) ผลงานเงียบๆ ของสองช่วงนี้คือสิ่งที่ทำให้ช่วงทองข้างบนเกิดขึ้นจริงได้ อย่าฝืนเร่งผลในปีเหล่านี้</div></div>
   
   </div>
   <div class="page-footer">✦ MYTHSENSUS COSMIC BLUEPRINT ✦ รายงานสร้างโดย AI วิเคราะห์จาก 26 ศาสตร์โบราณ เพื่อการสำรวจตนเอง ไม่ใช่คำแนะนำวิชาชีพ ✦</div>
@@ -2548,7 +2558,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       </tbody>
     </table>
 
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">วันเกิดของคุณ = วันวันจันทร์ ★</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ในทางไทยพราหมณ์ วันเกิดคือวัน "ขอพร" — เทพประจำวันวันจันทร์ (พระจันทร์) เปิดรับคำขอพิเศษ ควรงดเนื้อสัตว์ / ทำบุญ / ตั้งจิตในวันนี้ทุกสัปดาห์<br><br>ส่วน <strong>Strategy Human Design</strong> ของคุณคือ "รอ 28 วัน (รอบจันทร์)" — ใช้ทุกวันเป็นแกนตัดสินใจ ไม่ใช่แค่วันเกิด</div></div>
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">วันเกิดของคุณ = วันวันจันทร์ ★</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ในทางไทยพราหมณ์ วันเกิดคือวัน "ขอพร" — เทพประจำวันวันจันทร์ (พระจันทร์) เปิดรับคำขอพิเศษ ควรงดเนื้อสัตว์ / ทำบุญ / ตั้งจิตในวันนี้ทุกสัปดาห์<br><br>ส่วน <strong>Strategy Human Design</strong> ของคุณคือ "รอ 28 วัน (รอบจันทร์)" — ใช้ทุกวันเป็นแกนตัดสินใจ ไม่ใช่แค่วันเกิด</div></div>
   
   </div>
   <div class="page-footer">✦ MYTHSENSUS COSMIC BLUEPRINT ✦ รายงานสร้างโดย AI วิเคราะห์จาก 26 ศาสตร์โบราณ เพื่อการสำรวจตนเอง ไม่ใช่คำแนะนำวิชาชีพ ✦</div>
@@ -2601,7 +2611,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
 
     
 
-    <div style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ออกกำลังกายที่ร่างกายของคุณตอบสนองดีที่สุด</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><strong>Pilates / โยคะ</strong><br><br>เหตุผล: Day Master <strong>乙 อี่ ไม้อ่อน</strong> เป็นธาตุ <strong>ไม้</strong> — กีฬานี้เสริมการไหลเวียนของ ตับ+ถุงน้ำดี โดยตรง นี่ไม่ใช่กฎหนึ่งสำหรับทุกคน แต่เป็นการจับคู่ระหว่างธาตุของคุณกับชนิดการเคลื่อนไหวที่ธาตุนั้นต้องการ</div></div>
+    <div class="rbox" style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ออกกำลังกายที่ร่างกายของคุณตอบสนองดีที่สุด</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><strong>Pilates / โยคะ</strong><br><br>เหตุผล: Day Master <strong>乙 อี่ ไม้อ่อน</strong> เป็นธาตุ <strong>ไม้</strong> — กีฬานี้เสริมการไหลเวียนของ ตับ+ถุงน้ำดี โดยตรง นี่ไม่ใช่กฎหนึ่งสำหรับทุกคน แต่เป็นการจับคู่ระหว่างธาตุของคุณกับชนิดการเคลื่อนไหวที่ธาตุนั้นต้องการ</div></div>
 
     <div style="font-size:11px;color:#5a6a50;margin-top:8px">
       🏥 รายงานนี้เพื่อการสำรวจตนเอง ไม่ใช่การวินิจฉัยทางการแพทย์ · หากมีอาการผิดปกติ ควรปรึกษาแพทย์ (ในไทย สายด่วน 1323 สุขภาพจิต)
@@ -2660,7 +2670,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
     
 
     <!-- Key synthesis -->
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">สรุปทิศทางการเงิน</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ธาตุมงคลไฟ ดิน + Part of Fortune ในกุมภ์ + ราหู Dasha → ช่วงสะสมและระมัดระวัง</div></div>
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">สรุปทิศทางการเงิน</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">ธาตุมงคลไฟ ดิน + Part of Fortune ในกุมภ์ + ราหู Dasha → ช่วงสะสมและระมัดระวัง</div></div>
 
     <!-- 3-step plan -->
     <div style="font-size:13px;color:#d0a050;font-weight:600;margin:12px 0 8px">แผน 3 ขั้นจาก Consensus</div>
@@ -2738,7 +2748,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <div style="font-size:11.5px;color:#e8a880;margin-top:4px">ธาตุระวังของคุณคือ <strong>โลหะ</strong> — สีนี้ "กด" Day Master อี่ ไม้อ่อน ตามวงจร 5 ธาตุจีน ใช้เป็นสีหลักบ่อยๆ อาจทำให้รู้สึกหมดพลัง</div>
     </div>
 
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">คำแนะนำการแต่งกายรายวัน</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">• <strong>ปกติ:</strong> ใส่ขาว/เงินเป็น accent (1 ชิ้น/วัน — เครื่องประดับ เน็คไท กระเป๋า)<br>• <strong>วันสำคัญ:</strong> ใส่สีมงคลเต็มชุด (เลือกจาก ขาว/เงิน / เหลือง / น้ำตาล / เหลือง/ครีม / น้ำตาลอบอุ่น)<br>• <strong>ประชุม / ขอขึ้นเงินเดือน:</strong> เหลือง / น้ำตาล (ธาตุไฟ ดิน)<br>• <strong>อัญมณีนำโชค:</strong> เพชร (จาก Celtic)</div></div>
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">คำแนะนำการแต่งกายรายวัน</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">• <strong>ปกติ:</strong> ใส่ขาว/เงินเป็น accent (1 ชิ้น/วัน — เครื่องประดับ เน็คไท กระเป๋า)<br>• <strong>วันสำคัญ:</strong> ใส่สีมงคลเต็มชุด (เลือกจาก ขาว/เงิน / เหลือง / น้ำตาล / เหลือง/ครีม / น้ำตาลอบอุ่น)<br>• <strong>ประชุม / ขอขึ้นเงินเดือน:</strong> เหลือง / น้ำตาล (ธาตุไฟ ดิน)<br>• <strong>อัญมณีนำโชค:</strong> เพชร (จาก Celtic)</div></div>
   
   </div>
   <div class="page-footer">✦ MYTHSENSUS COSMIC BLUEPRINT ✦ รายงานสร้างโดย AI วิเคราะห์จาก 26 ศาสตร์โบราณ เพื่อการสำรวจตนเอง ไม่ใช่คำแนะนำวิชาชีพ ✦</div>
@@ -2800,7 +2810,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <div class="stat-card"><div class="lbl">ช่วงรับมาเลี้ยง</div><div style="font-size:12px;color:#d4aa50;margin-top:3px">ฤดูใบไม้ผลิ · วันพฤหัสบดี · เช้าตรู่</div></div>
       <div class="stat-card"><div class="lbl">เคล็ดดูแล</div><div style="font-size:11px;color:#c8c0a8;margin-top:3px">อาบน้ำธาตุไม้: วางต้นไม้ใกล้ที่นอนสัตว์เลี้ยง เสริมพลังทั้งคู่</div></div>
     </div>
-    <div style="background:#1a0a0a;border:2px solid #c01020;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">สัตว์ที่ควรเลี่ยง</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">สุนัขพันธุ์พลังสูง — อาจดูดพลังจากธาตุไม้</div></div>
+    <div class="rbox" style="background:#1a0a0a;border:2px solid #c01020;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">สัตว์ที่ควรเลี่ยง</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">สุนัขพันธุ์พลังสูง — อาจดูดพลังจากธาตุไม้</div></div>
   
   
   </div>
@@ -2855,7 +2865,7 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <div style="font-size:11px;color:#9a8a72;line-height:1.6;margin-top:6px;font-style:italic">เทพเพื่อนของธอร์แต่ทรยศครั้งแล้วครั้งเล่า ฉลาดเกินไปจนใช้สติปัญญาหลอกตัวเองได้ — เงาสะท้อนไม้ที่ยืดหยุ่นเกินไปจนลื่นไหลไปกับสถานการณ์ แทนที่จะหยั่งราก</div>
     </div>
 
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">มนตราของกระจก</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><span style="font-style:italic">🔔 ॐ शक्राय नमः (Om Shakraya Namah)</span></div></div>
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">มนตราของกระจก</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8"><span style="font-style:italic">🔔 ॐ शक्राय नमः (Om Shakraya Namah)</span></div></div>
   
   </div>
   <div class="page-footer">✦ MYTHSENSUS COSMIC BLUEPRINT ✦ รายงานสร้างโดย AI วิเคราะห์จาก 26 ศาสตร์โบราณ เพื่อการสำรวจตนเอง ไม่ใช่คำแนะนำวิชาชีพ ✦</div>
@@ -3001,11 +3011,11 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
       <div style="font-size:12px;color:#9a8a72">Top 75% ของโลก</div>
     </div>
 
-    <div style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">จุดแข็งหลัก</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">• ธาตุไม้ Day Master 乙 — BaZi สี่เสา (八字) · BaZi · Four Pillars of Destiny ต้นกำเนิดจ…<br>• 六白金星 — ดาว 9 ดวง (Nine Star Ki) · Nine Star Ki · 九星気学 ต้น…<br>• Life Path 9 — นักมนุษยธรรม — The Humanitarian</div></div>
+    <div class="rbox" style="background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">จุดแข็งหลัก</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">• ธาตุไม้ Day Master 乙 — BaZi สี่เสา (八字) · BaZi · Four Pillars of Destiny ต้นกำเนิดจ…<br>• 六白金星 — ดาว 9 ดวง (Nine Star Ki) · Nine Star Ki · 九星気学 ต้น…<br>• Life Path 9 — นักมนุษยธรรม — The Humanitarian</div></div>
 
-    <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ความท้าทายหลัก</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">• ธาตุที่ขาด: ดิน โลหะ — ต้องเสริมจากภายนอก<br>• หลีกเลี่ยงธาตุ: โลหะ<br>• กลยุทธ์: "รอ 28 วัน (รอบจันทร์)" — ฝืนสิ่งนี้คือเหนื่อยเปล่า</div></div>
+    <div class="rbox" style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ความท้าทายหลัก</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">• ธาตุที่ขาด: ดิน โลหะ — ต้องเสริมจากภายนอก<br>• หลีกเลี่ยงธาตุ: โลหะ<br>• กลยุทธ์: "รอ 28 วัน (รอบจันทร์)" — ฝืนสิ่งนี้คือเหนื่อยเปล่า</div></div>
 
-    <div style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ช่วงทองในชีวิต</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">Luck Pillar 丁未 (ติง ไฟอ่อน มะแม (แพะ) (1794–1803)) + Personal Year 2026: 6 + NSK Star 6 → ช่วงนี้เป็นหนึ่งในช่วงที่สำคัญที่สุดในชีวิตคุณ</div></div>
+    <div class="rbox" style="background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:14px;margin:8px 0"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">ช่วงทองในชีวิต</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">Luck Pillar 丁未 (ติง ไฟอ่อน มะแม (แพะ) (1794–1803)) + Personal Year 2026: 6 + NSK Star 6 → ช่วงนี้เป็นหนึ่งในช่วงที่สำคัญที่สุดในชีวิตคุณ</div></div>
 
     <div style="text-align:center;margin:24px 0;padding:20px;background:#1a1510;border:1px solid #3a3020;border-radius:12px">
       <div style="font-size:14px;color:#d4aa50;font-weight:600;margin-bottom:8px">✦ คำส่งท้าย ✦</div>

@@ -127,7 +127,7 @@ function box(title, body, type = 'gold') {
         dark: 'background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:14px;margin:8px 0',
         purple: 'background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:14px;margin:8px 0',
     };
-    return `<div style="${styles[type]}"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">${esc(title)}</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">${body}</div></div>`;
+    return `<div class="rbox" style="${styles[type]}"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">${esc(title)}</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">${body}</div></div>`;
 }
 // ── CSS ───────────────────────────────────────────────────────
 // Background uses a layered star-field via multiple radial-gradients
@@ -199,6 +199,16 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
   *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   html,body{ background:#0e0c08 !important; background-image:none !important; color:#f0e8d0 !important; }
   .page{ page-break-after:always; min-height:0; background:#0e0c08 !important; }
+  /* Keep boxes/tables/cards from being cut across A4 sheet boundaries. A ~43
+     logical-page report overflows to ~80+ physical sheets, and without this
+     content splits mid-box → hard to read (Director 2026-07-02). break-inside
+     :avoid is only a hint — an element taller than a page still breaks, so
+     this can't create blank pages. */
+  .rbox, table, tr, .stat-card, .pillar, .conv, .warn,
+  .grid-2 > div, .grid-3 > div,
+  div[style*="border-radius"]{ break-inside:avoid; page-break-inside:avoid; }
+  .page-header{ break-inside:avoid; }
+  h2, h3{ break-after:avoid; page-break-after:avoid; }
 }`;
 // ── PAGES ─────────────────────────────────────────────────────
 // dd/mm/yyyy is ambiguous in international audiences (3/2 = March 2 or Feb 3?).
