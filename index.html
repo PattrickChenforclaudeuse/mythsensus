@@ -6395,33 +6395,6 @@ function initBlessings(){
   if(draws>=_maxDraws()){const b=document.getElementById('drawBtn');if(b){b.disabled=true;b.textContent=t('blessing_used');}}
 }
 
-// Re-entry restore: show TODAY'S most-recent drawn card again (revealed +
-// shareable) so a returning visitor sees the SAME god they drew, instead of a
-// blank panel that makes the draw look like it reset every time. Does NOT
-// consume a draw (uses the shared _renderGodCard). Skips: deep-link shared
-// draws (#g= wins), the ??? Hidden glitch event (not a god), and days with no
-// draw yet. Called from _bootAfterEntry after setGroup clears the card.
-async function restoreLastBlessingCard(){
-  try{
-    if (location.hash && location.hash.includes('g=')) return;   // friend's shared card wins
-    const card = document.getElementById('godCard');
-    if (!card || card.classList.contains('revealed')) return;    // already showing something
-    const today = new Date().toDateString();
-    const last = (typeof getFullHistory==='function' ? getFullHistory() : []).find(h =>
-      h && h.type === 'blessing' && h.godName && h.godName !== '???' &&
-      h.ts && new Date(h.ts).toDateString() === today);
-    if (!last) return;
-    await loadGods();
-    if (typeof GODS === 'undefined' || !Array.isArray(GODS)) return;
-    const god = GODS.find(g => g.name === last.godName);
-    if (!god) return;
-    const T = (Array.isArray(TIERS) ? TIERS.find(x => x.nameEN === last.tierName) : null)
-           || { name:last.tierName||'?', color:last.tierColor||'#c8a45a', nameTH:last.tierName||'?', nameEN:last.tierName||'?' };
-    _renderGodCard(god, T, last.msgIdx || 0, last.message || '');
-    if (typeof renderBlessingRecentPreview === 'function') renderBlessingRecentPreview();
-  }catch(_){}
-}
-
 function saveBlessings(){
   try{
     localStorage.setItem('mth_bless_count',draws);
@@ -15925,6 +15898,24 @@ function initStarfield(){
 function toggleNav(){ /* no-op — feature retired */ }
 
 document.addEventListener('DOMContentLoaded', async ()=>{
+  // ── Kill the entry-overlay FLASH for returning users ──────────
+  // The overlay ships visible (display:flex) so the gate is always up until JS
+  // decides. But showEntryOverlay() — which hides it for fast-path returning
+  // users — only runs AFTER the async Supabase getSession() below, so a saved
+  // user saw the wall flash on EVERY load until the session round-trip resolved.
+  // Hide it synchronously up-front using the SAME fast-path conditions
+  // showEntryOverlay() uses (savedDob + savedLang + not-forced + <180d). The
+  // real boot still happens in showEntryOverlay() a few lines down; this only
+  // removes the visible flash. New / guest / forced users are untouched.
+  try {
+    const _ov  = document.getElementById('entryOverlay');
+    const _dob = localStorage.getItem('mth_dob');
+    const _lng = localStorage.getItem('mth_lang');
+    const _lv  = parseInt(localStorage.getItem('mth_last_visit') || '0', 10);
+    const _days = _lv ? Math.floor((Date.now() - _lv) / 86400000) : Infinity;
+    const _force = localStorage.getItem('mth_force_entry') === '1' || location.search.includes('reset=1');
+    if (_ov && _dob && _lng && !_force && _days < 180) _ov.style.display = 'none';
+  } catch(_) {}
   // ── Restore nav state ─────────────────────────────────────
   // Defensive: if a user landed on the deploy with the legacy nav-hidden
   // state still set in localStorage, clear it so the nav comes back. The
@@ -16046,10 +16037,6 @@ function _bootAfterEntry(){
   try {
     if (location.hash && location.hash.includes('g=') && typeof _maybeRenderSharedDraw === 'function') {
       setTimeout(() => _maybeRenderSharedDraw(), 100);
-    } else if (typeof restoreLastBlessingCard === 'function') {
-      // No shared-draw hash → restore today's own drawn card on re-entry so it
-      // doesn't look like the draw reset. (await loadGods inside handles timing.)
-      setTimeout(() => restoreLastBlessingCard(), 120);
     }
   } catch(_) {}
   // If we just came back from a Gumroad checkout (?gr=1&sale_id=…), verify the
