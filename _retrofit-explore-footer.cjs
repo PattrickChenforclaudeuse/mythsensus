@@ -39,6 +39,8 @@ const CAT = {
   // Cross-Faith Mantra series (phahung already has a hand-authored footer -> idempotency skips it)
   'phahung-mahaka':{cat:'mantra'}, 'heart-sutra':{cat:'mantra'}, 'kalama-sutta':{cat:'mantra'},
   'al-fatihah':{cat:'mantra'}, 'gayatri-mantra':{cat:'mantra'}, 'shema':{cat:'mantra'},
+  'metta-sutta':{cat:'mantra'}, 'ratana-sutta':{cat:'mantra'}, 'mangala-sutta':{cat:'mantra'},
+  'cross-faith-mantra':{cat:'mantra'},
   // Landing pages -> skip
   'เลข7ตัว-vs-bazi':{cat:'systems',landing:true}, 'ดูดวงตามวันเกิด-ออนไลน์':{cat:'start',landing:true},
   'ดูดวงรวมหลายศาสตร์':{cat:'start',landing:true}, 'ดูดวงฟรี-ไม่ต้องลงทะเบียน':{cat:'start',landing:true},
