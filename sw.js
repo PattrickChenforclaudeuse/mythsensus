@@ -376,7 +376,7 @@
 // daily draw (entryDrawFirst), 26-system reading demoted to secondary; post-draw
 // upsell card funnels draw → full reading; entry form's time/gender/city collapsed
 // by default. Attacks 11.5s median / 1% birthday-fill / 0 shares.
-const CACHE = 'mythsensus-v171';
+const CACHE = 'mythsensus-v172';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
@@ -408,9 +408,16 @@ self.addEventListener('fetch', (event) => {
                 req.destination === 'document' ||
                 req.headers.get('Accept')?.includes('text/html');
 
-  if (isDoc) {
-    // Network-first for HTML. Always try to serve a fresh document; fall back
-    // to cache if the network is unavailable (true offline).
+  // Engine bundles (/build/ms26-bundle.js …) must NEVER be served stale — a
+  // cached old bundle = wrong scores + old report/print CSS, invisible to the
+  // user (2026-07-02: a stuck ?v=107 query + stale-while-revalidate kept the
+  // Director on a pre-recalibration bundle across 4 deploys). Network-first
+  // like HTML: always try fresh, fall back to cache only when truly offline.
+  const isBundle = url.pathname.startsWith('/build/');
+
+  if (isDoc || isBundle) {
+    // Network-first. Always try to serve a fresh copy; fall back to cache if
+    // the network is unavailable (true offline).
     event.respondWith(
       fetch(req)
         .then((resp) => {
