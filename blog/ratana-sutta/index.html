@@ -40,6 +40,18 @@ footer{text-align:center;padding:2.4rem;font-family:'Josefin Sans',sans-serif;fo
 .lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
 .lang-btn{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
 .lang-btn.active{background:var(--gold);color:#040407}.lang-btn:hover:not(.active){color:var(--gold)}
+.fulltext{margin:3rem 0 1rem;border-top:1px solid var(--border);padding-top:1.6rem}
+.ft-title{font-family:'Cinzel Decorative',serif;font-size:1.3rem;color:var(--gold);margin:.4rem 0 .4rem;font-weight:400;line-height:1.3}
+html[lang="th"] .ft-title{font-family:'Prompt',sans-serif;font-weight:500}
+.ft-note{font-size:.9rem;color:var(--muted);font-style:italic;margin-bottom:1.4rem}
+html[lang="th"] .ft-note{font-family:'Prompt',sans-serif}
+.ftv{border-left:2px solid rgba(200,164,90,.3);padding:.2rem 0 .9rem 1.2rem;margin-bottom:1.1rem}
+.ftv-num{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);opacity:.78;margin-bottom:.5rem}
+html[lang="th"] .ftv-num{font-family:'Prompt',sans-serif;letter-spacing:.03em;font-size:.76rem}
+.ftv-pali{color:var(--gold);font-style:italic;line-height:1.75;margin-bottom:.5rem;font-size:1.02rem;opacity:.92}
+html[lang="th"] .ftv-pali{font-family:'Prompt',sans-serif}
+.ftv-tr{opacity:.86;font-size:.98rem;line-height:1.75}
+html[lang="th"] .ftv-tr{font-family:'Prompt',sans-serif}
 </style>
   <meta name="ms-meta-v1" content="1">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -134,6 +146,39 @@ footer{text-align:center;padding:2.4rem;font-family:'Josefin Sans',sans-serif;fo
 
   <h2 data-en="Interface type: the truth-act" data-th="ประเภท interface: การกระทำสัจจะ">ประเภท interface: การกระทำสัจจะ</h2>
   <p data-en="In this library we sort prayers by what they do. The Ratana Sutta is a declaration — but a special kind, worth distinguishing from the self-affirmations of modern manifestation culture (&lsquo;I am worthy,&rsquo; &lsquo;abundance flows to me&rsquo;). Those assert a desired state about the self and hope repetition makes it real. The Ratana Sutta instead asserts externally verifiable facts — about the Buddha's attainments, the Dhamma's nature, the Sangha's conduct — and links them to an explicit truth-power mechanism: &lsquo;by THIS truth.&rsquo; It is less a wish and more a sworn testimony that doubles as a blessing. Reality stated plainly, and trusted to hold." data-th="ในคลังนี้เราจัดบทสวดตามสิ่งที่มันทำ รตนสูตรคือการประกาศ — แต่เป็นชนิดพิเศษ ที่ควรแยกจากการยืนยันตัวเองแบบวัฒนธรรม manifestation สมัยใหม่ ('ฉันมีค่า' 'ความมั่งคั่งไหลมาหาฉัน') พวกนั้นยืนยันสภาวะที่อยากได้เกี่ยวกับตัวเอง และหวังว่าการทำซ้ำจะทำให้มันจริง รตนสูตรกลับยืนยันข้อเท็จจริงที่ตรวจสอบได้จากภายนอก — เรื่องการบรรลุของพระพุทธ ธรรมชาติของพระธรรม ความประพฤติของพระสงฆ์ — และผูกมันกับกลไกอำนาจของสัจจะอย่างชัดเจน: 'ด้วยสัจจะนี้' มันเป็นคำยืนยันที่สาบานไว้ ซึ่งทำหน้าที่เป็นบทให้พรไปด้วย ความจริงที่กล่าวออกมาตรงๆ และวางใจว่ามันจะยืนอยู่ได้">ในคลังนี้เราจัดบทสวดตามสิ่งที่มันทำ รตนสูตรคือการประกาศ — แต่เป็นชนิดพิเศษ ที่ควรแยกจากการยืนยันตัวเองแบบวัฒนธรรม manifestation สมัยใหม่ ('ฉันมีค่า' 'ความมั่งคั่งไหลมาหาฉัน') พวกนั้นยืนยันสภาวะที่อยากได้เกี่ยวกับตัวเอง และหวังว่าการทำซ้ำจะทำให้มันจริง รตนสูตรกลับยืนยันข้อเท็จจริงที่ตรวจสอบได้จากภายนอก — เรื่องการบรรลุของพระพุทธ ธรรมชาติของพระธรรม ความประพฤติของพระสงฆ์ — และผูกมันกับกลไกอำนาจของสัจจะอย่างชัดเจน: 'ด้วยสัจจะนี้' มันเป็นคำยืนยันที่สาบานไว้ ซึ่งทำหน้าที่เป็นบทให้พรไปด้วย ความจริงที่กล่าวออกมาตรงๆ และวางใจว่ามันจะยืนอยู่ได้</p>
+
+  <div class="fulltext">
+    <h2 class="ft-title" data-en="The Chant — Pali with Translation (key verses)" data-th="ตัวบท — บาลี พร้อมคำแปล (บทหลัก)">ตัวบท — บาลี พร้อมคำแปล (บทหลัก)</h2>
+    <p class="ft-note" data-en="Representative verses of the 17-verse Ratana Sutta: the opening address to the spirits, the three &lsquo;jewel&rsquo; verses (Buddha / Dhamma / Sangha) carrying the truth-refrain, and the three closing verses spoken by Sakka. Standard chanting-book text." data-th="บทตัวแทนจากรตนสูตร 17 บท: บทเปิดที่กล่าวแก่เหล่าภูต บทรัตนะทั้งสาม (พุทธ/ธรรม/สงฆ์) ที่มีท่อนสัจจะ และสามบทปิดที่ท้าวสักกะกล่าว อ้างอิงฉบับสวดมนต์มาตรฐาน">บทตัวแทนจากรตนสูตร 17 บท: บทเปิดที่กล่าวแก่เหล่าภูต บทรัตนะทั้งสาม (พุทธ/ธรรม/สงฆ์) ที่มีท่อนสัจจะ และสามบทปิดที่ท้าวสักกะกล่าว อ้างอิงฉบับสวดมนต์มาตรฐาน</p>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verse 1 · addressing the spirits" data-th="บทที่ 1 · กล่าวแก่เหล่าภูต">บทที่ 1 · กล่าวแก่เหล่าภูต</div>
+      <div class="ftv-pali">ยานีธะ ภูตานิ สะมาคะตานิ ภุมมานิ วา ยานิวะ อันตะลิกเข สัพเพ วะ ภูตา สุมะนา ภะวันตุ อะโถปิ สักกัจจะ สุณันตุ ภาสิตัง</div>
+      <div class="ftv-tr" data-en="Whatever beings are assembled here, terrestrial or celestial, may they all be glad, and may they listen attentively to these words." data-th="เหล่าภูตทั้งหลาย ทั้งที่อยู่ ณ ภาคพื้นและในอากาศ ที่มาชุมนุมกัน ณ ที่นี้ ขอหมู่ภูตทั้งปวงจงเป็นผู้มีใจดี และจงตั้งใจฟังคำสดุดีที่ข้าพเจ้ากล่าว">เหล่าภูตทั้งหลาย ทั้งที่อยู่ ณ ภาคพื้นและในอากาศ ที่มาชุมนุมกัน ณ ที่นี้ ขอหมู่ภูตทั้งปวงจงเป็นผู้มีใจดี และจงตั้งใจฟังคำสดุดีที่ข้าพเจ้ากล่าว</div></div>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verse 2 · asking kindness to humans" data-th="บทที่ 2 · ขอเมตตาต่อมนุษย์">บทที่ 2 · ขอเมตตาต่อมนุษย์</div>
+      <div class="ftv-pali">ตัสมา หิ ภูตา นิสาเมถะ สัพเพ เมตตัง กะโรถะ มานุสิยา ปะชายะ ทิวา จะ รัตโต จะ หะรันติ เย พะลิง ตัสมา หิ เน รักขะถะ อัปปะมัตตา</div>
+      <div class="ftv-tr" data-en="O beings, listen closely: show loving-kindness to the human race, who by day and night bring you offerings; therefore, with diligence, protect them." data-th="ดูก่อนภูตทั้งหลาย จงฟังข้าพเจ้า ขอท่านทั้งหลายจงมีเมตตาในหมู่มนุษย์ ผู้ทำเทวตาพลีทั้งกลางวันกลางคืน เพราะเหตุนั้น จงเป็นผู้ไม่ประมาท ช่วยคุ้มครองรักษาเขาเถิด">ดูก่อนภูตทั้งหลาย จงฟังข้าพเจ้า ขอท่านทั้งหลายจงมีเมตตาในหมู่มนุษย์ ผู้ทำเทวตาพลีทั้งกลางวันกลางคืน เพราะเหตุนั้น จงเป็นผู้ไม่ประมาท ช่วยคุ้มครองรักษาเขาเถิด</div></div>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verse 3 · the Buddha-jewel (refrain)" data-th="บทที่ 3 · รัตนะคือพระพุทธ (ท่อนซ้ำ)">บทที่ 3 · รัตนะคือพระพุทธ (ท่อนซ้ำ)</div>
+      <div class="ftv-pali">ยังกิญจิ วิตตัง อิธะ วา หุรัง วา สัคเคสุ วา ยัง ระตะนัง ปะณีตัง นะ โน สะมัง อัตถิ ตะถาคะเตนะ อิทัมปิ พุทเธ ระตะนัง ปะณีตัง เอเตนะ สัจเจนะ สุวัตถิ โหตุ</div>
+      <div class="ftv-tr" data-en="Whatever treasure there is, here or beyond, whatever precious jewel in the heavens — none equals the Tathāgata. This precious jewel is the Buddha. By this truth, may there be well-being." data-th="ทรัพย์ใดในโลกนี้หรือโลกอื่น หรือรัตนะอันสูงค่าในสวรรค์ ก็ไม่มีสิ่งใดเสมอด้วยพระตถาคต ข้อนี้เป็นรัตนะอันประณีตในพระพุทธเจ้า ด้วยสัจจะนี้ ขอความสวัสดีจงมี">ทรัพย์ใดในโลกนี้หรือโลกอื่น หรือรัตนะอันสูงค่าในสวรรค์ ก็ไม่มีสิ่งใดเสมอด้วยพระตถาคต ข้อนี้เป็นรัตนะอันประณีตในพระพุทธเจ้า ด้วยสัจจะนี้ ขอความสวัสดีจงมี</div></div>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verse 4 · the Dhamma-jewel" data-th="บทที่ 4 · รัตนะคือพระธรรม">บทที่ 4 · รัตนะคือพระธรรม</div>
+      <div class="ftv-pali">ขะยัง วิราคัง อะมะตัง ปะณีตัง ยะทัชฌะคา สักยะมุนี สะมาหิโต นะ เตนะ ธัมเมนะ สะมัตถิ กิญจิ อิทัมปิ ธัมเม ระตะนัง ปะณีตัง เอเตนะ สัจเจนะ สุวัตถิ โหตุ</div>
+      <div class="ftv-tr" data-en="That cessation, detachment, deathlessness supreme, which the Sakyan Sage attained in deep concentration — nothing equals that Dhamma. This precious jewel is the Dhamma. By this truth, may there be well-being." data-th="พระศากยมุนีผู้มีจิตตั้งมั่น ได้บรรลุธรรมอันเป็นที่สิ้นกิเลส สิ้นราคะ เป็นอมตะอันประณีต ไม่มีสิ่งใดเสมอด้วยพระธรรมนั้น ข้อนี้เป็นรัตนะอันประณีตในพระธรรม ด้วยสัจจะนี้ ขอความสวัสดีจงมี">พระศากยมุนีผู้มีจิตตั้งมั่น ได้บรรลุธรรมอันเป็นที่สิ้นกิเลส สิ้นราคะ เป็นอมตะอันประณีต ไม่มีสิ่งใดเสมอด้วยพระธรรมนั้น ข้อนี้เป็นรัตนะอันประณีตในพระธรรม ด้วยสัจจะนี้ ขอความสวัสดีจงมี</div></div>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verse 6 · the Sangha-jewel" data-th="บทที่ 6 · รัตนะคือพระสงฆ์">บทที่ 6 · รัตนะคือพระสงฆ์</div>
+      <div class="ftv-pali">เย ปุคคะลา อัฏฐะ สะตัง ปะสัตถา จัตตาริ เอตานิ ยุคานิ โหนติ เต ทักขิเณยยา สุคะตัสสะ สาวะกา เอเตสุ ทินนานิ มะหัปผะลานิ อิทัมปิ สังเฆ ระตะนัง ปะณีตัง เอเตนะ สัจเจนะ สุวัตถิ โหตุ</div>
+      <div class="ftv-tr" data-en="The eight persons praised by the good form four pairs; they are the disciples of the Buddha, worthy of offerings — gifts given to them bear great fruit. This precious jewel is the Sangha. By this truth, may there be well-being." data-th="บุคคล 8 จำพวก นับเป็น 4 คู่ อันสัตบุรุษสรรเสริญ เป็นสาวกของพระสุคต ควรแก่ทักษิณา ทานที่ถวายในท่านเหล่านั้นมีผลมาก ข้อนี้เป็นรัตนะอันประณีตในพระสงฆ์ ด้วยสัจจะนี้ ขอความสวัสดีจงมี">บุคคล 8 จำพวก นับเป็น 4 คู่ อันสัตบุรุษสรรเสริญ เป็นสาวกของพระสุคต ควรแก่ทักษิณา ทานที่ถวายในท่านเหล่านั้นมีผลมาก ข้อนี้เป็นรัตนะอันประณีตในพระสงฆ์ ด้วยสัจจะนี้ ขอความสวัสดีจงมี</div></div>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verse 14 · &lsquo;extinguished like this lamp&rsquo;" data-th="บทที่ 14 · &lsquo;ดับดังประทีปดวงนี้&rsquo;">บทที่ 14 · &lsquo;ดับดังประทีปดวงนี้&rsquo;</div>
+      <div class="ftv-pali">ขีณัง ปุราณัง นะวัง นัตถิ สัมภะวัง วิรัตตะจิตตายะติเก ภะวัสมิง เต ขีณะพีชา อะวิรุฬหิฉันทา นิพพันติ ธีรา ยะถายัมปะทีโป อิทัมปิ สังเฆ ระตะนัง ปะณีตัง เอเตนะ สัจเจนะ สุวัตถิ โหตุ</div>
+      <div class="ftv-tr" data-en="Their old kamma is spent, no new arises; their minds unattached to future becoming, their seed of rebirth destroyed — the wise go out like this lamp. This precious jewel is the Sangha. By this truth, may there be well-being." data-th="กรรมเก่าของท่านสิ้นแล้ว กรรมใหม่ไม่เกิด จิตหน่ายในภพต่อไป สิ้นพืชคือวิญญาณ ไม่มีฉันทะจะเกิดอีก ท่านผู้เป็นปราชญ์ย่อมดับไปดังประทีปดวงนี้ ข้อนี้เป็นรัตนะอันประณีตในพระสงฆ์ ด้วยสัจจะนี้ ขอความสวัสดีจงมี">กรรมเก่าของท่านสิ้นแล้ว กรรมใหม่ไม่เกิด จิตหน่ายในภพต่อไป สิ้นพืชคือวิญญาณ ไม่มีฉันทะจะเกิดอีก ท่านผู้เป็นปราชญ์ย่อมดับไปดังประทีปดวงนี้ ข้อนี้เป็นรัตนะอันประณีตในพระสงฆ์ ด้วยสัจจะนี้ ขอความสวัสดีจงมี</div></div>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verses 15–17 · closing (spoken by Sakka)" data-th="บทที่ 15–17 · บทปิด (ท้าวสักกะกล่าว)">บทที่ 15–17 · บทปิด (ท้าวสักกะกล่าว)</div>
+      <div class="ftv-pali">ยานีธะ ภูตานิ สะมาคะตานิ ภุมมานิ วา ยานิวะ อันตะลิกเข ตะถาคะตัง เทวะมะนุสสะปูชิตัง <b>พุทธัง / ธัมมัง / สังฆัง</b> นะมัสสามะ สุวัตถิ โหตุ</div>
+      <div class="ftv-tr" data-en="Whatever beings are assembled here, terrestrial or celestial — let us salute the Tathāgata, honoured by gods and men: the Buddha / the Dhamma / the Sangha. May there be well-being. (three verses, one for each jewel)" data-th="เหล่าภูตทั้งหลายที่มาชุมนุมกัน ณ ที่นี้ เราทั้งหลายจงนมัสการพระตถาคตผู้อันเทวดาและมนุษย์บูชาแล้ว — พระพุทธ / พระธรรม / พระสงฆ์ ขอความสวัสดีจงมี (มีสามบท บทละหนึ่งรัตนะ)">เหล่าภูตทั้งหลายที่มาชุมนุมกัน ณ ที่นี้ เราทั้งหลายจงนมัสการพระตถาคตผู้อันเทวดาและมนุษย์บูชาแล้ว — พระพุทธ / พระธรรม / พระสงฆ์ ขอความสวัสดีจงมี (มีสามบท บทละหนึ่งรัตนะ)</div></div>
+  </div>
 </div>
 
 <div class="article-cta">

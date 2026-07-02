@@ -40,6 +40,18 @@ footer{text-align:center;padding:2.4rem;font-family:'Josefin Sans',sans-serif;fo
 .lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
 .lang-btn{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
 .lang-btn.active{background:var(--gold);color:#040407}.lang-btn:hover:not(.active){color:var(--gold)}
+.fulltext{margin:3rem 0 1rem;border-top:1px solid var(--border);padding-top:1.6rem}
+.ft-title{font-family:'Cinzel Decorative',serif;font-size:1.3rem;color:var(--gold);margin:.4rem 0 .4rem;font-weight:400;line-height:1.3}
+html[lang="th"] .ft-title{font-family:'Prompt',sans-serif;font-weight:500}
+.ft-note{font-size:.9rem;color:var(--muted);font-style:italic;margin-bottom:1.4rem}
+html[lang="th"] .ft-note{font-family:'Prompt',sans-serif}
+.ftv{border-left:2px solid rgba(200,164,90,.3);padding:.2rem 0 .9rem 1.2rem;margin-bottom:1.1rem}
+.ftv-num{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);opacity:.78;margin-bottom:.5rem}
+html[lang="th"] .ftv-num{font-family:'Prompt',sans-serif;letter-spacing:.03em;font-size:.76rem}
+.ftv-pali{color:var(--gold);font-style:italic;line-height:1.75;margin-bottom:.5rem;font-size:1.02rem;opacity:.92}
+html[lang="th"] .ftv-pali{font-family:'Prompt',sans-serif}
+.ftv-tr{opacity:.86;font-size:.98rem;line-height:1.75}
+html[lang="th"] .ftv-tr{font-family:'Prompt',sans-serif}
 </style>
   <meta name="ms-meta-v1" content="1">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -135,6 +147,53 @@ footer{text-align:center;padding:2.4rem;font-family:'Josefin Sans',sans-serif;fo
   <p data-en="Most liturgy people know is addressed to God — the Lord's Prayer, the countless petitions of every tradition speak upward and ask. The Shema does neither. Grammatically it is addressed to Israel — &lsquo;Hear, O Israel&rsquo; — a people telling itself and one another what is true and what it binds itself to. It is a declaration, not a request; scholars describe reciting it as &lsquo;accepting the yoke of heaven,&rsquo; an act of coronation rather than petition. (A striking, honest footnote: the Shema has almost no role in the Hebrew Bible itself — no patriarch or prophet is shown reciting it. Its central place in daily prayer and at the threshold of death is a later rabbinic development, and scholars candidly admit no one knows exactly when or why it rose to that status.) The tradition that a Jew's final word should be Eḥad — &lsquo;One&rsquo; — traces to the Talmud's account of Rabbi Akiva, who is said to have died under Roman execution prolonging that final word until his last breath." data-th="พิธีกรรมส่วนใหญ่ที่คนรู้จัก พูดกับพระเจ้า — คำอธิษฐานของพระเยซู และคำวิงวอนนับไม่ถ้วนของทุกประเพณี ล้วนพูดขึ้นบนและร้องขอ เชมาไม่ทำทั้งสองอย่าง โดยไวยากรณ์มันพูดกับอิสราเอล — &lsquo;จงฟังเถิด อิสราเอล&rsquo; — ประชาชนที่บอกตัวเองและกันเองว่าอะไรคือความจริง และผูกมัดตัวเองไว้กับอะไร มันคือการประกาศ ไม่ใช่การร้องขอ นักวิชาการอธิบายการสวดมันว่าเป็น &lsquo;การรับแอกแห่งสวรรค์&rsquo; การสถาปนา ไม่ใช่การวิงวอน (เชิงอรรถที่ตรงไปตรงมาและน่าทึ่ง: เชมาแทบไม่มีบทบาทในพระคัมภีร์ฮีบรูเอง — ไม่มีบรรพบุรุษหรือผู้เผยพระวจนะคนใดถูกแสดงว่ากล่าวมัน ตำแหน่งใจกลางในคำสวดประจำวันและ ณ ธรณีแห่งความตาย เป็นพัฒนาการยุคแรบไบภายหลัง และนักวิชาการยอมรับตรงๆ ว่าไม่มีใครรู้แน่ว่ามันขึ้นสู่สถานะนั้นเมื่อใดหรือเพราะอะไร) ธรรมเนียมที่ว่าคำสุดท้ายของชาวยิวควรเป็น Eḥad — &lsquo;หนึ่งเดียว&rsquo; — สืบไปถึงเรื่องเล่าในทัลมุดของแรบไบ Akiva ผู้ซึ่งเล่ากันว่าสิ้นใจใต้การประหารของโรมัน โดยลากคำสุดท้ายนั้นยาวจนถึงลมหายใจสุดท้าย">พิธีกรรมส่วนใหญ่ที่คนรู้จัก พูดกับพระเจ้า — คำอธิษฐานของพระเยซู และคำวิงวอนนับไม่ถ้วนของทุกประเพณี ล้วนพูดขึ้นบนและร้องขอ เชมาไม่ทำทั้งสองอย่าง โดยไวยากรณ์มันพูดกับอิสราเอล — &lsquo;จงฟังเถิด อิสราเอล&rsquo; — ประชาชนที่บอกตัวเองและกันเองว่าอะไรคือความจริง และผูกมัดตัวเองไว้กับอะไร มันคือการประกาศ ไม่ใช่การร้องขอ นักวิชาการอธิบายการสวดมันว่าเป็น &lsquo;การรับแอกแห่งสวรรค์&rsquo; การสถาปนา ไม่ใช่การวิงวอน (เชิงอรรถที่ตรงไปตรงมาและน่าทึ่ง: เชมาแทบไม่มีบทบาทในพระคัมภีร์ฮีบรูเอง — ไม่มีบรรพบุรุษหรือผู้เผยพระวจนะคนใดถูกแสดงว่ากล่าวมัน ตำแหน่งใจกลางในคำสวดประจำวันและ ณ ธรณีแห่งความตาย เป็นพัฒนาการยุคแรบไบภายหลัง และนักวิชาการยอมรับตรงๆ ว่าไม่มีใครรู้แน่ว่ามันขึ้นสู่สถานะนั้นเมื่อใดหรือเพราะอะไร) ธรรมเนียมที่ว่าคำสุดท้ายของชาวยิวควรเป็น Eḥad — &lsquo;หนึ่งเดียว&rsquo; — สืบไปถึงเรื่องเล่าในทัลมุดของแรบไบ Akiva ผู้ซึ่งเล่ากันว่าสิ้นใจใต้การประหารของโรมัน โดยลากคำสุดท้ายนั้นยาวจนถึงลมหายใจสุดท้าย</p>
 
   <p data-en="In this library we treat a prayer as an interface — a way of reaching toward something larger. If Al-Fatihah is the pure petition (asking upward) and the Heart Sutra is dissolution (erasing the asker), the Shema is the archetypal declaration: it neither asks nor dissolves. It states, and it commits. It is a people, across three thousand years, telling itself the one thing it refuses to forget — and, in the saying, becoming the witness to it." data-th="ในคลังนี้เรามองบทสวดเป็น interface — วิธีเอื้อมไปหาสิ่งที่ใหญ่กว่า ถ้าอัลฟาติฮะฮ์คือคำร้องขอบริสุทธิ์ (ขอขึ้นบน) และหัวใจพระสูตรคือการสลาย (ลบผู้ขอ) เชมาคือการประกาศต้นแบบ: มันไม่ขอและไม่สลาย มันกล่าวยืนยัน และผูกมัด มันคือประชาชนตลอดสามพันปี ที่บอกตัวเองถึงสิ่งเดียวที่ปฏิเสธจะลืม — และในการกล่าวนั้นเอง ก็กลายเป็นพยานของมัน">ในคลังนี้เรามองบทสวดเป็น interface — วิธีเอื้อมไปหาสิ่งที่ใหญ่กว่า ถ้าอัลฟาติฮะฮ์คือคำร้องขอบริสุทธิ์ (ขอขึ้นบน) และหัวใจพระสูตรคือการสลาย (ลบผู้ขอ) เชมาคือการประกาศต้นแบบ: มันไม่ขอและไม่สลาย มันกล่าวยืนยัน และผูกมัด มันคือประชาชนตลอดสามพันปี ที่บอกตัวเองถึงสิ่งเดียวที่ปฏิเสธจะลืม — และในการกล่าวนั้นเอง ก็กลายเป็นพยานของมัน</p>
+
+  <div class="fulltext">
+    <h2 class="ft-title" data-en="The Full First Paragraph — Deuteronomy 6:4–9" data-th="บทเต็ม — เฉลยธรรมบัญญัติ 6:4–9">บทเต็ม — เฉลยธรรมบัญญัติ 6:4–9</h2>
+    <p class="ft-note" data-en="The first paragraph of the Shema, verse by verse — Hebrew transliteration + translation. The &lsquo;Baruch Shem&rsquo; line is a rabbinic liturgical response added after 6:4, not part of the biblical verse. Thai follows the Thai Standard Version (THSV11)." data-th="ย่อหน้าแรกของเชมา ทีละข้อ — ฮีบรู (คำอ่าน) + คำแปล บรรทัด &lsquo;บารุค เชม&rsquo; เป็นคำสวดเสริมตามธรรมเนียมที่เติมหลัง 6:4 ไม่ใช่ตัวบทในพระคัมภีร์ ภาษาไทยอิงฉบับมาตรฐาน (THSV11)">ย่อหน้าแรกของเชมา ทีละข้อ — ฮีบรู (คำอ่าน) + คำแปล บรรทัด &lsquo;บารุค เชม&rsquo; เป็นคำสวดเสริมตามธรรมเนียมที่เติมหลัง 6:4 ไม่ใช่ตัวบทในพระคัมภีร์ ภาษาไทยอิงฉบับมาตรฐาน (THSV11)</p>
+
+    <div class="ftv">
+      <div class="ftv-num">Deuteronomy 6:4</div>
+      <div class="ftv-pali">Shema Yisrael, Adonai Eloheinu, Adonai Eḥad.</div>
+      <div class="ftv-tr" data-en="&lsquo;Hear, O Israel: the LORD is our God, the LORD is One.&rsquo; (JPS: &lsquo;…the LORD alone.&rsquo;)" data-th="โอ คนอิสราเอล จงฟังเถิด พระยาห์เวห์ พระยาห์เวห์เท่านั้นทรงเป็นพระเจ้าของเรา (สายจารีต: &lsquo;…ทรงเป็นหนึ่งเดียว&rsquo;)">โอ คนอิสราเอล จงฟังเถิด พระยาห์เวห์ พระยาห์เวห์เท่านั้นทรงเป็นพระเจ้าของเรา (สายจารีต: &lsquo;…ทรงเป็นหนึ่งเดียว&rsquo;)</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="Liturgical response (after 6:4)" data-th="คำสวดเสริม (หลัง 6:4)">คำสวดเสริม (หลัง 6:4)</div>
+      <div class="ftv-pali">Barukh shem kevod malkhuto le-olam va-ed.</div>
+      <div class="ftv-tr" data-en="&lsquo;Blessed is the name of His glorious kingdom for ever and ever.&rsquo; (a rabbinic liturgical insertion, not part of the biblical verse)" data-th="&lsquo;สรรเสริญพระนามอันรุ่งโรจน์แห่งราชอาณาจักรของพระองค์ตลอดกาลเป็นนิตย์&rsquo; (คำสวดเสริมตามธรรมเนียม ไม่ใช่ตัวบทในพระคัมภีร์)">&lsquo;สรรเสริญพระนามอันรุ่งโรจน์แห่งราชอาณาจักรของพระองค์ตลอดกาลเป็นนิตย์&rsquo; (คำสวดเสริมตามธรรมเนียม ไม่ใช่ตัวบทในพระคัมภีร์)</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num">Deuteronomy 6:5</div>
+      <div class="ftv-pali">Ve-ahavta et Adonai Elohekha be-khol levavkha, u-ve-khol nafshekha, u-ve-khol me'odekha.</div>
+      <div class="ftv-tr" data-en="You shall love the LORD your God with all your heart and with all your soul and with all your might." data-th="ท่านจงรักพระยาห์เวห์พระเจ้าของท่านด้วยสุดจิตสุดใจและสุดกำลังของท่าน">ท่านจงรักพระยาห์เวห์พระเจ้าของท่านด้วยสุดจิตสุดใจและสุดกำลังของท่าน</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num">Deuteronomy 6:6</div>
+      <div class="ftv-pali">Ve-hayu ha-devarim ha-eleh asher anokhi metzavvekha ha-yom al-levavekha.</div>
+      <div class="ftv-tr" data-en="And these words that I command you today shall be upon your heart." data-th="และจงให้ถ้อยคำเหล่านี้ที่ข้าพเจ้าบัญชาท่านในวันนี้อยู่ในใจของท่าน">และจงให้ถ้อยคำเหล่านี้ที่ข้าพเจ้าบัญชาท่านในวันนี้อยู่ในใจของท่าน</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num">Deuteronomy 6:7</div>
+      <div class="ftv-pali">Ve-shinnantam le-vanekha ve-dibbarta bam, be-shivtekha be-veitekha u-ve-lekhtekha va-derekh, u-ve-shokhbekha u-ve-kumekha.</div>
+      <div class="ftv-tr" data-en="You shall teach them diligently to your children, and shall speak of them when you sit in your house, and when you walk by the way, and when you lie down, and when you rise up." data-th="และท่านจงสอนถ้อยคำเหล่านั้นแก่บุตรหลานของท่าน และจงพูดถึงถ้อยคำเหล่านั้นเมื่อท่านนั่งอยู่ในบ้าน เดินอยู่ตามทาง นอนลงหรือลุกขึ้น">และท่านจงสอนถ้อยคำเหล่านั้นแก่บุตรหลานของท่าน และจงพูดถึงถ้อยคำเหล่านั้นเมื่อท่านนั่งอยู่ในบ้าน เดินอยู่ตามทาง นอนลงหรือลุกขึ้น</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num">Deuteronomy 6:8</div>
+      <div class="ftv-pali">U-kshartam le-ot al-yadekha, ve-hayu le-totafot bein einekha.</div>
+      <div class="ftv-tr" data-en="And you shall bind them as a sign upon your hand, and they shall be as frontlets between your eyes. (the basis for tefillin)" data-th="จงเอาถ้อยคำเหล่านี้ผูกไว้ที่มือของท่านเป็นหมายสำคัญ และคาดไว้ที่หน้าผากของท่านเป็นสัญลักษณ์ (ที่มาของเทฟิลลิน)">จงเอาถ้อยคำเหล่านี้ผูกไว้ที่มือของท่านเป็นหมายสำคัญ และคาดไว้ที่หน้าผากของท่านเป็นสัญลักษณ์ (ที่มาของเทฟิลลิน)</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num">Deuteronomy 6:9</div>
+      <div class="ftv-pali">U-khtavtam al-mezuzot beitekha u-vi-she'arekha.</div>
+      <div class="ftv-tr" data-en="And you shall write them upon the doorposts of your house and upon your gates. (the basis for the mezuzah)" data-th="และจงเขียนถ้อยคำเหล่านี้ไว้ที่เสาประตูบ้าน และที่ประตูของท่าน (ที่มาของเมซูซาห์)">และจงเขียนถ้อยคำเหล่านี้ไว้ที่เสาประตูบ้าน และที่ประตูของท่าน (ที่มาของเมซูซาห์)</div>
+    </div>
+  </div>
 </div>
 
 <div class="article-cta">

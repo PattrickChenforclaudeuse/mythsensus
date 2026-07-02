@@ -40,6 +40,18 @@ footer{text-align:center;padding:2.4rem;font-family:'Josefin Sans',sans-serif;fo
 .lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
 .lang-btn{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
 .lang-btn.active{background:var(--gold);color:#040407}.lang-btn:hover:not(.active){color:var(--gold)}
+.fulltext{margin:3rem 0 1rem;border-top:1px solid var(--border);padding-top:1.6rem}
+.ft-title{font-family:'Cinzel Decorative',serif;font-size:1.3rem;color:var(--gold);margin:.4rem 0 .4rem;font-weight:400;line-height:1.3}
+html[lang="th"] .ft-title{font-family:'Prompt',sans-serif;font-weight:500}
+.ft-note{font-size:.9rem;color:var(--muted);font-style:italic;margin-bottom:1.4rem}
+html[lang="th"] .ft-note{font-family:'Prompt',sans-serif}
+.ftv{border-left:2px solid rgba(200,164,90,.3);padding:.2rem 0 .9rem 1.2rem;margin-bottom:1.1rem}
+.ftv-num{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);opacity:.78;margin-bottom:.5rem}
+html[lang="th"] .ftv-num{font-family:'Prompt',sans-serif;letter-spacing:.03em;font-size:.76rem}
+.ftv-pali{color:var(--gold);font-style:italic;line-height:1.75;margin-bottom:.5rem;font-size:1.02rem;opacity:.92}
+html[lang="th"] .ftv-pali{font-family:'Prompt',sans-serif}
+.ftv-tr{opacity:.86;font-size:.98rem;line-height:1.75}
+html[lang="th"] .ftv-tr{font-family:'Prompt',sans-serif}
 </style>
   <meta name="ms-meta-v1" content="1">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -161,6 +173,83 @@ footer{text-align:center;padding:2.4rem;font-family:'Josefin Sans',sans-serif;fo
   <p data-en="It is worth setting this beside the Phahung chant we decoded earlier. Phahung praises eight specific victories of the Buddha over eight adversaries, and devotees chant it seeking that same pattern of triumph in their own lives — over enemies, obstacles, opponents. It is, at heart, a victory-transfer chant. The Heart Sutra wears a similar surface (it even calls itself a &lsquo;great mantra&rsquo; with the power to remove all suffering) — but where Phahung hands you a result, the Heart Sutra hands you an erasure. It does not say &lsquo;you too can defeat your enemies.&rsquo; It says: look closely enough and there is no fixed self doing the fighting, no fixed enemy to defeat, no fixed victory to win or lose. One is architected around triumph; the other around the collapse of the very category of triumph. Both are among the most-chanted texts in Buddhism today." data-th="ควรวางบทนี้เทียบกับพาหุงฯ ที่เราถอดรหัสไปก่อนหน้า พาหุงฯ สรรเสริญชัยชนะ 8 ครั้งของพระพุทธเจ้าเหนือคู่ต่อสู้ 8 ราย และผู้สวดสวดมันเพื่อขอชัยชนะแบบเดียวกันในชีวิตตัวเอง — เหนือศัตรู อุปสรรค คู่แข่ง โดยแก่นแล้วมันคือบทสวด &lsquo;ถ่ายโอนชัยชนะ&rsquo; ส่วนหัวใจพระสูตรมีเปลือกคล้ายกัน (มันเรียกตัวเองว่า &lsquo;มหามนตร์&rsquo; ที่มีอำนาจดับทุกข์ทั้งปวง) — แต่ที่พาหุงฯ ยื่น &lsquo;ผลลัพธ์&rsquo; ให้ หัวใจพระสูตรกลับยื่น &lsquo;การลบล้าง&rsquo; มันไม่ได้บอกว่า &lsquo;เจ้าก็เอาชนะศัตรูได้&rsquo; แต่บอกว่า มองให้ลึกพอ จะไม่มีตัวตนตายตัวที่กำลังสู้ ไม่มีศัตรูตายตัวให้เอาชนะ ไม่มีชัยชนะตายตัวให้ได้หรือเสีย บทหนึ่งสร้างขึ้นรอบ &lsquo;ชัยชนะ&rsquo; อีกบทสร้างขึ้นรอบการล่มสลายของ concept &lsquo;ชัยชนะ&rsquo; เอง และทั้งคู่คือบทที่ถูกสวดมากที่สุดในพุทธศาสนาทุกวันนี้">ควรวางบทนี้เทียบกับพาหุงฯ ที่เราถอดรหัสไปก่อนหน้า พาหุงฯ สรรเสริญชัยชนะ 8 ครั้งของพระพุทธเจ้าเหนือคู่ต่อสู้ 8 ราย และผู้สวดสวดมันเพื่อขอชัยชนะแบบเดียวกันในชีวิตตัวเอง — เหนือศัตรู อุปสรรค คู่แข่ง โดยแก่นแล้วมันคือบทสวด &lsquo;ถ่ายโอนชัยชนะ&rsquo; ส่วนหัวใจพระสูตรมีเปลือกคล้ายกัน (มันเรียกตัวเองว่า &lsquo;มหามนตร์&rsquo; ที่มีอำนาจดับทุกข์ทั้งปวง) — แต่ที่พาหุงฯ ยื่น &lsquo;ผลลัพธ์&rsquo; ให้ หัวใจพระสูตรกลับยื่น &lsquo;การลบล้าง&rsquo; มันไม่ได้บอกว่า &lsquo;เจ้าก็เอาชนะศัตรูได้&rsquo; แต่บอกว่า มองให้ลึกพอ จะไม่มีตัวตนตายตัวที่กำลังสู้ ไม่มีศัตรูตายตัวให้เอาชนะ ไม่มีชัยชนะตายตัวให้ได้หรือเสีย บทหนึ่งสร้างขึ้นรอบ &lsquo;ชัยชนะ&rsquo; อีกบทสร้างขึ้นรอบการล่มสลายของ concept &lsquo;ชัยชนะ&rsquo; เอง และทั้งคู่คือบทที่ถูกสวดมากที่สุดในพุทธศาสนาทุกวันนี้</p>
 
   <p data-en="In this library we treat a prayer as an interface — a way humans reach toward something larger than themselves. Most reach out to ask (petition) or to declare (assertion). The Heart Sutra is the rare interface of dissolution: it asks for nothing and declares nothing. It dissolves the one doing the asking. That is its whole method, and its whole gift — freedom from fear, by removing the very self that had something to lose." data-th="ในคลังนี้เรามองบทสวดเป็น interface — ช่องทางที่มนุษย์เอื้อมไปหาสิ่งที่ใหญ่กว่าตัวเอง ส่วนใหญ่เอื้อมไปเพื่อ &lsquo;ขอ&rsquo; (คำร้อง) หรือเพื่อ &lsquo;ประกาศ&rsquo; (การยืนยัน) หัวใจพระสูตรคือ interface ที่หายาก — interface แห่งการสลาย: มันไม่ขออะไร และไม่ประกาศอะไร แต่สลาย &lsquo;ผู้ที่กำลังขอ&rsquo; ทิ้ง นั่นคือวิธีของมันทั้งหมด และของขวัญของมันทั้งหมด — อิสระจากความกลัว ด้วยการลบตัวตนที่มีอะไรจะเสียออกไป">ในคลังนี้เรามองบทสวดเป็น interface — ช่องทางที่มนุษย์เอื้อมไปหาสิ่งที่ใหญ่กว่าตัวเอง ส่วนใหญ่เอื้อมไปเพื่อ &lsquo;ขอ&rsquo; (คำร้อง) หรือเพื่อ &lsquo;ประกาศ&rsquo; (การยืนยัน) หัวใจพระสูตรคือ interface ที่หายาก — interface แห่งการสลาย: มันไม่ขออะไร และไม่ประกาศอะไร แต่สลาย &lsquo;ผู้ที่กำลังขอ&rsquo; ทิ้ง นั่นคือวิธีของมันทั้งหมด และของขวัญของมันทั้งหมด — อิสระจากความกลัว ด้วยการลบตัวตนที่มีอะไรจะเสียออกไป</p>
+
+  <div class="fulltext">
+    <h2 class="ft-title" data-en="The Full Sutra — Sanskrit with Translation" data-th="พระสูตรฉบับเต็ม — สันสกฤต พร้อมคำแปล">พระสูตรฉบับเต็ม — สันสกฤต พร้อมคำแปล</h2>
+    <p class="ft-note" data-en="The complete short recension, segment by segment, in Sanskrit (IAST) with translation. The opening invocation is often omitted in the chanted short version. Thai follows the Thai Wikisource rendering." data-th="ฉบับย่อครบทุกท่อน เป็นสันสกฤต (IAST) พร้อมคำแปล บทเปิดมักไม่สวดในฉบับย่อ ภาษาไทยอิงฉบับ Thai Wikisource">ฉบับย่อครบทุกท่อน เป็นสันสกฤต (IAST) พร้อมคำแปล บทเปิดมักไม่สวดในฉบับย่อ ภาษาไทยอิงฉบับ Thai Wikisource</p>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="Invocation (often omitted in the short chant)" data-th="บทเปิด (ฉบับย่อมักไม่สวด)">บทเปิด (ฉบับย่อมักไม่สวด)</div>
+      <div class="ftv-pali">Oṃ namo bhagavatyai ārya-prajñāpāramitāyai.</div>
+      <div class="ftv-tr" data-en="Om! Salutation to the Blessed and Noble Perfection of Wisdom." data-th="โอม ขอนอบน้อมแด่พระปรัชญาปารมิตาอันประเสริฐ">โอม ขอนอบน้อมแด่พระปรัชญาปารมิตาอันประเสริฐ</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="Avalokiteśvara sees emptiness" data-th="พระอวโลกิเตศวรเห็นความว่าง">พระอวโลกิเตศวรเห็นความว่าง</div>
+      <div class="ftv-pali">Āryāvalokiteśvaro bodhisattvo gambhīrāṃ prajñāpāramitā-caryāṃ caramāṇo vyavalokayati sma: pañca-skandhās tāṃś ca svabhāva-śūnyān paśyati sma.</div>
+      <div class="ftv-tr" data-en="The noble Bodhisattva Avalokiteśvara, practicing the deep Perfection of Wisdom, looked and saw that the five aggregates are empty of own-being — and thereby passed beyond all suffering." data-th="พระโพธิสัตว์อวโลกิเตศวร ผู้ประกอบด้วยโลกุตรปัญญาอันลึกซึ้ง ได้มองเห็นว่าโดยธรรมชาติแท้แล้วขันธ์ทั้งห้านั้นว่างเปล่า และด้วยเหตุที่เห็นเช่นนั้น จึงได้ก้าวล่วงพ้นจากความทุกข์ทั้งปวง">พระโพธิสัตว์อวโลกิเตศวร ผู้ประกอบด้วยโลกุตรปัญญาอันลึกซึ้ง ได้มองเห็นว่าโดยธรรมชาติแท้แล้วขันธ์ทั้งห้านั้นว่างเปล่า และด้วยเหตุที่เห็นเช่นนั้น จึงได้ก้าวล่วงพ้นจากความทุกข์ทั้งปวง</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="Form is emptiness" data-th="รูปคือความว่าง">รูปคือความว่าง</div>
+      <div class="ftv-pali">Iha Śāriputra rūpaṃ śūnyatā, śūnyataiva rūpam; rūpān na pṛthak śūnyatā, śūnyatāyā na pṛthag rūpam; yad rūpaṃ sā śūnyatā, yā śūnyatā tad rūpam; evam eva vedanā-saṃjñā-saṃskāra-vijñānam.</div>
+      <div class="ftv-tr" data-en="Here, Śāriputra, form is emptiness, emptiness itself is form; form is not other than emptiness, emptiness is not other than form; whatever is form, that is emptiness; whatever is emptiness, that is form. The same holds for feeling, perception, formations, and consciousness." data-th="สารีบุตร รูปไม่ต่างจากความว่าง ความว่างก็ไม่ต่างจากรูป รูปคือความว่างนั่นเอง และความว่างก็คือรูปนั่นเอง เวทนา สัญญา สังขาร วิญญาณ ก็เป็นเช่นนี้">สารีบุตร รูปไม่ต่างจากความว่าง ความว่างก็ไม่ต่างจากรูป รูปคือความว่างนั่นเอง และความว่างก็คือรูปนั่นเอง เวทนา สัญญา สังขาร วิญญาณ ก็เป็นเช่นนี้</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="All dharmas are marked with emptiness" data-th="ธรรมทั้งปวงมีลักษณะแห่งความว่าง">ธรรมทั้งปวงมีลักษณะแห่งความว่าง</div>
+      <div class="ftv-pali">Iha Śāriputra sarva-dharmāḥ śūnyatā-lakṣaṇā, anutpannā aniruddhā, amalā avimalā, anūnā aparipūrṇāḥ.</div>
+      <div class="ftv-tr" data-en="Here, Śāriputra, all dharmas are marked with emptiness: not arising, not ceasing; not defiled, not pure; not increasing, not decreasing." data-th="ธรรมทั้งหลายมีธรรมชาติแห่งความว่าง ไม่ได้เกิดขึ้นและไม่ได้ดับลง ไม่สะอาดและไม่สกปรก ไม่เพิ่มขึ้นและไม่ลดลง">ธรรมทั้งหลายมีธรรมชาติแห่งความว่าง ไม่ได้เกิดขึ้นและไม่ได้ดับลง ไม่สะอาดและไม่สกปรก ไม่เพิ่มขึ้นและไม่ลดลง</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="Therefore in emptiness, no aggregates" data-th="ฉะนั้นในความว่าง จึงไม่มีขันธ์">ฉะนั้นในความว่าง จึงไม่มีขันธ์</div>
+      <div class="ftv-pali">Tasmāc Śāriputra śūnyatāyāṃ na rūpaṃ na vedanā na saṃjñā na saṃskārāḥ na vijñānam.</div>
+      <div class="ftv-tr" data-en="Therefore, Śāriputra, in emptiness there is no form, no feeling, no perception, no formations, no consciousness." data-th="ดังนั้น ในความว่างจึงไม่มีรูป ไม่มีเวทนา สัญญา สังขาร หรือวิญญาณ">ดังนั้น ในความว่างจึงไม่มีรูป ไม่มีเวทนา สัญญา สังขาร หรือวิญญาณ</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="No sense faculties, no objects" data-th="ไม่มีอายตนะ ไม่มีอารมณ์">ไม่มีอายตนะ ไม่มีอารมณ์</div>
+      <div class="ftv-pali">Na cakṣuḥ-śrotra-ghrāṇa-jihvā-kāya-manāṃsi. Na rūpa-śabda-gandha-rasa-spraṣṭavya-dharmāḥ. Na cakṣur-dhātur yāvan na manovijñāna-dhātuḥ.</div>
+      <div class="ftv-tr" data-en="No eye, ear, nose, tongue, body, mind; no form, sound, smell, taste, touch, mental object; no eye-element, and so on, up to no mind-consciousness-element." data-th="ไม่มีตา หู จมูก ลิ้น กาย ใจ ไม่มีรูป เสียง กลิ่น รส สัมผัส ธรรมารมณ์ ไม่มีธาตุแห่งการเห็น ไปจนถึงไม่มีธาตุแห่งมโนวิญญาณ">ไม่มีตา หู จมูก ลิ้น กาย ใจ ไม่มีรูป เสียง กลิ่น รส สัมผัส ธรรมารมณ์ ไม่มีธาตุแห่งการเห็น ไปจนถึงไม่มีธาตุแห่งมโนวิญญาณ</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="No ignorance, no old-age-and-death" data-th="ไม่มีอวิชชา ไม่มีชรามรณะ">ไม่มีอวิชชา ไม่มีชรามรณะ</div>
+      <div class="ftv-pali">Na avidyā, na avidyā-kṣayo yāvan na jarā-maraṇam, na jarā-maraṇa-kṣayaḥ.</div>
+      <div class="ftv-tr" data-en="No ignorance and no ending of ignorance, and so on, up to no old age and death and no ending of old age and death." data-th="ไม่มีอวิชชา และไม่มีความดับแห่งอวิชชา ไปจนถึงไม่มีความแก่และความตาย และไม่มีความดับแห่งความแก่และความตาย">ไม่มีอวิชชา และไม่มีความดับแห่งอวิชชา ไปจนถึงไม่มีความแก่และความตาย และไม่มีความดับแห่งความแก่และความตาย</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="No Four Truths, no attainment" data-th="ไม่มีอริยสัจ ไม่มีการบรรลุ">ไม่มีอริยสัจ ไม่มีการบรรลุ</div>
+      <div class="ftv-pali">Na duḥkha-samudaya-nirodha-mārgā. Na jñānam, na prāptir na aprāptiḥ.</div>
+      <div class="ftv-tr" data-en="No suffering, no origin, no cessation, no path; no knowledge, and no attainment (and no non-attainment)." data-th="ไม่มีทุกข์ สมุทัย นิโรธ มรรค ไม่มีปัญญา และไม่มีการบรรลุ (และไม่มีการไม่บรรลุ)">ไม่มีทุกข์ สมุทัย นิโรธ มรรค ไม่มีปัญญา และไม่มีการบรรลุ (และไม่มีการไม่บรรลุ)</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="The bodhisattva, unhindered, without fear" data-th="พระโพธิสัตว์ ไร้สิ่งกีดขวาง ไร้ความกลัว">พระโพธิสัตว์ ไร้สิ่งกีดขวาง ไร้ความกลัว</div>
+      <div class="ftv-pali">Tasmāc Śāriputra, aprāptitvād bodhisattvasya prajñāpāramitām āśritya viharaty acittāvaraṇaḥ. Cittāvaraṇa-nāstitvād atrasto viparyāsa-atikrānto niṣṭhā-nirvāṇa-prāptaḥ.</div>
+      <div class="ftv-tr" data-en="Therefore, because there is nothing to attain, the Bodhisattva, relying on the Perfection of Wisdom, dwells with mind unhindered. With no hindrance there is no fear; having passed beyond delusion, he reaches final Nirvāṇa." data-th="เพราะไม่มีสิ่งใดจะบรรลุ พระโพธิสัตว์ผู้วางใจในโลกุตรปัญญา จึงมีจิตเป็นอิสระจากสิ่งกีดขวาง เมื่อไร้สิ่งกีดขวางจึงไม่มีความกลัว ก้าวล่วงพ้นจากมายา ลุถึงพระนิพพานในที่สุด">เพราะไม่มีสิ่งใดจะบรรลุ พระโพธิสัตว์ผู้วางใจในโลกุตรปัญญา จึงมีจิตเป็นอิสระจากสิ่งกีดขวาง เมื่อไร้สิ่งกีดขวางจึงไม่มีความกลัว ก้าวล่วงพ้นจากมายา ลุถึงพระนิพพานในที่สุด</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="All Buddhas rely on it" data-th="พระพุทธเจ้าทั้งปวงอาศัยปัญญานี้">พระพุทธเจ้าทั้งปวงอาศัยปัญญานี้</div>
+      <div class="ftv-pali">Tryadhva-vyavasthitāḥ sarva-Buddhāḥ prajñāpāramitām āśritya anuttarāṃ samyaksambodhim abhisambuddhāḥ.</div>
+      <div class="ftv-tr" data-en="All Buddhas of the three times, relying on the Perfection of Wisdom, awaken to unsurpassed, perfect, complete enlightenment." data-th="พระพุทธเจ้าในอดีต ปัจจุบัน และอนาคต ผู้ทรงวางใจในโลกุตรปัญญา ล้วนตรัสรู้พระอนุตตรสัมมาสัมโพธิญาณ">พระพุทธเจ้าในอดีต ปัจจุบัน และอนาคต ผู้ทรงวางใจในโลกุตรปัญญา ล้วนตรัสรู้พระอนุตตรสัมมาสัมโพธิญาณ</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="Therefore, the great mantra" data-th="ฉะนั้น จึงเป็นมหามนตร์">ฉะนั้น จึงเป็นมหามนตร์</div>
+      <div class="ftv-pali">Tasmāj jñātavyam: prajñāpāramitā mahā-mantro, mahā-vidyā-mantro, 'nuttara-mantraḥ, samasama-mantraḥ, sarva-duḥkha-praśamanaḥ, satyam amithyatvāt.</div>
+      <div class="ftv-tr" data-en="Therefore know: the Perfection of Wisdom is the great mantra, the mantra of great knowledge, the unsurpassed mantra, the unequalled mantra, the reliever of all suffering — true, because it is not false." data-th="จงรู้เถิดว่า โลกุตรปัญญาเป็นมหามนตร์ เป็นมนตร์แห่งความรู้อันยิ่งใหญ่ เป็นมนตร์ที่ไม่มีมนตร์อื่นยิ่งกว่า เป็นมนตร์ที่ไม่มีสิ่งใดเทียบ ดับทุกข์ทั้งปวง เป็นสัจจะ เพราะปราศจากความเท็จ">จงรู้เถิดว่า โลกุตรปัญญาเป็นมหามนตร์ เป็นมนตร์แห่งความรู้อันยิ่งใหญ่ เป็นมนตร์ที่ไม่มีมนตร์อื่นยิ่งกว่า เป็นมนตร์ที่ไม่มีสิ่งใดเทียบ ดับทุกข์ทั้งปวง เป็นสัจจะ เพราะปราศจากความเท็จ</div>
+    </div>
+
+    <div class="ftv">
+      <div class="ftv-num" data-en="The mantra" data-th="คาถามนตร์">คาถามนตร์</div>
+      <div class="ftv-pali">gate gate pāragate pārasaṃgate bodhi svāhā &nbsp;·&nbsp; คะเต คะเต ปาระคะเต ปาระสังคะเต โพธิ สวาหา</div>
+      <div class="ftv-tr" data-en="Gone, gone, gone beyond, gone completely beyond — awakening, hail!" data-th="ไป ไป ไปสู่ฝั่งโน้น ไปให้พ้นอย่างสิ้นเชิง สู่การรู้แจ้ง สาธุ">ไป ไป ไปสู่ฝั่งโน้น ไปให้พ้นอย่างสิ้นเชิง สู่การรู้แจ้ง สาธุ</div>
+    </div>
+  </div>
 </div>
 
 <div class="article-cta">

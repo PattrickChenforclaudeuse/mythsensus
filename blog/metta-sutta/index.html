@@ -40,6 +40,18 @@ footer{text-align:center;padding:2.4rem;font-family:'Josefin Sans',sans-serif;fo
 .lang-pill{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;border:1px solid rgba(200,164,90,.45);border-radius:24px;overflow:hidden;background:#0d0d14;box-shadow:0 4px 24px rgba(0,0,0,.6)}
 .lang-btn{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;padding:.48rem 1.1rem;cursor:pointer;border:none;background:transparent;color:rgba(200,164,90,.45);transition:all .18s}
 .lang-btn.active{background:var(--gold);color:#040407}.lang-btn:hover:not(.active){color:var(--gold)}
+.fulltext{margin:3rem 0 1rem;border-top:1px solid var(--border);padding-top:1.6rem}
+.ft-title{font-family:'Cinzel Decorative',serif;font-size:1.3rem;color:var(--gold);margin:.4rem 0 .4rem;font-weight:400;line-height:1.3}
+html[lang="th"] .ft-title{font-family:'Prompt',sans-serif;font-weight:500}
+.ft-note{font-size:.9rem;color:var(--muted);font-style:italic;margin-bottom:1.4rem}
+html[lang="th"] .ft-note{font-family:'Prompt',sans-serif}
+.ftv{border-left:2px solid rgba(200,164,90,.3);padding:.2rem 0 .9rem 1.2rem;margin-bottom:1.1rem}
+.ftv-num{font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);opacity:.78;margin-bottom:.5rem}
+html[lang="th"] .ftv-num{font-family:'Prompt',sans-serif;letter-spacing:.03em;font-size:.76rem}
+.ftv-pali{color:var(--gold);font-style:italic;line-height:1.75;margin-bottom:.5rem;font-size:1.02rem;opacity:.92}
+html[lang="th"] .ftv-pali{font-family:'Prompt',sans-serif}
+.ftv-tr{opacity:.86;font-size:.98rem;line-height:1.75}
+html[lang="th"] .ftv-tr{font-family:'Prompt',sans-serif}
 </style>
   <meta name="ms-meta-v1" content="1">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -135,6 +147,51 @@ footer{text-align:center;padding:2.4rem;font-family:'Josefin Sans',sans-serif;fo
 
   <h2 data-en="Interface type: radiation" data-th="ประเภท interface: การแผ่ออก">ประเภท interface: การแผ่ออก</h2>
   <p data-en="In this library we sort prayers by what they do. Some ask (petition), some dissolve the asker, some declare a truth. The Metta Sutta is a different shape again — call it radiation. It does not reach up to a listener, and it does not state a case. It instructs the reciter to generate a state within — boundless goodwill — and project it outward in every direction, without obstruction, without exception, until it saturates the whole field of awareness. It does not ask to receive protection. It produces the very thing it is popularly believed to summon. (There is a live scholarly debate about the mother simile, too — whether it stresses a mother's vigilant protection or the sheer limitlessness of the feeling to be grown; the Pali gives the child and the mind different verbs. Honest texture, not a settled gloss.)" data-th="ในคลังนี้เราจัดบทสวดตามสิ่งที่มันทำ บางบทขอ (คำร้อง) บางบทสลายผู้ขอ บางบทประกาศความจริง เมตตสูตรเป็นอีกรูปทรงหนึ่ง — เรียกว่าการแผ่ออก มันไม่เอื้อมขึ้นไปหาผู้ฟัง และไม่กล่าวคดี แต่สอนให้ผู้สวดสร้างสภาวะภายใน — เมตตาอันไม่มีประมาณ — แล้วฉายมันออกไปทุกทิศ ไม่มีสิ่งกีดขวาง ไม่มีข้อยกเว้น จนอิ่มเต็มขอบเขตการรับรู้ทั้งหมด มันไม่ขอรับการคุ้มครอง แต่ผลิตสิ่งที่คนเชื่อว่ามันเรียกมานั่นเอง (มีข้อถกเถียงทางวิชาการเรื่องอุปมามารดาด้วย — ว่ามันเน้นการปกป้องอย่างระวังของมารดา หรือเน้นความไม่มีประมาณของความรู้สึกที่พึงเจริญ เพราะบาลีใช้คำกริยาต่างกันสำหรับ 'บุตร' กับ 'จิต' เป็นเนื้อจริงที่ยังไม่ยุติ ไม่ใช่คำอธิบายตายตัว)">ในคลังนี้เราจัดบทสวดตามสิ่งที่มันทำ บางบทขอ (คำร้อง) บางบทสลายผู้ขอ บางบทประกาศความจริง เมตตสูตรเป็นอีกรูปทรงหนึ่ง — เรียกว่าการแผ่ออก มันไม่เอื้อมขึ้นไปหาผู้ฟัง และไม่กล่าวคดี แต่สอนให้ผู้สวดสร้างสภาวะภายใน — เมตตาอันไม่มีประมาณ — แล้วฉายมันออกไปทุกทิศ ไม่มีสิ่งกีดขวาง ไม่มีข้อยกเว้น จนอิ่มเต็มขอบเขตการรับรู้ทั้งหมด มันไม่ขอรับการคุ้มครอง แต่ผลิตสิ่งที่คนเชื่อว่ามันเรียกมานั่นเอง (มีข้อถกเถียงทางวิชาการเรื่องอุปมามารดาด้วย — ว่ามันเน้นการปกป้องอย่างระวังของมารดา หรือเน้นความไม่มีประมาณของความรู้สึกที่พึงเจริญ เพราะบาลีใช้คำกริยาต่างกันสำหรับ 'บุตร' กับ 'จิต' เป็นเนื้อจริงที่ยังไม่ยุติ ไม่ใช่คำอธิบายตายตัว)</p>
+
+  <div class="fulltext">
+    <h2 class="ft-title" data-en="The Full Chant — Pali with Translation, Verse by Verse" data-th="บทเต็ม — บาลี พร้อมคำแปลทีละบท">บทเต็ม — บาลี พร้อมคำแปลทีละบท</h2>
+    <p class="ft-note" data-en="All 10 verses of the Karaniya Metta Sutta, Pali with translation. Standard chanting-book text (English: Amaravati Sangha; Thai: Suan Mokkh chanting book)." data-th="กรณียเมตตสูตรครบทั้ง 10 บท บาลีพร้อมคำแปล อ้างอิงฉบับสวดมนต์มาตรฐาน (อังกฤษ: Amaravati Sangha; ไทย: หนังสือสวดมนต์แปลสวนโมกข์)">กรณียเมตตสูตรครบทั้ง 10 บท บาลีพร้อมคำแปล อ้างอิงฉบับสวดมนต์มาตรฐาน (อังกฤษ: Amaravati Sangha; ไทย: หนังสือสวดมนต์แปลสวนโมกข์)</p>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verse 1" data-th="บทที่ 1">บทที่ 1</div>
+      <div class="ftv-pali">กะระณียะมัตถะกุสะเลนะ ยันตัง สันตัง ปะทัง อะภิสะเมจจะ สักโก อุชู จะ สุหุชู จะ สุวะโจ จัสสะ มุทุ อะนะติมานี</div>
+      <div class="ftv-tr" data-en="This is what should be done by one who is skilled in goodness, and who knows the path of peace: let them be able and upright, straightforward and gentle in speech, humble and not conceited." data-th="บุคคลผู้ฉลาดในสิ่งที่มีประโยชน์ มุ่งหวังจะบรรลุทางสงบ (พระนิพพาน) พึงบำเพ็ญศีล สมาธิ ปัญญา เป็นคนกล้า ซื่อ ตรง ว่าง่าย อ่อนโยน ไม่เย่อหยิ่ง">บุคคลผู้ฉลาดในสิ่งที่มีประโยชน์ มุ่งหวังจะบรรลุทางสงบ (พระนิพพาน) พึงบำเพ็ญศีล สมาธิ ปัญญา เป็นคนกล้า ซื่อ ตรง ว่าง่าย อ่อนโยน ไม่เย่อหยิ่ง</div></div>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verse 2" data-th="บทที่ 2">บทที่ 2</div>
+      <div class="ftv-pali">สันตุสสะโก จะ สุภะโร จะ อัปปะกิจโจ จะ สัลละหุกะวุตติ สันตินทริโย จะ นิปะโก จะ อัปปะคัพโภ กุเลสุ อะนะนุคิทโธ</div>
+      <div class="ftv-tr" data-en="Contented and easily satisfied, unburdened with duties and frugal in their ways; peaceful, calm, wise and skillful, not proud or demanding in nature." data-th="เป็นผู้สันโดษ เลี้ยงง่าย มีภารกิจน้อย คล่องตัว ระมัดระวังการแสดงออก รู้ตัว ไม่คะนอง ไม่คลุกคลีในตระกูลทั้งหลาย">เป็นผู้สันโดษ เลี้ยงง่าย มีภารกิจน้อย คล่องตัว ระมัดระวังการแสดงออก รู้ตัว ไม่คะนอง ไม่คลุกคลีในตระกูลทั้งหลาย</div></div>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verse 3" data-th="บทที่ 3">บทที่ 3</div>
+      <div class="ftv-pali">นะ จะ ขุททัง สะมาจะเร กิญจิ เยนะ วิญญู ปะเร อุปะวะเทยยุง สุขิโน วา เขมิโน โหนตุ สัพเพ สัตตา ภะวันตุ สุขิตัตตา</div>
+      <div class="ftv-tr" data-en="Let them not do the slightest thing that the wise would later reprove. Wishing: in gladness and in safety, may all beings be at ease." data-th="ไม่พึงประพฤติสิ่งที่วิญญูชนตำหนิติเตียน ขอหมู่สัตว์ทั้งปวงจงมีความสุขกายสบายใจ มีความเกษมสำราญเถิด">ไม่พึงประพฤติสิ่งที่วิญญูชนตำหนิติเตียน ขอหมู่สัตว์ทั้งปวงจงมีความสุขกายสบายใจ มีความเกษมสำราญเถิด</div></div>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verse 4" data-th="บทที่ 4">บทที่ 4</div>
+      <div class="ftv-pali">เย เกจิ ปาณะภูตัตถิ ตะสา วา ถาวะรา วา อะนะวะเสสา ทีฆา วา เย มะหันตา วา มัชฌิมา รัสสะกา อะณุกะถูลา</div>
+      <div class="ftv-tr" data-en="Whatever living beings there may be, whether weak or strong, omitting none; the great or the mighty, medium, short or small," data-th="ขอสัตว์ทั้งหลายบรรดามี จะเป็นสัตว์ตัวอ่อนหรือตัวแข็งก็ตาม ตัวยาวหรือตัวใหญ่ก็ตาม ปานกลางหรือสั้นก็ตาม เล็กหรือโตก็ตาม">ขอสัตว์ทั้งหลายบรรดามี จะเป็นสัตว์ตัวอ่อนหรือตัวแข็งก็ตาม ตัวยาวหรือตัวใหญ่ก็ตาม ปานกลางหรือสั้นก็ตาม เล็กหรือโตก็ตาม</div></div>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verse 5" data-th="บทที่ 5">บทที่ 5</div>
+      <div class="ftv-pali">ทิฏฐา วา เย จะ อะทิฏฐา เย จะ ทูเร วะสันติ อะวิทูเร ภูตา วา สัมภะเวสี วา สัพเพ สัตตา ภะวันตุ สุขิตัตตา</div>
+      <div class="ftv-tr" data-en="the seen and the unseen, those living near and far away, those born and to-be-born — may all beings be at ease!" data-th="เป็นสัตว์ที่มองเห็นได้หรือมองไม่เห็นก็ตาม อยู่ไกลหรืออยู่ใกล้ก็ตาม เกิดแล้วหรือกำลังหาที่เกิดก็ตาม ขอหมู่สัตว์ทั้งปวงนั้นจงสุขกายสบายใจเถิด">เป็นสัตว์ที่มองเห็นได้หรือมองไม่เห็นก็ตาม อยู่ไกลหรืออยู่ใกล้ก็ตาม เกิดแล้วหรือกำลังหาที่เกิดก็ตาม ขอหมู่สัตว์ทั้งปวงนั้นจงสุขกายสบายใจเถิด</div></div>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verse 6" data-th="บทที่ 6">บทที่ 6</div>
+      <div class="ftv-pali">นะ ปะโร ปะรัง นิกุพเพถะ นาติมัญเญถะ กัตถะจิ นัง กิญจิ พยาโรสะนา ปะฏีฆะสัญญา นาญญะมัญญัสสะ ทุกขะมิจเฉยยะ</div>
+      <div class="ftv-tr" data-en="Let none deceive another, or despise any being in any state. Let none through anger or ill-will wish harm upon another." data-th="บุคคลไม่พึงหลอกลวงผู้อื่น ไม่ควรดูหมิ่นเหยียดหยามใครๆ ถึงจะมีความขุ่นเคืองโกรธแค้นกัน ก็ไม่ควรมุ่งร้ายต่อกัน">บุคคลไม่พึงหลอกลวงผู้อื่น ไม่ควรดูหมิ่นเหยียดหยามใครๆ ถึงจะมีความขุ่นเคืองโกรธแค้นกัน ก็ไม่ควรมุ่งร้ายต่อกัน</div></div>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verse 7 · the mother simile" data-th="บทที่ 7 · อุปมามารดา">บทที่ 7 · อุปมามารดา</div>
+      <div class="ftv-pali">มาตา ยะถา นิยัง ปุตตัง อายุสา เอกะปุตตะมะนุรักเข เอวัมปิ สัพพะภูเตสุ มานะสัมภาวะเย อะปะริมาณัง</div>
+      <div class="ftv-tr" data-en="Even as a mother protects with her life her child, her only child, so with a boundless heart should one cherish all living beings." data-th="พึงแผ่เมตตาจิตไม่มีประมาณในหมู่สัตว์ทั้งปวง ดุจมารดาถนอมและปกป้องบุตรสุดที่รักคนเดียวด้วยชีวิต ฉะนั้นแล">พึงแผ่เมตตาจิตไม่มีประมาณในหมู่สัตว์ทั้งปวง ดุจมารดาถนอมและปกป้องบุตรสุดที่รักคนเดียวด้วยชีวิต ฉะนั้นแล</div></div>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verse 8" data-th="บทที่ 8">บทที่ 8</div>
+      <div class="ftv-pali">เมตตัญจะ สัพพะโลกัสมิง มานะสัมภาวะเย อะปะริมาณัง อุทธัง อะโธ จะ ติริยัญจะ อะสัมพาธัง อะเวรัง อะสะปัตตัง</div>
+      <div class="ftv-tr" data-en="Radiating kindness over the entire world: spreading upwards to the skies, and downwards to the depths, outwards and unbounded, freed from hatred and ill-will." data-th="พึงแผ่เมตตาจิตไม่มีประมาณ ไม่มีขอบเขต ไม่คิดผูกเวร ไม่เป็นศัตรู ในหมู่สัตว์โลกทั้งปวง ทั่วทุกทิศ ทั้งเบื้องบน เบื้องล่าง และเบื้องขวาง">พึงแผ่เมตตาจิตไม่มีประมาณ ไม่มีขอบเขต ไม่คิดผูกเวร ไม่เป็นศัตรู ในหมู่สัตว์โลกทั้งปวง ทั่วทุกทิศ ทั้งเบื้องบน เบื้องล่าง และเบื้องขวาง</div></div>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verse 9" data-th="บทที่ 9">บทที่ 9</div>
+      <div class="ftv-pali">ติฏฐัญจะรัง นิสินโน วา สะยาโน วา ยาวะตัสสะ วิคะตะมิทโธ เอตัง สะติง อะธิฏเฐยยะ พรัหมะเมตัง วิหารัง อิธะมาหุ</div>
+      <div class="ftv-tr" data-en="Whether standing or walking, seated or lying down, free from drowsiness, one should sustain this recollection. This is said to be the sublime abiding." data-th="ผู้เจริญเมตตาจิตนั้น ยืน เดิน นั่ง หรือนอน ตลอดเวลาที่ยังตื่นอยู่ พึงตั้งสติอันประกอบด้วยเมตตานี้ให้มั่นคง บัณฑิตกล่าวว่าการอยู่ด้วยเมตตานี้เป็นพรหมวิหารในธรรมวินัยนี้">ผู้เจริญเมตตาจิตนั้น ยืน เดิน นั่ง หรือนอน ตลอดเวลาที่ยังตื่นอยู่ พึงตั้งสติอันประกอบด้วยเมตตานี้ให้มั่นคง บัณฑิตกล่าวว่าการอยู่ด้วยเมตตานี้เป็นพรหมวิหารในธรรมวินัยนี้</div></div>
+
+    <div class="ftv"><div class="ftv-num" data-en="Verse 10" data-th="บทที่ 10">บทที่ 10</div>
+      <div class="ftv-pali">ทิฏฐิญจะ อะนุปะคัมมะ สีละวา ทัสสะเนนะ สัมปันโน กาเมสุ วิเนยยะ เคธัง นะ หิ ชาตุ คัพภะเสยยัง ปุนะเรตีติ</div>
+      <div class="ftv-tr" data-en="By not holding to fixed views, the pure-hearted one, having clarity of vision, being freed from all sense desires, is not born again into this world." data-th="บุคคลผู้เจริญเมตตาจิต ละความเห็นผิดได้แล้ว มีศีล ได้บรรลุโสดาปัตติมรรค กำจัดความกำหนัดในกามได้สิ้นเชิง ย่อมไม่กลับมาเกิดอีกเป็นแน่แท้แล">บุคคลผู้เจริญเมตตาจิต ละความเห็นผิดได้แล้ว มีศีล ได้บรรลุโสดาปัตติมรรค กำจัดความกำหนัดในกามได้สิ้นเชิง ย่อมไม่กลับมาเกิดอีกเป็นแน่แท้แล</div></div>
+  </div>
 </div>
 
 <div class="article-cta">
