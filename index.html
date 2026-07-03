@@ -9069,10 +9069,10 @@ function renderResonance(){
         ${isTh
           ? `ดวงของคุณ <strong>ไม่เปลี่ยน</strong> ตลอดชีวิต — แต่ <strong>สิ่งแวดล้อมที่คุณเลือก</strong> (ประเทศ · อาชีพ · อุตสาหกรรม) สามารถทำให้ดวงเดียวกันเปล่งแสงได้มาก-น้อยต่างกัน · หน้านี้วัดว่าคุณกำลังใช้ดวงใน "ภูมิประเทศที่เข้ากัน" หรือไม่ และแปลงเป็น 2 คะแนน:<br>
             <strong style="color:#c8a040">Life Terrain</strong> (ประเทศ × ธาตุ) + <strong style="color:#40c0a0">Path Resonance</strong> (สายงาน × ธาตุ)<br>
-            2 คะแนนนี้รวมกับ <strong>Soul Frequency</strong> (คะแนนจากวันเกิด) → <strong style="color:var(--gold)">Cosmic Final Score</strong> ที่แสดงในรายงาน`
+            2 คะแนนนี้เป็น <strong style="color:var(--gold)">เลนส์บริบท</strong> อ่านคู่กับ Cosmic Score ของคุณ — ไม่ได้นำไปรวมเป็นคะแนนเดียว (Cosmic Score มาจากวันเกิดล้วน)`
           : `Your chart <strong>doesn't change</strong> over your lifetime — but <strong>the environment you choose</strong> (country · domain · industry) can either let the same chart shine or dim it. This page measures whether you're running your chart in "aligned terrain" and converts it to two numbers:<br>
             <strong style="color:#c8a040">Life Terrain</strong> (country × element) + <strong style="color:#40c0a0">Path Resonance</strong> (career × element)<br>
-            Together with your <strong>Soul Frequency</strong> (birth-only score) → this becomes the <strong style="color:var(--gold)">Cosmic Final Score</strong> in the report`}
+            These two are <strong style="color:var(--gold)">context lenses</strong> read alongside your Cosmic Score — they are not summed into it (your Cosmic Score comes from your birth date alone)`}
       </div>
     </div>
 
@@ -16190,7 +16190,7 @@ function showEntryOverlay(){
 
 // Reveal the birth-data form from the hero CTA (new-visitor first impression).
 function entryShowForm(){
-  try { if (window._msTrack) _msTrack.track('entry_choice', { door:'form' }); } catch(_){}
+  try { if (window._msTrack) _msTrack.track('entry_choice', { meta:{ door:'form' } }); } catch(_){}
   try { const h = document.getElementById('entryHeroStep'); if (h) h.style.display = 'none'; } catch(_){}
   try { const f = document.getElementById('entryFormStep'); if (f) f.style.display = ''; } catch(_){}
   try { const n = document.getElementById('entryName'); if (n) setTimeout(()=>{ try{ n.focus(); }catch(_){} }, 60); } catch(_){}
@@ -16654,7 +16654,7 @@ function entrySkip(){
 // 26-system reading is the secondary path (entryShowForm). Returning users who
 // already drew today are a safe no-op (drawBlessing guards on _maxDraws()).
 function entryDrawFirst(){
-  try { if (window._msTrack) _msTrack.track('entry_choice', { door:'draw' }); } catch(_){}
+  try { if (window._msTrack) _msTrack.track('entry_choice', { meta:{ door:'draw' } }); } catch(_){}
   // Land on the blessing draw (free group's default sub is the chart preview, so
   // preset last-group/sub before boot) — then auto-reveal today's god.
   try { localStorage.setItem('ms_last_group','free'); localStorage.setItem('ms_last_sub_free','blessing'); } catch(_){}
