@@ -376,7 +376,10 @@
 // daily draw (entryDrawFirst), 26-system reading demoted to secondary; post-draw
 // upsell card funnels draw → full reading; entry form's time/gender/city collapsed
 // by default. Attacks 11.5s median / 1% birthday-fill / 0 shares.
-const CACHE = 'mythsensus-v179';
+// v180: 2026-07-03 — collection tier stability: renderCollection now guards on
+// GODS_LOADED (re-renders when gods.json lands) so cards no longer flash the
+// random per-draw rarity before snapping to the canonical tier.
+const CACHE = 'mythsensus-v180';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',

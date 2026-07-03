@@ -8998,11 +8998,9 @@ function renderResonance(){
   const soulFreq     = sc.soulFrequency || sc.total || 700;
   const ltScore      = sc.lifeTerrainScore   || 0;
   const prScore      = sc.pathResonanceScore || 0;
-  const cosmicFinal  = sc.cosmicFinal        || soulFreq;
   const ltDetail     = sc.lifeTerrainDetail   || '';
   const prDetail     = sc.pathResonanceDetail || '';
   const hasContext   = !!(country || career || industry);
-  const delta        = Math.round(cosmicFinal - soulFreq);
 
   // Element-language pairs for country reasoning
   const EL_COUNTRIES = {
@@ -9158,7 +9156,7 @@ function renderResonance(){
         `).join('')}
       </div>
 
-      ${!hasContext ? `<div style="margin-top:14px;padding:8px 12px;background:rgba(212,175,55,0.06);border-left:3px solid var(--gold3);border-radius:0 6px 6px 0;font-size:12px;color:var(--muted);line-height:1.55">💡 ${isTh?'ถ้ายังไม่เลือก Life Terrain + Path Resonance จะเป็น 0 และ Cosmic Score จะใช้เฉพาะ Soul Frequency — เลือกเพื่อปลดล็อกคะแนนเพิ่ม':'If nothing is picked, Life Terrain + Path Resonance = 0 and Cosmic Score uses Soul Frequency only — pick to unlock the extra scoring layers'}</div>` : ''}
+      ${!hasContext ? `<div style="margin-top:14px;padding:8px 12px;background:rgba(212,175,55,0.06);border-left:3px solid var(--gold3);border-radius:0 6px 6px 0;font-size:12px;color:var(--muted);line-height:1.55">💡 ${isTh?'เลือกประเทศ + สายงานเพื่อดู Life Terrain และ Path Resonance — เลนส์บริบทที่บอกว่าธาตุของคุณเข้ากับที่ที่อยู่/งานที่ทำแค่ไหน (ไม่กระทบคะแนน Cosmic Score ซึ่งมาจากวันเกิดล้วน)':'Pick a country + career to see Life Terrain and Path Resonance — context lenses for how your element fits where you live and what you do (they don\'t change your Cosmic Score, which comes from your birth date alone)'}</div>` : ''}
     </div>
 
     <!-- Live scores (engine-computed) — only shown once user has filled
@@ -9166,8 +9164,8 @@ function renderResonance(){
          empty state encourages them to provide context. -->
     ${hasContext ? `
     <div class="deep-sys-card" style="margin-top:14px;border-color:var(--gold3)">
-      <div class="deep-sys-title">${isTh?'คะแนนปัจจุบัน (อัพเดททันทีตามที่กรอก)':'Live scores (updates as you edit)'}</div>
-      <div class="deep-sys-origin">${isTh?'คำนวณจาก engine เดียวกับรายงาน Cosmic Blueprint':'computed by the same engine as your Cosmic Blueprint'}</div>
+      <div class="deep-sys-title">${isTh?'เลนส์บริบท (อัพเดททันทีตามที่กรอก)':'Context lenses (update as you edit)'}</div>
+      <div class="deep-sys-origin">${isTh?'บริบทเสริม — บอกว่าธาตุของคุณเข้ากับที่ที่อยู่/งานที่ทำแค่ไหน ไม่ใช่ส่วนหนึ่งของคะแนน Cosmic Score':'context only — how your element fits where you live and work; not part of your Cosmic Score'}</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:12px">
         <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
           <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Soul Frequency</div>
@@ -9183,11 +9181,6 @@ function renderResonance(){
           <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:1.5px;color:#40c0a0;text-transform:uppercase;margin-bottom:4px">Path Resonance</div>
           <div style="font-family:'Cinzel Decorative',serif;font-size:24px;color:${prScore?scColor(prScore):'#206050'};font-weight:700">${prScore||'—'}</div>
           <div style="font-size:9.5px;color:#408080;margin-top:2px">${isTh?'สายงาน × ธาตุ':'career × element'}</div>
-        </div>
-        <div style="background:var(--bg2);border:2px solid var(--gold);border-radius:8px;padding:12px;text-align:center">
-          <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:4px">Cosmic Final</div>
-          <div style="font-family:'Cinzel Decorative',serif;font-size:26px;color:var(--gold);font-weight:700">${cosmicFinal}</div>
-          <div style="font-size:9.5px;color:${delta>0?'#60c060':delta<0?'#c06060':'var(--muted)'};margin-top:2px">${delta>0?'+':''}${delta} ${isTh?'vs Soul Freq':'vs Soul Freq'}</div>
         </div>
       </div>
       ${ltDetail || prDetail ? `
@@ -10311,6 +10304,16 @@ function renderFreqHistory(){
 // ── God Collection grid (from history) ─────────────────────
 function renderCollection(){
   const grid = document.getElementById('collectionGrid');
+  // Each collected god is filed under its CANONICAL tier from GODS (gods.json,
+  // fetched async). Until that lands, _canonByName is empty and every card
+  // falls back to h.tierName — the RANDOM per-draw rarity — so tiers appear to
+  // "change by themselves" once the dataset arrives and we re-render with the
+  // real tier. Guard: if GODS isn't loaded, kick the fetch and re-render this
+  // panel when it resolves, so the first paint isn't built on the random
+  // fallback. (mirrors the renderFreqHistory guard above; fix 2026-07-03)
+  if (!GODS_LOADED && typeof loadGods === 'function') {
+    loadGods().then(() => { try { if (typeof renderCollection === 'function') renderCollection(); } catch(_){} });
+  }
   const hist = getFullHistory ? getFullHistory() : [];
   const isTh = LANG === 'th';
 
