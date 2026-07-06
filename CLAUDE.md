@@ -16,7 +16,7 @@ Quick orientation for Claude/agent sessions that enter this folder directly.
   - `api/public-env.js`                — emits `window.__MYTH_ENV__` for the browser
 - **Database:** Supabase project **`woamqrhifuxsscnihqco`** (woam). Personal/Mythsensus project — DO NOT confuse with Yoohui's `jahxcwqwajrzjeiaaozo` (jah). Mythsensus reads/writes via Data API + `SUPABASE_SERVICE_ROLE_KEY`. Tables in use: `public.myth_purchases` (per-item Gumroad ledger, RLS-on, service-role only), plus pre-existing `public.users` (with `plan` column as a best-effort mirror of `auth.users.app_metadata.plan`). The `myth_profiles` / `myth_subscriptions` / `myth_orders` triad from `migrations/001_auth_payment_schema.sql` was **never applied** (architecture moved on) — that migration file is DEPRECATED, kept only as historical reference.
 
-  **Project ownership note:** woam is a separate Supabase organization from Yoohui's "Yoohui AI Ecosystem" org. The workspace-level `SB_MGMT_TOKEN` (in `D:/Claude works here/.env`) does NOT have Management API access to woam. Two ways to make schema changes: (a) Supabase dashboard SQL editor at https://supabase.com/dashboard/project/woamqrhifuxsscnihqco/sql/new (manual paste), or (b) the Claude-in-Chrome extension driving Pattrick's already-logged-in browser session (the path used to apply `002_purchases.sql` on 2026-06-02 — see `_session_notes/`). Either way, NOT `mcp__supabase__apply_migration`.
+  **Project ownership note:** woam is a separate Supabase organization from Yoohui's "Yoohui AI Ecosystem" org. The workspace-level `SB_MGMT_TOKEN` (in `D:/Claude works here/.env`) does NOT have Management API access to woam. Three ways to make schema changes: (a) Supabase dashboard SQL editor at https://supabase.com/dashboard/project/woamqrhifuxsscnihqco/sql/new (manual paste), (b) the Claude-in-Chrome extension driving Pattrick's already-logged-in browser session (the path used to apply `002_purchases.sql` on 2026-06-02 — see `_session_notes/`), or **(c) the Mythsensus *Vercel* env var `SUPABASE_MGMT_TOKEN`** — woam-capable, distinct from the workspace `SB_MGMT_TOKEN`: `cd Mythsensus && vercel env pull`, then `POST https://api.supabase.com/v1/projects/woamqrhifuxsscnihqco/database/query` with `Authorization: Bearer $SUPABASE_MGMT_TOKEN` for raw SQL/DDL. (Path (c) used 2026-06-17 to enable RLS + DROP 12 stray **Yoohui** tables — `boq_lines`(7398)/`project_meta`/`manpower_log`/... — accidentally imported onto woam during the Apr-2026 woam↔jah confusion and left anon-exposed; backups in Yoohui `_backups/2026-06-17-supabase-rls-leak-fix/woam/`.) None of these use `mcp__supabase__apply_migration` (that MCP is jah-scoped).
 
 ## Auth + Payment migration history (2026-05-26)
 
@@ -66,7 +66,7 @@ alter table public.<table> enable row level security;
 ### Supabase (Auth + DB)
 | Variable | Notes |
 |----------|-------|
-| `SUPABASE_URL` | jahxcwqwajrzjeiaaozo |
+| `SUPABASE_URL` | **`woamqrhifuxsscnihqco` (woam)** — corrected 2026-06-17 (was wrongly listed as `jah`). Mythsensus uses **woam**, never jah. Verified from `vercel env pull` prod env. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-side only — never expose to the browser. Used by LINE callback + Gumroad webhook. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public — emitted by `/api/public-env.js` to the browser |
 
