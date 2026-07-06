@@ -165,7 +165,7 @@ h1{font-family:'Cinzel Decorative',serif;font-size:26px;color:var(--gold);margin
 .dmeta h2{font-family:'Cinzel Decorative',serif;font-size:20px;color:var(--gold);margin:0}
 .sub{font-size:12px;color:var(--muted);margin:2px 0 7px}
 .chip{font-size:9px;background:rgba(200,164,90,.12);color:var(--gold3);padding:2px 8px;border-radius:10px;margin-right:4px;display:inline-block;margin-bottom:3px}
-.lore{font-family:'Cormorant Garamond','Noto Sans Thai',serif;font-size:16px;line-height:1.6;color:#cfc7b5;margin-top:12px}
+.lore{font-family:'Cormorant Garamond','Noto Sans Thai',serif;font-size:16px;line-height:1.6;color:#cfc7b5;margin-top:12px;white-space:pre-line}
 html[lang=th] .lore{font-family:'Noto Sans Thai',sans-serif;font-size:15px}
 .lore.muted{color:var(--muted);font-style:italic}
 .mini{font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
