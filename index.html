@@ -2127,6 +2127,10 @@ try{
       </span>
       <div class="god-name" id="godName"></div>
       <div class="god-origin" id="godOrigin"></div>
+      <!-- Lore hint: the drawn card itself is the link into the God-detail modal
+           (myth + symbols + all blessings). One subtle cue instead of a hyperlink
+           so the card stays uncluttered. Populated + revealed by _wireDrawLore. -->
+      <div id="godLoreCue" style="display:none"></div>
       <div class="god-message" id="godMessage"></div>
       <div id="godLucky" style="display:none;margin:14px auto 2px;max-width:300px;padding:10px 14px;border:1px dashed var(--gold3);border-radius:10px;background:linear-gradient(180deg,rgba(200,164,90,.08),rgba(200,164,90,.02))"></div>
       <div class="god-represents" id="godRepresents"></div>
@@ -4171,7 +4175,7 @@ function _godArtUrl(name, tier){
 // few deities still missing a card fall back to their emoji symbol.
 const _CARD_BASE = 'https://woamqrhifuxsscnihqco.supabase.co/storage/v1/object/public/god-cards/';        // classic anime-artbook (.webp)
 const _CARD_BASE_CYBER = 'https://woamqrhifuxsscnihqco.supabase.co/storage/v1/object/public/god-cards-v2/'; // cyber-robotic (.jpg), all 1069
-const _CARD_MISSING = { Tiamat:1, 'Tiamat Primordial':1 };  // classic set only; the cyber v2 set has every deity
+const _CARD_MISSING = {};  // classic set now complete (Tiamat + Tiamat Primordial added 2026-07-06); cyber v2 has every deity. onerror still falls back to the emoji symbol for any future gap.
 // Islamic sacred figures (Ruh al-Qudus, Israfil, Ridwan, Maalik, Harut and Marut,
 // Khidr, Iblis) — Islam forbids depicting them, so their CDN card art is a
 // respectful NON-FIGURAL 3D cosmic emblem (enforced at the image level on both
@@ -4304,13 +4308,41 @@ function _mountCardFX(wrap, tier, god){
     wrap._stop = ()=>{ (wrap._stops||[]).forEach(f=>{ try{ f(); }catch(_){} }); };
   }catch(_){}
 }
+// The drawn card = the link into the God-detail modal (myth/symbols/blessings).
+// Makes the card tappable + reveals ONE subtle "tap for the myth" cue (no
+// underlined hyperlink → the card stays clean). Detail modal shows art +
+// represents + blessings even for gods whose lore hasn't shipped, so the tap is
+// never a dead end. Re-wires on every draw / theme flip; safe to call repeatedly.
+function _wireDrawLore(clickTarget, god){
+  try{
+    if (!god || !god.name) return;
+    const isTh = (typeof LANG!=='undefined' && LANG==='th');
+    const open = ()=>{ try{ openGodDetail(god.name); }catch(_){} };
+    if (clickTarget){
+      clickTarget.style.cursor = 'pointer';
+      clickTarget.onclick = open;
+      clickTarget.setAttribute('role','button');
+      clickTarget.setAttribute('tabindex','0');
+      clickTarget.setAttribute('aria-label', god.name + ' — ' + (isTh?'อ่านตำนาน':'read the myth'));
+      clickTarget.onkeydown = (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } };
+    }
+    const cue = document.getElementById('godLoreCue');
+    if (cue){
+      cue.textContent = '✦ ' + (isTh ? 'แตะการ์ดเพื่ออ่านตำนาน' : 'tap the card for the myth');
+      cue.style.cssText = 'display:block;margin:8px auto 2px;font-family:\'Josefin Sans\',sans-serif;font-size:11px;letter-spacing:1.5px;color:var(--gold3);cursor:pointer;opacity:.72;transition:opacity .2s';
+      cue.onclick = open;
+      cue.onmouseover = ()=>{ cue.style.opacity='1'; };
+      cue.onmouseout  = ()=>{ cue.style.opacity='.72'; };
+    }
+  }catch(_){}
+}
 function _godArtInto(el, god, sizePx, extraCss){
   if (!el) return;
   const isDraw = (el.id === 'godSymbol');
   const labs = isDraw ? ['tierBadge','godName','godOrigin'].map(i=>document.getElementById(i)) : [];
   const showLabs = on => labs.forEach(x=>{ if(x) x.style.display = on ? '' : 'none'; });
   const url = _cardUrl(god);
-  if (!url) { el.innerHTML=''; el.textContent = god.symbol || '✦'; showLabs(true); return; }
+  if (!url) { el.innerHTML=''; el.textContent = god.symbol || '✦'; showLabs(true); if (isDraw) _wireDrawLore(el, god); return; }
   el.innerHTML=''; el.style.cssText='margin:0 auto';
   const _cyber = (_cardTheme()==='cyber');
   const wrap = document.createElement('div');
@@ -4323,7 +4355,7 @@ function _godArtInto(el, god, sizePx, extraCss){
         : 'border:1px solid rgba(212,170,80,.38);box-shadow:0 0 34px 2px rgba(212,170,80,.14),0 14px 46px rgba(0,0,0,.6)');
   const im = document.createElement('img'); im.src = url; im.alt = god.name; im.decoding = 'async';
   im.style.cssText = 'width:100%;display:block;' + (_cyber ? 'filter:contrast(1.04) saturate(1.03)' : 'filter:brightness(.84) saturate(.72) contrast(1.06) sepia(.16)');
-  im.onerror = ()=>{ el.innerHTML=''; el.textContent = god.symbol || '✦'; showLabs(true); };
+  im.onerror = ()=>{ el.innerHTML=''; el.textContent = god.symbol || '✦'; showLabs(true); if (isDraw) _wireDrawLore(el, god); };
   im.onload = ()=>{ try{ _mountCardFX(wrap, god.tier, god); }catch(_){} };
   const _scrim = document.createElement('div');
   _scrim.style.cssText = 'position:absolute;inset:0;pointer-events:none;border-radius:12px;'
@@ -4338,6 +4370,7 @@ function _godArtInto(el, god, sizePx, extraCss){
   // name/tier/origin still appear. Also reveal + label the theme toggle.
   if (isDraw){
     showLabs(_cyber);
+    _wireDrawLore(wrap, god);
     const tb = document.getElementById('cardThemeToggle');
     if (tb) tb.style.display='inline-flex';
     _syncThemeToggles();
