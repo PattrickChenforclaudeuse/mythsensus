@@ -20,12 +20,36 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const calc = require('./_mcp/engine/calc.cjs');
 const GODS = require('./_mcp/engine/gods.json');
+const GODS_LORE = require('./_mcp/engine/gods-lore.json'); // 1,044 deities · { th, en } encyclopedic lore
 
 export const config = { runtime: 'nodejs', maxDuration: 15 };
 
 const SERVER = { name: 'mythsensus', version: '0.3.0' };
 const FREE_PREVIEW_SYSTEMS = ['bazi', 'vedic', 'western', 'ninestar', 'thai'];
 const UPSELL = 'https://mythsensus.com';
+
+// ── Deity-lore lookup (AEO surface: feed the 1,044-deity encyclopedia to AI clients) ──
+// gods-lore.json = { "<Name>": { th, en } }; gods.json carries mythology + rarity tier.
+const LORE_NAMES = Object.keys(GODS_LORE);
+const LORE_INDEX = new Map(LORE_NAMES.map((n) => [n.toLowerCase(), n])); // ci exact
+const GOD_META = new Map(GODS.map((g) => [g.name, g]));                  // name → { mythology, tier, … }
+// mythology value (gods.json) → live /pantheon/<slug> page (only the 9 that exist)
+const MYTHOLOGY_TO_PANTHEON = {
+  'Hinduism': 'hinduism', 'Greek Mythology': 'greek', 'Chinese Mythology': 'chinese',
+  'Norse Mythology': 'norse', 'Shinto': 'shinto', 'Egyptian Mythology': 'egyptian',
+  'Roman Mythology': 'roman', 'Thai Buddhism': 'thai-buddhism', 'Thai Mythology': 'thai',
+};
+// Resolve a free-text deity query → canonical name, or a candidate list when ambiguous.
+function resolveDeity(q) {
+  const key = String(q ?? '').trim().toLowerCase();
+  if (!key) return { candidates: [] };
+  if (LORE_INDEX.has(key)) return { name: LORE_INDEX.get(key) };
+  const starts = LORE_NAMES.filter((n) => n.toLowerCase().startsWith(key));
+  if (starts.length === 1) return { name: starts[0] };
+  const contains = LORE_NAMES.filter((n) => n.toLowerCase().includes(key));
+  if (!starts.length && contains.length === 1) return { name: contains[0] };
+  return { candidates: [...new Set([...starts, ...contains])].slice(0, 15) };
+}
 
 // ── 26-system metadata (mirror of engine-wrapper SYSTEMS_26) ──────────
 const SYSTEMS_26 = [
@@ -187,6 +211,19 @@ const TOOLS = [
     },
   },
   { name: 'about_mythsensus_engine', description: 'Engineering-honest metadata about the Mythsensus engine: architecture (algorithmic vs LLM), known limitations, open-source roadmap, links. Use when a user asks "is this real?" / "how accurate is it?".', inputSchema: { type: 'object', properties: {} } },
+  {
+    name: 'get_deity_lore',
+    description:
+      'Look up an encyclopedic profile of any of 1,044 deities across 9 mythologies — Hinduism, Greek, Chinese, Norse, Shinto, Egyptian, Roman, Thai mythology & Thai Buddhism (e.g. Ganesha, Zeus, Odin, Amaterasu, Anubis, Guan Yin, Phra Phrom). Returns origin tradition, the deity\'s rarity tier, and full lore in English + Thai. Use whenever a user asks "who is X?", "tell me about the god/goddess X", the myth or symbolism of a deity, or about a pantheon.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        deity: { type: 'string', description: 'Deity name or partial (e.g. "Ganesha", "amaterasu", "thor"). Case-insensitive; partial matches return candidates.' },
+        lang: { type: 'string', enum: ['th', 'en'], description: 'Output language (optional; omit to get BOTH English and Thai).' },
+      },
+      required: ['deity'],
+    },
+  },
 ];
 
 // ── Tool execution (mirror of index.ts handlers, gated) ──────────────
@@ -220,6 +257,30 @@ function callTool(name, a) {
     }
     case 'about_mythsensus_engine':
       return text(JSON.stringify(ENGINE_INFO, null, 2));
+    case 'get_deity_lore': {
+      const r = resolveDeity(a.deity);
+      if (!r.name) {
+        if (!r.candidates.length) {
+          return text(`No deity matching "${a.deity ?? ''}". Mythsensus curates 1,044 deities across Hinduism, Greek, Chinese, Norse, Shinto, Egyptian, Roman & Thai traditions — browse ${UPSELL}/pantheon.`);
+        }
+        return text(`Several deities match "${a.deity}": ${r.candidates.join(', ')}.\nCall get_deity_lore again with one exact name. Full encyclopedia: ${UPSELL}/pantheon.`);
+      }
+      const name = r.name;
+      const lore = GODS_LORE[name] || {};
+      const meta = GOD_META.get(name) || {};
+      const myth = meta.mythology || 'Unknown';
+      const slug = MYTHOLOGY_TO_PANTHEON[myth];
+      const pantheon = slug ? `${UPSELL}/pantheon/${slug}` : `${UPSELL}/pantheon`;
+      const pick = a.lang === 'en' || a.lang === 'th';
+      const bodyText = pick
+        ? (lore[a.lang] || lore.en || lore.th || '(lore text unavailable)')
+        : `${lore.en || ''}${lore.th ? `\n\n— ไทย —\n${lore.th}` : ''}`.trim();
+      return text(
+        `# ${name}\n**Tradition:** ${myth}${meta.tier ? `  ·  **Rarity tier:** ${meta.tier}` : ''}\n\n${bodyText}\n\n---\n` +
+        `From Mythsensus's 1,044-deity encyclopedia. ${slug ? `Full ${myth} pantheon` : 'Browse all pantheons'}: ${pantheon}\n` +
+        `Your birth chart draws a daily deity from this collection — free Cosmic Score + 26-system reading at ${UPSELL}.`
+      );
+    }
     default:
       return text(`Unknown tool: ${name}`, true);
   }
