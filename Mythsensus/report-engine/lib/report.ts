@@ -28,13 +28,13 @@ function bar(score: number, color: string) {
 }
 
 function scoreColor(s: number) {
-  if (s >= 850) return '#d4aa50'
+  if (s >= 850) return '#c8a45a'
   if (s >= 750) return '#1a8a3a'
   if (s >= 650) return '#3a5a80'
   return '#9a8a72'
 }
 
-function pill(text: string, bg = '#2a2010', color = '#d4aa50') {
+function pill(text: string, bg = '#2a2010', color = '#c8a45a') {
   return `<span style="display:inline-block;background:${bg};color:${color};border-radius:20px;padding:2px 10px;font-size:11px;margin:2px">${esc(text)}</span>`
 }
 
@@ -123,27 +123,27 @@ function row2(label: string, value: string) {
 
 function box(title: string, body: string, type: 'gold' | 'green' | 'red' | 'dark' | 'purple' = 'gold') {
   const styles: Record<string, string> = {
-    gold:   'background:#1e1a0e;border:1px solid #d4aa50;border-radius:8px;padding:10px;margin:6px 0',
+    gold:   'background:#12101c;border:1px solid #c8a45a;border-radius:8px;padding:10px;margin:6px 0',
     green:  'background:#0a1a0e;border:1px solid #1a8a3a;border-radius:8px;padding:10px;margin:6px 0',
     red:    'background:#1a0a0a;border:2px solid #c01020;border-radius:8px;padding:10px;margin:6px 0',
-    dark:   'background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:10px;margin:6px 0',
+    dark:   'background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:10px;margin:6px 0',
     purple: 'background:#120a1a;border:1px solid #7a3aaa;border-radius:8px;padding:10px;margin:6px 0',
   }
-  return `<div class="rbox" style="${styles[type]}"><div style="font-weight:bold;margin-bottom:8px;color:#d4aa50">${esc(title)}</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">${body}</div></div>`
+  return `<div class="rbox" style="${styles[type]}"><div style="font-weight:bold;margin-bottom:8px;color:#c8a45a">${esc(title)}</div><div style="font-size:13px;line-height:1.8;color:#c8c0a8">${body}</div></div>`
 }
 
 // ── CSS ───────────────────────────────────────────────────────
 // Background uses a layered star-field via multiple radial-gradients
 // (restored — previous version lost the starfield when bg was simplified
-// to flat #0e0c08). Pages no longer have a hard min-height constraint so
+// to flat #040407). Pages no longer have a hard min-height constraint so
 // long content flows onto a second/third page naturally instead of being
 // clipped.
 const CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
 body{
-  font-family:'Sarabun','Noto Sans Thai',sans-serif;
-  color:#f0e8d0;
-  background-color:#0e0c08;
+  font-family:'Cormorant Garamond','Sarabun','Noto Sans Thai',serif;
+  color:#e6e2d8;
+  background-color:#040407;
   background-image:
     radial-gradient(1px 1px at 14% 22%, rgba(255,235,200,.85) 50%, transparent 55%),
     radial-gradient(1px 1px at 26% 72%, rgba(200,220,255,.70) 50%, transparent 55%),
@@ -155,7 +155,7 @@ body{
     radial-gradient(0.8px 0.8px at 10% 88%, rgba(255,255,255,.60) 50%, transparent 55%),
     radial-gradient(0.8px 0.8px at 34% 8%,  rgba(200,220,255,.60) 50%, transparent 55%),
     radial-gradient(0.9px 0.9px at 65% 90%, rgba(255,245,220,.70) 50%, transparent 55%),
-    radial-gradient(ellipse at center, #141018 0%, #0a0812 55%, #050308 100%);
+    radial-gradient(ellipse at center, #0a0a12 0%, #060610 55%, #040407 100%);
   background-size: 600px 800px, 700px 900px, 500px 700px, 800px 600px, 640px 750px, 720px 820px, 560px 680px, 900px 1000px, 820px 920px, 680px 860px, 100% 100%;
   background-attachment: fixed;
 }
@@ -165,29 +165,29 @@ body{
 .page{padding:9mm 13mm 9mm;page-break-after:always;position:relative;background:transparent}
 .page-header{display:flex;align-items:center;gap:10px;border-bottom:1px solid #3a3020;padding-bottom:6px;margin-bottom:11px}
 .page-icon{font-size:22px}
-.page-title{font-size:16px;font-weight:700;color:#d4aa50;flex:1;letter-spacing:1px}
+.page-title{font-size:16px;font-weight:700;color:#c8a45a;flex:1;letter-spacing:1px}
 .page-num{font-size:11px;color:#6a5a42}
 .page-body{font-size:13px;line-height:1.5;color:#c8c0a8;padding-bottom:10px}
 .page-footer{text-align:center;font-size:9px;color:#6a5a42;border-top:1px solid #2a2010;padding-top:5px;margin-top:10px}
-h2{font-size:15px;color:#d4aa50;font-weight:700;margin:10px 0 5px;border-left:3px solid #d4aa50;padding-left:10px}
-h3{font-size:13px;color:#c8a840;font-weight:600;margin:12px 0 6px}
+h2{font-size:15px;color:#c8a45a;font-weight:700;margin:10px 0 5px;border-left:3px solid #c8a45a;padding-left:10px}
+h3{font-size:13px;color:#c8a45a;font-weight:600;margin:12px 0 6px}
 p{margin-bottom:5px;color:#c8c0a8}
 table{width:100%;border-collapse:collapse;margin:10px 0}
-th{background:#1a1510;color:#d4aa50;padding:8px 10px;text-align:left;font-size:12px}
+th{background:#0d0d15;color:#c8a45a;padding:8px 10px;text-align:left;font-size:12px}
 td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-align:top}
-.lbl{color:#9a8a72;font-weight:600;width:30%;background:#151210}
+.lbl{color:#9a8a72;font-weight:600;width:30%;background:#0a0a10}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0}
-.stat-card{background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px;text-align:center}
-.stat-card .val{font-size:28px;font-weight:700;color:#d4aa50}
+.stat-card{background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px;text-align:center}
+.stat-card .val{font-size:28px;font-weight:700;color:#c8a45a}
 .stat-card .lbl{font-size:11px;color:#9a8a72;width:auto;background:transparent;padding:0;margin-top:4px}
-.pillar{background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px;text-align:center}
-.pillar.dm{border-color:#d4aa50;background:#1e1a0e}
-.pillar .stem{font-size:32px;font-weight:700;color:#d4aa50}
-.pillar .branch{font-size:22px;color:#c8a840;margin-top:4px}
+.pillar{background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px;text-align:center}
+.pillar.dm{border-color:#c8a45a;background:#12101c}
+.pillar .stem{font-size:32px;font-weight:700;color:#c8a45a}
+.pillar .branch{font-size:22px;color:#c8a45a;margin-top:4px}
 .pillar .sublabel{font-size:10px;color:#6a5a42;margin-top:2px}
-.conv{border-left:3px solid #d4aa50;padding:8px 12px;margin:8px 0;background:#1a1510}
-.conv.med{border-left-color:#6a5a42;background:#151210}
+.conv{border-left:3px solid #c8a45a;padding:8px 12px;margin:8px 0;background:#0d0d15}
+.conv.med{border-left-color:#6a5a42;background:#0a0a10}
 .warn{background:#1a0a0a;border:2px solid #c01020;border-radius:8px;padding:12px;margin:8px 0;color:#f0c8b0}
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;margin:2px}
 @media print{
@@ -200,8 +200,8 @@ td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:12px;vertical-alig
      print-color-adjust:exact overrides Chrome's "Background graphics: off"
      default, which was dropping every dark box background. */
   *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
-  html,body{ background:#0e0c08 !important; background-image:none !important; color:#f0e8d0 !important; }
-  .page{ page-break-after:always; min-height:0; background:#0e0c08 !important; }
+  html,body{ background:#040407 !important; background-image:none !important; color:#e6e2d8 !important; }
+  .page{ page-break-after:always; min-height:0; background:#040407 !important; }
   /* Keep boxes/tables/cards from being cut across A4 sheet boundaries. A ~43
      logical-page report overflows to ~80+ physical sheets, and without this
      content splits mid-box → hard to read (Director 2026-07-02). break-inside
@@ -253,24 +253,24 @@ function p01_cover(c: ChartData): string {
   return section(1, tr('Cosmic Blueprint — ภาพรวม', 'Cosmic Blueprint — Overview'), '✦', `
     <div style="text-align:center;margin-bottom:16px">
       <div style="font-size:10px;color:#6a5a42;letter-spacing:4px;margin-bottom:6px">✦ MYTHSENSUS — PREMIUM EDITION ✦</div>
-      <div style="font-size:22px;font-weight:700;color:#d4aa50;margin-bottom:4px">Cosmic Blueprint · 26 Ancient Systems</div>
-      <div style="font-size:12px;color:#9a8a72">${esc(input.gender)} ${esc(input.name)} · ${dobStr} · ${timeStr} · <strong style="color:#d4aa50">${ageStr}</strong></div>
+      <div style="font-size:22px;font-weight:700;color:#c8a45a;margin-bottom:4px">Cosmic Blueprint · 26 Ancient Systems</div>
+      <div style="font-size:12px;color:#9a8a72">${esc(input.gender)} ${esc(input.name)} · ${dobStr} · ${timeStr} · <strong style="color:#c8a45a">${ageStr}</strong></div>
       <div style="font-size:10.5px;color:#6a5a42;margin-top:4px;font-style:italic">${tr('ตรวจดูว่าวันเดือนปีถูก — ถ้าอายุไม่ตรง ให้กลับไปแก้ที่ Profile','Double-check the date — if the age is wrong, edit your profile')}</div>
     </div>
 
     <!-- Cosmic Score -->
-    <div style="background:#1a1510;border:2px solid #d4aa50;border-radius:14px;padding:20px;margin:12px 0">
+    <div style="background:#0d0d15;border:2px solid #c8a45a;border-radius:14px;padding:20px;margin:12px 0">
       <div style="display:flex;gap:20px;align-items:center">
         <div style="text-align:center;min-width:90px">
-          <div style="font-size:60px;font-weight:700;color:#d4aa50;line-height:1">${score.total}</div>
+          <div style="font-size:60px;font-weight:700;color:#c8a45a;line-height:1">${score.total}</div>
           <div style="font-size:10px;color:#6a5a42;letter-spacing:1px">COSMIC SCORE</div>
           <div style="font-size:8px;color:#6a5a42;letter-spacing:.5px;margin-top:2px">${tr('ระดับดวงเทียบ 26 ศาสตร์','your chart\'s level · vs 26 systems')}</div>
         </div>
         <div style="flex:1">
-          <div style="font-size:20px;font-weight:700;color:#f0e8d0">${tierMain}</div>
+          <div style="font-size:20px;font-weight:700;color:#e6e2d8">${tierMain}</div>
           <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">${tierSub}</div>
           <div style="background:#2a2010;border-radius:6px;height:10px;overflow:hidden">
-            <div style="width:${pctBar}%;height:10px;background:linear-gradient(90deg,#5a3810,#d4aa50)"></div>
+            <div style="width:${pctBar}%;height:10px;background:linear-gradient(90deg,#5a3810,#c8a45a)"></div>
           </div>
           <div style="font-size:10px;color:#6a5a42;margin-top:4px">
             ${tr('ระดับเทียบประชากร','level vs population')} · ${tr('มัธยฐาน','median')} ${_scoreMedian(c)} · Mean ${score.mean} · Modal ${score.modalBin}–${score.modalBin+49}
@@ -313,7 +313,7 @@ function p01_cover(c: ChartData): string {
         ['🕉️ Vedic Lagna', c.vedic.lagnaSign],
         [tr('⚡ พลังงาน','⚡ Energy Type'), _lang==='en' ? (c.humandesign as any).type || c.humandesign.typeTh : c.humandesign.typeTh],
         ['🔢 Life Path', `${numerology.lifePath}`],
-      ].map(([l,v]) => `<div class="stat-card"><div class="lbl">${esc(l)}</div><div style="font-size:13px;font-weight:600;color:#d4aa50;margin-top:3px">${esc(v)}</div></div>`).join('')
+      ].map(([l,v]) => `<div class="stat-card"><div class="lbl">${esc(l)}</div><div style="font-size:13px;font-weight:600;color:#c8a45a;margin-top:3px">${esc(v)}</div></div>`).join('')
       })()}
     </div>
 
@@ -422,7 +422,7 @@ function _renderCosmicJourney(score: ChartData['score']): string {
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;font-size:11px">
         <div style="background:#1a0e06;border-radius:6px;padding:10px">
           <div style="font-size:20px;margin-bottom:4px">🛢️</div>
-          <div style="color:#d4aa50;font-weight:600">${tr('น้ำมัน', 'Fuel')}</div>
+          <div style="color:#c8a45a;font-weight:600">${tr('น้ำมัน', 'Fuel')}</div>
           <div style="color:#7a5a40;margin-top:2px">Soul Frequency</div>
           <div style="color:#aa8050;font-size:12px;margin-top:4px">${score.soulFrequency} = ${tr(fuelTier.fuel.th, fuelTier.fuel.en)}</div>
         </div>
@@ -484,9 +484,9 @@ function p_threeScores(c: ChartData): string {
     <div style="margin-bottom:14px">
       <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">${tr('ระบบที่ให้คะแนนสูงสุด (Top 5)', 'Top-5 highest-scoring systems')}</div>
       ${c.score.breakdown.slice().filter(b => (b as any).scoring !== false).sort((a,b)=>b.score-a.score).slice(0,5).map(b =>
-        `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 10px;background:#1a1510;border-radius:6px">
+        `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 10px;background:#0d0d15;border-radius:6px">
           <span style="font-size:12px;color:#c8b890">${esc(trDF(b.system))}</span>
-          <span style="font-size:13px;font-weight:700;color:#d4aa50">${b.score}</span>
+          <span style="font-size:13px;font-weight:700;color:#c8a45a">${b.score}</span>
         </div>`
       ).join('')}
     </div>
@@ -557,10 +557,10 @@ function _secondaryCards(c: ChartData) {
 }
 function _secondaryGrid(cards: { emoji: string; name: string; score: number; finding: string; color: string }[]): string {
   return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${cards.map(k => `
-    <div class="rbox" style="background:#141210;border:1px solid #2a2418;border-radius:8px;padding:9px 11px;margin:0">
+    <div class="rbox" style="background:#0a0a10;border:1px solid #2a2418;border-radius:8px;padding:9px 11px;margin:0">
       <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px">
         <span style="font-size:12px;color:#d4c090;font-weight:600;line-height:1.3">${k.emoji} ${esc(k.name)}</span>
-        <span style="font-size:13px;font-weight:700;color:${k.color || '#d4aa50'};flex-shrink:0">${k.score}</span>
+        <span style="font-size:13px;font-weight:700;color:${k.color || '#c8a45a'};flex-shrink:0">${k.score}</span>
       </div>
       <div style="font-size:10.5px;color:#9a8a72;margin-top:4px;line-height:1.5">${esc(k.finding)}</div>
     </div>`).join('')}</div>`
@@ -588,18 +588,18 @@ function p02_scoreBreakdown(c: ChartData): string {
   const warns = voting.filter(b => b.score < 650)
 
   const systemRow = (b: typeof allSorted[0], icon: string) => `
-    <div style="display:flex;align-items:center;gap:8px;margin:3px 0;padding:5px 8px;background:#141210;border-radius:6px">
+    <div style="display:flex;align-items:center;gap:8px;margin:3px 0;padding:5px 8px;background:#0a0a10;border-radius:6px">
       <span style="min-width:20px;text-align:center">${icon}</span>
       <span style="flex:1;font-size:12px;color:#c8b890">${esc(trDF(b.system))}</span>
-      <span style="font-size:12px;font-weight:600;color:#d4aa50;min-width:34px;text-align:right">${b.score}</span>
-      <div style="width:80px;background:#1a1510;border-radius:3px;height:6px;overflow:hidden">
+      <span style="font-size:12px;font-weight:600;color:#c8a45a;min-width:34px;text-align:right">${b.score}</span>
+      <div style="width:80px;background:#0d0d15;border-radius:3px;height:6px;overflow:hidden">
         <div style="width:${Math.round((b.score-400)/6)}%;height:6px;background:${b.color}"></div>
       </div>
     </div>`
 
   return section(3, tr('26-System Consensus — ทุกศาสตร์เห็นอะไร', '26-System Consensus — what every tradition sees'), '🌐', `
     <div style="font-size:11px;color:#7a6a52;margin-bottom:12px;line-height:1.6">
-      ${tr('Cosmic Score = ระดับดวงของคุณ (median percentile ของ 26 ศาสตร์ที่นิ่ง)', 'Cosmic Score = your chart\'s level (median percentile of 26 stable systems)')} = <strong style="color:#d4aa50">${c.score.total}</strong>
+      ${tr('Cosmic Score = ระดับดวงของคุณ (median percentile ของ 26 ศาสตร์ที่นิ่ง)', 'Cosmic Score = your chart\'s level (median percentile of 26 stable systems)')} = <strong style="color:#c8a45a">${c.score.total}</strong>
       · ${tr('ความสอดคล้อง','Consensus')} = ${c.score.agreement} · ${tr('Median','Median')} = ${_scoreMedian(c)} · Mean = ${c.score.mean} · Modal = ${c.score.modalBin}–${c.score.modalBin+49}
     </div>
 
@@ -633,10 +633,10 @@ function p02_scoreBreakdown(c: ChartData): string {
 
     <!-- Stats summary — voting set only (Biorhythm lives in the live Daily Pulse,
          not in this static report) -->
-    <div style="background:#1a1510;border-radius:8px;padding:12px;margin-top:12px">
+    <div style="background:#0d0d15;border-radius:8px;padding:12px;margin-top:12px">
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">
         ${[
-          ['Median', _scoreMedian(c), '#d4aa50'],
+          ['Median', _scoreMedian(c), '#c8a45a'],
           ['Mean', c.score.mean, '#b09040'],
           [tr('ต่ำสุด', 'Lowest'), Math.min(...voting.map(b=>b.score)), '#c07050'],
           [tr('สูงสุด', 'Highest'), Math.max(...voting.map(b=>b.score)), '#70c070'],
@@ -996,8 +996,8 @@ function p03_convergence(c: ChartData): string {
   // ── Headline TL;DR — one-paragraph summary ──
   const elemConsensusEl  = dmEl  // we already established cover's element consensus
   const tldrCore = tr(
-    `26 ศาสตร์มอง <strong style="color:#f0d060">${esc(c.input.name || 'คุณ')}</strong> = พลังธาตุ<strong>${esc(dmEl)}</strong> · <strong style="color:#f0d060">"${esc(score.cosmicEntity)}"</strong> · Life Path <strong>${numerology.lifePath}</strong> "${esc((numerology.lifePathName || '').split('—')[0].trim())}" · ${bazi.benMingNian2026 ? 'Ben Ming Nian + ' : ''}${ninestar.star === 9 ? 'NSK Honmei + ' : ''}Personal Year <strong>${numerology.personalYear2026}</strong> · ${totalStrong}/26 ศาสตร์ยืนยันชัด, ${totalWeak}/26 เห็นจุดท้าทาย · ลายเซ็นจักรวาล ~1 ใน ${(totalCombos / 1e6).toFixed(1)}M คน`,
-    `26 systems see <strong style="color:#f0d060">${esc(c.input.name || 'you')}</strong> as <strong>${esc(dmEl)}</strong>-element energy · <strong style="color:#f0d060">"${esc(score.cosmicEntity)}"</strong> · Life Path <strong>${numerology.lifePath}</strong> "${esc((numerology.lifePathName || '').split('—').slice(-1)[0].trim())}" · ${bazi.benMingNian2026 ? 'Ben Ming Nian + ' : ''}${ninestar.star === 9 ? 'NSK Honmei + ' : ''}Personal Year <strong>${numerology.personalYear2026}</strong> · ${totalStrong}/26 systems strongly agree, ${totalWeak}/26 flag challenges · cosmic fingerprint ~1 in ${(totalCombos / 1e6).toFixed(1)}M people`)
+    `26 ศาสตร์มอง <strong style="color:#e8c87a">${esc(c.input.name || 'คุณ')}</strong> = พลังธาตุ<strong>${esc(dmEl)}</strong> · <strong style="color:#e8c87a">"${esc(score.cosmicEntity)}"</strong> · Life Path <strong>${numerology.lifePath}</strong> "${esc((numerology.lifePathName || '').split('—')[0].trim())}" · ${bazi.benMingNian2026 ? 'Ben Ming Nian + ' : ''}${ninestar.star === 9 ? 'NSK Honmei + ' : ''}Personal Year <strong>${numerology.personalYear2026}</strong> · ${totalStrong}/26 ศาสตร์ยืนยันชัด, ${totalWeak}/26 เห็นจุดท้าทาย · ลายเซ็นจักรวาล ~1 ใน ${(totalCombos / 1e6).toFixed(1)}M คน`,
+    `26 systems see <strong style="color:#e8c87a">${esc(c.input.name || 'you')}</strong> as <strong>${esc(dmEl)}</strong>-element energy · <strong style="color:#e8c87a">"${esc(score.cosmicEntity)}"</strong> · Life Path <strong>${numerology.lifePath}</strong> "${esc((numerology.lifePathName || '').split('—').slice(-1)[0].trim())}" · ${bazi.benMingNian2026 ? 'Ben Ming Nian + ' : ''}${ninestar.star === 9 ? 'NSK Honmei + ' : ''}Personal Year <strong>${numerology.personalYear2026}</strong> · ${totalStrong}/26 systems strongly agree, ${totalWeak}/26 flag challenges · cosmic fingerprint ~1 in ${(totalCombos / 1e6).toFixed(1)}M people`)
 
   const familyLabels: Record<Family, { th: string; en: string }> = {
     east:       { th:'ตะวันออก',         en:'Eastern' },
@@ -1005,6 +1005,15 @@ function p03_convergence(c: ChartData): string {
     indigenous: { th:'พื้นเมือง',          en:'Indigenous' },
     esoteric:   { th:'ลึกลับ/นิรนาม',     en:'Esoteric' },
   }
+  // Plain-language overview paragraph — the one-line token summary (tldrCore)
+  // reads as a dense list; this gives the same picture as readable prose so the
+  // front synthesis isn't just a string of "·"-separated tokens (Director
+  // 2026-07-03 "ภาพรวมสั้นไปนิด").
+  const _domFamLbl = _lang === 'en' ? familyLabels[dominantFamily].en : familyLabels[dominantFamily].th
+  const tldrProse = tr(
+    `แกนพลังงานของคุณคือธาตุ<strong>${esc(dmEl)}</strong> — <strong>${totalStrong}/26</strong> ศาสตร์เห็นตรงกันชัดในทิศนี้ ส่วนอีก <strong>${totalWeak}/26</strong> ชี้จุดที่ควรรู้ตัวไว้ เสียงที่ดังที่สุดมาจากสาย<strong>${esc(_domFamLbl)}</strong> และเมื่อรวมทุกศาสตร์เข้าด้วยกัน ระดับดวงโดยรวมของคุณออกมาเป็น Cosmic Score <strong style="color:#c8a45a">${score.total}</strong> ระดับ “${esc(score.tier)}” ด้านล่างคือภาพว่าแต่ละวัฒนธรรมเห็นอะไร และธีมหลักที่หลายศาสตร์ยืนยันตรงกัน`,
+    `Your core is <strong>${esc(dmEl)}</strong>-element energy — <strong>${totalStrong}/26</strong> systems clearly agree on this direction, while <strong>${totalWeak}/26</strong> flag things worth watching. The tradition speaking loudest is <strong>${esc(_domFamLbl)}</strong>, and once every system is combined your overall level resolves into a Cosmic Score of <strong style="color:#c8a45a">${score.total}</strong> — the “${esc(score.tier)}” band. Below: what each culture sees, and the main themes multiple systems confirm together.`)
+
   const familyBars = fams.map(f => {
     const d = families[f]
     const sPct = d.total ? (d.strong     / d.total) * 100 : 0
@@ -1021,7 +1030,7 @@ function p03_convergence(c: ChartData): string {
       <div style="width:90px;font-size:11px;color:#c8b890">${esc(lbl)}${star}</div>
       <div style="flex:1;display:flex;height:14px;border-radius:3px;overflow:hidden;border:1px solid #2a2545;background:#0a0815">
         <div style="width:${sPct.toFixed(1)}%;background:#50b050" title="${d.strong} ${tr('ยืนยันชัด','strong')}"></div>
-        <div style="width:${rPct.toFixed(1)}%;background:#d4aa50" title="${d.resonance} ${tr('เห็นสอดคล้อง','resonate')}"></div>
+        <div style="width:${rPct.toFixed(1)}%;background:#c8a45a" title="${d.resonance} ${tr('เห็นสอดคล้อง','resonate')}"></div>
         <div style="width:${wPct.toFixed(1)}%;background:#a04030" title="${d.weak} ${tr('จุดท้าทาย','challenge')}"></div>
       </div>
       <div style="width:60px;font-size:11px;color:#9a8a72;text-align:right">${d.strong}/${d.total}</div>
@@ -1029,35 +1038,20 @@ function p03_convergence(c: ChartData): string {
   }).join('')
 
   // ── Per-system verdict table — the raw finding from each of the 26 ──
-  // Director feedback 2026-06-10: "grand convergence ขาดความละเอียด".
-  // The themes show WHO agreed; this table shows WHAT each tradition
-  // actually said (the engine's per-system finding line), grouped by
-  // cultural family and sorted by score within each family.
-  const famColor: Record<Family, string> = { east:'#d4aa50', west:'#7aaae0', indigenous:'#70c080', esoteric:'#b080d0' }
-  const verdictRows = fams.map(f => {
-    const rows = all26.filter(b => familyOf(b.system) === f)
-      .sort((a, b) => b.score - a.score)
-      .map(b => {
-        const icon = b.score >= 780 ? '🌟' : b.score >= 650 ? '〰' : '⚠'
-        const scoreCol = b.score >= 780 ? '#60c060' : b.score >= 650 ? '#c0b040' : '#c06030'
-        return `<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 8px;margin:2px 0;background:#100e16;border-left:2px solid ${famColor[f]};border-radius:0 6px 6px 0">
-          <span style="font-size:10px;flex-shrink:0;width:14px">${icon}</span>
-          <span style="font-size:10.5px;color:#c8b890;flex-shrink:0;width:118px">${esc(trDF(b.system))}</span>
-          <span style="flex:1;font-size:10.5px;color:#9a8a72;line-height:1.55;min-width:0">${esc(trDF(b.finding))}</span>
-          <span style="font-size:11px;font-weight:700;color:${scoreCol};flex-shrink:0">${b.score}</span>
-        </div>`
-      }).join('')
-    return `<div style="margin:8px 0">
-      <div style="font-size:10px;letter-spacing:2px;color:${famColor[f]};margin-bottom:3px">${esc((_lang === 'en' ? familyLabels[f].en : familyLabels[f].th).toUpperCase())} · ${families[f].total} ${tr('ศาสตร์','systems')}</div>
-      ${rows}
-    </div>`
-  }).join('')
+  // NOTE (2026-07-03): the per-system VERDICTS table that used to live here
+  // (every tradition's finding + score, grouped by family) was removed. It
+  // duplicated the raw 26-system scoreboard (p02_scoreBreakdown) and the
+  // secondary-system cards — three per-system enumerations stacked near the
+  // front buried the synthesis. Grand Convergence is now synthesis-only
+  // (themes + cross-cultural consensus); the per-system numbers/findings live
+  // in the scoreboard + cards cluster later in the report.
 
   return section(4, tr('Grand Convergence — 26 ศาสตร์ส่งคำตอบเดียวกัน','Grand Convergence — All 26 Systems Speak Together'), '🌐', `
     <!-- 1. Headline TL;DR -->
-    <div style="background:linear-gradient(135deg,#1a1408,#0e0a18);border:2px solid #d4aa50;border-radius:12px;padding:14px 18px;margin-bottom:14px">
-      <div style="font-size:10px;letter-spacing:3px;color:#d4aa50;margin-bottom:6px">${tr('✦ สรุปสั้น 1 ย่อหน้า','✦ ONE-PARAGRAPH SUMMARY')}</div>
-      <div style="font-size:12.5px;color:#e0d4b0;line-height:1.85">${tldrCore}</div>
+    <div style="background:linear-gradient(135deg,#1a1408,#0e0a18);border:2px solid #c8a45a;border-radius:12px;padding:14px 18px;margin-bottom:14px">
+      <div style="font-size:10px;letter-spacing:3px;color:#c8a45a;margin-bottom:6px">${tr('✦ ภาพรวม 1 ย่อหน้า','✦ ONE-PARAGRAPH OVERVIEW')}</div>
+      <div style="font-size:13px;color:#e6e2d8;line-height:1.9;margin-bottom:10px">${tldrProse}</div>
+      <div style="font-size:11.5px;color:#c8bfa6;line-height:1.8;border-top:1px solid #2a2545;padding-top:9px">${tldrCore}</div>
     </div>
 
     <!-- 2. Cross-Cultural Consensus -->
@@ -1076,15 +1070,6 @@ function p03_convergence(c: ChartData): string {
       </div>
     </div>
 
-    <!-- 2.5 Per-system verdicts — what each of the 26 actually said -->
-    <div style="background:#0c0a14;border:1px solid #2a2545;border-radius:12px;padding:12px 14px;margin-bottom:14px">
-      <div style="font-size:10px;letter-spacing:3px;color:#9a8a72;margin-bottom:4px">📋 ${tr('คำวินิจฉัยรายศาสตร์ — ทั้ง 26 ระบบบอกอะไร','PER-SYSTEM VERDICTS — WHAT EACH OF THE 26 SAID')}</div>
-      <div style="font-size:10.5px;color:#6a7a90;margin-bottom:8px;line-height:1.6">${tr(
-        'นี่คือ "เสียงดิบ" ของแต่ละศาสตร์ก่อนรวมเป็น consensus — อ่านคู่กับ theme ด้านล่างเพื่อเห็นว่าข้อสรุปแต่ละข้อมาจากศาสตร์ไหนบ้าง',
-        'The raw voice of every tradition before synthesis — read alongside the themes below to see exactly which systems back each conclusion.')}</div>
-      ${verdictRows}
-    </div>
-
     <!-- 3. Themes (the existing 8 with consensus rows) -->
     <div style="font-size:11px;color:#7a6a52;margin:14px 0 8px;line-height:1.6">
       ${tr('🎯 ภาพหลัก ' + visible.length + ' theme — แต่ละ theme คือจุดที่ระบบหลายตัวยืนยัน', `🎯 ${visible.length} main themes — each is a point where multiple systems agree`)}
@@ -1095,16 +1080,16 @@ function p03_convergence(c: ChartData): string {
     ${variantBox}
 
     <!-- 5. Unique Cosmic Signature -->
-    <div style="background:linear-gradient(135deg,#1a1408,#2a1c0a);border:2px solid #d4aa50;border-radius:12px;padding:14px 18px;margin:14px 0">
+    <div style="background:linear-gradient(135deg,#1a1408,#2a1c0a);border:2px solid #c8a45a;border-radius:12px;padding:14px 18px;margin:14px 0">
       <div style="text-align:center;margin-bottom:10px">
-        <div style="font-size:10px;letter-spacing:3px;color:#d4aa50">${tr('✦ ลายเซ็นจักรวาลของคุณ ✦','✦ YOUR COSMIC SIGNATURE ✦')}</div>
-        <div style="font-size:18px;color:#f0d060;font-weight:700;margin-top:6px;font-family:'Cinzel Decorative',serif">${esc(score.cosmicEntity)}</div>
+        <div style="font-size:10px;letter-spacing:3px;color:#c8a45a">${tr('✦ ลายเซ็นจักรวาลของคุณ ✦','✦ YOUR COSMIC SIGNATURE ✦')}</div>
+        <div style="font-size:18px;color:#e8c87a;font-weight:700;margin-top:6px;font-family:'Cinzel Decorative',serif">${esc(score.cosmicEntity)}</div>
       </div>
       <div style="background:#0e0a08;border-radius:6px;padding:10px 14px;font-size:11.5px;color:#c8a878;line-height:2">
-        <div>🀄 BaZi Day Pillar <strong style="color:#f0d060">${esc(bazi.dayStem)}${esc(bazi.dayBranch)}</strong> · ~1 ${tr('ใน 60','in 60')}</div>
-        <div>🕉️ Vedic Nakshatra <strong style="color:#f0d060">${esc(nakshatra)}${pada ? ' ' + tr('บาท','pada') + ' ' + esc(String(pada)) : ''}</strong> · ~1 ${tr('ใน 108','in 108')}</div>
-        <div>🌀 Mayan Kin <strong style="color:#f0d060">${esc(mayanLbl)}</strong> · ~1 ${tr('ใน 260','in 260')}</div>
-        <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #3a2c1a;color:#f0d060;font-size:13px">${tr(
+        <div>🀄 BaZi Day Pillar <strong style="color:#e8c87a">${esc(bazi.dayStem)}${esc(bazi.dayBranch)}</strong> · ~1 ${tr('ใน 60','in 60')}</div>
+        <div>🕉️ Vedic Nakshatra <strong style="color:#e8c87a">${esc(nakshatra)}${pada ? ' ' + tr('บาท','pada') + ' ' + esc(String(pada)) : ''}</strong> · ~1 ${tr('ใน 108','in 108')}</div>
+        <div>🌀 Mayan Kin <strong style="color:#e8c87a">${esc(mayanLbl)}</strong> · ~1 ${tr('ใน 260','in 260')}</div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #3a2c1a;color:#e8c87a;font-size:13px">${tr(
           `= ลายเซ็นรูปนี้ มีเพียง <strong>~${peopleSharing.toLocaleString()} คน</strong> บนโลก หรือ <strong>1 ใน ${totalCombos.toLocaleString()}</strong> คน`,
           `= this exact signature shared by only <strong>~${peopleSharing.toLocaleString()} people</strong> worldwide, or <strong>1 in ${totalCombos.toLocaleString()}</strong>`)}</div>
       </div>
@@ -1140,14 +1125,14 @@ function p_new16systems(c: ChartData): string {
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       ${systems.map(s => `
-        <div style="background:#141210;border:1px solid #2a2010;border-radius:8px;padding:10px;display:flex;gap:8px;align-items:flex-start">
+        <div style="background:#0a0a10;border:1px solid #2a2010;border-radius:8px;padding:10px;display:flex;gap:8px;align-items:flex-start">
           <span style="font-size:16px;flex-shrink:0">${esc(s.icon)}</span>
           <div style="flex:1;min-width:0">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <span style="font-size:11px;font-weight:600;color:#c8b890">${esc(s.name)}</span>
               <span style="font-size:12px;font-weight:700;color:${s.score>=780?'#60c060':s.score>=650?'#c0c040':'#c06030'}">${s.score}</span>
             </div>
-            <div style="font-size:12px;color:#d4aa50;margin-top:2px">${esc(s.data)}</div>
+            <div style="font-size:12px;color:#c8a45a;margin-top:2px">${esc(s.data)}</div>
             <div style="font-size:10px;color:#6a5a42;margin-top:1px">${esc(s.detail)}</div>
           </div>
         </div>`).join('')}
@@ -1447,12 +1432,12 @@ function p13_luckPillars(c: ChartData): string {
     const isCurrent = age2026 >= lp.ageStart && age2026 <= lp.ageEnd
     // NSK decade: every 9 years a cycle completes
     const nskDecadeNote = ((lp.ageStart % 9) === 0) ? tr('NSK: เริ่มรอบใหม่','NSK: new cycle begins') : ''
-    return `<tr ${isCurrent ? 'style="background:#1a1a08;border:1px solid #d4aa5044"':''}>
+    return `<tr ${isCurrent ? 'style="background:#1a1a08;border:1px solid #c8a45a44"':''}>
       <td style="font-size:12px">${esc(lp.ageStart)}–${esc(lp.ageEnd)}</td>
       <td style="font-size:18px">${esc(lp.stem)}${esc(lp.branch)}</td>
       <td style="font-size:11px;color:#9a8a72">${esc(lp.stemTh)} ${esc(lp.branchTh)}</td>
       <td style="font-size:11px;color:#6a8a60">${nskDecadeNote}</td>
-      <td>${isCurrent ? `<span style="color:#d4aa50;font-weight:700">▶ ${tr('ปัจจุบัน','Current')}</span>` : ''}</td>
+      <td>${isCurrent ? `<span style="color:#c8a45a;font-weight:700">▶ ${tr('ปัจจุบัน','Current')}</span>` : ''}</td>
     </tr>`
   }).join('')
 
@@ -1482,7 +1467,7 @@ function p13_luckPillars(c: ChartData): string {
     <p style="font-size:12.5px;color:#c8c0a8;line-height:1.75;margin-bottom:6px">${lifeArc}</p>
     <p style="font-size:11px;color:#7a6a52;margin-bottom:10px">${lifeSpanNote}</p>
     <!-- BaZi Luck Pillars (main) -->
-    <h2 style="font-size:14px;color:#d4aa50;margin-bottom:8px">🔥 ${tr('BaZi Luck Pillars — แกนหลัก 10 ปีต่อเสา','BaZi Luck Pillars — 10 years per pillar')}</h2>
+    <h2 style="font-size:14px;color:#c8a45a;margin-bottom:8px">🔥 ${tr('BaZi Luck Pillars — แกนหลัก 10 ปีต่อเสา','BaZi Luck Pillars — 10 years per pillar')}</h2>
     <table>
       <thead><tr><th>${tr('อายุ','Age')}</th><th>${tr('เสา','Pillar')}</th><th>${tr('ความหมาย','Meaning')}</th><th>NSK Note</th><th></th></tr></thead>
       <tbody>${luckRows}</tbody>
@@ -1538,8 +1523,8 @@ function p14_health(c: ChartData): string {
   const organ = ORGAN[dmEl] || '—'
 
   return section(20, tr('Health Coaching — ลักษณะประจำตัวจาก 26 ศาสตร์','Health Coaching — Constitutional Patterns from 26 Systems'), '🌿', `
-    <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
-      <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">${tr('สุขภาพตามดวง ≠ พยากรณ์รายวัน','Birth-chart health ≠ daily forecast')}</div>
+    <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+      <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:12px">${tr('สุขภาพตามดวง ≠ พยากรณ์รายวัน','Birth-chart health ≠ daily forecast')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">
         ${tr(`หน้านี้อธิบาย <strong>ลักษณะประจำตัวด้านสุขภาพตลอดชีวิต</strong> ที่มาจากวันเกิด —
         เช่น อวัยวะที่เปราะบางตามธรรมชาติ · ชนิดกีฬาที่ร่างกายตอบสนองดี · จังหวะพลังงาน
@@ -1599,8 +1584,8 @@ function p15_finance(c: ChartData): string {
   const { bazi, numerology, ninestar, arabicParts, hellenistic, ifaYoruba, vedicMahadasha } = c
 
   return section(21, tr('Finance Coaching — แนวทางการเงินตามดวง','Finance Coaching — Financial Guidance from Your Chart'), '💰', `
-    <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
-      <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">${tr('การเงินตามดวง ≠ พยากรณ์หวย','Birth-chart finance ≠ lottery forecast')}</div>
+    <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+      <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:12px">${tr('การเงินตามดวง ≠ พยากรณ์หวย','Birth-chart finance ≠ lottery forecast')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">
         ${tr(`หน้านี้อธิบาย <strong>ลักษณะทางการเงินประจำตัว</strong> — ว่าคุณเหมาะกับการลงทุนแบบไหน ความเสี่ยงระดับใด
         ช่วงเวลาของชีวิตที่ควรลงทุน/สะสม · <strong>ไม่ใช่</strong> การบอกตัวเลขผลตอบแทนหรือทำนายราคาทรัพย์สิน ·
@@ -1653,8 +1638,8 @@ function p15_finance(c: ChartData): string {
        numerology.personalYearMeaning.split('—')[0] + tr(' — จังหวะที่ดีที่สุดสำหรับปีนี้',' — the rhythm best suited to this year')],
     ].map(([title, desc], i) => `
       <div style="display:flex;gap:10px;padding:8px;border:1px solid #2a2010;border-radius:8px;margin:5px 0">
-        <div style="background:#d4aa50;color:#1a1510;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">${i+1}</div>
-        <div><div style="font-weight:600;color:#d4aa50;font-size:13px">${esc(title)}</div><div style="font-size:11px;color:#9a8a72;margin-top:2px">${esc(desc)}</div></div>
+        <div style="background:#c8a45a;color:#0d0d15;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">${i+1}</div>
+        <div><div style="font-weight:600;color:#c8a45a;font-size:13px">${esc(title)}</div><div style="font-size:11px;color:#9a8a72;margin-top:2px">${esc(desc)}</div></div>
       </div>`).join('')}
   `)
 }
@@ -1742,8 +1727,8 @@ function p16_activation(c: ChartData): string {
   const cosmicDrain = (severity: number = 1) => -severity * 4
 
   return section(18, tr('Activation Plan — ลำดับความสำคัญจาก 26 ศาสตร์','Activation Plan — Priority Actions from 26 Systems'), '🚀', `
-    <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
-      <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">${tr('วิธีอ่านและทำตาม','How to read this')}</div>
+    <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+      <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:12px">${tr('วิธีอ่านและทำตาม','How to read this')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">
         ${tr(`แต่ละข้อถูก <strong>จัดลำดับความสำคัญจากจำนวนศาสตร์ที่เห็นพ้อง</strong> —
         ยิ่งหลายศาสตร์อิสระชี้ไปทางเดียวกัน ยิ่งมีน้ำหนัก`,
@@ -1758,16 +1743,16 @@ function p16_activation(c: ChartData): string {
     ${positives.slice(0,8).map((a,n) => {
       const delta = cosmicDelta(a.systems.length)
       const priority = n < 3 ? 'HIGH' : n < 6 ? 'MEDIUM' : 'LOW'
-      const priorityColor = n < 3 ? '#d4aa50' : n < 6 ? '#c0a060' : '#7a6a52'
+      const priorityColor = n < 3 ? '#c8a45a' : n < 6 ? '#c0a060' : '#7a6a52'
       return `
-      <div style="display:flex;gap:10px;padding:10px;border:1px solid ${n<3?'#d4aa50':'#2a2010'};border-radius:8px;margin:6px 0;background:${n<3?'#1e1a0e':'#141210'}">
+      <div style="display:flex;gap:10px;padding:10px;border:1px solid ${n<3?'#c8a45a':'#2a2010'};border-radius:8px;margin:6px 0;background:${n<3?'#12101c':'#0a0a10'}">
         <div style="display:flex;flex-direction:column;align-items:center;min-width:34px">
           <span style="font-size:22px">${a.icon}</span>
           <span style="font-size:8px;letter-spacing:1px;color:${priorityColor};margin-top:2px">${priority}</span>
         </div>
         <div style="flex:1">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
-            <span style="font-weight:600;color:#d4aa50;font-size:13px">${n+1}. ${esc(a.title)}</span>
+            <span style="font-weight:600;color:#c8a45a;font-size:13px">${n+1}. ${esc(a.title)}</span>
             <div style="display:flex;gap:6px;align-items:center">
               <span style="font-size:10px;color:#60a060;background:#0a1a0e;padding:2px 8px;border-radius:10px">${a.systems.length} ${tr('ศาสตร์ตรงกัน','agree')}</span>
               <span style="font-size:10px;color:#60c060;background:#0a1a0e;padding:2px 8px;border-radius:10px">+${delta}</span>
@@ -1820,7 +1805,7 @@ function p17_weekly(c: ChartData): string {
   const SHENG: Record<string,string> = { 'น้ำ':'ไม้','ไม้':'ไฟ','ไฟ':'ดิน','ดิน':'โลหะ','โลหะ':'น้ำ' }
   const KE:    Record<string,string> = { 'น้ำ':'ไฟ', 'ไฟ':'โลหะ','โลหะ':'ไม้','ไม้':'ดิน','ดิน':'น้ำ' }
   const rate = (dayEl: string): {label:string; color:string; why:string} => {
-    if (dayEl === dmEl)       return { label: tr('☀️ พลังเท่าตัว','☀️ Full power'), color:'#c8a840', why: tr('ธาตุของวันตรงกับ Day Master — ดึงพลังของตัวเองมาใช้ได้ 100%','The day\'s element matches your Day Master — 100% of your native energy available.') }
+    if (dayEl === dmEl)       return { label: tr('☀️ พลังเท่าตัว','☀️ Full power'), color:'#c8a45a', why: tr('ธาตุของวันตรงกับ Day Master — ดึงพลังของตัวเองมาใช้ได้ 100%','The day\'s element matches your Day Master — 100% of your native energy available.') }
     if (SHENG[dayEl] === dmEl) return { label: tr('🟢 วันที่หล่อเลี้ยง','🟢 A nourishing day'), color:'#60a060', why: tr(`${dayEl} สร้าง ${dmEl} ในวงจร 5 ธาตุ — ได้รับการหล่อเลี้ยง`,`${dayEl} produces ${dmEl} in the 5-element cycle — you receive nourishment.`) }
     if (SHENG[dmEl] === dayEl) return { label: tr('🟡 วันที่คุณให้','🟡 A day you give'), color:'#c0a060', why: tr(`${dmEl} สร้าง ${dayEl} — คุณเป็นผู้ให้ รู้สึกภูมิใจแต่เหนื่อยง่าย`,`${dmEl} produces ${dayEl} — you\'re the giver: proud but easily depleted.`) }
     if (KE[dayEl]    === dmEl) return { label: tr('🔴 วันที่ต้องตั้งรับ','🔴 A day to play defence'), color:'#c06060', why: tr(`${dayEl} ควบคุม ${dmEl} ใน 5 ธาตุ — ต้องยับยั้งชั่งใจ ไม่ฝืน`,`${dayEl} controls ${dmEl} in the 5-element cycle — restraint over force.`) }
@@ -1830,8 +1815,8 @@ function p17_weekly(c: ChartData): string {
   const strategy = humandesign.strategy || 'Follow inner authority'
 
   return section(17, tr('Weekly Energy Plan — พลังงาน 7 วันต่อดวงของคุณ','Weekly Energy Plan — 7-day rhythm against your chart'), '📅', `
-    <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
-      <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">${tr('Energy ของแต่ละวันคืออะไร','What each weekday\'s energy means')}</div>
+    <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+      <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:12px">${tr('Energy ของแต่ละวันคืออะไร','What each weekday\'s energy means')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">
         ${tr(`ปฏิทิน 7 วันของโลกไม่ใช่เรื่องบังเอิญ — <strong>ไทยพราหมณ์ · Hellenistic · Vedic</strong> ทั้ง 3 ศาสตร์ตกลงว่าแต่ละวันอยู่ใต้การปกครองของดาวคนละดวง
         ซึ่งมีธาตุและพลังงานของมันเอง`,
@@ -1852,12 +1837,12 @@ function p17_weekly(c: ChartData): string {
         ${daysData.map((d) => {
           const r = rate(d.element)
           const isBirthDay = d.name === thai.dayName
-          return `<tr ${isBirthDay ? 'style="background:#1e1a0e"' : ''}>
+          return `<tr ${isBirthDay ? 'style="background:#12101c"' : ''}>
             <td>
-              <div style="font-weight:600;color:${isBirthDay?'#d4aa50':'#c8c0a8'}">${esc(d.name)}${isBirthDay?' ★':''}</div>
+              <div style="font-weight:600;color:${isBirthDay?'#c8a45a':'#c8c0a8'}">${esc(d.name)}${isBirthDay?' ★':''}</div>
               <div style="font-size:10px;color:#7a6a52;margin-top:2px">${esc(d.planet)}</div>
             </td>
-            <td style="font-size:11.5px;color:#c8a840">${esc(d.element)}</td>
+            <td style="font-size:11.5px;color:#c8a45a">${esc(d.element)}</td>
             <td style="font-size:11px;color:#c8c0a8">${esc(d.energy)}</td>
             <td style="font-size:11px;color:${r.color}">${esc(r.label)}<div style="color:#7a6a52;font-size:9.5px;margin-top:2px">${esc(r.why)}</div></td>
           </tr>`
@@ -1919,17 +1904,17 @@ function p18_monthly2026(c: ChartData): string {
     `Your most supported months in 2026 are <strong>${bestM.join(', ') || '—'}</strong>${honmeiM ? ` (especially <strong>${honmeiM}</strong>, your Honmei — the birth-star month that comes once a year)` : ''} — save your big launches and important starts for these. The months to steady yourself are <strong>${cautionM.join(', ') || 'none stand out as challenging'}</strong>; use them to reflect and prepare rather than push.`)
 
   return section(16, tr('พยากรณ์รายเดือน 2026 — NSK + Numerology','Monthly Forecast 2026 — NSK + Numerology'), '🗓️', `
-    <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
-      <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">${tr('วิธีอ่านตารางนี้','How to read this table')}</div>
+    <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+      <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:12px">${tr('วิธีอ่านตารางนี้','How to read this table')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">
         ${tr(
           'ตารางนี้เทียบ 2 ศาสตร์ <strong>ที่คำนวณอิสระจากกัน</strong> ในแต่ละเดือนของปี 2026 — เดือนที่ทั้งสองเห็นพ้องว่า "ดี" คือเดือนที่ควรลงมือ; เดือนที่ไม่สอดคล้อง ควรนิ่งและสังเกต',
           'This table compares 2 systems <strong>that calculate independently</strong> for each month of 2026 — months where both agree on "good" are months to act; months that disagree are for stillness and observation.'
         )}
         <br><br>
-        <strong style="color:#c8a840">NSK</strong> = ${tr(`ดาวประจำเดือน (เทียบกับดาวเกิด ${natal} ${esc(c.ninestar.starChinese||'')})`,`monthly star (vs your birth star ${natal} ${esc(c.ninestar.starChinese||'')})`)} ·
+        <strong style="color:#c8a45a">NSK</strong> = ${tr(`ดาวประจำเดือน (เทียบกับดาวเกิด ${natal} ${esc(c.ninestar.starChinese||'')})`,`monthly star (vs your birth star ${natal} ${esc(c.ninestar.starChinese||'')})`)} ·
         ${natal} ${tr('ตรงเมื่อไหร่','aligning')} = <strong>Honmei</strong> = ${tr('ปีเกิดทุก 9 ปี','your birth-star month every 9 years')}<br>
-        <strong style="color:#c8a840">PY-pattern</strong> = ${tr(`สถานะ Numerology ของเดือน (คำนวณจาก Personal Year ${c.numerology.personalYear2026})`,`numerology month status (derived from your Personal Year ${c.numerology.personalYear2026})`)}
+        <strong style="color:#c8a45a">PY-pattern</strong> = ${tr(`สถานะ Numerology ของเดือน (คำนวณจาก Personal Year ${c.numerology.personalYear2026})`,`numerology month status (derived from your Personal Year ${c.numerology.personalYear2026})`)}
       </div>
     </div>
     <table>
@@ -2059,10 +2044,10 @@ function p19_decade(c: ChartData): string {
         ? tr(`${vedicMahadasha.currentDasha} (ช่วงปัจจุบัน)`,`${vedicMahadasha.currentDasha} (current period)`)
         : tr(`หลัง ${vedicMahadasha.currentDasha} · รอบใหม่`,`After ${vedicMahadasha.currentDasha} · new cycle`)
 
-      return `<div style="border:1px solid ${isNow?'#d4aa50':'#2a2010'};border-radius:8px;margin:10px 0;overflow:hidden">
-        <div style="background:${isNow?'#1e1a0e':'#141210'};padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
-          <span style="font-weight:700;color:${isNow?'#d4aa50':'#c8a840'}">${esc(d.age)} · ${esc(d.label)}</span>
-          ${isNow?`<span style="color:#d4aa50;font-size:11px">▶ ${tr('ยุคปัจจุบันของคุณ','Your current era')}</span>`:''}
+      return `<div style="border:1px solid ${isNow?'#c8a45a':'#2a2010'};border-radius:8px;margin:10px 0;overflow:hidden">
+        <div style="background:${isNow?'#12101c':'#0a0a10'};padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-weight:700;color:${isNow?'#c8a45a':'#c8a45a'}">${esc(d.age)} · ${esc(d.label)}</span>
+          ${isNow?`<span style="color:#c8a45a;font-size:11px">▶ ${tr('ยุคปัจจุบันของคุณ','Your current era')}</span>`:''}
         </div>
         <div style="padding:12px 14px;font-size:12px">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
@@ -2071,8 +2056,8 @@ function p19_decade(c: ChartData): string {
             <div>🕉️ <strong>Vedic Mahadasha:</strong><br><span style="color:#9a8a72">${esc(mahadashaLabel)}</span></div>
             <div>🔢 <strong>Personal Year ${decadeStartYear}:</strong><br><span style="color:#9a8a72">PY ${py} ${tr('(ธีมรอบเริ่มทศวรรษ)','(theme that opens the decade)')}</span></div>
           </div>
-          <div style="background:#1a1510;border-left:3px solid #c8a840;padding:8px 10px;margin-top:6px">
-            <div style="font-size:10px;color:#c8a840;letter-spacing:1px;margin-bottom:4px">${tr(`ทำไมช่วงนี้ถูกเรียกว่า "${esc(d.label)}"`,`Why this stage is called "${esc(d.label)}"`)}</div>
+          <div style="background:#0d0d15;border-left:3px solid #c8a45a;padding:8px 10px;margin-top:6px">
+            <div style="font-size:10px;color:#c8a45a;letter-spacing:1px;margin-bottom:4px">${tr(`ทำไมช่วงนี้ถูกเรียกว่า "${esc(d.label)}"`,`Why this stage is called "${esc(d.label)}"`)}</div>
             <div style="color:#c8c0a8;line-height:1.6">${esc(d.why)} ${tr(`NSK ${nskStar} สะท้อนธีม "<strong>${esc(NSK_THEME[nskStar]||'')}</strong>" คู่ไปกับ Luck Pillar ${esc(lp.stemTh)} — สองศาสตร์ชี้ทิศเดียวกันคือสัญญาณหลัก`,`NSK ${nskStar} echoes the theme "<strong>${esc(NSK_THEME[nskStar]||'')}</strong>" alongside Luck Pillar ${esc(lp.stemTh)} — two systems pointing the same direction is the headline signal.`)}</div>
           </div>
         </div>
@@ -2146,8 +2131,8 @@ function p20_colors(c: ChartData): string {
                    : tr('เหลืองฉูดฉาด','Loud Yellow')
 
   return section(20, tr('สีมงคลและการแต่งตัว — ที่มาจาก 4 ศาสตร์','Lucky Colours & Style — Sourced from 4 Systems'), '👗', `
-    <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
-      <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">${tr('ทำไม "สีมงคล" ของคุณ = สีเหล่านี้ ไม่ใช่สีอื่น','Why your "lucky colours" = these specific shades')}</div>
+    <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+      <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:12px">${tr('ทำไม "สีมงคล" ของคุณ = สีเหล่านี้ ไม่ใช่สีอื่น','Why your "lucky colours" = these specific shades')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">
         ${tr(
           'แต่ละสีถูกเลือกจากศาสตร์คนละศาสตร์ที่คำนวณอิสระจากกัน ยิ่งสีไหนปรากฏซ้ำในหลายศาสตร์ ยิ่งมีน้ำหนัก',
@@ -2158,9 +2143,9 @@ function p20_colors(c: ChartData): string {
 
     <h2>${tr('สีที่แนะนำ','Recommended Colours')} · ${sources.length} ${tr('ศาสตร์ยืนยัน','systems concur')}</h2>
     ${sources.map(s => `
-      <div style="border-left:3px solid #c8a840;background:#1a1510;padding:10px 14px;margin:8px 0;border-radius:0 8px 8px 0">
+      <div style="border-left:3px solid #c8a45a;background:#0d0d15;padding:10px 14px;margin:8px 0;border-radius:0 8px 8px 0">
         <div style="display:flex;justify-content:space-between;align-items:baseline">
-          <div style="font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;color:#d4aa50">${esc(s.color)}</div>
+          <div style="font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;color:#c8a45a">${esc(s.color)}</div>
           <div style="font-size:10.5px;color:#7a6a52">${tr('ที่มา:','Source:')} <strong>${esc(s.source)}</strong></div>
         </div>
         <div style="font-size:11.5px;color:#c8c0a8;margin-top:4px;line-height:1.55">${s.why}</div>
@@ -2238,12 +2223,12 @@ function p21_historicalFigures(c: ChartData): string {
     )}</p>
     ${figures.map(f => `
       <div style="border:1px solid #2a2010;border-radius:8px;margin:10px 0;overflow:hidden">
-        <div style="background:#151210;padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
+        <div style="background:#0a0a10;padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
           <div>
-            <span style="font-weight:700;color:#d4aa50">${esc(f.name)}</span>
+            <span style="font-weight:700;color:#c8a45a">${esc(f.name)}</span>
             <span style="font-size:11px;color:#6a5a42;margin-left:8px">${esc(f.years)}</span>
           </div>
-          <span style="font-size:18px;font-weight:700;color:#d4aa50">${f.score}</span>
+          <span style="font-size:18px;font-weight:700;color:#c8a45a">${f.score}</span>
         </div>
         <div style="padding:10px 14px;font-size:12px;color:#9a8a72">${esc(f.why)}</div>
       </div>`).join('')}
@@ -2349,8 +2334,8 @@ function p22_painPoints(c: ChartData): string {
     },
   ]
   return section(22, tr('5 Pain Points — จุดที่ดวงชี้ให้ดูแลเป็นพิเศษ','5 Pain Points — areas your chart says to nurture carefully'), '⚡', `
-    <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
-      <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">${tr('นี่คือ "จุดที่ต้องดูแล" ไม่ใช่ "ดวงเสีย"','These are "areas to nurture", not "broken charts"')}</div>
+    <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+      <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:12px">${tr('นี่คือ "จุดที่ต้องดูแล" ไม่ใช่ "ดวงเสีย"','These are "areas to nurture", not "broken charts"')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">
         ${tr(
           'Pain Point ทั้ง 5 นี้มาจากการอ่านข้าม 3–5 ศาสตร์พร้อมกัน — ยิ่งหลายศาสตร์ชี้จุดเดียวกัน ยิ่งเป็นจุดที่ควรให้ความสนใจในชีวิต · แต่ละข้ออธิบาย <strong>ทำไมเป็น pain point ของคุณโดยเฉพาะ</strong> (Why) + <strong>อาการที่จะเจอ</strong> (Challenge) + <strong>วิธีรับมือตามดวง</strong> (Solution)',
@@ -2362,11 +2347,11 @@ function p22_painPoints(c: ChartData): string {
     ${points.map(p => `
       <div style="border-left:3px solid #8a3040;padding:12px 14px;margin:10px 0;background:#1a0a0a;border-radius:0 8px 8px 0">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;margin-bottom:8px">
-          <div style="font-size:15px;font-weight:700;color:#d4aa50">${p.icon} ${esc(p.topic)}</div>
+          <div style="font-size:15px;font-weight:700;color:#c8a45a">${p.icon} ${esc(p.topic)}</div>
           <div style="font-size:10px;color:#a08060">${p.systems.length} ${tr('ศาสตร์ชี้ตรงกัน','systems agree')}</div>
         </div>
         <div style="font-size:10px;color:#7a6a52;margin-bottom:8px">${tr('ที่มา:','Sources:')} ${p.systems.map(s=>`<strong>${esc(s)}</strong>`).join(' · ')}</div>
-        <div style="font-size:11.5px;color:#c8c0a8;margin-bottom:6px;line-height:1.65"><strong style="color:#d4aa50">${tr('ทำไมเป็น pain point ของคุณ:','Why this is your pain point:')}</strong> ${p.why}</div>
+        <div style="font-size:11.5px;color:#c8c0a8;margin-bottom:6px;line-height:1.65"><strong style="color:#c8a45a">${tr('ทำไมเป็น pain point ของคุณ:','Why this is your pain point:')}</strong> ${p.why}</div>
         <div style="font-size:11.5px;color:#f0a090;margin-bottom:6px;line-height:1.65"><strong>${tr('อาการที่จะเจอ:','Symptoms you\'ll encounter:')}</strong> ${p.challenge}</div>
         <div style="font-size:11.5px;color:#90e0a0;line-height:1.65"><strong>${tr('วิธีรับมือตามดวง:','How to navigate through your chart:')}</strong> ${p.solution}</div>
       </div>`).join('')}
@@ -2424,9 +2409,9 @@ function p23_forecast10yr(c: ChartData): string {
 
   const yearGuide = years.map(y => {
     const py = pyOf(y); const d = PY_DEEP[py]
-    const edge = py===1||py===8||py===3 ? '#1a8a3a' : py===4||py===7 ? '#c01020' : '#d4aa50'
+    const edge = py===1||py===8||py===3 ? '#1a8a3a' : py===4||py===7 ? '#c01020' : '#c8a45a'
     return `<div style="border-left:3px solid ${edge};padding:3px 0 6px 10px;margin:6px 0">
-      <div style="font-size:12px"><strong style="color:#d4aa50">${y}</strong> · ${icon(py)} PY${py} ${meaningOf(py)}</div>
+      <div style="font-size:12px"><strong style="color:#c8a45a">${y}</strong> · ${icon(py)} PY${py} ${meaningOf(py)}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.6;margin-top:2px">${d.focus} <span style="color:#90e0a0">→ ${d.act}</span></div>
     </div>`
   }).join('')
@@ -2439,14 +2424,14 @@ function p23_forecast10yr(c: ChartData): string {
         ${years.map(y => { const py = pyOf(y); const nsk = nskOf(y)
           return `<tr>
             <td style="font-weight:600">${y}</td>
-            <td style="color:#d4aa50">PY ${py}</td>
+            <td style="color:#c8a45a">PY ${py}</td>
             <td style="font-size:11px;color:#9a8a72">Star ${nsk}</td>
             <td>${icon(py)} ${meaningOf(py)}</td>
           </tr>`}).join('')}
       </tbody>
     </table>
     <p style="font-size:11px;color:#6a5a42;margin-top:8px">PY = Personal Year | 🟢 ${tr('ดี','Good')} 🟡 ${tr('ปานกลาง','Mixed')} 🔴 ${tr('ระวัง','Caution')}</p>
-    <div style="font-size:13px;font-weight:700;color:#d4aa50;margin:14px 0 4px">${tr('แต่ละปีลงรายละเอียด','Year by year, in depth')}</div>
+    <div style="font-size:13px;font-weight:700;color:#c8a45a;margin:14px 0 4px">${tr('แต่ละปีลงรายละเอียด','Year by year, in depth')}</div>
     ${yearGuide}
     ${box(tr('ช่วงทอง — ลงมือเรื่องใหญ่','Golden Window — make your big moves'),
       tr(`ปี <strong>${golden.slice(0,3).join(', ')}</strong> คือ Personal Year ที่แรงที่สุดในรอบ 10 ปี (PY1 เริ่มต้น · PY3 ขยาย · PY8 เก็บเกี่ยว) ถ้าจะเปิดตัว ลงทุน เปลี่ยนงาน หรือตัดสินใจครั้งใหญ่ — จัดให้ตรงปีเหล่านี้`,
@@ -2478,8 +2463,8 @@ function p24_pets(c: ChartData): string {
       <span style="font-size:28px;flex-shrink:0">${emoji}</span>
       <div style="flex:1">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px">
-          <div style="font-weight:600;color:#d4aa50;font-size:13px">${esc(animalLabel)}</div>
-          ${badge ? `<div style="font-size:10px;color:#8a7040;background:#1e1a0e;padding:2px 8px;border-radius:10px">${esc(badge)}</div>` : ''}
+          <div style="font-weight:600;color:#c8a45a;font-size:13px">${esc(animalLabel)}</div>
+          ${badge ? `<div style="font-size:10px;color:#8a7040;background:#12101c;padding:2px 8px;border-radius:10px">${esc(badge)}</div>` : ''}
         </div>
         <div style="font-size:11.5px;color:#c8c0a8;margin-top:4px;line-height:1.6">${esc(why)}</div>
         ${story ? `<div style="font-size:11px;color:#9a8a72;margin-top:6px;line-height:1.6;font-style:italic">${esc(story)}</div>` : ''}
@@ -2508,16 +2493,16 @@ function p24_pets(c: ChartData): string {
     ${petCard(mainEmoji, mainLabel, pet.why || '', pet.story || '', tr('ตัวเลือกหลัก','Primary'))}
     ${pet.secondary ? petCard(secEmoji, secLabel, pet.secWhy || '', pet.secStory || '', tr('ตัวเลือกรอง','Secondary')) : ''}
     <div class="grid-3" style="margin-top:10px">
-      ${pet.colors ? `<div class="stat-card"><div class="lbl">${tr('สีเสริมพลัง','Lucky colours')}</div><div style="font-size:12px;color:#d4aa50;margin-top:3px">${esc(pet.colors)}</div></div>` : ''}
-      ${pet.timing ? `<div class="stat-card"><div class="lbl">${tr('ช่วงรับมาเลี้ยง','Best timing')}</div><div style="font-size:12px;color:#d4aa50;margin-top:3px">${esc(pet.timing)}</div></div>` : ''}
+      ${pet.colors ? `<div class="stat-card"><div class="lbl">${tr('สีเสริมพลัง','Lucky colours')}</div><div style="font-size:12px;color:#c8a45a;margin-top:3px">${esc(pet.colors)}</div></div>` : ''}
+      ${pet.timing ? `<div class="stat-card"><div class="lbl">${tr('ช่วงรับมาเลี้ยง','Best timing')}</div><div style="font-size:12px;color:#c8a45a;margin-top:3px">${esc(pet.timing)}</div></div>` : ''}
       ${pet.care ? `<div class="stat-card"><div class="lbl">${tr('เคล็ดดูแล','Care tip')}</div><div style="font-size:11px;color:#c8c0a8;margin-top:3px">${esc(pet.care)}</div></div>` : ''}
     </div>
     ${pet.avoid ? box(tr('สัตว์ที่ควรเลี่ยง','Animal to avoid'), esc(pet.avoid), 'red') : ''}
   ` : tr('<p>ข้อมูลสัตว์เลี้ยงไม่พร้อมใช้งาน</p>','<p>Pet data unavailable.</p>')
 
   return section(24, tr('สัตว์เลี้ยง & สัตว์ในตำนาน — ตามธาตุของคุณ','Pets & Mythological Creatures — by Your Element'), '🐾', `
-    <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
-      <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">${tr('ที่มาของคำแนะนำ','Source of these suggestions')}</div>
+    <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+      <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:12px">${tr('ที่มาของคำแนะนำ','Source of these suggestions')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">
         ${tr(
           `สัตว์ถูกจับคู่กับธาตุใน <strong>5-element cycle</strong> ของจีนโบราณ — สัตว์ที่เสริม Day Master ของคุณคือสัตว์ที่พลังงานจะ "ทำงานให้" คุณทุกวัน · <strong>ตรงกับแท็บ สัตว์เลี้ยง ในแอป</strong>`,
@@ -2532,11 +2517,11 @@ function p24_pets(c: ChartData): string {
 
     <!-- Spirit Creature (mythological) — shared with the Companions add-on tab -->
     ${companions ? `
-    <div style="border:2px solid #c8a840;background:linear-gradient(135deg,#1e1a0e,#14120a);border-radius:10px;padding:14px 16px;margin:8px 0 16px">
-      <div style="font-size:10px;letter-spacing:2px;color:#c8a840;margin-bottom:6px">${tr(`✦ สัตว์ในตำนานประจำธาตุ${esc(dmEl)} ✦`,`✦ Mythological Companion for the ${esc(dmEl)} Element ✦`)}</div>
-      <div style="font-family:'Cinzel Decorative',serif;font-size:17px;color:#d4aa50;margin-bottom:6px">${esc(companions.creature||'')}</div>
+    <div style="border:2px solid #c8a45a;background:linear-gradient(135deg,#12101c,#14120a);border-radius:10px;padding:14px 16px;margin:8px 0 16px">
+      <div style="font-size:10px;letter-spacing:2px;color:#c8a45a;margin-bottom:6px">${tr(`✦ สัตว์ในตำนานประจำธาตุ${esc(dmEl)} ✦`,`✦ Mythological Companion for the ${esc(dmEl)} Element ✦`)}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:17px;color:#c8a45a;margin-bottom:6px">${esc(companions.creature||'')}</div>
       <div style="font-size:12px;color:#c8c0a8;line-height:1.7">${esc(companions.creatureDesc||'')}</div>
-      ${companions.mantra ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #3a3020;font-size:11px;color:#c8a840;font-style:italic">🔔 ${esc(companions.mantra)}</div>` : ''}
+      ${companions.mantra ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #3a3020;font-size:11px;color:#c8a45a;font-style:italic">🔔 ${esc(companions.mantra)}</div>` : ''}
     </div>` : ''}
 
     ${petBlock}
@@ -2553,30 +2538,30 @@ function p_divineMirror(c: ChartData): string {
   if (!m) return section(0, tr('Divine Mirror — เทพกระจกสะท้อนตัวตน','Divine Mirror — Deities That Reflect You'), '🪞',
     tr('<p>ข้อมูลกระจกเทพไม่พร้อมใช้งาน</p>','<p>Divine Mirror data unavailable.</p>'))
 
-  const archetype = (label: string, name?: string, desc?: string, story?: string, color = '#d4aa50') => name ? `
+  const archetype = (label: string, name?: string, desc?: string, story?: string, color = '#c8a45a') => name ? `
     <div style="border:1px solid #2a2010;border-left:3px solid ${color};border-radius:6px;padding:12px 14px;margin:8px 0">
       <div style="font-size:9px;letter-spacing:2px;color:${color};margin-bottom:4px">${esc(label)}</div>
-      <div style="font-family:'Cinzel Decorative',serif;font-size:15px;color:#d4aa50;margin-bottom:4px">${esc(name)}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:15px;color:#c8a45a;margin-bottom:4px">${esc(name)}</div>
       ${desc ? `<div style="font-size:12px;color:#c8c0a8;line-height:1.6">${esc(desc)}</div>` : ''}
       ${story ? `<div style="font-size:11px;color:#9a8a72;line-height:1.6;margin-top:6px;font-style:italic">${esc(story)}</div>` : ''}
     </div>` : ''
 
   return section(0, tr('Divine Mirror — เทพกระจกสะท้อนตัวตน','Divine Mirror — Deities That Reflect You'), '🪞', `
-    <div style="background:#1a1510;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
-      <div style="color:#c8a840;font-weight:600;margin-bottom:6px;font-size:12px">${tr('กระจกเทพคืออะไร','What the Divine Mirror is')}</div>
+    <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+      <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:12px">${tr('กระจกเทพคืออะไร','What the Divine Mirror is')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">${tr(
         `เทพ 4 องค์จากหลายอารยธรรมที่ "สะท้อน" พลังงานธาตุ<strong>${esc(dmEl)}</strong>ของคุณ — ไม่ใช่เทพที่คุณบูชา แต่คือกระจกที่ทำให้เห็นตัวตนเมื่อมองอย่างซื่อสัตย์ รวมถึง <strong>เงา (shadow)</strong> ที่เป็นด้านเดียวกันเมื่อพลังงานเสียสมดุล · <strong>ตรงกับแท็บ Divine Mirror ในแอป</strong>`,
         `Four deities across civilisations that "mirror" your <strong>${esc(dmEl)}</strong>-element energy — not gods you worship, but reflections that reveal who you are when you look honestly, including the <strong>shadow</strong> archetype — the same energy gone out of balance. <strong>Identical to the Divine Mirror add-on tab.</strong>`)}</div>
     </div>
 
     ${m.cosmic && m.cosmic.name ? `<div style="text-align:center;margin-bottom:14px">
-      <div style="font-size:10px;letter-spacing:3px;color:#c8a840">${tr('✦ สัญลักษณ์จักรวาลของคุณ ✦','✦ YOUR COSMIC ENTITY ✦')}</div>
-      <div style="font-family:'Cinzel Decorative',serif;font-size:18px;color:#f0d060;margin-top:4px">${esc(m.cosmic.name)}</div>
+      <div style="font-size:10px;letter-spacing:3px;color:#c8a45a">${tr('✦ สัญลักษณ์จักรวาลของคุณ ✦','✦ YOUR COSMIC ENTITY ✦')}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:18px;color:#e8c87a;margin-top:4px">${esc(m.cosmic.name)}</div>
       ${m.cosmic.desc ? `<div style="font-size:11.5px;color:#c8c0a8;margin-top:4px;line-height:1.6">${esc(m.cosmic.desc)}</div>` : ''}
     </div>` : ''}
 
-    ${archetype(tr('เทพหลัก — ตัวตนที่ฉายออก','PRIMARY — your projected self'), m.primary, m.primaryDesc, m.primaryStory, '#d4aa50')}
-    ${archetype(tr('เทพรอง — แรงขับเคลื่อน','SECONDARY — your driving force'), m.secondary, m.secondaryDesc, m.secondaryStory, '#c8a840')}
+    ${archetype(tr('เทพหลัก — ตัวตนที่ฉายออก','PRIMARY — your projected self'), m.primary, m.primaryDesc, m.primaryStory, '#c8a45a')}
+    ${archetype(tr('เทพรอง — แรงขับเคลื่อน','SECONDARY — your driving force'), m.secondary, m.secondaryDesc, m.secondaryStory, '#c8a45a')}
     ${archetype(tr('เทพที่สาม — มิติที่ซ่อน','TERTIARY — your hidden dimension'), m.tertiary, m.tertiaryDesc, m.tertiaryStory, '#a89060')}
     ${archetype(tr('เงา — พลังงานเดียวกันที่เสียสมดุล','SHADOW — the same energy imbalanced'), m.shadow, m.shadowDesc, m.shadowStory, '#a05050')}
 
@@ -2588,12 +2573,12 @@ function p25_summary(c: ChartData): string {
   const { score, bazi, numerology, ninestar, western } = c
   const dmEl = bazi.dayMasterElement
   const closingMsg = tr(
-    `คุณคือ "<strong style="color:#d4aa50">${esc(score.cosmicEntity)}</strong>" — พลังของธาตุ${esc(dmEl)} ที่เดินอยู่บน Life Path ${esc(String(numerology.lifePath))} (${esc(numerology.lifePathName)}) ทั้ง 26 ศาสตร์ต่างมองคุณจากคนละมุม แต่ฉายภาพเดียวกันออกมา · ดวงชะตาไม่ใช่โชคที่ตายตัว มันคือแผนที่พลังงานที่ช่วยให้คุณรู้จักตัวเองและเลือกทางได้ฉลาดขึ้น · จุดแข็งทุกข้อในรายงานนี้จะเปล่งประกายก็ต่อเมื่อคุณกล้าหยิบมันมาใช้จริง — จงเดินต่อไปด้วยความมั่นใจ`,
-    `You are "<strong style="color:#d4aa50">${esc(score.cosmicEntity)}</strong>" — the force of the ${esc(dmEl)} element walking Life Path ${esc(String(numerology.lifePath))} (${esc(numerology.lifePathName)}). All 26 systems look at you from different angles yet project the same image. Your chart is not a fixed fate — it is an energy map that helps you know yourself and choose your path with more wisdom. Every strength named in this report only shines once you dare to actually use it. Walk forward with confidence.`)
+    `คุณคือ "<strong style="color:#c8a45a">${esc(score.cosmicEntity)}</strong>" — พลังของธาตุ${esc(dmEl)} ที่เดินอยู่บน Life Path ${esc(String(numerology.lifePath))} (${esc(numerology.lifePathName)}) ทั้ง 26 ศาสตร์ต่างมองคุณจากคนละมุม แต่ฉายภาพเดียวกันออกมา · ดวงชะตาไม่ใช่โชคที่ตายตัว มันคือแผนที่พลังงานที่ช่วยให้คุณรู้จักตัวเองและเลือกทางได้ฉลาดขึ้น · จุดแข็งทุกข้อในรายงานนี้จะเปล่งประกายก็ต่อเมื่อคุณกล้าหยิบมันมาใช้จริง — จงเดินต่อไปด้วยความมั่นใจ`,
+    `You are "<strong style="color:#c8a45a">${esc(score.cosmicEntity)}</strong>" — the force of the ${esc(dmEl)} element walking Life Path ${esc(String(numerology.lifePath))} (${esc(numerology.lifePathName)}). All 26 systems look at you from different angles yet project the same image. Your chart is not a fixed fate — it is an energy map that helps you know yourself and choose your path with more wisdom. Every strength named in this report only shines once you dare to actually use it. Walk forward with confidence.`)
   return section(25, tr('สรุปภาพรวมและคำส่งท้าย','Final Summary & Closing Reflection'), '✨', `
     <div style="text-align:center;margin-bottom:20px">
-      <div style="font-size:48px;font-weight:700;color:#d4aa50">${score.total}</div>
-      <div style="font-size:16px;color:#f0e8d0;margin-top:4px">${esc(_lang === 'en' ? (score.tierEn || score.tier) : score.tier)}</div>
+      <div style="font-size:48px;font-weight:700;color:#c8a45a">${score.total}</div>
+      <div style="font-size:16px;color:#e6e2d8;margin-top:4px">${esc(_lang === 'en' ? (score.tierEn || score.tier) : score.tier)}</div>
       <div style="font-size:12px;color:#9a8a72">${esc(score.percentile)} ${tr('ของโลก','globally')}</div>
     </div>
 
@@ -2614,8 +2599,8 @@ function p25_summary(c: ChartData): string {
          `Luck Pillar ${bazi.currentLuckPillar} (${bazi.currentLuckPillarTh}) + Personal Year 2026: ${numerology.personalYear2026} + NSK Star ${ninestar.star} → this is one of the most consequential phases of your life.`),
       'green')}
 
-    <div style="text-align:center;margin:24px 0;padding:20px;background:#1a1510;border:1px solid #3a3020;border-radius:12px">
-      <div style="font-size:14px;color:#d4aa50;font-weight:600;margin-bottom:8px">✦ ${tr('คำส่งท้าย','Closing')} ✦</div>
+    <div style="text-align:center;margin:24px 0;padding:20px;background:#0d0d15;border:1px solid #3a3020;border-radius:12px">
+      <div style="font-size:14px;color:#c8a45a;font-weight:600;margin-bottom:8px">✦ ${tr('คำส่งท้าย','Closing')} ✦</div>
       <div style="font-size:13px;color:#c8c0a8;line-height:1.9;text-align:left">${closingMsg}</div>
     </div>
 
@@ -2638,8 +2623,15 @@ export function generateReport(c: ChartData): string {
     // ─── 1-4: Front matter ───────────────────────────────────────
     p01_cover,           // 1. ปก + Cosmic Score + 3-score preview
     p_threeScores,       // 2. Soul Frequency (petroleum) deep dive
-    p02_scoreBreakdown,  // 3. 26-system consensus (🌟〰⚠ grouped)
-    p03_convergence,     // 4. Grand Convergence (8 themes × 26 systems)
+    p03_convergence,     // 3. Grand Convergence (8 themes × 26 systems) — synthesis-only now
+    //   NOTE: p02_scoreBreakdown (the raw ranked 26-system scoreboard) was moved
+    //   OUT of the front (was page 3) down next to the secondary-system cards —
+    //   Director 2026-07-03: three per-system score lists (scoreboard + Grand-
+    //   Convergence per-system verdicts + secondary cards) stacked near the front
+    //   buried the synthesis. Now: front leads with synthesis; all per-system
+    //   enumeration is clustered later. The per-system VERDICTS block inside
+    //   p03_convergence was also removed (see that fn) so Grand Convergence stays
+    //   pure synthesis.
     // ─── 5-9: Born Chart deep-dive (5 systems) ───────────────────
     p05_bazi,            // 5. BaZi สี่เสา
     p06_ninestar,        // 6. Nine Star Ki
@@ -2651,12 +2643,16 @@ export function generateReport(c: ChartData): string {
     p09_mayan,           // 11. Mayan Tzolk'in
     p10_celtic,          // 12. Celtic Tree
     p11_thai,            // 13. Thai Brahmin
-    // ─── 14-15: 16 secondary systems, condensed to 2 "at a glance" card
-    //     pages (was 16 full pages — too long; Director 2026-07-02). The 16
-    //     per-system deep-dive fns (p_saju … p_vedicMahadasha) still exist but
-    //     are no longer rendered; their essence (score + finding) is in the cards.
-    p_secondarySystems1, // 14. 16 secondary systems — cards 1/2
-    p_secondarySystems2, // 15. 16 secondary systems — cards 2/2
+    // ─── 14-16: Per-system detail cluster (moved together 2026-07-03) ────
+    //     The raw 26-system scoreboard (p02_scoreBreakdown) now sits here with
+    //     the secondary-system cards, so the whole "every system's number"
+    //     enumeration lives in one place instead of being front-loaded.
+    //     The 16 per-system deep-dive fns (p_saju … p_vedicMahadasha) still
+    //     exist but are not rendered; their essence (score + finding) is in the
+    //     cards.
+    p02_scoreBreakdown,  // 14. 26-system scoreboard (🌟〰⚠ ranked + stats)
+    p_secondarySystems1, // 15. 16 secondary systems — cards 1/2
+    p_secondarySystems2, // 16. 16 secondary systems — cards 2/2
     // ─── 30-35: Life guidance (multi-system) ─────────────────────
     p13_luckPillars,     // 30. 80-Year Path (BaZi+Vedic+NSK+Numerology)
     p19_decade,          // 31. Decade by Decade
@@ -2681,7 +2677,8 @@ export function generateReport(c: ChartData): string {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cosmic Blueprint — ${esc(c.input.name)}</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Josefin+Sans:wght@300;400;600&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>${CSS}</style>
 </head>
 <body>
@@ -2767,7 +2764,7 @@ function extractSignals(c: ChartData, topic: 'health'|'finance'|'timing'|'elemen
 }
 
 /** Render a consensus row: icon + count + systems + message */
-function consensusRow(icon: string, theme: string, votes: Array<{system: string; score: number}>, msg: string, count: number, color = '#d4aa50', narrative = ''): string {
+function consensusRow(icon: string, theme: string, votes: Array<{system: string; score: number}>, msg: string, count: number, color = '#c8a45a', narrative = ''): string {
   const strength = count >= 10 ? '██████' : count >= 7 ? '████' : count >= 4 ? '██' : '█'
   // Show ALL systems as chips — no truncation. Each chip carries the
   // system's own score so the reader sees how strongly each voice voted,
@@ -2780,7 +2777,7 @@ function consensusRow(icon: string, theme: string, votes: Array<{system: string;
     const scoreDot = v.score ? `<span style="opacity:.75;font-weight:700"> · ${v.score}</span>` : ''
     return `<span style="display:inline-block;background:${color}18;color:${color};border:1px solid ${color}44;border-radius:4px;padding:1px 7px;font-size:10px;margin:2px">${esc(label)}${scoreDot}</span>`
   }).join('')
-  return `<div style="border-left:3px solid ${color};padding:10px 14px;margin:10px 0;background:#141210;border-radius:0 8px 8px 0">
+  return `<div style="border-left:3px solid ${color};padding:10px 14px;margin:10px 0;background:#0a0a10;border-radius:0 8px 8px 0">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
       <span style="font-size:14px;font-weight:700;color:${color}">${icon} ${esc(theme)}</span>
       <span style="font-size:11px;color:${color};background:${color}22;padding:2px 10px;border-radius:10px;font-weight:600">${count} ${tr('ศาสตร์','systems')} ${strength}</span>
@@ -2893,7 +2890,7 @@ function p_onmyodo(c: ChartData): string {
     )}</p>
 
     <div style="background:#13110e;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:8px">
-      <div style="font-size:11px;color:#d4aa50;letter-spacing:1px;margin-bottom:6px">${tr('六曜 ROKUYO — ปฏิทินมงคล 6 วันของญี่ปุ่น','六曜 ROKUYO — Japan\'s Six-Day Auspicious Cycle')}</div>
+      <div style="font-size:11px;color:#c8a45a;letter-spacing:1px;margin-bottom:6px">${tr('六曜 ROKUYO — ปฏิทินมงคล 6 วันของญี่ปุ่น','六曜 ROKUYO — Japan\'s Six-Day Auspicious Cycle')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.7">
         ${tr(
           'Rokuyo (六曜) เป็นวัฏจักรโชค <strong>6 วันที่หมุนเวียนกัน</strong>ในปฏิทินญี่ปุ่น ใช้เลือก "วันดี" สำหรับงานแต่ง การประกอบธุรกิจ การเดินทาง — ปัจจุบันยังพิมพ์อยู่บนปฏิทินญี่ปุ่นทุกเล่ม แต่ละวันให้พลังงานต่างกัน:',
@@ -2903,15 +2900,15 @@ function p_onmyodo(c: ChartData): string {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;font-size:10.5px">
         <div style="background:#0a1a0e;border-left:3px solid #5aaa3a;padding:5px 8px"><strong>大安 Taian</strong> · ${tr('วันมงคลที่สุด · ทำได้ทุกอย่าง','Most auspicious · all activities favoured')}</div>
         <div style="background:#0a1612;border-left:3px solid #4a8a4a;padding:5px 8px"><strong>友引 Tomobiki</strong> · ${tr('ดี (ยกเว้นงานศพ)','Good (avoid funerals)')}</div>
-        <div style="background:#1a1510;border-left:3px solid #c8a840;padding:5px 8px"><strong>先勝 Senshō</strong> · ${tr('เช้าดี บ่ายร้าย','Morning good, afternoon poor')}</div>
-        <div style="background:#1a1510;border-left:3px solid #c8a840;padding:5px 8px"><strong>先負 Senpu</strong> · ${tr('เช้าร้าย บ่ายดี','Morning poor, afternoon good')}</div>
+        <div style="background:#0d0d15;border-left:3px solid #c8a45a;padding:5px 8px"><strong>先勝 Senshō</strong> · ${tr('เช้าดี บ่ายร้าย','Morning good, afternoon poor')}</div>
+        <div style="background:#0d0d15;border-left:3px solid #c8a45a;padding:5px 8px"><strong>先負 Senpu</strong> · ${tr('เช้าร้าย บ่ายดี','Morning poor, afternoon good')}</div>
         <div style="background:#1a1010;border-left:3px solid #aa6030;padding:5px 8px"><strong>赤口 Shakkō</strong> · ${tr('ระวัง · ดีเฉพาะกลางวัน','Caution · only midday is favourable')}</div>
         <div style="background:#1a0a0a;border-left:3px solid #c01020;padding:5px 8px"><strong>仏滅 Butsumetsu</strong> · ${tr('"พระพุทธเจ้าสิ้น" · วันอัปมงคลที่สุด','"Buddha\'s passing" · most inauspicious')}</div>
       </div>
       <div style="font-size:11px;color:#9a8a72;margin-top:8px;line-height:1.6">
         ${tr(
-          `วันเกิดของคุณตรงกับ <strong style="color:#d4aa50">${esc(o.rokuyo)} (${esc(o.rokuyoTh)})</strong> — ${o.rokuyo === '仏滅' ? 'นี่คือสาเหตุที่คะแนน Onmyōdō ในรายงานต่ำ ไม่ใช่คะแนนคุณภาพชีวิตหรือบุคลิก แต่คือ "พลังงานปฏิทินวันเกิด" เท่านั้น · ในประเพณีญี่ปุ่นวันนี้แปลตรงตัวว่า "พระพุทธเจ้าสิ้น" ถือว่าหลีกเลี่ยงงานสำคัญ — แต่หลายธุรกิจญี่ปุ่นใช้เป็นวันสะท้อนตัวและรีเซ็ต' : o.rokuyo === '大安' ? 'นี่คือวันที่ดีที่สุดในปฏิทิน Rokuyo — คะแนนของคุณสูงเพราะวันเกิดให้พลังงานเปิดทาง' : 'แปลความได้ตามตารางด้านบน · คะแนนสะท้อนพลังงานของวันเกิดเฉพาะในศาสตร์นี้ ไม่ใช่ตัวคุณ'}`,
-          `Your birth day falls on <strong style="color:#d4aa50">${esc(o.rokuyo)} (${esc(o.rokuyoTh)})</strong> — ${o.rokuyo === '仏滅' ? 'this is why your Onmyōdō score in the report is low. It is not a measure of your character or life quality — only the calendrical energy of your birth date. In Japanese tradition this day literally means "Buddha\'s passing" and is avoided for major events — though many Japanese businesses use it as a day for self-reflection and reset.' : o.rokuyo === '大安' ? 'this is the most auspicious day in the Rokuyo calendar — your high score reflects that your birth day carries opening, path-clearing energy.' : 'interpret using the grid above. The score reflects the energy of your birth day within this single tradition, not your inherent self.'}`
+          `วันเกิดของคุณตรงกับ <strong style="color:#c8a45a">${esc(o.rokuyo)} (${esc(o.rokuyoTh)})</strong> — ${o.rokuyo === '仏滅' ? 'นี่คือสาเหตุที่คะแนน Onmyōdō ในรายงานต่ำ ไม่ใช่คะแนนคุณภาพชีวิตหรือบุคลิก แต่คือ "พลังงานปฏิทินวันเกิด" เท่านั้น · ในประเพณีญี่ปุ่นวันนี้แปลตรงตัวว่า "พระพุทธเจ้าสิ้น" ถือว่าหลีกเลี่ยงงานสำคัญ — แต่หลายธุรกิจญี่ปุ่นใช้เป็นวันสะท้อนตัวและรีเซ็ต' : o.rokuyo === '大安' ? 'นี่คือวันที่ดีที่สุดในปฏิทิน Rokuyo — คะแนนของคุณสูงเพราะวันเกิดให้พลังงานเปิดทาง' : 'แปลความได้ตามตารางด้านบน · คะแนนสะท้อนพลังงานของวันเกิดเฉพาะในศาสตร์นี้ ไม่ใช่ตัวคุณ'}`,
+          `Your birth day falls on <strong style="color:#c8a45a">${esc(o.rokuyo)} (${esc(o.rokuyoTh)})</strong> — ${o.rokuyo === '仏滅' ? 'this is why your Onmyōdō score in the report is low. It is not a measure of your character or life quality — only the calendrical energy of your birth date. In Japanese tradition this day literally means "Buddha\'s passing" and is avoided for major events — though many Japanese businesses use it as a day for self-reflection and reset.' : o.rokuyo === '大安' ? 'this is the most auspicious day in the Rokuyo calendar — your high score reflects that your birth day carries opening, path-clearing energy.' : 'interpret using the grid above. The score reflects the energy of your birth day within this single tradition, not your inherent self.'}`
         )}
       </div>
     </div>
@@ -3193,9 +3190,9 @@ function p_taksa(c: ChartData): string {
     const meaning = HOUSE_MEANING[h.houseNameTh]
     const meaningTxt = meaning ? (isEn ? meaning[1] : meaning[0]) : ''
     const hl = isKey(h.houseNameTh)
-    return `<tr style="${hl ? 'background:#1e1a0e' : ''}">
-      <td class="lbl" style="${hl ? 'color:#d4aa50;font-weight:700' : ''}">${esc(isEn ? `${h.houseNameEn} (${h.houseNameTh})` : h.houseNameTh)}</td>
-      <td style="${hl ? 'color:#f0d060;font-weight:600' : ''}">${esc(isEn ? h.planetNameEn : h.planetNameTh)}</td>
+    return `<tr style="${hl ? 'background:#12101c' : ''}">
+      <td class="lbl" style="${hl ? 'color:#c8a45a;font-weight:700' : ''}">${esc(isEn ? `${h.houseNameEn} (${h.houseNameTh})` : h.houseNameTh)}</td>
+      <td style="${hl ? 'color:#e8c87a;font-weight:600' : ''}">${esc(isEn ? h.planetNameEn : h.planetNameTh)}</td>
       <td style="font-size:11px;color:#9a8a72">${esc(meaningTxt)}</td>
     </tr>`
   }).join('')

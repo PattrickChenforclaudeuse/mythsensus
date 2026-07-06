@@ -453,18 +453,18 @@ function _westernDeepSections(a: {
   const avoidEl = OPP[domEl] ?? 'น้ำ';
 
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   const sec: string[] = [];
 
   // 1. Big Three chart
   const cell = (lblTh: string, lblEn: string, s: {en:string}, m: SM, deg: number) =>
-    `<td style="padding:8px 4px;border:1px solid #2a2545;text-align:center;vertical-align:top"><div style="font-size:9px;color:#6a5a42;letter-spacing:1px">${pick(lblTh,lblEn)}</div><div style="font-size:26px;color:#d4aa50;line-height:1.2">${m.glyph}</div><div style="font-size:14px;color:#d4aa50">${sD(s.en)}</div><div style="font-size:10px;color:#9a8a72">${(deg%30).toFixed(1)}°</div><div style="font-size:10px;color:#c8b080">${pick(m.el,m.elEn)} · ${pick(m.mod,m.modEn)}</div></td>`;
+    `<td style="padding:8px 4px;border:1px solid #2a2545;text-align:center;vertical-align:top"><div style="font-size:9px;color:#6a5a42;letter-spacing:1px">${pick(lblTh,lblEn)}</div><div style="font-size:26px;color:#c8a45a;line-height:1.2">${m.glyph}</div><div style="font-size:14px;color:#c8a45a">${sD(s.en)}</div><div style="font-size:10px;color:#9a8a72">${(deg%30).toFixed(1)}°</div><div style="font-size:10px;color:#c8b080">${pick(m.el,m.elEn)} · ${pick(m.mod,m.modEn)}</div></td>`;
   const chart = `<table style="width:100%;border-collapse:collapse;margin:8px 0 12px;table-layout:fixed"><tr>${cell('อาทิตย์ ☉','Sun ☉',a.sun,sm,a.sunDeg)}${cell('จันทร์ ☽','Moon ☽',a.moon,mm,a.moonDeg)}${cell('ราศีขึ้น ↑','Asc ↑',a.asc,am,a.ascDeg)}</tr></table>`;
   const elTot = (elC['ไฟ']||0)+(elC['ดิน']||0)+(elC['ลม']||0)+(elC['น้ำ']||0) || 1;
-  const bars = (['ไฟ','ดิน','ลม','น้ำ'] as string[]).map(e => { const c = elC[e]||0; return `<div style="display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px"><span style="width:52px;color:${e===domEl?'#d4aa50':'#9a8a72'}">${elD(e)}</span><span style="flex:1;height:9px;background:#1a1730;border-radius:5px;overflow:hidden"><span style="display:block;height:100%;width:${Math.round(c/3*100)}%;background:${e===domEl?'#d4aa50':'#7a6a9a'}"></span></span><span style="width:40px;color:#c8b080;text-align:right">${c}/3</span></div>`; }).join('');
+  const bars = (['ไฟ','ดิน','ลม','น้ำ'] as string[]).map(e => { const c = elC[e]||0; return `<div style="display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px"><span style="width:52px;color:${e===domEl?'#c8a45a':'#9a8a72'}">${elD(e)}</span><span style="flex:1;height:9px;background:#1a1730;border-radius:5px;overflow:hidden"><span style="display:block;height:100%;width:${Math.round(c/3*100)}%;background:${e===domEl?'#c8a45a':'#7a6a9a'}"></span></span><span style="width:40px;color:#c8b080;text-align:right">${c}/3</span></div>`; }).join('');
   sec.push(blk('📜','The Big Three — อาทิตย์ · จันทร์ · ราศีขึ้น','The Big Three — Sun · Moon · Ascendant',
     P(pick(`สามจุดนี้อธิบายบุคลิกคุณราว 80% — ${B('อาทิตย์')}=ตัวตนหลัก ${B('จันทร์')}=โลกอารมณ์ภายใน ${B('ราศีขึ้น')}=หน้ากากที่โลกเห็นก่อน`,`These three explain ~80% of your personality — ${B('Sun')}=core self, ${B('Moon')}=inner emotional world, ${B('Ascendant')}=the mask the world sees first.`)) + chart + P(pick('สมดุลธาตุของ Big Three:','Element balance of your Big Three:')) + bars));
 
@@ -1032,9 +1032,9 @@ function _baziDeepSections(a: {
 
   const blk = (icon: string, thT: string, enT: string, body: string) =>
     `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545">
-       <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+       <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
 
   // Element → strength/career flavour (Thai + English)
   const EL_TRAIT: Record<string,[string,string]> = {
@@ -1070,7 +1070,7 @@ function _baziDeepSections(a: {
     const hid = (_BAZI_HIDDEN[pl.bi]||[]).map(h=>STEMS[h]).join(' ');
     return `<td style="padding:7px 3px;border:1px solid #2a2545;text-align:center;vertical-align:top">
       <div style="font-size:9px;color:#6a5a42;letter-spacing:1px">${isEn?lblEn:lblTh}</div>
-      <div style="font-size:23px;color:#d4aa50;line-height:1.25">${pl.s}</div>
+      <div style="font-size:23px;color:#c8a45a;line-height:1.25">${pl.s}</div>
       <div style="font-size:9.5px;color:#9a8a72">${elD(STEMS_EL[pl.si])}<br>${tg?(isEn?tg.en:tg.cn):(isEn?'Self 日主':'ตัวคุณ 日主')}</div>
       <div style="font-size:21px;color:#c8b080;line-height:1.3;margin-top:4px">${pl.b}</div>
       <div style="font-size:9.5px;color:#9a8a72">${pl.bTh}</div>
@@ -1086,8 +1086,8 @@ function _baziDeepSections(a: {
   const elBars = (['ไม้','ไฟ','ดิน','โลหะ','น้ำ'] as string[]).map(e => {
     const c = elFull[e]||0;
     return `<div style="display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px">
-      <span style="width:52px;color:${e===dmEl?'#d4aa50':'#9a8a72'}">${elD(e)}</span>
-      <span style="flex:1;height:9px;background:#1a1730;border-radius:5px;overflow:hidden"><span style="display:block;height:100%;width:${Math.round(c/maxC*100)}%;background:${e===dmEl?'#d4aa50':'#7a6a9a'}"></span></span>
+      <span style="width:52px;color:${e===dmEl?'#c8a45a':'#9a8a72'}">${elD(e)}</span>
+      <span style="flex:1;height:9px;background:#1a1730;border-radius:5px;overflow:hidden"><span style="display:block;height:100%;width:${Math.round(c/maxC*100)}%;background:${e===dmEl?'#c8a45a':'#7a6a9a'}"></span></span>
       <span style="width:54px;color:#c8b080;text-align:right">${c} · ${Math.round(c/elTot*100)}%</span></div>`;
   }).join('');
   sections.push(blk('📜', 'ผังสี่เสา 八字 — อักษรทั้ง 8 ของคุณ', 'Your 八字 Chart — The Eight Characters',
@@ -1604,15 +1604,15 @@ function _nineStarDeepSections(a: {
   };
   const blk = (icon: string, thT: string, enT: string, body: string): string =>
     `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545">
-       <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+       <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string): string => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string): string => `<strong style="color:#d4aa50">${s}</strong>`;
+  const B = (s: string): string => `<strong style="color:#c8a45a">${s}</strong>`;
   const faqQ = (q: string, ans: string): string => P(`${B('Q: ' + q)}<br>A: ${ans}`);
   const LO_SHU_LAYOUT = [[4,9,2],[3,5,7],[8,1,6]];
   const loShuTable = `<table style="border-collapse:collapse;margin:8px auto 12px">` +
     LO_SHU_LAYOUT.map(row => `<tr>${row.map(n => { const isMe = n === star;
       return `<td style="width:44px;height:44px;text-align:center;vertical-align:middle;border:1px solid #2a2545;` +
-        (isMe ? `background:rgba(212,175,55,0.18);color:#d4aa50;font-weight:bold;font-size:19px` : `color:#9a8a72;font-size:16px`) +
+        (isMe ? `background:rgba(212,175,55,0.18);color:#c8a45a;font-weight:bold;font-size:19px` : `color:#9a8a72;font-size:16px`) +
         `">${n}${isMe ? ' ★' : ''}</td>`; }).join('')}</tr>`).join('') + `</table>`;
   const sections: string[] = [];
   const starDirTable = `<table style="width:100%;border-collapse:collapse;font-size:12px;margin:8px 0">
@@ -1982,9 +1982,9 @@ function _numerologyDeepSections(a: {
   const pinT = (n:number) => pick((PINN_TXT[n]||PINN_TXT[0])[0],(PINN_TXT[n]||PINN_TXT[0])[1]);
 
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   const lpNm = pick(LPN[a.lp]?.[0]||'',LPN[a.lp]?.[1]||'');
   const sec: string[] = [];
@@ -2209,9 +2209,9 @@ function _vedicDeepSections(a: {
   };
   const plOf = (th: string) => PL[th] || PL['พฤหัส'];
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   const lord = plOf(a.lordTh), cur = plOf(a.curDashaTh), antar = plOf(a.antarTh);
   const sec: string[] = [];
@@ -2513,9 +2513,9 @@ function _hdDeepSections(a: {
   };
   const lines = a.profile.split('/');
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   const sec: string[] = [];
 
@@ -2755,9 +2755,9 @@ function _mayanDeepSections(a: {
   };
   const nw = NAWAL[a.signEn] || NAWAL.Imix, tn = TONE[a.toneNum] || TONE[1];
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   const sec: string[] = [];
 
@@ -2945,9 +2945,9 @@ function _celticDeepSections(a: {
   };
   const e = ELT[a.elRaw] || ELT['ลม'];
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   const treeDisp = pick(a.treeTh, a.treeEn);
   const sec: string[] = [];
@@ -3091,9 +3091,9 @@ function _thaiDeepSections(a: {
   };
   const dd = DAY[a.dow] || DAY[0];
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   const sec: string[] = [];
   sec.push(blk('📜','วันเกิด · เทพประจำวัน · สีมงคล','Your Birth Day · Deity · Lucky Colour',
@@ -4794,9 +4794,9 @@ function _sajuDeepSections(a: {
   const unfavDisp = unfavRaw.map(elD).join(' · ');
   const favCol = favRaw.map(r => pick(COL[r]?.[0] || elD(r), COL[r]?.[1] || elD(r))).join(' · ');
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   const sec: string[] = [];
   sec.push(blk('📜','사주 원국 — เสาทั้งสี่ของคุณ','사주 원국 — Your Four Pillars',
@@ -4895,7 +4895,7 @@ function calcSaju(d: BirthData): SajuData {
       const monthElEn = tEl(monthEl);
       if (!isEn) {
         return [
-          `<div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">ดวงเกาหลี (Saju · 사주) · <span style="color:#9a8a72;letter-spacing:1px">Saju · Korean Four Pillars</span></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px"><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">เกาหลี (รากจาก BaZi จีน)</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">อายุ</span><br><strong style="color:#d4aa50">~ 700 ปี</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ความนิยม</span><br><strong style="color:#d4aa50">คนเกาหลียังใช้จริงในการแต่งงาน · K-drama หยิบไปพูดถึงบ่อย</strong></div></div><div style="margin-top:10px;padding-top:10px;border-top:1px solid #2a2545"><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">จุดเด่น</span><br><span style="color:#e0d0b0">เน้นเสาวันเป็นศูนย์กลาง · ใช้ดู "궁합" (ความเข้ากันของคู่)</span></div></div>`,
+          `<div style="background:#0d0d15;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:2px;margin-bottom:8px">ดวงเกาหลี (Saju · 사주) · <span style="color:#9a8a72;letter-spacing:1px">Saju · Korean Four Pillars</span></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px"><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#c8a45a">เกาหลี (รากจาก BaZi จีน)</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">อายุ</span><br><strong style="color:#c8a45a">~ 700 ปี</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ความนิยม</span><br><strong style="color:#c8a45a">คนเกาหลียังใช้จริงในการแต่งงาน · K-drama หยิบไปพูดถึงบ่อย</strong></div></div><div style="margin-top:10px;padding-top:10px;border-top:1px solid #2a2545"><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">จุดเด่น</span><br><span style="color:#e0d0b0">เน้นเสาวันเป็นศูนย์กลาง · ใช้ดู "궁합" (ความเข้ากันของคู่)</span></div></div>`,
           `<p><strong>ดวงของคุณ:</strong> 일주 (Day Pillar) ของคุณคือ <strong>${KO_STEMS[dp.stem]??dp.stem}${KO_BRANCHES[dp.branch]??dp.branch}</strong> ซึ่งจัดอยู่ในกลุ่มธาตุ${dmEl} — หมายความว่าเวลา Saju บอกว่าคุณ "เป็นใคร" มันตอบว่าคุณคือคนที่มีแกนธาตุ${dmEl}เป็นกระดูกสันหลัง เดือนเกิดของคุณอยู่ในธาตุ${monthEl} ซึ่งความสัมพันธ์กับธาตุ${dmEl}ของคุณคือ <strong>${feeds?'생조 (Saeng-jo) — เดือนหล่อเลี้ยงวัน':same?'비겁 (Bi-geop) — ธาตุเดียวกัน':'극 (Geuk) — เดือนกดวัน'}</strong> ${feeds?'นี่คือรูปแบบที่โหรเกาหลีถือว่าเป็นพรยิ่งใหญ่ เพราะคุณได้พลังงานจากครอบครัว/ต้นกำเนิดมาหล่อเลี้ยงตัวตนแบบไม่ขัดแย้ง':same?'นี่คือรูปแบบที่ให้คุณพลังแต่ก็ต้องระวังไม่ให้แข็งเกินไป — พลังงานเหมือนกันมากเกินไปอาจหมายถึงการแข่งขันกับคนในครอบครัว':'นี่คือรูปแบบที่ท้าทายที่สุด แต่ก็มักผลิตบุคคลที่แข็งแกร่งมาก เพราะถูกหล่อหลอมจากการต้านแรงกดดันมาตั้งแต่เด็ก'}</p>`,
           `<p><strong>꽃살 ปี 2026:</strong> <strong>${kwarsal}</strong> คือคำนายเฉพาะของ Saju ที่เทียบพลังงานเสาวันกับปีปัจจุบัน ${kwarsal.includes('화개')?'화개살 (Hwagae-sal) บ่งถึงปีแห่งการเรียนรู้ลึก การปฏิบัติธรรม ศิลปะ และปัญญา — เหมาะจะ "ถอยเพื่อเรียน" มากกว่าผลักเพื่อโต':kwarsal.includes('천을')?'천을귀인 (Cheoneul Gwiin) คือพรยิ่งใหญ่ที่สุดใน Saju — มีผู้ช่วยที่ทรงอิทธิพลมาเปิดประตูให้ ลงมือขอความช่วยเหลือได้เลยในปีนี้':kwarsal.includes('역마')?'역마살 (Yeokma-sal) ปีแห่งการเดินทาง ย้ายถิ่น เปลี่ยนงาน — ไม่ใช่ลางร้าย แต่คือสัญญาณว่าควรเคลื่อนไหว':kwarsal.includes('재성')?'재성 (Jaeseong) ปีแห่งทรัพย์ — โอกาสการเงินและความสัมพันธ์เปิดกว้าง':kwarsal.includes('관성')?'관성 (Gwanseong) ปีแห่งตำแหน่ง อำนาจ และหน้าที่ — ตำแหน่งใหม่มาถึงคุณ':kwarsal.includes('인성')?'인성 (Inseong) ปีแห่งการเรียนรู้ แม่ที่ห่วงใย ศึกษาต่อ — เป็นเวลาที่จะลงทุนกับตัวเอง':'ปีที่ต้องใช้พลังงานวันเกิดอย่างระมัดระวัง'}</p>`,
           `<p><strong>จุดแข็งที่ Saju บอก:</strong> การที่ 일주 ของคุณเป็น ${KO_STEMS[dp.stem]??dp.stem} (${dmEl}) ทำให้คุณมีความเป็น ${dmEl==='ไฟ'?'ผู้จุดประกายและผู้นำโดยธรรมชาติ — Saju เกาหลียกให้คนธาตุไฟเป็น "불같은 사람" (คนเหมือนไฟ) ที่ดึงดูดผู้ตามได้ง่าย':dmEl==='ไม้'?'ผู้วางแผนระยะยาวและผู้บ่มเพาะ — Saju เปรียบคนธาตุไม้เป็น "큰 나무" (ต้นไม้ใหญ่) ที่ให้ร่มเงาแก่ครอบครัว':dmEl==='น้ำ'?'นักปรับตัวและนักคิดลึก — Saju เปรียบคนธาตุน้ำเป็น "깊은 물" (น้ำลึก) ที่อ่านคนได้ก่อนใคร':dmEl==='โลหะ'?'ผู้มีมาตรฐานและหลักการ — Saju เปรียบคนธาตุโลหะเป็น "빛나는 금" (ทองคำเปล่งประกาย) ที่ไม่ยอมให้คุณค่าตกลง':'ผู้มั่นคงและเป็นที่พึ่งของคนรอบข้าง — Saju เปรียบคนธาตุดินเป็น "큰 바위" (หินใหญ่) ที่คนยืนพิงได้'}</p>`,
@@ -4906,7 +4906,7 @@ function calcSaju(d: BirthData): SajuData {
       }
       // English version
       return [
-        `<div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">Saju · 사주 · <span style="color:#9a8a72;letter-spacing:1px">Korean Four Pillars</span></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px"><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ORIGIN</span><br><strong style="color:#d4aa50">Korea (rooted in Chinese BaZi)</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">AGE</span><br><strong style="color:#d4aa50">~ 700 years</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">POPULARITY</span><br><strong style="color:#d4aa50">Still actively used by Koreans for marriage matching · frequently referenced in K-drama</strong></div></div><div style="margin-top:10px;padding-top:10px;border-top:1px solid #2a2545"><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">KEY STRENGTH</span><br><span style="color:#e0d0b0">Day-pillar centred · used for "궁합" (couple compatibility)</span></div></div>`,
+        `<div style="background:#0d0d15;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:2px;margin-bottom:8px">Saju · 사주 · <span style="color:#9a8a72;letter-spacing:1px">Korean Four Pillars</span></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px"><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ORIGIN</span><br><strong style="color:#c8a45a">Korea (rooted in Chinese BaZi)</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">AGE</span><br><strong style="color:#c8a45a">~ 700 years</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">POPULARITY</span><br><strong style="color:#c8a45a">Still actively used by Koreans for marriage matching · frequently referenced in K-drama</strong></div></div><div style="margin-top:10px;padding-top:10px;border-top:1px solid #2a2545"><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">KEY STRENGTH</span><br><span style="color:#e0d0b0">Day-pillar centred · used for "궁합" (couple compatibility)</span></div></div>`,
         `<p><strong>Your chart in this system:</strong> Your 일주 (Day Pillar) is <strong>${KO_STEMS[dp.stem]??dp.stem}${KO_BRANCHES[dp.branch]??dp.branch}</strong>, classified as a ${elEn} element — meaning when Saju asks "who are you?", it answers: a person whose backbone is ${elEn}. Your birth month sits in the ${monthElEn} element, and its relationship to your ${elEn} Day Master is <strong>${feeds?'생조 (Saeng-jo) — month feeds the day':same?'비겁 (Bi-geop) — same element':'극 (Geuk) — month presses the day'}</strong>. ${feeds?'Korean masters consider this a great blessing — you receive non-conflicting energy from family/origin to nourish your identity':same?'This pattern grants power but watch for being too rigid — too much same-energy can mean competition with family':'This is the most challenging pattern but it usually produces very strong people, forged from resisting pressure since childhood'}.</p>`,
         `<p><strong>꽃살 for 2026:</strong> <strong>${kwarsal}</strong> is Saju\'s specific reading comparing your day-pillar energy to the current year. ${kwarsal.includes('화개')?'화개살 (Hwagae-sal) signals a year of deep learning, dharma practice, art, and wisdom — better to "withdraw to learn" than push to grow':kwarsal.includes('천을')?'천을귀인 (Cheoneul Gwiin) is the highest blessing in Saju — a powerful helper opens doors. Ask for help boldly this year':kwarsal.includes('역마')?'역마살 (Yeokma-sal) — a year of travel, relocation, job change. Not an ill omen, but the signal that you should move':kwarsal.includes('재성')?'재성 (Jaeseong) — a wealth year. Money and relationship opportunities open wide':kwarsal.includes('관성')?'관성 (Gwanseong) — a year of position, power, duty. A new role finds you':kwarsal.includes('인성')?'인성 (Inseong) — a year of learning, attentive mother-figures, further study. Time to invest in yourself':'a year demanding you use your day-pillar energy carefully'}.</p>`,
         `<p><strong>What Saju sees as your strength:</strong> Because your 일주 is ${KO_STEMS[dp.stem]??dp.stem} (${elEn}), you are ${dmEl==='ไฟ'?'a natural igniter and leader — Korean Saju calls Fire-element people "불같은 사람" (fire-like person), drawing followers easily':dmEl==='ไม้'?'a long-range planner and cultivator — Saju compares Wood people to "큰 나무" (a great tree) sheltering the family':dmEl==='น้ำ'?'an adapter and deep thinker — Saju compares Water people to "깊은 물" (deep water), reading others before anyone':dmEl==='โลหะ'?'a person of standards and principle — Saju compares Metal people to "빛나는 금" (gleaming gold), refusing to let value drop':'steady, the dependable one — Saju compares Earth people to "큰 바위" (a great rock) that others lean on'}.</p>`,
@@ -5316,12 +5316,12 @@ function buildRichReading(args: {
     ? args.sysEn
     : `${args.sysTh} · <span style="color:#9a8a72;letter-spacing:1px">${args.sysEn}</span>`;
   const metaHeader = (originCountry || popularity || keyStrength)
-    ? `<div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
-         <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">${titleHTML}</div>
+    ? `<div style="background:#0d0d15;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+         <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:2px;margin-bottom:8px">${titleHTML}</div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
-           ${originCountry ? `<div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">${L.origin}</span><br><strong style="color:#d4aa50">${originCountry}</strong></div>` : ''}
-           <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">${L.age}</span><br><strong style="color:#d4aa50">~ ${yearsText}</strong></div>
-           ${popularity ? `<div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">${L.popularity}</span><br><strong style="color:#d4aa50">${popularity}</strong></div>` : ''}
+           ${originCountry ? `<div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">${L.origin}</span><br><strong style="color:#c8a45a">${originCountry}</strong></div>` : ''}
+           <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">${L.age}</span><br><strong style="color:#c8a45a">~ ${yearsText}</strong></div>
+           ${popularity ? `<div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">${L.popularity}</span><br><strong style="color:#c8a45a">${popularity}</strong></div>` : ''}
          </div>
          ${keyStrength ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #2a2545"><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">${L.keyStrength}</span><br><span style="color:#e0d0b0">${keyStrength}</span></div>` : ''}
        </div>`
@@ -5347,9 +5347,9 @@ function _dsKit() {
   const isEn = _reportLang === 'en';
   const pick = (th: string, en: string) => isEn ? en : th;
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   return { isEn, pick, blk, P, B, faqQ };
 }
