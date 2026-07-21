@@ -1,51 +1,68 @@
-# GitHub ticket #5 — draft (Director sends; Claude cannot log in)
+# GitHub ticket #5 — draft (Director sends; Claude does not touch logins)
 
-**Why a 5th ticket, and why it must read differently from the first four**
+**Confirmed 2026-07-21:** the second free account is **`marcusflintch`** (registered with a
+Gmail address). Director recognised the name. This is what GitHub's automated system has
+been referring to in all four prior tickets.
 
-Tickets #4298949, #4425020, #4433473, #4508404 all argued *"I am a real person with
-a real project."* GitHub never disputed that. What GitHub actually said, twice,
-verbatim, was:
+## Why the first four appeals failed
 
-> "Your account was flagged because you appear to have registered **more than a
-> single free user account**. The GitHub Terms of Service Account Requirements
-> state that an individual may not maintain more than one"
+Tickets #4298949, #4425020, #4433473, #4508404 all argued *"I am a real person with a real
+project."* GitHub never disputed that. What they said, verbatim, twice, was:
 
-None of the four replies answered that question. Two of them got a human to click
-"cleared" (#4433473, #4508404) — and the automated system re-flagged shortly after,
-because the underlying condition never changed. That is the loop to break.
+> "Your account was flagged because you appear to have registered **more than a single
+> free user account**."
 
-**A correction that matters:** ticket #4433473 stated *"My other GitHub presence is
-an Organization account for my company, Yoohui."* Verified 2026-07-20 via the API —
-this account belongs to **no organization at all** (`GET /user/orgs` → empty,
-`GET /user/memberships/orgs` → empty). So whatever the second presence is, GitHub is
-counting it as a second **user** account. Repeating the Organization framing in a
-5th ticket would be repeating something the API contradicts, and an appeal that
-conflicts with GitHub's own records is worse than no appeal.
+None of the four replies answered that. Two of them got a human to click "cleared"
+(#4433473, #4508404) — and the automated system re-flagged, because the second account
+still existed. That is the loop. It will keep repeating until `marcusflintch` is dealt with.
 
-**The actual ToS text** (fetched 2026-07-20 from the live Terms):
+**Two corrections that must not be repeated in ticket #5:**
+- #4433473 said the other presence is an *Organization*. It is not — `GET /user/orgs` and
+  `GET /user/memberships/orgs` are both empty. It is a second **user** account.
+- The `chaiyapat.c@yoohui.co.th` / `garsell@hotmail.com` theory is a dead end: commits
+  authored with the office address attribute to **no GitHub account at all** (`author: null`),
+  while `garsell@` attributes to `PattrickChenforclaudeuse`. Two emails on one account is
+  allowed; two accounts is not. The issue is `marcusflintch`, not the emails.
 
-> "One person or legal entity may maintain no more than one free Account (if you
-> choose to control a machine account as well, that's fine, but it can only be used
-> for running a machine)."
-
-Note it says *free* Account. Whether a paid plan on one of them resolves this is
-**not stated explicitly** — so the ticket should ask rather than assume.
+**Likely sequence** (worth stating plainly — GitHub can see it anyway): the main account was
+flagged → it could no longer authorize third-party apps (this is literally what ticket
+#4425020 reported) → a second account was created to complete the Smithery listing →
+GitHub read that as evading the restriction and the flag hardened. Disclosing this
+voluntarily is far better than having them find it during review.
 
 ---
 
-## Before sending — decide two things
+## ⚠️ DO THIS BEFORE SENDING — there is real value sitting on the second account
 
-1. **Which account is the second one?** (Which email is it under?)
-2. **Which one do you want to keep as the primary?** `PattrickChenforclaudeuse` is
-   the GitHub login for Supabase (woam) and Vercel, so keeping it avoids an
-   auth migration. Deleting it would break production access.
+The Smithery listing lives at **`smithery.ai/servers/marcusflintch/mythsensus`** and it is
+not idle:
 
-⚠️ Do **not** delete anything before support answers. If they specify a path, follow
-theirs — self-remediating first and describing it afterwards has no downside, but
-guessing wrong (e.g. deleting the account that owns a Vercel/Supabase login) does.
+| | |
+|---|---|
+| Tool calls | **343** (daily_blessing 104 · get_deep_reading 104 · calculate_cosmic_score 64 · list_26_systems 42 · about_engine 29) |
+| Daily sessions | **1,142** |
+| Quality score | **93/100** · uptime 100% · p50 latency 842 ms |
+| Published | 2026-06-24 |
 
-⚠️ Do **not** open a new account to escape this. GitHub treats that as ban evasion
-and it escalates to a permanent suspension.
+That is the single best evidence to date that "AI discovers and calls Mythsensus" actually
+works. **Deleting the `marcusflintch` GitHub account before migrating this listing risks
+losing it**, because the Smithery namespace is tied to that GitHub identity.
+
+**Order of operations:**
+1. Log into Smithery as `marcusflintch`. Try to transfer the server to a namespace owned by
+   `PattrickChenforclaudeuse`, or re-publish it under the main account and confirm the new
+   listing is live.
+2. If Smithery has no self-serve transfer, email Smithery support first, explain it is the
+   same person consolidating accounts, and ask them to move `marcusflintch/mythsensus`.
+   Do this **before** touching the GitHub account.
+3. Only once the listing is safe → delete/downgrade the `marcusflintch` GitHub account.
+4. Then send the ticket below, describing what was already done.
+
+If GitHub replies first and asks for something different, follow their instruction over
+this plan.
+
+⚠️ **Do not create a third account.** GitHub treats that as ban evasion and escalates to a
+permanent suspension.
 
 ---
 
@@ -56,42 +73,44 @@ and it escalates to a permanent suspension.
 - **Why are you requesting reinstatement?** → account-not-visible
 - **Does your claim involve content on GitHub or npm.js?** → github
 - **Username impacted** → `PattrickChenforclaudeuse`
-- **Subject** → `Second free account — asking for the compliant path (follow-up to 4508404)`
+- **Subject** → `Second account identified and removed — follow-up to 4508404`
 
 ---
 
-## Body — ready to paste
+## Body — paste this
 
 > Hello,
 >
-> This is a follow-up to tickets 4298949, 4425020, 4433473 and 4508404. I want to
-> correct my earlier submissions rather than repeat them.
+> This is a follow-up to tickets 4298949, 4425020, 4433473 and 4508404. I want to correct
+> my earlier submissions rather than repeat them.
 >
-> Your replies said my account was flagged for appearing to maintain more than one
-> free user account. My previous appeals argued that I am a real person with a real
-> project, which did not address what you actually raised. In ticket 4433473 I also
-> described my other presence as an Organization account — that was wrong, and I
-> apologise for the inaccuracy. I have since checked and this account is not a
-> member of any organization.
+> Your replies said my account was flagged for appearing to maintain more than one free
+> user account. My earlier appeals argued that I am a real person with a real project,
+> which did not address what you actually raised. In ticket 4433473 I also described my
+> other presence as an Organization — that was wrong, and I apologise for the inaccuracy.
+> I have since checked and this account belongs to no organization.
 >
-> The correct facts: I do have a second free user account. I have been using one for
-> my company's work and one for personal projects, and I did not realise this
-> violated the one-free-account requirement. I would like to fix it properly.
+> The correct facts: I do have a second free user account, **`marcusflintch`**, registered
+> under a Gmail address. It is mine. I created it after this main account was flagged and
+> could no longer authorize third-party applications, because I needed to complete a
+> listing for my open-source MCP server on Smithery. I understand now that this was the
+> wrong way to solve that problem and that it likely made the flag worse rather than
+> better. I am not trying to hide it — I am telling you about it directly.
 >
-> Please tell me which path you want me to take:
+> I want to end up compliant with one account. [PICK ONE:]
 >
-> (a) Move the company work into an Organization owned by this single account and
->     delete the second user account;
-> (b) Put one of the two accounts on a paid plan, if that satisfies the requirement;
-> (c) Something else you would prefer.
+> **(if already done)** I have deleted `marcusflintch`. `PattrickChenforclaudeuse` is now
+> my only GitHub account. Could you please review and lift the restriction?
 >
-> I will do whichever you specify, and I will confirm back here once it is done.
+> **(if not yet done)** Please confirm the path you want: (a) I delete `marcusflintch` and
+> keep `PattrickChenforclaudeuse` only, (b) one of them goes on a paid plan, or (c)
+> something else you prefer. I will do whichever you specify and confirm back here.
 >
-> One practical note on sequencing: `PattrickChenforclaudeuse` is the "Sign in with
-> GitHub" identity for my Supabase database and my Vercel hosting, which run
-> https://mythsensus.com in production. If your recommended path involves deleting
-> or renaming that specific account, could you flag that in your reply so I can
-> migrate those logins first and avoid losing access to my own production systems?
+> One practical note on sequencing: `PattrickChenforclaudeuse` is the "Sign in with GitHub"
+> identity for my Supabase database and my Vercel hosting, which serve
+> https://mythsensus.com in production. Please flag it in your reply if your recommended
+> path involves deleting or renaming that specific account, so I can migrate those logins
+> first.
 >
 > I am happy to complete any identity verification you need.
 >
@@ -100,26 +119,27 @@ and it escalates to a permanent suspension.
 
 ---
 
-## What unblocks once this clears
+## What is actually blocked by the flag (corrected 2026-07-21)
 
-- awesome-mcp-servers PR **#8652** — open since 2026-06-24, 3 comments, unmerged.
-  Maintainers cannot review it because the linked repo returns 404 to logged-out
-  visitors.
-- **Smithery**, **Glama**, **mcp.so**, **PulseMCP** — all index from GitHub.
-- The three `awesome-mcp-servers` forks on the account should be deleted once the
-  PR is resolved; three forks of near-identical list repos is itself a spam signal.
+Earlier notes claimed every directory was blocked. **That was wrong** — verified:
 
-**Already shipped without GitHub** (2026-07-21): `com.mythsensus/mythsensus-mcp`
-v0.3.0 is live in the official MCP Registry via HTTP domain auth, including the
-hosted `https://mythsensus.com/mcp` remote. That path never touches GitHub.
+| Directory | Status |
+|---|---|
+| Official MCP Registry | ✅ live — `com.mythsensus/mythsensus-mcp` v0.3.0 (published via HTTP domain auth, never touched GitHub) |
+| Glama | ✅ live — `PattrickChenforclaudeuse/mythsensus-mcp`, id `epx15rij1g` |
+| mcp.so | ✅ live |
+| Smithery | ✅ live **but under the `marcusflintch` namespace** — see above |
+| PulseMCP | ❌ not listed ("Showing 0 – 0 of 0 servers") |
+| awesome-mcp PR #8652 | ⏳ open — **not blocked**: all checks pass, no conflicts, labels `has-glama`/`valid-name` satisfied. Simply awaiting a maintainer. |
 
-## Verification commands (re-run to check whether the flag is gone)
+So the flag's real cost is narrower than assumed: a 404 profile, no third-party app
+authorization, and no forking. The listings themselves mostly got through.
+
+## Verification commands (run logged OUT — this is the whole point)
 
 ```bash
-# 404 while flagged, 200 once cleared — must be run logged OUT (curl is fine)
 curl -s -o /dev/null -w "%{http_code}\n" https://github.com/PattrickChenforclaudeuse
 curl -s -o /dev/null -w "%{http_code}\n" https://api.github.com/repos/PattrickChenforclaudeuse/mythsensus-mcp
 ```
-
-Checking in a logged-in browser will always show the account as healthy — that is
-exactly why this went unnoticed for weeks. Verify logged out.
+404 while flagged, 200 once cleared. A logged-in browser always shows the account as
+healthy — which is exactly why this went unnoticed for a month.
