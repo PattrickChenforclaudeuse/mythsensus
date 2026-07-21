@@ -13,5 +13,8 @@ export const config = { runtime: 'nodejs' };
 export default function handler(req, res) {
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300');
-  return res.status(200).send('v=MCPv1; k=ed25519; p=HgvlWdgYG+fXHISLOBBZTmv4BgsAeZNgGQMQqKiwldM=');
+  // Rotated 2026-07-20: the original private key was lost, so a new Ed25519
+  // keypair was generated and this proof updated to match. Private key is held
+  // outside the repo (see _credentials.local.md).
+  return res.status(200).send('v=MCPv1; k=ed25519; p=jXcVRTlmBW8fA/AB3psd1yL5FY6+euW7VZFDUuLnyyk=');
 }
