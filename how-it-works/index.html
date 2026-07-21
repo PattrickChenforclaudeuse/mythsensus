@@ -125,7 +125,8 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
     {"@type":"Question","name":"วิธีพิสูจน์ว่าไม่ส่งข้อมูลออก?","acceptedAnswer":{"@type":"Answer","text":"เปิด DevTools (F12 หรือ Cmd+Option+I) ไปที่แท็บ Network กด Ctrl+R (Cmd+R) reload หน้า ใส่วันเกิดของคุณ กด Generate — ดูใน Network tab ว่ามี request ไปที่ mythsensus.com หรือไม่ คำตอบ: ไม่มี (ยกเว้น analytics ภายในที่ไม่ส่งวันเกิด) การคำนวณทั้งหมดเสร็จใน browser โดยไม่ต้องเชื่อมต่อ server"}},
     {"@type":"Question","name":"แล้ว Cosmic Blueprint $19 ส่งข้อมูลออกไหม?","acceptedAnswer":{"@type":"Answer","text":"การชำระเงิน $19 ไปที่ Gumroad (merchant of record สำหรับ card processing + tax + receipt) — email และข้อมูล payment ส่งไปที่ Gumroad ไม่ใช่ Mythsensus. การคำนวณรายงาน เชิงลึกยังคงรันใน browser ของคุณเอง ไม่ใช่ server ของเรา — เราเก็บแค่ payment status (active/inactive) ผ่าน Gumroad webhook ไม่เก็บวันเกิดหรือเนื้อหารายงาน"}},
     {"@type":"Question","name":"localStorage คืออะไร? ปลอดภัยไหม?","acceptedAnswer":{"@type":"Answer","text":"localStorage คือกล่องเก็บข้อมูลใน browser ของคุณเอง — แต่ละ origin (mythsensus.com) มีกล่องของตัวเอง ไม่ shared กับเว็บอื่น และไม่ส่งไปที่ server ใด ๆ ข้อมูลอยู่ใน hard drive ของอุปกรณ์คุณเท่านั้น เคลียร์ browser cache = ข้อมูลหายหมด เพราะ Mythsensus ไม่มี backup บน server (เป็นข้อจำกัดที่จงใจ — privacy-first)"}},
-    {"@type":"Question","name":"Vercel Analytics เก็บข้อมูลอะไร?","acceptedAnswer":{"@type":"Answer","text":"Vercel Web Analytics คือ aggregated traffic data แบบ privacy-friendly — เก็บ page view count, country (ไม่ใช่ IP), browser type, referrer. ไม่ใช้ cookies. ไม่ track individual user. ไม่เก็บ IP. ไม่ส่งไปที่ Google/Facebook. ไม่ใช้สำหรับ advertising หรือ remarketing วันเกิดของคุณ ไม่ส่งไปที่ Vercel Analytics — เป็น analytics ของ page navigation เท่านั้น"}}
+    {"@type":"Question","name":"ใช้ผ่าน AI (MCP) ส่งข้อมูลออกไหม?","acceptedAnswer":{"@type":"Answer","text":"Mythsensus เปิดให้ AI เรียก engine ผ่าน MCP ได้ 2 ทาง และต่างกันตรงจุดนี้พอดี — npx -y mythsensus-mcp (npm) รัน engine ในเครื่องผู้ใช้เอง วันเกิดไม่ออกจากเครื่อง เหมือนตอนใช้เว็บ แต่ https://mythsensus.com/mcp (hosted) ส่งวันเกิดมาคำนวณที่ server ของเราแล้วส่งผลกลับ เราไม่เก็บและไม่ log แต่ข้อมูลออกจากเครื่องจริง ถ้าต้องการให้คำนวณในเครื่องเท่านั้น ให้ใช้ทาง npm"}},
+{"@type":"Question","name":"Vercel Analytics เก็บข้อมูลอะไร?","acceptedAnswer":{"@type":"Answer","text":"Vercel Web Analytics คือ aggregated traffic data แบบ privacy-friendly — เก็บ page view count, country (ไม่ใช่ IP), browser type, referrer. ไม่ใช้ cookies. ไม่ track individual user. ไม่เก็บ IP. ไม่ส่งไปที่ Google/Facebook. ไม่ใช้สำหรับ advertising หรือ remarketing วันเกิดของคุณ ไม่ส่งไปที่ Vercel Analytics — เป็น analytics ของ page navigation เท่านั้น"}}
   ]
 }
 </script>
@@ -455,6 +456,11 @@ Supabase woam project            # Auth + payment records
     <div class="faq-block">
       <h3>localStorage คืออะไร? ปลอดภัยไหม?</h3>
       <p>localStorage คือกล่องเก็บข้อมูลใน browser ของคุณเอง — แต่ละ origin (mythsensus.com) มีกล่องของตัวเอง ไม่ shared กับเว็บอื่น และไม่ส่งไปที่ server ใด ๆ ข้อมูลอยู่ใน hard drive ของอุปกรณ์คุณเท่านั้น เคลียร์ browser cache = ข้อมูลหายหมด เพราะ Mythsensus ไม่มี backup บน server (เป็นข้อจำกัดที่จงใจ — privacy-first)</p>
+    </div>
+
+    <div class="faq-block">
+      <h3>ใช้ผ่าน AI (MCP) ส่งข้อมูลออกไหม?</h3>
+      <p>Mythsensus เปิดให้ AI เรียก engine ผ่าน MCP ได้ 2 ทาง และ <strong>2 ทางนี้ต่างกันตรงจุดนี้พอดี</strong> — <code>npx -y mythsensus-mcp</code> (npm) รัน engine ในเครื่องผู้ใช้เอง วันเกิดไม่ออกจากเครื่อง เหมือนตอนใช้เว็บ · แต่ <code>https://mythsensus.com/mcp</code> (hosted) <strong>ส่งวันเกิดมาคำนวณที่ server ของเรา</strong> แล้วส่งผลกลับ — เราไม่เก็บและไม่ log แต่ข้อมูลออกจากเครื่องจริง ถ้าต้องการให้คำนวณในเครื่องเท่านั้น ให้ใช้ทาง npm</p>
     </div>
 
     <div class="faq-block">
