@@ -32,7 +32,31 @@ voluntarily is far better than having them find it during review.
 
 ---
 
-## ⚠️ DO THIS BEFORE SENDING — there is real value sitting on the second account
+## ⭐ First ask whether deletion is even required (added 2026-07-21)
+
+The ToS wording is *"One person or legal entity may maintain no more than one **free**
+Account"* — verified against the live Terms. **Paid accounts are not explicitly covered by
+that sentence.** Cost is not a constraint here, so the cheapest resolution may simply be to
+put one of the two accounts on a paid plan and keep both.
+
+If that works, nothing has to be deleted, nothing has to be migrated, and the Smithery
+listing keeps running untouched. Ask GitHub this **first** — the answer determines whether
+any of the migration work below is needed at all.
+
+Caveat: ToS text is not the same as enforcement policy, and their abuse system may still
+count two accounts regardless of plan. So ask; do not assume and pay first.
+
+## ⚠️ Only if GitHub requires deleting `marcusflintch`
+
+**The reason to act before deleting is control, not the usage number.** The 343 calls are a
+historical stat that would not transfer anywhere anyway. What matters: if the Smithery
+account was created via GitHub OAuth on `marcusflintch`, deleting that GitHub account means
+losing the ability to ever edit, refresh, or remove that listing. It would freeze publicly
+as a permanently stale entry — 5 tools instead of 7, old pricing copy — under a name that
+looks like a stranger's.
+
+A frozen un-editable listing is a worse outcome than no listing. So while access still
+exists, either transfer it to the main account or delete it outright, then re-list later.
 
 The Smithery listing lives at **`smithery.ai/servers/marcusflintch/mythsensus`** and it is
 not idle:
@@ -97,7 +121,12 @@ permanent suspension.
 > wrong way to solve that problem and that it likely made the flag worse rather than
 > better. I am not trying to hide it — I am telling you about it directly.
 >
-> I want to end up compliant with one account. [PICK ONE:]
+> I want to resolve this properly. Before I delete anything, one question: your Terms say
+> "no more than one **free** Account". If I put one of the two accounts on a paid plan,
+> does that satisfy the requirement and let me keep both? I am willing to pay — I would
+> just rather do the thing you actually want than guess.
+>
+> If paying does not resolve it, then: [PICK ONE:]
 >
 > **(if already done)** I have deleted `marcusflintch`. `PattrickChenforclaudeuse` is now
 > my only GitHub account. Could you please review and lift the restriction?
@@ -129,7 +158,7 @@ Earlier notes claimed every directory was blocked. **That was wrong** — verifi
 | Glama | ✅ live — `PattrickChenforclaudeuse/mythsensus-mcp`, id `epx15rij1g` |
 | mcp.so | ✅ live |
 | Smithery | ✅ live **but under the `marcusflintch` namespace** — see above |
-| PulseMCP | ❌ not listed ("Showing 0 – 0 of 0 servers") |
+| PulseMCP | ⏳ **arrives on its own** — PulseMCP auto-ingests the Official MCP Registry daily (processed weekly) and needs no GitHub account, no form. The registry publish on 2026-07-21 should surface it within ~a week. Fallback if it doesn't: email hello@pulsemcp.com. |
 | awesome-mcp PR #8652 | ⏳ open — **not blocked**: all checks pass, no conflicts, labels `has-glama`/`valid-name` satisfied. Simply awaiting a maintainer. |
 
 So the flag's real cost is narrower than assumed: a 404 profile, no third-party app
