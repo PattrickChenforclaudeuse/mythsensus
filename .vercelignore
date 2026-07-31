@@ -18,9 +18,26 @@
 /CLAUDE.md
 /README.md
 /COMPETITOR-*.md
+/EXPERT-PANEL-*.md
 /_PLAN-*.md
 /_PARKING-ideas.md
+# Guardian-card prototype + audit (internal experiment, 2026-06)
+/_guardian-audit.cjs
+/_guardian-card-proto.html
+/_guardian-cards.png
+/_god3d-pilot/
 /_mock-*.html
+# Audit 2026-07-29 (pre-deploy sweep): these siblings of already-excluded files were
+# still being served. Verified with grep that nothing under api/, index.html, sw.js or
+# vercel.json references any of them at runtime before excluding.
+/_mock-*.png
+/_render-*.cjs
+/_verify-*.cjs
+/_verify-*.png
+/_seo-gen/
+/bts-rally/
+/data/gods-lore.json.pre-*.bak
+/data/gods-lore-threads.json
 /mythsensus-cowork-brief.md
 /HANDOFF-2026-04-27.md
 /HANDOFF-2026-05-02.md
@@ -62,6 +79,11 @@
 /Mythsensus/report-engine/lib/calc.ts
 /Mythsensus/report-engine/lib/report.ts
 /Mythsensus/report-engine/lib/report.ts.mojibake.bak
+# Any pre-edit source snapshot. These are full copies of the engine source and
+# were being served publicly (found 2026-07-29 while auditing before a deploy —
+# calc.ts itself was excluded but calc.ts.pre-theme.bak was not).
+/Mythsensus/report-engine/lib/calc.ts.pre-theme.bak
+/Mythsensus/report-engine/lib/report.ts.pre-theme.bak
 
 # ── /Mythsensus/ subdir internal docs/SQL/HTML (audit 2026-06-10: served at
 #    single-level /Mythsensus/<file> URLs — architecture doc, DB schemas,

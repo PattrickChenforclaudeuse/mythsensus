@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateReport = generateReport;
+exports.generateReport = void 0;
 // ============================================================
 //  MYTHSENSUS — Report HTML Generator
 //  Generates full 25-section report from ChartData.
@@ -2384,6 +2384,7 @@ ${pages}
 </body>
 </html>`;
 }
+exports.generateReport = generateReport;
 /** Extract structured signals from all 26 systems for a given topic */
 function extractSignals(c, topic) {
     const { bazi, western, ninestar, vedic, humandesign, mayan, celtic, thai, numerology, saju, tibetan, ziwei, onmyodo, hellenistic, norseRune, ogham, arabicParts, kabbalistic, zoroastrian, aztec, nativeAmerican, ifaYoruba, aboriginal, biorhythm, vedicMahadasha } = c;

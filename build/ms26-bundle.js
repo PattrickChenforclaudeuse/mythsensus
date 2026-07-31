@@ -12,10 +12,6 @@
 //  All 10 systems calculated algorithmically. Zero external API.
 // ============================================================
 
-
-
-
-
 // ── Bilingual primitives ────────────────────────────────────────
 // Single source of truth for translating Thai data fields to English.
 // Used by buildRichReading() and the per-system calc functions to keep
@@ -572,12 +568,30 @@ const BRANCHES_TH = ['ชวด (หนู)', 'ฉลู (วัว)', 'ขา�
 const BRANCHES_EN = ['Zi (Rat)', 'Chou (Ox)', 'Yin (Tiger)', 'Mao (Rabbit)', 'Chen (Dragon)', 'Si (Snake)', 'Wu (Horse)', 'Wei (Goat)', 'Shen (Monkey)', 'You (Rooster)', 'Xu (Dog)', 'Hai (Pig)'];
 function pStem(idx) { return _reportLang === 'en' ? (STEMS_EN[idx] ?? '') : (STEMS_TH[idx] ?? ''); }
 function pBranch(idx) { return _reportLang === 'en' ? (BRANCHES_EN[idx] ?? '') : (BRANCHES_TH[idx] ?? ''); }
-// Month Pillar solar term boundaries (simplified - day of month Li Qi enters each month)
-const SOLAR_TERM_DAYS = [6, 4, 6, 5, 6, 6, 7, 7, 8, 8, 7, 7]; // approximate day when month pillar starts each month
-function yearPillar(y, m, d) {
-    const threshold = SOLAR_TERM_DAYS[1]; // Li Chun ~Feb 4
+// BaZi year + month pillars — Phase 2 engine v2 (2026-06-08).
+// v1 used fixed `SOLAR_TERM_DAYS = [6,4,6,5,...]` day-of-month approximation
+// which gave WRONG month pillar for ~5% of DOBs falling within ±48 hours of
+// a solar-term boundary. v2 uses actual Sun apparent longitude (via existing
+// `sunLongitude(jd)` Meeus simplified series) which is accurate to ~few
+// arcminutes — translates to ~1 hour timing precision on solar terms vs ±48h
+// of v1.
+//
+// The 12 "jié" (節) major solar terms that define BaZi month boundaries
+// occur every 30° of Sun apparent longitude:
+//   Sun=315° → Li Chun (立春)  → start of 寅 (Yin/Tiger)   month
+//   Sun=345° → Jing Zhe (驚蟄) → start of 卯 (Mao/Rabbit)  month
+//   Sun=15°  → Qing Ming (清明) → start of 辰 (Chen/Dragon) month
+//   ... (every 30°) ...
+//   Sun=285° → Xiao Han (小寒) → start of 丑 (Chou/Ox)    month
+// Same logic governs the year boundary: year pillar changes at Sun=315°
+// (Li Chun). For DOBs in Jan/early Feb where Sun ∈ [280°, 315°), we're
+// still in the PRIOR solar year.
+function yearPillar(y, m, d, hour = 12) {
+    const jd = toJD(y, m, d, hour);
+    const sunLon = sunLongitude(jd);
+    // Sun ∈ [280°, 315°) covers Jan 1 → ~Feb 4 (Li Chun). Before Li Chun = prior solar year.
     let yr = y;
-    if (m < 2 || (m === 2 && d < threshold))
+    if (sunLon >= 280 && sunLon < 315)
         yr--;
     const si = ((yr - 4) % 10 + 10) % 10;
     const bi = ((yr - 4) % 12 + 12) % 12;
@@ -585,14 +599,14 @@ function yearPillar(y, m, d) {
     // 'Jia (Yang Wood) Zi (Rat)' instead of 'จ่ย ไม้หยาง ชวด (หนู)'.
     return { stem: STEMS[si], branch: BRANCHES[bi], stemTh: pStem(si), branchTh: pBranch(bi), si, bi };
 }
-function monthPillar(y, m, d) {
-    // Solar term: if before threshold day, use previous month
-    let solarMonth = m;
-    if (d < SOLAR_TERM_DAYS[m - 1])
-        solarMonth = m === 1 ? 12 : m - 1;
-    // Branch: Jan→丑(1), Feb→寅(2), ..., Dec→子(0)
-    const MONTH_BRANCHES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0];
-    const bi = MONTH_BRANCHES[solarMonth - 1];
+function monthPillar(y, m, d, hour = 12) {
+    const jd = toJD(y, m, d, hour);
+    const sunLon = sunLongitude(jd);
+    // Sun=315° marks Li Chun (start of 寅 month, branch index 2).
+    // Each 30° increment = next month branch. Wrap modulo 360.
+    const offset = ((sunLon - 315) % 360 + 360) % 360; // 0..360 from Li Chun
+    const branchOffset = Math.floor(offset / 30); // 0=寅, 1=卯, ..., 11=丑
+    const bi = (2 + branchOffset) % 12;
     // Stem: use WESTERN calendar year (not Lichun-adjusted) for month stem formula
     // 甲己年→子月甲, 乙庚年→子月丙, 丙辛年→子月戊, 丁壬年→子月庚, 戊癸年→子月壬
     const westernStemIdx = ((y - 4) % 10 + 10) % 10;
@@ -1063,8 +1077,14 @@ function _baziDeepSections(a) {
     return sections.join('');
 }
 function calcBazi(d) {
-    const yp = yearPillar(d.year, d.month, d.day);
-    const mp = monthPillar(d.year, d.month, d.day);
+    // Solar-term lookup needs UT, not local clock time (same convention as
+    // calcWestern). Passing local `d.hour` shifts the Sun-longitude test by
+    // up to the timezone offset — enough to land on the wrong side of a
+    // solar term for births within hours of the boundary, i.e. exactly the
+    // case engine v2 exists to fix.
+    const utcHour = d.hour - d.timezone + d.minute / 60;
+    const yp = yearPillar(d.year, d.month, d.day, utcHour);
+    const mp = monthPillar(d.year, d.month, d.day, utcHour);
     const dp = dayPillar(d.year, d.month, d.day);
     const hp = hourPillar(d.hour, dp.si);
     const lps = calcLuckPillars(yp.si, yp.bi, d.gender, d.year, d.month, d.day);
@@ -1844,31 +1864,38 @@ const DASHA_YEARS = {
 };
 const DASHA_ORDER = ['เคตุ', 'ศุกร์', 'อาทิตย์', 'จันทร์', 'อังคาร', 'ราหู', 'พฤหัสฯ', 'เสาร์', 'พุธ'];
 /**
- * Lahiri Ayanamsa — time-varying sidereal offset for Vedic calculations.
+ * Lahiri Ayanamsa — IAU 2006 P03 general precession in longitude.
+ * Reference: Capitaine, Wallace, Chapront 2003 / Hilton et al. 2006,
+ * "Report of the IAU Working Group on Precession and the Ecliptic."
  *
- * Linear approximation from J2000.0 epoch: rate = 50.288 arcsec/year
- * (≈ 0.013968°/year) due to precession of the equinoxes. Accurate to
- * ~±10 arcsec across years 1900-2100 — sufficient for nakshatra
- * boundary placement at 13°20' resolution.
+ * Lahiri reference value: 23°51'11.18" at 2000-01-01 UT = 23.85310°.
  *
- * Reference value: 23°51'11.18" at 2000-01-01 UT = 23.85310°
+ * Patch history:
+ *   2026-06-01 — v55: hardcoded 24.0 → linear 50.288"/yr (Lahiri linear)
+ *   2026-06-08 — v94: linear → IAU 2006 P03 polynomial (Phase 2 engine v2)
  *
- * Patched 2026-06-01 (Director-approved): previously hardcoded to 24.0
- * which drifts ~10 arcmin from true Lahiri at 2026 and ~26 arcmin by
- * 2050. For older charts (pre-1950) the drift is even larger — Sunthorn
- * Phu's 1786 chart was using a value 2.87° wrong (≈ shift of half a
- * nakshatra), affecting nakshatra/Mahadasha/dasha period accuracy.
+ * For T = Julian centuries from J2000.0 TDB:
+ *   p_A = 5028.796195"T + 1.1054348"T² + 0.00007964"T³
+ *        − 0.000023857"T⁴ − 0.0000000383"T⁵
+ *   ayanamsa(T) = 23.85310° + p_A(T) / 3600
  *
- * For higher precision in future, replace with full IAU 2006 series
- * (Newcomb / Capitaine). Current linear form is enough for ~99% of
- * cases at nakshatra-boundary precision.
+ * Linear coefficient (5028.796195"/century = 50.288"/yr) matches v1, so
+ * for modern charts (|T| < 0.5, years 1950-2050) v2 agrees with v1 within
+ * microarcseconds. For historical DOBs (|T| > 1, pre-1900 or post-2100),
+ * the T² and higher terms become meaningful — at T = -2.14 (Sunthorn Phu
+ * 1786), the difference between linear and P03 is ~5 arcseconds. Real
+ * benefit shows on millennia-scale charts (±10° at T = ±70).
  */
 function lahiriAyanamsa(year, month, day) {
-    const decYear = year + (month - 1) / 12 + (day - 1) / 365.25;
-    const REF_YEAR = 2000.0;
-    const REF_AYAN_DEG = 23.85310; // 23°51'11.18" at 2000-01-01 UT
-    const RATE_PER_YEAR_DEG = 0.013968; // 50.288"/yr / 3600
-    return REF_AYAN_DEG + (decYear - REF_YEAR) * RATE_PER_YEAR_DEG;
+    const jd = toJD(year, month, day, 12); // noon UT — sub-day precision irrelevant
+    const T = (jd - 2451545.0) / 36525; // Julian centuries from J2000.0
+    // IAU 2006 P03 general precession in longitude (arcseconds)
+    const pA = 5028.796195 * T
+        + 1.1054348 * T * T
+        + 0.00007964 * T * T * T
+        - 0.000023857 * T * T * T * T
+        - 0.0000000383 * T * T * T * T * T;
+    return 23.85310 + pA / 3600;
 }
 // ── VEDIC (JYOTISH) DEEP READING ─────────────────────────────────────────────
 // Cross-checked vs real Jyotish reports (vedicplanet, onlinejyotish): planetary
@@ -3299,6 +3326,7 @@ function calcLifeTerrain(d, dmElement) {
     const detail = `${workCountry} (${countryEl}) ${alignBonus >= 60 ? '→ หนุน' : alignBonus >= 30 ? '→ เข้ากัน' : alignBonus >= 0 ? '→ กลาง' : '→ กดดัน'} Day Master ${dmElEn} | ระดับ ${d.careerLevel ?? 'Mid'} (${levelBonus >= 0 ? '+' : ''}${levelBonus})`;
     return { score, detail };
 }
+
 // ── PATH RESONANCE — domain + industry Wuxing fit ─────────────
 // Element grouping MUST match index.html DOMAINS_BY_EL / INDUSTRIES_BY_EL
 // (ไฟ=Fire · โลหะ=Metal · น้ำ=Water · ดิน=Earth · ไม้=Wood). Unknown → 'Fire'/'Earth'.
@@ -3370,6 +3398,7 @@ function calcPathResonance(d, dmElement) {
     const detail = `Domain: ${domain} (${domainEl}) | Industry: ${industry} (${industryEl}) | Relation: ${relation}`;
     return { score, detail };
 }
+
 // ============================================================
 // MAIN ORCHESTRATOR
 // ============================================================
@@ -4175,6 +4204,7 @@ function calculate(d) {
     const addons = calcAddons(dmEl, score.tierEn || score.tier || 'Resonant', dashaThaiKey);
     return { ...partial, score, addons };
 }
+
 // ── SAJU DEEP READING ────────────────────────────────────────────────────────
 // Cross-checked vs Korean commercial 사주명리 readings (사주 원국 / 오행 분포 /
 // 십성 / 용신·기신 / 대운 / 신살·궁합 / 직업·재물·애정·건강). sections-only,
@@ -4286,8 +4316,9 @@ function calcSaju(d) {
         '午': '오(午)', '未': '미(未)', '申': '신(申)', '酉': '유(酉)', '戌': '술(戌)', '亥': '해(亥)'
     };
     const dp = dayPillar(d.year, d.month, d.day);
-    const mp = monthPillar(d.year, d.month, d.day);
-    const yp = yearPillar(d.year, d.month, d.day);
+    const _utcHourSaju = d.hour - d.timezone + d.minute / 60; // UT for solar-term lookup
+    const mp = monthPillar(d.year, d.month, d.day, _utcHourSaju);
+    const yp = yearPillar(d.year, d.month, d.day, _utcHourSaju);
     const hp_val = hourPillar(d.hour, dp.si);
     // Kwarsal (꽃살): auspicious annual fortune type based on day branch in current year
     const KWARSAL = ['화개살', '천을귀인', '역마살', '지살', '재성', '관성', '인성', '비겁', '식상', '상관', '재성', '역마살'];
@@ -4589,6 +4620,7 @@ function calcDailyPulse(c, date, opts = {}) {
         synthesisEn: synEn,
     };
 }
+
 function _buildSynthesis(signals, tier, lang, c) {
     if (signals.length === 0)
         return lang === 'th' ? 'วันธรรมดา ไม่มีสัญญาณเด่น' : 'Quiet day, no strong signal.';
@@ -4613,6 +4645,7 @@ function _buildSynthesis(signals, tier, lang, c) {
 // labels/prose wrappers respect user's chosen language.
 let _reportLang = 'th';
 function _setReportLang(l) { _reportLang = l; }
+
 function buildRichReading(args) {
     const lang = _reportLang;
     // Pick EN text when (a) lang='en' AND (b) *En provided · else fall back to Th.
@@ -8615,6 +8648,7 @@ ${pages}
 </body>
 </html>`;
 }
+
 /** Extract structured signals from all 26 systems for a given topic */
 function extractSignals(c, topic) {
     const { bazi, western, ninestar, vedic, humandesign, mayan, celtic, thai, numerology, saju, tibetan, ziwei, onmyodo, hellenistic, norseRune, ogham, arabicParts, kabbalistic, zoroastrian, aztec, nativeAmerican, ifaYoruba, aboriginal, biorhythm, vedicMahadasha } = c;

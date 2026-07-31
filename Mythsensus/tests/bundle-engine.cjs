@@ -31,6 +31,12 @@ function strip(src) {
     // because `function xxx(){}` is already in scope via hoisting in our
     // IIFE)
     .replace(/^exports\.[A-Za-z_$][\w$]*\s*=\s*[A-Za-z_$][\w$]*;\s*$/gm, '')
+    // TS >= 3.9 also emits a hoisted initialiser chain for every export:
+    //   exports.a = exports.b = exports.c = void 0;
+    // The rule above only matches a single `exports.x = y;`, so this line
+    // survived into the bundle and threw "exports is not defined" at runtime.
+    // (Hit 2026-07-29 when the toolchain moved to TypeScript 5.4.)
+    .replace(/^exports\.[A-Za-z_$][\w$]*(\s*=\s*exports\.[A-Za-z_$][\w$]*)*\s*=\s*void 0;\s*$/gm, '')
     // TS imports like `import { X } from './calc'` compile to
     // `const calc_1 = require('./calc'); ... calc_1.X`. We strip the
     // require line above; this rewrites `calc_1.X` → `X` so the call
