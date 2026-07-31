@@ -3147,6 +3147,9 @@ function calcScore(d, data) {
         // computes against today's date — so the FROZEN engine biorhythm score
         // has no effect on either the user's UI or their Cosmic Score now.
         const isDailyOnly = w.systemEn === 'Biorhythm' || w.system === 'Biorhythm';
+        // ทักษา votes on the score but is not in the public SYSTEMS_26 list, so it
+        // stays out of every rendered breakdown (see `display` on the interface).
+        const isHiddenFromDisplay = /ทักษา|Taksa/i.test(String(w.systemEn || '') + String(w.system || ''));
         return {
             system: sysLabel,
             systemEn: w.systemEn || w.system, // canonical, for language-agnostic lookups
@@ -3155,6 +3158,7 @@ function calcScore(d, data) {
             finding: findings[i] ?? '',
             color: SCORE_COLORS[i] ?? '#5a5a5a',
             scoring: !isDailyOnly,
+            display: !isHiddenFromDisplay,
         };
     });
     // Cosmic Score = MEDIAN of 25 stable identity systems (biorhythm excluded —

@@ -432,7 +432,7 @@ function p_threeScores(c) {
     // Prose character portrait — answers the page's "who you are" promise in
     // words, synthesising element + tier + the loudest and quietest systems.
     const dmEl = bazi.dayMasterElement;
-    const sortedSys = score.breakdown.slice().sort((a, b) => b.score - a.score);
+    const sortedSys = score.breakdown.slice().filter(b => b.display !== false).sort((a, b) => b.score - a.score);
     const topSys = sortedSys[0], secondSys = sortedSys[1], lowSys = sortedSys[sortedSys.length - 1];
     const tierLabel = _lang === 'en' ? (score.tierEn || score.tier) : score.tier;
     const portrait = tr(`ถ้าจะสรุปคุณเป็นย่อหน้าเดียว: คุณคือพลังงานธาตุ${esc(dmEl)} ที่แกนกลางของดวงสั่นพ้องในระดับ "${esc(tierLabel)}" (${esc(score.percentile)}) · ศาสตร์ที่ขับตัวตนคุณออกมาชัดที่สุดคือ <strong style="color:#c0e080">${esc(trDF(topSys.system))}</strong> — ${esc(stripHtml(String(topSys.finding || '')))} เสริมด้วยเสียงของ ${esc(trDF(secondSys.system))} อีกแรง · ส่วน ${esc(trDF(lowSys.system))} ที่ให้คะแนนต่ำสุดไม่ได้แปลว่าคุณอ่อนด้านนั้น แต่คือมุมที่พลังงานของคุณเลือกไม่เดินเป็นทางหลัก — และความ "ไม่เท่ากันทุกด้าน" นี่เองที่ทำให้คุณเป็นคุณ ไม่ใช่ค่าเฉลี่ยของใคร`, `If we had to capture you in a single paragraph: you are ${esc(dmEl)}-element energy whose core resonates at the "${esc(tierLabel)}" level (${esc(score.percentile)}). The system that voices your identity most clearly is <strong style="color:#c0e080">${esc(trDF(topSys.system))}</strong> — ${esc(stripHtml(String(topSys.finding || '')))}, reinforced by ${esc(trDF(secondSys.system))}. Your lowest-scoring system, ${esc(trDF(lowSys.system))}, doesn't mean you're weak there — it's simply an angle your energy chooses not to travel as a main road. That very unevenness is what makes you <em>you</em>, not an average of anyone else.`);
@@ -454,7 +454,7 @@ function p_threeScores(c) {
     <!-- Top contributors -->
     <div style="margin-bottom:14px">
       <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">${tr('ระบบที่ให้คะแนนสูงสุด (Top 5)', 'Top-5 highest-scoring systems')}</div>
-      ${c.score.breakdown.slice().filter(b => b.scoring !== false).sort((a, b) => b.score - a.score).slice(0, 5).map(b => `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 10px;background:#0d0d15;border-radius:6px">
+      ${c.score.breakdown.slice().filter(b => b.scoring !== false && b.display !== false).sort((a, b) => b.score - a.score).slice(0, 5).map(b => `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 10px;background:#0d0d15;border-radius:6px">
           <span style="font-size:12px;color:#c8b890">${esc(trDF(b.system))}</span>
           <span style="font-size:13px;font-weight:700;color:#c8a45a">${b.score}</span>
         </div>`).join('')}
@@ -463,7 +463,7 @@ function p_threeScores(c) {
     <!-- Bottom contributors -->
     <div>
       <div style="font-size:12px;color:#9a8a72;margin-bottom:8px">${tr('ระบบที่ให้คะแนนต่ำสุด (Bottom 3) — ดาบสองคม', 'Bottom-3 lowest-scoring systems — double-edged sword')}</div>
-      ${c.score.breakdown.slice().filter(b => b.scoring !== false).sort((a, b) => a.score - b.score).slice(0, 3).map(b => `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 10px;background:#1a1008;border-radius:6px;border-left:2px solid #6a3010">
+      ${c.score.breakdown.slice().filter(b => b.scoring !== false && b.display !== false).sort((a, b) => a.score - b.score).slice(0, 3).map(b => `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 10px;background:#1a1008;border-radius:6px;border-left:2px solid #6a3010">
           <span style="font-size:12px;color:#a87050">${esc(trDF(b.system))}</span>
           <div style="text-align:right">
             <span style="font-size:13px;font-weight:700;color:#d07040">${b.score}</span>
@@ -511,7 +511,7 @@ const _SECONDARY_SYS = [
     { en: 'Onmyōdō', emoji: '⛩️' },
 ];
 function _secondaryCards(c) {
-    const bd = c.score.breakdown;
+    const bd = c.score.breakdown.filter(b => b.display !== false);
     return _SECONDARY_SYS
         .map(k => {
         const b = bd.find(x => (x.systemEn || '') === k.en);
@@ -548,7 +548,7 @@ function p02_scoreBreakdown(c) {
     // Group into 🌟 ≥780 / 〰 650-779 / ⚠ <650. Biorhythm carries scoring:false and
     // is a DAILY-changing layer (it would be a frozen, meaningless value in a static
     // report), so it's excluded here entirely — it lives only in the live Daily Pulse.
-    const allSorted = c.score.breakdown.slice().filter(b => b.scoring !== false).sort((a, b) => b.score - a.score);
+    const allSorted = c.score.breakdown.slice().filter(b => b.scoring !== false && b.display !== false).sort((a, b) => b.score - a.score);
     const voting = allSorted;
     const stars = voting.filter(b => b.score >= 780);
     const mids = voting.filter(b => b.score >= 650 && b.score < 780);
@@ -673,7 +673,7 @@ function p03_convergence(c) {
         color: '#d48050', votes: elVotes,
         msg: tr(`Day Master ${bazi.dayStem} (${bazi.dayMasterTh}) + สีมงคล ${ninestar.starColor} + ทิศ ${ninestar.starDirection} — ธาตุ${dmEl}คือเส้นด้ายทอง`, `Day Master ${bazi.dayStem} (${trDF(bazi.dayMasterTh)}) + lucky colour ${trDF(ninestar.starColor)} + direction ${trDF(ninestar.starDirection)} — ${trDF(dmEl)} is the golden thread.`) });
     // ─── 2. High-Score Consensus (ศาสตร์ที่เห็นภาพรวมดี) ───────────────────
-    const highVotes = all26.filter(b => b.score >= 780).map(b => ({ system: b.system, score: b.score }));
+    const highVotes = all26.filter(b => b.score >= 780 && b.display !== false).map(b => ({ system: b.system, score: b.score }));
     themes.push({ icon: '🌟',
         theme: tr('High Consensus — ศาสตร์ที่เห็นภาพดีพร้อมกัน (คะแนน ≥780)', 'High Consensus — systems agreeing on a strong picture (scores ≥780)'),
         color: '#c0a030', votes: highVotes,
@@ -791,7 +791,7 @@ function p03_convergence(c) {
         color: '#9060c0', votes: deptVotes,
         msg: `LP${numerology.lifePath} + ${kabbalistic.sephira} + ${trDF(aboriginal.dreamingTh)} + Vedic Nakshatra ${vedic.moonNakshatra}` });
     // ─── 7. Tension / Challenge (จุดท้าทาย) ───────────────────────────────────
-    const warnVotes = all26.filter(b => b.score < 650).map(b => ({ system: b.system + ' (' + b.score + ')', score: b.score }));
+    const warnVotes = all26.filter(b => b.score < 650 && b.display !== false).map(b => ({ system: b.system + ' (' + b.score + ')', score: b.score }));
     if (bazi.missingElement && bazi.missingElement !== 'ครบทุกธาตุ')
         warnVotes.push({ system: 'BaZi ขาดธาตุ' + bazi.missingElement, score: sc('BaZi') });
     if (['Rahu', 'Saturn', 'Ketu'].includes(vedicMahadasha.currentDashaKey))
@@ -860,7 +860,10 @@ function p03_convergence(c) {
         indigenous: { total: 0, strong: 0, resonance: 0, weak: 0, names: [], strongNames: [] },
         esoteric: { total: 0, strong: 0, resonance: 0, weak: 0, names: [], strongNames: [] },
     };
-    for (const b of all26) {
+    // Display widget: counts and names must come from the SAME set, or the bar
+    // reads "4/11" next to ten names. Hidden systems (ทักษา) are dropped from
+    // both — they still vote on the Cosmic Score via all26 elsewhere.
+    for (const b of all26.filter(x => x.display !== false)) {
         const fam = familyOf(b.system);
         if (!fam)
             continue;
@@ -880,6 +883,7 @@ function p03_convergence(c) {
     const fams = ['east', 'west', 'indigenous', 'esoteric'];
     const totalStrong = fams.reduce((s, f) => s + families[f].strong, 0);
     const totalResonance = fams.reduce((s, f) => s + families[f].resonance, 0);
+    const totalFamilies = fams.reduce((s, f) => s + families[f].total, 0);
     const totalWeak = fams.reduce((s, f) => s + families[f].weak, 0);
     const dominantFamily = fams.reduce((m, f) => (families[f].strong / families[f].total) > (families[m].strong / families[m].total) ? f : m, 'east');
     // ── Rarity math for the Unique Signature box ──
@@ -908,6 +912,7 @@ function p03_convergence(c) {
     // instead of forcing weak dissents.
     const VARIANT_EXCLUDE = ['Biorhythm', 'Vedic Mahadasha'];
     const dissenters = [...all26]
+        .filter(b => b.display !== false)
         .filter(b => !VARIANT_EXCLUDE.some(ex => b.system.includes(ex)))
         .filter(b => b.score < medianScore - 50)
         .sort((a, b) => a.score - b.score)
@@ -938,7 +943,7 @@ function p03_convergence(c) {
     </div>`;
     // ── Headline TL;DR — one-paragraph summary ──
     const elemConsensusEl = dmEl; // we already established cover's element consensus
-    const tldrCore = tr(`26 ศาสตร์มอง <strong style="color:#e8c87a">${esc(c.input.name || 'คุณ')}</strong> = พลังธาตุ<strong>${esc(dmEl)}</strong> · <strong style="color:#e8c87a">"${esc(score.cosmicEntity)}"</strong> · Life Path <strong>${numerology.lifePath}</strong> "${esc((numerology.lifePathName || '').split('—')[0].trim())}" · ${bazi.benMingNian2026 ? 'Ben Ming Nian + ' : ''}${ninestar.star === 9 ? 'NSK Honmei + ' : ''}Personal Year <strong>${numerology.personalYear2026}</strong> · ${totalStrong}/26 ศาสตร์ยืนยันชัด, ${totalWeak}/26 เห็นจุดท้าทาย · ลายเซ็นจักรวาล ~1 ใน ${(totalCombos / 1e6).toFixed(1)}M คน`, `26 systems see <strong style="color:#e8c87a">${esc(c.input.name || 'you')}</strong> as <strong>${esc(dmEl)}</strong>-element energy · <strong style="color:#e8c87a">"${esc(score.cosmicEntity)}"</strong> · Life Path <strong>${numerology.lifePath}</strong> "${esc((numerology.lifePathName || '').split('—').slice(-1)[0].trim())}" · ${bazi.benMingNian2026 ? 'Ben Ming Nian + ' : ''}${ninestar.star === 9 ? 'NSK Honmei + ' : ''}Personal Year <strong>${numerology.personalYear2026}</strong> · ${totalStrong}/26 systems strongly agree, ${totalWeak}/26 flag challenges · cosmic fingerprint ~1 in ${(totalCombos / 1e6).toFixed(1)}M people`);
+    const tldrCore = tr(`26 ศาสตร์มอง <strong style="color:#e8c87a">${esc(c.input.name || 'คุณ')}</strong> = พลังธาตุ<strong>${esc(dmEl)}</strong> · <strong style="color:#e8c87a">"${esc(score.cosmicEntity)}"</strong> · Life Path <strong>${numerology.lifePath}</strong> "${esc((numerology.lifePathName || '').split('—')[0].trim())}" · ${bazi.benMingNian2026 ? 'Ben Ming Nian + ' : ''}${ninestar.star === 9 ? 'NSK Honmei + ' : ''}Personal Year <strong>${numerology.personalYear2026}</strong> · ${totalStrong}/${totalFamilies} ศาสตร์ยืนยันชัด, ${totalWeak}/${totalFamilies} เห็นจุดท้าทาย · ลายเซ็นจักรวาล ~1 ใน ${(totalCombos / 1e6).toFixed(1)}M คน`, `26 systems see <strong style="color:#e8c87a">${esc(c.input.name || 'you')}</strong> as <strong>${esc(dmEl)}</strong>-element energy · <strong style="color:#e8c87a">"${esc(score.cosmicEntity)}"</strong> · Life Path <strong>${numerology.lifePath}</strong> "${esc((numerology.lifePathName || '').split('—').slice(-1)[0].trim())}" · ${bazi.benMingNian2026 ? 'Ben Ming Nian + ' : ''}${ninestar.star === 9 ? 'NSK Honmei + ' : ''}Personal Year <strong>${numerology.personalYear2026}</strong> · ${totalStrong}/26 systems strongly agree, ${totalWeak}/26 flag challenges · cosmic fingerprint ~1 in ${(totalCombos / 1e6).toFixed(1)}M people`);
     const familyLabels = {
         east: { th: 'ตะวันออก', en: 'Eastern' },
         west: { th: 'ตะวันตก', en: 'Western' },
@@ -1555,7 +1560,7 @@ function p16_activation(c) {
             title: tr(`ระวัง Self-Punishment 午午`, `Watch for Self-Punishment 午午`),
             body: tr(`BaZi: ${bazi.dayStem}${bazi.dayBranch} + ${bazi.yearStem}${bazi.yearBranch} มีแรงกดดันตัวเอง — อย่า overthink`, `BaZi: ${bazi.dayStem}${bazi.dayBranch} + ${bazi.yearStem}${bazi.yearBranch} carries self-pressure — don't overthink`),
             source: 'BaZi Self-Punch' },
-        ...(c.score.breakdown.filter(b => b.score < 650 && b.scoring !== false).map(b => ({
+        ...(c.score.breakdown.filter(b => b.score < 650 && b.scoring !== false && b.display !== false).map(b => ({
             icon: '⚠️',
             title: tr(`ระวัง: ${b.system}`, `Watch: ${trDF(b.system)}`),
             body: trDF(b.finding),

@@ -234,6 +234,13 @@ export interface ScoreBreakdown {
   // excluded so the identity score stays stable day-to-day). Omitted/true
   // means the system votes on the score in the usual way.
   scoring?: boolean;
+  // OPTIONAL — false means this system VOTES on the Cosmic Score but is not
+  // rendered in any user-facing breakdown. The inverse of `scoring:false`.
+  // Used for ทักษา (Thai 8-house): it is a genuine input to the median, but it
+  // is absent from the public SYSTEMS_26 list that `list_26_systems` returns,
+  // so showing it would put 27 rows on screen under a "26 systems" claim.
+  // Director decision 2026-07-31: keep 27 computed, show 26.
+  display?: boolean;
 }
 
 // ============================================================
@@ -3586,6 +3593,9 @@ function calcScore(d: BirthData, data: Omit<ChartData, 'score'>): ScoreData {
     // computes against today's date — so the FROZEN engine biorhythm score
     // has no effect on either the user's UI or their Cosmic Score now.
     const isDailyOnly = w.systemEn === 'Biorhythm' || w.system === 'Biorhythm';
+    // ทักษา votes on the score but is not in the public SYSTEMS_26 list, so it
+    // stays out of every rendered breakdown (see `display` on the interface).
+    const isHiddenFromDisplay = /ทักษา|Taksa/i.test(String(w.systemEn || '') + String(w.system || ''));
     return {
       system: sysLabel,
       systemEn: (w as any).systemEn || w.system,   // canonical, for language-agnostic lookups
@@ -3594,6 +3604,7 @@ function calcScore(d: BirthData, data: Omit<ChartData, 'score'>): ScoreData {
       finding: findings[i] ?? '',
       color: SCORE_COLORS[i] ?? '#5a5a5a',
       scoring: !isDailyOnly,
+      display: !isHiddenFromDisplay,
     };
   });
 
