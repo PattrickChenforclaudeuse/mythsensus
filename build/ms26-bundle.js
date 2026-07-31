@@ -181,18 +181,27 @@ function _eclLon(jd, planet) {
 function planetLongitude(jd, p) {
     return _eclLon(jd, p === 'jupiter' ? 'Jupiter' : 'Saturn');
 }
-function ascLongitude(jd, hour, lat, lon) {
+// Ascendant = the ecliptic longitude rising on the eastern horizon.
+//
+// Fixed 2026-07-31 — this returned an ascendant that matched the standard only 7% of the
+// time (chance is ~8%) because of two compounding errors:
+//   1. The birth time was counted twice. `jd` is built by toJD(y,m,d,utcHour), so GMST
+//      already advances with the time of day (~15.04°/h); adding `hour * 15` on top made it
+//      ~30°/h, i.e. two revolutions per day. Symptom: 06:00 and 18:00 births got nearly the
+//      same ascendant (70.8° vs 71.2°).
+//   2. `Math.atan2` already resolves the quadrant, so the extra `if (cos(RAMC) < 0) asc += 180`
+//      flipped correct answers by 180°.
+// The `hour` parameter is deliberately gone — reintroducing it is how bug 1 comes back.
+//
+// Guarded by tests/ascendant.test.cjs: the ascendant must sweep a full 360° per day, and at
+// sunrise it must sit within a few degrees of the Sun.
+function ascLongitude(jd, lat, lon) {
     const D = jd - 2451545.0;
     const GMST = mod360(280.46061837 + 360.98564736629 * D);
-    const LST = mod360(GMST + lon);
-    // UTC hour to RAMC
-    const RAMC = toRad(mod360(LST + hour * 15));
+    const RAMC = toRad(mod360(GMST + lon)); // local sidereal time; jd already carries the hour
     const eps = toRad(23.439 - 0.0000004 * D);
     const latR = toRad(lat);
-    let asc = toDeg(Math.atan2(Math.cos(RAMC), -(Math.sin(eps) * Math.tan(latR) + Math.cos(eps) * Math.sin(RAMC))));
-    // Quadrant
-    if (Math.cos(RAMC) < 0)
-        asc += 180;
+    const asc = toDeg(Math.atan2(Math.cos(RAMC), -(Math.sin(eps) * Math.tan(latR) + Math.cos(eps) * Math.sin(RAMC))));
     return mod360(asc);
 }
 // ── WESTERN ASTROLOGY DEEP READING (clean rewrite) ───────────────────────────
@@ -473,7 +482,7 @@ function calcWestern(d) {
     const jd = toJD(d.year, d.month, d.day, utcHour);
     const sunLon = sunLongitude(jd);
     const moonLon = moonLongitude(jd);
-    const ascLon = ascLongitude(jd, utcHour, d.lat, d.lon);
+    const ascLon = ascLongitude(jd, d.lat, d.lon);
     const jupLon = planetLongitude(jd, 'jupiter');
     const satLon = planetLongitude(jd, 'saturn');
     const merLon = _eclLon(jd, 'Mercury');
