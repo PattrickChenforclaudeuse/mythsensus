@@ -139,7 +139,24 @@ Deno.serve(async (req: Request) => {
       }
       if (!resp.ok) throw new Error('anthropic ' + resp.status + ': ' + (await resp.text()).slice(0, 200))
       const data = await resp.json()
-      let txt = (data.content?.[0]?.text || '').trim()
+      // A refusal returns HTTP 200 with an empty/partial `content`, and a
+      // truncated answer returns whole JSON minus its tail. Both used to fall
+      // through to jsonrepair, which would happily "fix" a half-reading into
+      // valid JSON and cache it — a paying user then gets a silently truncated
+      // deep reading. Fail loudly instead; the poller retries on the next call.
+      if (data.stop_reason === 'refusal') throw new Error('anthropic refused: ' + (data.stop_details?.category ?? 'unknown'))
+      if (data.stop_reason === 'max_tokens') throw new Error('anthropic hit max_tokens (' + MAX_TOKENS + ') — answer truncated, not caching')
+      // Concatenate every text block instead of indexing content[0]. On models
+      // that think (adaptive thinking is ON BY DEFAULT from Sonnet 5 onward
+      // when `thinking` is omitted — it was OFF on Sonnet 4.6), content[0] is a
+      // thinking block whose text is empty under the default display:"omitted",
+      // so the old code read '' and every render failed at JSON.parse.
+      let txt = (Array.isArray(data.content) ? data.content : [])
+        .filter((b: any) => b?.type === 'text')
+        .map((b: any) => b.text || '')
+        .join('')
+        .trim()
+      if (!txt) throw new Error('anthropic returned no text block (stop_reason=' + data.stop_reason + ', blocks=' + (data.content || []).map((b: any) => b?.type).join(',') + ')')
       if (txt.startsWith('```')) txt = txt.replace(/^```(?:json)?\n?/i, '').replace(/```\s*$/, '').trim()
       let oracle: any
       try {
