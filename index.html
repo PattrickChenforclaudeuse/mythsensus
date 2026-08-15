@@ -1903,6 +1903,12 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <div class="date-display" id="dateDisplay"></div>
   <div style="text-align:center;margin-top:10px;display:flex;justify-content:center;gap:8px;align-items:center;flex-wrap:wrap">
     <a href="/blog/" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);text-decoration:none;border:1px solid var(--gold3);padding:5px 14px;border-radius:20px;display:inline-block" data-en="📖 Cosmic Library" data-th="📖 ห้องสมุดจักรวาล">📖 ห้องสมุดจักรวาล</a>
+    <!-- /pantheon had ZERO inbound links from this page (verified on the live HTML
+         2026-08-15) — 20 category pages covering 1,069 gods, each with FAQPage
+         schema, were reachable only through sitemap.xml. Orphaned pages get little
+         crawl priority and no share of this page's authority, which is the actual
+         GEO gap here: the markup was already right, the linking was not. -->
+    <a href="/pantheon" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);text-decoration:none;border:1px solid var(--gold3);padding:5px 14px;border-radius:20px;display:inline-block" data-en="🏛 Pantheon · 1,069 gods" data-th="🏛 วิหารเทพ 1,069 องค์">🏛 วิหารเทพ 1,069 องค์</a>
     <a href="/cosmic-score" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);text-decoration:none;border:1px solid var(--gold3);padding:5px 14px;border-radius:20px;display:inline-block" data-en="✦ Cosmic Score" data-th="✦ Cosmic Score">✦ Cosmic Score</a>
     <a href="/sample-report" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);text-decoration:none;border:1px solid var(--gold3);padding:5px 14px;border-radius:20px;display:inline-block" data-en="📄 Sample Report" data-th="📄 ตัวอย่างรายงาน">📄 ตัวอย่างรายงาน</a>
     <a href="/how-it-works" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);text-decoration:none;border:1px solid var(--gold3);padding:5px 14px;border-radius:20px;display:inline-block" data-en="🔒 How It Works" data-th="🔒 ทำงานยังไง">🔒 ทำงานยังไง</a>
