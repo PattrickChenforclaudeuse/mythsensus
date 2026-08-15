@@ -7,7 +7,8 @@
     "deploy": "git push origin main && vercel --yes --prod",
     "check": "node Mythsensus/tests/predeploy-check.cjs",
     "predeploy": "npm run check",
-    "postdeploy": "npm run qa"
+    "postdeploy": "npm run qa && npm run smoke",
+    "smoke": "node Mythsensus/tests/smoke-draw.cjs"
   },
   "dependencies": {
     "@vercel/og": "^0.11.1",
