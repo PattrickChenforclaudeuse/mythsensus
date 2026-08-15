@@ -5,7 +5,7 @@
     "test:engine": "node Mythsensus/tests/test-pk-chu-26sys.cjs",
     "qa": "node Mythsensus/tests/qa-scanner.js",
     "deploy": "git push origin main && vercel --yes --prod",
-    "check": "node Mythsensus/tests/predeploy-check.cjs",
+    "check": "node build-check.cjs",
     "predeploy": "npm run check",
     "postdeploy": "npm run qa && npm run smoke",
     "smoke": "node Mythsensus/tests/smoke-draw.cjs"

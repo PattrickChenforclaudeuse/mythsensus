@@ -2,16 +2,28 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "trailingSlash": false,
+  "buildCommand": "node build-check.cjs",
+  "outputDirectory": ".",
   "redirects": [
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "www.mythsensus.com" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "www.mythsensus.com"
+        }
+      ],
       "destination": "https://mythsensus.com/",
       "permanent": true
     },
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.mythsensus.com" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "www.mythsensus.com"
+        }
+      ],
       "destination": "https://mythsensus.com/:path*",
       "permanent": true
     },
@@ -27,61 +39,109 @@
     }
   ],
   "functions": {
-    "api/auth/line/callback.js": { "maxDuration": 30 },
-    "api/gumroad/webhook.js": { "maxDuration": 15 },
-    "api/me/plan.js": { "maxDuration": 10 },
-    "api/public-env.js": { "maxDuration": 5 },
-    "api/oracle/addon.js": { "maxDuration": 60 },
-    "api/b.js": { "maxDuration": 10 },
-    "api/mcp.js": { "maxDuration": 15, "includeFiles": "api/_mcp/**" }
+    "api/auth/line/callback.js": {
+      "maxDuration": 30
+    },
+    "api/gumroad/webhook.js": {
+      "maxDuration": 15
+    },
+    "api/me/plan.js": {
+      "maxDuration": 10
+    },
+    "api/public-env.js": {
+      "maxDuration": 5
+    },
+    "api/oracle/addon.js": {
+      "maxDuration": 60
+    },
+    "api/b.js": {
+      "maxDuration": 10
+    },
+    "api/mcp.js": {
+      "maxDuration": 15,
+      "includeFiles": "api/_mcp/**"
+    }
   },
   "rewrites": [
-    { "source": "/b", "destination": "/api/b" },
-    { "source": "/.well-known/mcp-registry-auth", "destination": "/api/mcp-registry-auth" },
-    { "source": "/mcp", "destination": "/api/mcp" }
+    {
+      "source": "/b",
+      "destination": "/api/b"
+    },
+    {
+      "source": "/.well-known/mcp-registry-auth",
+      "destination": "/api/mcp-registry-auth"
+    },
+    {
+      "source": "/mcp",
+      "destination": "/api/mcp"
+    }
   ],
   "headers": [
     {
       "source": "/sw.js",
       "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-        { "key": "Service-Worker-Allowed", "value": "/" }
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
       ]
     },
     {
       "source": "/manifest.webmanifest",
       "headers": [
-        { "key": "Content-Type", "value": "application/manifest+json; charset=utf-8" }
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json; charset=utf-8"
+        }
       ]
     },
     {
       "source": "/build/ms26-bundle.js",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
       ]
     },
     {
       "source": "/data/gods.json",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
       ]
     },
     {
       "source": "/data/gods-lore.json",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
       ]
     },
     {
       "source": "/assets/god-art/:slug*",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=2592000, stale-while-revalidate=604800" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000, stale-while-revalidate=604800"
+        }
       ]
     },
     {
       "source": "/assets/god-og/:slug*",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=2592000, stale-while-revalidate=604800" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000, stale-while-revalidate=604800"
+        }
       ]
     }
   ]

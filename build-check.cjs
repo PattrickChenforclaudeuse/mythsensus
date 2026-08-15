@@ -20,7 +20,10 @@
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = path.resolve(__dirname, '..', '..');
+// Lives at the repo root on purpose: /Mythsensus/tests/ is in .vercelignore, so a
+// checker parked there never reaches Vercel's build container and the gate silently
+// does nothing server-side. Root keeps it inside the uploaded file set.
+const ROOT = __dirname;
 const failures = [];
 const notes = [];
 
