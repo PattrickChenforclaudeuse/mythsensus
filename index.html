@@ -2132,9 +2132,20 @@ try{
            so the card stays uncluttered. Populated + revealed by _wireDrawLore. -->
       <div id="godLoreCue" style="display:none"></div>
       <div class="god-message" id="godMessage"></div>
+      <!-- Share moved up (2026-08-15): it used to sit below god-represents, i.e. below
+           the fold on a phone — the card is ~970px tall on a 812px viewport, so nobody
+           ever reached it. 90 days of myth_events contain ZERO share rows against 111
+           draws, while every other tracked event (birth_submit, consensus_view, paywall_view)
+           does appear — so the tracking pipe works and this is real behaviour, not a
+           measurement gap. Placing it right under the blessing text puts it where the eye
+           already is, with a reason to tap instead of a bare verb. Revert = move this
+           block back under #godRepresents; no JS depends on its position. -->
+      <div id="godShareWrap" style="display:none;margin-top:16px">
+        <div id="godShareWhy" style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:9px">ส่งพรใบนี้ให้คนที่กำลังต้องการกำลังใจ</div>
+        <button id="godShareBtn" onclick="_shareCardImage()" style="font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1.5px;font-weight:700;background:var(--gold);color:var(--bg);border:none;padding:12px 26px;border-radius:8px;cursor:pointer;box-shadow:0 4px 16px rgba(200,164,90,.3)">✦ แชร์พรนี้ให้เพื่อน · Share</button>
+      </div>
       <div id="godLucky" style="display:none;margin:14px auto 2px;max-width:300px;padding:10px 14px;border:1px dashed var(--gold3);border-radius:10px;background:linear-gradient(180deg,rgba(200,164,90,.08),rgba(200,164,90,.02))"></div>
       <div class="god-represents" id="godRepresents"></div>
-      <button id="godShareBtn" onclick="_shareCardImage()" style="display:none;margin-top:18px;font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1.5px;font-weight:700;background:var(--gold);color:var(--bg);border:none;padding:12px 26px;border-radius:8px;cursor:pointer;box-shadow:0 4px 16px rgba(200,164,90,.3)">✦ แชร์พรนี้ให้เพื่อน · Share</button>
       <!-- Post-draw upsell → the full 26-system reading. Shown only to visitors with no
            saved DOB, so a cold draw-first visitor discovers the core product instead of
            dead-ending on the daily blessing (the likely reason draw-first was reverted). -->
@@ -3845,7 +3856,7 @@ async function _playDrawInterim(ms){
   const og=document.getElementById('godOrigin'); if(og){og.textContent='';og.style.cssText='';}
   const rep=document.getElementById('godRepresents'); if(rep)rep.innerHTML='';
   const msg=document.getElementById('godMessage'); if(msg){msg.style.cssText='';msg.textContent=(LANG==='th'?'กำลังเปิดเผย…':'REVEALING…');}
-  const sb=document.getElementById('godShareBtn'); if(sb)sb.style.display='none';
+  const sb=document.getElementById('godShareWrap')||document.getElementById('godShareBtn'); if(sb)sb.style.display='none';
   const sym=document.getElementById('godSymbol');
   card.classList.add('revealed');
   if(sym){ sym.innerHTML=''; sym.style.cssText='font-size:60px;color:var(--gold);opacity:.85;animation:msPulse 1s ease-in-out infinite'; let i=0; sym.textContent=_REVEAL_GLYPHS[0];
@@ -3948,7 +3959,7 @@ async function _playDestinyGlitch(){
   const card=document.getElementById('godCard');
   const sym=document.getElementById('godSymbol'), nm=document.getElementById('godName'), msg=document.getElementById('godMessage');
   const badge=document.getElementById('tierBadge'), og=document.getElementById('godOrigin'), rep=document.getElementById('godRepresents');
-  const sb=document.getElementById('godShareBtn'); if(sb)sb.style.display='none';
+  const sb=document.getElementById('godShareWrap')||document.getElementById('godShareBtn'); if(sb)sb.style.display='none';
   if(og)og.textContent=''; if(rep)rep.innerHTML='';
   // ── Phase 0: tremor — the card SHAKES first (still mid-reveal), a warning
   // before anything corrupts. Murky desaturated tone, no clean white. ──
@@ -4129,7 +4140,9 @@ async function drawBlessing(){
     document.getElementById('godRepresents').innerHTML=(typeof _godCategoryChips==='function'?_godCategoryChips(god,4):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).map(esc).join(' · ')}</div>`;
     _currentDraw={god,tier:T,msgIdx,message};
     const sb=document.getElementById('godShareBtn');
-    if(sb){sb.style.display='inline-block';sb.textContent=(LANG==='th'?'✦ แชร์พรนี้ให้เพื่อน':'✦ Share your blessing');}
+    if(sb){sb.textContent=(LANG==='th'?'✦ แชร์พรนี้ให้เพื่อน':'✦ Share your blessing');}
+    const _sw=document.getElementById('godShareWrap'); if(_sw)_sw.style.display='block';
+    const _swhy=document.getElementById('godShareWhy'); if(_swhy)_swhy.textContent=(LANG==='th'?'ส่งพรใบนี้ให้คนที่กำลังต้องการกำลังใจ':'Send this blessing to someone who needs it today');}
     card.classList.add('revealed');blessHistory.unshift({T,god});renderHistory();saveBlessings();saveBlessingToHistory(god, T, message, msgIdx);markMsgSeen(god.name, msgIdx);
     try{ _msTrack.drew(T.name); }catch(_){}
     try{ _maybeShowDrawUpsell(); }catch(_){}
@@ -4545,7 +4558,8 @@ function _renderGodCard(god, T, msgIdx, explicitMsg) {
   document.getElementById('godRepresents').innerHTML = (typeof _godCategoryChips==='function'?_godCategoryChips(god,4):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).map(esc).join(' · ')}</div>`;
   _currentDraw = { god, tier: T, msgIdx: idx, message };
   const sb = document.getElementById('godShareBtn');
-  if (sb) { sb.style.display = 'inline-block'; sb.textContent = (LANG==='th'?'✦ แชร์พรนี้ให้เพื่อน':'✦ Share your blessing'); }
+  if (sb) { sb.textContent = (LANG==='th'?'✦ แชร์พรนี้ให้เพื่อน':'✦ Share your blessing'); }
+  const _sw2 = document.getElementById('godShareWrap'); if (_sw2) _sw2.style.display = 'block';
   try{ _maybeShowDrawUpsell(); }catch(_){}
   card.classList.add('revealed');
 }
