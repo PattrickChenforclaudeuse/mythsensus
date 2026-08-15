@@ -23,7 +23,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
   Thai default on a pre-set-EN load — re-apply once at 'load' (overlay mounted,
   applyLang defined) so /en (and returning EN users) get an English hero at once.
   Reversible: delete this block + the "/en" rewrite in vercel.json. */
-(function(){try{if(/^\/en(?:\/|$)/i.test(location.pathname)){
+(function(){try{if(/^\/en(?:\/|$)/i.test(location.pathname)||/[?&]lang=en\b/i.test(location.search)){
   localStorage.setItem('mth_lang','en');
   document.documentElement.lang='en';
   addEventListener('load',function(){try{if(typeof applyLang==='function')applyLang();}catch(_){}});
@@ -5998,6 +5998,19 @@ function _logEngagement(type){
     const pruned = log.filter(e => e.ts >= cutoff);
     localStorage.setItem('mth_engagement_log', JSON.stringify(pruned));
   } catch (_) { /* localStorage full or unavailable — silently skip */ }
+
+  // Mirror the intent signals to the server (added 2026-08-15). Until now this
+  // function wrote to localStorage ONLY, so share_open / share_click never left
+  // the device — which made "shares = 0" unreadable: we could not tell whether
+  // people saw the share button and declined, or never found it at all. That is
+  // exactly the question the 2026-08-15 button move needs answered.
+  // Whitelisted on purpose: rail_click / group_switch are ordinary navigation and
+  // would bury the funnel in noise for no decision value.
+  try {
+    if (window._msTrack && /^(share_open|share_click|blueprint_gen)$/.test(type)) {
+      _msTrack.track(type, { meta: { src: 'engagement' } });
+    }
+  } catch (_) { /* analytics must never break the UI */ }
 }
 
 // Sum today's engagement points (used by renderStreak to show banner)

@@ -23,6 +23,14 @@ const PAGES = [
   { name: 'privacy',     path: '/privacy/' },
   { name: 'disclaimer',  path: '/disclaimer/' },
   { name: 'blog',        path: '/blog/' },
+  // Added 2026-08-15 (Wald): the routes nothing was watching. /pantheon is 20 pages
+  // and 1,069 gods, /en is the whole English entry point, and both were outside
+  // every automated check — so a break there would have stayed silent indefinitely,
+  // exactly the way the 4-hour landing-page outage did. A page that never reports
+  // is not a page that is fine.
+  { name: 'pantheon',      path: '/pantheon' },
+  { name: 'pantheon-greek',path: '/pantheon/greek' },
+  { name: 'en-entry',      path: '/en' },
 ];
 
 const VIEWPORTS = [

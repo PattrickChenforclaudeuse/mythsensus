@@ -36,7 +36,6 @@
     "api/mcp.js": { "maxDuration": 15, "includeFiles": "api/_mcp/**" }
   },
   "rewrites": [
-    { "source": "/en", "destination": "/" },
     { "source": "/b", "destination": "/api/b" },
     { "source": "/.well-known/mcp-registry-auth", "destination": "/api/mcp-registry-auth" },
     { "source": "/mcp", "destination": "/api/mcp" }

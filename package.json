@@ -4,7 +4,10 @@
     "build:engine": "cd Mythsensus && npx tsc --target ES2020 --module CommonJS --outDir build --strict false --esModuleInterop true --skipLibCheck true --noEmitOnError false report-engine/lib/calc.ts report-engine/lib/report.ts && node tests/bundle-engine.cjs && node -e \"require('fs').copyFileSync('build/ms26-bundle.js','../build/ms26-bundle.js')\"",
     "test:engine": "node Mythsensus/tests/test-pk-chu-26sys.cjs",
     "qa": "node Mythsensus/tests/qa-scanner.js",
-    "deploy": "git push origin main && vercel --yes --prod"
+    "deploy": "git push origin main && vercel --yes --prod",
+    "check": "node Mythsensus/tests/predeploy-check.cjs",
+    "predeploy": "npm run check",
+    "postdeploy": "npm run qa"
   },
   "dependencies": {
     "@vercel/og": "^0.11.1",
