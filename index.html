@@ -1535,9 +1535,9 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <!-- one evocative line — invites the draw, no wall of text -->
       <div style="text-align:center;margin:0 0 22px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:17px;color:var(--text);line-height:1.55" data-eh="hook2">วันนี้ เทพองค์ไหน<br>ส่งสารถึงคุณ?</div>
       <!-- THE dominant action -->
-      <button class="login-confirm-btn" onclick="entryDrawFirst()" style="font-size:18px;padding:16px 20px;letter-spacing:.5px" data-eh="cta">🔮 จั่วพรวันนี้ · ฟรี</button>
+      <button class="login-confirm-btn" onclick="entryShowForm()" style="font-size:18px;padding:16px 20px;letter-spacing:.5px" data-eh="cta">🔮 จั่วพรวันนี้ · ฟรี</button>
       <!-- secondary: the full 26-system reading (needs a birth date) -->
-      <div style="text-align:center;margin-top:14px"><button onclick="entryShowForm()" style="background:transparent;border:1px solid var(--gold3);border-radius:8px;font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1px;color:var(--gold2);cursor:pointer;padding:10px 20px" data-eh="drawalt">หรือ ดูดวงเต็ม 26 ศาสตร์ — ใส่วันเกิด →</button></div>
+      <div style="text-align:center;margin-top:14px"><button onclick="entryDrawFirst()" style="background:transparent;border:1px solid var(--gold3);border-radius:8px;font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1px;color:var(--gold2);cursor:pointer;padding:10px 20px" data-eh="drawalt">หรือ ดูดวงเต็ม 26 ศาสตร์ — ใส่วันเกิด →</button></div>
       <div style="text-align:center;margin-top:16px;font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px" data-eh="signin">มีบัญชีแล้ว? <button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">ลงชื่อเข้าใช้ →</button></div>
     </div>
 
@@ -3297,15 +3297,31 @@ function setLangExplicit(lang){
 // first screen; its text is styled HTML (big "26", <strong>, <br>) so it can't
 // use the textContent-based [data-t]/[data-en] path — applyLang() calls this to
 // swap full innerHTML per LANG, keyed by data-eh. Default (inline HTML) is Thai.
+// Fire ONCE when the entry overlay is actually on screen (2026-08-15).
+// Until now the only entry signal was entry_choice, which fires on a TAP — so
+// 535 of 571 sessions logged nothing and we could not tell "saw the doors and
+// ignored them" apart from "never saw them" (returning visitors skip the
+// overlay entirely). Those two need completely different fixes.
+function _trackEntryShown(){
+  try{
+    if (window._entryShownTracked) return;
+    var ov = document.getElementById('entryOverlay');
+    if (!ov || getComputedStyle(ov).display === 'none') return;
+    window._entryShownTracked = true;
+    if (window._msTrack) _msTrack.track('entry_view');
+  }catch(_){}
+}
+try{ addEventListener('load', function(){ setTimeout(_trackEntryShown, 400); }); }catch(_){}
+
 function _refreshEntryHero(){
   var isTh = (typeof LANG === 'undefined') || LANG === 'th';
   try { if (typeof _entryLang !== 'undefined') _entryLang = isTh ? 'th' : 'en'; } catch(_){}
   var sgn = '<button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">';
   var M = {
     tagline:  { th:'ที่ซึ่งศาสตร์โบราณทั้งมวลมาบรรจบ — เรื่องของคุณ', en:'Where myriad myths reach consensus — about you' },
-    hook2:    { th:'วันนี้ เทพองค์ไหน<br>ส่งสารถึงคุณ?', en:'Which deity has<br>a message for you today?' },
-    cta:      { th:'🔮 จั่วพรวันนี้ · ฟรี', en:'🔮 Draw today’s blessing · Free' },
-    drawalt:  { th:'หรือ ดูดวงเต็ม 26 ศาสตร์ — ใส่วันเกิด →', en:'or the full 26-system reading — enter birth date →' },
+    hook2:    { th:'26 ศาสตร์โบราณ<br>อ่านวันเกิดคุณพร้อมกัน', en:'26 ancient systems<br>read your birth date at once' },
+    cta:      { th:'✦ ดูดวง 26 ศาสตร์ · ฟรี', en:'✦ Read all 26 systems · Free' },
+    drawalt:  { th:'หรือรับพรจากเทพประจำวันก่อน →', en:'or receive today’s blessing first →' },
     signin:   { th:'มีบัญชีแล้ว? ' + sgn + 'ลงชื่อเข้าใช้ →</button>', en:'Already have an account? ' + sgn + 'Sign in →</button>' }
   };
   document.querySelectorAll('#entryOverlay [data-eh]').forEach(function(el){
