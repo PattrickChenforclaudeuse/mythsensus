@@ -4148,7 +4148,7 @@ async function drawBlessing(){
     const sb=document.getElementById('godShareBtn');
     if(sb){sb.textContent=(LANG==='th'?'✦ แชร์พรนี้ให้เพื่อน':'✦ Share your blessing');}
     const _sw=document.getElementById('godShareWrap'); if(_sw)_sw.style.display='block';
-    const _swhy=document.getElementById('godShareWhy'); if(_swhy)_swhy.textContent=(LANG==='th'?'ส่งพรใบนี้ให้คนที่กำลังต้องการกำลังใจ':'Send this blessing to someone who needs it today');}
+    const _swhy=document.getElementById('godShareWhy'); if(_swhy)_swhy.textContent=(LANG==='th'?'ส่งพรใบนี้ให้คนที่กำลังต้องการกำลังใจ':'Send this blessing to someone who needs it today');
     card.classList.add('revealed');blessHistory.unshift({T,god});renderHistory();saveBlessings();saveBlessingToHistory(god, T, message, msgIdx);markMsgSeen(god.name, msgIdx);
     try{ _msTrack.drew(T.name); }catch(_){}
     try{ _maybeShowDrawUpsell(); }catch(_){}
