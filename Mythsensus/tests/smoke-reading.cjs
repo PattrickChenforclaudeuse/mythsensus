@@ -49,22 +49,47 @@ const problems = [];
   if (!(await secondary.count())) problems.push('blessing door (entryDrawFirst) disappeared entirely');
 
   // 4. fill the form and submit — the actual conversion step
+  // The entry form uses SEPARATE day / month / year selects plus a city — not a
+  // single <input type="date">. The first version of this test filled #profDob,
+  // which does not exist here, so it reported a product failure that was really a
+  // test failure. Fill what the form actually has, then press its own confirm.
   const filled = await page.evaluate(() => {
-    const set = (sel, v) => { const e = document.querySelector(sel); if (!e) return false;
-      e.value = v; e.dispatchEvent(new Event('input', { bubbles: true }));
-      e.dispatchEvent(new Event('change', { bubbles: true })); return true; };
-    const dob = ['#entryDob', '#profDob', '#entryFormStep input[type="date"]'].find(s => document.querySelector(s));
-    if (!dob) return { ok: false, why: 'no date input found inside the entry form' };
-    return { ok: set(dob, '1991-02-03'), sel: dob };
+    const set = (id, v) => {
+      const e = document.getElementById(id); if (!e) return false;
+      e.value = String(v);
+      e.dispatchEvent(new Event('input',  { bubbles: true }));
+      e.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    };
+    const missing = ['entryDay','entryMonth','entryYear'].filter(id => !document.getElementById(id));
+    if (missing.length) return { ok: false, why: 'missing fields: ' + missing.join(', ') };
+    set('entryName', 'Test');
+    // The year field is BUDDHIST ERA — it ships prefilled with 2569. Feeding it a
+    // CE year makes _getEntryDob() return "" and entryAccept() refuses with
+    // "กรุณากรอกวันเกิด", which reads exactly like a broken money path but is the
+    // form working as designed. 2534 BE = 1991 CE.
+    const okD = set('entryDay', 3), okM = set('entryMonth', 2), okY = set('entryYear', 2534);
+    set('entryHour', 5);
+    set('entryCity', 'Bangkok, Thailand');
+    // Cold visitors must tick the 13+ age box or entryAccept() bails with an
+    // error and never renders anything. Missing this made the test look like a
+    // broken money path when the form was behaving exactly as designed.
+    const age = document.getElementById('entryAgeConfirm');
+    if (age && age.type === 'checkbox' && !age.checked) age.click();
+    const unknown = document.getElementById('entryUnknownTime');
+    if (unknown && unknown.type === 'checkbox' && !okD) unknown.click();
+    return { ok: okD && okM && okY };
   });
-  if (!filled.ok) problems.push('could not fill the birth date: ' + (filled.why || 'setter failed'));
+  if (!filled.ok) problems.push('could not fill the birth form: ' + (filled.why || 'setter failed'));
 
   const submitted = await page.evaluate(() => {
-    const btns = [...document.querySelectorAll('#entryFormStep button, #entryOverlay button')];
-    const go = btns.find(b => /ดูดวง|เริ่ม|ต่อไป|Read|Continue|Start/i.test(b.textContent || ''));
-    if (!go) return false; go.click(); return true;
+    const b = document.querySelector('#entryFormStep button[onclick*="entryAccept"]')
+           || [...document.querySelectorAll('button')].find(x => /entryAccept\(\)/.test(x.getAttribute('onclick') || ''));
+    if (!b) return false;
+    b.click();
+    return true;
   });
-  if (!submitted) problems.push('no submit button found in the entry form');
+  if (!submitted) problems.push('entryAccept() confirm button not found');
 
   // 5. the 26-system result must actually render
   try {
