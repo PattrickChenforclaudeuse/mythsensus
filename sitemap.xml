@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://mythsensus.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority><lastmod>2026-07-01</lastmod></url>
+  <url><loc>https://mythsensus.com/</loc><changefreq>daily</changefreq><priority>1.0</priority><lastmod>2026-08-21</lastmod></url>
   <url><loc>https://mythsensus.com/cosmic-score</loc><changefreq>monthly</changefreq><priority>0.95</priority><lastmod>2026-06-08</lastmod></url>
   <url><loc>https://mythsensus.com/blog</loc><changefreq>weekly</changefreq><priority>0.9</priority><lastmod>2026-06-08</lastmod></url>
   <url><loc>https://mythsensus.com/pricing</loc><changefreq>monthly</changefreq><priority>0.9</priority><lastmod>2026-06-08</lastmod></url>
@@ -89,4 +89,18 @@
   <url><loc>https://mythsensus.com/pantheon/shinto</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-07-06</lastmod></url>
   <url><loc>https://mythsensus.com/pantheon/thai</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-07-06</lastmod></url>
   <url><loc>https://mythsensus.com/pantheon/thai-buddhism</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-07-06</lastmod></url>
+  <url><loc>https://mythsensus.com/pantheon/aztec</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-08-01</lastmod></url>
+  <url><loc>https://mythsensus.com/pantheon/mayan</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-08-01</lastmod></url>
+  <url><loc>https://mythsensus.com/pantheon/sumerian</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-08-01</lastmod></url>
+  <url><loc>https://mythsensus.com/pantheon/babylonian</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-08-01</lastmod></url>
+  <url><loc>https://mythsensus.com/pantheon/korea</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-08-15</lastmod></url>
+  <url><loc>https://mythsensus.com/pantheon/hawaiian</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-08-15</lastmod></url>
+  <url><loc>https://mythsensus.com/pantheon/polynesian</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-08-15</lastmod></url>
+  <url><loc>https://mythsensus.com/pantheon/yoruba</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-08-15</lastmod></url>
+  <url><loc>https://mythsensus.com/pantheon/persia-zoroastrian</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-08-15</lastmod></url>
+  <url><loc>https://mythsensus.com/pantheon/ainu</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-08-15</lastmod></url>
+  <url><loc>https://mythsensus.com/pantheon/unknown</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>2026-08-15</lastmod></url>
+  <url><loc>https://mythsensus.com/ai</loc><changefreq>monthly</changefreq><priority>0.7</priority><lastmod>2026-08-21</lastmod></url>
+  <url><loc>https://mythsensus.com/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority><lastmod>2026-08-21</lastmod></url>
+  <url><loc>https://mythsensus.com/refund</loc><changefreq>yearly</changefreq><priority>0.3</priority><lastmod>2026-08-21</lastmod></url>
 </urlset>
