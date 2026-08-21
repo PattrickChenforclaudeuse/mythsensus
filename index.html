@@ -3310,6 +3310,9 @@ function _trackEntryShown(){
   }catch(_){}
 }
 try{ addEventListener('load', function(){ setTimeout(_trackEntryShown, 400); }); }catch(_){}
+// _refreshEntryHero only fires on a language change, so the sample needs its
+// own load hook — the same gap that left the new hero copy invisible earlier.
+try{ addEventListener('load', function(){ setTimeout(function(){ try{ _renderEntrySample(0); }catch(_){} }, 300); }); }catch(_){}
 
 // Live sample on the landing: one birth date, three Eastern traditions, and
 // the element they each assign. They routinely disagree — which IS the hook,
