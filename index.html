@@ -3352,10 +3352,14 @@ function _renderEntryToday(tries){
       day:now.getDate(), hour:12, minute:0, lat:13.75, lon:100.5, timezone:7, lang: isTh?'th':'en' });
     // Thai first, always. Raw 干支 on a Thai landing page is unreadable to the
     // people it is aimed at, and correctness nobody can read is worth nothing.
+    // Keep the original 干支 — it is what the tradition actually says — but never
+    // bare: the Thai gloss rides with it so the reader knows what they are seeing.
     var animal = (String(td.bazi.dayBranchTh||'').match(/\(([^)]+)\)/) || [])[1] || '';
+    var gloss = isTh ? ('ธาตุ' + td.bazi.dayMasterElement + (animal ? '·' + animal : ''))
+                     : (td.bazi.dayMasterElement + (animal ? ' · ' + animal : ''));
     rows.push({ th:'สี่เสาจีน · วันนี้', en:'BaZi · today',
-                v: isTh ? ('ธาตุ' + td.bazi.dayMasterElement + (animal ? ' · ' + animal : ''))
-                        : (td.bazi.dayMasterElement + ' day') });
+                v: td.bazi.dayStem + td.bazi.dayBranch
+                   + ' <span style="color:var(--muted);font-size:11.5px">' + gloss + '</span>' });
     // 2. West — where the Moon actually is right now
     var jdN = dateToJD(now.getFullYear(), now.getMonth()+1, now.getDate(), now.getHours()+now.getMinutes()/60);
     var ms = lonToSign(moonLon(jdN));
