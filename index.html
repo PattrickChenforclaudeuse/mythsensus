@@ -13669,22 +13669,26 @@ function renderProduct(){
 // ── Compatibility Report ─────────────────────────────────────
 function renderCompat(){
   const el = document.getElementById('compatContent');
+  // Comparing two birth dates used to be locked behind "go make a profile
+  // first" — the one thing people arrive wanting to do, put behind a form.
+  // Two dates are enough to run every row, so the profile is now a shortcut
+  // (it pre-fills your side), never a gate.
   const chart = _getMS26ChartFromProfile();
-  if (!chart) { _emptyDeepHint('compatContent'); return; }
+  const hasProfile = !!chart;
   const isTh = LANG==='th';
-  const myEl = chart.bazi.dayMasterElement||'ไม้';
-  const myLP = chart.numerology.lifePath;
-  const mySun = chart.western.sunSign||'Aries';
+  const myEl = hasProfile ? (chart.bazi.dayMasterElement||'ไม้') : '';
+  const myLP = hasProfile ? chart.numerology.lifePath : '';
+  const mySun = hasProfile ? (chart.western.sunSign||'Aries') : '';
 
   // Elemental compatibility now sourced from chart.addons.compat (calc.ts).
   // Fallback kept for older bundles that lack the addons field — uses lang-
   // aware element names so EN users see "Water"/"Wood" not "น้ำ"/"ไม้".
-  const myComp = (chart.addons && chart.addons.compat) || (LANG === 'en'
+  const myComp = (hasProfile && chart.addons && chart.addons.compat) || (LANG === 'en'
     ? { best:['Water','Wood'], good:['Fire'],  neutral:['Earth'], avoid:['Metal'] }
     : { best:['น้ำ','ไม้'],     good:['ไฟ'],    neutral:['ดิน'],    avoid:['โลหะ']  });
 
   el.innerHTML = `
-    <div class="deep-sys-card">
+    ${hasProfile ? `    <div class="deep-sys-card">
       <div class="deep-sys-title">💑 ${isTh?'เทียบดวง — ดวงของคุณ':'Compatibility — your chart'}</div>
       <div class="deep-sys-stats" style="margin-top:8px">
         <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${isTh?'ธาตุ':'Element'}</div><div class="deep-sys-stat-val">${myEl}</div></div>
@@ -13717,19 +13721,30 @@ function renderCompat(){
           </div>
         </div>
       </div>`
-    )}
+    )}` : `
+    <div class="deep-sys-card">
+      <div class="deep-sys-title">💑 ${isTh?'เทียบดวงสองคน':'Compare two charts'}</div>
+      <div style="margin-top:8px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13px;line-height:1.8;color:var(--muted)">${isTh
+        ? 'ใส่วันเกิดสองคน แค่นั้น — ไม่ต้องสมัคร ไม่ต้องสร้างโปรไฟล์ ห้าศาสตร์ที่มีวิชาดูคู่จริงจะให้คำตัดสิน ที่เหลือวางดวงคู่กันไว้ให้อ่านเอง'
+        : 'Two birth dates, nothing else — no sign-up, no profile. The five traditions with a real pairing method give a verdict; the rest lay both charts side by side for you to read.'}</div>
+    </div>`}
 
     <!-- Enter partner DOB -->
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">🔍 ${isTh?'กรอกข้อมูลคู่เพื่อเทียบ':'Enter partner data to compare'}</div>
+      <div class="deep-sys-title">🔍 ${hasProfile ? (isTh?'กรอกข้อมูลคู่เพื่อเทียบ':'Enter partner data to compare') : (isTh?'ใส่วันเกิดสองคน':'Enter two birth dates')}</div>
 
       <!-- Saved-profile quick picker: user saves a report → it appears here
            so they don't have to retype DOB/name every time. -->
       <div id="compatPicker" style="margin-top:10px"></div>
 
+      ${hasProfile ? '' : `
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
-        <div class="form-group"><label>${isTh?'ชื่อ':'Name'}</label><input id="compat-name" placeholder="${isTh?'ชื่อ':'Name'}"></div>
-        <div class="form-group"><label>${isTh?'วันเกิด':'DOB'}</label><input id="compat-dob" type="date"></div>
+        <div class="form-group"><label>${isTh?'ชื่อคุณ':'Your name'}</label><input id="compat-myname" placeholder="${isTh?'คุณ':'You'}"></div>
+        <div class="form-group"><label>${isTh?'วันเกิดคุณ':'Your DOB'}</label><input id="compat-mydob" type="date"></div>
+      </div>`}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+        <div class="form-group"><label>${isTh?(hasProfile?'ชื่อ':'ชื่ออีกคน'):'ชื่ออีกคน'}</label><input id="compat-name" placeholder="${isTh?'ชื่อ':'Name'}"></div>
+        <div class="form-group"><label>${isTh?(hasProfile?'วันเกิด':'วันเกิดอีกคน'):'Their DOB'}</label><input id="compat-dob" type="date"></div>
       </div>
       <button class="cta-btn" style="margin-top:12px;width:100%;padding:12px;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;border-radius:6px;color:var(--bg);font-family:'Josefin Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer" onclick="_runCompatCheck()">
         ✦ ${isTh?'เทียบดวง':'Check Compatibility'}
@@ -13811,8 +13826,30 @@ function _runCompatCheck(){
     return;
   }
   const [y,m,d] = dob.split('-').map(Number);
-  const mine = _getMS26ChartFromProfile();
-  if (!mine || !window.MS26) return;
+  if (!window.MS26) return;
+  // Your side comes from the saved profile when there is one; otherwise from
+  // the second date field. No profile is required to run a comparison.
+  let mine = _getMS26ChartFromProfile();
+  if (!mine) {
+    const myDobEl = document.getElementById('compat-mydob');
+    const myDob = myDobEl ? myDobEl.value : '';
+    if (!myDob) {
+      res.innerHTML = `<div style="color:var(--muted);font-size:13px">${isTh?'กรุณากรอกวันเกิดของคุณด้วย':'Please enter your own date of birth too'}</div>`;
+      return;
+    }
+    const myNameEl = document.getElementById('compat-myname');
+    const [my, mm, md] = myDob.split('-').map(Number);
+    try {
+      mine = window.MS26.calculate({
+        name: (myNameEl && myNameEl.value.trim()) || (isTh?'คุณ':'You'),
+        gender:'F', year:my, month:mm, day:md,
+        hour:12, minute:0, lat:13.75, lon:100.5, timezone:7, lang: LANG,
+      });
+    } catch(e) {
+      res.innerHTML = `<div style="color:#c06060;font-size:13px">Error: ${e.message}</div>`;
+      return;
+    }
+  }
 
   let theirs;
   try {
