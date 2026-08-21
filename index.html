@@ -3350,8 +3350,12 @@ function _renderEntryToday(tries){
     //    legitimate way to read it off the engine.
     var td = MS26.calculate({ name:'', gender:'F', year:now.getFullYear(), month:now.getMonth()+1,
       day:now.getDate(), hour:12, minute:0, lat:13.75, lon:100.5, timezone:7, lang: isTh?'th':'en' });
+    // Thai first, always. Raw 干支 on a Thai landing page is unreadable to the
+    // people it is aimed at, and correctness nobody can read is worth nothing.
+    var animal = (String(td.bazi.dayBranchTh||'').match(/\(([^)]+)\)/) || [])[1] || '';
     rows.push({ th:'สี่เสาจีน · วันนี้', en:'BaZi · today',
-                v: td.bazi.dayStem + td.bazi.dayBranch + ' · ' + (isTh?'ธาตุ':'') + td.bazi.dayMasterElement });
+                v: isTh ? ('ธาตุ' + td.bazi.dayMasterElement + (animal ? ' · ' + animal : ''))
+                        : (td.bazi.dayMasterElement + ' day') });
     // 2. West — where the Moon actually is right now
     var jdN = dateToJD(now.getFullYear(), now.getMonth()+1, now.getDate(), now.getHours()+now.getMinutes()/60);
     var ms = lonToSign(moonLon(jdN));
