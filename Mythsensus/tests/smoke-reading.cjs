@@ -27,9 +27,14 @@ const problems = [];
   await page.goto(URL, { waitUntil: 'networkidle', timeout: 45000 });
 
   // 1. the primary CTA must be the READING, not the blessing
-  const primary = page.locator('button.login-confirm-btn[onclick*="entryShowForm"]');
+  // Locate the primary CTA by its role on the page, not by the name of the
+  // function behind it. The handler has changed once already (entryShowForm ->
+  // entryHeroGo, when the date fields moved onto the landing) and this test
+  // went red for a rename rather than for a broken journey. What matters is
+  // that the main button opens the birth form; that is asserted below.
+  const primary = page.locator('button.login-confirm-btn[data-eh="cta"]');
   if (!(await primary.count())) {
-    problems.push('primary CTA does not call entryShowForm — the door swap is not live');
+    problems.push('primary CTA (button.login-confirm-btn[data-eh="cta"]) not found on the landing page');
   } else {
     const label = (await primary.first().textContent() || '').trim();
     if (!/26/.test(label)) problems.push(`primary CTA does not mention 26 systems: "${label}"`);
