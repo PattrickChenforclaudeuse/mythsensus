@@ -2715,7 +2715,7 @@ try{
 <!-- ═══ ADD-ON ─ Compatibility ═══ -->
 <div class="panel" id="panel-compat">
   <div class="section-title" data-t="ao_compat_title">COMPATIBILITY REPORT — เทียบดวง 2 คน</div>
-  <p class="panel-intro" data-en="Enter someone else's birth data for a 26-row table of where you fit and where you clash." data-th="ใส่วันเกิดอีกคน · ได้ตาราง 26 แถวเทียบจุดที่เข้ากันและชนกัน">Enter someone else's birth data for a 26-row table of where you fit and where you clash.</p>
+  <p class="panel-intro" data-en="Enter someone else's birth data. Five traditions that have a real pairing method give a verdict; the rest show both charts side by side." data-th="ใส่วันเกิดอีกคน · 5 ศาสตร์ที่มีวิชาดูคู่จริงให้คำตัดสิน ที่เหลือวางดวงคู่กันให้อ่านเอง">Enter someone else's birth data. Five traditions that have a real pairing method give a verdict; the rest show both charts side by side.</p>
   <div class="sky-dom-hint" data-t="ao_compat_desc">เทียบดวง 2 คน ผ่าน 26 ศาสตร์ · คะแนนความเข้ากัน · จุดขัดแย้ง · วิธีปรับ</div>
   <div id="compatContent" style="max-width:640px;margin:0 auto"></div>
 </div>
@@ -13889,9 +13889,16 @@ function _runCompatCheck(){
   // Compare all 26 systems row by row, score convergence per row.
   // Each row: {emoji, label, extract, match, whyTh, whyEn}
   // why* generates a per-row interpretation for each system.
+  // ── Nine Star Ki element map + the two five-element cycles ─────────────
+  // Stars 1-9 each carry an element. Used by the ninestar row below so the
+  // pairing follows the tradition's own mechanic instead of string equality.
+  const _NSK_EL = {1:'น้ำ',2:'ดิน',3:'ไม้',4:'ไม้',5:'ดิน',6:'โลหะ',7:'โลหะ',8:'ดิน',9:'ไฟ'};
+  const _NSK_EL_EN = {'น้ำ':'Water','ดิน':'Earth','ไม้':'Wood','โลหะ':'Metal','ไฟ':'Fire'};
+  const _EL_SHENG = {'ไม้':'ไฟ','ไฟ':'ดิน','ดิน':'โลหะ','โลหะ':'น้ำ','น้ำ':'ไม้'};
+  const _nskEl = v => { const n = parseInt(String(v).replace(/\D/g,''),10); const el = _NSK_EL[n]; return (el && LANG!=='th') ? el : el; };
   const ROWS = [
     // Western — aspect-based (sextile/trine/opposition = good · square = friction)
-    { key:'western',  emoji:'☀️', label:isTh?'Western (Sun aspect)':'Western (Sun aspect)',
+    { key:'western',  emoji:'☀️', doctrine:true, label:isTh?'Western (Sun aspect)':'Western (Sun aspect)',
       extract:c => c.western.sunSignTh + (c.western.sunSign?(' · '+c.western.sunSign):''),
       match:(a,b) => {
         const ia = _signIdx(a), ib = _signIdx(b);
@@ -13910,7 +13917,7 @@ function _runCompatCheck(){
         return { th:`${A.th} — ${A.detail_th}`, en:`${A.en} — ${A.detail_en}` };
       }},
     // BaZi — polarity (yang/yin) — opposite polarity = balanced
-    { key:'bazi',     emoji:'☯️', label:isTh?'BaZi (Yang/Yin)':'BaZi (Yang/Yin)',
+    { key:'bazi',     emoji:'☯️', doctrine:true, label:isTh?'BaZi (Yang/Yin)':'BaZi (Yang/Yin)',
       extract:c => c.bazi.dayMasterTh,
       match:(a,b) => {
         const pa = _baziPol(a), pb = _baziPol(b);
@@ -13930,12 +13937,27 @@ function _runCompatCheck(){
       why:(a,b,r) => r===true
         ? { th:`Moon nakshatra เดียวกัน (${a}) — soul-level resonance · เข้าใจอารมณ์กันลึกโดยไม่ต้องอธิบาย`, en:`Same moon nakshatra (${a}) — soul-level resonance · you read each other's emotions without explanation` }
         : { th:`คนละ nakshatra (${a} · ${b}) — ต่างเลนส์ทางอารมณ์ · ต้องเรียนรู้วิธีอ่านอารมณ์ของอีกฝ่าย`, en:`Different nakshatras (${a} · ${b}) — different emotional lenses · you'll learn to read each other's inner weather` }},
-    { key:'ninestar', emoji:'⭐', label:'Nine Star Ki',
-      extract:c => 'Star '+c.ninestar.star, match:(a,b)=>a===b,
-      why:(a,b,r) => r===true
-        ? { th:`Ki number เดียวกัน — เคลื่อนผ่านปี/เดือนแบบ synchronized · จังหวะชีวิตไปด้วยกัน`, en:`Same Ki number — you move through annual/monthly cycles in sync · your life rhythms align` }
-        : { th:`คนละ Ki — แต่ละคนมีจังหวะดี/แย่ในเดือนต่างกัน · ผลัดกันสนับสนุนตามรอบ`, en:`Different Ki — each has good/hard months on different cycles · you can take turns supporting one another` }},
-    { key:'numerology', emoji:'🔢', label:'Numerology',
+    { key:'ninestar', emoji:'⭐', label:'Nine Star Ki', doctrine:true,
+      extract:c => 'Star '+c.ninestar.star,
+      // Nine Star Ki DOES have a pairing doctrine, and it is not "same number".
+      // Each star carries an element; the pair is read through the generating
+      // (sheng) and controlling (ke) cycles, same as any five-element system.
+      match:(a,b) => {
+        const ea = _nskEl(a), eb = _nskEl(b);
+        if (!ea || !eb) return false;
+        if (ea === eb) return 'partial';                 // same element — easy, can stagnate
+        if (_EL_SHENG[ea] === eb || _EL_SHENG[eb] === ea) return true;   // one feeds the other
+        return false;                                     // one controls the other
+      },
+      why:(a,b,r) => {
+        const ea = _nskEl(a), eb = _nskEl(b);
+        if (!ea || !eb) return null;
+        if (ea === eb) return { th:`ธาตุเดียวกัน (${ea}) — เข้าใจกันเร็ว แต่ไม่มีใครเติมใคร ระวังนิ่งจนเฉื่อย`, en:`Same element (${ea}) — quick understanding, but neither feeds the other; watch for stagnation` };
+        if (_EL_SHENG[ea] === eb) return { th:`${ea} เลี้ยง ${eb} — คุณเป็นฝ่ายป้อนพลังให้เขา ความสัมพันธ์ไหลทางเดียว ดูว่าคุณได้อะไรกลับ`, en:`${ea} feeds ${eb} — you supply the energy; check what flows back to you` };
+        if (_EL_SHENG[eb] === ea) return { th:`${eb} เลี้ยง ${ea} — เขาเป็นฝ่ายป้อนพลังให้คุณ`, en:`${eb} feeds ${ea} — they supply the energy to you` };
+        return { th:`${ea} กับ ${eb} เป็นคู่ข่มกัน — ไม่ใช่คู่ผิด แต่ต้องพูดกันให้ชัดกว่าปกติ`, en:`${ea} and ${eb} sit on the controlling cycle — not wrong, but demands unusual clarity` };
+      }},
+    { key:'numerology', emoji:'🔢', doctrine:true, label:'Numerology',
       extract:c => 'LP '+c.numerology.lifePath,
       match:(a,b) => { const diff=Math.abs(+a.replace(/\D/g,'')-+b.replace(/\D/g,'')); return diff<=2?true: diff<=4?'partial':false; },
       why:(a,b,r) => {
@@ -13981,7 +14003,7 @@ function _runCompatCheck(){
         if (diff <= 26) return { th:`Kin ห่างกัน ${diff} — อยู่ใน wavespell เดียวกัน · จังหวะ 13 วันใกล้กัน`, en:`Kin differs by ${diff} — same wavespell · close 13-day rhythm` };
         return { th:`Kin ห่างกัน ${diff} — wavespell ต่างกัน · จังหวะธรรมชาติคนละจังหวะ`, en:`Kin differs by ${diff} — different wavespells · natural rhythms run on different beats` };
       }},
-    { key:'thai',     emoji:'🙏', label:'Thai Brahmin',
+    { key:'thai',     emoji:'🙏', doctrine:true, label:'Thai Brahmin',
       extract:c => c.thai.dayName+' · '+c.thai.dayColor, match:(a,b)=>a.split(' · ')[0]===b.split(' · ')[0],
       why:(a,b,r) => r===true
         ? { th:'เกิดวันเดียวกัน — เทวดาประจำวันเดียวกัน · อ่อนแอ/แข็งแกร่งวันเดียวกัน', en:'Same Thai weekday — same guardian deva · share strong/weak days' }
@@ -14107,20 +14129,28 @@ function _runCompatCheck(){
   const rowHTML = ROWS.map(r => {
     const mv = r.extract(mine) || '—';
     const tv = r.extract(theirs) || '—';
+    // Rows without `doctrine` belong to traditions that have NO pairing method
+    // of their own. The old code compared their values with `a===b` — i.e. it
+    // invented a rule ("same rune = compatible") and attributed it to the
+    // tradition. Those rows now render as information only: both values shown
+    // side by side, no verdict, excluded from the tally.
     let res;
-    try { res = r.match(mv, tv); }
-    catch(e) { res = false; }
-    if (res === true) { yes++; alignedRows.push({...r, mv, tv}); }
-    else if (res === 'partial') { partial++; partialRows.push({...r, mv, tv}); }
-    else { no++; frictionRows.push({...r, mv, tv}); }
-    const color = res === true ? '#4a9a40' : res === 'partial' ? '#c8a840' : '#c06060';
-    const sym   = res === true ? '✓' : res === 'partial' ? '~' : '✗';
+    if (!r.doctrine) { res = null; }
+    else {
+      try { res = r.match(mv, tv); }
+      catch(e) { res = false; }
+      if (res === true) { yes++; alignedRows.push({...r, mv, tv}); }
+      else if (res === 'partial') { partial++; partialRows.push({...r, mv, tv}); }
+      else { no++; frictionRows.push({...r, mv, tv}); }
+    }
+    const color = res === true ? '#4a9a40' : res === 'partial' ? '#c8a840' : res === false ? '#c06060' : 'var(--muted)';
+    const sym   = res === true ? '✓' : res === 'partial' ? '~' : res === false ? '✗' : '·';
     // Compat v2: per-row "why" interpretation explaining the system's mechanic
     // (not just whether values match). Compute lazily and render as italic
     // sub-line. Falls back to nothing if the row has no why() — preserves
     // backward compat for any future row added without one.
     let whyHtml = '';
-    if (typeof r.why === 'function') {
+    if (r.doctrine && typeof r.why === 'function') {
       try {
         const w = r.why(mv, tv, res);
         if (w && (w.th || w.en)) {
@@ -14148,8 +14178,12 @@ function _runCompatCheck(){
     </div>`;
   }).join('');
 
-  // 26-system consensus verdict
-  const total = ROWS.length;
+  // Verdict is computed over the rows that can actually deliver one.
+  // Counting the display-only rows as "differ" is what made almost every pair
+  // read as incompatible: with ~20 slot-collision rows, the average pair lit
+  // up under 2 of them, so the tally measured how many slots a system has,
+  // not how two people fit.
+  const total = ROWS.filter(r => r.doctrine).length;
   const score = Math.round((yes*2 + partial*1) / (total*2) * 100);
   let verdict, verdictColor, verdictLine;
   if (score >= 70) {
@@ -14320,8 +14354,11 @@ function _runCompatCheck(){
         </div>`;
       })()}
 
-      <!-- 26 rows -->
-      <div style="margin-bottom:6px;font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold3);text-transform:uppercase">${isTh?'ทั้ง '+total+' ศาสตร์ · เทียบทีละแถว':total+' systems · row by row'}</div>
+      <!-- every system, row by row — but only doctrine rows carry a verdict -->
+      <div style="margin-bottom:6px;font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold3);text-transform:uppercase">${isTh?ROWS.length+' ศาสตร์ · เทียบทีละแถว':ROWS.length+' systems · row by row'}</div>
+      <div style="margin-bottom:9px;padding:8px 11px;background:rgba(0,0,0,.16);border-left:3px solid var(--muted);border-radius:0 7px 7px 0;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;line-height:1.75;color:var(--muted)">${isTh
+        ? `<strong style="color:var(--text)">${total} ศาสตร์เท่านั้นที่ให้คำตัดสิน</strong> — คือศาสตร์ที่มีวิชาดูคู่เป็นของตัวเองจริงๆ (✓ ~ ✗) ส่วนที่เหลืออีก ${ROWS.length-total} แถวขึ้นจุด (·) เพราะ<strong style="color:var(--text)">ตำราของเขาไม่มีวิธีดูคู่</strong> เช่น ต้นไม้เซลติกไม่เคยบอกว่าต้นไหนเข้ากับต้นไหน เราจึงแสดงค่าของทั้งสองฝ่ายไว้ให้ตีความเอง ไม่ตัดสินแทน`
+        : `<strong style="color:var(--text)">Only ${total} systems return a verdict</strong> (✓ ~ ✗) — those are the traditions that have a pairing method of their own. The other ${ROWS.length-total} rows show a dot (·) because <strong style="color:var(--text)">their tradition has no pairing doctrine</strong>: Celtic tree astrology never said which tree suits which. Both values are shown for you to read; we do not invent a verdict on the tradition's behalf.`}</div>
       ${rowHTML}
     </div>`;
 }
