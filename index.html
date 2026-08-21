@@ -4369,24 +4369,27 @@ function _godArtInto(el, god, sizePx, extraCss){
   el.innerHTML=''; el.style.cssText='margin:0 auto';
   const _cyber = (_cardTheme()==='cyber');
   const wrap = document.createElement('div');
-  // Classic (anime) art is bright → gold harmonize (tone-down + warm scrim + gold
-  // frame) sinks it into the dark theme. Cyber (v2) art is already dark-graded →
-  // just a cyan frame + light vignette, no sepia, no warm scrim.
+  // Both decks now show their art in its own colours. Classic used to be pushed
+  // down (brightness .84, saturate .72, sepia .16, plus a multiply scrim) so the
+  // bright anime art would sink into the dark theme — but that was solving a
+  // problem the cyber deck now solves properly: if someone wants the dark graded
+  // look they pick cyber. Darkening classic just made it a worse version of it.
+  // What stays per-deck is the frame: gold for classic, cyan for cyber.
   wrap.style.cssText = 'position:relative;display:block;width:100%;max-width:340px;margin:0 auto;border-radius:12px;overflow:hidden;line-height:0;'
     + (_cyber
         ? 'border:1px solid rgba(0,229,255,.42);box-shadow:0 0 30px 2px rgba(0,229,255,.16),0 0 60px 8px rgba(255,45,149,.08),0 14px 46px rgba(0,0,0,.6)'
         : 'border:1px solid rgba(212,170,80,.38);box-shadow:0 0 34px 2px rgba(212,170,80,.14),0 14px 46px rgba(0,0,0,.6)');
   const im = document.createElement('img'); im.src = url; im.alt = god.name; im.decoding = 'async';
-  im.style.cssText = 'width:100%;display:block;' + (_cyber ? 'filter:contrast(1.04) saturate(1.03)' : 'filter:brightness(.84) saturate(.72) contrast(1.06) sepia(.16)');
+  im.style.cssText = 'width:100%;display:block;' + (_cyber ? 'filter:contrast(1.04) saturate(1.03)' : 'filter:contrast(1.02) saturate(1.02)');
   im.onerror = ()=>{ el.innerHTML=''; el.textContent = god.symbol || '✦'; showLabs(true); if (isDraw) _wireDrawLore(el, god); };
   im.onload = ()=>{ try{ _mountCardFX(wrap, god.tier, god); }catch(_){} };
   const _scrim = document.createElement('div');
   _scrim.style.cssText = 'position:absolute;inset:0;pointer-events:none;border-radius:12px;'
     + (_cyber
         ? 'background:radial-gradient(ellipse 80% 75% at 50% 45%,transparent 55%,rgba(4,6,12,.45))'
-        : 'background:radial-gradient(ellipse 75% 70% at 50% 42%,rgba(150,110,40,.10),rgba(30,20,8,.30) 70%,rgba(8,6,3,.72));mix-blend-mode:multiply');
+        : 'background:radial-gradient(ellipse 80% 75% at 50% 45%,transparent 58%,rgba(10,7,3,.34))');
   const _vig = document.createElement('div');
-  _vig.style.cssText = 'position:absolute;inset:0;pointer-events:none;border-radius:12px;box-shadow:inset 0 0 46px 14px rgba(4,4,7,'+(_cyber?'.55':'.85')+'),inset 0 0 90px 30px rgba(4,4,7,'+(_cyber?'.3':'.5')+')';
+  _vig.style.cssText = 'position:absolute;inset:0;pointer-events:none;border-radius:12px;box-shadow:inset 0 0 46px 14px rgba(4,4,7,'+'.55'+'),inset 0 0 90px 30px rgba(4,4,7,'+'.3'+')';
   wrap.appendChild(im); wrap.appendChild(_scrim); wrap.appendChild(_vig); el.appendChild(wrap);
   // Classic art has the name/tier BAKED into the image → hide the HTML labels.
   // Cyber (v2) art is clean (no baked text) → SHOW the HTML labels so the deity
