@@ -1654,7 +1654,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
           <span id="entryUnknownTimeText">ไม่ทราบเวลาเกิด / Birth time unknown</span>
         </label>
         <div id="entryUnknownTimeWarn" style="display:none;font-family:'Josefin Sans',sans-serif;font-size:10px;color:#c8a040;margin-top:4px;line-height:1.4">
-          <span id="entryUnknownTimeWarnText">⚠ ไม่ทราบเวลาเกิด — ความแม่นของ BaZi/Vedic จะลดประมาณ 30% (Hour Pillar คาดเดาไม่ได้)</span>
+          <span id="entryUnknownTimeWarnText">⚠ ไม่ทราบเวลาเกิด — 15 จาก 27 ศาสตร์ต้องใช้เวลาเกิด (ลัคนา · เสาชั่วยาม · จันทร์ · ซื่อเว่ย ฯลฯ) เราจะคิดให้ที่เที่ยงวันและติดป้ายไว้ ถือเป็นค่าประมาณ ไม่ใช่ดวงจริงของคุณ</span>
         </div>
       </div>
       <select class="login-input" id="entryGender" style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:15px">
@@ -16392,8 +16392,8 @@ function _entryRefreshLang(){
   const unknownWarn = document.getElementById('entryUnknownTimeWarnText');
   if (unknownTxt)  unknownTxt.textContent  = isTh ? 'ไม่ทราบเวลาเกิด' : 'Birth time unknown';
   if (unknownWarn) unknownWarn.textContent = isTh
-    ? '⚠ ไม่ทราบเวลาเกิด — ความแม่นของ BaZi/Vedic จะลดประมาณ 30% (Hour Pillar คาดเดาไม่ได้)'
-    : '⚠ Birth time unknown — BaZi/Vedic accuracy drops ~30% (Hour Pillar can\'t be inferred)';
+    ? '⚠ ไม่ทราบเวลาเกิด — 15 จาก 27 ศาสตร์ต้องใช้เวลาเกิด (ลัคนา · เสาชั่วยาม · จันทร์ · ซื่อเว่ย ฯลฯ) เราจะคิดให้ที่เที่ยงวันและติดป้ายไว้ ถือเป็นค่าประมาณ ไม่ใช่ดวงจริงของคุณ'
+    : '⚠ Birth time unknown — 15 of 27 systems need it (ascendant, hour pillar, Moon, Zi Wei and more). We compute those at noon and label them: treat them as a placeholder, not your chart.';
   const giftTog = document.getElementById('entryGiftToggle');
   // rename to "discount / gift code" to cover both
   // influencer/group promo codes and traditional beta gift codes (same mechanism).
