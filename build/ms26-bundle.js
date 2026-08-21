@@ -2473,13 +2473,17 @@ function _mayanDeepSections(a) {
     return sec.join('');
 }
 function calcMayan(d) {
-    // Anchor: Jan 1, 2000 = Kin 1 (1 Imix)
-    // JDN of Jan 1, 2000 (noon) = 2451545
-    const refJD = 2451545.0;
+    // Anchor: the GMT correlation (584283), the standard one in Maya epigraphy.
+    // Long Count 0.0.0.0.0 = 4 Ahau 8 Cumku = JDN 584283, and 4 Ahau sits at
+    // Kin 160 of the 260-day round, hence the +159 to make `kin` zero-based.
+    //
+    // The previous anchor asserted "Jan 1 2000 = Kin 1 (1 Imix)" with no source,
+    // and it was wrong by 101 kin — every Mayan sign and tone the engine has
+    // produced was off. The check that catches it is the most public date in
+    // Maya calendrics: 2012-12-21, the close of the 13th b'ak'tun, is 4 Ahau /
+    // Kin 160. The old anchor called that day Kin 59, tone 7.
     const birthJD = Math.floor(toJD(d.year, d.month, d.day, 12));
-    const refJDFloor = Math.floor(refJD);
-    const diff = birthJD - refJDFloor;
-    const kin = ((diff % 260) + 260) % 260;
+    const kin = ((birthJD - 584283 + 159) % 260 + 260) % 260;
     const signIdx = kin % 20;
     const toneIdx = kin % 13;
     const sign = MAYAN_SIGNS[signIdx];
@@ -4195,10 +4199,10 @@ function calculate(d) {
     const tibetan = calcTibetan(d);
     const ziwei = calcZiWei(d);
     const onmyodo = calcOnmyodo(d);
-    const hellenistic = calcHellenistic(d);
+    const hellenistic = calcHellenistic(d, western);
     const norseRune = calcNorseRune(d);
     const ogham = calcOgham(d);
-    const arabicParts = calcArabicParts(d);
+    const arabicParts = calcArabicParts(d, western);
     const kabbalistic = calcKabbalistic(d);
     const zoroastrian = calcZoroastrian(d);
     const aztec = calcAztec(d);
@@ -5120,9 +5124,15 @@ function calcOnmyodo(d) {
     return onmyodoResult;
 }
 // ── HELLENISTIC ASTROLOGY ───────────────────────────────────────
-function calcHellenistic(d) {
-    // Sect: daytime birth (6:00-18:00) = day sect; favors Sun, Jupiter, Saturn
-    const isDaySect = d.hour >= 6 && d.hour < 18;
+function calcHellenistic(d, w) {
+    // Sect is whether the Sun was above or below the horizon at birth — the single
+    // most load-bearing distinction in Hellenistic astrology. The old test was the
+    // clock (06:00-18:00), which is wrong by up to a couple of hours at Bangkok's
+    // latitude and by far more further north. Measured properly: the houses that
+    // sit above the horizon are 7 through 12, i.e. 180-360 degrees counted from
+    // the Ascendant, so the Sun is above the horizon exactly when that arc holds it.
+    const sunFromAsc = ((w.sunDeg - w.ascDeg) % 360 + 360) % 360;
+    const isDaySect = sunFromAsc >= 180;
     const sect = isDaySect ? 'Day Sect' : 'Night Sect';
     const sectTh = isDaySect
         ? tPick('เกิดกลางวัน — Sun/Jupiter/Saturn หนุน', 'Day birth — Sun/Jupiter/Saturn favoured')
@@ -5130,11 +5140,14 @@ function calcHellenistic(d) {
     const trigonLord = isDaySect
         ? tPick('Jupiter (การขยายตัว)', 'Jupiter (expansion)')
         : tPick('Venus (ความสัมพันธ์)', 'Venus (relationships)');
-    // Lot of Fortune: ASC + Moon - Sun (day) or ASC + Sun - Moon (night)
-    // Use simplified: derive from birth data
-    const ASC_DEG = (d.lat * 2 + d.hour * 15 + d.minute / 4) % 360;
-    const sunDeg = ((d.month - 1) * 30 + (d.day - 1)) % 360;
-    const moonDeg = ((d.year * 13 + d.month * 7 + d.day * 3 + d.hour) % 360);
+    // Lot of Fortune: ASC + Moon - Sun (day) or ASC + Sun - Moon (night).
+    // The formula was already right; it was being fed invented numbers — an
+    // "ascendant" derived from latitude and clock time, a "Sun" that was really
+    // the calendar date, and a "Moon" that was a hash of y/m/d. The engine has
+    // computed the real three all along (calcWestern), so use those.
+    const ASC_DEG = w.ascDeg;
+    const sunDeg = w.sunDeg;
+    const moonDeg = w.moonDeg;
     const lotRaw = isDaySect
         ? (ASC_DEG + moonDeg - sunDeg + 360) % 360
         : (ASC_DEG + sunDeg - moonDeg + 360) % 360;
@@ -5463,14 +5476,17 @@ function _arabicPartsDeepSections(a) {
     return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
 }
 // ── ARABIC PARTS ─────────────────────────────────────────────────
-function calcArabicParts(d) {
+function calcArabicParts(d, w) {
     const SIGNS_TH = ['เมษ', 'พฤษภ', 'เมถุน', 'กรกฎ', 'สิงห์', 'กันย์', 'ตุลย์', 'พิจิก', 'ธนู', 'มกร', 'กุมภ์', 'มีน'];
     const SIGNS_EN = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
     const SIGN_SCORES = [760, 800, 750, 710, 820, 730, 780, 720, 800, 740, 760, 730];
-    const isDaySect = d.hour >= 6 && d.hour < 18;
-    const ASC = (d.lat * 2 + d.hour * 15 + d.minute / 4) % 360;
-    const sun = ((d.month - 1) * 30 + d.day) % 360;
-    const moon = ((d.year * 13 + d.month * 7 + d.day * 3) % 360);
+    // Same story as calcHellenistic: correct Lot formulas, invented inputs.
+    // Both Lots and the sect test now run on the real ascendant, Sun and Moon.
+    const sunFromAsc = ((w.sunDeg - w.ascDeg) % 360 + 360) % 360;
+    const isDaySect = sunFromAsc >= 180;
+    const ASC = w.ascDeg;
+    const sun = w.sunDeg;
+    const moon = w.moonDeg;
     const fortune = isDaySect ? (ASC + moon - sun + 360) % 360 : (ASC + sun - moon + 360) % 360;
     const spirit = isDaySect ? (ASC + sun - moon + 360) % 360 : (ASC + moon - sun + 360) % 360;
     const fSign = Math.floor(fortune / 30);

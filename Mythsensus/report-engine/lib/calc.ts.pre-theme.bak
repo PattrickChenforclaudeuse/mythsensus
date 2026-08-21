@@ -234,13 +234,6 @@ export interface ScoreBreakdown {
   // excluded so the identity score stays stable day-to-day). Omitted/true
   // means the system votes on the score in the usual way.
   scoring?: boolean;
-  // OPTIONAL — false means this system VOTES on the Cosmic Score but is not
-  // rendered in any user-facing breakdown. The inverse of `scoring:false`.
-  // Used for ทักษา (Thai 8-house): it is a genuine input to the median, but it
-  // is absent from the public SYSTEMS_26 list that `list_26_systems` returns,
-  // so showing it would put 27 rows on screen under a "26 systems" claim.
-  // Director decision 2026-07-31: keep 27 computed, show 26.
-  display?: boolean;
 }
 
 // ============================================================
@@ -289,14 +282,8 @@ function moonLongitude(jd: number): number {
   const F  = toRad(mod360(93.2720950 + 13.22935024 * D));
   const Dm = toRad(mod360(297.8501921 + 12.19074912 * D));
   return mod360(
-    // Meeus, Astronomical Algorithms ch.47 (Table 47.A): the evection term is
-    // -1.274 sin(M' - 2D), i.e. +1.274 sin(2D - M'), and the variation term
-    // +0.214 sin(2M') is positive. Both were negated here, which put the Moon
-    // out by 1.63 deg on average (max 3.13) against JPL Horizons and moved
-    // 12% of nakshatras and 49% of padas. index.html's moonLon() has carried
-    // the correct signs all along. (2026-08-21)
-    L0 + 6.289 * Math.sin(Ml) + 1.274 * Math.sin(2 * Dm - Ml)
-       + 0.658 * Math.sin(2 * Dm) + 0.214 * Math.sin(2 * Ml)
+    L0 + 6.289 * Math.sin(Ml) - 1.274 * Math.sin(2 * Dm - Ml)
+       + 0.658 * Math.sin(2 * Dm) - 0.214 * Math.sin(2 * Ml)
        - 0.186 * Math.sin(Ms) - 0.114 * Math.sin(2 * F)
   );
 }
@@ -347,27 +334,17 @@ function planetLongitude(jd: number, p: 'jupiter' | 'saturn'): number {
   return _eclLon(jd, p === 'jupiter' ? 'Jupiter' : 'Saturn');
 }
 
-// Ascendant = the ecliptic longitude rising on the eastern horizon.
-//
-// Fixed 2026-07-31 — this returned an ascendant that matched the standard only 7% of the
-// time (chance is ~8%) because of two compounding errors:
-//   1. The birth time was counted twice. `jd` is built by toJD(y,m,d,utcHour), so GMST
-//      already advances with the time of day (~15.04°/h); adding `hour * 15` on top made it
-//      ~30°/h, i.e. two revolutions per day. Symptom: 06:00 and 18:00 births got nearly the
-//      same ascendant (70.8° vs 71.2°).
-//   2. `Math.atan2` already resolves the quadrant, so the extra `if (cos(RAMC) < 0) asc += 180`
-//      flipped correct answers by 180°.
-// The `hour` parameter is deliberately gone — reintroducing it is how bug 1 comes back.
-//
-// Guarded by tests/ascendant.test.cjs: the ascendant must sweep a full 360° per day, and at
-// sunrise it must sit within a few degrees of the Sun.
-function ascLongitude(jd: number, lat: number, lon: number): number {
+function ascLongitude(jd: number, hour: number, lat: number, lon: number): number {
   const D = jd - 2451545.0;
   const GMST = mod360(280.46061837 + 360.98564736629 * D);
-  const RAMC = toRad(mod360(GMST + lon));   // local sidereal time; jd already carries the hour
+  const LST  = mod360(GMST + lon);
+  // UTC hour to RAMC
+  const RAMC = toRad(mod360(LST + hour * 15));
   const eps  = toRad(23.439 - 0.0000004 * D);
   const latR = toRad(lat);
-  const asc = toDeg(Math.atan2(Math.cos(RAMC), -(Math.sin(eps) * Math.tan(latR) + Math.cos(eps) * Math.sin(RAMC))));
+  let asc = toDeg(Math.atan2(Math.cos(RAMC), -(Math.sin(eps) * Math.tan(latR) + Math.cos(eps) * Math.sin(RAMC))));
+  // Quadrant
+  if (Math.cos(RAMC) < 0) asc += 180;
   return mod360(asc);
 }
 
@@ -476,18 +453,18 @@ function _westernDeepSections(a: {
   const avoidEl = OPP[domEl] ?? 'น้ำ';
 
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   const sec: string[] = [];
 
   // 1. Big Three chart
   const cell = (lblTh: string, lblEn: string, s: {en:string}, m: SM, deg: number) =>
-    `<td style="padding:8px 4px;border:1px solid #2a2545;text-align:center;vertical-align:top"><div style="font-size:9px;color:#6a5a42;letter-spacing:1px">${pick(lblTh,lblEn)}</div><div style="font-size:26px;color:#c8a45a;line-height:1.2">${m.glyph}</div><div style="font-size:14px;color:#c8a45a">${sD(s.en)}</div><div style="font-size:10px;color:#9a8a72">${(deg%30).toFixed(1)}°</div><div style="font-size:10px;color:#c8b080">${pick(m.el,m.elEn)} · ${pick(m.mod,m.modEn)}</div></td>`;
+    `<td style="padding:8px 4px;border:1px solid #2a2545;text-align:center;vertical-align:top"><div style="font-size:9px;color:#6a5a42;letter-spacing:1px">${pick(lblTh,lblEn)}</div><div style="font-size:26px;color:#d4aa50;line-height:1.2">${m.glyph}</div><div style="font-size:14px;color:#d4aa50">${sD(s.en)}</div><div style="font-size:10px;color:#9a8a72">${(deg%30).toFixed(1)}°</div><div style="font-size:10px;color:#c8b080">${pick(m.el,m.elEn)} · ${pick(m.mod,m.modEn)}</div></td>`;
   const chart = `<table style="width:100%;border-collapse:collapse;margin:8px 0 12px;table-layout:fixed"><tr>${cell('อาทิตย์ ☉','Sun ☉',a.sun,sm,a.sunDeg)}${cell('จันทร์ ☽','Moon ☽',a.moon,mm,a.moonDeg)}${cell('ราศีขึ้น ↑','Asc ↑',a.asc,am,a.ascDeg)}</tr></table>`;
   const elTot = (elC['ไฟ']||0)+(elC['ดิน']||0)+(elC['ลม']||0)+(elC['น้ำ']||0) || 1;
-  const bars = (['ไฟ','ดิน','ลม','น้ำ'] as string[]).map(e => { const c = elC[e]||0; return `<div style="display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px"><span style="width:52px;color:${e===domEl?'#c8a45a':'#9a8a72'}">${elD(e)}</span><span style="flex:1;height:9px;background:#1a1730;border-radius:5px;overflow:hidden"><span style="display:block;height:100%;width:${Math.round(c/3*100)}%;background:${e===domEl?'#c8a45a':'#7a6a9a'}"></span></span><span style="width:40px;color:#c8b080;text-align:right">${c}/3</span></div>`; }).join('');
+  const bars = (['ไฟ','ดิน','ลม','น้ำ'] as string[]).map(e => { const c = elC[e]||0; return `<div style="display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px"><span style="width:52px;color:${e===domEl?'#d4aa50':'#9a8a72'}">${elD(e)}</span><span style="flex:1;height:9px;background:#1a1730;border-radius:5px;overflow:hidden"><span style="display:block;height:100%;width:${Math.round(c/3*100)}%;background:${e===domEl?'#d4aa50':'#7a6a9a'}"></span></span><span style="width:40px;color:#c8b080;text-align:right">${c}/3</span></div>`; }).join('');
   sec.push(blk('📜','The Big Three — อาทิตย์ · จันทร์ · ราศีขึ้น','The Big Three — Sun · Moon · Ascendant',
     P(pick(`สามจุดนี้อธิบายบุคลิกคุณราว 80% — ${B('อาทิตย์')}=ตัวตนหลัก ${B('จันทร์')}=โลกอารมณ์ภายใน ${B('ราศีขึ้น')}=หน้ากากที่โลกเห็นก่อน`,`These three explain ~80% of your personality — ${B('Sun')}=core self, ${B('Moon')}=inner emotional world, ${B('Ascendant')}=the mask the world sees first.`)) + chart + P(pick('สมดุลธาตุของ Big Three:','Element balance of your Big Three:')) + bars));
 
@@ -677,7 +654,7 @@ function calcWestern(d: BirthData): WesternData {
   const jd = toJD(d.year, d.month, d.day, utcHour);
   const sunLon = sunLongitude(jd);
   const moonLon = moonLongitude(jd);
-  const ascLon  = ascLongitude(jd, d.lat, d.lon);
+  const ascLon  = ascLongitude(jd, utcHour, d.lat, d.lon);
   const jupLon  = planetLongitude(jd, 'jupiter');
   const satLon  = planetLongitude(jd, 'saturn');
   const merLon  = _eclLon(jd, 'Mercury');
@@ -779,31 +756,13 @@ const BRANCHES_EN = ['Zi (Rat)','Chou (Ox)','Yin (Tiger)','Mao (Rabbit)','Chen (
 function pStem(idx: number): string { return _reportLang === 'en' ? (STEMS_EN[idx] ?? '') : (STEMS_TH[idx] ?? ''); }
 function pBranch(idx: number): string { return _reportLang === 'en' ? (BRANCHES_EN[idx] ?? '') : (BRANCHES_TH[idx] ?? ''); }
 
-// BaZi year + month pillars — Phase 2 engine v2 (2026-06-08).
-// v1 used fixed `SOLAR_TERM_DAYS = [6,4,6,5,...]` day-of-month approximation
-// which gave WRONG month pillar for ~5% of DOBs falling within ±48 hours of
-// a solar-term boundary. v2 uses actual Sun apparent longitude (via existing
-// `sunLongitude(jd)` Meeus simplified series) which is accurate to ~few
-// arcminutes — translates to ~1 hour timing precision on solar terms vs ±48h
-// of v1.
-//
-// The 12 "jié" (節) major solar terms that define BaZi month boundaries
-// occur every 30° of Sun apparent longitude:
-//   Sun=315° → Li Chun (立春)  → start of 寅 (Yin/Tiger)   month
-//   Sun=345° → Jing Zhe (驚蟄) → start of 卯 (Mao/Rabbit)  month
-//   Sun=15°  → Qing Ming (清明) → start of 辰 (Chen/Dragon) month
-//   ... (every 30°) ...
-//   Sun=285° → Xiao Han (小寒) → start of 丑 (Chou/Ox)    month
-// Same logic governs the year boundary: year pillar changes at Sun=315°
-// (Li Chun). For DOBs in Jan/early Feb where Sun ∈ [280°, 315°), we're
-// still in the PRIOR solar year.
+// Month Pillar solar term boundaries (simplified - day of month Li Qi enters each month)
+const SOLAR_TERM_DAYS = [6,4,6,5,6,6,7,7,8,8,7,7]; // approximate day when month pillar starts each month
 
-function yearPillar(y: number, m: number, d: number, hour: number = 12) {
-  const jd = toJD(y, m, d, hour);
-  const sunLon = sunLongitude(jd);
-  // Sun ∈ [280°, 315°) covers Jan 1 → ~Feb 4 (Li Chun). Before Li Chun = prior solar year.
+function yearPillar(y: number, m: number, d: number) {
+  const threshold = SOLAR_TERM_DAYS[1]; // Li Chun ~Feb 4
   let yr = y;
-  if (sunLon >= 280 && sunLon < 315) yr--;
+  if (m < 2 || (m === 2 && d < threshold)) yr--;
   const si = ((yr - 4) % 10 + 10) % 10;
   const bi = ((yr - 4) % 12 + 12) % 12;
   // stemTh/branchTh: lang-aware via pStem/pBranch so EN reports get
@@ -811,44 +770,31 @@ function yearPillar(y: number, m: number, d: number, hour: number = 12) {
   return { stem: STEMS[si], branch: BRANCHES[bi], stemTh: pStem(si), branchTh: pBranch(bi), si, bi };
 }
 
-function monthPillar(y: number, m: number, d: number, hour: number = 12) {
-  const jd = toJD(y, m, d, hour);
-  const sunLon = sunLongitude(jd);
-  // Sun=315° marks Li Chun (start of 寅 month, branch index 2).
-  // Each 30° increment = next month branch. Wrap modulo 360.
-  const offset = ((sunLon - 315) % 360 + 360) % 360;  // 0..360 from Li Chun
-  const branchOffset = Math.floor(offset / 30);        // 0=寅, 1=卯, ..., 11=丑
-  const bi = (2 + branchOffset) % 12;
+function monthPillar(y: number, m: number, d: number) {
+  // Solar term: if before threshold day, use previous month
+  let solarMonth = m;
+  if (d < SOLAR_TERM_DAYS[m - 1]) solarMonth = m === 1 ? 12 : m - 1;
 
-  // Stem: Five Tigers rule (五虎遁) — 甲己年→寅月丙, 乙庚年→寅月戊, 丙辛年→寅月庚,
-  // 丁壬年→寅月壬, 戊癸年→寅月甲 — then step one stem per month from 寅 onward.
-  //
-  // Two things this must get right, both of which the previous version did not:
-  //  1. The stem walks with `branchOffset` (months elapsed since 寅), NOT with `bi`.
-  //     Branches wrap at 12 and stems at 10, so 子/丑 — the 11th and 12th months of a
-  //     BaZi year — carry bi 0 and 1 while actually being +10 and +11 from 寅. Using
-  //     `bi` shifted those two months by 2 stems.
-  //  2. The base comes from the Lichun-adjusted year, not the western calendar year.
-  //     A January birth is still in the PRIOR BaZi year.
-  // The old code was wrong on both counts; for 丑 the two errors happened to cancel,
-  // which is why only 子-month births (~7 Dec – 31 Dec) showed a visible defect.
-  const baziYear = (sunLon >= 280 && sunLon < 315) ? y - 1 : y;
-  const yStemIdx = ((baziYear - 4) % 10 + 10) % 10;
-  const si = ((yStemIdx % 5) * 2 + 2 + branchOffset) % 10;
+  // Branch: Jan→丑(1), Feb→寅(2), ..., Dec→子(0)
+  const MONTH_BRANCHES = [1,2,3,4,5,6,7,8,9,10,11,0];
+  const bi = MONTH_BRANCHES[solarMonth - 1];
+
+  // Stem: use WESTERN calendar year (not Lichun-adjusted) for month stem formula
+  // 甲己年→子月甲, 乙庚年→子月丙, 丙辛年→子月戊, 丁壬年→子月庚, 戊癸年→子月壬
+  const westernStemIdx = ((y - 4) % 10 + 10) % 10;
+  const baseMonthStem = (westernStemIdx % 5) * 2;
+  const si = (baseMonthStem + bi) % 10;
 
   return { stem: STEMS[si], branch: BRANCHES[bi], stemTh: pStem(si), branchTh: pBranch(bi), si, bi };
 }
 
 function dayPillar(year: number, month: number, day: number) {
-  // Anchor: Jan 1, 1900 (JDN 2415021) = 甲戌 — cycle index 10, not 12.
-  // The old +12 claimed 丙子 for that date and skewed EVERY day pillar by two
-  // positions, i.e. every Day Master the engine has ever produced. Index 10 is
-  // the value that satisfies both independently attested anchors:
-  //   1949-10-01 = 甲子 (index 0)   ·   2000-01-01 = 戊午 (index 54)
+  // Anchor: Jan 1, 1900 = 丙子 (cycle index 12, not 0)
+  // Offset +12 aligns甲子(0) reference so 丙子 falls at day 0
   const ref = toJD(1900, 1, 1, 12);
   const jd  = toJD(year, month, day, 12);
   const diff = Math.round(jd - ref);
-  const cycle = ((diff + 10) % 60 + 60) % 60;
+  const cycle = ((diff + 12) % 60 + 60) % 60;
   const si = cycle % 10;
   const bi = cycle % 12;
   return { stem: STEMS[si], branch: BRANCHES[bi], stemTh: pStem(si), branchTh: pBranch(bi), si, bi };
@@ -1086,9 +1032,9 @@ function _baziDeepSections(a: {
 
   const blk = (icon: string, thT: string, enT: string, body: string) =>
     `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545">
-       <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+       <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
 
   // Element → strength/career flavour (Thai + English)
   const EL_TRAIT: Record<string,[string,string]> = {
@@ -1124,7 +1070,7 @@ function _baziDeepSections(a: {
     const hid = (_BAZI_HIDDEN[pl.bi]||[]).map(h=>STEMS[h]).join(' ');
     return `<td style="padding:7px 3px;border:1px solid #2a2545;text-align:center;vertical-align:top">
       <div style="font-size:9px;color:#6a5a42;letter-spacing:1px">${isEn?lblEn:lblTh}</div>
-      <div style="font-size:23px;color:#c8a45a;line-height:1.25">${pl.s}</div>
+      <div style="font-size:23px;color:#d4aa50;line-height:1.25">${pl.s}</div>
       <div style="font-size:9.5px;color:#9a8a72">${elD(STEMS_EL[pl.si])}<br>${tg?(isEn?tg.en:tg.cn):(isEn?'Self 日主':'ตัวคุณ 日主')}</div>
       <div style="font-size:21px;color:#c8b080;line-height:1.3;margin-top:4px">${pl.b}</div>
       <div style="font-size:9.5px;color:#9a8a72">${pl.bTh}</div>
@@ -1140,8 +1086,8 @@ function _baziDeepSections(a: {
   const elBars = (['ไม้','ไฟ','ดิน','โลหะ','น้ำ'] as string[]).map(e => {
     const c = elFull[e]||0;
     return `<div style="display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px">
-      <span style="width:52px;color:${e===dmEl?'#c8a45a':'#9a8a72'}">${elD(e)}</span>
-      <span style="flex:1;height:9px;background:#1a1730;border-radius:5px;overflow:hidden"><span style="display:block;height:100%;width:${Math.round(c/maxC*100)}%;background:${e===dmEl?'#c8a45a':'#7a6a9a'}"></span></span>
+      <span style="width:52px;color:${e===dmEl?'#d4aa50':'#9a8a72'}">${elD(e)}</span>
+      <span style="flex:1;height:9px;background:#1a1730;border-radius:5px;overflow:hidden"><span style="display:block;height:100%;width:${Math.round(c/maxC*100)}%;background:${e===dmEl?'#d4aa50':'#7a6a9a'}"></span></span>
       <span style="width:54px;color:#c8b080;text-align:right">${c} · ${Math.round(c/elTot*100)}%</span></div>`;
   }).join('');
   sections.push(blk('📜', 'ผังสี่เสา 八字 — อักษรทั้ง 8 ของคุณ', 'Your 八字 Chart — The Eight Characters',
@@ -1343,14 +1289,8 @@ function _baziDeepSections(a: {
 }
 
 function calcBazi(d: BirthData): BaziData {
-  // Solar-term lookup needs UT, not local clock time (same convention as
-  // calcWestern). Passing local `d.hour` shifts the Sun-longitude test by
-  // up to the timezone offset — enough to land on the wrong side of a
-  // solar term for births within hours of the boundary, i.e. exactly the
-  // case engine v2 exists to fix.
-  const utcHour = d.hour - d.timezone + d.minute / 60;
-  const yp = yearPillar(d.year, d.month, d.day, utcHour);
-  const mp = monthPillar(d.year, d.month, d.day, utcHour);
+  const yp = yearPillar(d.year, d.month, d.day);
+  const mp = monthPillar(d.year, d.month, d.day);
   const dp = dayPillar(d.year, d.month, d.day);
   const hp = hourPillar(d.hour, dp.si);
   const lps = calcLuckPillars(yp.si, yp.bi, d.gender, d.year, d.month, d.day);
@@ -1490,7 +1430,7 @@ const NSK_READINGS: Record<number, string> = {
   9: 'ดาว 9 ม่วงไฟ — เป็นนักสร้างสรรค์และนักแสดง มีพลังงานสูง โดดเด่น ปี 2026 (Honmei-sei Kaiki) เป็นปีที่ทุกสิ่งขยายผล — ความสำเร็จและความเสี่ยงขยายตัวพร้อมกัน',
 };
 const NSK_READINGS_EN: Record<number, string> = {
-  1: 'Star 1 White Water — a brilliant, deep, adaptable communicator with sharp intuition. Suited to work demanding creativity and communication.',
+  1: 'Star 1 White Water — a brilliant, deep, adaptable communicator with sharp intuition. Suited to work demanding creativity and communication. In 2026 (Year of Fire Star 9) watch your health and avoid hasty decisions.',
   2: 'Star 2 Black Earth — a caregiver and supporter, gifted at managing and nurturing, high endurance. 2026 is a challenging year — guard against stress and tend your health.',
   3: 'Star 3 Bright Green Wood — a pioneer and leader, brave, full of new ideas, high energy. 2026 favours starting something new.',
   4: 'Star 4 Soft Green Wood — excellent communication and relationship skills, loves travel and learning. In 2026 watch out for being deceived or making decision errors.',
@@ -1664,15 +1604,15 @@ function _nineStarDeepSections(a: {
   };
   const blk = (icon: string, thT: string, enT: string, body: string): string =>
     `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545">
-       <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+       <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string): string => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string): string => `<strong style="color:#c8a45a">${s}</strong>`;
+  const B = (s: string): string => `<strong style="color:#d4aa50">${s}</strong>`;
   const faqQ = (q: string, ans: string): string => P(`${B('Q: ' + q)}<br>A: ${ans}`);
   const LO_SHU_LAYOUT = [[4,9,2],[3,5,7],[8,1,6]];
   const loShuTable = `<table style="border-collapse:collapse;margin:8px auto 12px">` +
     LO_SHU_LAYOUT.map(row => `<tr>${row.map(n => { const isMe = n === star;
       return `<td style="width:44px;height:44px;text-align:center;vertical-align:middle;border:1px solid #2a2545;` +
-        (isMe ? `background:rgba(212,175,55,0.18);color:#c8a45a;font-weight:bold;font-size:19px` : `color:#9a8a72;font-size:16px`) +
+        (isMe ? `background:rgba(212,175,55,0.18);color:#d4aa50;font-weight:bold;font-size:19px` : `color:#9a8a72;font-size:16px`) +
         `">${n}${isMe ? ' ★' : ''}</td>`; }).join('')}</tr>`).join('') + `</table>`;
   const sections: string[] = [];
   const starDirTable = `<table style="width:100%;border-collapse:collapse;font-size:12px;margin:8px 0">
@@ -1750,7 +1690,7 @@ function _nineStarDeepSections(a: {
   }).join('');
   sections.push(blk('📅', 'แนวโน้มปี 2026 — รายเดือน', 'Your 2026 Outlook — Month by Month',
     P(isEn ? `In 2026 (Year of Star 9 Fire), each month carries a different guest star colouring your birth star's energy. Use ${B('supportive')} months for major launches, ${B('wealth')} months for financial moves, and ease off in ${B('pressure')} months.`
-           : `ในปี 2026 แต่ละเดือนมีดาวแขกที่ระบายสีพลังงานของดาวเกิดคุณ ใช้เดือน${B('หนุน')}สำหรับเปิดตัวงานใหญ่ เดือน${B('ทรัพย์')}สำหรับการเงิน และผ่อนในเดือน${B('กดดัน')}`) +
+           : `ในปี 2026 (ปีดาว 9 ไฟ) แต่ละเดือนมีดาวแขกที่ระบายสีพลังงานของดาวเกิดคุณ ใช้เดือน${B('หนุน')}สำหรับเปิดตัวงานใหญ่ เดือน${B('ทรัพย์')}สำหรับการเงิน และผ่อนในเดือน${B('กดดัน')}`) +
     `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:6px">${monthRowData}</table>`
   ));
   sections.push(blk('🎨', 'เสริมและเลี่ยง — ภาพรวม', 'Enhance & Avoid — Overall Summary',
@@ -1768,24 +1708,21 @@ function calcNineStar(d: BirthData): NineStarData {
   // Before Risshun (~Feb 4): use previous year
   if (d.month < 2 || (d.month === 2 && d.day < 4)) y--;
 
-  // 本命星 runs backwards one star a year. Anchors from published 早見表:
-  // 2024 = 三碧木星 (3), 2025 = 二黒土星 (2), 2026 = 一白水星 (1), 1991 = 九紫火星 (9).
-  // The anchor was 2 here, which put every chart one star low. (2026-08-21)
-  let star = ((3 - (y - 2024)) % 9 + 9) % 9;
+  let star = ((2 - (y - 2024)) % 9 + 9) % 9;
   if (star === 0) star = 9;
 
   const data = NSK_DATA[star];
-  const isHonmei = star === 1; // 2026 year star = 1 (一白水星)
+  const isHonmei = star === 9; // 2026 year star = 9
   const analysis2026 = isHonmei
     ? tPick(
         'Honmei-sei Kaiki 本命星回帰 — ดาวของคุณตรงกับดาวปี 2026 พอดี ทุกสิ่งขยายผลคูณสอง ทั้งโอกาสและความเสี่ยง ต้องใส่ใจทุกการกระทำ',
         'Honmei-sei Kaiki 本命星回帰 — your star matches the 2026 year star exactly. Everything amplifies twofold: both opportunity and risk. You must be mindful of every action.')
     : tPick(
-        `ปี 2026 เป็นปีดาว 1 (一白水星 ธาตุน้ำ) — ดาวประจำตัวคุณคือดาว ${star} · ${data.dir}คือทิศนำโชคประจำดาวของคุณ`,
-        `2026 is a Star 1 year (一白水星, Water). Your own star is ${star} — ${pDir(data.dir)} is that star's lucky direction.`);
+        `ปี 2026 (ดาวปี 9 ไฟ) กับดาว ${star} ของคุณ — ${data.dir}คือทิศนำโชค ใช้เสริมพลังงานการทำงานและการนอน`,
+        `2026 (Year of Fire Star 9) with your Star ${star} — ${pDir(data.dir)} is your lucky direction; use it to support work and sleep energy.`);
 
   const NSK_BASE: Record<number,number> = {1:700,2:650,3:730,4:720,5:580,6:750,7:720,8:760,9:800};
-  const nskScore = Math.max(400, Math.min(960, (NSK_BASE[star]??700) + (star===1?50:0) + ((d.day*11+d.month*5)%80)-40));
+  const nskScore = Math.max(400, Math.min(960, (NSK_BASE[star]??700) + (star===9?50:0) + ((d.day*11+d.month*5)%80)-40));
   const nskResult: NineStarData = {
     star, starName: data.name, starChinese: data.chinese,
     starElement: pEl(data.el), starColor: pColor(data.color),
@@ -1812,12 +1749,12 @@ function calcNineStar(d: BirthData): NineStarData {
       keyValueMeaningEn: `Your main star is <strong>Star ${star} — ${data.name}</strong> (${data.chinese}), an element of <strong>${data.el}</strong>. Your lucky direction is <strong>${data.dir}</strong> and your sleep direction is <strong>${data.sleepDir}</strong>. In Nine Star Ki, your star sits in a different position each year — known as the "9-year cycle" — beginning from the centre (position 5) and rotating one square at a time. The position you currently occupy tells you whether this is a year to "step forward" or "pull back to gather strength".`,
       strengthTh: `ดาว ${star} ${data.name} ให้พรพิเศษ — ${star===1?'ดาวน้ำขาว คุณเป็นนักคิดลึกและนักปรับตัว เหมือนน้ำที่ไหลผ่านอุปสรรคโดยไม่แตก คนดาว 1 มักประสบความสำเร็จในงานที่ต้องใช้สัญชาตญาณและความยืดหยุ่น':star===2?'ดาวดินดำ คุณเป็นผู้บ่มเพาะและดูแล มีความอดทนที่คนอื่นอิจฉา เหมาะกับงานระยะยาวที่ไม่ต้องการการยอมรับเร็วๆ':star===3?'ดาวไม้เขียวสด คุณเป็นนักริเริ่มและผู้เดินหน้า พลังงานเหมือนฟ้าผ่า ทะลวงได้ทุกอุปสรรค':star===4?'ดาวไม้เขียวอ่อน คุณเป็นนักสื่อสารและผู้เชื่อมคน พลังยืดหยุ่นเหมือนลม ไปถึงทุกที่ที่ต้องการ':star===5?'ดาวดินเหลือง — ดาวกลางของจัตุรัสเวท พลังงานสูงที่สุดในทุกดาว แต่ต้องจัดการให้สมดุล มิเช่นนั้นจะผันผวน':star===6?'ดาวโลหะขาว คุณเป็นผู้นำโดยธรรมชาติ มีหลักการและศักดิ์ศรี เหมือนฟ้าหลวง เหมาะเป็นผู้บริหารหรือผู้มีอำนาจตามหลักการ':star===7?'ดาวโลหะแดง คุณมีเสน่ห์และพูดเก่ง เหมือนทะเลสาบยามเย็น ดึงดูดคนเข้าหา เหมาะกับงานค้าขายและการสื่อสาร':star===8?'ดาวดินขาว คุณมั่นคงและสะสมทรัพย์ได้ดี เหมือนภูเขา อดทนและสร้างสิ่งถาวร เหมาะกับการลงทุนและอสังหา':'ดาวไฟม่วง คุณฉลาดหลักแหลมและมองการณ์ไกล เหมือนไฟส่องทาง สัญชาตญาณเฉียบแหลม ชอบเป็นที่รู้จักและมีอิทธิพล'} สิ่งที่เสริมดวงของคุณคือสี<strong>${data.color}</strong> ทิศทำงาน<strong>${data.dir}</strong> และทิศนอน<strong>${data.sleepDir}</strong>`,
       strengthEn: `Star ${star} ${data.name} grants a distinctive gift — ${star===1?'White Water star: you are a deep thinker and a master adapter, like water flowing past obstacles without breaking. Star 1 people excel at work that demands intuition and flexibility':star===2?'Black Earth star: you are a nurturer and caretaker, with a patience others envy. Suited to long-haul work that doesn\'t demand quick recognition':star===3?'Bright Green Wood star: you are an initiator and pace-setter. Your energy is like lightning — piercing through any obstacle':star===4?'Soft Green Wood star: you are a communicator and connector. Your energy is wind-like — flexible, reaching everywhere it needs to go':star===5?'Yellow Earth star — the central square of the magic grid. The highest-energy star, but it requires deliberate balance or it becomes volatile':star===6?'White Metal star: you are a natural leader with principle and dignity, like the celestial sovereign. Suited to executive roles and principled authority':star===7?'Red Metal star: you have charm and verbal skill, like a lake at dusk that draws others in. Excellent for sales and communication':star===8?'White Earth star: you are steady and accumulate wealth well — like a mountain. Patient, building things that last. Suited to investment and real estate':'Purple Fire star: you are sharp and far-sighted, like a fire lighting the way. Acute intuition. You enjoy recognition and influence'}. What amplifies your chart: the colour <strong>${data.color}</strong>, work direction <strong>${data.dir}</strong>, and sleep direction <strong>${data.sleepDir}</strong>.`,
-      shadowTh: `ด้านเงาของดาว ${star} คือ ${star===1?'ความโลเลและดูดซับพลังลบจากคนอื่น — น้ำซึมพิษได้ง่าย':star===2?'การทำงานหนักจนถูกใช้โดยไม่รู้ตัว — ดินให้ทุกคน ต้องรู้ว่าเมื่อไหร่ควรหยุดให้':star===3?'ความใจร้อนและไม่จบสิ่งที่เริ่ม — ฟ้าผ่ามาเร็วแต่หายเร็ว':star===4?'การโลเลในทิศทาง — ลมพัดไปทุกที่จึงไม่ถึงไหน':star===5?'ความผันผวนและอุบัติเหตุใหญ่ — ดาวกลางต้องระวังตลอด โดยเฉพาะในปีที่ดาว 5 ไปตำแหน่งตะวันออก':star===6?'ความหยิ่งและไม่ฟังใคร — ฟ้าไกลจากดินมาก':star===7?'การใช้จ่ายฟุ่มเฟือยและรักสบาย — ทะเลสาบที่สวยแต่ตื้น':star===8?'ความเฉื่อยและต้านการเปลี่ยนแปลง — ภูเขาเคลื่อนยาก':'ความหยิ่งและการเผาคนรอบข้าง — ไฟสว่างแต่เผาได้'}`,
-      shadowEn: `The shadow side of Star ${star} is ${star===1?'indecisiveness and absorbing other people\'s negative energy — water takes in poison easily':star===2?'overworking until you\'re exploited unconsciously — Earth gives to everyone; you must know when to stop giving':star===3?'impatience and leaving things unfinished — lightning strikes fast but fades fast':star===4?'wavering on direction — wind blowing everywhere reaches nowhere':star===5?'volatility and major accidents — the central star must stay vigilant, especially in years when Star 5 visits the East':star===6?'pride and refusing to listen — the heavens stand far from the earth':star===7?'overspending and chasing comfort — a beautiful but shallow lake':star===8?'inertia and resistance to change — mountains are slow to move':'pride and burning those around you — fire is bright, but it can scorch'}..`,
+      shadowTh: `ด้านเงาของดาว ${star} คือ ${star===1?'ความโลเลและดูดซับพลังลบจากคนอื่น — น้ำซึมพิษได้ง่าย':star===2?'การทำงานหนักจนถูกใช้โดยไม่รู้ตัว — ดินให้ทุกคน ต้องรู้ว่าเมื่อไหร่ควรหยุดให้':star===3?'ความใจร้อนและไม่จบสิ่งที่เริ่ม — ฟ้าผ่ามาเร็วแต่หายเร็ว':star===4?'การโลเลในทิศทาง — ลมพัดไปทุกที่จึงไม่ถึงไหน':star===5?'ความผันผวนและอุบัติเหตุใหญ่ — ดาวกลางต้องระวังตลอด โดยเฉพาะในปีที่ดาว 5 ไปตำแหน่งตะวันออก':star===6?'ความหยิ่งและไม่ฟังใคร — ฟ้าไกลจากดินมาก':star===7?'การใช้จ่ายฟุ่มเฟือยและรักสบาย — ทะเลสาบที่สวยแต่ตื้น':star===8?'ความเฉื่อยและต้านการเปลี่ยนแปลง — ภูเขาเคลื่อนยาก':'ความหยิ่งและการเผาคนรอบข้าง — ไฟสว่างแต่เผาได้'} ปี 2026 ซึ่งเป็นปีดาว 9 ไฟ — ${star===9?'Honmei-sei Kaiki (本命星回帰) ดาวของคุณตรงกับปี! ต้องระวังเป็นพิเศษ ทำดีผลดี ทำไม่ดีผลไม่ดี ขยายเท่าตัว':'พลังงานไฟจะมีอิทธิพลกับคุณ — ระวังการใช้ความเข้มของปีให้ถูกทิศทาง'}`,
+      shadowEn: `The shadow side of Star ${star} is ${star===1?'indecisiveness and absorbing other people\'s negative energy — water takes in poison easily':star===2?'overworking until you\'re exploited unconsciously — Earth gives to everyone; you must know when to stop giving':star===3?'impatience and leaving things unfinished — lightning strikes fast but fades fast':star===4?'wavering on direction — wind blowing everywhere reaches nowhere':star===5?'volatility and major accidents — the central star must stay vigilant, especially in years when Star 5 visits the East':star===6?'pride and refusing to listen — the heavens stand far from the earth':star===7?'overspending and chasing comfort — a beautiful but shallow lake':star===8?'inertia and resistance to change — mountains are slow to move':'pride and burning those around you — fire is bright, but it can scorch'}. In 2026 (Year of Fire Star 9) — ${star===9?'Honmei-sei Kaiki (本命星回帰): your star matches the year! Extra caution required — good actions multiply, poor ones too. Everything you do amplifies':'the year\'s Fire energy will lean on you — be deliberate about where you direct that intensity'}.`,
       practiceTh: `Nine Star Ki ในชีวิตประจำวัน: (1) หันหัวนอนไปทาง<strong>${data.sleepDir}</strong> ทุกคืน — Feng Shui ญี่ปุ่นถือว่าส่งผลต่อคุณภาพการนอน ฝัน และพลังวันรุ่งขึ้น (2) จัดโต๊ะทำงานให้หันหน้าไปทาง<strong>${data.dir}</strong> — ทิศที่ดาวของคุณได้รับพลัง Qi มากที่สุด (3) ใส่สี<strong>${data.color}</strong> อย่างน้อย 1 ชิ้นต่อวัน (เสื้อ เข็มขัด กระเป๋า) เป็น "energy antenna" (4) ติดตาม "Honmei-sei" (ตำแหน่งดาวของคุณในปี) ทุกเดือน — มีปฏิทิน Nine Star Ki ญี่ปุ่นแจกฟรีออนไลน์`,
       practiceEn: `Nine Star Ki in daily life: (1) Sleep with your head pointing <strong>${data.sleepDir}</strong> every night — Japanese Feng Shui treats this as critical for sleep quality, dreams, and next-day energy. (2) Orient your work desk to face <strong>${data.dir}</strong> — the direction your star receives Qi most fully. (3) Wear <strong>${data.color}</strong> as at least one item per day (shirt, belt, bag) as an "energy antenna". (4) Track your "Honmei-sei" (your star\'s monthly position) — free Japanese Nine Star Ki calendars are available online.`,
-      currentYearTh: `ปี 2026 เป็นปีดาว 1 (一白水星 ธาตุน้ำ)${star===1?' — ตรงกับดาวประจำตัวคุณ (Honmei-sei Kaiki 本命星回帰)':''}`,
-      currentYearEn: `2026 is a Star 1 year (一白水星, Water)${star===1?' — the same star as yours: Honmei-sei Kaiki (本命星回帰)':''}.`,
+      currentYearTh: `ปี 2026 (ดาวปี 9 ไฟ) — ${star===9?'Honmei-sei Kaiki สำหรับคุณ! ปีที่สำคัญที่สุดในวงจร 9 ปี ทุกการกระทำขยายผลทั้ง 2 ทาง — ทำสิ่งที่อยากให้โลกจำไว้':'ดาว '+star+' ของคุณจะไปอยู่ในตำแหน่งที่ต่างจากปีที่แล้ว เปลี่ยนวิธีที่ "ฟ้าคุย" กับคุณปีนี้'} ทิศหลีกเลี่ยงในปี 2026 คือทิศตะวันตกเฉียงใต้ (ดาว 5 ไปนั่น) — อย่าเคลื่อนไหวใหญ่หรือขุดดินในทิศนั้น`,
+      currentYearEn: `2026 (Year of Fire Star 9) — ${star===9?'Honmei-sei Kaiki for you! The most consequential year in the 9-year cycle. Every action amplifies in both directions — do the things you want the world to remember':'your Star '+star+' moves to a different position than last year, changing the way the "heavens speak" to you this year'}. The direction to avoid in 2026 is southwest (where Star 5 sits) — don\'t make major moves or break ground in that direction.`,
       closingTh: 'Nine Star Ki บอกไว้ว่า — "รู้จังหวะของฟ้า คุณไม่ต้องฝืน จะลื่นไหลไปเอง" — ฟ้าไม่เคยผิด ดาวไม่เคยโกหก เรียนรู้ที่จะฟังคือศิลปะของ 九星気学',
       closingEn: 'Nine Star Ki teaches: "Know the rhythm of the heavens, and you won\'t need to force — life will flow on its own." The sky never errs, the stars never lie. Learning to listen is the art of 九星気学.',
     }),
@@ -2045,9 +1982,9 @@ function _numerologyDeepSections(a: {
   const pinT = (n:number) => pick((PINN_TXT[n]||PINN_TXT[0])[0],(PINN_TXT[n]||PINN_TXT[0])[1]);
 
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   const lpNm = pick(LPN[a.lp]?.[0]||'',LPN[a.lp]?.[1]||'');
   const sec: string[] = [];
@@ -2216,38 +2153,31 @@ const DASHA_YEARS: Record<string, number> = {
 const DASHA_ORDER = ['เคตุ','ศุกร์','อาทิตย์','จันทร์','อังคาร','ราหู','พฤหัสฯ','เสาร์','พุธ'];
 
 /**
- * Lahiri Ayanamsa — IAU 2006 P03 general precession in longitude.
- * Reference: Capitaine, Wallace, Chapront 2003 / Hilton et al. 2006,
- * "Report of the IAU Working Group on Precession and the Ecliptic."
+ * Lahiri Ayanamsa — time-varying sidereal offset for Vedic calculations.
  *
- * Lahiri reference value: 23°51'11.18" at 2000-01-01 UT = 23.85310°.
+ * Linear approximation from J2000.0 epoch: rate = 50.288 arcsec/year
+ * (≈ 0.013968°/year) due to precession of the equinoxes. Accurate to
+ * ~±10 arcsec across years 1900-2100 — sufficient for nakshatra
+ * boundary placement at 13°20' resolution.
  *
- * Patch history:
- *   2026-06-01 — v55: hardcoded 24.0 → linear 50.288"/yr (Lahiri linear)
- *   2026-06-08 — v94: linear → IAU 2006 P03 polynomial (Phase 2 engine v2)
+ * Reference value: 23°51'11.18" at 2000-01-01 UT = 23.85310°
  *
- * For T = Julian centuries from J2000.0 TDB:
- *   p_A = 5028.796195"T + 1.1054348"T² + 0.00007964"T³
- *        − 0.000023857"T⁴ − 0.0000000383"T⁵
- *   ayanamsa(T) = 23.85310° + p_A(T) / 3600
+ * Patched 2026-06-01 (Director-approved): previously hardcoded to 24.0
+ * which drifts ~10 arcmin from true Lahiri at 2026 and ~26 arcmin by
+ * 2050. For older charts (pre-1950) the drift is even larger — Sunthorn
+ * Phu's 1786 chart was using a value 2.87° wrong (≈ shift of half a
+ * nakshatra), affecting nakshatra/Mahadasha/dasha period accuracy.
  *
- * Linear coefficient (5028.796195"/century = 50.288"/yr) matches v1, so
- * for modern charts (|T| < 0.5, years 1950-2050) v2 agrees with v1 within
- * microarcseconds. For historical DOBs (|T| > 1, pre-1900 or post-2100),
- * the T² and higher terms become meaningful — at T = -2.14 (Sunthorn Phu
- * 1786), the difference between linear and P03 is ~5 arcseconds. Real
- * benefit shows on millennia-scale charts (±10° at T = ±70).
+ * For higher precision in future, replace with full IAU 2006 series
+ * (Newcomb / Capitaine). Current linear form is enough for ~99% of
+ * cases at nakshatra-boundary precision.
  */
 function lahiriAyanamsa(year: number, month: number, day: number): number {
-  const jd = toJD(year, month, day, 12);  // noon UT — sub-day precision irrelevant
-  const T = (jd - 2451545.0) / 36525;     // Julian centuries from J2000.0
-  // IAU 2006 P03 general precession in longitude (arcseconds)
-  const pA = 5028.796195 * T
-           + 1.1054348 * T * T
-           + 0.00007964 * T * T * T
-           - 0.000023857 * T * T * T * T
-           - 0.0000000383 * T * T * T * T * T;
-  return 23.85310 + pA / 3600;
+  const decYear = year + (month - 1) / 12 + (day - 1) / 365.25;
+  const REF_YEAR = 2000.0;
+  const REF_AYAN_DEG = 23.85310;        // 23°51'11.18" at 2000-01-01 UT
+  const RATE_PER_YEAR_DEG = 0.013968;   // 50.288"/yr / 3600
+  return REF_AYAN_DEG + (decYear - REF_YEAR) * RATE_PER_YEAR_DEG;
 }
 
 // ── VEDIC (JYOTISH) DEEP READING ─────────────────────────────────────────────
@@ -2279,9 +2209,9 @@ function _vedicDeepSections(a: {
   };
   const plOf = (th: string) => PL[th] || PL['พฤหัส'];
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   const lord = plOf(a.lordTh), cur = plOf(a.curDashaTh), antar = plOf(a.antarTh);
   const sec: string[] = [];
@@ -2457,8 +2387,8 @@ function calcVedic(d: BirthData, w: WesternData): VedicData {
       keyValueEn: `Lagna ${lagnaSign.en} · Nakshatra ${nakshatra} pada ${pada} · Mahadasha ${currentDasha}`,
       keyValueMeaning: `ลัคนา (Ascendant) ของคุณในระบบ Sidereal คือ <strong>${lagnaSign.th}</strong> — ต่างจาก ASC ตะวันตกเพราะ Jyotish คำนวณตามตำแหน่งดาวจริง นักษัตร (Nakshatra) ของดวงจันทร์คุณคือ <strong>${nakshatra}</strong> บาทที่ ${pada} ซึ่งปกครองโดย<strong>${lord}</strong> Jyotish ถือว่า Nakshatra สำคัญกว่าราศีเพราะมันละเอียดกว่า 27 เท่า (27 Nakshatra เทียบกับ 12 ราศี) Mahadasha ปัจจุบันของคุณคือ <strong>${currentDasha}</strong> จนถึงปี ${dashEnd} — ซึ่งเป็น "ยุค" ที่ดาวนั้นปกครองทุกด้านของชีวิต`,
       keyValueMeaningEn: `Your Lagna (Ascendant) in the sidereal system is <strong>${lagnaSign.en}</strong> — different from a Western ASC because Jyotish uses real star positions. Your Moon\'s Nakshatra is <strong>${nakshatra}</strong> at pada ${pada}, ruled by <strong>${lord}</strong>. Jyotish considers the Nakshatra more important than the sign because it\'s 27× more granular (27 Nakshatras vs. 12 signs). Your current Mahadasha is <strong>${currentDasha}</strong> until ${dashEnd} — the "era" in which that planet governs every dimension of your life.`,
-      strengthTh: `ลัคนา ${lagnaSign.th} ให้คุณคุณสมบัติ${lagnaSign.th==='เมถุน'?'ความคิดเร็ว การสื่อสาร ความสามารถเรียนรู้หลายสาขา คนลัคนาเมถุนมักเป็นนักเขียน ครู ล่าม หรือผู้ทำงานกับข้อมูล':lagnaSign.th==='กรกฎ'?'สัญชาตญาณ ความเห็นอกเห็นใจ ความรักครอบครัว เหมาะงานที่ดูแลผู้อื่น':lagnaSign.th==='สิงห์'?'ความเป็นผู้นำ เสน่ห์ ความภูมิใจในตัวเอง เหมาะตำแหน่งสาธารณะ':lagnaSign.th==='พฤษภ'?'ความมั่นคง ความรักในความงาม ความอดทน เหมาะงานสะสมทรัพย์ระยะยาว':lagnaSign.th==='เมษ'?'ความริเริ่ม ความกล้า และแรงผลักให้ลงมือก่อนใคร ลัคนาเมษปกครองโดยดาวอังคาร เหมาะงานที่ต้องตัดสินใจเร็วและนำหน้าคนอื่น':lagnaSign.th==='กันย์'?'ความละเอียด การวิเคราะห์ และใจรักการรับใช้ ลัคนากันย์ปกครองโดยดาวพุธ เหมาะงานที่ต้องความแม่นยำ — การแพทย์ บัญชี ตรวจสอบ':lagnaSign.th==='ตุลย์'?'ความสมดุล การเจรจา และสายตาด้านความงาม ลัคนาตุลย์ปกครองโดยดาวศุกร์ เหมาะงานที่ต้องประสานคนและสร้างข้อตกลง':lagnaSign.th==='พิจิก'?'ความลึก พลังฟื้นคืน และความสามารถขุดถึงต้นตอ ลัคนาพิจิกปกครองโดยดาวอังคาร เหมาะงานวิจัย สืบสวน หรือสิ่งที่ต้องเปลี่ยนแปลงจากราก':lagnaSign.th==='ธนู'?'วิสัยทัศน์กว้าง ความตรงไปตรงมา และใจรักการเรียนรู้ ลัคนาธนูปกครองโดยดาวพฤหัส เหมาะงานสอน กฎหมาย หรือการเดินทางข้ามวัฒนธรรม':lagnaSign.th==='มกร'?'วินัย ความอดทน และความสามารถสร้างสิ่งที่อยู่ยาว ลัคนามกรปกครองโดยดาวเสาร์ ผลมาช้าแต่มั่นคง เหมาะงานบริหารและงานโครงสร้าง':lagnaSign.th==='กุมภ์'?'ความคิดนอกกรอบ ใจกว้างต่อส่วนรวม และเครือข่ายที่หลากหลาย ลัคนากุมภ์ปกครองโดยดาวเสาร์ เหมาะงานเทคโนโลยีหรือการเปลี่ยนแปลงสังคม':lagnaSign.th==='มีน'?'ความเห็นอกเห็นใจ สัญชาตญาณ และจินตนาการ ลัคนามีนปกครองโดยดาวพฤหัส เหมาะงานเยียวยา ศิลปะ หรือเส้นทางทางจิตวิญญาณ':'เฉพาะของราศี '+lagnaSign.th+'ที่นำไปข้างหน้า'} Nakshatra ${nakshatra} ให้พรเฉพาะ — ${nakshatra==='Uttara Phalguni'?'ความมั่นคง ความช่วยเหลือผู้อื่น ความยุติธรรม นักษัตรนี้ปกครองโดยพระอาทิตย์และเกี่ยวข้องกับการแต่งงานที่มั่นคง':nakshatra==='Rohini'?'เสน่ห์และความงดงาม รักศิลปะ ปกครองโดยจันทร์':nakshatra==='Bharani'?'ความรับผิดชอบและพลังเปลี่ยนแปลง':'พลังของ '+nakshatra} คุณอยู่ในช่วง Mahadasha ${currentDasha} ซึ่ง${currentDasha==='ราหู'?'เป็นยุคแห่งโอกาสใหม่ การเดินทางข้ามวัฒนธรรม แต่ก็มีกับดัก — ต้องระวังคนที่ไม่จริงใจเรื่องเงิน':currentDasha==='พฤหัส'||currentDasha==='Jupiter'?'เป็นยุคทองของการขยาย การเรียนรู้ และการได้รับการยอมรับ':currentDasha==='เสาร์'||currentDasha==='Saturn'?'เป็นยุคของวินัยและการสร้างรากฐาน — ผลลัพธ์มาช้าแต่ยั่งยืน':'เป็นยุคของ '+currentDasha+' ซึ่งส่งอิทธิพลเฉพาะ'}`,
-      strengthEn: `Lagna ${lagnaSign.en} grants ${lagnaSign.en==='Gemini'?'fast thinking, communication, and the ability to master many fields. Gemini ascendants often become writers, teachers, interpreters, or knowledge workers':lagnaSign.en==='Cancer'?'instinct, empathy, and devotion to family. Suited to caring professions':lagnaSign.en==='Leo'?'leadership, magnetism, healthy pride. Suited to public-facing roles':lagnaSign.en==='Taurus'?'stability, love of beauty, patience. Suited to long-haul wealth-building':lagnaSign.en==='Aries'?'initiative, courage, and the drive to move first. An Aries lagna is ruled by Mars and suits work demanding fast decisions and front-line leadership':lagnaSign.en==='Virgo'?'precision, analysis, and a genuine instinct to be useful. A Virgo lagna is ruled by Mercury and suits exacting work — medicine, accounting, auditing':lagnaSign.en==='Libra'?'balance, negotiation, and an eye for beauty. A Libra lagna is ruled by Venus and suits work that brings people together and builds agreement':lagnaSign.en==='Scorpio'?'depth, resilience, and the ability to dig to the root of things. A Scorpio lagna is ruled by Mars and suits research, investigation, and work that transforms from the ground up':lagnaSign.en==='Sagittarius'?'wide vision, frankness, and a love of learning. A Sagittarius lagna is ruled by Jupiter and suits teaching, law, and cross-cultural travel':lagnaSign.en==='Capricorn'?'discipline, endurance, and the patience to build things that last. A Capricorn lagna is ruled by Saturn — results come slowly but hold — and suits administration and structural work':lagnaSign.en==='Aquarius'?'unconventional thinking, concern for the collective, and a wide network. An Aquarius lagna is ruled by Saturn and suits technology and social reform':lagnaSign.en==='Pisces'?'compassion, intuition, and imagination. A Pisces lagna is ruled by Jupiter and suits healing, the arts, and contemplative paths':'a unique quality of '+lagnaSign.en+' that propels you forward'}. Nakshatra ${nakshatra} grants its own gift — ${nakshatra==='Uttara Phalguni'?'stability, helpfulness, justice. Ruled by the Sun and tied to enduring marriage':nakshatra==='Rohini'?'charm and beauty, love of art. Ruled by the Moon':nakshatra==='Bharani'?'responsibility and transformative power':'the power of '+nakshatra}. You\'re in Mahadasha ${currentDasha} which is ${currentDasha==='ราหู'?'an era of new opportunity and cross-cultural travel — but a trap-laden one. Watch for insincere people around money':currentDasha==='พฤหัส'||currentDasha==='Jupiter'?'a golden era of expansion, learning, and recognition':currentDasha==='เสาร์'||currentDasha==='Saturn'?'an era of discipline and foundation-laying — slow results, but durable':'an era of '+currentDasha+' carrying its own distinctive influence'}.`,
+      strengthTh: `ลัคนา ${lagnaSign.th} ให้คุณคุณสมบัติ${lagnaSign.th==='เมถุน'?'ความคิดเร็ว การสื่อสาร ความสามารถเรียนรู้หลายสาขา คนลัคนาเมถุนมักเป็นนักเขียน ครู ล่าม หรือผู้ทำงานกับข้อมูล':lagnaSign.th==='กรกฎ'?'สัญชาตญาณ ความเห็นอกเห็นใจ ความรักครอบครัว เหมาะงานที่ดูแลผู้อื่น':lagnaSign.th==='สิงห์'?'ความเป็นผู้นำ เสน่ห์ ความภูมิใจในตัวเอง เหมาะตำแหน่งสาธารณะ':lagnaSign.th==='พฤษภ'?'ความมั่นคง ความรักในความงาม ความอดทน เหมาะงานสะสมทรัพย์ระยะยาว':'เฉพาะของราศี '+lagnaSign.th+'ที่นำไปข้างหน้า'} Nakshatra ${nakshatra} ให้พรเฉพาะ — ${nakshatra==='Uttara Phalguni'?'ความมั่นคง ความช่วยเหลือผู้อื่น ความยุติธรรม นักษัตรนี้ปกครองโดยพระอาทิตย์และเกี่ยวข้องกับการแต่งงานที่มั่นคง':nakshatra==='Rohini'?'เสน่ห์และความงดงาม รักศิลปะ ปกครองโดยจันทร์':nakshatra==='Bharani'?'ความรับผิดชอบและพลังเปลี่ยนแปลง':'พลังของ '+nakshatra} คุณอยู่ในช่วง Mahadasha ${currentDasha} ซึ่ง${currentDasha==='ราหู'?'เป็นยุคแห่งโอกาสใหม่ การเดินทางข้ามวัฒนธรรม แต่ก็มีกับดัก — ต้องระวังคนที่ไม่จริงใจเรื่องเงิน':currentDasha==='พฤหัส'||currentDasha==='Jupiter'?'เป็นยุคทองของการขยาย การเรียนรู้ และการได้รับการยอมรับ':currentDasha==='เสาร์'||currentDasha==='Saturn'?'เป็นยุคของวินัยและการสร้างรากฐาน — ผลลัพธ์มาช้าแต่ยั่งยืน':'เป็นยุคของ '+currentDasha+' ซึ่งส่งอิทธิพลเฉพาะ'}`,
+      strengthEn: `Lagna ${lagnaSign.en} grants ${lagnaSign.en==='Gemini'?'fast thinking, communication, and the ability to master many fields. Gemini ascendants often become writers, teachers, interpreters, or knowledge workers':lagnaSign.en==='Cancer'?'instinct, empathy, and devotion to family. Suited to caring professions':lagnaSign.en==='Leo'?'leadership, magnetism, healthy pride. Suited to public-facing roles':lagnaSign.en==='Taurus'?'stability, love of beauty, patience. Suited to long-haul wealth-building':'a unique quality of '+lagnaSign.en+' that propels you forward'}. Nakshatra ${nakshatra} grants its own gift — ${nakshatra==='Uttara Phalguni'?'stability, helpfulness, justice. Ruled by the Sun and tied to enduring marriage':nakshatra==='Rohini'?'charm and beauty, love of art. Ruled by the Moon':nakshatra==='Bharani'?'responsibility and transformative power':'the power of '+nakshatra}. You\'re in Mahadasha ${currentDasha} which is ${currentDasha==='ราหู'?'an era of new opportunity and cross-cultural travel — but a trap-laden one. Watch for insincere people around money':currentDasha==='พฤหัส'||currentDasha==='Jupiter'?'a golden era of expansion, learning, and recognition':currentDasha==='เสาร์'||currentDasha==='Saturn'?'an era of discipline and foundation-laying — slow results, but durable':'an era of '+currentDasha+' carrying its own distinctive influence'}.`,
       shadowTh: `Jyotish เตือนเรื่อง "Dosha" (ข้อบกพร่องในดวง) ที่พบบ่อย — ${lagnaSign.th==='เมถุน'?'Manglik (มังคลิก) จาก Mars ที่ตำแหน่งกวน — ต้องระวังในการแต่งงาน':'ดวงปกติ แต่ Rahu/Ketu ต้องระวัง'} ด้านเงาของ Nakshatra ${nakshatra} คือ${nakshatra==='Uttara Phalguni'?'ความยึดมั่นกับสิ่งที่ควรปล่อยวาง':'การใช้พลัง Nakshatra ในทางที่ไม่สมดุล'} Mahadasha ${currentDasha} มีด้านท้าทายที่${['ราหู','Rahu'].includes(currentDasha)?'การหลงทิศและการถูกล่อลวงด้วยความเร็ว':['เสาร์','Saturn'].includes(currentDasha)?'ความเหนื่อยล้าและความรู้สึก "โลกสู้ฉัน"':'ความสุดโต่งตามลักษณะของดาว'} — โหราจารย์ Vedic แนะนำให้ทำ "Remedy" (แก้ไข) เช่นสวม Yantra หรือสวดมนตรา`,
       shadowEn: `Jyotish warns of common "Doshas" (chart flaws) — ${lagnaSign.en==='Gemini'?'Manglik affliction from Mars in disturbed positions — caution in marriage':'a generally clean chart, but Rahu/Ketu deserve attention'}. The shadow of Nakshatra ${nakshatra} is ${nakshatra==='Uttara Phalguni'?'clinging to what should be released':'using the Nakshatra\'s energy out of balance'}. Mahadasha ${currentDasha} carries a challenging side: ${['ราหู','Rahu'].includes(currentDasha)?'losing direction and being seduced by speed':['เสาร์','Saturn'].includes(currentDasha)?'exhaustion and the feeling that "the world is against me"':'extremes specific to that planet\'s nature'} — Vedic masters prescribe a "Remedy" such as wearing a Yantra or chanting a mantra.`,
       practiceTh: `การปฏิบัติ Vedic รายวัน: (1) สวดมนตราประจำดาว Mahadasha ของคุณ — ${currentDasha==='ราหู'?'"Om Rahave Namaha" 108 ครั้ง วันเสาร์':currentDasha==='พฤหัส'||currentDasha==='Jupiter'?'"Om Brihaspataye Namaha" 108 ครั้ง วันพฤหัส':currentDasha==='เสาร์'||currentDasha==='Saturn'?'"Om Shanishcharaya Namaha" 108 ครั้ง วันเสาร์':'มนตราประจำดาว '+currentDasha} (2) ใส่อัญมณีประจำลัคนา — ${lagnaSign.th==='เมถุน'?'มรกต (ปกครองโดยพุธ)':lagnaSign.th==='สิงห์'?'ทับทิม (ปกครองโดยอาทิตย์)':lagnaSign.th==='กรกฎ'?'มุก (ปกครองโดยจันทร์)':'อัญมณีประจำราศี'} (3) ทำ "Puja" วันเกิดประจำปี — พิธีบูชาเทพเจ้า Isht Devata ของคุณ (4) ตื่นก่อน Brahma Muhurta (04:30-06:00) อย่างน้อยสัปดาห์ละ 2 วัน — เป็นเวลาที่ดาวเคราะห์ส่งพลังบวกสูงสุด`,
@@ -2583,9 +2513,9 @@ function _hdDeepSections(a: {
   };
   const lines = a.profile.split('/');
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   const sec: string[] = [];
 
@@ -2825,9 +2755,9 @@ function _mayanDeepSections(a: {
   };
   const nw = NAWAL[a.signEn] || NAWAL.Imix, tn = TONE[a.toneNum] || TONE[1];
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   const sec: string[] = [];
 
@@ -2885,17 +2815,13 @@ function _mayanDeepSections(a: {
 }
 
 function calcMayan(d: BirthData): MayanData {
-  // Anchor: the GMT correlation (584283), the standard one in Maya epigraphy.
-  // Long Count 0.0.0.0.0 = 4 Ahau 8 Cumku = JDN 584283, and 4 Ahau sits at
-  // Kin 160 of the 260-day round, hence the +159 to make `kin` zero-based.
-  //
-  // The previous anchor asserted "Jan 1 2000 = Kin 1 (1 Imix)" with no source,
-  // and it was wrong by 101 kin — every Mayan sign and tone the engine has
-  // produced was off. The check that catches it is the most public date in
-  // Maya calendrics: 2012-12-21, the close of the 13th b'ak'tun, is 4 Ahau /
-  // Kin 160. The old anchor called that day Kin 59, tone 7.
+  // Anchor: Jan 1, 2000 = Kin 1 (1 Imix)
+  // JDN of Jan 1, 2000 (noon) = 2451545
+  const refJD = 2451545.0;
   const birthJD = Math.floor(toJD(d.year, d.month, d.day, 12));
-  const kin = ((birthJD - 584283 + 159) % 260 + 260) % 260;
+  const refJDFloor = Math.floor(refJD);
+  const diff = birthJD - refJDFloor;
+  const kin = ((diff % 260) + 260) % 260;
 
   const signIdx = kin % 20;
   const toneIdx = kin % 13;
@@ -3019,9 +2945,9 @@ function _celticDeepSections(a: {
   };
   const e = ELT[a.elRaw] || ELT['ลม'];
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   const treeDisp = pick(a.treeTh, a.treeEn);
   const sec: string[] = [];
@@ -3165,9 +3091,9 @@ function _thaiDeepSections(a: {
   };
   const dd = DAY[a.dow] || DAY[0];
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   const sec: string[] = [];
   sec.push(blk('📜','วันเกิด · เทพประจำวัน · สีมงคล','Your Birth Day · Deity · Lucky Colour',
@@ -3619,9 +3545,6 @@ function calcScore(d: BirthData, data: Omit<ChartData, 'score'>): ScoreData {
     // computes against today's date — so the FROZEN engine biorhythm score
     // has no effect on either the user's UI or their Cosmic Score now.
     const isDailyOnly = w.systemEn === 'Biorhythm' || w.system === 'Biorhythm';
-    // ทักษา votes on the score but is not in the public SYSTEMS_26 list, so it
-    // stays out of every rendered breakdown (see `display` on the interface).
-    const isHiddenFromDisplay = /ทักษา|Taksa/i.test(String(w.systemEn || '') + String(w.system || ''));
     return {
       system: sysLabel,
       systemEn: (w as any).systemEn || w.system,   // canonical, for language-agnostic lookups
@@ -3630,7 +3553,6 @@ function calcScore(d: BirthData, data: Omit<ChartData, 'score'>): ScoreData {
       finding: findings[i] ?? '',
       color: SCORE_COLORS[i] ?? '#5a5a5a',
       scoring: !isDailyOnly,
-      display: !isHiddenFromDisplay,
     };
   });
 
@@ -4669,10 +4591,10 @@ export function calculate(d: BirthData): ChartData {
   const tibetan         = calcTibetan(d);
   const ziwei           = calcZiWei(d);
   const onmyodo         = calcOnmyodo(d);
-  const hellenistic     = calcHellenistic(d, western);
+  const hellenistic     = calcHellenistic(d);
   const norseRune       = calcNorseRune(d);
   const ogham           = calcOgham(d);
-  const arabicParts     = calcArabicParts(d, western);
+  const arabicParts     = calcArabicParts(d);
   const kabbalistic     = calcKabbalistic(d);
   const zoroastrian     = calcZoroastrian(d);
   const aztec           = calcAztec(d);
@@ -4872,9 +4794,9 @@ function _sajuDeepSections(a: {
   const unfavDisp = unfavRaw.map(elD).join(' · ');
   const favCol = favRaw.map(r => pick(COL[r]?.[0] || elD(r), COL[r]?.[1] || elD(r))).join(' · ');
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   const sec: string[] = [];
   sec.push(blk('📜','사주 원국 — เสาทั้งสี่ของคุณ','사주 원국 — Your Four Pillars',
@@ -4935,9 +4857,8 @@ function calcSaju(d: BirthData): SajuData {
     '午':'오(午)','未':'미(未)','申':'신(申)','酉':'유(酉)','戌':'술(戌)','亥':'해(亥)'
   };
   const dp = dayPillar(d.year, d.month, d.day);
-  const _utcHourSaju = d.hour - d.timezone + d.minute / 60;   // UT for solar-term lookup
-  const mp = monthPillar(d.year, d.month, d.day, _utcHourSaju);
-  const yp = yearPillar(d.year, d.month, d.day, _utcHourSaju);
+  const mp = monthPillar(d.year, d.month, d.day);
+  const yp = yearPillar(d.year, d.month, d.day);
   const hp_val = hourPillar(d.hour, dp.si);
 
   // Kwarsal (꽃살): auspicious annual fortune type based on day branch in current year
@@ -4974,7 +4895,7 @@ function calcSaju(d: BirthData): SajuData {
       const monthElEn = tEl(monthEl);
       if (!isEn) {
         return [
-          `<div style="background:#0d0d15;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:2px;margin-bottom:8px">ดวงเกาหลี (Saju · 사주) · <span style="color:#9a8a72;letter-spacing:1px">Saju · Korean Four Pillars</span></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px"><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#c8a45a">เกาหลี (รากจาก BaZi จีน)</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">อายุ</span><br><strong style="color:#c8a45a">~ 700 ปี</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ความนิยม</span><br><strong style="color:#c8a45a">คนเกาหลียังใช้จริงในการแต่งงาน · K-drama หยิบไปพูดถึงบ่อย</strong></div></div><div style="margin-top:10px;padding-top:10px;border-top:1px solid #2a2545"><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">จุดเด่น</span><br><span style="color:#e0d0b0">เน้นเสาวันเป็นศูนย์กลาง · ใช้ดู "궁합" (ความเข้ากันของคู่)</span></div></div>`,
+          `<div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">ดวงเกาหลี (Saju · 사주) · <span style="color:#9a8a72;letter-spacing:1px">Saju · Korean Four Pillars</span></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px"><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ต้นกำเนิด</span><br><strong style="color:#d4aa50">เกาหลี (รากจาก BaZi จีน)</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">อายุ</span><br><strong style="color:#d4aa50">~ 700 ปี</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ความนิยม</span><br><strong style="color:#d4aa50">คนเกาหลียังใช้จริงในการแต่งงาน · K-drama หยิบไปพูดถึงบ่อย</strong></div></div><div style="margin-top:10px;padding-top:10px;border-top:1px solid #2a2545"><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">จุดเด่น</span><br><span style="color:#e0d0b0">เน้นเสาวันเป็นศูนย์กลาง · ใช้ดู "궁합" (ความเข้ากันของคู่)</span></div></div>`,
           `<p><strong>ดวงของคุณ:</strong> 일주 (Day Pillar) ของคุณคือ <strong>${KO_STEMS[dp.stem]??dp.stem}${KO_BRANCHES[dp.branch]??dp.branch}</strong> ซึ่งจัดอยู่ในกลุ่มธาตุ${dmEl} — หมายความว่าเวลา Saju บอกว่าคุณ "เป็นใคร" มันตอบว่าคุณคือคนที่มีแกนธาตุ${dmEl}เป็นกระดูกสันหลัง เดือนเกิดของคุณอยู่ในธาตุ${monthEl} ซึ่งความสัมพันธ์กับธาตุ${dmEl}ของคุณคือ <strong>${feeds?'생조 (Saeng-jo) — เดือนหล่อเลี้ยงวัน':same?'비겁 (Bi-geop) — ธาตุเดียวกัน':'극 (Geuk) — เดือนกดวัน'}</strong> ${feeds?'นี่คือรูปแบบที่โหรเกาหลีถือว่าเป็นพรยิ่งใหญ่ เพราะคุณได้พลังงานจากครอบครัว/ต้นกำเนิดมาหล่อเลี้ยงตัวตนแบบไม่ขัดแย้ง':same?'นี่คือรูปแบบที่ให้คุณพลังแต่ก็ต้องระวังไม่ให้แข็งเกินไป — พลังงานเหมือนกันมากเกินไปอาจหมายถึงการแข่งขันกับคนในครอบครัว':'นี่คือรูปแบบที่ท้าทายที่สุด แต่ก็มักผลิตบุคคลที่แข็งแกร่งมาก เพราะถูกหล่อหลอมจากการต้านแรงกดดันมาตั้งแต่เด็ก'}</p>`,
           `<p><strong>꽃살 ปี 2026:</strong> <strong>${kwarsal}</strong> คือคำนายเฉพาะของ Saju ที่เทียบพลังงานเสาวันกับปีปัจจุบัน ${kwarsal.includes('화개')?'화개살 (Hwagae-sal) บ่งถึงปีแห่งการเรียนรู้ลึก การปฏิบัติธรรม ศิลปะ และปัญญา — เหมาะจะ "ถอยเพื่อเรียน" มากกว่าผลักเพื่อโต':kwarsal.includes('천을')?'천을귀인 (Cheoneul Gwiin) คือพรยิ่งใหญ่ที่สุดใน Saju — มีผู้ช่วยที่ทรงอิทธิพลมาเปิดประตูให้ ลงมือขอความช่วยเหลือได้เลยในปีนี้':kwarsal.includes('역마')?'역마살 (Yeokma-sal) ปีแห่งการเดินทาง ย้ายถิ่น เปลี่ยนงาน — ไม่ใช่ลางร้าย แต่คือสัญญาณว่าควรเคลื่อนไหว':kwarsal.includes('재성')?'재성 (Jaeseong) ปีแห่งทรัพย์ — โอกาสการเงินและความสัมพันธ์เปิดกว้าง':kwarsal.includes('관성')?'관성 (Gwanseong) ปีแห่งตำแหน่ง อำนาจ และหน้าที่ — ตำแหน่งใหม่มาถึงคุณ':kwarsal.includes('인성')?'인성 (Inseong) ปีแห่งการเรียนรู้ แม่ที่ห่วงใย ศึกษาต่อ — เป็นเวลาที่จะลงทุนกับตัวเอง':'ปีที่ต้องใช้พลังงานวันเกิดอย่างระมัดระวัง'}</p>`,
           `<p><strong>จุดแข็งที่ Saju บอก:</strong> การที่ 일주 ของคุณเป็น ${KO_STEMS[dp.stem]??dp.stem} (${dmEl}) ทำให้คุณมีความเป็น ${dmEl==='ไฟ'?'ผู้จุดประกายและผู้นำโดยธรรมชาติ — Saju เกาหลียกให้คนธาตุไฟเป็น "불같은 사람" (คนเหมือนไฟ) ที่ดึงดูดผู้ตามได้ง่าย':dmEl==='ไม้'?'ผู้วางแผนระยะยาวและผู้บ่มเพาะ — Saju เปรียบคนธาตุไม้เป็น "큰 나무" (ต้นไม้ใหญ่) ที่ให้ร่มเงาแก่ครอบครัว':dmEl==='น้ำ'?'นักปรับตัวและนักคิดลึก — Saju เปรียบคนธาตุน้ำเป็น "깊은 물" (น้ำลึก) ที่อ่านคนได้ก่อนใคร':dmEl==='โลหะ'?'ผู้มีมาตรฐานและหลักการ — Saju เปรียบคนธาตุโลหะเป็น "빛나는 금" (ทองคำเปล่งประกาย) ที่ไม่ยอมให้คุณค่าตกลง':'ผู้มั่นคงและเป็นที่พึ่งของคนรอบข้าง — Saju เปรียบคนธาตุดินเป็น "큰 바위" (หินใหญ่) ที่คนยืนพิงได้'}</p>`,
@@ -4985,7 +4906,7 @@ function calcSaju(d: BirthData): SajuData {
       }
       // English version
       return [
-        `<div style="background:#0d0d15;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:2px;margin-bottom:8px">Saju · 사주 · <span style="color:#9a8a72;letter-spacing:1px">Korean Four Pillars</span></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px"><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ORIGIN</span><br><strong style="color:#c8a45a">Korea (rooted in Chinese BaZi)</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">AGE</span><br><strong style="color:#c8a45a">~ 700 years</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">POPULARITY</span><br><strong style="color:#c8a45a">Still actively used by Koreans for marriage matching · frequently referenced in K-drama</strong></div></div><div style="margin-top:10px;padding-top:10px;border-top:1px solid #2a2545"><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">KEY STRENGTH</span><br><span style="color:#e0d0b0">Day-pillar centred · used for "궁합" (couple compatibility)</span></div></div>`,
+        `<div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">Saju · 사주 · <span style="color:#9a8a72;letter-spacing:1px">Korean Four Pillars</span></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px"><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">ORIGIN</span><br><strong style="color:#d4aa50">Korea (rooted in Chinese BaZi)</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">AGE</span><br><strong style="color:#d4aa50">~ 700 years</strong></div><div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">POPULARITY</span><br><strong style="color:#d4aa50">Still actively used by Koreans for marriage matching · frequently referenced in K-drama</strong></div></div><div style="margin-top:10px;padding-top:10px;border-top:1px solid #2a2545"><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">KEY STRENGTH</span><br><span style="color:#e0d0b0">Day-pillar centred · used for "궁합" (couple compatibility)</span></div></div>`,
         `<p><strong>Your chart in this system:</strong> Your 일주 (Day Pillar) is <strong>${KO_STEMS[dp.stem]??dp.stem}${KO_BRANCHES[dp.branch]??dp.branch}</strong>, classified as a ${elEn} element — meaning when Saju asks "who are you?", it answers: a person whose backbone is ${elEn}. Your birth month sits in the ${monthElEn} element, and its relationship to your ${elEn} Day Master is <strong>${feeds?'생조 (Saeng-jo) — month feeds the day':same?'비겁 (Bi-geop) — same element':'극 (Geuk) — month presses the day'}</strong>. ${feeds?'Korean masters consider this a great blessing — you receive non-conflicting energy from family/origin to nourish your identity':same?'This pattern grants power but watch for being too rigid — too much same-energy can mean competition with family':'This is the most challenging pattern but it usually produces very strong people, forged from resisting pressure since childhood'}.</p>`,
         `<p><strong>꽃살 for 2026:</strong> <strong>${kwarsal}</strong> is Saju\'s specific reading comparing your day-pillar energy to the current year. ${kwarsal.includes('화개')?'화개살 (Hwagae-sal) signals a year of deep learning, dharma practice, art, and wisdom — better to "withdraw to learn" than push to grow':kwarsal.includes('천을')?'천을귀인 (Cheoneul Gwiin) is the highest blessing in Saju — a powerful helper opens doors. Ask for help boldly this year':kwarsal.includes('역마')?'역마살 (Yeokma-sal) — a year of travel, relocation, job change. Not an ill omen, but the signal that you should move':kwarsal.includes('재성')?'재성 (Jaeseong) — a wealth year. Money and relationship opportunities open wide':kwarsal.includes('관성')?'관성 (Gwanseong) — a year of position, power, duty. A new role finds you':kwarsal.includes('인성')?'인성 (Inseong) — a year of learning, attentive mother-figures, further study. Time to invest in yourself':'a year demanding you use your day-pillar energy carefully'}.</p>`,
         `<p><strong>What Saju sees as your strength:</strong> Because your 일주 is ${KO_STEMS[dp.stem]??dp.stem} (${elEn}), you are ${dmEl==='ไฟ'?'a natural igniter and leader — Korean Saju calls Fire-element people "불같은 사람" (fire-like person), drawing followers easily':dmEl==='ไม้'?'a long-range planner and cultivator — Saju compares Wood people to "큰 나무" (a great tree) sheltering the family':dmEl==='น้ำ'?'an adapter and deep thinker — Saju compares Water people to "깊은 물" (deep water), reading others before anyone':dmEl==='โลหะ'?'a person of standards and principle — Saju compares Metal people to "빛나는 금" (gleaming gold), refusing to let value drop':'steady, the dependable one — Saju compares Earth people to "큰 바위" (a great rock) that others lean on'}.</p>`,
@@ -5395,12 +5316,12 @@ function buildRichReading(args: {
     ? args.sysEn
     : `${args.sysTh} · <span style="color:#9a8a72;letter-spacing:1px">${args.sysEn}</span>`;
   const metaHeader = (originCountry || popularity || keyStrength)
-    ? `<div style="background:#0d0d15;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
-         <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:2px;margin-bottom:8px">${titleHTML}</div>
+    ? `<div style="background:#13112a;border:1px solid #2a2545;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#c8c0a8;line-height:1.85">
+         <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:2px;margin-bottom:8px">${titleHTML}</div>
          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
-           ${originCountry ? `<div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">${L.origin}</span><br><strong style="color:#c8a45a">${originCountry}</strong></div>` : ''}
-           <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">${L.age}</span><br><strong style="color:#c8a45a">~ ${yearsText}</strong></div>
-           ${popularity ? `<div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">${L.popularity}</span><br><strong style="color:#c8a45a">${popularity}</strong></div>` : ''}
+           ${originCountry ? `<div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">${L.origin}</span><br><strong style="color:#d4aa50">${originCountry}</strong></div>` : ''}
+           <div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">${L.age}</span><br><strong style="color:#d4aa50">~ ${yearsText}</strong></div>
+           ${popularity ? `<div><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">${L.popularity}</span><br><strong style="color:#d4aa50">${popularity}</strong></div>` : ''}
          </div>
          ${keyStrength ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #2a2545"><span style="color:#6a5a42;font-size:10px;text-transform:uppercase;letter-spacing:1px">${L.keyStrength}</span><br><span style="color:#e0d0b0">${keyStrength}</span></div>` : ''}
        </div>`
@@ -5426,9 +5347,9 @@ function _dsKit() {
   const isEn = _reportLang === 'en';
   const pick = (th: string, en: string) => isEn ? en : th;
   const blk = (icon: string, thT: string, enT: string, body: string) =>
-    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#c8a45a;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
+    `<div style="margin-top:22px;padding-top:16px;border-top:1px solid #2a2545"><div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:#d4aa50;letter-spacing:1.5px;margin-bottom:10px">${icon} ${isEn?enT:thT}</div>${body}</div>`;
   const P = (s: string) => `<p style="margin:0 0 10px 0;line-height:1.85">${s}</p>`;
-  const B = (s: string) => `<strong style="color:#c8a45a">${s}</strong>`;
+  const B = (s: string) => `<strong style="color:#d4aa50">${s}</strong>`;
   const faqQ = (q: string, ans: string) => P(`${B('Q: '+q)}<br>A: ${ans}`);
   return { isEn, pick, blk, P, B, faqQ };
 }
@@ -5836,16 +5757,9 @@ function calcOnmyodo(d: BirthData): OnmyodoData {
 }
 
 // ── HELLENISTIC ASTROLOGY ───────────────────────────────────────
-function calcHellenistic(d: BirthData, w: WesternData): HellenisticData {
-  // Sect is whether the Sun was above or below the horizon at birth — the single
-  // most load-bearing distinction in Hellenistic astrology. The old test was the
-  // clock (06:00-18:00), which is wrong by up to a couple of hours at Bangkok's
-  // latitude and by far more further north. Measured properly: the houses that
-  // sit above the horizon are 7 through 12, i.e. 180-360 degrees counted from
-  // the Ascendant, so the Sun is above the horizon exactly when that arc holds it.
-  const sunFromAsc = ((w.sunDeg - w.ascDeg) % 360 + 360) % 360;
-  const isDaySect = sunFromAsc >= 180;
-
+function calcHellenistic(d: BirthData): HellenisticData {
+  // Sect: daytime birth (6:00-18:00) = day sect; favors Sun, Jupiter, Saturn
+  const isDaySect = d.hour >= 6 && d.hour < 18;
   const sect = isDaySect ? 'Day Sect' : 'Night Sect';
   const sectTh = isDaySect
     ? tPick('เกิดกลางวัน — Sun/Jupiter/Saturn หนุน', 'Day birth — Sun/Jupiter/Saturn favoured')
@@ -5854,14 +5768,11 @@ function calcHellenistic(d: BirthData, w: WesternData): HellenisticData {
     ? tPick('Jupiter (การขยายตัว)', 'Jupiter (expansion)')
     : tPick('Venus (ความสัมพันธ์)', 'Venus (relationships)');
 
-  // Lot of Fortune: ASC + Moon - Sun (day) or ASC + Sun - Moon (night).
-  // The formula was already right; it was being fed invented numbers — an
-  // "ascendant" derived from latitude and clock time, a "Sun" that was really
-  // the calendar date, and a "Moon" that was a hash of y/m/d. The engine has
-  // computed the real three all along (calcWestern), so use those.
-  const ASC_DEG = w.ascDeg;
-  const sunDeg = w.sunDeg;
-  const moonDeg = w.moonDeg;
+  // Lot of Fortune: ASC + Moon - Sun (day) or ASC + Sun - Moon (night)
+  // Use simplified: derive from birth data
+  const ASC_DEG = (d.lat * 2 + d.hour * 15 + d.minute / 4) % 360;
+  const sunDeg = ((d.month - 1) * 30 + (d.day - 1)) % 360;
+  const moonDeg = ((d.year * 13 + d.month * 7 + d.day * 3 + d.hour) % 360);
   const lotRaw = isDaySect
     ? (ASC_DEG + moonDeg - sunDeg + 360) % 360
     : (ASC_DEG + sunDeg - moonDeg + 360) % 360;
@@ -6222,17 +6133,14 @@ function _arabicPartsDeepSections(a: { fortuneDeg: number; fSignTh: string; sSig
 }
 
 // ── ARABIC PARTS ─────────────────────────────────────────────────
-function calcArabicParts(d: BirthData, w: WesternData): ArabicPartsData {
+function calcArabicParts(d: BirthData): ArabicPartsData {
   const SIGNS_TH = ['เมษ','พฤษภ','เมถุน','กรกฎ','สิงห์','กันย์','ตุลย์','พิจิก','ธนู','มกร','กุมภ์','มีน'];
   const SIGNS_EN = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
   const SIGN_SCORES = [760,800,750,710,820,730,780,720,800,740,760,730];
-  // Same story as calcHellenistic: correct Lot formulas, invented inputs.
-  // Both Lots and the sect test now run on the real ascendant, Sun and Moon.
-  const sunFromAsc = ((w.sunDeg - w.ascDeg) % 360 + 360) % 360;
-  const isDaySect = sunFromAsc >= 180;
-  const ASC = w.ascDeg;
-  const sun = w.sunDeg;
-  const moon = w.moonDeg;
+  const isDaySect = d.hour >= 6 && d.hour < 18;
+  const ASC = (d.lat * 2 + d.hour * 15 + d.minute / 4) % 360;
+  const sun = ((d.month - 1) * 30 + d.day) % 360;
+  const moon = ((d.year * 13 + d.month * 7 + d.day * 3) % 360);
   const fortune = isDaySect ? (ASC + moon - sun + 360) % 360 : (ASC + sun - moon + 360) % 360;
   const spirit = isDaySect ? (ASC + sun - moon + 360) % 360 : (ASC + moon - sun + 360) % 360;
   const fSign = Math.floor(fortune / 30);

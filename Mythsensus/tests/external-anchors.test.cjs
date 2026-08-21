@@ -82,5 +82,34 @@ console.log('— invariants —');
     'the product states nobody scores 1000; rounding used to push it there');
 }
 
+// ── 4. Maya Tzolk'in — GMT correlation ───────────────────────────────────
+// Source: the close of the 13th b'ak'tun. Long Count 13.0.0.0.0 falls on
+// 2012-12-21 and is universally published as 4 Ajaw (Ahau) 3 K'ank'in, i.e.
+// Kin 160 of the 260-day round. The pre-2026-08-21 anchor called that day
+// Kin 59, tone 7 — off by 101 kin, so every Mayan sign the engine gave was wrong.
+console.log("— Maya Tzolk'in (13.0.0.0.0 = 4 Ahau) —");
+{
+  const m = chart({ year: 2012, month: 12, day: 21, hour: 12 }).mayan;
+  check("2012-12-21 - Kin",      m.kin,         160,    "close of 13th b'ak'tun");
+  check("2012-12-21 - day sign", m.daySignName, "Ahau", "4 Ajaw 3 K'ank'in");
+  check("2012-12-21 - tone",     m.toneNumber,  4,      "4 Ajaw 3 K'ank'in");
+}
+
+// ── 5. Hellenistic sect — Sun above or below the horizon, not the clock ──
+// Sect is the hinge of Hellenistic technique. The old test (06:00-18:00)
+// misreads any birth near dawn or dusk, and whole summer evenings at high
+// latitude. Diana proves it: born 19:45 in Norfolk on 1 July, well before a
+// ~21:20 BST sunset, so hers is a DAY chart; the clock rule called it night.
+console.log("— Hellenistic sect (Sun above/below horizon) —");
+[{ who: "Jobs 19:15 PST Feb",  y:1955, m:2,  d:24, h:19, mi:15, tz:-8, lat:37.77, lon:-122.42, want:"Night Sect" },
+ { who: "Diana 19:45 BST Jul", y:1961, m:7,  d:1,  h:19, mi:45, tz:1,  lat:52.83, lon:0.50,    want:"Day Sect"   },
+ { who: "Bangkok 05:06 Feb",   y:1991, m:2,  d:3,  h:5,  mi:6,  tz:7,  lat:13.75, lon:100.5,   want:"Night Sect" },
+ { who: "Bangkok 18:30 Jun",   y:1991, m:6,  d:15, h:18, mi:30, tz:7,  lat:13.75, lon:100.5,   want:"Day Sect"   },
+].forEach(function (t) {
+  var c = calculate({ name: t.who, gender: "ชาย", year: t.y, month: t.m, day: t.d,
+                      hour: t.h, minute: t.mi, lat: t.lat, lon: t.lon, timezone: t.tz });
+  check(t.who + " - sect", c.hellenistic.sect, t.want, "sunrise/sunset for that date and place");
+});
+
 console.log(fails ? `\n✗ ${fails} external anchor(s) failed` : '\n✓ all external anchors hold');
 process.exit(fails ? 1 : 0);
