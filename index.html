@@ -2120,7 +2120,6 @@ try{
 
 <!-- ═══ PANEL 1: GOD BLESSING ═══ -->
 <div class="panel active" id="panel-blessing">
-  <p class="panel-intro" data-en="Draw one of 1,069 deities per day — from common blessings to rare mythic visions. Each card carries a message meant for you today." data-th="จั่วพรจากเทพวันละใบ เลือกจาก 1,069 องค์ทั่วโลก มีตั้งแต่พรเล็กๆ ไปจนถึงเทพระดับตำนาน · ใบวันนี้มีอะไรฝากไว้ให้คุณ">Draw one of 1,069 deities per day — from common blessings to rare mythic visions. Each card carries a message meant for you today.</p>
   <div class="blessing-status" id="blessingStatus"></div>
   <div class="draw-area">
     <button class="draw-btn" id="drawBtn" onclick="drawBlessing()" data-t="draw_btn">Receive Today's Blessing</button>
@@ -2181,7 +2180,7 @@ try{
 <div class="panel" id="panel-organum">
   <div class="section-title" data-t="organum_title">108 โอราคูลัม</div>
   <div style="text-align:center;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2px;color:var(--gold3);text-transform:uppercase;margin:-12px 0 16px" data-en="The oracle of 108 voices" data-th="คำพยากรณ์จากเสียงเทพ 108 องค์">The oracle of 108 voices</div>
-  <p class="panel-intro" data-en="Ask a question. 108 gods will vote on the words they want you to hear. The consensus — not a single god — is your answer." data-th="ตั้งคำถามหนึ่งคำ ให้เทพ 108 องค์ช่วยกันโหวตคำที่อยากให้คุณได้ยิน · คำตอบคือฉันทามติจากทั้งหมด ไม่ใช่เสียงเทพองค์เดียว">Ask a question. 108 gods will vote on the words they want you to hear. The consensus — not a single god — is your answer.</p>
+  <p class="panel-intro" data-en="Ask one question — 108 gods vote on the answer together." data-th="ถามหนึ่งคำถาม · เทพ 108 องค์โหวตคำตอบร่วมกัน">Ask one question — 108 gods vote on the answer together.</p>
   <div class="q-area">
     <textarea id="questionInput" rows="3" data-t-placeholder="organum_ph"></textarea>
     <!-- Question quality nudge: examples encourage cosmic-grade questions
@@ -2288,7 +2287,7 @@ try{
 <!-- ═══ PANEL 3: PROFILE ═══ -->
 <div class="panel" id="panel-profile">
   <div class="section-title" data-t="prof_title">✦ ข้อมูลของฉัน</div>
-  <p class="panel-intro" data-en="Your birth data lives here. Change it anytime — every reading in the app updates the moment you save." data-th="ข้อมูลเกิดของคุณอยู่ที่นี่ · แก้ไขเมื่อไหร่ก็ได้ ทุกรายงานในแอปจะอัปเดตตามทันทีที่กดบันทึก">Your birth data lives here. Change it anytime — every reading in the app updates the moment you save.</p>
+  <p class="panel-intro" data-en="Change your birth data here — every reading updates instantly." data-th="แก้วันเกิดที่นี่ · ทุกรายงานอัปเดตทันที">Change your birth data here — every reading updates instantly.</p>
   <div class="birth-form" style="max-width:480px;margin:0 auto">
     <div id="profSavedBadge" style="text-align:center;margin-bottom:14px;display:none">
       <span class="prof-saved-badge" data-t="prof_saved">✓ บันทึกแล้ว — ข้อมูลจะถูกจดจำอัตโนมัติ</span>
@@ -2349,7 +2348,6 @@ try{
 
 <div class="panel" id="panel-sky">
   <div class="section-title" data-t="sky_title">TODAY'S SKY</div>
-  <p class="panel-intro" data-en="A snapshot of today's planetary weather — moon phase, retrogrades, day-deity — and how your chart resonates with it right now." data-th="ดูฟ้าของวันนี้แบบย่อ · ข้างขึ้นข้างแรม ดาวถอยหลัง เทพประจำวัน แล้วดูว่าดวงคุณกำลังไหลไปทิศเดียวกับฟ้าหรือเปล่า">A snapshot of today's planetary weather — moon phase, retrogrades, day-deity — and how your chart resonates with it right now.</p>
   <div id="skyBirthForm" style="text-align:center;padding:24px 16px">
     <div style="font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:12px" data-t="sky_no_dob">กรอกข้อมูลเกิดเพื่อดูผลลัพธ์</div>
     <button class="calc-btn" onclick="showTab('profile')" data-t="sky_go_profile">👤 ไปกรอกข้อมูลเกิด</button>
@@ -2386,7 +2384,6 @@ try{
 <!-- ═══ PANEL 4: MY CHART ═══ -->
 <div class="panel" id="panel-chart">
   <div class="section-title" data-t="chart_title">MY CHART</div>
-  <p class="panel-intro" data-en="A free preview of your Cosmic Blueprint. Enter your birth data once, see highlights from all 26 systems at a glance." data-th="ตัวอย่าง Cosmic Blueprint แบบฟรี · กรอกวันเกิดครั้งเดียว เห็นภาพรวมจาก 26 ศาสตร์ได้ในหน้าเดียว">A free preview of your Cosmic Blueprint. Enter your birth data once, see highlights from all 26 systems at a glance.</p>
   <div id="chartBirthForm" style="text-align:center;padding:24px 16px">
     <div style="font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:12px" data-t="sky_no_dob">กรอกข้อมูลเกิดเพื่อดูผลลัพธ์</div>
     <button class="calc-btn" onclick="showTab('profile')" data-t="sky_go_profile">👤 ไปกรอกข้อมูลเกิด</button>
@@ -2405,9 +2402,11 @@ try{
 
 <!-- ═══ PANEL 5: COSMIC BLUEPRINT ═══ -->
 <div class="panel" id="panel-blueprint">
-  <p class="panel-intro" data-en="The flagship reading: 26 systems synthesized into one complete profile. Generate once and keep forever." data-th="รายงานตัวจริงของ Mythsensus · รวมคำวินิจฉัยจาก 26 ศาสตร์โบราณมาสรุปเป็นตัวตนของคุณในฉบับเดียว สร้างครั้งเดียว เก็บไว้ตลอด">The flagship reading: 26 systems synthesized into one complete profile. Generate once and keep forever.</p>
 
   <!-- CB FORM SECTION -->
+  <!-- Consensus Preview — the one thing no other site has, so it goes ABOVE the form,
+       not below it. Populated by renderConsensusPreview() once a profile exists. -->
+  <div id="cb-consensus-preview" style="display:none;max-width:820px;margin:0 auto 18px;padding:0 14px"></div>
   <div id="cb-form-section">
     <div class="cb-form-card">
       <div class="cb-form-title" data-t="cb_form_title">✦ กรอกข้อมูลเกิด</div>
@@ -2455,9 +2454,6 @@ try{
         <span class="cb-badge">🔥 Zoroastrian</span><span class="cb-badge">🌴 Ifa/Yoruba</span><span class="cb-badge">🦘 Aboriginal</span><span class="cb-badge"><span data-t="badge_taksa">🪷 ทักษา ๘ บ้าน</span></span>
       </p>
     </div>
-    <!-- Consensus Preview — appears once profile is saved, before user even hits Generate. -->
-    <!-- Demonstrates the "26 systems agree on X" concept upfront so users see the value prop. -->
-    <div id="cb-consensus-preview" style="display:none;max-width:820px;margin:18px auto 0;padding:0 14px"></div>
 
     <div style="margin-top:18px;max-width:820px;margin-left:auto;margin-right:auto;padding:0 14px">
       <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:2px;text-align:center;margin-bottom:10px" data-t="famous_header">✦ ดวงชะตาบุคคลในประวัติศาสตร์ — กดเพื่อดูรายงาน ✦</div>
@@ -2526,7 +2522,6 @@ try{
 <!-- ═══ PANEL 6: HISTORY ═══ -->
 <div class="panel" id="panel-history">
   <div class="section-title" data-t="history_title">HISTORY — บันทึกของคุณ</div>
-  <p class="panel-intro" data-en="Your last 7 days of draws and questions. Patterns hide in what you've received — flip through to find them." data-th="ย้อนดูพรและคำถาม 7 วันล่าสุด · ลองไล่อ่านดู รูปแบบบางอย่างอาจจะซ่อนอยู่โดยที่คุณยังไม่ทันสังเกต">Your last 7 days of draws and questions. Patterns hide in what you've received — flip through to find them.</p>
 
   <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:22px">
     <button class="type-tab-btn active" id="htab-all" onclick="showHistoryTab('all')" data-t="hist_all">✦ ทั้งหมด</button>
@@ -2548,7 +2543,6 @@ try{
 <!-- ═══ FREE TIER ─ God Collection (Pokédex) ═══ -->
 <div class="panel" id="panel-collection">
   <div class="section-title" data-t="coll_title">GOD COLLECTION — สะสมเทพที่คุณเคยเห็น</div>
-  <p class="panel-intro" data-en="Your God Pokédex. Every deity you've encountered is collected here — tap any card to open their full myth, symbols, and messages." data-th="คลังเทพส่วนตัวของคุณ · เทพทุกองค์ที่เคยจั่วได้มาอยู่ที่นี่ แตะการ์ดใดก็ได้เพื่ออ่านตำนาน สัญลักษณ์ และคำที่ท่านฝากไว้">Your God Pokédex. Every deity you've encountered is collected here — tap any card to open their full myth, symbols, and messages.</p>
   <div class="sky-dom-hint" id="collHint" data-t="coll_hint">เทพที่คุณได้พบเจอ · ทั้งหมด 1,069 องค์จาก 26 ศาสตร์</div>
   <div style="text-align:center;margin:0 0 16px">
     <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:2px;color:var(--muted);margin-bottom:5px">✦ สกินการ์ด · CARD SKIN</div>
@@ -2581,14 +2575,13 @@ try{
 <!-- ═══ PROFILE ─ Library (every paid reading the user owns) ═══ -->
 <div class="panel" id="panel-library">
   <div class="section-title" data-en="MY LIBRARY — readings you own" data-th="ห้องสมุดของฉัน — ดวงที่คุณซื้อแล้ว">MY LIBRARY — readings you own</div>
-  <p class="panel-intro" data-en="Every reading you've unlocked, ready to re-view as long as the chart inputs match. Tied to one chart input each — change the inputs and the entry stays here as history." data-th="ทุกดวงที่คุณปลดล็อคแล้ว · ดูซ้ำได้ฟรีตราบใดที่ข้อมูลเกิดยังตรง · เปลี่ยนข้อมูลแล้ว เอนทรีนี้จะอยู่ในประวัติ">Every reading you've unlocked, ready to re-view as long as the chart inputs match.</p>
+  <p class="panel-intro" data-en="Free to re-read while your birth data stays the same; changing it means re-purchase." data-th="ดูซ้ำฟรีตราบใดที่วันเกิดยังเดิม · เปลี่ยนวันเกิดต้องซื้อใหม่">Free to re-read while your birth data stays the same; changing it means re-purchase.</p>
   <div id="libraryContent" style="max-width:780px;margin:0 auto"></div>
 </div>
 
 <!-- ═══ FREE TIER ─ Streak & Frequency Alerts (current only) ═══ -->
 <div class="panel" id="panel-streak">
   <div class="section-title" data-t="streak_title">STREAK & FREQUENCY ALERTS</div>
-  <p class="panel-intro" data-en="How consistently you've been showing up, plus any unusual patterns the gods have been repeating to you." data-th="นับวันที่คุณกลับมาต่อเนื่อง · พร้อมจับสัญญาณที่เทพชอบทวนซ้ำบ่อยผิดปกติ">How consistently you've been showing up, plus any unusual patterns the gods have been repeating to you.</p>
   <div class="sky-dom-hint" data-t="streak_hint">นับจำนวนวันที่ใช้งานต่อเนื่อง · ดู pattern ที่ซ้ำผิดปกติ</div>
   <div id="streakContent" style="max-width:560px;margin:0 auto;"></div>
 </div>
@@ -2596,7 +2589,6 @@ try{
 <!-- ═══ PREMIUM ─ My Reports (saved) ═══ -->
 <div class="panel" id="panel-premium-reports">
   <div class="section-title" data-t="reports_title">MY COSMIC BLUEPRINTS</div>
-  <p class="panel-intro" data-en="All your saved Cosmic Blueprint reports. Download as PDF anytime, share with family, or compare old readings to new." data-th="รายงาน Cosmic Blueprint ทุกฉบับที่เคยสร้างเก็บไว้ที่นี่ · ดาวน์โหลด PDF ได้ตลอด ส่งต่อคนในครอบครัว หรือเอามาเทียบกับฉบับเก่า">All your saved Cosmic Blueprint reports. Download as PDF anytime, share with family, or compare old readings to new.</p>
   <div class="sky-dom-hint" data-t="reports_hint">Cosmic Blueprint เชิงลึก ที่คุณเคย generate · เปิดดูซ้ำได้ไม่จำกัด</div>
   <div id="reportsList" style="max-width:720px;margin:0 auto;"></div>
 </div>
@@ -2604,7 +2596,6 @@ try{
 <!-- ═══ SUBSCRIPTION ─ Life Path Resonance (location/career) ═══ -->
 <div class="panel" id="panel-resonance">
   <div class="section-title" data-t="res_title">LIFE PATH RESONANCE — ที่อยู่ · อาชีพ · ความสอดคล้อง</div>
-  <p class="panel-intro" data-en="A live score of how well your present life aligns with your chart's natural flow. Rises when you're in rhythm, falls when you're fighting it." data-th="คะแนนสดบอกว่าตอนนี้คุณกำลังเดินตามดวงหรือฝืนดวง · อยู่ในจังหวะคะแนนขึ้น ฝืนธรรมชาติคะแนนก็ตก">A live score of how well your present life aligns with your chart's natural flow. Rises when you're in rhythm, falls when you're fighting it.</p>
   <div class="sky-dom-hint" data-t="res_hint">วิเคราะห์ว่าที่ที่คุณอยู่และสิ่งที่คุณทำ สอดคล้องกับดวงของคุณมากแค่ไหน</div>
   <div id="resonancePanel" style="max-width:720px;margin:0 auto;"></div>
 </div>
@@ -2613,14 +2604,12 @@ try{
 <!-- ═══ SUBSCRIPTION ─ Daily Cosmic Pulse ═══ -->
 <div class="panel" id="panel-pulse">
   <div class="section-title" data-t="pulse_title">DAILY COSMIC PULSE</div>
-  <p class="panel-intro" data-en="One reading from 7+ ancient systems — every morning. The hard work of cross-referencing 26 schools is done for you." data-th="คำอ่าน 1 ฉบับจากศาสตร์ 7+ ระบบรวมกัน · เช้าวันใหม่อ่านครั้งเดียวพอ · ไม่ต้องไล่ดูทีละศาสตร์เอง">One reading from 7+ ancient systems — every morning.</p>
   <div class="sky-dom-hint" data-t="pulse_hint">รวมฟ้าวันนี้ + 7-10 ศาสตร์ → คำอ่านเดียวว่าวันนี้มีผลอย่างไรกับคุณ</div>
   <div id="pulsePanel" style="max-width:720px;margin:0 auto;"></div>
 </div>
 
 <div class="panel" id="panel-brief">
   <div class="section-title" data-t="brief_title">MONTHLY COSMIC BRIEF</div>
-  <p class="panel-intro" data-en="Your month ahead — dominant themes, quiet cautions, clear opportunities. Reads like a weather forecast for your life." data-th="เดือนหน้าน่าจะเจออะไร · ธีมหลัก จุดที่ต้องระวัง โอกาสที่กำลังเปิด อ่านง่ายเหมือนพยากรณ์อากาศ เพียงแต่เป็นของชีวิตคุณ">Your month ahead — dominant themes, quiet cautions, clear opportunities. Reads like a weather forecast for your life.</p>
   <div class="sky-dom-hint" data-t="brief_hint">สรุปธีมของเดือนนี้ · transit หลัก · event ที่ต้องจับตา</div>
   <div id="briefPanel" style="max-width:720px;margin:0 auto;"></div>
 </div>
@@ -2628,7 +2617,6 @@ try{
 <!-- ═══ SUBSCRIPTION ─ Frequency Alert History ═══ -->
 <div class="panel" id="panel-freq">
   <div class="section-title" data-t="freq_title">FREQUENCY ALERTS — ประวัติเต็ม</div>
-  <p class="panel-intro" data-en="Which gods, words, or themes keep returning to you. Repetition across 108 Oraculum questions often points at something you haven't fully heard yet." data-th="เทพองค์ไหน คำไหน หรือธีมไหน ชอบวนกลับมาหาคุณเรื่อยๆ · การซ้ำบ่อยใน 108 โอราคูลัม มักแปลว่า &quot;คุณยังฟังไม่ครบ&quot;">Which gods, words, or themes keep returning to you. Repetition across 108 Oraculum questions often points at something you haven't fully heard yet.</p>
   <div class="sky-dom-hint" data-t="freq_hint">pattern ที่จักรวาลส่งสัญญาณซ้ำ · เก็บยาว ไม่จำกัด</div>
   <div id="freqPanel" style="max-width:720px;margin:0 auto;"></div>
 </div>
@@ -2636,7 +2624,7 @@ try{
 <!-- ═══ SUBSCRIPTION ─ Auspicious Timing — ฤกษ์ดี ═══ -->
 <div class="panel" id="panel-lucky">
   <div class="section-title" data-t="lucky_title">🌟 ฤกษ์ดี — Auspicious Timing</div>
-  <p class="panel-intro" data-en="Today's auspicious windows, computed from Chinese 12-Day Officers (十二建除) and Thai Brahmin weekday traditions — personalised to your birth chart." data-th="ฤกษ์ดีวันนี้ คำนวณจากฤกษ์จีน ๑๒ เจ้าฤกษ์ (十二建除) และระบบวันไทยพราหมณ์ — ปรับตามวันเกิดของคุณโดยเฉพาะ">Today's auspicious windows, computed from Chinese 12-Day Officers (十二建除) and Thai Brahmin weekday traditions — personalised to your birth chart.</p>
+  <p class="panel-intro" data-en="Computed from the Chinese 12 Day Officers and the Thai Brahmin day system." data-th="คำนวณจากฤกษ์จีน ๑๒ เจ้าฤกษ์ + วันไทยพราหมณ์">Computed from the Chinese 12 Day Officers and the Thai Brahmin day system.</p>
   <div class="sky-dom-hint" data-t="lucky_hint">ฤกษ์จีน + ไทย · คำนวณร่วมกับวดปเกิด · refresh ทุกวัน</div>
   <div id="luckyPanel" style="max-width:720px;margin:0 auto;"></div>
 </div>
@@ -2644,7 +2632,6 @@ try{
 <!-- ═══ ADD-ON ─ Deep Readings (26 Systems) ═══ -->
 <div class="panel" id="panel-deep">
   <div class="section-title" data-t="deep_title">DEEP READINGS — 26 ศาสตร์ แบบเจาะลึก</div>
-  <p class="panel-intro" data-en="The same 26 systems, each with its own long-form reading of you. Pick one to read in depth — or explore the whole library." data-th="26 ศาสตร์เดิม แต่ขยายเป็นบทอ่านยาวทีละศาสตร์ · เลือกเจาะลึกทีละอัน หรือเดินดูครบทั้งคลังก็ได้">The same 26 systems, each with its own long-form reading of you. Pick one to read in depth — or explore the whole library.</p>
   <div class="sky-dom-hint" data-t="deep_hint">เลือกศาสตร์ที่สนใจ · อ่านเชิงลึกทีละระบบ</div>
   <div class="deep-sys-nav" id="deepSysNav"></div>
   <div id="deepSysPanel"></div>
@@ -2653,7 +2640,6 @@ try{
 <!-- ═══ ADD-ON ─ Divine Mirror ═══ -->
 <div class="panel" id="panel-mirror">
   <div class="section-title" data-t="ao_mirror_title">DIVINE MIRROR — เทพที่สะท้อนตัวตนคุณ</div>
-  <p class="panel-intro" data-en="Every person has a deity who mirrors their shadow and their gift. This add-on names yours and tells their story." data-th="ทุกคนมีเทพประจำตัวที่สะท้อนทั้งด้านมืดและของขวัญในตัว · แอดออนนี้เฉลยว่าเทพของคุณคือใคร พร้อมตำนานของท่าน">Every person has a deity who mirrors their shadow and their gift. This add-on names yours and tells their story.</p>
   <div class="sky-dom-hint" data-t="ao_mirror_desc">ค้นหาเทพที่เป็นกระจกสะท้อนตัวตนของคุณ — Primary · Secondary · Tertiary · Cosmic Entity · Shadow</div>
   <div id="mirrorContent" style="max-width:640px;margin:0 auto"></div>
   <div class="addon-deep-bar">
@@ -2665,7 +2651,6 @@ try{
 <!-- ═══ ADD-ON ─ Compatible Pet ═══ -->
 <div class="panel" id="panel-pet">
   <div class="section-title" data-t="ao_pet_title">COMPATIBLE PET — สัตว์เลี้ยงที่เข้ากัน</div>
-  <p class="panel-intro" data-en="Which animal companion actually thrives with your energy — and which ones will drain you. Grounded in your elemental type." data-th="สัตว์เลี้ยงชนิดไหนเข้ากับพลังของคุณจริงๆ · และชนิดไหนจะดูดพลังแทนที่จะเสริม ดูจากธาตุในดวง">Which animal companion actually thrives with your energy — and which ones will drain you. Grounded in your elemental type.</p>
   <div class="sky-dom-hint" data-t="ao_pet_desc">แนะนำสัตว์เลี้ยงที่เข้ากับธาตุ · สี · ช่วงเวลาที่เหมาะ</div>
   <div id="petContent" style="max-width:640px;margin:0 auto"></div>
   <div class="addon-deep-bar">
@@ -2677,7 +2662,6 @@ try{
 <!-- ═══ ADD-ON ─ Cosmic Companions ═══ -->
 <div class="panel" id="panel-companions">
   <div class="section-title" data-t="ao_comp_title">COSMIC COMPANIONS — สัตว์ทิพย์ประจำดวง</div>
-  <p class="panel-intro" data-en="The mythic creatures — dragons, phoenixes, spirits — aligned with your chart. Each one represents a facet you can call on." data-th="สัตว์ในตำนานที่สอดคล้องกับดวงของคุณ · มังกร หงส์ ฟีนิกซ์ วิญญาณ แต่ละตนคือพลังด้านหนึ่งในตัวคุณที่พร้อมให้เรียกใช้">The mythic creatures — dragons, phoenixes, spirits — aligned with your chart. Each one represents a facet you can call on.</p>
   <div class="sky-dom-hint" data-t="ao_comp_desc">สัตว์ในตำนาน · มนตรา · สถานที่ศักดิ์สิทธิ์ · ธีมดนตรี</div>
   <div id="companionsContent" style="max-width:640px;margin:0 auto"></div>
   <div class="addon-deep-bar">
@@ -2689,7 +2673,6 @@ try{
 <!-- ═══ ADD-ON ─ Exercise Plan ═══ -->
 <div class="panel" id="panel-exercise">
   <div class="section-title" data-t="ao_ex_title">EXERCISE PLAN — ออกกำลังตามดวง</div>
-  <p class="panel-intro" data-en="Movement patterns tuned to your elemental type. Fire and Metal move differently than Water and Earth — this tells you how." data-th="ออกกำลังแบบไหนเหมาะกับธาตุในดวงคุณ · ธาตุไฟ ธาตุโลหะ เคลื่อนคนละอย่างกับธาตุน้ำ ธาตุดิน แอดออนนี้บอกละเอียด">Movement patterns tuned to your elemental type. Fire and Metal move differently than Water and Earth — this tells you how.</p>
   <div class="sky-dom-hint" data-t="ao_ex_desc">กีฬาที่เหมาะกับธาตุและ Biorhythm · ช่วงเวลาที่เผาผลาญดีที่สุด</div>
   <div id="exerciseContent" style="max-width:640px;margin:0 auto"></div>
   <div class="addon-deep-bar">
@@ -2701,7 +2684,6 @@ try{
 <!-- ═══ ADD-ON ─ Food & Diet ═══ -->
 <div class="panel" id="panel-food">
   <div class="section-title" data-t="ao_food_title">FOOD & DIET — อาหารตามดวง</div>
-  <p class="panel-intro" data-en="What to put in your body, per your chart. Integrates your element, your current Mahadasha period, and your body's seasonal cycle." data-th="กินอะไรดีตามดวงของคุณ · คำนวณจากธาตุประจำตัว ช่วงมหาทศที่กำลังเดิน และจังหวะร่างกายตามฤดู">What to put in your body, per your chart. Integrates your element, your current Mahadasha period, and your body's seasonal cycle.</p>
   <div class="sky-dom-hint" data-t="ao_food_desc">อาหารเสริมธาตุ · รสชาติที่ควรเน้น · ของที่ควรเลี่ยงตาม Mahadasha</div>
   <div id="foodContent" style="max-width:640px;margin:0 auto"></div>
   <div class="addon-deep-bar">
@@ -2713,7 +2695,6 @@ try{
 <!-- ═══ ADD-ON ─ Product Personality ═══ -->
 <div class="panel" id="panel-product">
   <div class="section-title" data-t="ao_prod_title">PRODUCT PERSONALITY — สไตล์และของที่ใช่</div>
-  <p class="panel-intro" data-en="Colors, fabrics, archetypes you resonate with. Practical guidance for shopping, dressing, or designing a space that feels like home." data-th="สี เนื้อผ้า สไตล์ที่ &quot;ใช่&quot; สำหรับคุณ · ใช้จริงได้ทั้งช็อปปิ้ง แต่งตัว หรือจัดห้องให้รู้สึกเป็นที่ของเรา">Colors, fabrics, archetypes you resonate with. Practical guidance for shopping, dressing, or designing a space that feels like home.</p>
   <div class="sky-dom-hint" data-t="ao_prod_desc">สี · วัสดุ · สไตล์ · ของที่เสริมพลัง · ของที่ควรเลี่ยง</div>
   <div id="productContent" style="max-width:640px;margin:0 auto"></div>
   <div class="addon-deep-bar">
@@ -2725,7 +2706,7 @@ try{
 <!-- ═══ ADD-ON ─ Compatibility ═══ -->
 <div class="panel" id="panel-compat">
   <div class="section-title" data-t="ao_compat_title">COMPATIBILITY REPORT — เทียบดวง 2 คน</div>
-  <p class="panel-intro" data-en="Enter a second person. Get a 26-row side-by-side of where your charts harmonize, where they clash, and the verdict from the consensus." data-th="ใส่ข้อมูลของอีกคน ได้ตาราง 26 แถวเทียบกัน · จุดไหนเข้ากัน จุดไหนชนกัน พร้อมคำตัดสินสุดท้ายจาก 26 ศาสตร์">Enter a second person. Get a 26-row side-by-side of where your charts harmonize, where they clash, and the verdict from the consensus.</p>
+  <p class="panel-intro" data-en="Enter someone else's birth data for a 26-row table of where you fit and where you clash." data-th="ใส่วันเกิดอีกคน · ได้ตาราง 26 แถวเทียบจุดที่เข้ากันและชนกัน">Enter someone else's birth data for a 26-row table of where you fit and where you clash.</p>
   <div class="sky-dom-hint" data-t="ao_compat_desc">เทียบดวง 2 คน ผ่าน 26 ศาสตร์ · คะแนนความเข้ากัน · จุดขัดแย้ง · วิธีปรับ</div>
   <div id="compatContent" style="max-width:640px;margin:0 auto"></div>
 </div>
@@ -2733,7 +2714,6 @@ try{
 <!-- ═══ ADD-ON ─ Cosmic Pilgrimage ═══ -->
 <div class="panel" id="panel-pilgrimage">
   <div class="section-title" data-t="ao_pilg_title">COSMIC PILGRIMAGE — สถานที่ศักดิ์สิทธิ์ตามดวง</div>
-  <p class="panel-intro" data-en="Sacred sites worldwide matched to your chart — by companion deity, by element, and by where you live and were born. Temples, shrines, sacred mountains across 50+ countries." data-th="สถานที่ศักดิ์สิทธิ์ทั่วโลกที่จับคู่กับดวงคุณ · ตามเทพประจำดวง · ธาตุ · ประเทศที่อยู่และเกิด · วัด ศาลเจ้า ภูเขาศักดิ์สิทธิ์กว่า 50 ประเทศ">Sacred sites worldwide matched to your chart — by companion deity, by element, and by where you live and were born.</p>
   <div class="sky-dom-hint" data-t="ao_pilg_desc">สถานที่ศักดิ์สิทธิ์ทั่วโลก 260+ แห่ง · ที่ดีที่สุด · ในประเทศที่อยู่/เกิด · ภูมิประเทศที่เหมาะกับธาตุ</div>
   <div id="pilgrimageContent" style="max-width:640px;margin:0 auto"></div>
 </div>
@@ -2741,7 +2721,7 @@ try{
 <!-- ═══ PROFILE ─ Multi-profile Switcher ═══ -->
 <div class="panel" id="panel-multi">
   <div class="section-title" data-t="multi_title">MULTI-PROFILE — ดวงของคนรอบข้าง</div>
-  <p class="panel-intro" data-en="Save more than one birth profile — family members, a partner, children. Switch between them instantly without re-entering data." data-th="เก็บได้หลายโปรไฟล์ ไม่ใช่แค่ของตัวเอง · ครอบครัว คนรัก ลูกๆ สลับดูกันได้ทันที ไม่ต้องกรอกข้อมูลใหม่ทุกครั้ง">Save more than one birth profile — family members, a partner, children. Switch between them instantly without re-entering data.</p>
+  <p class="panel-intro" data-en="Hold several profiles — switch between them instantly." data-th="เก็บได้หลายโปรไฟล์ · สลับดูได้ทันที">Hold several profiles — switch between them instantly.</p>
   <div class="sky-dom-hint" data-t="multi_hint">บันทึกดวงของคู่รัก ครอบครัว เพื่อน · 1 บัญชีเพิ่มได้ไม่จำกัด</div>
   <div id="multiList" style="max-width:640px;margin:0 auto;"></div>
 </div>
@@ -2755,35 +2735,31 @@ try{
 <!-- ═══ PROFILE ─ Settings ═══ -->
 <div class="panel" id="panel-settings">
   <div class="section-title" data-t="settings_title">SETTINGS</div>
-  <p class="panel-intro" data-en="App preferences — language, notifications, data export. Your birth data never leaves this device." data-th="ตั้งค่าต่างๆ ของแอป · ภาษา การแจ้งเตือน การส่งออกข้อมูล ข้อมูลทุกอย่างเก็บอยู่ในเครื่องคุณเท่านั้น ไม่เคยส่งออก">App preferences — language, notifications, data export. Your birth data never leaves this device.</p>
   <div id="settingsPanel" style="max-width:560px;margin:0 auto;"></div>
 </div>
 
 <!-- ═══ PETS ─ My Pets (home / add / list) ═══ -->
 <div class="panel" id="panel-pethome">
   <div class="section-title" data-t="pet_home_title">MY PETS</div>
-  <p class="panel-intro" data-en="Add your pets by birthday — even an approximate one. Each gets its own cosmic profile across date-based systems, plus how well you two click." data-th="เพิ่มน้องด้วยวันเกิด (โดยประมาณก็ได้) · น้องแต่ละตัวจะได้ดวงของตัวเองจากศาสตร์ที่อ่านจากวันเกิด พร้อมดูว่าคุณกับน้องเข้ากันแค่ไหน">Add your pets by birthday — even an approximate one.</p>
+  <p class="panel-intro" data-en="Add a pet with its birth date — an approximate one is fine." data-th="เพิ่มน้องด้วยวันเกิด (โดยประมาณก็ได้)">Add a pet with its birth date — an approximate one is fine.</p>
   <div id="petHomeContent" style="max-width:640px;margin:0 auto"></div>
 </div>
 
 <!-- ═══ PETS ─ Pet Reading ═══ -->
 <div class="panel" id="panel-petreading">
   <div class="section-title" data-t="pet_reading_title">PET READING</div>
-  <p class="panel-intro" data-en="Your pet's own chart — Chinese zodiac, element, sun sign, life number — read for personality, care style, lucky colour and day." data-th="ดวงของน้องเอง — ปีนักษัตร ธาตุ ราศี เลขชีวิต — อ่านนิสัย วิธีดูแล สีมงคล และวันโชคดีของน้อง">Your pet's own chart, read for personality and care.</p>
   <div id="petReadingContent" style="max-width:640px;margin:0 auto"></div>
 </div>
 
 <!-- ═══ PETS ─ Owner ↔ Pet Compatibility ═══ -->
 <div class="panel" id="panel-petmatch">
   <div class="section-title" data-t="pet_match_title">OWNER ↔ PET MATCH</div>
-  <p class="panel-intro" data-en="How well your birthday and your pet's birthday click — across Chinese zodiac, element cycle, sun sign and life number. Score, highlights and how to harmonise." data-th="วันเกิดคุณกับวันเกิดน้องเข้ากันแค่ไหน — ดูจากปีนักษัตร วงจรธาตุ ราศี และเลขชีวิต พร้อมคะแนน จุดเด่น และวิธีปรับให้เข้ากัน">How well your birthday and your pet's click.</p>
   <div id="petMatchContent" style="max-width:640px;margin:0 auto"></div>
 </div>
 
 <!-- ═══ PETS ─ Household (multi-pet / pet × pet) ═══ -->
 <div class="panel" id="panel-pethouse">
   <div class="section-title" data-t="pet_house_title">PET HOUSEHOLD</div>
-  <p class="panel-intro" data-en="Two or more pets? See how they get along with each other and your overall household harmony — who's the peacemaker and who needs their own space." data-th="มีน้องตั้งแต่ 2 ตัวขึ้นไป? ดูว่าน้องๆ เข้ากันเองแค่ไหน และความกลมเกลียวรวมของบ้าน — ตัวไหนเป็นตัวเชื่อม ตัวไหนต้องการพื้นที่ส่วนตัว">See how your pets get along with each other.</p>
   <div id="petHouseContent" style="max-width:640px;margin:0 auto"></div>
 </div>
 
@@ -18323,15 +18299,15 @@ ${(()=>{
 
   // ─ P6: Nine Star Ki ─
   const NSK_DEEP = {
-    1:'ดาว 1 (ดาวน้ำขาว) — คุณมีพลังงานเหมือนน้ำที่ไหลลึกและปรับตัวได้ในทุกสถานการณ์ มีปัญญาลึกซึ้งและสัญชาตญาณแหลมคม สามารถค้นพบทางออกใหม่ในสถานการณ์ที่คนอื่นมองไม่เห็น<br><br>จุดแข็งหลัก: เก่งงานที่ต้องใช้ความคิดวิเคราะห์ การวางกลยุทธ์ และการปรับตัวในสถานการณ์ที่เปลี่ยนแปลง มีความสามารถพิเศษในการสื่อสารและเข้าใจผู้คน เหมาะอาชีพด้านการให้คำปรึกษา การวิจัย การเขียน หรือธุรกิจที่ต้องการความยืดหยุ่นสูง<br><br>ด้านความสัมพันธ์: คุณมีความลึกซึ้งทางอารมณ์ที่ดึงดูดผู้คน แต่บางครั้งอาจดูลึกลับจนคนเข้าถึงยาก ควรเปิดใจแสดงความรู้สึกมากขึ้น',
-    2:'ดาว 2 (ดาวดินดำ) — คุณมีพลังงานเหมือนแผ่นดินที่มั่นคงและบ่มเพาะสิ่งต่างๆ ให้เติบโต มีจิตใจเมตตา อดทน และใส่ใจผู้อื่นอย่างลึกซึ้ง เป็นผู้ที่ผู้คนพึ่งพาได้เสมอในยามต้องการ<br><br>จุดแข็งหลัก: เก่งงานที่ต้องดูแลและบ่มเพาะ ทีมงาน ครอบครัว หรือโปรเจกต์ระยะยาว มีความน่าเชื่อถือสูง เหมาะอาชีพด้านการดูแล การศึกษา งานบริการ หรือธุรกิจที่ต้องการความน่าเชื่อถือและความสม่ำเสมอ<br><br>ด้านความสัมพันธ์: รักและดูแลคนที่คุณรักอย่างลึกซึ้ง แต่ควรระวังการเสียสละตัวเองมากเกินไป เรียนรู้ที่จะดูแลตัวเองเป็นลำดับแรก',
-    3:'ดาว 3 (ดาวไม้เขียวสด) — คุณมีพลังงานเหมือนฟ้าผ่าในฤดูใบไม้ผลิ มีความกระตือรือร้นสูง ชอบการเริ่มต้นใหม่ และมีไอเดียสร้างสรรค์ที่ล้นเหลือ ความกระตือรือร้นของคุณติดต่อผู้อื่นได้ง่าย<br><br>จุดแข็งหลัก: เป็น First Mover ที่เก่ง ริเริ่มโปรเจกต์ใหม่ได้ดีเยี่ยม มีพลังงานสูงที่กระตุ้นผู้คนรอบข้าง เหมาะอาชีพด้านการเป็นผู้ประกอบการ ศิลปะ สื่อสารมวลชน หรืองานสร้างสรรค์<br><br>ด้านความสัมพันธ์: รักความตื่นเต้นและสิ่งใหม่ อาจทิ้งความสัมพันธ์เก่าเพื่อสิ่งใหม่ ควรฝึกความลึกและความมั่นคงในความสัมพันธ์ระยะยาว',
-    4:'ดาว 4 (ดาวไม้เขียวอ่อน) — คุณมีพลังงานเหมือนลมที่โยกไหวและซึมซับทุกสิ่ง มีทักษะสื่อสารที่ยอดเยี่ยม สัญชาตญาณด้านความสัมพันธ์ และความสามารถในการเข้าใจผู้คน<br><br>จุดแข็งหลัก: เก่งงานที่ต้องสร้างความสัมพันธ์ การเจรจา การสื่อสาร และงานด้านศิลปะ-สร้างสรรค์ มีเสน่ห์ดึงดูดและสามารถทำให้ผู้คนรู้สึกสบายใจได้ง่าย เหมาะอาชีพด้าน PR การตลาด การให้คำปรึกษาความสัมพันธ์<br><br>ด้านความสัมพันธ์: มีเสน่ห์สูง รักและเป็นห่วงผู้อื่น แต่ควรระวังการพึ่งพาผู้อื่นมากเกินไปและกล้าแสดงความต้องการของตัวเอง',
-    5:'ดาว 5 (ดาวดินเหลือง) — คุณมีพลังงานที่ใหญ่ที่สุดในบรรดาดาวทั้ง 9 ดวง อยู่ที่ศูนย์กลางของกระดาน Lo Shu เชื่อมต่อกับทุกทิศทุกทาง ชีวิตมักผันผวนและรุนแรงกว่าคนอื่น<br><br>จุดแข็งหลัก: มีอิทธิพลสูงต่อสิ่งแวดล้อมและผู้คนรอบข้าง เมื่อพลังงานสมดุลจะเป็นผู้นำที่ทรงพลังและสร้างการเปลี่ยนแปลงใหญ่ได้ มีความสามารถพิเศษที่ดาวอื่นไม่มี เหมาะตำแหน่งผู้นำ ผู้บริหาร หรืองานที่ต้องการพลังงานระดับสูง<br><br>ด้านความสัมพันธ์: ความสัมพันธ์มักมีความเข้มข้นสูง ทั้งรักและขัดแย้ง ต้องเรียนรู้สมดุลระหว่างพลังงานของตัวเองกับความต้องการของคู่ชีวิต',
-    6:'ดาว 6 (ดาวโลหะขาว) — คุณมีพลังงานเหมือนท้องฟ้าที่กว้างขวาง มีศักดิ์ศรี มาตรฐานสูง และความเป็นผู้นำโดยธรรมชาติ มักถูกมองว่ามีอำนาจและน่าเกรงขาม<br><br>จุดแข็งหลัก: มีความสามารถในการวางแผนและบริหารองค์กร ตัดสินใจเฉียบขาดบนหลักการที่ชัดเจน มีวิสัยทัศน์กว้างไกลและมาตรฐานการทำงานสูง เหมาะตำแหน่งผู้บริหารระดับสูง ผู้นำองค์กร<br><br>ด้านความสัมพันธ์: ซื่อสัตย์และมีความรับผิดชอบสูง แต่ควรฝึกความอ่อนโยนและการฟังผู้อื่น เพื่อให้คนรอบข้างรู้สึกปลอดภัยที่จะเปิดใจ',
-    7:'ดาว 7 (ดาวโลหะแดง) — คุณมีพลังงานเหมือนแสงพระอาทิตย์ตกที่สวยงามและมีเสน่ห์ มีความสามารถด้านการสื่อสาร ค้าขาย และสร้างความบันเทิง ชอบความสวยงามและสิ่งดีงาม<br><br>จุดแข็งหลัก: มีเสน่ห์ดึงดูดสูง พูดเก่งและโน้มน้าวคนได้ดี มีความสามารถด้านธุรกิจและการเจรจา เหมาะอาชีพด้านการขาย การตลาด ธุรกิจบันเทิง หรืองานที่ต้องการทักษะการสื่อสาร<br><br>ด้านความสัมพันธ์: มีเสน่ห์สูงมาก ดึงดูดผู้คนได้ง่าย แต่ควรสร้างความลึกซึ้งในความสัมพันธ์นอกเหนือจากความน่าดึงดูดภายนอก',
-    8:'ดาว 8 (ดาวดินขาว) — คุณมีพลังงานเหมือนภูเขาที่มั่นคงและสะสมทรัพย์สมบัติ มีความอดทนสูง น่าเชื่อถือ และสร้างสิ่งถาวรได้ดีเยี่ยม คือผู้ที่สังคมพึ่งพาได้ในระยะยาว<br><br>จุดแข็งหลัก: เก่งการสะสมและบริหารสินทรัพย์ มีความน่าเชื่อถือสูงในระยะยาว สร้างฐานะและทรัพย์สินได้ดี เหมาะอาชีพด้านอสังหาริมทรัพย์ การลงทุน การบัญชี<br><br>ด้านความสัมพันธ์: ซื่อสัตย์และมั่นคง แต่อาจดูจริงจังและเข้มงวดเกินไป ควรแสดงความรักและความอบอุ่นออกมาให้มากขึ้น',
-    9:'ดาว 9 (ดาวไฟม่วง) — คุณมีพลังงานเหมือนไฟที่ส่องสว่างและให้ความอบอุ่น มีสัญชาตญาณเฉียบแหลม ฉลาดหลักแหลม และมักได้รับชื่อเสียงในสาขาที่ถนัด ผู้คนสังเกตเห็นคุณได้ง่าย<br><br>จุดแข็งหลัก: มีความสามารถในการมองเห็นสิ่งที่คนอื่นมองไม่เห็น สัญชาตญาณดีเยี่ยม มีเสน่ห์และดึงดูดความสนใจได้ง่าย เหมาะอาชีพด้านศิลปะ การออกแบบ การวิจัย หรืองานที่ต้องการวิสัยทัศน์<br><br>ด้านความสัมพันธ์: มีความกระตือรือร้นและสร้างแรงบันดาลใจให้คนรอบข้าง แต่ควรระวังความร้อนรนและการตัดสินใจด้วยอารมณ์ในความสัมพันธ์'
+    1:'ดาว 1 (ดาวน้ำขาว) — น้ำที่ไหลลึก มองเห็นทางออกในจุดที่คนอื่นตัน · แข็งที่งานวิเคราะห์และงานที่สถานการณ์เปลี่ยนตลอด<br><br>ข้อควรระวัง: ลึกจนคนเข้าไม่ถึง — พูดสิ่งที่รู้สึกออกมาบ้าง',
+    2:'ดาว 2 (ดาวดินดำ) — แผ่นดินที่บ่มเพาะ คนพึ่งได้ในวันที่ยาก · แข็งที่งานระยะยาวที่ต้องดูแลคนหรือของให้โต<br><br>ข้อควรระวัง: เสียสละจนลืมตัวเอง — ดูแลตัวเองเป็นลำดับแรกก่อน',
+    3:'ดาว 3 (ดาวไม้เขียวสด) — ฟ้าผ่าต้นฤดู เริ่มของใหม่ได้ดีที่สุดในเก้าดาว · พลังคุณกระตุ้นคนรอบข้างให้ขยับตาม<br><br>ข้อควรระวัง: ทิ้งของเก่ากลางทางเพื่อไล่ของใหม่',
+    4:'ดาว 4 (ดาวไม้เขียวอ่อน) — ลมที่ซึมเข้าได้ทุกช่อง อ่านใจคนและเจรจาเก่ง · แข็งที่งานซึ่งวัดกันที่ความสัมพันธ์<br><br>ข้อควรระวัง: ตามใจคนอื่นจนไม่ได้พูดสิ่งที่ตัวเองต้องการ',
+    5:'ดาว 5 (ดาวดินเหลือง) — ศูนย์กลางกระดาน Lo Shu ต่อถึงทุกทิศ ชีวิตเหวี่ยงแรงกว่าดาวอื่นทั้งขาขึ้นและขาลง<br><br>ข้อควรระวัง: แรงของคุณกลืนคนใกล้ตัวโดยไม่ตั้งใจ',
+    6:'ดาว 6 (ดาวโลหะขาว) — ท้องฟ้าเปิดกว้าง มาตรฐานสูง ตัดสินบนหลักการที่ชัด · วางระบบและมองไกลได้ดี<br><br>ข้อควรระวัง: หลักการแข็งจนคนไม่กล้าเปิดใจด้วย',
+    7:'ดาว 7 (ดาวโลหะแดง) — แสงตะวันตกดิน พูดโน้มน้าวและทำให้คนอยากเข้าใกล้ · แข็งที่การขายและการเจรจา<br><br>ข้อควรระวัง: เสน่ห์พาไปได้ไกล แต่ความสัมพันธ์ไม่ลึกตาม',
+    8:'ดาว 8 (ดาวดินขาว) — ภูเขาที่สะสม สร้างของถาวรและฐานะได้จริงในระยะยาว · อดทนกว่าคนทั่วไปมาก<br><br>ข้อควรระวัง: เข้มจนคนใกล้ตัวไม่รู้สึกถึงความอบอุ่น',
+    9:'ดาว 9 (ดาวไฟม่วง) — ไฟที่คนมองเห็นแต่ไกล ชื่อเสียงมาเร็วในสาขาที่ถนัด · เห็นสิ่งที่คนอื่นมองข้าม<br><br>ข้อควรระวัง: ตัดสินด้วยอารมณ์ตอนไฟกำลังแรง'
   };
   const NSK_2026 = {
     1:{rel:'เสริม ✓',detail:'ดาวน้ำ 1 รับพลังจากดาวไฟ 9 ปี 2026 ได้ดี — ไฟทำให้น้ำเดือดและผลักดัน โอกาสในอาชีพและชื่อเสียงเพิ่มขึ้นอย่างชัดเจน ช่วงครึ่งปีแรกเป็นช่วงดี เหมาะเริ่มโปรเจกต์ใหม่ ทิศเหนือยังคงเป็นทิศมงคลที่แข็งแกร่ง'},
