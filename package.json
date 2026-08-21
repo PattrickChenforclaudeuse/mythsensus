@@ -6,7 +6,8 @@
     "qa": "node Mythsensus/tests/qa-scanner.js",
     "deploy": "git push origin main && vercel --yes --prod",
     "check": "node build-check.cjs",
-    "predeploy": "npm run check",
+    "test:anchors": "node Mythsensus/tests/external-anchors.test.cjs",
+    "predeploy": "npm run check && npm run test:anchors",
     "postdeploy": "npm run qa && npm run smoke",
     "smoke": "node Mythsensus/tests/smoke-draw.cjs && node Mythsensus/tests/smoke-reading.cjs"
   },
