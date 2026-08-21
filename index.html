@@ -1925,10 +1925,10 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <div class="header-user" id="headerUser"></div>
   <div class="logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></div>
   <div class="tagline" data-t="tagline">Where myriad myths reach consensus — about you</div>
-  <div class="tagline-sub" data-en="26 ancient traditions read you · score out of 1,000 — your overall level across every tradition, with a consensus reading of how strongly they agree. BaZi, Vedic, Western, Mayan, Human Design and 21 more. " data-th="26 ศาสตร์โบราณอ่านคุณ · 1,000 คะแนน บอกระดับดวงโดยรวมของคุณข้ามทุกสาย พร้อมการอ่านความสอดคล้องว่าทุกสายเห็นตรงกันแค่ไหน — BaZi, เวท, ตะวันตก, มายา, Human Design และอีก 21 ศาสตร์ ">26 ศาสตร์โบราณอ่านคุณ · 1,000 คะแนน บอกระดับดวงโดยรวมของคุณข้ามทุกสาย พร้อมการอ่านความสอดคล้องว่าทุกสายเห็นตรงกันแค่ไหน — BaZi, เวท, ตะวันตก, มายา, Human Design และอีก 21 ศาสตร์
+  <div class="tagline-sub" id="taglineSub" data-en="26 ancient traditions read you · score out of 1,000 — your overall level across every tradition, with a consensus reading of how strongly they agree. BaZi, Vedic, Western, Mayan, Human Design and 21 more. " data-th="26 ศาสตร์โบราณอ่านคุณ · 1,000 คะแนน บอกระดับดวงโดยรวมของคุณข้ามทุกสาย พร้อมการอ่านความสอดคล้องว่าทุกสายเห็นตรงกันแค่ไหน — BaZi, เวท, ตะวันตก, มายา, Human Design และอีก 21 ศาสตร์ ">26 ศาสตร์โบราณอ่านคุณ · 1,000 คะแนน บอกระดับดวงโดยรวมของคุณข้ามทุกสาย พร้อมการอ่านความสอดคล้องว่าทุกสายเห็นตรงกันแค่ไหน — BaZi, เวท, ตะวันตก, มายา, Human Design และอีก 21 ศาสตร์
     <a href="/cosmic-score" data-en="What's a Cosmic Score? →" data-th="Cosmic Score คืออะไร? →">Cosmic Score คืออะไร? →</a>
   </div>
-  <div class="date-display" id="dateDisplay"></div>
+  <div class="date-display" id="dateDisplay" style="display:none"></div>
   <div style="text-align:center;margin-top:10px;display:flex;justify-content:center;gap:8px;align-items:center;flex-wrap:wrap">
     <a href="/blog/" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--gold2);text-decoration:none;border:1px solid var(--gold3);padding:5px 14px;border-radius:20px;display:inline-block" data-en="📖 Cosmic Library" data-th="📖 ห้องสมุดจักรวาล">📖 ห้องสมุดจักรวาล</a>
     <!-- /pantheon had ZERO inbound links from this page (verified on the live HTML
@@ -3384,6 +3384,22 @@ function _renderEntryToday(tries){
       + `</div></div>`;
   } catch(e) { host.innerHTML = ''; }
 }
+
+// The three-line paragraph explaining what the product is has a job exactly
+// once: for somebody who has never entered a birth date. After that it repeats
+// on every panel forever, eating half the viewport. Measured on a 390x844
+// phone the fixed chrome was 415px against 232px of content.
+// It is not deleted — a first-time visitor and any crawler still get it.
+function _trimReturningChrome(){
+  try {
+    if (!localStorage.getItem('mth_dob')) return;
+    var t = document.getElementById('taglineSub');
+    if (t) t.style.display = 'none';
+    var d = document.getElementById('dateDisplay');
+    if (d) d.style.display = 'none';
+  } catch(_) {}
+}
+try{ addEventListener('load', function(){ setTimeout(_trimReturningChrome, 200); }); }catch(_){}
 
 function _refreshEntryHero(){
   var isTh = (typeof LANG === 'undefined') || LANG === 'th';
