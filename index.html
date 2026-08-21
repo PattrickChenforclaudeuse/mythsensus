@@ -1949,12 +1949,12 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
      and restyled as a framed gold card so it reads as the primary
      navigation of the app. See `.nav-groups` CSS above. -->
 <nav class="nav-groups" role="tablist">
-  <button class="group-btn active" id="group-free"         onclick="setGroup('free')"         data-t="group_free">✦ Free Tier</button>
-  <button class="group-btn"        id="group-premium"      onclick="setGroup('premium')"      data-t="group_premium">👑 Cosmic Blueprint</button>
-  <button class="group-btn"        id="group-subscription" onclick="setGroup('subscription')" data-t="group_subscription">🔮 Subscription</button>
-  <button class="group-btn"        id="group-addon"        onclick="setGroup('addon')"        data-t="group_addon">🎁 Add-ons</button>
+  <button class="group-btn active" id="group-free"         onclick="setGroup('free')"         data-t="group_free">✦ ดูดวงฟรี</button>
+  <button class="group-btn"        id="group-premium"      onclick="setGroup('premium')"      data-t="group_premium">👑 ดวงชะตาเต็ม</button>
+  <button class="group-btn"        id="group-subscription" onclick="setGroup('subscription')" data-t="group_subscription">🔮 ดวงวันนี้</button>
+  <button class="group-btn"        id="group-addon"        onclick="setGroup('addon')"        data-t="group_addon">🎁 เนื้อคู่ · เสริมดวง</button>
   <button class="group-btn"        id="group-pets"         onclick="setGroup('pets')"         data-t="group_pets">🐾 Pets</button>
-  <button class="group-btn"        id="group-profile"      onclick="setGroup('profile')"      data-t="group_profile">👤 Profile</button>
+  <button class="group-btn"        id="group-profile"      onclick="setGroup('profile')"      data-t="group_profile">👤 คลังของฉัน</button>
 </nav>
 
 <!-- ═══ SECONDARY NAV: Sub-tabs for active group ═══ -->
@@ -2856,8 +2856,8 @@ en:{
   cb_tb_back:"← Back",cb_tb_compare:"📊 Compare",cb_tb_save:"💾 Save HTML",cb_tb_print:"🖨️ Print / PDF",
   history_title:"HISTORY — Your records",
   // ── top-level groups
-  group_free:"✦ Free",group_premium:"👑 Cosmic Blueprint",group_subscription:"🔮 Subscription",
-  group_addon:"🎁 Add-ons",group_profile:"👤 Profile",
+  group_free:"✦ Free readings",group_premium:"👑 ดวงชะตาเต็ม",group_subscription:"🔮 Today",
+  group_addon:"🎁 People · Remedies",group_profile:"👤 My collection",
   // ── sub-tabs
   sub_blessing:"🎴 Blessing",sub_organum:"🔮 Oraculum",sub_preview:"📊 Preview",
   sub_collection:"📚 Collection",sub_library:"📦 My Unlocks",sub_streak:"🔥 Streak",sub_history7:"📜 7-day",
@@ -2868,17 +2868,17 @@ en:{
   pulse_hint:"Today's Sky + 7-10 systems → one reading of what today means for you",
   pulse_pin_btn:"⚙ Pin favorites",
   pulse_history_btn:"📜 History",
-  pulse_refresh_btn:"🔄 Refresh",
+  pulse_refresh_btn:"🔄 ดูใหม่",
   pulse_show_systems:"▾ Show systems",
   pulse_hide_systems:"▴ Hide systems",
-  pulse_pinned_tag:"PIN",
+  pulse_pinned_tag:"ปักหมุด",
   pulse_streak_label:"day streak",
   pulse_streak_label_plural:"day streak",
   pulse_score_sub:"SYSTEMS · TODAY",
   pulse_pinned_score_sub:"PINNED + DAILY",
   pulse_lock_title:"✦ Daily Pulse",
   pulse_lock_sub:"7+ ancient systems → one reading · every morning",
-  pulse_lock_cta:"UPGRADE",
+  pulse_lock_cta:"เปิดใช้งาน",
   pulse_pin_modal_title:"⚙ Pin your favorite systems",
   pulse_pin_modal_sub:"Lock up to 3 systems to always appear in your daily pulse — the engine fills the rest based on what's varying today.",
   pulse_pin_save:"SAVE PINS",
@@ -3072,8 +3072,8 @@ th:{
   cb_tb_back:"← กลับ",cb_tb_compare:"📊 เปรียบเทียบ",cb_tb_save:"💾 บันทึก HTML",cb_tb_print:"🖨️ Print / PDF",
   history_title:"HISTORY — บันทึกของคุณ",
   // ── top-level groups
-  group_free:"✦ ฟรี",group_premium:"👑 Cosmic Blueprint",group_subscription:"🔮 สมาชิก",
-  group_addon:"🎁 แอดออน",group_profile:"👤 โปรไฟล์",
+  group_free:"✦ ดูดวงฟรี",group_premium:"👑 Full chart",group_subscription:"🔮 ดวงวันนี้",
+  group_addon:"🎁 เนื้อคู่ · เสริมดวง",group_profile:"👤 คลังของฉัน",
   // ── sub-tabs
   sub_blessing:"🎴 จั่วไพ่",sub_organum:"🔮 โอราคูลัม",sub_preview:"📊 ดูตัวอย่าง",
   sub_collection:"📚 สะสมเทพ",sub_library:"📦 ที่ปลดล็อก",sub_streak:"🔥 Streak",sub_history7:"📜 7 วัน",
@@ -3088,14 +3088,14 @@ th:{
   pulse_show_systems:"▾ แสดงรายละเอียด",
   pulse_hide_systems:"▴ ซ่อนรายละเอียด",
   pulse_pinned_tag:"PIN",
-  pulse_streak_label:"วัน streak",
-  pulse_streak_label_plural:"วัน streak",
+  pulse_streak_label:"วันติดกัน",
+  pulse_streak_label_plural:"วันติดกัน",
   pulse_score_sub:"ศาสตร์ · วันนี้",
-  pulse_pinned_score_sub:"PIN + DAILY",
+  pulse_pinned_score_sub:"ศาสตร์ที่คุณปักหมุด + ของวันนี้",
   pulse_lock_title:"✦ ดวงวันนี้",
   pulse_lock_sub:"7+ ศาสตร์รวมเป็นคำตอบเดียว · ทุกเช้า",
   pulse_lock_cta:"UPGRADE",
-  pulse_pin_modal_title:"⚙ Pin ศาสตร์โปรดของคุณ",
+  pulse_pin_modal_title:"⚙ เลือกศาสตร์ที่อยากให้ขึ้นก่อน",
   pulse_pin_modal_sub:"เลือก ≤ 3 ศาสตร์ที่อยากให้อยู่ใน Daily Pulse ทุกวัน — ที่เหลือ engine จะเลือกตามสัญญาณของวันนั้น",
   pulse_pin_save:"บันทึก",
   pulse_pin_cancel:"ยกเลิก",
