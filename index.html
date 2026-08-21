@@ -1539,7 +1539,22 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
            would be a promise we cannot keep: most charts split. -->
       <div style="text-align:center;margin:0 0 20px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--muted);line-height:1.7" data-eh="hooksub">เราถาม 26 ศาสตร์จากทั่วโลกพร้อมกัน แล้วบอกตรงๆ ว่า<strong style="color:var(--text)">ตรงกันกี่ศาสตร์</strong> และเถียงกันเรื่องอะไร</div>
       <!-- THE dominant action -->
-      <button class="login-confirm-btn" onclick="entryShowForm()" style="font-size:18px;padding:16px 20px;letter-spacing:.5px" data-eh="cta">✦ ดูดวง 26 ศาสตร์ · ฟรี</button>
+      <!-- The date fields live here rather than behind a button. Every portal in
+           this market that converts puts the input on the landing itself — one
+           less decision between arriving and receiving something. Filling these
+           carries straight into the full form with the date already entered. -->
+      <div style="display:grid;grid-template-columns:1fr 1.3fr 1.2fr;gap:6px;margin-bottom:10px">
+        <input class="login-input" type="number" id="heroDay" min="1" max="31" placeholder="15" style="font-family:inherit;font-size:16px;text-align:center">
+        <select class="login-input" id="heroMonth" style="font-family:inherit;font-size:14px;text-align:center;cursor:pointer;padding:8px 4px">
+          <option value="" disabled selected>เดือน</option>
+          <option value="1">ม.ค.</option><option value="2">ก.พ.</option><option value="3">มี.ค.</option>
+          <option value="4">เม.ย.</option><option value="5">พ.ค.</option><option value="6">มิ.ย.</option>
+          <option value="7">ก.ค.</option><option value="8">ส.ค.</option><option value="9">ก.ย.</option>
+          <option value="10">ต.ค.</option><option value="11">พ.ย.</option><option value="12">ธ.ค.</option>
+        </select>
+        <input class="login-input" type="number" id="heroYear" min="1900" max="2026" placeholder="2534" style="font-family:inherit;font-size:16px;text-align:center">
+      </div>
+      <button class="login-confirm-btn" onclick="entryHeroGo()" style="font-size:18px;padding:16px 20px;letter-spacing:.5px" data-eh="cta">✦ ดูดวง 26 ศาสตร์ · ฟรี</button>
       <!-- A real reading, computed live, before we ask for anything. Every
            site in this market that converts shows the product first; ours
            showed nothing until you handed over a birth date. The numbers are
@@ -3312,53 +3327,53 @@ function _trackEntryShown(){
 try{ addEventListener('load', function(){ setTimeout(_trackEntryShown, 400); }); }catch(_){}
 // _refreshEntryHero only fires on a language change, so the sample needs its
 // own load hook — the same gap that left the new hero copy invisible earlier.
-try{ addEventListener('load', function(){ setTimeout(function(){ try{ _renderEntrySample(0); }catch(_){} }, 300); }); }catch(_){}
+try{ addEventListener('load', function(){ setTimeout(function(){ try{ _renderEntryToday(0); }catch(_){} }, 300); }); }catch(_){}
 
-// Live sample on the landing: one birth date, three Eastern traditions, and
-// the element they each assign. They routinely disagree — which IS the hook,
-// so it is shown rather than claimed. Computed from MS26 on every paint, so it
-// can never fall out of step with the engine (the Mayan anchor and the BaZi
-// day pillar were both wrong for months behind numbers nobody recomputed).
-var _ENTRY_SAMPLE = { year:1990, month:6, day:15, hour:6, minute:0 };
-function _renderEntrySample(tries){
+// The landing gives something away before it asks for anything, the way the
+// Korean and Japanese portals do: a real reading of TODAY that needs no birth
+// date, from three traditions at once, plus a reason to come back tomorrow.
+// It replaced a worked example about a stranger — a demo, where this is a gift.
+// Everything here is computed on the page, never baked in.
+function _renderEntryToday(tries){
   var host = document.getElementById('entrySample');
   if (!host) return;
-  if (!window.MS26 || !MS26.calculate) {
-    if ((tries||0) < 20) return void setTimeout(function(){ _renderEntrySample((tries||0)+1); }, 300);
+  if (!window.MS26 || !MS26.calculate || typeof dateToJD !== 'function') {
+    if ((tries||0) < 25) return void setTimeout(function(){ _renderEntryToday((tries||0)+1); }, 300);
     return;
   }
   var isTh = (typeof LANG === 'undefined') || LANG === 'th';
   try {
-    var r = MS26.calculate({ name:'', gender:'F', year:_ENTRY_SAMPLE.year, month:_ENTRY_SAMPLE.month,
-      day:_ENTRY_SAMPLE.day, hour:_ENTRY_SAMPLE.hour, minute:_ENTRY_SAMPLE.minute,
-      lat:13.75, lon:100.5, timezone:7, lang: isTh ? 'th' : 'en' });
-    var rows = [
-      { th:'สี่เสาจีน',   en:'BaZi · China',      v:r.bazi.dayMasterElement },
-      { th:'ดาวเก้าดวง ญี่ปุ่น', en:'Nine Star Ki · Japan', v:r.ninestar.starElement },
-      { th:'โหราศาสตร์ทิเบต',  en:'Tibetan',            v:(r.tibetan && (r.tibetan.mewaElement || r.tibetan.element)) || '' }
-    ].filter(function(x){ return !!x.v; });
-    if (rows.length < 2) { host.innerHTML = ''; return; }
-    var vals = rows.map(function(x){ return x.v; });
-    var uniq = vals.filter(function(v,i){ return vals.indexOf(v) === i; });
-    var top = uniq.map(function(v){ return vals.filter(function(x){ return x===v; }).length; })
-                  .reduce(function(a,b){ return a>b?a:b; }, 0);
-    var d = new Date(_ENTRY_SAMPLE.year, _ENTRY_SAMPLE.month-1, _ENTRY_SAMPLE.day);
-    var dateTh = d.getDate() + ' ' + ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][d.getMonth()] + ' ' + (_ENTRY_SAMPLE.year+543);
-    var dateEn = d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+    var now = new Date();
+    var rows = [];
+    // 1. China — today's BaZi day pillar. A date's day pillar has nothing to do
+    //    with whose birthday it is, so passing today as the "birth date" is a
+    //    legitimate way to read it off the engine.
+    var td = MS26.calculate({ name:'', gender:'F', year:now.getFullYear(), month:now.getMonth()+1,
+      day:now.getDate(), hour:12, minute:0, lat:13.75, lon:100.5, timezone:7, lang: isTh?'th':'en' });
+    rows.push({ th:'สี่เสาจีน · วันนี้', en:'BaZi · today',
+                v: td.bazi.dayStem + td.bazi.dayBranch + ' · ' + (isTh?'ธาตุ':'') + td.bazi.dayMasterElement });
+    // 2. West — where the Moon actually is right now
+    var jdN = dateToJD(now.getFullYear(), now.getMonth()+1, now.getDate(), now.getHours()+now.getMinutes()/60);
+    var ms = lonToSign(moonLon(jdN));
+    var ph = moonPhase(jdN);
+    rows.push({ th:'จันทร์ตะวันตก', en:'Western Moon', v: (isTh?ms.th:ms.n) + ' ' + ph.icon });
+    // 3. Thailand — the day lord
+    var dowTh = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'][now.getDay()];
+    var dowEn = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][now.getDay()];
+    rows.push({ th:'ไทยพราหมณ์', en:'Thai Brahmin', v: (isTh? ('วัน'+dowTh) : dowEn) });
     host.innerHTML =
-      '<div style="border:1px solid rgba(212,170,80,.22);border-radius:10px;padding:11px 13px;background:rgba(0,0,0,.22)">'
+      `<div style="border:1px solid rgba(212,170,80,.22);border-radius:10px;padding:11px 13px;background:rgba(0,0,0,.22)">`
       + `<div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">`
-      + (isTh ? 'ตัวอย่าง · คนเกิด ' + dateTh : 'Example · born ' + dateEn) + '</div>'
+      + (isTh ? 'วันนี้ ในสายตา 3 ศาสตร์ · ฟรี ไม่ต้องกรอกอะไร' : 'Today, seen by 3 traditions · free, nothing to fill in') + `</div>`
       + rows.map(function(x){
           return `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13px;line-height:2">`
-               + '<span style="color:var(--muted)">' + (isTh ? x.th : x.en) + '</span>'
-               + '<span style="color:var(--gold2)">' + x.v + '</span></div>';
+               + `<span style="color:var(--muted)">` + (isTh ? x.th : x.en) + `</span>`
+               + `<span style="color:var(--gold2)">` + x.v + `</span></div>`;
         }).join('')
       + `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06);font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--text)">`
-      + (isTh
-          ? 'คำถามเดียวกัน วันเกิดเดียวกัน — <strong style="color:var(--gold)">' + top + ' ศาสตร์ตรงกัน</strong> ที่เหลือไม่ตรง'
-          : 'Same question, same birth date — <strong style="color:var(--gold)">' + top + ' agree</strong>, the rest do not')
-      + '</div></div>';
+      + (isTh ? 'พรุ่งนี้ทั้งสามศาสตร์เปลี่ยนหมด — <strong style="color:var(--gold)">กลับมาดูใหม่ได้ทุกวัน</strong>'
+              : 'All three change tomorrow — <strong style="color:var(--gold)">come back any day</strong>')
+      + `</div></div>`;
   } catch(e) { host.innerHTML = ''; }
 }
 
@@ -3376,7 +3391,7 @@ function _refreshEntryHero(){
     alt:      { th:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">เทียบดวงสองคน</button> &nbsp;·&nbsp; <button onclick="entryDrawFirst()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">รับพรวันนี้</button>', en:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">Compare two charts</button> &nbsp;·&nbsp; <button onclick="entryDrawFirst()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">Blessing today</button>' },
     signin:   { th:'มีบัญชีแล้ว? ' + sgn + 'ลงชื่อเข้าใช้ →</button>', en:'Already have an account? ' + sgn + 'Sign in →</button>' }
   };
-  try { _renderEntrySample(0); } catch(_){}
+  try { _renderEntryToday(0); } catch(_){}
   document.querySelectorAll('#entryOverlay [data-eh]').forEach(function(el){
     var m = M[el.getAttribute('data-eh')];
     if (m) el.innerHTML = isTh ? m.th : m.en;
@@ -16434,6 +16449,29 @@ function showEntryOverlay(){
 }
 
 // Reveal the birth-data form from the hero CTA (new-visitor first impression).
+// Carries whatever the visitor typed on the landing into the real form, so the
+// three fields they already filled are not asked for a second time. An empty
+// hero just opens the form as before.
+function entryHeroGo(){
+  try {
+    var d = document.getElementById('heroDay');
+    var m = document.getElementById('heroMonth');
+    var y = document.getElementById('heroYear');
+    var ed = document.getElementById('entryDay');
+    var em = document.getElementById('entryMonth');
+    var ey = document.getElementById('entryYear');
+    if (d && ed && d.value) ed.value = d.value;
+    if (m && em && m.value) em.value = m.value;
+    if (y && ey && y.value) {
+      // Thai visitors type a Buddhist-era year out of habit; accept both.
+      var yr = parseInt(y.value, 10);
+      if (yr > 2400) yr -= 543;
+      ey.value = yr;
+    }
+  } catch(_) {}
+  entryShowForm();
+}
+
 function entryShowForm(){
   try { if (window._msTrack) _msTrack.track('entry_choice', { meta:{ door:'form' } }); } catch(_){}
   try { const h = document.getElementById('entryHeroStep'); if (h) h.style.display = 'none'; } catch(_){}
