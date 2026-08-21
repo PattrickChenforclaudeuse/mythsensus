@@ -1540,6 +1540,12 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <div style="text-align:center;margin:0 0 20px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--muted);line-height:1.7" data-eh="hooksub">เราถาม 26 ศาสตร์จากทั่วโลกพร้อมกัน แล้วบอกตรงๆ ว่า<strong style="color:var(--text)">ตรงกันกี่ศาสตร์</strong> และเถียงกันเรื่องอะไร</div>
       <!-- THE dominant action -->
       <button class="login-confirm-btn" onclick="entryShowForm()" style="font-size:18px;padding:16px 20px;letter-spacing:.5px" data-eh="cta">✦ ดูดวง 26 ศาสตร์ · ฟรี</button>
+      <!-- A real reading, computed live, before we ask for anything. Every
+           site in this market that converts shows the product first; ours
+           showed nothing until you handed over a birth date. The numbers are
+           never baked in — they come from MS26 on the page, so this block
+           cannot drift away from what the engine actually says. -->
+      <div id="entrySample" style="margin:14px 0 0"></div>
       <!-- The other two doors live on one quiet line, as links rather than
        buttons. Every site in this market that converts shows ONE action
        above the fold; we were asking for three decisions before the
@@ -3305,6 +3311,54 @@ function _trackEntryShown(){
 }
 try{ addEventListener('load', function(){ setTimeout(_trackEntryShown, 400); }); }catch(_){}
 
+// Live sample on the landing: one birth date, three Eastern traditions, and
+// the element they each assign. They routinely disagree — which IS the hook,
+// so it is shown rather than claimed. Computed from MS26 on every paint, so it
+// can never fall out of step with the engine (the Mayan anchor and the BaZi
+// day pillar were both wrong for months behind numbers nobody recomputed).
+var _ENTRY_SAMPLE = { year:1990, month:6, day:15, hour:6, minute:0 };
+function _renderEntrySample(tries){
+  var host = document.getElementById('entrySample');
+  if (!host) return;
+  if (!window.MS26 || !MS26.calculate) {
+    if ((tries||0) < 20) return void setTimeout(function(){ _renderEntrySample((tries||0)+1); }, 300);
+    return;
+  }
+  var isTh = (typeof LANG === 'undefined') || LANG === 'th';
+  try {
+    var r = MS26.calculate({ name:'', gender:'F', year:_ENTRY_SAMPLE.year, month:_ENTRY_SAMPLE.month,
+      day:_ENTRY_SAMPLE.day, hour:_ENTRY_SAMPLE.hour, minute:_ENTRY_SAMPLE.minute,
+      lat:13.75, lon:100.5, timezone:7, lang: isTh ? 'th' : 'en' });
+    var rows = [
+      { th:'สี่เสาจีน',   en:'BaZi · China',      v:r.bazi.dayMasterElement },
+      { th:'ดาวเก้าดวง ญี่ปุ่น', en:'Nine Star Ki · Japan', v:r.ninestar.starElement },
+      { th:'โหราศาสตร์ทิเบต',  en:'Tibetan',            v:(r.tibetan && (r.tibetan.mewaElement || r.tibetan.element)) || '' }
+    ].filter(function(x){ return !!x.v; });
+    if (rows.length < 2) { host.innerHTML = ''; return; }
+    var vals = rows.map(function(x){ return x.v; });
+    var uniq = vals.filter(function(v,i){ return vals.indexOf(v) === i; });
+    var top = uniq.map(function(v){ return vals.filter(function(x){ return x===v; }).length; })
+                  .reduce(function(a,b){ return a>b?a:b; }, 0);
+    var d = new Date(_ENTRY_SAMPLE.year, _ENTRY_SAMPLE.month-1, _ENTRY_SAMPLE.day);
+    var dateTh = d.getDate() + ' ' + ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][d.getMonth()] + ' ' + (_ENTRY_SAMPLE.year+543);
+    var dateEn = d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+    host.innerHTML =
+      '<div style="border:1px solid rgba(212,170,80,.22);border-radius:10px;padding:11px 13px;background:rgba(0,0,0,.22)">'
+      + `<div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">`
+      + (isTh ? 'ตัวอย่าง · คนเกิด ' + dateTh : 'Example · born ' + dateEn) + '</div>'
+      + rows.map(function(x){
+          return `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13px;line-height:2">`
+               + '<span style="color:var(--muted)">' + (isTh ? x.th : x.en) + '</span>'
+               + '<span style="color:var(--gold2)">' + x.v + '</span></div>';
+        }).join('')
+      + `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06);font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--text)">`
+      + (isTh
+          ? 'คำถามเดียวกัน วันเกิดเดียวกัน — <strong style="color:var(--gold)">' + top + ' ศาสตร์ตรงกัน</strong> ที่เหลือไม่ตรง'
+          : 'Same question, same birth date — <strong style="color:var(--gold)">' + top + ' agree</strong>, the rest do not')
+      + '</div></div>';
+  } catch(e) { host.innerHTML = ''; }
+}
+
 function _refreshEntryHero(){
   var isTh = (typeof LANG === 'undefined') || LANG === 'th';
   try { if (typeof _entryLang !== 'undefined') _entryLang = isTh ? 'th' : 'en'; } catch(_){}
@@ -3319,6 +3373,7 @@ function _refreshEntryHero(){
     alt:      { th:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">เทียบดวงสองคน</button> &nbsp;·&nbsp; <button onclick="entryDrawFirst()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">รับพรวันนี้</button>', en:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">Compare two charts</button> &nbsp;·&nbsp; <button onclick="entryDrawFirst()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">Blessing today</button>' },
     signin:   { th:'มีบัญชีแล้ว? ' + sgn + 'ลงชื่อเข้าใช้ →</button>', en:'Already have an account? ' + sgn + 'Sign in →</button>' }
   };
+  try { _renderEntrySample(0); } catch(_){}
   document.querySelectorAll('#entryOverlay [data-eh]').forEach(function(el){
     var m = M[el.getAttribute('data-eh')];
     if (m) el.innerHTML = isTh ? m.th : m.en;
