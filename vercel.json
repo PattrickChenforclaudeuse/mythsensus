@@ -64,6 +64,10 @@
   },
   "rewrites": [
     {
+      "source": "/googlea9ad6a1e452ad46d.html",
+      "destination": "/googlea9ad6a1e452ad46d"
+    },
+    {
       "source": "/b",
       "destination": "/api/b"
     },
