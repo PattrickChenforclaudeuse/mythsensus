@@ -1991,6 +1991,15 @@ try{
   #aiHonest, #whyDifferent { display: none; }
   body[data-group="free"][data-sub="preview"] #aiHonest,
   body[data-group="free"][data-sub="preview"] #whyDifferent { display: block; }
+  /* ...but the moment the user has a chart of their own, their result comes
+     first. These three blocks (someone else's sample card, the AI-vs-
+     deterministic note, the competitor table) pushed .consensus-banner to
+     y=1739px — 2.1 screens down — so most visitors never reached the one
+     thing this site has that others don't. Specificity beats the rule above
+     on purpose. Set by renderChart(). */
+  body.has-chart #heroPreview,
+  body.has-chart[data-group="free"][data-sub="preview"] #aiHonest,
+  body.has-chart[data-group="free"][data-sub="preview"] #whyDifferent { display: none; }
 </style>
 <div id="aiHonest" style="max-width:720px;margin:14px auto 24px;padding:14px 18px;background:rgba(200,164,90,.05);border:1px solid var(--gold3);border-radius:8px;font-size:13.5px;line-height:1.7;color:var(--text);font-family:'Cormorant Garamond','Sarabun',serif">
   <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2.5px;color:var(--gold);margin-bottom:8px;text-transform:uppercase">⚖️ Honest split — Deterministic vs AI</div>
@@ -5704,11 +5713,38 @@ function calcChart(){
   savePrefs();
 }
 
+// Fires consensus_view once, when the consensus banner is genuinely on screen.
+// Deferred a tick so it runs after sysGrid's innerHTML has been written.
+function _observeConsensusSeen(){
+  setTimeout(()=>{
+    try{
+      const el=document.querySelector('.consensus-banner');
+      if(!el||window._consensusViewed) return;
+      if(!('IntersectionObserver' in window)){ return; }
+      const io=new IntersectionObserver((ents)=>{
+        ents.forEach(e=>{
+          if(e.isIntersecting && !window._consensusViewed){
+            window._consensusViewed=true;
+            try{ if(window._msTrack) _msTrack.track('consensus_view'); }catch(_){}
+            io.disconnect();
+          }
+        });
+      },{threshold:0.4});
+      io.observe(el);
+    }catch(_){}
+  },0);
+}
 function renderChart(data){
   // FUNNEL: user reached the consensus payoff (the chart preview = the "what
   // 26 systems agree on" reveal). Fire once/session so we can measure how many
   // complete read→fill→see-consensus. (2026-06-16)
-  try { if (window._msTrack && !window._consensusViewed) { window._consensusViewed = true; _msTrack.track('consensus_view'); } } catch(_){}
+  // The user now has a chart of their own — collapse the pre-chart marketing
+  // blocks so the consensus banner is the first thing on the page.
+  try { document.body.classList.add('has-chart'); } catch(_){}
+  // FUNNEL: consensus_view used to fire here, the moment the HTML was built.
+  // The banner sat ~1700px down, so it counted people who never scrolled to
+  // it — the dashboard read high and we drew the wrong conclusions from it.
+  // Now it fires when the banner actually enters the viewport. (2026-08-21)
   // ── Consensus + Minority signal (free preview = 10-system arbitration demo) ──
   // The "Minority signal" panel surfaces themes that fewer systems voted for —
   // proof-of-concept for the arbitrator framing: it's not just "what they agree
@@ -5800,6 +5836,7 @@ function renderChart(data){
     {key:'celtic',  title:{en:'Celtic Tree Astrology',th:'โหราศาสตร์ต้นไม้เซลติก'}, sub:{en:'Birth Tree',th:'ต้นไม้แห่งชาติกาล'}, icon:'🌳', result:data.celtic.glyph+' '+data.celtic.label[LANG], desc:richDescs.celtic[LANG], freeNote:{en:'Birth tree & qualities',th:'ต้นไม้ประจำตัวและคุณสมบัติ'}},
   ];
 
+  _observeConsensusSeen();
   document.getElementById('sysGrid').innerHTML=consensusHtml+systems.map(s=>`
     <div class="sys-card">
       <div class="sys-header">
@@ -16166,8 +16203,6 @@ function showEntryOverlay(){
   // look up SOMEONE ELSE's chart without having to clear their own data
   // first. The actual saved chart stays untouched in localStorage until the
   // user submits the new form (entryAccept overwrites on submit).
-  const _entryNow = new Date();
-  const todayDob = _entryNow.toISOString().slice(0,10);  // YYYY-MM-DD
   const name  = '';                                       // start fresh (was: mth_name)
   const gender = 'ชาย';                                   // default option (was: mth_gender)
   const city   = '13.75,100.5,7';                         // default Bangkok (was: mth_city)
@@ -16176,13 +16211,17 @@ function showEntryOverlay(){
   const minInp  = document.getElementById('entryMinute');
   const gSelect = document.getElementById('entryGender');
   const cSelect = document.getElementById('entryCity');
-  _setEntryDobFields(todayDob);
+  // Deliberately NOT pre-filled. It used to be seeded with today's date, which
+  // left the form looking complete: a first-time visitor could submit without
+  // touching it and get a newborn's chart with no error and no warning. The
+  // placeholders (15 / 2548) carry the format instead, and _getEntryDob()
+  // returns '' so the existing "กรุณากรอกวันเกิด" error fires. (2026-08-21)
   if (nameInp) nameInp.value = name;
   // Default the time fields to NOW (current hour/minute) — same rationale as
   // DOB: fresh entry, not stale prefill.
   if (hourInp && minInp) {
-    hourInp.value = String(_entryNow.getHours()).padStart(2, '0');
-    minInp.value  = String(_entryNow.getMinutes()).padStart(2, '0');
+    hourInp.value = '';
+    minInp.value  = '';
   }
   // Restore "Birth time unknown" toggle (set previously) — drives disabled
   // styling + the 30%-accuracy warning. Default off (user typed a time).
@@ -16590,9 +16629,11 @@ function entryAccept(){
     _showSyncToast(LANG==='th'
       ? '✨ 26 ศาสตร์อ่านคุณแล้ว — เลื่อนดูว่าพวกเขาเห็นตรงกันว่าอะไร'
       : '✨ All 26 systems have read you — see what they agree on');
-    // First-visit tab tour: introduce the group tabs. Delayed so the page
-    // settles first. No-op on subsequent visits (mth_tab_tour_done).
-    setTimeout(maybeShowTabTour, 900);
+    // The first-visit tab tour used to fire here. It threw a full-screen modal
+    // over the reading 900ms after the user finally entered a birth date, and
+    // its step 2 scrolled them to #whyDifferent (the competitor table) — the
+    // opposite direction from the toast we had just shown. maybeShowTabTour()
+    // is kept; re-enable it only somewhere that isn't the payoff moment.
   }, 200);
 }
 
