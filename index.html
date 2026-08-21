@@ -1538,6 +1538,8 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <button class="login-confirm-btn" onclick="entryShowForm()" style="font-size:18px;padding:16px 20px;letter-spacing:.5px" data-eh="cta">✦ ดูดวง 26 ศาสตร์ · ฟรี</button>
       <!-- secondary: the full 26-system reading (needs a birth date) -->
       <div style="text-align:center;margin-top:14px"><button onclick="entryDrawFirst()" style="background:transparent;border:1px solid var(--gold3);border-radius:8px;font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1px;color:var(--gold2);cursor:pointer;padding:10px 20px" data-eh="drawalt">หรือรับพรจากเทพประจำวันก่อน →</button></div>
+      <!-- third door: two birth dates, no account, no profile -->
+      <div style="text-align:center;margin-top:10px"><button onclick="entryCompareTwo()" style="background:transparent;border:1px solid var(--gold3);border-radius:8px;font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1px;color:var(--gold);padding:10px 16px;cursor:pointer" data-eh="compare">💑 เทียบดวงกับใครสักคน · แค่ 2 วันเกิด</button></div>
       <div style="text-align:center;margin-top:16px;font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px" data-eh="signin">มีบัญชีแล้ว? <button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">ลงชื่อเข้าใช้ →</button></div>
     </div>
 
@@ -3307,6 +3309,7 @@ function _refreshEntryHero(){
     hook2:    { th:'26 ศาสตร์โบราณ<br>อ่านวันเกิดคุณพร้อมกัน', en:'26 ancient systems<br>read your birth date at once' },
     cta:      { th:'✦ ดูดวง 26 ศาสตร์ · ฟรี', en:'✦ Read all 26 systems · Free' },
     drawalt:  { th:'หรือรับพรจากเทพประจำวันก่อน →', en:'or receive today’s blessing first →' },
+    compare:  { th:'💑 เทียบดวงกับใครสักคน · แค่ 2 วันเกิด', en:'💑 Compare with someone · just 2 birth dates' },
     signin:   { th:'มีบัญชีแล้ว? ' + sgn + 'ลงชื่อเข้าใช้ →</button>', en:'Already have an account? ' + sgn + 'Sign in →</button>' }
   };
   document.querySelectorAll('#entryOverlay [data-eh]').forEach(function(el){
@@ -16822,6 +16825,19 @@ function entrySkip(){
   _showSyncToast(LANG==='th'
     ? '👀 โหมดทดลอง — กรอกวันเกิดใน Profile เพื่อปลดล็อกดวง'
     : '👀 Preview mode — add birth data in Profile to unlock readings');
+}
+
+// Compare-two-dates entry: the shortest path from landing to the one action
+// that needs nothing but two birth dates. Every tradition in this product that
+// is actually sold commercially is sold on this question — gung-hap, kundali
+// milan, and most paid features shipped by Western astrology apps since 2023.
+// It used to sit three taps deep behind "create a profile first".
+function entryCompareTwo(){
+  entrySkip();
+  try {
+    setGroup('addon');
+    showSubTab('compat');
+  } catch (e) { console.warn('[entryCompareTwo]', e); }
 }
 
 // Draw-first entry: dismiss the overlay straight onto the (already-active)
