@@ -1534,12 +1534,17 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       </div>
       <!-- one evocative line — invites the draw, no wall of text -->
       <div style="text-align:center;margin:0 0 22px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:17px;color:var(--text);line-height:1.55" data-eh="hook2">วันนี้ เทพองค์ไหน<br>ส่งสารถึงคุณ?</div>
+      <!-- one line that says what we do about it — the promise is the MAP of
+           agreement and disagreement, not a verdict. Promising "the consensus"
+           would be a promise we cannot keep: most charts split. -->
+      <div style="text-align:center;margin:0 0 20px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--muted);line-height:1.7" data-eh="hooksub">เราถาม 26 ศาสตร์จากทั่วโลกพร้อมกัน แล้วบอกตรงๆ ว่า<strong style="color:var(--text)">ตรงกันกี่ศาสตร์</strong> และเถียงกันเรื่องอะไร</div>
       <!-- THE dominant action -->
       <button class="login-confirm-btn" onclick="entryShowForm()" style="font-size:18px;padding:16px 20px;letter-spacing:.5px" data-eh="cta">✦ ดูดวง 26 ศาสตร์ · ฟรี</button>
-      <!-- secondary: the full 26-system reading (needs a birth date) -->
-      <div style="text-align:center;margin-top:14px"><button onclick="entryDrawFirst()" style="background:transparent;border:1px solid var(--gold3);border-radius:8px;font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1px;color:var(--gold2);cursor:pointer;padding:10px 20px" data-eh="drawalt">หรือรับพรจากเทพประจำวันก่อน →</button></div>
-      <!-- third door: two birth dates, no account, no profile -->
-      <div style="text-align:center;margin-top:10px"><button onclick="entryCompareTwo()" style="background:transparent;border:1px solid var(--gold3);border-radius:8px;font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1px;color:var(--gold);padding:10px 16px;cursor:pointer" data-eh="compare">💑 เทียบดวงกับใครสักคน · แค่ 2 วันเกิด</button></div>
+      <!-- The other two doors live on one quiet line, as links rather than
+       buttons. Every site in this market that converts shows ONE action
+       above the fold; we were asking for three decisions before the
+       visitor had received anything at all. -->
+      <div style="text-align:center;margin-top:14px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:.5px;color:var(--muted)" data-eh="alt"><button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">เทียบดวงสองคน</button> &nbsp;·&nbsp; <button onclick="entryDrawFirst()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">รับพรวันนี้</button></div>
       <div style="text-align:center;margin-top:16px;font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px" data-eh="signin">มีบัญชีแล้ว? <button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">ลงชื่อเข้าใช้ →</button></div>
     </div>
 
@@ -3305,11 +3310,13 @@ function _refreshEntryHero(){
   try { if (typeof _entryLang !== 'undefined') _entryLang = isTh ? 'th' : 'en'; } catch(_){}
   var sgn = '<button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">';
   var M = {
-    tagline:  { th:'ที่ซึ่งศาสตร์โบราณทั้งมวลมาบรรจบ — เรื่องของคุณ', en:'Where myriad myths reach consensus — about you' },
-    hook2:    { th:'26 ศาสตร์โบราณ<br>อ่านวันเกิดคุณพร้อมกัน', en:'26 ancient systems<br>read your birth date at once' },
+    tagline:  { th:'ดวงคุณ จาก 26 ศาสตร์ทั่วโลก พร้อมกัน', en:'Your chart, read by 26 world traditions at once' },
+    hook2:    { th:'ดูดวงสามที่ ได้สามคำตอบ<br><strong style="color:var(--gold)">แล้วอันไหนจริง?</strong>', en:'Three readings, three answers.<br><strong style="color:var(--gold)">So which one is true?</strong>' },
     cta:      { th:'✦ ดูดวง 26 ศาสตร์ · ฟรี', en:'✦ Read all 26 systems · Free' },
     drawalt:  { th:'หรือรับพรจากเทพประจำวันก่อน →', en:'or receive today’s blessing first →' },
     compare:  { th:'💑 เทียบดวงกับใครสักคน · แค่ 2 วันเกิด', en:'💑 Compare with someone · just 2 birth dates' },
+    hooksub:  { th:'เราถาม 26 ศาสตร์จากทั่วโลกพร้อมกัน แล้วบอกตรงๆ ว่า<strong style="color:var(--text)">ตรงกันกี่ศาสตร์</strong> และเถียงกันเรื่องอะไร', en:'We ask 26 traditions at once and tell you plainly <strong style="color:var(--text)">how many agree</strong> — and what they argue about.' },
+    alt:      { th:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">เทียบดวงสองคน</button> &nbsp;·&nbsp; <button onclick="entryDrawFirst()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">รับพรวันนี้</button>', en:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">Compare two charts</button> &nbsp;·&nbsp; <button onclick="entryDrawFirst()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">Blessing today</button>' },
     signin:   { th:'มีบัญชีแล้ว? ' + sgn + 'ลงชื่อเข้าใช้ →</button>', en:'Already have an account? ' + sgn + 'Sign in →</button>' }
   };
   document.querySelectorAll('#entryOverlay [data-eh]').forEach(function(el){
