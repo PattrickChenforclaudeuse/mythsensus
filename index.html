@@ -4224,7 +4224,23 @@ const _msAnalytics = (function(){
   } catch(_){}
   function refHost(){ return ((document.referrer||'').replace(/^https?:\/\//,'').split('/')[0])||null; }
   function srcRef(){ return utm ? ('utm:'+utm.s) : refHost(); }   // tagged campaign wins over raw referrer
-  function device(){ try { const w=Math.min(screen.width||9999, screen.height||9999); return w<600?'mobile':(w<1024?'tablet':'desktop'); } catch(_){ return 'desktop'; } }
+  // screen.width reports PHYSICAL pixels on most Android browsers, so a 1080p
+  // phone measured 1080 and was filed as "desktop", and a 720p one as "tablet".
+  // Seventy-two days of data therefore said tablet was our biggest audience
+  // when it is almost certainly phones — and every layout judgement made from
+  // that was made against the wrong device.
+  //
+  // innerWidth is in CSS pixels, which is what the layout actually responds to.
+  // Touch capability separates a small laptop window from a real tablet.
+  function device(){
+    try {
+      const w = window.innerWidth || document.documentElement.clientWidth || screen.width || 9999;
+      const touch = (navigator.maxTouchPoints || 0) > 0;
+      if (w < 600) return 'mobile';
+      if (w < 1024) return touch ? 'tablet' : 'desktop';
+      return 'desktop';
+    } catch(_) { return 'desktop'; }
+  }
   function accrue(){ if(s.visible){ const now=Date.now(); s.activeMs += Math.max(0, now-s.lastTick); s.lastTick=now; } }
   function post(payload){
     try {
