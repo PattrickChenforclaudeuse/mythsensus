@@ -154,6 +154,35 @@ export default async function handler(req, res) {
     row('Purchase success', uSid(pSuccess), `${pSuccess.length} events · returned unlocked`),
   ].join('');
 
+  // Rolling 7-day buckets, newest first. Only the steps that mean something
+  // on their own: how many arrived, how many committed a birth date, how many
+  // read a forecast, how many passed it on.
+  const WEEK = 7 * 86400000;
+  const nowMs = Date.now();
+  const bucketOf = (ts) => Math.floor((nowMs - new Date(ts).getTime()) / WEEK);
+  const nWeeks = Math.max(1, Math.min(Math.ceil(coverDays / 7), Math.ceil(days / 7)));
+  const weeks = [];
+  for (let w = 0; w < nWeeks; w++) {
+    const inW = (arr) => arr.filter(x => bucketOf(x.ts) === w);
+    const sess = inW(sessions);
+    const end = new Date(nowMs - w * WEEK), start = new Date(nowMs - (w + 1) * WEEK);
+    const d = (dt) => (dt.getUTCMonth() + 1) + '/' + dt.getUTCDate();
+    weeks.push({
+      label: w === 0 ? 'this week' : d(start) + '–' + d(end),
+      sess: sess.length,
+      births: uSid(inW(births)),
+      forecast: uSid(inW(rows.filter(x => x.event === 'forecast_view'))),
+      shares: inW(shares).length,
+    });
+  }
+  const weekRows = weeks.map(w => `<tr>
+      <td style="padding:5px 10px;color:#c8c0a8">${w.label}</td>
+      <td style="padding:5px 10px;text-align:right">${w.sess}</td>
+      <td style="padding:5px 10px;text-align:right;color:#9a8a72">${w.births}${w.sess ? ' · ' + pct(w.births, w.sess) + '%' : ''}</td>
+      <td style="padding:5px 10px;text-align:right;color:#9a8a72">${w.forecast}</td>
+      <td style="padding:5px 10px;text-align:right;color:#c8a45a">${w.shares}</td>
+    </tr>`).join('');
+
   const dayRows = days7.map(d => { const o = byDay[d]; return `<tr><td style="padding:5px 10px;color:#c8c0a8">${d}</td><td style="padding:5px 10px;text-align:right">${o.sess}</td><td style="padding:5px 10px;text-align:right;color:#9a8a72">${pct(o.drew, o.sess)}%</td><td style="padding:5px 10px;text-align:right;color:#c8a45a">${o.share}</td></tr>`; }).join('');
   const listRows = (arr) => arr.map(([k, v]) => `<tr><td style="padding:4px 10px;color:#c8c0a8">${esc(k)}</td><td style="padding:4px 10px;text-align:right;color:#e9d9a8">${v}</td></tr>`).join('');
 
@@ -165,6 +194,7 @@ export default async function handler(req, res) {
 <h2>Funnel</h2><table>${funnelRows}</table>
 <h2>Money intent <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(distinct sessions · instrumented 2026-07-01)</span></h2><table>${moneyRows}</table>
 <h2>New vs returning <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(post-deploy only · ${tagged.length} tagged)</span></h2><table><tr><th>Cohort</th><th style="text-align:right">Sessions</th><th style="text-align:right">Bounce&lt;5s</th><th style="text-align:right">&gt;60s</th><th style="text-align:right">Draw%</th><th style="text-align:right">Engaged%</th></tr>${nvrRows}</table>
+<h2>By week <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(rolling 7 days back from today — read down the Sessions column for the trend)</span></h2><table><tr><th>Week</th><th style="text-align:right">Sessions</th><th style="text-align:right">Filled birthday</th><th style="text-align:right">Read forecast</th><th style="text-align:right">Shares</th></tr>${weekRows || '<tr><td colspan=5 style="padding:10px;color:#6a5a42">no data</td></tr>'}</table>
 <h2>By day (latest 14)</h2><table><tr><th>Date</th><th style="text-align:right">Sessions</th><th style="text-align:right">Draw%</th><th style="text-align:right">Shares</th></tr>${dayRows || '<tr><td colspan=4 style="padding:10px;color:#6a5a42">no data</td></tr>'}</table>
 <h2>Top referrers</h2><table>${listRows(refs) || ''}</table>
 <div style="display:flex;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px"><h2>Device</h2><table>${listRows(devices)}</table></div><div style="flex:1;min-width:200px"><h2>Language</h2><table>${listRows(langs)}</table></div></div>
