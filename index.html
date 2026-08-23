@@ -10321,10 +10321,21 @@ function _fcDomainCard(v, isTh, L, A) {
 
 function _fcToggle(domain) {
   _FC_OPEN[domain] = !_FC_OPEN[domain];
+  // Opening the per-system list is the clearest signal that a reader wants
+  // the reasoning and not just the verdict — the whole bet of this design.
+  if (_FC_OPEN[domain]) {
+    try { if (window._msTrack) _msTrack.track('forecast_systems', { meta: { domain } }); } catch (_) {}
+  }
   renderForecast();
 }
 function _fcCollapseAll() { for (const k of Object.keys(_FC_OPEN)) delete _FC_OPEN[k]; }
-function _fcPick(i) { _FC_WEEK = i; _fcCollapseAll(); renderForecast(); }
+function _fcPick(i) {
+  _FC_WEEK = i;
+  // Looking past this week is what separates a forecast from a horoscope.
+  try { if (window._msTrack) _msTrack.track('forecast_period', { meta: { i, mode: _FC_MODE } }); } catch (_) {}
+  _fcCollapseAll();
+  renderForecast();
+}
 function _fcSetMode(m) { _FC_MODE = m; _FC_WEEK = 0; _fcCollapseAll(); renderForecast(); }
 
 function renderForecast() {
@@ -10496,7 +10507,42 @@ function renderForecast() {
       </button>
     </div>`;
 
-  host.innerHTML = head + modeRow + picker + summary + scale + cards + shareRow + upsell + highlights + abst + bless;
+  // The deity goes above everything, including the header: recognition first,
+  // scoring second. It is paired to THIS period's strained domain, so it moves
+  // with the forecast rather than sitting there as decoration.
+  const deity = _fcDeityBlock(R.worst, isTh, L);
+
+  // Signed-out readers leave and are gone: nothing here can reach them again,
+  // and this is the one product with a real reason to come back, since it
+  // expires every week. Signing in is the cheapest way to keep them — it
+  // already carries the chart across devices and restores purchases by email.
+  //
+  // The copy promises ONLY that. There is no reminder sender built yet, and
+  // offering to notify someone we have no way of notifying would be the one
+  // kind of lie this product cannot afford.
+  const signedIn = (typeof getUser === 'function' && getUser()) ? true : false;
+  const keep = signedIn ? '' : `<div class="deep-sys-card" style="margin-bottom:10px;text-align:center;border-style:dashed">
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.6">
+        ${isTh ? 'พยากรณ์นี้เปลี่ยนทุกสัปดาห์' : 'This forecast changes every week'}</div>
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--muted);line-height:1.7;margin-top:5px">
+        ${isTh ? 'เข้าสู่ระบบเพื่อเก็บดวงนี้ไว้ เปิดดูต่อจากเครื่องไหนก็ได้' : 'Sign in to keep this chart and open it from any device'}</div>
+      <button onclick="try{_msTrack.track('forecast_signin_cta')}catch(e){};showLoginOverlay()" style="margin-top:10px;font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:1.4px;padding:9px 22px;border-radius:6px;cursor:pointer;border:1px solid var(--gold3);background:transparent;color:var(--gold)">
+        ${isTh ? 'เข้าสู่ระบบ →' : 'SIGN IN →'}</button>
+    </div>`;
+
+  host.innerHTML = deity + head + modeRow + picker + summary + scale + cards + shareRow + keep + upsell + highlights + abst + bless;
+
+  // Once per page load, not once per re-render — every drill-down toggle and
+  // period switch calls back through here, and counting those as arrivals
+  // would report a handful of curious readers as a crowd.
+  if (!window._fcViewTracked) {
+    window._fcViewTracked = true;
+    try {
+      if (window._msTrack) _msTrack.track('forecast_view', {
+        meta: { domains: domains.length, voting: data.votingCount },
+      });
+    } catch (_) {}
+  }
 }
 
 // ── The forecast's share unit ───────────────────────────────────────────────
@@ -10645,6 +10691,86 @@ async function _fcShare() {
   } catch (_) {
     try { _showSyncToast(LANG === 'th' ? 'สร้างการ์ดไม่สำเร็จ ลองใหม่อีกครั้ง' : 'Could not build the card — try again'); } catch (__) {}
   }
+}
+
+// ── The deity who carries the week ─────────────────────────────────────────
+// The free tier opens on a verdict, and a verdict is not the same thing as
+// being seen. Every portal in this market that converts gives the reader a
+// moment of recognition BEFORE it starts scoring them — and we already own the
+// asset for it: 1,069 deities, tagged with what each one governs.
+//
+// So the panel opens with the one deity whose domain is the domain the systems
+// just flagged. Not a gate and not another step: it sits at the top of the same
+// scroll, and the numbers are one thumb-flick below.
+//
+// The pairing is the same category map the blessing draw already uses. When no
+// deity governs that domain, this renders nothing at all rather than reaching
+// for a near-enough one — an invented connection would undo the only thing this
+// product is actually selling.
+let _FC_DEITY = null;        // { domain, god } for the current chart+period
+let _fcGodsAsked = false;
+
+function _fcPickDeity(domain) {
+  try {
+    if (typeof GODS === 'undefined' || !Array.isArray(GODS) || !GODS.length) return null;
+    const want = _FC_GOD_CATEGORY[domain] || [];
+    if (!want.length) return null;
+    const all = GODS.filter(g => (g.categories || []).some(c => want.indexOf(c) >= 0));
+    if (!all.length) return null;
+    // Painted art lives only for the Epic-and-above tiers (217 of the 1,069),
+    // and a face is most of what this block is for — a bare symbol reads as a
+    // placeholder. Every domain still has at least 29 candidates with art, so
+    // narrowing costs nothing in variety. Falls back if a domain ever runs dry.
+    const ART_TIERS = ['Epic', 'Legendary', 'Mythic'];
+    const painted = all.filter(g => ART_TIERS.indexOf(g.tier) >= 0);
+    const pool = painted.length ? painted : all;
+    // Stable per chart and per domain: the same reader should meet the same
+    // deity when they come back, the way a patron saint stays put.
+    let h = 0;
+    const seed = (typeof _chartInputHash === 'function' ? _chartInputHash() : '') + '|' + domain;
+    for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
+    return pool[Math.abs(h) % pool.length];
+  } catch (_) { return null; }
+}
+
+function _fcDeityBlock(worstDomain, isTh, L) {
+  // gods.json is fetched lazily elsewhere; ask once, then redraw when it lands.
+  if (typeof GODS === 'undefined' || !Array.isArray(GODS) || !GODS.length) {
+    if (!_fcGodsAsked && typeof loadGods === 'function') {
+      _fcGodsAsked = true;
+      loadGods().then(() => { try { renderForecast(); } catch (_) {} }).catch(() => {});
+    }
+    return '';
+  }
+  const god = _fcPickDeity(worstDomain);
+  if (!god) return '';
+  _FC_DEITY = { domain: worstDomain, god };
+
+  const msgs = (isTh ? god.messages_th : god.messages_en) || god.messages || [];
+  const line = msgs.length ? msgs[0] : '';
+  // NOT _cardSlug: that builds the CDN card name (Epic-Kane) for a different
+  // asset set. The files in /assets/god-og are plain lowercase slugs.
+  const slug = String(god.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  // Same-origin art only. The CDN card would need CORS and this is decoration —
+  // if the face is not on this server, the symbol carries it.
+  const art = slug
+    ? `<img src="/assets/god-og/${_fcEsc(slug)}.jpg" alt="" loading="lazy"
+         onerror="this.style.display='none'"
+         style="width:100%;max-width:210px;aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--gold3);display:block;margin:0 auto 10px">`
+    : `<div style="font-size:64px;line-height:1.2;margin-bottom:6px">${_fcEsc(god.symbol || '✦')}</div>`;
+
+  return `<div class="deep-sys-card" style="margin-bottom:14px;text-align:center">
+    ${art}
+    <div style="font-family:'Cinzel Decorative',serif;font-size:17px;color:var(--gold2);letter-spacing:.5px">${_fcEsc(god.name)}</div>
+    <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-top:2px">${_fcEsc(god.mythology || '')}</div>
+    ${line ? `<div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:14.5px;color:var(--text);line-height:1.65;margin-top:9px">“${_fcEsc(line)}”</div>` : ''}
+    <div style="margin-top:10px;padding:9px 12px;border-radius:6px;background:rgba(208,138,106,.10);border-left:2px solid #d08a6a;text-align:left;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.6">
+      ${isTh
+        ? `องค์นี้ดูแลเรื่อง<strong style="color:var(--gold)">${_fcEsc(L[worstDomain].th)}</strong> — ด้านที่ศาสตร์ส่วนใหญ่บอกให้คุณระวังช่วงนี้`
+        : `This one governs <strong style="color:var(--gold)">${_fcEsc(L[worstDomain].en)}</strong> — the area the systems flagged for care`}
+    </div>
+    <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.6px;color:var(--gold);margin-top:11px">${isTh ? '↓ พยากรณ์ 4 สัปดาห์' : '↓ THE FOUR WEEKS'}</div>
+  </div>`;
 }
 
 function _fcToggleAbst() { window._fcAbstOpen = !window._fcAbstOpen; renderForecast(); }
