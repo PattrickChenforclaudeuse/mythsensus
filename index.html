@@ -2678,7 +2678,11 @@ try{
 <div class="panel active" id="panel-forecast">
   <div class="section-title" data-t="forecast_title">THE WEEKS AHEAD</div>
   <div class="sky-dom-hint" data-t="forecast_hint">4 สัปดาห์ข้างหน้า · การงาน การเงิน ความรัก สุขภาพ · ตัดสินโดยศาสตร์ที่มีวิชาทำนายเวลาจริง</div>
-  <div id="forecastPanel" style="max-width:720px;margin:0 auto;"></div>
+  <!-- Cormorant ships old-style figures, which drop 3 4 5 7 9 below the
+       baseline and shrink 1 to a stem. That is handsome in running prose and
+       wrong for a panel whose entire content is numbers, so lining figures are
+       forced once here rather than per element. -->
+  <div id="forecastPanel" style="max-width:720px;margin:0 auto;font-variant-numeric:lining-nums tabular-nums"></div>
 </div>
 
 <div class="panel" id="panel-brief">
