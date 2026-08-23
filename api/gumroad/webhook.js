@@ -82,7 +82,7 @@ async function setUserPlan(email, plan) {
 const PERMALINK_TO_ITEM = {
   oziji: 'deep', luqkbx: 'mirror', nxezj: 'pet', wlgmbp: 'companions',
   intvj: 'exercise', vwzkgz: 'food', howzdo: 'product', mdjeln: 'compat',
-  mbkayz: 'full_report', tlkfx: 'subscription',
+  mbkayz: 'full_report', utisor: 'forecast12', tlkfx: 'subscription',
 };
 
 // Upsert a one-time purchase into public.myth_purchases (woam) via PostgREST,
