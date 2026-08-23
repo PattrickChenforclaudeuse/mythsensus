@@ -40,3 +40,15 @@ _guardian-cards.png
 supabase/.temp/
 # bts-rally = คนละโปรเจกต์ (rally-solver) แค่บังเอิญมาวางในโฟลเดอร์นี้
 bts-rally/
+
+# ภาพร่างหน้าจอ + สคริปต์เรนเดอร์ที่ใช้ระหว่างออกแบบ ไม่ได้ขึ้น prod
+_mock-*.html
+_render-*.cjs
+_verify-*.cjs
+_guardian-audit.cjs
+_guardian-card-proto.html
+# ข้อมูล lore ที่สคริปต์ generate ออกมา สร้างใหม่ได้
+_seo-gen/
+# Python cache
+__pycache__/
+*.pyc
