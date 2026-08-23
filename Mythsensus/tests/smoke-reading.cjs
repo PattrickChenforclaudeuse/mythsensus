@@ -161,6 +161,47 @@ const problems = [];
   }
 
   if (!shown.entryViewFired) problems.push('entry_view never fired — the overlay-shown signal is not working');
+
+  // ── No Thai on the English side of the entry screen ───────────────────────
+  // The predeploy guard reads the TX.en table, which is only one of the places
+  // copy lives. The entry overlay's month list, era selector, era hint and the
+  // whole step-two form were hand-written markup outside every table — so an
+  // English reader was shown "เดือน / ม.ค. / ก.พ." and asked for a พ.ศ. year,
+  // and nothing flagged it for months. This checks what actually renders.
+  const thaiOnEn = await page.evaluate(async () => {
+    const THAI = /[฀-๿]/;
+    const ALLOW = new Set(['entryHeroLangTh', 'entryLangTh']);   // the switcher must stay Thai
+    const ov = document.getElementById('entryOverlay');
+    if (!ov) return ['entryOverlay missing'];
+    ov.style.display = 'flex';
+    if (typeof setLangExplicit === 'function') setLangExplicit('en');
+    const visible = (el) => {
+      for (let n = el; n && n !== document.body; n = n.parentElement) {
+        const cs = getComputedStyle(n);
+        if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+      }
+      return true;
+    };
+    const scan = () => {
+      const bad = [];
+      ov.querySelectorAll('*').forEach(el => {
+        if (ALLOW.has(el.id)) return;
+        // <option> never reports as visible itself; judge it by its <select>.
+        const target = el.tagName === 'OPTION' ? el.parentElement : el;
+        if (!target || !visible(target)) return;
+        const own = [...el.childNodes].filter(n => n.nodeType === 3)
+          .map(n => n.textContent.trim()).filter(Boolean).join(' ');
+        if (own && THAI.test(own)) bad.push((el.id || el.tagName) + ': ' + own.slice(0, 45));
+      });
+      return bad;
+    };
+    const out = scan();
+    try { if (typeof entryShowForm === 'function') entryShowForm(); } catch (_) {}
+    return out.concat(scan());
+  });
+  if (thaiOnEn.length) {
+    problems.push(`${thaiOnEn.length} Thai string(s) on the English entry screen: ` + thaiOnEn.slice(0, 6).join(' | '));
+  }
   if (pageErrors.length) problems.push('uncaught JS: ' + pageErrors.join(' | ').slice(0, 300));
 
   console.log(`  url:          ${URL}`);
@@ -168,6 +209,7 @@ const problems = [];
   console.log(`  scores:       ${shown.scores.join('  ')}`);
   console.log(`  entry_view:   ${shown.entryViewFired}`);
   console.log(`  js errors:    ${pageErrors.length}`);
+  console.log(`  thai on EN:   ${thaiOnEn.length}`);
 
   await browser.close();
 

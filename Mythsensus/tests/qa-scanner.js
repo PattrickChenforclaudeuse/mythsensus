@@ -135,7 +135,10 @@ const browser = await chromium.launch({ headless: true });
 
 for (const vp of VIEWPORTS) {
   for (const pg of PAGES) {
-    const url = BASE_URL + pg.path;
+    // ?im=1 marks the visit as ours so the funnel can drop it. Without it every
+    // deploy fired ~30 untagged sessions (pages × viewports) straight into the
+    // numbers — which is most of why a 44-session day looked like an audience.
+    const url = BASE_URL + pg.path + (pg.path.includes('?') ? '&' : '?') + 'im=1';
     const key = `${pg.name}-${vp.name}`;
     const shotPath = path.join(OUT_DIR, `${key}.png`);
     const ctx = await browser.newContext({

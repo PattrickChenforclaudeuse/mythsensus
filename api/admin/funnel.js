@@ -57,9 +57,19 @@ export default async function handler(req, res) {
   // Exclude the team's own opens (?im=1 → meta.internal) from every headline
   // metric — added 2026-07-01 alongside the self-exclude tag. Kept as a count
   // so the dashboard can show how many were dropped.
+  //
+  // 2026-08-23: this used to drop only the 'session' rows, so our own sessions
+  // left the DENOMINATOR while our own birth_submit / entry_choice / paywall_view
+  // rows stayed in the NUMERATORS. Every rate was therefore inflated by exactly
+  // the amount we tested — the week of 16 Aug read 68% birth-date completion,
+  // which was mostly one person checking a deploy. Drop the whole session by
+  // sid instead, so a rate is a rate.
+  const internalSids = new Set(
+    rows.filter(x => x.meta && x.meta.internal === true).map(x => x.sid).filter(Boolean));
+  rows = rows.filter(x => !internalSids.has(x.sid));
   const sessionsAll = rows.filter(x => x.event === 'session');
-  const internalN   = sessionsAll.filter(x => x.meta && x.meta.internal === true).length;
-  const sessions    = sessionsAll.filter(x => !(x.meta && x.meta.internal === true));
+  const internalN   = internalSids.size;
+  const sessions    = sessionsAll;
   const shares   = rows.filter(x => x.event === 'share');
   const checkouts= rows.filter(x => x.event === 'checkout');
   const destinies= rows.filter(x => x.event === 'destiny');
@@ -83,6 +93,14 @@ export default async function handler(req, res) {
   // to admit it rather than quietly showing less.
   const oldestTs = rows.length ? rows[rows.length - 1].ts : null;
   const coverDays = oldestTs ? Math.round((Date.now() - new Date(oldestTs).getTime()) / 86400000) : 0;
+
+  // Per-day session counts for the 'typical day' headline above.
+  const perDay = {};
+  for (const x of sessions) { const d = (x.ts || '').slice(0, 10); if (d) perDay[d] = (perDay[d] || 0) + 1; }
+  const dayCounts = Object.keys(perDay).sort().reverse().slice(0, 14).map(d => perDay[d]).sort((a, b) => a - b);
+  const medDay = dayCounts.length ? dayCounts[Math.floor(dayCounts.length / 2)] : 0;
+  const maxDay = dayCounts.length ? dayCounts[dayCounts.length - 1] : 0;
+  const minDay = dayCounts.length ? dayCounts[0] : 0;
 
   const ms = sessions.map(x => +x.active_ms || 0).sort((a, b) => a - b);
   const med = quantile(ms, 0.5), p75 = quantile(ms, 0.75), p90 = quantile(ms, 0.9);
@@ -128,6 +146,11 @@ export default async function handler(req, res) {
 
   const funnelRows = [
     row('Sessions', nS, `${days}-day window`),
+    // The window total is the number people misread. 594 over 90 days sounds
+    // like an audience; it is under seven a day, and most of those arrive in
+    // one-day spikes after a post. The median day is the honest headline —
+    // it ignores the spikes and our own deploy-day traffic alike.
+    row('Typical day', medDay + ' sessions', `median of the last 14 days · busiest ${maxDay}, quietest ${minDay}`),
     row('Active time (median)', fmtS(med), `p75 ${fmtS(p75)} · p90 ${fmtS(p90)}`),
     row('Bounce &lt;5s', pct(bounce, nS) + '%', `${bounce} sess · &gt;60s: ${pct(over60, nS)}%`),
     row('Engaged (tapped/scrolled)', pct(engaged, nS) + '%', `${engaged} sess · cold-bounce ${pct(nS - engaged, nS)}% · (post-deploy only)`),

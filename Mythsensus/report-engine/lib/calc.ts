@@ -5349,8 +5349,8 @@ const FORECAST_DOMAINS_ALL: ForecastDomainKey[] = [
 
 const FORECAST_DOMAIN_LABELS: Record<ForecastDomainKey, { th: string; en: string; icon: string }> = {
   career:   { th: 'การงาน',              en: 'Work',        icon: '💼' },
-  money:    { th: 'การเงิน',             en: 'Money',       icon: '💰' },
-  love:     { th: 'ความรัก',             en: 'Love',        icon: '❤️' },
+  money:    { th: 'การเงิน',             en: 'Wealth',      icon: '💰' },
+  love:     { th: 'ความรัก',             en: 'Relationship', icon: '❤️' },
   health:   { th: 'สุขภาพ',              en: 'Health',      icon: '🩺' },
   family:   { th: 'ครอบครัว·บ้าน',       en: 'Family·Home', icon: '🏠' },
   learning: { th: 'เรียนรู้·พัฒนาตัว',   en: 'Learning',    icon: '📖' },

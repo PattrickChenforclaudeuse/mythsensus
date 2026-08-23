@@ -10,7 +10,10 @@ const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 
-const URL_ARG = process.argv[2] || 'https://mythsensus.com/';
+// ?im=1 tags the visit as ours so the funnel drops it. Auditing production
+// used to log real-looking sessions with a fake Mac user agent.
+const _AUDIT_TARGET = process.argv[2] || 'https://mythsensus.com/';
+const URL_ARG = _AUDIT_TARGET + (_AUDIT_TARGET.indexOf('?') >= 0 ? '&' : '?') + 'im=1';
 const SCREENSHOT_DIR = path.join(__dirname, '..', '..', 'audit-bilingual-screenshots');
 if (!fs.existsSync(SCREENSHOT_DIR)) fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
 

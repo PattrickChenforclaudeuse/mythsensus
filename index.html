@@ -65,7 +65,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=187">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=188">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
@@ -1557,12 +1557,19 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <!-- one line that says what we do about it — the promise is the MAP of
            agreement and disagreement, not a verdict. Promising "the consensus"
            would be a promise we cannot keep: most charts split. -->
-      <div style="text-align:center;margin:0 0 20px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--muted);line-height:1.7" data-eh="hooksub">เราถาม 26 ศาสตร์พร้อมกัน แต่<strong style="color:var(--text)">เฉพาะศาสตร์ที่มีวิชาทำนายช่วงเวลาจริงถึงให้คะแนนได้</strong> เต็ม 10 ทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร</div>
+      <div style="text-align:center;margin:0 0 20px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--muted);line-height:1.7" data-eh="hooksub">เราถาม 26 ศาสตร์พร้อมกัน แต่<strong style="color:var(--text)">เฉพาะศาสตร์ที่มีวิชาทำนายช่วงเวลาจริงถึงให้คะแนนได้</strong> ให้เต็ม 5 ทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร</div>
+      <!-- The city's own chart — a real reading, computed by the same engine,
+           before anyone is asked for a birth date. Filled by _entryFillCity()
+           after first paint; stays empty (and hidden) for cities with no
+           documented founding chart, because inventing a ฤกษ์ would be the same
+           sin as inventing doctrine for a system that has none. -->
+      <div id="entryCityRow" style="margin:0 0 18px"></div>
       <!-- THE dominant action -->
       <!-- The date fields live here rather than behind a button. Every portal in
            this market that converts puts the input on the landing itself — one
            less decision between arriving and receiving something. Filling these
            carries straight into the full form with the date already entered. -->
+      <div style="text-align:center;margin:0 0 7px;font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold2)" data-eh="doblabel">ใส่วันเกิดของคุณ เพื่อดูของคุณเอง</div>
       <div style="display:grid;grid-template-columns:1fr 1.3fr 1.2fr;gap:6px;margin-bottom:10px">
         <input class="login-input" type="number" id="heroDay" min="1" max="31" placeholder="15" style="font-family:inherit;font-size:16px;text-align:center">
         <select class="login-input" id="heroMonth" style="font-family:inherit;font-size:14px;text-align:center;cursor:pointer;padding:8px 4px">
@@ -1574,7 +1581,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         </select>
         <input class="login-input" type="number" id="heroYear" min="1900" max="2026" placeholder="2534" style="font-family:inherit;font-size:16px;text-align:center">
       </div>
-      <button class="login-confirm-btn" onclick="entryHeroGo()" style="font-size:18px;padding:16px 20px;letter-spacing:.5px" data-eh="cta">✦ ดูพยากรณ์ 4 สัปดาห์ · ฟรี</button>
+      <button class="login-confirm-btn" onclick="entryHeroGo()" style="font-size:18px;padding:16px 20px;letter-spacing:.5px" data-eh="cta">✦ ให้คะแนน 4 สัปดาห์ของฉัน · ฟรี</button>
       <!-- A real reading, computed live, before we ask for anything. Every
            site in this market that converts shows the product first; ours
            showed nothing until you handed over a birth date. The numbers are
@@ -2058,8 +2065,8 @@ try{
 <div id="aiHonest" style="max-width:720px;margin:14px auto 24px;padding:14px 18px;background:rgba(200,164,90,.05);border:1px solid var(--gold3);border-radius:8px;font-size:13.5px;line-height:1.7;color:var(--text);font-family:'Cormorant Garamond','Sarabun',serif">
   <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2.5px;color:var(--gold);margin-bottom:8px;text-transform:uppercase">⚖️ Honest split — Deterministic vs AI</div>
   <p style="margin:0">
-    <span lang="th"><strong>Cosmic Score และคะแนนทั้ง 26 ศาสตร์</strong> คำนวณแบบกำหนดผล (deterministic) ทุกตัว — ใช้สูตรดาราศาสตร์มาตรฐานและตารางอ้างอิงดั้งเดิมของแต่ละศาสตร์ ไม่มี LLM อยู่ในเส้นทางการคำนวณ วันเกิดเดียวกันให้ผลลัพธ์เดียวกันเสมอ ตรวจสอบซ้ำแบบออฟไลน์ได้ <a href="https://github.com/PattrickChenforclaudeuse/mythsensus-mcp" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:underline">MCP server</a> เรียกใช้ engine ตัวเดียวกัน (open-source บน GitHub · <code style="background:rgba(212,170,80,.1);padding:1px 5px;border-radius:3px;font-size:.9em">npx mythsensus-mcp</code>). <strong>เนื้อหาเชิงเล่าเรื่อง</strong> (ตำนาน คำอธิบายความหมาย คำแนะนำในการใช้พลังของคุณ) เป็นส่วนที่ AI ช่วยร่าง โดยอิงจากคัมภีร์และคำสอนดั้งเดิมที่อ้างอิงได้ ไม่ใช่ AI แต่งเรื่องโดยไร้ที่มา. <a href="/how-it-works#engine" style="color:var(--gold);text-decoration:underline">ดูแยกแยะให้ชัด →</a></span>
-    <span lang="en"><strong>The Cosmic Score and all 26 system scores</strong> are computed deterministically — using standard astronomical formulas and each tradition's own canonical lookup tables. No LLM sits in the score path; the same birth date always yields the same result; you can reproduce every number offline; the <a href="https://github.com/PattrickChenforclaudeuse/mythsensus-mcp" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:underline">MCP server</a> calls the exact same engine (open-source on GitHub · <code style="background:rgba(212,170,80,.1);padding:1px 5px;border-radius:3px;font-size:.9em">npx mythsensus-mcp</code>). <strong>The narrative content</strong> (myth, interpretation, practice guidance) is AI-assisted, drawn from cited traditional doctrines — every passage traces back to a named tradition. <a href="/how-it-works#engine" style="color:var(--gold);text-decoration:underline">See exactly which is which →</a></span>
+    <span lang="th"><strong>Cosmic Score และคะแนนทั้ง 26 ศาสตร์</strong> คำนวณแบบกำหนดผล (deterministic) ทุกตัว — ใช้สูตรดาราศาสตร์มาตรฐานและตารางอ้างอิงดั้งเดิมของแต่ละศาสตร์ ไม่มี LLM อยู่ในเส้นทางการคำนวณ วันเกิดเดียวกันให้ผลลัพธ์เดียวกันเสมอ ตรวจสอบซ้ำแบบออฟไลน์ได้ <a href="https://www.npmjs.com/package/mythsensus-mcp" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:underline">MCP server</a> เรียกใช้ engine ตัวเดียวกัน (MIT · <code style="background:rgba(212,170,80,.1);padding:1px 5px;border-radius:3px;font-size:.9em">npx mythsensus-mcp</code>). <strong>เนื้อหาเชิงเล่าเรื่อง</strong> (ตำนาน คำอธิบายความหมาย คำแนะนำในการใช้พลังของคุณ) เป็นส่วนที่ AI ช่วยร่าง โดยอิงจากคัมภีร์และคำสอนดั้งเดิมที่อ้างอิงได้ ไม่ใช่ AI แต่งเรื่องโดยไร้ที่มา. <a href="/how-it-works#engine" style="color:var(--gold);text-decoration:underline">ดูแยกแยะให้ชัด →</a></span>
+    <span lang="en"><strong>The Cosmic Score and all 26 system scores</strong> are computed deterministically — using standard astronomical formulas and each tradition's own canonical lookup tables. No LLM sits in the score path; the same birth date always yields the same result; you can reproduce every number offline; the <a href="https://www.npmjs.com/package/mythsensus-mcp" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:underline">MCP server</a> calls the exact same engine (MIT · <code style="background:rgba(212,170,80,.1);padding:1px 5px;border-radius:3px;font-size:.9em">npx mythsensus-mcp</code>). <strong>The narrative content</strong> (myth, interpretation, practice guidance) is AI-assisted, drawn from cited traditional doctrines — every passage traces back to a named tradition. <a href="/how-it-works#engine" style="color:var(--gold);text-decoration:underline">See exactly which is which →</a></span>
   </p>
 </div>
 
@@ -2842,7 +2849,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=187" defer></script>
+<script src="/build/ms26-bundle.js?v=188" defer></script>
 <script>
 
 
@@ -3376,6 +3383,97 @@ try{ addEventListener('load', function(){ setTimeout(function(){ try{ _renderEnt
 // date, from three traditions at once, plus a reason to come back tomorrow.
 // It replaced a worked example about a stranger — a demo, where this is a gift.
 // Everything here is computed on the page, never baked in.
+// ── The city's own chart, before anyone is asked for anything ──────────────
+// 41% of arrivals left inside five seconds, and 291 of 446 never touched the
+// entry overlay at all, because everything we sell sat behind a birth-date
+// form. The first five seconds held a logo, a promise, and an input.
+//
+// A city has a chart. ดวงเมือง is real Thai astrological practice, not a device
+// invented here: Bangkok's is the ฤกษ์ of the city pillar, and it is read the
+// same way a person's chart is read. So the visitor gets a genuine forecast in
+// second one, computed by the same engine, from a chart that is honestly not
+// theirs — which is exactly what makes handing over a birth date an upgrade
+// rather than a toll.
+//
+// An earlier attempt averaged the four domains across eight sample birthdays.
+// It was defensible but bloodless: averaging across charts cancels the personal
+// component and leaves every domain sitting on the same number (2.0/2.0/1.9/2.1
+// the day it was tried), which tells a reader nothing. A real chart moves.
+//
+// Cities without a documented founding chart get the day's facts and no scores.
+// Inventing a ฤกษ์ for a city that has none would be the same sin as inventing
+// doctrine for a tradition that has none.
+const _CITY_CHARTS = {
+  'Asia/Bangkok': {
+    th: 'กทม', en: 'Bangkok',
+    // ฤกษ์ลงเสาหลักเมือง 21 เมษายน พ.ศ. 2325 เวลา 06:54 น. — the founding
+    // moment Thai astrologers read as ดวงเมืองกรุงเทพฯ. Shown on screen so the
+    // reader can see which chart produced the numbers.
+    birth: { year: 1782, month: 4, day: 21, hour: 6, minute: 54, lat: 13.7525, lon: 100.4936, timezone: 7 },
+    sourceTh: 'ฤกษ์ลงเสาหลักเมือง · 21 เม.ย. 2325',
+    sourceEn: 'City pillar ceremony · 21 Apr 1782',
+  },
+};
+
+function _entryCityKey() {
+  try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (_) { return ''; }
+}
+
+function _entryCityChart() {
+  const cfg = _CITY_CHARTS[_entryCityKey()];
+  if (!cfg || !window.MS26) return null;
+  try {
+    const chart = MS26.calculate(Object.assign(
+      { name: cfg.th, gender: 'ชาย', lang: (typeof LANG !== 'undefined' ? LANG : 'th') },
+      cfg.birth));
+    return { cfg, chart };
+  } catch (_) { return null; }
+}
+
+// Runs after first paint. The day's facts are already on screen by then, so
+// nothing the reader can see is waiting on this.
+function _entryFillCity() {
+  const host = document.getElementById('entryCityRow');
+  if (!host) return;
+  const isTh = (typeof LANG === 'undefined') || LANG === 'th';
+  const cc = _entryCityChart();
+  if (!cc) { host.style.display = 'none'; return; }
+
+  const today = new Date();
+  const key = 'mth_city_wk|' + _entryCityKey() + '|' + today.toDateString() + '|' + (isTh ? 'th' : 'en');
+  let scores = null;
+  try { const hit = localStorage.getItem(key); if (hit) scores = JSON.parse(hit); } catch (_) {}
+  if (!scores) {
+    try {
+      const w = MS26.calcForecast(cc.chart, today, { weeks: 1, months: 0 }).weeks[0];
+      scores = {};
+      MS26.FORECAST_DOMAINS_FREE.forEach(d => { scores[d] = w.domains[d].score; });
+      try { localStorage.setItem(key, JSON.stringify(scores)); } catch (_) {}
+    } catch (_) { host.style.display = 'none'; return; }
+  }
+
+  const L = MS26.FORECAST_DOMAIN_LABELS;
+  const tone = (v) => v >= 4 ? '#6fb650' : v <= 2 ? '#d08a6a' : '#c8a840';
+  const city = isTh ? cc.cfg.th : cc.cfg.en;
+
+  host.innerHTML = `
+    <div style="border:1px solid var(--border);border-radius:10px;padding:13px 12px 11px;background:rgba(200,164,90,.04)">
+    <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase;margin-bottom:9px;text-align:center">
+      ${isTh ? `พื้นดวงของ “${_fcEsc(city)}” วันนี้` : `The chart of “${_fcEsc(city)}” today`}
+    </div>
+    <div style="display:flex;gap:4px;font-variant-numeric:lining-nums">
+      ${MS26.FORECAST_DOMAINS_FREE.map(d => `
+        <div style="text-align:center;flex:1;min-width:0">
+          <div style="font-size:15px;line-height:1.2">${L[d].icon}</div>
+          <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_fcEsc(isTh ? L[d].th : L[d].en)}</div>
+          <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:16px;font-weight:600;color:${tone(scores[d])}">${scores[d]}<span style="font-size:9px;color:var(--muted)">/5</span></div>
+        </div>`).join('')}
+    </div>
+    <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:10.5px;color:var(--muted);line-height:1.6;margin-top:8px;text-align:center">
+      ${isTh ? cc.cfg.sourceTh : cc.cfg.sourceEn}
+    </div></div>`;
+}
+
 function _renderEntryToday(tries){
   var host = document.getElementById('entrySample');
   if (!host) return;
@@ -3424,6 +3522,9 @@ function _renderEntryToday(tries){
       + (isTh ? 'นี่คือ<strong style="color:var(--gold)">วันนี้</strong> · ใส่วันเกิดแล้วเห็นยาว <strong style="color:var(--gold)">4 สัปดาห์ ราย 4 ด้าน</strong>'
               : 'That is <strong style="color:var(--gold)">today</strong>. Add your birth date to see <strong style="color:var(--gold)">four weeks, four areas</strong>')
       + `</div></div>`;
+    // The city scores need a full forecast run; the facts above are already
+    // painted, so this is deferred and never delays what the reader can see.
+    try { setTimeout(_entryFillCity, 0); } catch(_) {}
   } catch(e) { host.innerHTML = ''; }
 }
 
@@ -3449,11 +3550,12 @@ function _refreshEntryHero(){
   var sgn = '<button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">';
   var M = {
     tagline:  { th:'ดวงคุณ จาก 26 ศาสตร์ทั่วโลก พร้อมกัน', en:'Your chart, read by 26 world traditions at once' },
-    hook2:    { th:'4 สัปดาห์ข้างหน้า จะเป็นยังไง<br><strong style="color:var(--gold)">การงาน · การเงิน · ความรัก · สุขภาพ</strong>', en:'What the next four weeks hold<br><strong style="color:var(--gold)">Work · Money · Love · Health</strong>' },
-    cta:      { th:'✦ ดูพยากรณ์ 4 สัปดาห์ · ฟรี', en:'✦ See your four weeks · Free' },
+    hook2:    { th:'4 สัปดาห์ข้างหน้า จะเป็นยังไง<br><strong style="color:var(--gold)">การงาน · การเงิน · ความรัก · สุขภาพ</strong>', en:'What the next four weeks hold<br><strong style="color:var(--gold)">Work · Wealth · Relationship · Health</strong>' },
+    doblabel: { th:'ใส่วันเกิดของคุณ เพื่อดูของคุณเอง', en:'Enter your birth date to see yours' },
+    cta:      { th:'✦ ให้คะแนน 4 สัปดาห์ของฉัน · ฟรี', en:'✦ Score my next four weeks · Free' },
     drawalt:  { th:'หรือรับพรจากเทพประจำวันก่อน →', en:'or receive today’s blessing first →' },
     compare:  { th:'💑 เทียบดวงกับใครสักคน · แค่ 2 วันเกิด', en:'💑 Compare with someone · just 2 birth dates' },
-    hooksub:  { th:'เราถาม 26 ศาสตร์พร้อมกัน แต่<strong style="color:var(--text)">เฉพาะศาสตร์ที่มีวิชาทำนายช่วงเวลาจริงถึงให้คะแนนได้</strong> เต็ม 10 ทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร', en:'We ask all 26, but <strong style="color:var(--text)">only the ones with a real timing technique get to score you</strong> — out of 10, area by area. The rest abstain, and we name them and say why.' },
+    hooksub:  { th:'เราถาม 26 ศาสตร์พร้อมกัน แต่<strong style="color:var(--text)">เฉพาะศาสตร์ที่มีวิชาทำนายช่วงเวลาจริงถึงให้คะแนนได้</strong> ให้เต็ม 5 ทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร', en:'We ask all 26, but <strong style="color:var(--text)">only the ones with a real timing technique get to score you</strong> — out of 5, area by area. The rest abstain, and we name them and say why.' },
     alt:      { th:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">เทียบดวงสองคน</button> &nbsp;·&nbsp; <button onclick="entryDrawFirst()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">รับพรวันนี้</button>', en:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">Compare two charts</button> &nbsp;·&nbsp; <button onclick="entryDrawFirst()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">Blessing today</button>' },
     signin:   { th:'มีบัญชีแล้ว? ' + sgn + 'ลงชื่อเข้าใช้ →</button>', en:'Already have an account? ' + sgn + 'Sign in →</button>' }
   };
@@ -3462,6 +3564,23 @@ function _refreshEntryHero(){
     var m = M[el.getAttribute('data-eh')];
     if (m) el.innerHTML = isTh ? m.th : m.en;
   });
+  // The date fields are hand-written markup, not [data-eh] or [data-t], so an
+  // English reader was offered a month list reading "เดือน / ม.ค. / ก.พ. …" and
+  // a year box pre-filled with 2534 — a Buddhist year, on the English side.
+  // The predeploy Thai-leak guard only reads the TX.en table, so it saw none of
+  // this; inline <option> text is outside everything that checks language.
+  try {
+    var _MON_EN = ['Month','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var _MON_TH = ['เดือน','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    var _mo = document.getElementById('heroMonth');
+    if (_mo) for (var i = 0; i < _mo.options.length && i < 13; i++)
+      _mo.options[i].textContent = isTh ? _MON_TH[i] : _MON_EN[i];
+    // 2534 is 1991 in the Buddhist era. Thai readers type พ.ศ. out of habit and
+    // entryHeroGo() accepts either (>2400 reads as B.E.), so the placeholder is
+    // only ever a hint — but hinting a B.E. year to an English reader is noise.
+    var _yr = document.getElementById('heroYear');
+    if (_yr) _yr.placeholder = isTh ? '2534' : '1991';
+  } catch(_){}
   // Reflect the active language on the draw-first hero toggle.
   try {
     var _lt = document.getElementById('entryHeroLangTh'), _le = document.getElementById('entryHeroLangEn');
@@ -3516,6 +3635,22 @@ function applyLang(){
     if (typeof setGroup === 'function' && typeof CUR_GROUP === 'string') setGroup(CUR_GROUP);
     if (typeof showSubTab === 'function' && typeof CUR_SUB === 'string') showSubTab(CUR_SUB);
   } catch(_){}
+  // The city card is built with a LANG ternary like the panels above, so it
+  // froze in Thai when an English reader pressed EN — on the entry screen,
+  // which is the one screen an English reader is guaranteed to see.
+  // Step two of the entry form has its own refresher, _entryRefreshLang(), which
+  // already covers every label, placeholder and <select> in it. It was only ever
+  // called from the form's own language control — so pressing 🇬🇧 EN in the hero
+  // left the whole birth form in Thai, and an English reader who filled the hero
+  // walked straight into it.
+  // _entryRefreshLang() reads _entryLang, the overlay's own capture of the
+  // choice — not LANG. It happens to be in sync today because _refreshEntryHero
+  // runs first, but nothing enforces that order, so sync it here explicitly.
+  try {
+    if (typeof _entryLang !== 'undefined') _entryLang = (LANG === 'th') ? 'th' : 'en';
+    if (typeof _entryRefreshLang === 'function') _entryRefreshLang();
+  } catch(_){}
+  try { if (typeof _entryFillCity === 'function') _entryFillCity(); } catch(_){}
 }
 function renderDate(){const d=new Date();document.getElementById('dateDisplay').textContent=d.toLocaleDateString(LANG==='th'?'th-TH':'en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
 // ════════════════════════════════════════
@@ -4249,7 +4384,15 @@ const _msAnalytics = (function(){
       fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:data,keepalive:true}).catch(()=>{});
     } catch(_){}
   }
-  function row(extra){ return Object.assign({ sid, lang:(typeof LANG!=='undefined'?LANG:''), device:device(), path:location.pathname, ref:srcRef() }, extra||{}); }
+  // Every event carries the internal flag, not just the session-end one. It used
+  // to ride only on 'session', so a test tab closed hard left its birth_submit
+  // and paywall_view in the data with nothing marking them as ours — and the
+  // dashboard counted them as strangers.
+  function row(extra){
+    const out = Object.assign({ sid, lang:(typeof LANG!=='undefined'?LANG:''), device:device(), path:location.pathname, ref:srcRef() }, extra||{});
+    if (internal) out.meta = Object.assign({}, out.meta, { internal:true });
+    return out;
+  }
   function track(event, extra){ post(row(Object.assign({event}, extra||{}))); }   // immediate beacon (rare/intent moments)
   function sessionEnd(){ if(s.sent)return; accrue(); s.sent=true; try{flushErrs();}catch(_){} track('session', { active_ms:s.activeMs, draws:s.draws, ref:srcRef(), meta:{rare:s.rare,paywall:s.paywall,interacted:s.interacted,scrolled:s.scrolled,returning:s.returning,utm:utm,internal:internal} }); }
   // visibilitychange→hidden is the most reliable "leaving" signal (incl. mobile
@@ -17412,6 +17555,46 @@ function _entryRefreshLang(){
   if (skipBtn) skipBtn.textContent = isTh
     ? 'ข้ามไปก่อน — ลองดู Tab ต่างๆ โดยไม่ต้องกรอกข้อมูล'
     : 'Skip for now — explore tabs without entering data';
+  // ── The parts this function used to skip ──────────────────────────────────
+  // Everything above is a label. The <option> lists, the era hint and the
+  // consent line were left in Thai, so the English form still asked for a
+  // "พ.ศ." year from readers who have never met the Buddhist era.
+  const MON_TH = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const MON_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const monSel = document.getElementById('entryMonth');
+  if (monSel && monSel.tagName === 'SELECT') {
+    for (let i = 0; i < monSel.options.length; i++) {
+      const v = parseInt(monSel.options[i].value, 10);
+      if (v >= 1 && v <= 12) monSel.options[i].textContent = isTh ? MON_TH[v - 1] : MON_EN[v - 1];
+    }
+  }
+  // The era selector stays available in English — a Thai speaker reading the
+  // English page still has a พ.ศ. birth certificate — but it says which is which.
+  const eraSel = document.getElementById('entryEra');
+  if (eraSel) for (let i = 0; i < eraSel.options.length; i++) {
+    const v = eraSel.options[i].value;
+    if (v === 'be') eraSel.options[i].textContent = isTh ? 'พ.ศ.' : 'B.E. (Thai)';
+    else if (v === 'ce') eraSel.options[i].textContent = isTh ? 'ค.ศ.' : 'A.D.';
+  }
+  const eraHint = document.getElementById('entryEraHint');
+  if (eraHint) eraHint.innerHTML = isTh
+    ? 'พ.ศ. = ค.ศ. + 543 &nbsp;·&nbsp; เช่น ปี 2548 พ.ศ. = 2005 ค.ศ.'
+    : 'Thailand counts years in the Buddhist era &nbsp;·&nbsp; B.E. = A.D. + 543, so 2548 B.E. is 2005 A.D.';
+  const moreTog = document.getElementById('entryMoreToggle');
+  if (moreTog) moreTog.textContent = isTh
+    ? '✦ เวลา · เพศ · เมืองเกิด (ไม่บังคับ · กดเพิ่ม)'
+    : '✦ Birth time · gender · city (optional · tap to add)';
+  const dobEdit = document.getElementById('entryDobEditBtn');
+  if (dobEdit) dobEdit.textContent = isTh ? 'แก้ไข' : 'Edit';
+  // The "Born 3 Feb 1991" confirmation already writes both languages, but only
+  // at the moment the hero hands the date over. Switching language afterwards
+  // left the sentence frozen — and it is the one line on the form that repeats
+  // the reader's own answer back to them.
+  try {
+    var _dc = document.getElementById('entryDobConfirm');
+    if (_dc && getComputedStyle(_dc).display !== 'none') _entryConfirmDob();
+  } catch(_){}
+  try { _entryRefreshGender(document.getElementById('entryGender') ? document.getElementById('entryGender').value : ''); } catch(_){}
 }
 
 function _entryRefreshGender(currentValue){

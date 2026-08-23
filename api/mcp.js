@@ -174,7 +174,7 @@ const ENGINE_INFO = {
     deep_reading_one_time: '$9 per system', full_report_one_time: '$19 (in-depth PDF, all 26 systems)',
     subscription: '$8.99/month',
   },
-  mcp_repo: 'https://github.com/PattrickChenforclaudeuse/mythsensus-mcp',
+  mcp_repo: 'https://www.npmjs.com/package/mythsensus-mcp',
   npm_package: 'mythsensus-mcp', http_endpoint: 'https://mythsensus.com/mcp',
 };
 
