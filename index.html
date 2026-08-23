@@ -118,6 +118,10 @@ header{text-align:center;padding:28px 20px 0;position:relative;}
 /* Mobile keyboard fix (Lina 6/7): hide lang-pill when viewport collapses to
    keyboard-open height — prevents it from overlapping the entry-form CTA. */
 @media (max-height: 520px) { .lang-pill { display: none } }
+/* The entry overlay has its own language buttons; the floating pill would be
+   a second control for the same setting, and on a narrow screen it lands on
+   top of the day-facts row (measured: it covered 庚午 · ธาตุโลหะ·ม้า · มกร). */
+body.entry-open .lang-pill { display: none }
 /* ── Tagline sub-explainer (anchors "Cosmic Score" tagline with a 1-line
    definition + inline link to /cosmic-score so first-timers don't bounce
    wondering what the score is). ── */
@@ -1568,7 +1572,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <!-- one line that says what we do about it — the promise is the MAP of
            agreement and disagreement, not a verdict. Promising "the consensus"
            would be a promise we cannot keep: most charts split. -->
-      <div style="text-align:center;margin:0 0 20px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--muted);line-height:1.7" data-eh="hooksub">เราถาม 26 ศาสตร์พร้อมกัน แต่<strong style="color:var(--text)">เฉพาะศาสตร์ที่มีวิชาทำนายช่วงเวลาจริงถึงจะให้คะแนนได้</strong> ให้คะแนนเต็ม 5 แยกทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร</div>
+      <div style="text-align:center;margin:0 0 20px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--muted);line-height:1.7;text-wrap:pretty" data-eh="hooksub">เราถาม 26 ศาสตร์พร้อมกัน แต่เฉพาะศาสตร์ที่<strong style="color:var(--text);white-space:nowrap">มีวิชาทำนายช่วงเวลาจริง</strong>ถึงจะให้คะแนนได้ · เต็ม 5 แยกทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร</div>
       <!-- The city's own chart — a real reading, computed by the same engine,
            before anyone is asked for a birth date. Filled by _entryFillCity()
            after first paint; stays empty (and hidden) for cities with no
@@ -1592,8 +1596,8 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         </select>
         <input class="login-input" type="number" id="heroYear" min="1900" max="2026" placeholder="2534" style="font-family:inherit;font-size:16px;text-align:center">
       </div>
-      <button class="login-confirm-btn" onclick="entryHeroGo()" style="font-size:18px;padding:16px 20px;letter-spacing:.5px" data-eh="cta">✦ ให้คะแนน 4 สัปดาห์ของฉัน · ฟรี</button>
-      <button onclick="entryDrawFirst()" data-eh="draw2" style="width:100%;margin-top:10px;padding:14px 20px;font-size:15px;letter-spacing:.3px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.08);color:var(--gold);border-radius:8px;font-family:'Cormorant Garamond','Sarabun',serif">🙏 รับพรวันนี้ · ฟรี</button>
+      <button class="login-confirm-btn" onclick="entryHeroGo()" style="font-size:17px;padding:16px 14px;letter-spacing:.3px;text-wrap:balance" data-eh="cta">✦ ขอคะแนน 4 สัปดาห์ · ฟรี</button>
+      <button onclick="entryDrawFirst()" data-eh="draw2" style="width:100%;margin-top:10px;padding:14px 20px;font-size:15px;letter-spacing:.3px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.08);color:var(--gold);border-radius:8px;font-family:'Cormorant Garamond','Sarabun',serif">🙏 รับพรวันนี้ก่อนก็ได้</button>
       <!-- A real reading, computed live, before we ask for anything. Every
            site in this market that converts shows the product first; ours
            showed nothing until you handed over a birth date. The numbers are
@@ -3722,11 +3726,11 @@ function _refreshEntryHero(){
     tagline:  { th:'ดวงคุณ จาก 26 ศาสตร์ทั่วโลก พร้อมกัน', en:'Your chart, read by 26 world traditions at once' },
     hook2:    { th:'4 สัปดาห์ข้างหน้า จะเป็นยังไง<br><strong style="color:var(--gold)">การงาน · การเงิน · ความรัก · สุขภาพ</strong>', en:'What the next four weeks hold<br><strong style="color:var(--gold)">Work · Wealth · Relationship · Health</strong>' },
     doblabel: { th:'ใส่วันเกิด แล้วดูของคุณเอง', en:'Enter your birth date to see yours' },
-    cta:      { th:'✦ ให้คะแนน 4 สัปดาห์ของฉัน · ฟรี', en:'✦ Score my next four weeks · Free' },
+    cta:      { th:'✦ ขอคะแนน 4 สัปดาห์ · ฟรี', en:'✦ Score my four weeks · Free' },
     drawalt:  { th:'หรือรับพรจากเทพประจำวันก่อน →', en:'or receive today’s blessing first →' },
     compare:  { th:'💑 เทียบดวงกับใครสักคน · แค่ 2 วันเกิด', en:'💑 Compare with someone · just 2 birth dates' },
-    hooksub:  { th:'เราถาม 26 ศาสตร์พร้อมกัน แต่<strong style="color:var(--text)">เฉพาะศาสตร์ที่มีวิชาทำนายช่วงเวลาจริงถึงจะให้คะแนนได้</strong> ให้คะแนนเต็ม 5 แยกทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร', en:'We ask all 26 traditions, but <strong style="color:var(--text)">only the ones with a real timing technique get to score you</strong> — out of 5, area by area. The rest abstain, and we name them and say why.' },
-    draw2:    { th:'🙏 รับพรวันนี้ · ฟรี', en:'🙏 Draw today’s blessing · Free' },
+    hooksub:  { th:'เราถาม 26 ศาสตร์พร้อมกัน แต่เฉพาะศาสตร์ที่<strong style="color:var(--text);white-space:nowrap">มีวิชาทำนายช่วงเวลาจริง</strong>ถึงจะให้คะแนนได้ · เต็ม 5 แยกทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร', en:'We ask all 26 traditions, but only the ones with a <strong style="color:var(--text)">real timing technique</strong> get to score you — out of 5, area by area. The rest abstain, and we name them and say why.' },
+    draw2:    { th:'🙏 รับพรวันนี้ก่อนก็ได้', en:'🙏 Or draw today’s blessing' },
     alt:      { th:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">เทียบดวงสองคน</button>', en:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">Compare two charts</button>' },
     signin:   { th:'มีบัญชีแล้ว? ' + sgn + 'ลงชื่อเข้าใช้ →</button>', en:'Already have an account? ' + sgn + 'Sign in →</button>' }
   };
@@ -17479,6 +17483,22 @@ function _bootAfterEntry(){
 // Replaces the old optional onboarding + login modal. Shown on every visit.
 // Returning users with saved profile see a one-tap "Use saved" pill.
 let _entryLang = 'th';      // captured choice; commits to global LANG on accept
+
+// Eight different places show or hide the entry overlay, and a ninth will be
+// added eventually. Rather than have each one remember to flip a body class,
+// watch the element and mirror its state — new call sites get it for free.
+(function _watchEntryOpen(){
+  try {
+    var ov = document.getElementById('entryOverlay');
+    if (!ov || !window.MutationObserver) return;
+    var sync = function(){
+      var open = getComputedStyle(ov).display !== 'none';
+      document.body.classList.toggle('entry-open', open);
+    };
+    new MutationObserver(sync).observe(ov, { attributes: true, attributeFilter: ['style', 'class'] });
+    sync();
+  } catch(_) {}
+})();
 
 function showEntryOverlay(){
   const ov = document.getElementById('entryOverlay');
