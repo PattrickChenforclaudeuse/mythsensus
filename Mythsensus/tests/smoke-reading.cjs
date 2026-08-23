@@ -148,9 +148,9 @@ const problems = [];
     return { active: !!(p && p.classList.contains('active')),
              chars: txt.length,
              // A forecast of nothing is the failure mode this product has to
-             // avoid: if every domain reads exactly 5.0 the page is technically
+             // avoid: if every domain reads the same, the page is technically
              // rendering and telling the reader nothing.
-             scores: (txt.match(/(\d+(?:\.\d)?)\/10/g) || []).slice(0, 8),
+             scores: (txt.match(/[1-5]\/5/g) || []).slice(0, 8),
              entryViewFired: !!window._entryShownTracked };
   });
   if (shown.active && shown.scores.length < 4) {

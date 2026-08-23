@@ -7440,7 +7440,7 @@ const _GUMROAD_PRODUCTS = {
   product:     { url: 'https://garsell.gumroad.com/l/howzdo?wanted=true', permalink: 'howzdo' }, // $5
   compat:      { url: 'https://garsell.gumroad.com/l/mdjeln?wanted=true', permalink: 'mdjeln' }, // $9
   pilgrimage:  { url: '', permalink: '' }, // $9 — TODO: create Gumroad product, falls back to subscription for now
-  forecast12:  { url: '', permalink: '' }, // 12-month forecast map — TODO: create Gumroad product; falls back to membership until then
+  forecast12:  { url: 'https://garsell.gumroad.com/l/utisor?wanted=true', permalink: 'utisor' }, //  — live 2026-08-23
   full_report: { url: 'https://garsell.gumroad.com/l/mbkayz?wanted=true', permalink: 'mbkayz' }, // $19
 };
 
@@ -10221,13 +10221,13 @@ const _FC_BAND_STYLE = {
 };
 
 function _fcScoreColor(s) {
-  return s >= 6.5 ? '#6fb650' : s <= 3.5 ? '#d08a6a' : '#c8a840';
+  return s >= 4 ? '#6fb650' : s <= 2 ? '#d08a6a' : '#c8a840';
 }
 
 // A 0-10 bar. Deliberately not a percentage: the number means "against your own
 // year", and a bar reads that way where a percent sign would not.
 function _fcBar(score) {
-  const pct = Math.max(2, Math.min(100, score * 10));
+  const pct = Math.max(2, Math.min(100, score * 20));
   return `<div style="height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;margin:7px 0 8px">
     <div style="height:100%;width:${pct}%;background:${_fcScoreColor(score)};border-radius:3px"></div></div>`;
 }
@@ -10238,7 +10238,7 @@ function _fcVoteRows(v, isTh) {
     return `<div style="padding:9px 0;border-top:1px solid rgba(255,255,255,.05)">
       <div style="display:flex;align-items:baseline;gap:8px;justify-content:space-between">
         <span style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--text)">${_fcEsc(isTh ? o.sysTh : o.sysEn)}</span>
-        <span style="font-family:'Cinzel Decorative',serif;font-size:13px;color:${_fcScoreColor(o.score10)};white-space:nowrap">${o.score10}<span style="font-size:9px;color:var(--muted)">/10</span> · ${_fcEsc(isTh ? B.th : B.en)}</span>
+        <span style="font-family:'Cinzel Decorative',serif;font-size:13px;color:${_fcScoreColor(o.score)};white-space:nowrap">${o.score}<span style="font-size:9px;color:var(--muted)">/5</span> · ${_fcEsc(isTh ? MS26.FORECAST_TIERS[o.score].th : MS26.FORECAST_TIERS[o.score].en)}</span>
       </div>
       <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--gold2);line-height:1.55;margin-top:3px">${_fcEsc(isTh ? o.noteTh : o.noteEn)}</div>
       <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:.3px;color:var(--muted);line-height:1.5;margin-top:2px">${isTh ? 'ตำรา' : 'technique'}: ${_fcEsc(isTh ? o.doctrineTh : o.doctrineEn)}</div>
@@ -10257,7 +10257,7 @@ function _fcVoteRows(v, isTh) {
 function _fcConclusion(v, isTh, lab, A) {
   if (!v.votes.length) return '';
   const advice = A[v.advice];
-  const byScore = v.votes.slice().sort((p, q) => q.score10 - p.score10);
+  const byScore = v.votes.slice().sort((p, q) => q.score - p.score);
   const best = byScore[0];
   const worst = byScore[byScore.length - 1];
 
@@ -10265,7 +10265,7 @@ function _fcConclusion(v, isTh, lab, A) {
     <div style="display:flex;gap:7px;align-items:baseline;margin-top:7px">
       <span style="color:${color};flex-shrink:0;font-size:11px;line-height:1.6">${mark}</span>
       <span><span style="color:var(--muted)">${label}</span> <strong>${_fcEsc(sys)}</strong>
-      <span style="color:${color}">${score}/10</span> — ${_fcEsc(tip)}</span>
+      <span style="color:${color}">${score}/5</span> — ${_fcEsc(tip)}</span>
     </div>`;
 
   let html = `<div style="display:flex;gap:7px;align-items:baseline">
@@ -10277,12 +10277,12 @@ function _fcConclusion(v, isTh, lab, A) {
   // With a single voter the two rows would name the same system twice.
   if (best) {
     html += row('▲', '#6fb650', isTh ? 'ให้สูงสุด' : 'highest',
-                isTh ? best.sysTh : best.sysEn, best.score10,
+                isTh ? best.sysTh : best.sysEn, best.score,
                 isTh ? A[best.advice].th : A[best.advice].en);
   }
   if (worst && worst !== best) {
     html += row('▼', '#d08a6a', isTh ? 'ให้ต่ำสุด' : 'lowest',
-                isTh ? worst.sysTh : worst.sysEn, worst.score10,
+                isTh ? worst.sysTh : worst.sysEn, worst.score,
                 isTh ? A[worst.advice].th : A[worst.advice].en);
   }
   return html;
@@ -10300,11 +10300,11 @@ function _fcDomainCard(v, isTh, L, A) {
     <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
       <span style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:15px;color:var(--text)">${lab.icon} ${_fcEsc(isTh ? lab.th : lab.en)}</span>
       <span style="white-space:nowrap">
-        <span style="font-family:'Cinzel Decorative',serif;font-size:21px;color:${_fcScoreColor(v.score10)};font-weight:600">${v.score10}</span><span style="font-size:11px;color:var(--muted)">/10</span>
-        <span style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:1px;color:${B.color};background:${B.bg};border:1px solid ${B.color}55;padding:2px 8px;border-radius:10px;margin-left:6px">${_fcEsc(isTh ? B.th : B.en)}</span>
+        <span style="font-family:'Cinzel Decorative',serif;font-size:21px;color:${_fcScoreColor(v.score)};font-weight:600">${v.score}</span><span style="font-size:11px;color:var(--muted)">/5</span>
+        <span style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:11.5px;color:${B.color};background:${B.bg};border:1px solid ${B.color}55;padding:2px 9px;border-radius:10px;margin-left:6px">${_fcEsc(isTh ? MS26.FORECAST_TIERS[v.score].th : MS26.FORECAST_TIERS[v.score].en)}</span>
       </span>
     </div>
-    ${_fcBar(v.score10)}
+    ${_fcBar(v.score)}
     <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:.6px;color:var(--muted)">
       ${isTh ? 'ดี' : 'good'} ${v.up} · ${isTh ? 'กลาง' : 'even'} ${v.mid} · ${isTh ? 'ระวัง' : 'careful'} ${v.down}
       &nbsp;·&nbsp; ${v.n} ${isTh ? 'ศาสตร์' : 'systems'} · ${isTh ? 'ตรงกัน' : 'agree'} ${v.agreement}%${splitNote}
@@ -10349,12 +10349,12 @@ function renderForecast() {
   // all eight would headline a locked domain, which is an upsell wearing a
   // reading’s clothes.
   const rankIn = function (period) {
-    const r = domains.slice().sort((a, b) => period.domains[b].score10 - period.domains[a].score10);
+    const r = domains.slice().sort((a, b) => period.domains[b].score - period.domains[a].score);
     return { best: r[0], worst: r[r.length - 1] };
   };
   const R = rankIn(P);
   _FC_FOCUS = { worst: R.worst, best: R.best,
-                worstScore: P.domains[R.worst].score10, bestScore: P.domains[R.best].score10 };
+                worstScore: P.domains[R.worst].score, bestScore: P.domains[R.best].score };
 
   // ── header: what this screen is, and on what authority ──────────────────
   const head = `
@@ -10384,7 +10384,7 @@ function renderForecast() {
         const pb = rankIn(p).best;
         return `<button onclick="_fcPick(${i})" style="text-align:center;padding:8px 3px;border-radius:6px;cursor:pointer;${on ? 'border:2px solid var(--gold);background:rgba(212,175,55,.18)' : 'border:1px solid var(--border);background:rgba(0,0,0,.18)'}">
           <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:.4px;color:${on ? 'var(--gold)' : 'var(--muted)'};line-height:1.4">${_fcEsc((isTh ? p.labelTh : p.labelEn).split('·')[0].trim())}</div>
-          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:${_fcScoreColor(p.domains[pb].score10)};margin-top:3px">${L[pb].icon}</div>
+          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:${_fcScoreColor(p.domains[pb].score)};margin-top:3px">${L[pb].icon}</div>
         </button>`;
       }).join('')}
     </div>`;
@@ -10394,8 +10394,8 @@ function renderForecast() {
   const summary = `
     <div style="text-align:center;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--text);line-height:1.8;margin-bottom:12px">
       <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">${_fcEsc(isTh ? P.labelTh : P.labelEn)}</div>
-      ${isTh ? 'เด่นสุด' : 'strongest'} <strong style="color:#6fb650">${L[R.best].icon} ${_fcEsc(isTh ? L[R.best].th : L[R.best].en)} ${bestV.score10}</strong>
-      &nbsp;·&nbsp; ${isTh ? 'ต้องระวัง' : 'watch'} <strong style="color:#d08a6a">${L[R.worst].icon} ${_fcEsc(isTh ? L[R.worst].th : L[R.worst].en)} ${worstV.score10}</strong>
+      ${isTh ? 'เด่นสุด' : 'strongest'} <strong style="color:#6fb650">${L[R.best].icon} ${_fcEsc(isTh ? L[R.best].th : L[R.best].en)} ${bestV.score}<span style="font-size:10px;color:var(--muted)">/5</span></strong>
+      &nbsp;·&nbsp; ${isTh ? 'ต้องระวัง' : 'watch'} <strong style="color:#d08a6a">${L[R.worst].icon} ${_fcEsc(isTh ? L[R.worst].th : L[R.worst].en)} ${worstV.score}<span style="font-size:10px;color:var(--muted)">/5</span></strong>
     </div>`;
 
   const cards = domains.map(d => _fcDomainCard(P.domains[d], isTh, L, A)).join('');
@@ -10475,8 +10475,8 @@ function renderForecast() {
   const scale = `
     <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:11.5px;color:var(--muted);line-height:1.7;text-align:center;margin-bottom:14px">
       ${isTh
-        ? ('คะแนนเทียบกับ<strong style="color:var(--gold3)">ปีของคุณเอง</strong> — 5 คือ' + (_FC_MODE === 'month' ? 'เดือนธรรมดา 8 ขึ้นไปคือหนึ่งในเดือนที่ดีที่สุดของปี' : 'สัปดาห์ธรรมดา 8 ขึ้นไปคือหนึ่งในสัปดาห์ที่ดีที่สุดของปี') + ' ไม่ได้เทียบกับคนอื่น')
-        : ('Scored against <strong style="color:var(--gold3)">your own year</strong> — 5 is an ordinary ' + (_FC_MODE === 'month' ? 'month' : 'week') + ', 8+ is one of your best. Never against other people.')}
+        ? ('1–5 เทียบกับ<strong style="color:var(--gold3)">ปีของคุณเอง</strong> — 3 คือ' + (_FC_MODE === 'month' ? 'เดือน' : 'สัปดาห์') + 'ธรรมดาของคุณ · 5 กับ 1 เจอปีละไม่กี่ครั้ง ไม่ได้เทียบกับคนอื่น')
+        : ('1–5 against <strong style="color:var(--gold3)">your own year</strong> — 3 is an ordinary ' + (_FC_MODE === 'month' ? 'month' : 'week') + '; 5 and 1 land only a few times a year. Never against other people.')}
     </div>`;
 
   // ── the blessing hand-off ──────────────────────────────────────────────
@@ -10520,7 +10520,7 @@ function _fcShareBlob(period, isTh) {
 
   // Most notable = furthest from the ordinary middle, whichever way it leans.
   const ranked = doms.slice().sort((a, b) =>
-    Math.abs(period.domains[b].score10 - 5) - Math.abs(period.domains[a].score10 - 5));
+    Math.abs(period.domains[b].score - 3) - Math.abs(period.domains[a].score - 3));
   const star = period.domains[ranked[0]];
   const rest = ranked.slice(1, 4).map(k => period.domains[k]);
 
@@ -10530,7 +10530,7 @@ function _fcShareBlob(period, isTh) {
   const x = cv.getContext('2d');
 
   const gold = '#c8a45a', gold2 = '#e8c87a', muted = '#9a8a72', ink = '#e6e2d8';
-  const tone = star.score10 >= 6.5 ? '#6fb650' : star.score10 <= 3.5 ? '#d08a6a' : '#c8a840';
+  const tone = star.score >= 4 ? '#6fb650' : star.score <= 2 ? '#d08a6a' : '#c8a840';
   const th = (px, w) => `${w || 400} ${px}px Sarabun, "Cormorant Garamond", system-ui, sans-serif`;
   const label = (px) => `600 ${px}px "Josefin Sans", Sarabun, system-ui, sans-serif`;
 
@@ -10559,7 +10559,7 @@ function _fcShareBlob(period, isTh) {
 
   x.fillStyle = tone;
   x.font = `700 260px "Cinzel Decorative", Georgia, serif`;
-  x.fillText(String(star.score10), W / 2, 860);
+  x.fillText(String(star.score), W / 2, 860);
   x.fillStyle = muted; x.font = th(46);
   x.fillText('/ 10', W / 2, 930);
 
@@ -10584,13 +10584,13 @@ function _fcShareBlob(period, isTh) {
   let y = 1360;
   x.font = th(38);
   for (const v of rest) {
-    const c = v.score10 >= 6.5 ? '#6fb650' : v.score10 <= 3.5 ? '#d08a6a' : '#c8a840';
+    const c = v.score >= 4 ? '#6fb650' : v.score <= 2 ? '#d08a6a' : '#c8a840';
     x.textAlign = 'left';
     x.fillStyle = muted;
     x.fillText(L[v.domain].icon + '  ' + (isTh ? L[v.domain].th : L[v.domain].en), 190, y);
     x.textAlign = 'right';
     x.fillStyle = c;
-    x.fillText(String(v.score10), W - 190, y);
+    x.fillText(String(v.score), W - 190, y);
     x.textAlign = 'center';
     x.strokeStyle = 'rgba(200,164,90,.14)'; x.lineWidth = 2;
     x.beginPath(); x.moveTo(190, y + 26); x.lineTo(W - 190, y + 26); x.stroke();
@@ -10598,7 +10598,7 @@ function _fcShareBlob(period, isTh) {
   }
 
   x.fillStyle = muted; x.font = th(34);
-  x.fillText(isTh ? 'คะแนนเทียบกับปีของตัวเอง — 5 คือสัปดาห์ธรรมดา' : 'Scored against your own year — 5 is an ordinary week', W / 2, 1700);
+  x.fillText(isTh ? '1–5 เทียบกับปีของตัวเอง — 3 คือสัปดาห์ธรรมดา' : '1–5 against your own year — 3 is an ordinary week', W / 2, 1700);
   x.fillStyle = gold; x.font = label(38);
   x.fillText('mythsensus.com', W / 2, 1790);
 
@@ -10614,7 +10614,7 @@ async function _fcShare() {
     const P = periods[_FC_WEEK] || periods[0];
     const doms = _fcCanSeeAllDomains() ? MS26.FORECAST_DOMAINS_ALL : MS26.FORECAST_DOMAINS_FREE;
     const star = doms.slice().sort((a, b) =>
-      Math.abs(P.domains[b].score10 - 5) - Math.abs(P.domains[a].score10 - 5))[0];
+      Math.abs(P.domains[b].score - 3) - Math.abs(P.domains[a].score - 3))[0];
     const v = P.domains[star];
     const L = MS26.FORECAST_DOMAIN_LABELS;
 
@@ -10624,8 +10624,8 @@ async function _fcShare() {
 
     const blob = await _fcShareBlob(P, isTh);
     const text = isTh
-      ? `${L[star].icon} ${L[star].th} ${v.score10}/10 — ${v.adviceAgree} จาก ${v.n} ศาสตร์เห็นตรงกัน · ดูของคุณเองได้ที่`
-      : `${L[star].icon} ${L[star].en} ${v.score10}/10 — ${v.adviceAgree} of ${v.n} traditions agree · see yours at`;
+      ? `${L[star].icon} ${L[star].th} ${v.score}/5 — ${v.adviceAgree} จาก ${v.n} ศาสตร์เห็นตรงกัน · ดูของคุณเองได้ที่`
+      : `${L[star].icon} ${L[star].en} ${v.score}/5 — ${v.adviceAgree} of ${v.n} traditions agree · see yours at`;
     // Bare homepage on purpose: the forecast is derived from a birth date, and
     // nothing derived from one may ride in a URL.
     const url = 'https://mythsensus.com/';
@@ -10691,18 +10691,18 @@ function _fcBlessingMatch(god) {
     if (hit(f.worst)) {
       return `<div style="margin-top:10px;padding:9px 12px;border-radius:6px;background:rgba(208,138,106,.10);border-left:2px solid #d08a6a;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--text);line-height:1.65">
         ${isTh
-          ? `องค์นี้ดูแลเรื่อง<strong style="color:var(--gold)">${_fcEsc(L[f.worst].th)}</strong> — ซึ่งเป็นด้านที่ศาสตร์ส่วนใหญ่บอกให้คุณระวังช่วงนี้ (${f.worstScore}/10)`
-          : `This one governs <strong style="color:var(--gold)">${_fcEsc(L[f.worst].en)}</strong> — the very area the systems flagged for care right now (${f.worstScore}/10)`}
+          ? `องค์นี้ดูแลเรื่อง<strong style="color:var(--gold)">${_fcEsc(L[f.worst].th)}</strong> — ซึ่งเป็นด้านที่ศาสตร์ส่วนใหญ่บอกให้คุณระวังช่วงนี้ (${f.worstScore}/5)`
+          : `This one governs <strong style="color:var(--gold)">${_fcEsc(L[f.worst].en)}</strong> — the very area the systems flagged for care right now (${f.worstScore}/5)`}
       </div>`;
     }
     // Only celebrate the strong side when there IS a strong side. Calling a
-    // 4.1/10 domain the reader's "strongest area" is technically true and reads
+    // 4.1/5 domain the reader's "strongest area" is technically true and reads
     // as flattery, which is the thing this product is trying not to be.
-    if (f.bestScore >= 6 && hit(f.best)) {
+    if (f.bestScore >= 4 && hit(f.best)) {
       return `<div style="margin-top:10px;padding:9px 12px;border-radius:6px;background:rgba(111,182,80,.10);border-left:2px solid #6fb650;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--text);line-height:1.65">
         ${isTh
-          ? `องค์นี้ดูแลเรื่อง<strong style="color:var(--gold)">${_fcEsc(L[f.best].th)}</strong> — ด้านที่แรงที่สุดของคุณช่วงนี้พอดี (${f.bestScore}/10)`
-          : `This one governs <strong style="color:var(--gold)">${_fcEsc(L[f.best].en)}</strong> — your strongest area right now (${f.bestScore}/10)`}
+          ? `องค์นี้ดูแลเรื่อง<strong style="color:var(--gold)">${_fcEsc(L[f.best].th)}</strong> — ด้านที่แรงที่สุดของคุณช่วงนี้พอดี (${f.bestScore}/5)`
+          : `This one governs <strong style="color:var(--gold)">${_fcEsc(L[f.best].en)}</strong> — your strongest area right now (${f.bestScore}/5)`}
       </div>`;
     }
     return '';

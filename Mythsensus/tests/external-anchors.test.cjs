@@ -142,18 +142,32 @@ console.log('— forecast path: same anchors, second code path —');
   // This is the failure the first build actually shipped with: averaging
   // washed every domain to the middle and every week read the same.
   const fc = calcForecast(c, new Date(2026, 7, 23), { weeks: 6, months: 0 });
-  const career = fc.weeks.map(w => w.domains.career.score10);
+  const career = fc.weeks.map(w => w.domains.career.score);
   const spread = Math.max.apply(null, career) - Math.min.apply(null, career);
-  check('forecast moves week to week (career spread ≥ 1.0)', spread >= 1.0, true,
+  check('forecast moves week to week (career spread ≥ 1 band)', spread >= 1, true,
         'a forecast whose weeks are identical is telling nobody anything');
 
-  // Two different birthdays must not receive the same reading.
+  // Two different birthdays must not receive the same reading. Compared over
+  // four weeks rather than one: the scale is five whole numbers, so any single
+  // week two strangers share a value is unremarkable — the old version demanded
+  // 3 of 4 domains differ in ONE week, which chance alone fails about a third
+  // of the time. Across sixteen cells, agreement everywhere would mean the
+  // forecast is not reading the chart at all.
   const other = chart({ year: 1978, month: 11, day: 19, hour: 14, minute: 30 });
-  const fcB = calcForecast(other, new Date(2026, 7, 23), { weeks: 1, months: 0 });
-  const differs = ['career', 'money', 'love', 'health']
-    .filter(d => fc.weeks[0].domains[d].score10 !== fcB.weeks[0].domains[d].score10).length;
-  check('two charts get different forecasts', differs >= 3, true,
-        'per-chart doctrine, not a shared calendar');
+  const fcB = calcForecast(other, new Date(2026, 7, 23), { weeks: 4, months: 0 });
+  let cells = 0, differs = 0;
+  for (let w = 0; w < 4; w++) {
+    for (const d of ['career', 'money', 'love', 'health']) {
+      cells++;
+      if (fc.weeks[w].domains[d].score !== fcB.weeks[w].domains[d].score) differs++;
+    }
+  }
+  // Threshold set from measurement, not taste: across 276 random chart pairs
+  // the cells differ 75% of the time at the median and never below 38%, so a
+  // quarter is comfortably under the floor while still catching a forecast that
+  // has stopped reading the chart (which would sit near zero).
+  check('two charts get different forecasts', differs >= cells * 0.25, true,
+        'per-chart doctrine, not a shared calendar (got ' + differs + '/' + cells + ' cells differing)');
 
   // Every voting system must name the technique it voted with. This is the
   // guard against the Compatibility failure of 2026-08-21, where systems were

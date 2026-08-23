@@ -77,6 +77,7 @@ const bundle = [
   '    FORECAST_DOMAINS_ALL: FORECAST_DOMAINS_ALL,',
   '    FORECAST_DOMAIN_LABELS: FORECAST_DOMAIN_LABELS,',
   '    FORECAST_ADVICE: FORECAST_ADVICE,',
+  '    FORECAST_TIERS: FORECAST_TIERS,',
   '  };',
   '})(typeof window !== "undefined" ? window : globalThis);',
   '',
