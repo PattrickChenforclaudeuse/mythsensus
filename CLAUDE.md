@@ -107,21 +107,37 @@ do not trust this table's Status column blind (Rule #0).
 
 | Product | Price | Type | `_GUMROAD_PRODUCTS` key | Permalink | Status (as of 2026-06-16) |
 |---|---:|---|---|---|---|
-| Mythsensus Subscription | $8.99/mo · $89.99/yr | Subscription | (subscribe url) | `tlkfx` | published (tiered membership; price changes via dashboard only — API can't update membership tier price, confirmed 2026-06-01) |
+| Mythsensus Subscription | $8.99/mo · $89.99/yr | Subscription | (subscribe url) | `tlkfx` | published · **tier price is DASHBOARD-ONLY** (see trap below) |
+
+> ⚠️ **Membership price cannot be changed by API — and the API lies about it (verified 2026-07-31).**
+> `PUT /v2/products/tlkfx` with `price=` at least fails honestly:
+> *"Price cannot be updated for tiered membership products. Use the variant endpoints."*
+> But the variant endpoint it points you to —
+> `PUT /v2/products/tlkfx/variant_categories/<cat>/variants/<var>` with `recurrence_price_values[monthly][price_cents]` —
+> returns **`success: true` while echoing the OLD price back**, and a re-fetch confirms nothing changed.
+> Never report a membership price change as done off the response; always re-read the product.
+> (Same class as the `digested=true` / n8n `success` traps in the workspace TIMELINE.)
+> ids for reference: category `wPxEXUz8UyRfJmbiNTJX8A==` · variant `v7fYvtT3WWlo7MhJlAfpcQ==`
 | Deep Reading (any system) | $9 | One-time | `deep` | `oziji` | 🟢 published |
 | Divine Mirror | $9 | One-time | `mirror` | `luqkbx` | 🟢 published |
-| Cosmic Pet | **$9** | One-time | `pet` | `nxezj` | 🟡 **DRAFT** (disabled 6-16; price 5→9; Director to re-publish) |
+| Cosmic Pet | **$7** | One-time | `pet` | `nxezj` | 🟢 published (verified via API 2026-07-31) |
 | Spirit Companions | $7 | One-time | `companions` | `wlgmbp` | 🟢 published |
 | Cosmic Exercise | $7 | One-time | `exercise` | `intvj` | 🟢 published |
 | Cosmic Food | $7 | One-time | `food` | `vwzkgz` | 🟢 published |
 | Product Personality | $5 | One-time | `product` | `howzdo` | 🟢 published |
-| Compatibility Check | **$9** | One-time | `compat` | `mdjeln` | 🟡 **DRAFT** (disabled 6-16; Director to re-publish) |
+| Compatibility Check | $9 | One-time | `compat` | `mdjeln` | 🟢 published (verified via API 2026-07-31) |
 | Full Report (43-page PDF) | $19 | One-time | `full_report` | `mbkayz` | 🟢 published |
 
-**Re-publishing pet/compat (Director's step):** Gumroad dashboard → open Cosmic Pet +
-Compatibility Check (now draft) → polish description/cover/Thai copy → **Publish**.
-The paywall + `PRICING` map already show $9 for both; once re-published the buy
-button works end-to-end. (API can re-enable too: `PUT /v2/products/:id/enable`.)
+**✅ CLOSED 2026-07-31 — nothing pending here.** Queried `GET /v2/products` live: **all 10
+products are published**, and `PRICING` in index.html matches Gumroad on every one
+(pet $7/$7, compat $9/$9). The "pet + compat are DRAFT, director must re-publish" note that
+sat here for six weeks was **stale** and sent at least one session chasing work that was
+already done. Re-check with the API before believing any status column in this file (Rule #0):
+
+```bash
+curl -s "https://api.gumroad.com/v2/products?access_token=$GUMROAD_ACCESS_TOKEN" \
+  | jq -r '.products[] | "\(.published) \(.price/100) \(.name)"'
+```
 
 **Webhook contract:** `api/gumroad/webhook.js` should read the incoming
 `product_permalink` and grant the matching item — e.g. write

@@ -23,3 +23,20 @@ build/ms26-bundle.js.pre-*.bak
 .env.*
 # Pre-deploy backup snapshots (large; keep local only).
 _backups/
+
+# ── เพิ่ม 2026-08-23 (ตอนเก็บงานที่ขึ้นเว็บไปแล้วแต่ไม่เคยเข้า git) ──────────
+# ⛔ .gitignore ไม่รองรับคอมเมนต์ท้ายบรรทัด — ทั้งบรรทัดจะถูกอ่านเป็น pattern
+#    คอมเมนต์ต้องอยู่บรรทัดของตัวเองเท่านั้น (พลาดมาแล้วรอบนึงวันนี้)
+
+# งานทดลองโมเดล 3 มิติ 693 MB — หนักเกินกว่าจะอยู่ในประวัติ
+_god3d-pilot/
+# สแนปช็อตก่อนเขียนทับ (กฎเดิมครอบแค่ gods.json ไม่ครอบ gods-lore.json)
+data/gods-lore.json.pre-*.bak
+# ภาพ mockup / ภาพตรวจ สร้างใหม่ได้จากสคริปต์
+_mock-*.png
+_verify-*.png
+_guardian-cards.png
+# Supabase CLI เขียนเอง
+supabase/.temp/
+# bts-rally = คนละโปรเจกต์ (rally-solver) แค่บังเอิญมาวางในโฟลเดอร์นี้
+bts-rally/
