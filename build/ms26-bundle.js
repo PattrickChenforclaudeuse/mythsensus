@@ -4695,15 +4695,70 @@ const FORECAST_TIERS = {
     5: { th: 'ดีเป็นพิเศษ', en: 'One of your best' },
 };
 const FORECAST_ADVICE = {
-    act: { th: 'เปิดเกม ลงมือเรื่องใหญ่ได้', en: 'Move — this is the window to act' },
+    act: { th: 'เปิดเกม ลงมือเรื่องใหญ่ได้', en: 'Move now, the window is open' },
     steady: { th: 'เดินตามแผน ไม่ต้องเร่ง', en: 'Hold the plan, no need to push' },
-    prepare: { th: 'วางราก เตรียมตัว ยังไม่ใช่จังหวะเปิดเกม', en: 'Lay groundwork — not the moment to launch' },
-    hold: { th: 'ชะลอการตัดสินใจที่ย้อนกลับไม่ได้', en: 'Delay anything irreversible' },
-    guard: { th: 'ระวังรายจ่าย สัญญา และคำพูด', en: 'Guard spending, contracts, and words' },
-    rest: { th: 'พักและซ่อมร่างกาย', en: 'Rest and repair the body' },
+    prepare: { th: 'วางราก เตรียมตัว ยังไม่ใช่จังหวะเปิดเกม', en: 'Lay groundwork, launching comes later' },
+    hold: { th: 'เรื่องที่ตัดสินใจแล้วถอยไม่ได้ ชะลอไว้ก่อน', en: 'Delay anything irreversible' },
+    guard: { th: 'ระวังไว้ก่อน อย่าเพิ่งผูกมัด', en: 'Stay careful, and commit to nothing yet' },
+    rest: { th: 'พักก่อน อย่าฝืน', en: 'Rest, don’t push it' },
     connect: { th: 'เข้าหาคน ขอความช่วยเหลือได้', en: 'Reach out — help is there' },
-    talk: { th: 'เปิดใจคุยให้ชัด อย่าเดาใจกัน', en: 'Say it plainly — stop guessing each other' },
+    talk: { th: 'เปิดใจคุยให้ชัด อย่าเดาใจกัน', en: 'Say it plainly, stop trying to read each other' },
 };
+// The eight advice keys have to stay CLOSED — "N of 7 agree" is only countable
+// if every voter picks from one short list. But one wording per key meant the
+// same sentence was printed under every area, and some of them landed wrong:
+// "เปิดเกม ลงมือเรื่องใหญ่ได้" (open the game, take on something big) appeared
+// under Health scored 1/5, directly above a consensus telling the reader to rest.
+//
+// So the KEY stays global and the WORDING varies by area. Only the combinations
+// that actually read wrong are overridden; anything absent falls back to
+// FORECAST_ADVICE, because most of the eight are already area-neutral.
+const FORECAST_ADVICE_BY_DOMAIN = {
+    career: {
+        rest: { th: 'ถอยจากงานสักพัก อย่าเพิ่งรับเพิ่ม', en: 'Step back from work, take nothing new on' },
+        connect: { th: 'พึ่งทีม ขอแรงคนอื่นได้', en: 'Lean on your team, ask for hands' },
+    },
+    money: {
+        act: { th: 'กล้าลงเงินก้อนได้', en: 'Green light on the big spend' },
+        rest: { th: 'หยุดเคลื่อนเงินไว้ก่อน', en: 'Stop moving money for now' },
+        talk: { th: 'คุยเรื่องเงินให้จบ อย่าปล่อยค้าง', en: 'Settle the money conversation, do not leave it open' },
+        connect: { th: 'ขอคำแนะนำก่อนตัดสินใจเรื่องเงิน', en: 'Get advice before you decide' },
+    },
+    love: {
+        act: { th: 'พูดออกไป เข้าหาก่อนได้', en: 'Say it, make the first move' },
+        guard: { th: 'อย่าเพิ่งให้คำสัญญา', en: 'Promise nothing yet' },
+        rest: { th: 'เว้นระยะให้กันบ้าง', en: 'Give each other room' },
+    },
+    health: {
+        act: { th: 'ร่างกายรับไหว ออกแรงได้', en: 'Your body can take it right now, spend it' },
+        talk: { th: 'บอกอาการให้ตรง อย่าเก็บไว้', en: 'Say what hurts, do not sit on it' },
+        connect: { th: 'ไปหาหมอ หรือชวนใครไปด้วย', en: 'See someone, or bring someone with you' },
+        guard: { th: 'ระวังร่างกาย อย่าฝืนเกิน', en: 'Go easy on the body, do not push past it' },
+    },
+    family: {
+        act: { th: 'เริ่มเรื่องบ้านที่ค้างไว้ได้', en: 'Start the house thing you left' },
+        rest: { th: 'อยู่บ้านเฉยๆ ก็พอ', en: 'Being home is enough' },
+    },
+    learning: {
+        act: { th: 'ลงมือเรียนของใหม่ได้', en: 'Start the new thing you meant to learn' },
+        rest: { th: 'พักสมอง ยังไม่ต้องยัดเพิ่ม', en: 'Rest your head, stop cramming' },
+        guard: { th: 'อย่าเพิ่งผูกมัดคอร์สยาวๆ', en: 'Do not sign up for anything long yet' },
+    },
+    allies: {
+        act: { th: 'ทักไปก่อน ขยายวงได้', en: 'Reach out first, widen the circle' },
+        rest: { th: 'ถอยจากวงสังคมสักพัก', en: 'Step out of the room for a while' },
+        guard: { th: 'อย่าเพิ่งรับปากใคร', en: 'Do not agree to anything yet' },
+    },
+    chance: {
+        act: { th: 'เสี่ยงได้ จังหวะเปิดอยู่', en: 'Take the shot, the window is open' },
+        rest: { th: 'ยังไม่ต้องเสี่ยงอะไร', en: 'No need to gamble on anything' },
+        connect: { th: 'โอกาสมาทางคน ไม่ใช่ทางแผน', en: 'The opening comes through people, not plans' },
+    },
+};
+function fcAdviceFor(domain, key) {
+    const byDom = FORECAST_ADVICE_BY_DOMAIN[domain];
+    return (byDom && byDom[key]) || FORECAST_ADVICE[key];
+}
 // ── Element key normalisation ───────────────────────────────────────────────
 // ChartData carries element names already localised (pEl() returns Thai in TH
 // reports) while the five-element tables are keyed in English. Comparing the
@@ -5546,7 +5601,7 @@ function calcForecast(c, from, opts = {}) {
         const sameMonth = a.getMonth() === b.getMonth();
         const labelTh = w === 0 ? `สัปดาห์นี้ · ${a.getDate()}–${b.getDate()} ${_FC_MONTH_TH[b.getMonth()]}`
             : `สัปดาห์ที่ ${w + 1} · ${a.getDate()}${sameMonth ? '' : ' ' + _FC_MONTH_TH[a.getMonth()]}–${b.getDate()} ${_FC_MONTH_TH[b.getMonth()]}`;
-        const labelEn = w === 0 ? `Next 7 days · ${_FC_MONTH_EN[a.getMonth()]} ${a.getDate()}–${b.getDate()}`
+        const labelEn = w === 0 ? `This week · ${_FC_MONTH_EN[a.getMonth()]} ${a.getDate()}–${b.getDate()}`
             : `Week ${w + 1} · ${_FC_MONTH_EN[a.getMonth()]} ${a.getDate()} – ${_FC_MONTH_EN[b.getMonth()]} ${b.getDate()}`;
         weeks.push(_fcPeriod(getDay, weekBase, dates, 'week', w, labelTh, labelEn, weekDomBase));
     }
@@ -5579,8 +5634,8 @@ function calcForecast(c, from, opts = {}) {
             const signIdx = (x.ascSignIdx + age) % 12;
             highlights.push({
                 sysTh: 'เฮลเลนิสติก · Annual Profection', sysEn: 'Hellenistic · Annual Profection',
-                textTh: `อายุ ${age} ปี = ปีของเรือน ${house} — หัวข้อของปีคือ ${_FC_HOUSE_TOPIC_TH[house - 1]} โดยมี${_FC_SIGN_LORD_TH[signIdx]}เป็นเจ้าปี (time-lord)`,
-                textEn: `Age ${age} activates house ${house} — this year is about ${_FC_HOUSE_TOPIC_EN[house - 1]}, with ${_FC_SIGN_LORD_EN[signIdx]} as the year’s time-lord`,
+                textTh: `อายุ ${age} ปี = ปีของเรือน ${house} · ปีนี้ว่าด้วย${_FC_HOUSE_TOPIC_TH[house - 1]} เจ้าปีคือ${_FC_SIGN_LORD_TH[signIdx]} (time-lord)`,
+                textEn: `At ${age} your year runs on house ${house}: ${_FC_HOUSE_TOPIC_EN[house - 1]} · the time-lord is ${_FC_SIGN_LORD_EN[signIdx]}`,
             });
         }
     }
@@ -5588,8 +5643,8 @@ function calcForecast(c, from, opts = {}) {
         const ns = _fcNineStarMonth(toJD(start.getFullYear(), start.getMonth() + 1, start.getDate(), 12));
         highlights.push({
             sysTh: 'ดาวเก้าดวง · รอบ 9 ปี', sysEn: 'Nine Star Ki · the 9-year cycle',
-            textTh: `ปีนี้ดาวประจำปีคือ ${ns.yearStar} — ดาวเกิดของคุณ (${x.natalStar}) อยู่วัง ${_fcPalaceOf(x.natalStar, ns.yearStar)} ของรอบเก้าปี`,
-            textEn: `This year’s star is ${ns.yearStar} — your natal star (${x.natalStar}) sits in palace ${_fcPalaceOf(x.natalStar, ns.yearStar)} of the nine-year cycle`,
+            textTh: `ปีนี้ดาวประจำปีคือ ${ns.yearStar} · ดาวเกิดของคุณ (${x.natalStar}) อยู่วัง ${_fcPalaceOf(x.natalStar, ns.yearStar)}`,
+            textEn: `This year’s star is ${ns.yearStar} · your natal star (${x.natalStar}) sits in palace ${_fcPalaceOf(x.natalStar, ns.yearStar)}`,
         });
     }
     // How many distinct systems actually cast a vote anywhere in the forecast.
@@ -10074,6 +10129,7 @@ function p_vedicMahadasha(c) {
     FORECAST_DOMAINS_ALL: FORECAST_DOMAINS_ALL,
     FORECAST_DOMAIN_LABELS: FORECAST_DOMAIN_LABELS,
     FORECAST_ADVICE: FORECAST_ADVICE,
+    fcAdviceFor: fcAdviceFor,
     FORECAST_TIERS: FORECAST_TIERS,
   };
 })(typeof window !== "undefined" ? window : globalThis);

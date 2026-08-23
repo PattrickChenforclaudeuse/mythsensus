@@ -65,7 +65,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=188">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=197">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
@@ -1568,7 +1568,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <!-- one line that says what we do about it — the promise is the MAP of
            agreement and disagreement, not a verdict. Promising "the consensus"
            would be a promise we cannot keep: most charts split. -->
-      <div style="text-align:center;margin:0 0 20px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--muted);line-height:1.7" data-eh="hooksub">เราถาม 26 ศาสตร์พร้อมกัน แต่<strong style="color:var(--text)">เฉพาะศาสตร์ที่มีวิชาทำนายช่วงเวลาจริงถึงให้คะแนนได้</strong> ให้เต็ม 5 ทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร</div>
+      <div style="text-align:center;margin:0 0 20px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--muted);line-height:1.7" data-eh="hooksub">เราถาม 26 ศาสตร์พร้อมกัน แต่<strong style="color:var(--text)">เฉพาะศาสตร์ที่มีวิชาทำนายช่วงเวลาจริงถึงจะให้คะแนนได้</strong> ให้คะแนนเต็ม 5 แยกทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร</div>
       <!-- The city's own chart — a real reading, computed by the same engine,
            before anyone is asked for a birth date. Filled by _entryFillCity()
            after first paint; stays empty (and hidden) for cities with no
@@ -1580,7 +1580,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
            this market that converts puts the input on the landing itself — one
            less decision between arriving and receiving something. Filling these
            carries straight into the full form with the date already entered. -->
-      <div style="text-align:center;margin:0 0 7px;font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold2)" data-eh="doblabel">ใส่วันเกิดของคุณ เพื่อดูของคุณเอง</div>
+      <div style="text-align:center;margin:0 0 7px;font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold2)" data-eh="doblabel">ใส่วันเกิด แล้วดูของคุณเอง</div>
       <div style="display:grid;grid-template-columns:1fr 1.3fr 1.2fr;gap:6px;margin-bottom:10px">
         <input class="login-input" type="number" id="heroDay" min="1" max="31" placeholder="15" style="font-family:inherit;font-size:16px;text-align:center">
         <select class="login-input" id="heroMonth" style="font-family:inherit;font-size:14px;text-align:center;cursor:pointer;padding:8px 4px">
@@ -1615,11 +1615,11 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     <div style="display:flex;gap:8px;justify-content:center;margin:18px 0 10px">
       <button class="entry-lang-btn" id="entryLangTh" onclick="entrySelectLang('th')"
               style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14px;padding:8px 22px;border-radius:6px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.15);color:var(--gold)">
-        🇹🇭 ภาษาไทย
+        🇹🇭 ไทย
       </button>
       <button class="entry-lang-btn" id="entryLangEn" onclick="entrySelectLang('en')"
               style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14px;padding:8px 22px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text)">
-        🇬🇧 English
+        🇬🇧 EN
       </button>
     </div>
 
@@ -1629,7 +1629,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 
     <!-- RETURNING USER — sign-in shortcut (top of form so always visible on mobile) -->
     <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;padding:10px 14px;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:6px">
-      <span id="entrySignInLabel" style="font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px">มีบัญชีอยู่แล้ว?</span>
+      <span id="entrySignInLabel" style="font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px">มีบัญชีแล้ว?</span>
       <button class="login-guest-btn" onclick="showLoginOverlay()" id="entrySignInBtn">✦ ลงชื่อเข้าใช้ / Sign in →</button>
     </div>
 
@@ -1774,7 +1774,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     <div id="ageGateBox" style="display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;padding:10px 12px;background:rgba(212,170,80,.04);border:1px solid rgba(212,170,80,.22);border-radius:6px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--text);line-height:1.55">
       <input type="checkbox" id="entryAgeConfirm" style="margin-top:3px;flex-shrink:0;width:14px;height:14px;cursor:pointer;accent-color:var(--gold)">
       <label for="entryAgeConfirm" style="cursor:pointer;flex:1" id="entryAgeLabel">
-        <span lang="th"><strong style="color:var(--gold2)">ฉันอายุ 13 ปีขึ้นไป</strong> · ถ้าอายุ 13–17 ปี ฉันได้รับความยินยอมจากผู้ปกครองสำหรับฟีเจอร์แบบเสียเงิน (เนื้อหาฟรีปลอดภัยทุกวัย)</span>
+        <span lang="th"><strong style="color:var(--gold2)">ฉันอายุ 13 ปีขึ้นไป</strong> · ถ้าอายุ 13–17 ปี ฉันได้รับความยินยอมจากผู้ปกครองให้ใช้ฟีเจอร์แบบเสียเงิน (เนื้อหาฟรีปลอดภัยทุกวัย)</span>
         <span lang="en"><strong style="color:var(--gold2)">I am 13 years or older</strong> · if aged 13–17, I have parental consent for paid features (free content is safe for all ages)</span>
       </label>
     </div>
@@ -1799,7 +1799,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 
     <!-- No-account reassurance + hard bypass -->
     <div id="entryGuestNote" style="text-align:center;margin-top:10px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-style:italic;font-size:12px;color:var(--muted);line-height:1.55">
-      ไม่ต้องสมัครสมาชิก · ข้อมูลอยู่ในเครื่องคุณ
+      ไม่ต้องสมัครสมาชิก
     </div>
     <div style="text-align:center;margin-top:12px">
       <button id="entrySkipBtn" onclick="entrySkip()"
@@ -2861,7 +2861,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=188" defer></script>
+<script src="/build/ms26-bundle.js?v=197" defer></script>
 <script>
 
 
@@ -2986,7 +2986,7 @@ en:{
   res_ideal_countries:"Ideal countries",res_career_match:"Career archetype",res_current_career:"What you're doing now",
   res_closing:"Your working compass points {dir}, and your element is {el}. Align them and the chart breathes easier.",
   // ── Monthly Brief
-  forecast_title:"THE WEEKS AHEAD",forecast_hint:"Your next four weeks — work, money, love, health — scored by the traditions that actually have a timing technique",
+  forecast_title:"THE WEEKS AHEAD",forecast_hint:"Work · Wealth · Relationship · Health",
   brief_title:"MONTHLY COSMIC BRIEF",brief_hint:"This month's major transits + what to watch",
   brief_month:"Brief for",brief_sub:"Where the sky is pushing you this month",
   brief_line_transit:"Jupiter transit",brief_line_bazi:"BaZi note",brief_line_vedic:"Vedic Mahadasha",
@@ -3207,7 +3207,7 @@ th:{
   res_current_career:"สิ่งที่คุณทำอยู่",
   res_closing:"เข็มทิศงานของคุณชี้ไปทาง {dir} และธาตุหลักคือ {el} — จับทั้งคู่ให้ตรง แล้วดวงจะหายใจโล่งขึ้น",
   // ── Monthly Brief
-  forecast_title:"4 สัปดาห์ข้างหน้า",forecast_hint:"การงาน · การเงิน · ความรัก · สุขภาพ — ให้คะแนนโดยศาสตร์ที่มีวิชาทำนายช่วงเวลาจริง",
+  forecast_title:"4 สัปดาห์ข้างหน้า",forecast_hint:"การงาน · การเงิน · ความรัก · สุขภาพ",
   brief_title:"MONTHLY COSMIC BRIEF — สรุปดาวประจำเดือน",brief_hint:"ธีมของเดือน · การเคลื่อนดาวหลัก · เหตุการณ์ที่ต้องจับตา",
   brief_month:"สรุปประจำเดือน",brief_sub:"ฟ้ากำลังผลักคุณไปทางไหนในเดือนนี้",
   brief_line_transit:"Jupiter transit",brief_line_bazi:"BaZi note",brief_line_vedic:"Vedic Mahadasha",
@@ -3674,7 +3674,7 @@ function _renderEntryToday(tries){
     var jdN = dateToJD(now.getFullYear(), now.getMonth()+1, now.getDate(), now.getHours()+now.getMinutes()/60);
     var ms = lonToSign(moonLon(jdN));
     var ph = moonPhase(jdN);
-    rows.push({ th:'จันทร์ตะวันตก', en:'Western Moon', v: (isTh?ms.th:ms.n) + ' ' + ph.icon });
+    rows.push({ th:'ราศีจันทร์', en:'Moon sign · Western', v: (isTh?ms.th:ms.n) + ' ' + ph.icon });
     // 3. Thailand — the day lord
     var dowTh = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'][now.getDay()];
     var dowEn = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][now.getDay()];
@@ -3689,8 +3689,8 @@ function _renderEntryToday(tries){
                + `<span style="color:var(--gold2)">` + x.v + `</span></div>`;
         }).join('')
       + `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06);font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--text)">`
-      + (isTh ? 'นี่คือ<strong style="color:var(--gold)">วันนี้</strong> · ใส่วันเกิดแล้วเห็นยาว <strong style="color:var(--gold)">4 สัปดาห์ ราย 4 ด้าน</strong>'
-              : 'That is <strong style="color:var(--gold)">today</strong>. Add your birth date to see <strong style="color:var(--gold)">four weeks, four areas</strong>')
+      + (isTh ? 'นี่คือ<strong style="color:var(--gold)">วันนี้</strong> · ใส่วันเกิด แล้วเห็นล่วงหน้า <strong style="color:var(--gold)">4 สัปดาห์ ครบทั้ง 4 ด้าน</strong>'
+              : 'That’s <strong style="color:var(--gold)">today</strong>. Add your birth date to see <strong style="color:var(--gold)">four weeks, four areas</strong>')
       + `</div></div>`;
     // The city scores need a full forecast run; the facts above are already
     // painted, so this is deferred and never delays what the reader can see.
@@ -3721,12 +3721,12 @@ function _refreshEntryHero(){
   var M = {
     tagline:  { th:'ดวงคุณ จาก 26 ศาสตร์ทั่วโลก พร้อมกัน', en:'Your chart, read by 26 world traditions at once' },
     hook2:    { th:'4 สัปดาห์ข้างหน้า จะเป็นยังไง<br><strong style="color:var(--gold)">การงาน · การเงิน · ความรัก · สุขภาพ</strong>', en:'What the next four weeks hold<br><strong style="color:var(--gold)">Work · Wealth · Relationship · Health</strong>' },
-    doblabel: { th:'ใส่วันเกิดของคุณ เพื่อดูของคุณเอง', en:'Enter your birth date to see yours' },
+    doblabel: { th:'ใส่วันเกิด แล้วดูของคุณเอง', en:'Enter your birth date to see yours' },
     cta:      { th:'✦ ให้คะแนน 4 สัปดาห์ของฉัน · ฟรี', en:'✦ Score my next four weeks · Free' },
     drawalt:  { th:'หรือรับพรจากเทพประจำวันก่อน →', en:'or receive today’s blessing first →' },
     compare:  { th:'💑 เทียบดวงกับใครสักคน · แค่ 2 วันเกิด', en:'💑 Compare with someone · just 2 birth dates' },
-    hooksub:  { th:'เราถาม 26 ศาสตร์พร้อมกัน แต่<strong style="color:var(--text)">เฉพาะศาสตร์ที่มีวิชาทำนายช่วงเวลาจริงถึงให้คะแนนได้</strong> ให้เต็ม 5 ทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร', en:'We ask all 26, but <strong style="color:var(--text)">only the ones with a real timing technique get to score you</strong> — out of 5, area by area. The rest abstain, and we name them and say why.' },
-    draw2:    { th:'🙏 รับพรวันนี้ · ฟรี', en:'🙏 Receive today’s blessing · Free' },
+    hooksub:  { th:'เราถาม 26 ศาสตร์พร้อมกัน แต่<strong style="color:var(--text)">เฉพาะศาสตร์ที่มีวิชาทำนายช่วงเวลาจริงถึงจะให้คะแนนได้</strong> ให้คะแนนเต็ม 5 แยกทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร', en:'We ask all 26 traditions, but <strong style="color:var(--text)">only the ones with a real timing technique get to score you</strong> — out of 5, area by area. The rest abstain, and we name them and say why.' },
+    draw2:    { th:'🙏 รับพรวันนี้ · ฟรี', en:'🙏 Draw today’s blessing · Free' },
     alt:      { th:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">เทียบดวงสองคน</button>', en:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">Compare two charts</button>' },
     signin:   { th:'มีบัญชีแล้ว? ' + sgn + 'ลงชื่อเข้าใช้ →</button>', en:'Already have an account? ' + sgn + 'Sign in →</button>' }
   };
@@ -10052,7 +10052,7 @@ const _PULSE_PIN_CATALOG = [
     { key:'Thai Brahmin', th:'🙏 ไทยพราหมณ์',  en:'🙏 Thai Brahmin' },
   ]},
   { region:{th:'West / Europe', en:'West / Europe'}, items: [
-    { key:'Western Moon', th:'☉ จันทร์ตะวันตก', en:'☉ Western Moon' },
+    { key:'Moon sign · Western', th:'☉ ราศีจันทร์', en:'☉ Moon sign · Western' },
   ]},
   { region:{th:'Americas / Modern', en:'Americas / Modern'}, items: [
     { key:'Mayan Kin',     th:'🌀 มายัน Kin',    en:'🌀 Mayan Kin' },
@@ -10590,7 +10590,8 @@ function _fcVoteRows(v, isTh) {
 // its place here is the advice, which is short by construction.
 function _fcConclusion(v, isTh, lab, A) {
   if (!v.votes.length) return '';
-  const advice = A[v.advice];
+  const say = (k) => (MS26.fcAdviceFor ? MS26.fcAdviceFor(v.domain, k) : A[k]);
+  const advice = say(v.advice);
   const byScore = v.votes.slice().sort((p, q) => q.score - p.score);
   const best = byScore[0];
   const worst = byScore[byScore.length - 1];
@@ -10599,7 +10600,7 @@ function _fcConclusion(v, isTh, lab, A) {
     <div style="display:flex;gap:7px;align-items:baseline;margin-top:7px">
       <span style="color:${color};flex-shrink:0;font-size:11px;line-height:1.6">${mark}</span>
       <span><span style="color:var(--muted)">${label}</span> <strong>${_fcEsc(sys)}</strong>
-      <span style="color:${color}">${score}/5</span> — ${_fcEsc(tip)}</span>
+      <span style="color:${color}">${score}/5</span> · ${_fcEsc(tip)}</span>
     </div>`;
 
   let html = `<div style="display:flex;gap:7px;align-items:baseline">
@@ -10609,15 +10610,24 @@ function _fcConclusion(v, isTh, lab, A) {
     </div>`;
 
   // With a single voter the two rows would name the same system twice.
+  //
+  // The dissent rows also have to stop echoing the headline. Both the ◆ line and
+  // the ▼ line print an advice string, and when the lowest scorer happens to
+  // pick the same advice as the consensus, the card printed the identical
+  // sentence twice — two of three bullets word-for-word the same, on every card.
+  // Then the row is only worth its score and its name.
+  const echoes = (vote) => vote.advice === v.advice;
   if (best) {
     html += row('▲', '#6fb650', isTh ? 'ให้สูงสุด' : 'highest',
                 isTh ? best.sysTh : best.sysEn, best.score,
-                isTh ? A[best.advice].th : A[best.advice].en);
+                echoes(best) ? (isTh ? 'ตรงกับเสียงส่วนใหญ่' : 'agrees with the majority')
+                             : (isTh ? say(best.advice).th : say(best.advice).en));
   }
   if (worst && worst !== best) {
     html += row('▼', '#d08a6a', isTh ? 'ให้ต่ำสุด' : 'lowest',
                 isTh ? worst.sysTh : worst.sysEn, worst.score,
-                isTh ? A[worst.advice].th : A[worst.advice].en);
+                echoes(worst) ? (isTh ? 'ตรงกับเสียงส่วนใหญ่' : 'agrees with the majority')
+                              : (isTh ? say(worst.advice).th : say(worst.advice).en));
   }
   return html;
 }
@@ -10629,7 +10639,7 @@ function _fcDomainCard(v, isTh, L, A) {
   // The split note is the honest half of "always give an answer": the verdict
   // still lands, but the reader is told the room was divided.
   const splitNote = v.split
-    ? `<span style="color:var(--muted)"> · ${isTh ? 'เสียงแตก' : 'systems divided'}</span>` : '';
+    ? `<span style="color:var(--muted)"> · ${isTh ? 'เสียงแตก' : 'traditions divided'}</span>` : '';
   return `<div class="deep-sys-card" style="margin-bottom:10px">
     <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
       <span style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:15px;color:var(--text)">${lab.icon} ${_fcEsc(isTh ? lab.th : lab.en)}</span>
@@ -10640,14 +10650,14 @@ function _fcDomainCard(v, isTh, L, A) {
     </div>
     ${_fcBar(v.score)}
     <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:.6px;color:var(--muted)">
-      ${isTh ? 'ดี' : 'good'} ${v.up} · ${isTh ? 'กลาง' : 'even'} ${v.mid} · ${isTh ? 'ระวัง' : 'careful'} ${v.down}
-      &nbsp;·&nbsp; ${v.n} ${isTh ? 'ศาสตร์' : 'systems'} · ${isTh ? 'ตรงกัน' : 'agree'} ${v.agreement}%${splitNote}
+      ${isTh ? 'ดี' : 'good'} ${v.up} · ${isTh ? 'กลาง' : 'neutral'} ${v.mid} · ${isTh ? 'ระวัง' : 'caution'} ${v.down}
+      &nbsp;·&nbsp; ${v.n} ${isTh ? 'ศาสตร์' : 'traditions'} · ${isTh ? 'ตรงกัน' : 'agree'} ${v.agreement}%${splitNote}
     </div>
     <div style="margin-top:10px;padding:11px 13px;border-radius:6px;background:rgba(200,164,90,.07);border-left:2px solid var(--gold3)">
       <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.6">${_fcConclusion(v, isTh, lab, A)}</div>
     </div>
     <button onclick="_fcToggle('${v.domain}')" style="margin-top:8px;background:none;border:none;color:var(--gold2);cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.2px;padding:2px 0;text-decoration:underline">
-      ${open ? (isTh ? 'ปิดรายศาสตร์ ▴' : 'hide systems ▴') : (isTh ? `ดูรายศาสตร์ · ใครให้กี่คะแนน เตือนเรื่องอะไร ▾` : `see each system ▾`)}
+      ${open ? (isTh ? 'ปิดรายศาสตร์ ▴' : 'hide traditions ▴') : (isTh ? `ดูรายศาสตร์ · ใครให้กี่คะแนน เตือนเรื่องอะไร ▾` : `see each tradition ▾`)}
     </button>
     ${open ? `<div style="margin-top:2px">${_fcVoteRows(v, isTh)}</div>` : ''}
   </div>`;
@@ -10704,15 +10714,11 @@ function renderForecast() {
   // ── header: what this screen is, and on what authority ──────────────────
   const head = `
     <div style="text-align:center;margin-bottom:14px">
-      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:19px;color:var(--text);line-height:1.4">
-        ${_FC_MODE === 'month'
-          ? (isTh ? '12 เดือนข้างหน้า ของคุณ' : 'Your next twelve months')
-          : (isTh ? '4 สัปดาห์ข้างหน้า ของคุณ' : 'Your next four weeks')}
-      </div>
+      ${_FC_MODE === 'month' ? `<div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:19px;color:var(--text);line-height:1.4">${isTh ? '12 เดือนข้างหน้าของคุณ' : 'Your next twelve months'}</div>` : ''}
       <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--muted);line-height:1.7;margin-top:5px">
         ${isTh
-          ? `<strong style="color:var(--gold2)">${data.votingCount} ศาสตร์มีวิชาทำนายช่วงเวลาจริง</strong> จึงออกเสียงในหน้านี้ · อีก ${data.abstainCount} ศาสตร์งดออกเสียง และบอกเหตุผลไว้ข้างล่าง`
-          : `<strong style="color:var(--gold2)">${data.votingCount} traditions have a real timing technique</strong> and voted here · ${data.abstainCount} abstained, each with its reason below`}
+          ? `<strong style="color:var(--gold2)">${data.votingCount} จาก ${data.totalSystems} สายวิชามีวิชาทำนายช่วงเวลาจริง</strong> จึงออกเสียง <span style="color:var(--muted)">(แต่ละด้านนับเฉพาะศาสตร์ที่ตอบด้านนั้นได้)</span> · อีก ${data.abstainCount} ศาสตร์งดออกเสียง และบอกเหตุผลไว้ข้างล่าง`
+          : `<strong style="color:var(--gold2)">${data.votingCount} of ${data.totalSystems} have a real timing technique</strong> so they get a vote <span style="color:var(--muted)">(each area counts only the ones whose technique speaks to it)</span> · ${data.abstainCount} abstain, each with its reason below`}
       </div>
     </div>`;
 
@@ -10752,7 +10758,7 @@ function renderForecast() {
         ${isTh ? '✦ แชร์สัปดาห์นี้' : '✦ SHARE THIS WEEK'}
       </button>
       <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:11.5px;color:var(--muted);margin-top:6px">
-        ${isTh ? 'การ์ดสร้างบนเครื่องคุณ — วันเกิดไม่ถูกส่งออกไปไหน' : 'Built on your device — your birth date never leaves it'}
+        ${isTh ? 'สร้างการ์ดในเครื่องคุณ — ไม่มีการส่งวันเกิดออกไปไหน' : 'Built on your device. Your birth date never leaves it'}
       </div>
     </div>`;
 
@@ -10762,16 +10768,16 @@ function renderForecast() {
     const locked = MS26.FORECAST_DOMAINS_ALL.filter(d => MS26.FORECAST_DOMAINS_FREE.indexOf(d) < 0);
     upsell += `<div class="deep-sys-card" style="margin-bottom:10px;border-style:dashed;text-align:center">
       <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:14px;color:var(--text)">
-        ${isTh ? 'อีก 4 ด้านที่ศาสตร์เดียวกันนี้ตอบได้' : 'Four more domains the same systems can answer'}
+        ${isTh ? 'อีก 4 ด้านที่ศาสตร์เดียวกันนี้ตอบได้' : 'Four more domains the same traditions can answer'}
       </div>
       <div style="margin:9px 0;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13px;color:var(--gold2);line-height:1.9">
         ${locked.map(d => `${L[d].icon} ${_fcEsc(isTh ? L[d].th : L[d].en)}`).join(' &nbsp;·&nbsp; ')}
       </div>
       <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--muted);line-height:1.6">
-        ${isTh ? 'สมาชิกได้ครบ 8 ด้าน และดูรายเดือนไปเรื่อยๆ เดือนต่อเดือน' : 'Members get all eight, and the month-by-month view'}
+        ${isTh ? 'สมาชิกได้ครบ 8 ด้าน · ดูล่วงหน้าได้เดือนต่อเดือน' : 'Members get all eight, and the month-by-month view'}
       </div>
       <button onclick="_purchaseSubscription('forecast_domains')" style="margin-top:10px;font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:1.4px;padding:9px 22px;border-radius:6px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.15);color:var(--gold)">
-        ${isTh ? 'เปิดครบ 8 ด้าน →' : 'UNLOCK ALL EIGHT →'}
+        ${isTh ? 'เปิดครบ 8 ด้าน →' : 'SEE ALL EIGHT →'}
       </button>
     </div>`;
   }
@@ -10806,7 +10812,7 @@ function renderForecast() {
     <div class="deep-sys-card" style="margin-bottom:10px">
       <button onclick="_fcToggleAbst()" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:0">
         <span style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase">
-          ${isTh ? `${data.abstainCount} ศาสตร์ที่งดออกเสียง — และเหตุผลจริงของแต่ละอัน` : `${data.abstainCount} traditions abstained — and why, one by one`} ${window._fcAbstOpen ? '▴' : '▾'}
+          ${isTh ? `${data.abstainCount} ศาสตร์ที่งดออกเสียง — และเหตุผลจริงของแต่ละศาสตร์` : `${data.abstainCount} traditions abstained — and why, one by one`} ${window._fcAbstOpen ? '▴' : '▾'}
         </span>
       </button>
       ${window._fcAbstOpen ? data.abstentions.map(a => `
@@ -10820,7 +10826,7 @@ function renderForecast() {
   const scale = `
     <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:11.5px;color:var(--muted);line-height:1.7;text-align:center;margin-bottom:14px">
       ${isTh
-        ? ('1–5 เทียบกับ<strong style="color:var(--gold3)">ปีของคุณเอง</strong> — 3 คือ' + (_FC_MODE === 'month' ? 'เดือน' : 'สัปดาห์') + 'ธรรมดาของคุณ · 5 กับ 1 เจอปีละไม่กี่ครั้ง ไม่ได้เทียบกับคนอื่น')
+        ? ('1–5 เทียบกับ<strong style="color:var(--gold3)">ปีของคุณเอง</strong> — 3 คือ' + (_FC_MODE === 'month' ? 'เดือน' : 'สัปดาห์') + 'ธรรมดา · 5 กับ 1 เจอปีละไม่กี่ครั้ง ไม่ได้เทียบกับคนอื่น')
         : ('1–5 against <strong style="color:var(--gold3)">your own year</strong> — 3 is an ordinary ' + (_FC_MODE === 'month' ? 'month' : 'week') + '; 5 and 1 land only a few times a year. Never against other people.')}
     </div>`;
 
@@ -10834,10 +10840,10 @@ function renderForecast() {
                : `The area to watch right now is <strong style="color:#d08a6a">${_fcEsc(L[R.worst].en)}</strong>`}
       </div>
       <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--muted);line-height:1.7;margin-top:6px">
-        ${isTh ? 'ไปขอพรวันนี้ — ถ้าเทพที่คุณได้ดูแลเรื่องนั้นพอดี เราจะบอกให้' : 'Draw today’s blessing — if the deity you receive governs that very area, we’ll tell you'}
+        ${isTh ? 'ไปขอพรวันนี้ — ถ้าองค์ที่คุณจับได้ดูแลเรื่องนั้นพอดี เราจะบอกให้' : 'Draw today’s blessing — if the deity you receive governs that very area, we’ll tell you'}
       </div>
       <button onclick="_fcGoBless()" style="margin-top:11px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;padding:10px 26px;border-radius:6px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.15);color:var(--gold)">
-        ${isTh ? '✦ ไปขอพร' : '✦ RECEIVE A BLESSING'}
+        ${isTh ? '✦ ไปขอพร' : '✦ DRAW A BLESSING'}
       </button>
     </div>`;
 
@@ -10951,7 +10957,8 @@ async function _fcShareBlob(period, isTh) {
                   : `${star.adviceAgree} of ${star.n} traditions agree`, W / 2, 1035);
 
   // The instruction, wrapped by hand — canvas has no line breaking.
-  const advice = isTh ? A[star.advice].th : A[star.advice].en;
+  const _sa = MS26.fcAdviceFor ? MS26.fcAdviceFor(star.domain, star.advice) : A[star.advice];
+  const advice = isTh ? _sa.th : _sa.en;
   x.fillStyle = ink; x.font = th(46);
   const words = advice.split(' ');
   const lines = []; let cur = '';
@@ -11110,6 +11117,29 @@ function _fcPickDeity(domain) {
   } catch (_) { return null; }
 }
 
+// gods.json stores the pantheon in English only, so the Thai forecast card was
+// showing "GREEK MYTHOLOGY" in Latin caps next to otherwise all-Thai labels.
+// These are the pantheons that actually occur often enough to meet a reader;
+// anything not listed keeps its English name rather than getting an invented
+// Thai one.
+const _FC_MYTH_TH = {
+  'Hinduism': 'ฮินดู', 'Chinese Mythology': 'เทพจีน', 'Greek Mythology': 'เทพกรีก',
+  'Norse Mythology': 'เทพนอร์ส', 'Shinto': 'ชินโต', 'Egyptian Mythology': 'เทพอียิปต์',
+  'Roman Mythology': 'เทพโรมัน', 'Mayan Mythology': 'เทพมายา', 'Celtic Mythology': 'เทพเคลต์',
+  'Slavic Mythology': 'เทพสลาฟ', 'Aztec Mythology': 'เทพแอซเท็ก', 'Sumerian Mythology': 'เทพสุเมเรียน',
+  'Babylonian Mythology': 'เทพบาบิโลน', 'Ainu': 'ไอนุ', 'Thai Buddhism': 'พุทธไทย',
+  'Thai Mythology': 'เทพไทย', 'Thai Folk': 'ความเชื่อพื้นบ้านไทย',
+  'Polynesian Mythology': 'เทพโพลินีเซีย', 'Yoruba Mythology': 'เทพโยรูบา', 'Korea': 'เกาหลี',
+  'Judaism / Kabbalah': 'ยูดาห์ / คับบาลาห์', 'Persia / Zoroastrian': 'เปอร์เซีย / โซโรอัสเตอร์',
+  'Hawaiian Mythology': 'เทพฮาวาย', 'Shinto/Buddhism': 'ชินโต / พุทธ', 'Buddhism/Shinto': 'พุทธ / ชินโต',
+  'Tibet': 'ทิเบต', 'Tibet / India': 'ทิเบต / อินเดีย', 'Fon Mythology': 'เทพฟอน',
+  'Islam': 'อิสลาม', 'Unknown': 'ไม่ระบุ',
+};
+function _fcMythLabel(name, isTh) {
+  if (!name) return '';
+  return (isTh && _FC_MYTH_TH[name]) ? _FC_MYTH_TH[name] : name;
+}
+
 function _fcDeityBlock(worstDomain, isTh, L) {
   // gods.json is fetched lazily elsewhere; ask once, then redraw when it lands.
   if (typeof GODS === 'undefined' || !Array.isArray(GODS) || !GODS.length) {
@@ -11139,14 +11169,14 @@ function _fcDeityBlock(worstDomain, isTh, L) {
   return `<div class="deep-sys-card" style="margin-bottom:14px;text-align:center">
     ${art}
     <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-variant-numeric:lining-nums;font-size:17px;color:var(--gold2);letter-spacing:.5px">${_fcEsc(god.name)}</div>
-    <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-top:2px">${_fcEsc(god.mythology || '')}</div>
+    <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-top:2px">${_fcEsc(_fcMythLabel(god.mythology, isTh))}</div>
     ${line ? `<div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:14.5px;color:var(--text);line-height:1.65;margin-top:9px">“${_fcEsc(line)}”</div>` : ''}
     <div style="margin-top:10px;padding:9px 12px;border-radius:6px;background:rgba(208,138,106,.10);border-left:2px solid #d08a6a;text-align:left;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.6">
       ${isTh
-        ? `องค์นี้ดูแลเรื่อง<strong style="color:var(--gold)">${_fcEsc(L[worstDomain].th)}</strong> — ด้านที่ศาสตร์ส่วนใหญ่บอกให้คุณระวังช่วงนี้`
-        : `This one governs <strong style="color:var(--gold)">${_fcEsc(L[worstDomain].en)}</strong> — the area the systems flagged for care`}
+        ? `องค์นี้ดูแลเรื่อง<strong style="color:var(--gold)">${_fcEsc(L[worstDomain].th)}</strong> ตรงกับด้านที่ศาสตร์ส่วนใหญ่บอกให้คุณระวังช่วงนี้`
+        : `This one governs <strong style="color:var(--gold)">${_fcEsc(L[worstDomain].en)}</strong> — the area most of the traditions told you to watch`}
     </div>
-    <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.6px;color:var(--gold);margin-top:11px">${isTh ? '↓ พยากรณ์ 4 สัปดาห์' : '↓ THE FOUR WEEKS'}</div>
+    <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.6px;color:var(--gold);margin-top:11px">${isTh ? '↓ ดูรายสัปดาห์' : '↓ WEEK BY WEEK'}</div>
   </div>`;
 }
 
@@ -11194,8 +11224,8 @@ function _fcBlessingMatch(god) {
     if (hit(f.worst)) {
       return `<div style="margin-top:10px;padding:9px 12px;border-radius:6px;background:rgba(208,138,106,.10);border-left:2px solid #d08a6a;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--text);line-height:1.65">
         ${isTh
-          ? `องค์นี้ดูแลเรื่อง<strong style="color:var(--gold)">${_fcEsc(L[f.worst].th)}</strong> — ซึ่งเป็นด้านที่ศาสตร์ส่วนใหญ่บอกให้คุณระวังช่วงนี้ (${f.worstScore}/5)`
-          : `This one governs <strong style="color:var(--gold)">${_fcEsc(L[f.worst].en)}</strong> — the very area the systems flagged for care right now (${f.worstScore}/5)`}
+          ? `องค์นี้ดูแลเรื่อง<strong style="color:var(--gold)">${_fcEsc(L[f.worst].th)}</strong> ซึ่งเป็นด้านที่ศาสตร์ส่วนใหญ่บอกให้คุณระวังช่วงนี้ (${f.worstScore}/5)`
+          : `This one governs <strong style="color:var(--gold)">${_fcEsc(L[f.worst].en)}</strong> — the very area most of the traditions told you to watch right now (${f.worstScore}/5)`}
       </div>`;
     }
     // Only celebrate the strong side when there IS a strong side. Calling a
@@ -11204,7 +11234,7 @@ function _fcBlessingMatch(god) {
     if (f.bestScore >= 4 && hit(f.best)) {
       return `<div style="margin-top:10px;padding:9px 12px;border-radius:6px;background:rgba(111,182,80,.10);border-left:2px solid #6fb650;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--text);line-height:1.65">
         ${isTh
-          ? `องค์นี้ดูแลเรื่อง<strong style="color:var(--gold)">${_fcEsc(L[f.best].th)}</strong> — ด้านที่แรงที่สุดของคุณช่วงนี้พอดี (${f.bestScore}/5)`
+          ? `องค์นี้ดูแลเรื่อง<strong style="color:var(--gold)">${_fcEsc(L[f.best].th)}</strong> ตรงกับด้านที่แรงที่สุดของคุณช่วงนี้พอดี (${f.bestScore}/5)`
           : `This one governs <strong style="color:var(--gold)">${_fcEsc(L[f.best].en)}</strong> — your strongest area right now (${f.bestScore}/5)`}
       </div>`;
     }
@@ -17390,7 +17420,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   showEntryOverlay();
   // Deep-link from the root /login page: ?login=1 → auto-open the email OTP
   // overlay so mobile users coming from the landing page don't have to click
-  // "มีบัญชีอยู่แล้ว?" first.
+  // "มีบัญชีแล้ว?" first.
   if (location.search.includes('login=1') && !_sbSession) {
     setTimeout(() => { try { showLoginOverlay(); } catch(_){} }, 50);
     try {
@@ -17626,7 +17656,7 @@ function _entryConfirmDob(){
     var moTh = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
     var moEn = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     var txt = isTh
-      ? 'เกิด ' + d + ' ' + moTh[m] + ' ' + y + ' ' + (era === 'be' ? 'พ.ศ.' : 'ค.ศ.')
+      ? 'เกิด ' + d + ' ' + moTh[m] + ' ' + (era === 'be' ? 'พ.ศ. ' : 'ค.ศ. ') + y
       : 'Born ' + d + ' ' + moEn[m] + ' ' + y + ' ' + (era === 'be' ? 'BE' : 'CE');
     var t = document.getElementById('entryDobConfirmText'); if (t) t.textContent = txt;
     var e = document.getElementById('entryDobEditBtn'); if (e) e.textContent = isTh ? 'แก้ไข' : 'change';
@@ -17685,7 +17715,7 @@ function _entryRefreshLang(){
   if (priv) priv.textContent = isTh
     ? 'ข้อมูลทั้งหมดอยู่ในเครื่องคุณเท่านั้น — ไม่ส่งขึ้น cloud'
     : 'All data stays on your device — never sent to the cloud';
-  if (cta) cta.textContent = isTh ? '✦ เปิดเผยดวงของฉัน' : '✦ Reveal my chart';
+  if (cta) cta.textContent = isTh ? '✦ เปิดดวงของฉัน' : '✦ Reveal my chart';
   if (nameI) nameI.placeholder = isTh ? 'ชื่อ / นามแฝง' : 'Name / nickname';
   const cityLbl = document.getElementById('entryCityLabel');
   if (cityLbl) cityLbl.textContent = isTh ? 'สถานที่เกิด' : 'Birth city';
@@ -17752,7 +17782,7 @@ function _entryRefreshLang(){
     }
   } else {
     if (siLabel){
-      siLabel.textContent = isTh ? 'มีบัญชีอยู่แล้ว?' : 'Have an account?';
+      siLabel.textContent = isTh ? 'มีบัญชีแล้ว?' : 'Have an account?';
       siLabel.style.color = '';
     }
     if (siBtn){
@@ -17763,11 +17793,11 @@ function _entryRefreshLang(){
   // No-account note under CTA
   const guestNote = document.getElementById('entryGuestNote');
   if (guestNote) guestNote.textContent = isTh
-    ? 'ไม่ต้องสมัครสมาชิก · ข้อมูลอยู่ในเครื่องคุณ'
-    : 'No account needed · data stays on your device';
+    ? 'ไม่ต้องสมัครสมาชิก'
+    : 'No account needed';
   const skipBtn = document.getElementById('entrySkipBtn');
   if (skipBtn) skipBtn.textContent = isTh
-    ? 'ข้ามไปก่อน — ลองดู Tab ต่างๆ โดยไม่ต้องกรอกข้อมูล'
+    ? 'ข้ามไปก่อน — ลองกดดูแต่ละแท็บได้ ไม่ต้องกรอกอะไร'
     : 'Skip for now — explore tabs without entering data';
   // ── The parts this function used to skip ──────────────────────────────────
   // Everything above is a label. The <option> lists, the era hint and the
@@ -18241,7 +18271,7 @@ function maybeShowOnboarding(){
   if (priv) priv.textContent = isTh
     ? 'ข้อมูลทั้งหมดอยู่ในเครื่องคุณเท่านั้น — ไม่ส่งขึ้น cloud'
     : 'All data stays on your device — never sent to the cloud';
-  if (cta) cta.textContent = isTh ? '✦ เปิดเผยดวงของฉัน' : '✦ Reveal my chart';
+  if (cta) cta.textContent = isTh ? '✦ เปิดดวงของฉัน' : '✦ Reveal my chart';
   if (skip) skip.textContent = isTh ? 'ข้ามไปก่อน — ลองเล่นแอปก่อน →' : 'Skip for now — explore the app first →';
   // Pre-fill if name already saved (returning login flow).
   const savedName = localStorage.getItem('mth_name');
