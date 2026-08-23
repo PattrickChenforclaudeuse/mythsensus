@@ -65,7 +65,19 @@ const bundle = [
   strip(reportSrc),
   '',
   '  // ─── Public API ─────────────────────────────────────────',
-  '  root.MS26 = { calculate: calculate, generateReport: generateReport, calcDailyPulse: calcDailyPulse };',
+  '  root.MS26 = {',
+  '    calculate: calculate,',
+  '    generateReport: generateReport,',
+  '    calcDailyPulse: calcDailyPulse,',
+  '    // Forecast surface (2026-08-23). The label/advice tables ship with the',
+  '    // engine so the UI can never drift out of sync with the vocabulary the',
+  '    // votes were counted in.',
+  '    calcForecast: calcForecast,',
+  '    FORECAST_DOMAINS_FREE: FORECAST_DOMAINS_FREE,',
+  '    FORECAST_DOMAINS_ALL: FORECAST_DOMAINS_ALL,',
+  '    FORECAST_DOMAIN_LABELS: FORECAST_DOMAIN_LABELS,',
+  '    FORECAST_ADVICE: FORECAST_ADVICE,',
+  '  };',
   '})(typeof window !== "undefined" ? window : globalThis);',
   '',
 ].join('\n');
@@ -78,8 +90,8 @@ const vm = require('vm');
 const sandbox = { globalThis: {}, console };
 vm.createContext(sandbox);
 vm.runInContext(bundle.replace('typeof window !== "undefined" ? window : globalThis', 'globalThis'), sandbox);
-if (!sandbox.globalThis.MS26 || typeof sandbox.globalThis.MS26.calculate !== 'function') {
-  console.error('❌ Bundle does not expose MS26.calculate');
+if (!sandbox.globalThis.MS26 || typeof sandbox.globalThis.MS26.calculate !== 'function' || typeof sandbox.globalThis.MS26.calcForecast !== 'function') {
+  console.error('❌ Bundle does not expose MS26.calculate + MS26.calcForecast');
   process.exit(1);
 }
 console.log(`✓ Wrote ${OUT} (${(bundle.length/1024).toFixed(1)} KB)`);

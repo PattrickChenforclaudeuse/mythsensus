@@ -65,7 +65,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=184">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=185">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
@@ -1553,11 +1553,11 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         <button id="entryHeroLangEn" onclick="setLangExplicit('en')" style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;padding:5px 15px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text)">🇬🇧 EN</button>
       </div>
       <!-- one evocative line — invites the draw, no wall of text -->
-      <div style="text-align:center;margin:0 0 22px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:17px;color:var(--text);line-height:1.55" data-eh="hook2">ดูดวงสามที่ ได้สามคำตอบ<br><strong style="color:var(--gold)">แล้วอันไหนจริง?</strong></div>
+      <div style="text-align:center;margin:0 0 22px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:17px;color:var(--text);line-height:1.55" data-eh="hook2">4 สัปดาห์ข้างหน้า จะเป็นยังไง<br><strong style="color:var(--gold)">การงาน · การเงิน · ความรัก · สุขภาพ</strong></div>
       <!-- one line that says what we do about it — the promise is the MAP of
            agreement and disagreement, not a verdict. Promising "the consensus"
            would be a promise we cannot keep: most charts split. -->
-      <div style="text-align:center;margin:0 0 20px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--muted);line-height:1.7" data-eh="hooksub">เราถาม 26 ศาสตร์จากทั่วโลกพร้อมกัน แล้วบอกตรงๆ ว่า<strong style="color:var(--text)">ตรงกันกี่ศาสตร์</strong> และเถียงกันเรื่องอะไร</div>
+      <div style="text-align:center;margin:0 0 20px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--muted);line-height:1.7" data-eh="hooksub">เราถาม 26 ศาสตร์พร้อมกัน ให้คะแนนคนละใบ <strong style="color:var(--text)">เต็ม 10 ทีละด้าน</strong> แล้วบอกตรงๆ ว่าตรงกันกี่ศาสตร์ — และใครงดออกเสียงเพราะไม่มีวิชาทำนายเวลา</div>
       <!-- THE dominant action -->
       <!-- The date fields live here rather than behind a button. Every portal in
            this market that converts puts the input on the landing itself — one
@@ -1574,7 +1574,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         </select>
         <input class="login-input" type="number" id="heroYear" min="1900" max="2026" placeholder="2534" style="font-family:inherit;font-size:16px;text-align:center">
       </div>
-      <button class="login-confirm-btn" onclick="entryHeroGo()" style="font-size:18px;padding:16px 20px;letter-spacing:.5px" data-eh="cta">✦ ดูดวง 26 ศาสตร์ · ฟรี</button>
+      <button class="login-confirm-btn" onclick="entryHeroGo()" style="font-size:18px;padding:16px 20px;letter-spacing:.5px" data-eh="cta">✦ ดูพยากรณ์ 4 สัปดาห์ · ฟรี</button>
       <!-- A real reading, computed live, before we ask for anything. Every
            site in this market that converts shows the product first; ours
            showed nothing until you handed over a birth date. The numbers are
@@ -1625,10 +1625,16 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 
     <!-- INPUT GRID -->
     <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px">
-      <input class="login-input" type="text" id="entryName"
+      <input class="login-input" type="text" id="entryName" placeholder="ชื่อ / นามแฝง · ไม่ใส่ก็ได้"
              style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:15px">
+      <!-- Confirmed line, shown when the hero already collected the date.
+           Filled by _entryConfirmDob(); "แก้ไข" puts the fields back. -->
+      <div id="entryDobConfirm" style="display:none;border:1px solid var(--border);border-radius:4px;padding:10px 12px;background:var(--bg3);display:none;align-items:baseline;justify-content:space-between;gap:10px">
+        <span id="entryDobConfirmText" style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:15px;color:var(--text)"></span>
+        <button type="button" onclick="_entryEditDob()" id="entryDobEditBtn" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.2px;text-decoration:underline;padding:0;flex-shrink:0">แก้ไข</button>
+      </div>
       <!-- วันเกิด: DD | MM | YYYY + พ.ศ./ค.ศ. toggle -->
-      <div>
+      <div id="entryDobBlock">
         <!-- Labels ROW — above the inputs -->
         <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:6px;margin-bottom:4px;padding:0 1px">
           <span style="font-family:'Josefin Sans',sans-serif;font-size:11px;color:var(--gold);letter-spacing:1px;text-align:center" id="entryLblDay">วัน · DD</span>
@@ -2176,7 +2182,7 @@ try{
 <main>
 
 <!-- ═══ PANEL 1: GOD BLESSING ═══ -->
-<div class="panel active" id="panel-blessing">
+<div class="panel" id="panel-blessing">
   <div class="blessing-status" id="blessingStatus"></div>
   <div class="draw-area">
     <button class="draw-btn" id="drawBtn" onclick="drawBlessing()" data-t="draw_btn">Receive Today's Blessing</button>
@@ -2665,6 +2671,16 @@ try{
   <div id="pulsePanel" style="max-width:720px;margin:0 auto;"></div>
 </div>
 
+<!-- ═══ FREE ─ Forecast: the four weeks ahead, by domain ═══ -->
+<!-- The landing tab as of 2026-08-23. It answers the question people arrive
+     with ("what is coming, and is it good or bad") instead of the one the
+     natal preview answered ("who am I"), which used to hold this slot. -->
+<div class="panel active" id="panel-forecast">
+  <div class="section-title" data-t="forecast_title">THE WEEKS AHEAD</div>
+  <div class="sky-dom-hint" data-t="forecast_hint">4 สัปดาห์ข้างหน้า · การงาน การเงิน ความรัก สุขภาพ · ตัดสินโดยศาสตร์ที่มีวิชาทำนายเวลาจริง</div>
+  <div id="forecastPanel" style="max-width:720px;margin:0 auto;"></div>
+</div>
+
 <div class="panel" id="panel-brief">
   <div class="section-title" data-t="brief_title">MONTHLY COSMIC BRIEF</div>
   <div class="sky-dom-hint" data-t="brief_hint">สรุปธีมของเดือนนี้ · transit หลัก · event ที่ต้องจับตา</div>
@@ -2822,7 +2838,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=184" defer></script>
+<script src="/build/ms26-bundle.js?v=185" defer></script>
 <script>
 
 
@@ -2879,7 +2895,7 @@ en:{
   group_free:"✦ Free readings",group_premium:"👑 ดวงชะตาเต็ม",group_subscription:"🔮 Today",
   group_addon:"🎁 People · Remedies",group_profile:"👤 My collection",
   // ── sub-tabs
-  sub_blessing:"🎴 Blessing",sub_organum:"🔮 Oraculum",sub_preview:"📊 Preview",
+  sub_forecast:"🗓 Weeks ahead",sub_blessing:"🎴 Blessing",sub_organum:"🔮 Oraculum",sub_preview:"📊 Preview",
   sub_collection:"📚 Collection",sub_library:"📦 My Unlocks",sub_streak:"🔥 Streak",sub_history7:"📜 7-day",
   sub_generate:"✨ Generate",sub_reports:"📁 My Reports",
   sub_sky:"🌌 Daily Sky",sub_resonance:"🧭 Resonance",sub_organum_plus:"🔮 Oraculum ∞",
@@ -2947,6 +2963,7 @@ en:{
   res_ideal_countries:"Ideal countries",res_career_match:"Career archetype",res_current_career:"What you're doing now",
   res_closing:"Your working compass points {dir}, and your element is {el}. Align them and the chart breathes easier.",
   // ── Monthly Brief
+  forecast_title:"THE WEEKS AHEAD",forecast_hint:"Your next four weeks — work, money, love, health — scored by the traditions that actually have a timing technique",
   brief_title:"MONTHLY COSMIC BRIEF",brief_hint:"This month's major transits + what to watch",
   brief_month:"Brief for",brief_sub:"Where the sky is pushing you this month",
   brief_line_transit:"Jupiter transit",brief_line_bazi:"BaZi note",brief_line_vedic:"Vedic Mahadasha",
@@ -3095,7 +3112,7 @@ th:{
   group_free:"✦ ดูดวงฟรี",group_premium:"👑 Full chart",group_subscription:"🔮 ดวงวันนี้",
   group_addon:"🎁 เนื้อคู่ · เสริมดวง",group_profile:"👤 คลังของฉัน",
   // ── sub-tabs
-  sub_blessing:"🎴 จั่วไพ่",sub_organum:"🔮 โอราคูลัม",sub_preview:"📊 ดูตัวอย่าง",
+  sub_forecast:"🗓 4 สัปดาห์ข้างหน้า",sub_blessing:"🎴 จั่วไพ่",sub_organum:"🔮 โอราคูลัม",sub_preview:"📊 ดูตัวอย่าง",
   sub_collection:"📚 สะสมเทพ",sub_library:"📦 ที่ปลดล็อก",sub_streak:"🔥 Streak",sub_history7:"📜 7 วัน",
   sub_generate:"✨ สร้างรายงาน",sub_reports:"📁 รายงานของฉัน",
   sub_sky:"🌌 ฟ้าวันนี้",sub_resonance:"🧭 ดวงของเรากับสภาพแวดล้อม",sub_organum_plus:"🔮 เสียงจาก 108 เทพ",
@@ -3167,6 +3184,7 @@ th:{
   res_current_career:"สิ่งที่คุณทำอยู่",
   res_closing:"เข็มทิศงานของคุณชี้ไปทาง {dir} และธาตุหลักคือ {el} — จับทั้งคู่ให้ตรง แล้วดวงจะหายใจโล่งขึ้น",
   // ── Monthly Brief
+  forecast_title:"4 สัปดาห์ข้างหน้า",forecast_hint:"การงาน · การเงิน · ความรัก · สุขภาพ — ให้คะแนนโดยศาสตร์ที่มีวิชาทำนายช่วงเวลาจริง",
   brief_title:"MONTHLY COSMIC BRIEF — สรุปดาวประจำเดือน",brief_hint:"ธีมของเดือน · การเคลื่อนดาวหลัก · เหตุการณ์ที่ต้องจับตา",
   brief_month:"สรุปประจำเดือน",brief_sub:"ฟ้ากำลังผลักคุณไปทางไหนในเดือนนี้",
   brief_line_transit:"Jupiter transit",brief_line_bazi:"BaZi note",brief_line_vedic:"Vedic Mahadasha",
@@ -3399,8 +3417,8 @@ function _renderEntryToday(tries){
                + `<span style="color:var(--gold2)">` + x.v + `</span></div>`;
         }).join('')
       + `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06);font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--text)">`
-      + (isTh ? 'พรุ่งนี้ทั้งสามศาสตร์เปลี่ยนหมด — <strong style="color:var(--gold)">กลับมาดูใหม่ได้ทุกวัน</strong>'
-              : 'All three change tomorrow — <strong style="color:var(--gold)">come back any day</strong>')
+      + (isTh ? 'นี่คือ<strong style="color:var(--gold)">วันนี้</strong> · ใส่วันเกิดแล้วเห็นยาว <strong style="color:var(--gold)">4 สัปดาห์ ราย 4 ด้าน</strong>'
+              : 'That is <strong style="color:var(--gold)">today</strong>. Add your birth date to see <strong style="color:var(--gold)">four weeks, four areas</strong>')
       + `</div></div>`;
   } catch(e) { host.innerHTML = ''; }
 }
@@ -3427,11 +3445,11 @@ function _refreshEntryHero(){
   var sgn = '<button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">';
   var M = {
     tagline:  { th:'ดวงคุณ จาก 26 ศาสตร์ทั่วโลก พร้อมกัน', en:'Your chart, read by 26 world traditions at once' },
-    hook2:    { th:'ดูดวงสามที่ ได้สามคำตอบ<br><strong style="color:var(--gold)">แล้วอันไหนจริง?</strong>', en:'Three readings, three answers.<br><strong style="color:var(--gold)">So which one is true?</strong>' },
-    cta:      { th:'✦ ดูดวง 26 ศาสตร์ · ฟรี', en:'✦ Read all 26 systems · Free' },
+    hook2:    { th:'4 สัปดาห์ข้างหน้า จะเป็นยังไง<br><strong style="color:var(--gold)">การงาน · การเงิน · ความรัก · สุขภาพ</strong>', en:'What the next four weeks hold<br><strong style="color:var(--gold)">Work · Money · Love · Health</strong>' },
+    cta:      { th:'✦ ดูพยากรณ์ 4 สัปดาห์ · ฟรี', en:'✦ See your four weeks · Free' },
     drawalt:  { th:'หรือรับพรจากเทพประจำวันก่อน →', en:'or receive today’s blessing first →' },
     compare:  { th:'💑 เทียบดวงกับใครสักคน · แค่ 2 วันเกิด', en:'💑 Compare with someone · just 2 birth dates' },
-    hooksub:  { th:'เราถาม 26 ศาสตร์จากทั่วโลกพร้อมกัน แล้วบอกตรงๆ ว่า<strong style="color:var(--text)">ตรงกันกี่ศาสตร์</strong> และเถียงกันเรื่องอะไร', en:'We ask 26 traditions at once and tell you plainly <strong style="color:var(--text)">how many agree</strong> — and what they argue about.' },
+    hooksub:  { th:'เราถาม 26 ศาสตร์พร้อมกัน ให้คะแนนคนละใบ <strong style="color:var(--text)">เต็ม 10 ทีละด้าน</strong> แล้วบอกตรงๆ ว่าตรงกันกี่ศาสตร์ — และใครงดออกเสียงเพราะไม่มีวิชาทำนายเวลา', en:'All 26 score you separately, <strong style="color:var(--text)">out of 10, area by area</strong> — then we say plainly how many agreed, and who abstained for want of a timing technique.' },
     alt:      { th:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">เทียบดวงสองคน</button> &nbsp;·&nbsp; <button onclick="entryDrawFirst()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">รับพรวันนี้</button>', en:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">Compare two charts</button> &nbsp;·&nbsp; <button onclick="entryDrawFirst()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">Blessing today</button>' },
     signin:   { th:'มีบัญชีแล้ว? ' + sgn + 'ลงชื่อเข้าใช้ →</button>', en:'Already have an account? ' + sgn + 'Sign in →</button>' }
   };
@@ -3506,8 +3524,12 @@ const GROUPS = {
     // First-time visitors land on "ดูตัวอย่าง" (the 26-system chart preview)
     // — it's the primary value demo. Daily blessing comes second; users who
     // want it daily can pin it via the sub-tab. // the preview was buried at position 3, content not visible enough.
-    default: 'preview',
+    // 2026-08-23: forecast leads, preview follows. The 26-system natal
+    // preview is still the best demo of what the engine can do — it just is
+    // not what a first-time visitor came to find out.
+    default: 'forecast',
     tabs: [
+      ['forecast',   'forecast',    'sub_forecast',   false],
       ['preview',    'chart',       'sub_preview',    false],
       ['blessing',   'blessing',    'sub_blessing',   false],
       ['organum',    'organum',     'sub_organum',    false],
@@ -3593,6 +3615,7 @@ let CUR_SUB   = 'blessing';
 
 const RENDERERS = {
   history:          () => renderHistoryPanel(),
+  forecast:         () => renderForecast(),
   sky:              () => { const dob = document.getElementById('profDob')?.value; if (dob && !document.getElementById('skyResults')?.classList.contains('active')) calcSky(); },
   chart:            () => { const dob = document.getElementById('profDob')?.value; if (dob && !document.getElementById('chartResults')?.classList.contains('active')) calcChart(); },
   blueprint:        () => { syncAllForms(); try { renderFamousQuickStrip(); } catch(_) {} },
@@ -4271,7 +4294,7 @@ async function drawBlessing(){
     document.getElementById('godOrigin').textContent=god.mythology||'';
     document.getElementById('godMessage').textContent='"'+message+'"';
     _renderLucky(god);
-    document.getElementById('godRepresents').innerHTML=(typeof _godCategoryChips==='function'?_godCategoryChips(god,4):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).map(esc).join(' · ')}</div>`;
+    document.getElementById('godRepresents').innerHTML=(typeof _godCategoryChips==='function'?_godCategoryChips(god,4):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).map(esc).join(' · ')}</div>`+(typeof _fcBlessingMatch==='function'?_fcBlessingMatch(god):'');
     _currentDraw={god,tier:T,msgIdx,message};
     const sb=document.getElementById('godShareBtn');
     if(sb){sb.textContent=(LANG==='th'?'✦ แชร์พรนี้ให้เพื่อน':'✦ Share your blessing');}
@@ -4692,7 +4715,7 @@ function _renderGodCard(god, T, msgIdx, explicitMsg) {
   const message = explicitMsg || arr[idx] || randMsg(god);
   document.getElementById('godMessage').textContent = '"' + message + '"';
   _renderLucky(god);
-  document.getElementById('godRepresents').innerHTML = (typeof _godCategoryChips==='function'?_godCategoryChips(god,4):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).map(esc).join(' · ')}</div>`;
+  document.getElementById('godRepresents').innerHTML = (typeof _godCategoryChips==='function'?_godCategoryChips(god,4):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).map(esc).join(' · ')}</div>`+(typeof _fcBlessingMatch==='function'?_fcBlessingMatch(god):'');
   _currentDraw = { god, tier: T, msgIdx: idx, message };
   const sb = document.getElementById('godShareBtn');
   if (sb) { sb.textContent = (LANG==='th'?'✦ แชร์พรนี้ให้เพื่อน':'✦ Share your blessing'); }
@@ -7132,6 +7155,7 @@ const PRICING = {
   product:     { usd: 5,  thb: 180 },
   compat:      { usd: 9,  thb: 320 },
   pilgrimage:  { usd: 9,  thb: 320 },   // Cosmic Pilgrimage — sacred places by chart
+  forecast12:  { usd: 9,  thb: 320 },   // 12-month forecast map — DIRECTOR OWNS THIS PRICE. No Gumroad product yet, so the paywall shows membership instead (see _GUMROAD_PRODUCTS).
   // Big bundle — Full Report in-depth PDF (NOT an add-on)
   full_report: { usd: 19, thb: 650 },
 };
@@ -7408,6 +7432,7 @@ const _GUMROAD_PRODUCTS = {
   product:     { url: 'https://garsell.gumroad.com/l/howzdo?wanted=true', permalink: 'howzdo' }, // $5
   compat:      { url: 'https://garsell.gumroad.com/l/mdjeln?wanted=true', permalink: 'mdjeln' }, // $9
   pilgrimage:  { url: '', permalink: '' }, // $9 — TODO: create Gumroad product, falls back to subscription for now
+  forecast12:  { url: '', permalink: '' }, // 12-month forecast map — TODO: create Gumroad product; falls back to membership until then
   full_report: { url: 'https://garsell.gumroad.com/l/mbkayz?wanted=true', permalink: 'mbkayz' }, // $19
 };
 
@@ -10125,6 +10150,358 @@ function _mbViewMonth(monthIdx){
   });
   // Smooth-scroll the container into view so the new content is visible.
   if (container) container.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  FORECAST PANEL — the free tier's front door (2026-08-23)
+// ════════════════════════════════════════════════════════════════════════════
+//  Why this replaced the natal preview as the landing tab: people arriving at a
+//  free fortune site are not asking "who am I", they are asking "what is coming
+//  in the next few weeks, and is it good or bad". The 26-system chart preview
+//  answered the first question beautifully and the second one not at all, and it
+//  sat in the default slot.
+//
+//  Tiers (director, 2026-08-23):
+//    free        4 weeks × 4 domains, the score, the consensus advice, and the
+//                per-system drill-down (who scored what, and what they warned about)
+//    subscriber  8 domains, and the month-by-month view, rolling
+//    one-time    the 12-month map ahead
+//
+//  Everything on screen comes from MS26.calcForecast. No copy in this file
+//  states a number of its own.
+// ════════════════════════════════════════════════════════════════════════════
+
+let _FC_CACHE = null;          // { key, data }
+let _FC_FOCUS = null;          // the best/worst the reader was actually shown
+let _FC_WEEK  = 0;             // which period tile is open
+let _FC_MODE  = 'week';        // 'week' | 'month'
+const _FC_OPEN = {};           // domain → drill-down expanded?
+
+function _fcEsc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// One forecast per chart per day. calcForecast sweeps a year of days to work
+// out what an ordinary week looks like for this chart, so it is not something
+// to re-run on every tab click.
+function _fcGet() {
+  const chart = _getMS26ChartFromProfile();
+  if (!chart || !window.MS26 || typeof MS26.calcForecast !== 'function') return null;
+  const today = new Date();
+  const key = (typeof _chartInputHash === 'function' ? _chartInputHash() : 'x')
+            + '|' + today.toISOString().slice(0, 10)
+            + '|' + (typeof LANG !== 'undefined' ? LANG : 'th');
+  if (_FC_CACHE && _FC_CACHE.key === key) return _FC_CACHE.data;
+  const data = MS26.calcForecast(chart, today, { weeks: 4, months: 12 });
+  _FC_CACHE = { key, data };
+  return data;
+}
+
+function _fcCanSeeAllDomains() { return _isOwner() || _IS_PREMIUM; }
+function _fcCanSeeMonths()     { return _isOwner() || _IS_PREMIUM; }
+// The 12-month map is a separate one-time unlock, so a subscriber reading
+// month by month still has somewhere to go.
+function _fcCanSeeYear() {
+  return _isOwner() || (typeof _hasItemAccess === 'function' && _hasItemAccess('forecast12'));
+}
+
+const _FC_BAND_STYLE = {
+  up:   { th: 'ดี',     en: 'Good',    color: '#6fb650', bg: 'rgba(111,182,80,.12)' },
+  mid:  { th: 'กลาง',   en: 'Even',    color: '#c8a840', bg: 'rgba(200,168,64,.12)' },
+  down: { th: 'ระวัง',  en: 'Careful', color: '#d08a6a', bg: 'rgba(208,138,106,.12)' },
+};
+
+function _fcScoreColor(s) {
+  return s >= 6.5 ? '#6fb650' : s <= 3.5 ? '#d08a6a' : '#c8a840';
+}
+
+// A 0-10 bar. Deliberately not a percentage: the number means "against your own
+// year", and a bar reads that way where a percent sign would not.
+function _fcBar(score) {
+  const pct = Math.max(2, Math.min(100, score * 10));
+  return `<div style="height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;margin:7px 0 8px">
+    <div style="height:100%;width:${pct}%;background:${_fcScoreColor(score)};border-radius:3px"></div></div>`;
+}
+
+function _fcVoteRows(v, isTh) {
+  return v.votes.map(function (o) {
+    const B = _FC_BAND_STYLE[o.band];
+    return `<div style="padding:9px 0;border-top:1px solid rgba(255,255,255,.05)">
+      <div style="display:flex;align-items:baseline;gap:8px;justify-content:space-between">
+        <span style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--text)">${_fcEsc(isTh ? o.sysTh : o.sysEn)}</span>
+        <span style="font-family:'Cinzel Decorative',serif;font-size:13px;color:${_fcScoreColor(o.score10)};white-space:nowrap">${o.score10}<span style="font-size:9px;color:var(--muted)">/10</span> · ${_fcEsc(isTh ? B.th : B.en)}</span>
+      </div>
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--gold2);line-height:1.55;margin-top:3px">${_fcEsc(isTh ? o.noteTh : o.noteEn)}</div>
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:.3px;color:var(--muted);line-height:1.5;margin-top:2px">${isTh ? 'ตำรา' : 'technique'}: ${_fcEsc(isTh ? o.doctrineTh : o.doctrineEn)}</div>
+    </div>`;
+  }).join('');
+}
+
+function _fcDomainCard(v, isTh, L, A) {
+  const lab = L[v.domain];
+  const B = _FC_BAND_STYLE[v.band];
+  const open = !!_FC_OPEN[v.domain];
+  const advice = A[v.advice];
+  // The split note is the honest half of "always give an answer": the verdict
+  // still lands, but the reader is told the room was divided.
+  const splitNote = v.split
+    ? `<span style="color:var(--muted)"> · ${isTh ? 'เสียงแตก' : 'systems divided'}</span>` : '';
+  return `<div class="deep-sys-card" style="margin-bottom:10px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+      <span style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:15px;color:var(--text)">${lab.icon} ${_fcEsc(isTh ? lab.th : lab.en)}</span>
+      <span style="white-space:nowrap">
+        <span style="font-family:'Cinzel Decorative',serif;font-size:21px;color:${_fcScoreColor(v.score10)};font-weight:600">${v.score10}</span><span style="font-size:11px;color:var(--muted)">/10</span>
+        <span style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:1px;color:${B.color};background:${B.bg};border:1px solid ${B.color}55;padding:2px 8px;border-radius:10px;margin-left:6px">${_fcEsc(isTh ? B.th : B.en)}</span>
+      </span>
+    </div>
+    ${_fcBar(v.score10)}
+    <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:.6px;color:var(--muted)">
+      ${isTh ? 'ดี' : 'good'} ${v.up} · ${isTh ? 'กลาง' : 'even'} ${v.mid} · ${isTh ? 'ระวัง' : 'careful'} ${v.down}
+      &nbsp;·&nbsp; ${v.n} ${isTh ? 'ศาสตร์' : 'systems'} · ${isTh ? 'ตรงกัน' : 'agree'} ${v.agreement}%${splitNote}
+    </div>
+    <div style="margin-top:9px;padding:8px 10px;border-radius:6px;background:rgba(200,164,90,.07);border-left:2px solid var(--gold3)">
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--text);line-height:1.5">${_fcEsc(isTh ? advice.th : advice.en)}</div>
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:.8px;color:var(--muted);margin-top:3px">
+        ${isTh ? `คำแนะนำที่ศาสตร์เห็นตรงกันมากที่สุด · ${v.adviceAgree} ใน ${v.n}` : `the advice most systems converged on · ${v.adviceAgree} of ${v.n}`}
+      </div>
+    </div>
+    <button onclick="_fcToggle('${v.domain}')" style="margin-top:8px;background:none;border:none;color:var(--gold2);cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.2px;padding:2px 0;text-decoration:underline">
+      ${open ? (isTh ? 'ปิดรายศาสตร์ ▴' : 'hide systems ▴') : (isTh ? `ดูรายศาสตร์ · ใครให้กี่คะแนน เตือนเรื่องอะไร ▾` : `see each system ▾`)}
+    </button>
+    ${open ? `<div style="margin-top:2px">${_fcVoteRows(v, isTh)}</div>` : ''}
+  </div>`;
+}
+
+function _fcToggle(domain) {
+  _FC_OPEN[domain] = !_FC_OPEN[domain];
+  renderForecast();
+}
+function _fcCollapseAll() { for (const k of Object.keys(_FC_OPEN)) delete _FC_OPEN[k]; }
+function _fcPick(i) { _FC_WEEK = i; _fcCollapseAll(); renderForecast(); }
+function _fcSetMode(m) { _FC_MODE = m; _FC_WEEK = 0; _fcCollapseAll(); renderForecast(); }
+
+function renderForecast() {
+  const host = document.getElementById('forecastPanel');
+  if (!host) return;
+  const isTh = LANG === 'th';
+  const data = _fcGet();
+  if (!data) { _emptyDeepHint('forecastPanel'); return; }
+
+  const L = MS26.FORECAST_DOMAIN_LABELS;
+  const A = MS26.FORECAST_ADVICE;
+  const showAll = _fcCanSeeAllDomains();
+  const domains = showAll ? MS26.FORECAST_DOMAINS_ALL : MS26.FORECAST_DOMAINS_FREE;
+
+  const periods = _FC_MODE === 'month' ? data.months : data.weeks;
+  const monthLimit = _fcCanSeeYear() ? 12 : (_fcCanSeeMonths() ? 2 : 0);
+  const visible = _FC_MODE === 'month' ? periods.slice(0, Math.max(1, monthLimit)) : periods;
+  if (_FC_WEEK >= visible.length) _FC_WEEK = 0;
+  const P = visible[_FC_WEEK];
+
+  // Best and worst AMONG THE DOMAINS THIS READER CAN SEE. Ranking across
+  // all eight would headline a locked domain, which is an upsell wearing a
+  // reading’s clothes.
+  const rankIn = function (period) {
+    const r = domains.slice().sort((a, b) => period.domains[b].score10 - period.domains[a].score10);
+    return { best: r[0], worst: r[r.length - 1] };
+  };
+  const R = rankIn(P);
+  _FC_FOCUS = { worst: R.worst, best: R.best,
+                worstScore: P.domains[R.worst].score10, bestScore: P.domains[R.best].score10 };
+
+  // ── header: what this screen is, and on what authority ──────────────────
+  const head = `
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:19px;color:var(--text);line-height:1.4">
+        ${_FC_MODE === 'month'
+          ? (isTh ? '12 เดือนข้างหน้า ของคุณ' : 'Your next twelve months')
+          : (isTh ? '4 สัปดาห์ข้างหน้า ของคุณ' : 'Your next four weeks')}
+      </div>
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--muted);line-height:1.7;margin-top:5px">
+        ${isTh
+          ? `<strong style="color:var(--gold2)">${data.votingCount} ศาสตร์มีวิชาทำนายช่วงเวลาจริง</strong> จึงออกเสียงในหน้านี้ · อีก ${data.abstainCount} ศาสตร์งดออกเสียง และบอกเหตุผลไว้ข้างล่าง`
+          : `<strong style="color:var(--gold2)">${data.votingCount} traditions have a real timing technique</strong> and voted here · ${data.abstainCount} abstained, each with its reason below`}
+      </div>
+    </div>`;
+
+  // ── period picker ───────────────────────────────────────────────────────
+  const modeRow = (_fcCanSeeMonths() || _FC_MODE === 'month') ? `
+    <div style="display:flex;gap:6px;justify-content:center;margin-bottom:9px">
+      ${['week', 'month'].map(m => `<button onclick="_fcSetMode('${m}')" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.2px;padding:5px 14px;border-radius:6px;cursor:pointer;${_FC_MODE === m ? 'border:1px solid var(--gold);background:rgba(200,164,90,.15);color:var(--gold)' : 'border:1px solid var(--border);background:var(--bg3);color:var(--muted)'}">${m === 'week' ? (isTh ? 'รายสัปดาห์' : 'BY WEEK') : (isTh ? 'รายเดือน' : 'BY MONTH')}</button>`).join('')}
+    </div>` : '';
+
+  const picker = `
+    <div style="display:grid;grid-template-columns:repeat(${Math.min(4, visible.length)},1fr);gap:5px;margin-bottom:14px">
+      ${visible.slice(0, _FC_MODE === 'month' ? visible.length : 4).map(function (p, i) {
+        const on = i === _FC_WEEK;
+        const pb = rankIn(p).best;
+        return `<button onclick="_fcPick(${i})" style="text-align:center;padding:8px 3px;border-radius:6px;cursor:pointer;${on ? 'border:2px solid var(--gold);background:rgba(212,175,55,.18)' : 'border:1px solid var(--border);background:rgba(0,0,0,.18)'}">
+          <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:.4px;color:${on ? 'var(--gold)' : 'var(--muted)'};line-height:1.4">${_fcEsc((isTh ? p.labelTh : p.labelEn).split('·')[0].trim())}</div>
+          <div style="font-family:'Cinzel Decorative',serif;font-size:13px;color:${_fcScoreColor(p.domains[pb].score10)};margin-top:3px">${L[pb].icon}</div>
+        </button>`;
+      }).join('')}
+    </div>`;
+
+  // ── the chosen period ───────────────────────────────────────────────────
+  const bestV = P.domains[R.best], worstV = P.domains[R.worst];
+  const summary = `
+    <div style="text-align:center;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--text);line-height:1.8;margin-bottom:12px">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">${_fcEsc(isTh ? P.labelTh : P.labelEn)}</div>
+      ${isTh ? 'เด่นสุด' : 'strongest'} <strong style="color:#6fb650">${L[R.best].icon} ${_fcEsc(isTh ? L[R.best].th : L[R.best].en)} ${bestV.score10}</strong>
+      &nbsp;·&nbsp; ${isTh ? 'ต้องระวัง' : 'watch'} <strong style="color:#d08a6a">${L[R.worst].icon} ${_fcEsc(isTh ? L[R.worst].th : L[R.worst].en)} ${worstV.score10}</strong>
+    </div>`;
+
+  const cards = domains.map(d => _fcDomainCard(P.domains[d], isTh, L, A)).join('');
+
+  // ── what the paid tiers add ─────────────────────────────────────────────
+  let upsell = '';
+  if (!showAll) {
+    const locked = MS26.FORECAST_DOMAINS_ALL.filter(d => MS26.FORECAST_DOMAINS_FREE.indexOf(d) < 0);
+    upsell += `<div class="deep-sys-card" style="margin-bottom:10px;border-style:dashed;text-align:center">
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:14px;color:var(--text)">
+        ${isTh ? 'อีก 4 ด้านที่ศาสตร์เดียวกันนี้ตอบได้' : 'Four more domains the same systems can answer'}
+      </div>
+      <div style="margin:9px 0;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13px;color:var(--gold2);line-height:1.9">
+        ${locked.map(d => `${L[d].icon} ${_fcEsc(isTh ? L[d].th : L[d].en)}`).join(' &nbsp;·&nbsp; ')}
+      </div>
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--muted);line-height:1.6">
+        ${isTh ? 'สมาชิกได้ครบ 8 ด้าน และดูรายเดือนไปเรื่อยๆ เดือนต่อเดือน' : 'Members get all eight, and the month-by-month view'}
+      </div>
+      <button onclick="_purchaseSubscription('forecast_domains')" style="margin-top:10px;font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:1.4px;padding:9px 22px;border-radius:6px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.15);color:var(--gold)">
+        ${isTh ? 'เปิดครบ 8 ด้าน →' : 'UNLOCK ALL EIGHT →'}
+      </button>
+    </div>`;
+  }
+  if (_FC_MODE === 'month' && !_fcCanSeeYear()) {
+    // Reuses the existing paywall component rather than hand-rolling a button:
+    // it already refuses to show a one-time price for an item that has no
+    // Gumroad product yet, and offers membership instead. forecast12 has no
+    // product, so nobody can be charged a wrong price while it is being set up.
+    upsell += _purchasePaywall('forecast12', {
+      label: isTh ? 'แผนที่ 12 เดือนล่วงหน้า' : 'The 12 months ahead',
+      blurb: isTh
+        ? 'เห็นทั้งปีในหน้าเดียว — เดือนไหนควรเปิดเกม เดือนไหนควรพัก · ศาสตร์เดียวกัน คะแนนเดียวกัน แค่ยาวขึ้น'
+        : 'The whole year on one page — which months to push and which to rest. Same systems, same scoring, longer horizon.',
+      benefits: [
+        isTh ? 'ครบ 8 ด้าน ทั้ง 12 เดือน' : 'All eight domains, all twelve months',
+        isTh ? 'เหตุผลรายศาสตร์ของทุกเดือน' : 'Every month’s per-system reasoning',
+      ],
+    });
+  }
+  // ── context that is not a vote ──────────────────────────────────────────
+  const highlights = data.highlights.length ? `
+    <div class="deep-sys-card" style="margin-bottom:10px">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">${isTh ? 'ฉากหลังของปีนี้ · ไม่ใช่คำตัดสินดี-ร้าย' : 'This year’s backdrop · not a good/bad verdict'}</div>
+      ${data.highlights.map(h => `<div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--text);line-height:1.75;margin-bottom:5px">
+        <span style="color:var(--gold2)">${_fcEsc(isTh ? h.sysTh : h.sysEn)}</span> — ${_fcEsc(isTh ? h.textTh : h.textEn)}</div>`).join('')}
+    </div>` : '';
+
+  // ── the abstentions, shown on purpose ──────────────────────────────────
+  // Naming the systems that had nothing to say is the part competitors will not
+  // print. It is also the only thing that makes "N of 26 agree" mean anything.
+  const abst = `
+    <div class="deep-sys-card" style="margin-bottom:10px">
+      <button onclick="_fcToggleAbst()" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:0">
+        <span style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase">
+          ${isTh ? `${data.abstainCount} ศาสตร์ที่งดออกเสียง — และเหตุผลจริงของแต่ละอัน` : `${data.abstainCount} traditions abstained — and why, one by one`} ${window._fcAbstOpen ? '▴' : '▾'}
+        </span>
+      </button>
+      ${window._fcAbstOpen ? data.abstentions.map(a => `
+        <div style="padding:7px 0;border-top:1px solid rgba(255,255,255,.05)">
+          <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:13px;color:var(--gold2)">${_fcEsc(isTh ? a.sysTh : a.sysEn)}</div>
+          <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--muted);line-height:1.6">${_fcEsc(isTh ? a.whyTh : a.whyEn)}</div>
+        </div>`).join('') : ''}
+    </div>`;
+
+  // ── how to read the number ─────────────────────────────────────────────
+  const scale = `
+    <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:11.5px;color:var(--muted);line-height:1.7;text-align:center;margin-bottom:14px">
+      ${isTh
+        ? ('คะแนนเทียบกับ<strong style="color:var(--gold3)">ปีของคุณเอง</strong> — 5 คือ' + (_FC_MODE === 'month' ? 'เดือนธรรมดา 8 ขึ้นไปคือหนึ่งในเดือนที่ดีที่สุดของปี' : 'สัปดาห์ธรรมดา 8 ขึ้นไปคือหนึ่งในสัปดาห์ที่ดีที่สุดของปี') + ' ไม่ได้เทียบกับคนอื่น')
+        : ('Scored against <strong style="color:var(--gold3)">your own year</strong> — 5 is an ordinary ' + (_FC_MODE === 'month' ? 'month' : 'week') + ', 8+ is one of your best. Never against other people.')}
+    </div>`;
+
+  // ── the blessing hand-off ──────────────────────────────────────────────
+  // Reading the forecast leaves the reader holding something specific: a domain
+  // that needs help. The draw follows from that instead of being a separate toy.
+  const bless = `
+    <div class="deep-sys-card" style="text-align:center;border-color:var(--gold3)">
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.6">
+        ${isTh ? `ด้านที่ต้องระวังของคุณช่วงนี้คือ <strong style="color:#d08a6a">${_fcEsc(L[R.worst].th)}</strong>`
+               : `The area to watch right now is <strong style="color:#d08a6a">${_fcEsc(L[R.worst].en)}</strong>`}
+      </div>
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--muted);line-height:1.7;margin-top:6px">
+        ${isTh ? 'ไปขอพรวันนี้ — ถ้าเทพที่คุณได้ดูแลเรื่องนั้นพอดี เราจะบอกให้' : 'Draw today’s blessing — if the deity you receive governs that very area, we’ll tell you'}
+      </div>
+      <button onclick="_fcGoBless()" style="margin-top:11px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;padding:10px 26px;border-radius:6px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.15);color:var(--gold)">
+        ${isTh ? '✦ ไปขอพร' : '✦ RECEIVE A BLESSING'}
+      </button>
+    </div>`;
+
+  host.innerHTML = head + modeRow + picker + summary + scale + cards + upsell + highlights + abst + bless;
+}
+
+function _fcToggleAbst() { window._fcAbstOpen = !window._fcAbstOpen; renderForecast(); }
+
+// Carry the forecast's verdict into the blessing tab so the draw can be read
+// against it. Stored rather than passed because the draw happens later, on a
+// different panel, possibly after a reload.
+function _fcGoBless() {
+  try {
+    if (_FC_FOCUS) sessionStorage.setItem('mth_fc_focus', JSON.stringify(_FC_FOCUS));
+  } catch (_) {}
+  setGroup('free'); showSubTab('blessing');
+}
+
+// ── Blessing ↔ forecast match ──────────────────────────────────────────────
+// The deity pool is already tagged with what each one governs, and the forecast
+// already names the domain under strain. When the two line up, say so — and when
+// they do not, say nothing rather than inventing a connection, which is the
+// whole difference between a reading and a horoscope generator.
+const _FC_GOD_CATEGORY = {
+  career:   ['power'],
+  money:    ['wealth'],
+  love:     ['love'],
+  health:   ['healing'],
+  family:   ['protect'],
+  learning: ['wisdom'],
+  allies:   ['protect', 'faith'],
+  chance:   ['cosmos'],
+};
+
+function _fcBlessingMatch(god) {
+  try {
+    if (!god || !window.MS26 || !MS26.FORECAST_DOMAIN_LABELS) return '';
+    const raw = sessionStorage.getItem('mth_fc_focus');
+    if (!raw) return '';
+    const f = JSON.parse(raw);
+    const isTh = LANG === 'th';
+    const L = MS26.FORECAST_DOMAIN_LABELS;
+    const cats = (god.categories || []).map(String);
+    const hit = function (domain) {
+      const want = _FC_GOD_CATEGORY[domain] || [];
+      return want.some(w => cats.indexOf(w) >= 0);
+    };
+    if (hit(f.worst)) {
+      return `<div style="margin-top:10px;padding:9px 12px;border-radius:6px;background:rgba(208,138,106,.10);border-left:2px solid #d08a6a;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--text);line-height:1.65">
+        ${isTh
+          ? `องค์นี้ดูแลเรื่อง<strong style="color:var(--gold)">${_fcEsc(L[f.worst].th)}</strong> — ซึ่งเป็นด้านที่ศาสตร์ส่วนใหญ่บอกให้คุณระวังช่วงนี้ (${f.worstScore}/10)`
+          : `This one governs <strong style="color:var(--gold)">${_fcEsc(L[f.worst].en)}</strong> — the very area the systems flagged for care right now (${f.worstScore}/10)`}
+      </div>`;
+    }
+    // Only celebrate the strong side when there IS a strong side. Calling a
+    // 4.1/10 domain the reader's "strongest area" is technically true and reads
+    // as flattery, which is the thing this product is trying not to be.
+    if (f.bestScore >= 6 && hit(f.best)) {
+      return `<div style="margin-top:10px;padding:9px 12px;border-radius:6px;background:rgba(111,182,80,.10);border-left:2px solid #6fb650;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--text);line-height:1.65">
+        ${isTh
+          ? `องค์นี้ดูแลเรื่อง<strong style="color:var(--gold)">${_fcEsc(L[f.best].th)}</strong> — ด้านที่แรงที่สุดของคุณช่วงนี้พอดี (${f.bestScore}/10)`
+          : `This one governs <strong style="color:var(--gold)">${_fcEsc(L[f.best].en)}</strong> — your strongest area right now (${f.bestScore}/10)`}
+      </div>`;
+    }
+    return '';
+  } catch (_) { return ''; }
 }
 
 function renderMonthlyBrief(){
@@ -16506,14 +16883,58 @@ function entryHeroGo(){
     var ey = document.getElementById('entryYear');
     if (d && ed && d.value) ed.value = d.value;
     if (m && em && m.value) em.value = m.value;
+    var ee = document.getElementById('entryEra');
     if (y && ey && y.value) {
       // Thai visitors type a Buddhist-era year out of habit; accept both.
+      // Hand the year over UNCONVERTED and set the era selector to match, so
+      // the single conversion happens where it belongs, in _getEntryDob().
+      // Converting here as well used to subtract 543 twice (2534 -> 1991 ->
+      // 1448), which failed _getEntryDob's y<1900 guard and returned an empty
+      // date — so the hero handed the form a year the form then rejected, and
+      // every visitor who typed a พ.ศ. year dead-ended on the second step.
       var yr = parseInt(y.value, 10);
-      if (yr > 2400) yr -= 543;
       ey.value = yr;
+      if (ee) ee.value = (yr > 2400) ? 'be' : 'ce';
+      try { if (typeof _entryEraChanged === 'function' && ee) _entryEraChanged(ee.value); } catch(_) {}
     }
   } catch(_) {}
   entryShowForm();
+  // The hero already has the date — present it as settled, not as a form to
+  // fill in twice.
+  try { _entryConfirmDob(); } catch(_) {}
+}
+
+// Show the date the hero already collected as a settled fact rather than as
+// three inputs to fill in again. Reads the fields, so it always agrees with
+// what entryAccept() will actually use.
+function _entryConfirmDob(){
+  try {
+    var d = parseInt((document.getElementById('entryDay')||{}).value || '0', 10);
+    var m = parseInt((document.getElementById('entryMonth')||{}).value || '0', 10);
+    var y = parseInt((document.getElementById('entryYear')||{}).value || '0', 10);
+    var era = (document.getElementById('entryEra')||{}).value || 'be';
+    if (!d || !m || !y) return false;
+    var isTh = (typeof _entryLang === 'undefined') || _entryLang !== 'en';
+    var moTh = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    var moEn = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var txt = isTh
+      ? 'เกิด ' + d + ' ' + moTh[m] + ' ' + y + ' ' + (era === 'be' ? 'พ.ศ.' : 'ค.ศ.')
+      : 'Born ' + d + ' ' + moEn[m] + ' ' + y + ' ' + (era === 'be' ? 'BE' : 'CE');
+    var t = document.getElementById('entryDobConfirmText'); if (t) t.textContent = txt;
+    var e = document.getElementById('entryDobEditBtn'); if (e) e.textContent = isTh ? 'แก้ไข' : 'change';
+    var box = document.getElementById('entryDobConfirm');
+    var blk = document.getElementById('entryDobBlock');
+    if (box) box.style.display = 'flex';
+    if (blk) blk.style.display = 'none';
+    return true;
+  } catch(_) { return false; }
+}
+function _entryEditDob(){
+  try {
+    var box = document.getElementById('entryDobConfirm'); if (box) box.style.display = 'none';
+    var blk = document.getElementById('entryDobBlock'); if (blk) blk.style.display = '';
+    var d = document.getElementById('entryDay'); if (d) d.focus();
+  } catch(_) {}
 }
 
 function entryShowForm(){
@@ -16830,9 +17251,8 @@ function entryAccept(){
   // active time. (2026-06-16)
   try { if (window._msTrack && !window._birthSubmitted) { window._birthSubmitted = true; _msTrack.track('birth_submit'); } } catch(_){}
   _bootAfterEntry();
-  // Prefill the chart-preview inputs so the CONSENSUS reading computes the
-  // moment we land — this matches the new hero's promise ("see what 26 systems
-  // agree on") instead of dropping the user on a single-god blessing.
+  // Prefill the chart-preview inputs so both the forecast and the natal
+  // consensus have what they need the moment we land.
   try {
     const pD=document.getElementById('profDob'), pN=document.getElementById('profName'), pT=document.getElementById('profTime');
     if (pD) pD.value = dob;
@@ -16840,7 +17260,9 @@ function entryAccept(){
     if (pT) pT.value = time;
   } catch(_){}
   setGroup('free');
-  showSubTab('preview');   // free 'preview' → panel-chart → calcChart → consensus banner
+  // Land on the forecast, which is what the hero promised. The natal preview
+  // is one tab across and still one click away.
+  showSubTab('forecast');
   setTimeout(() => {
     // Blueprint generator inputs (prefilled, ready the moment they go premium).
     const dInp = document.getElementById('cb-f-dob');

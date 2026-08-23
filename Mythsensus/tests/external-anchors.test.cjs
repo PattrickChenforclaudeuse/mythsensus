@@ -111,5 +111,67 @@ console.log("— Hellenistic sect (Sun above/below horizon) —");
   check(t.who + " - sect", c.hellenistic.sect, t.want, "sunrise/sunset for that date and place");
 });
 
+// ── 6. The forecast path carries its OWN copies of these anchors ─────────
+// Sections 2 and 4 above pin the natal path. They passed all through the
+// window in which calcDailyPulse — a completely separate code path, with its
+// own day-pillar and kin constants — was wrong: its BaZi day BRANCH ran two
+// positions early and its Tzolk'in ran 51 kin ahead. A duplicated constant is
+// only pinned where a test actually looks, so the same outside sources are
+// applied again here, through the surface the forecast really uses.
+console.log('— forecast path: same anchors, second code path —');
+{
+  const { calcDailyPulse, calcForecast } = require(path.join(__dirname, '..', 'build', 'calc.js'));
+  const c = chart({ year: 1991, month: 2, day: 3, hour: 5, minute: 6 });
+
+  // 万年历: 1949-10-01 = 甲子, 2000-01-01 = 戊午 (the same two dates as §2).
+  const pillarOn = (y, m, d) => {
+    const p = calcDailyPulse(c, new Date(y, m - 1, d), { lang: 'en' })
+      .signals.find(s => s.sys === 'BaZi Day');
+    return (p.noteEn.match(/Day\s+(\S\S)/) || [])[1];
+  };
+  check('pulse day pillar 1949-10-01', pillarOn(1949, 10, 1), '甲子', '万年历');
+  check('pulse day pillar 2000-01-01', pillarOn(2000, 1, 1), '戊午', '万年历');
+
+  // 13.0.0.0.0 = 2012-12-21 = 4 Ahau = Kin 160 (zero-based 159, as calcMayan).
+  const kinNote = calcDailyPulse(c, new Date(2012, 11, 21), { lang: 'en' })
+    .signals.find(s => s.sys === 'Mayan Kin').noteEn;
+  check('pulse Tzolkin 2012-12-21', /Kin 159\b/.test(kinNote) && /Ahau/.test(kinNote), true,
+        "close of 13th b'ak'tun — 4 Ajaw");
+
+  // A forecast that returns the same numbers every week is not a forecast.
+  // This is the failure the first build actually shipped with: averaging
+  // washed every domain to the middle and every week read the same.
+  const fc = calcForecast(c, new Date(2026, 7, 23), { weeks: 6, months: 0 });
+  const career = fc.weeks.map(w => w.domains.career.score10);
+  const spread = Math.max.apply(null, career) - Math.min.apply(null, career);
+  check('forecast moves week to week (career spread ≥ 1.0)', spread >= 1.0, true,
+        'a forecast whose weeks are identical is telling nobody anything');
+
+  // Two different birthdays must not receive the same reading.
+  const other = chart({ year: 1978, month: 11, day: 19, hour: 14, minute: 30 });
+  const fcB = calcForecast(other, new Date(2026, 7, 23), { weeks: 1, months: 0 });
+  const differs = ['career', 'money', 'love', 'health']
+    .filter(d => fc.weeks[0].domains[d].score10 !== fcB.weeks[0].domains[d].score10).length;
+  check('two charts get different forecasts', differs >= 3, true,
+        'per-chart doctrine, not a shared calendar');
+
+  // Every voting system must name the technique it voted with. This is the
+  // guard against the Compatibility failure of 2026-08-21, where systems were
+  // silently deciding with arithmetic that belonged to no tradition.
+  let unnamed = 0;
+  for (const d of Object.keys(fc.weeks[0].domains)) {
+    for (const v of fc.weeks[0].domains[d].votes) {
+      if (!v.doctrineTh || !v.doctrineEn) unnamed++;
+    }
+  }
+  // Every system on the canonical roster must be accounted for: either it
+  // voted, or it is named in the abstention list with a reason. A system that
+  // is silently in neither is the failure this whole block exists to prevent.
+  check('roster fully accounted for', fc.votingCount + fc.abstainCount, 27,
+        'SCORE_WEIGHTS carries 27 systems (26 shown + ทักษา)');
+
+  check('every vote names its doctrine', unnamed, 0,
+        'a system may only vote with a technique that is really its own');
+}
 console.log(fails ? `\n✗ ${fails} external anchor(s) failed` : '\n✓ all external anchors hold');
 process.exit(fails ? 1 : 0);

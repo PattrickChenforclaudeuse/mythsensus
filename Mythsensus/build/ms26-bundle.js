@@ -4427,8 +4427,13 @@ const BAZI_DAY_STEM_EL = ['Wood', 'Wood', 'Fire', 'Fire', 'Earth', 'Earth', 'Met
 const BAZI_DAY_STEM_NAMES = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
 const BAZI_DAY_BRANCH_NAMES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
 function _baziDayPillar(jd) {
-    // 60-day cycle. JD epoch for jia-zi day: JD 2415021 ≈ 1900-01-31.
-    const cycle = ((Math.floor(jd - 2415021) % 60) + 60) % 60;
+    // Anchor: Jan 1 1900 (JD 2415021) = 甲戌 = cycle index 10 — the SAME anchor
+    // dayPillar() uses. This duplicate carried the pre-2026-08-21 offset (index
+    // 0), so every Daily-Pulse day BRANCH ran two positions early: 1949-10-01
+    // came out 甲寅 instead of 甲子, and 2000-01-01 came out 戊申 instead of
+    // 戊午. The natal path was fixed on 2026-08-21; this copy was missed
+    // because no external anchor pinned it. Pinned now by external-anchors.test.
+    const cycle = ((Math.floor(jd - 2415021) + 10) % 60 + 60) % 60;
     const stemIdx = cycle % 10;
     const branchIdx = cycle % 12;
     return {
@@ -4488,7 +4493,7 @@ function calcDailyPulse(c, date, opts = {}) {
     const candidates = [];
     // 1. BaZi Day Pillar (changes daily)
     const dayP = _baziDayPillar(jd);
-    const baziScore = _wuxingScore(dayP.element, c.bazi.dayMasterElement);
+    const baziScore = _wuxingScore(dayP.element, _elKey(c.bazi.dayMasterElement));
     candidates.push({
         sys: 'BaZi Day',
         sysTh: 'BaZi เสาวัน', sysEn: 'BaZi Day',
@@ -4534,12 +4539,16 @@ function calcDailyPulse(c, date, opts = {}) {
         velocity: 'daily',
     });
     // 4. Mayan Kin today (Tzolkʼin)
-    // Reference: 1970-01-01 = Kin 116 (commonly cited correlation).
-    const KIN_EPOCH_JD = 2440588; // 1970-01-01
-    const kin0 = ((Math.floor(jd - KIN_EPOCH_JD + 116) % 260) + 260) % 260;
-    const kin = kin0 === 0 ? 260 : kin0;
-    const tone = ((kin - 1) % 13) + 1;
-    const dayIdx = ((kin - 1) % 20) + 1;
+    // GMT correlation (584283) — the SAME anchor calcMayan() uses, so the daily
+    // kin and the natal kin now come from one source of truth. The old line here
+    // asserted "1970-01-01 = Kin 116" with no citation and ran 51 kin ahead: it
+    // called 2012-12-21 (4 Ahau / Kin 160, the most-attested date in Maya
+    // calendrics) Kin 211. calcMayan was corrected 2026-08-21; this copy was
+    // missed. kinIdx is zero-based exactly like calcMayan’s kin.
+    const kinIdx = ((Math.floor(jd) - 584283 + 159) % 260 + 260) % 260;
+    const kin = kinIdx;
+    const tone = (kinIdx % 13) + 1;
+    const dayIdx = (kinIdx % 20) + 1;
     // Tones 1, 4, 7, 10, 13 = strong; 5, 8, 11 = soft; rest neutral
     const TONE_FAV = [0, 1, 0, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1];
     const toneScore = TONE_FAV[tone] || 0;
@@ -4658,6 +4667,949 @@ function calcDailyPulse(c, date, opts = {}) {
         pinnedCount: selected.filter(s => s.pinned).length,
         synthesisTh: synTh,
         synthesisEn: synEn,
+    };
+}
+
+// The four the free tier shows. The other four are the paid depth — the engine
+// always computes all eight, so the paywall is a display filter and never a
+// second calculation that could drift away from the first.
+const FORECAST_DOMAINS_FREE = ['career', 'money', 'love', 'health'];
+const FORECAST_DOMAINS_ALL = [
+    'career', 'money', 'love', 'health', 'family', 'learning', 'allies', 'chance',
+];
+const FORECAST_DOMAIN_LABELS = {
+    career: { th: 'การงาน', en: 'Work', icon: '💼' },
+    money: { th: 'การเงิน', en: 'Money', icon: '💰' },
+    love: { th: 'ความรัก', en: 'Love', icon: '❤️' },
+    health: { th: 'สุขภาพ', en: 'Health', icon: '🩺' },
+    family: { th: 'ครอบครัว·บ้าน', en: 'Family·Home', icon: '🏠' },
+    learning: { th: 'เรียนรู้·พัฒนาตัว', en: 'Learning', icon: '📖' },
+    allies: { th: 'คนหนุน·เครือข่าย', en: 'Allies', icon: '🤝' },
+    chance: { th: 'โอกาส·สิ่งที่คุมไม่ได้', en: 'Chance', icon: '🎲' },
+};
+const FORECAST_ADVICE = {
+    act: { th: 'เปิดเกม ลงมือเรื่องใหญ่ได้', en: 'Move — this is the window to act' },
+    steady: { th: 'เดินตามแผน ไม่ต้องเร่ง', en: 'Hold the plan, no need to push' },
+    prepare: { th: 'วางราก เตรียมตัว ยังไม่ใช่จังหวะเปิดเกม', en: 'Lay groundwork — not the moment to launch' },
+    hold: { th: 'ชะลอการตัดสินใจที่ย้อนกลับไม่ได้', en: 'Delay anything irreversible' },
+    guard: { th: 'ระวังรายจ่าย สัญญา และคำพูด', en: 'Guard spending, contracts, and words' },
+    rest: { th: 'พักและซ่อมร่างกาย', en: 'Rest and repair the body' },
+    connect: { th: 'เข้าหาคน ขอความช่วยเหลือได้', en: 'Reach out — help is there' },
+    talk: { th: 'เปิดใจคุยให้ชัด อย่าเดาใจกัน', en: 'Say it plainly — stop guessing each other' },
+};
+// ── Element key normalisation ───────────────────────────────────────────────
+// ChartData carries element names already localised (pEl() returns Thai in TH
+// reports) while the five-element tables are keyed in English. Comparing the
+// two directly silently returns "neutral" — which is exactly what Daily Pulse
+// did for every Thai user on every day since the feature shipped. Everything
+// here goes through _elKey first.
+function _elKey(el) {
+    const MAP = {
+        'ไม้': 'Wood', 'ไฟ': 'Fire', 'ดิน': 'Earth', 'โลหะ': 'Metal', 'น้ำ': 'Water',
+        Wood: 'Wood', Fire: 'Fire', Earth: 'Earth', Metal: 'Metal', Water: 'Water',
+    };
+    return MAP[el] || el;
+}
+const _EL_TH_OF = { Wood: 'ไม้', Fire: 'ไฟ', Earth: 'ดิน', Metal: 'โลหะ', Water: 'น้ำ' };
+function _addDom(into, d, v) {
+    into[d] = (into[d] ?? 0) + v;
+}
+// ── House → life domain ─────────────────────────────────────────────────────
+// The 12 houses are the oldest domain vocabulary any of these traditions has,
+// and every transit-based voter routes through this map. Whole-sign houses
+// counted from the natal Ascendant — what Hellenistic and most Vedic practice
+// uses, and what this engine can actually compute (it has an Ascendant, not a
+// full cusp system).
+function _houseDomains(house, mag) {
+    const d = {};
+    switch (house) {
+        case 1:
+            _addDom(d, 'health', mag);
+            _addDom(d, 'career', mag * 0.5);
+            break; // vitality, the self
+        case 2:
+            _addDom(d, 'money', mag);
+            break; // substance, income
+        case 3:
+            _addDom(d, 'learning', mag);
+            _addDom(d, 'allies', mag * 0.5);
+            break; // learning, siblings, short trips
+        case 4:
+            _addDom(d, 'family', mag);
+            break; // home, roots, parents
+        case 5:
+            _addDom(d, 'love', mag);
+            _addDom(d, 'chance', mag * 0.5);
+            break; // romance, children, play
+        case 6:
+            _addDom(d, 'health', -mag);
+            _addDom(d, 'career', mag * 0.5);
+            break; // the house OF illness — even a benefic here reads as strain
+        case 7:
+            _addDom(d, 'love', mag);
+            _addDom(d, 'allies', mag * 0.5);
+            break; // partner, open dealings
+        case 8:
+            _addDom(d, 'chance', mag);
+            _addDom(d, 'money', mag * 0.5);
+            break; // other people's money, what you don't control
+        case 9:
+            _addDom(d, 'learning', mag);
+            _addDom(d, 'chance', mag * 0.5);
+            break; // travel, higher study, belief
+        case 10:
+            _addDom(d, 'career', mag);
+            break; // midheaven: standing, office
+        case 11:
+            _addDom(d, 'allies', mag);
+            _addDom(d, 'money', mag * 0.5);
+            break; // friends, gains
+        case 12:
+            _addDom(d, 'health', -mag * 0.5);
+            _addDom(d, 'chance', -mag * 0.5);
+            break; // loss, undoing, the hidden
+    }
+    return d;
+}
+// Which advice a system asks for, given the domain and how strongly it feels.
+// Keyed on the domain so the words stay concrete: a bad money week and a bad
+// health week are not the same instruction.
+function _adviceFor(domain, raw) {
+    if (Math.abs(raw) < 0.5)
+        return 'steady';
+    const good = raw > 0;
+    switch (domain) {
+        case 'career': return good ? 'act' : 'hold';
+        case 'money': return good ? 'act' : 'guard';
+        case 'love': return good ? 'talk' : 'guard';
+        case 'health': return good ? 'act' : 'rest';
+        case 'family': return good ? 'connect' : 'talk';
+        case 'learning': return good ? 'act' : 'prepare';
+        case 'allies': return good ? 'connect' : 'hold';
+        case 'chance': return good ? 'act' : 'hold';
+    }
+    return 'steady';
+}
+const _FC_STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+const _FC_STEM_EL = ['Wood', 'Wood', 'Fire', 'Fire', 'Earth', 'Earth', 'Metal', 'Metal', 'Water', 'Water'];
+const _FC_SHENG = { Wood: 'Fire', Fire: 'Earth', Earth: 'Metal', Metal: 'Water', Water: 'Wood' };
+const _FC_KE = { Wood: 'Earth', Earth: 'Water', Water: 'Fire', Fire: 'Metal', Metal: 'Wood' };
+function _fcCtx(c) {
+    const dmStemIdx = Math.max(0, _FC_STEMS.indexOf(c.bazi.dayMaster));
+    const natalNak = (c.vedic.moonNakshatra || '').toLowerCase();
+    const taksaHouseOfPlanet = new Array(8).fill(-1);
+    for (const h of c.taksa.wheel || [])
+        taksaHouseOfPlanet[h.planet] = h.house;
+    const digitSum = (n) => String(n).split('').reduce((a, b) => a + (+b), 0);
+    const reduce11 = (n) => { while (n > 9 && n !== 11 && n !== 22)
+        n = digitSum(n); return n; };
+    return {
+        dmStemIdx,
+        dmEl: _elKey(c.bazi.dayMasterElement) || _FC_STEM_EL[dmStemIdx],
+        ascSignIdx: Math.floor(mod360(c.western.ascDeg) / 30),
+        natalNakIdx: Math.max(0, NAKSHATRAS_EN.findIndex(n => n.toLowerCase() === natalNak)),
+        natalStar: c.ninestar.star,
+        taksaHouseOfPlanet,
+        birthJD: toJD(c.input.year, c.input.month, c.input.day, 12),
+        // Personal Year is recomputed from the date, never read off the natal
+        // `personalYear2026` field — that field is pinned to one year and would
+        // quietly hand January's answer to next December.
+        personalYearOf: (y) => reduce11(c.input.month + c.input.day + y),
+        dashaKey: (c.vedicMahadasha.currentDashaKey || c.vedicMahadasha.currentDasha || '').trim(),
+    };
+}
+// ── Nine Star Ki: the year star and the month star ──────────────────────────
+// Year star: the classical digit-reduction — reduce the Gregorian year to one
+// digit, subtract from 11, wrap into 1..9. It steps down by one each year
+// (2024 = 3 Green Wood, 2025 = 2 Black Earth, 2026 = 1 White Water).
+// Month star: fixed by the year's earthly branch group, then descending one
+// star per solar month from 立春. Branch groups: 子午卯酉 start at 8,
+// 辰戌丑未 at 5, 寅申巳亥 at 2. Both are table doctrine, not invention — the
+// previous monthly-brief code carried a hand-typed 12-number array instead,
+// which was not tied to the year OR to the person's natal star.
+function _fcNineStarYear(y) {
+    const digitSum = (n) => String(n).split('').reduce((a, b) => a + (+b), 0);
+    let r = y;
+    while (r > 9)
+        r = digitSum(r);
+    let s = 11 - r;
+    while (s > 9)
+        s -= 9;
+    while (s < 1)
+        s += 9;
+    return s;
+}
+// Solar month index from 立春: 0 = 寅 (starts when the Sun reaches 315°),
+// 1 = 卯 (345°), 2 = 辰 (15°), ... Uses the real solar longitude, so the month
+// turns on the solar term rather than on the 1st of the Gregorian month.
+function _fcSolarMonthIdx(jd) {
+    const lon = mod360(sunLongitude(jd));
+    return Math.floor(mod360(lon - 315) / 30);
+}
+// The 12 earthly branches in solar-month order starting at 寅.
+const _FC_MONTH_BRANCH = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑'];
+function _fcNineStarMonth(jd) {
+    const d = new Date((jd - 2440587.5) * 86400000);
+    const monthIdx = _fcSolarMonthIdx(jd);
+    // The kigaku year also turns at 立春: before it, we are still in the previous
+    // star-year. monthIdx is measured from 立春, so any date whose Gregorian
+    // month is January and whose solar month is 丑 (11) belongs to the year before.
+    const gYear = d.getUTCFullYear();
+    const starYear = (monthIdx === 11 && d.getUTCMonth() === 0) ? gYear - 1 : gYear;
+    const yearStar = _fcNineStarYear(starYear);
+    // Year branch, from the same solar-year count: 1984 = 子.
+    const branchIdx = ((starYear - 1984) % 12 + 12) % 12;
+    const BRANCHES12 = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+    const yb = BRANCHES12[branchIdx];
+    const base = ('子午卯酉'.indexOf(yb) >= 0) ? 8 : ('辰戌丑未'.indexOf(yb) >= 0) ? 5 : 2;
+    let star = base - monthIdx;
+    while (star < 1)
+        star += 9;
+    while (star > 9)
+        star -= 9;
+    return { star, monthIdx, yearStar, branch: _FC_MONTH_BRANCH[monthIdx], yearBranch: yb };
+}
+// Where a star sits in a chart whose centre is `centre`, as a Lo Shu palace
+// number 1..9 (5 = centre). Descending flight: centre → 6 NW → 7 W → 8 NE →
+// 9 S → 1 N → 2 SW → 3 E → 4 SE.
+function _fcPalaceOf(star, centre) {
+    return ((star - centre + 4) % 9 + 9) % 9 + 1;
+}
+const _FC_PALACE = {
+    1: { th: '坎 เหนือ · ฤดูหนาว สะสมเงียบ', en: 'Kan N · winter, quiet accumulation', dom: { health: -1, learning: 1 } },
+    2: { th: '坤 ตะวันตกเฉียงใต้ · ตั้งหลัก ทำทีละน้อย', en: 'Kun SW · steady groundwork', dom: { career: 0.5, family: 1 } },
+    3: { th: '震 ตะวันออก · ตื่นตัว เริ่มสิ่งใหม่', en: 'Zhen E · waking, new starts', dom: { career: 2, chance: 1 } },
+    4: { th: '巽 ตะวันออกเฉียงใต้ · วาสนาคนและความน่าเชื่อถือ', en: 'Xun SE · ties and reputation', dom: { love: 2, allies: 2 } },
+    5: { th: '中宮 กลาง · ปีเปลี่ยนผ่าน แรงกดรอบด้าน', en: 'Centre · transition, pressure on all sides', dom: { chance: 0.5, health: -1 } },
+    6: { th: '乾 ตะวันตกเฉียงเหนือ · จุดสูงสุด อำนาจ', en: 'Qian NW · the peak, authority', dom: { career: 2, allies: 1 } },
+    7: { th: '兌 ตะวันตก · เก็บเกี่ยว ความรื่นรมย์', en: 'Dui W · harvest and pleasure', dom: { money: 2, love: 1 } },
+    8: { th: '艮 ตะวันออกเฉียงเหนือ · จุดหักเห เปลี่ยนเรื่อง', en: 'Gen NE · the turn, changing tracks', dom: { chance: 1, family: 1, career: 0.5 } },
+    9: { th: '離 ใต้ · ผลิบาน และสิ่งที่ถูกเปิดเผย', en: 'Li S · flowering, and what gets exposed', dom: { career: 1.5, chance: 1, health: -0.5 } },
+};
+// ── Chinese zodiac: the branch relations to the year of birth (太歲) ────────
+// The layer Thai readers know as "ปีชง". It is a genuinely separate technique
+// from the BaZi Ten Gods above — that one reads the day STEM against the Day
+// Master, this one reads the BRANCH of the running year and month against the
+// branch of the birth YEAR — so the two are not the same vote counted twice.
+// The relations themselves are the standard set taught everywhere:
+//   六合  the harmony pair          子丑 寅亥 卯戌 辰酉 巳申 午未
+//   三合  the trine, 4 apart        申子辰 亥卯未 寅午戌 巳酉丑
+//   六沖  the clash, 6 apart        子午 丑未 寅申 卯酉 辰戌 巳亥  ← 沖太歲
+//   六害  the harm                  子未 丑午 寅巳 卯辰 申亥 酉戌
+//   值太歲 the branch meeting itself — the 本命年
+// Tai Sui speaks about the period as a whole rather than about one area of
+// life, so like Tara Bala it lands evenly across the domains and at reduced
+// weight, instead of being given a domain split it does not claim to have.
+const _FC_BRANCHES12 = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+const _FC_BRANCH_TH = ['ชวด (หนู)', 'ฉลู (วัว)', 'ขาล (เสือ)', 'เถาะ (กระต่าย)', 'มะโรง (มังกร)', 'มะเส็ง (งู)', 'มะเมีย (ม้า)', 'มะแม (แพะ)', 'วอก (ลิง)', 'ระกา (ไก่)', 'จอ (หมา)', 'กุน (หมู)'];
+function _fcBranchRelation(a, b) {
+    const diff = ((a - b) % 12 + 12) % 12;
+    if (diff === 0)
+        return { score: -1, th: '值太歲 ปีชงตัวเอง (เกิดปีเดียวกัน)', en: 'Zhi Tai Sui — the year of your own branch' };
+    if (diff === 6)
+        return { score: -2, th: '沖太歲 ชงตรง — ปะทะเต็มแรง', en: 'Chong Tai Sui — direct clash with the year' };
+    if ((a + b) % 12 === 1)
+        return { score: 2, th: '六合 คู่สมาน', en: 'Liu He — the harmony pair' };
+    if (diff === 4 || diff === 8)
+        return { score: 1.5, th: '三合 สามประสาน', en: 'San He — the trine' };
+    if ((a + b) % 12 === 7)
+        return { score: -1, th: '六害 คู่เบียด', en: 'Liu Hai — the harm relation' };
+    return { score: 0, th: 'ไม่มีความสัมพันธ์เด่น', en: 'no marked relation' };
+}
+// ── Vimshottari dasha lord → what that planet signifies (karakatva) ─────────
+const _FC_DASHA = {
+    Sun: { th: 'อาทิตย์ — อำนาจ ตำแหน่ง บิดา', en: 'Sun — authority, office, father', dom: { career: 2, health: 0.5 } },
+    Moon: { th: 'จันทร์ — ใจ แม่ บ้าน', en: 'Moon — mind, mother, home', dom: { love: 1, family: 1.5, health: 0.5 } },
+    Mars: { th: 'อังคาร — แรง การแข่งขัน อุบัติเหตุ', en: 'Mars — drive, contest, accidents', dom: { career: 1, chance: 1, health: -1 } },
+    Mercury: { th: 'พุธ — การค้า การสื่อสาร การเรียน', en: 'Mercury — trade, speech, study', dom: { learning: 2, money: 1, allies: 1 } },
+    Jupiter: { th: 'พฤหัส — ทรัพย์ ครู ความเชื่อ', en: 'Jupiter — wealth, teachers, belief', dom: { money: 2, learning: 2, family: 1, chance: 1 } },
+    Venus: { th: 'ศุกร์ — คู่ครอง ความงาม ความสบาย', en: 'Venus — partner, beauty, comfort', dom: { love: 2, money: 1 } },
+    Saturn: { th: 'เสาร์ — ความเพียร ความล่าช้า วัยชรา', en: 'Saturn — toil, delay, endurance', dom: { career: 1, money: -1, health: -1 } },
+    Rahu: { th: 'ราหู — สิ่งผิดปกติ ลาภลอย ต่างแดน', en: 'Rahu — the unusual, windfalls, abroad', dom: { chance: 2, money: 1, health: -1 } },
+    Ketu: { th: 'เกตุ — การปล่อยวาง ธรรมะ การถอน', en: 'Ketu — release, spirit, withdrawal', dom: { learning: 1, love: -1, health: -1 } },
+};
+// ── The 8 Taksa houses → life domain ────────────────────────────────────────
+// Thai classical doctrine, one-for-one: the planet ruling a given weekday sits
+// in one of the person's 8 houses, and that house IS the life area the day
+// touches. กาลกิณี is the one house that turns the whole day negative.
+const _FC_TAKSA_HOUSE = {
+    0: { th: 'บริวาร — คนรอบตัว ลูกน้อง', en: 'Retainers — the people around you', dom: { allies: 1, family: 1 } },
+    1: { th: 'อายุ — ร่างกายและอายุขัย', en: 'Life — body and lifespan', dom: { health: 2 } },
+    2: { th: 'เดช — อำนาจ ตำแหน่ง ชื่อเสียง', en: 'Power — office and standing', dom: { career: 2 } },
+    3: { th: 'ศรี — สิริมงคล เสน่ห์ ทรัพย์', en: 'Grace — charm, blessing, assets', dom: { love: 2, money: 1 } },
+    4: { th: 'มูละ — ต้นทุน ทรัพย์สิน', en: 'Roots — capital and property', dom: { money: 2 } },
+    5: { th: 'อุตสาหะ — ความเพียร งานที่ทำ', en: 'Effort — the work itself', dom: { career: 1, learning: 1 } },
+    6: { th: 'มนตรี — ผู้ใหญ่ ที่ปรึกษา', en: 'Counsel — elders and advisers', dom: { allies: 2, career: 1 } },
+    7: { th: 'กาลกิณี — อัปมงคล', en: 'Kalakini — the unlucky house', dom: { career: -2, money: -2, love: -2, health: -2, family: -1, learning: -1, allies: -1, chance: -2 } },
+};
+const _FC_TAKSA_PLANET_TH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์', 'ราหู'];
+const _FC_TAKSA_PLANET_EN = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu'];
+// ── Numerology: what each Personal number is traditionally about ────────────
+const _FC_NUM = {
+    1: { th: 'เริ่มต้น ริเริ่ม', en: 'Beginnings, initiative', dom: { career: 1, chance: 1 } },
+    2: { th: 'คู่ ความสัมพันธ์', en: 'Pairs, relationship', dom: { love: 2, allies: 1 } },
+    3: { th: 'สื่อสาร สร้างสรรค์', en: 'Expression, creativity', dom: { learning: 1, allies: 1, love: 1 } },
+    4: { th: 'ลงแรง ระเบียบ', en: 'Grind, structure', dom: { career: 1, money: 1, health: -1 } },
+    5: { th: 'เปลี่ยนแปลง เคลื่อนที่', en: 'Change, movement', dom: { chance: 2, health: -1 } },
+    6: { th: 'ครอบครัว ความรับผิดชอบ', en: 'Family, duty', dom: { family: 2, love: 1 } },
+    7: { th: 'ถอย ทบทวน ปัญญา', en: 'Retreat, study', dom: { learning: 2, health: 1, career: -1 } },
+    8: { th: 'อำนาจ เก็บเกี่ยว', en: 'Power, harvest', dom: { money: 2, career: 2 } },
+    9: { th: 'ปิดวัฏจักร ปล่อย', en: 'Completion, letting go', dom: { chance: 1, career: -1 } },
+    11: { th: 'วิสัยทัศน์', en: 'Vision', dom: { learning: 2, chance: 1 } },
+    22: { th: 'สร้างระบบใหญ่', en: 'Master builder', dom: { career: 2, money: 1 } },
+};
+// ════════════════════════════════════════════════════════════════════════════
+//  ONE DAY, READ BY EVERY SYSTEM THAT HAS A TECHNIQUE FOR IT
+// ════════════════════════════════════════════════════════════════════════════
+function _fcDaySignals(c, date, x) {
+    const jd = toJD(date.getFullYear(), date.getMonth() + 1, date.getDate(), 12);
+    const out = [];
+    // ── 1. BaZi · Ten Gods (十神) ─────────────────────────────────────────────
+    // The relation between the day's heavenly stem and the natal Day Master IS
+    // the domain map — this is not a metaphor imported from elsewhere. Wealth
+    // (財) is the element the Day Master controls, authority (官殺) the one that
+    // controls it, resource (印) the one that generates it, output (食傷) the one
+    // it generates, peers (比劫) its own. Polarity (same or opposite) splits each
+    // pair into its 正 / 偏 form, which is why the labels below are specific.
+    {
+        const dayP = _baziDayPillar(jd);
+        const dIdx = Math.max(0, _FC_STEMS.indexOf(dayP.stem));
+        const dEl = _FC_STEM_EL[dIdx];
+        const dmEl = x.dmEl;
+        const samePolarity = (dIdx % 2) === (x.dmStemIdx % 2);
+        let godTh = '', godEn = '', dom = {};
+        if (dEl === dmEl) {
+            godTh = samePolarity ? '比肩 เพื่อนร่วมทาง' : '劫財 คู่แข่งแย่งทรัพย์';
+            godEn = samePolarity ? 'Bi Jian — companions' : 'Jie Cai — rivals for wealth';
+            dom = samePolarity ? { allies: 1 } : { allies: 1, money: -1 };
+        }
+        else if (_FC_SHENG[dmEl] === dEl) {
+            godTh = samePolarity ? '食神 ผลงานที่ไหลลื่น' : '傷官 พูดแรง ผลงานแหลมคม';
+            godEn = samePolarity ? 'Shi Shen — easy output' : 'Shang Guan — sharp output, sharp tongue';
+            dom = samePolarity ? { learning: 1, career: 1, love: 0.5, health: -0.5 }
+                : { learning: 1, career: 1, love: -0.5, health: -0.5 };
+        }
+        else if (_FC_SHENG[dEl] === dmEl) {
+            godTh = samePolarity ? '偏印 ความรู้นอกตำรา' : '正印 ผู้ใหญ่และวิชา';
+            godEn = samePolarity ? 'Pian Yin — unorthodox knowledge' : 'Zheng Yin — mentors and learning';
+            dom = { learning: 2, allies: 1, health: 1, family: 0.5 };
+        }
+        else if (_FC_KE[dmEl] === dEl) {
+            godTh = samePolarity ? '偏財 ลาภจร' : '正財 ทรัพย์ประจำ';
+            godEn = samePolarity ? 'Pian Cai — irregular wealth' : 'Zheng Cai — steady wealth';
+            dom = samePolarity ? { money: 2, chance: 1, love: 0.5 } : { money: 2, love: 0.5 };
+        }
+        else {
+            godTh = samePolarity ? '七殺 แรงกดดัน คู่ปรับ' : '正官 ตำแหน่งและระเบียบ';
+            godEn = samePolarity ? 'Qi Sha — pressure, adversaries' : 'Zheng Guan — office and order';
+            dom = samePolarity ? { career: 1, health: -1, chance: -0.5 } : { career: 2, health: -0.5 };
+        }
+        out.push({
+            sys: 'bazi', sysTh: 'BaZi ปาจื้อ', sysEn: 'BaZi',
+            doctrineTh: 'สิบเทพ (十神) — ความสัมพันธ์ของก้านวันกับ Day Master',
+            doctrineEn: 'Ten Gods (十神) — the day stem read against the natal Day Master',
+            velocity: 'daily', dom,
+            noteTh: `วัน ${dayP.stem}${dayP.branch} ธาตุ${_EL_TH_OF[dEl] || dEl} ต่อ Day Master ธาตุ${_EL_TH_OF[dmEl] || dmEl} = ${godTh}`,
+            noteEn: `Day ${dayP.stem}${dayP.branch} (${dEl}) against your ${dmEl} Day Master = ${godEn}`,
+        });
+    }
+    // ── 2. ทักษา · the weekday's planet, and the house it sits in ─────────────
+    {
+        const dow = ((Math.floor(jd + 1.5) % 7) + 7) % 7; // 0 = Sunday
+        const house = x.taksaHouseOfPlanet[dow];
+        if (house >= 0) {
+            const H = _FC_TAKSA_HOUSE[house];
+            const DAY_TH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+            const DAY_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            out.push({
+                sys: 'taksa', sysTh: 'ทักษา', sysEn: 'Taksa (Thai 8-house)',
+                doctrineTh: 'ภูมิทักษา 8 ห้อง — ดาวประจำวันตกภูมิไหนในวงของคุณ',
+                doctrineEn: 'The 8 Taksa houses — where the weekday ruler falls in your wheel',
+                velocity: 'weekly', dom: { ...H.dom },
+                noteTh: `วัน${DAY_TH[dow]} (${_FC_TAKSA_PLANET_TH[dow]}) ตกภูมิ ${H.th}`,
+                noteEn: `${DAY_EN[dow]} (${_FC_TAKSA_PLANET_EN[dow]}) falls in ${H.en}`,
+            });
+        }
+    }
+    // ── 3. Vedic · Tara Bala ─────────────────────────────────────────────────
+    // Counting from the natal Moon nakshatra to the transiting one gives the 9
+    // taras. This is muhurta doctrine — a general go/no-go for beginning things,
+    // not a statement about any single life area, so it lands on every domain
+    // evenly and at reduced weight.
+    {
+        const AYANAMSA = 24;
+        const sidMoon = mod360(mod360(moonLongitude(jd)) - AYANAMSA);
+        const todayNak = Math.floor(sidMoon / (360 / 27));
+        const taraIdx = ((todayNak - x.natalNakIdx) % 9 + 9) % 9;
+        const taraScore = TARA_SCORE[taraIdx] ?? 0;
+        const TARA_TH = ['ชนมะ (ตัวเอง)', 'สัมปัต (ลาภ)', 'วิปัต (อุปสรรค)', 'เกษม (สุข)', 'ปรัตยรี (ขัดขวาง)', 'สาธก (สำเร็จ)', 'วาธ (บั่นทอน)', 'มิตร', 'ปรมมิตร'];
+        const TARA_EN = ['Janma', 'Sampat', 'Vipat', 'Kshema', 'Pratyari', 'Sadhaka', 'Vadha', 'Mitra', 'Param Mitra'];
+        const dom = {};
+        for (const d of FORECAST_DOMAINS_ALL)
+            dom[d] = taraScore * 0.6;
+        out.push({
+            sys: 'vedic', sysTh: 'โหราศาสตร์เวท', sysEn: 'Vedic',
+            doctrineTh: 'ตาราพละ — นับนักษัตรจันทร์จรจากนักษัตรเกิด 9 ขั้น',
+            doctrineEn: 'Tara Bala — the 9 steps counted from your natal Moon nakshatra',
+            velocity: 'daily', dom,
+            noteTh: `จันทร์จรนักษัตร ${NAKSHATRAS_EN[todayNak]} · ตารา${TARA_TH[taraIdx]}`,
+            noteEn: `Transiting Moon in ${NAKSHATRAS_EN[todayNak]} · ${TARA_EN[taraIdx]} tara`,
+        });
+    }
+    // ── 4. Vimshottari dasha · the period lord ───────────────────────────────
+    // A dasha genuinely colours a period of years, so it pushes the same way for
+    // every week in the forecast. That is the doctrine behaving correctly, not a
+    // stuck value — it is labelled `period` velocity so the UI can say so.
+    {
+        const key = Object.keys(_FC_DASHA).find(k => x.dashaKey.toLowerCase().indexOf(k.toLowerCase()) >= 0);
+        if (key) {
+            const D = _FC_DASHA[key];
+            const dom = {};
+            for (const k of Object.keys(D.dom))
+                dom[k] = D.dom[k] * 0.7;
+            out.push({
+                sys: 'vedicMahadasha', sysTh: 'วิมโศตตรีทศา', sysEn: 'Vimshottari Dasha',
+                doctrineTh: 'การกัตวะของเจ้าทศา — ดาวเจ้าช่วงชี้ว่าเรื่องใดถูกกระตุ้น',
+                doctrineEn: 'Karakatva of the ruling dasha lord — which affairs the period activates',
+                velocity: 'period', dom,
+                noteTh: `อยู่ในทศา ${D.th}`,
+                noteEn: `Running the ${D.en} dasha`,
+            });
+        }
+    }
+    // ── 5. Nine Star Ki · your natal star's palace in this month's chart ──────
+    {
+        const ns = _fcNineStarMonth(jd);
+        const palace = _fcPalaceOf(x.natalStar, ns.star);
+        const P = _FC_PALACE[palace];
+        out.push({
+            sys: 'ninestar', sysTh: 'ดาวเก้าดวง', sysEn: 'Nine Star Ki',
+            doctrineTh: 'ผังดาวเดือน (月盤) — ดาวกำเนิดของคุณไปตกวังใดเมื่อดาวเดือนอยู่กลาง',
+            doctrineEn: 'The monthly chart (月盤) — which palace your natal star occupies with the month star at centre',
+            velocity: 'monthly', dom: { ...P.dom },
+            noteTh: `เดือน${ns.branch} ดาวเดือน ${ns.star} · ดาวเกิด ${x.natalStar} ของคุณตกวัง ${P.th}`,
+            noteEn: `Month ${ns.branch}, month star ${ns.star} — your natal star ${x.natalStar} sits in ${P.en}`,
+        });
+    }
+    // ── 6b. Chinese zodiac layer (太歲) — folded into the BaZi vote above ──────
+    {
+        const ns = _fcNineStarMonth(jd);
+        const natal = _FC_BRANCHES12.indexOf(c.bazi.yearBranch);
+        if (natal >= 0) {
+            const yb = _FC_BRANCHES12.indexOf(ns.yearBranch);
+            const mb = _FC_BRANCHES12.indexOf(ns.branch);
+            const relY = _fcBranchRelation(yb, natal);
+            const relM = _fcBranchRelation(mb, natal);
+            // The year sets the tone and the month colours it, which is the order
+            // the tradition itself reads them in.
+            const combined = relY.score * 0.6 + relM.score * 0.4;
+            const bz = out.filter(o => o.sys === 'bazi')[0];
+            if (bz && combined !== 0) {
+                for (const d of FORECAST_DOMAINS_ALL)
+                    _addDom(bz.dom, d, combined * 0.7);
+                bz.doctrineTh += ' + 太歲 (กิ่งปี/เดือนที่เดินอยู่ เทียบกิ่งปีเกิด)';
+                bz.doctrineEn += ' + Tai Sui (running year/month branch against your birth-year branch)';
+                bz.noteTh += ` · ปี${_FC_BRANCH_TH[yb]}ต่อปีเกิด${_FC_BRANCH_TH[natal]}: ${relY.th}`
+                    + (relM.score !== 0 ? ` · เดือน${_FC_BRANCH_TH[mb]}: ${relM.th}` : '');
+                bz.noteEn += ` · year ${ns.yearBranch} vs your ${c.bazi.yearBranch}: ${relY.en}`
+                    + (relM.score !== 0 ? ` · month ${ns.branch}: ${relM.en}` : '');
+            }
+        }
+    }
+    // ── 7. Numerology · Personal Month and Personal Day ───────────────────────
+    {
+        const digitSum = (n) => String(n).split('').reduce((a, b) => a + (+b), 0);
+        const reduce11 = (n) => { while (n > 9 && n !== 11 && n !== 22)
+            n = digitSum(n); return n; };
+        const py = x.personalYearOf(date.getFullYear());
+        const pm = reduce11(py + (date.getMonth() + 1));
+        const pd = reduce11(pm + date.getDate());
+        const M = _FC_NUM[pm] || _FC_NUM[1];
+        const D = _FC_NUM[pd] || _FC_NUM[1];
+        const dom = {};
+        // The month sets the theme, the day inflects it — weighted accordingly.
+        for (const k of Object.keys(M.dom))
+            _addDom(dom, k, M.dom[k] * 0.6);
+        for (const k of Object.keys(D.dom))
+            _addDom(dom, k, D.dom[k] * 0.4);
+        out.push({
+            sys: 'numerology', sysTh: 'เลขศาสตร์', sysEn: 'Numerology',
+            doctrineTh: 'Personal Year → Personal Month → Personal Day (ปีเกิดลดทอนแล้วบวกเดือน/วัน)',
+            doctrineEn: 'Personal Year → Personal Month → Personal Day',
+            velocity: 'daily', dom,
+            noteTh: `เดือนส่วนตัว ${pm} (${M.th}) · วันส่วนตัว ${pd} (${D.th})`,
+            noteEn: `Personal Month ${pm} (${M.en}) · Personal Day ${pd} (${D.en})`,
+        });
+    }
+    // ── 8. Biorhythm ─────────────────────────────────────────────────────────
+    // Counted in real elapsed days from birth. The monthly-brief code used to
+    // approximate this as years×365.25 + month×30 + 15, which slides several
+    // days off — fatal for cycles that are 23, 28 and 33 days long.
+    {
+        const dEl = Math.round(jd - x.birthJD);
+        const phy = Math.sin(2 * Math.PI * dEl / 23);
+        const emo = Math.sin(2 * Math.PI * dEl / 28);
+        const intel = Math.sin(2 * Math.PI * dEl / 33);
+        out.push({
+            sys: 'biorhythm', sysTh: 'ไบโอริทึม', sysEn: 'Biorhythm',
+            doctrineTh: 'รอบกาย 23 วัน · รอบอารมณ์ 28 วัน · รอบปัญญา 33 วัน นับจากวันเกิดจริง',
+            doctrineEn: '23-day physical, 28-day emotional, 33-day intellectual cycles from the real birth date',
+            velocity: 'daily',
+            // The three cycles map to exactly what the doctrine claims they govern —
+            // and to nothing else. Biorhythm makes no claim about money, so it does
+            // not vote on money.
+            dom: { health: phy * 2, love: emo * 1.5, family: emo * 0.5, career: intel * 1.5, learning: intel * 1.5 },
+            noteTh: `กาย ${(phy * 100) >= 0 ? '+' : ''}${Math.round(phy * 100)}% · ใจ ${(emo * 100) >= 0 ? '+' : ''}${Math.round(emo * 100)}% · สมอง ${(intel * 100) >= 0 ? '+' : ''}${Math.round(intel * 100)}%`,
+            noteEn: `Body ${(phy * 100) >= 0 ? '+' : ''}${Math.round(phy * 100)}% · Emotion ${(emo * 100) >= 0 ? '+' : ''}${Math.round(emo * 100)}% · Intellect ${(intel * 100) >= 0 ? '+' : ''}${Math.round(intel * 100)}%`,
+        });
+    }
+    // ── 9. Mayan · the day's tone ────────────────────────────────────────────
+    // The 13 tones are a rhythm across the trecena, not a domain statement, so
+    // this is a general signal at low weight. Same GMT correlation as the rest
+    // of the engine.
+    {
+        const kinIdx = ((Math.floor(jd) - 584283 + 159) % 260 + 260) % 260;
+        const tone = (kinIdx % 13) + 1;
+        // Ascending tones build, the turning tones (5, 8, 11) ask for adjustment,
+        // and 13 completes. This is the tone sequence's own shape.
+        const TONE_W = { 1: 1, 2: 0, 3: 0.5, 4: 1, 5: -0.5, 6: 0.5, 7: 1, 8: -0.5, 9: 0.5, 10: 1, 11: -1, 12: 0.5, 13: 1 };
+        const w = TONE_W[tone] ?? 0;
+        const dom = {};
+        for (const d of FORECAST_DOMAINS_ALL)
+            dom[d] = w * 0.5;
+        const SIGNS20 = ['Imix', 'Ik', 'Akbal', 'Kan', 'Chikchan', 'Kimi', 'Manik', 'Lamat', 'Muluk', 'Ok', 'Chuen', 'Eb', 'Ben', 'Ix', 'Men', 'Kib', 'Kaban', 'Etznab', 'Kawak', 'Ahau'];
+        out.push({
+            sys: 'mayan', sysTh: 'มายัน (Tzolkʼin)', sysEn: 'Mayan Tzolkʼin',
+            doctrineTh: 'โทน 13 ขั้นของรอบ 260 วัน (นับด้วย GMT correlation 584283)',
+            doctrineEn: 'The 13 tones of the 260-day round (GMT correlation 584283)',
+            velocity: 'daily', dom,
+            noteTh: `Kin ${kinIdx} · ${SIGNS20[kinIdx % 20]} โทน ${tone}`,
+            noteEn: `Kin ${kinIdx} · ${SIGNS20[kinIdx % 20]}, tone ${tone}`,
+        });
+    }
+    // ── 10. Western · three transits, one vote ───────────────────────────────
+    // Whole-sign houses from the natal Ascendant. The Moon changes house every
+    // 2-3 days (small weight), Jupiter and Saturn hold for months (the ones that
+    // actually shape a season). Jupiter is read as benefic and Saturn as
+    // restrictive — the oldest and least controversial statement in the tradition.
+    {
+        const ascIdx = x.ascSignIdx;
+        const houseOf = (lon) => ((Math.floor(mod360(lon) / 30) - ascIdx + 12) % 12) + 1;
+        const moonH = houseOf(moonLongitude(jd));
+        const jupH = houseOf(_eclLon(jd, 'Jupiter'));
+        const satH = houseOf(_eclLon(jd, 'Saturn'));
+        const dom = {};
+        for (const [h, mag] of [[moonH, 0.8], [jupH, 1.5], [satH, -1.0]]) {
+            const part = _houseDomains(h, mag);
+            for (const k of Object.keys(part))
+                _addDom(dom, k, part[k]);
+        }
+        out.push({
+            sys: 'western', sysTh: 'โหราศาสตร์ตะวันตก', sysEn: 'Western Astrology',
+            doctrineTh: 'ดาวจรเข้าเรือน (whole-sign จากลัคนา) — จันทร์ · พฤหัสให้คุณ · เสาร์ให้บททดสอบ',
+            doctrineEn: 'Transits by whole-sign house from your Ascendant — Moon, benefic Jupiter, restrictive Saturn',
+            velocity: 'monthly', dom,
+            noteTh: `จันทร์เรือน ${moonH} · พฤหัสเรือน ${jupH} · เสาร์เรือน ${satH}`,
+            noteEn: `Moon in house ${moonH} · Jupiter in house ${jupH} · Saturn in house ${satH}`,
+        });
+    }
+    return out;
+}
+const _fcRound1 = (n) => Math.round(n * 10) / 10;
+const _fcClamp2 = (n) => Math.max(-2, Math.min(2, n));
+function _fcBand(raw) {
+    if (raw > 0.35)
+        return 'up';
+    if (raw < -0.35)
+        return 'down';
+    return 'mid';
+}
+function _fcIso(d) {
+    const p = (n) => (n < 10 ? '0' : '') + n;
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+const _FC_MONTH_TH = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+const _FC_MONTH_TH_FULL = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+const _FC_MONTH_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const _FC_MONTH_EN_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+// Signals for one day, memoised. The baseline sweep below reads a year of
+// days and the periods re-read a subset of the same days; computing each day
+// once keeps the whole forecast to a single pass over the calendar.
+function _fcDayCacheFor(c, x) {
+    const cache = new Map();
+    return (d) => {
+        const k = _fcIso(d);
+        let v = cache.get(k);
+        if (!v) {
+            v = _fcDaySignals(c, d, x);
+            cache.set(k, v);
+        }
+        return v;
+    };
+}
+function _fcPercentile(sorted, p) {
+    if (!sorted.length)
+        return 0;
+    const i = Math.min(sorted.length - 1, Math.max(0, Math.round((sorted.length - 1) * p)));
+    return sorted[i];
+}
+// Slide a window of `span` days across the year ahead and record, for every
+// system and domain, the range of window-means it produces. The 5th and 95th
+// percentiles are the ends of the scale — using the true min/max would let a
+// single freak week flatten all the others.
+function _fcBuildBaseline(getDay, windowsList) {
+    const samples = new Map();
+    for (const dates of windowsList) {
+        const span = Math.max(1, dates.length);
+        const sums = new Map();
+        for (const d of dates) {
+            for (const sig of getDay(d)) {
+                for (const k of Object.keys(sig.dom)) {
+                    const v = sig.dom[k];
+                    if (!v)
+                        continue;
+                    const key = sig.sys + "|" + k;
+                    sums.set(key, (sums.get(key) || 0) + v);
+                }
+            }
+        }
+        for (const [key, sum] of sums) {
+            let arr = samples.get(key);
+            if (!arr) {
+                arr = [];
+                samples.set(key, arr);
+            }
+            arr.push(sum / span);
+        }
+    }
+    const out = new Map();
+    for (const [key, arr] of samples) {
+        arr.sort((a, b) => a - b);
+        out.set(key, { lo: _fcPercentile(arr, 0.05), hi: _fcPercentile(arr, 0.95) });
+    }
+    return out;
+}
+// raw → 0..10 against the system’s own yearly spread. A system with no
+// spread (a multi-year dasha) falls back to the absolute scale, because for
+// that system every week really is the same week.
+function _fcScore10(raw, band) {
+    if (!band || (band.hi - band.lo) < 0.12)
+        return _fcRound1((_fcClamp2(raw) + 2) / 4 * 10);
+    // The 5th and 95th percentiles map to 1 and 9, not to 0 and 10 — a week that
+    // is merely at the bottom of the usual range should not read as an absolute
+    // zero. Anything genuinely beyond the usual range still runs off the ends.
+    const t = (raw - band.lo) / (band.hi - band.lo);
+    return _fcRound1(Math.max(0, Math.min(10, t * 8 + 1)));
+}
+// Bands are read off the normalised score, so "up" now means "a good week for
+// this system by its own standards" instead of "its arithmetic mean cleared
+// an absolute threshold it can almost never clear".
+// Same idea as _fcScore10 but for a value that is already on a 0..10 scale
+// (the domain aggregate). A domain whose aggregate barely moves all year
+// keeps its unnormalised value rather than having noise stretched to fill
+// the scale.
+function _fcRenorm(value, band) {
+    if (!band || (band.hi - band.lo) < 0.05)
+        return _fcRound1(value);
+    const t = (value - band.lo) / (band.hi - band.lo);
+    return _fcRound1(Math.max(0, Math.min(10, 3 + t * 4)));
+}
+function _fcBandOf(score10) {
+    if (score10 >= 6.5)
+        return 'up';
+    if (score10 <= 3.5)
+        return 'down';
+    return 'mid';
+}
+function _fcPeriod(getDay, base, dates, kind, index, labelTh, labelEn, domBase) {
+    const acc = new Map();
+    for (const d of dates) {
+        const iso = _fcIso(d);
+        for (const sig of getDay(d)) {
+            let a = acc.get(sig.sys);
+            if (!a) {
+                a = { meta: sig, perDomain: {} };
+                acc.set(sig.sys, a);
+            }
+            for (const k of Object.keys(sig.dom)) {
+                const key = k;
+                const v = sig.dom[key];
+                if (!v)
+                    continue;
+                let slot = a.perDomain[key];
+                if (!slot) {
+                    slot = { sum: 0, best: { mag: -1, noteTh: '', noteEn: '', iso } };
+                    a.perDomain[key] = slot;
+                }
+                slot.sum += v;
+                // Remember the single day that pushed this domain hardest — that is
+                // the day worth naming when the UI asks "what did this system warn about".
+                if (Math.abs(v) > slot.best.mag) {
+                    slot.best = { mag: Math.abs(v), noteTh: sig.noteTh, noteEn: sig.noteEn, iso };
+                }
+            }
+        }
+    }
+    const nDays = Math.max(1, dates.length);
+    const domains = {};
+    for (const domain of FORECAST_DOMAINS_ALL) {
+        const votes = [];
+        for (const a of acc.values()) {
+            const slot = a.perDomain[domain];
+            if (!slot)
+                continue; // this system has no doctrine touching this domain
+            const raw = slot.sum / nDays;
+            const score10 = _fcScore10(raw, base.get(a.meta.sys + "|" + domain));
+            const dayTag = a.meta.velocity === 'daily'
+                ? ` (${slot.best.iso.slice(5)})`
+                : '';
+            votes.push({
+                sys: a.meta.sys, sysTh: a.meta.sysTh, sysEn: a.meta.sysEn,
+                doctrineTh: a.meta.doctrineTh, doctrineEn: a.meta.doctrineEn,
+                velocity: a.meta.velocity,
+                raw: _fcRound1(raw),
+                score10,
+                band: _fcBandOf(score10),
+                advice: _adviceFor(domain, (score10 - 5) / 2.5),
+                noteTh: slot.best.noteTh + dayTag,
+                noteEn: slot.best.noteEn + dayTag,
+            });
+        }
+        votes.sort((p, q) => Math.abs(q.raw) - Math.abs(p.raw));
+        const n = votes.length;
+        const up = votes.filter(v => v.band === 'up').length;
+        const mid = votes.filter(v => v.band === 'mid').length;
+        const down = votes.filter(v => v.band === 'down').length;
+        // The mean of the systems’ NORMALISED scores, so every system carries the
+        // same weight the up/mid/down counts give it. Averaging their raw values
+        // instead let one system with a large native range outvote four with
+        // small ones, and produced cards reading "3.6/10" above "good 4 · careful 1"
+        // — a headline visibly at odds with the tally printed under it.
+        const rawMean = n ? votes.reduce((s, v) => s + v.score10, 0) / n : 5;
+        const score10 = _fcRenorm(rawMean, domBase && domBase.get(domain));
+        // Tie-breaks and fallback advice run off the same normalised scale the
+        // per-system bands use, so a domain can never disagree with its own votes.
+        const meanNorm = (score10 - 5) / 1.6;
+        // Director call: the screen must always land on an answer, even when the
+        // systems are split 5/4/4. So the mode decides, and when the mode is tied
+        // the mean breaks it — never "inconclusive". `split` is set so the UI can
+        // say the vote was close without withholding the verdict.
+        const top = Math.max(up, mid, down);
+        const band = _fcBandOf(score10);
+        const tied = [up === top, mid === top, down === top].filter(Boolean).length > 1;
+        const modeBand = tied ? band : (up === top ? 'up' : mid === top ? 'mid' : 'down');
+        // Consensus advice: the instruction the most systems independently asked
+        // for. Ties fall back to the advice implied by the aggregate score, so this
+        // is never empty either.
+        // Count the advice only among the systems that AGREE with the headline.
+        // Otherwise a domain could show 3.3/10 and still tell the reader to open
+        // up and act, because three optimistic systems out-numbered the two that
+        // dragged the score down. The dissent is not thrown away — the up/mid/down
+        // counts still carry it, and  still says the vote was close.
+        // Restrict the pool to the systems that agree with the headline only when
+        // the headline actually points somewhere — otherwise a low score could tell
+        // the reader to go and act. On an ORDINARY week there is nothing to
+        // contradict, so every voice counts: the score still says "nothing special",
+        // while the advice comes from whichever systems did have something to say.
+        // Aligning the pool on middling weeks too would have guaranteed the blandest
+        // possible answer on the majority of cards, by construction.
+        const aligned = band === 'mid' ? votes : votes.filter(v => v.band === band);
+        const pool = aligned.length ? aligned : votes;
+        const tally = {};
+        for (const v of pool)
+            tally[v.advice] = (tally[v.advice] || 0) + 1;
+        const preferred = _adviceFor(domain, meanNorm);
+        let advice = preferred;
+        let adviceAgree = 0;
+        const keys = Object.keys(tally);
+        if (keys.length) {
+            const top2 = Math.max(...keys.map(k => tally[k]));
+            const tiedKeys = keys.filter(k => tally[k] === top2);
+            advice = (tiedKeys.indexOf(preferred) >= 0 ? preferred : tiedKeys[0]);
+            adviceAgree = top2;
+        }
+        domains[domain] = {
+            domain, score10, band, modeBand, rawMean: _fcRound1(rawMean), n, up, mid, down,
+            agreement: n ? Math.round(top / n * 100) : 0,
+            split: n ? (top / n) < 0.5 : true,
+            advice, adviceAgree, votes,
+        };
+    }
+    const ranked = FORECAST_DOMAINS_ALL.slice().sort((p, q) => domains[q].score10 - domains[p].score10);
+    return {
+        index, kind,
+        startIso: _fcIso(dates[0]),
+        endIso: _fcIso(dates[dates.length - 1]),
+        labelTh, labelEn,
+        domains,
+        best: ranked[0],
+        worst: ranked[ranked.length - 1],
+    };
+}
+// ── Systems that do NOT vote, and the honest reason why ─────────────────────
+// Shown to the user, not hidden. Three different reasons appear here and they
+// are not the same thing: (a) the tradition has no technique for forecasting a
+// window from a birth date, (b) it has one but this engine has not implemented
+// it yet, (c) it would double-count a signal another system already casts.
+// Saying which is which is the whole point.
+const _FC_ABSTENTIONS = [
+    { sysTh: 'ไทยพราหมณ์', sysEn: 'Thai Brahmin', whyTh: 'ให้ความหมายของวันเกิด ไม่ใช่วิชาทำนายช่วงเวลา — และสัญญาณวันในสัปดาห์ถูกนับไปแล้วโดยทักษา', whyEn: 'Reads the meaning of a birth weekday, not a timing technique — and the weekday signal is already cast by Taksa' },
+    { sysTh: 'เฮลเลนิสติก', sysEn: 'Hellenistic', whyTh: 'Profection บอกว่า "หัวข้อไหนของปี" ไม่ได้ตัดสินว่าดีหรือร้าย จึงแสดงเป็นหัวข้อประจำปีแทนการโหวต', whyEn: 'Annual profection names the year’s topic, it does not rule good or bad — shown as the year’s theme instead of a vote' },
+    { sysTh: 'ซาจู (เกาหลี)', sysEn: 'Saju', whyTh: 'ใช้เสาสี่หลักชุดเดียวกับ BaZi — โหวตซ้ำจะทำให้จีนมีสองเสียง', whyEn: 'Uses the same four pillars as BaZi — voting twice would give one tradition two voices' },
+    { sysTh: 'ซื่อเว่ยโต่วซู', sysEn: 'Zi Wei Dou Shu', whyTh: 'มีวิชา 流年/流月 จริง แต่เว็บยังไม่ได้คำนวณดาวจร — ยังไม่ต่อสาย', whyEn: 'Has genuine annual/monthly techniques, but this engine has not computed its star transits yet' },
+    { sysTh: 'ฮิวแมนดีไซน์', sysEn: 'Human Design', whyTh: 'มีวิชา transit จริง แต่เว็บยังไม่ได้คำนวณ — ยังไม่ต่อสาย', whyEn: 'Has a real transit technique, not yet computed here' },
+    { sysTh: 'ออนเมียวโด', sysEn: 'Onmyodo', whyTh: 'ต้องเดินปฏิทินจันทรคติญี่ปุ่น ซึ่งเครื่องยนต์ยังไม่ได้เดิน', whyEn: 'Requires the Japanese lunisolar calendar, which this engine does not yet track' },
+    { sysTh: 'โหราศาสตร์ทิเบต', sysEn: 'Tibetan', whyTh: 'ต้องตัดปีที่ Losar ไม่ใช่ปฏิทินจีน', whyEn: 'Its year turns at Losar, not on the Chinese boundary this engine uses' },
+    { sysTh: 'โซโรอัสเตอร์', sysEn: 'Zoroastrian', whyTh: 'ปฏิทินไม่ตรงกับที่เครื่องยนต์เดิน', whyEn: 'Runs on a calendar this engine does not track' },
+    { sysTh: 'แอซเท็ก', sysEn: 'Aztec', whyTh: 'ยังไม่ได้คำนวณจากศาสตร์นั้นจริง', whyEn: 'Not yet computed from its own doctrine' },
+    { sysTh: 'อิฟา (โยรูบา)', sysEn: 'Ifá (Yoruba)', whyTh: 'อิฟาไม่ใช้วันเกิดโดยหลักวิชา — ต้องทอดโอปเปเล ถามทีละคำถาม', whyEn: 'Ifá does not work from a birth date at all — it requires casting, question by question' },
+    { sysTh: 'ดรีมไทม์ (อะบอริจิน)', sysEn: 'Aboriginal Dreamtime', whyTh: 'ไม่มีวิชาทำนายรายสัปดาห์จากวันเกิด และเป็นความรู้ที่มีเจ้าของทางวัฒนธรรม', whyEn: 'No week-ahead technique from a birth date, and it is culturally owned knowledge' },
+    { sysTh: 'คับบาลาห์', sysEn: 'Kabbalah', whyTh: 'เป็นแผนที่ของจิต ไม่ใช่ปฏิทินทำนาย', whyEn: 'A map of the psyche, not a predictive calendar' },
+    { sysTh: 'รูนนอร์ส', sysEn: 'Norse Runes', whyTh: 'การแบ่งรูนตามครึ่งเดือนเป็นงานสมัยใหม่ (Pennick) ไม่ใช่ตำราเดิม', whyEn: 'The half-month rune calendar is a modern construction (Pennick), not the historical source' },
+    { sysTh: 'ปฏิทินต้นไม้เซลติก', sysEn: 'Celtic Tree', whyTh: 'ปฏิทินต้นไม้เป็นงานของ Robert Graves ปี 1948 ไม่ใช่ประเพณีเซลต์โบราณ จึงไม่มีวิชาเดินเวลาให้ใช้', whyEn: 'The tree calendar is Robert Graves (1948), not ancient Celtic practice — there is no inherited timing technique to use' },
+    { sysTh: 'โอแฮม', sysEn: 'Ogham', whyTh: 'เป็นระบบอักษร ไม่ใช่ปฏิทิน — การผูกอักษรกับช่วงเวลาเป็นงานสมัยใหม่ชุดเดียวกับปฏิทินต้นไม้', whyEn: 'An alphabet, not a calendar — binding letters to dates comes from the same modern revival as the tree calendar' },
+    { sysTh: 'โทเท็มพื้นเมืองอเมริกัน', sysEn: 'Native American Totem', whyTh: 'ตารางโทเท็มตามเดือนเกิดเป็นงานสมัยใหม่', whyEn: 'The birth-month totem table is a modern invention' },
+    { sysTh: 'Arabic Parts', sysEn: 'Arabic Parts', whyTh: 'เป็นจุดคำนวณในดวงกำเนิด ไม่ใช่วิชาเดินเวลา', whyEn: 'Computed points in the natal chart, not a timing technique' },
+    { sysTh: 'เลข ๗ ตัว ๙ ฐาน', sysEn: 'Thai 7-Number', whyTh: 'ฐานทั้งเก้าอ่านจากวันเกิด เป็นภาพนิ่งของดวง ยังไม่ได้ต่อสายวิชาดาวจรตามอายุ', whyEn: 'Its nine bases read the birth date as a fixed picture; the age-progression layer is not wired up here yet' },
+];
+// Traditional (pre-modern) rulers, used only to name the profection time-lord.
+const _FC_SIGN_LORD_TH = ['อังคาร', 'ศุกร์', 'พุธ', 'จันทร์', 'อาทิตย์', 'พุธ', 'ศุกร์', 'อังคาร', 'พฤหัสบดี', 'เสาร์', 'เสาร์', 'พฤหัสบดี'];
+const _FC_SIGN_LORD_EN = ['Mars', 'Venus', 'Mercury', 'Moon', 'Sun', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Saturn', 'Jupiter'];
+const _FC_HOUSE_TOPIC_TH = ['ตัวเองและร่างกาย', 'ทรัพย์และรายได้', 'การเรียนรู้ พี่น้อง การเดินทางใกล้', 'บ้านและครอบครัว', 'ความรัก ลูก การเล่น', 'งานประจำวันและสุขภาพ', 'คู่และการร่วมมือ', 'สิ่งที่คุมไม่ได้ เงินคนอื่น', 'การเดินทางไกล ความเชื่อ การศึกษาสูง', 'หน้าที่การงานและชื่อเสียง', 'มิตรและผลได้', 'การปล่อยวางและสิ่งที่ซ่อนอยู่'];
+const _FC_HOUSE_TOPIC_EN = ['the self and the body', 'assets and income', 'learning, siblings, short travel', 'home and family', 'love, children, play', 'daily work and health', 'partnership', 'what you do not control, other people’s money', 'long travel, belief, higher study', 'career and standing', 'friends and gains', 'release and what stays hidden'];
+// ════════════════════════════════════════════════════════════════════════════
+//  PUBLIC ENTRY POINT
+// ════════════════════════════════════════════════════════════════════════════
+function calcForecast(c, from, opts = {}) {
+    const weeksWanted = Math.max(0, opts.weeks ?? 4);
+    const monthsWanted = Math.max(0, opts.months ?? 12);
+    const x = _fcCtx(c);
+    const start = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+    const getDay = _fcDayCacheFor(c, x);
+    // What does an ordinary week, and an ordinary month, look like for THIS
+    // chart? Answered by sweeping the year ahead once. Both sweeps share the
+    // day cache, so this costs one pass over ~365 days of pure arithmetic.
+    // Rolling 7-day blocks from today, and the next 12 calendar months —
+    // exactly the windows the periods below are cut from.
+    const weekWindows = [];
+    for (let w = 0; w < 52; w++) {
+        const dates = [];
+        for (let i = 0; i < 7; i++)
+            dates.push(new Date(start.getFullYear(), start.getMonth(), start.getDate() + w * 7 + i));
+        weekWindows.push(dates);
+    }
+    const monthWindows = [];
+    for (let m = 0; m < 12; m++) {
+        const first = new Date(start.getFullYear(), start.getMonth() + m, 1);
+        const dim = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+        const dates = [];
+        for (let i = 1; i <= dim; i++)
+            dates.push(new Date(first.getFullYear(), first.getMonth(), i));
+        monthWindows.push(dates);
+    }
+    const weekBase = _fcBuildBaseline(getDay, weekWindows);
+    const monthBase = _fcBuildBaseline(getDay, monthWindows);
+    // Second pass: what range does each DOMAIN headline cover over the year?
+    // Measured by running the very same period function across the year with
+    // no domain baseline — never by a parallel implementation, which would be
+    // free to drift away from the one the user sees.
+    const buildDomainBase = (base, windowsList) => {
+        const samples = new Map();
+        for (let w = 0; w < windowsList.length; w++) {
+            const dates = windowsList[w];
+            const probe = _fcPeriod(getDay, base, dates, 'week', w, '', '');
+            for (const d of FORECAST_DOMAINS_ALL) {
+                let arr = samples.get(d);
+                if (!arr) {
+                    arr = [];
+                    samples.set(d, arr);
+                }
+                arr.push(probe.domains[d].rawMean);
+            }
+        }
+        const out = new Map();
+        for (const [k, arr] of samples) {
+            arr.sort((a, b) => a - b);
+            out.set(k, { lo: _fcPercentile(arr, 0.10), hi: _fcPercentile(arr, 0.90) });
+        }
+        return out;
+    };
+    const weekDomBase = buildDomainBase(weekBase, weekWindows);
+    const monthDomBase = buildDomainBase(monthBase, monthWindows);
+    // ── Rolling 7-day weeks from today, not calendar weeks ────────────────────
+    // "Next week" that ends on Sunday is useless on a Saturday. Week 0 always
+    // starts on the day the user is reading.
+    const weeks = [];
+    for (let w = 0; w < weeksWanted; w++) {
+        const dates = [];
+        for (let i = 0; i < 7; i++) {
+            dates.push(new Date(start.getFullYear(), start.getMonth(), start.getDate() + w * 7 + i));
+        }
+        const a = dates[0], b = dates[6];
+        const sameMonth = a.getMonth() === b.getMonth();
+        const labelTh = w === 0 ? `7 วันนี้ · ${a.getDate()}–${b.getDate()} ${_FC_MONTH_TH[b.getMonth()]}`
+            : `สัปดาห์ที่ ${w + 1} · ${a.getDate()}${sameMonth ? '' : ' ' + _FC_MONTH_TH[a.getMonth()]}–${b.getDate()} ${_FC_MONTH_TH[b.getMonth()]}`;
+        const labelEn = w === 0 ? `Next 7 days · ${_FC_MONTH_EN[a.getMonth()]} ${a.getDate()}–${b.getDate()}`
+            : `Week ${w + 1} · ${_FC_MONTH_EN[a.getMonth()]} ${a.getDate()} – ${_FC_MONTH_EN[b.getMonth()]} ${b.getDate()}`;
+        weeks.push(_fcPeriod(getDay, weekBase, dates, 'week', w, labelTh, labelEn, weekDomBase));
+    }
+    // ── Calendar months, starting with the one the user is standing in ────────
+    const months = [];
+    for (let m = 0; m < monthsWanted; m++) {
+        const first = new Date(start.getFullYear(), start.getMonth() + m, 1);
+        const dim = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+        const dates = [];
+        for (let i = 1; i <= dim; i++)
+            dates.push(new Date(first.getFullYear(), first.getMonth(), i));
+        const yTh = first.getFullYear() + 543;
+        months.push(_fcPeriod(getDay, monthBase, dates, 'month', m, `${_FC_MONTH_TH_FULL[first.getMonth()]} ${yTh}`, `${_FC_MONTH_EN_FULL[first.getMonth()]} ${first.getFullYear()}`, monthDomBase));
+    }
+    // ── Context that is deliberately NOT a good/bad vote ──────────────────────
+    const highlights = [];
+    {
+        // Annual profection: one house per year of life, starting at the 1st.
+        // It says which topic the year is about, and hands the year to that house's
+        // traditional ruler. It makes no claim that the year is good or bad, so it
+        // is reported as a theme rather than folded into the scores.
+        const bd = new Date(c.input.year, c.input.month - 1, c.input.day);
+        let age = start.getFullYear() - bd.getFullYear();
+        const hadBirthday = (start.getMonth() > bd.getMonth()) ||
+            (start.getMonth() === bd.getMonth() && start.getDate() >= bd.getDate());
+        if (!hadBirthday)
+            age -= 1;
+        if (age >= 0) {
+            const house = (age % 12) + 1;
+            const signIdx = (x.ascSignIdx + age) % 12;
+            highlights.push({
+                sysTh: 'เฮลเลนิสติก · Annual Profection', sysEn: 'Hellenistic · Annual Profection',
+                textTh: `อายุ ${age} ปี = ปีของเรือน ${house} — หัวข้อของปีคือ ${_FC_HOUSE_TOPIC_TH[house - 1]} โดยมี${_FC_SIGN_LORD_TH[signIdx]}เป็นเจ้าปี (time-lord)`,
+                textEn: `Age ${age} activates house ${house} — this year is about ${_FC_HOUSE_TOPIC_EN[house - 1]}, with ${_FC_SIGN_LORD_EN[signIdx]} as the year’s time-lord`,
+            });
+        }
+    }
+    {
+        const ns = _fcNineStarMonth(toJD(start.getFullYear(), start.getMonth() + 1, start.getDate(), 12));
+        highlights.push({
+            sysTh: 'ดาวเก้าดวง · รอบ 9 ปี', sysEn: 'Nine Star Ki · the 9-year cycle',
+            textTh: `ปีนี้ดาวประจำปีคือ ${ns.yearStar} — ดาวเกิดของคุณ (${x.natalStar}) อยู่วัง ${_fcPalaceOf(x.natalStar, ns.yearStar)} ของรอบเก้าปี`,
+            textEn: `This year’s star is ${ns.yearStar} — your natal star (${x.natalStar}) sits in palace ${_fcPalaceOf(x.natalStar, ns.yearStar)} of the nine-year cycle`,
+        });
+    }
+    // How many distinct systems actually cast a vote anywhere in the forecast.
+    const voters = new Set();
+    for (const p of weeks.concat(months)) {
+        for (const d of FORECAST_DOMAINS_ALL)
+            for (const v of p.domains[d].votes)
+                voters.add(v.sys);
+    }
+    return {
+        generatedIso: _fcIso(start),
+        weeks, months,
+        votingCount: voters.size,
+        abstainCount: _FC_ABSTENTIONS.length,
+        totalSystems: voters.size + _FC_ABSTENTIONS.length,
+        abstentions: _FC_ABSTENTIONS,
+        highlights,
     };
 }
 
@@ -9113,5 +10065,17 @@ function p_vedicMahadasha(c) {
 
 
   // ─── Public API ─────────────────────────────────────────
-  root.MS26 = { calculate: calculate, generateReport: generateReport, calcDailyPulse: calcDailyPulse };
+  root.MS26 = {
+    calculate: calculate,
+    generateReport: generateReport,
+    calcDailyPulse: calcDailyPulse,
+    // Forecast surface (2026-08-23). The label/advice tables ship with the
+    // engine so the UI can never drift out of sync with the vocabulary the
+    // votes were counted in.
+    calcForecast: calcForecast,
+    FORECAST_DOMAINS_FREE: FORECAST_DOMAINS_FREE,
+    FORECAST_DOMAINS_ALL: FORECAST_DOMAINS_ALL,
+    FORECAST_DOMAIN_LABELS: FORECAST_DOMAIN_LABELS,
+    FORECAST_ADVICE: FORECAST_ADVICE,
+  };
 })(typeof window !== "undefined" ? window : globalThis);
