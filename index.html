@@ -21387,7 +21387,11 @@ function renderHistoryPanel() {
       return `<div class="hist-item">
         <div class="hist-item-header">
           <span class="hist-type-tag" style="background:${h.tierColor||'#c8a45a'}22;color:${h.tierColor||'#c8a45a'};border:1px solid ${h.tierColor||'#c8a45a'}44">
-            🎴 ${h.tierName||'Blessing'}
+            🎴 ${(function(){
+              var t = Array.isArray(TIERS) ? TIERS.find(function(x){ return x.name === h.tierName || x.nameEN === h.tierName; }) : null;
+              if (t) return LANG === 'th' ? (t.nameTH || t.name) : (t.nameEN || t.name);
+              return h.tierName || (LANG === 'th' ? 'พร' : 'Blessing');
+            })()}
           </span>
           <span class="hist-date">${h.date||''} ${h.time||''}</span>
         </div>
