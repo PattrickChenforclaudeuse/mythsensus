@@ -422,7 +422,7 @@ function srSetLang(lang){
 }
 (function(){
   var want=null;
-  try { if (/[?&]lang=(en|th)/i.test(location.search)) want=RegExp.$1.toLowerCase(); } catch(_) {}
+  try { if (/[?&]lang=(en|th)(?:&|$)/i.test(location.search)) want=RegExp.$1.toLowerCase(); } catch(_) {}
   if(!want){ try { var sv=localStorage.getItem('mth_lang'); if(sv==='en'||sv==='th') want=sv; } catch(_) {} }
   if(!want && /^\/en(?:\/|$)/i.test(location.pathname)) want='en';
   srSetLang(want || 'th');
