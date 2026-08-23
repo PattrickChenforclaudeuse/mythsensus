@@ -83,6 +83,43 @@ const indexPath = path.join(ROOT, 'index.html');
 const html = checkScripts(indexPath);
 checkRequired(html);
 
+// ── No Thai on the English side ───────────────────────────────────────────────
+// Director's rule (2026-08-23): English words inside Thai copy are fine — the
+// audience reads "Nine Star Ki" and "Cosmic Score" as names. Thai reaching an
+// English reader is not fine, and it is invisible to anyone testing in Thai.
+// One entry had been sitting in TX.en for months (lucky_title), and four other
+// keys had the two languages swapped outright, which nothing caught because
+// both tables were complete and every value was a valid string.
+//
+// The language switcher is the deliberate exception: it must say "ไทย" to an
+// English reader, or they cannot tell what pressing it does.
+function checkEnglishTableIsEnglish(html) {
+  const lines = html.split(/\r?\n/);
+  const enStart = lines.findIndex(l => /^en:\{/.test(l.trim()));
+  const thStart = lines.findIndex((l, i) => i > enStart && /^th:\{/.test(l.trim()));
+  if (enStart < 0 || thStart < 0) {
+    notes.push('i18n: could not locate TX.en / TX.th — skipped the Thai-leak check');
+    return;
+  }
+  const THAI = /[\u0E00-\u0E7F]/;
+  const KV = /([a-z0-9_]+)\s*:\s*"((?:[^"\\]|\\.)*)"/g;
+  const ALLOW = new Set(['lang_switch', 'lang_th', 'lang_name_th']);
+  let found = 0;
+  for (let i = enStart + 1; i < thStart; i++) {
+    KV.lastIndex = 0;
+    let m;
+    while ((m = KV.exec(lines[i] || ''))) {
+      if (ALLOW.has(m[1])) continue;
+      if (THAI.test(m[2])) {
+        found++;
+        failures.push('index.html:' + (i + 1) + ' — TX.en."' + m[1] + '" contains Thai: ' + m[2].slice(0, 60));
+      }
+    }
+  }
+  if (!found) notes.push('i18n: TX.en carries no Thai');
+}
+checkEnglishTableIsEnglish(html);
+
 // ── report ────────────────────────────────────────────────────────────────────
 for (const n of notes) console.log('  ' + n);
 
