@@ -33,11 +33,23 @@ export default async function handler(req, res) {
   try {
     const sinceMs = Date.now() - days * 86400000;
     const sinceIso = new Date(sinceMs).toISOString();
-    const r = await fetch(base + '/rest/v1/myth_events?select=sid,ts,event,active_ms,draws,ref,lang,device,meta&ts=gte.' + encodeURIComponent(sinceIso) + '&order=ts.desc&limit=50000', {
-      headers: { apikey: SERVICE, Authorization: 'Bearer ' + SERVICE },
-    });
-    rows = await r.json();
-    if (!Array.isArray(rows)) rows = [];
+    const PAGE = 1000;              // PostgREST will not return more per request
+    const MAX  = 200000;            // backstop so a bad filter cannot loop forever
+    const url  = base + '/rest/v1/myth_events?select=sid,ts,event,active_ms,draws,ref,lang,device,meta&ts=gte.'
+               + encodeURIComponent(sinceIso) + '&order=ts.desc';
+    rows = [];
+    for (let from = 0; from < MAX; from += PAGE) {
+      const r = await fetch(url, {
+        headers: {
+          apikey: SERVICE, Authorization: 'Bearer ' + SERVICE,
+          Range: from + '-' + (from + PAGE - 1), 'Range-Unit': 'items',
+        },
+      });
+      const page = await r.json();
+      if (!Array.isArray(page) || !page.length) break;
+      rows = rows.concat(page);
+      if (page.length < PAGE) break;   // last page
+    }
   } catch (e) {
     res.status(502).send('query failed: ' + (e && e.message || e)); return;
   }
@@ -66,6 +78,11 @@ export default async function handler(req, res) {
   const subClicks = rows.filter(x => x.event === 'subscribe_click');
   const pSuccess  = rows.filter(x => x.event === 'purchase_success');
   const nS = sessions.length;
+  // The oldest row actually fetched. If this is younger than the window the
+  // reader asked for, the answer is thinner than the label and the page has
+  // to admit it rather than quietly showing less.
+  const oldestTs = rows.length ? rows[rows.length - 1].ts : null;
+  const coverDays = oldestTs ? Math.round((Date.now() - new Date(oldestTs).getTime()) / 86400000) : 0;
 
   const ms = sessions.map(x => +x.active_ms || 0).sort((a, b) => a - b);
   const med = quantile(ms, 0.5), p75 = quantile(ms, 0.75), p90 = quantile(ms, 0.9);
@@ -144,7 +161,7 @@ export default async function handler(req, res) {
   res.status(200).send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Mythsensus · Funnel</title>
 <style>body{background:#0b0b12;color:#e8e0c9;font-family:-apple-system,'Segoe UI',sans-serif;margin:0;padding:24px;max-width:760px;margin:0 auto}h1{font-size:18px;letter-spacing:2px;color:#c8a45a;font-weight:700}h2{font-size:12px;letter-spacing:2px;color:#8a7a5a;text-transform:uppercase;margin:26px 0 6px}table{width:100%;border-collapse:collapse;background:#13112a;border:1px solid #2a2545;border-radius:8px;overflow:hidden}tr+tr td{border-top:1px solid #211c3a}th{text-align:left;padding:6px 10px;font-size:11px;color:#7a6a52;font-weight:600}.muted{color:#6a5a42;font-size:12px}a{color:#c8a45a}</style></head><body>
 <h1>🔮 MYTHSENSUS · ENGAGEMENT FUNNEL</h1>
-<div class="muted">Source: myth_events (first-party) · window ${days}d · ${nS} sessions${internalN ? ` · <span style="color:#c8a45a">${internalN} internal (your ?im=1 opens) excluded</span>` : ''} · <a href="?k=${esc(q.k)}&days=7">7d</a> · <a href="?k=${esc(q.k)}&days=30">30d</a> · <a href="?k=${esc(q.k)}&days=90">90d</a></div>
+<div class="muted">Source: myth_events (first-party) · window ${days}d (data reaches back ${coverDays}d, ${rows.length} events)${coverDays && coverDays < days - 1 ? ' — no data older than that' : ''} · ${nS} sessions${internalN ? ` · <span style="color:#c8a45a">${internalN} internal (your ?im=1 opens) excluded</span>` : ''} · <a href="?k=${esc(q.k)}&days=7">7d</a> · <a href="?k=${esc(q.k)}&days=30">30d</a> · <a href="?k=${esc(q.k)}&days=90">90d</a></div>
 <h2>Funnel</h2><table>${funnelRows}</table>
 <h2>Money intent <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(distinct sessions · instrumented 2026-07-01)</span></h2><table>${moneyRows}</table>
 <h2>New vs returning <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(post-deploy only · ${tagged.length} tagged)</span></h2><table><tr><th>Cohort</th><th style="text-align:right">Sessions</th><th style="text-align:right">Bounce&lt;5s</th><th style="text-align:right">&gt;60s</th><th style="text-align:right">Draw%</th><th style="text-align:right">Engaged%</th></tr>${nvrRows}</table>
