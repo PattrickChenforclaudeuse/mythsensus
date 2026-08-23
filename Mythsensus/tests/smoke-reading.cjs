@@ -2,10 +2,17 @@
 /**
  * smoke-reading.cjs — walk the path we actually sell.
  *
- * smoke-draw.cjs covers the blessing (now the SECOND door). This covers the
- * first one: tap "ดูดวง 26 ศาสตร์" → the birth form appears → fill it → the
- * 26-system result renders. That is the journey the 2026-08-15 entry rework
- * promoted to primary, and nothing was testing it.
+ * smoke-draw.cjs covers the blessing (the SECOND door). This covers the one
+ * we sell: type a birth date on the landing → the form appears → confirm →
+ * the forecast renders.
+ *
+ * The date is typed into the LANDING fields in Buddhist era, deliberately.
+ * That is the path a Thai visitor from Facebook takes, and on 2026-08-23 it
+ * was broken end to end: entryHeroGo() converted BE→CE but left the era
+ * selector on BE, so _getEntryDob() subtracted 543 twice, produced 1448,
+ * failed its own y<1900 guard and returned "" — every such visitor stopped
+ * dead at step two. The old version of this test filled the FORM fields
+ * directly and so walked straight past the broken hand-off.
  *
  * Fresh context every run (no localStorage), mobile viewport — what a visitor
  * arriving from a Facebook group actually gets.
@@ -26,7 +33,11 @@ const problems = [];
 
   await page.goto(URL, { waitUntil: 'networkidle', timeout: 45000 });
 
-  // 1. the primary CTA must be the READING, not the blessing
+  // 1. the primary CTA must be the READING, not the blessing.
+  //    The label is deliberately NOT asserted word-for-word — it has been
+  //    rewritten twice (26 systems → four weeks) and each time this test went
+  //    red for a copy edit rather than a broken journey. What has to hold is
+  //    that the main button is not the blessing and that it opens the form.
   // Locate the primary CTA by its role on the page, not by the name of the
   // function behind it. The handler has changed once already (entryShowForm ->
   // entryHeroGo, when the date fields moved onto the landing) and this test
@@ -37,8 +48,24 @@ const problems = [];
     problems.push('primary CTA (button.login-confirm-btn[data-eh="cta"]) not found on the landing page');
   } else {
     const label = (await primary.first().textContent() || '').trim();
-    if (!/26/.test(label)) problems.push(`primary CTA does not mention 26 systems: "${label}"`);
-    if (/จั่ว/.test(label)) problems.push(`primary CTA still says "จั่ว": "${label}"`);
+    if (!label) problems.push('primary CTA has no label');
+    if (/จั่ว|รับพร/.test(label)) problems.push(`primary CTA is the blessing, not the reading: "${label}"`);
+
+    // Type the date on the LANDING, in พ.ศ., before tapping through — this is
+    // the hand-off that broke. If the fields are not there, say so rather than
+    // silently falling through to the form fields and testing nothing.
+    const heroFilled = await page.evaluate(() => {
+      const set = (id, v) => {
+        const e = document.getElementById(id); if (!e) return false;
+        e.value = String(v);
+        e.dispatchEvent(new Event('input',  { bubbles: true }));
+        e.dispatchEvent(new Event('change', { bubbles: true }));
+        return true;
+      };
+      return set('heroDay', 3) && set('heroMonth', 2) && set('heroYear', 2534);
+    });
+    if (!heroFilled) problems.push('landing date fields (heroDay/heroMonth/heroYear) missing');
+
     await primary.first().click();
   }
 
@@ -68,12 +95,16 @@ const problems = [];
     };
     const missing = ['entryDay','entryMonth','entryYear'].filter(id => !document.getElementById(id));
     if (missing.length) return { ok: false, why: 'missing fields: ' + missing.join(', ') };
-    set('entryName', 'Test');
-    // The year field is BUDDHIST ERA — it ships prefilled with 2569. Feeding it a
-    // CE year makes _getEntryDob() return "" and entryAccept() refuses with
-    // "กรุณากรอกวันเกิด", which reads exactly like a broken money path but is the
-    // form working as designed. 2534 BE = 1991 CE.
-    const okD = set('entryDay', 3), okM = set('entryMonth', 2), okY = set('entryYear', 2534);
+    // Name is left EMPTY on purpose: it has never been required, and a test
+    // that always fills it would not notice if it silently became mandatory.
+    // The date is NOT re-typed either — it was entered on the landing, and
+    // whether it survived the hand-off is exactly what is under test. Read it
+    // back through the page's own getter, which is what entryAccept() uses.
+    const dob = (typeof _getEntryDob === 'function') ? _getEntryDob() : '';
+    if (dob !== '1991-02-03') {
+      return { ok: false, why: `landing date did not survive the hand-off: _getEntryDob() = "${dob}" (want 1991-02-03)` };
+    }
+    const okD = true, okM = true, okY = true;
     set('entryHour', 5);
     set('entryCity', 'Bangkok, Thailand');
     // Cold visitors must tick the 13+ age box or entryAccept() bails with an
@@ -96,31 +127,45 @@ const problems = [];
   });
   if (!submitted) problems.push('entryAccept() confirm button not found');
 
-  // 5. the 26-system result must actually render
+  // 5. the forecast must actually render — the thing the landing promises
   try {
     await page.waitForFunction(
       () => {
-        const r = document.getElementById('chartResults');
-        return r && r.classList.contains('active') && (r.innerText || '').trim().length > 200;
+        const p = document.getElementById('panel-forecast');
+        const h = document.getElementById('forecastPanel');
+        return p && p.classList.contains('active') && h && (h.innerText || '').trim().length > 400;
       },
       { timeout: 25000 }
     );
   } catch (_) {
-    problems.push('26-system result (#chartResults.active) never rendered after submitting the birth date');
+    problems.push('forecast (#panel-forecast.active) never rendered after confirming the birth date');
   }
 
   const shown = await page.evaluate(() => {
-    const r = document.getElementById('chartResults');
-    return { active: !!(r && r.classList.contains('active')),
-             chars: r ? (r.innerText || '').trim().length : 0,
+    const p = document.getElementById('panel-forecast');
+    const h = document.getElementById('forecastPanel');
+    const txt = h ? (h.innerText || '').trim() : '';
+    return { active: !!(p && p.classList.contains('active')),
+             chars: txt.length,
+             // A forecast of nothing is the failure mode this product has to
+             // avoid: if every domain reads exactly 5.0 the page is technically
+             // rendering and telling the reader nothing.
+             scores: (txt.match(/(\d+(?:\.\d)?)\/10/g) || []).slice(0, 8),
              entryViewFired: !!window._entryShownTracked };
   });
+  if (shown.active && shown.scores.length < 4) {
+    problems.push(`forecast rendered but only ${shown.scores.length} domain scores found (want 4)`);
+  }
+  if (shown.scores.length && new Set(shown.scores).size === 1) {
+    problems.push(`every domain scored the same (${shown.scores[0]}) — the forecast is not discriminating`);
+  }
 
   if (!shown.entryViewFired) problems.push('entry_view never fired — the overlay-shown signal is not working');
   if (pageErrors.length) problems.push('uncaught JS: ' + pageErrors.join(' | ').slice(0, 300));
 
   console.log(`  url:          ${URL}`);
-  console.log(`  result shown: ${shown.active} (${shown.chars} chars)`);
+  console.log(`  forecast:     ${shown.active} (${shown.chars} chars)`);
+  console.log(`  scores:       ${shown.scores.join('  ')}`);
   console.log(`  entry_view:   ${shown.entryViewFired}`);
   console.log(`  js errors:    ${pageErrors.length}`);
 
@@ -131,5 +176,5 @@ const problems = [];
     for (const p of problems) console.error('  - ' + p);
     process.exit(1);
   }
-  console.log('\n✓ smoke-reading passed — cold visitor can tap the 26-system door, fill a birth date, and get a result');
+  console.log('\n✓ smoke-reading passed — a cold visitor can type a พ.ศ. birth date on the landing and reach a forecast that discriminates');
 })();

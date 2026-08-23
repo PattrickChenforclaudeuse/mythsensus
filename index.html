@@ -10238,11 +10238,64 @@ function _fcVoteRows(v, isTh) {
   }).join('');
 }
 
+function _fcConclusion(v, isTh, lab, A) {
+  const advice = A[v.advice];
+  const dom = isTh ? lab.th : lab.en;
+  // votes arrive sorted by conviction, so the first match in either group is
+  // the loudest of that group.
+  const agree = v.votes.filter(o => o.band === v.band);
+  const other = v.votes.filter(o => o.band !== v.band);
+  // The system that speaks FOR the verdict — never simply the loudest in the
+  // room, or on a "careful" week the headline voice would be whichever system
+  // was most optimistic, and it would then reappear one line later as the
+  // dissenter. Same system, both roles, in consecutive sentences.
+  const lead = agree[0] || v.votes[0];
+  const against = other[0];
+  const level = v.band === 'up'
+    ? (isTh ? 'สูงกว่าสัปดาห์ปกติของคุณ' : 'above your ordinary week')
+    : v.band === 'down'
+      ? (isTh ? 'ต่ำกว่าสัปดาห์ปกติของคุณ' : 'below your ordinary week')
+      : (isTh ? 'อยู่ระดับปกติของคุณ' : 'right at your ordinary level');
+
+  const parts = [];
+  parts.push(isTh
+    ? `<strong style="color:var(--gold2)">${_fcEsc(dom)}</strong> ได้ <strong>${v.score10}/10</strong> ซึ่ง${level} (5 คือธรรมดา)`
+    : `<strong style="color:var(--gold2)">${_fcEsc(dom)}</strong> scores <strong>${v.score10}/10</strong> — ${level} (5 is ordinary)`);
+
+  parts.push(isTh
+    ? `${v.adviceAgree} จาก ${v.n} ศาสตร์ที่ออกเสียงเรื่องนี้ชี้ไปทางเดียวกัน คือ <strong>${_fcEsc(advice.th)}</strong>`
+    : `${v.adviceAgree} of the ${v.n} systems that spoke said the same thing: <strong>${_fcEsc(advice.en)}</strong>`);
+
+  if (lead) {
+    const verb = v.band === 'up'
+      ? (isTh ? 'เสียงที่หนุนหนักที่สุดคือ' : 'The strongest support comes from ')
+      : v.band === 'down'
+        ? (isTh ? 'เสียงที่เตือนหนักที่สุดคือ' : 'The sharpest warning comes from ')
+        : (isTh ? 'ตัวที่ยืนกลางชัดที่สุดคือ' : 'The steadiest reading comes from ');
+    parts.push(isTh
+      ? `${verb}<strong>${_fcEsc(lead.sysTh)}</strong> (${lead.score10}/10) — ${_fcEsc(lead.noteTh)}`
+      : `${verb}<strong>${_fcEsc(lead.sysEn)}</strong> (${lead.score10}/10) — ${_fcEsc(lead.noteEn)}`);
+  }
+
+  // Disagreement is the product, not an embarrassment to smooth over — and a
+  // genuinely unanimous week is rare enough to be worth saying out loud too.
+  if (against) {
+    parts.push(isTh
+      ? `แต่ไม่ได้เห็นตรงกันหมด — อีก ${other.length} ศาสตร์มองต่าง โดย<strong>${_fcEsc(against.sysTh)}</strong> ให้ ${against.score10}/10 จาก ${_fcEsc(against.noteTh)}`
+      : `Not everyone agreed — ${other.length} ${other.length === 1 ? 'system reads' : 'systems read'} it differently, led by <strong>${_fcEsc(against.sysEn)}</strong> at ${against.score10}/10 from ${_fcEsc(against.noteEn)}`);
+  } else if (v.n > 1) {
+    parts.push(isTh
+      ? `ทั้ง ${v.n} ศาสตร์ที่ออกเสียงไปทางเดียวกันหมด ซึ่งไม่ค่อยเกิดขึ้น`
+      : `All ${v.n} systems that spoke landed on the same side, which is uncommon`);
+  }
+
+  return parts.map(p => `<div style="margin-bottom:6px">${p}</div>`).join('');
+}
+
 function _fcDomainCard(v, isTh, L, A) {
   const lab = L[v.domain];
   const B = _FC_BAND_STYLE[v.band];
   const open = !!_FC_OPEN[v.domain];
-  const advice = A[v.advice];
   // The split note is the honest half of "always give an answer": the verdict
   // still lands, but the reader is told the room was divided.
   const splitNote = v.split
@@ -10260,11 +10313,9 @@ function _fcDomainCard(v, isTh, L, A) {
       ${isTh ? 'ดี' : 'good'} ${v.up} · ${isTh ? 'กลาง' : 'even'} ${v.mid} · ${isTh ? 'ระวัง' : 'careful'} ${v.down}
       &nbsp;·&nbsp; ${v.n} ${isTh ? 'ศาสตร์' : 'systems'} · ${isTh ? 'ตรงกัน' : 'agree'} ${v.agreement}%${splitNote}
     </div>
-    <div style="margin-top:9px;padding:8px 10px;border-radius:6px;background:rgba(200,164,90,.07);border-left:2px solid var(--gold3)">
-      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--text);line-height:1.5">${_fcEsc(isTh ? advice.th : advice.en)}</div>
-      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:.8px;color:var(--muted);margin-top:3px">
-        ${isTh ? `คำแนะนำที่ศาสตร์เห็นตรงกันมากที่สุด · ${v.adviceAgree} ใน ${v.n}` : `the advice most systems converged on · ${v.adviceAgree} of ${v.n}`}
-      </div>
+    <div style="margin-top:10px;padding:11px 13px;border-radius:6px;background:rgba(200,164,90,.07);border-left:2px solid var(--gold3)">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted);margin-bottom:7px">${isTh ? 'ข้อสรุป' : 'What this says'}</div>
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--text);line-height:1.75">${_fcConclusion(v, isTh, lab, A)}</div>
     </div>
     <button onclick="_fcToggle('${v.domain}')" style="margin-top:8px;background:none;border:none;color:var(--gold2);cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.2px;padding:2px 0;text-decoration:underline">
       ${open ? (isTh ? 'ปิดรายศาสตร์ ▴' : 'hide systems ▴') : (isTh ? `ดูรายศาสตร์ · ใครให้กี่คะแนน เตือนเรื่องอะไร ▾` : `see each system ▾`)}
