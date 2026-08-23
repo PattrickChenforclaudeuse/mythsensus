@@ -1,5 +1,23 @@
 # Mythsensus — Product Hunt Launch Kit (ready to launch)
 
+> ## 🟢 สถานะ 23 ส.ค. 2026 — **ตั้งเวลายิงแล้ว: พุธ 9 ก.ย. 2026 · 12:01 AM PDT = 14:01 น. ไทย · เปิดหน้าแรก PH 24 ชม.**
+> เลื่อนวันได้ตลอด (PH เขียนเอง "you're not locked in") · ดูสถิติสด: Pre-Launch dashboard ในหน้า /my/products
+> **วันที่มาจากเอนจินตัวเอง** — `calcDailyPulse` บนดวง director: 9 ก.ย. = **Peak day +6** สูงสุดของ อ./พ./พฤ. ทั้ง 3 สัปดาห์ (24 ส.ค. = −1 · 26 ส.ค. = +1) ⇒ ใช้เป็นมุมเล่าใน first comment ได้ และตรวจซ้ำได้เพราะเอนจิน deterministic
+> **ลิงก์ draft:** https://www.producthunt.com/products/mythsensus (แถบบนเขียน *"This product is a draft and is not scheduled for a launch yet"*)
+> ✅ description เรียงใหม่ **ของฟรีขึ้นก่อน** แล้วค่อย $19 (director 23 ส.ค.) · Pricing = *Paid (with a free trial or plan)*
+> **Required = 100% Complete** · ชื่อ · tagline `26 ancient divination systems, one Cosmic Score` · description EN 479 ตัวอักษร · thumbnail (โลโก้ M) · แกลเลอรี 7 ภาพ · tags **Lifestyle · Artificial Intelligence · Spirituality** · first comment 1,585 ตัวอักษร
+> **โปรไฟล์ผู้ใช้:** onboarding เสร็จแล้ว — ชื่อ *Pattrick Chen* · headline *"Building Mythsensus solo, with Claude"*
+>
+> ⛔ **first comment ในไฟล์นี้ (ท่อนล่าง) ล้าสมัยแล้ว ห้ามใช้** — มันเขียนว่า Cosmic Score = "how much the traditions AGREE"
+> ของจริงตอนนี้ Cosmic Score = **ระดับดวงโดยรวมเป็นเปอร์เซ็นไทล์** ส่วน "เห็นตรงกันแค่ไหน" = **Consensus reading แยกต่างหาก**
+> ฉบับที่ใส่ลง PH แล้วแก้ตรงนี้ให้ถูก + เพิ่มท่อน 9 โหวต/18 งดออกเสียง และลิงก์ `/how-it-works`
+>
+> ⚠️ **ยังไม่ได้ทำ:** ยังไม่มี Video/Loom · ยังไม่มี maker คนอื่น · username PH ยังเป็น `pattrickchenforclaudeuse` (เปลี่ยนได้ที่ /my/welcome ถ้าอยากให้ดูเป็นโปรไฟล์เมกเกอร์มากขึ้น)
+> ⚠️ **PH ดึงภาพ OG ของเว็บมาเป็นภาพแรกของแกลเลอรีเอง** — ภาพแรกคือ social preview ตอนแชร์ ถ้าอยากให้เป็นหน้าจอแอปต้องสลับลำดับเอง
+
+---
+
+
 **Why PH:** free, high-authority backlink + AI-mention corpus + a traffic spike, and new AI/tools do well. This kit is copy-complete — you create the PH listing, paste, upload media, hit launch.
 
 **Account:** use garsell@hotmail.com (same identity as npm/Mythsensus). No hunter needed — self-launch is fine now.
