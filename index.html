@@ -10400,6 +10400,17 @@ function renderForecast() {
 
   const cards = domains.map(d => _fcDomainCard(P.domains[d], isTh, L, A)).join('');
 
+  // Placed straight after the cards, which is where a reader has just formed
+  // an opinion — the moment they might want to argue about it with someone.
+  const shareRow = `<div style="text-align:center;margin:2px 0 14px">
+      <button onclick="_fcShare()" style="font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;padding:10px 24px;border-radius:6px;cursor:pointer;border:1px solid var(--gold3);background:transparent;color:var(--gold)">
+        ${isTh ? '✦ แชร์สัปดาห์นี้' : '✦ SHARE THIS WEEK'}
+      </button>
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:11.5px;color:var(--muted);margin-top:6px">
+        ${isTh ? 'การ์ดสร้างบนเครื่องคุณ — วันเกิดไม่ถูกส่งออกไปไหน' : 'Built on your device — your birth date never leaves it'}
+      </div>
+    </div>`;
+
   // ── what the paid tiers add ─────────────────────────────────────────────
   let upsell = '';
   if (!showAll) {
@@ -10485,7 +10496,155 @@ function renderForecast() {
       </button>
     </div>`;
 
-  host.innerHTML = head + modeRow + picker + summary + scale + cards + upsell + highlights + abst + bless;
+  host.innerHTML = head + modeRow + picker + summary + scale + cards + shareRow + upsell + highlights + abst + bless;
+}
+
+// ── The forecast's share unit ───────────────────────────────────────────────
+// The panel is a dashboard, and a dashboard does not travel. Every card that
+// spreads in this category carries ONE number and ONE claim — Wrapped's
+// "Listening Age", Co-Star's single brutal line, Gunghap's percentage. What
+// makes them travel is that they are arguable: a friend can disagree out loud.
+//
+// So the card leads with the single most NOTABLE domain — the one furthest
+// from an ordinary 5, in either direction. A bad week is as shareable as a good
+// one, sometimes more; the other three domains ride along in small type as
+// proof there is a real reading behind the headline.
+//
+// PRIVACY INVARIANT (see _webShareUrl): no birth data may ever leave the
+// device. This draws entirely on-canvas in the browser and shares the resulting
+// file — no server round-trip, and the accompanying URL is the bare homepage.
+function _fcShareBlob(period, isTh) {
+  const L = MS26.FORECAST_DOMAIN_LABELS;
+  const A = MS26.FORECAST_ADVICE;
+  const doms = _fcCanSeeAllDomains() ? MS26.FORECAST_DOMAINS_ALL : MS26.FORECAST_DOMAINS_FREE;
+
+  // Most notable = furthest from the ordinary middle, whichever way it leans.
+  const ranked = doms.slice().sort((a, b) =>
+    Math.abs(period.domains[b].score10 - 5) - Math.abs(period.domains[a].score10 - 5));
+  const star = period.domains[ranked[0]];
+  const rest = ranked.slice(1, 4).map(k => period.domains[k]);
+
+  const W = 1080, H = 1920;
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const x = cv.getContext('2d');
+
+  const gold = '#c8a45a', gold2 = '#e8c87a', muted = '#9a8a72', ink = '#e6e2d8';
+  const tone = star.score10 >= 6.5 ? '#6fb650' : star.score10 <= 3.5 ? '#d08a6a' : '#c8a840';
+  const th = (px, w) => `${w || 400} ${px}px Sarabun, "Cormorant Garamond", system-ui, sans-serif`;
+  const label = (px) => `600 ${px}px "Josefin Sans", Sarabun, system-ui, sans-serif`;
+
+  x.fillStyle = '#040407'; x.fillRect(0, 0, W, H);
+  // A faint vertical wash so the card is not a flat rectangle in a feed.
+  const wash = x.createLinearGradient(0, 0, 0, H);
+  wash.addColorStop(0, 'rgba(200,164,90,.10)');
+  wash.addColorStop(0.45, 'rgba(200,164,90,.02)');
+  wash.addColorStop(1, 'rgba(0,0,0,0)');
+  x.fillStyle = wash; x.fillRect(0, 0, W, H);
+
+  x.textAlign = 'center';
+
+  x.fillStyle = gold; x.font = label(30);
+  x.fillText('M Y T H S E N S U S', W / 2, 150);
+
+  x.fillStyle = muted; x.font = th(34);
+  x.fillText((isTh ? period.labelTh : period.labelEn).replace(/\s*·\s*/, '  ·  '), W / 2, 232);
+
+  // The headline: one domain, one number, nothing competing with it.
+  x.font = `${170}px system-ui`;
+  x.fillText(L[star.domain].icon, W / 2, 470);
+
+  x.fillStyle = ink; x.font = th(66, 600);
+  x.fillText(isTh ? L[star.domain].th : L[star.domain].en, W / 2, 610);
+
+  x.fillStyle = tone;
+  x.font = `700 260px "Cinzel Decorative", Georgia, serif`;
+  x.fillText(String(star.score10), W / 2, 860);
+  x.fillStyle = muted; x.font = th(46);
+  x.fillText('/ 10', W / 2, 930);
+
+  // The arguable part — how much the traditions actually agreed.
+  x.fillStyle = gold2; x.font = th(44, 600);
+  x.fillText(isTh ? `${star.adviceAgree} จาก ${star.n} ศาสตร์เห็นตรงกัน`
+                  : `${star.adviceAgree} of ${star.n} traditions agree`, W / 2, 1035);
+
+  // The instruction, wrapped by hand — canvas has no line breaking.
+  const advice = isTh ? A[star.advice].th : A[star.advice].en;
+  x.fillStyle = ink; x.font = th(46);
+  const words = advice.split(' ');
+  const lines = []; let cur = '';
+  for (const w of words) {
+    const probe = cur ? cur + ' ' + w : w;
+    if (x.measureText(probe).width > W - 200 && cur) { lines.push(cur); cur = w; } else cur = probe;
+  }
+  if (cur) lines.push(cur);
+  lines.slice(0, 2).forEach((ln, i) => x.fillText(ln, W / 2, 1130 + i * 62));
+
+  // The other domains, small — evidence of a real reading, not the point.
+  let y = 1360;
+  x.font = th(38);
+  for (const v of rest) {
+    const c = v.score10 >= 6.5 ? '#6fb650' : v.score10 <= 3.5 ? '#d08a6a' : '#c8a840';
+    x.textAlign = 'left';
+    x.fillStyle = muted;
+    x.fillText(L[v.domain].icon + '  ' + (isTh ? L[v.domain].th : L[v.domain].en), 190, y);
+    x.textAlign = 'right';
+    x.fillStyle = c;
+    x.fillText(String(v.score10), W - 190, y);
+    x.textAlign = 'center';
+    x.strokeStyle = 'rgba(200,164,90,.14)'; x.lineWidth = 2;
+    x.beginPath(); x.moveTo(190, y + 26); x.lineTo(W - 190, y + 26); x.stroke();
+    y += 96;
+  }
+
+  x.fillStyle = muted; x.font = th(34);
+  x.fillText(isTh ? 'คะแนนเทียบกับปีของตัวเอง — 5 คือสัปดาห์ธรรมดา' : 'Scored against your own year — 5 is an ordinary week', W / 2, 1700);
+  x.fillStyle = gold; x.font = label(38);
+  x.fillText('mythsensus.com', W / 2, 1790);
+
+  return new Promise(res => cv.toBlob(res, 'image/png'));
+}
+
+async function _fcShare() {
+  try {
+    const data = _fcGet();
+    if (!data) return;
+    const isTh = LANG === 'th';
+    const periods = _FC_MODE === 'month' ? data.months : data.weeks;
+    const P = periods[_FC_WEEK] || periods[0];
+    const doms = _fcCanSeeAllDomains() ? MS26.FORECAST_DOMAINS_ALL : MS26.FORECAST_DOMAINS_FREE;
+    const star = doms.slice().sort((a, b) =>
+      Math.abs(P.domains[b].score10 - 5) - Math.abs(P.domains[a].score10 - 5))[0];
+    const v = P.domains[star];
+    const L = MS26.FORECAST_DOMAIN_LABELS;
+
+    // Wait for the webfonts, or the card renders in a fallback face and the
+    // Thai comes out looking nothing like the site.
+    try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (_) {}
+
+    const blob = await _fcShareBlob(P, isTh);
+    const text = isTh
+      ? `${L[star].icon} ${L[star].th} ${v.score10}/10 — ${v.adviceAgree} จาก ${v.n} ศาสตร์เห็นตรงกัน · ดูของคุณเองได้ที่`
+      : `${L[star].icon} ${L[star].en} ${v.score10}/10 — ${v.adviceAgree} of ${v.n} traditions agree · see yours at`;
+    // Bare homepage on purpose: the forecast is derived from a birth date, and
+    // nothing derived from one may ride in a URL.
+    const url = 'https://mythsensus.com/';
+    const file = new File([blob], 'mythsensus-forecast.png', { type: 'image/png' });
+
+    try { if (window._msTrack) _msTrack.track('share', { meta: { ch: 'forecast' } }); } catch (_) {}
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], text, url });
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = file.name;
+      document.body.appendChild(a); a.click(); a.remove();
+      _showSyncToast(isTh ? 'บันทึกการ์ดแล้ว — เอาไปโพสต์ได้เลย' : 'Card saved — ready to post');
+    }
+  } catch (_) {
+    try { _showSyncToast(LANG === 'th' ? 'สร้างการ์ดไม่สำเร็จ ลองใหม่อีกครั้ง' : 'Could not build the card — try again'); } catch (__) {}
+  }
 }
 
 function _fcToggleAbst() { window._fcAbstOpen = !window._fcAbstOpen; renderForecast(); }
