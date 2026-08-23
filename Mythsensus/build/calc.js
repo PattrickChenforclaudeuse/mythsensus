@@ -5537,7 +5537,7 @@ function calcForecast(c, from, opts = {}) {
         }
         const a = dates[0], b = dates[6];
         const sameMonth = a.getMonth() === b.getMonth();
-        const labelTh = w === 0 ? `7 วันนี้ · ${a.getDate()}–${b.getDate()} ${_FC_MONTH_TH[b.getMonth()]}`
+        const labelTh = w === 0 ? `สัปดาห์นี้ · ${a.getDate()}–${b.getDate()} ${_FC_MONTH_TH[b.getMonth()]}`
             : `สัปดาห์ที่ ${w + 1} · ${a.getDate()}${sameMonth ? '' : ' ' + _FC_MONTH_TH[a.getMonth()]}–${b.getDate()} ${_FC_MONTH_TH[b.getMonth()]}`;
         const labelEn = w === 0 ? `Next 7 days · ${_FC_MONTH_EN[a.getMonth()]} ${a.getDate()}–${b.getDate()}`
             : `Week ${w + 1} · ${_FC_MONTH_EN[a.getMonth()]} ${a.getDate()} – ${_FC_MONTH_EN[b.getMonth()]} ${b.getDate()}`;
