@@ -144,17 +144,17 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
 
 <div class="page-wrap">
 
-  <p class="eyebrow">How It Works · ทำงานยังไง</p>
-  <h1 class="title">Engine คำนวณใน browser ของคุณ ไม่ส่งข้อมูลออก</h1>
-  <p class="sub">วันเกิดของคุณเป็นเรื่องส่วนตัว Mythsensus จึงออกแบบให้การคำนวณดวง 26 ศาสตร์ทำใน browser ของคุณเอง — ไม่ส่งวันเกิดไป server ใด ๆ. หน้านี้อธิบาย architecture + วิธีพิสูจน์ด้วยตัวเองใน 30 วินาที</p>
+  <p class="eyebrow" data-en="How It Works" data-th="How It Works · ทำงานยังไง">How It Works · ทำงานยังไง</p>
+  <h1 class="title" data-en="The engine runs in your browser. Your birth date never leaves it." data-th="Engine คำนวณใน browser ของคุณ ไม่ส่งข้อมูลออก">Engine คำนวณใน browser ของคุณ ไม่ส่งข้อมูลออก</h1>
+  <p class="sub" data-en="Your birth date is nobody's business but yours, so Mythsensus computes all 26 systems inside your own browser — no birth date is sent to any server. This page explains the architecture and shows you how to verify it yourself in thirty seconds." data-th="วันเกิดของคุณเป็นเรื่องส่วนตัว Mythsensus จึงออกแบบให้การคำนวณดวง 26 ศาสตร์ทำใน browser ของคุณเอง — ไม่ส่งวันเกิดไป server ใด ๆ. หน้านี้อธิบาย architecture + วิธีพิสูจน์ด้วยตัวเองใน 30 วินาที">วันเกิดของคุณเป็นเรื่องส่วนตัว Mythsensus จึงออกแบบให้การคำนวณดวง 26 ศาสตร์ทำใน browser ของคุณเอง — ไม่ส่งวันเกิดไป server ใด ๆ. หน้านี้อธิบาย architecture + วิธีพิสูจน์ด้วยตัวเองใน 30 วินาที</p>
 
   <div class="tldr-card">
     <div class="tldr-label">✦ สรุปสั้น ๆ ๔ ข้อ</div>
     <ul>
-      <li><strong>Engine ทำงานในเบราว์เซอร์ของคุณ</strong> ไม่มีการเรียก API ไม่ส่งวันเกิดออกจากเครื่อง · พิสูจน์ได้ผ่าน DevTools ภายใน ๓๐ วินาที</li>
-      <li><strong>ตัวเลขและคะแนนทุกตัวคำนวณแบบกำหนดผล (deterministic)</strong> ไม่มี LLM อยู่ในเส้นทางคำนวณ · เนื้อหาเชิงเล่าเรื่องเป็นส่วนที่ AI ช่วยร่างจากคัมภีร์ดั้งเดิมที่อ้างอิงได้ · <a href="#engine" style="color:var(--gold2);text-decoration:underline">ดูจุดแบ่งให้ชัด →</a></li>
-      <li><strong>การลงชื่อเข้าใช้เป็นทางเลือก</strong> เก็บแค่อีเมลและสถานะการสมัครเท่านั้น ไม่เก็บวันเกิดหรือเนื้อหาในแผนภูมิดวง</li>
-      <li><strong>เปิดข้อจำกัดทุกข้อ ไม่ปกปิด</strong> — engine v1 มีจุดที่ยังคำนวณไม่สมบูรณ์เล็กน้อย (เช่น คนเกิดก่อนปี ๑๙๐๐ บางวัน ตำแหน่งดาวอาจคลาดเคลื่อนนิดหน่อย). ทุกจุดเปิดในตาราง "ข้อจำกัดที่เรารู้" ด้านล่าง พร้อมวันที่จะแก้</li>
+      <li data-en="<strong>The engine runs in your browser.</strong> No API call, no birth date leaving the device · verifiable in DevTools in about thirty seconds" data-th="<strong>Engine ทำงานในเบราว์เซอร์ของคุณ</strong> ไม่มีการเรียก API ไม่ส่งวันเกิดออกจากเครื่อง · พิสูจน์ได้ผ่าน DevTools ภายใน ๓๐ วินาที"><strong>Engine ทำงานในเบราว์เซอร์ของคุณ</strong> ไม่มีการเรียก API ไม่ส่งวันเกิดออกจากเครื่อง · พิสูจน์ได้ผ่าน DevTools ภายใน ๓๐ วินาที</li>
+      <li data-en="<strong>Every number and score is computed deterministically.</strong> No LLM sits anywhere in the calculation path · the narrative writing is AI-assisted, drafted from cited traditional sources · <a href=&quot;#engine&quot; style=&quot;color:var(--gold2);text-decoration:underline&quot;>See exactly where the line falls →</a>" data-th="<strong>ตัวเลขและคะแนนทุกตัวคำนวณแบบกำหนดผล (deterministic)</strong> ไม่มี LLM อยู่ในเส้นทางคำนวณ · เนื้อหาเชิงเล่าเรื่องเป็นส่วนที่ AI ช่วยร่างจากคัมภีร์ดั้งเดิมที่อ้างอิงได้ · <a href=&quot;#engine&quot; style=&quot;color:var(--gold2);text-decoration:underline&quot;>ดูจุดแบ่งให้ชัด →</a>"><strong>ตัวเลขและคะแนนทุกตัวคำนวณแบบกำหนดผล (deterministic)</strong> ไม่มี LLM อยู่ในเส้นทางคำนวณ · เนื้อหาเชิงเล่าเรื่องเป็นส่วนที่ AI ช่วยร่างจากคัมภีร์ดั้งเดิมที่อ้างอิงได้ · <a href="#engine" style="color:var(--gold2);text-decoration:underline">ดูจุดแบ่งให้ชัด →</a></li>
+      <li data-en="<strong>Signing in is optional.</strong> It stores an email address and a subscription status, nothing else — no birth date, no chart content" data-th="<strong>การลงชื่อเข้าใช้เป็นทางเลือก</strong> เก็บแค่อีเมลและสถานะการสมัครเท่านั้น ไม่เก็บวันเกิดหรือเนื้อหาในแผนภูมิดวง"><strong>การลงชื่อเข้าใช้เป็นทางเลือก</strong> เก็บแค่อีเมลและสถานะการสมัครเท่านั้น ไม่เก็บวันเกิดหรือเนื้อหาในแผนภูมิดวง</li>
+      <li data-en="<strong>Every limitation is published, not buried.</strong> Engine v1 has places where the maths is still approximate (for some birth dates before 1900, planetary positions can drift slightly). All of them are listed in the &quot;Known limits&quot; table below, each with the date it gets fixed" data-th="<strong>เปิดข้อจำกัดทุกข้อ ไม่ปกปิด</strong> — engine v1 มีจุดที่ยังคำนวณไม่สมบูรณ์เล็กน้อย (เช่น คนเกิดก่อนปี ๑๙๐๐ บางวัน ตำแหน่งดาวอาจคลาดเคลื่อนนิดหน่อย). ทุกจุดเปิดในตาราง &quot;ข้อจำกัดที่เรารู้&quot; ด้านล่าง พร้อมวันที่จะแก้"><strong>เปิดข้อจำกัดทุกข้อ ไม่ปกปิด</strong> — engine v1 มีจุดที่ยังคำนวณไม่สมบูรณ์เล็กน้อย (เช่น คนเกิดก่อนปี ๑๙๐๐ บางวัน ตำแหน่งดาวอาจคลาดเคลื่อนนิดหน่อย). ทุกจุดเปิดในตาราง "ข้อจำกัดที่เรารู้" ด้านล่าง พร้อมวันที่จะแก้</li>
     </ul>
   </div>
 
@@ -162,10 +162,10 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
        (4/5 personas independently flagged "is this AI or deterministic?"). -->
   <div class="ai-honest" style="max-width:720px;margin:18px auto 24px;padding:16px 20px;background:rgba(200,164,90,.05);border:1px solid var(--gold3);border-radius:8px;font-size:14px;line-height:1.85;color:var(--text)">
     <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2.5px;color:var(--gold);margin-bottom:10px;text-transform:uppercase">⚖️ เส้นแบ่งระหว่างการคำนวณกับ AI</div>
-    <p style="margin:0 0 12px">
+    <p style="margin:0 0 12px" data-en="<strong>The scores are computed, not generated.</strong> The Cosmic Score and all 26 system scores come from standard astronomical formulas and each tradition's own canonical lookup tables. No AI sits in the calculation path. The same birth date returns the same result, today and in ten years." data-th="<strong>คะแนนเป็นการคำนวณ ไม่ใช่ AI</strong> — Cosmic Score และคะแนนทั้ง 26 ศาสตร์ เราคำนวณด้วยสูตรดาราศาสตร์มาตรฐานและตารางอ้างอิงดั้งเดิมของแต่ละศาสตร์ ไม่มี AI อยู่ในเส้นทางการคำนวณ. วันเกิดของคุณให้คะแนนเดียวกันเสมอ — ไม่ว่าเปิดอ่านวันไหน อยู่ที่ไหนในโลก ตรวจสอบซ้ำได้">
       <strong>คะแนนเป็นการคำนวณ ไม่ใช่ AI</strong> — Cosmic Score และคะแนนทั้ง 26 ศาสตร์ เราคำนวณด้วยสูตรดาราศาสตร์มาตรฐานและตารางอ้างอิงดั้งเดิมของแต่ละศาสตร์ ไม่มี AI อยู่ในเส้นทางการคำนวณ. วันเกิดของคุณให้คะแนนเดียวกันเสมอ — ไม่ว่าเปิดอ่านวันไหน อยู่ที่ไหนในโลก ตรวจสอบซ้ำได้
     </p>
-    <p style="margin:0">
+    <p style="margin:0" data-en="<strong>The narrative is AI-assisted — but written from the source texts.</strong> The myths, the interpretations and the practice guidance are phrased by AI, working from each tradition's own literature: the Vedic texts, the BaZi classics, the Mayan count itself. The AI is not inventing doctrine — it is making old books readable." data-th="<strong>เนื้อหาเล่าเรื่อง AI ช่วยเขียน — แต่เขียนจากคัมภีร์ดั้งเดิม</strong> — เรื่องเล่าเทพ คำอธิบายความหมาย คำแนะนำการปฏิบัติ AI เรียบเรียงให้ แต่อิงจากตำราของแต่ละศาสตร์เอง: ตำราพระเวท คัมภีร์ BaZi ปฏิทินมายันต้นฉบับ ฯลฯ AI ไม่ได้แต่งเรื่องใหม่ — แค่แปลตำราเก่าให้อ่านง่าย">
       <strong>เนื้อหาเล่าเรื่อง AI ช่วยเขียน — แต่เขียนจากคัมภีร์ดั้งเดิม</strong> — เรื่องเล่าเทพ คำอธิบายความหมาย คำแนะนำการปฏิบัติ AI เรียบเรียงให้ แต่อิงจากตำราของแต่ละศาสตร์เอง: ตำราพระเวท คัมภีร์ BaZi ปฏิทินมายันต้นฉบับ ฯลฯ AI ไม่ได้แต่งเรื่องใหม่ — แค่แปลตำราเก่าให้อ่านง่าย
     </p>
   </div>
@@ -183,7 +183,7 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
   </nav>
 
   <section id="architecture">
-    <h2>Architecture · ภาพรวม</h2>
+    <h2 data-en="Architecture · the overview" data-th="Architecture · ภาพรวม">Architecture · ภาพรวม</h2>
     <div class="arch-diagram">
 ┌─────────────────────────────────────────┐
 │  Your Device (PC / Mobile)              │
@@ -226,96 +226,96 @@ section + section::before{content:'';display:block;width:60px;height:1px;backgro
   </section>
 
   <section>
-    <h2 id="flow">Flow · เกิดอะไรขึ้นเมื่อคุณใช้</h2>
+    <h2 id="flow" data-en="Flow · what actually happens when you use it" data-th="Flow · เกิดอะไรขึ้นเมื่อคุณใช้">Flow · เกิดอะไรขึ้นเมื่อคุณใช้</h2>
 
     <div class="flow-step">
       <div class="flow-step-label">1. First visit · ครั้งแรกที่เข้า</div>
-      <p>Browser ของคุณ <em>download</em> static files จาก Vercel CDN: HTML (~1.3 MB), JS engine bundle (~250 KB), gods.json (~700 KB), fonts. นี่เป็น HTTP requests มาตรฐาน ปกติของเว็บทั่วไป — เหมือนเปิด Wikipedia</p>
+      <p data-en="Your browser <em>downloads</em> static files from the Vercel CDN: HTML (~1.3 MB), the JS engine bundle (~250 KB), gods.json (~700 KB), fonts. These are ordinary HTTP requests, the same as any website — no different from opening Wikipedia." data-th="Browser ของคุณ <em>download</em> static files จาก Vercel CDN: HTML (~1.3 MB), JS engine bundle (~250 KB), gods.json (~700 KB), fonts. นี่เป็น HTTP requests มาตรฐาน ปกติของเว็บทั่วไป — เหมือนเปิด Wikipedia">Browser ของคุณ <em>download</em> static files จาก Vercel CDN: HTML (~1.3 MB), JS engine bundle (~250 KB), gods.json (~700 KB), fonts. นี่เป็น HTTP requests มาตรฐาน ปกติของเว็บทั่วไป — เหมือนเปิด Wikipedia</p>
     </div>
 
     <div class="flow-step">
       <div class="flow-step-label">2. App caches itself · App เก็บตัวเองในเครื่อง</div>
-      <p>Service worker (browser feature) <em>cache</em> ทุกอย่างไว้ในเครื่องคุณ ครั้งต่อไปคุณเปิดเว็บ — เปิดได้แม้ไม่มีอินเทอร์เน็ต (offline-capable)</p>
+      <p data-en="A service worker (a browser feature) <em>caches</em> all of it on your device. The next time you open the site it works even with no internet connection." data-th="Service worker (browser feature) <em>cache</em> ทุกอย่างไว้ในเครื่องคุณ ครั้งต่อไปคุณเปิดเว็บ — เปิดได้แม้ไม่มีอินเทอร์เน็ต (offline-capable)">Service worker (browser feature) <em>cache</em> ทุกอย่างไว้ในเครื่องคุณ ครั้งต่อไปคุณเปิดเว็บ — เปิดได้แม้ไม่มีอินเทอร์เน็ต (offline-capable)</p>
     </div>
 
     <div class="flow-step">
       <div class="flow-step-label">3. You enter your birth data · คุณกรอกวันเกิด</div>
-      <p>คุณใส่วันเกิด (เวลา + เมืองเป็น optional) ในฟอร์ม HTML ของหน้าแรก ข้อมูลอยู่ใน JavaScript variable ของ browser tab — ยังไม่ไปไหน</p>
+      <p data-en="You type a birth date (time and city are optional) into an HTML form on the landing page. It lives in a JavaScript variable inside your browser tab — it has not gone anywhere." data-th="คุณใส่วันเกิด (เวลา + เมืองเป็น optional) ในฟอร์ม HTML ของหน้าแรก ข้อมูลอยู่ใน JavaScript variable ของ browser tab — ยังไม่ไปไหน">คุณใส่วันเกิด (เวลา + เมืองเป็น optional) ในฟอร์ม HTML ของหน้าแรก ข้อมูลอยู่ใน JavaScript variable ของ browser tab — ยังไม่ไปไหน</p>
     </div>
 
     <div class="flow-step">
       <div class="flow-step-label">4. Engine runs locally · คำนวณในเครื่องคุณ</div>
-      <p>คุณกด Generate — engine เรียก <code>calculate({year, month, day, hour, minute, lat, lon, timezone})</code> ฟังก์ชันนี้รันใน CPU ของอุปกรณ์คุณเอง คำนวณ 26 ศาสตร์ออกมาเป็น chart object <em>ไม่มี HTTP request ใด ๆ เกิดขึ้นในขั้นตอนนี้</em></p>
+      <p data-en="You press Generate — the engine calls <code>calculate({year, month, day, hour, minute, lat, lon, timezone})</code>. That function runs on your own device's CPU and returns a chart object for all 26 systems. <em>No HTTP request happens at this step.</em>" data-th="คุณกด Generate — engine เรียก <code>calculate({year, month, day, hour, minute, lat, lon, timezone})</code> ฟังก์ชันนี้รันใน CPU ของอุปกรณ์คุณเอง คำนวณ 26 ศาสตร์ออกมาเป็น chart object <em>ไม่มี HTTP request ใด ๆ เกิดขึ้นในขั้นตอนนี้</em>">คุณกด Generate — engine เรียก <code>calculate({year, month, day, hour, minute, lat, lon, timezone})</code> ฟังก์ชันนี้รันใน CPU ของอุปกรณ์คุณเอง คำนวณ 26 ศาสตร์ออกมาเป็น chart object <em>ไม่มี HTTP request ใด ๆ เกิดขึ้นในขั้นตอนนี้</em></p>
     </div>
 
     <div class="flow-step">
       <div class="flow-step-label">5. Reading renders · รายงานแสดงผล</div>
-      <p>Chart object ถูก render เป็น HTML ผ่าน <code>generateReport(chart)</code> ที่รันใน browser เช่นกัน คุณเห็น Cosmic Score + 26 ศาสตร์บนหน้าจอ <em>ทั้งหมดยังอยู่ใน browser tab ของคุณ</em></p>
+      <p data-en="The chart object is rendered to HTML by <code>generateReport(chart)</code>, which also runs in your browser. You see the Cosmic Score and 26 systems on screen. <em>All of it is still inside your browser tab.</em>" data-th="Chart object ถูก render เป็น HTML ผ่าน <code>generateReport(chart)</code> ที่รันใน browser เช่นกัน คุณเห็น Cosmic Score + 26 ศาสตร์บนหน้าจอ <em>ทั้งหมดยังอยู่ใน browser tab ของคุณ</em>">Chart object ถูก render เป็น HTML ผ่าน <code>generateReport(chart)</code> ที่รันใน browser เช่นกัน คุณเห็น Cosmic Score + 26 ศาสตร์บนหน้าจอ <em>ทั้งหมดยังอยู่ใน browser tab ของคุณ</em></p>
     </div>
 
     <div class="flow-step">
       <div class="flow-step-label">6. Your data stays on your device · ข้อมูลเก็บในเครื่องคุณ</div>
-      <p>วันเกิดและ chart ของคุณถูก save ไว้ใน <code>localStorage</code> ของ browser — กล่องเก็บข้อมูลใน hard drive ของอุปกรณ์ ไม่ shared กับเว็บอื่น ไม่ส่งไปที่ server ครั้งหน้าเปิดเว็บ — อ่าน localStorage แล้ว render ทันที</p>
+      <p data-en="Your birth date and chart are saved to your browser's <code>localStorage</code> — a storage box on your device's own drive, not shared with other sites, not sent to a server. Next visit, the page reads localStorage and renders immediately." data-th="วันเกิดและ chart ของคุณถูก save ไว้ใน <code>localStorage</code> ของ browser — กล่องเก็บข้อมูลใน hard drive ของอุปกรณ์ ไม่ shared กับเว็บอื่น ไม่ส่งไปที่ server ครั้งหน้าเปิดเว็บ — อ่าน localStorage แล้ว render ทันที">วันเกิดและ chart ของคุณถูก save ไว้ใน <code>localStorage</code> ของ browser — กล่องเก็บข้อมูลใน hard drive ของอุปกรณ์ ไม่ shared กับเว็บอื่น ไม่ส่งไปที่ server ครั้งหน้าเปิดเว็บ — อ่าน localStorage แล้ว render ทันที</p>
     </div>
   </section>
 
   <section>
     <div class="check-block">
-      <h3>พิสูจน์ด้วยตัวเองใน 30 วินาที</h3>
+      <h3 data-en="Verify it yourself in thirty seconds" data-th="พิสูจน์ด้วยตัวเองใน 30 วินาที">พิสูจน์ด้วยตัวเองใน 30 วินาที</h3>
       <ol style="padding-left:1.4rem;font-size:.98rem;line-height:1.9">
-        <li>เปิด <a href="/">mythsensus.com</a> ในเบราว์เซอร์</li>
-        <li>กด <code>F12</code> (Windows) หรือ <code>Cmd+Option+I</code> (Mac) — เปิด DevTools</li>
-        <li>ไปที่แท็บ <strong>Network</strong> ใน DevTools</li>
-        <li>กด <code>Ctrl+R</code> (หรือ <code>Cmd+R</code>) — reload หน้า. ดู requests ที่เข้ามา (static files download)</li>
-        <li>ใส่วันเกิดของคุณ → กด <strong>Generate</strong></li>
-        <li><strong>ดู Network tab อีกครั้ง</strong> — ไม่มี request ใหม่ไปที่ <code>/api/calculate</code> หรือใด ๆ ที่มีวันเกิดคุณส่งออกไป</li>
+        <li data-en="Open <a href=&quot;/&quot;>mythsensus.com</a> in your browser" data-th="เปิด <a href=&quot;/&quot;>mythsensus.com</a> ในเบราว์เซอร์">เปิด <a href="/">mythsensus.com</a> ในเบราว์เซอร์</li>
+        <li data-en="Press <code>F12</code> (Windows) or <code>Cmd+Option+I</code> (Mac) to open DevTools" data-th="กด <code>F12</code> (Windows) หรือ <code>Cmd+Option+I</code> (Mac) — เปิด DevTools">กด <code>F12</code> (Windows) หรือ <code>Cmd+Option+I</code> (Mac) — เปิด DevTools</li>
+        <li data-en="Go to the <strong>Network</strong> tab" data-th="ไปที่แท็บ <strong>Network</strong> ใน DevTools">ไปที่แท็บ <strong>Network</strong> ใน DevTools</li>
+        <li data-en="Press <code>Ctrl+R</code> (or <code>Cmd+R</code>) to reload, and watch the requests come in — those are the static files downloading" data-th="กด <code>Ctrl+R</code> (หรือ <code>Cmd+R</code>) — reload หน้า. ดู requests ที่เข้ามา (static files download)">กด <code>Ctrl+R</code> (หรือ <code>Cmd+R</code>) — reload หน้า. ดู requests ที่เข้ามา (static files download)</li>
+        <li data-en="Enter your birth date and press <strong>Generate</strong>" data-th="ใส่วันเกิดของคุณ → กด <strong>Generate</strong>">ใส่วันเกิดของคุณ → กด <strong>Generate</strong></li>
+        <li data-en="<strong>Look at the Network tab again</strong> — there is no new request to <code>/api/calculate</code>, or to anything else carrying your birth date" data-th="<strong>ดู Network tab อีกครั้ง</strong> — ไม่มี request ใหม่ไปที่ <code>/api/calculate</code> หรือใด ๆ ที่มีวันเกิดคุณส่งออกไป"><strong>ดู Network tab อีกครั้ง</strong> — ไม่มี request ใหม่ไปที่ <code>/api/calculate</code> หรือใด ๆ ที่มีวันเกิดคุณส่งออกไป</li>
       </ol>
-      <p style="margin-top:.8rem;font-size:.95rem">นี่คือพิสูจน์ที่ดีที่สุด — browser ของคุณเห็นทุก HTTP request ที่ออกไป ถ้าเราส่งวันเกิดไป server คุณจะเห็นใน Network tab ทันที</p>
+      <p style="margin-top:.8rem;font-size:.95rem" data-en="That is the strongest proof there is: your browser sees every HTTP request that leaves it. If we sent your birth date to a server, it would appear in the Network tab immediately." data-th="นี่คือพิสูจน์ที่ดีที่สุด — browser ของคุณเห็นทุก HTTP request ที่ออกไป ถ้าเราส่งวันเกิดไป server คุณจะเห็นใน Network tab ทันที">นี่คือพิสูจน์ที่ดีที่สุด — browser ของคุณเห็นทุก HTTP request ที่ออกไป ถ้าเราส่งวันเกิดไป server คุณจะเห็นใน Network tab ทันที</p>
     </div>
   </section>
 
   <section>
-    <h2 id="privacy">สิ่งที่เราเก็บ · สิ่งที่เราไม่เก็บ</h2>
+    <h2 id="privacy" data-en="What we store · what we don't" data-th="สิ่งที่เราเก็บ · สิ่งที่เราไม่เก็บ">สิ่งที่เราเก็บ · สิ่งที่เราไม่เก็บ</h2>
 
-    <h3 style="color:var(--green)">✓ Mythsensus เก็บ:</h3>
+    <h3 style="color:var(--green)" data-en="✓ Mythsensus stores:" data-th="✓ Mythsensus เก็บ:">✓ Mythsensus เก็บ:</h3>
     <ul class="proof-list">
-      <li><strong>Email + plan status</strong> ของผู้ที่ซื้อ subscription (เก็บใน Supabase woam สำหรับ check premium access) — ไม่เก็บวันเกิด</li>
-      <li><strong>Aggregated traffic data</strong> ผ่าน Vercel Analytics (cookieless · ไม่มี IP · ไม่มี individual tracking)</li>
-      <li><strong>Gumroad transaction record</strong> สำหรับ refund และ tax compliance — ผ่าน Gumroad merchant of record</li>
+      <li data-en="<strong>Email + plan status</strong> for people who buy a subscription (in Supabase, to check premium access) — no birth date" data-th="<strong>Email + plan status</strong> ของผู้ที่ซื้อ subscription (เก็บใน Supabase woam สำหรับ check premium access) — ไม่เก็บวันเกิด"><strong>Email + plan status</strong> ของผู้ที่ซื้อ subscription (เก็บใน Supabase woam สำหรับ check premium access) — ไม่เก็บวันเกิด</li>
+      <li data-en="<strong>Aggregated traffic data</strong> via Vercel Analytics (cookieless · no IP · no individual tracking)" data-th="<strong>Aggregated traffic data</strong> ผ่าน Vercel Analytics (cookieless · ไม่มี IP · ไม่มี individual tracking)"><strong>Aggregated traffic data</strong> ผ่าน Vercel Analytics (cookieless · ไม่มี IP · ไม่มี individual tracking)</li>
+      <li data-en="<strong>A Gumroad transaction record</strong> for refunds and tax compliance — held by Gumroad as merchant of record" data-th="<strong>Gumroad transaction record</strong> สำหรับ refund และ tax compliance — ผ่าน Gumroad merchant of record"><strong>Gumroad transaction record</strong> สำหรับ refund และ tax compliance — ผ่าน Gumroad merchant of record</li>
     </ul>
 
-    <h3 style="color:var(--red)">✗ Mythsensus ไม่เก็บ:</h3>
+    <h3 style="color:var(--red)" data-en="✗ Mythsensus does not store:" data-th="✗ Mythsensus ไม่เก็บ:">✗ Mythsensus ไม่เก็บ:</h3>
     <ul class="proof-list">
-      <li class="bad">วันเกิดของคุณ (อยู่ใน localStorage ของ browser คุณเท่านั้น)</li>
-      <li class="bad">เวลาเกิด, เมืองที่เกิด, ชื่อ</li>
-      <li class="bad">Cosmic Score, Cosmic Blueprint ของคุณ</li>
-      <li class="bad">เทพประจำวันที่คุณจับได้, คำถามใน 108 Oraculum</li>
+      <li class="bad" data-en="Your birth date (it lives only in your browser's localStorage)" data-th="วันเกิดของคุณ (อยู่ใน localStorage ของ browser คุณเท่านั้น)">วันเกิดของคุณ (อยู่ใน localStorage ของ browser คุณเท่านั้น)</li>
+      <li class="bad" data-en="Birth time, birth city, or name" data-th="เวลาเกิด, เมืองที่เกิด, ชื่อ">เวลาเกิด, เมืองที่เกิด, ชื่อ</li>
+      <li class="bad" data-en="Your Cosmic Score or Cosmic Blueprint" data-th="Cosmic Score, Cosmic Blueprint ของคุณ">Cosmic Score, Cosmic Blueprint ของคุณ</li>
+      <li class="bad" data-en="The deity you drew today, or your questions in the 108 Oraculum" data-th="เทพประจำวันที่คุณจับได้, คำถามใน 108 Oraculum">เทพประจำวันที่คุณจับได้, คำถามใน 108 Oraculum</li>
       <li class="bad">Profile, photo, social media handle</li>
-      <li class="bad">IP address (Vercel Analytics เป็น aggregated only)</li>
+      <li class="bad" data-en="Your IP address (Vercel Analytics is aggregated only)" data-th="IP address (Vercel Analytics เป็น aggregated only)">IP address (Vercel Analytics เป็น aggregated only)</li>
     </ul>
 
-    <p style="margin-top:1rem">ผลที่ตามมา: <strong>ถ้าคุณเคลียร์ browser cache, ข้อมูลทั้งหมดหายไป.</strong> เราไม่มี backup. ถ้าอยาก backup chart, export เป็น JSON ไว้เอง (ฟีเจอร์มีในแท็บ Profile)</p>
+    <p style="margin-top:1rem" data-en="The consequence is real: <strong>if you clear your browser data, everything is gone.</strong> We have no backup. If you want one, export your chart as JSON yourself — the option is in the Profile tab." data-th="ผลที่ตามมา: <strong>ถ้าคุณเคลียร์ browser cache, ข้อมูลทั้งหมดหายไป.</strong> เราไม่มี backup. ถ้าอยาก backup chart, export เป็น JSON ไว้เอง (ฟีเจอร์มีในแท็บ Profile)">ผลที่ตามมา: <strong>ถ้าคุณเคลียร์ browser cache, ข้อมูลทั้งหมดหายไป.</strong> เราไม่มี backup. ถ้าอยาก backup chart, export เป็น JSON ไว้เอง (ฟีเจอร์มีในแท็บ Profile)</p>
   </section>
 
   <details class="tech-deep" id="offline">
-    <summary>Offline computation vs optional account sync — ขอบเขตที่ชัดเจน</summary>
+    <summary data-en="Offline computation vs optional account sync — where the line actually falls" data-th="Offline computation vs optional account sync — ขอบเขตที่ชัดเจน">Offline computation vs optional account sync — ขอบเขตที่ชัดเจน</summary>
     <div class="deep-body">
-      <p>เพื่อความ honest 100% เรื่อง offline claim — เนื่องจาก Mythsensus มี optional account features ด้วย:</p>
+      <p data-en="To be completely honest about the offline claim, since Mythsensus also has optional account features:" data-th="เพื่อความ honest 100% เรื่อง offline claim — เนื่องจาก Mythsensus มี optional account features ด้วย:">เพื่อความ honest 100% เรื่อง offline claim — เนื่องจาก Mythsensus มี optional account features ด้วย:</p>
       <table class="tech-table">
         <thead><tr><th>Layer</th><th>Where it runs</th><th>What's stored</th></tr></thead>
         <tbody>
-          <tr><td><strong>Computation</strong> (26-system math)</td><td>Always client-side · ใน CPU ของคุณ · ไม่ว่า logged in หรือ guest</td><td>Nothing leaves device · verify ใน DevTools → Network tab</td></tr>
-          <tr><td><strong>Account sync</strong> (optional · sign-in)</td><td>Server-side (Supabase woam)</td><td>Email + plan status เท่านั้น · <em>ไม่เก็บ DOB หรือ chart</em></td></tr>
-          <tr><td><strong>Payment</strong></td><td>Gumroad (merchant of record)</td><td>Card + email + tax records ที่ Gumroad · Mythsensus ไม่เห็น</td></tr>
-          <tr><td><strong>in-depth PDF</strong></td><td>Browser ของคุณ ประกอบหลัง payment unlock token</td><td>วันเกิดไม่ออกจาก device แม้ตอนซื้อ · Ctrl+P save เป็น PDF จริง</td></tr>
+          <tr><td><strong>Computation</strong> (26-system math)</td><td data-en="Always client-side · on your own CPU · signed in or not" data-th="Always client-side · ใน CPU ของคุณ · ไม่ว่า logged in หรือ guest">Always client-side · ใน CPU ของคุณ · ไม่ว่า logged in หรือ guest</td><td data-en="Nothing leaves the device · verify in DevTools → Network tab" data-th="Nothing leaves device · verify ใน DevTools → Network tab">Nothing leaves device · verify ใน DevTools → Network tab</td></tr>
+          <tr><td><strong>Account sync</strong> (optional · sign-in)</td><td>Server-side (Supabase woam)</td><td data-en="Email + plan status only · <em>no birth date, no chart</em>" data-th="Email + plan status เท่านั้น · <em>ไม่เก็บ DOB หรือ chart</em>">Email + plan status เท่านั้น · <em>ไม่เก็บ DOB หรือ chart</em></td></tr>
+          <tr><td><strong>Payment</strong></td><td>Gumroad (merchant of record)</td><td data-en="Card, email and tax records sit with Gumroad · Mythsensus never sees them" data-th="Card + email + tax records ที่ Gumroad · Mythsensus ไม่เห็น">Card + email + tax records ที่ Gumroad · Mythsensus ไม่เห็น</td></tr>
+          <tr><td><strong>in-depth PDF</strong></td><td data-en="Assembled by your browser after the payment unlocks the token" data-th="Browser ของคุณ ประกอบหลัง payment unlock token">Browser ของคุณ ประกอบหลัง payment unlock token</td><td data-en="Your birth date does not leave the device even while buying · Ctrl+P saves a real PDF" data-th="วันเกิดไม่ออกจาก device แม้ตอนซื้อ · Ctrl+P save เป็น PDF จริง">วันเกิดไม่ออกจาก device แม้ตอนซื้อ · Ctrl+P save เป็น PDF จริง</td></tr>
         </tbody>
       </table>
-      <p style="margin-top:1rem;font-size:.95rem;color:var(--muted)"><em>"Data stays on your device"</em> = computation + chart content. <em>"Server records minimal account state"</em> = email + plan only. ทั้งคู่จริงพร้อมกัน · ไม่มี contradiction.</p>
+      <p style="margin-top:1rem;font-size:.95rem;color:var(--muted)" data-en="<em>&quot;Data stays on your device&quot;</em> means the computation and the chart content. <em>&quot;Server records minimal account state&quot;</em> means email and plan. Both are true at once; there is no contradiction." data-th="<em>&quot;Data stays on your device&quot;</em> = computation + chart content. <em>&quot;Server records minimal account state&quot;</em> = email + plan only. ทั้งคู่จริงพร้อมกัน · ไม่มี contradiction."><em>"Data stays on your device"</em> = computation + chart content. <em>"Server records minimal account state"</em> = email + plan only. ทั้งคู่จริงพร้อมกัน · ไม่มี contradiction.</p>
     </div>
   </details>
 
   <section>
-    <h2 id="tech">Tech stack — สำหรับคนสนใจรายละเอียด</h2>
+    <h2 id="tech" data-en="Tech stack — for readers who want the details" data-th="Tech stack — สำหรับคนสนใจรายละเอียด">Tech stack — สำหรับคนสนใจรายละเอียด</h2>
     <pre><code># Engine (ส่วนคำนวณ)
 report-engine/lib/calc.ts        # TypeScript source
 report-engine/lib/report.ts      # Report generator
@@ -338,20 +338,20 @@ Vercel (static + serverless)     # CDN + edge functions
 Supabase woam project            # Auth + payment records
                                  # (NO chart data here)
                                  # NO chart calculations here)</code></pre>
-    <p>โค้ดทั้งหมดยังเป็น private repo (เป้าหมาย public open-source หลัง revenue baseline + sophistication upgrades ของ engine version 2 ที่อยู่ในแผน Q3-Q4 2026)</p>
+    <p data-en="The code is still a private repository (the goal is public open source after a revenue baseline and the engine v2 precision upgrades planned for Q3–Q4 2026)." data-th="โค้ดทั้งหมดยังเป็น private repo (เป้าหมาย public open-source หลัง revenue baseline + sophistication upgrades ของ engine version 2 ที่อยู่ในแผน Q3-Q4 2026)">โค้ดทั้งหมดยังเป็น private repo (เป้าหมาย public open-source หลัง revenue baseline + sophistication upgrades ของ engine version 2 ที่อยู่ในแผน Q3-Q4 2026)</p>
   </section>
 
   <details class="tech-deep" id="engine">
     <summary>🔬 Computation transparency — ephemeris + ayanamsa (engineering deep-dive)</summary>
     <div class="deep-body">
-      <p>สำหรับคนที่ถามว่า "engine คำนวณตำแหน่งดาวยังไง" — Vedic practitioner กับ AI engineer skeptic ถามทั้งคู่ ดังนั้นตอบตรง ๆ:</p>
+      <p data-en="For anyone asking &quot;how does the engine compute planetary positions&quot; — a Vedic practitioner and a sceptical AI engineer both asked, so here is the straight answer:" data-th="สำหรับคนที่ถามว่า &quot;engine คำนวณตำแหน่งดาวยังไง&quot; — Vedic practitioner กับ AI engineer skeptic ถามทั้งคู่ ดังนั้นตอบตรง ๆ:">สำหรับคนที่ถามว่า "engine คำนวณตำแหน่งดาวยังไง" — Vedic practitioner กับ AI engineer skeptic ถามทั้งคู่ ดังนั้นตอบตรง ๆ:</p>
       <table class="tech-table">
         <thead><tr><th style="min-width:130px">Component</th><th>Current state (v1)</th><th>v2 plan (Q3-Q4 2026)</th></tr></thead>
         <tbody>
           <tr>
             <td><strong>Western planet positions</strong></td>
-            <td>Custom trigonometric series 4,000 บรรทัดใน <code>calc.ts</code> · zero external deps (ไม่ใช้ Swiss Ephemeris) · แม่นพอสำหรับ Sun sign + Mercury/Venus retrograde · outer planet aspects อาจ arc-minute drift</td>
-            <td>Port Jean Meeus algorithms (Astronomical Algorithms book · public-domain) เพื่อ industry-grade precision</td>
+            <td data-en="A custom trigonometric series, ~4,000 lines in <code>calc.ts</code> · zero external dependencies (no Swiss Ephemeris) · accurate enough for Sun sign and Mercury/Venus retrograde · outer-planet aspects can drift by arc-minutes" data-th="Custom trigonometric series 4,000 บรรทัดใน <code>calc.ts</code> · zero external deps (ไม่ใช้ Swiss Ephemeris) · แม่นพอสำหรับ Sun sign + Mercury/Venus retrograde · outer planet aspects อาจ arc-minute drift">Custom trigonometric series 4,000 บรรทัดใน <code>calc.ts</code> · zero external deps (ไม่ใช้ Swiss Ephemeris) · แม่นพอสำหรับ Sun sign + Mercury/Venus retrograde · outer planet aspects อาจ arc-minute drift</td>
+            <td data-en="Port the Jean Meeus algorithms (Astronomical Algorithms, public domain) for industry-grade precision" data-th="Port Jean Meeus algorithms (Astronomical Algorithms book · public-domain) เพื่อ industry-grade precision">Port Jean Meeus algorithms (Astronomical Algorithms book · public-domain) เพื่อ industry-grade precision</td>
           </tr>
           <tr>
             <td><strong>Vedic ayanamsa</strong></td>
@@ -360,43 +360,43 @@ Supabase woam project            # Auth + payment records
           </tr>
           <tr>
             <td><strong>BaZi solar terms (jiéqì)</strong></td>
-            <td>Month-boundary approximation · edge cases (DOB ±48h จาก solar term) อาจได้ wrong month pillar (~5% ของ DOBs)</td>
-            <td>Precise jiéqì calculator จาก Chinese astronomical sources (VSOP87-based)</td>
+            <td data-en="Month-boundary approximation · edge cases (a birth within ±48h of a solar term) can land on the wrong month pillar (~5% of birth dates)" data-th="Month-boundary approximation · edge cases (DOB ±48h จาก solar term) อาจได้ wrong month pillar (~5% ของ DOBs)">Month-boundary approximation · edge cases (DOB ±48h จาก solar term) อาจได้ wrong month pillar (~5% ของ DOBs)</td>
+            <td data-en="A precise jiéqì calculator built from Chinese astronomical sources (VSOP87-based)" data-th="Precise jiéqì calculator จาก Chinese astronomical sources (VSOP87-based)">Precise jiéqì calculator จาก Chinese astronomical sources (VSOP87-based)</td>
           </tr>
           <tr>
             <td><strong>Cosmic Score model</strong></td>
-            <td>Recalibrated: วัด <strong>ระดับดวงโดยรวม</strong> ข้าม 26 ศาสตร์ แล้ว map ผ่าน frozen reference distribution เป็น <strong>percentile 1–1,000 เทียบประชากร</strong> · ควบคู่กันมี <strong>Consensus reading</strong> วัดว่า 26 ศาสตร์เห็นตรงกันแค่ไหน (แสดงแยก ไม่ใช่ตัวคะแนน) · Freeze แล้ว · <em>internal-consistency calibration</em> — ไม่ใช่ supervised learning (astrology ไม่มี ground truth)</td>
-            <td>Disclosure คงไว้ · methodology ไม่เปลี่ยน · reference distribution re-calibrate ตอน v2 upgrade</td>
+            <td data-en="Recalibrated: it measures your <strong>overall reading level</strong> across all 26 systems, then maps it through a frozen reference distribution into a <strong>population percentile, 1–1,000</strong> · alongside it sits a <strong>Consensus reading</strong> measuring how much the 26 systems agree (shown separately, not part of the score) · frozen since calibration · <em>internal-consistency calibration</em>, not supervised learning (astrology has no ground truth to learn from)" data-th="Recalibrated: วัด <strong>ระดับดวงโดยรวม</strong> ข้าม 26 ศาสตร์ แล้ว map ผ่าน frozen reference distribution เป็น <strong>percentile 1–1,000 เทียบประชากร</strong> · ควบคู่กันมี <strong>Consensus reading</strong> วัดว่า 26 ศาสตร์เห็นตรงกันแค่ไหน (แสดงแยก ไม่ใช่ตัวคะแนน) · Freeze แล้ว · <em>internal-consistency calibration</em> — ไม่ใช่ supervised learning (astrology ไม่มี ground truth)">Recalibrated: วัด <strong>ระดับดวงโดยรวม</strong> ข้าม 26 ศาสตร์ แล้ว map ผ่าน frozen reference distribution เป็น <strong>percentile 1–1,000 เทียบประชากร</strong> · ควบคู่กันมี <strong>Consensus reading</strong> วัดว่า 26 ศาสตร์เห็นตรงกันแค่ไหน (แสดงแยก ไม่ใช่ตัวคะแนน) · Freeze แล้ว · <em>internal-consistency calibration</em> — ไม่ใช่ supervised learning (astrology ไม่มี ground truth)</td>
+            <td data-en="The disclosure stays · the methodology does not change · the reference distribution is recalibrated at the v2 upgrade" data-th="Disclosure คงไว้ · methodology ไม่เปลี่ยน · reference distribution re-calibrate ตอน v2 upgrade">Disclosure คงไว้ · methodology ไม่เปลี่ยน · reference distribution re-calibrate ตอน v2 upgrade</td>
           </tr>
           <tr>
             <td><strong>Engine source code</strong></td>
-            <td>Private TypeScript · compiled JavaScript = public (ใน browser bundle + npm MCP package)</td>
-            <td>Public release · ตัดสินใจ AGPL-3.0 หรือ MIT · target Q3-Q4 2026 หลัง v2 upgrades</td>
+            <td data-en="TypeScript is private · the compiled JavaScript is public (it ships in the browser bundle and the npm MCP package)" data-th="Private TypeScript · compiled JavaScript = public (ใน browser bundle + npm MCP package)">Private TypeScript · compiled JavaScript = public (ใน browser bundle + npm MCP package)</td>
+            <td data-en="Public release · AGPL-3.0 or MIT still to be decided · targeted for Q3–Q4 2026, after the v2 upgrades" data-th="Public release · ตัดสินใจ AGPL-3.0 หรือ MIT · target Q3-Q4 2026 หลัง v2 upgrades">Public release · ตัดสินใจ AGPL-3.0 หรือ MIT · target Q3-Q4 2026 หลัง v2 upgrades</td>
           </tr>
         </tbody>
       </table>
-      <p style="margin-top:1rem;font-size:.95rem;color:var(--muted)">เหตุผลที่ยังไม่ open-source ตอนนี้: precision gaps ข้างบนเป็น <em>honest current state</em> · เปิดตอนที่ upgrades ครบ = open-source ที่ defensible แทนที่จะเป็น <em>"please don't tear this apart"</em></p>
+      <p style="margin-top:1rem;font-size:.95rem;color:var(--muted)" data-en="Why not open source today: the precision gaps above are the <em>honest current state</em>. Opening the code once the upgrades land makes it defensible, rather than an invitation to <em>&quot;please don't tear this apart&quot;</em>." data-th="เหตุผลที่ยังไม่ open-source ตอนนี้: precision gaps ข้างบนเป็น <em>honest current state</em> · เปิดตอนที่ upgrades ครบ = open-source ที่ defensible แทนที่จะเป็น <em>&quot;please don't tear this apart&quot;</em>">เหตุผลที่ยังไม่ open-source ตอนนี้: precision gaps ข้างบนเป็น <em>honest current state</em> · เปิดตอนที่ upgrades ครบ = open-source ที่ defensible แทนที่จะเป็น <em>"please don't tear this apart"</em></p>
     </div>
   </details>
 
   <section>
-    <h2 id="methodology">"Reconcile" หมายความว่าอะไร · What "reconcile" actually means</h2>
-    <p>คำว่า <em>"reconcile 26 systems"</em> ไม่ได้แปลว่า engine มีผู้พิพากษาภายในที่ตัดสินใจแทนคุณ — มันคือการวัด <strong>agreement</strong> ระหว่างเสียงของ 26 ศาสตร์ พร้อมเก็บเสียงที่เห็นต่างไว้ให้คุณเห็น 3 ระดับ</p>
+    <h2 id="methodology" data-en="What &quot;reconcile&quot; actually means" data-th="&quot;Reconcile&quot; หมายความว่าอะไร · What &quot;reconcile&quot; actually means">"Reconcile" หมายความว่าอะไร · What "reconcile" actually means</h2>
+    <p data-en="<em>&quot;Reconciling 26 systems&quot;</em> does not mean the engine contains a judge who decides for you. It means measuring the <strong>agreement</strong> between 26 voices, and keeping the dissenting ones visible. It works at three levels." data-th="คำว่า <em>&quot;reconcile 26 systems&quot;</em> ไม่ได้แปลว่า engine มีผู้พิพากษาภายในที่ตัดสินใจแทนคุณ — มันคือการวัด <strong>agreement</strong> ระหว่างเสียงของ 26 ศาสตร์ พร้อมเก็บเสียงที่เห็นต่างไว้ให้คุณเห็น 3 ระดับ">คำว่า <em>"reconcile 26 systems"</em> ไม่ได้แปลว่า engine มีผู้พิพากษาภายในที่ตัดสินใจแทนคุณ — มันคือการวัด <strong>agreement</strong> ระหว่างเสียงของ 26 ศาสตร์ พร้อมเก็บเสียงที่เห็นต่างไว้ให้คุณเห็น 3 ระดับ</p>
 
-    <h3>ระดับ 1 · Cosmic Score = ระดับดวงโดยรวมของคุณข้าม 26 ศาสตร์</h3>
-    <p>26 ศาสตร์ identity คำนวณ sub-score ของตัวเองจากวันเกิดคุณ · <em>Biorhythm</em> เป็นชั้นรายวัน (ศาสตร์ที่ 27) ที่เปลี่ยนทุกวัน — แสดงแยก ไม่นับใน scoring จึงเหลือ <strong>26 ศาสตร์</strong> · Cosmic Score คือ <strong>ระดับดวงโดยรวมของคุณข้ามทั้ง 26 ศาสตร์</strong> map ผ่าน frozen reference distribution เป็น percentile ประชากร <strong>1 ถึง 1,000</strong> (ยิ่งสูง = การอ่านโดยรวมยิ่งเข้มข้น) · ควบคู่กันมี <strong>Consensus reading</strong> ที่วัดว่า 26 ศาสตร์เห็นตรงกันแค่ไหน — แสดงแยกจากตัวคะแนน:</p>
+    <h3 data-en="Level 1 · The Cosmic Score = your overall reading level across 26 systems" data-th="ระดับ 1 · Cosmic Score = ระดับดวงโดยรวมของคุณข้าม 26 ศาสตร์">ระดับ 1 · Cosmic Score = ระดับดวงโดยรวมของคุณข้าม 26 ศาสตร์</h3>
+    <p data-en="Each of the 26 identity systems computes its own sub-score from your birth date · <em>Biorhythm</em> is a daily layer (a 27th system) that changes every day — shown separately, never scored, which is why the count stays at <strong>26</strong> · the Cosmic Score is your <strong>overall reading level across all 26</strong>, mapped through a frozen reference distribution into a population percentile from <strong>1 to 1,000</strong> (higher means a more intense reading overall) · alongside it, a <strong>Consensus reading</strong> measures how much the 26 agree — shown separately from the score:" data-th="26 ศาสตร์ identity คำนวณ sub-score ของตัวเองจากวันเกิดคุณ · <em>Biorhythm</em> เป็นชั้นรายวัน (ศาสตร์ที่ 27) ที่เปลี่ยนทุกวัน — แสดงแยก ไม่นับใน scoring จึงเหลือ <strong>26 ศาสตร์</strong> · Cosmic Score คือ <strong>ระดับดวงโดยรวมของคุณข้ามทั้ง 26 ศาสตร์</strong> map ผ่าน frozen reference distribution เป็น percentile ประชากร <strong>1 ถึง 1,000</strong> (ยิ่งสูง = การอ่านโดยรวมยิ่งเข้มข้น) · ควบคู่กันมี <strong>Consensus reading</strong> ที่วัดว่า 26 ศาสตร์เห็นตรงกันแค่ไหน — แสดงแยกจากตัวคะแนน:">26 ศาสตร์ identity คำนวณ sub-score ของตัวเองจากวันเกิดคุณ · <em>Biorhythm</em> เป็นชั้นรายวัน (ศาสตร์ที่ 27) ที่เปลี่ยนทุกวัน — แสดงแยก ไม่นับใน scoring จึงเหลือ <strong>26 ศาสตร์</strong> · Cosmic Score คือ <strong>ระดับดวงโดยรวมของคุณข้ามทั้ง 26 ศาสตร์</strong> map ผ่าน frozen reference distribution เป็น percentile ประชากร <strong>1 ถึง 1,000</strong> (ยิ่งสูง = การอ่านโดยรวมยิ่งเข้มข้น) · ควบคู่กันมี <strong>Consensus reading</strong> ที่วัดว่า 26 ศาสตร์เห็นตรงกันแค่ไหน — แสดงแยกจากตัวคะแนน:</p>
     <ul class="proof-list" style="margin-left:0">
-      <li class="good"><strong>คะแนนสูง = การอ่านโดยรวมของคุณเข้มข้นเมื่อเทียบประชากร</strong> — เป็นเปอร์เซ็นไทล์จริงเทียบ reference distribution</li>
-      <li class="good"><strong>คะแนนต่ำ = ดวงที่เงียบกว่าหรือหลายมิติ</strong> — ไม่ใช่ "โชคไม่ดี" แต่คือ<em>ซับซ้อน/หลายมิติ</em> (multi-faceted) — เรา<strong>ไม่เคย</strong>ใส่กรอบว่าต่ำ = แย่</li>
-      <li class="good"><strong>Consensus reading (แยกต่างหาก)</strong> — วัดว่า 26 ศาสตร์เห็นตรงกันแค่ไหน · เห็นตรงกันสูงในทางสถิติหายาก เพราะแต่ละศาสตร์ใช้กรอบเวลา/ธาตุที่ <em>เข้ากันไม่ได้เลย</em> (BaZi 五行+jiéqì · Vedic sidereal · Western tropical+4-ธาตุ · Mayan Tzolk'in 260 วัน · ปฏิทินจันทรคติไทย ฯลฯ) — agreement ข้ามกรอบพวกนี้ไม่ใช่เรื่องบังเอิญ</li>
-      <li class="good"><strong>Percentile จริง</strong> — เพราะ map ผ่าน reference distribution ของประชากร ป้ายระดับ "Top X%" จึงเป็นตัวเลขจริง ไม่ใช่การตลาด</li>
+      <li class="good" data-en="<strong>A high score means your reading is intense relative to the population</strong> — a real percentile against the reference distribution" data-th="<strong>คะแนนสูง = การอ่านโดยรวมของคุณเข้มข้นเมื่อเทียบประชากร</strong> — เป็นเปอร์เซ็นไทล์จริงเทียบ reference distribution"><strong>คะแนนสูง = การอ่านโดยรวมของคุณเข้มข้นเมื่อเทียบประชากร</strong> — เป็นเปอร์เซ็นไทล์จริงเทียบ reference distribution</li>
+      <li class="good" data-en="<strong>A low score means a quieter or more multi-faceted chart</strong> — not &quot;bad luck&quot;. We <strong>never</strong> frame low as bad." data-th="<strong>คะแนนต่ำ = ดวงที่เงียบกว่าหรือหลายมิติ</strong> — ไม่ใช่ &quot;โชคไม่ดี&quot; แต่คือ<em>ซับซ้อน/หลายมิติ</em> (multi-faceted) — เรา<strong>ไม่เคย</strong>ใส่กรอบว่าต่ำ = แย่"><strong>คะแนนต่ำ = ดวงที่เงียบกว่าหรือหลายมิติ</strong> — ไม่ใช่ "โชคไม่ดี" แต่คือ<em>ซับซ้อน/หลายมิติ</em> (multi-faceted) — เรา<strong>ไม่เคย</strong>ใส่กรอบว่าต่ำ = แย่</li>
+      <li class="good" data-en="<strong>The Consensus reading (separate)</strong> — how much the 26 systems agree · high agreement is statistically rare, because these traditions run on <em>mutually incompatible</em> frames of time and element (BaZi 五行 + jiéqì · Vedic sidereal · Western tropical with four elements · the Mayan 260-day Tzolk'in · the Thai lunar calendar, and so on). Agreement across frames like those is not a coincidence." data-th="<strong>Consensus reading (แยกต่างหาก)</strong> — วัดว่า 26 ศาสตร์เห็นตรงกันแค่ไหน · เห็นตรงกันสูงในทางสถิติหายาก เพราะแต่ละศาสตร์ใช้กรอบเวลา/ธาตุที่ <em>เข้ากันไม่ได้เลย</em> (BaZi 五行+jiéqì · Vedic sidereal · Western tropical+4-ธาตุ · Mayan Tzolk'in 260 วัน · ปฏิทินจันทรคติไทย ฯลฯ) — agreement ข้ามกรอบพวกนี้ไม่ใช่เรื่องบังเอิญ"><strong>Consensus reading (แยกต่างหาก)</strong> — วัดว่า 26 ศาสตร์เห็นตรงกันแค่ไหน · เห็นตรงกันสูงในทางสถิติหายาก เพราะแต่ละศาสตร์ใช้กรอบเวลา/ธาตุที่ <em>เข้ากันไม่ได้เลย</em> (BaZi 五行+jiéqì · Vedic sidereal · Western tropical+4-ธาตุ · Mayan Tzolk'in 260 วัน · ปฏิทินจันทรคติไทย ฯลฯ) — agreement ข้ามกรอบพวกนี้ไม่ใช่เรื่องบังเอิญ</li>
+      <li class="good" data-en="<strong>A real percentile</strong> — because it maps through a population reference distribution, a &quot;Top X%&quot; label is an actual number, not marketing." data-th="<strong>Percentile จริง</strong> — เพราะ map ผ่าน reference distribution ของประชากร ป้ายระดับ &quot;Top X%&quot; จึงเป็นตัวเลขจริง ไม่ใช่การตลาด"><strong>Percentile จริง</strong> — เพราะ map ผ่าน reference distribution ของประชากร ป้ายระดับ "Top X%" จึงเป็นตัวเลขจริง ไม่ใช่การตลาด</li>
     </ul>
-    <p>ผลคือคะแนนไวต่อ<strong>เวลาเกิดถึงระดับนาที</strong> — เพราะแต่ละศาสตร์คำนวณตำแหน่งของมันเองบนกรอบเวลาของตัวเอง เวลาเกิดขยับ = sub-score ขยับไม่เท่ากันในแต่ละศาสตร์ · นี่คือ astrological fidelity ที่ถูกต้อง ไม่ใช่ bug</p>
-    <p>7 ระดับ (Thai · EN): <strong>อรุณ Dawn · แสวง Seeking · ปฐพี Earth · ดุลย์ Balance · ประกาย Glimmer · รัศมี Radiance · ทิพย์ Divine</strong> — แบ่งตาม percentile band บน scale 1–1,000</p>
-    <p style="margin-top:.8rem;padding:1rem 1.2rem;background:rgba(200,164,90,.06);border-left:3px solid var(--gold);border-radius:4px"><strong>แยกจาก Soul Frequency และ Consensus reading</strong> — Cosmic Score วัด "ระดับดวงโดยรวมของคุณเป็นเปอร์เซ็นไทล์เทียบประชากรแค่ไหน" · Soul Frequency คือเลขที่ 2 แยกต่างหาก วัด "คุณคืออะไร" (central/median archetype ของ 26 ศาสตร์) · ส่วนคำถาม "จักรวาลเห็นตรงกันแค่ไหน" คือ Consensus reading ที่แสดงคู่กัน — คนละคำถาม อยู่ด้วยกันบนหน้ารายงาน</p>
+    <p data-en="This makes the score sensitive to <strong>birth time down to the minute</strong> — each tradition computes its own positions on its own frame, so moving the birth time moves each sub-score by a different amount. That is correct astrological fidelity, not a bug." data-th="ผลคือคะแนนไวต่อ<strong>เวลาเกิดถึงระดับนาที</strong> — เพราะแต่ละศาสตร์คำนวณตำแหน่งของมันเองบนกรอบเวลาของตัวเอง เวลาเกิดขยับ = sub-score ขยับไม่เท่ากันในแต่ละศาสตร์ · นี่คือ astrological fidelity ที่ถูกต้อง ไม่ใช่ bug">ผลคือคะแนนไวต่อ<strong>เวลาเกิดถึงระดับนาที</strong> — เพราะแต่ละศาสตร์คำนวณตำแหน่งของมันเองบนกรอบเวลาของตัวเอง เวลาเกิดขยับ = sub-score ขยับไม่เท่ากันในแต่ละศาสตร์ · นี่คือ astrological fidelity ที่ถูกต้อง ไม่ใช่ bug</p>
+    <p data-en="Seven bands: <strong>Dawn · Seeking · Earth · Balance · Glimmer · Radiance · Divine</strong> — divided by percentile band on the 1–1,000 scale." data-th="7 ระดับ (Thai · EN): <strong>อรุณ Dawn · แสวง Seeking · ปฐพี Earth · ดุลย์ Balance · ประกาย Glimmer · รัศมี Radiance · ทิพย์ Divine</strong> — แบ่งตาม percentile band บน scale 1–1,000">7 ระดับ (Thai · EN): <strong>อรุณ Dawn · แสวง Seeking · ปฐพี Earth · ดุลย์ Balance · ประกาย Glimmer · รัศมี Radiance · ทิพย์ Divine</strong> — แบ่งตาม percentile band บน scale 1–1,000</p>
+    <p style="margin-top:.8rem;padding:1rem 1.2rem;background:rgba(200,164,90,.06);border-left:3px solid var(--gold);border-radius:4px" data-en="<strong>Separate from Soul Frequency and from the Consensus reading</strong> — the Cosmic Score answers &quot;how intense is your overall reading, as a population percentile&quot;. Soul Frequency is a second, separate number answering &quot;what are you&quot; (the central archetype across the 26). &quot;How much does the cosmos agree&quot; is the Consensus reading, shown beside it. Three different questions, living on the same report." data-th="<strong>แยกจาก Soul Frequency และ Consensus reading</strong> — Cosmic Score วัด &quot;ระดับดวงโดยรวมของคุณเป็นเปอร์เซ็นไทล์เทียบประชากรแค่ไหน&quot; · Soul Frequency คือเลขที่ 2 แยกต่างหาก วัด &quot;คุณคืออะไร&quot; (central/median archetype ของ 26 ศาสตร์) · ส่วนคำถาม &quot;จักรวาลเห็นตรงกันแค่ไหน&quot; คือ Consensus reading ที่แสดงคู่กัน — คนละคำถาม อยู่ด้วยกันบนหน้ารายงาน"><strong>แยกจาก Soul Frequency และ Consensus reading</strong> — Cosmic Score วัด "ระดับดวงโดยรวมของคุณเป็นเปอร์เซ็นไทล์เทียบประชากรแค่ไหน" · Soul Frequency คือเลขที่ 2 แยกต่างหาก วัด "คุณคืออะไร" (central/median archetype ของ 26 ศาสตร์) · ส่วนคำถาม "จักรวาลเห็นตรงกันแค่ไหน" คือ Consensus reading ที่แสดงคู่กัน — คนละคำถาม อยู่ด้วยกันบนหน้ารายงาน</p>
 
-    <h3>ระดับ 2 · Domain-specific applications · ใครเป็น lead สำหรับเรื่องไหน</h3>
-    <p>Cosmic Score เป็นระดับดวงโดยรวมข้ามทั้ง 26 ศาสตร์ (percentile เทียบประชากร) · แต่ <strong>downstream applications</strong> (Career, Partnership, Pet, Food, Exercise, Cosmic Pulse) เป็นเรื่องที่แต่ละศาสตร์เชี่ยวชาญต่างกัน — เราจึง <em>ให้ศาสตร์ที่ specialize ในเรื่องนั้นเป็น lead</em> พร้อม cross-reference จากศาสตร์อื่น:</p>
+    <h3 data-en="Level 2 · Domain-specific applications · which system leads on what" data-th="ระดับ 2 · Domain-specific applications · ใครเป็น lead สำหรับเรื่องไหน">ระดับ 2 · Domain-specific applications · ใครเป็น lead สำหรับเรื่องไหน</h3>
+    <p data-en="The Cosmic Score is an overall level across all 26 (a population percentile). But the <strong>downstream applications</strong> — Career, Partnership, Pet, Food, Exercise, Cosmic Pulse — are areas different traditions genuinely specialise in, so <em>the system that specialises in that area leads</em>, with the others cross-referenced:" data-th="Cosmic Score เป็นระดับดวงโดยรวมข้ามทั้ง 26 ศาสตร์ (percentile เทียบประชากร) · แต่ <strong>downstream applications</strong> (Career, Partnership, Pet, Food, Exercise, Cosmic Pulse) เป็นเรื่องที่แต่ละศาสตร์เชี่ยวชาญต่างกัน — เราจึง <em>ให้ศาสตร์ที่ specialize ในเรื่องนั้นเป็น lead</em> พร้อม cross-reference จากศาสตร์อื่น:">Cosmic Score เป็นระดับดวงโดยรวมข้ามทั้ง 26 ศาสตร์ (percentile เทียบประชากร) · แต่ <strong>downstream applications</strong> (Career, Partnership, Pet, Food, Exercise, Cosmic Pulse) เป็นเรื่องที่แต่ละศาสตร์เชี่ยวชาญต่างกัน — เราจึง <em>ให้ศาสตร์ที่ specialize ในเรื่องนั้นเป็น lead</em> พร้อม cross-reference จากศาสตร์อื่น:</p>
     <table>
       <thead>
         <tr><th>Application</th><th>Lead system(s)</th><th>Cross-reference</th></tr>
@@ -410,23 +410,23 @@ Supabase woam project            # Auth + payment records
         <tr><td><strong>Pet/Food/Exercise · physical</strong></td><td>BaZi Wu Xing balance + biorhythm phase</td><td>Vedic ayurvedic dosha (when configured)</td></tr>
       </tbody>
     </table>
-    <p>เหตุผลที่ <strong>lead system ต่างกัน</strong>: ศาสตร์แต่ละศาสตร์ "เห็นโลก" ผ่าน schema ของมันเอง — BaZi เห็นทุกอย่างเป็น 5 ธาตุ Wu Xing (เหมาะ career/food/health) · Vedic เห็นเป็น nakshatra + dasha (เหมาะ life-stage timing) · Western เห็นเป็น aspect/transit (เหมาะ daily transit) · ไม่มีศาสตร์ไหนที่เก่งทุกเรื่อง · <em>ถ้าคุณซื้อ Cosmic Blueprint ($19) — full breakdown ของแต่ละ system per domain · มี trace ว่าแต่ละ output มาจาก system ไหน</em></p>
+    <p data-en="Why the <strong>lead system differs</strong>: each tradition sees the world through its own schema. BaZi sees everything as the five Wu Xing elements (good for career, food, health) · Vedic sees nakshatra and dasha (good for life-stage timing) · Western sees aspects and transits (good for the day ahead). None of them is good at everything. <em>The Cosmic Blueprint ($19) gives the full per-system breakdown for every domain, with a trace of which system produced which output.</em>" data-th="เหตุผลที่ <strong>lead system ต่างกัน</strong>: ศาสตร์แต่ละศาสตร์ &quot;เห็นโลก&quot; ผ่าน schema ของมันเอง — BaZi เห็นทุกอย่างเป็น 5 ธาตุ Wu Xing (เหมาะ career/food/health) · Vedic เห็นเป็น nakshatra + dasha (เหมาะ life-stage timing) · Western เห็นเป็น aspect/transit (เหมาะ daily transit) · ไม่มีศาสตร์ไหนที่เก่งทุกเรื่อง · <em>ถ้าคุณซื้อ Cosmic Blueprint ($19) — full breakdown ของแต่ละ system per domain · มี trace ว่าแต่ละ output มาจาก system ไหน</em>">เหตุผลที่ <strong>lead system ต่างกัน</strong>: ศาสตร์แต่ละศาสตร์ "เห็นโลก" ผ่าน schema ของมันเอง — BaZi เห็นทุกอย่างเป็น 5 ธาตุ Wu Xing (เหมาะ career/food/health) · Vedic เห็นเป็น nakshatra + dasha (เหมาะ life-stage timing) · Western เห็นเป็น aspect/transit (เหมาะ daily transit) · ไม่มีศาสตร์ไหนที่เก่งทุกเรื่อง · <em>ถ้าคุณซื้อ Cosmic Blueprint ($19) — full breakdown ของแต่ละ system per domain · มี trace ว่าแต่ละ output มาจาก system ไหน</em></p>
 
-    <h3>ระดับ 3 · Disagreement Highlight (Free tier)</h3>
-    <p>ใน free preview เราแสดง <em>"Minority Voices" panel</em> ใต้ consensus banner — ระบบที่ฟรีให้เห็นว่า <strong>ไม่ใช่ทุกศาสตร์เห็นตรงกัน</strong> · นี่คือ proof-of-concept ของความโปร่งใส: ไม่ใช่ "ทุกคนเห็นตรงกัน" แต่ "ศาสตร์กลุ่มนี้อ่านไปทางนี้ กลุ่มนี้อ่านต่างออกไป — <strong>นี่คือระดับ agreement จริงที่วัดได้ N/26</strong>" — โปร่งใส, falsifiable, ตรวจสอบได้</p>
+    <h3 data-en="Level 3 · Disagreement Highlight (free tier)" data-th="ระดับ 3 · Disagreement Highlight (Free tier)">ระดับ 3 · Disagreement Highlight (Free tier)</h3>
+    <p data-en="The free preview shows a <em>&quot;Minority Voices&quot; panel</em> under the consensus banner — free, so you can see that <strong>the systems do not all agree</strong>. That is the transparency in practice: not &quot;everyone concurs&quot;, but &quot;this group of traditions reads it this way, this group reads it differently — <strong>and here is the measured level of agreement, N out of 26</strong>&quot;. Transparent, falsifiable, checkable." data-th="ใน free preview เราแสดง <em>&quot;Minority Voices&quot; panel</em> ใต้ consensus banner — ระบบที่ฟรีให้เห็นว่า <strong>ไม่ใช่ทุกศาสตร์เห็นตรงกัน</strong> · นี่คือ proof-of-concept ของความโปร่งใส: ไม่ใช่ &quot;ทุกคนเห็นตรงกัน&quot; แต่ &quot;ศาสตร์กลุ่มนี้อ่านไปทางนี้ กลุ่มนี้อ่านต่างออกไป — <strong>นี่คือระดับ agreement จริงที่วัดได้ N/26</strong>&quot; — โปร่งใส, falsifiable, ตรวจสอบได้">ใน free preview เราแสดง <em>"Minority Voices" panel</em> ใต้ consensus banner — ระบบที่ฟรีให้เห็นว่า <strong>ไม่ใช่ทุกศาสตร์เห็นตรงกัน</strong> · นี่คือ proof-of-concept ของความโปร่งใส: ไม่ใช่ "ทุกคนเห็นตรงกัน" แต่ "ศาสตร์กลุ่มนี้อ่านไปทางนี้ กลุ่มนี้อ่านต่างออกไป — <strong>นี่คือระดับ agreement จริงที่วัดได้ N/26</strong>" — โปร่งใส, falsifiable, ตรวจสอบได้</p>
 
-    <p style="margin-top:1.2rem;padding:1rem 1.2rem;background:rgba(200,164,90,.06);border-left:3px solid var(--gold);border-radius:4px"><strong>ทำไมนี่คือ "การวัด" ไม่ใช่ "judge"</strong> — engine ไม่ตัดสิน <em>คุณ</em> แต่วัด <em>ระดับดวงโดยรวมของคุณ</em> (และควบคู่กัน <em>ว่าเสียงของศาสตร์เห็นตรงกันแค่ไหน</em>) โดย map ผ่าน frozen reference distribution ที่ freeze ตั้งแต่ calibration · เหมือนเครื่องวัดที่รายงานตามกติกาที่ประกาศไว้แล้ว — ไม่ใช่ผู้พิพากษาที่ใช้ดุลพินิจส่วนตัว · <a href="#engine" style="color:var(--gold)">ดูสูตร calibration + dataset →</a> · <a href="/blog/calibration-methodology" style="color:var(--gold)">ดู calibration methodology ฉบับเต็ม →</a></p>
+    <p style="margin-top:1.2rem;padding:1rem 1.2rem;background:rgba(200,164,90,.06);border-left:3px solid var(--gold);border-radius:4px" data-en="<strong>Why this is a measurement and not a verdict</strong> — the engine does not judge <em>you</em>. It measures <em>your overall reading level</em> (and, separately, how far the traditions agree) by mapping through a reference distribution frozen at calibration. It is an instrument reporting against published rules, not a judge exercising personal discretion. · <a href=&quot;#engine&quot; style=&quot;color:var(--gold)&quot;>See the calibration formula and dataset →</a> · <a href=&quot;/blog/calibration-methodology&quot; style=&quot;color:var(--gold)&quot;>Read the full calibration methodology →</a>" data-th="<strong>ทำไมนี่คือ &quot;การวัด&quot; ไม่ใช่ &quot;judge&quot;</strong> — engine ไม่ตัดสิน <em>คุณ</em> แต่วัด <em>ระดับดวงโดยรวมของคุณ</em> (และควบคู่กัน <em>ว่าเสียงของศาสตร์เห็นตรงกันแค่ไหน</em>) โดย map ผ่าน frozen reference distribution ที่ freeze ตั้งแต่ calibration · เหมือนเครื่องวัดที่รายงานตามกติกาที่ประกาศไว้แล้ว — ไม่ใช่ผู้พิพากษาที่ใช้ดุลพินิจส่วนตัว · <a href=&quot;#engine&quot; style=&quot;color:var(--gold)&quot;>ดูสูตร calibration + dataset →</a> · <a href=&quot;/blog/calibration-methodology&quot; style=&quot;color:var(--gold)&quot;>ดู calibration methodology ฉบับเต็ม →</a>"><strong>ทำไมนี่คือ "การวัด" ไม่ใช่ "judge"</strong> — engine ไม่ตัดสิน <em>คุณ</em> แต่วัด <em>ระดับดวงโดยรวมของคุณ</em> (และควบคู่กัน <em>ว่าเสียงของศาสตร์เห็นตรงกันแค่ไหน</em>) โดย map ผ่าน frozen reference distribution ที่ freeze ตั้งแต่ calibration · เหมือนเครื่องวัดที่รายงานตามกติกาที่ประกาศไว้แล้ว — ไม่ใช่ผู้พิพากษาที่ใช้ดุลพินิจส่วนตัว · <a href="#engine" style="color:var(--gold)">ดูสูตร calibration + dataset →</a> · <a href="/blog/calibration-methodology" style="color:var(--gold)">ดู calibration methodology ฉบับเต็ม →</a></p>
   </section>
 
   <section>
-    <h2 id="vs">เทียบกับเว็บดูดวงทั่วไป</h2>
-    <p>เว็บดูดวงส่วนใหญ่<em>คำนวณบน server ของพวกเขา</em> — คุณส่งวันเกิด, ราคา, อาจจะ email มาให้ server บริการคืน reading. ผลที่ตามมา:</p>
+    <h2 id="vs" data-en="Compared with the usual astrology site" data-th="เทียบกับเว็บดูดวงทั่วไป">เทียบกับเว็บดูดวงทั่วไป</h2>
+    <p data-en="Most astrology sites <em>compute on their servers</em> — you hand over a birth date, a price, and often an email, and the server hands back a reading. That has consequences:" data-th="เว็บดูดวงส่วนใหญ่<em>คำนวณบน server ของพวกเขา</em> — คุณส่งวันเกิด, ราคา, อาจจะ email มาให้ server บริการคืน reading. ผลที่ตามมา:">เว็บดูดวงส่วนใหญ่<em>คำนวณบน server ของพวกเขา</em> — คุณส่งวันเกิด, ราคา, อาจจะ email มาให้ server บริการคืน reading. ผลที่ตามมา:</p>
     <ul class="proof-list" style="margin-left:0">
-      <li class="bad"><strong>ข้อมูล</strong> — วันเกิดอยู่ใน database ของพวกเขา รั่วได้ ใช้สำหรับ remarketing ได้</li>
-      <li class="bad"><strong>การเข้าถึง</strong> — ต้องลงทะเบียน + verify email + ต้องมีอินเทอร์เน็ตเสมอ</li>
-      <li class="bad"><strong>ความสม่ำเสมอ</strong> — เปลี่ยน design ครั้งใหม่ คะแนนเปลี่ยนตาม (คำนวณ server-side ใหม่ทุกครั้ง ไม่ pin engine version)</li>
+      <li class="bad" data-en="<strong>Your data</strong> — the birth date sits in their database, where it can leak, and can be used for remarketing" data-th="<strong>ข้อมูล</strong> — วันเกิดอยู่ใน database ของพวกเขา รั่วได้ ใช้สำหรับ remarketing ได้"><strong>ข้อมูล</strong> — วันเกิดอยู่ใน database ของพวกเขา รั่วได้ ใช้สำหรับ remarketing ได้</li>
+      <li class="bad" data-en="<strong>Access</strong> — register, verify an email, and stay online to use it" data-th="<strong>การเข้าถึง</strong> — ต้องลงทะเบียน + verify email + ต้องมีอินเทอร์เน็ตเสมอ"><strong>การเข้าถึง</strong> — ต้องลงทะเบียน + verify email + ต้องมีอินเทอร์เน็ตเสมอ</li>
+      <li class="bad" data-en="<strong>Consistency</strong> — a redesign changes your score, because it is recomputed server-side every time with no pinned engine version" data-th="<strong>ความสม่ำเสมอ</strong> — เปลี่ยน design ครั้งใหม่ คะแนนเปลี่ยนตาม (คำนวณ server-side ใหม่ทุกครั้ง ไม่ pin engine version)"><strong>ความสม่ำเสมอ</strong> — เปลี่ยน design ครั้งใหม่ คะแนนเปลี่ยนตาม (คำนวณ server-side ใหม่ทุกครั้ง ไม่ pin engine version)</li>
     </ul>
-    <p>Mythsensus เลือกทางตรงข้าม — คำนวณบนเครื่องคุณ engine deterministic + version-locked <strong>วันเกิดเดียวกันให้คะแนนเดียวกัน ทุกที่ ทุกเวลา</strong></p>
+    <p data-en="Mythsensus went the other way: computed on your device, with a deterministic, version-locked engine. <strong>The same birth date returns the same score, anywhere, at any time.</strong>" data-th="Mythsensus เลือกทางตรงข้าม — คำนวณบนเครื่องคุณ engine deterministic + version-locked <strong>วันเกิดเดียวกันให้คะแนนเดียวกัน ทุกที่ ทุกเวลา</strong>">Mythsensus เลือกทางตรงข้าม — คำนวณบนเครื่องคุณ engine deterministic + version-locked <strong>วันเกิดเดียวกันให้คะแนนเดียวกัน ทุกที่ ทุกเวลา</strong></p>
   </section>
 
   <div class="cta-block">
@@ -436,42 +436,48 @@ Supabase woam project            # Auth + payment records
   </div>
 
   <section>
-    <h2 id="faq">คำถามที่พบบ่อย</h2>
+    <h2 id="faq" data-en="Frequently asked" data-th="คำถามที่พบบ่อย">คำถามที่พบบ่อย</h2>
 
     <div class="faq-block">
-      <h3>คำนวณดวงใน browser ของฉันจริง ๆ หรือ?</h3>
-      <p>จริง — engine 26 ศาสตร์ (~250 KB JavaScript) ถูก compile จาก TypeScript และ load เข้า browser ของคุณตอนเปิดเว็บครั้งแรก หลังจากนั้นการคำนวณรันใน CPU/RAM ของอุปกรณ์คุณเอง วันเกิดที่คุณใส่อยู่ใน memory ของ browser tab เท่านั้น ไม่ถูกส่งไปที่ Mythsensus server ใด ๆ ในระหว่างการคำนวณ</p>
+      <h3 data-en="Is it really computed in my browser?" data-th="คำนวณดวงใน browser ของฉันจริง ๆ หรือ?">คำนวณดวงใน browser ของฉันจริง ๆ หรือ?</h3>
+      <p data-en="Yes. The 26-system engine (~250 KB of JavaScript, compiled from TypeScript) loads into your browser the first time you open the site. After that the maths runs on your own device's CPU and RAM. The birth date you type stays in that browser tab's memory and is not sent to any Mythsensus server during the calculation." data-th="จริง — engine 26 ศาสตร์ (~250 KB JavaScript) ถูก compile จาก TypeScript และ load เข้า browser ของคุณตอนเปิดเว็บครั้งแรก หลังจากนั้นการคำนวณรันใน CPU/RAM ของอุปกรณ์คุณเอง วันเกิดที่คุณใส่อยู่ใน memory ของ browser tab เท่านั้น ไม่ถูกส่งไปที่ Mythsensus server ใด ๆ ในระหว่างการคำนวณ">จริง — engine 26 ศาสตร์ (~250 KB JavaScript) ถูก compile จาก TypeScript และ load เข้า browser ของคุณตอนเปิดเว็บครั้งแรก หลังจากนั้นการคำนวณรันใน CPU/RAM ของอุปกรณ์คุณเอง วันเกิดที่คุณใส่อยู่ใน memory ของ browser tab เท่านั้น ไม่ถูกส่งไปที่ Mythsensus server ใด ๆ ในระหว่างการคำนวณ</p>
     </div>
 
     <div class="faq-block">
-      <h3>วิธีพิสูจน์ว่าไม่ส่งข้อมูลออก?</h3>
-      <p>เปิด DevTools (F12 หรือ Cmd+Option+I) ไปที่แท็บ Network กด Ctrl+R reload หน้า ใส่วันเกิดของคุณ กด Generate — ดูใน Network tab ว่ามี request ไปที่ <code>/api/calculate</code> หรือใด ๆ ที่มีวันเกิดส่งไปหรือไม่ คำตอบ: ไม่มี (ยกเว้น analytics ภายในที่ไม่ส่งวันเกิด)</p>
+      <h3 data-en="How do I prove nothing is sent?" data-th="วิธีพิสูจน์ว่าไม่ส่งข้อมูลออก?">วิธีพิสูจน์ว่าไม่ส่งข้อมูลออก?</h3>
+      <p data-en="Open DevTools (F12, or Cmd+Option+I), go to the Network tab, press Ctrl+R to reload, enter your birth date and press Generate — then look for a request to <code>/api/calculate</code>, or to anything else carrying the date. There isn't one (apart from our own analytics, which never carries a birth date)." data-th="เปิด DevTools (F12 หรือ Cmd+Option+I) ไปที่แท็บ Network กด Ctrl+R reload หน้า ใส่วันเกิดของคุณ กด Generate — ดูใน Network tab ว่ามี request ไปที่ <code>/api/calculate</code> หรือใด ๆ ที่มีวันเกิดส่งไปหรือไม่ คำตอบ: ไม่มี (ยกเว้น analytics ภายในที่ไม่ส่งวันเกิด)">เปิด DevTools (F12 หรือ Cmd+Option+I) ไปที่แท็บ Network กด Ctrl+R reload หน้า ใส่วันเกิดของคุณ กด Generate — ดูใน Network tab ว่ามี request ไปที่ <code>/api/calculate</code> หรือใด ๆ ที่มีวันเกิดส่งไปหรือไม่ คำตอบ: ไม่มี (ยกเว้น analytics ภายในที่ไม่ส่งวันเกิด)</p>
     </div>
 
     <div class="faq-block">
-      <h3>แล้ว Cosmic Blueprint $19 ส่งข้อมูลออกไหม?</h3>
-      <p>การชำระเงิน $19 ไปที่ Gumroad (merchant of record สำหรับ card processing + tax + receipt) — email และข้อมูล payment ส่งไปที่ Gumroad ไม่ใช่ Mythsensus. การคำนวณรายงาน เชิงลึกยังคงรันใน browser ของคุณเอง ไม่ใช่ server ของเรา — เราเก็บแค่ payment status (active/inactive) ผ่าน Gumroad webhook ไม่เก็บวันเกิดหรือเนื้อหารายงาน</p>
+      <h3 data-en="What about the $19 Cosmic Blueprint — does that send data out?" data-th="แล้ว Cosmic Blueprint $19 ส่งข้อมูลออกไหม?">แล้ว Cosmic Blueprint $19 ส่งข้อมูลออกไหม?</h3>
+      <p data-en="The $19 payment goes to Gumroad, the merchant of record for card processing, tax and receipts — your email and payment details go to Gumroad, not to Mythsensus. The deep report itself is still computed in your browser, not on our server. We keep only a payment status (active/inactive) via a Gumroad webhook: no birth date, no report content." data-th="การชำระเงิน $19 ไปที่ Gumroad (merchant of record สำหรับ card processing + tax + receipt) — email และข้อมูล payment ส่งไปที่ Gumroad ไม่ใช่ Mythsensus. การคำนวณรายงาน เชิงลึกยังคงรันใน browser ของคุณเอง ไม่ใช่ server ของเรา — เราเก็บแค่ payment status (active/inactive) ผ่าน Gumroad webhook ไม่เก็บวันเกิดหรือเนื้อหารายงาน">การชำระเงิน $19 ไปที่ Gumroad (merchant of record สำหรับ card processing + tax + receipt) — email และข้อมูล payment ส่งไปที่ Gumroad ไม่ใช่ Mythsensus. การคำนวณรายงาน เชิงลึกยังคงรันใน browser ของคุณเอง ไม่ใช่ server ของเรา — เราเก็บแค่ payment status (active/inactive) ผ่าน Gumroad webhook ไม่เก็บวันเกิดหรือเนื้อหารายงาน</p>
     </div>
 
     <div class="faq-block">
-      <h3>localStorage คืออะไร? ปลอดภัยไหม?</h3>
-      <p>localStorage คือกล่องเก็บข้อมูลใน browser ของคุณเอง — แต่ละ origin (mythsensus.com) มีกล่องของตัวเอง ไม่ shared กับเว็บอื่น และไม่ส่งไปที่ server ใด ๆ ข้อมูลอยู่ใน hard drive ของอุปกรณ์คุณเท่านั้น เคลียร์ browser cache = ข้อมูลหายหมด เพราะ Mythsensus ไม่มี backup บน server (เป็นข้อจำกัดที่จงใจ — privacy-first)</p>
+      <h3 data-en="What is localStorage? Is it safe?" data-th="localStorage คืออะไร? ปลอดภัยไหม?">localStorage คืออะไร? ปลอดภัยไหม?</h3>
+      <p data-en="localStorage is a storage box inside your own browser. Each origin (mythsensus.com) gets its own, it is not shared with other sites, and it is never sent to a server — the data sits on your device's drive. Clearing your browser data deletes it permanently, because Mythsensus keeps no server-side backup. That is a deliberate trade: privacy first." data-th="localStorage คือกล่องเก็บข้อมูลใน browser ของคุณเอง — แต่ละ origin (mythsensus.com) มีกล่องของตัวเอง ไม่ shared กับเว็บอื่น และไม่ส่งไปที่ server ใด ๆ ข้อมูลอยู่ใน hard drive ของอุปกรณ์คุณเท่านั้น เคลียร์ browser cache = ข้อมูลหายหมด เพราะ Mythsensus ไม่มี backup บน server (เป็นข้อจำกัดที่จงใจ — privacy-first)">localStorage คือกล่องเก็บข้อมูลใน browser ของคุณเอง — แต่ละ origin (mythsensus.com) มีกล่องของตัวเอง ไม่ shared กับเว็บอื่น และไม่ส่งไปที่ server ใด ๆ ข้อมูลอยู่ใน hard drive ของอุปกรณ์คุณเท่านั้น เคลียร์ browser cache = ข้อมูลหายหมด เพราะ Mythsensus ไม่มี backup บน server (เป็นข้อจำกัดที่จงใจ — privacy-first)</p>
     </div>
 
     <div class="faq-block">
-      <h3>ใช้ผ่าน AI (MCP) ส่งข้อมูลออกไหม?</h3>
-      <p>Mythsensus เปิดให้ AI เรียก engine ผ่าน MCP ได้ 2 ทาง และ <strong>2 ทางนี้ต่างกันตรงจุดนี้พอดี</strong> — <code>npx -y mythsensus-mcp</code> (npm) รัน engine ในเครื่องผู้ใช้เอง วันเกิดไม่ออกจากเครื่อง เหมือนตอนใช้เว็บ · แต่ <code>https://mythsensus.com/mcp</code> (hosted) <strong>ส่งวันเกิดมาคำนวณที่ server ของเรา</strong> แล้วส่งผลกลับ — เราไม่เก็บและไม่ log แต่ข้อมูลออกจากเครื่องจริง ถ้าต้องการให้คำนวณในเครื่องเท่านั้น ให้ใช้ทาง npm</p>
+      <h3 data-en="Does using it through AI (MCP) send data out?" data-th="ใช้ผ่าน AI (MCP) ส่งข้อมูลออกไหม?">ใช้ผ่าน AI (MCP) ส่งข้อมูลออกไหม?</h3>
+      <p data-en="There are two ways for an AI to call the engine over MCP, and <strong>this is exactly where they differ</strong>. <code>npx -y mythsensus-mcp</code> (npm) runs the engine on the user's own machine — the birth date never leaves it, same as the website. But <code>https://mythsensus.com/mcp</code> (hosted) <strong>does send the birth date to our server</strong> to compute, and returns the result. We neither store nor log it, but the data does leave the device. If you want local-only computation, use the npm route." data-th="Mythsensus เปิดให้ AI เรียก engine ผ่าน MCP ได้ 2 ทาง และ <strong>2 ทางนี้ต่างกันตรงจุดนี้พอดี</strong> — <code>npx -y mythsensus-mcp</code> (npm) รัน engine ในเครื่องผู้ใช้เอง วันเกิดไม่ออกจากเครื่อง เหมือนตอนใช้เว็บ · แต่ <code>https://mythsensus.com/mcp</code> (hosted) <strong>ส่งวันเกิดมาคำนวณที่ server ของเรา</strong> แล้วส่งผลกลับ — เราไม่เก็บและไม่ log แต่ข้อมูลออกจากเครื่องจริง ถ้าต้องการให้คำนวณในเครื่องเท่านั้น ให้ใช้ทาง npm">Mythsensus เปิดให้ AI เรียก engine ผ่าน MCP ได้ 2 ทาง และ <strong>2 ทางนี้ต่างกันตรงจุดนี้พอดี</strong> — <code>npx -y mythsensus-mcp</code> (npm) รัน engine ในเครื่องผู้ใช้เอง วันเกิดไม่ออกจากเครื่อง เหมือนตอนใช้เว็บ · แต่ <code>https://mythsensus.com/mcp</code> (hosted) <strong>ส่งวันเกิดมาคำนวณที่ server ของเรา</strong> แล้วส่งผลกลับ — เราไม่เก็บและไม่ log แต่ข้อมูลออกจากเครื่องจริง ถ้าต้องการให้คำนวณในเครื่องเท่านั้น ให้ใช้ทาง npm</p>
     </div>
 
     <div class="faq-block">
-      <h3>Vercel Analytics เก็บข้อมูลอะไร?</h3>
-      <p>Vercel Web Analytics คือ aggregated traffic data แบบ privacy-friendly — เก็บ page view count, country (ไม่ใช่ IP), browser type, referrer. ไม่ใช้ cookies. ไม่ track individual user. ไม่เก็บ IP. ไม่ส่งไปที่ Google/Facebook. ไม่ใช้สำหรับ advertising หรือ remarketing วันเกิดของคุณ ไม่ส่งไปที่ Vercel Analytics — เป็น analytics ของ page navigation เท่านั้น</p>
+      <h3 data-en="What does Vercel Analytics collect?" data-th="Vercel Analytics เก็บข้อมูลอะไร?">Vercel Analytics เก็บข้อมูลอะไร?</h3>
+      <p data-en="Vercel Web Analytics is privacy-friendly aggregated traffic data: page-view counts, country (not IP), browser type, referrer. No cookies. No individual tracking. No IP stored. Nothing sent to Google or Facebook. Not used for advertising or remarketing. Your birth date never reaches Vercel Analytics — it only sees page navigation." data-th="Vercel Web Analytics คือ aggregated traffic data แบบ privacy-friendly — เก็บ page view count, country (ไม่ใช่ IP), browser type, referrer. ไม่ใช้ cookies. ไม่ track individual user. ไม่เก็บ IP. ไม่ส่งไปที่ Google/Facebook. ไม่ใช้สำหรับ advertising หรือ remarketing วันเกิดของคุณ ไม่ส่งไปที่ Vercel Analytics — เป็น analytics ของ page navigation เท่านั้น">Vercel Web Analytics คือ aggregated traffic data แบบ privacy-friendly — เก็บ page view count, country (ไม่ใช่ IP), browser type, referrer. ไม่ใช้ cookies. ไม่ track individual user. ไม่เก็บ IP. ไม่ส่งไปที่ Google/Facebook. ไม่ใช้สำหรับ advertising หรือ remarketing วันเกิดของคุณ ไม่ส่งไปที่ Vercel Analytics — เป็น analytics ของ page navigation เท่านั้น</p>
     </div>
 
   </section>
 
-  <h2>อ่านต่อ</h2>
-  <p>· <a href="/cosmic-score">Cosmic Score คืออะไร · methodology</a><br>
+  <h2 data-en="Read next" data-th="อ่านต่อ">อ่านต่อ</h2>
+  <p data-en="· <a href=&quot;/cosmic-score&quot;>What the Cosmic Score is · methodology</a><br>
+  · <a href=&quot;/sample-report&quot;>The in-depth Sample Report — free, before you buy</a><br>
+  · <a href=&quot;/privacy&quot;>Privacy Policy</a><br>
+  · <a href=&quot;/blog/ดูดวงฟรี-ไม่ต้องลงทะเบียน&quot;>Free readings with no signup — is that actually possible?</a>" data-th="· <a href=&quot;/cosmic-score&quot;>Cosmic Score คืออะไร · methodology</a><br>
+  · <a href=&quot;/sample-report&quot;>Sample Report เชิงลึก — ดูฟรีก่อนซื้อ</a><br>
+  · <a href=&quot;/privacy&quot;>Privacy Policy</a><br>
+  · <a href=&quot;/blog/ดูดวงฟรี-ไม่ต้องลงทะเบียน&quot;>ดูดวงฟรี ไม่ต้องลงทะเบียน — ทำได้จริงไหม</a>">· <a href="/cosmic-score">Cosmic Score คืออะไร · methodology</a><br>
   · <a href="/sample-report">Sample Report เชิงลึก — ดูฟรีก่อนซื้อ</a><br>
   · <a href="/privacy">Privacy Policy</a><br>
   · <a href="/blog/ดูดวงฟรี-ไม่ต้องลงทะเบียน">ดูดวงฟรี ไม่ต้องลงทะเบียน — ทำได้จริงไหม</a></p>
@@ -484,4 +490,80 @@ Supabase woam project            # Auth + payment records
 </footer>
 
 <script defer src="/_vercel/insights/script.js"></script>
+
+<div style="position:fixed;right:14px;bottom:14px;z-index:60;display:flex;gap:4px;background:rgba(10,10,14,.9);border:1px solid var(--gold3,#6b5a2e);border-radius:8px;padding:3px">
+  <button id="hiwEn" onclick="hiwSetLang('en')" style="font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.4px;padding:5px 11px;border:0;border-radius:6px;cursor:pointer;background:transparent;color:#c8a84a">EN</button>
+  <button id="hiwTh" onclick="hiwSetLang('th')" style="font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.4px;padding:5px 11px;border:0;border-radius:6px;cursor:pointer;background:transparent;color:#c8a84a">TH</button>
+</div>
+<script>
+/* This page was Thai-only: 96 blocks of hand-written markup with no data-en and
+   no switcher, so ?lang=en did nothing and an English reader met a Thai page —
+   on the one page that exists to prove the engine is not an LLM guessing.
+   Same [data-en][data-th] swap ai/index.html uses; Thai stays the default. */
+function hiwSetLang(lang){
+  document.documentElement.setAttribute('lang', lang);
+  for (const el of document.querySelectorAll('[data-en][data-th]')) {
+    const v = el.getAttribute(lang === 'th' ? 'data-th' : 'data-en');
+    if (v != null) el.innerHTML = v;
+  }
+  var en=document.getElementById('hiwEn'), th=document.getElementById('hiwTh');
+  if(en&&th){ en.style.background = lang==='en' ? 'rgba(200,168,74,.18)' : 'transparent';
+              th.style.background = lang==='th' ? 'rgba(200,168,74,.18)' : 'transparent'; }
+
+  // Short labels that live in <div>/<a>/<code> rather than the tagged blocks —
+  // a map is fewer lines than tagging seventeen one-word elements.
+  var P = {
+    '\u2726 \u0e2a\u0e23\u0e38\u0e1b\u0e2a\u0e31\u0e49\u0e19 \u0e46 \u0e54 \u0e02\u0e49\u0e2d': '\u2726 The short version, in four points',
+    '\u2696\ufe0f \u0e40\u0e2a\u0e49\u0e19\u0e41\u0e1a\u0e48\u0e07\u0e23\u0e30\u0e2b\u0e27\u0e48\u0e32\u0e07\u0e01\u0e32\u0e23\u0e04\u0e33\u0e19\u0e27\u0e13\u0e01\u0e31\u0e1a AI': '\u2696\ufe0f Where computation ends and AI begins',
+    '\u0e40\u0e01\u0e47\u0e1a/\u0e44\u0e21\u0e48\u0e40\u0e01\u0e47\u0e1a\u0e2d\u0e30\u0e44\u0e23': 'What we store',
+    '\u0e02\u0e49\u0e2d\u0e08\u0e33\u0e01\u0e31\u0e14': 'Known limits',
+    '\u0e2b\u0e19\u0e49\u0e32\u0e41\u0e23\u0e01': 'Home',
+    '\u0e1a\u0e17\u0e04\u0e27\u0e32\u0e21': 'Blog',
+    '\u0e23\u0e32\u0e04\u0e32': 'Pricing',
+    '\u0e25\u0e2d\u0e07\u0e04\u0e33\u0e19\u0e27\u0e13 Cosmic Score \u0e02\u0e2d\u0e07\u0e04\u0e38\u0e13 \u2014 \u0e1f\u0e23\u0e35': 'Compute your Cosmic Score — free',
+    '\u0e40\u0e1b\u0e34\u0e14 DevTools \u0e01\u0e48\u0e2d\u0e19\u0e01\u0e47\u0e44\u0e14\u0e49 \u2014 \u0e14\u0e39\u0e40\u0e2d\u0e07\u0e27\u0e48\u0e32\u0e44\u0e21\u0e48\u0e2a\u0e48\u0e07\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e2d\u0e2d\u0e01': 'Open DevTools first if you like — watch nothing leave',
+    '\u0e40\u0e23\u0e34\u0e48\u0e21\u0e40\u0e25\u0e22 \u2192': 'Start now \u2192',
+    '\u00a9 2026 MYTHSENSUS \u00b7 \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e04\u0e27\u0e32\u0e21\u0e1a\u0e31\u0e19\u0e40\u0e17\u0e34\u0e07 \u0e44\u0e21\u0e48\u0e43\u0e0a\u0e48\u0e04\u0e33\u0e41\u0e19\u0e30\u0e19\u0e33\u0e17\u0e32\u0e07\u0e27\u0e34\u0e0a\u0e32\u0e0a\u0e35\u0e1e': '\u00a9 2026 MYTHSENSUS \u00b7 For entertainment \u00b7 not professional advice',
+    '1. First visit \u00b7 \u0e04\u0e23\u0e31\u0e49\u0e07\u0e41\u0e23\u0e01\u0e17\u0e35\u0e48\u0e40\u0e02\u0e49\u0e32': '1. First visit',
+    '2. App caches itself \u00b7 App \u0e40\u0e01\u0e47\u0e1a\u0e15\u0e31\u0e27\u0e40\u0e2d\u0e07\u0e43\u0e19\u0e40\u0e04\u0e23\u0e37\u0e48\u0e2d\u0e07': '2. The app caches itself',
+    '3. You enter your birth data \u00b7 \u0e04\u0e38\u0e13\u0e01\u0e23\u0e2d\u0e01\u0e27\u0e31\u0e19\u0e40\u0e01\u0e34\u0e14': '3. You enter your birth data',
+    '4. Engine runs locally \u00b7 \u0e04\u0e33\u0e19\u0e27\u0e13\u0e43\u0e19\u0e40\u0e04\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e04\u0e38\u0e13': '4. The engine runs locally',
+    '5. Reading renders \u00b7 \u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e41\u0e2a\u0e14\u0e07\u0e1c\u0e25': '5. The reading renders',
+    '6. Your data stays on your device \u00b7 \u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e40\u0e01\u0e47\u0e1a\u0e43\u0e19\u0e40\u0e04\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e04\u0e38\u0e13': '6. Your data stays on your device'
+  };
+  var RP = {}; for (var k in P) RP[P[k]] = k;
+  var tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  var n, jobs = [];
+  while ((n = tw.nextNode())) jobs.push(n);
+  jobs.forEach(function (t) {
+    var raw = t.nodeValue, k = raw.trim();
+    if (!k) return;
+    var tbl = (lang === 'en') ? P : RP;
+    if (tbl[k] != null) { t.nodeValue = raw.replace(k, tbl[k]); return; }
+    // The ASCII diagram and the file listing each carry one Thai phrase inside a
+    // much larger block. Padding keeps the diagram's box edges aligned.
+    if (raw.indexOf('in memory') >= 0) {
+      t.nodeValue = (lang === 'en')
+        ? raw.replace('\u0e27\u0e31\u0e19\u0e40\u0e01\u0e34\u0e14 (in memory)', 'DOB (in memory)    ')
+        : raw.replace('DOB (in memory)    ', '\u0e27\u0e31\u0e19\u0e40\u0e01\u0e34\u0e14 (in memory)');
+    }
+    if (raw.indexOf('# Engine') >= 0) {
+      t.nodeValue = (lang === 'en')
+        ? raw.replace('# Engine (\u0e2a\u0e48\u0e27\u0e19\u0e04\u0e33\u0e19\u0e27\u0e13)', '# Engine (the calculation half)')
+        : raw.replace('# Engine (the calculation half)', '# Engine (\u0e2a\u0e48\u0e27\u0e19\u0e04\u0e33\u0e19\u0e27\u0e13)');
+    }
+  });
+  document.title = (lang === 'en')
+    ? 'How Mythsensus Works \u2014 the engine runs in your browser \u00b7 Mythsensus'
+    : 'How Mythsensus Works \u2014 Engine \u0e04\u0e33\u0e19\u0e27\u0e13\u0e43\u0e19 browser, \u0e44\u0e21\u0e48\u0e2a\u0e48\u0e07\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e2d\u0e2d\u0e01 \u00b7 Mythsensus';
+  try { localStorage.setItem('mth_lang', lang); } catch(_) {}
+}
+(function(){
+  var want=null;
+  try { if (/[?&]lang=(en|th)/i.test(location.search)) want=RegExp.$1.toLowerCase(); } catch(_) {}
+  if(!want){ try { var sv=localStorage.getItem('mth_lang'); if(sv==='en'||sv==='th') want=sv; } catch(_) {} }
+  if(!want && /^\/en(?:\/|$)/i.test(location.pathname)) want='en';
+  hiwSetLang(want || 'th');
+})();
+</script>
 </body></html>

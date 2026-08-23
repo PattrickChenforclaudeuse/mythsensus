@@ -410,11 +410,19 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opa
 }
 .tb-rail-btn:hover{color:var(--gold);border-color:var(--gold3);}
 .tb-rail-btn.hidden{color:var(--gold);border-color:var(--gold3);background:rgba(200,164,90,.06);}
-/* Breakpoint lowered from 1320 → 1200 in 2026-05-05 because users on
-   13" laptops + DevTools open + mid-zoom couldn't reach the threshold
-   even though they had room to fit the rails. Rail width compressed
-   from 220 → 195 so 1200 is comfortable, not knife-edge. */
-@media (min-width:1200px){
+/* Breakpoint history: 1320 → 1200 (2026-05-05, so 13" laptops with DevTools
+   open could still reach it) → 1540 (2026-08-23).
+   The 1200 threshold was measured against an 820px content column, but the
+   group nav (.nav-groups) is 1100px wide. From 1200 to ~1520 the fixed rails
+   therefore landed ON TOP of the navigation: "MOON SIGN Capricorn" ran through
+   "FREE READINGS", and the right rail covered "MY COLLECTION" entirely. It was
+   visible at 1280 and at 1600, i.e. on most desktops, and it is the first thing
+   in any screenshot of the app.
+   The rails now measure from the 1100px row they actually sit beside, and only
+   appear once there is genuinely room for them. Below 1540 they are absent —
+   which is the right trade: they carry today's sky, a tip and two counters,
+   and none of that is worthcovering the primary navigation. */
+@media (min-width:1540px){
   .tb-rail-btn{display:inline-flex;align-items:center;gap:5px;}
   .desk-rail{
     display:block;position:fixed;top:120px;width:195px;z-index:5;
@@ -422,8 +430,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opa
     pointer-events:none;transition:opacity .2s,transform .2s;
   }
   .desk-rail > *{pointer-events:auto;}
-  .desk-rail.left{left:calc((100vw - 820px)/2 - 200px);}
-  .desk-rail.right{right:calc((100vw - 820px)/2 - 200px);}
+  .desk-rail.left{left:calc((100vw - 1100px)/2 - 207px);}
+  .desk-rail.right{right:calc((100vw - 1100px)/2 - 207px);}
   /* hidden state — slide off-screen */
   .desk-rail.rail-hidden{opacity:0;pointer-events:none;}
   .desk-rail.left.rail-hidden{transform:translateX(-20px);}
@@ -470,10 +478,13 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opa
     font-family:'Josefin Sans',sans-serif;font-size:11px;}
   .desk-rail-tip{font-size:12.5px;line-height:1.7;color:var(--text);font-style:italic;}
 }
-@media (min-width:1460px){
+/* The wider 250px rail needs correspondingly more room beside the 1100px nav
+   row: 1650 is where it fits with a gap instead of sitting on the tabs. Was
+   1460 with the same 820px assumption as the block above (2026-08-23). */
+@media (min-width:1650px){
   .desk-rail{width:250px;}
-  .desk-rail.left{left:calc((100vw - 820px)/2 - 272px);}
-  .desk-rail.right{right:calc((100vw - 820px)/2 - 272px);}
+  .desk-rail.left{left:calc((100vw - 1100px)/2 - 262px);}
+  .desk-rail.right{right:calc((100vw - 1100px)/2 - 262px);}
 }
 .section-title{font-family:'Cinzel Decorative',serif;font-size:12px;color:var(--gold);letter-spacing:3px;text-align:center;margin-bottom:18px;}
 
@@ -1582,6 +1593,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         <input class="login-input" type="number" id="heroYear" min="1900" max="2026" placeholder="2534" style="font-family:inherit;font-size:16px;text-align:center">
       </div>
       <button class="login-confirm-btn" onclick="entryHeroGo()" style="font-size:18px;padding:16px 20px;letter-spacing:.5px" data-eh="cta">✦ ให้คะแนน 4 สัปดาห์ของฉัน · ฟรี</button>
+      <button onclick="entryDrawFirst()" data-eh="draw2" style="width:100%;margin-top:10px;padding:14px 20px;font-size:15px;letter-spacing:.3px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.08);color:var(--gold);border-radius:8px;font-family:'Cormorant Garamond','Sarabun',serif">🙏 รับพรวันนี้ · ฟรี</button>
       <!-- A real reading, computed live, before we ask for anything. Every
            site in this market that converts shows the product first; ours
            showed nothing until you handed over a birth date. The numbers are
@@ -1592,7 +1604,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
        buttons. Every site in this market that converts shows ONE action
        above the fold; we were asking for three decisions before the
        visitor had received anything at all. -->
-      <div style="text-align:center;margin-top:14px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:.5px;color:var(--muted)" data-eh="alt"><button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">เทียบดวงสองคน</button> &nbsp;·&nbsp; <button onclick="entryDrawFirst()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">รับพรวันนี้</button></div>
+      <div style="text-align:center;margin-top:14px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:.5px;color:var(--muted)" data-eh="alt"><button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">เทียบดวงสองคน</button></div>
       <div style="text-align:center;margin-top:16px;font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px" data-eh="signin">มีบัญชีแล้ว? <button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">ลงชื่อเข้าใช้ →</button></div>
     </div>
 
@@ -3383,49 +3395,196 @@ try{ addEventListener('load', function(){ setTimeout(function(){ try{ _renderEnt
 // date, from three traditions at once, plus a reason to come back tomorrow.
 // It replaced a worked example about a stranger — a demo, where this is a gift.
 // Everything here is computed on the page, never baked in.
-// ── The city's own chart, before anyone is asked for anything ──────────────
-// 41% of arrivals left inside five seconds, and 291 of 446 never touched the
-// entry overlay at all, because everything we sell sat behind a birth-date
-// form. The first five seconds held a logo, a promise, and an input.
+// ── The reader's country, read before the reader is asked for anything ─────
+// Was one city (Bangkok). A city chart only exists where someone recorded the
+// founding ฤกษ์, and a browser cannot tell Chiang Mai from Bangkok anyway —
+// Thailand is a single time zone. Countries scale: national charts are ordinary
+// reference material in mundane astrology, and the time zone names the country.
 //
-// A city has a chart. ดวงเมือง is real Thai astrological practice, not a device
-// invented here: Bangkok's is the ฤกษ์ of the city pillar, and it is read the
-// same way a person's chart is read. So the visitor gets a genuine forecast in
-// second one, computed by the same engine, from a chart that is honestly not
-// theirs — which is exactly what makes handing over a birth date an upgrade
-// rather than a toll.
+// The list is chosen by where people actually read charts online — India, Brazil,
+// Turkey, the Spanish-speaking Americas, South-East Asia, East Asia — not by
+// which founding times happened to be easy to confirm.
 //
-// An earlier attempt averaged the four domains across eight sample birthdays.
-// It was defensible but bloodless: averaging across charts cancels the personal
-// component and leaves every domain sitting on the same number (2.0/2.0/1.9/2.1
-// the day it was tried), which tells a reader nothing. A real chart moves.
-//
-// Cities without a documented founding chart get the day's facts and no scores.
-// Inventing a ฤกษ์ for a city that has none would be the same sin as inventing
-// doctrine for a tradition that has none.
-const _CITY_CHARTS = {
-  'Asia/Bangkok': {
-    th: 'กทม', en: 'Bangkok',
-    // ฤกษ์ลงเสาหลักเมือง 21 เมษายน พ.ศ. 2325 เวลา 06:54 น. — the founding
-    // moment Thai astrologers read as ดวงเมืองกรุงเทพฯ. Shown on screen so the
-    // reader can see which chart produced the numbers.
-    birth: { year: 1782, month: 4, day: 21, hour: 6, minute: 54, lat: 13.7525, lon: 100.4936, timezone: 7 },
-    sourceTh: 'ฤกษ์ลงเสาหลักเมือง · 21 เม.ย. 2325',
-    sourceEn: 'City pillar ceremony · 21 Apr 1782',
-  },
+// TIME, and how honest this is:
+//   exact: true  — a recorded clock time (Turkey 20:30, Indonesia 10:00), or a
+//                  midnight that is itself the legal handover (India, Malaysia).
+//   exact: false — astrologers do not agree on the hour, so the chart is cast at
+//                  LOCAL NOON and says so on screen. That is not a fudge: it is
+//                  the same convention this site already applies to a person who
+//                  does not know their birth time, disclosed the same way.
+// Every reading prints its event and date, so the number can be checked against
+// its source. A country that is not listed renders nothing and guesses nothing.
+const _NATION_CHARTS = {
+  // ── South-East Asia ──
+  TH: { th:'ไทย', en:'Thailand', exact:true,
+        b:{year:1782,month:4,day:21,hour:6,minute:54,lat:13.7525,lon:100.4936,timezone:7},
+        sTh:'ฤกษ์ลงเสาหลักเมือง · 21 เม.ย. 2325 06:54 น.', sEn:'City pillar ceremony · 21 Apr 1782, 06:54' },
+  ID: { th:'อินโดนีเซีย', en:'Indonesia', exact:true,
+        b:{year:1945,month:8,day:17,hour:10,minute:0,lat:-6.2088,lon:106.8456,timezone:7},
+        sTh:'ประกาศเอกราช · 17 ส.ค. 2488 10:00 น.', sEn:'Proclamation · 17 Aug 1945, 10:00' },
+  SG: { th:'สิงคโปร์', en:'Singapore', exact:true,
+        b:{year:1965,month:8,day:9,hour:10,minute:0,lat:1.3521,lon:103.8198,timezone:7.5},
+        sTh:'ประกาศแยกตัว · 9 ส.ค. 2508 10:00 น.', sEn:'Proclamation read · 9 Aug 1965, 10:00' },
+  MY: { th:'มาเลเซีย', en:'Malaysia', exact:true,
+        b:{year:1957,month:8,day:31,hour:0,minute:0,lat:3.1390,lon:101.6869,timezone:7.5},
+        sTh:'เมอร์เดกา · เที่ยงคืน 31 ส.ค. 2500', sEn:'Merdeka · midnight, 31 Aug 1957' },
+  MM: { th:'เมียนมา', en:'Myanmar', exact:true,
+        b:{year:1948,month:1,day:4,hour:4,minute:20,lat:16.8409,lon:96.1735,timezone:6.5},
+        sTh:'เอกราช · ฤกษ์ที่โหรกำหนด 4 ม.ค. 2491 04:20 น.', sEn:'Independence · astrologically set, 4 Jan 1948, 04:20' },
+  VN: { th:'เวียดนาม', en:'Vietnam', exact:false,
+        b:{year:1945,month:9,day:2,hour:12,minute:0,lat:21.0285,lon:105.8542,timezone:7},
+        sTh:'ประกาศเอกราช จัตุรัสบาดิ่ญ · 2 ก.ย. 2488', sEn:'Independence declared, Ba Dinh Square · 2 Sep 1945' },
+  PH: { th:'ฟิลิปปินส์', en:'Philippines', exact:false,
+        b:{year:1898,month:6,day:12,hour:12,minute:0,lat:14.4167,lon:120.9000,timezone:8},
+        sTh:'ประกาศเอกราชที่คาวิเต · 12 มิ.ย. 2441', sEn:'Independence proclaimed at Kawit · 12 Jun 1898' },
+  KH: { th:'กัมพูชา', en:'Cambodia', exact:false,
+        b:{year:1953,month:11,day:9,hour:12,minute:0,lat:11.5564,lon:104.9282,timezone:7},
+        sTh:'เอกราช · 9 พ.ย. 2496', sEn:'Independence · 9 Nov 1953' },
+  // ── South Asia ──
+  IN: { th:'อินเดีย', en:'India', exact:true,
+        b:{year:1947,month:8,day:15,hour:0,minute:0,lat:28.6139,lon:77.2090,timezone:5.5},
+        sTh:'เอกราช · เที่ยงคืน 15 ส.ค. 2490', sEn:'Independence · midnight, 15 Aug 1947' },
+  PK: { th:'ปากีสถาน', en:'Pakistan', exact:true,
+        b:{year:1947,month:8,day:14,hour:0,minute:0,lat:24.8607,lon:67.0011,timezone:5},
+        sTh:'เอกราช · เที่ยงคืน 14 ส.ค. 2490', sEn:'Independence · midnight, 14 Aug 1947' },
+  BD: { th:'บังกลาเทศ', en:'Bangladesh', exact:false,
+        b:{year:1971,month:3,day:26,hour:12,minute:0,lat:23.8103,lon:90.4125,timezone:6},
+        sTh:'ประกาศเอกราช · 26 มี.ค. 2514', sEn:'Independence declared · 26 Mar 1971' },
+  LK: { th:'ศรีลังกา', en:'Sri Lanka', exact:false,
+        b:{year:1948,month:2,day:4,hour:12,minute:0,lat:6.9271,lon:79.8612,timezone:5.5},
+        sTh:'เอกราช · 4 ก.พ. 2491', sEn:'Independence · 4 Feb 1948' },
+  // ── East Asia ──
+  CN: { th:'จีน', en:'China', exact:true,
+        b:{year:1949,month:10,day:1,hour:15,minute:0,lat:39.9042,lon:116.4074,timezone:8},
+        sTh:'ประกาศสถาปนา · 1 ต.ค. 2492 15:00 น.', sEn:'Founding proclaimed · 1 Oct 1949, 15:00' },
+  HK: { th:'ฮ่องกง', en:'Hong Kong', exact:true,
+        b:{year:1997,month:7,day:1,hour:0,minute:0,lat:22.3193,lon:114.1694,timezone:8},
+        sTh:'ส่งมอบอธิปไตย · เที่ยงคืน 1 ก.ค. 2540', sEn:'Handover · midnight, 1 Jul 1997' },
+  TW: { th:'ไต้หวัน', en:'Taiwan', exact:false,
+        b:{year:1912,month:1,day:1,hour:12,minute:0,lat:32.0603,lon:118.7969,timezone:8},
+        sTh:'สถาปนาสาธารณรัฐจีน หนานจิง · 1 ม.ค. 2455', sEn:'Republic of China founded, Nanjing · 1 Jan 1912' },
+  KR: { th:'เกาหลีใต้', en:'South Korea', exact:false,
+        b:{year:1948,month:8,day:15,hour:12,minute:0,lat:37.5665,lon:126.9780,timezone:9},
+        sTh:'สถาปนาสาธารณรัฐ · 15 ส.ค. 2491', sEn:'Republic established · 15 Aug 1948' },
+  JP: { th:'ญี่ปุ่น', en:'Japan', exact:true,
+        b:{year:1947,month:5,day:3,hour:0,minute:0,lat:35.6762,lon:139.6503,timezone:9},
+        sTh:'รัฐธรรมนูญมีผล · เที่ยงคืน 3 พ.ค. 2490', sEn:'Constitution in force · midnight, 3 May 1947' },
+  // ── Americas ──
+  US: { th:'สหรัฐอเมริกา', en:'United States', exact:false,
+        b:{year:1776,month:7,day:4,hour:17,minute:10,lat:39.9526,lon:-75.1652,timezone:-5},
+        sTh:'คำประกาศอิสรภาพ · ดวงซิบลีย์ 4 ก.ค. 2319 17:10 น.', sEn:'Declaration · Sibly chart, 4 Jul 1776, 17:10' },
+  CA: { th:'แคนาดา', en:'Canada', exact:true,
+        b:{year:1867,month:7,day:1,hour:0,minute:0,lat:45.4215,lon:-75.6972,timezone:-5},
+        sTh:'สมาพันธรัฐ · เที่ยงคืน 1 ก.ค. 2410', sEn:'Confederation · midnight, 1 Jul 1867' },
+  BR: { th:'บราซิล', en:'Brazil', exact:false,
+        b:{year:1822,month:9,day:7,hour:16,minute:30,lat:-23.5505,lon:-46.6333,timezone:-3},
+        sTh:'ประกาศเอกราชริมฝั่งอิปิรังกา · 7 ก.ย. 2365 16:30 น.', sEn:'Cry of Ipiranga · 7 Sep 1822, 16:30' },
+  MX: { th:'เม็กซิโก', en:'Mexico', exact:false,
+        b:{year:1810,month:9,day:16,hour:12,minute:0,lat:21.1561,lon:-100.9331,timezone:-6},
+        sTh:'เสียงระฆังโดโลเรส · 16 ก.ย. 2353', sEn:'Grito de Dolores · 16 Sep 1810' },
+  AR: { th:'อาร์เจนตินา', en:'Argentina', exact:false,
+        b:{year:1816,month:7,day:9,hour:12,minute:0,lat:-26.8083,lon:-65.2176,timezone:-3},
+        sTh:'ประกาศเอกราชที่ตูกูมัน · 9 ก.ค. 2359', sEn:'Independence at Tucumán · 9 Jul 1816' },
+  CO: { th:'โคลอมเบีย', en:'Colombia', exact:false,
+        b:{year:1810,month:7,day:20,hour:12,minute:0,lat:4.7110,lon:-74.0721,timezone:-5},
+        sTh:'วันประกาศอิสรภาพ · 20 ก.ค. 2353', sEn:'Cry of Independence · 20 Jul 1810' },
+  CL: { th:'ชิลี', en:'Chile', exact:false,
+        b:{year:1818,month:2,day:12,hour:12,minute:0,lat:-33.4489,lon:-70.6693,timezone:-4},
+        sTh:'ประกาศเอกราช · 12 ก.พ. 2361', sEn:'Independence proclaimed · 12 Feb 1818' },
+  PE: { th:'เปรู', en:'Peru', exact:false,
+        b:{year:1821,month:7,day:28,hour:12,minute:0,lat:-12.0464,lon:-77.0428,timezone:-5},
+        sTh:'ประกาศเอกราชที่ลิมา · 28 ก.ค. 2364', sEn:'Independence at Lima · 28 Jul 1821' },
+  // ── Europe · Middle East · Africa ──
+  GB: { th:'สหราชอาณาจักร', en:'United Kingdom', exact:true,
+        b:{year:1801,month:1,day:1,hour:0,minute:0,lat:51.5074,lon:-0.1278,timezone:0},
+        sTh:'พระราชบัญญัติสหภาพ · เที่ยงคืน 1 ม.ค. 2344', sEn:'Act of Union · midnight, 1 Jan 1801' },
+  DE: { th:'เยอรมนี', en:'Germany', exact:true,
+        b:{year:1990,month:10,day:3,hour:0,minute:0,lat:52.5200,lon:13.4050,timezone:1},
+        sTh:'รวมประเทศ · เที่ยงคืน 3 ต.ค. 2533', sEn:'Reunification · midnight, 3 Oct 1990' },
+  FR: { th:'ฝรั่งเศส', en:'France', exact:false,
+        b:{year:1958,month:10,day:5,hour:12,minute:0,lat:48.8566,lon:2.3522,timezone:1},
+        sTh:'สาธารณรัฐที่ห้า · 5 ต.ค. 2501', sEn:'Fifth Republic · 5 Oct 1958' },
+  IT: { th:'อิตาลี', en:'Italy', exact:false,
+        b:{year:1946,month:6,day:2,hour:12,minute:0,lat:41.9028,lon:12.4964,timezone:1},
+        sTh:'ประชามติตั้งสาธารณรัฐ · 2 มิ.ย. 2489', sEn:'Republic referendum · 2 Jun 1946' },
+  ES: { th:'สเปน', en:'Spain', exact:false,
+        b:{year:1978,month:12,day:29,hour:12,minute:0,lat:40.4168,lon:-3.7038,timezone:1},
+        sTh:'รัฐธรรมนูญมีผล · 29 ธ.ค. 2521', sEn:'Constitution in force · 29 Dec 1978' },
+  RU: { th:'รัสเซีย', en:'Russia', exact:true,
+        b:{year:1991,month:12,day:25,hour:19,minute:35,lat:55.7558,lon:37.6173,timezone:3},
+        sTh:'เชิญธงโซเวียตลง · 25 ธ.ค. 2534 19:35 น.', sEn:'Soviet flag lowered · 25 Dec 1991, 19:35' },
+  PL: { th:'โปแลนด์', en:'Poland', exact:false,
+        b:{year:1918,month:11,day:11,hour:12,minute:0,lat:52.2297,lon:21.0122,timezone:1},
+        sTh:'คืนเอกราช · 11 พ.ย. 2461', sEn:'Independence restored · 11 Nov 1918' },
+  TR: { th:'ตุรกี', en:'Türkiye', exact:true,
+        b:{year:1923,month:10,day:29,hour:20,minute:30,lat:39.9334,lon:32.8597,timezone:2},
+        sTh:'ประกาศสาธารณรัฐ อังการา · 29 ต.ค. 2466 20:30 น.', sEn:'Republic proclaimed, Ankara · 29 Oct 1923, 20:30' },
+  AE: { th:'สหรัฐอาหรับเอมิเรตส์', en:'United Arab Emirates', exact:true,
+        b:{year:1971,month:12,day:2,hour:11,minute:0,lat:24.4539,lon:54.3773,timezone:4},
+        sTh:'สถาปนาสหพันธรัฐ · 2 ธ.ค. 2514 11:00 น.', sEn:'Federation declared · 2 Dec 1971, 11:00' },
+  EG: { th:'อียิปต์', en:'Egypt', exact:false,
+        b:{year:1953,month:6,day:18,hour:12,minute:0,lat:30.0444,lon:31.2357,timezone:2},
+        sTh:'สถาปนาสาธารณรัฐ · 18 มิ.ย. 2496', sEn:'Republic declared · 18 Jun 1953' },
+  NG: { th:'ไนจีเรีย', en:'Nigeria', exact:true,
+        b:{year:1960,month:10,day:1,hour:0,minute:0,lat:6.5244,lon:3.3792,timezone:1},
+        sTh:'เอกราช · เที่ยงคืน 1 ต.ค. 2503', sEn:'Independence · midnight, 1 Oct 1960' },
+  ZA: { th:'แอฟริกาใต้', en:'South Africa', exact:false,
+        b:{year:1994,month:4,day:27,hour:12,minute:0,lat:-25.7479,lon:28.2293,timezone:2},
+        sTh:'เลือกตั้งเสรีครั้งแรก · 27 เม.ย. 2537', sEn:'First free election · 27 Apr 1994' },
+  // ── Oceania ──
+  AU: { th:'ออสเตรเลีย', en:'Australia', exact:true,
+        b:{year:1901,month:1,day:1,hour:0,minute:0,lat:-33.8688,lon:151.2093,timezone:10},
+        sTh:'สหพันธรัฐ · เที่ยงคืน 1 ม.ค. 2444', sEn:'Federation · midnight, 1 Jan 1901' },
+  NZ: { th:'นิวซีแลนด์', en:'New Zealand', exact:true,
+        b:{year:1907,month:9,day:26,hour:0,minute:0,lat:-41.2866,lon:174.7756,timezone:12},
+        sTh:'สถานะโดมิเนียน · เที่ยงคืน 26 ก.ย. 2450', sEn:'Dominion status · midnight, 26 Sep 1907' },
 };
 
-function _entryCityKey() {
-  try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (_) { return ''; }
+// Time zone → country. Only zones for the countries above are listed; anything
+// else renders nothing rather than borrowing a neighbour's chart.
+const _TZ_NATION = {
+  'Asia/Bangkok':'TH',
+  'Asia/Jakarta':'ID','Asia/Pontianak':'ID','Asia/Makassar':'ID','Asia/Jayapura':'ID',
+  'Asia/Singapore':'SG','Asia/Kuala_Lumpur':'MY','Asia/Kuching':'MY',
+  'Asia/Yangon':'MM','Asia/Rangoon':'MM',
+  'Asia/Ho_Chi_Minh':'VN','Asia/Saigon':'VN','Asia/Manila':'PH','Asia/Phnom_Penh':'KH',
+  'Asia/Kolkata':'IN','Asia/Calcutta':'IN','Asia/Karachi':'PK','Asia/Dhaka':'BD','Asia/Colombo':'LK',
+  'Asia/Shanghai':'CN','Asia/Chongqing':'CN','Asia/Urumqi':'CN','Asia/Macau':'CN',
+  'Asia/Hong_Kong':'HK','Asia/Taipei':'TW','Asia/Seoul':'KR','Asia/Tokyo':'JP',
+  'America/New_York':'US','America/Chicago':'US','America/Denver':'US','America/Phoenix':'US',
+  'America/Los_Angeles':'US','America/Anchorage':'US','Pacific/Honolulu':'US','America/Detroit':'US',
+  'America/Toronto':'CA','America/Vancouver':'CA','America/Edmonton':'CA','America/Winnipeg':'CA',
+  'America/Halifax':'CA','America/St_Johns':'CA',
+  'America/Sao_Paulo':'BR','America/Bahia':'BR','America/Fortaleza':'BR','America/Recife':'BR',
+  'America/Manaus':'BR','America/Belem':'BR',
+  'America/Mexico_City':'MX','America/Monterrey':'MX','America/Tijuana':'MX','America/Cancun':'MX',
+  'America/Argentina/Buenos_Aires':'AR','America/Buenos_Aires':'AR','America/Argentina/Cordoba':'AR',
+  'America/Bogota':'CO','America/Santiago':'CL','America/Lima':'PE',
+  'Europe/London':'GB','Europe/Belfast':'GB','Europe/Dublin':'GB',
+  'Europe/Berlin':'DE','Europe/Busingen':'DE',
+  'Europe/Paris':'FR','Europe/Rome':'IT','Europe/Madrid':'ES','Europe/Warsaw':'PL',
+  'Europe/Moscow':'RU','Europe/Kaliningrad':'RU','Asia/Yekaterinburg':'RU','Asia/Novosibirsk':'RU',
+  'Europe/Istanbul':'TR','Asia/Istanbul':'TR',
+  'Asia/Dubai':'AE','Africa/Cairo':'EG','Africa/Lagos':'NG','Africa/Johannesburg':'ZA',
+  'Australia/Sydney':'AU','Australia/Melbourne':'AU','Australia/Brisbane':'AU','Australia/Perth':'AU',
+  'Australia/Adelaide':'AU','Australia/Hobart':'AU','Australia/Darwin':'AU',
+  'Pacific/Auckland':'NZ',
+};
+
+function _entryNationKey() {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    return _TZ_NATION[tz] || '';
+  } catch (_) { return ''; }
 }
 
-function _entryCityChart() {
-  const cfg = _CITY_CHARTS[_entryCityKey()];
+function _entryNationChart() {
+  const cfg = _NATION_CHARTS[_entryNationKey()];
   if (!cfg || !window.MS26) return null;
   try {
     const chart = MS26.calculate(Object.assign(
-      { name: cfg.th, gender: 'ชาย', lang: (typeof LANG !== 'undefined' ? LANG : 'th') },
-      cfg.birth));
+      { name: cfg.en, gender: 'ชาย', lang: (typeof LANG !== 'undefined' ? LANG : 'th') },
+      cfg.b));
     return { cfg, chart };
   } catch (_) { return null; }
 }
@@ -3436,11 +3595,12 @@ function _entryFillCity() {
   const host = document.getElementById('entryCityRow');
   if (!host) return;
   const isTh = (typeof LANG === 'undefined') || LANG === 'th';
-  const cc = _entryCityChart();
-  if (!cc) { host.style.display = 'none'; return; }
+  const cc = _entryNationChart();
+  if (!cc) { host.innerHTML = ''; host.style.display = 'none'; return; }
+  host.style.display = '';
 
   const today = new Date();
-  const key = 'mth_city_wk|' + _entryCityKey() + '|' + today.toDateString() + '|' + (isTh ? 'th' : 'en');
+  const key = 'mth_nation_wk|' + _entryNationKey() + '|' + today.toDateString() + '|' + (isTh ? 'th' : 'en');
   let scores = null;
   try { const hit = localStorage.getItem(key); if (hit) scores = JSON.parse(hit); } catch (_) {}
   if (!scores) {
@@ -3454,12 +3614,22 @@ function _entryFillCity() {
 
   const L = MS26.FORECAST_DOMAIN_LABELS;
   const tone = (v) => v >= 4 ? '#6fb650' : v <= 2 ? '#d08a6a' : '#c8a840';
-  const city = isTh ? cc.cfg.th : cc.cfg.en;
+  const nation = isTh ? cc.cfg.th : cc.cfg.en;
+  // Three states, and the card must not claim more than it has:
+  //   recorded      — a clock time on the record, say nothing extra
+  //   cast at noon   — no hour survives, so noon, disclosed like an unknown birth time
+  //   conventional   — an hour astrologers use but still argue about (the Sibly
+  //                    chart's 17:10, Ipiranga's 16:30). Naming a time AND saying
+  //                    the hour is unrecorded, as this did, contradicts itself.
+  const castAtNoon = !cc.cfg.exact && cc.cfg.b.hour === 12 && cc.cfg.b.minute === 0;
+  const noon = cc.cfg.exact ? ''
+    : castAtNoon ? (isTh ? ' · ไม่มีบันทึกเวลา คิดที่เที่ยงวัน' : ' · hour not recorded, cast at noon')
+    : (isTh ? ' · เวลาตามธรรมเนียมโหร ยังไม่ยุติ' : ' · hour is the conventional one, still debated');
 
   host.innerHTML = `
     <div style="border:1px solid var(--border);border-radius:10px;padding:13px 12px 11px;background:rgba(200,164,90,.04)">
     <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase;margin-bottom:9px;text-align:center">
-      ${isTh ? `พื้นดวงของ “${_fcEsc(city)}” วันนี้` : `The chart of “${_fcEsc(city)}” today`}
+      ${isTh ? `พื้นดวง “${_fcEsc(nation)}” สัปดาห์นี้` : `The chart of “${_fcEsc(nation)}” this week`}
     </div>
     <div style="display:flex;gap:4px;font-variant-numeric:lining-nums">
       ${MS26.FORECAST_DOMAINS_FREE.map(d => `
@@ -3470,7 +3640,7 @@ function _entryFillCity() {
         </div>`).join('')}
     </div>
     <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:10.5px;color:var(--muted);line-height:1.6;margin-top:8px;text-align:center">
-      ${isTh ? cc.cfg.sourceTh : cc.cfg.sourceEn}
+      ${_fcEsc((isTh ? cc.cfg.sTh : cc.cfg.sEn) + noon)}
     </div></div>`;
 }
 
@@ -3556,7 +3726,8 @@ function _refreshEntryHero(){
     drawalt:  { th:'หรือรับพรจากเทพประจำวันก่อน →', en:'or receive today’s blessing first →' },
     compare:  { th:'💑 เทียบดวงกับใครสักคน · แค่ 2 วันเกิด', en:'💑 Compare with someone · just 2 birth dates' },
     hooksub:  { th:'เราถาม 26 ศาสตร์พร้อมกัน แต่<strong style="color:var(--text)">เฉพาะศาสตร์ที่มีวิชาทำนายช่วงเวลาจริงถึงให้คะแนนได้</strong> ให้เต็ม 5 ทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร', en:'We ask all 26, but <strong style="color:var(--text)">only the ones with a real timing technique get to score you</strong> — out of 5, area by area. The rest abstain, and we name them and say why.' },
-    alt:      { th:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">เทียบดวงสองคน</button> &nbsp;·&nbsp; <button onclick="entryDrawFirst()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">รับพรวันนี้</button>', en:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">Compare two charts</button> &nbsp;·&nbsp; <button onclick="entryDrawFirst()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">Blessing today</button>' },
+    draw2:    { th:'🙏 รับพรวันนี้ · ฟรี', en:'🙏 Receive today’s blessing · Free' },
+    alt:      { th:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">เทียบดวงสองคน</button>', en:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">Compare two charts</button>' },
     signin:   { th:'มีบัญชีแล้ว? ' + sgn + 'ลงชื่อเข้าใช้ →</button>', en:'Already have an account? ' + sgn + 'Sign in →</button>' }
   };
   try { _renderEntryToday(0); } catch(_){}
@@ -10722,7 +10893,7 @@ function renderForecast() {
 // PRIVACY INVARIANT (see _webShareUrl): no birth data may ever leave the
 // device. This draws entirely on-canvas in the browser and shares the resulting
 // file — no server round-trip, and the accompanying URL is the bare homepage.
-function _fcShareBlob(period, isTh) {
+async function _fcShareBlob(period, isTh) {
   const L = MS26.FORECAST_DOMAIN_LABELS;
   const A = MS26.FORECAST_ADVICE;
   const doms = _fcCanSeeAllDomains() ? MS26.FORECAST_DOMAINS_ALL : MS26.FORECAST_DOMAINS_FREE;
@@ -10733,6 +10904,8 @@ function _fcShareBlob(period, isTh) {
   const star = period.domains[ranked[0]];
   const rest = ranked.slice(1, 4).map(k => period.domains[k]);
 
+  try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (_) {}
+
   const W = 1080, H = 1920;
   const cv = document.createElement('canvas');
   cv.width = W; cv.height = H;
@@ -10740,7 +10913,7 @@ function _fcShareBlob(period, isTh) {
 
   const gold = '#c8a45a', gold2 = '#e8c87a', muted = '#9a8a72', ink = '#e6e2d8';
   const tone = star.score >= 4 ? '#6fb650' : star.score <= 2 ? '#d08a6a' : '#c8a840';
-  const th = (px, w) => `${w || 400} ${px}px Sarabun, "Cormorant Garamond", system-ui, sans-serif`;
+  const th = (px, w) => `${w || 400} ${px}px "Josefin Sans", Sarabun, "Cormorant Garamond", system-ui, sans-serif`;
   const label = (px) => `600 ${px}px "Josefin Sans", Sarabun, system-ui, sans-serif`;
 
   x.fillStyle = '#040407'; x.fillRect(0, 0, W, H);
@@ -10770,7 +10943,7 @@ function _fcShareBlob(period, isTh) {
   x.font = `700 260px "Cinzel Decorative", Georgia, serif`;
   x.fillText(String(star.score), W / 2, 860);
   x.fillStyle = muted; x.font = th(46);
-  x.fillText('/ 10', W / 2, 930);
+  x.fillText('/ 5', W / 2, 930);
 
   // The arguable part — how much the traditions actually agreed.
   x.fillStyle = gold2; x.font = th(44, 600);
@@ -10790,7 +10963,7 @@ function _fcShareBlob(period, isTh) {
   lines.slice(0, 2).forEach((ln, i) => x.fillText(ln, W / 2, 1130 + i * 62));
 
   // The other domains, small — evidence of a real reading, not the point.
-  let y = 1360;
+  let y = 1268;
   x.font = th(38);
   for (const v of rest) {
     const c = v.score >= 4 ? '#6fb650' : v.score <= 2 ? '#d08a6a' : '#c8a840';
@@ -10803,13 +10976,54 @@ function _fcShareBlob(period, isTh) {
     x.textAlign = 'center';
     x.strokeStyle = 'rgba(200,164,90,.14)'; x.lineWidth = 2;
     x.beginPath(); x.moveTo(190, y + 26); x.lineTo(W - 190, y + 26); x.stroke();
-    y += 96;
+    y += 84;
+  }
+
+  // ── The deity ─────────────────────────────────────────────────────────────
+  // Ninety people drew a blessing and saw a share button; none used it. A card
+  // that is four numbers and a sentence is a screenshot of a result — there is
+  // nothing on it a person wants to be seen holding. The deity is the part with
+  // a face, so it goes on the card.
+  //
+  // /assets/god-og is same-origin, unlike the CDN card art, so the canvas is
+  // never tainted and toBlob cannot fail. If the file is missing, the symbol
+  // stands in and the layout does not move.
+  const deity = (typeof _FC_DEITY !== 'undefined' && _FC_DEITY) ? _FC_DEITY.god : null;
+  if (deity) {
+    const cx = W / 2, cy = 1578, r = 102;
+    const slug = String(deity.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const img = slug ? await new Promise(res => {
+      const im = new Image();
+      im.onload = () => res(im);
+      im.onerror = () => res(null);
+      im.src = '/assets/god-og/' + slug + '.jpg';
+    }) : null;
+
+    if (img) {
+      x.save();
+      x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.clip();
+      // cover-fit: crop the shorter side rather than squash the face
+      const side = Math.min(img.width, img.height);
+      x.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, cx - r, cy - r, r * 2, r * 2);
+      x.restore();
+      x.strokeStyle = gold; x.lineWidth = 3;
+      x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.stroke();
+    } else {
+      x.font = '110px system-ui';
+      x.fillStyle = ink;
+      x.fillText(deity.symbol || '✦', cx, cy + 40);
+    }
+
+    x.fillStyle = muted; x.font = th(30);
+    x.fillText(isTh ? 'พรประจำสัปดาห์' : 'This week’s blessing', cx, cy + r + 50);
+    x.fillStyle = gold2; x.font = th(42, 600);
+    x.fillText(deity.name || '', cx, cy + r + 108);
   }
 
   x.fillStyle = muted; x.font = th(34);
-  x.fillText(isTh ? '1–5 เทียบกับปีของตัวเอง — 3 คือสัปดาห์ธรรมดา' : '1–5 against your own year — 3 is an ordinary week', W / 2, 1700);
+  x.fillText(isTh ? '1–5 เทียบกับปีของตัวเอง — 3 คือสัปดาห์ธรรมดา' : '1–5 against your own year — 3 is an ordinary week', W / 2, 1868);
   x.fillStyle = gold; x.font = label(38);
-  x.fillText('mythsensus.com', W / 2, 1790);
+  x.fillText('mythsensus.com', W / 2, 1908);
 
   return new Promise(res => cv.toBlob(res, 'image/png'));
 }
