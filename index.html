@@ -12614,7 +12614,12 @@ function renderLucky() {
   // ── 5-element compat: birth day master vs today's BaZi element ──
   const birthElement = chart.bazi?.dayMasterElement || '';
   const SHENG = {'ไม้':'ไฟ','ไฟ':'ดิน','ดิน':'โลหะ','โลหะ':'น้ำ','น้ำ':'ไม้'};
-  const KE    = {'ไม้':'ดิน','ไฟ':'น้ำ','ดิน':'น้ำ','โลหะ':'ไฟ','น้ำ':'ไฟ'};
+  // 五行相剋 — what each element CONTROLS. Two entries here were the
+  // controlled-BY relation instead: 'ไฟ' pointed at 'น้ำ' (water controls fire)
+  // and 'โลหะ' at 'ไฟ' (fire controls metal), so on a Metal day a Wood person
+  // was told the day was neutral when the Pulse tab, reading the same chart,
+  // correctly called it a clash. Matches CONTROLS in the engine.
+  const KE    = {'ไม้':'ดิน','ไฟ':'โลหะ','ดิน':'น้ำ','โลหะ':'ไม้','น้ำ':'ไฟ'};
 
   let elemLevel = 1, elemMsg = '';
   if (birthElement && todayElement) {
@@ -12729,8 +12734,13 @@ function renderLucky() {
     const dd = new Date(); dd.setHours(12,0,0,0); dd.setDate(dd.getDate()+off);
     const yy = dd.getFullYear(), mm = dd.getMonth()+1, ddNum = dd.getDate();
     const _jdL = _jd(yy, mm, ddNum);
-    const _stem = (_jdL + 6) % 10;
-    const _branch = (_jdL + 10) % 12;
+    // Fourth copy of the day-pillar clock. It carried the same three-day skew
+    // the detail card above did, so the strip and the card named different
+    // Officers for the SAME day, side by side on one screen. Same anchor as the
+    // engine: JD 2415021 (1900-01-01) = 甲戌 = cycle index 10.
+    const _cyc = ((_jdL - 2415021 + 10) % 60 + 60) % 60;
+    const _stem = _cyc % 10;
+    const _branch = _cyc % 12;
     const _el = ELEM[_stem];
     const _mb = _monthBranch(yy, mm, ddNum);
     const _ofIdx = (_branch - _mb + 12) % 12;
@@ -15575,7 +15585,9 @@ function _runCompatCheck(){
   const EL_EN_C = {'ไม้':'Wood','ไฟ':'Fire','ดิน':'Earth','โลหะ':'Metal','น้ำ':'Water'};
   const myEl = mine.bazi.dayMasterElement, thEl = theirs.bazi.dayMasterElement;
   const SHENG_C = {'ไม้':'ไฟ','ไฟ':'ดิน','ดิน':'โลหะ','โลหะ':'น้ำ','น้ำ':'ไม้'};
-  const KE_C    = {'ไม้':'ดิน','ไฟ':'น้ำ','ดิน':'น้ำ','โลหะ':'ไม้','น้ำ':'ไฟ'};
+  // 五行相剋 — 'ไฟ' pointed at 'น้ำ', which is the controlled-BY relation.
+  // Fire controls Metal. Matches CONTROLS in the engine.
+  const KE_C    = {'ไม้':'ดิน','ไฟ':'โลหะ','ดิน':'น้ำ','โลหะ':'ไม้','น้ำ':'ไฟ'};
   const elL = e => isTh ? e : (EL_EN_C[e]||e);
   let _rel = 'neutral';
   if (myEl===thEl) _rel='same';

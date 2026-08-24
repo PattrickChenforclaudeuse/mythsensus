@@ -226,5 +226,44 @@ console.log('— Lucky-Day tab day pillar (lifted from index.html) —');
   }
 }
 
+// ── Every five-element table shipped in the page ────────────────────────
+// index.html carries several hand-written copies of 五行相生 / 五行相剋. On
+// 2026-08-25 two of the 剋 tables had entries taken from the controlled-BY
+// direction instead: the Lucky tab said Metal-day / Wood-person was neutral
+// while Daily Pulse, on the same chart, correctly called it a clash. A table
+// that disagrees with the engine is a wrong answer, not a style difference.
+console.log('');
+console.log('— Five-element tables in index.html —');
+{
+  const fs = require('fs'), path = require('path');
+  const html = fs.readFileSync(path.join(__dirname, '..', '..', 'index.html'), 'utf8');
+  // Canonical, from the engine: CONTROLS / SHENG.
+  const CONTROLS = {'ไม้':'ดิน','ไฟ':'โลหะ','ดิน':'น้ำ','โลหะ':'ไม้','น้ำ':'ไฟ'};
+  const SHENG    = {'ไม้':'ไฟ','ไฟ':'ดิน','ดิน':'โลหะ','โลหะ':'น้ำ','น้ำ':'ไม้'};
+  const parse = (body) => {
+    const out = {};
+    const rx = /'([^']+)'\s*:\s*'([^']+)'/g;
+    let m; while ((m = rx.exec(body))) out[m[1]] = m[2];
+    return out;
+  };
+  const grab = (name) => {
+    const rx = new RegExp('const\\s+' + name + '\\s*=\\s*\\{([^}]*)\\}', 'g');
+    const found = []; let m;
+    while ((m = rx.exec(html))) found.push(parse(m[1]));
+    return found;
+  };
+  [['KE', CONTROLS], ['KE_C', CONTROLS], ['SHENG', SHENG], ['SHENG_C', SHENG]].forEach(function (pair) {
+    const name = pair[0], want = pair[1];
+    const tables = grab(name);
+    if (!tables.length) return;   // table renamed or removed — not a failure on its own
+    tables.forEach(function (tbl, n) {
+      const wrong = Object.keys(want).filter(function (k) { return tbl[k] !== want[k]; });
+      check(name + ' #' + (n + 1) + ' matches the engine',
+            wrong.length ? wrong.map(function (k) { return k + '→' + tbl[k]; }).join(' ') : 'ok', 'ok',
+            'five-element tables must match CONTROLS / SHENG in the engine — a mixed-up entry silently reverses a verdict');
+    });
+  });
+}
+
 console.log(fails ? `\n✗ ${fails} external anchor(s) failed` : '\n✓ all external anchors hold');
 process.exit(fails ? 1 : 0);
