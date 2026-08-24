@@ -12443,9 +12443,16 @@ const _ELEMENT_TRAITS_EN = {
 //   2. Thai Brahmin weekday system — based on weekday + birth weekday compatibility
 //   3. 5-Element compatibility — today's BaZi element vs birth day master element
 //
-// BaZi day calibration: 2020-01-01 = 庚子 (stem 6, branch 0)
-//   Day Stem   = (JD + 6) % 10   (JD = Julian Day Number of date at noon)
-//   Day Branch = (JD + 10) % 12
+// BaZi day calibration: the same anchor the engine uses —
+//   JD 2415021 (1900-01-01) = 甲戌 = sexagenary cycle index 10
+//   cycle = (JD - 2415021 + 10) mod 60 · stem = cycle mod 10 · branch = cycle mod 12
+// Attested by both 1949-10-01 = 甲子 and 2000-01-01 = 戊午, and pinned by
+// Mythsensus/tests/external-anchors.test.cjs.
+//
+// This comment used to claim "2020-01-01 = 庚子, Day Stem = (JD+6) % 10,
+// Day Branch = (JD+10) % 12". That calibration was simply wrong — 2020-01-01
+// is 癸卯 — and the three-day error it encoded ran in this tab from the day it
+// was written until 2026-08-25.
 // ─────────────────────────────────────────────────────────────────────────
 
 function renderLucky() {

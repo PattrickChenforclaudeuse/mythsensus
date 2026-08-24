@@ -252,7 +252,7 @@ console.log('— Five-element tables in index.html —');
     while ((m = rx.exec(html))) found.push(parse(m[1]));
     return found;
   };
-  [['KE', CONTROLS], ['KE_C', CONTROLS], ['SHENG', SHENG], ['SHENG_C', SHENG]].forEach(function (pair) {
+  [['KE', CONTROLS], ['KE_C', CONTROLS], ['_ELEMENT_DESTROYS', CONTROLS], ['SHENG', SHENG], ['SHENG_C', SHENG], ['_ELEMENT_FEEDS', SHENG]].forEach(function (pair) {
     const name = pair[0], want = pair[1];
     const tables = grab(name);
     if (!tables.length) return;   // table renamed or removed — not a failure on its own
