@@ -1561,32 +1561,37 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
          reading (the monetized depth, needs a birth date) is demoted to a
          one-tap secondary. entryDrawFirst() closes the overlay + auto-draws. -->
     <div id="entryHeroStep">
-      <!-- tiny language toggle (the old lang gate lived in the form step; keep a
-           lightweight one here so an EN visitor isn't stuck in Thai) -->
-      <div style="display:flex;justify-content:center;gap:6px;margin:16px 0 20px">
+      <!-- ── Reordered 2026-08-25 ──────────────────────────────────────
+           The landing carried 1,493 visible Thai characters — 3.9x the median of
+           the 33 divination sites in this market, and the wordiest of every one
+           that someone had actually designed. Worse, the first thing it showed
+           was an AVERAGED score per area, on the one product whose whole claim
+           is that the traditions do NOT agree. Three designers briefed blind on
+           the concept, with no sight of this page, independently named both of
+           those as the mistake.
+           Order now: the day's real vote split first (given, not asked for),
+           one line of promise, then the date fields. The methodology paragraph
+           moved to the bottom — it is proof, and proof belongs after the hook. -->
+      <div style="display:flex;justify-content:center;gap:6px;margin:14px 0 16px">
         <button id="entryHeroLangTh" onclick="setLangExplicit('th')" style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;padding:5px 15px;border-radius:6px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.15);color:var(--gold)">🇹🇭 ไทย</button>
         <button id="entryHeroLangEn" onclick="setLangExplicit('en')" style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;padding:5px 15px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text)">🇬🇧 EN</button>
       </div>
-      <!-- one evocative line — invites the draw, no wall of text -->
-      <div style="text-align:center;margin:0 0 22px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:17px;color:var(--text);line-height:1.55" data-eh="hook2">4 สัปดาห์ข้างหน้า จะเป็นยังไง<br><strong style="color:var(--gold)">การงาน · การเงิน · ความรัก · สุขภาพ</strong></div>
-      <!-- one line that says what we do about it — the promise is the MAP of
-           agreement and disagreement, not a verdict. Promising "the consensus"
-           would be a promise we cannot keep: most charts split. -->
-      <div style="text-align:center;margin:0 0 20px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--muted);line-height:1.7;text-wrap:pretty" data-eh="hooksub">เราถาม 26 ศาสตร์พร้อมกัน แต่เฉพาะศาสตร์ที่<strong style="color:var(--text);white-space:nowrap">มีวิชาทำนายช่วงเวลาจริง</strong>ถึงจะให้คะแนนได้ · เต็ม 5 แยกทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร</div>
-      <!-- The city's own chart — a real reading, computed by the same engine,
-           before anyone is asked for a birth date. Filled by _entryFillCity()
-           after first paint; stays empty (and hidden) for cities with no
+      <!-- The nation's own chart — a real reading from the same engine, handed
+           over before anyone is asked for a birth date. Filled by
+           _entryFillCity() after first paint; stays hidden for nations with no
            documented founding chart, because inventing a ฤกษ์ would be the same
            sin as inventing doctrine for a system that has none. -->
-      <div id="entryCityRow" style="margin:0 0 18px"></div>
-      <!-- THE dominant action -->
+      <div id="entryCityRow" style="margin:0 0 16px"></div>
+      <!-- one line of promise — the MAP of agreement and disagreement, never a
+           verdict. Promising "the consensus" would be a promise most charts break. -->
+      <div style="text-align:center;margin:0 0 16px;font-family:'Josefin Sans','Cormorant Garamond','Sarabun',serif;font-size:15px;color:var(--text);line-height:1.6;text-wrap:pretty;font-variant-numeric:lining-nums" data-eh="hook2">แล้วบอกตรงๆ ว่า <strong style="color:var(--gold)">ใครเห็นตรงกัน ใครเถียง ใครไม่มีวิธีตอบ</strong></div>
       <!-- The date fields live here rather than behind a button. Every portal in
            this market that converts puts the input on the landing itself — one
            less decision between arriving and receiving something. Filling these
            carries straight into the full form with the date already entered. -->
-      <div style="text-align:center;margin:0 0 7px;font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold2)" data-eh="doblabel">ใส่วันเกิด แล้วดูของคุณเอง</div>
+      <div style="text-align:center;margin:0 0 7px;font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold2)" data-eh="doblabel">ใส่วันเกิดของคุณ</div>
       <div style="display:grid;grid-template-columns:1fr 1.3fr 1.2fr;gap:6px;margin-bottom:10px">
-        <input class="login-input" type="number" id="heroDay" min="1" max="31" placeholder="15" style="font-family:inherit;font-size:16px;text-align:center">
+        <input class="login-input" type="number" id="heroDay" min="1" max="31" placeholder="15" style="font-family:'Josefin Sans','Sarabun',sans-serif;font-size:16px;text-align:center;font-variant-numeric:lining-nums tabular-nums">
         <select class="login-input" id="heroMonth" style="font-family:inherit;font-size:14px;text-align:center;cursor:pointer;padding:8px 4px">
           <option value="" disabled selected>เดือน</option>
           <option value="1">ม.ค.</option><option value="2">ก.พ.</option><option value="3">มี.ค.</option>
@@ -1594,22 +1599,26 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
           <option value="7">ก.ค.</option><option value="8">ส.ค.</option><option value="9">ก.ย.</option>
           <option value="10">ต.ค.</option><option value="11">พ.ย.</option><option value="12">ธ.ค.</option>
         </select>
-        <input class="login-input" type="number" id="heroYear" min="1900" max="2026" placeholder="2534" style="font-family:inherit;font-size:16px;text-align:center">
+        <input class="login-input" type="number" id="heroYear" min="1900" max="2026" placeholder="2534" style="font-family:'Josefin Sans','Sarabun',sans-serif;font-size:16px;text-align:center;font-variant-numeric:lining-nums tabular-nums">
       </div>
-      <button class="login-confirm-btn" onclick="entryHeroGo()" style="font-size:17px;padding:16px 14px;letter-spacing:.3px;text-wrap:balance" data-eh="cta">✦ ขอคะแนน 4 สัปดาห์ · ฟรี</button>
-      <button onclick="entryDrawFirst()" data-eh="draw2" style="width:100%;margin-top:10px;padding:14px 20px;font-size:15px;letter-spacing:.3px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.08);color:var(--gold);border-radius:8px;font-family:'Cormorant Garamond','Sarabun',serif">🙏 รับพรวันนี้ก่อนก็ได้</button>
-      <!-- A real reading, computed live, before we ask for anything. Every
-           site in this market that converts shows the product first; ours
-           showed nothing until you handed over a birth date. The numbers are
-           never baked in — they come from MS26 on the page, so this block
-           cannot drift away from what the engine actually says. -->
-      <div id="entrySample" style="margin:14px 0 0"></div>
+      <button class="login-confirm-btn" onclick="entryHeroGo()" style="font-size:17px;padding:16px 14px;letter-spacing:.3px;text-wrap:balance" data-eh="cta">✦ ดู 4 สัปดาห์ของคุณ · ฟรี</button>
+      <div style="text-align:center;margin-top:8px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1px;color:var(--muted)" data-eh="nosignup">ไม่ต้องสมัคร</div>
+      <button onclick="entryDrawFirst()" data-eh="draw2" style="width:100%;margin-top:12px;padding:14px 20px;font-size:15px;letter-spacing:.3px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.08);color:var(--gold);border-radius:8px;font-family:'Cormorant Garamond','Sarabun',serif">🙏 รับพรวันนี้ก่อนก็ได้</button>
       <!-- The other two doors live on one quiet line, as links rather than
        buttons. Every site in this market that converts shows ONE action
        above the fold; we were asking for three decisions before the
        visitor had received anything at all. -->
       <div style="text-align:center;margin-top:14px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:.5px;color:var(--muted)" data-eh="alt"><button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">เทียบดวงสองคน</button></div>
       <div style="text-align:center;margin-top:16px;font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px" data-eh="signin">มีบัญชีแล้ว? <button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">ลงชื่อเข้าใช้ →</button></div>
+      <!-- Today through three traditions. This is a SECOND free reading, and it
+           used to sit right under the buttons where its opening lines showed
+           above the fold — 162 characters competing with the nation card, which
+           is the better of the two because it shows the split. One hero, one
+           action; this one supports, so it reads after the links. -->
+      <div id="entrySample" style="margin:16px 0 0"></div>
+      <!-- How the scoring actually works. This was the FOURTH block on the
+           landing, four lines deep, ahead of everything the visitor came for. -->
+      <div style="text-align:center;margin:18px 0 0;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--muted);line-height:1.7;text-wrap:pretty" data-eh="hooksub">เราถาม 26 ศาสตร์พร้อมกัน แต่เฉพาะศาสตร์ที่<strong style="color:var(--text);white-space:nowrap">มีวิชาทำนายช่วงเวลาจริง</strong>ถึงจะให้คะแนนได้ · เต็ม 5 แยกทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร</div>
     </div>
 
     <!-- ════ STEP 1 — the birth-data form (revealed by the hero CTA) ════ -->
@@ -3604,21 +3613,37 @@ function _entryFillCity() {
   host.style.display = '';
 
   const today = new Date();
-  const key = 'mth_nation_wk|' + _entryNationKey() + '|' + today.toDateString() + '|' + (isTh ? 'th' : 'en');
-  let scores = null;
-  try { const hit = localStorage.getItem(key); if (hit) scores = JSON.parse(hit); } catch (_) {}
-  if (!scores) {
+  // Cache key bumped to v2 on 2026-08-25: the stored shape changed from
+  // {domain: score} to vote counts, and a v1 payload would render blank bars.
+  const key = 'mth_nation_wk2|' + _entryNationKey() + '|' + today.toDateString() + '|' + (isTh ? 'th' : 'en');
+  let d = null;
+  try { const hit = localStorage.getItem(key); if (hit) d = JSON.parse(hit); } catch (_) {}
+  if (!d) {
     try {
-      const w = MS26.calcForecast(cc.chart, today, { weeks: 1, months: 0 }).weeks[0];
-      scores = {};
-      MS26.FORECAST_DOMAINS_FREE.forEach(d => { scores[d] = w.domains[d].score; });
-      try { localStorage.setItem(key, JSON.stringify(scores)); } catch (_) {}
+      // calcForecast() already returned votingCount / abstainCount and the
+      // per-domain up|mid|down split every time this ran — the card kept the
+      // averaged score and threw the rest away, which meant the one screen
+      // selling "the traditions disagree" was the one screen hiding it.
+      const f = MS26.calcForecast(cc.chart, today, { weeks: 1, months: 0 });
+      const w = f.weeks[0];
+      d = { voting: f.votingCount, abstain: f.abstainCount, total: f.totalSystems, rows: {} };
+      MS26.FORECAST_DOMAINS_FREE.forEach(k => {
+        const v = w.domains[k];
+        d.rows[k] = { up: v.up, mid: v.mid, down: v.down, n: v.n };
+      });
+      try { localStorage.setItem(key, JSON.stringify(d)); } catch (_) {}
     } catch (_) { host.style.display = 'none'; return; }
   }
 
   const L = MS26.FORECAST_DOMAIN_LABELS;
-  const tone = (v) => v >= 4 ? '#6fb650' : v <= 2 ? '#d08a6a' : '#c8a840';
   const nation = isTh ? cc.cfg.th : cc.cfg.en;
+  // Lining figures: Cormorant Garamond ships without the lnum feature, so
+  // font-variant-numeric alone did nothing here and every digit on the landing
+  // sat below the baseline. Same fix as the share card — a face with ordinary
+  // figures goes FIRST in the stack; Thai glyphs still fall through to Sarabun.
+  const NUM = "'Josefin Sans','Sarabun',sans-serif";
+  const C_UP = 'var(--gold)', C_MID = '#5b5f6d', C_DOWN = '#c2603f';
+
   // Three states, and the card must not claim more than it has:
   //   recorded      — a clock time on the record, say nothing extra
   //   cast at noon   — no hour survives, so noon, disclosed like an unknown birth time
@@ -3630,21 +3655,47 @@ function _entryFillCity() {
     : castAtNoon ? (isTh ? ' · ไม่มีบันทึกเวลา คิดที่เที่ยงวัน' : ' · hour not recorded, cast at noon')
     : (isTh ? ' · เวลาตามธรรมเนียมโหร ยังไม่ยุติ' : ' · hour is the conventional one, still debated');
 
+  const seg = (n, tot, colour) => n > 0
+    ? `<i style="display:block;height:100%;width:${(100 * n / tot).toFixed(1)}%;background:${colour}"></i>` : '';
+
+  const rows = MS26.FORECAST_DOMAINS_FREE.map(k => {
+    const r = d.rows[k] || { up:0, mid:0, down:0, n:0 };
+    const label = _fcEsc(isTh ? L[k].th : L[k].en);
+    if (!r.n) return `
+      <div style="display:flex;align-items:center;gap:8px;margin-top:7px">
+        <div style="width:74px;flex:0 0 74px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${L[k].icon} ${label}</div>
+        <div style="flex:1;font-family:'Cormorant Garamond','Sarabun',serif;font-size:10.5px;color:var(--muted)">${isTh ? 'ไม่มีศาสตร์ไหนตอบด้านนี้' : 'no tradition speaks to this'}</div>
+      </div>`;
+    return `
+      <div style="display:flex;align-items:center;gap:8px;margin-top:7px">
+        <div style="width:74px;flex:0 0 74px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:11.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${L[k].icon} ${label}</div>
+        <div style="flex:1;display:flex;height:9px;border-radius:3px;overflow:hidden;background:rgba(255,255,255,.05)">
+          ${seg(r.up, r.n, C_UP)}${seg(r.mid, r.n, C_MID)}${seg(r.down, r.n, C_DOWN)}
+        </div>
+        <div style="flex:0 0 auto;font-family:${NUM};font-size:11px;font-variant-numeric:lining-nums tabular-nums;color:var(--muted);letter-spacing:.4px">
+          <span style="color:var(--gold2)">${r.up}</span>·${r.mid}·<span style="color:#c2603f">${r.down}</span>
+        </div>
+      </div>`;
+  }).join('');
+
   host.innerHTML = `
-    <div style="border:1px solid var(--border);border-radius:10px;padding:13px 12px 11px;background:rgba(200,164,90,.04)">
+    <div style="border:1px solid var(--border);border-radius:10px;padding:13px 12px 12px;background:rgba(200,164,90,.04)">
     <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase;margin-bottom:9px;text-align:center">
       ${isTh ? `พื้นดวง “${_fcEsc(nation)}” สัปดาห์นี้` : `The chart of “${_fcEsc(nation)}” this week`}
     </div>
-    <div style="display:flex;gap:4px;font-variant-numeric:lining-nums">
-      ${MS26.FORECAST_DOMAINS_FREE.map(d => `
-        <div style="text-align:center;flex:1;min-width:0">
-          <div style="font-size:15px;line-height:1.2">${L[d].icon}</div>
-          <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_fcEsc(isTh ? L[d].th : L[d].en)}</div>
-          <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:16px;font-weight:600;color:${tone(scores[d])}">${scores[d]}<span style="font-size:9px;color:var(--muted)">/5</span></div>
-        </div>`).join('')}
+    <div style="text-align:center;font-family:'Cormorant Garamond','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.5;margin-bottom:11px">
+      <span style="font-family:${NUM};font-variant-numeric:lining-nums tabular-nums;font-size:20px;color:var(--gold);font-weight:600">${d.voting}</span>
+      ${isTh ? 'ศาสตร์ออกเสียง' : d.voting === 1 ? 'tradition votes' : 'traditions vote'} ·
+      <span style="font-family:${NUM};font-variant-numeric:lining-nums tabular-nums;font-size:20px;color:var(--muted);font-weight:600">${d.abstain}</span>
+      ${isTh ? 'งดออกเสียง' : 'abstain'}
     </div>
-    <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:10.5px;color:var(--muted);line-height:1.6;margin-top:8px;text-align:center">
-      ${_fcEsc((isTh ? cc.cfg.sTh : cc.cfg.sEn) + noon)}
+    ${rows}
+    <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:10px;color:var(--muted);line-height:1.6;margin-top:10px;text-align:center">
+      <span style="display:inline-flex;gap:9px;align-items:center;flex-wrap:wrap;justify-content:center">
+        <span><i style="display:inline-block;width:7px;height:7px;border-radius:2px;background:${C_UP};vertical-align:0"></i> ${isTh ? 'บอกดี' : 'favourable'}</span>
+        <span><i style="display:inline-block;width:7px;height:7px;border-radius:2px;background:${C_MID};vertical-align:0"></i> ${isTh ? 'กลาง' : 'neutral'}</span>
+        <span><i style="display:inline-block;width:7px;height:7px;border-radius:2px;background:${C_DOWN};vertical-align:0"></i> ${isTh ? 'บอกให้ระวัง' : 'take care'}</span>
+      </span><br><span style="font-family:${NUM};font-variant-numeric:lining-nums">${_fcEsc((isTh ? cc.cfg.sTh : cc.cfg.sEn) + noon)}</span>
     </div></div>`;
 }
 
@@ -3724,9 +3775,10 @@ function _refreshEntryHero(){
   var sgn = '<button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">';
   var M = {
     tagline:  { th:'ดวงคุณ จาก 26 ศาสตร์ทั่วโลก พร้อมกัน', en:'Your chart, read by 26 world traditions at once' },
-    hook2:    { th:'4 สัปดาห์ข้างหน้า จะเป็นยังไง<br><strong style="color:var(--gold)">การงาน · การเงิน · ความรัก · สุขภาพ</strong>', en:'What the next four weeks hold<br><strong style="color:var(--gold)">Work · Wealth · Relationship · Health</strong>' },
-    doblabel: { th:'ใส่วันเกิด แล้วดูของคุณเอง', en:'Enter your birth date to see yours' },
-    cta:      { th:'✦ ขอคะแนน 4 สัปดาห์ · ฟรี', en:'✦ Score my four weeks · Free' },
+    hook2:    { th:'แล้วบอกตรงๆ ว่า <strong style="color:var(--gold)">ใครเห็นตรงกัน ใครเถียง ใครไม่มีวิธีตอบ</strong>', en:'Then we say plainly — <strong style="color:var(--gold)">who agrees, who argues, who has no method</strong>' },
+    doblabel: { th:'ใส่วันเกิดของคุณ', en:'Your birth date' },
+    nosignup: { th:'ไม่ต้องสมัคร', en:'No sign-up' },
+    cta:      { th:'✦ ดู 4 สัปดาห์ของคุณ · ฟรี', en:'✦ See your four weeks · Free' },
     drawalt:  { th:'หรือรับพรจากเทพประจำวันก่อน →', en:'or receive today’s blessing first →' },
     compare:  { th:'💑 เทียบดวงกับใครสักคน · แค่ 2 วันเกิด', en:'💑 Compare with someone · just 2 birth dates' },
     hooksub:  { th:'เราถาม 26 ศาสตร์พร้อมกัน แต่เฉพาะศาสตร์ที่<strong style="color:var(--text);white-space:nowrap">มีวิชาทำนายช่วงเวลาจริง</strong>ถึงจะให้คะแนนได้ · เต็ม 5 แยกทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร', en:'We ask all 26 traditions, but only the ones with a <strong style="color:var(--text)">real timing technique</strong> get to score you — out of 5, area by area. The rest abstain, and we name them and say why.' },
