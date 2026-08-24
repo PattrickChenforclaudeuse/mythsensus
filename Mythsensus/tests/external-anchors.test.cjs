@@ -187,5 +187,44 @@ console.log('— forecast path: same anchors, second code path —');
   check('every vote names its doctrine', unnamed, 0,
         'a system may only vote with a technique that is really its own');
 }
+// ── The Lucky-Day tab keeps its own copy of the day-pillar clock ────────────
+// renderLucky() in index.html computes the Chinese day pillar itself instead of
+// calling the engine — the third copy of this clock in the codebase. The first
+// (dayPillar) was corrected 2026-08-21, the second (_baziDayPillar, Daily Pulse)
+// on 2026-08-23, and this one was still three days ahead of both on 2026-08-25:
+// the Pulse tab and the Lucky tab named different pillars for the same calendar
+// day in the same session, and every 12-Officer verdict on the Lucky tab
+// inherited the skew — so the auspicious-day answer was wrong, not just a label.
+//
+// This does not re-implement the maths. It lifts the shipped lines out of
+// index.html and runs THOSE, so the test goes red if the page drifts rather
+// than if a copy of the formula kept in this file drifts.
+console.log('');
+console.log('— Lucky-Day tab day pillar (lifted from index.html) —');
+{
+  const fs = require('fs'), path = require('path');
+  const html = fs.readFileSync(path.join(__dirname, '..', '..', 'index.html'), 'utf8');
+  const lucky = html.slice(html.indexOf('function renderLucky()'));
+  const jdSrc  = (lucky.match(/function _jd\([\s\S]*?\n  \}/) || [])[0];
+  const cycSrc = (lucky.match(/const _cycle[\s\S]*?const branchIdx[^;]*;/) || [])[0];
+  if (!jdSrc || !cycSrc) {
+    check('lucky-tab day pillar is still liftable from index.html', 'not found', 'found',
+          'renderLucky() no longer exposes _jd + _cycle/stemIdx/branchIdx — update this test to the new shape');
+  } else {
+    const HS = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+    const EB = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+    const pillar = new Function('y', 'm', 'd',
+      jdSrc + ';const jd = _jd(y, m, d);' + cycSrc + ';return [stemIdx, branchIdx];');
+    // Both anchors are independently attested and are the two the engine is
+    // pinned to: the founding of the PRC (1949-10-01 = 甲子) and 2000-01-01 = 戊午.
+    [[1949, 10, 1, '甲子'], [2000, 1, 1, '戊午']].forEach(function (a) {
+      const y = a[0], m = a[1], d = a[2], want = a[3];
+      const r = pillar(y, m, d);
+      check('lucky tab: ' + y + '-' + m + '-' + d + ' day pillar', HS[r[0]] + EB[r[1]], want,
+            'must match dayPillar() in the engine — anchor JD 2415021 = 甲戌 = cycle index 10');
+    });
+  }
+}
+
 console.log(fails ? `\n✗ ${fails} external anchor(s) failed` : '\n✓ all external anchors hold');
 process.exit(fails ? 1 : 0);

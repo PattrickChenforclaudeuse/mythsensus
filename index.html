@@ -2624,14 +2624,12 @@ try{
     <button class="type-tab-btn" id="htab-organum" onclick="showHistoryTab('organum')" data-t="hist_organum">🔮 คำถาม</button>
   </div>
 
-  <div id="history-empty" style="text-align:center;padding:40px 20px;font-family:'Josefin Sans',sans-serif;font-size:11px;color:var(--muted);letter-spacing:2px;display:none">
-    ยังไม่มีประวัติ — ลองจั่วไพ่หรือถามคำถามก่อนนะครับ
-  </div>
+  <div id="history-empty" data-t="hist_empty" style="text-align:center;padding:40px 20px;font-family:'Josefin Sans',sans-serif;font-size:11px;color:var(--muted);letter-spacing:2px;display:none">ยังไม่มีประวัติ — ลองจั่วไพ่หรือถามคำถามก่อนนะครับ</div>
 
   <div id="history-items" style="display:flex;flex-direction:column;gap:10px;max-width:760px;margin:0 auto"></div>
 
   <div style="text-align:center;margin-top:22px">
-    <button class="ghost-btn" onclick="clearAllHistory()" style="border-color:#ff606055;color:#ff6060">🗑️ ล้างประวัติทั้งหมด</button>
+    <button class="ghost-btn" data-t="hist_clear" onclick="clearAllHistory()" style="border-color:#ff606055;color:#ff6060">🗑️ ล้างประวัติทั้งหมด</button>
   </div>
 </div>
 
@@ -2640,7 +2638,7 @@ try{
   <div class="section-title" data-t="coll_title">GOD COLLECTION — สะสมเทพที่คุณเคยเห็น</div>
   <div class="sky-dom-hint" id="collHint" data-t="coll_hint">เทพที่คุณได้พบเจอ · ทั้งหมด 1,069 องค์จาก 26 ศาสตร์</div>
   <div style="text-align:center;margin:0 0 16px">
-    <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:2px;color:var(--muted);margin-bottom:5px">✦ สกินการ์ด · CARD SKIN</div>
+    <div data-t="coll_skin" style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:2px;color:var(--muted);margin-bottom:5px">✦ สกินการ์ด · CARD SKIN</div>
     <span data-theme-seg style="display:inline-flex;border:1px solid var(--gold3);border-radius:16px;overflow:hidden;vertical-align:middle" title="สลับสกินการ์ดทั้งคลัง — เปลี่ยนรูปเทพทุกใบ">
       <button data-theme="classic" onclick="_setCardTheme('classic')" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;background:transparent;border:none;color:var(--muted);padding:6px 15px;cursor:pointer;transition:all .2s">✦ Classic</button>
       <button data-theme="cyber" onclick="_setCardTheme('cyber')" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;background:transparent;border:none;color:var(--muted);padding:6px 15px;cursor:pointer;transition:all .2s">◈ Cyber</button>
@@ -3105,6 +3103,7 @@ en:{
   lg_love:"♡ Love",lg_pets:"🐾 Pets",lg_food:"🌾 Food",lg_fitness:"⚡ Fitness",
   lg_source:"Based on your chart",
   hist_all:"✦ All",hist_blessing:"🎴 Blessings",hist_organum:"🔮 Questions",
+  hist_empty:"No history yet — draw a blessing or ask a question first",hist_clear:"🗑️ Clear all history",coll_skin:"✦ CARD SKIN",
   prof_title:"MY PROFILE",prof_name:"Name",prof_gender:"Gender",
   prof_dob:"Date of Birth *",prof_time:"Birth Time",prof_time_hint:"Optional — improves 4 systems",
   prof_city:"City of Birth",prof_save:"💾 Save Profile",
@@ -3328,6 +3327,7 @@ th:{
   lg_love:"♡ ความรัก",lg_pets:"🐾 สัตว์เลี้ยง",lg_food:"🌾 อาหาร",lg_fitness:"⚡ ออกกำลังกาย",
   lg_source:"วิเคราะห์จากดวงชะตาของคุณ",
   hist_all:"✦ ทั้งหมด",hist_blessing:"🎴 จั่วไพ่",hist_organum:"🔮 คำถาม",
+  hist_empty:"ยังไม่มีประวัติ — ลองจั่วไพ่หรือถามคำถามก่อนนะครับ",hist_clear:"🗑️ ล้างประวัติทั้งหมด",coll_skin:"✦ สกินการ์ด · CARD SKIN",
   prof_title:"ข้อมูลของฉัน",prof_name:"ชื่อ",prof_gender:"เพศ",
   prof_dob:"วันเกิด *",prof_time:"เวลาเกิด",prof_time_hint:"ไม่บังคับ — เพิ่มความแม่นยำ 4 ศาสตร์",
   prof_city:"สถานที่เกิด",prof_save:"💾 บันทึกข้อมูล",
@@ -12468,8 +12468,19 @@ function renderLucky() {
   }
 
   const jd = _jd(todayY, todayM, todayD);
-  const stemIdx   = (jd + 6) % 10;
-  const branchIdx = (jd + 10) % 12;
+  // The THIRD copy of the day-pillar clock, and the third one to be wrong.
+  // dayPillar() in the engine was corrected on 2026-08-21; _baziDayPillar()
+  // (Daily Pulse) was found and corrected on 2026-08-23; this one ran on its
+  // own offsets and sat three days ahead of both — so on 2026-08-25 the Pulse
+  // tab said the day was 辛未 and this tab said 戊辰, for the same date, in the
+  // same session. Every 12-Officer verdict on this screen inherited that skew,
+  // which means the auspicious-day answer itself was wrong, not just the label.
+  // Same anchor as the engine: JD 2415021 (1900-01-01) = 甲戌 = cycle index 10.
+  // Both attested anchors hold: 1949-10-01 = 甲子 · 2000-01-01 = 戊午.
+  // Pinned by Mythsensus/tests/external-anchors.test.cjs so it cannot drift again.
+  const _cycle    = ((jd - 2415021 + 10) % 60 + 60) % 60;
+  const stemIdx   = _cycle % 10;
+  const branchIdx = _cycle % 12;
 
   const HS_ZH = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
   const EB_ZH = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
@@ -15050,7 +15061,7 @@ function renderCompat(){
         <div class="form-group"><label>${isTh?'วันเกิดคุณ':'Your DOB'}</label><input id="compat-mydob" type="date"></div>
       </div>`}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
-        <div class="form-group"><label>${isTh?(hasProfile?'ชื่อ':'ชื่ออีกคน'):'ชื่ออีกคน'}</label><input id="compat-name" placeholder="${isTh?'ชื่อ':'Name'}"></div>
+        <div class="form-group"><label>${isTh?(hasProfile?'ชื่อ':'ชื่ออีกคน'):(hasProfile?'Name':'Their name')}</label><input id="compat-name" placeholder="${isTh?'ชื่อ':'Name'}"></div>
         <div class="form-group"><label>${isTh?(hasProfile?'วันเกิด':'วันเกิดอีกคน'):'Their DOB'}</label><input id="compat-dob" type="date"></div>
       </div>
       <button class="cta-btn" style="margin-top:12px;width:100%;padding:12px;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;border-radius:6px;color:var(--bg);font-family:'Josefin Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer" onclick="_runCompatCheck()">
