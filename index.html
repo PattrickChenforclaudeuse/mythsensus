@@ -2920,7 +2920,7 @@ en:{
   history_title:"HISTORY — Your records",
   // ── top-level groups
   group_free:"✦ Free readings",group_premium:"👑 Full chart",group_subscription:"🔮 Today",
-  group_addon:"🎁 People · Remedies",group_profile:"👤 My collection",
+  group_addon:"🎁 Soulmate · Remedies",group_profile:"👤 My collection",
   // ── sub-tabs
   sub_forecast:"📅 Weeks ahead",sub_blessing:"🎴 Blessing",sub_organum:"🔮 Oraculum",sub_preview:"📊 Preview",
   sub_collection:"📚 Collection",sub_library:"📦 My Unlocks",sub_streak:"🔥 Streak",sub_history7:"📜 History",
@@ -10889,31 +10889,24 @@ function renderForecast() {
   }
 }
 
-// ── The forecast's share unit ───────────────────────────────────────────────
-// The panel is a dashboard, and a dashboard does not travel. Every card that
-// spreads in this category carries ONE number and ONE claim — Wrapped's
-// "Listening Age", Co-Star's single brutal line, Gunghap's percentage. What
-// makes them travel is that they are arguable: a friend can disagree out loud.
-//
-// So the card leads with the single most NOTABLE domain — the one furthest
-// from an ordinary 5, in either direction. A bad week is as shareable as a good
-// one, sometimes more; the other three domains ride along in small type as
-// proof there is a real reading behind the headline.
+// ── The forecast's share unit ────────────────────────────
+// This used to be a headline card: one domain, one huge number, the advice, the
+// deity, and the other three areas in small type underneath. The director's call
+// (24 Aug) is that the four scores on their own are enough — the same shape the
+// entry screen already uses for the country chart, which is the thing a reader
+// has already understood by the time they reach here. So the card is that row,
+// nothing else. Anyone who wants the reasoning opens the site.
 //
 // PRIVACY INVARIANT (see _webShareUrl): no birth data may ever leave the
 // device. This draws entirely on-canvas in the browser and shares the resulting
 // file — no server round-trip, and the accompanying URL is the bare homepage.
 async function _fcShareBlob(period, isTh) {
   const L = MS26.FORECAST_DOMAIN_LABELS;
-  const A = MS26.FORECAST_ADVICE;
   const doms = _fcCanSeeAllDomains() ? MS26.FORECAST_DOMAINS_ALL : MS26.FORECAST_DOMAINS_FREE;
 
-  // Most notable = furthest from the ordinary middle, whichever way it leans.
-  const ranked = doms.slice().sort((a, b) =>
-    Math.abs(period.domains[b].score - 3) - Math.abs(period.domains[a].score - 3));
-  const star = period.domains[ranked[0]];
-  const rest = ranked.slice(1, 4).map(k => period.domains[k]);
-
+  // Webfonts must be resolved before anything is drawn. Canvas has no
+  // font-variant-numeric, and Cormorant Garamond sets OLD-STYLE figures by
+  // default, so an unresolved face silently puts 2, 3 and 7 below the baseline.
   try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (_) {}
 
   const W = 1080, H = 1920;
@@ -10922,12 +10915,13 @@ async function _fcShareBlob(period, isTh) {
   const x = cv.getContext('2d');
 
   const gold = '#c8a45a', gold2 = '#e8c87a', muted = '#9a8a72', ink = '#e6e2d8';
-  const tone = star.score >= 4 ? '#6fb650' : star.score <= 2 ? '#d08a6a' : '#c8a840';
+  // "Josefin Sans" first supplies lining digits; Thai falls through to Sarabun,
+  // because font fallback is per glyph.
   const th = (px, w) => `${w || 400} ${px}px "Josefin Sans", Sarabun, "Cormorant Garamond", system-ui, sans-serif`;
   const label = (px) => `600 ${px}px "Josefin Sans", Sarabun, system-ui, sans-serif`;
+  const tone = (v) => v >= 4 ? '#6fb650' : v <= 2 ? '#d08a6a' : '#c8a840';
 
   x.fillStyle = '#040407'; x.fillRect(0, 0, W, H);
-  // A faint vertical wash so the card is not a flat rectangle in a feed.
   const wash = x.createLinearGradient(0, 0, 0, H);
   wash.addColorStop(0, 'rgba(200,164,90,.10)');
   wash.addColorStop(0.45, 'rgba(200,164,90,.02)');
@@ -10935,106 +10929,48 @@ async function _fcShareBlob(period, isTh) {
   x.fillStyle = wash; x.fillRect(0, 0, W, H);
 
   x.textAlign = 'center';
-
   x.fillStyle = gold; x.font = label(30);
-  x.fillText('M Y T H S E N S U S', W / 2, 150);
+  x.fillText('M Y T H S E N S U S', W / 2, 360);
 
-  x.fillStyle = muted; x.font = th(34);
-  x.fillText((isTh ? period.labelTh : period.labelEn).replace(/\s*·\s*/, '  ·  '), W / 2, 232);
+  x.fillStyle = ink; x.font = th(52, 600);
+  x.fillText((isTh ? period.labelTh : period.labelEn).replace(/\s*·\s*/, '  ·  '), W / 2, 470);
 
-  // The headline: one domain, one number, nothing competing with it.
-  x.font = `${170}px system-ui`;
-  x.fillText(L[star.domain].icon, W / 2, 470);
+  // Four to a row at 1080 wide; eight wraps to two rows of four.
+  const rows = [];
+  for (let i = 0; i < doms.length; i += 4) rows.push(doms.slice(i, i + 4));
+  // Centred in the space between the period label and the footnote, not in
+  // the canvas — otherwise the block floats high and the card reads unfinished.
+  const rowH = 360;
+  const top = 470, bottom = 1660;
+  let y = (top + bottom) / 2 - (rows.length * rowH) / 2 + 90;
 
-  x.fillStyle = ink; x.font = th(66, 600);
-  x.fillText(isTh ? L[star.domain].th : L[star.domain].en, W / 2, 610);
-
-  x.fillStyle = tone;
-  x.font = `700 260px "Cinzel Decorative", Georgia, serif`;
-  x.fillText(String(star.score), W / 2, 860);
-  x.fillStyle = muted; x.font = th(46);
-  x.fillText('/ 5', W / 2, 930);
-
-  // The arguable part — how much the traditions actually agreed.
-  x.fillStyle = gold2; x.font = th(44, 600);
-  x.fillText(isTh ? `${star.adviceAgree} จาก ${star.n} ศาสตร์เห็นตรงกัน`
-                  : `${star.adviceAgree} of ${star.n} traditions agree`, W / 2, 1035);
-
-  // The instruction, wrapped by hand — canvas has no line breaking.
-  const _sa = MS26.fcAdviceFor ? MS26.fcAdviceFor(star.domain, star.advice) : A[star.advice];
-  const advice = isTh ? _sa.th : _sa.en;
-  x.fillStyle = ink; x.font = th(46);
-  const words = advice.split(' ');
-  const lines = []; let cur = '';
-  for (const w of words) {
-    const probe = cur ? cur + ' ' + w : w;
-    if (x.measureText(probe).width > W - 200 && cur) { lines.push(cur); cur = w; } else cur = probe;
-  }
-  if (cur) lines.push(cur);
-  lines.slice(0, 2).forEach((ln, i) => x.fillText(ln, W / 2, 1130 + i * 62));
-
-  // The other domains, small — evidence of a real reading, not the point.
-  let y = 1268;
-  x.font = th(38);
-  for (const v of rest) {
-    const c = v.score >= 4 ? '#6fb650' : v.score <= 2 ? '#d08a6a' : '#c8a840';
-    x.textAlign = 'left';
-    x.fillStyle = muted;
-    x.fillText(L[v.domain].icon + '  ' + (isTh ? L[v.domain].th : L[v.domain].en), 190, y);
-    x.textAlign = 'right';
-    x.fillStyle = c;
-    x.fillText(String(v.score), W - 190, y);
-    x.textAlign = 'center';
-    x.strokeStyle = 'rgba(200,164,90,.14)'; x.lineWidth = 2;
-    x.beginPath(); x.moveTo(190, y + 26); x.lineTo(W - 190, y + 26); x.stroke();
-    y += 84;
-  }
-
-  // ── The deity ─────────────────────────────────────────────────────────────
-  // Ninety people drew a blessing and saw a share button; none used it. A card
-  // that is four numbers and a sentence is a screenshot of a result — there is
-  // nothing on it a person wants to be seen holding. The deity is the part with
-  // a face, so it goes on the card.
-  //
-  // /assets/god-og is same-origin, unlike the CDN card art, so the canvas is
-  // never tainted and toBlob cannot fail. If the file is missing, the symbol
-  // stands in and the layout does not move.
-  const deity = (typeof _FC_DEITY !== 'undefined' && _FC_DEITY) ? _FC_DEITY.god : null;
-  if (deity) {
-    const cx = W / 2, cy = 1578, r = 102;
-    const slug = String(deity.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    const img = slug ? await new Promise(res => {
-      const im = new Image();
-      im.onload = () => res(im);
-      im.onerror = () => res(null);
-      im.src = '/assets/god-og/' + slug + '.jpg';
-    }) : null;
-
-    if (img) {
-      x.save();
-      x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.clip();
-      // cover-fit: crop the shorter side rather than squash the face
-      const side = Math.min(img.width, img.height);
-      x.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, cx - r, cy - r, r * 2, r * 2);
-      x.restore();
-      x.strokeStyle = gold; x.lineWidth = 3;
-      x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.stroke();
-    } else {
-      x.font = '110px system-ui';
+  for (const row of rows) {
+    const cell = W / row.length;
+    row.forEach((d, i) => {
+      const cx = cell * i + cell / 2;
+      const v = period.domains[d];
+      x.font = `${row.length > 3 ? 96 : 116}px system-ui`;
+      x.fillText(L[d].icon, cx, y);
+      x.fillStyle = muted; x.font = th(row.length > 3 ? 36 : 42);
+      x.fillText(isTh ? L[d].th : L[d].en, cx, y + 76);
+      x.fillStyle = tone(v.score);
+      x.font = th(row.length > 3 ? 132 : 156, 600);
+      const n = String(v.score);
+      const nw = x.measureText(n).width;
+      x.textAlign = 'left';
+      x.fillText(n, cx - nw / 2 - 26, y + 226);
+      x.fillStyle = muted; x.font = th(row.length > 3 ? 46 : 54);
+      x.fillText('/5', cx + nw / 2 - 16, y + 226);
+      x.textAlign = 'center';
       x.fillStyle = ink;
-      x.fillText(deity.symbol || '✦', cx, cy + 40);
-    }
-
-    x.fillStyle = muted; x.font = th(30);
-    x.fillText(isTh ? 'พรประจำสัปดาห์' : 'This week’s blessing', cx, cy + r + 50);
-    x.fillStyle = gold2; x.font = th(42, 600);
-    x.fillText(deity.name || '', cx, cy + r + 108);
+    });
+    y += rowH;
   }
 
   x.fillStyle = muted; x.font = th(34);
-  x.fillText(isTh ? '1–5 เทียบกับปีของตัวเอง — 3 คือสัปดาห์ธรรมดา' : '1–5 against your own year — 3 is an ordinary week', W / 2, 1868);
+  x.fillText(isTh ? '1–5 เทียบกับปีของตัวเอง — 3 คือสัปดาห์ธรรมดา' : '1–5 against your own year — 3 is an ordinary week', W / 2, 1740);
   x.fillStyle = gold; x.font = label(38);
-  x.fillText('mythsensus.com', W / 2, 1908);
+  x.fillText('mythsensus.com', W / 2, 1820);
 
   return new Promise(res => cv.toBlob(res, 'image/png'));
 }
