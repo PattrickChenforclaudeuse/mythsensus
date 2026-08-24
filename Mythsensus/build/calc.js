@@ -5200,7 +5200,21 @@ function _fcDaySignals(c, date, x) {
     // Counted in real elapsed days from birth. The monthly-brief code used to
     // approximate this as years×365.25 + month×30 + 15, which slides several
     // days off — fatal for cycles that are 23, 28 and 33 days long.
-    {
+    //
+    // NOT A VOTER. Director decision 2026-06-06 (commit 74f4369): ทักษา replaced
+    // Biorhythm in the 26, and 2026-06-04: "biorhythm ไม่ควรอยู่ใน cosmic score
+    // สิถ้ามันไม่นิ่ง". The Cosmic Score has honoured that since June through the
+    // `scoring:false` flag. This forecast engine was written in August and never
+    // carried the flag across, so Biorhythm walked back in as a tenth voice —
+    // which is why the page could add 9 + 18 and get 27 while every other
+    // surface said 26.
+    //
+    // It is also the only entry in the room that is not an ancient tradition:
+    // Wilhelm Fliess, 1897. A page selling "26 ศาสตร์โบราณ" cannot count it.
+    //
+    // ⚠️ The director has raised this FIVE times across sessions. Do not restore
+    // it as a voter without a new decision that says so in as many words.
+    if (false) {
         const dEl = Math.round(jd - x.birthJD);
         const phy = Math.sin(2 * Math.PI * dEl / 23);
         const emo = Math.sin(2 * Math.PI * dEl / 28);

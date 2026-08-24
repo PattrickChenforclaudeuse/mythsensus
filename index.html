@@ -65,7 +65,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=197">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=198">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
@@ -2865,7 +2865,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=197" defer></script>
+<script src="/build/ms26-bundle.js?v=198" defer></script>
 <script>
 
 
@@ -10721,8 +10721,8 @@ function renderForecast() {
       ${_FC_MODE === 'month' ? `<div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:19px;color:var(--text);line-height:1.4">${isTh ? '12 เดือนข้างหน้าของคุณ' : 'Your next twelve months'}</div>` : ''}
       <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--muted);line-height:1.7;margin-top:5px">
         ${isTh
-          ? `<strong style="color:var(--gold2)">${data.votingCount} จาก ${data.totalSystems} สายวิชามีวิชาทำนายช่วงเวลาจริง</strong> จึงออกเสียง <span style="color:var(--muted)">(แต่ละด้านนับเฉพาะศาสตร์ที่ตอบด้านนั้นได้)</span> · อีก ${data.abstainCount} ศาสตร์งดออกเสียง และบอกเหตุผลไว้ข้างล่าง`
-          : `<strong style="color:var(--gold2)">${data.votingCount} of ${data.totalSystems} have a real timing technique</strong> so they get a vote <span style="color:var(--muted)">(each area counts only the ones whose technique speaks to it)</span> · ${data.abstainCount} abstain, each with its reason below`}
+          ? `<strong style="color:var(--gold2)">${data.votingCount} ศาสตร์มีวิชาทำนายช่วงเวลาจริง</strong> จึงออกเสียง <span style="color:var(--muted)">(แต่ละด้านนับเฉพาะศาสตร์ที่ตอบด้านนั้นได้)</span> · อีก ${data.abstainCount} ศาสตร์งดออกเสียง และบอกเหตุผลไว้ข้างล่าง`
+          : `<strong style="color:var(--gold2)">${data.votingCount} traditions have a real timing technique</strong> so they get a vote <span style="color:var(--muted)">(each area counts only the ones whose technique speaks to it)</span> · ${data.abstainCount} abstain, each with its reason below`}
       </div>
     </div>`;
 

@@ -181,8 +181,8 @@ console.log('— forecast path: same anchors, second code path —');
   // Every system on the canonical roster must be accounted for: either it
   // voted, or it is named in the abstention list with a reason. A system that
   // is silently in neither is the failure this whole block exists to prevent.
-  check('roster fully accounted for', fc.votingCount + fc.abstainCount, 27,
-        'SCORE_WEIGHTS carries 27 systems (26 shown + ทักษา)');
+  check('roster is the 26 the site advertises', fc.votingCount + fc.abstainCount, 26,
+        'voters + abstainers must equal the 26 badges on the page — Biorhythm is NOT one of them (director 2026-06-06, commit 74f4369)');
 
   check('every vote names its doctrine', unnamed, 0,
         'a system may only vote with a technique that is really its own');
