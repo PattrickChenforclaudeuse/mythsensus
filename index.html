@@ -65,7 +65,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=198">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=199">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
@@ -1731,7 +1731,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
           <span id="entryUnknownTimeText">ไม่ทราบเวลาเกิด / Birth time unknown</span>
         </label>
         <div id="entryUnknownTimeWarn" style="display:none;font-family:'Josefin Sans',sans-serif;font-size:10px;color:#c8a040;margin-top:4px;line-height:1.4">
-          <span id="entryUnknownTimeWarnText">⚠ ไม่ทราบเวลาเกิด — 15 จาก 27 ศาสตร์ต้องใช้เวลาเกิด (ลัคนา · เสาชั่วยาม · จันทร์ · ซื่อเว่ย ฯลฯ) เราจะคิดให้ที่เที่ยงวันและติดป้ายไว้ ถือเป็นค่าประมาณ ไม่ใช่ดวงจริงของคุณ</span>
+          <span id="entryUnknownTimeWarnText">⚠ ไม่ทราบเวลาเกิด — 15 จาก 26 ศาสตร์ต้องใช้เวลาเกิด (ลัคนา · เสาชั่วยาม · จันทร์ · ซื่อเว่ย ฯลฯ) เราจะคิดให้ที่เที่ยงวันและติดป้ายไว้ ถือเป็นค่าประมาณ ไม่ใช่ดวงจริงของคุณ</span>
         </div>
       </div>
       <select class="login-input" id="entryGender" style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:15px">
@@ -2865,7 +2865,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=198" defer></script>
+<script src="/build/ms26-bundle.js?v=199" defer></script>
 <script>
 
 
@@ -6251,7 +6251,7 @@ function renderChart(data){
   // The "Minority signal" panel surfaces themes that fewer systems voted for —
   // proof-of-concept for the arbitrator framing: it's not just "what they agree
   // on" but "what they disagree on, and why we side with the majority." Sets up
-  // Cosmic Blueprint as the deeper paid product that reads all 27 systems and
+  // Cosmic Blueprint as the deeper paid product that reads all 26 systems and
   // explains the WHY.
   const themeScores=detectThemes(data);
   const sortedThemes=Object.entries(themeScores).filter(([k,v])=>v>0).sort((a,b)=>b[1]-a[1]);
@@ -17757,8 +17757,8 @@ function _entryRefreshLang(){
   const unknownWarn = document.getElementById('entryUnknownTimeWarnText');
   if (unknownTxt)  unknownTxt.textContent  = isTh ? 'ไม่ทราบเวลาเกิด' : 'Birth time unknown';
   if (unknownWarn) unknownWarn.textContent = isTh
-    ? '⚠ ไม่ทราบเวลาเกิด — 15 จาก 27 ศาสตร์ต้องใช้เวลาเกิด (ลัคนา · เสาชั่วยาม · จันทร์ · ซื่อเว่ย ฯลฯ) เราจะคิดให้ที่เที่ยงวันและติดป้ายไว้ ถือเป็นค่าประมาณ ไม่ใช่ดวงจริงของคุณ'
-    : '⚠ Birth time unknown — 15 of 27 systems need it (ascendant, hour pillar, Moon, Zi Wei and more). We compute those at noon and label them: treat them as a placeholder, not your chart.';
+    ? '⚠ ไม่ทราบเวลาเกิด — 15 จาก 26 ศาสตร์ต้องใช้เวลาเกิด (ลัคนา · เสาชั่วยาม · จันทร์ · ซื่อเว่ย ฯลฯ) เราจะคิดให้ที่เที่ยงวันและติดป้ายไว้ ถือเป็นค่าประมาณ ไม่ใช่ดวงจริงของคุณ'
+    : '⚠ Birth time unknown — 15 of 26 traditions need it (ascendant, hour pillar, Moon, Zi Wei and more). We compute those at noon and label them: treat them as a placeholder, not your chart.';
   const giftTog = document.getElementById('entryGiftToggle');
   // rename to "discount / gift code" to cover both
   // influencer/group promo codes and traditional beta gift codes (same mechanism).
