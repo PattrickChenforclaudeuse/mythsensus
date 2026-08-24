@@ -120,6 +120,32 @@ function checkEnglishTableIsEnglish(html) {
 }
 checkEnglishTableIsEnglish(html);
 
+// ── stray control characters ──────────────────────────────────────────────────
+// Twice now a raw control byte has been pasted into a source file and shipped:
+// 23 Aug a backspace inside the ?lang= regex disabled the language switch on
+// prod (commit 5fb2109), and 24 Aug the same thing landed in the crawler regex
+// in api/track.js. Both parse fine, both survive review, and neither shows up
+// in a diff — the byte is invisible. Tab / newline / carriage return are legal;
+// nothing else below 0x20 is.
+function checkControlChars(files) {
+  const fsx = require('fs');
+  for (const f of files) {
+    let buf;
+    try { buf = fsx.readFileSync(f); } catch (_) { continue; }
+    for (let i = 0; i < buf.length; i++) {
+      const c = buf[i];
+      if (c < 32 && c !== 9 && c !== 10 && c !== 13) {
+        const line = buf.slice(0, i).toString('utf8').split(String.fromCharCode(10)).length;
+        failures.push(f + ':' + line + ' - stray control byte 0x' + c.toString(16).padStart(2, '0')
+          + ' (invisible in a diff; delete it and retype the character)');
+        break;   // one per file is enough to send someone to the right line
+      }
+    }
+  }
+  notes.push('control chars: scanned ' + files.length + ' files');
+}
+checkControlChars(['index.html', 'api/track.js', 'api/admin/funnel.js', 'sw.js', 'build-check.cjs']);
+
 // ── report ────────────────────────────────────────────────────────────────────
 for (const n of notes) console.log('  ' + n);
 

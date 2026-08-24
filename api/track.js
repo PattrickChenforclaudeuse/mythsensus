@@ -35,6 +35,15 @@ export default async function handler(req, res) {
     if (!body || typeof body !== 'object') body = {};
     const events = Array.isArray(body.events) ? body.events : [body];
 
+    // Crawler / headless user-agent (added 2026-08-24). navigator.webdriver on
+    // the client tags our own Playwright runs; it does NOT tag Googlebot or
+    // Bingbot, which render JS and fire entry_view exactly like a person — and
+    // both arrived in force after the sitemap + Search Console submission on
+    // 21 Aug. The UA never leaves this function and is never stored; only the
+    // boolean is. No fingerprinting, no PII.
+    const ua = String(req.headers['user-agent'] || '');
+    const isBot = /googlebot|bingbot|yandex|duckduckbot|baiduspider|applebot|petalbot|ahrefsbot|semrushbot|mj12bot|dotbot|gptbot|claudebot|claude-web|ccbot|perplexity|amazonbot|bytespider|facebookexternalhit|twitterbot|slackbot|discordbot|telegrambot|whatsapp|embedly|redditbot|pinterest|crawler|spider|crawling|headless|playwright|puppeteer|phantomjs|selenium|webdriver|slurp|bingpreview|python-requests|node-fetch|axios|curl\/|wget|lighthouse|pingdom|gtmetrix|uptimerobot|bot\//i.test(ua);
+
     const rows = events
       .filter(e => e && e.event)
       .slice(0, 20)
@@ -49,7 +58,8 @@ export default async function handler(req, res) {
         device:    clampStr(e.device, 16),
         tier:      clampStr(e.tier, 24),
         god:       clampStr(e.god, 64),
-        meta:      (e.meta && typeof e.meta === 'object') ? e.meta : null,
+        meta:      isBot ? Object.assign({}, (e.meta && typeof e.meta === 'object') ? e.meta : null, { bot: true })
+                          : ((e.meta && typeof e.meta === 'object') ? e.meta : null),
       }))
       .filter(r => r.sid && r.event);
 

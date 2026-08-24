@@ -67,8 +67,38 @@ export default async function handler(req, res) {
   const internalSids = new Set(
     rows.filter(x => x.meta && x.meta.internal === true).map(x => x.sid).filter(Boolean));
   rows = rows.filter(x => !internalSids.has(x.sid));
+
+  // 2026-08-24: ?im=1 only ever caught the devices we opened by hand. Our own
+  // headless runs start with an empty localStorage every time, so 21 and 23 Aug
+  // came back as 228 and 225 sessions when ~85% of each was a deploy-day check
+  // or a crawler. Two flags now ride on the events themselves — meta.auto
+  // (navigator.webdriver, set by Playwright/Puppeteer) and meta.bot (crawler
+  // user-agent, stamped server-side in api/track.js) — so no script has to
+  // remember a query string. Dropped by whole session, same as internal.
+  const machineSids = new Set(
+    rows.filter(x => x.meta && (x.meta.auto === true || x.meta.bot === true))
+        .map(x => x.sid).filter(Boolean));
+
+  // Rows logged BEFORE those flags existed carry neither. What they do carry is
+  // a signature: a single event and no session-end beacon. A real browser fires
+  // visibilitychange->hidden or pagehide on essentially every close; a headless
+  // one that gets killed does not (21 Aug: 218 of 228 sessions never sent it,
+  // against 16 of 60 on 24 Aug). Counted apart from the flagged ones, because a
+  // guess and a measurement should never share a number.
+  const evN = {}, hasEnd = {};
+  for (const x of rows) {
+    if (!x.sid) continue;
+    evN[x.sid] = (evN[x.sid] || 0) + 1;
+    if (x.event === 'session') hasEnd[x.sid] = true;
+  }
+  const suspectSids = new Set(
+    Object.keys(evN).filter(sid => evN[sid] === 1 && !hasEnd[sid] && !machineSids.has(sid)));
+
+  rows = rows.filter(x => !machineSids.has(x.sid) && !suspectSids.has(x.sid));
   const sessionsAll = rows.filter(x => x.event === 'session');
   const internalN   = internalSids.size;
+  const machineN    = machineSids.size;
+  const suspectN    = suspectSids.size;
   const sessions    = sessionsAll;
   const shares   = rows.filter(x => x.event === 'share');
   const checkouts= rows.filter(x => x.event === 'checkout');
@@ -213,7 +243,7 @@ export default async function handler(req, res) {
   res.status(200).send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Mythsensus · Funnel</title>
 <style>body{background:#0b0b12;color:#e8e0c9;font-family:-apple-system,'Segoe UI',sans-serif;margin:0;padding:24px;max-width:760px;margin:0 auto}h1{font-size:18px;letter-spacing:2px;color:#c8a45a;font-weight:700}h2{font-size:12px;letter-spacing:2px;color:#8a7a5a;text-transform:uppercase;margin:26px 0 6px}table{width:100%;border-collapse:collapse;background:#13112a;border:1px solid #2a2545;border-radius:8px;overflow:hidden}tr+tr td{border-top:1px solid #211c3a}th{text-align:left;padding:6px 10px;font-size:11px;color:#7a6a52;font-weight:600}.muted{color:#6a5a42;font-size:12px}a{color:#c8a45a}</style></head><body>
 <h1>🔮 MYTHSENSUS · ENGAGEMENT FUNNEL</h1>
-<div class="muted">Source: myth_events (first-party) · window ${days}d (data reaches back ${coverDays}d, ${rows.length} events)${coverDays && coverDays < days - 1 ? ' — no data older than that' : ''} · ${nS} sessions${internalN ? ` · <span style="color:#c8a45a">${internalN} internal (your ?im=1 opens) excluded</span>` : ''} · <a href="?k=${esc(q.k)}&days=7">7d</a> · <a href="?k=${esc(q.k)}&days=30">30d</a> · <a href="?k=${esc(q.k)}&days=90">90d</a></div>
+<div class="muted">Source: myth_events (first-party) · window ${days}d (data reaches back ${coverDays}d, ${rows.length} events)${coverDays && coverDays < days - 1 ? ' — no data older than that' : ''} · ${nS} sessions${internalN ? ` · <span style="color:#c8a45a">${internalN} internal (?im=1)</span>` : ''}${machineN ? ` · <span style="color:#c8a45a">${machineN} automated (webdriver/crawler UA)</span>` : ''}${suspectN ? ` · <span style="color:#8a7a62">${suspectN} machine-shaped, unflagged (1 event, no session-end — pre-24-Aug data has no flag)</span>` : ''}${(internalN||machineN||suspectN) ? ' <span style="color:#7a6a52">— all excluded</span>' : ''} · <a href="?k=${esc(q.k)}&days=7">7d</a> · <a href="?k=${esc(q.k)}&days=30">30d</a> · <a href="?k=${esc(q.k)}&days=90">90d</a></div>
 <h2>Funnel</h2><table>${funnelRows}</table>
 <h2>Money intent <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(distinct sessions · instrumented 2026-07-01)</span></h2><table>${moneyRows}</table>
 <h2>New vs returning <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(post-deploy only · ${tagged.length} tagged)</span></h2><table><tr><th>Cohort</th><th style="text-align:right">Sessions</th><th style="text-align:right">Bounce&lt;5s</th><th style="text-align:right">&gt;60s</th><th style="text-align:right">Draw%</th><th style="text-align:right">Engaged%</th></tr>${nvrRows}</table>

@@ -4532,6 +4532,15 @@ const _msAnalytics = (function(){
     else if (im === '0') localStorage.removeItem('mth_internal_v1');
     internal = !!localStorage.getItem('mth_internal_v1');
   } catch(_){}
+  // Headless / automated opens (added 2026-08-24). ?im=1 above only works if the
+  // script remembered to put it in the URL, and a fresh Playwright context has an
+  // empty localStorage every run — so most of our own QA never got tagged. 21 and
+  // 23 Aug read 228 and 225 sessions when ~85% of them were our own deploy-day
+  // checks: one event, no session-end beacon, birth_submit in the same second as
+  // entry_view. navigator.webdriver is set by Playwright/Puppeteer/Selenium and
+  // costs one property read. Tags the run itself, so no script has to remember.
+  let auto = false;
+  try { auto = (navigator.webdriver === true) || /HeadlessChrome|Headless|Playwright|Puppeteer/i.test(navigator.userAgent || ''); } catch(_){}
   function refHost(){ return ((document.referrer||'').replace(/^https?:\/\//,'').split('/')[0])||null; }
   function srcRef(){ return utm ? ('utm:'+utm.s) : refHost(); }   // tagged campaign wins over raw referrer
   // screen.width reports PHYSICAL pixels on most Android browsers, so a 1080p
@@ -4566,10 +4575,11 @@ const _msAnalytics = (function(){
   function row(extra){
     const out = Object.assign({ sid, lang:(typeof LANG!=='undefined'?LANG:''), device:device(), path:location.pathname, ref:srcRef() }, extra||{});
     if (internal) out.meta = Object.assign({}, out.meta, { internal:true });
+    if (auto)     out.meta = Object.assign({}, out.meta, { auto:true });
     return out;
   }
   function track(event, extra){ post(row(Object.assign({event}, extra||{}))); }   // immediate beacon (rare/intent moments)
-  function sessionEnd(){ if(s.sent)return; accrue(); s.sent=true; try{flushErrs();}catch(_){} track('session', { active_ms:s.activeMs, draws:s.draws, ref:srcRef(), meta:{rare:s.rare,paywall:s.paywall,interacted:s.interacted,scrolled:s.scrolled,returning:s.returning,utm:utm,internal:internal} }); }
+  function sessionEnd(){ if(s.sent)return; accrue(); s.sent=true; try{flushErrs();}catch(_){} track('session', { active_ms:s.activeMs, draws:s.draws, ref:srcRef(), meta:{rare:s.rare,paywall:s.paywall,interacted:s.interacted,scrolled:s.scrolled,returning:s.returning,utm:utm,internal:internal,auto:auto} }); }
   // visibilitychange→hidden is the most reliable "leaving" signal (incl. mobile
   // backgrounding); pagehide covers the rest. Fires once per page load (s.sent).
   document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden'){ accrue(); s.visible=false; sessionEnd(); } else { s.visible=true; s.lastTick=Date.now(); } });
