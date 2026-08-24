@@ -10930,10 +10930,70 @@ async function _fcShareBlob(period, isTh) {
 
   x.textAlign = 'center';
   x.fillStyle = gold; x.font = label(30);
-  x.fillText('M Y T H S E N S U S', W / 2, 360);
+  x.fillText('M Y T H S E N S U S', W / 2, 190);
 
-  x.fillStyle = ink; x.font = th(52, 600);
-  x.fillText((isTh ? period.labelTh : period.labelEn).replace(/\s*·\s*/, '  ·  '), W / 2, 470);
+  x.fillStyle = ink; x.font = th(46, 600);
+  x.fillText((isTh ? period.labelTh : period.labelEn).replace(/\s*·\s*/, '  ·  '), W / 2, 280);
+
+  // ── The deity, and one line from them ─────────────────────────────────────
+  // Above the scores, because it is the part with a face — the scores are the
+  // reading, this is the reason to look. /assets/god-og is same-origin, unlike
+  // the CDN card art, so the canvas is never tainted and toBlob cannot fail; a
+  // missing file falls back to the symbol without moving the layout.
+  let deityBottom = 340;
+  const deity = (typeof _FC_DEITY !== 'undefined' && _FC_DEITY) ? _FC_DEITY.god : null;
+  if (deity) {
+    const cx = W / 2, cy = 520, r = 130;
+    const slug = String(deity.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const img = slug ? await new Promise(res => {
+      const im = new Image();
+      im.onload = () => res(im);
+      im.onerror = () => res(null);
+      im.src = '/assets/god-og/' + slug + '.jpg';
+    }) : null;
+
+    if (img) {
+      x.save();
+      x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.clip();
+      const side = Math.min(img.width, img.height);   // crop the shorter side, never squash the face
+      x.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, cx - r, cy - r, r * 2, r * 2);
+      x.restore();
+      x.strokeStyle = gold; x.lineWidth = 3;
+      x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.stroke();
+    } else {
+      x.font = '150px system-ui'; x.fillStyle = ink;
+      x.fillText(deity.symbol || '✦', cx, cy + 52);
+    }
+
+    x.fillStyle = gold2; x.font = th(46, 600);
+    x.fillText(deity.name || '', cx, cy + r + 76);
+
+    // Canvas has no line breaking. English breaks on spaces; Thai often has too
+    // few of them, so any line still too wide is broken by character instead.
+    const line = ((isTh ? deity.messages_th : deity.messages_en) || deity.messages || [])[0] || '';
+    if (line) {
+      x.fillStyle = ink; x.font = th(42);
+      const max = W - 190;
+      const out = [];
+      for (const chunk of line.split(' ')) {
+        if (out.length && x.measureText(out[out.length - 1] + ' ' + chunk).width <= max) {
+          out[out.length - 1] += ' ' + chunk;
+        } else out.push(chunk);
+      }
+      const wrapped = [];
+      for (const seg of out) {
+        if (x.measureText(seg).width <= max) { wrapped.push(seg); continue; }
+        let cur = '';
+        for (const ch of seg) {
+          if (x.measureText(cur + ch).width > max && cur) { wrapped.push(cur); cur = ch; }
+          else cur += ch;
+        }
+        if (cur) wrapped.push(cur);
+      }
+      wrapped.slice(0, 3).forEach((ln, i) => x.fillText(ln, cx, cy + r + 152 + i * 58));
+      deityBottom = cy + r + 152 + Math.min(wrapped.length, 3) * 58;
+    } else deityBottom = cy + r + 110;
+  }
 
   // Four to a row at 1080 wide; eight wraps to two rows of four.
   const rows = [];
@@ -10941,7 +11001,7 @@ async function _fcShareBlob(period, isTh) {
   // Centred in the space between the period label and the footnote, not in
   // the canvas — otherwise the block floats high and the card reads unfinished.
   const rowH = 360;
-  const top = 470, bottom = 1660;
+  const top = deityBottom, bottom = 1660;
   let y = (top + bottom) / 2 - (rows.length * rowH) / 2 + 90;
 
   for (const row of rows) {
