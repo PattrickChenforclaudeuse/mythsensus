@@ -10626,10 +10626,26 @@ function _fcScoreColor(s) {
 
 // A 0-10 bar. Deliberately not a percentage: the number means "against your own
 // year", and a bar reads that way where a percent sign would not.
-function _fcBar(score) {
-  const pct = Math.max(2, Math.min(100, score * 20));
-  return `<div style="height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;margin:7px 0 8px">
-    <div style="height:100%;width:${pct}%;background:${_fcScoreColor(score)};border-radius:3px"></div></div>`;
+// The bar used to be the score again, drawn sideways — a second rendering of a
+// number that already sits in 21px directly above it. The counts underneath
+// (ดี 6 · กลาง 2 · ระวัง 1) carried the only thing the bar could have added,
+// in 10px text that reads as a footnote. The bar now IS those counts: how the
+// room actually split, which is the thing this product sells and the one shape
+// no competitor can copy without doing the work.
+function _fcBar(v) {
+  // Called with a number by any older path — fall back to the score bar rather
+  // than drawing nothing.
+  if (typeof v === 'number') {
+    const pct = Math.max(2, Math.min(100, v * 20));
+    return `<div style="height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;margin:7px 0 8px">
+      <div style="height:100%;width:${pct}%;background:${_fcScoreColor(v)};border-radius:3px"></div></div>`;
+  }
+  const n = v.n || 0;
+  if (!n) return `<div style="height:6px;border-radius:3px;background:rgba(255,255,255,.07);margin:7px 0 8px"></div>`;
+  const seg = (c, colour) => c > 0
+    ? `<i style="display:block;height:100%;width:${(100 * c / n).toFixed(1)}%;background:${colour}"></i>` : '';
+  return `<div style="display:flex;height:8px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;margin:7px 0 8px">
+    ${seg(v.up, 'var(--gold)')}${seg(v.mid, '#5b5f6d')}${seg(v.down, '#c2603f')}</div>`;
 }
 
 function _fcVoteRows(v, isTh) {
@@ -10714,9 +10730,9 @@ function _fcDomainCard(v, isTh, L, A) {
         <span style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:11.5px;color:${B.color};background:${B.bg};border:1px solid ${B.color}55;padding:2px 9px;border-radius:10px;margin-left:6px">${_fcEsc(isTh ? MS26.FORECAST_TIERS[v.score].th : MS26.FORECAST_TIERS[v.score].en)}</span>
       </span>
     </div>
-    ${_fcBar(v.score)}
+    ${_fcBar(v)}
     <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:.6px;color:var(--muted)">
-      ${isTh ? 'ดี' : 'good'} ${v.up} · ${isTh ? 'กลาง' : 'neutral'} ${v.mid} · ${isTh ? 'ระวัง' : 'caution'} ${v.down}
+      <i style="display:inline-block;width:6px;height:6px;border-radius:2px;background:var(--gold)"></i> ${isTh ? 'ดี' : 'good'} ${v.up} · <i style="display:inline-block;width:6px;height:6px;border-radius:2px;background:#5b5f6d"></i> ${isTh ? 'กลาง' : 'neutral'} ${v.mid} · <i style="display:inline-block;width:6px;height:6px;border-radius:2px;background:#c2603f"></i> ${isTh ? 'ระวัง' : 'caution'} ${v.down}
       &nbsp;·&nbsp; ${v.n} ${isTh ? 'ศาสตร์' : 'traditions'} · ${isTh ? 'ตรงกัน' : 'agree'} ${v.agreement}%${splitNote}
     </div>
     <div style="margin-top:10px;padding:11px 13px;border-radius:6px;background:rgba(200,164,90,.07);border-left:2px solid var(--gold3)">
@@ -10748,6 +10764,39 @@ function _fcPick(i) {
 }
 function _fcSetMode(m) { _FC_MODE = m; _FC_WEEK = 0; _fcCollapseAll(); renderForecast(); }
 
+// How many of the voting traditions actually told the four areas apart.
+//
+// Measured across ten charts x four weeks: 63% of (tradition x week) votes give
+// the SAME reading to every area. Four of the eight voters are flat every single
+// time by construction — Thaksa, Mayan Tzolk'in, Vedic and Vimshottari each read
+// a period, not a department of life — BaZi is flat about half the time, and the
+// separation between areas comes almost entirely from numerology, Western
+// astrology and the nine stars.
+//
+// That is a fact about the doctrines, not a defect, and it is the sort of thing
+// the reader deserves before reading four different numbers as four independent
+// verdicts. No competitor prints it, because printing it requires counting.
+function _fcFlatVoters(period, domains) {
+  const bySys = {};
+  for (const d of domains) {
+    const dv = period.domains[d];
+    if (!dv) continue;
+    for (const o of (dv.votes || [])) {
+      const k = o.sysEn || o.sysTh;
+      if (!k) continue;
+      (bySys[k] = bySys[k] || []).push(o.score);
+    }
+  }
+  let flat = 0, counted = 0;
+  for (const k of Object.keys(bySys)) {
+    const vals = bySys[k];
+    if (vals.length < 2) continue;      // voted in one area only — nothing to be flat about
+    counted++;
+    if (new Set(vals).size === 1) flat++;
+  }
+  return { flat: flat, counted: counted };
+}
+
 function renderForecast() {
   const host = document.getElementById('forecastPanel');
   if (!host) return;
@@ -10778,13 +10827,14 @@ function renderForecast() {
                 worstScore: P.domains[R.worst].score, bestScore: P.domains[R.best].score };
 
   // ── header: what this screen is, and on what authority ──────────────────
+  const _fcFlat = _fcFlatVoters(P, domains);
   const head = `
     <div style="text-align:center;margin-bottom:14px">
       ${_FC_MODE === 'month' ? `<div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:19px;color:var(--text);line-height:1.4">${isTh ? '12 เดือนข้างหน้าของคุณ' : 'Your next twelve months'}</div>` : ''}
       <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--muted);line-height:1.7;margin-top:5px">
         ${isTh
-          ? `<strong style="color:var(--gold2)">${data.votingCount} ศาสตร์มีวิชาทำนายช่วงเวลาจริง</strong> จึงออกเสียง <span style="color:var(--muted)">(แต่ละด้านนับเฉพาะศาสตร์ที่ตอบด้านนั้นได้)</span> · อีก ${data.abstainCount} ศาสตร์งดออกเสียง และบอกเหตุผลไว้ข้างล่าง`
-          : `<strong style="color:var(--gold2)">${data.votingCount} traditions have a real timing technique</strong> so they get a vote <span style="color:var(--muted)">(each area counts only the ones whose technique speaks to it)</span> · ${data.abstainCount} abstain, each with its reason below`}
+          ? `<strong style="color:var(--gold2)">${data.votingCount} ศาสตร์มีวิชาทำนายช่วงเวลาจริง</strong> จึงออกเสียง <span style="color:var(--muted)">(แต่ละด้านนับเฉพาะศาสตร์ที่ตอบด้านนั้นได้)</span> · อีก ${data.abstainCount} ศาสตร์งดออกเสียง และบอกเหตุผลไว้ข้างล่าง${_fcFlat.counted ? `<br><span style="color:var(--muted)">ศาสตร์ที่ลงคะแนนมากกว่าหนึ่งด้านมี ${_fcFlat.counted} — ในนั้น <strong style="color:var(--text)">${_fcFlat.flat} ศาสตร์ที่ให้คำตอบเดียวกันทุกด้าน</strong> — ตำราของเขาอ่านช่วงเวลา ไม่ได้อ่านแยกเรื่อง ความต่างระหว่างด้านจึงมาจากอีก ${_fcFlat.counted - _fcFlat.flat} ศาสตร์</span>` : ''}`
+          : `<strong style="color:var(--gold2)">${data.votingCount} traditions have a real timing technique</strong> so they get a vote <span style="color:var(--muted)">(each area counts only the ones whose technique speaks to it)</span> · ${data.abstainCount} abstain, each with its reason below${_fcFlat.counted ? `<br><span style="color:var(--muted)">${_fcFlat.counted} of them scored more than one area, and <strong style="color:var(--text)">${_fcFlat.flat} give every area the same reading</strong> — their doctrine reads a span of time, not a department of life. The differences between areas come from the other ${_fcFlat.counted - _fcFlat.flat}.</span>` : ''}`}
       </div>
     </div>`;
 
