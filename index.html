@@ -4593,7 +4593,25 @@ const _msAnalytics = (function(){
   // costs one property read. Tags the run itself, so no script has to remember.
   let auto = false;
   try { auto = (navigator.webdriver === true) || /HeadlessChrome|Headless|Playwright|Puppeteer/i.test(navigator.userAgent || ''); } catch(_){}
-  function refHost(){ return ((document.referrer||'').replace(/^https?:\/\//,'').split('/')[0])||null; }
+  // Host only for anyone else — an external referrer's path can carry a search
+  // query or a private URL, and none of that is ours to store. Our OWN pages
+  // keep their path, because "41 people arrived from mythsensus.com" was true
+  // for a month and told us nothing about WHICH of the seventeen pages sent
+  // them (measured 2026-08-25).
+  function refHost(){
+    const raw = document.referrer || '';
+    if (!raw) return null;
+    try {
+      const u = new URL(raw);
+      if (u.host === location.host) {
+        const path = (u.pathname || '/').replace(/\/+$/, '') || '/';
+        return path === '/' ? u.host : (u.host + decodeURIComponent(path)).slice(0, 120);
+      }
+      return u.host || null;
+    } catch(_) {
+      return (raw.replace(/^https?:\/\//, '').split('/')[0]) || null;
+    }
+  }
   function srcRef(){ return utm ? ('utm:'+utm.s) : refHost(); }   // tagged campaign wins over raw referrer
   // screen.width reports PHYSICAL pixels on most Android browsers, so a 1080p
   // phone measured 1080 and was filed as "desktop", and a 720p one as "tablet".
@@ -17264,6 +17282,10 @@ async function sendAuthCode(){
     return;
   }
   _authEmail=email;
+  if(!_sb){ alert(LANG==='th'
+    ? 'ตอนนี้เข้าสู่ระบบไม่ได้ — ตัวช่วยล็อกอินโหลดไม่ขึ้น (เน็ตหรือพร็อกซีบล็อกอยู่) ลองรีเฟรชอีกครั้ง · ดูดวงใช้ได้ตามปกติโดยไม่ต้องล็อกอิน'
+    : 'Sign-in is unavailable right now — the auth library did not load (network or proxy). Try refreshing. Readings work without signing in.');
+    return; }
   const btn=document.getElementById('authSendBtn');
   if(btn){btn.disabled=true;btn.textContent=LANG==='th'?'กำลังส่ง…':'Sending…';}
   const{error}=await _sb.auth.signInWithOtp({
@@ -17300,6 +17322,7 @@ async function verifyAuthCode(){
 }
 
 async function checkSession(){
+  if(!_sb) return;
   // Primary magic-link flow: user clicked the link in the same browser.
   const btn=document.getElementById('authCheckBtn');
   if(btn){btn.disabled=true;btn.textContent=LANG==='th'?'กำลังตรวจสอบ…':'Checking…';}
@@ -17498,13 +17521,31 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   //    bar showing em-dashes during the entire intro screen.
   try { renderTodayBar(); } catch(_) {}
   // ── Init Supabase ──────────────────────────────────────────
-  _sb = supabase.createClient(_SB_URL, _SB_KEY, {
-    auth:{ autoRefreshToken:true, persistSession:true, detectSessionInUrl:true }
-  });
-  _sb.auth.onAuthStateChange((event, session)=>{
-    if(event==='SIGNED_IN'  && session) _onSignIn(session);
-    else if(event==='SIGNED_OUT')        _onSignOut();
-  });
+  // supabase-js comes from jsDelivr. When that request is blocked or simply
+  // slow — an office proxy, a CDN-blocking ISP, a phone on a bad connection —
+  // the global is missing and this line threw "supabase is not defined",
+  // which aborted the rest of boot. Three real visitors hit it in the last
+  // thirty days and got an app that had stopped setting itself up halfway.
+  //
+  // Nothing on the free path needs Supabase: the engine runs in the browser
+  // and readings are computed locally. Only sign-in and cloud save do. So a
+  // missing CDN now costs those two features and nothing else.
+  if (typeof supabase === 'undefined' || !supabase || !supabase.createClient) {
+    _sb = null;
+    try { console.warn('[auth] supabase-js unavailable — sign-in and cloud save are off for this visit'); } catch(_) {}
+    try {
+      if (window._msTrack) _msTrack.track('auth_unavailable');
+      document.querySelectorAll('[data-needs-auth]').forEach(el => { el.style.display = 'none'; });
+    } catch(_) {}
+  } else {
+    _sb = supabase.createClient(_SB_URL, _SB_KEY, {
+      auth:{ autoRefreshToken:true, persistSession:true, detectSessionInUrl:true }
+    });
+    _sb.auth.onAuthStateChange((event, session)=>{
+      if(event==='SIGNED_IN'  && session) _onSignIn(session);
+      else if(event==='SIGNED_OUT')        _onSignOut();
+    });
+  }
 
   // ── Provider gate — hide social buttons for providers not enabled in Supabase
   // (Google/Facebook need OAuth credentials configured in the Supabase dashboard
