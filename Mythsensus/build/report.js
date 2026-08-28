@@ -2418,7 +2418,7 @@ function p24_pets(c) {
     <!-- Spirit Creature (mythological) — shared with the Companions add-on tab -->
     ${companions ? `
     <div style="border:2px solid #c8a45a;background:linear-gradient(135deg,#12101c,#14120a);border-radius:10px;padding:14px 16px;margin:8px 0 16px">
-      <div style="font-size:10px;letter-spacing:2px;color:#c8a45a;margin-bottom:6px">${tr(`✦ สัตว์ในตำนานประจำธาตุ${esc(dmEl)} ✦`, `✦ Mythological Companion for the ${esc(dmEl)} Element ✦`)}</div>
+      <div style="font-size:10px;letter-spacing:2px;color:#c8a45a;margin-bottom:6px">${tr(`✦ สัตว์ในตำนานประจำธาตุของคุณ ✦`, `✦ Mythological Companion for the ${esc(dmEl)} Element ✦`)}</div>
       <div style="font-family:'Cinzel Decorative',serif;font-size:17px;color:#c8a45a;margin-bottom:6px">${esc(companions.creature || '')}</div>
       <div style="font-size:12px;color:#c8c0a8;line-height:1.7">${esc(companions.creatureDesc || '')}</div>
       ${companions.mantra ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #3a3020;font-size:11px;color:#c8a45a;font-style:italic">🔔 ${esc(companions.mantra)}</div>` : ''}
