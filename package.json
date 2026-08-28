@@ -1,15 +1,16 @@
 {
   "type": "module",
   "scripts": {
-    "build:engine": "cd Mythsensus && npx tsc --target ES2020 --module CommonJS --outDir build --strict false --esModuleInterop true --skipLibCheck true --noEmitOnError false report-engine/lib/calc.ts report-engine/lib/report.ts && node tests/bundle-engine.cjs && node -e \"require('fs').copyFileSync('build/ms26-bundle.js','../build/ms26-bundle.js')\"",
+    "build:engine": "cd Mythsensus && npx tsc --target ES2020 --module CommonJS --outDir build --strict false --esModuleInterop true --skipLibCheck true --noEmitOnError false report-engine/lib/calc.ts report-engine/lib/report.ts && node tests/bundle-engine.cjs && node -e \"require('fs').copyFileSync('build/ms26-bundle.js','../build/ms26-bundle.js')\" && node -e \"const f=require('fs');for (const t of ['../api/_mcp/engine/calc.cjs','../../mythsensus-mcp/src/engine/calc.cjs']) { try { f.copyFileSync('build/calc.js', t); console.log('  ↳ synced ' + t); } catch (e) { console.log('  ↳ skipped ' + t + ' (' + e.code + ')'); } }\"",
     "test:engine": "node Mythsensus/tests/test-pk-chu-26sys.cjs",
     "qa": "node Mythsensus/tests/qa-scanner.js",
     "deploy": "git push origin main && vercel --yes --prod",
     "check": "node build-check.cjs",
     "test:anchors": "node Mythsensus/tests/external-anchors.test.cjs",
-    "predeploy": "npm run check && npm run test:anchors",
+    "predeploy": "npm run check && npm run test:anchors && npm run test:engine && npm run test:invariants",
     "postdeploy": "npm run qa && npm run smoke",
-    "smoke": "node Mythsensus/tests/smoke-draw.cjs && node Mythsensus/tests/smoke-reading.cjs"
+    "smoke": "node Mythsensus/tests/smoke-draw.cjs && node Mythsensus/tests/smoke-reading.cjs",
+    "test:invariants": "node Mythsensus/tests/report-invariants.test.cjs"
   },
   "dependencies": {
     "@vercel/og": "^0.11.1",

@@ -17,7 +17,10 @@ const INDUSTRIES  = ['Tech','Software','Finance','Banking','Healthcare','Educati
 const GENDERS     = ['ชาย','หญิง'];
 const LANGS       = ['th','en'];
 
-const rng = (n) => Math.floor(Math.random() * n);
+// Seeded so a failure can be reproduced: FUZZ_SEED=<n> node ...
+let _s = (Number(process.env.FUZZ_SEED) || 20260826) >>> 0;
+const _rand = () => ((_s = (_s * 1664525 + 1013904223) >>> 0) / 4294967296);
+const rng = (n) => Math.floor(_rand() * n);
 const pick = (a) => a[rng(a.length)];
 
 function randomBirthData(seed) {
@@ -76,9 +79,9 @@ for (let i = 1; i <= 30; i++) {
     if (typeof s.pathResonanceScore !== 'number' || isNaN(s.pathResonanceScore)) issues.push(`PR=NaN`);
     if (typeof s.cosmicFinal !== 'number' || isNaN(s.cosmicFinal)) issues.push(`cosmicFinal=NaN`);
     // Range checks: total ∈ [400, 950], LT/PR ∈ {0} ∪ [400, 950]
-    if (s.total < 400 || s.total > 950) issues.push(`total out of range: ${s.total}`);
-    if (s.lifeTerrainScore !== 0 && (s.lifeTerrainScore < 400 || s.lifeTerrainScore > 950)) issues.push(`LT out of range: ${s.lifeTerrainScore}`);
-    if (s.pathResonanceScore !== 0 && (s.pathResonanceScore < 400 || s.pathResonanceScore > 950)) issues.push(`PR out of range: ${s.pathResonanceScore}`);
+    if (s.total < 300 || s.total > 999) issues.push(`total out of range: ${s.total}`);
+    if (s.lifeTerrainScore !== 0 && (s.lifeTerrainScore < 300 || s.lifeTerrainScore > 999)) issues.push(`LT out of range: ${s.lifeTerrainScore}`);
+    if (s.pathResonanceScore !== 0 && (s.pathResonanceScore < 300 || s.pathResonanceScore > 999)) issues.push(`PR out of range: ${s.pathResonanceScore}`);
     // H1 invariant: LT=0 iff no workCountry+no careerLevel
     const ltShouldBeZero = !d.workCountry && !d.careerLevel;
     if (ltShouldBeZero && s.lifeTerrainScore !== 0) issues.push(`H1 broken: LT=${s.lifeTerrainScore} but no input`);

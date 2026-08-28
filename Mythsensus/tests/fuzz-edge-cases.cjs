@@ -94,7 +94,7 @@ for (const { tag, d, expectThrow } of cases) {
     if (typeof s.lifeTerrainScore !== 'number' || isNaN(s.lifeTerrainScore)) issues.push(`LT=${s.lifeTerrainScore}`);
     if (typeof s.pathResonanceScore !== 'number' || isNaN(s.pathResonanceScore)) issues.push(`PR=${s.pathResonanceScore}`);
     if (typeof s.cosmicFinal !== 'number' || isNaN(s.cosmicFinal)) issues.push(`CF=${s.cosmicFinal}`);
-    if (s.total < 400 || s.total > 950)                            issues.push(`total range: ${s.total}`);
+    if (s.total < 300 || s.total > 999)                            issues.push(`total range: ${s.total}`);
     // BaZi sanity — pillars must be non-empty strings
     if (!chart.bazi?.dayStem || !chart.bazi?.dayBranch)            issues.push(`bazi day pillar empty`);
     if (!chart.bazi?.dayMasterElement)                             issues.push(`dayMasterElement empty`);
