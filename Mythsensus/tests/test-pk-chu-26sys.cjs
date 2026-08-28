@@ -59,14 +59,21 @@ console.log(`  Tier (EN):        ${chart.score.tierEn || '-'}`);
 console.log(`  Percentile:       ${chart.score.percentile || '-'}`);
 console.log(`  Breakdown rows:   ${chart.score.breakdown ? chart.score.breakdown.length : '-'}`);
 
+const missing = [];
+// A sample line that printed 'undefined' used to slip past a green verdict,
+// so the printer records the miss and the verdict below reads it.
+const show = (label, value) => {
+  if (value === undefined || value === null || value === '') missing.push(label.trim());
+  console.log('  ' + label + value);
+};
 console.log('\n── SAMPLE DATA ──');
-console.log(`  Western Sun:      ${chart.western.sunSignTh} (${chart.western.sunSign})`);
-console.log(`  Western Moon:     ${chart.western.moonSignTh} (${chart.western.moonSign})`);
-console.log(`  BaZi Day Master:  ${chart.bazi.dayStem} — ${chart.bazi.dayMasterTh}`);
-console.log(`  Nine Star Ki:     ${chart.ninestar.star} ${chart.ninestar.starTh || ''}`);
-console.log(`  Life Path:        ${chart.numerology.lifePath}`);
-console.log(`  Mayan Kin:        ${chart.mayan.kin}`);
-console.log(`  Celtic:           ${chart.celtic.treeTh}`);
+show('Western Sun:      ', chart.western.sunSignTh && `${chart.western.sunSignTh} (${chart.western.sunSign})`);
+show('Western Moon:     ', chart.western.moonSignTh && `${chart.western.moonSignTh} (${chart.western.moonSign})`);
+show('BaZi Day Master:  ', chart.bazi.dayMasterTh && `${chart.bazi.dayStem} - ${chart.bazi.dayMasterTh}`);
+show('Nine Star Ki:     ', chart.ninestar.starName && `${chart.ninestar.star} ${chart.ninestar.starName}`);
+show('Life Path:        ', chart.numerology.lifePath);
+show('Mayan Kin:        ', chart.mayan.kin);
+show('Celtic:           ', chart.celtic.treeNameTh);
 console.log(`  Saju:             ${chart.saju.reading ? chart.saju.reading.slice(0, 50) : '-'}...`);
 console.log(`  Tibetan:          ${chart.tibetan.reading ? chart.tibetan.reading.slice(0, 50) : '-'}...`);
 console.log(`  Zi Wei Dou Shu:   ${chart.ziwei.reading ? chart.ziwei.reading.slice(0, 50) : '-'}...`);
@@ -104,13 +111,15 @@ console.log(`  Chart JSON: test-artifacts/pk-chu-chart-26sys.json`);
 const allPresent = SYS.every(k => chart[k]);
 const scoreValid = chart.score.total >= 300 && chart.score.total <= 999;
 const reportValid = pageCount >= 25 && html.length > 50000;
-const pass = allPresent && scoreValid && reportValid;
+const sampleValid = missing.length === 0;
+const pass = allPresent && scoreValid && reportValid && sampleValid;
 
 console.log(`\n═══════════════════════════════════════════════════════`);
 console.log(` VERDICT: ${pass ? '✓ PASS' : '✗ FAIL'}`);
 console.log(`   26 systems present: ${allPresent ? '✓' : '✗'}`);
 console.log(`   Score in range:     ${scoreValid ? '✓' : '✗'} (${chart.score.total})`);
 console.log(`   Report valid:       ${reportValid ? '✓' : '✗'} (${pageCount} pages)`);
+console.log(`   Sample fields:      ${sampleValid ? '✓' : '✗ missing: ' + missing.join(', ')}`);
 console.log(`═══════════════════════════════════════════════════════`);
 
 process.exit(pass ? 0 : 1);
