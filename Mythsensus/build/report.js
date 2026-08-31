@@ -245,7 +245,7 @@ function p01_cover(c) {
     // sentence that says where it comes from.
     const _pct = Math.round(((score.total - 300) / 699) * 100);
     const tierSub = '';
-    const scoreWhere = tr(`คะแนนนี้คือ <strong>ค่าเฉลี่ยคะแนนที่ 26 ศาสตร์ให้คุณ</strong> เทียบกับดวงสุ่ม 3,000 ดวงที่เราใช้ตั้งสเกล — ของคุณสูงกว่า <strong>${_pct}%</strong> ของดวงเหล่านั้น · สเกลวิ่ง 300–999 เพราะปลายล่างถูกตัดไว้ ไม่มีใครได้ต่ำกว่า 300`, `This is the <strong>average of the scores the 26 traditions gave you</strong>, placed against 3,000 random charts used to set the scale — yours sits above <strong>${_pct}%</strong> of them. The scale runs 300–999 because the bottom is clipped; nobody scores under 300.`);
+    const scoreWhere = tr(`คะแนนนี้คือ <strong>ค่าเฉลี่ยคะแนนที่ 26 ศาสตร์ให้คุณ</strong> เทียบกับดวงสุ่ม 3,000 ดวงที่เราใช้ตั้งสเกล — ของคุณสูงกว่า <strong>${_pct}%</strong> ของดวงเหล่านั้น · สเกลเต็ม 1,000`, `This is the <strong>average of the scores the 26 traditions gave you</strong>, placed against 3,000 random charts used to set the scale — yours sits above <strong>${_pct}%</strong> of them. The scale runs to 1,000.`);
     return section(1, tr('Cosmic Blueprint — ภาพรวม', 'Cosmic Blueprint — Overview'), '✦', `
     <div style="text-align:center;margin-bottom:16px">
       <div style="font-size:10px;color:#6a5a42;letter-spacing:4px;margin-bottom:6px">✦ MYTHSENSUS — PREMIUM EDITION ✦</div>
@@ -449,7 +449,7 @@ function p_threeScores(c) {
          read as redundant + contradictory. This page is the DEPTH behind the
          cover number, not a competing score. -->
     <div style="font-size:12.5px;color:#7a8a60;margin-bottom:16px;line-height:1.7">
-      ${tr('Soul Frequency คือ', 'Soul Frequency is')} <strong style="color:#c0d080">${tr('ระดับดวงพื้นฐานของคุณ', 'your fundamental chart level')}</strong> — ${tr('ก็คือ Cosmic Score บนหน้าปกนั่นเอง — คือ<strong>อันดับเปอร์เซ็นไทล์</strong>ของมัธยฐาน 26 ศาสตร์ของคุณ เทียบกับกลุ่มอ้างอิง แล้วแปลงเป็นสเกล 300–999 (ไม่ใช่ตัวเลขมัธยฐานดิบ · ไม่เปลี่ยนตลอดชีวิต เหมือนเกรดน้ำมัน)', 'the very Cosmic Score on your cover — the <strong>percentile rank</strong> of your 26-system median against a reference sample, mapped onto a 300-999 scale (not the raw median itself; fixed for life, like the grade of petroleum)')}<br>
+      ${tr('Soul Frequency คือ', 'Soul Frequency is')} <strong style="color:#c0d080">${tr('ระดับดวงพื้นฐานของคุณ', 'your fundamental chart level')}</strong> — ${tr('ก็คือ Cosmic Score บนหน้าปกนั่นเอง — คือ<strong>อันดับเปอร์เซ็นไทล์</strong>ของมัธยฐาน 26 ศาสตร์ของคุณ เทียบกับกลุ่มอ้างอิง แล้วแปลงเป็นสเกลเต็ม 1,000 (ไม่ใช่ตัวเลขมัธยฐานดิบ · ไม่เปลี่ยนตลอดชีวิต เหมือนเกรดน้ำมัน)', 'the very Cosmic Score on your cover — the <strong>percentile rank</strong> of your 26-system median against a reference sample, mapped onto a scale out of 1,000 (not the raw median itself; fixed for life, like the grade of petroleum)')}<br>
       ${tr('หน้านี้เจาะว่าศาสตร์ไหนขับตัวตนคุณออกมาชัดที่สุด และคุณเป็นใครในหนึ่งย่อหน้า', 'This page shows which systems voice your identity most clearly — and who you are, in one paragraph.')}
     </div>
 
@@ -578,7 +578,7 @@ function p02_scoreBreakdown(c) {
     </div>`;
     return section(3, tr('คะแนนรายศาสตร์ — ใครให้เท่าไหร่', 'Score by tradition — who scored what'), '🌐', `
     <div style="font-size:11px;color:#7a6a52;margin-bottom:12px;line-height:1.6">
-      ${tr('Cosmic Score = อันดับเปอร์เซ็นไทล์ของมัธยฐาน 26 ศาสตร์ (สเกล 300–999 · คนละสเกลกับคะแนนดิบด้านล่าง)', 'Cosmic Score = the percentile rank of your 26-system median (300-999 scale, NOT the raw scores below)')} = <strong style="color:#c8a45a">${c.score.total}</strong>
+      ${tr('Cosmic Score = อันดับเปอร์เซ็นไทล์ของมัธยฐาน 26 ศาสตร์ (สเกลเต็ม 1,000 · คนละสเกลกับคะแนนดิบด้านล่าง)', 'Cosmic Score = the percentile rank of your 26-system median (scale out of 1,000, NOT the raw scores below)')} = <strong style="color:#c8a45a">${c.score.total}</strong>
       · ${tr('ความสอดคล้อง', 'Consensus')} = ${c.score.agreement} · ${tr('มัธยฐานดิบ', 'Raw median')} = ${_scoreMedian(c)} · Mean = ${c.score.mean} · Modal = ${c.score.modalBin}–${c.score.modalBin + 49}
     </div>
 
@@ -2597,7 +2597,11 @@ function p25_summary(c) {
     <div style="text-align:center;margin-bottom:20px">
       <div style="font-size:48px;font-weight:700;color:#c8a45a">${score.total}</div>
       <div style="font-size:16px;color:#e6e2d8;margin-top:4px">${esc(_lang === 'en' ? (score.tierEn || score.tier) : score.tier)}</div>
-      <div style="font-size:12px;color:#9a8a72">${Math.round(((score.total - 300) / 699) * 100)}${tr(' จาก 100 บนสเกล 300–999', ' of 100 on the 300–999 scale')}</div>
+      <!-- Was a second number: the same score re-normalised to 0–100, which needed
+           the 300–999 range spelled out beside it to make sense, and then read as a
+           different result from the one directly above it. Director 2026-08-31:
+           show the ceiling, nothing else. -->
+      <div style="font-size:12px;color:#9a8a72">${tr('เต็ม 1,000', 'out of 1,000')}</div>
     </div>
 
     ${box(tr('จุดแข็งหลัก', 'Core Strengths'), [
