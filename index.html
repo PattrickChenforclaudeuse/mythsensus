@@ -2196,14 +2196,14 @@ try{
 <!-- (Tier-group nav moved up to sit directly under the header pill-tabs;
      see the "TOP-LEVEL NAV" block right after </header>.) -->
 
-<!-- ═══ TODAY AT A GLANCE ═══ -->
-<div class="today-bar" id="todayBar">
-  <div class="tb-pill"><span id="tb-phase-icon">🌑</span><span id="tb-phase-name">—</span></div>
-  <span class="tb-dot">·</span>
-  <div class="tb-pill"><span class="tb-label" data-t="tb_moon">ดวงจันทร์</span> <span id="tb-moon-sign">—</span></div>
-  <span class="tb-dot">·</span>
-  <div class="tb-pill"><span id="tb-day-icon">—</span><span id="tb-day-deity">—</span></div>
-</div>
+<!-- ═══ TODAY AT A GLANCE — ถอดออก 2026-09-01 ═══
+     สามช่องนี้คือ เฟสดวงจันทร์ · ราศีที่ดวงจันทร์อยู่ · วันในสัปดาห์
+     ทั้งสามเป็นข้อเท็จจริงของฟ้าที่เหมือนกันทุกคนบนโลก ไม่มีอะไรเกี่ยวกับดวงของคนอ่าน
+     และวันในสัปดาห์นาฬิกาในเครื่องเขาบอกอยู่แล้ว · ของเดียวกันนี้ถูกแปลงเป็นเรื่อง
+     ส่วนตัวไปแล้วในคำอ่านที่อยู่ใต้มันเอง ("จันทร์ในราศีเมษ เข้ากันกับราศีอาทิตย์ของคุณ")
+     ⇒ กินพื้นที่เหนือคำอ่านโดยไม่คืนอะไรให้คนอ่าน (director: "อ่านแล้วได้ประโยชน์อะไร
+     ถ้าไม่ได้ เอาออก") · แถบข้างจอใหญ่ที่กดเข้าหน้าฟ้าวันนี้ได้ยังอยู่ ไม่ได้ถอด
+     <div class="today-bar" id="todayBar"> … </div> -->
 
 <!-- ═══ DESKTOP SIDE RAILS (viewport >= 1200px only) ═══
      Each card is fully clickable — see _railJump() for routing. -->
@@ -6775,13 +6775,13 @@ function renderTodayBar(){
   const dayIcons=['🌞','🌕','🌺','🌿','🟡','💠','⬛'];
   const dayNamesTH=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
   const dayNamesEN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  document.getElementById('tb-phase-icon').textContent=phase.icon;
-  document.getElementById('tb-phase-name').textContent=LANG==='th'?phase.th:phase.en;
-  // ใส่คำว่า "ราศี" นำ ไม่งั้นอ่านได้ว่า "จันทร์ เมษ" ซึ่งไม่ใช่ประโยคภาษาไทย
-  document.getElementById('tb-moon-sign').textContent=LANG==='th'?('ราศี'+moonSign.th):moonSign.n;
-  document.getElementById('tb-day-icon').textContent=dayIcons[dow]+' ';
-  // "วัน" นำ ไม่งั้นช่องนี้อ่านว่า "จันทร์" ซ้ำกับสองช่องซ้ายที่พูดเรื่องดวงจันทร์
-  document.getElementById('tb-day-deity').textContent=LANG==='th'?('วัน'+dayNamesTH[dow]):dayNamesEN[dow];
+  // แถบบนถูกถอดออก 2026-09-01 — เขียนลงเฉพาะถ้ายังมี element อยู่ (เผื่อกลับมาใส่)
+  const _tb=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=v;};
+  _tb('tb-phase-icon', phase.icon);
+  _tb('tb-phase-name', LANG==='th'?phase.th:phase.en);
+  _tb('tb-moon-sign',  LANG==='th'?('ราศี'+moonSign.th):moonSign.n);
+  _tb('tb-day-icon',   dayIcons[dow]+' ');
+  _tb('tb-day-deity',  LANG==='th'?('วัน'+dayNamesTH[dow]):dayNamesEN[dow]);
   renderDesktopRails(phase, moonSign, dow, dayIcons, dayNamesTH, dayNamesEN);
 }
 
