@@ -2200,7 +2200,7 @@ try{
 <div class="today-bar" id="todayBar">
   <div class="tb-pill"><span id="tb-phase-icon">🌑</span><span id="tb-phase-name">—</span></div>
   <span class="tb-dot">·</span>
-  <div class="tb-pill"><span class="tb-label" data-t="tb_moon">MOON</span> <span id="tb-moon-sign">—</span></div>
+  <div class="tb-pill"><span class="tb-label" data-t="tb_moon">ดวงจันทร์</span> <span id="tb-moon-sign">—</span></div>
   <span class="tb-dot">·</span>
   <div class="tb-pill"><span id="tb-day-icon">—</span><span id="tb-day-deity">—</span></div>
 </div>
@@ -3383,7 +3383,7 @@ th:{
   no_question:"กรุณาใส่คำถามก่อน",no_dob:"กรุณาใส่วันเกิดก่อน",
   represents:"เป็นตัวแทนของ",free_tier:"ฟรี",
   premium_unlock:"การตีความเชิงลึก · ดูเพิ่มเติมใน premium report",
-  tb_moon:"จันทร์",copy_chart:"📋 คัดลอกผลการดู",copy_done:"✓ คัดลอกแล้ว!",
+  tb_moon:"ดวงจันทร์",copy_chart:"📋 คัดลอกผลการดู",copy_done:"✓ คัดลอกแล้ว!",
   quick_load:"โหลดแผนที่ชีวิต",
   web_nav_back:"← ย้อนกลับ",
   web_share:"✦ แชร์",
@@ -6777,9 +6777,11 @@ function renderTodayBar(){
   const dayNamesEN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   document.getElementById('tb-phase-icon').textContent=phase.icon;
   document.getElementById('tb-phase-name').textContent=LANG==='th'?phase.th:phase.en;
-  document.getElementById('tb-moon-sign').textContent=LANG==='th'?moonSign.th:moonSign.n;
+  // ใส่คำว่า "ราศี" นำ ไม่งั้นอ่านได้ว่า "จันทร์ เมษ" ซึ่งไม่ใช่ประโยคภาษาไทย
+  document.getElementById('tb-moon-sign').textContent=LANG==='th'?('ราศี'+moonSign.th):moonSign.n;
   document.getElementById('tb-day-icon').textContent=dayIcons[dow]+' ';
-  document.getElementById('tb-day-deity').textContent=LANG==='th'?dayNamesTH[dow]:dayNamesEN[dow];
+  // "วัน" นำ ไม่งั้นช่องนี้อ่านว่า "จันทร์" ซ้ำกับสองช่องซ้ายที่พูดเรื่องดวงจันทร์
+  document.getElementById('tb-day-deity').textContent=LANG==='th'?('วัน'+dayNamesTH[dow]):dayNamesEN[dow];
   renderDesktopRails(phase, moonSign, dow, dayIcons, dayNamesTH, dayNamesEN);
 }
 
@@ -6854,7 +6856,7 @@ function renderDesktopRails(phase, moonSign, dow, dayIcons, dayNamesTH, dayNames
   set('railPhase',      phase.icon);
   set('railPhaseName',  isTh ? phase.th : phase.en);
   // Moon sign: strip "Moon in " prefix stored in moonSign.n
-  const moonLabel = isTh ? (moonSign.th || moonSign.n) : moonSign.n;
+  const moonLabel = isTh ? ('ราศี' + (moonSign.th || moonSign.n)) : moonSign.n;   // ให้ตรงกับแถบบนมือถือ
   set('railMoonSign', moonLabel);
   const phaseKey = phase.en || phase.th || '';
   set('railSkyMeaning', isTh
