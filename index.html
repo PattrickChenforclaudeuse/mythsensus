@@ -184,6 +184,24 @@ nav{display:flex;justify-content:center;gap:3px;padding:18px 12px 0;flex-wrap:wr
 .sub-btn.active{color:var(--gold);border-color:var(--gold);background:rgba(200,164,90,.10);}
 .sub-btn.locked{opacity:.55;position:relative;}
 .sub-btn.locked::after{content:'🔒';font-size:9px;margin-left:5px;}
+/* Segment heading inside the sub-tab row. Not a control — it labels the group
+   of buttons that follows it, so Premium can hold both "what a membership
+   includes" and "what you buy once" in a single row instead of a third level
+   of navigation. */
+/* Segment picker: the first choice inside a two-part group. Sits above its
+   tabs so the row reads "which kind of thing" then "which one". */
+.seg-row{display:flex;gap:8px;width:100%;margin-bottom:8px;}
+.seg-btn{flex:1;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;padding:10px 8px;
+  background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;border-radius:10px;
+  transition:all .25s;white-space:nowrap;}
+.seg-btn:hover{color:var(--gold2);border-color:var(--gold3);}
+.seg-btn.active{color:var(--gold);border-color:var(--gold);background:rgba(200,164,90,.10);font-weight:500;}
+.seg-tabs{display:flex;gap:8px;flex-wrap:nowrap;}
+#navSubs:has(.seg-row){flex-wrap:wrap;}
+.sub-seg{font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--gold3);opacity:.85;padding:8px 4px 8px 10px;white-space:nowrap;align-self:center;
+  border-left:1px solid var(--border);margin-left:6px;}
+.sub-seg:first-child{border-left:0;margin-left:0;padding-left:2px;}
 @media(max-width:520px){
   .nav-groups{display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:0;margin:14px 0 0;}
   /* Labels like "COSMIC BLUEPRINT" (~127px) cannot fit one ~74px grid cell.
@@ -2007,12 +2025,9 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
      and restyled as a framed gold card so it reads as the primary
      navigation of the app. See `.nav-groups` CSS above. -->
 <nav class="nav-groups" role="tablist">
-  <button class="group-btn active" id="group-free"         onclick="setGroup('free')"         data-t="group_free">✦ ดูดวงฟรี</button>
-  <button class="group-btn"        id="group-premium"      onclick="setGroup('premium')"      data-t="group_premium">👑 ดวงชะตาเต็ม</button>
-  <button class="group-btn"        id="group-subscription" onclick="setGroup('subscription')" data-t="group_subscription">🔮 ดวงวันนี้</button>
-  <button class="group-btn"        id="group-addon"        onclick="setGroup('addon')"        data-t="group_addon">🎁 เนื้อคู่ · เสริมดวง</button>
-  <button class="group-btn"        id="group-pets"         onclick="setGroup('pets')"         data-t="group_pets">🐾 Pets</button>
-  <button class="group-btn"        id="group-profile"      onclick="setGroup('profile')"      data-t="group_profile">👤 คลังของฉัน</button>
+  <button class="group-btn active" id="group-free"    onclick="setGroup('free')"    data-t="group_free">✦ ดูดวงฟรี</button>
+  <button class="group-btn"        id="group-premium" onclick="setGroup('premium')" data-t="group_premium">👑 Premium</button>
+  <button class="group-btn"        id="group-profile" onclick="setGroup('profile')" data-t="group_profile">👤 คลังของฉัน</button>
 </nav>
 
 <!-- ═══ SECONDARY NAV: Sub-tabs for active group ═══ -->
@@ -2926,7 +2941,8 @@ en:{
   cb_tb_back:"← Back",cb_tb_compare:"📊 Compare",cb_tb_save:"💾 Save HTML",cb_tb_print:"🖨️ Print / PDF",
   history_title:"HISTORY — Your records",
   // ── top-level groups
-  group_free:"✦ Free readings",group_premium:"👑 Full chart",group_subscription:"🔮 Today",
+  group_free:"✦ Free readings",group_premium:"👑 Premium",group_subscription:"🔮 Today",
+  seg_monthly:"Monthly membership",seg_onetime:"Single readings",
   group_addon:"🎁 Soulmate · Remedies",group_profile:"👤 My collection",
   // ── sub-tabs
   sub_forecast:"📅 Weeks ahead",sub_blessing:"🎴 Blessing",sub_organum:"🔮 Oraculum",sub_preview:"📊 Preview",
@@ -3144,7 +3160,8 @@ th:{
   cb_tb_back:"← กลับ",cb_tb_compare:"📊 เปรียบเทียบ",cb_tb_save:"💾 บันทึก HTML",cb_tb_print:"🖨️ Print / PDF",
   history_title:"HISTORY — บันทึกของคุณ",
   // ── top-level groups
-  group_free:"✦ ดูดวงฟรี",group_premium:"👑 ดวงชะตาเต็ม",group_subscription:"🔮 ดวงวันนี้",
+  group_free:"✦ ดูดวงฟรี",group_premium:"👑 Premium",group_subscription:"🔮 ดวงวันนี้",
+  seg_monthly:"สมาชิกรายเดือน",seg_onetime:"ดูดวงรายครั้ง",
   group_addon:"🎁 เนื้อคู่ · เสริมดวง",group_profile:"👤 คลังของฉัน",
   // ── sub-tabs
   sub_forecast:"📅 พยากรณ์ 4 สัปดาห์",sub_blessing:"🎴 จั่วไพ่",sub_organum:"🔮 โอราคูลัม",sub_preview:"📊 ดูตัวอย่าง",
@@ -3907,39 +3924,44 @@ const GROUPS = {
       ['history',    'history',     'sub_history7',   false],
     ],
   },
+  // Premium — one category with two segments, split by HOW you pay, because
+  // that is the only distinction a buyer actually has to understand
+  // (director 2026-08-31: "ฝั่งสมาชิกเปลี่ยนชื่อเป็น Premium ให้มี Tab แยกเป็น
+  // สมาชิกรายเดือน กับ ดูดวงรายครั้ง แล้วแยกหมวดไปแทน").
+  //
+  // Membership is one price for everything under the first heading; everything
+  // under the second is bought once, per reading. The split is not editorial —
+  // it is read off `_GUMROAD_PRODUCTS`: a key with a per-item permalink is a
+  // single reading, anything else comes with the subscription.
+  //
+  // A `['--', labelKey]` entry renders as a heading in the sub-bar rather than
+  // a button, so both segments live in one row without a third level of nav.
   premium: {
-    default: 'blueprint',
-    tabs: [
-      ['blueprint', 'blueprint',         'sub_generate', false],
-      ['reports',   'premium-reports',   'sub_reports',  false],
-    ],
-  },
-  subscription: {
     default: 'forecast',
     tabs: [
-      ['forecast',  'forecast',  'sub_forecast',     false],
-      ['sky',       'sky',       'sub_sky',          false],
-      ['resonance', 'resonance', 'sub_resonance',    false],
-      ['brief',     'brief',     'sub_brief',        false],
-      ['freq',      'freq',      'sub_freq',         false],
-      ['lucky',     'lucky',     'sub_lucky',        false],
-      ['history',   'history',   'sub_history_all',  false],
-    ],
-  },
-  addon: {
-    default: 'deep',
-    tabs: [
-      ['deep',       'deep',       'sub_deep',       false],
-      // All add-ons unlocked for beta testing — will flip to `true` (locked,
-      // requires payment) at online launch.
-      ['mirror',     'mirror',     'sub_mirror',     false],
-      ['pet',        'pet',        'sub_pet',        false],
-      ['companions', 'companions', 'sub_companions', false],
-      ['exercise',   'exercise',   'sub_exercise',   false],
-      ['food',       'food',       'sub_food',       false],
-      ['product',    'product',    'sub_product',    false],
-      ['compat',     'compat',     'sub_compat',     false],
-      ['pilgrimage', 'pilgrimage', 'sub_pilg',       false],
+      ['--', 'seg_monthly'],
+      ['forecast',   'forecast',          'sub_forecast',    false],
+      ['sky',        'sky',               'sub_sky',         false],
+      ['resonance',  'resonance',         'sub_resonance',   false],
+      ['brief',      'brief',             'sub_brief',       false],
+      ['freq',       'freq',              'sub_freq',        false],
+      ['lucky',      'lucky',             'sub_lucky',       false],
+      ['history',    'history',           'sub_history_all', false],
+      ['--', 'seg_onetime'],
+      ['blueprint',  'blueprint',         'sub_generate',    false],
+      ['deep',       'deep',              'sub_deep',        false],
+      ['mirror',     'mirror',            'sub_mirror',      false],
+      ['compat',     'compat',            'sub_compat',      false],
+      ['companions', 'companions',        'sub_companions',  false],
+      ['exercise',   'exercise',          'sub_exercise',    false],
+      ['food',       'food',              'sub_food',        false],
+      ['product',    'product',           'sub_product',     false],
+      ['pilgrimage', 'pilgrimage',        'sub_pilg',        false],
+      ['pet',        'pethome',           'sub_pet_home',    false],
+      ['petreading', 'petreading',        'sub_pet_reading', false],
+      ['petmatch',   'petmatch',          'sub_pet_match',   false],
+      ['pethouse',   'pethouse',          'sub_pet_house',   false],
+      ['reports',    'premium-reports',   'sub_reports',     false],
     ],
   },
   profile: {
@@ -3951,19 +3973,6 @@ const GROUPS = {
       ['me',         'profile',    'sub_me',         false],
       ['multi',      'multi',      'sub_multi',      false],
       ['settings',   'settings',   'sub_settings',   false],
-    ],
-  },
-  // 🐾 Pets — dedicated category. Each sub-tab keys off a PET as its own
-  // subject (its birthday → its own chart), unlike the owner-centric add-ons.
-  // All views reuse window.MS26.calculate() + date-based subset (pets have no
-  // birth time/place). Storage: localStorage 'ms_pets'. See renderPet* fns.
-  pets: {
-    default: 'home',
-    tabs: [
-      ['home',    'pethome',    'sub_pet_home',    false],
-      ['reading', 'petreading', 'sub_pet_reading', false],
-      ['match',   'petmatch',   'sub_pet_match',   false],
-      ['house',   'pethouse',   'sub_pet_house',   false],
     ],
   },
 };
@@ -4019,6 +4028,60 @@ const RENDERERS = {
   lucky:            () => renderLucky(),
 };
 
+// Which segment of a two-part group is open. Premium holds both "what a
+// membership includes" and "what you buy once"; showing all 21 destinations at
+// once meant the $19 report sat behind seven buttons of horizontal scroll
+// (director 2026-08-31: "ต้องกดเข้าไปในสมาชิกรายเดือน หรือว่ารายครั้งก่อน ถึงจะ
+// เห็น tab ย่อย"). Pick the segment first, then see only its tabs.
+let CUR_SEG = null;
+
+// Split a tab list on its ['--', labelKey] markers into [{label, tabs}].
+function _segmentsOf(g) {
+  const out = [];
+  for (const entry of (GROUPS[g] || {}).tabs || []) {
+    if (entry[0] === '--') out.push({ label: entry[1], tabs: [] });
+    else if (out.length) out[out.length - 1].tabs.push(entry);
+    else out.push({ label: null, tabs: [entry] });
+  }
+  return out;
+}
+function _segIndexOfSub(g, subKey) {
+  const segs = _segmentsOf(g);
+  const i = segs.findIndex(sg => sg.tabs.some(t => t[0] === subKey));
+  return i < 0 ? 0 : i;
+}
+
+// Open a segment and land on its first tab.
+function setSegment(g, i) {
+  const segs = _segmentsOf(g);
+  if (!segs[i]) return;
+  CUR_SEG = i;
+  _paintSubBar(g);
+  const first = segs[i].tabs[0];
+  if (first) showSubTab(first[0]);
+}
+
+function _paintSubBar(g) {
+  const bar = document.getElementById('navSubs');
+  if (!bar) return;
+  const segs = _segmentsOf(g);
+  const multi = segs.length > 1 && segs.every(sg => sg.label);
+  if (!multi) {
+    bar.innerHTML = ((GROUPS[g] || {}).tabs || [])
+      .filter(e => e[0] !== '--')
+      .map(([key, panel, txKey, locked]) =>
+        `<button type="button" class="sub-btn${locked ? ' locked' : ''}" data-sub="${key}" data-panel="${panel}" data-t="${txKey}">${t(txKey)}</button>`)
+      .join('');
+    return;
+  }
+  const cur = (CUR_SEG == null || !segs[CUR_SEG]) ? 0 : CUR_SEG;
+  const picker = segs.map((sg, i) =>
+    `<button type="button" class="seg-btn${i === cur ? ' active' : ''}" data-seg="${i}" data-t="${sg.label}">${t(sg.label)}</button>`).join('');
+  const tabs = segs[cur].tabs.map(([key, panel, txKey, locked]) =>
+    `<button type="button" class="sub-btn${locked ? ' locked' : ''}" data-sub="${key}" data-panel="${panel}" data-t="${txKey}">${t(txKey)}</button>`).join('');
+  bar.innerHTML = `<span class="seg-row">${picker}</span><span class="seg-tabs">${tabs}</span>`;
+}
+
 function setGroup(g) {
   if (!GROUPS[g]) g = 'free';
   if (CUR_GROUP !== g && typeof _logEngagement === 'function') _logEngagement('group_switch');
@@ -4030,16 +4093,12 @@ function setGroup(g) {
   }
   // Rebuild the sub-tab row WITHOUT inline onclick — the document-level
   // delegation handler picks up clicks via .sub-btn class + data-sub attr.
-  const bar = document.getElementById('navSubs');
-  if (bar) {
-    bar.innerHTML = GROUPS[g].tabs.map(([key, panel, txKey, locked]) =>
-      `<button type="button" class="sub-btn${locked?' locked':''}" data-sub="${key}" data-panel="${panel}" data-t="${txKey}">${t(txKey)}</button>`
-    ).join('');
-  }
+  if (CUR_GROUP !== g) CUR_SEG = null;   // entering a group opens its first segment
+  _paintSubBar(g);
   // Restore last-visited sub for this group; fall back to default if the
   // saved key no longer exists in the group definition (e.g. tab renamed).
   const last = localStorage.getItem('ms_last_sub_' + g);
-  const valid = GROUPS[g].tabs.some(x => x[0] === last);
+  const valid = GROUPS[g].tabs.some(x => x[0] !== '--' && x[0] === last);
   // ...but the FIRST screen of a page load is the one the landing page made
   // a promise about, so the free group opens on its default there and the
   // remembered tab only applies to moves made afterwards.
@@ -4050,7 +4109,7 @@ function setGroup(g) {
 }
 
 function showSubTab(subKey) {
-  const tabs = (GROUPS[CUR_GROUP] || {}).tabs || [];
+  const tabs = ((GROUPS[CUR_GROUP] || {}).tabs || []).filter(x => x[0] !== '--');
   const entry = tabs.find(x => x[0] === subKey);
   if (!entry) {
     console.warn('[showSubTab] unknown sub:', subKey, 'in group', CUR_GROUP);
@@ -4075,12 +4134,25 @@ function showSubTab(subKey) {
   if (typeof fn === 'function') {
     try { fn(); } catch (e) { console.error('[render ' + panelId + ']', e); }
   }
+  // A tab can be reached without touching the picker — a deep link, the
+  // remembered tab on group entry, or any button elsewhere that calls
+  // showSubTab directly. Keep the picker showing the segment we are actually in.
+  try {
+    const want = _segIndexOfSub(CUR_GROUP, subKey);
+    if (CUR_SEG !== want) { CUR_SEG = want; _paintSubBar(CUR_GROUP); }
+  } catch (_) {}
 }
 
 // One delegated listener handles every group / sub click. Survives sub-tab
 // row re-renders, ignores clicks that happen inside disabled / locked
 // buttons, and never relies on inline onclick attributes.
 document.addEventListener('click', e => {
+  const segBtn = e.target.closest('.seg-btn');
+  if (segBtn) {
+    e.preventDefault();
+    setSegment(CUR_GROUP, parseInt(segBtn.getAttribute('data-seg'), 10) || 0);
+    return;
+  }
   const subBtn = e.target.closest('.sub-btn');
   if (subBtn) {
     if (subBtn.classList.contains('locked')) return;   // locked = paid tier, ignore

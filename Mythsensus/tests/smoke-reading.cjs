@@ -127,33 +127,57 @@ const problems = [];
   });
   if (!submitted) problems.push('entryAccept() confirm button not found');
 
-  // 5. the forecast must actually render — the thing the landing promises
+  // 5. SOMETHING must render after the birth date — whatever the free tier is today.
+  //
+  // This used to demand `#panel-forecast.active`. On 2026-08-31 the director moved
+  // the free tier from the four-week forecast to the daily pulse, and this test went
+  // red for a product decision rather than a broken journey. A session read the red
+  // as an outage and ran the rollback guide, reverting the engine and deleting two
+  // guard tests. So: assert the PROMISE (you type a birth date, you get a reading),
+  // never the name of whichever panel currently keeps it.
+  // Ask the PAGE which panel it landed on rather than reading its config: the
+  // nav config is a `const` inside a script, not on `window`, and hard-coding a
+  // panel name is what made this test go red for a product decision in the first
+  // place. Whatever is active after the birth date is confirmed must carry a
+  // real reading.
+  let landingPanelId = null;
   try {
     await page.waitForFunction(
       () => {
-        const p = document.getElementById('panel-forecast');
-        const h = document.getElementById('forecastPanel');
-        return p && p.classList.contains('active') && h && (h.innerText || '').trim().length > 400;
+        const p = document.querySelector('.panel.active');
+        return p && (p.innerText || '').trim().length > 300;
       },
       { timeout: 25000 }
     );
+    landingPanelId = await page.evaluate(() => {
+      const p = document.querySelector('.panel.active');
+      return p ? p.id : null;
+    });
   } catch (_) {
-    problems.push('forecast (#panel-forecast.active) never rendered after confirming the birth date');
+    landingPanelId = await page.evaluate(() => {
+      const p = document.querySelector('.panel.active');
+      return p ? p.id : null;
+    });
+    problems.push(`no panel carried a reading after confirming the birth date (active panel: ${landingPanelId || 'none'})`);
   }
 
-  const shown = await page.evaluate(() => {
-    const p = document.getElementById('panel-forecast');
-    const h = document.getElementById('forecastPanel');
-    const txt = h ? (h.innerText || '').trim() : '';
+  const hasChart = await page.evaluate(() => document.body.classList.contains('has-chart'));
+  if (!hasChart) problems.push('body.has-chart was never set — the pre-chart marketing blocks stay visible above the visitor own reading');
+
+  const shown = await page.evaluate((pid) => {
+    const p = pid && document.getElementById(pid);
+    const txt = p ? (p.innerText || '').trim() : '';
     return { active: !!(p && p.classList.contains('active')),
              chars: txt.length,
-             // A forecast of nothing is the failure mode this product has to
+             // A reading of nothing is the failure mode this product has to
              // avoid: if every domain reads the same, the page is technically
              // rendering and telling the reader nothing.
              scores: (txt.match(/[1-5]\/5/g) || []).slice(0, 8),
              entryViewFired: !!window._entryShownTracked };
-  });
-  if (shown.active && shown.scores.length < 4) {
+  }, landingPanelId);
+  // Four domain scores are a property of the FORECAST specifically; the daily
+  // pulse does not carry them. Only demand it when the forecast is the landing.
+  if (shown.active && landingPanelId === 'panel-forecast' && shown.scores.length < 4) {
     problems.push(`forecast rendered but only ${shown.scores.length} domain scores found (want 4)`);
   }
   if (shown.scores.length && new Set(shown.scores).size === 1) {
@@ -205,7 +229,7 @@ const problems = [];
   if (pageErrors.length) problems.push('uncaught JS: ' + pageErrors.join(' | ').slice(0, 300));
 
   console.log(`  url:          ${URL}`);
-  console.log(`  forecast:     ${shown.active} (${shown.chars} chars)`);
+  console.log(`  landing:      ${landingPanelId} · ${shown.active ? "active" : "NOT active"} (${shown.chars} chars)`);
   console.log(`  scores:       ${shown.scores.join('  ')}`);
   console.log(`  entry_view:   ${shown.entryViewFired}`);
   console.log(`  js errors:    ${pageErrors.length}`);
