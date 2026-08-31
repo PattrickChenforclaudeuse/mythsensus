@@ -59,7 +59,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
      half of the pitch. Google cuts the tail, and the tail is the part that was
      doing the least work. -->
 <title>ดูดวงหลายที่บอกไม่ตรงกัน? ถาม 26 ศาสตร์พร้อมกัน · Mythsensus — 26 systems, one birth date</title>
-<meta name="description" content="ดูดวงหลายที่แล้วบอกไม่ตรงกัน? Mythsensus อ่าน 26 ศาสตร์โบราณพร้อมกัน — BaZi, Vedic, Western, Human Design และอีก 22 ศาสตร์ — แล้วบอกคุณว่าศาสตร์ไหนเห็นตรงกัน ศาสตร์ไหนขัดกัน · เริ่มฟรี ไม่ต้องสมัคร">
+<meta name="description" content="ดูดวงหลายที่แล้วบอกไม่ตรงกัน? Mythsensus อ่าน 26 ศาสตร์โบราณพร้อมกัน — BaZi, Vedic, Western, ระบบประเภทพลังงาน และอีก 22 ศาสตร์ — แล้วบอกคุณว่าศาสตร์ไหนเห็นตรงกัน ศาสตร์ไหนขัดกัน · เริ่มฟรี ไม่ต้องสมัคร">
 <meta name="google-site-verification" content="dmRo8ih4-4x1P0LMMfoMgUKV3xnp9QuEbkF0MZ9U7HA">
 <meta name="google-site-verification" content="EYRhaZgFHVYv-jIsZHjCzunQGNLTyXTlOAnBsAXpJG8">
 <!-- Vercel Web Analytics (privacy-friendly, cookieless). Enable in Vercel → Project → Analytics. -->
@@ -71,7 +71,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=207">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=208">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
@@ -1250,7 +1250,7 @@ let _authEmail = '';    // Email pending OTP verification
         "Thai Seven Number (เลข 7 ตัว 9 ฐาน)",
         "Thai Brahmin",
         "Pythagorean Numerology",
-        "Human Design",
+        "Energy Type System",
         "Mayan Tzolk'in",
         "Aztec Tonalpohualli",
         "Celtic Tree Astrology",
@@ -2935,7 +2935,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=207" defer></script>
+<script src="/build/ms26-bundle.js?v=208" defer></script>
 <script>
 
 
@@ -6698,8 +6698,8 @@ function renderChart(data){
       en:`Life Path ${data.pyth.lp} — ${data.pyth.arch.en||data.pyth.arch} — is the master current running beneath every chapter of your life. ${lpDescEN[data.pyth.lp]||'Your life path carries a unique frequency that shapes every major decision and relationship.'} This number doesn't change — it is the throughline of your entire lifetime. The premium report adds your Expression number (outer gifts), Soul Urge (inner drive), and Personal Year number (what 2025–2026 holds for you).`,
       th:`เส้นทางชีวิต ${data.pyth.lp} — ${data.pyth.arch.th||data.pyth.arch} — คือกระแสหลักที่ไหลอยู่ใต้ทุกบทของชีวิตคุณ ${lpDescTH[data.pyth.lp]||'เส้นทางชีวิตของคุณมีความถี่เฉพาะที่หล่อหลอมการตัดสินใจและความสัมพันธ์สำคัญทุกอย่าง'} เลขนี้ไม่เปลี่ยน — มันคือเส้นด้ายที่ผ่านตลอดชีวิตทั้งหมดของคุณ รายงาน premium เพิ่มเลข Expression, Soul Urge และ Personal Year`},
     energy:{
-      en:`As a ${data.energy.label.en} (${data.energy.el} element), your natural operating mode is ${data.energy.el==='fire'?'generative and initiating — you produce energy for others to use, and feel drained when forced into passivity':data.energy.el==='earth'?'sustaining and stabilizing — you hold things together, and feel drained when asked to constantly improvise without structure':data.energy.el==='air'?'distributing and bridging — you move ideas and people toward connection, and feel drained by isolation or repetitive routine':'receptive and reflecting — you absorb and process the emotional field around you, and feel drained by environments that ignore depth'}. The premium report uses your exact birth time to calculate your full Human Design type, strategy, authority, and profile.`,
-      th:`ในฐานะ${data.energy.label.th} (ธาตุ${data.energy.el==='fire'?'ไฟ':data.energy.el==='earth'?'ดิน':data.energy.el==='air'?'ลม':'น้ำ'}) โหมดการทำงานธรรมชาติของคุณคือ${data.energy.el==='fire'?'สร้างและริเริ่ม — คุณผลิตพลังงานให้ผู้อื่นใช้ และรู้สึกหมดแรงเมื่อถูกบังคับให้อยู่นิ่ง':data.energy.el==='earth'?'รักษาและให้ความมั่นคง — คุณยึดสิ่งต่างๆ เข้าด้วยกัน และหมดแรงเมื่อต้องด้นสดตลอดเวลา':data.energy.el==='air'?'กระจายและสร้างสะพาน — คุณเคลื่อนความคิดและผู้คนสู่การเชื่อมต่อ และหมดแรงจากการโดดเดี่ยว':'รับและสะท้อน — คุณดูดซับสนามอารมณ์รอบตัว และหมดแรงจากสภาพแวดล้อมที่ไม่ยอมรับความลึก'} รายงาน premium ใช้เวลาเกิดที่แน่นอนเพื่อคำนวณ Human Design type, strategy, authority และ profile ฉบับสมบูรณ์`},
+      en:`As a ${data.energy.label.en} (${data.energy.el} element), your natural operating mode is ${data.energy.el==='fire'?'generative and initiating — you produce energy for others to use, and feel drained when forced into passivity':data.energy.el==='earth'?'sustaining and stabilizing — you hold things together, and feel drained when asked to constantly improvise without structure':data.energy.el==='air'?'distributing and bridging — you move ideas and people toward connection, and feel drained by isolation or repetitive routine':'receptive and reflecting — you absorb and process the emotional field around you, and feel drained by environments that ignore depth'}. The premium report uses your exact birth time to calculate your full ระบบประเภทพลังงาน type, strategy, authority, and profile.`,
+      th:`ในฐานะ${data.energy.label.th} (ธาตุ${data.energy.el==='fire'?'ไฟ':data.energy.el==='earth'?'ดิน':data.energy.el==='air'?'ลม':'น้ำ'}) โหมดการทำงานธรรมชาติของคุณคือ${data.energy.el==='fire'?'สร้างและริเริ่ม — คุณผลิตพลังงานให้ผู้อื่นใช้ และรู้สึกหมดแรงเมื่อถูกบังคับให้อยู่นิ่ง':data.energy.el==='earth'?'รักษาและให้ความมั่นคง — คุณยึดสิ่งต่างๆ เข้าด้วยกัน และหมดแรงเมื่อต้องด้นสดตลอดเวลา':data.energy.el==='air'?'กระจายและสร้างสะพาน — คุณเคลื่อนความคิดและผู้คนสู่การเชื่อมต่อ และหมดแรงจากการโดดเดี่ยว':'รับและสะท้อน — คุณดูดซับสนามอารมณ์รอบตัว และหมดแรงจากสภาพแวดล้อมที่ไม่ยอมรับความลึก'} รายงาน premium ใช้เวลาเกิดที่แน่นอนเพื่อคำนวณ ระบบประเภทพลังงาน type, strategy, authority และ profile ฉบับสมบูรณ์`},
     brahmin:{
       en:`Born on a ${dowNames[dow]}, you carry the vibration of ${data.brahmin.label.en}. ${data.brahmin.desc.en} In Thai Brahmin tradition, your birth day determines your protective deity, your power color that amplifies fortune, and the gemstone aligned with your energy. These are not superstitions — they are centuries of pattern recognition codified into practical guidance. The premium report reveals your full planetary alignment and auspicious timing for major decisions.`,
       th:`เกิดวัน${dowNamesTH[dow]} คุณแบกรับการสั่นพ้องของ${data.brahmin.label.th} ${data.brahmin.desc.th} ในประเพณีไทยพราหมณ์ วันเกิดของคุณกำหนดเทพผู้ปกป้อง สีแห่งอำนาจที่ขยายโชค และอัญมณีที่สอดคล้องกับพลังงานของคุณ สิ่งเหล่านี้ไม่ใช่ไสยศาสตร์ — มันคือการจดจำรูปแบบหลายศตวรรษที่รวบรวมเป็นแนวทางปฏิบัติ`},
@@ -8565,7 +8565,7 @@ function _buildDeepAddon(chart, key){
         {lbl:'Nine Star Ki',icon:'★',vTh:nskStar+' · '+nskEl,vEn:nskStar+' · '+nskEl,
          iTh:`NSK ดาว ${nskStar} (${nskEl}) — วิธีที่คุณส่งพลังงานออกสู่โลกรอบข้าง`,
          iEn:`NSK Star ${nskStar} (${nskEl}) — how your energy radiates outward into the surrounding world`},
-        {lbl:'Human Design',icon:'◈',vTh:hdType,vEn:hdType,
+        {lbl:'Energy Type System',icon:'◈',vTh:hdType,vEn:hdType,
          iTh:`HD Type ${hdType} — กลยุทธ์การดำเนินชีวิตที่สอดคล้องกับ aura เฉพาะตัวของคุณ`,
          iEn:`HD Type ${hdType} — the life strategy aligned with your unique aura`},
         {lbl:'Mayan Tzolkʼin',icon:'☉',vTh:'Kin '+mayanKin,vEn:'Kin '+mayanKin,
@@ -8594,7 +8594,7 @@ function _buildDeepAddon(chart, key){
         {lbl:'Biorhythm Today',icon:'〰',vTh:'กาย '+bp(bioPhys)+' · อารมณ์ '+bp(bioEmo),vEn:'Physical '+bp(bioPhys)+' · Emotional '+bp(bioEmo),
          iTh:bioPhys>=0?'พลังกายบวกวันนี้ — เหมาะพาสัตว์ออกกำลังหรือเริ่มเลี้ยงใหม่':'พลังกายลบ — พักผ่อนเงียบๆ กับสัตว์เลี้ยงคืนนี้',
          iEn:bioPhys>=0?'Positive physical cycle — good day for active pet time or adoption':'Low physical day — rest quietly with your pet tonight'},
-        {lbl:'Human Design',icon:'◈',vTh:hdType,vEn:hdType,
+        {lbl:'Energy Type System',icon:'◈',vTh:hdType,vEn:hdType,
          iTh:`HD ${hdType}: ${hdType.includes('Projector')||hdType.includes('โปรเจก')?'เลือกสัตว์ที่ไม่ขอพลังงานตลอดเวลา':hdType.includes('Generator')||hdType.includes('เจเนอ')?'สัตว์พลังงานสูงเสริม sacral response ได้':hdType.includes('Manifestor')||hdType.includes('แมนิเฟส')?'เลือกสัตว์ที่เป็นอิสระ ไม่เกาะติด':'สัตว์ที่ปรับตัวตามจังหวะชีวิตคุณ'}`,
          iEn:`HD ${hdType}: ${hdType==='Projector'?'choose animals that don\'t demand constant energy':hdType==='Generator'?'high-energy animals boost your sacral response':hdType==='Manifestor'?'choose independent animals that respect your space':'flexible animals that adapt to your rhythm'}`},
         {lbl:'Numerology LP',icon:'◎',vTh:'LP '+lp,vEn:'LP '+lp,
@@ -8652,7 +8652,7 @@ function _buildDeepAddon(chart, key){
         {lbl:'Vedic Mahadasha',icon:'✦',vTh:mahadasha+' Dasha',vEn:mahadasha+' Dasha',
          iTh:`${mahadasha} Dasha: ${mahadasha==='Mars'?'พลังงานสูง — ออกกำลังหนักได้':mahadasha==='Saturn'?'มี discipline สูง — ออกกำลังต่อเนื่องสม่ำเสมอ':mahadasha==='Venus'?'เบาพลิ้ว — ระบำ stretching':mahadasha==='Sun'?'Cardio สูง — วิ่ง ว่ายน้ำ':mahadasha==='Moon'?'ตามอารมณ์ — โยคะ เดิน':mahadasha==='Rahu'||mahadasha==='Ketu'?'นิ่ง — สมาธิ โยคะ ไม่หักโหม':'ออกสม่ำเสมอ ตามจังหวะ Dasha'}`,
          iEn:`${mahadasha} Dasha: ${mahadasha==='Mars'?'high energy — heavy training ideal':mahadasha==='Saturn'?'discipline — steady endurance training':mahadasha==='Venus'?'light elegant — dance, stretching':mahadasha==='Sun'?'cardio — running, swimming':mahadasha==='Moon'?'intuitive — yoga, walking':mahadasha==='Rahu'||mahadasha==='Ketu'?'still — meditation, yoga, no excess':'steady rhythm matching the dasha'}`},
-        {lbl:'Human Design',icon:'◈',vTh:hdType,vEn:hdType,
+        {lbl:'Energy Type System',icon:'◈',vTh:hdType,vEn:hdType,
          iTh:`HD ${hdType}: ${hdType.includes('Generator')||hdType.includes('เจเนอ')?'ออกกำลังตาม sacral response — ร่างกายต้องอยากทำ':hdType.includes('Projector')||hdType.includes('โปรเจก')?'ออกกำลังน้อยกว่า Generator พักฟื้นสำคัญกว่า':hdType.includes('Manifestor')||hdType.includes('แมนิเฟส')?'ออกตามแรงบันดาลใจ ไม่สม่ำเสมอก็โอเค':hdType.includes('Reflector')||hdType.includes('รีเฟลก')?'ออกกำลังตามจันทร์ ยืดหยุ่นสูง':'ออกตามจังหวะตัวเอง'}`,
          iEn:`HD ${hdType}: ${hdType==='Generator'?'exercise only when the sacral says yes':hdType==='Projector'?'less exercise than Generators, recovery is crucial':hdType==='Manifestor'?'burst-mode training when inspired, inconsistency is fine':hdType==='Reflector'?'lunar-cycle exercise, maximise flexibility':'exercise at your own rhythm'}`},
         {lbl:'Numerology LP',icon:'◎',vTh:'LP '+lp,vEn:'LP '+lp,
@@ -8856,17 +8856,17 @@ function _buildDeepAddon(chart, key){
   const SYNTHESIS = {
     mirror: isTh ? [
       `เมื่อวาง 26 ศาสตร์ซ้อนทับกัน แกนที่ทุกศาสตร์ชี้ตรงกันคือพลังงานธาตุ<strong>${elLabel(dmEl)}</strong> (${dmTh}) — "${tr.core}" คือสิ่งที่คุณปล่อยออกมาโดยไม่ต้องพยายาม. แต่จุดที่น่าสนใจคือ "รอยต่อ" ระหว่างชั้น: Western Sun <strong>${sunTh}</strong> คือหน้ากากที่โลกเห็น ส่วน Vedic Nakshatra <strong>${moonNak}</strong> คือแรงขับใต้สำนึกที่บางครั้งสวนทางกับหน้ากากนั้น — ความไม่ลงรอยตรงนี้ไม่ใช่ข้อบกพร่อง แต่คือบ่อเกิดของความลึกในตัวคุณ.`,
-      `Life Path <strong>${lp}</strong> คือบทที่วิญญาณมาเรียนในชีวิตนี้ และ Human Design <strong>${hdType}</strong> คือ "วิธีใช้พลังงาน" ที่ถูกต้องสำหรับคุณ. เมื่อสองอย่างนี้ทำงานพร้อมกัน คุณจะรู้สึก "เป็นตัวเอง"; แต่ทุกครั้งที่ฝืนใช้กลยุทธ์ของคนอื่น พลังจะรั่วผ่าน "${tr.drains}". กระจกบานนี้ไม่ได้บอกว่าคุณควรเป็นใคร — มันสะท้อนว่าคุณเป็นใครอยู่แล้ว เมื่อหยุดเทียบตัวเองกับค่าเฉลี่ยของคนอื่น.`
+      `Life Path <strong>${lp}</strong> คือบทที่วิญญาณมาเรียนในชีวิตนี้ และ ระบบประเภทพลังงาน <strong>${hdType}</strong> คือ "วิธีใช้พลังงาน" ที่ถูกต้องสำหรับคุณ. เมื่อสองอย่างนี้ทำงานพร้อมกัน คุณจะรู้สึก "เป็นตัวเอง"; แต่ทุกครั้งที่ฝืนใช้กลยุทธ์ของคนอื่น พลังจะรั่วผ่าน "${tr.drains}". กระจกบานนี้ไม่ได้บอกว่าคุณควรเป็นใคร — มันสะท้อนว่าคุณเป็นใครอยู่แล้ว เมื่อหยุดเทียบตัวเองกับค่าเฉลี่ยของคนอื่น.`
     ] : [
       `Overlay all 26 systems and the axis they agree on is your <strong>${elLabel(dmEl)}</strong>-element core (${dmTh}) — "${tr.core}" is what you radiate without trying. The revealing part is the <em>seam</em> between layers: your Western Sun <strong>${sunEn}</strong> is the mask the world sees, while your Vedic Nakshatra <strong>${moonNak}</strong> is the subconscious drive that sometimes pulls against that mask — and that mismatch isn't a flaw, it's where your depth comes from.`,
-      `Life Path <strong>${lp}</strong> is the role your soul came to master, and Human Design <strong>${hdType}</strong> is the <em>correct way to spend your energy</em>. When the two run together you feel most like yourself; every time you borrow someone else's strategy, power leaks out through "${tr.drains}". This mirror doesn't tell you who to become — it reflects who you already are once you stop measuring yourself against everyone else's average.`
+      `Life Path <strong>${lp}</strong> is the role your soul came to master, and Energy Type System <strong>${hdType}</strong> is the <em>correct way to spend your energy</em>. When the two run together you feel most like yourself; every time you borrow someone else's strategy, power leaks out through "${tr.drains}". This mirror doesn't tell you who to become — it reflects who you already are once you stop measuring yourself against everyone else's average.`
     ],
     pet: isTh ? [
       `ในวงจร 5 ธาตุ ธาตุ<strong>${elLabel(dmEl)}</strong>ของคุณไม่ได้ต้องการ "สัตว์ที่น่ารักที่สุด" แต่ต้องการสัตว์ที่นำ "${tr.core}" เข้ามาเติมสมดุล. นี่คือเหตุผลที่บางคนเลี้ยงหมาแล้วสงบ บางคนเลี้ยงแมวแล้วรู้สึกเข้าใจกัน — ไม่ใช่เรื่องรสนิยม แต่เป็นเรื่องพลังงานที่ขาด/เกินในดวง.`,
-      `Human Design <strong>${hdType}</strong> กำหนดจังหวะการอยู่ร่วม: ${hdType.includes('Projector')||hdType.includes('โปรเจก')?'คุณเหนื่อยกับสัตว์ที่ขอความสนใจตลอดเวลา — เลือกตัวที่อยู่เป็น':hdType.includes('Generator')||hdType.includes('เจเนอ')?'สัตว์พลังงานสูงจะช่วยปลุก sacral response ให้คุณตื่นเต็มที่':'เลือกสัตว์ที่เคารพพื้นที่ของคุณ ไม่เกาะติด'}. และ Life Path ${lp} บอกว่าความผูกพันแบบไหนที่เติมเต็มคุณจริง — สัตว์เลี้ยงที่ "ใช่" จะรู้สึกเหมือนส่วนขยายของพลังคุณ ไม่ใช่ภาระอีกอย่าง.`
+      `ระบบประเภทพลังงาน <strong>${hdType}</strong> กำหนดจังหวะการอยู่ร่วม: ${hdType.includes('Projector')||hdType.includes('โปรเจก')?'คุณเหนื่อยกับสัตว์ที่ขอความสนใจตลอดเวลา — เลือกตัวที่อยู่เป็น':hdType.includes('Generator')||hdType.includes('เจเนอ')?'สัตว์พลังงานสูงจะช่วยปลุก sacral response ให้คุณตื่นเต็มที่':'เลือกสัตว์ที่เคารพพื้นที่ของคุณ ไม่เกาะติด'}. และ Life Path ${lp} บอกว่าความผูกพันแบบไหนที่เติมเต็มคุณจริง — สัตว์เลี้ยงที่ "ใช่" จะรู้สึกเหมือนส่วนขยายของพลังคุณ ไม่ใช่ภาระอีกอย่าง.`
     ] : [
       `In the 5-element cycle your <strong>${elLabel(dmEl)}</strong> element doesn't need the "cutest" animal — it needs one that brings in "${tr.core}" to balance you. That's why some people calm down around a dog and others feel understood by a cat: it isn't taste, it's which energy your chart is missing or over-carrying.`,
-      `Human Design <strong>${hdType}</strong> sets the rhythm of cohabiting: ${hdType==='Projector'?'animals that demand constant attention drain you — pick a self-contained one':hdType==='Generator'?'a high-energy animal helps fire up your sacral response':'choose an animal that respects your space rather than clinging'}. And Life Path ${lp} hints at the bond that actually fills you — the <em>right</em> pet feels like an extension of your energy, not one more thing to carry.`
+      `Energy Type System <strong>${hdType}</strong> sets the rhythm of cohabiting: ${hdType==='Projector'?'animals that demand constant attention drain you — pick a self-contained one':hdType==='Generator'?'a high-energy animal helps fire up your sacral response':'choose an animal that respects your space rather than clinging'}. And Life Path ${lp} hints at the bond that actually fills you — the <em>right</em> pet feels like an extension of your energy, not one more thing to carry.`
     ],
     companions: isTh ? [
       `สัตว์ในตำนานจากแต่ละวัฒนธรรมไม่ได้สุ่มมา — มันสะท้อนธีมเดียวกันที่ปรากฏซ้ำในดวงคุณผ่านสัญลักษณ์ต่างกัน. ลองสังเกตว่ากลุ่มสัตว์ของคุณเอนไปทาง "ผู้พิทักษ์", "นักเดินทาง", หรือ "ผู้สร้าง" — รูปแบบที่ซ้ำคือข้อความที่จักรวาลหลายสายส่งตรงกัน.`,
@@ -8877,10 +8877,10 @@ function _buildDeepAddon(chart, key){
     ],
     exercise: isTh ? [
       `ร่างกายของธาตุ<strong>${elLabel(dmEl)}</strong>ตอบสนองการเคลื่อนไหวต่างจากคนอื่น: ${dmEl==='ไฟ'?'ไฟต้องการ burst สั้นแรงแล้วพัก — คาร์ดิโอยาวๆ จะเผาคุณหมดไฟ':dmEl==='ไม้'?'ไม้ต้องการการยืดและการเติบโตต่อเนื่อง ไม่ใช่ max effort':dmEl==='ดิน'?'ดินสร้างจากความสม่ำเสมอและน้ำหนัก ไม่ใช่ความหวือหวา':dmEl==='โลหะ'?'โลหะรักความแม่นยำและฟอร์มที่คม มากกว่าปริมาณ':'น้ำต้องการ flow ต่อเนื่อง — ว่ายน้ำ เต้น เคลื่อนไหวลื่นไหล'}. ฝืนระบบของธาตุอื่นเมื่อไหร่ การออกกำลังจะกลายเป็นการรีดพลังแทนที่จะเติม.`,
-      `Biorhythm กายรอบ 23 วันบอก "ปริมาณ" ที่ปลอดภัยในแต่ละช่วง และ Human Design ${hdType} บอก "วิธี" เริ่ม: ${hdType.includes('Projector')||hdType.includes('โปรเจก')?'เซสชันสั้นเข้มข้น ดีกว่าลากยาว':hdType.includes('Generator')||hdType.includes('เจเนอ')?'ฟังร่างกายก่อนทุกเซต อย่าฝืนตามตาราง':'ปรับตาม cue ของร่างกาย ไม่ใช่ตาม coach app'}. รวมกันคือสูตรที่ทำให้ออกกำลังแล้ว "มีพลังมากขึ้น" ไม่ใช่ "หมดแรง".`
+      `Biorhythm กายรอบ 23 วันบอก "ปริมาณ" ที่ปลอดภัยในแต่ละช่วง และ ระบบประเภทพลังงาน ${hdType} บอก "วิธี" เริ่ม: ${hdType.includes('Projector')||hdType.includes('โปรเจก')?'เซสชันสั้นเข้มข้น ดีกว่าลากยาว':hdType.includes('Generator')||hdType.includes('เจเนอ')?'ฟังร่างกายก่อนทุกเซต อย่าฝืนตามตาราง':'ปรับตาม cue ของร่างกาย ไม่ใช่ตาม coach app'}. รวมกันคือสูตรที่ทำให้ออกกำลังแล้ว "มีพลังมากขึ้น" ไม่ใช่ "หมดแรง".`
     ] : [
       `A <strong>${elLabel(dmEl)}</strong>-element body responds to movement differently: ${dmEl==='ไฟ'?'Fire wants short hard bursts then rest — long cardio burns it out':dmEl==='ไม้'?'Wood wants stretch and steady growth, not max effort':dmEl==='ดิน'?'Earth is built on consistency and load, not flashy intensity':dmEl==='โลหะ'?'Metal loves precision and clean form over volume':'Water needs continuous flow — swim, dance, move fluidly'}. The moment you force another element's system, training drains you instead of filling you.`,
-      `Your 23-day physical biorhythm sets the safe <em>dose</em> for each window, and Human Design ${hdType} sets the <em>way</em> to start: ${hdType==='Projector'?'short intense sessions beat long grinds':hdType==='Generator'?'sacral-check before each set; don\'t train by the calendar':'adjust to body cues, not a coach app'}. Together they're the formula that leaves you with <em>more</em> energy after exercise, not less.`
+      `Your 23-day physical biorhythm sets the safe <em>dose</em> for each window, and Energy Type System ${hdType} sets the <em>way</em> to start: ${hdType==='Projector'?'short intense sessions beat long grinds':hdType==='Generator'?'sacral-check before each set; don\'t train by the calendar':'adjust to body cues, not a coach app'}. Together they're the formula that leaves you with <em>more</em> energy after exercise, not less.`
     ],
     food: isTh ? [
       `ธาตุ<strong>${elLabel(dmEl)}</strong>มีแนวโน้มเมตาบอลิกเฉพาะตัว — "${tr.core}" คือสิ่งที่ร่างกายคุณใช้ได้ดี ส่วน "${tr.drains}" คือสิ่งที่ทำให้หนักและล้าแม้กินของ "เพื่อสุขภาพ" ตามเทรนด์. นี่คือเหตุผลที่ diet เดียวกันทำให้คนหนึ่งเบาสบาย อีกคนบวมและเพลีย.`,
@@ -8898,10 +8898,10 @@ function _buildDeepAddon(chart, key){
     ],
     compat: isTh ? [
       `วิธีที่คุณ "รัก" ถูกเขียนไว้ในดวง: ธาตุ<strong>${elLabel(dmEl)}</strong>ให้ "${tr.core}" กับความสัมพันธ์ และอ่อนไหวเป็นพิเศษเมื่อเจอ "${tr.drains}". คุณไม่ได้เข้ากับทุกคน — และนั่นเป็นเรื่องดี เพราะความเข้ากันจริงคือเรื่องของธาตุที่เสริมกัน ไม่ใช่ความพยายามที่จะปรับตัวให้เข้าหากัน.`,
-      `Human Design ${hdType} บอกกฎทองของคุณในความสัมพันธ์: ${hdType.includes('Projector')||hdType.includes('โปรเจก')?'รอ "คำเชิญ" ก่อนให้คำแนะนำ — คุณถูกมองข้ามเมื่อ push, แต่ถูกเห็นค่าเมื่อถูกเชิญ':hdType.includes('Generator')||hdType.includes('เจเนอ')?'เชื่อ "ตอบสนอง" ของร่างกาย — ใช่หรือไม่ใช่รู้ได้ก่อนหัวคิด':'ใช้กลยุทธ์ HD ของคุณเป็นเข็มทิศ ไม่ใช่ตามใจคนอื่น'}. คนที่ใช่จะไม่ทำให้คุณต้อง "ทำงานหนัก" เพื่อรู้สึกถูกรัก.`
+      `ระบบประเภทพลังงาน ${hdType} บอกกฎทองของคุณในความสัมพันธ์: ${hdType.includes('Projector')||hdType.includes('โปรเจก')?'รอ "คำเชิญ" ก่อนให้คำแนะนำ — คุณถูกมองข้ามเมื่อ push, แต่ถูกเห็นค่าเมื่อถูกเชิญ':hdType.includes('Generator')||hdType.includes('เจเนอ')?'เชื่อ "ตอบสนอง" ของร่างกาย — ใช่หรือไม่ใช่รู้ได้ก่อนหัวคิด':'ใช้กลยุทธ์ HD ของคุณเป็นเข็มทิศ ไม่ใช่ตามใจคนอื่น'}. คนที่ใช่จะไม่ทำให้คุณต้อง "ทำงานหนัก" เพื่อรู้สึกถูกรัก.`
     ] : [
       `The way you <em>love</em> is written in your chart: your <strong>${elLabel(dmEl)}</strong> element brings "${tr.core}" to a relationship and is especially sensitive to "${tr.drains}". You don't click with everyone — and that's good, because real compatibility is about elements that complement, not effort spent forcing a fit.`,
-      `Human Design ${hdType} gives your golden rule in relationships: ${hdType==='Projector'?'wait for the invitation before advising — you\'re overlooked when you push, valued when you\'re invited':hdType==='Generator'?'trust your body\'s response — yes or no is known before the mind argues':'run your HD strategy as the compass, not other people\'s moods'}. The right person never makes you "work hard" to feel loved.`
+      `Energy Type System ${hdType} gives your golden rule in relationships: ${hdType==='Projector'?'wait for the invitation before advising — you\'re overlooked when you push, valued when you\'re invited':hdType==='Generator'?'trust your body\'s response — yes or no is known before the mind argues':'run your HD strategy as the compass, not other people\'s moods'}. The right person never makes you "work hard" to feel loved.`
     ],
   };
   const syn = SYNTHESIS[key];
@@ -10045,7 +10045,7 @@ function renderResonance(){
   const lpData = { archetype: (LANG === 'en' ? lpData_raw.archetypeEn : lpData_raw.archetypeTh),
                    why:       (LANG === 'en' ? lpData_raw.whyEn       : lpData_raw.whyTh) };
 
-  // Human Design overlay
+  // Energy Type System overlay
   const hdType = chart.humandesign?.typeTh || chart.humandesign?.type || '—';
   const hdStrategy = chart.humandesign?.strategy || '—';
 
@@ -12368,7 +12368,7 @@ function renderMonthlyBrief(){
         <div style="background:var(--bg3);border-radius:5px;padding:7px 10px"><div style="font-size:8.5px;color:var(--muted);letter-spacing:1.5px">Western</div><div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--gold2)">${chart.western.sunSignTh} · Moon ${chart.western.moonSignTh}</div></div>
         <div style="background:var(--bg3);border-radius:5px;padding:7px 10px"><div style="font-size:8.5px;color:var(--muted);letter-spacing:1.5px">BaZi</div><div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--gold2)">${chart.bazi.dayMasterTh} · ${isTh?'เสริม':'boost'} ${chart.bazi.luckyElement}</div></div>
         <div style="background:var(--bg3);border-radius:5px;padding:7px 10px"><div style="font-size:8.5px;color:var(--muted);letter-spacing:1.5px">Numerology</div><div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--gold2)">LP ${chart.numerology.lifePath} · PY ${py}</div></div>
-        <div style="background:var(--bg3);border-radius:5px;padding:7px 10px"><div style="font-size:8.5px;color:var(--muted);letter-spacing:1.5px">Human Design</div><div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--gold2)">${chart.humandesign.typeTh||chart.humandesign.type}</div></div>
+        <div style="background:var(--bg3);border-radius:5px;padding:7px 10px"><div style="font-size:8.5px;color:var(--muted);letter-spacing:1.5px">Energy Type System</div><div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--gold2)">${chart.humandesign.typeTh||chart.humandesign.type}</div></div>
       </div>
     </div>
   `;
@@ -14469,8 +14469,8 @@ function renderPet(){
         ? `<strong>Vedic Nakshatra ${nakshatra}:</strong> สัตว์เลี้ยงแต่ละตัวมี "คุณภาพดวงจันทร์" ที่สัมพันธ์กับ Nakshatra — ตรงกับของคุณจะทำให้ bond ลึกกว่าสัตว์อื่น`
         : `<strong>Vedic Nakshatra ${nakshatra}:</strong> pets carry "moon qualities" that resonate with specific Nakshatras — the chosen one matches yours for deeper bonding`,
       isTh
-        ? `<strong>Human Design ${hdType}:</strong> พลังงานของสัตว์นี้ไม่ขัดกับ aura ของคุณ — ${hdType==='Generator'?'ให้ sacral response ชัด':hdType==='Projector'?'เคารพพื้นที่ส่วนตัว':hdType==='Manifestor'?'ไม่เกาะติดจนอึดอัด':'พักได้ระยะยาว'}`
-        : `<strong>Human Design ${hdType}:</strong> this animal's energy doesn't clash with your aura — it respects your type's natural rhythm`,
+        ? `<strong>ระบบประเภทพลังงาน ${hdType}:</strong> พลังงานของสัตว์นี้ไม่ขัดกับ aura ของคุณ — ${hdType==='Generator'?'ให้ sacral response ชัด':hdType==='Projector'?'เคารพพื้นที่ส่วนตัว':hdType==='Manifestor'?'ไม่เกาะติดจนอึดอัด':'พักได้ระยะยาว'}`
+        : `<strong>ระบบประเภทพลังงาน ${hdType}:</strong> this animal's energy doesn't clash with your aura — it respects your type's natural rhythm`,
       physDay,
     ],
     whyAvoid: [
@@ -15192,8 +15192,8 @@ function renderExercise(){
         ? `<strong>Nine Star Ki ทิศ ${nskDir}:</strong> ทิศที่คุณควรหันหน้าขณะออกกำลัง (yoga facing · วิ่งไปทางนั้น) เพื่อให้ chi ไหลเต็มที่`
         : `<strong>Nine Star Ki ${nskDir}:</strong> the direction to face during exercise so chi flows fully`,
       isTh
-        ? `<strong>Human Design ${hdType} (${hdAuthority}):</strong> ${hdType==='Generator'?'ต้อง sacral response (ร่างกายอยากออก) ไม่ใช่ mind push':hdType==='Projector'?'พักนานกว่าเฉลี่ย · แนะนำ low-impact + recovery mandatory':hdType==='Manifestor'?'ลุยสั้นๆ + restrecovery · ไม่ใช่ endurance':hdType==='Reflector'?'ตามจันทรคติ · เปลี่ยนกีฬาตามรอบ 28 วัน':'ตาม inner authority ไม่ใช่ schedule'}`
-        : `<strong>Human Design ${hdType}:</strong> tailored to your type's authority — respect the rhythm your body is designed for`,
+        ? `<strong>Energy Type System ${hdType} (${hdAuthority}):</strong> ${hdType==='Generator'?'ต้อง sacral response (ร่างกายอยากออก) ไม่ใช่ mind push':hdType==='Projector'?'พักนานกว่าเฉลี่ย · แนะนำ low-impact + recovery mandatory':hdType==='Manifestor'?'ลุยสั้นๆ + restrecovery · ไม่ใช่ endurance':hdType==='Reflector'?'ตามจันทรคติ · เปลี่ยนกีฬาตามรอบ 28 วัน':'ตาม inner authority ไม่ใช่ schedule'}`
+        : `<strong>ระบบประเภทพลังงาน ${hdType}:</strong> tailored to your type's authority — respect the rhythm your body is designed for`,
       isTh
         ? `<strong>Life Path ${lp}:</strong> LP นี้ต้องการการเคลื่อนไหวแบบ ${lp===1||lp===8?'แข่งขัน-ตัวคนเดียว':lp===2||lp===6?'กลุ่ม-คู่':lp===3||lp===5?'สนุก-หลากหลาย':lp===4?'มีโครงสร้าง-ซ้ำ':lp===7||lp===9?'meditative-solo':'flexible'} — กีฬาในลิสต์ตอบโจทย์นี้`
         : `<strong>Life Path ${lp}:</strong> LP needs ${lp===1||lp===8?'competitive-solo':lp===2||lp===6?'team-dual':'flexible'} movement — list matches`,
@@ -16038,7 +16038,7 @@ function _runCompatCheck(){
   // 5-element cycle for BaZi
   const _BAZI_SHENG = {'ไม้':'ไฟ','ไฟ':'ดิน','ดิน':'โลหะ','โลหะ':'น้ำ','น้ำ':'ไม้'};
   const _BAZI_KE    = {'ไม้':'ดิน','ไฟ':'น้ำ','ดิน':'น้ำ','โลหะ':'ไม้','น้ำ':'ไฟ'};
-  // Human Design pair table (5×5, symmetric). Based on standard HD-type compatibility.
+  // ระบบประเภทพลังงาน pair table (5×5, symmetric). Based on standard HD-type compatibility.
   const _HD_PAIR = {
     'G|G':'partial', 'G|MG':true, 'G|P':true, 'G|M':'partial', 'G|R':'partial',
     'MG|MG':'partial', 'MG|P':true, 'MG|M':'partial', 'MG|R':'partial',
@@ -16163,9 +16163,9 @@ function _runCompatCheck(){
         if (diff <= 4) return { th:`LP ห่างกัน ${diff} — ทิศต่างกันบ้าง แต่ยังมีจุดร่วมที่ทำงานด้วยกันได้`, en:`LP differs by ${diff} — different trajectories with workable overlap` };
         return { th:`LP ห่างกัน ${diff} — เส้นทางชีวิตคนละทิศ · ต้อง "เลือก" ที่จะมาเจอกัน ไม่ใช่ "ไหลมาเอง"`, en:`LP differs by ${diff} — divergent life paths · you'll have to <em>choose</em> to meet, not drift together` };
       }},
-    // Human Design — type-pair compatibility (Generator+Projector = ideal,
+    // Energy Type System — type-pair compatibility (Generator+Projector = ideal,
     // Manifestor+Manifestor = clash, etc.)
-    { key:'humandesign', emoji:'⚡', label:isTh?'Human Design (Type pair)':'Human Design (Type pair)',
+    { key:'humandesign', emoji:'⚡', label:isTh?'Energy Type System (Type pair)':'Energy Type System (Type pair)',
       extract:c => c.humandesign.typeTh||c.humandesign.type, match:_hdPairMatch,
       why:(a,b,r) => {
         const ca = _hdCode(a), cb = _hdCode(b);
@@ -19490,7 +19490,7 @@ function showFamousCompareModal(f){
     { key:'vedic',       emoji:'🕉️', label:isTh?'Vedic':'Vedic',                   fmt:c=>'Lagna '+c.vedic.lagna+' · '+c.vedic.moonNakshatra },
     { key:'ninestar',    emoji:'⭐',  label:'Nine Star Ki',                         fmt:c=>'Star '+c.ninestar.star+' · '+c.ninestar.starName },
     { key:'numerology',  emoji:'🔢', label:isTh?'ตัวเลขศาสตร์':'Numerology',       fmt:c=>'LP '+c.numerology.lifePath+' · Destiny '+(c.numerology.destiny||'—') },
-    { key:'humandesign', emoji:'⚡',  label:'Human Design',                         fmt:c=>(c.humandesign.typeTh||c.humandesign.type)+' · '+(c.humandesign.profile||'—') },
+    { key:'humandesign', emoji:'⚡',  label:'Energy Type System',                         fmt:c=>(c.humandesign.typeTh||c.humandesign.type)+' · '+(c.humandesign.profile||'—') },
     { key:'mayan',       emoji:'🌀', label:isTh?'มายัน':'Mayan',                   fmt:c=>'Kin '+c.mayan.kin+' · '+(c.mayan.daySignName||c.mayan.daySign) },
     { key:'thai',        emoji:'🙏', label:isTh?'ไทยพราหมณ์':'Thai',                fmt:c=>c.thai.dayName+' · '+c.thai.dayColor },
     { key:'saju',        emoji:'🌸', label:'Saju',                                  fmt:c=>c.saju.dayPillar },
@@ -20313,7 +20313,7 @@ ${(()=>{
     { icon:'🎯', systems:4,
       title:'พันธกิจชีวิต — สัญญาที่วิญญาณทำไว้ก่อนมาเกิด',
       tags:['Life Path '+lPath+' "'+( LP_NAMES[lPath]||'')+'"','HD Type '+hd.type.split('(')[0].trim(),'Celtic '+celtic.th,'เลข ๗ ตัว'],
-      body:`Pythagorean Life Path <strong style="color:#d4aa50">${lPath} "${LP_NAMES[lPath]||''}"</strong> ไม่ใช่แค่ตัวเลข — มันคือพันธกิจหลักที่คุณถูกส่งมาทำในโลกนี้ Human Design Energy Type <strong style="color:#d4aa50">${hd.type.split('(')[0].trim()}</strong> กำหนดว่าคุณถูกออกแบบมาให้สร้างผลลัพธ์ผ่านกลไกใด กลยุทธ์ที่ถูกต้อง: <strong style="color:#d4aa50">"${hd.strategy}"</strong> — ฝืนสิ่งนี้คือฝืนพลังจักรวาล ทำตามสิ่งนี้คือไหลตามกระแสที่ถูกต้อง HD Profile ${hd.profile}: ${hd.profileDesc} Celtic ${celtic.th} ปกครองโดยดาว${celtic.planet} ยืนยันเส้นทางชีวิตในแบบที่ธรรมชาติเลือกให้ ${celtic.gem}เป็นหินแห่งพันธกิจของคุณ ทั้ง 4 ระบบจาก 4 อารยธรรมที่ไม่รู้จักกันชี้ไปที่จุดเดียวกัน — นี่ไม่ใช่เรื่องบังเอิญ มันคือแผนที่ชีวิตที่แน่นอน`
+      body:`Pythagorean Life Path <strong style="color:#d4aa50">${lPath} "${LP_NAMES[lPath]||''}"</strong> ไม่ใช่แค่ตัวเลข — มันคือพันธกิจหลักที่คุณถูกส่งมาทำในโลกนี้ ระบบประเภทพลังงาน Energy Type <strong style="color:#d4aa50">${hd.type.split('(')[0].trim()}</strong> กำหนดว่าคุณถูกออกแบบมาให้สร้างผลลัพธ์ผ่านกลไกใด กลยุทธ์ที่ถูกต้อง: <strong style="color:#d4aa50">"${hd.strategy}"</strong> — ฝืนสิ่งนี้คือฝืนพลังจักรวาล ทำตามสิ่งนี้คือไหลตามกระแสที่ถูกต้อง HD Profile ${hd.profile}: ${hd.profileDesc} Celtic ${celtic.th} ปกครองโดยดาว${celtic.planet} ยืนยันเส้นทางชีวิตในแบบที่ธรรมชาติเลือกให้ ${celtic.gem}เป็นหินแห่งพันธกิจของคุณ ทั้ง 4 ระบบจาก 4 อารยธรรมที่ไม่รู้จักกันชี้ไปที่จุดเดียวกัน — นี่ไม่ใช่เรื่องบังเอิญ มันคือแผนที่ชีวิตที่แน่นอน`
     },
     { icon:'🌙', systems:4,
       title:'โลกอารมณ์และสัญชาตญาณ — ด้านในที่ลึกกว่าที่ใครรู้',
@@ -20423,7 +20423,7 @@ ${(()=>{
       basis:`NSK Star ${star} ${nsk.th}: สี<strong style="color:#d4aa50">${nsk.color}</strong> · ทิศงาน<strong style="color:#d4aa50">${nsk.dir}</strong> · ทิศนอน<strong style="color:#d4aa50">${nsk.sleep}</strong><br>ไทยพราหมณ์ยืนยัน: ${thai.name} → สี${thai.color} · Celtic ${celtic.th} → ${celtic.gem}`,
       action:`ใส่สี<strong style="color:#d4aa50">${nsk.color}</strong> 1 ชิ้น/วัน · หันหัวนอนทิศ${nsk.sleep} · สวม${celtic.gem}` },
     { num:'②', title:'กลยุทธ์พลังงาน', pct:20,
-      systems:['Human Design','BaZi Day Master','Vedic Lagna'],
+      systems:['ระบบประเภทพลังงาน','BaZi Day Master','Vedic Lagna'],
       basis:`Energy Type <strong style="color:#d4aa50">${hd.type.split('(')[0].trim()}</strong> Profile ${hd.profile} → กลยุทธ์: <strong style="color:#d4aa50">"${hd.strategy}"</strong><br>BaZi Day Master ${D.s} ธาตุ${SEL[D.si]} + Vedic Lagna ${vedic.lagna} ยืนยันรูปแบบพลังงานนี้`,
       action:`ปฏิบัติตาม <strong style="color:#d4aa50">"${hd.strategy}"</strong> อย่างจริงจัง 90 วันต่อเนื่อง — จะรู้สึกแตกต่างอย่างชัดเจน` },
     { num:'③', title:'เสริม Mahadasha', pct:21,
@@ -20501,7 +20501,7 @@ ${(()=>{
 
   <!-- Para 1: Identity Portrait -->
   <div style="font-size:14px;color:#e0d0b0;line-height:2.2;margin-bottom:14px">
-    <strong style="color:#d4aa50">${esc(name)}</strong> คือ${_elPersona[mainEl]||'บุคคลที่มีพลังเฉพาะตัว'} — Sun ☉ <strong style="color:#d4aa50">ราศี${sun.th}</strong> ดวงจันทร์ <strong style="color:#d4aa50">ราศี${moon.th}</strong> Life Path <strong style="color:#d4aa50">${lPath}${_lpNameStr}</strong>: ${_lpMissionStr} Human Design <strong style="color:#d4aa50">${hd.type.split('(')[0].trim()}</strong>: ${_hdTypeDesc}
+    <strong style="color:#d4aa50">${esc(name)}</strong> คือ${_elPersona[mainEl]||'บุคคลที่มีพลังเฉพาะตัว'} — Sun ☉ <strong style="color:#d4aa50">ราศี${sun.th}</strong> ดวงจันทร์ <strong style="color:#d4aa50">ราศี${moon.th}</strong> Life Path <strong style="color:#d4aa50">${lPath}${_lpNameStr}</strong>: ${_lpMissionStr} Energy Type System <strong style="color:#d4aa50">${hd.type.split('(')[0].trim()}</strong>: ${_hdTypeDesc}
   </div>
 
   <!-- Para 2: Cross-system convergence -->
@@ -20893,7 +20893,7 @@ ${(()=>{
   const etKey = Object.keys(ET_DEEP).find(k=>hd.type.includes(k.split(' ')[0])||hd.type===k) || hd.type;
   const etInfo = ET_DEEP[etKey] || ET_DEEP['ผู้สร้างพลังงาน (Generator)'];
   const p8 = page(8,'⚡','ระบบประเภทพลังงาน (Energy Type System)',`
-${origin('ระบบสังเคราะห์สมัยใหม่ ค.ศ. 1987 โดย Ra Uru Hu · ผสมผสาน I Ching (จีน) + Kabbalah (ยิว) + Hindu Chakras (อินเดีย) + Astrology + Quantum Physics · แบ่งมนุษย์เป็น 5 ประเภทพลังงาน แต่ละแบบมีกลยุทธ์ชีวิต Authority และ Profile เฉพาะตัว · เน้นการใช้ชีวิตตามแบบแผนพลังงานที่ติดตัวมาแต่กำเนิด')}
+${origin('ระบบสังเคราะห์สมัยใหม่ ค.ศ. 1987 · ผสมผสาน I Ching (จีน) + Kabbalah (ยิว) + Hindu Chakras (อินเดีย) + Astrology + Quantum Physics · แบ่งมนุษย์เป็น 5 ประเภทพลังงาน แต่ละแบบมีกลยุทธ์ชีวิต Authority และ Profile เฉพาะตัว · เน้นการใช้ชีวิตตามแบบแผนพลังงานที่ติดตัวมาแต่กำเนิด')}
 <div class="g2">
   <div class="sc"><div class="v" style="font-size:14px;line-height:1.3">${esc(hd.type.split('(')[0].trim())}</div><div class="l">ประเภทพลังงาน (${esc(etInfo.pct)} ของโลก)</div></div>
   <div class="sc"><div class="v" style="font-size:22px">${esc(hd.profile)}</div><div class="l">โปรไฟล์ชีวิต</div></div>
@@ -21722,7 +21722,7 @@ ${(()=>{
       i:'💼', t:'การงานและพลังงานที่ใช้',
       tags:['HD '+hd.type.split('(')[0].trim(),'Strategy: '+hd.strategy],
       challenge: hdChallenge[typeKey] || 'Energy Type ของคุณต้องการวิธีทำงานที่แตกต่างจากคนส่วนใหญ่',
-      action: '"'+hd.strategy+'" คือกฎชีวิตที่ Human Design กำหนดให้คุณ — ทำตามนี้อย่างเคร่งครัด 90 วัน แล้วสังเกตว่าโอกาสและความสัมพันธ์ในงานเปลี่ยนไปอย่างไร',
+      action: '"'+hd.strategy+'" คือกฎชีวิตที่ ระบบประเภทพลังงาน กำหนดให้คุณ — ทำตามนี้อย่างเคร่งครัด 90 วัน แล้วสังเกตว่าโอกาสและความสัมพันธ์ในงานเปลี่ยนไปอย่างไร',
       metric: 'เป้าหมาย: ทำตาม Strategy 100% ใน 90 วัน ไม่มีข้อยกเว้น'
     },
     {
@@ -22184,7 +22184,7 @@ function _cbStartLoadingAnimation() {
     ['Native American',  'Totem ประจำเดือนเกิด'],
     ['Ifa/Yoruba',       'Odu — เสียงเทพเจ้า'],
     ['Aboriginal Dreamtime', 'Dreamtime — บรรพชน'],
-    ['Human Design',     'พิมพ์เขียวพลังงาน'],
+    ['ระบบประเภทพลังงาน',     'พิมพ์เขียวพลังงาน'],
     ['Pythagorean',      'เลขศาสตร์กรีก'],
     ['เลข ๗ ตัว ๙ ฐาน',  'เลขศาสตร์ไทย'],
     ['Tibetan Mewa',     'มีวา 9 — โหราทิเบต'],
@@ -22212,7 +22212,7 @@ function _cbStartLoadingAnimation() {
     ['Native American',    'Birth-moon totem'],
     ['Ifa/Yoruba',         'Odu — the gods\' voice'],
     ['Aboriginal Dreamtime','Ancestor dreaming line'],
-    ['Human Design',       'Energetic blueprint'],
+    ['Energy Type System',       'Energetic blueprint'],
     ['Pythagorean',        'Greek numerology'],
     ['Thai 7-number',      'Thai numerology base'],
     ['Tibetan Mewa',       '9-Mewa Tibetan astrology'],
