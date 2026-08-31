@@ -34,7 +34,10 @@ const LIMITS = {
   // raising it is how a guard quietly stops guarding. The remaining shared text
   // is mostly method explanation, which SHOULD read the same for everyone, so
   // the honest target is lower but not zero. Director has not set one yet.
-  sharedProsePct: 23.5,    // prose identical across all six unrelated charts
+  // 2026-08-31: 24.9% → 17.7% after the ten-year forecast stopped printing the
+  // same nine Personal-Year paragraphs to everyone and anchored each one to the
+  // reader's age. Ratcheted down to lock that in. Nothing was cut to get here.
+  sharedProsePct: 18.5,    // prose identical across all six unrelated charts
   termPerPage: 4,          // times one of the chart's own key values may appear ON ONE PAGE
   branchCoveragePct: 45,   // share of the population one interpretive line may cover
 };

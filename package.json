@@ -7,12 +7,13 @@
     "deploy": "git push origin main && vercel --yes --prod",
     "check": "node build-check.cjs",
     "test:anchors": "node Mythsensus/tests/external-anchors.test.cjs",
-    "predeploy": "npm run check && npm run test:anchors && npm run test:engine && npm run test:invariants && npm run test:mechanics && npm run test:prose",
+    "predeploy": "npm run check && npm run test:anchors && npm run test:engine && npm run test:invariants && npm run test:mechanics && npm run test:prose && npm run test:integrity",
     "postdeploy": "npm run qa && npm run smoke",
     "smoke": "node Mythsensus/tests/smoke-draw.cjs && node Mythsensus/tests/smoke-reading.cjs",
     "test:invariants": "node Mythsensus/tests/report-invariants.test.cjs",
     "test:mechanics": "node Mythsensus/tests/system-mechanics.test.cjs",
-    "test:prose": "node Mythsensus/tests/prose-density.test.cjs"
+    "test:prose": "node Mythsensus/tests/prose-density.test.cjs",
+    "test:integrity": "node Mythsensus/tests/report-integrity.test.cjs"
   },
   "dependencies": {
     "@vercel/og": "^0.11.1",

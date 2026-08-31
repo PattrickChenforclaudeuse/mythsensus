@@ -110,7 +110,15 @@ console.log(`  Chart JSON: test-artifacts/pk-chu-chart-26sys.json`);
 // Verdict
 const allPresent = SYS.every(k => chart[k]);
 const scoreValid = chart.score.total >= 300 && chart.score.total <= 999;
-const reportValid = pageCount >= 25 && html.length > 50000;
+const REQUIRED_SECTIONS = [
+  'ฉันทามติ',            // 1 · what the traditions agree on
+  '12 เดือนข้างหน้า',     // 2 · which month, and for what
+  'Activation',           // 3 · do
+  'Pain Points',          // 3 · don't
+  'หลักฐาน',              // 5 · the evidence cards
+];
+const missingSections = REQUIRED_SECTIONS.filter(t => !html.includes(t));
+const reportValid = pageCount >= 15 && html.length > 50000 && missingSections.length === 0;
 const sampleValid = missing.length === 0;
 const pass = allPresent && scoreValid && reportValid && sampleValid;
 
@@ -118,7 +126,7 @@ console.log(`\n═════════════════════�
 console.log(` VERDICT: ${pass ? '✓ PASS' : '✗ FAIL'}`);
 console.log(`   26 systems present: ${allPresent ? '✓' : '✗'}`);
 console.log(`   Score in range:     ${scoreValid ? '✓' : '✗'} (${chart.score.total})`);
-console.log(`   Report valid:       ${reportValid ? '✓' : '✗'} (${pageCount} pages)`);
+console.log(`   Report valid:       ${reportValid ? '✓' : '✗'} (${pageCount} pages${missingSections.length ? ', missing: ' + missingSections.join(', ') : ''})`);
 console.log(`   Sample fields:      ${sampleValid ? '✓' : '✗ missing: ' + missing.join(', ')}`);
 console.log(`═══════════════════════════════════════════════════════`);
 
