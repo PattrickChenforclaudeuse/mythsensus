@@ -115,10 +115,22 @@ const REQUIRED_SECTIONS = [
   '12 เดือนข้างหน้า',     // 2 · which month, and for what
   'Activation',           // 3 · do
   'Pain Points',          // 3 · don't
-  'หลักฐาน',              // 5 · the evidence cards
 ];
 const missingSections = REQUIRED_SECTIONS.filter(t => !html.includes(t));
-const reportValid = pageCount >= 15 && html.length > 50000 && missingSections.length === 0;
+// The floor is 35, not 15.
+//
+// On 2026-08-31 a redraft cut the book from 44 pages to 18 by collapsing all 26
+// traditions onto three card pages, and lowered this number from 25 to 15 in the
+// same change — so the guard that existed to notice stopped noticing. Shown the
+// structure, the director's answer was arithmetic: "ถ้าเอา 26 ศาสตร์ ศาสตร์ละ 1
+// หน้า ยังไงก็เกินแล้วไหม". One page per tradition is 25 pages of evidence before
+// a single cross-system page is counted; the book cannot come in under ~40 and
+// still keep his 2026-08-27 rule that every tradition reads equally deep.
+//
+// 35 leaves room to reorganise the front of the book without touching the
+// evidence section. It does not leave room to quietly delete the evidence
+// section, which is the only thing it is here to prevent.
+const reportValid = pageCount >= 35 && html.length > 50000 && missingSections.length === 0;
 const sampleValid = missing.length === 0;
 const pass = allPresent && scoreValid && reportValid && sampleValid;
 

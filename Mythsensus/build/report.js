@@ -2880,11 +2880,48 @@ function generateReport(c) {
         p15_finance,
         p20_colors,
         p24_pets,
-        // ═══ 5 · หลักฐาน ═════════════════════════════════════════════
-        p02_scoreBreakdown, // คะแนนรายศาสตร์ทั้ง 26
-        (c) => p_evidence(c, 0, 8, 1, 3),
-        (c) => p_evidence(c, 8, 8, 2, 3),
-        (c) => p_evidence(c, 16, 8, 3, 3),
+        // ═══ 5 · หลักฐาน — เจาะรายศาสตร์ ═════════════════════════════
+        //
+        // Director 2026-08-31, on being shown that the redraft had squeezed all 26
+        // traditions onto three card pages: "ถ้าเอา 26 ศาสตร์ ศาสตร์ละ 1 หน้า
+        // ยังไงก็เกินแล้วไหม" — and he is right, arithmetically. His 2026-08-27
+        // instruction was that every tradition should read equally deep, which at
+        // one page each is 25 pages of evidence before a single cross-system page
+        // is counted. A book that honours that rule cannot come out at 18 pages.
+        //
+        // Measured on his own chart, the three-card version gave each tradition 467
+        // characters where the per-page version gave 2,403 — a 5.1× cut, sold as a
+        // reorder. So the cards are gone and the pages are back; the redraft's new
+        // front matter, its bug fixes and its evidence-sourcing all stay.
+        //
+        // Biorhythm has no page here and that is deliberate — it is one of the 18
+        // traditions that abstains, so 26 systems come to 25 pages, not 26.
+        p02_scoreBreakdown, // ตารางคะแนนทั้ง 26 ศาสตร์
+        p05_bazi, // BaZi สี่เสา
+        p06_ninestar, // Nine Star Ki
+        p04_western, // โหราศาสตร์ตะวันตก
+        p07_vedic, // Vedic Jyotish
+        p12_numerology, // เลขศาสตร์
+        p08_energyType, // Energy Type
+        p09_mayan, // มายัน Tzolk'in
+        p10_celtic, // เซลติก Tree
+        p11_thai, // ไทยพราหมณ์
+        p_saju, // สี่เสาเกาหลี
+        p_tibetan, // โหราศาสตร์ทิเบต
+        p_ziwei, // จื่อเวยโต่วซู
+        p_onmyodo, // อนเมียวโด
+        p_hellenistic, // เฮลเลนิสติก
+        p_norseRune, // รูนนอร์ส
+        p_ogham, // โอกัม
+        p_arabicParts, // Arabic Parts
+        p_kabbalistic, // คับบาลาห์
+        p_zoroastrian, // โซโรอัสเตอร์
+        p_aztec, // แอซเท็ก
+        p_nativeAmerican, // ชนพื้นเมืองอเมริกา
+        p_ifaYoruba, // อิฟาโยรูบา
+        p_aboriginal, // อะบอริจิน
+        p_taksa, // ทักษา
+        p_vedicMahadasha, // มหาทศา
         p25_summary,
     ];
     // Derived, never hand-kept: the total was the literal 29, so adding a page

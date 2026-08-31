@@ -225,9 +225,17 @@ for (const input of CHARTS) {
       // Some passages translate the term inline without brackets
       // ("偏印 ความรู้นอกตำรา"). The reader is told either way.
       const thaiFollows = /^[\s—·:]*[฀-๿]{2,}/.test(p.text.slice(m.index + m[0].length, m.index + m[0].length + 40));
+      // A romaji reading counts too, and for Japanese terms it is the normal way
+      // to write one: "先負 Senpu · เช้าร้าย บ่ายดี" tells a Thai reader how to say
+      // it and what it means, with no brackets anywhere. Without this the gate
+      // reported the Onmyōdō page as a wall of unglossed kanji when every term
+      // on it is read out — the kind of false red that sends someone off to fix
+      // a problem that does not exist.
+      const romajiFollows = /^[\s—·:]*[A-Za-zŌōŪūĀāĒēĪī][A-Za-zŌōŪūĀāĒēĪī'’-]{1,}/
+        .test(p.text.slice(m.index + m[0].length, m.index + m[0].length + 40));
       const bracketedAfterLabel = /[（(][^)）]{0,22}$/.test(p.text.slice(Math.max(0, m.index - 24), m.index));
       const glossedElsewhereOnPage = p.text.includes(m[0] + ' (') || p.text.includes(m[0] + '(');
-      if (!glossed && !glossedElsewhereOnPage && !bracketedAfterLabel && !thaiFollows) {
+      if (!glossed && !glossedElsewhereOnPage && !bracketedAfterLabel && !thaiFollows && !romajiFollows) {
         fail(name, 'J unglossed-CJK', `p${p.n} "${m[0]}" with no reading beside it → …${p.text.slice(Math.max(0, m.index - 30), m.index + 34).trim()}…`);
         break;   // one per page is enough to send someone to the page
       }
