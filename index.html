@@ -3738,7 +3738,15 @@ function _entryFillCity() {
   host.innerHTML = `
     <div style="border:1px solid var(--border);border-radius:10px;padding:13px 12px 12px;background:rgba(200,164,90,.04)">
     <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase;margin-bottom:9px;text-align:center">
-      ${isTh ? `พื้นดวง “${_fcEsc(nation)}” สัปดาห์นี้` : `The chart of “${_fcEsc(nation)}” this week`}
+      ${isTh ? `ตัวอย่าง — พื้นดวง “${_fcEsc(nation)}” สัปดาห์นี้` : `Sample — the chart of “${_fcEsc(nation)}” this week`}
+    </div>
+    <!-- The first block a visitor meets is somebody else's chart. Measured on
+         2026-08-31: 736 people saw this screen, 196 touched anything. Nothing on
+         it said the numbers belonged to a country rather than to them, and
+         nothing connected it to the box below. Saying "ตัวอย่าง" and naming what
+         they get instead costs one line and removes the guess. -->
+    <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:11.5px;color:var(--gold3);line-height:1.5;text-align:center;margin:-4px 0 9px">
+      ${isTh ? 'ของคุณจะออกมาหน้าตาแบบนี้ — แต่เป็น <strong style="color:var(--gold2)">รายวัน</strong> และคิดจากวันเกิดคุณ' : 'Yours looks like this — but <strong style="color:var(--gold2)">daily</strong>, and read from your own birth date'}
     </div>
     <div style="text-align:center;font-family:'Cormorant Garamond','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.5;margin-bottom:11px">
       <span style="font-family:${NUM};font-variant-numeric:lining-nums tabular-nums;font-size:20px;color:var(--gold);font-weight:600">${d.voting}</span>
@@ -10840,6 +10848,44 @@ function renderDailyPulse() {
         <span style="color:var(--gold);cursor:pointer" onclick="pulseSaveReflection()">${t('pulse_reflect_save')}</span>
       </div>
     </div>
+
+    <!-- Come back tomorrow.
+         The free tier moved to a daily reading on 2026-08-31 precisely so people
+         would have a reason to return — and then nothing on the page ever asked
+         them to. The word "พรุ่งนี้" did not appear anywhere in this file. A
+         reader finished today's numbers with no idea they are recomputed, so the
+         product's whole reason for being daily was invisible.
+         It names the actual weekday and its Thai planetary day rather than
+         nagging, because "come back tomorrow" is a request and "tomorrow is
+         Tuesday, a Mars day, and these eight numbers are recomputed against it"
+         is a reason. Nothing here predicts tomorrow's result — that is the point
+         of returning, and claiming it now would be inventing it. -->
+    ${(() => {
+      const D_TH = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+      const D_EN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      const P_TH = ['พระอาทิตย์','พระจันทร์','พระอังคาร','พระพุธ','พระพฤหัสบดี','พระศุกร์','พระเสาร์'];
+      const P_EN = ['the Sun','the Moon','Mars','Mercury','Jupiter','Venus','Saturn'];
+      const tm = new Date(); tm.setDate(tm.getDate() + 1);
+      const wd = tm.getDay();
+      const dnum = tm.getDate();
+      const M_TH = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+      const M_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const when = isTh ? `วัน${D_TH[wd]} ${dnum} ${M_TH[tm.getMonth()]}` : `${D_EN[wd]} ${dnum} ${M_EN[tm.getMonth()]}`;
+      const lord = isTh ? P_TH[wd] : P_EN[wd];
+      return `<div style="margin-top:14px;padding:13px 14px;border:1px solid var(--gold3);border-radius:8px;background:rgba(200,164,90,.05)">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold3);margin-bottom:7px">${isTh?'พรุ่งนี้':'TOMORROW'}</div>
+        <div style="font-size:12.5px;color:var(--text);line-height:1.65">
+          ${isTh
+            ? `<strong style="color:var(--gold2)">${when}</strong> — วันของ${lord} · ทั้ง 8 ด้านข้างบนคิดใหม่ทั้งชุด เพราะฟ้าเปลี่ยนทุกวัน ไม่ใช่ทุกสัปดาห์`
+            : `<strong style="color:var(--gold2)">${when}</strong> — the day of ${lord}. All eight areas above are recomputed, because the sky moves daily, not weekly.`}
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-top:6px">
+          ${isTh
+            ? 'เราไม่บอกล่วงหน้าว่าพรุ่งนี้จะออกมาเท่าไหร่ — ถ้าบอกได้ตอนนี้ ก็ไม่ต้องมีพรุ่งนี้'
+            : 'We do not tell you tomorrow\'s numbers now — if we could, there would be no reason for tomorrow.'}
+        </div>
+      </div>`;
+    })()}
   `;
 }
 
