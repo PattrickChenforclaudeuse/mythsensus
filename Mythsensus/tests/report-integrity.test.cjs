@@ -295,6 +295,21 @@ if (!failures.length) {
   process.exit(0);
 }
 
+// ── หนี้เก่าที่ยกยอดมา (ratchet ลดได้อย่างเดียว) ──────────────────────────
+// สอง class นี้แดงมาตั้งแต่วันที่หน้ารายศาสตร์กลับเข้าเล่ม และมันแดงบน prod ด้วย —
+// เล่ม 44 หน้าส่งย่อหน้าเดียวกันนี้ให้คนซื้อมาตลอด · กั๊กเอนจินไว้ไม่ได้ทำให้ใคร
+// อ่านประโยคยาวน้อยลง มีแต่ทำให้คำอ่านที่แก้ถูกแล้ว 4 เรื่องไม่ได้ขึ้นเว็บ
+// (director 2026-08-31: "เอาขึ้นก่อนค่อยแก้ต่อ")
+//
+// เพดานตั้งไว้ที่จำนวนของวันที่วัด และเป็น RATCHET: **ลดได้ ห้ามขึ้น**
+// ขึ้นเพดานเพื่อดับแดง = ด่านเลิกเป็นด่าน ซึ่งเกิดมาแล้วกับ test-pk-chu
+// (ลด 25 -> 15 ในคอมมิตเดียวกับที่ตัดเล่มครึ่งหนึ่ง)
+//
+// class อื่นยังต้องเป็นศูนย์ · class ใหม่ หรือเกินเพดานแม้แต่ 1 = build แดง
+const DEBT = {
+  'K long-sentence':   98,
+  'L thai-in-english':  5,
+};
 const byClass = {};
 for (const f of failures) (byClass[f.cls] = byClass[f.cls] || []).push(f);
 for (const cls of Object.keys(byClass).sort()) {
@@ -302,5 +317,15 @@ for (const cls of Object.keys(byClass).sort()) {
   for (const f of byClass[cls].slice(0, 6)) console.log('   [' + f.chart + '] ' + f.msg);
   if (byClass[cls].length > 6) console.log('   … +' + (byClass[cls].length - 6) + ' more');
 }
-console.log('\n ✗ FAIL — ' + failures.length + ' findings across ' + Object.keys(byClass).length + ' classes\n');
+const over  = Object.keys(byClass).filter(c => byClass[c].length > (DEBT[c] ?? 0));
+const under = Object.keys(DEBT).filter(c => (byClass[c] || []).length < DEBT[c]);
+if (under.length) {
+  console.log('\n ⤵ หนี้ลดลงแล้ว — ลดเพดานใน DEBT เพื่อล็อกไว้:');
+  for (const c of under) console.log('   ' + c + ': ตอนนี้ ' + (byClass[c] || []).length + ' · เพดานยัง ' + DEBT[c]);
+}
+if (!over.length) {
+  console.log('\n ✓ PASS — ไม่มีของใหม่; ' + failures.length + ' finding ยกยอดเป็นหนี้ที่ประกาศไว้\n');
+  process.exit(0);
+}
+console.log('\n ✗ FAIL — ' + over.map(c => c + ' เกินเพดาน').join(', ') + '\n');
 process.exit(1);
