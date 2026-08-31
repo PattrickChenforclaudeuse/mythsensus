@@ -209,7 +209,11 @@ nav{display:flex;justify-content:center;gap:3px;padding:18px 12px 0;flex-wrap:wr
   border-left:1px solid var(--border);margin-left:6px;}
 .sub-seg:first-child{border-left:0;margin-left:0;padding-left:2px;}
 @media(max-width:520px){
-  .nav-groups{display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:0;margin:14px 0 0;}
+    /* เดิมบังคับ 5 คอลัมน์ตั้งแต่ตอนยังมี 5 หมวด · เหลือ 3 หมวดแล้วแท็บเลยถูกอัด
+     อยู่ 3 ใน 5 ส่วน มีที่ว่างค้างข้างขวา (director: "ด้วนๆ แบบนี้")
+     flex + flex:1 กระจายเต็มความกว้างเสมอ ไม่ว่าจะมีกี่หมวด */
+  .nav-groups{display:flex;gap:0;padding:0;margin:14px 0 0;}
+  .nav-groups .group-btn{flex:1 1 0;}
   /* Labels like "COSMIC BLUEPRINT" (~127px) cannot fit one ~74px grid cell.
      Before 2026-06-10 white-space:nowrap + no overflow clip let the active
      label paint over the neighbouring tabs. Now wrap to 2 lines (grid stretches
@@ -2990,7 +2994,7 @@ en:{
   nav_menu_open:"Choose a reading",nav_menu_close:"Close menu",chip_member:"Membership",chip_included:"Included",
   group_addon:"🎁 Soulmate · Remedies",group_profile:"👤 My collection",
   // ── sub-tabs
-  sub_forecast:"📅 Weeks ahead",sub_blessing:"🎴 Blessing",sub_organum:"🔮 Oraculum",sub_preview:"📊 Preview",
+  sub_forecast:"📅 Weeks ahead",sub_blessing:"🙏 Ask a blessing",sub_organum:"🔮 Oraculum",sub_preview:"📊 Preview",
   sub_collection:"📚 Collection",sub_library:"📦 My Unlocks",sub_streak:"🔥 Streak",sub_history7:"📜 History",
   sub_generate:"✨ Generate",sub_reports:"📁 My Reports",
   sub_sky:"🌌 Daily Sky",sub_resonance:"🧭 Resonance",sub_organum_plus:"🔮 Oraculum ∞",
@@ -3205,12 +3209,12 @@ th:{
   cb_tb_back:"← กลับ",cb_tb_compare:"📊 เปรียบเทียบ",cb_tb_save:"💾 บันทึก HTML",cb_tb_print:"🖨️ Print / PDF",
   history_title:"HISTORY — บันทึกของคุณ",
   // ── top-level groups
-  group_free:"✦ ดูดวงฟรี",group_premium:"👑 Premium",group_subscription:"🔮 ดวงวันนี้",
+  group_free:"✦ ดูดวงฟรีทุกวัน",group_premium:"👑 พรีเมียม",group_subscription:"🔮 ดวงวันนี้",
   seg_monthly:"สมาชิกรายเดือน",seg_onetime:"ดูดวงรายครั้ง",
   nav_menu_open:"เลือกดูอะไร",nav_menu_close:"ปิดเมนู",chip_member:"สมาชิก",chip_included:"รวมแล้ว",
   group_addon:"🎁 เนื้อคู่ · เสริมดวง",group_profile:"👤 คลังของฉัน",
   // ── sub-tabs
-  sub_forecast:"📅 พยากรณ์ 4 สัปดาห์",sub_blessing:"🎴 จั่วไพ่",sub_organum:"🔮 โอราคูลัม",sub_preview:"📊 ดูตัวอย่าง",
+  sub_forecast:"📅 พยากรณ์ 4 สัปดาห์",sub_blessing:"🙏 ขอพรเทพ",sub_organum:"🔮 โอราคูลัม",sub_preview:"📊 ดูตัวอย่าง",
   sub_collection:"📚 สะสมเทพ",sub_library:"📦 ที่ปลดล็อก",sub_streak:"🔥 Streak",sub_history7:"📜 ย้อนหลัง",
   sub_generate:"✨ สร้างรายงาน",sub_reports:"📁 รายงานของฉัน",
   sub_sky:"🌌 ฟ้าวันนี้",sub_resonance:"🧭 ดวงของเรากับสภาพแวดล้อม",sub_organum_plus:"🔮 เสียงจาก 108 เทพ",
@@ -3389,7 +3393,7 @@ th:{
   life_guide_title:"คู่มือชีวิตของคุณ",
   lg_love:"♡ ความรัก",lg_pets:"🐾 สัตว์เลี้ยง",lg_food:"🌾 อาหาร",lg_fitness:"⚡ ออกกำลังกาย",
   lg_source:"วิเคราะห์จากดวงชะตาของคุณ",
-  hist_all:"✦ ทั้งหมด",hist_blessing:"🎴 จั่วไพ่",hist_organum:"🔮 คำถาม",
+  hist_all:"✦ ทั้งหมด",hist_blessing:"🙏 พรที่ได้รับ",hist_organum:"🔮 คำถาม",
   hist_empty:"ยังไม่มีประวัติ — ลองจั่วไพ่หรือถามคำถามก่อนนะครับ",hist_clear:"🗑️ ล้างประวัติทั้งหมด",coll_skin:"✦ สกินการ์ด · CARD SKIN",
   prof_title:"ข้อมูลของฉัน",prof_name:"ชื่อ",prof_gender:"เพศ",
   prof_dob:"วันเกิด *",prof_time:"เวลาเกิด",prof_time_hint:"ไม่บังคับ — เพิ่มความแม่นยำ 4 ศาสตร์",
@@ -6747,14 +6751,18 @@ function moonPhase(jd){
   const angle=n360(moonLon(jd)-sunLon(jd));
   const idx=Math.floor(angle/45);
   return[
-    {en:'New Moon',th:'ดวงจันทร์ใหม่',icon:'🌑'},
-    {en:'Waxing Crescent',th:'จันทร์เสี้ยวขึ้น',icon:'🌒'},
-    {en:'First Quarter',th:'จันทร์ครึ่งดวงขึ้น',icon:'🌓'},
-    {en:'Waxing Gibbous',th:'จันทร์โตขึ้น',icon:'🌔'},
-    {en:'Full Moon',th:'จันทร์เต็มดวง',icon:'🌕'},
-    {en:'Waning Gibbous',th:'จันทร์เริ่มลด',icon:'🌖'},
-    {en:'Last Quarter',th:'จันทร์ครึ่งดวงลด',icon:'🌗'},
-    {en:'Waning Crescent',th:'จันทร์เสี้ยวลด',icon:'🌘'},
+    // คำไทยของข้างขึ้นข้างแรมมีอยู่แล้วในภาษา — ของเดิมแปลตรงตัวจากอังกฤษ
+    // ("จันทร์เริ่มลด" · "จันทร์โตขึ้น") ซึ่งไม่มีใครพูด และไม่เชื่อมกับปฏิทิน
+    // จันทรคติที่หน้าไทยพราหมณ์ในเล่มนี้ใช้อยู่ (director 2026-08-31 ถามตรง ๆ ว่า
+    // "จันทร์เริ่มลด แปลว่าอะไร")
+    {en:'New Moon',th:'เดือนดับ',icon:'🌑'},
+    {en:'Waxing Crescent',th:'เสี้ยวข้างขึ้น',icon:'🌒'},
+    {en:'First Quarter',th:'ครึ่งดวงข้างขึ้น',icon:'🌓'},
+    {en:'Waxing Gibbous',th:'ค่อนดวงข้างขึ้น',icon:'🌔'},
+    {en:'Full Moon',th:'จันทร์เพ็ญ',icon:'🌕'},
+    {en:'Waning Gibbous',th:'ค่อนดวงข้างแรม',icon:'🌖'},
+    {en:'Last Quarter',th:'ครึ่งดวงข้างแรม',icon:'🌗'},
+    {en:'Waning Crescent',th:'เสี้ยวข้างแรม',icon:'🌘'},
   ][idx];
 }
 
@@ -10489,6 +10497,14 @@ function _logDailyPulseToHistory(pulse) {
       iso: pulse.isoDate,
       ts: Date.now(),
       total: pulse.total,
+      // คะแนนจากจำนวนด้าน (ดี − ต่ำ) — ตัวที่หัวข้อใช้จริง เก็บไว้ให้พรุ่งนี้เทียบได้
+      domScore: (function(){ try{
+        const ch=(typeof _getMS26ChartFromProfile==='function')?_getMS26ChartFromProfile():null;
+        const a=(ch&&typeof _pulseAreas==='function')?_pulseAreas(ch,new Date()):null;
+        const d=a&&a.period&&a.period.domains; if(!d) return null;
+        let g=0,l=0; for(const k of Object.keys(d)){const v=d[k]||{};const nt=(v.up||0)-(v.down||0);
+          if(nt>0)g++; else if(nt<0)l++;} return g-l;
+      }catch(_){ return null; } })(),
       verdictKey: pulse.verdictKey,
       verdictEmoji: pulse.verdictEmoji,
     };
@@ -10671,42 +10687,86 @@ function _pulseHistoryStats(todayTotal){
 
 function _pulseBar(pulse, tierColor){
   const isTh = LANG === 'th';
-  const st = _pulseHistoryStats(pulse.total);
-  // ช่วงแคบเกินไปตอนวันแรก ๆ — ถ่างขั้นต่ำไว้ 4 หน่วยเพื่อให้หมุดไม่ติดขอบตลอด
-  let lo = st.min, hi = st.max;
-  if (hi - lo < 4) { const mid = (hi + lo) / 2; lo = mid - 2; hi = mid + 2; }
-  const pos = v => Math.max(2, Math.min(98, ((v - lo) / (hi - lo)) * 100));
-  const p  = pos(pulse.total);
-  const pp = st.prev != null ? pos(st.prev) : null;
-  const delta = st.prev != null ? pulse.total - st.prev : null;
-  const arrow = delta == null ? '' : delta > 0 ? '▲' : delta < 0 ? '▼' : '=';
+  // ⛔ หัวข้อต้องเป็นสรุปของ 8 ด้านที่อยู่ข้างล่างมันเอง ไม่ใช่ตัวเลขจากคนละท่อ
+  //
+  // เดิมเลขข้างบนมาจาก calcDailyPulse (รวมคะแนน 9 สัญญาณ) ส่วน 8 ด้านข้างล่าง
+  // มาจาก calcForecast(days:1) ซึ่งเป็นคนละการคำนวณ คนละชุดศาสตร์ ⇒ วางคู่กันแล้ว
+  // ขัดกันได้เป็นธรรมดา · director เห็นเองว่า "4 ด้านต่ำกว่าปกติ แล้วทำไมได้ +1"
+  // (2026-08-31) ซึ่งเป็นคำถามที่ตอบไม่ได้ เพราะมันไม่ใช่ค่าเฉลี่ยของอะไรบนจอนั้นเลย
+  //
+  // ตอนนี้นับจากด้านที่แสดงอยู่จริง ⇒ ขัดกันไม่ได้อีก และได้สเกลจริง −8…+8
+  // (มี 8 ด้าน) แทนที่จะต้องกางตามช่วงของผู้อ่านเองเพราะไม่มี min/max
+  const chart = (typeof _getMS26ChartFromProfile === 'function') ? _getMS26ChartFromProfile() : null;
+  const areas = (chart && typeof _pulseAreas === 'function') ? _pulseAreas(chart, new Date()) : null;
+  const doms = (areas && areas.period && areas.period.domains) ? areas.period.domains : null;
+  if (!doms) return '';
+
+  let good = 0, mid = 0, low = 0, split = 0;
+  for (const k of Object.keys(doms)) {
+    const v = doms[k] || {}; const net = (v.up || 0) - (v.down || 0);
+    if (net > 0) good++; else if (net < 0) low++; else mid++;
+    // `split` เป็นธงที่เอนจินตั้งเอง และการ์ดรายด้านข้างล่างใช้ธงตัวเดียวกันติดป้าย
+    // "ศาสตร์เห็นไม่ตรงกัน" ⇒ หัวข้อกับการ์ดขัดกันไม่ได้
+    if (v.split) split++;
+  }
+  const agree = Object.keys(doms).length - split;
+  const n = good + mid + low;
+  const score = good - low;
+
+  const V = score >= 3 ? { key:'peak',  th:'วันทอง',      en:'Golden day',  c:'#c8a45a' }
+          : score >= 1 ? { key:'up',    th:'ฟ้าหนุน',      en:'Favoured',    c:'#9ac06a' }
+          : score === 0? { key:'even',  th:'เสมอตัว',      en:'Even',        c:'#9a8a72' }
+          : score >= -2? { key:'watch', th:'ต้องสังเกต',   en:'Watch',       c:'#d09050' }
+          :              { key:'steady',th:'วันตั้งหลัก',  en:'Steady up',   c:'#c2603f' };
+  const bg = `rgba(${V.key==='peak'||V.key==='up' ? '200,164,90' : V.key==='even' ? '120,120,130' : '194,96,63'},.06)`;
+
+  // เมื่อวาน — เทียบได้เฉพาะวันที่บันทึกคะแนนแบบเดียวกันไว้แล้ว
+  let prev = null;
+  try{
+    const hist = JSON.parse(localStorage.getItem('mth_full_history') || '[]');
+    const today = new Date().toISOString().slice(0,10);
+    const rows = hist.filter(h => h.type === 'daily_pulse' && h.iso && h.iso < today && typeof h.domScore === 'number')
+                     .sort((a,b) => a.iso < b.iso ? -1 : 1);
+    if (rows.length) prev = rows[rows.length - 1].domScore;
+  }catch(_){}
+  const delta = prev == null ? null : score - prev;
+
+  const seg = (cnt, col) => cnt ? `<div style="flex:${cnt};background:${col}"></div>` : '';
+  const pct = v => Math.round(v / n * 100);
   return `
-    <div style="padding:16px 16px 14px;background:${tierColor.bg};border:1px solid ${tierColor.border};border-radius:10px;margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.4px;color:var(--muted);margin-bottom:7px">
-        <span>${isTh ? 'ควรพัก' : 'REST'}</span><span>${isTh ? 'ฟ้าหนุน' : 'FAVOURED'}</span>
+    <div style="padding:16px 16px 14px;background:${bg};border:1px solid rgba(200,164,90,.22);border-radius:10px;margin-bottom:14px">
+      <div style="text-align:center;font-family:'Cinzel Decorative',serif;font-size:21px;color:${V.c};line-height:1.3;margin-bottom:3px">
+        ${isTh ? V.th : V.en}
       </div>
-      <div style="position:relative;height:10px;border-radius:5px;background:linear-gradient(90deg,#7a3a2a 0%,#4a4a58 50%,#c8a45a 100%);opacity:.55"></div>
-      <div style="position:relative;height:0">
-        ${pp != null ? `<div title="${isTh?'เมื่อวาน':'yesterday'}" style="position:absolute;left:${pp}%;top:-16px;transform:translateX(-50%);width:2px;height:22px;background:var(--muted);opacity:.5"></div>` : ''}
-        <div style="position:absolute;left:${p}%;top:-19px;transform:translateX(-50%);width:3px;height:28px;background:${tierColor.score};border-radius:2px;box-shadow:0 0 8px ${tierColor.score}"></div>
-      </div>
-      <div style="text-align:center;margin-top:16px;font-family:'Cinzel Decorative',serif;font-size:19px;color:${tierColor.score};line-height:1.3">
-        ${pulse.verdictEmoji} ${isTh ? pulse.verdictTh : pulse.verdictEn}
-      </div>
-      <div style="text-align:center;font-size:10.5px;color:var(--muted);line-height:1.65;margin-top:5px">
+      <!-- จุดขายของสินค้าอยู่บรรทัดนี้ ห้ามตัดออก: ใครออกเสียง ใครงดออกเสียง
+           (director 2026-08-31: "เราชูจุดขายอะไร อย่าให้หลุด") -->
+      <div style="text-align:center;font-size:10.5px;color:var(--muted);letter-spacing:.4px;margin-bottom:11px;line-height:1.6">
         ${isTh
-          ? `วันนี้ <strong style="color:${tierColor.score}">${pulse.total > 0 ? '+' : ''}${pulse.total}</strong>${delta != null ? ` · เมื่อวาน ${st.prev > 0 ? '+' : ''}${st.prev} ${arrow}` : ''}`
-          : `today <strong style="color:${tierColor.score}">${pulse.total > 0 ? '+' : ''}${pulse.total}</strong>${delta != null ? ` · yesterday ${st.prev > 0 ? '+' : ''}${st.prev} ${arrow}` : ''}`}
-        <br>${isTh
-          ? (st.days >= 3
-              ? `แถบนี้กางตามช่วงของเจ้าเอง ${st.min > 0 ? '+' : ''}${st.min} ถึง ${st.max > 0 ? '+' : ''}${st.max} จาก ${st.days} วันที่บันทึกไว้`
-              : `ยังมีแค่ ${st.days} วัน — มาอีกสองสามวันแถบถึงจะบอกได้ว่าวันนี้สูงหรือต่ำสำหรับเจ้า`)
-          : (st.days >= 3
-              ? `Scaled to your own range, ${st.min} to ${st.max}, over ${st.days} recorded days`
-              : `Only ${st.days} day(s) so far — a few more and this bar can tell you whether today is high or low for you`)}
+          ? `<strong style="color:var(--gold2)">${areas.voting}</strong> ศาสตร์ออกเสียงวันนี้ · <strong>${areas.abstain}</strong> งดออกเสียง`
+          : `<strong style="color:var(--gold2)">${areas.voting}</strong> traditions spoke today · <strong>${areas.abstain}</strong> abstained`}
       </div>
+      <div style="display:flex;height:12px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.05)">
+        ${seg(good,'#9ac06a')}${seg(mid,'#4a4a58')}${seg(low,'#c2603f')}
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10.5px;color:var(--muted);line-height:1.5">
+        <span><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#9ac06a"></i>
+          ${isTh ? 'ดีกว่าปกติ' : 'above'} <strong style="color:#9ac06a">${good}</strong></span>
+        <span><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#4a4a58"></i>
+          ${isTh ? 'ปกติ' : 'usual'} <strong>${mid}</strong></span>
+        <span><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#c2603f"></i>
+          ${isTh ? 'ต่ำกว่าปกติ' : 'below'} <strong style="color:#c2603f">${low}</strong></span>
+      </div>
+      <div style="text-align:center;margin-top:9px;font-size:10.5px;color:var(--muted);line-height:1.6">
+        ${isTh
+          ? `เห็นตรงกัน <strong style="color:var(--gold2)">${agree}</strong> ด้าน · เถียงกัน <strong style="color:#d0a860">${split}</strong> ด้าน`
+          : `<strong style="color:var(--gold2)">${agree}</strong> areas agreed · <strong style="color:#d0a860">${split}</strong> contested`}
+      </div>
+      ${delta != null ? `<div style="text-align:center;margin-top:6px;font-size:10.5px;color:var(--muted)">
+        ${isTh ? 'เทียบเมื่อวาน' : 'vs yesterday'} ${delta > 0 ? '▲ ดีขึ้น' : delta < 0 ? '▼ ลดลง' : '= เท่าเดิม'} ${delta ? Math.abs(delta) + (isTh ? ' ด้าน' : '') : ''}
+      </div>` : ''}
     </div>`;
 }
+
 
 function _pulseGreeting(){
   const isTh = LANG === 'th';
