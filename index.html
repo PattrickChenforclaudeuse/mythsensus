@@ -10633,6 +10633,9 @@ function _pulseAreas(chart, today) {
         : (isTh ? '7 วันข้างหน้า (รวมวันนี้)' : 'the next 7 days, today included'),
       voting: fc.votingCount,
       abstain: fc.abstainCount,
+      // เหตุผลรายตัวว่าทำไมแต่ละศาสตร์ถึงงด — หน้าพยากรณ์แสดงอยู่แล้ว
+      // ดวงวันนี้ฟรีเพิ่งได้ใช้ ทั้งที่เป็นหน้าที่คนอ่านมากที่สุด
+      abstentions: fc.abstentions || [],
     };
   } catch (_) { return null; }
 }
@@ -10701,6 +10704,7 @@ function _pulseBar(pulse, tierColor){
   const chart = (typeof _getMS26ChartFromProfile === 'function') ? _getMS26ChartFromProfile() : null;
   const areas = (chart && typeof _pulseAreas === 'function') ? _pulseAreas(chart, new Date()) : null;
   const doms = (areas && areas.period && areas.period.domains) ? areas.period.domains : null;
+  const abst = (areas && areas.abstentions) ? areas.abstentions : null;
   if (!doms) return '';
 
   let good = 0, mid = 0, low = 0, split = 0;
@@ -10745,11 +10749,21 @@ function _pulseBar(pulse, tierColor){
       </div>
       <!-- จุดขายของสินค้าอยู่บรรทัดนี้ ห้ามตัดออก: ใครออกเสียง ใครงดออกเสียง
            (director 2026-08-31: "เราชูจุดขายอะไร อย่าให้หลุด") -->
-      <div style="text-align:center;font-size:10.5px;color:var(--muted);letter-spacing:.4px;margin-bottom:11px;line-height:1.6">
-        ${isTh
-          ? `<strong style="color:var(--gold2)">${areas.voting}</strong> ศาสตร์ออกเสียงวันนี้ · <strong>${areas.abstain}</strong> งดออกเสียง`
-          : `<strong style="color:var(--gold2)">${areas.voting}</strong> traditions spoke today · <strong>${areas.abstain}</strong> abstained`}
-      </div>
+      <!-- เหตุผลที่แต่ละศาสตร์งดออกเสียงมีเขียนไว้ครบใน fc.abstentions อยู่แล้ว
+           แต่ไม่เคยแสดงให้ใครดู · การบอกว่า "18 งดออกเสียง" โดยไม่บอกว่าทำไม
+           คือการขอให้เชื่อ ส่วนการเปิดให้อ่านคือการให้ตรวจ ซึ่งเป็นจุดขายจริงของที่นี่ -->
+      <details style="text-align:center;margin-bottom:11px">
+        <summary style="cursor:pointer;list-style:none;font-size:10.5px;color:var(--muted);letter-spacing:.4px;line-height:1.6">
+          ${isTh
+            ? `<strong style="color:var(--gold2)">${areas.voting}</strong> ศาสตร์ออกเสียงวันนี้ · <strong>${areas.abstain}</strong> งดออกเสียง <span style="color:var(--gold3)">— แตะดูว่าใครงด เพราะอะไร</span>`
+            : `<strong style="color:var(--gold2)">${areas.voting}</strong> spoke today · <strong>${areas.abstain}</strong> abstained <span style="color:var(--gold3)">— tap for who, and why</span>`}
+        </summary>
+        <div style="text-align:left;font-size:10.5px;line-height:1.6;margin-top:7px;padding-left:2px;color:var(--muted)">
+          ${(abst || []).map(x => `<div style="margin-top:5px">
+              <strong style="color:var(--text)">${isTh ? x.sysTh : x.sysEn}</strong> — ${isTh ? (x.whyTh || '') : (x.whyEn || '')}
+            </div>`).join('')}
+        </div>
+      </details>
       <div style="display:flex;height:12px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.05)">
         ${seg(good,C_UP)}${seg(mid,C_MID)}${seg(low,C_DOWN)}
       </div>
@@ -11024,21 +11038,49 @@ function renderDailyPulse() {
       const sharpV = votes.filter(x => !dom.flat.has(x.sys));
       const flatV  = votes.filter(x =>  dom.flat.has(x.sys));
       const nm = x => isTh ? x.sysTh : x.sysEn;
-      const top = sharpV.slice(0, 2).map(nm).filter(Boolean);
-      const rest = sharpV.length - top.length;
-      const who = top.length
-        ? `<div style="font-size:10.5px;color:var(--gold3);margin-top:5px;line-height:1.5">${isTh?'อ่านด้านนี้':'Read this area'}: ${top.join(' · ')}${rest > 0 ? ` <span style="color:var(--muted)">${isTh?'และอีก':'+'} ${rest}</span>` : ''}</div>`
+      // ── ใครพูดว่าอะไร — เปิดอ่านได้ ──────────────────────────────────
+      // เดิมการ์ดบอกแค่ "อ่านด้านนี้: A · B และอีก 1" ซึ่งบอกว่าใครอ่าน แต่ไม่บอกว่า
+      // เขาพูดว่าอะไร และป้าย "ศาสตร์เห็นไม่ตรงกัน" เป็นป้ายตายกดไม่ได้
+      // (director 1 ก.ย.: "ศาสตร์ไม่เห็นตรงกัน กดอ่านไม่ได้ · ข้อความด้านในไม่มีบอก
+      // อะไรเลยนอกจาก go/no go")
+      //
+      // ข้อมูลมีครบใน v.votes อยู่แล้ว — ทิศทาง (band) · เหตุผล (noteTh) · วิชาที่ใช้
+      // (doctrineTh) แค่ไม่เคยถูกแสดง · ความไม่ลงรอยคือจุดขายของสินค้านี้ การซ่อนไว้
+      // หลังป้ายที่กดไม่ได้คือการเก็บของที่คนจ่ายเงินมาดูไว้เฉย ๆ
+      //
+      // ใช้ <details> ไม่ใช้ onclick — การ์ดชุดนี้ถูก re-render ทั้งก้อนบ่อย และไฟล์นี้
+      // มีประวัติ handler ค้างจากการ rewrite innerHTML มาแล้ว
+      const upV   = sharpV.filter(x => x.band === 'up');
+      const downV = sharpV.filter(x => x.band === 'down');
+      const midV  = sharpV.filter(x => x.band !== 'up' && x.band !== 'down');
+      const side = (arr, mark, col) => arr.map(x =>
+        `<div style="display:flex;gap:6px;margin-top:5px;line-height:1.55">
+           <span style="color:${col};flex:0 0 auto">${mark}</span>
+           <span style="flex:1"><strong style="color:var(--text)">${nm(x)}</strong>
+             <span style="color:var(--muted)"> — ${isTh ? (x.noteTh || '') : (x.noteEn || '')}</span></span>
+         </div>`).join('');
+      const who = sharpV.length
+        ? `<details style="margin-top:7px">
+             <summary style="cursor:pointer;font-size:10.5px;color:var(--gold3);line-height:1.5;list-style:none">
+               ${v.split
+                 ? (isTh ? `<span style="color:#c98a5e">ศาสตร์เห็นไม่ตรงกัน</span> — แตะดูว่าใครพูดว่าอะไร`
+                         : `<span style="color:#c98a5e">traditions disagree</span> — tap to see who said what`)
+                 : (isTh ? `${sharpV.length} ศาสตร์อ่านด้านนี้ — แตะดูว่าพูดว่าอะไร`
+                         : `${sharpV.length} traditions read this area — tap to see what they said`)}
+             </summary>
+             <div style="font-size:10.5px;margin-top:4px;padding-left:2px">
+               ${side(upV,'▲','var(--gold2)')}${side(downV,'▼','#c2603f')}${side(midV,'·','var(--muted)')}
+             </div>
+           </details>`
         : (flatV.length
-            ? `<div style="font-size:10.5px;color:var(--muted);margin-top:5px;line-height:1.5">${isTh?'ไม่มีศาสตร์ไหนอ่านด้านนี้โดยเฉพาะ':'no tradition reads this area specifically'}</div>`
+            ? `<div style="font-size:10.5px;color:var(--muted);margin-top:5px;line-height:1.5">${isTh?'ไม่มีศาสตร์ไหนอ่านด้านนี้โดยตรง':'No tradition reads this area directly'}</div>`
             : '');
       // Flat voters are the same set in every area by definition, so they are
       // collected once and printed under the grid — repeating an identical line
       // in all eight cards is noise, not disclosure.
       for (const x of flatV) dayWideNames.add(nm(x));
       // Only surface disagreement when the engine actually flags it.
-      const splitTag = v.split
-        ? ` <span style="display:inline-block;margin-top:4px;font-size:9.5px;color:#d0a860;border:1px solid rgba(208,168,96,0.4);border-radius:3px;padding:1px 5px;white-space:nowrap">${isTh?'ศาสตร์เห็นไม่ตรงกัน':'systems split'}</span>`
-        : '';
+      const splitTag = '';   // ป้ายย้ายไปอยู่ใน <summary> ที่กดได้แล้ว
       return `<div style="border:1px solid ${tn.b};background:${tn.bg};border-radius:8px;padding:11px 13px">
         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
           <span style="font-size:13px;color:var(--text)">${L[k].icon} ${label}</span>
