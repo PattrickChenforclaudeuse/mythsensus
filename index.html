@@ -4894,6 +4894,89 @@ const _msAnalytics = (function(){
 window._msTrack = _msAnalytics;
 
 let _drawing=false, _forceHidden=false;
+// ── พรวันนี้ อ่านคู่กับดวงวันนี้ ────────────────────────────────────────────
+// director 2026-08-31: "ถ้าดวงความรักไม่ดี แต่ได้เทพความรัก ถือว่าเทพช่วย · ถ้าดวงความรักดี
+// แล้วยังได้เทพความรัก วันนั้นแรงกว่าเดิม" แล้วเสริมว่า "อยากให้เทพเป็นกำลังใจมากกว่า
+// แต่ถ้าต้องระวัง health วันนี้ แล้วจั่วได้ death มันก็ควรต้องระวังแล้วไหม"
+//
+// ตั้งต้นเป็นกำลังใจเสมอ ยกเว้นกรณีเดียว: เทพหมวดเงามาตรงกับด้านที่วันนี้ฝืดที่สุด
+//
+// ⛔ แมปหมวดเทพกับด้านของชีวิตได้จริงแค่ 5 จาก 13 หมวด — ที่เหลือ (ธรรมชาติ แสง ราตรี
+//    ความตาย จักรวาล ศรัทธา ศิลปะ การปกป้อง) **ไม่มีด้านให้จับคู่** ฝืนแมปคือแต่งความหมาย
+//    หมวดที่แมปไม่ได้จึงพูดในฐานะหมวดของตัวเอง ไม่ไปอ้างด้านใดด้านหนึ่ง
+// ⛔ และไม่เคลมว่า "เทพความตายดูแลสุขภาพ" (ไม่มีตำราไหนว่าอย่างนั้น) — สิ่งที่อ่านคือ
+//    การที่สองอย่างมาบรรจบกันในวันเดียว ไม่ใช่อำนาจหน้าที่ของเทพ
+const _BLESS_CAT_DOMAIN = { love:'love', wealth:'money', power:'career', wisdom:'learning', healing:'health' };
+const _BLESS_SHADOW = ['death', 'night'];
+
+function _godCategoryKeys(god, max){
+  const seen = new Set(); const out = []; const lim = max || 3;
+  const baked = (god && Array.isArray(god.categories)) ? god.categories : null;
+  if (baked && baked.length){
+    for (const k of baked) if (_GOD_CATEGORIES[k] && !seen.has(k)){ seen.add(k); out.push(k); if(out.length>=lim) break; }
+    if (out.length) return out;
+  }
+  for (const raw of (god && god.represents || [])){
+    const c = _DOMAIN_TO_CAT[String(raw).toLowerCase()];
+    if (c && !seen.has(c)){ seen.add(c); out.push(c); if(out.length>=lim) break; }
+  }
+  return out;
+}
+
+function _blessingVsToday(god){
+  try{
+    const chart = (typeof _getMS26ChartFromProfile === 'function') ? _getMS26ChartFromProfile() : null;
+    if (!chart || !window.MS26 || typeof MS26.calcForecast !== 'function') return '';
+    const fc = MS26.calcForecast(chart, new Date(), { days: 1, weeks: 1, months: 0 });
+    const period = (Array.isArray(fc.days) && fc.days[0]) || (Array.isArray(fc.weeks) && fc.weeks[0]);
+    if (!period || !period.domains) return '';
+    const isTh = LANG === 'th';
+    const L = MS26.FORECAST_DOMAIN_LABELS || {};
+    const nameOf = d => { const l = L[d]; return (l && (isTh ? l.th : l.en)) || d; };
+    const doms = Object.keys(period.domains);
+    if (!doms.length) return '';
+    const net = d => { const v = period.domains[d] || {}; return (v.up || 0) - (v.down || 0); };
+    const ranked = doms.slice().sort((a,b) => net(a) - net(b));
+    const weakest = ranked[0], strongest = ranked[ranked.length - 1];
+
+    const keys = _godCategoryKeys(god, 3);
+    const shadow = keys.find(k => _BLESS_SHADOW.includes(k));
+    const hit = keys.map(k => _BLESS_CAT_DOMAIN[k]).find(Boolean);
+    const catTh = k => (_GOD_CATEGORIES[k] ? (isTh ? _GOD_CATEGORIES[k].th : _GOD_CATEGORIES[k].en) : '');
+
+    let body;
+    if (shadow && net(weakest) < 0) {
+      body = isTh
+        ? `วันนี้ด้าน<strong>${nameOf(weakest)}</strong>เป็นด้านที่ฝืดที่สุดของเจ้า และผู้ที่มาคือเทพแห่ง<strong>${catTh(shadow)}</strong> — สองอย่างนี้มาตรงวันเดียวกัน อ่านเป็นสัญญาณให้<strong>หยุดและปิดให้เป็น</strong> ไม่ใช่ให้ฝืนต่อ`
+        : `<strong>${nameOf(weakest)}</strong> is your tightest area today, and the deity who came is one of <strong>${catTh(shadow)}</strong>. Read the two landing together as a sign to <strong>stop and close cleanly</strong>, not to push on.`;
+    } else if (hit && hit === weakest) {
+      body = isTh
+        ? `วันนี้ด้าน<strong>${nameOf(hit)}</strong>ของเจ้าฝืดที่สุด แต่ผู้ที่มาคือเทพแห่ง<strong>${catTh(keys.find(k=>_BLESS_CAT_DOMAIN[k]===hit))}</strong> — ท่านมาตรงจุดที่เจ้าต้องการพอดี`
+        : `<strong>${nameOf(hit)}</strong> is your tightest area today, and the deity who came governs exactly that. They arrived where you needed them.`;
+    } else if (hit && hit === strongest) {
+      body = isTh
+        ? `ด้าน<strong>${nameOf(hit)}</strong>ของเจ้าเปิดอยู่แล้ววันนี้ และผู้ที่มายังเป็นเทพแห่ง<strong>${catTh(keys.find(k=>_BLESS_CAT_DOMAIN[k]===hit))}</strong>อีก — วันนี้ด้านนี้แรงกว่าปกติ ใช้ให้คุ้ม`
+        : `<strong>${nameOf(hit)}</strong> is already open for you today, and the deity who came governs it too. That side of the day runs stronger than usual — use it.`;
+    } else if (hit) {
+      body = isTh
+        ? `ผู้ที่มาคือเทพแห่ง<strong>${catTh(keys.find(k=>_BLESS_CAT_DOMAIN[k]===hit))}</strong> · วันนี้ด้าน<strong>${nameOf(hit)}</strong>ของเจ้าอยู่กลาง ๆ ท่านมาเสริมไว้ ไม่ได้มาแก้อะไร`
+        : `The deity who came governs <strong>${nameOf(hit)}</strong>, which sits mid-range for you today. They came to shore it up, not to fix anything.`;
+    } else if (keys.length) {
+      body = isTh
+        ? `ผู้ที่มาคือเทพแห่ง<strong>${catTh(keys[0])}</strong> — ไม่ได้ตรงกับด้านใดในแปดด้านที่ดวงวันนี้ให้คะแนน ท่านมาในฐานะของท่านเอง`
+        : `The deity who came is one of <strong>${catTh(keys[0])}</strong> — not one of the eight areas today's reading scores. They came as themselves.`;
+    } else return '';
+
+    const warn = shadow && net(weakest) < 0;
+    return `<div style="margin-top:12px;padding:11px 13px;border-left:2px solid ${warn ? '#c2603f' : 'var(--gold3)'};
+      background:${warn ? 'rgba(194,96,63,.07)' : 'rgba(200,164,90,.05)'};border-radius:0 8px 8px 0;
+      font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;line-height:1.7;color:var(--text);text-align:left">
+      <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.8px;color:${warn ? '#c2603f' : 'var(--gold3)'};margin-bottom:5px">
+        ${isTh ? 'พรนี้กับดวงวันนี้ของเจ้า' : 'THIS BLESSING AGAINST YOUR DAY'}</div>
+      ${body}</div>`;
+  }catch(_){ return ''; }
+}
+
 async function drawBlessing(){
   if(_drawing || draws>=_maxDraws())return;
   _drawing=true;
@@ -4939,6 +5022,7 @@ async function drawBlessing(){
     document.getElementById('godMessage').textContent='"'+message+'"';
     _renderLucky(god);
     document.getElementById('godRepresents').innerHTML=(typeof _godCategoryChips==='function'?_godCategoryChips(god,4):'')+`<div style="font-size:10.5px;color:var(--muted);margin-top:4px">${(god.represents||[]).map(esc).join(' · ')}</div>`+(typeof _fcBlessingMatch==='function'?_fcBlessingMatch(god):'');
+    try{ const _vs=_blessingVsToday(god); if(_vs) document.getElementById('godRepresents').innerHTML += _vs; }catch(_){}
     _currentDraw={god,tier:T,msgIdx,message};
     const sb=document.getElementById('godShareBtn');
     if(sb){sb.textContent=(LANG==='th'?'✦ แชร์พรนี้ให้เพื่อน':'✦ Share your blessing');}
