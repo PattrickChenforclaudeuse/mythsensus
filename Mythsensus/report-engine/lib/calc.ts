@@ -1672,17 +1672,6 @@ function calcBazi(d: BirthData): BaziData {
   // Check if year branch is 午 (idx=6) → Horse year
   const benMing = yp.bi === 6; // born in Horse year
 
-  const luckyMap: Record<string, string> = {
-    '甲': 'ไฟ ดิน', '乙': 'ไฟ ดิน', '丙': 'ไม้ ดิน', '丁': 'ไม้ ดิน',
-    '戊': 'ไฟ ไม้', '己': 'ไฟ ไม้', '庚': 'น้ำ ดิน', '辛': 'น้ำ ดิน',
-    '壬': 'โลหะ ไม้', '癸': 'โลหะ ไม้',
-  };
-  const avoidMap: Record<string, string> = {
-    '甲': 'โลหะ', '乙': 'โลหะ', '丙': 'น้ำ', '丁': 'น้ำ',
-    '戊': 'ไม้', '己': 'ไม้', '庚': 'ไฟ', '辛': 'ไฟ',
-    '壬': 'ดิน', '癸': 'ดิน',
-  };
-
   const BAZI_EL_BASE: Record<string,number> = {'ไม้':750,'ไฟ':790,'ดิน':760,'โลหะ':740,'น้ำ':720};
   const hasSelfPunch = yp.bi === dp.bi;
   const mpStemIdx = STEMS.indexOf(mp.stem);
@@ -1698,6 +1687,34 @@ function calcBazi(d: BirthData): BaziData {
   // a BaZi reader actually assesses, and it spans a comparable range honestly.
   const _dmStr = _baziDMStrength(dp.si, { year: { si: yp.si, bi: yp.bi }, month: { si: mp.si, bi: mp.bi }, day: { si: dp.si, bi: dp.bi }, hour: { si: STEMS.indexOf(hp.stem), bi: BRANCHES.indexOf(hp.branch) } });
   const _balance = 50 - Math.abs(_dmStr.pct - 50);        // 0 at the extremes, 50 when poised
+
+  // ── ธาตุมงคล / ธาตุที่ต้องเลี่ยง — อ่านจาก 身強/身弱 ไม่ใช่จากตารางตายตัว ──
+  //
+  // luckyMap keyed the answer on the Day Master STEM alone, so every 甲 chart was
+  // prescribed Fire and Earth — output and wealth, which is the remedy for a
+  // STRONG Day Master — including the 財多身弱 charts that need the exact
+  // opposite. On the director's own chart the report printed 財重 (wealth already
+  // heavy) and then made "add Earth" its number-one HIGH recommendation, Earth
+  // BEING the wealth element it had just called excessive.
+  //
+  // The 用神/忌神 block later in the same report has been strength-aware since it
+  // was written, so the book has been arguing with itself on a single page. The
+  // rule is the one that block already uses: a weak Day Master is fed (resource +
+  // self), a strong one is drained (output + wealth), and a balanced one leans on
+  // its resource while avoiding whatever already dominates.
+  const _EL_BY_I = ['ไม้', 'ไฟ', 'ดิน', 'โลหะ', 'น้ำ'];   // ลำดับเดียวกับ _EL_IDX
+  const _dmI = _EL_IDX[dmElement] ?? 0;
+  const _elRel = (n: number) => _EL_BY_I[(_dmI + n) % 5];
+  const _self = _elRel(0), _output = _elRel(1), _wealth = _elRel(2), _officer = _elRel(3), _resource = _elRel(4);
+  const _uniq = (xs: string[]) => Array.from(new Set(xs)).join(' ');
+  const luckyElStr =
+    _dmStr.verdict === 'weak'   ? _uniq([_resource, _self])
+  : _dmStr.verdict === 'strong' ? _uniq([_output, _wealth])
+  :                               _resource;
+  const avoidElStr =
+    _dmStr.verdict === 'weak'   ? _uniq([_officer, _wealth])
+  : _dmStr.verdict === 'strong' ? _uniq([_resource, _self])
+  :                               dominantEl;
   const baziScore = Math.max(400, Math.min(960,
     (BAZI_EL_BASE[STEMS_EL[dp.si]] ?? 700) + (hasSelfPunch ? 40 : 0) + (benMing ? 30 : 0) + _balance - 25));
   const baziResult: BaziData = {
@@ -1707,7 +1724,7 @@ function calcBazi(d: BirthData): BaziData {
     hourStem: hp.stem, hourBranch: hp.branch, hourStemTh: hp.stemTh, hourBranchTh: hp.branchTh,
     dayMaster: dp.stem, dayMasterTh: pStem(dp.si), dayMasterElement: pEl(dmElement), dayMasterPolarity: dmPolarity,
     missingElement: pEl(missingEl), dominantElement: pEl(dominantEl),
-    luckyElement: pEl(luckyMap[dp.stem] ?? 'ดิน'), avoidElement: pEl(avoidMap[dp.stem] ?? 'น้ำ'),
+    luckyElement: pEl(luckyElStr), avoidElement: pEl(avoidElStr),
     currentLuckPillar: `${currentLP.stem}${currentLP.branch}`,
     currentLuckPillarTh: `${currentLP.stemTh} ${currentLP.branchTh} (${currentLP.period})`,
     benMingNian2026: benMing,
@@ -1716,8 +1733,8 @@ function calcBazi(d: BirthData): BaziData {
       const dmEl = dmElement;
       const missing = missingEl;
       const dominant = dominantEl;
-      const luckyEl = luckyMap[dp.stem] ?? 'ดิน';
-      const avoidEl = avoidMap[dp.stem] ?? 'น้ำ';
+      const luckyEl = luckyElStr;
+      const avoidEl = avoidElStr;
       const currentLuckPillar = `${currentLP.stem}${currentLP.branch}`;
       const elEn = tEl(dmEl);
       const missingEn = tEl(missing);
@@ -1761,7 +1778,7 @@ function calcBazi(d: BirthData): BaziData {
   baziResult.deepReading = baziResult.reading + _baziDeepSections({
     dmIdx: dp.si, elCount,
     dmEl: dmElement, missing: missingEl, dominant: dominantEl,
-    luckyEl: luckyMap[dp.stem] ?? 'ดิน', avoidEl: avoidMap[dp.stem] ?? 'น้ำ',
+    luckyEl: luckyElStr, avoidEl: avoidElStr,
     polarity: dmPolarity, dayStemTh: pStem(dp.si),
     pillars: {
       year:  { s: yp.stem, b: yp.branch, sTh: pStem(yp.si), bTh: pBranch(yp.bi), si: yp.si, bi: yp.bi },
@@ -2035,8 +2052,8 @@ function _nineStarDeepSections(a: {
   ));
   sections.push(blk('💬', 'คำถามยอดฮิต — ตอบจากดวง Nine Star Ki ของคุณ', 'Popular Questions — Answered from Your Nine Star Ki',
     faqQ(isEn?'How is 2026 — a peak or a caution year?':'ปี 2026 ปีพีคหรือปีระวัง?',
-      isEn ? (a.isHonmei ? `2026 is your ${B('Honmei-sei Kaiki')} (本命星回帰) — the most powerful year in your 9-year cycle; the annual star (9 Fire) matches your own. Everything amplifies: successes multiply, but so do missteps. Act with intention.` : `${a.year2026Analysis} Use your lucky direction (${eDir(dir)}) and colour (${eColor(color)}) consistently this year.`)
-            : (a.isHonmei ? `2026 เป็นปี ${B('Honmei-sei Kaiki')} (本命星回帰) ของคุณ — ปีทรงพลังที่สุดในวงจร 9 ปี ดาวปี (9 ไฟ) ตรงกับดาวคุณพอดี ทุกสิ่งขยายผล ทั้งสำเร็จและพลาด ทำด้วยเจตนา` : `${a.year2026Analysis} ใช้ทิศนำโชค (${eDir(dir)}) และสี (${eColor(color)}) อย่างสม่ำเสมอปีนี้`)) +
+      isEn ? (a.isHonmei ? `2026 is your ${B('Honmei-sei Kaiki')} (本命星回帰) — the annual star (1 White Water) matches your own, seating it in the central palace 中宮 (chugu). Tradition calls that 八方塞がり (happo fusagari, blocked in all eight directions): hold position, close out what is open.` : `${a.year2026Analysis} Use your lucky direction (${eDir(dir)}) and colour (${eColor(color)}) consistently this year.`)
+            : (a.isHonmei ? `2026 เป็นปี ${B('Honmei-sei Kaiki')} (本命星回帰) ของคุณ — ดาวปี (1 白水星 ธาตุน้ำ) ตรงกับดาวคุณพอดี ดาวจึงเข้า 中宮 (จงกง กลางผัง) ตำราเรียกว่า 八方塞がり (ฮับโปฟุซางาริ ปิดทั้งแปดทิศ) — ปีตั้งหลัก ปิดงานค้าง ไม่ใช่ปีเปิดตัว` : `${a.year2026Analysis} ใช้ทิศนำโชค (${eDir(dir)}) และสี (${eColor(color)}) อย่างสม่ำเสมอปีนี้`)) +
     faqQ(isEn?'What is my greatest natural strength?':'จุดแข็งที่สุดโดยธรรมชาติของฉัน?',
       isEn ? (coreEn.split('.')[0] + '.') : (coreTh.split(' ').slice(0,18).join(' ') + '…')) +
     faqQ(isEn?'Which star numbers are most compatible?':'ดาวเลขไหนเข้ากันได้ดีที่สุด?',
@@ -2089,8 +2106,8 @@ function calcNineStar(d: BirthData): NineStarData {
   const isHonmei = star === 1; // 2026 year star = 1 (一白水星)
   const analysis2026 = isHonmei
     ? tPick(
-        'Honmei-sei Kaiki 本命星回帰 — ดาวของคุณตรงกับดาวปี 2026 พอดี ทุกสิ่งขยายผลคูณสอง ทั้งโอกาสและความเสี่ยง ต้องใส่ใจทุกการกระทำ',
-        'Honmei-sei Kaiki 本命星回帰 — your star matches the 2026 year star exactly. Everything amplifies twofold: both opportunity and risk. You must be mindful of every action.')
+        'Honmei-sei Kaiki 本命星回帰 — ดาวประจำตัวคุณตรงกับดาวปี 2026 (1 白水星) พอดี ดาวคุณจึงเข้า 中宮 (จงกง กลางผัง) ตำราเรียกปีนี้ว่า 八方塞がり (ฮับโปฟุซางาริ ปิดทั้งแปดทิศ) — เป็นปีตั้งหลัก ไม่ใช่ปีบุก',
+        'Honmei-sei Kaiki 本命星回帰 — your natal star meets the 2026 year star (1 White Water), seating your star in the central palace 中宮 (chugu). The tradition calls the year 八方塞がり (happo fusagari, blocked in all eight directions): consolidate, do not launch.')
     : tPick(
         `ปี 2026 เป็นปีดาว 1 (一白水星 ธาตุน้ำ) — ดาวประจำตัวคุณคือดาว ${star} · ${data.dir}คือทิศนำโชคประจำดาวของคุณ`,
         `2026 is a Star 1 year (一白水星, Water). Your own star is ${star} — ${pDir(data.dir)} is that star's lucky direction.`);
@@ -3734,9 +3751,50 @@ function _thaiDeepSections(a: {
   return sec.join('');
 }
 
-function calcThai(d: BirthData): ThaiData {
+// Sunrise, local clock time, for a birth place and date (NOAA's low-precision
+// algorithm; ±1 minute is far tighter than this needs to be). Returns null above
+// the polar circles on the days the sun does not clear the horizon.
+function _sunriseLocalHours(y: number, m: number, day: number, lat: number, lon: number, tz: number): number | null {
+  const rad = Math.PI / 180;
+  const jdate = toJD(y, m, day, 12);                       // local noon, as a JD
+  const n = Math.round(jdate - 2451545.0 + 0.0008);
+  const Jstar = n - lon / 360;                             // lon east-positive
+  const M = (357.5291 + 0.98560028 * Jstar) % 360;
+  const C = 1.9148 * Math.sin(M * rad) + 0.02 * Math.sin(2 * M * rad) + 0.0003 * Math.sin(3 * M * rad);
+  const lam = (M + C + 180 + 102.9372) % 360;
+  const Jtransit = 2451545.0 + Jstar + 0.0053 * Math.sin(M * rad) - 0.0069 * Math.sin(2 * lam * rad);
+  const sinDec = Math.sin(lam * rad) * Math.sin(23.44 * rad);
+  const cosDec = Math.cos(Math.asin(sinDec));
+  const cosW = (Math.sin(-0.833 * rad) - Math.sin(lat * rad) * sinDec) / (Math.cos(lat * rad) * cosDec);
+  if (!(cosW >= -1 && cosW <= 1)) return null;             // midnight sun / polar night
+  const w = Math.acos(cosW) / rad;
+  const Jrise = Jtransit - w / 360;
+  const hoursUtc = ((Jrise + 0.5) % 1) * 24;               // JD .0 is noon UTC
+  return ((hoursUtc + tz) % 24 + 24) % 24;
+}
+
+// The Thai weekday, by the rule Thai tradition actually uses: the day turns at
+// SUNRISE, not at midnight.
+//
+// Every Thai reading in this report — the day deity, the auspicious colour, the
+// whole ทักษา wheel — hangs off this one number, and it was read off the civil
+// calendar. The report even printed the rule to the reader and then said the
+// system does not follow it. Someone born at 05:06 in Bangkok was handed Sunday's
+// deity and colour when the tradition it claims to be reading says Saturday.
+//
+// Above the polar circles, or when the sun never rises that day, there is no
+// sunrise to move the boundary to, so the civil day stands.
+function _thaiWeekday(d: BirthData): number {
   const jd = toJD(d.year, d.month, d.day, 12);
-  const dow = ((Math.floor(jd + 1.5) % 7) + 7) % 7; // 0=Sunday
+  const civil = ((Math.floor(jd + 1.5) % 7) + 7) % 7;      // 0=Sunday
+  const rise = _sunriseLocalHours(d.year, d.month, d.day, d.lat, d.lon, d.timezone);
+  if (rise == null) return civil;
+  const born = d.hour + (d.minute || 0) / 60;
+  return born < rise ? (civil + 6) % 7 : civil;
+}
+
+function calcThai(d: BirthData): ThaiData {
+  const dow = _thaiWeekday(d);
   const day = THAI_DAYS[dow];
   const DAY_SCORES: Record<string,number> = {'จันทร์':750,'อังคาร':720,'พุธ':760,'พฤหัสบดี':800,'ศุกร์':780,'เสาร์':710,'อาทิตย์':790};
   const thaiDayScore = Math.max(400, Math.min(960, (DAY_SCORES[day?.name??'']??700)));
@@ -3761,8 +3819,8 @@ function calcThai(d: BirthData): ThaiData {
       keyValueEn: `Born ${day.nameEn} · ruled by ${day.god} · lucky colour ${day.colorEn}`,
       keyValueMeaning: `คุณเกิด<strong>${day.name}</strong> ซึ่งในระบบไทยพราหมณ์ ปกครองโดย<strong>${day.godTh}</strong> (${day.god}) นักษัตรประจำวันคือ${day.nakshatra} และสีมงคลของคุณคือ<strong>${day.color}</strong> ไทยพราหมณ์เชื่อว่าในขณะเกิด วิญญาณของคุณได้รับ "พรแรก" จากเทพประจำวัน — พรนี้ติดตัวไปตลอดและใช้งานได้ผ่านการบูชาและการใช้สีที่ตรงกับเทพ โชคชะตาของคุณคือ<strong>${day.fortune}</strong> ซึ่งคือ "ทิศทางพลังงาน" ที่จักรวาลเปิดให้คุณโดยธรรมชาติ`,
       keyValueMeaningEn: `You were born on <strong>${day.nameEn}</strong>, ruled in the Thai-Brahmin system by <strong>${day.god}</strong>. The day\'s nakshatra is ${day.nakshatra}; your lucky colour is <strong>${day.colorEn}</strong>. Thai-Brahmin teaches that at the moment of birth, your soul receives a "first blessing" from the day-deity — a blessing that travels with you for life and is activated through devotion and the right colour. Your fortune is <strong>${day.fortuneEn}</strong> — the "energy direction" the cosmos naturally opens for you.`,
-      uniqueTh: `โหราศาสตร์ไทยไม่ได้อ่านจากราศี แต่อ่านจาก <strong>วันในสัปดาห์</strong> ซึ่งเป็นหน่วยที่แทบไม่มีศาสตร์อื่นในเล่มนี้ใช้เลย — คุณเกิด${day.name} เทพประจำวันคือ ${day.god} สีคือ${day.color} · ข้อควรรู้: ตำราไทยดั้งเดิมนับวันใหม่ตอน <strong>พระอาทิตย์ขึ้น</strong> ไม่ใช่เที่ยงคืน ระบบนี้ใช้วันตามปฏิทินสากล ⇒ ถ้าคุณเกิดก่อนรุ่งสาง ตำราเก่าจะนับให้เป็นวันก่อนหน้า และเทพกับสีจะเปลี่ยนตามไปด้วย`,
-      uniqueEn: `Thai astrology does not read signs; it reads the <strong>weekday</strong>, a unit almost nothing else in this report uses. You were born on ${day.nameEn}, under ${day.god}, colour ${day.colorEn}. Worth knowing: traditional Thai practice turns the day at <strong>sunrise</strong>, not midnight, while this system uses the calendar date. A birth before dawn would be counted on the previous weekday in the older reckoning — and the deity and colour move with it.`,
+      uniqueTh: `โหราศาสตร์ไทยไม่ได้อ่านจากราศี แต่อ่านจาก <strong>วันในสัปดาห์</strong> ซึ่งเป็นหน่วยที่แทบไม่มีศาสตร์อื่นในเล่มนี้ใช้เลย — คุณเกิด${day.name} เทพประจำวันคือ ${day.god} สีคือ${day.color} · ตำราไทยเปลี่ยนวันตอน<strong>พระอาทิตย์ขึ้น</strong> และเล่มนี้นับตามตำรา ⇒ เกิดก่อนรุ่งสางที่พิกัดของคุณ = ใช้วันก่อนหน้า ทั้งเทพ สี และผังทักษา`,
+      uniqueEn: `Thai astrology does not read signs; it reads the <strong>weekday</strong>, a unit almost nothing else in this report uses. You were born on ${day.nameEn}, under ${day.god}, colour ${day.colorEn}. Thai practice turns the day at <strong>sunrise</strong>, not midnight, and <strong>this report follows the tradition</strong>: a birth before dawn at your own coordinates is read on the previous weekday, with the deity, the colour and the whole Taksa wheel moving with it — not on the calendar date.`,
       strengthTh: `ผู้เกิด${day.name} ได้รับพรของ${day.godTh} — ${day.name==='วันอาทิตย์'?'พระอาทิตย์ประทานพลังผู้นำและเสน่ห์โดยธรรมชาติ คนเกิดวันอาทิตย์มักเป็นผู้นำในกลุ่มโดยไม่ต้องพยายาม มีความกล้าตัดสินใจและแสงออร่าที่ดึงดูดคน':day.name==='วันจันทร์'?'พระจันทร์ประทานสัญชาตญาณและความอ่อนโยน คนเกิดวันจันทร์มักเป็นคนที่มี "ใจ" เข้าถึงความรู้สึกผู้อื่นได้ลึก เหมาะงานดูแล ศิลปะ และการให้คำปรึกษา':day.name==='วันอังคาร'?'พระอังคารประทานพลังกล้าหาญและความคล่องตัว คนเกิดวันอังคารลงมือได้เร็ว ไม่กลัวความเสี่ยง และมีแรงขับดันสูง เหมาะงานบุกเบิก':day.name==='วันพุธ'?'พระพุธประทานปัญญาและการสื่อสาร คนเกิดวันพุธเก่งเรียน เก่งพูด เก่งคิด เหมาะงานการศึกษา การขาย การเจรจา':day.name==='วันพฤหัสบดี'?'พระพฤหัสประทานปัญญาและศีลธรรม คนเกิดวันพฤหัสเป็นที่ปรึกษาโดยธรรมชาติ มีความรู้ลึกและใจดี เหมาะอาชีพครู ที่ปรึกษา และงานบุญ':day.name==='วันศุกร์'?'พระศุกร์ประทานเสน่ห์และความรัก คนเกิดวันศุกร์มีเสน่ห์ผิดธรรมดา รักความงาม ดึงดูดความรักและความมั่งคั่งได้ง่าย':'พระเสาร์ประทานความอดทนและความลึกซึ้ง คนเกิดวันเสาร์อาจประสบความยากลำบากในวัยเยาว์ แต่บ้านปลายชีวิตมักมั่นคงที่สุดในบรรดา 7 วัน เหมาะงานที่ต้องใช้ความอดทนระยะยาว'} นักษัตร${day.nakshatra} ให้คุณคุณสมบัติเฉพาะของนักษัตรประจำวัน`,
       strengthEn: `Those born on ${day.nameEn} carry the blessing of ${day.god} — ${day.god==='Surya'?'Surya grants natural leadership and charisma. Sunday-born often lead a group effortlessly, decide bravely, and carry an aura that draws people in':day.god==='Chandra'?'Chandra grants intuition and gentleness. Monday-born have "heart" — they read others\' feelings deeply. Suited to caregiving, art, and counselling':day.god==='Mangala'?'Mangala grants courage and agility. Tuesday-born act fast, fear no risk, carry high drive. Suited to pioneering work':day.god==='Budha'?'Budha grants intellect and communication. Wednesday-born excel at learning, speaking, thinking. Suited to education, sales, negotiation':day.god==='Brihaspati'?'Brihaspati grants wisdom and morality. Thursday-born are natural counsellors with deep knowledge and kindness. Suited to teaching, advising, charitable work':day.god==='Shukra'?'Shukra grants charm and love. Friday-born are unusually charming, drawn to beauty, and easily attract love and abundance':'Shani grants endurance and depth. Saturday-born may face hardship early in life, but late-life is often the most stable of the seven. Suited to work demanding long-term endurance'}. Nakshatra ${day.nakshatra} adds the day-nakshatra\'s specific qualities.`,
       shadowTh: `เงาของผู้เกิด${day.name} คือ ${day.name==='วันอาทิตย์'?'ความหยิ่งและไม่ฟังใคร — แสงที่แรงเกินไปก็เผาได้':day.name==='วันจันทร์'?'ความอ่อนไหวเกินไปและเก็บอารมณ์ไว้นาน — จันทร์เต็มกับข้างแรมสลับกันในใจคุณ':day.name==='วันอังคาร'?'ความใจร้อนและโกรธง่าย — อังคารพลังมากต้องควบคุม':day.name==='วันพุธ'?'การพูดเยอะจนเสียน้ำหนัก — พุธเก่งคำ แต่ต้องเลือกใช้':day.name==='วันพฤหัสบดี'?'การเป็น "ครู" ที่สอนคนอื่นแต่ไม่ฟังตัวเอง':day.name==='วันศุกร์'?'การหลงในความสวยงามและความสบาย':'ความเศร้าและการแบกอารมณ์หนัก — เสาร์เป็นครูของชีวิตที่สอนผ่านความลำบาก'} ไทยพราหมณ์แนะนำว่าในวันที่รู้สึกเงาของคุณครอบงำ ให้บูชา${day.godTh}ด้วยดอกไม้สี${day.color}และอธิษฐานขอพรใหม่`,
@@ -3875,8 +3933,9 @@ function _taksaDeepSections(a: { dayLordTh: string; housePlanetsTh: string[]; mu
 }
 
 function calcTaksa(d: BirthData): TaksaData {
-  const jd = toJD(d.year, d.month, d.day, 12);
-  const dow = ((Math.floor(jd + 1.5) % 7) + 7) % 7; // 0=Sunday
+  // Same sunrise rule as calcThai — the ทักษา wheel is built from the weekday, so
+  // the two must never disagree about which day someone was born on.
+  const dow = _thaiWeekday(d);
   // Build the 8-house wheel for this weekday.
   const wheel: TaksaHouse[] = [];
   for (let h = 0; h < 8; h++) {
@@ -7701,14 +7760,34 @@ export function lunarDateOf(jd: number): LunarDate { return _lunarDate(jd) }
 const _ZW_BRANCH = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
 // 納音五行局 by the 60-cycle index of the 命宮 pillar → bureau number.
 const _ZW_BUREAU_N: Record<string, number> = { '水二局': 2, '木三局': 3, '金四局': 4, '土五局': 5, '火六局': 6 };
-const _ZW_NAYIN_BUREAU = [
-  '金四局','金四局','火六局','火六局','木三局','木三局','土五局','土五局','火六局','火六局',
-  '木三局','木三局','土五局','土五局','金四局','金四局','火六局','火六局','水二局','水二局',
-  '土五局','土五局','火六局','火六局','木三局','木三局','水二局','水二局','土五局','土五局',
-  '金四局','金四局','木三局','木三局','水二局','水二局','土五局','土五局','金四局','金四局',
-  '火六局','火六局','水二局','水二局','土五局','土五局','金四局','金四局','木三局','木三局',
-  '水二局','水二局','火六局','火六局','土五局','土五局','木三局','木三局','水二局','水二局',
+// Derived, not transcribed. The hand-typed 60-cell version that stood here was
+// wrong in THIRTY of its sixty cells: correct for the first four pairs, then it
+// slipped a pair and never recovered. 壬申癸酉 is 劍鋒金 and was returning 火六局;
+// 丙戌丁亥 is 屋上土 and was returning 火六局 too. The bureau number sets where 紫微
+// falls, and 紫微 places all fourteen majors — so half of every chart drawn was
+// built on the wrong bureau, and nothing downstream could notice.
+//
+// 納音 assigns one element to each PAIR of the sexagenary cycle, and the thirty
+// pairs are two identical runs of fifteen. Writing the fifteen and repeating
+// them removes the only thing that went wrong here, which was typing.
+const _ZW_NAYIN_15 = [
+  '金四局', // 甲子乙丑 海中金
+  '火六局', // 丙寅丁卯 爐中火
+  '木三局', // 戊辰己巳 大林木
+  '土五局', // 庚午辛未 路旁土
+  '金四局', // 壬申癸酉 劍鋒金
+  '火六局', // 甲戌乙亥 山頭火
+  '水二局', // 丙子丁丑 澗下水
+  '土五局', // 戊寅己卯 城頭土
+  '金四局', // 庚辰辛巳 白蠟金
+  '木三局', // 壬午癸未 楊柳木
+  '水二局', // 甲申乙酉 泉中水
+  '土五局', // 丙戌丁亥 屋上土
+  '火六局', // 戊子己丑 霹靂火
+  '木三局', // 庚寅辛卯 松柏木
+  '水二局', // 壬辰癸巳 長流水
 ];
+const _ZW_NAYIN_BUREAU = Array.from({ length: 60 }, (_, i) => _ZW_NAYIN_15[Math.floor(i / 2) % 15]);
 // The fourteen majors, as offsets. 紫微 series runs backwards from 紫微;
 // 天府 series runs forwards from 天府, and 天府 mirrors 紫微 about the 寅–申 axis.
 const _ZW_ZIWEI_SERIES: Array<[string, number]> = [
