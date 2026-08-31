@@ -71,7 +71,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=204">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=205">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
@@ -2931,7 +2931,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=204" defer></script>
+<script src="/build/ms26-bundle.js?v=205" defer></script>
 <script>
 
 
@@ -10563,6 +10563,67 @@ function _visitStats(){
 //    ห้ามเขียนคำอวยที่ย้ายไปแปะเว็บดูดวงเจ้าไหนก็ได้
 // ⚠️ ตัวนับอยู่ในเบราว์เซอร์เครื่องนี้เท่านั้น — ล้างข้อมูลเว็บหรือเปลี่ยนเครื่อง = เริ่มนับใหม่
 //    ถ้อยคำจึงพูดแบบ "เหล่าเทพเห็น" ไม่ใช่ "บัญชีของเจ้าคือ" จะได้ไม่โกหกตอนตัวนับรีเซ็ต
+// แถบวันนี้ + หมุด — แทนป้าย "🟡 กลาง" ที่ดูเหมือนคำตัดสินว่าวันนี้ไม่มีอะไร
+// (director 2026-08-31: "ดวงที่โชว์ว่ากลางไม่ค่อยดี ... ทำเป็น bar แล้วลากหมุด")
+//
+// ⛔ ห้ามแต่งสเกล — คำเตือนที่เขียนไว้ข้างล่างยังใช้อยู่: ผลรวมเสียงไม่มี min/max ตายตัว
+//    (วัด 400 วันของดวงหนึ่งได้ −7…+9 และเลื่อนตามดวง) เคยมีคนใส่ "เต็มเท่าไร" ลอย ๆ แล้วผิด
+// ⇒ สเกลของแถบนี้คือ **ช่วงที่วัดได้จากวันของผู้อ่านเองเท่านั้น** และบอกตรง ๆ ว่านับจากกี่วัน
+//    ยิ่งกลับมาบ่อย ช่วงยิ่งเต็ม หมุดยิ่งมีความหมาย — นั่นคือเหตุผลให้กลับมา ไม่ใช่คำเชิญชวนลอย ๆ
+function _pulseHistoryStats(todayTotal){
+  try{
+    const hist = JSON.parse(localStorage.getItem('mth_full_history') || '[]');
+    const rows = hist.filter(h => h.type === 'daily_pulse' && h.iso && typeof h.total === 'number');
+    const byDay = {}; for (const r of rows) byDay[r.iso] = r.total;
+    const today = new Date().toISOString().slice(0,10);
+    byDay[today] = todayTotal;
+    const isos = Object.keys(byDay).sort();
+    const prevIso = isos.filter(d => d < today).pop() || null;
+    const vals = isos.map(d => byDay[d]);
+    return { days: isos.length, min: Math.min(...vals), max: Math.max(...vals),
+             prev: prevIso ? byDay[prevIso] : null, prevIso };
+  }catch(_){ return { days: 1, min: todayTotal, max: todayTotal, prev: null, prevIso: null }; }
+}
+
+function _pulseBar(pulse, tierColor){
+  const isTh = LANG === 'th';
+  const st = _pulseHistoryStats(pulse.total);
+  // ช่วงแคบเกินไปตอนวันแรก ๆ — ถ่างขั้นต่ำไว้ 4 หน่วยเพื่อให้หมุดไม่ติดขอบตลอด
+  let lo = st.min, hi = st.max;
+  if (hi - lo < 4) { const mid = (hi + lo) / 2; lo = mid - 2; hi = mid + 2; }
+  const pos = v => Math.max(2, Math.min(98, ((v - lo) / (hi - lo)) * 100));
+  const p  = pos(pulse.total);
+  const pp = st.prev != null ? pos(st.prev) : null;
+  const delta = st.prev != null ? pulse.total - st.prev : null;
+  const arrow = delta == null ? '' : delta > 0 ? '▲' : delta < 0 ? '▼' : '=';
+  return `
+    <div style="padding:16px 16px 14px;background:${tierColor.bg};border:1px solid ${tierColor.border};border-radius:10px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.4px;color:var(--muted);margin-bottom:7px">
+        <span>${isTh ? 'ควรพัก' : 'REST'}</span><span>${isTh ? 'ฟ้าหนุน' : 'FAVOURED'}</span>
+      </div>
+      <div style="position:relative;height:10px;border-radius:5px;background:linear-gradient(90deg,#7a3a2a 0%,#4a4a58 50%,#c8a45a 100%);opacity:.55"></div>
+      <div style="position:relative;height:0">
+        ${pp != null ? `<div title="${isTh?'เมื่อวาน':'yesterday'}" style="position:absolute;left:${pp}%;top:-16px;transform:translateX(-50%);width:2px;height:22px;background:var(--muted);opacity:.5"></div>` : ''}
+        <div style="position:absolute;left:${p}%;top:-19px;transform:translateX(-50%);width:3px;height:28px;background:${tierColor.score};border-radius:2px;box-shadow:0 0 8px ${tierColor.score}"></div>
+      </div>
+      <div style="text-align:center;margin-top:16px;font-family:'Cinzel Decorative',serif;font-size:19px;color:${tierColor.score};line-height:1.3">
+        ${pulse.verdictEmoji} ${isTh ? pulse.verdictTh : pulse.verdictEn}
+      </div>
+      <div style="text-align:center;font-size:10.5px;color:var(--muted);line-height:1.65;margin-top:5px">
+        ${isTh
+          ? `วันนี้ <strong style="color:${tierColor.score}">${pulse.total > 0 ? '+' : ''}${pulse.total}</strong>${delta != null ? ` · เมื่อวาน ${st.prev > 0 ? '+' : ''}${st.prev} ${arrow}` : ''}`
+          : `today <strong style="color:${tierColor.score}">${pulse.total > 0 ? '+' : ''}${pulse.total}</strong>${delta != null ? ` · yesterday ${st.prev > 0 ? '+' : ''}${st.prev} ${arrow}` : ''}`}
+        <br>${isTh
+          ? (st.days >= 3
+              ? `แถบนี้กางตามช่วงของเจ้าเอง ${st.min > 0 ? '+' : ''}${st.min} ถึง ${st.max > 0 ? '+' : ''}${st.max} จาก ${st.days} วันที่บันทึกไว้`
+              : `ยังมีแค่ ${st.days} วัน — มาอีกสองสามวันแถบถึงจะบอกได้ว่าวันนี้สูงหรือต่ำสำหรับเจ้า`)
+          : (st.days >= 3
+              ? `Scaled to your own range, ${st.min} to ${st.max}, over ${st.days} recorded days`
+              : `Only ${st.days} day(s) so far — a few more and this bar can tell you whether today is high or low for you`)}
+      </div>
+    </div>`;
+}
+
 function _pulseGreeting(){
   const isTh = LANG === 'th';
   const { total, streak, gap } = _visitStats();
@@ -10570,29 +10631,17 @@ function _pulseGreeting(){
   let th, en;
 
   if (gap >= 30) {
-    th = `เจ้าหายไป <strong style="color:var(--gold2)">${gap} วัน</strong><br>นานพอให้ดวงเดินไปคนละช่วงแล้ว — วันนี้เริ่มอ่านกันใหม่`;
-    en = `You were gone <strong style="color:var(--gold2)">${gap} days</strong><br>Long enough for the chart to have moved on. We begin again today.`;
+    th = `เจ้ากลับมาแล้ว หลังหายไป <strong style="color:var(--gold2)">${gap} วัน</strong><br>หน้าของเจ้ายังเปิดค้างอยู่ตรงที่เดิม — เริ่มกันใหม่ตั้งแต่วันนี้`;
+    en = `You are back after <strong style="color:var(--gold2)">${gap} days</strong><br>Your page was left open where you set it down. We begin again from today.`;
   } else if (gap >= 7) {
-    th = `เจ้าหายไป <strong style="color:var(--gold2)">${gap} วัน</strong><br>ฟ้าเปลี่ยนไปหลายรอบแล้ว เสียงที่เจ้าเคยได้ยินไม่เหลือแล้ว`;
-    en = `You were gone <strong style="color:var(--gold2)">${gap} days</strong><br>The sky has turned several times; the voices you last heard are not these.`;
+    th = `เจ้ากลับมาแล้ว หลังหายไป <strong style="color:var(--gold2)">${gap} วัน</strong><br>ฟ้าเดินไปไกลอยู่ — วันนี้มาดูกันว่าตอนนี้ถึงไหน`;
+    en = `You are back after <strong style="color:var(--gold2)">${gap} days</strong><br>The sky has travelled a fair way. Let us see where it stands today.`;
   } else if (gap >= 3) {
-    th = `เจ้าหายไป <strong style="color:var(--gold2)">${gap} วัน</strong><br>เหล่าเทพยังไม่ได้ปิดหน้าของเจ้า`;
-    en = `You were gone <strong style="color:var(--gold2)">${gap} days</strong><br>The gods had not closed your page.`;
-  } else if (streak >= 365) {
-    th = `<strong style="color:var(--gold2)">หนึ่งปี</strong> ที่เจ้ามาฟัง<br>ดวงอาทิตย์กลับมาที่เดิมของวันเกิดเจ้าแล้ว — เจ้าได้ยินครบทุกฤดู`;
-    en = `<strong style="color:var(--gold2)">One year</strong> of listening<br>The Sun has returned to where it stood at your birth. You have heard every season.`;
-  } else if (streak >= 180) {
-    th = `<strong style="color:var(--gold2)">หกเดือน</strong> ติดกัน<br>ครึ่งทางของรอบสุริยะ — อีกครึ่งดวงอาทิตย์จะกลับมาที่เดิม`;
-    en = `<strong style="color:var(--gold2)">Six months</strong> unbroken<br>Half a solar turn. The other half brings the Sun back to your birth degree.`;
-  } else if (streak >= 30) {
-    th = `<strong style="color:var(--gold2)">สามสิบวัน</strong> ติดกัน<br>จันทร์เดินครบหนึ่งรอบเต็มตั้งแต่เจ้าเริ่มฟัง`;
-    en = `<strong style="color:var(--gold2)">Thirty days</strong> unbroken<br>The Moon has walked a full circle since you started listening.`;
-  } else if (streak >= 15) {
-    th = `<strong style="color:var(--gold2)">สิบห้าวัน</strong> ติดกัน<br>จันทร์เดินครึ่งรอบ จากมืดถึงสว่าง เจ้าอยู่ครบทั้งขาขึ้น`;
-    en = `<strong style="color:var(--gold2)">Fifteen days</strong> unbroken<br>Half a lunar circle, dark to full. You stayed for the whole waxing.`;
-  } else if (streak >= 7) {
-    th = `<strong style="color:var(--gold2)">เจ็ดวัน</strong> ติดกัน<br>เจ้าได้พรจากเทพประจำวันครบทั้งเจ็ดองค์แล้ว`;
-    en = `<strong style="color:var(--gold2)">Seven days</strong> unbroken<br>You have taken the blessing of all seven day-deities.`;
+    th = `เจ้ากลับมาแล้ว <strong style="color:var(--gold2)">${gap} วัน</strong>ที่ไม่ได้เจอกัน<br>เหล่าเทพเก็บที่ของเจ้าไว้`;
+    en = `Back after <strong style="color:var(--gold2)">${gap} days</strong> apart<br>The gods kept your place.`;
+  // ⛔ หมุด 7/15/30/100/180/365 ไม่ได้อยู่ตรงนี้ — มันเป็นของการ์ดฉลอง
+  //    (_maybeStreakCelebration) ที่มีอยู่ก่อนแล้ว ยิงครั้งเดียวต่อหมุดพร้อม confetti
+  //    ถ้าเขียนไว้สองที่ จอเดียวกันจะฉลองสองแบบด้วยคำคนละชุด
   } else if (n <= 1) {
     th = 'พบกันครั้งแรก — นี่คือ<strong style="color:var(--gold2)">โชคชะตา</strong><br>บัดนี้โชคชะตาของเราได้สัมผัสกันแล้ว ให้เราเปิดเผยเสียงพ้องของเหล่าเทพ ว่าเขาเหล่านั้นเห็นอะไรในตัวเจ้า';
     en = 'The first meeting is <strong style="color:var(--gold2)">fate</strong><br>Our fates have touched. Let the concord of the gods be revealed — what they see in you.';
@@ -10600,8 +10649,12 @@ function _pulseGreeting(){
     th = 'ครั้งแรกคือโชคชะตา · การกลับมาคือ<strong style="color:var(--gold2)">พรหมลิขิต</strong><br>เจ้ากลับมาแล้ว — เสียงของวันนี้ไม่ใช่เสียงของวันก่อน';
     en = 'The first meeting was fate. The return is <strong style="color:var(--gold2)">destiny</strong><br>You came back, and today does not speak in yesterday’s voice.';
   } else {
-    th = `เจ้ามาฟังเป็นวันที่ <strong style="color:var(--gold2)">${n}</strong><br>เหล่าเทพจำเจ้าได้ — และวันนี้พวกเขาพูดไม่เหมือนเมื่อวาน`;
-    en = `Day <strong style="color:var(--gold2)">${n}</strong> of listening<br>The gods know you now, and today they do not say what they said yesterday.`;
+    th = streak >= 3
+      ? `<strong style="color:var(--gold2)">${streak} วัน</strong>ติดกันแล้ว<br>เหล่าเทพจำเจ้าได้ — และวันนี้พวกเขาพูดไม่เหมือนเมื่อวาน`
+      : `เจ้ามาฟังเป็นวันที่ <strong style="color:var(--gold2)">${n}</strong><br>เหล่าเทพจำเจ้าได้ — และวันนี้พวกเขาพูดไม่เหมือนเมื่อวาน`;
+    en = streak >= 3
+      ? `<strong style="color:var(--gold2)">${streak} days</strong> unbroken<br>The gods know you now, and today they do not say what they said yesterday.`
+      : `Day <strong style="color:var(--gold2)">${n}</strong> of listening<br>The gods know you now, and today they do not say what they said yesterday.`;
   }
   return `<div style="border-left:2px solid var(--gold3);padding:10px 0 10px 13px;margin-bottom:14px;
     font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;line-height:1.75;color:var(--gold2);font-style:italic">
@@ -10884,20 +10937,7 @@ function renderDailyPulse() {
          how the verdict is derived and hiding it would be the dishonest fix —
          but it is now a footnote with its scale spelled out.
          ⛔ Do not promote the raw total back to hero size. -->
-    <div style="text-align:center;padding:18px 16px;background:${tierColor.bg};border:1px solid ${tierColor.border};border-radius:10px;margin-bottom:14px">
-      <div style="font-family:'Cinzel Decorative',serif;font-size:30px;color:${tierColor.score};margin-bottom:6px;line-height:1.25">${pulse.verdictEmoji} ${verdictLabel}</div>
-      <!-- ⛔ No invented scale here. The engine has no fixed min/max — the total
-           is a plain sum of however many systems had something to say today
-           (measured range over 400 days for one chart: −7…+9, and that shifts
-           per chart). Quoting a made-up "out of" was the first thing written
-           here and it was wrong. Describe the DIRECTION, which cannot drift. -->
-      <div style="font-size:11px;color:var(--muted);letter-spacing:0.5px;line-height:1.6">
-        ${isTh
-          ? `รวมเสียงจาก ${pulse.signals.length} ศาสตร์ได้ <strong style="color:${tierColor.score}">${pulse.total > 0 ? '+' : ''}${pulse.total}</strong> · ยิ่งบวกยิ่งหนุน ยิ่งลบยิ่งควรพัก`
-          : `${pulse.signals.length} systems summed to <strong style="color:${tierColor.score}">${pulse.total > 0 ? '+' : ''}${pulse.total}</strong> · the higher the more the day carries you, the lower the more it asks you to rest`}
-        ${pulse.pinnedCount > 0 ? ` · ${pulse.pinnedCount} ${t('pulse_pinned_tag')}` : ''}
-      </div>
-    </div>
+    ${_pulseBar(pulse, tierColor)}
 
     <div style="padding:14px 16px;background:rgba(0,0,0,0.2);border-radius:8px;line-height:1.85;font-size:13.5px;color:var(--text);margin-bottom:14px;border-left:3px solid var(--gold)">
       ${synthesis}
@@ -22104,7 +22144,7 @@ function _maybeDailyPulseFanfare() {
 // Fires confetti + a milestone card the FIRST time a streak hits 7 / 30 /
 // 100 / 365 days. Stores the highest milestone celebrated so we don't
 // fire again when the user re-views the same day.
-const _STREAK_MILESTONES = [7, 30, 100, 365];
+const _STREAK_MILESTONES = [7, 15, 30, 100, 180, 365];   // director 2026-08-31: 7 · 15 · 30 · 6 เดือน · 1 ปี
 function _maybeStreakCelebration(streak) {
   try {
     if (!streak) return;
@@ -22116,11 +22156,31 @@ function _maybeStreakCelebration(streak) {
     // On-theme: cosmic glyphs (✦ ✧ ☽ ⛤) instead of party emoji. Title still
     // names the milestone in human terms.
     const titles = isTh
-      ? { 7: '✦ เจ็ดวัน — ครบหนึ่งสัปดาห์', 30: '✧ สามสิบวัน — ครบหนึ่งจันทรา', 100: '⛤ หนึ่งร้อยวัน — สาวกแห่งดวงดาว', 365: '☽ หนึ่งปี — หนึ่งวงรอบสุริยะ' }
-      : { 7: '✦ Seven days · one full week', 30: '✧ Thirty days · one full lunar cycle', 100: '⛤ One hundred days · devoted', 365: '☽ One year · one full solar arc' };
+      ? { 7:   '✦ เจ็ดวันติดกัน',
+          15:  '✧ สิบห้าวันติดกัน',
+          30:  '☽ สามสิบวันติดกัน',
+          100: '⛤ ร้อยวันติดกัน',
+          180: '✵ หกเดือนติดกัน',
+          365: '✶ หนึ่งปีเต็ม' }
+      : { 7:   '✦ Seven days unbroken',
+          15:  '✧ Fifteen days unbroken',
+          30:  '☽ Thirty days unbroken',
+          100: '⛤ One hundred days unbroken',
+          180: '✵ Six months unbroken',
+          365: '✶ A full year' };
     const subs = isTh
-      ? { 7: 'รักษา rhythm นี้ไว้ — สัญญาณเริ่มสะสม', 30: 'pattern ในตัวคุณเริ่มชัดเจน', 100: 'หนึ่งร้อยวันของการสนทนากับฟ้า', 365: 'หนึ่งวงรอบเต็มของสุริยะ — น่าทึ่ง' }
-      : { 7: 'Keep the rhythm — signals are accumulating', 30: 'Your pattern is becoming visible', 100: 'A hundred days of dialogue with the sky', 365: 'A full solar revolution of devotion' };
+      ? { 7:   'เจ้าได้พรจากเทพประจำวันครบทั้งเจ็ดองค์แล้ว',
+          15:  'จันทร์เดินครึ่งรอบ จากมืดถึงสว่าง เจ้าอยู่ครบทั้งขาขึ้น',
+          30:  'จันทร์เดินครบหนึ่งรอบเต็มตั้งแต่เจ้าเริ่มฟัง',
+          100: 'ร้อยวันที่เจ้าไม่เคยพลาดการฟัง',
+          180: 'ครึ่งทางของหนึ่งรอบฤดู — อีกครึ่งฟ้าจะกลับมาที่เดิม',
+          365: 'เจ้าได้ยินเสียงของพวกเขาครบทุกฤดู ทุกข้างขึ้นข้างแรม' }
+      : { 7:   'You have taken the blessing of all seven day-deities',
+          15:  'Half a lunar circle, dark to full — you stayed for the whole waxing',
+          30:  'The Moon has walked a full circle since you started listening',
+          100: 'A hundred days without missing one',
+          180: 'Half a turn of the seasons — the other half brings the sky back around',
+          365: 'You have heard them through every season and every phase of the moon' };
     _msConfetti(milestone >= 100 ? 100 : 60);
     _msFanfare('✦', titles[milestone], subs[milestone], 3400);
   } catch (e) { console.warn('[streak celebrate]', e); }
