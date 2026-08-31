@@ -65,7 +65,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=201">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=202">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
@@ -1245,7 +1245,7 @@ let _authEmail = '';    // Email pending OTP verification
      The SPA boots behind an entry overlay, so crawlers/LLMs that don't run JS
      saw a blank <body> on our top-priority URL. Give them a real <h1> +
      <noscript> summary + internal links. JS users never see the noscript. ═══ -->
-<h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0">Mythsensus — 26 ancient divination systems reconciled into one Cosmic Score · ดูดวง 26 ศาสตร์โบราณพร้อมกัน สรุปเป็นคะแนนเดียว</h1>
+<h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0">Mythsensus — 26 divination traditions read one birth date, and we show where they agree, argue, or abstain · ดูดวง 26 ศาสตร์พร้อมกัน แล้วบอกว่าใครเห็นตรงกัน ใครเถียง ใครงดออกเสียง</h1>
 <noscript>
   <div style="max-width:720px;margin:40px auto;padding:24px;font-family:Georgia,serif;color:#e6e2d8;background:#0a0a10;line-height:1.7;border:1px solid #2a2a33;border-radius:8px">
     <h2>When 26 ancient systems disagree, we reconcile</h2>
@@ -1274,7 +1274,7 @@ let _authEmail = '';    // Email pending OTP verification
   </div>
 </noscript>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Organization","name":"Mythsensus","url":"https://mythsensus.com/","logo":"https://mythsensus.com/og-default.png","description":"26 ancient divination systems reconciled into one Cosmic Score."}
+{"@context":"https://schema.org","@type":"Organization","name":"Mythsensus","url":"https://mythsensus.com/","logo":"https://mythsensus.com/og-default.png","description":"26 divination traditions read one birth date. Mythsensus shows where they agree, where they contradict, and which ones have no method for the question - it never averages them into a single verdict."}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
@@ -1601,7 +1601,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         </select>
         <input class="login-input" type="number" id="heroYear" min="1900" max="2026" placeholder="2534" style="font-family:'Josefin Sans','Sarabun',sans-serif;font-size:16px;text-align:center;font-variant-numeric:lining-nums tabular-nums">
       </div>
-      <button class="login-confirm-btn" onclick="entryHeroGo()" style="font-size:17px;padding:16px 14px;letter-spacing:.3px;text-wrap:balance" data-eh="cta">✦ ดู 4 สัปดาห์ของคุณ · ฟรี</button>
+      <button class="login-confirm-btn" onclick="entryHeroGo()" style="font-size:17px;padding:16px 14px;letter-spacing:.3px;text-wrap:balance" data-eh="cta">✦ ดูดวงวันนี้ของคุณ · ฟรี</button>
       <div style="text-align:center;margin-top:8px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1px;color:var(--muted)" data-eh="nosignup">ไม่ต้องสมัคร</div>
       <button onclick="entryDrawFirst()" data-eh="draw2" style="width:100%;margin-top:12px;padding:14px 20px;font-size:15px;letter-spacing:.3px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.08);color:var(--gold);border-radius:8px;font-family:'Cormorant Garamond','Sarabun',serif">🙏 รับพรวันนี้ก่อนก็ได้</button>
       <!-- The other two doors live on one quiet line, as links rather than
@@ -2695,7 +2695,7 @@ try{
 
 <!-- ═══ SUBSCRIPTION ─ Monthly Cosmic Brief ═══ -->
 <!-- ═══ SUBSCRIPTION ─ Daily Cosmic Pulse ═══ -->
-<div class="panel" id="panel-pulse">
+<div class="panel active" id="panel-pulse">
   <div class="section-title" data-t="pulse_title">DAILY COSMIC PULSE</div>
   <div class="sky-dom-hint" data-t="pulse_hint">รวมฟ้าวันนี้ + 7-10 ศาสตร์ → คำอ่านเดียวว่าวันนี้มีผลอย่างไรกับคุณ</div>
   <div id="pulsePanel" style="max-width:720px;margin:0 auto;"></div>
@@ -2705,9 +2705,9 @@ try{
 <!-- The landing tab as of 2026-08-23. It answers the question people arrive
      with ("what is coming, and is it good or bad") instead of the one the
      natal preview answered ("who am I"), which used to hold this slot. -->
-<div class="panel active" id="panel-forecast">
+<div class="panel" id="panel-forecast">
   <div class="section-title" data-t="forecast_title">THE WEEKS AHEAD</div>
-  <div class="sky-dom-hint" data-t="forecast_hint">4 สัปดาห์ข้างหน้า · การงาน การเงิน ความรัก สุขภาพ · ตัดสินโดยศาสตร์ที่มีวิชาทำนายเวลาจริง</div>
+  <div class="sky-dom-hint" data-t="forecast_hint">4 สัปดาห์ข้างหน้า · การงาน การเงิน ความรัก สุขภาพ · ตัดสินโดยศาสตร์ที่มีวิชาทำนายเวลาจริง · ต่อจากดวงวันนี้ที่คุณดูฟรีทุกวัน</div>
   <!-- Cormorant ships old-style figures, which drop 3 4 5 7 9 below the
        baseline and shrink 1 to a stem. That is handsome in running prose and
        wrong for a panel whose entire content is numbers, so lining figures are
@@ -2872,7 +2872,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=201" defer></script>
+<script src="/build/ms26-bundle.js?v=202" defer></script>
 <script>
 
 
@@ -3744,8 +3744,8 @@ function _renderEntryToday(tries){
                + `<span style="color:var(--gold2)">` + x.v + `</span></div>`;
         }).join('')
       + `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06);font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--text)">`
-      + (isTh ? 'นี่คือ<strong style="color:var(--gold)">วันนี้</strong> · ใส่วันเกิด แล้วเห็นล่วงหน้า <strong style="color:var(--gold)">4 สัปดาห์ ครบทั้ง 4 ด้าน</strong>'
-              : 'That’s <strong style="color:var(--gold)">today</strong>. Add your birth date to see <strong style="color:var(--gold)">four weeks, four areas</strong>')
+      + (isTh ? 'นี่คือ<strong style="color:var(--gold)">วันนี้ของทุกคน</strong> · ใส่วันเกิด แล้วเห็น<strong style="color:var(--gold)">วันนี้ของคุณเอง</strong> ครบทั้ง 4 ด้าน · ฟรีทุกวัน'
+              : 'That’s <strong style="color:var(--gold)">today, for everyone</strong>. Add your birth date to see <strong style="color:var(--gold)">your own day</strong>, all four areas — free, every day')
       + `</div></div>`;
     // The city scores need a full forecast run; the facts above are already
     // painted, so this is deferred and never delays what the reader can see.
@@ -3778,7 +3778,7 @@ function _refreshEntryHero(){
     hook2:    { th:'แล้วบอกตรงๆ ว่า <strong style="color:var(--gold)">ใครเห็นตรงกัน ใครเถียง ใครไม่มีวิธีตอบ</strong>', en:'Then we say plainly — <strong style="color:var(--gold)">who agrees, who argues, who has no method</strong>' },
     doblabel: { th:'ใส่วันเกิดของคุณ', en:'Your birth date' },
     nosignup: { th:'ไม่ต้องสมัคร', en:'No sign-up' },
-    cta:      { th:'✦ ดู 4 สัปดาห์ของคุณ · ฟรี', en:'✦ See your four weeks · Free' },
+    cta:      { th:'✦ ดูดวงวันนี้ของคุณ · ฟรี', en:'✦ See your day · Free' },
     drawalt:  { th:'หรือรับพรจากเทพประจำวันก่อน →', en:'or receive today’s blessing first →' },
     compare:  { th:'💑 เทียบดวงกับใครสักคน · แค่ 2 วันเกิด', en:'💑 Compare with someone · just 2 birth dates' },
     hooksub:  { th:'เราถาม 26 ศาสตร์พร้อมกัน แต่เฉพาะศาสตร์ที่<strong style="color:var(--text);white-space:nowrap">มีวิชาทำนายช่วงเวลาจริง</strong>ถึงจะให้คะแนนได้ · เต็ม 5 แยกทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร', en:'We ask all 26 traditions, but only the ones with a <strong style="color:var(--text)">real timing technique</strong> get to score you — out of 5, area by area. The rest abstain, and we name them and say why.' },
@@ -3893,9 +3893,14 @@ const GROUPS = {
     // 2026-08-23: forecast leads, preview follows. The 26-system natal
     // preview is still the best demo of what the engine can do — it just is
     // not what a first-time visitor came to find out.
-    default: 'forecast',
+    // 2026-08-31 (director): "ลดเหลือรายวันพอสำหรับฟรี เน้นดึงคนเข้ามาบ่อยๆ".
+    // A four-week forecast is read once and answers the question for a month —
+    // it is a good hook and a bad reason to come back tomorrow. The daily
+    // pulse is the free tier now; the four weeks became the first thing a
+    // membership buys, one tab across in the subscription group.
+    default: 'pulse',
     tabs: [
-      ['forecast',   'forecast',    'sub_forecast',   false],
+      ['pulse',      'pulse',       'sub_pulse',      false],
       ['preview',    'chart',       'sub_preview',    false],
       ['blessing',   'blessing',    'sub_blessing',   false],
       ['organum',    'organum',     'sub_organum',    false],
@@ -3910,9 +3915,9 @@ const GROUPS = {
     ],
   },
   subscription: {
-    default: 'pulse',
+    default: 'forecast',
     tabs: [
-      ['pulse',     'pulse',     'sub_pulse',        false],
+      ['forecast',  'forecast',  'sub_forecast',     false],
       ['sky',       'sky',       'sub_sky',          false],
       ['resonance', 'resonance', 'sub_resonance',    false],
       ['brief',     'brief',     'sub_brief',        false],
@@ -10265,6 +10270,14 @@ function renderDailyPulse() {
     panel.innerHTML = `<div style="text-align:center;padding:36px 20px;color:var(--muted);font-size:14px">${isTh?'กรอกวันเกิดที่ Profile → Me ก่อน':'Set your birth date in Profile → Me first'}</div>`;
     return;
   }
+  // `has-chart` collapses the pre-chart marketing blocks — chiefly the sample
+  // card built from a historical figure's numbers. renderChart() used to be
+  // the only thing that set it, which was fine while the free group landed on
+  // a panel that ran renderChart(). Since 2026-08-31 it lands here instead, so
+  // a visitor who had just typed their own birth date was shown someone else's
+  // Cosmic Score above their own day. The class belongs to "this visitor has a
+  // chart", not to one renderer.
+  try { document.body.classList.add('has-chart'); } catch(_){}
 
   // Subscriber gate — beta = always pass; rendered locked preview shown otherwise.
   if (!_isPulseSubscriber()) {
@@ -18237,9 +18250,9 @@ function entryAccept(){
     if (pT) pT.value = time;
   } catch(_){}
   setGroup('free');
-  // Land on the forecast, which is what the hero promised. The natal preview
-  // is one tab across and still one click away.
-  showSubTab('forecast');
+  // Land on the daily pulse, which is what the hero now promises. The natal
+  // preview is one tab across and still one click away.
+  showSubTab('pulse');
   setTimeout(() => {
     // Blueprint generator inputs (prefilled, ready the moment they go premium).
     const dInp = document.getElementById('cb-f-dob');

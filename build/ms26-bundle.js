@@ -8941,9 +8941,17 @@ function p_consensusAxes(c) {
     elVotes.forEach(v => { elTally[v.says] = (elTally[v.says] || 0) + 1; });
     const elTop = Object.entries(elTally).sort((a, b) => b[1] - a[1])[0];
     const elSplit = Object.keys(elTally).length;
+    // When the lineages split we still hand down a call. A reader who paid for
+    // this does not want "no single answer" as the first thing on the page —
+    // the director's note on 2026-08-31 was "ผิดก็ต้องกล้าผิด ไม่ตรงก็ต้องกล้าไม่ตรง".
+    // What keeps that honest is naming the lineage the call rests on and showing
+    // the dissent underneath, rather than manufacturing a consensus that is not
+    // there (which the 08-23 ruling forbids outright).
+    const elCall = elTop[1] >= 3 ? elTop[0] : bazi.dayMasterElement;
+    const elClear = elTop[1] >= 3;
     const elReading = elTop[1] >= 3
         ? tr(`สามสายขึ้นไปที่ไม่เคยรู้จักกันชี้ธาตุ<strong>${esc(elTop[0])}</strong>ตรงกัน — เวลาศาสตร์ที่พัฒนาคนละทวีปมาลงที่คำตอบเดียว มันมักเป็นด้านที่คนรอบตัวคุณเห็นก่อนคุณเห็นเอง ใช้ธาตุนี้เป็นตัวตั้งเวลาเลือกงาน เลือกที่อยู่ และเลือกจังหวะพัก`, `Three or more unrelated lineages land on <strong>${esc(elTop[0])}</strong>. When traditions built on different continents converge, the trait is usually the one other people notice about you before you do. Use it as the default when choosing work, choosing where to live, and choosing when to rest.`)
-        : tr(`ไม่มีธาตุไหนได้เสียงข้างมากชัด — ${elSplit} สายให้คำตอบต่างกัน นี่ไม่ใช่ดวงพัง แต่แปลว่าคุณไม่ได้มีโหมดเดียว คนแบบนี้มักปรับตัวตามสภาพแวดล้อมได้ดีกว่าค่าเฉลี่ย แต่ก็เหนื่อยกว่าเวลาต้องอยู่ในที่ที่บังคับให้เป็นแบบเดียวนานๆ`, `No element takes a clear majority — ${elSplit} lineages answer differently. That is not a broken chart; it means you do not run in a single mode. People like this adapt to their surroundings better than most, and tire faster than most in places that demand one fixed register for long stretches.`);
+        : tr(`<strong>เราตัดสินว่าธาตุ${esc(elCall)}</strong> — ${elVotes.length} สายให้คำตอบมา ${elSplit} แบบ ไม่มีเสียงข้างมากจริง และเราไม่เสกขึ้นมา เรายืนบน BaZi เพราะเป็นสายเดียวในกลุ่มนี้ที่อ่านถึง<strong>ชั่วโมงเกิด</strong> ส่วนสายที่ค้านอ่านจากวันหรือเดือน หยาบกว่าหนึ่งขั้น · ถ้าคำนี้ไม่ตรงกับตัวคุณ แปลว่าเราผิดตรงนี้ ไม่ใช่ว่าคุณอ่านผิด`, `<strong>We are calling it ${esc(elCall)}.</strong> ${elVotes.length} lineages returned ${elSplit} different answers, so there is no real majority and we are not inventing one. The call rests on BaZi because it is the only one of these lineages that reads down to the <strong>hour</strong> of birth; the dissenting ones read the day or the month, one step coarser. If this does not describe you, then we are wrong here — not you.`);
     // ── Axis 2 · start, or wait to be started ────────────────────────────────
     const hdInitiates = /Manifestor|Manifesting/.test(humandesign.type);
     const py = numerology.personalYear2026;
@@ -8957,11 +8965,13 @@ function p_consensusAxes(c) {
         { lineage: 'Hellenistic', says: hellenistic.sect === 'Day Sect' ? START : WAIT, evidence: String(hellenistic.sect) },
     ];
     const startN = tempoVotes.filter(v => v.says === START).length;
+    const tempoCall = startN >= 3 ? START : WAIT;
+    const tempoN = startN >= 3 ? startN : tempoVotes.length - startN;
     const tempoReading = startN >= 4
         ? tr(`เกือบทุกสายบอกตรงกันว่าคุณเป็นฝ่ายเปิดเกม — <strong>อย่ารอให้ใครอนุญาต</strong> ถ้าคุณรอ คนอื่นจะเดินไปก่อน แล้วคุณจะได้บทที่ไม่ใช่ของคุณ`, `Nearly every lineage says you are the one who opens the game — <strong>do not wait for permission</strong>. When you wait, someone else moves first and you end up playing a part that was never yours.`)
         : startN <= 1
             ? tr(`เกือบทุกสายบอกตรงกันว่าจังหวะของคุณคือ<strong>รอสัญญาณก่อนแล้วค่อยลงแรง</strong> — ไม่ใช่ความขี้เกียจ แต่คือกลไก ถ้าเริ่มเองตลอด คุณจะเจอแรงต้านที่คนอื่นไม่เจอ แล้วเหนื่อยกว่าที่ควร`, `Nearly every lineage says your timing runs on <strong>waiting for the signal, then committing hard</strong>. That is mechanics, not laziness. Initiate everything yourself and you will meet resistance other people never meet, and tire faster than the work deserves.`)
-            : tr(`สายต่างๆ แบ่งกัน ${startN} ต่อ ${tempoVotes.length - startN} — แปลว่าจังหวะของคุณ<strong>ขึ้นกับสนาม</strong> ไม่ใช่ขึ้นกับนิสัย เรื่องที่คุณเชี่ยวชาญ เปิดเกมเองได้ เรื่องที่ยังใหม่ รอให้มีคนเปิดประตูให้ก่อนแล้วค่อยเข้า จะประหยัดแรงกว่ามาก`, `The lineages split ${startN} to ${tempoVotes.length - startN}, which means your timing is <strong>situational rather than temperamental</strong>. Where you already have standing, open the game yourself. Where you are new, let someone open the door first — it costs far less energy.`);
+            : tr(`เสียงออกมา ${startN} ต่อ ${tempoVotes.length - startN} — เฉียด แต่<strong>เราตัดสินว่า "${tempoCall}"</strong> ตามเสียงข้างมาก และเพราะ Human Design เป็นสายที่มีวิชาว่าด้วยเรื่องนี้โดยตรง (${esc(humandesign.type)} · ${esc(humandesign.strategy)}) ไม่ใช่สายที่ตอบเรื่องนี้เป็นผลพลอยได้ · ${tempoVotes.length - startN} สายที่ค้านอยู่ข้างล่าง อ่านแล้วชั่งเอง ถ้าคุณรู้ตัวว่าเป็นอีกแบบ เชื่อตัวเอง แล้วรายงานฉบับนี้ผิดข้อนี้`, `It came out ${startN} to ${tempoVotes.length - startN} — narrow, but <strong>we are calling it "${tempoCall}"</strong>: the majority, and Human Design is the lineage whose doctrine is about exactly this question (${esc(humandesign.type)} · ${esc(humandesign.strategy)}) rather than answering it as a by-product. The ${tempoVotes.length - startN} dissenting voices are listed below. If you already know you are the other kind, trust that — and this report is wrong on this axis.`);
     // ── Axis 3 · what 2026 is for ────────────────────────────────────────────
     const nsk2026 = 1; // 2026 is a 一白水星 year
     const AMP = tr('ปีขยายผล', 'a year that amplifies'), CONSOL = tr('ปีตั้งหลัก', 'a year to consolidate');
@@ -8972,19 +8982,63 @@ function p_consensusAxes(c) {
         { lineage: 'Vedic Dasha', says: dashaPush ? AMP : CONSOL, evidence: `${vedicMahadasha.currentDasha} ${tr('ถึง', 'to')} ${vedicMahadasha.currentDashaEnd ?? ''}` },
     ];
     const ampN = yearVotes.filter(v => v.says === AMP).length;
+    // A 2–2 tie used to print "a year of two unlike halves", which is what a
+    // horoscope says when it does not want to be checked. Nine Star Ki breaks it:
+    // of the four, its doctrine is the one built as an annual cycle.
+    const nskAmp = ninestar.star === nsk2026;
+    const yearCall = ampN >= 3 ? AMP : ampN <= 1 ? CONSOL : (nskAmp ? AMP : CONSOL);
     const yearReading = ampN >= 3
         ? tr(`${ampN} จาก ${yearVotes.length} สายบอกว่า 2026 เป็นปีที่<strong>ทุกอย่างถูกคูณ</strong> ทั้งที่ทำถูกและที่ทำพลาด ปีแบบนี้ไม่ควรทดลองของใหม่ที่ยังไม่มั่นใจ แต่ควรทุ่มกับสิ่งที่พิสูจน์แล้วว่าได้ผล`, `${ampN} of ${yearVotes.length} lineages read 2026 as a year that <strong>multiplies whatever you put in</strong> — the good moves and the bad ones alike. Not the year for experiments you are unsure of; the year to pour everything into what has already proven itself.`)
         : ampN <= 1
             ? tr(`มีแค่ ${ampN} สายที่เห็น 2026 เป็นปีเร่ง ที่เหลือบอกว่านี่คือ<strong>ปีตั้งหลัก</strong> — ปีแบบนี้ที่คนมักพลาดคือไปเร่งตามคนอื่นแล้วหมดแรงตอนที่รอบของตัวเองมาถึงจริงๆ`, `Only ${ampN} lineage reads 2026 as an accelerating year; the rest call it <strong>a year to consolidate</strong>. The usual mistake in a year like this is sprinting because everyone else is, and having nothing left when your own window actually opens.`)
-            : tr(`สายต่างๆ แบ่งครึ่ง — 2026 จึงเป็นปีที่<strong>ครึ่งปีไม่เหมือนกัน</strong> วางเรื่องที่ต้องใช้แรงเยอะไว้ในครึ่งที่สายส่วนใหญ่หนุน แล้วใช้อีกครึ่งเก็บงานและตั้งหลัก`, `The lineages split evenly, which makes 2026 <strong>a year of two unlike halves</strong>. Put the heavy pushes where most lineages back you, and use the other half to finish things and reset.`);
+            : tr(`เสมอ 2 ต่อ 2 — เราไม่ปล่อยให้จบแบบ "แล้วแต่ครึ่งปี" <strong>เราตัดสินว่า 2026 คือ${yearCall}สำหรับคุณ</strong> โดยยึด Lo Shu 9 ดาว เพราะในสี่สายนี้ มีสายเดียวที่วิชาของมันถูกสร้างมาเป็น<strong>รอบปี</strong>โดยตรง (${nskAmp ? 'ปีนี้ดาวประจำตัวกลับเข้าเรือนกลาง' : `ดาว ${ninestar.star} ยังไม่ถึงรอบกลับเรือน`}) · อีกสองสายค้าน และถ้าปลายปีมันออกมาตรงข้าม เราจดไว้ตรงนี้แล้วว่าเราตัดสินไปทางไหน`, `Dead even, 2 to 2 — and we are not ending it on "it depends which half". <strong>We are calling 2026 ${yearCall} for you</strong>, on Lo Shu nine-star grounds: of the four, it is the only lineage whose doctrine is built as an annual cycle (${nskAmp ? 'this is the year your natal star returns to the centre' : `star ${ninestar.star} has not yet come back round`}). Two lineages disagree. If the year ends up the other way, this page is on the record for which way we called it.`);
     const disagreements = [
         elTop[1] < 3 ? tr('ธาตุพื้นฐาน', 'your base element') : '',
         (startN > 1 && startN < 4) ? tr('จังหวะเริ่ม-รอ', 'initiate vs wait') : '',
         (ampN === 2) ? tr('ทิศทางปี 2026', 'what 2026 is for') : '',
     ].filter(Boolean);
     return section(0, tr('ฉันทามติ — 26 ศาสตร์ตกลงกันว่าอะไร', 'The Consensus — what 26 traditions agree on'), '🤝', `
-    <!-- Honest arithmetic, first, before any claim is made on top of it -->
-    <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:10px;padding:12px 15px;margin-bottom:14px">
+    <!-- The verdict, before the arithmetic that produced it. Director 2026-08-31:
+         "ตอนนี้อ่านก็ไม่รู้จักตัวเองมากขึ้น" — the page opened on how we count
+         votes, so the first thing a paying reader met was our bookkeeping
+         rather than a claim about them. The count is still on the page; it is
+         now the footnote it always should have been. -->
+    <div style="background:linear-gradient(135deg,#181026,#0d1a24);border:1px solid #8a6acc;border-radius:12px;padding:15px 17px;margin-bottom:15px">
+      <div style="font-size:10.5px;color:#c08ad8;letter-spacing:2px;margin-bottom:9px">${tr('คำตัดสิน 3 ข้อ', 'THE CALL, IN THREE LINES')}</div>
+      ${[
+        [tr('คุณวิ่งด้วยธาตุ', 'You run on'), esc(elCall), elClear
+                ? tr(`${elTop[1]}/${elVotes.length} สายตรงกัน`, `${elTop[1]}/${elVotes.length} lineages agree`)
+                : tr(`สายแตก — เรายึด BaZi`, `lineages split — we take BaZi`)],
+        [tr('จังหวะของคุณคือ', 'Your timing is'), esc(tempoCall), tr(`${tempoN}/${tempoVotes.length} สาย`, `${tempoN}/${tempoVotes.length} lineages`)],
+        [tr('ปี 2026 สำหรับคุณคือ', '2026, for you, is'), esc(yearCall), ampN >= 3 || ampN <= 1
+                ? tr(`${Math.max(ampN, yearVotes.length - ampN)}/${yearVotes.length} สาย`, `${Math.max(ampN, yearVotes.length - ampN)}/${yearVotes.length} lineages`)
+                : tr('เสมอ — เรายึด Lo Shu 9 ดาว', 'tied — we take Lo Shu')],
+    ].map(([label, value, note]) => `
+        <div style="display:flex;align-items:baseline;gap:9px;padding:6px 0;border-bottom:1px solid #2a2038">
+          <span style="font-size:11px;color:#9a8ab0;min-width:96px">${label}</span>
+          <strong style="font-size:15px;color:#e8c87a">${value}</strong>
+          <span style="font-size:10px;color:#7a6a90;margin-left:auto">${note}</span>
+        </div>`).join('')}
+      <div style="font-size:11px;color:#c0a8d0;line-height:1.8;margin-top:10px">${tr('สามข้อนี้คือคำตัดสินของเรา ไม่ใช่คำที่ปลอดภัยที่สุด — <strong>ถ้าข้อไหนไม่ตรงกับตัวคุณ แปลว่าเราผิดข้อนั้น</strong> ไม่ใช่ว่าคุณยังไม่เข้าใจตัวเอง ข้างล่างคือหลักฐานว่าแต่ละสายพูดว่าอะไร รวมถึงสายที่ค้านเรา', 'These are our calls, not the safest thing we could have said. <strong>If one of them does not describe you, we are wrong on that line</strong> — not you. Below is what each lineage actually said, dissenters included.')}
+      </div>
+    </div>
+
+    ${axisBox('🌳', tr('ธาตุพื้นฐานของคุณ', 'Your base element'), tr('ถามว่า: พลังงานตั้งต้นของคนนี้เป็นธาตุอะไร — ศาสตร์ที่ตอบคำถามนี้ได้มี 5 สาย', 'Asked: what element does this person run on? Five lineages answer it.'), elVotes, elTop[1] >= 3
+        ? tr(`คำตัดสิน: ธาตุ${elTop[0]} (${elTop[1]}/${elVotes.length} สาย)`, `Our call: ${elTop[0]} (${elTop[1]}/${elVotes.length} lineages)`)
+        : tr(`คำตัดสิน: ธาตุ${esc(elCall)} — ยึด BaZi (สายที่นำได้แค่ ${elTop[1]}/${elVotes.length} ไม่ถึงเสียงข้างมาก)`, `Our call: ${esc(elCall)} — on BaZi (the leading element holds only ${elTop[1]}/${elVotes.length}, short of a majority)`), elReading)}
+
+    ${axisBox('⏱️', tr('คุณเปิดเกมเอง หรือรอให้เกมเปิด', 'Do you open the game, or wait for it to open'), tr('ถามว่า: คนนี้ได้ผลดีกว่าเมื่อเริ่มเอง หรือเมื่อรอสัญญาณ — 5 สายตอบคำถามนี้', 'Asked: does this person do better initiating, or waiting for a signal? Five lineages answer.'), tempoVotes, tr(`คำตัดสิน: "${tempoCall}" (${tempoN}/${tempoVotes.length} สาย)`, `Our call: "${tempoCall}" (${tempoN}/${tempoVotes.length} lineages)`), tempoReading)}
+
+    ${axisBox('📅', tr('ปี 2026 เป็นปีแบบไหนสำหรับคุณ', 'What kind of year 2026 is for you'), tr('ถามว่า: ปีนี้ควรเร่งหรือควรตั้งหลัก — 4 สายที่มีระบบเวลาของตัวเองตอบได้', 'Asked: push this year, or consolidate? Four lineages carry their own clock.'), yearVotes, tr(`คำตัดสิน: ${yearCall} (${Math.max(ampN, yearVotes.length - ampN)}/${yearVotes.length} สาย${ampN === 2 ? ' · เสมอ เรายึด Lo Shu' : ''})`, `Our call: ${yearCall} (${Math.max(ampN, yearVotes.length - ampN)}/${yearVotes.length} lineages${ampN === 2 ? ' · tied, broken on Lo Shu' : ''})`), yearReading)}
+
+    <div style="background:linear-gradient(135deg,#1a0a14,#180a28);border:1px solid #8a5acc;border-radius:12px;padding:13px 16px;margin-top:14px">
+      <div style="font-size:11px;color:#c08ad8;letter-spacing:2px;margin-bottom:5px">${tr('🔍 ตรงที่ศาสตร์เห็นไม่ตรงกัน', '🔍 WHERE THEY DISAGREE')}</div>
+      <div style="font-size:11.5px;color:#d0a8e0;line-height:1.85">${disagreements.length
+        ? tr(`เราตัดสินไปแล้วทั้งสามข้อข้างบน แต่ต้องบอกให้ชัดว่า <strong>${disagreements.join(' · ')}</strong> คือข้อที่เราตัดสินบนเสียงที่ไม่เอกฉันท์ — <strong>นี่คือข้อที่เรามีโอกาสผิดมากที่สุด</strong> เราเลือกที่จะตอบ ไม่ใช่เลี่ยงไปพูดว่า "แล้วแต่สถานการณ์" เพราะคำตอบแบบนั้นถูกเสมอและไม่ช่วยอะไรเลย · เก็บหน้านี้ไว้ แล้วอีกหกเดือนกลับมาดูว่าเราตัดสินถูกกี่ข้อ`, `We have made all three calls above — but be clear that <strong>${disagreements.join(' · ')}</strong> were decided on a non-unanimous vote. <strong>These are where we are most likely to be wrong.</strong> We chose to answer rather than retreat to "it depends on the situation", because that answer is always right and never useful. Keep this page. Come back in six months and count how many we got right.`)
+        : tr('ทั้งสามแกนไม่มีสายไหนขัดกันเลย ซึ่งพบไม่บ่อย — ดวงที่พูดเสียงเดียวแบบนี้ตัดสินใจง่ายกว่าคนทั่วไป แต่ก็มีจุดบอดที่ไม่มีใครคอยเตือน', 'No lineage contradicts another on any of the three axes, which is uncommon. A chart that speaks with one voice is easier to act on — and has a blind spot with nobody positioned to flag it.')}</div>
+    </div>
+    <!-- The arithmetic, kept but demoted: it backs the calls above, it does not open the page. -->
+    <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:10px;padding:12px 15px;margin-top:14px">
       <div style="font-size:12px;color:#c8a45a;font-weight:600;margin-bottom:6px">${tr('นับให้ตรงก่อน', 'The count, honestly')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.85">${tr('รายงานนี้อ่านดวงคุณด้วย <strong>26 ศาสตร์</strong> — แต่ในนั้นมี <strong>4 คู่ที่เป็นการคำนวณเดียวกัน</strong> คนละภาษา เราตรวจแล้วกับดวงสุ่ม 250 ดวง ตรงกันทุกดวงไม่มีข้อยกเว้น จำนวน "เสียงอิสระ" จริงจึงเป็น <strong>22</strong> ไม่ใช่ 26 · หน้านี้จึงนับ<strong>สายละหนึ่งเสียง</strong> ไม่นับซ้ำ', 'This report reads your chart with <strong>26 systems</strong> — but four pairs among them are <strong>the same calculation under two names</strong>. We checked across 250 random charts and every pair matched on every one. The number of independent voices is <strong>22</strong>, not 26, so this page counts <strong>one vote per lineage</strong>.')}
       </div>
@@ -8996,20 +9050,6 @@ function p_consensusAxes(c) {
       </div>
     </div>
 
-    ${axisBox('🌳', tr('ธาตุพื้นฐานของคุณ', 'Your base element'), tr('ถามว่า: พลังงานตั้งต้นของคนนี้เป็นธาตุอะไร — ศาสตร์ที่ตอบคำถามนี้ได้มี 5 สาย', 'Asked: what element does this person run on? Five lineages answer it.'), elVotes, elTop[1] >= 3
-        ? tr(`คำตอบ: ธาตุ${elTop[0]} (${elTop[1]}/${elVotes.length} สาย)`, `Answer: ${elTop[0]} (${elTop[1]}/${elVotes.length} lineages)`)
-        : tr(`ไม่มีคำตอบเดียว — สายที่นำได้แค่ ${elTop[1]}/${elVotes.length} · ส่วนที่เหลือของเล่มนี้ยืนบนธาตุ${esc(bazi.dayMasterElement)} (Day Master ตาม BaZi) เพราะเป็นสายที่อ่านจากเวลาเกิดละเอียดที่สุด`, `No single answer — the leading element holds only ${elTop[1]}/${elVotes.length}. The rest of this report runs on ${esc(bazi.dayMasterElement)}, your BaZi Day Master, because that lineage reads the birth moment most finely.`), elReading)}
-
-    ${axisBox('⏱️', tr('คุณเปิดเกมเอง หรือรอให้เกมเปิด', 'Do you open the game, or wait for it to open'), tr('ถามว่า: คนนี้ได้ผลดีกว่าเมื่อเริ่มเอง หรือเมื่อรอสัญญาณ — 5 สายตอบคำถามนี้', 'Asked: does this person do better initiating, or waiting for a signal? Five lineages answer.'), tempoVotes, tr(`คำตอบ: ${startN}/${tempoVotes.length} สายบอกว่า "${START}"`, `Answer: ${startN}/${tempoVotes.length} say "${START}"`), tempoReading)}
-
-    ${axisBox('📅', tr('ปี 2026 เป็นปีแบบไหนสำหรับคุณ', 'What kind of year 2026 is for you'), tr('ถามว่า: ปีนี้ควรเร่งหรือควรตั้งหลัก — 4 สายที่มีระบบเวลาของตัวเองตอบได้', 'Asked: push this year, or consolidate? Four lineages carry their own clock.'), yearVotes, tr(`คำตอบ: ${ampN}/${yearVotes.length} สายบอกว่าเป็นปีขยายผล`, `Answer: ${ampN}/${yearVotes.length} call it an amplifying year`), yearReading)}
-
-    <div style="background:linear-gradient(135deg,#1a0a14,#180a28);border:1px solid #8a5acc;border-radius:12px;padding:13px 16px;margin-top:14px">
-      <div style="font-size:11px;color:#c08ad8;letter-spacing:2px;margin-bottom:5px">${tr('🔍 ตรงที่ศาสตร์เห็นไม่ตรงกัน', '🔍 WHERE THEY DISAGREE')}</div>
-      <div style="font-size:11.5px;color:#d0a8e0;line-height:1.85">${disagreements.length
-        ? tr(`สายต่างๆ เห็นไม่ตรงกันในเรื่อง <strong>${disagreements.join(' · ')}</strong> — และนั่นคือข้อมูล ไม่ใช่ความผิดพลาด จุดที่ศาสตร์เห็นต่างกันมักเป็นจุดที่<strong>ขึ้นกับสถานการณ์</strong> ไม่ใช่จุดที่ตายตัวในตัวคุณ เวลาตัดสินใจเรื่องที่เกี่ยวกับหัวข้อเหล่านี้ ให้ดูบริบทตรงหน้ามากกว่าดูดวง`, `The lineages disagree about <strong>${disagreements.join(' · ')}</strong> — and that is information, not a fault. Where traditions split, the trait is usually <strong>situational rather than fixed</strong>. On decisions touching these, read the room in front of you before you read the chart.`)
-        : tr('ทั้งสามแกนไม่มีสายไหนขัดกันเลย ซึ่งพบไม่บ่อย — ดวงที่พูดเสียงเดียวแบบนี้ตัดสินใจง่ายกว่าคนทั่วไป แต่ก็มีจุดบอดที่ไม่มีใครคอยเตือน', 'No lineage contradicts another on any of the three axes, which is uncommon. A chart that speaks with one voice is easier to act on — and has a blind spot with nobody positioned to flag it.')}</div>
-    </div>
   `);
 }
 function p03_convergence(c) {
@@ -10771,37 +10811,42 @@ function generateReport(c) {
     // module in calc.ts so page headers + meta labels respect user choice.
     _lang = (c.input && c.input.lang === 'en') ? 'en' : 'th';
     (0, _setReportLang)(_lang);
-    // ─── Page order · Director 2026-08-27 ────────────────────────────────
-    //   "หน้าแรกๆเป็น consensus, ตามด้วย suggestion and what to do and dont,
-    //    หน้าท้ายๆค่อยดูลึกแยกศาสตร์ — เราจะได้เอาจุดขายเราขึ้นก่อน Data ตามหลัง"
+    // ─── Page order · Director 2026-08-31 ────────────────────────────────
+    //   "ต้องเอาสรุปขึ้นก่อน แล้วหน้า breakdown อยู่ล่างๆแทน" — the 08-27 order
+    //   already led with consensus, but the reader still met the five sections
+    //   interleaved: do/don't landed on page 5, before any sense of how the
+    //   chart moves through time, and the lifestyle pages sat between the
+    //   timeline and the evidence. Measured on the director's own chart the book
+    //   was 44 pages / ~99,000 characters, 64% of it single-tradition pages.
     //
-    //   A reader decides inside three pages whether to keep going. The old order
-    //   spent pages 5-13 on one tradition at a time before saying anything the
-    //   reader could act on, so the thing this product actually sells — 26
-    //   traditions converging — competed with nine pages of single-system tables.
-    //
-    //   A · ฉันทามติ    what all 26 agree on, and where they split   (the pitch)
-    //   B · ทำอะไรต่อ   do / don't / when                            (the payoff)
-    //   C · หลักฐาน     every tradition's own reading, in full       (the receipts)
+    //   The five blocks he named, in his order:
+    //     1 · ฉันทามติ        26 ศาสตร์ตกลงกันว่าอะไร            (จุดขาย)
+    //     2 · ดวงเป็นอย่างไร  สัปดาห์ → เดือน → ปี → 10 ปี → 80 ปี
+    //     3 · ทำ / ไม่ทำ      do and don'ts
+    //     4 · เสริมดวง        how to improve your luck
+    //     5 · เจาะรายศาสตร์   หลักฐานแยกศาสตร์ + คะแนนดิบ         (ท้ายเล่ม)
     const pageFns = [
-        // ═══ A · ฉันทามติ — จุดขาย ═══════════════════════════════════
+        // ═══ 1 · ฉันทามติ — 26 ศาสตร์ตกลงกันว่าอะไร ═══════════════════
         p01_cover, // ปก + Cosmic Score
-        p_consensusAxes, // 26 ศาสตร์ตกลงกันว่าอะไร — นับสายละเสียง + ตีความ
-        p03_convergence, // 26 ศาสตร์เห็นตรงกันว่าอะไร — ตีความ ไม่ใช่แค่นับ
-        p_threeScores, // ตัวเลขมาจากไหน (Soul Frequency)
-        // ═══ B · ทำอะไรต่อ — do / don't / เมื่อไหร่ ═══════════════════
-        p16_activation, // ควรทำ (เรียงตามจำนวนศาสตร์ที่เห็นพ้อง)
-        p22_painPoints, // จุดที่ต้องดูแล / ระวัง
+        p_consensusAxes, // นับสายละเสียง + ตีความ
+        p03_convergence, // จุดที่หลายศาสตร์ส่งคำตอบเดียวกัน
+        p_threeScores, // คุณเป็นใครตั้งแต่เกิด (Soul Frequency)
+        // ═══ 2 · ดวงเป็นอย่างไร — ไล่จากใกล้ไปไกล ═════════════════════
         p17_weekly, // จังหวะ 7 วัน
         p18_monthly2026, // รายเดือน 2026
-        p23_forecast10yr, // 10 ปี
-        p13_luckPillars, // เส้นทาง 80 ปี
+        p23_forecast10yr, // 10 ปี 2026–2035
         p19_decade, // ทศวรรษต่อทศวรรษ
+        p13_luckPillars, // เส้นทาง 80 ปี
+        // ═══ 3 · ทำ / ไม่ทำ ══════════════════════════════════════════
+        p16_activation, // ควรทำ (เรียงตามจำนวนศาสตร์ที่เห็นพ้อง)
+        p22_painPoints, // จุดที่ต้องดูแล / ระวัง
+        // ═══ 4 · เสริมดวง ════════════════════════════════════════════
         p14_health, // สุขภาพ
         p15_finance, // การเงิน
         p20_colors, // สีและการแต่งตัว
         p24_pets, // สัตว์เลี้ยง
-        // ═══ C · หลักฐาน — ลึกแยกศาสตร์ ═══════════════════════════════
+        p_divineMirror, // เทพประจำดวง
+        // ═══ 5 · เจาะรายศาสตร์ — หลักฐาน ═════════════════════════════
         p02_scoreBreakdown, // ตารางคะแนนทั้ง 26 ศาสตร์
         p05_bazi, // BaZi สี่เสา
         p06_ninestar, // Nine Star Ki
@@ -10835,7 +10880,6 @@ function generateReport(c) {
         p_aboriginal, // อะบอริจิน
         p_taksa, // ทักษา
         p_vedicMahadasha, // มหาทศา
-        p_divineMirror, // Divine Mirror
         p21_historicalFigures, // บุคคลประวัติศาสตร์
         p25_summary, // สรุป + disclaimer
     ];
