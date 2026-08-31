@@ -10713,12 +10713,15 @@ function _pulseBar(pulse, tierColor){
   const n = good + mid + low;
   const score = good - low;
 
-  const V = score >= 3 ? { key:'peak',  th:'วันทอง',      en:'Golden day',  c:'#c8a45a' }
-          : score >= 1 ? { key:'up',    th:'ฟ้าหนุน',      en:'Favoured',    c:'#9ac06a' }
-          : score === 0? { key:'even',  th:'เสมอตัว',      en:'Even',        c:'#9a8a72' }
-          : score >= -2? { key:'watch', th:'ต้องสังเกต',   en:'Watch',       c:'#d09050' }
-          :              { key:'steady',th:'วันตั้งหลัก',  en:'Steady up',   c:'#c2603f' };
-  const bg = `rgba(${V.key==='peak'||V.key==='up' ? '200,164,90' : V.key==='even' ? '120,120,130' : '194,96,63'},.06)`;
+  // โทนเดียวกับการ์ดตัวอย่างบนจอแรก ซึ่ง director อนุมัติหน้าตาไว้แล้ว —
+  // ทอง / เทาหิน / ดินเผา · ไม่มีเขียวไม่มีแดงสด เพราะทั้งเว็บไม่มีสองสีนี้เลย
+  const C_UP = 'var(--gold)', C_MID = '#5b5f6d', C_DOWN = '#c2603f';
+  const V = score >= 3 ? { key:'peak',  th:'วันทอง',      en:'Golden day', c:'var(--gold2)' }
+          : score >= 1 ? { key:'up',    th:'ฟ้าหนุน',      en:'Favoured',   c:'var(--gold)'  }
+          : score === 0? { key:'even',  th:'เสมอตัว',      en:'Even',       c:'var(--muted)' }
+          : score >= -2? { key:'watch', th:'ต้องสังเกต',   en:'Watch',      c:'#c98a5e'      }
+          :              { key:'steady',th:'วันตั้งหลัก',  en:'Steady up',  c:'#c2603f'      };
+  const bg = 'rgba(200,164,90,.045)';
 
   // เมื่อวาน — เทียบได้เฉพาะวันที่บันทึกคะแนนแบบเดียวกันไว้แล้ว
   let prev = null;
@@ -10746,20 +10749,20 @@ function _pulseBar(pulse, tierColor){
           : `<strong style="color:var(--gold2)">${areas.voting}</strong> traditions spoke today · <strong>${areas.abstain}</strong> abstained`}
       </div>
       <div style="display:flex;height:12px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.05)">
-        ${seg(good,'#9ac06a')}${seg(mid,'#4a4a58')}${seg(low,'#c2603f')}
+        ${seg(good,C_UP)}${seg(mid,C_MID)}${seg(low,C_DOWN)}
       </div>
       <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10.5px;color:var(--muted);line-height:1.5">
-        <span><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#9ac06a"></i>
-          ${isTh ? 'ดีกว่าปกติ' : 'above'} <strong style="color:#9ac06a">${good}</strong></span>
-        <span><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#4a4a58"></i>
+        <span><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${C_UP};vertical-align:0"></i>
+          ${isTh ? 'ดีกว่าปกติ' : 'above'} <strong style="color:var(--gold2)">${good}</strong></span>
+        <span><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${C_MID};vertical-align:0"></i>
           ${isTh ? 'ปกติ' : 'usual'} <strong>${mid}</strong></span>
-        <span><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#c2603f"></i>
-          ${isTh ? 'ต่ำกว่าปกติ' : 'below'} <strong style="color:#c2603f">${low}</strong></span>
+        <span><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${C_DOWN};vertical-align:0"></i>
+          ${isTh ? 'ต่ำกว่าปกติ' : 'below'} <strong style="color:${C_DOWN}">${low}</strong></span>
       </div>
       <div style="text-align:center;margin-top:9px;font-size:10.5px;color:var(--muted);line-height:1.6">
         ${isTh
-          ? `เห็นตรงกัน <strong style="color:var(--gold2)">${agree}</strong> ด้าน · เถียงกัน <strong style="color:#d0a860">${split}</strong> ด้าน`
-          : `<strong style="color:var(--gold2)">${agree}</strong> areas agreed · <strong style="color:#d0a860">${split}</strong> contested`}
+          ? `เห็นตรงกัน <strong style="color:var(--gold2)">${agree}</strong> ด้าน · เถียงกัน <strong style="color:#c98a5e">${split}</strong> ด้าน`
+          : `<strong style="color:var(--gold2)">${agree}</strong> areas agreed · <strong style="color:#c98a5e">${split}</strong> contested`}
       </div>
       ${delta != null ? `<div style="text-align:center;margin-top:6px;font-size:10.5px;color:var(--muted)">
         ${isTh ? 'เทียบเมื่อวาน' : 'vs yesterday'} ${delta > 0 ? '▲ ดีขึ้น' : delta < 0 ? '▼ ลดลง' : '= เท่าเดิม'} ${delta ? Math.abs(delta) + (isTh ? ' ด้าน' : '') : ''}
