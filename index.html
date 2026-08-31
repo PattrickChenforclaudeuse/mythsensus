@@ -71,7 +71,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=203">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=204">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
@@ -2045,7 +2045,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   <div class="header-user" id="headerUser"></div>
   <div class="logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></div>
   <div class="tagline" data-t="tagline">Where myriad myths reach consensus — about you</div>
-  <div class="tagline-sub" id="taglineSub" data-en="26 ancient traditions read you · score out of 1,000 — your overall level across every tradition, with a consensus reading of how strongly they agree. BaZi, Vedic, Western, Mayan, Human Design and 21 more. " data-th="26 ศาสตร์โบราณอ่านคุณ · 1,000 คะแนน บอกระดับดวงโดยรวมของคุณข้ามทุกสาย พร้อมการอ่านความสอดคล้องว่าทุกสายเห็นตรงกันแค่ไหน — BaZi, เวท, ตะวันตก, มายา, Human Design และอีก 21 ศาสตร์ ">26 ศาสตร์โบราณอ่านคุณ · 1,000 คะแนน บอกระดับดวงโดยรวมของคุณข้ามทุกสาย พร้อมการอ่านความสอดคล้องว่าทุกสายเห็นตรงกันแค่ไหน — BaZi, เวท, ตะวันตก, มายา, Human Design และอีก 21 ศาสตร์
+  <div class="tagline-sub" id="taglineSub" data-en="26 traditions read you at once · one score out of 1,000 " data-th="26 ศาสตร์อ่านคุณพร้อมกัน · ให้คะแนนรวม เต็ม 1,000 ">26 ศาสตร์อ่านคุณพร้อมกัน · ให้คะแนนรวม เต็ม 1,000
     <a href="/cosmic-score" data-en="What's a Cosmic Score? →" data-th="Cosmic Score คืออะไร? →">Cosmic Score คืออะไร? →</a>
   </div>
   <div class="date-display" id="dateDisplay" style="display:none"></div>
@@ -2931,7 +2931,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=203" defer></script>
+<script src="/build/ms26-bundle.js?v=204" defer></script>
 <script>
 
 
@@ -3758,8 +3758,8 @@ function _entryFillCity() {
     <div style="border:1px solid var(--border);border-radius:10px;padding:13px 12px 12px;background:rgba(200,164,90,.04)">
     <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase;margin-bottom:9px;text-align:center">
       ${isTh
-        ? `ตัวอย่าง — ถาม 26 ศาสตร์พร้อมกัน · พื้นดวง “${_fcEsc(nation)}” ${d.daily ? 'วันนี้' : 'สัปดาห์นี้'}`
-        : `Sample — 26 traditions asked at once · the chart of “${_fcEsc(nation)}” ${d.daily ? 'today' : 'this week'}`}
+        ? `ตัวอย่าง · พื้นดวง “${_fcEsc(nation)}” ${d.daily ? 'วันนี้' : 'สัปดาห์นี้'}`
+        : `Sample · the chart of “${_fcEsc(nation)}” ${d.daily ? 'today' : 'this week'}`}
     </div>
     <!-- The first block a visitor meets is somebody else's chart. Measured on
          2026-08-31: 736 people saw this screen, 196 touched anything. Nothing on
@@ -3989,7 +3989,10 @@ const GROUPS = {
     default: 'pulse',
     tabs: [
       ['pulse',      'pulse',       'sub_pulse',      false],
-      ['preview',    'chart',       'sub_preview',    false],
+      // ⛔ ถอดออก 2026-08-31 (director): "ตัวอย่างรายงานกับดูตัวอย่างซ้ำ เอาออกอันนึง"
+      // แท็บนี้ชื่อว่า "ดูตัวอย่าง" แต่สิ่งที่มันโชว์คือดวงของผู้ใช้เอง ไม่ใช่ตัวอย่างของ
+      // รายงานที่ขาย ⇒ ชื่อไปแย่งกับปุ่ม "ตัวอย่างรายงาน" บนหัวเว็บ ซึ่งเป็นตัวอย่างจริง
+      // panel-chart ยังอยู่ใน DOM และยังเรียกผ่าน showTab ได้ แค่ไม่มีแท็บชี้เข้าแล้ว
       ['blessing',   'blessing',    'sub_blessing',   false],
       ['organum',    'organum',     'sub_organum',    false],
       ['history',    'history',     'sub_history7',   false],
@@ -4393,7 +4396,7 @@ function showTab(n) {
   const map = {
     blessing: ['free','blessing'], organum: ['free','organum'],
     profile:  ['profile','me'],    sky:     ['subscription','sky'],
-    chart:    ['free','preview'],  blueprint:['premium','blueprint'],
+    chart:    ['free','pulse'],    blueprint:['premium','blueprint'],   // 'preview' ถูกถอด — ส่งไปดวงวันนี้แทน
     history:  ['free','history'],
   };
   const t = map[n];
@@ -10532,6 +10535,79 @@ function _pulseAreas(chart, today) {
   } catch (_) { return null; }
 }
 
+// วันที่ผู้อ่านกลับมา — อ่านจาก `mth_full_history` ที่ระบบเขียนอยู่แล้ววันละครั้ง
+// (`_logDailyPulseToHistory` idempotent ต่อวัน และถูกเรียกก่อนบรรทัดนี้เสมอ)
+//
+// ⛔ ห้ามสร้างที่เก็บวันตัวที่สอง — เลข 🔥 streak บนหัวการ์ดอ่านจากกองนี้
+// ถ้าคำทักทายไปนับจากที่อื่น จอเดียวกันจะพูดเลขไม่ตรงกัน
+function _visitStats(){
+  try{
+    const hist = JSON.parse(localStorage.getItem('mth_full_history') || '[]');
+    const days = [...new Set(hist.filter(h => h.type === 'daily_pulse' && h.iso).map(h => h.iso))].sort();
+    if (!days.length) return { total: 0, streak: 0, gap: 0 };
+    const today = new Date().toISOString().slice(0,10);
+    const prev = days.filter(d => d < today).pop() || null;
+    const gap = prev ? Math.round((Date.parse(today) - Date.parse(prev)) / 86400000) : 0;
+    return { total: days.length, streak: _computeDailyPulseStreak(), gap };
+  }catch(_){ return { total: 1, streak: 1, gap: 0 }; }
+}
+
+// คำทักทายก่อนคำอ่าน — ถ้อยคำของ director 2026-08-31 ใช้ตามที่เขาเขียนมา ห้ามเกลา
+//   "พบกันครั้งแรกคือโชคชะตา ครั้งต่อมาคือพรหมลิขิต · บัดนี้ โชคชะตาของเราได้สัมผัสกันแล้ว
+//    ให้เราเปิดเผยเสียงพ้องของเหล่าเทพ ว่าเขาเหล่านั้นเห็นอะไรในตัวเจ้า"
+//
+// มีสองแกน และห้ามสลับกัน: **กลับมาหลังหายไป** มาก่อน **มาต่อเนื่อง** เสมอ —
+// คนที่หายไปเดือนหนึ่งแล้วกลับมา ข่าวของเขาคือการหายไป ไม่ใช่ว่าวันนี้เป็นวันที่เท่าไร
+//
+// ⛔ ทุกหมุดต้องอ้างของจริงของสินค้านี้ (เทพประจำวันเจ็ดองค์ · รอบจันทร์ · ดวงอาทิตย์กลับที่เดิม)
+//    ห้ามเขียนคำอวยที่ย้ายไปแปะเว็บดูดวงเจ้าไหนก็ได้
+// ⚠️ ตัวนับอยู่ในเบราว์เซอร์เครื่องนี้เท่านั้น — ล้างข้อมูลเว็บหรือเปลี่ยนเครื่อง = เริ่มนับใหม่
+//    ถ้อยคำจึงพูดแบบ "เหล่าเทพเห็น" ไม่ใช่ "บัญชีของเจ้าคือ" จะได้ไม่โกหกตอนตัวนับรีเซ็ต
+function _pulseGreeting(){
+  const isTh = LANG === 'th';
+  const { total, streak, gap } = _visitStats();
+  const n = Math.max(total, 1);
+  let th, en;
+
+  if (gap >= 30) {
+    th = `เจ้าหายไป <strong style="color:var(--gold2)">${gap} วัน</strong><br>นานพอให้ดวงเดินไปคนละช่วงแล้ว — วันนี้เริ่มอ่านกันใหม่`;
+    en = `You were gone <strong style="color:var(--gold2)">${gap} days</strong><br>Long enough for the chart to have moved on. We begin again today.`;
+  } else if (gap >= 7) {
+    th = `เจ้าหายไป <strong style="color:var(--gold2)">${gap} วัน</strong><br>ฟ้าเปลี่ยนไปหลายรอบแล้ว เสียงที่เจ้าเคยได้ยินไม่เหลือแล้ว`;
+    en = `You were gone <strong style="color:var(--gold2)">${gap} days</strong><br>The sky has turned several times; the voices you last heard are not these.`;
+  } else if (gap >= 3) {
+    th = `เจ้าหายไป <strong style="color:var(--gold2)">${gap} วัน</strong><br>เหล่าเทพยังไม่ได้ปิดหน้าของเจ้า`;
+    en = `You were gone <strong style="color:var(--gold2)">${gap} days</strong><br>The gods had not closed your page.`;
+  } else if (streak >= 365) {
+    th = `<strong style="color:var(--gold2)">หนึ่งปี</strong> ที่เจ้ามาฟัง<br>ดวงอาทิตย์กลับมาที่เดิมของวันเกิดเจ้าแล้ว — เจ้าได้ยินครบทุกฤดู`;
+    en = `<strong style="color:var(--gold2)">One year</strong> of listening<br>The Sun has returned to where it stood at your birth. You have heard every season.`;
+  } else if (streak >= 180) {
+    th = `<strong style="color:var(--gold2)">หกเดือน</strong> ติดกัน<br>ครึ่งทางของรอบสุริยะ — อีกครึ่งดวงอาทิตย์จะกลับมาที่เดิม`;
+    en = `<strong style="color:var(--gold2)">Six months</strong> unbroken<br>Half a solar turn. The other half brings the Sun back to your birth degree.`;
+  } else if (streak >= 30) {
+    th = `<strong style="color:var(--gold2)">สามสิบวัน</strong> ติดกัน<br>จันทร์เดินครบหนึ่งรอบเต็มตั้งแต่เจ้าเริ่มฟัง`;
+    en = `<strong style="color:var(--gold2)">Thirty days</strong> unbroken<br>The Moon has walked a full circle since you started listening.`;
+  } else if (streak >= 15) {
+    th = `<strong style="color:var(--gold2)">สิบห้าวัน</strong> ติดกัน<br>จันทร์เดินครึ่งรอบ จากมืดถึงสว่าง เจ้าอยู่ครบทั้งขาขึ้น`;
+    en = `<strong style="color:var(--gold2)">Fifteen days</strong> unbroken<br>Half a lunar circle, dark to full. You stayed for the whole waxing.`;
+  } else if (streak >= 7) {
+    th = `<strong style="color:var(--gold2)">เจ็ดวัน</strong> ติดกัน<br>เจ้าได้พรจากเทพประจำวันครบทั้งเจ็ดองค์แล้ว`;
+    en = `<strong style="color:var(--gold2)">Seven days</strong> unbroken<br>You have taken the blessing of all seven day-deities.`;
+  } else if (n <= 1) {
+    th = 'พบกันครั้งแรก — นี่คือ<strong style="color:var(--gold2)">โชคชะตา</strong><br>บัดนี้โชคชะตาของเราได้สัมผัสกันแล้ว ให้เราเปิดเผยเสียงพ้องของเหล่าเทพ ว่าเขาเหล่านั้นเห็นอะไรในตัวเจ้า';
+    en = 'The first meeting is <strong style="color:var(--gold2)">fate</strong><br>Our fates have touched. Let the concord of the gods be revealed — what they see in you.';
+  } else if (n === 2) {
+    th = 'ครั้งแรกคือโชคชะตา · การกลับมาคือ<strong style="color:var(--gold2)">พรหมลิขิต</strong><br>เจ้ากลับมาแล้ว — เสียงของวันนี้ไม่ใช่เสียงของวันก่อน';
+    en = 'The first meeting was fate. The return is <strong style="color:var(--gold2)">destiny</strong><br>You came back, and today does not speak in yesterday’s voice.';
+  } else {
+    th = `เจ้ามาฟังเป็นวันที่ <strong style="color:var(--gold2)">${n}</strong><br>เหล่าเทพจำเจ้าได้ — และวันนี้พวกเขาพูดไม่เหมือนเมื่อวาน`;
+    en = `Day <strong style="color:var(--gold2)">${n}</strong> of listening<br>The gods know you now, and today they do not say what they said yesterday.`;
+  }
+  return `<div style="border-left:2px solid var(--gold3);padding:10px 0 10px 13px;margin-bottom:14px;
+    font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;line-height:1.75;color:var(--gold2);font-style:italic">
+    ${isTh ? th : en}</div>`;
+}
+
 function renderDailyPulse() {
   const panel = document.getElementById('pulsePanel');
   if (!panel) return;
@@ -10795,6 +10871,7 @@ function renderDailyPulse() {
 
   // ── Compose panel HTML ──────────────────────────────────────
   panel.innerHTML = `
+    ${_pulseGreeting()}
     <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px">
       <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted)">${dateLabel}</div>
       ${streak >= 2 ? `<div style="font-family:'Josefin Sans',sans-serif;font-size:11px;color:var(--gold2)">🔥 ${streak} ${t('pulse_streak_label')}</div>` : ''}

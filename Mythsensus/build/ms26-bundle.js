@@ -5282,8 +5282,8 @@ function calcDailyPulse(c, date, opts = {}) {
     candidates.push({
         sys: 'NSK Day Star',
         sysTh: 'NSK ดาววัน', sysEn: 'NSK Day Star',
-        noteTh: `ดาว ${dayStar} ${dayStar === dayStarVsNatal ? '(Honmei — ตรงดาวเกิด)' : nskScore < 0 ? '(ตรงข้ามดาวเกิด)' : ''}`,
-        noteEn: `Star ${dayStar} ${dayStar === dayStarVsNatal ? '(Honmei — matches natal)' : nskScore < 0 ? '(opposite natal)' : ''}`,
+        noteTh: `ดาว ${dayStar} ${dayStar === dayStarVsNatal ? '(Honmei — ตรงดาวเกิดของคุณ)' : nskScore < 0 ? '(ตรงข้ามดาวเกิด)' : '(ไม่ปะทะดาวเกิดของคุณ)'}`,
+        noteEn: `Star ${dayStar} ${dayStar === dayStarVsNatal ? '(Honmei — matches your natal star)' : nskScore < 0 ? '(opposite natal)' : '(no clash with your natal star)'}`,
         score: nskScore,
         velocity: 'daily',
     });
@@ -5300,7 +5300,10 @@ function calcDailyPulse(c, date, opts = {}) {
         sysTh: 'ไบโอริทึม', sysEn: 'Biorhythm',
         noteTh: `กาย ${phy >= 0 ? '+' : ''}${phy}% · ใจ ${emo >= 0 ? '+' : ''}${emo}% · สมอง ${intel >= 0 ? '+' : ''}${intel}%`,
         noteEn: `Body ${phy >= 0 ? '+' : ''}${phy}% · Emotion ${emo >= 0 ? '+' : ''}${emo}% · Intellect ${intel >= 0 ? '+' : ''}${intel}%`,
-        score: bioScore,
+        // ⛔ ไม่โหวต — มติ 2026-06-06: 26 ศาสตร์ = 8 เสียงโหวต + 18 งดออกเสียง และ
+        // ไบโอริทึมอยู่ฝั่งงดออกเสียง เพราะมันคำนวณจากจำนวนวันที่ผ่านมา ไม่ได้อ่านดวง
+        // ค่าที่คิดได้ยังแสดงเป็นบริบทได้ แต่ห้ามเอาไปบวกเป็นคำตัดสินของวัน
+        score: 0,
         velocity: 'daily',
     });
     // 8. ไทยพราหมณ์ — day-of-week ruler (changes 7-day cycle)
@@ -5312,8 +5315,8 @@ function calcDailyPulse(c, date, opts = {}) {
     candidates.push({
         sys: 'Thai Brahmin',
         sysTh: 'ไทยพราหมณ์', sysEn: 'Thai Brahmin',
-        noteTh: `วัน${DAY_TH[dow]} ${dow === natalDow ? '(ตรงวันเกิด)' : dowScore < 0 ? '(ตรงข้ามวันเกิด)' : ''}`,
-        noteEn: `${DAY_EN[dow]} ${dow === natalDow ? '(matches birth day)' : dowScore < 0 ? '(opposite birth day)' : ''}`,
+        noteTh: `วัน${DAY_TH[dow]} ${dow === natalDow ? '(ตรงวันเกิดของคุณ)' : dowScore < 0 ? '(วันกาลกิณีของคุณ)' : '(ไม่ใช่ทั้งวันเกิดและวันกาลกิณี)'}`,
+        noteEn: `${DAY_EN[dow]} ${dow === natalDow ? '(your birth weekday)' : dowScore < 0 ? '(your inauspicious weekday)' : '(neither your birth nor your inauspicious weekday)'}`,
         score: dowScore,
         velocity: 'weekly',
     });
@@ -5321,8 +5324,10 @@ function calcDailyPulse(c, date, opts = {}) {
     candidates.push({
         sys: 'Mahadasha',
         sysTh: 'วิมโชตติริ', sysEn: 'Mahadasha',
-        noteTh: `${c.vedicMahadasha.currentDasha} Dasha ต่อเนื่อง`,
-        noteEn: `${c.vedicMahadasha.currentDasha} Dasha ongoing`,
+        // natal — ประโยคนี้จะเหมือนเดิมทุกวันจนกว่าจะเปลี่ยนทศา บอกผู้อ่านตรงๆ ว่าเป็นฉากหลัง
+        // ไม่ใช่ข่าวของวันนี้ ไม่งั้นเขาจะอ่านซ้ำทุกวันแล้วคิดว่าระบบค้าง
+        noteTh: `อยู่ในทศา${c.vedicMahadasha.currentDasha} — ฉากหลังของช่วงชีวิต ไม่ใช่เรื่องเฉพาะวันนี้`,
+        noteEn: `In the ${c.vedicMahadasha.currentDasha} Dasha — the backdrop of this life phase, not news about today`,
         score: 0,
         velocity: 'natal',
     });
@@ -5344,9 +5349,8 @@ function calcDailyPulse(c, date, opts = {}) {
     const tier = VERDICT_TIERS.find(t => total >= t.min) ?? VERDICT_TIERS[VERDICT_TIERS.length - 1];
     // ── Synthesis paragraph ─────────────────────────────────
     // Pull the 3 highest-magnitude signals for the synthesis spotlight.
-    const spotlight = selected.slice().sort((a, b) => Math.abs(b.score) - Math.abs(a.score)).slice(0, 3);
-    const synTh = _buildSynthesis(spotlight, tier, 'th', c);
-    const synEn = _buildSynthesis(spotlight, tier, 'en', c);
+    const synTh = _buildSynthesis(selected, tier, 'th', c);
+    const synEn = _buildSynthesis(selected, tier, 'en', c);
     return {
         isoDate: date.toISOString().slice(0, 10),
         total,
@@ -6397,23 +6401,58 @@ function calcForecast(c, from, opts = {}) {
 }
 
 function _buildSynthesis(signals, tier, lang, c) {
-    if (signals.length === 0)
-        return lang === 'th' ? 'วันธรรมดา ไม่มีสัญญาณเด่น' : 'Quiet day, no strong signal.';
-    const intro = lang === 'th'
-        ? (tier.key === 'peak' ? 'วันนี้พลังสูงเป็นพิเศษ — '
-            : tier.key === 'supportive' ? 'วันนี้ฟ้าหนุน — '
-                : tier.key === 'neutral' ? 'วันนี้กลาง ๆ — '
-                    : tier.key === 'observe' ? 'วันนี้ต้องสังเกตหลายจุด — '
-                        : 'วันนี้เป็นวงรอบพักฟื้น — ')
-        : (tier.key === 'peak' ? 'Today carries unusually high resonance — '
-            : tier.key === 'supportive' ? 'The day favours you — '
-                : tier.key === 'neutral' ? 'A neutral day — '
-                    : tier.key === 'observe' ? 'Several signals ask for caution today — '
-                        : 'A recovery cycle today — ');
-    // Build the spotlight phrases from signals' notes.
-    const phrases = signals.map(sig => lang === 'th' ? sig.noteTh : sig.noteEn);
-    const joiner = lang === 'th' ? ' · ' : '. ';
-    return intro + phrases.join(joiner) + (lang === 'th' ? '.' : '.');
+    // เดิมบรรทัดนี้คือ "คำนำ + เอา noteTh ดิบมาต่อกันด้วย ·" ผลที่ลูกค้าฟรีได้อ่านจริงคือ
+    //   "วันนี้กลาง ๆ — Moon Nakshatra Revati · Tara วาธ · Kin 220 · Imix · โทน 13."
+    // ซึ่งตกเกณฑ์ที่ director ตั้งไว้ทั้งสามข้อ (ชัดเจน · อ่านรู้เรื่อง · ตอบได้):
+    // ไม่ได้บอกว่าวันนี้เป็นวันแบบไหน ไม่ได้บอกว่าใครเป็นคนบอก และไม่ได้บอกว่าให้ทำอะไร
+    //
+    // สามประโยคนี้ตอบสามคำถามตามลำดับ: วันนี้เป็นวันแบบไหน · ใครพูดและพูดว่าอะไร · แล้วควรทำอะไร
+    // ⛔ ศัพท์เทคนิคยังอยู่ครบ แต่ย้ายไปอยู่ในวงเล็บหลังคำแปล ไม่ใช่ยืนเป็นประโยคเอง —
+    //    เป็นหลักฐานให้ตรวจย้อนได้ ไม่ใช่เนื้อหาที่โยนให้คนอ่านแปลเอง (Rule #10)
+    const isTh = lang === 'th';
+    if (!signals.length)
+        return isTh ? 'วันนี้ไม่มีศาสตร์ไหนออกเสียงเลย' : 'No tradition speaks today.';
+    const up = signals.filter(s => s.score > 0);
+    const down = signals.filter(s => s.score < 0);
+    const flat = signals.filter(s => s.score === 0);
+    const loudest = signals.slice().sort((a, b) => Math.abs(b.score) - Math.abs(a.score))[0];
+    // 1 · วันนี้เป็นวันแบบไหน
+    const verdict = isTh
+        ? (tier.key === 'peak' ? 'วันนี้เสียงส่วนใหญ่หนุนคุณพร้อมกัน ซึ่งไม่ได้เกิดบ่อย'
+            : tier.key === 'supportive' ? 'วันนี้เสียงที่หนุนมากกว่าเสียงที่เตือน'
+                : tier.key === 'neutral' ? 'วันนี้ไม่มีเสียงไหนดังพอจะสั่งคุณ'
+                    : tier.key === 'observe' ? 'วันนี้เสียงที่เตือนมากกว่าเสียงที่หนุน'
+                        : 'วันนี้ฟ้าให้พัก ไม่ใช่ให้ออกแรง')
+        : (tier.key === 'peak' ? 'Today most of the voices back you at once, which is not common'
+            : tier.key === 'supportive' ? 'More voices favour you today than warn you'
+                : tier.key === 'neutral' ? 'No voice is loud enough to overrule you today'
+                    : tier.key === 'observe' ? 'More voices warn you today than favour you'
+                        : 'The day is for recovering, not for pushing');
+    // 2 · ใครพูด และพูดว่าอะไร — นับเสียงจริง แล้วยกเสียงที่หนักที่สุดมาอ้าง
+    const tally = isTh
+        ? `ฟังได้ ${signals.length} เสียง — หนุน ${up.length} · เตือน ${down.length} · เฉย ${flat.length}`
+        : `${signals.length} voices audible — ${up.length} favour, ${down.length} warn, ${flat.length} neither`;
+    const who = loudest && loudest.score !== 0
+        ? (isTh
+            ? `เสียงที่หนักที่สุดคือ ${loudest.sysTh} ${loudest.score > 0 ? 'ฝั่งหนุน' : 'ฝั่งเตือน'} (${loudest.noteTh})`
+            : `The loudest is ${loudest.sysEn}, ${loudest.score > 0 ? 'in favour' : 'warning'} (${loudest.noteEn})`)
+        : (isTh
+            ? 'ไม่มีเสียงไหนออกมาหนักไปทางใดทางหนึ่ง'
+            : 'None of them leans hard either way');
+    // 3 · แล้วควรทำอะไร — ผูกกับคำตัดสิน ไม่ใช่คำอวยลอย ๆ
+    const act = isTh
+        ? (tier.key === 'peak' ? 'เรื่องที่เลื่อนมานาน เอาวันนี้'
+            : tier.key === 'supportive' ? 'เดินตามแผนที่วางไว้ ไม่ต้องเร่งให้เกินแผน'
+                : tier.key === 'neutral' ? 'วันแบบนี้ตัดสินใจด้วยข้อมูลของคุณเอง ไม่ต้องรอฤกษ์'
+                    : tier.key === 'observe' ? 'อย่าเพิ่งผูกมัดอะไรที่ถอยกลับไม่ได้'
+                        : 'พักให้พอก่อน งานใหญ่รอวันหน้าได้')
+        : (tier.key === 'peak' ? 'Whatever you have been postponing, today is the day'
+            : tier.key === 'supportive' ? 'Follow the plan you already have; do not force it past that'
+                : tier.key === 'neutral' ? 'Decide on your own information today; there is no omen to wait for'
+                    : tier.key === 'observe' ? 'Do not commit to anything you cannot walk back'
+                        : 'Rest first — the big push keeps until another day');
+    const dot = isTh ? ' · ' : '. ';
+    return `${verdict}${dot}${tally}${dot}${who}${isTh ? ' ⇒ ' : '. '}${act}`;
 }
 // Module-scoped language marker set by generateReport() at the top of each
 // report render. Read by buildRichReading() and other helpers so section
