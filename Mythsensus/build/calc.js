@@ -4,7 +4,7 @@
 //  All 10 systems calculated algorithmically. Zero external API.
 // ============================================================
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.hebrewDateOf = exports.lunarDateOf = exports._setReportLang = exports.calcForecast = exports.calcDailyPulse = exports.calculate = exports.calcPathResonance = exports.calcLifeTerrain = void 0;
+exports.hebrewDateOf = exports.lunarDateOf = exports._getReadingParts = exports._clearReadingParts = exports._setReportLang = exports.calcForecast = exports._fcNineStarYear = exports.FORECAST_TIERS = exports.FORECAST_DOMAIN_LABELS = exports.FORECAST_DOMAINS_ALL = exports.calcDailyPulse = exports.calculate = exports.calcPathResonance = exports.calcLifeTerrain = exports.glossCJK = exports.sweepThaiFromEnglish = void 0;
 // ── Bilingual primitives ────────────────────────────────────────
 // Single source of truth for translating Thai data fields to English.
 // Used by buildRichReading() and the per-system calc functions to keep
@@ -581,7 +581,207 @@ function calcWestern(d) {
 // BAZI — Four Pillars
 // ============================================================
 const STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
-const STEMS_TH = ['จ่ย ไม้หยาง', 'อี่ ไม้อ่อน', 'ปิ่ง ไฟหยาง', 'ติง ไฟอ่อน', 'อู่ ดินหยาง', 'จี่ ดินอ่อน', 'เกิง โลหะหยาง', 'ซิน โลหะอ่อน', 'เหริน น้ำหยาง', 'กุ้ย น้ำอ่อน'];
+// ── Chinese terms, glossed on first sight ─────────────────────────────────
+// Measured 2026-08-31: 78 runs of Chinese inside Thai sentences, none carrying
+// a reading. Terms whose meaning matters get a plain-Thai description rather
+// than a transliteration — "สิบเทพ" tells a reader something, "สือเสิน" does
+// not. Stems and branches fall through to STEMS_TH / BRANCHES_TH below.
+const CJK_GLOSS_EN = {
+    "八字": "Eight Characters",
+    "干支": "stem & branch",
+    "藏干": "hidden stems",
+    "十神": "Ten Gods — how each element relates to you",
+    "偏印": "unorthodox knowledge",
+    "傷官": "blunt speech, sharp output",
+    "財重": "more wealth than strength to hold it",
+    "比劫重": "many peers and rivals",
+    "大運": "the 10-year luck pillar",
+    "太歲": "the god who rules the year",
+    "值太歲": "your own zodiac year",
+    "三合": "three branches in harmony",
+    "午午": "the Horse branch doubled",
+    "五行局": "the five-element bureau",
+    "金四局": "Metal Four bureau",
+    "火六局": "Fire Six bureau",
+    "命宮": "the Life Palace",
+    "福德": "the Palace of Blessings",
+    "夫妻": "the Spouse Palace",
+    "紫微": "Zi Wei — the emperor star",
+    "天相": "Tian Xiang — the counsellor star",
+    "太陽": "Tai Yang — the Sun star",
+    "巨門": "Ju Men — speech and dispute",
+    "破軍": "Po Jun — tearing down to rebuild",
+    "紫微斗數": "Zi Wei Dou Shu — the emperor-star system",
+    "月盤": "the monthly star chart",
+    "一白水星": "Star 1 White, Water",
+    "七赤金星": "Star 7 Red, Metal",
+    "九紫火星": "Star 9 Purple, Fire",
+    "二黒土星": "Star 2 Black, Earth",
+    "五黄土星": "Star 5 Yellow, Earth",
+    "四緑木星": "Star 4 Green, Wood",
+    "六曜": "the six Japanese day-omens",
+    "友引": "Tomobiki — a day that pulls friends in",
+    "大安": "Taian — the calm, favourable day",
+    "赤口": "Shakko — guard your words",
+    "夜明": "daybreak",
+    "六害": "six branches that harm each other",
+    "六合": "two branches that pair by doctrine",
+    "離": "the south trigram",
+    "巽": "the south-east trigram",
+    "乾": "the north-west trigram",
+    "陽": "yang",
+    "陰": "yin",
+    "水星": "the Water star",
+    "九星気学": "Kyusei Kigaku, the nine-star system",
+};
+const CJK_GLOSS_TH = {
+    '\u516b\u5b57': 'แปดอักษร', '\u5e72\u652f': 'ก้านฟ้า-กิ่งดิน', '\u85cf\u5e72': 'ก้านที่ซ่อนในกิ่ง',
+    '\u5341\u795e': 'สิบเทพ — ความสัมพันธ์ของธาตุกับตัวคุณ', '\u504f\u5370': 'ความรู้นอกตำรา',
+    '\u50b7\u5b98': 'พูดตรง ผลงานแหลม', '\u8ca1\u91cd': 'ทรัพย์มากกว่ากำลังถือ',
+    '\u6bd4\u52ab\u91cd': 'คู่แข่งและพี่น้องมาก', '\u5927\u904b': 'เสาโชค 10 ปี',
+    '\u592a\u6b72': 'เทพผู้คุมปี', '\u503c\u592a\u6b72': 'ปีชงตัวเอง', '\u4e09\u5408': 'สามกิ่งประสานกัน',
+    '\u5348\u5348': 'กิ่งม้าซ้ำกัน', '\u4e94\u884c\u5c40': 'ก๊กห้าธาตุ',
+    '\u91d1\u56db\u5c40': 'ก๊กโลหะสี่', '\u706b\u516d\u5c40': 'ก๊กไฟหก',
+    '\u547d\u5bae': 'วังชีวิต', '\u798f\u5fb7': 'วังบุญวาสนา', '\u592b\u59bb': 'วังคู่ครอง',
+    '\u7d2b\u5fae': 'ดาวจื่อเวย — ดาวจักรพรรดิ', '\u5929\u76f8': 'ดาวเทียนเซี่ยง — ผู้ช่วยและที่ปรึกษา',
+    '\u592a\u967d': 'ดาวไท่หยาง — อาทิตย์', '\u5de8\u9580': 'ดาวจวี้เหมิน — วาจาและการโต้แย้ง',
+    '\u7834\u8ecd': 'ดาวผัวจวิน — การรื้อสร้างใหม่',
+    '\u6708\u76e4': 'ผังดาวประจำเดือน', '\u4e00\u767d\u6c34\u661f': 'ดาว 1 ขาว ธาตุน้ำ',
+    '\u4e03\u8d64\u91d1\u661f': 'ดาว 7 แดง ธาตุโลหะ', '\u4e5d\u7d2b\u706b\u661f': 'ดาว 9 ม่วง ธาตุไฟ',
+    '\u4e8c\u9ed2\u571f\u661f': 'ดาว 2 ดำ ธาตุดิน', '\u4e94\u9ec4\u571f\u661f': 'ดาว 5 เหลือง ธาตุดิน',
+    '\u516d\u66dc': 'หกฤกษ์ปฏิทินญี่ปุ่น', '\u53cb\u5f15': 'โทโมบิกิ — วันชวนกัน',
+    '\u5927\u5b89': 'ไทอัง — วันสงบดี', '\u8d64\u53e3': 'ชักโก — วันระวังวาจา',
+    '\u96e2': 'ทิศใต้ในผังปากั้ว', '\u5dfd': 'ทิศตะวันออกเฉียงใต้ในผังปากั้ว',
+    '\u4e7e': 'ทิศตะวันตกเฉียงเหนือในผังปากั้ว', '\u967d': 'หยาง', '\u9670': 'หยิน',
+    '\u6c34\u661f': 'ดาวธาตุน้ำ', '\u4e5d\u661f\u6c17\u5b66': 'วิชาดาวเก้าดวงญี่ปุ่น',
+    '紫微斗數': 'จื่อเวยโต่วซู่ — วิชาดาวจักรพรรดิ',
+    '四綠木星': 'ดาว 4 เขียว ธาตุไม้',
+    '六合': 'สองกิ่งที่จับคู่กันตามตำรา',
+    "四緑木星": "ดาว 4 เขียว ธาตุไม้",
+    "夜明": "ยามรุ่งสาง",
+    "六害": "หกกิ่งที่เป็นภัยต่อกัน",
+};
+// A pillar is stem + branch; read each half from the engine's own tables.
+function _cjkReading(term) {
+    const table = _reportLang === 'en' ? CJK_GLOSS_EN : CJK_GLOSS_TH;
+    if (table[term])
+        return table[term];
+    const si = STEMS.indexOf(term), bi = BRANCHES.indexOf(term);
+    if (si >= 0)
+        return _reportLang === 'en' ? STEMS_EN[si] : STEMS_TH[si];
+    if (bi >= 0)
+        return _reportLang === 'en' ? BRANCHES_EN[bi] : BRANCHES_TH[bi];
+    // 藏干 arrive as a run of stems with nothing between them (己丁乙).
+    if (term.length >= 2 && [...term].every(ch => STEMS.indexOf(ch) >= 0)) {
+        return [...term].map(ch => (_reportLang === 'en' ? STEMS_EN : STEMS_TH)[STEMS.indexOf(ch)]).join(' · ');
+    }
+    if (term.length === 2) {
+        const a = STEMS.indexOf(term[0]), b = BRANCHES.indexOf(term[1]);
+        if (a >= 0 && b >= 0) {
+            return _reportLang === 'en'
+                ? `${STEMS_EN[a]} ${BRANCHES_EN[b]}`
+                : `${STEMS_TH[a]} ${BRANCHES_TH[b]}`;
+        }
+    }
+    return '';
+}
+// Attach a reading the FIRST time each term is met, and only in visible text —
+// never inside a tag. Later sightings stay bare so the page does not become a
+// glossary the reader has to wade through.
+// ── Thai values that must not survive into an English report ──────────────
+// Everything here is a VALUE the engine picked (a tree, an exercise, a gender),
+// not prose. Prose is already bilingual through tr()/pick().
+const TH_EN_VALUE = {
+    "แสงประภาคาร": "The Lighthouse",
+    "ม่วง": "Purple",
+    "สาย": "Late",
+    "สถาปนิกหลัก": "The Master Builder",
+    "ผู้รักษา": "The Master Healer",
+    'ชาย': 'Male', 'หญิง': 'Female',
+    'โรวัน': 'Rowan', 'โอ๊ก': 'Oak', 'แอช': 'Ash', 'เฮเซล': 'Hazel', 'เอลเดอร์': 'Elder',
+    'เบิร์ช': 'Birch', 'วิลโลว์': 'Willow', 'ฮอว์ธอร์น': 'Hawthorn', 'ไอวี่': 'Ivy',
+    'กก': 'Reed', 'ฮอลลี่': 'Holly', 'เฮเธอร์': 'Heather', 'ไวน์': 'Vine', 'เบิร์ด': 'Birch',
+    'ยิม': 'the gym', 'ว่ายน้ำ': 'swimming', 'เดิน': 'walking', 'ไทชิ': 'tai chi',
+    'ฟันดาบ': 'fencing', 'ไตรกีฬา': 'triathlon', 'ดำน้ำ': 'diving', 'วิ่ง': 'running',
+    'โยคะ': 'yoga', 'ปีนเขา': 'climbing',
+    'ขาดธาตุ': 'missing element: ', 'เลขเส้นทางนี้': 'This Life Path',
+    'นักปราชญ์': 'The Sage', 'ผู้นำ': 'The Leader', 'ผู้ประสาน': 'The Diplomat',
+    'ผู้สร้างสรรค์': 'The Creator', 'ผู้สร้าง': 'The Builder', 'นักผจญภัย': 'The Adventurer',
+    'ผู้ดูแล': 'The Nurturer', 'นักบริหาร': 'The Executive', 'นักมนุษยธรรม': 'The Humanitarian',
+    'น้ำขาว': 'White Water',
+    "หนู": "Rat",
+    "วัว": "Ox",
+    "เสือ": "Tiger",
+    "กระต่าย": "Rabbit",
+    "มังกร": "Dragon",
+    "งู": "Snake",
+    "ม้า": "Horse",
+    "แพะ": "Goat",
+    "ลิง": "Monkey",
+    "ไก่": "Rooster",
+    "สุนัข": "Dog",
+    "หมู": "Pig",
+    "ภูเขา": "Mountain",
+    "ฟ้า": "Heaven",
+    "ฟ้าผ่า": "Thunder",
+    "บึง": "Lake",
+    "ลมพัด": "Wind", 'ทะเล': 'the Sea', 'แสงไม่รู้ดับ': 'the Undying Light',
+};
+// Longest first, so "ตะวันออกเฉียงใต้" is never eaten by "ตะวันออก".
+function sweepThaiFromEnglish(html) {
+    const dicts = [TH_EN_VALUE, EL_TH_EN, DIR_TH_EN, COLOR_TH_EN, PLANET_TH_EN, DAY_TH_EN];
+    const merged = {};
+    for (const d of dicts)
+        for (const k of Object.keys(d))
+            if (!merged[k])
+                merged[k] = d[k];
+    const keys = Object.keys(merged).sort((a, b) => b.length - a.length);
+    return html.replace(/>([^<]+)</g, (_whole, text) => {
+        let out = text;
+        for (const k of keys)
+            if (out.includes(k))
+                out = out.split(k).join(merged[k]);
+        return '>' + out + '<';
+    });
+}
+exports.sweepThaiFromEnglish = sweepThaiFromEnglish;
+function glossCJK(html) {
+    const seen = new Set();
+    return html.replace(/>([^<]+)</g, (whole, text) => {
+        const out = text.replace(/[\u4e00-\u9fff]+/g, (term, at) => {
+            if (seen.has(term))
+                return term;
+            const rest = text.slice(at + term.length, at + term.length + 40);
+            const head = text.slice(Math.max(0, at - 14), at);
+            const insideBrackets = /[（(][^)）]{0,10}$/.test(head);
+            // A sighting inside brackets is explained by the bracket, but it must not
+            // consume the first-sight budget: the same term used bare further down the
+            // page still needs its reading.
+            if (insideBrackets)
+                return term;
+            if (/^\s*[（(]/.test(rest)) {
+                seen.add(term);
+                return term;
+            }
+            // The prose sometimes puts the Thai meaning straight after the term with
+            // no brackets ("偏印 ความรู้นอกตำรา"). Adding a gloss there prints the
+            // translation twice in a row.
+            const reading0 = _cjkReading(term);
+            if (reading0 && rest.replace(/^[\s—·:]+/, '').startsWith(reading0)) {
+                seen.add(term);
+                return term;
+            }
+            const reading = _cjkReading(term);
+            if (!reading)
+                return term;
+            seen.add(term);
+            return `${term} (${reading})`;
+        });
+        return '>' + out + '<';
+    });
+}
+exports.glossCJK = glossCJK;
+const STEMS_TH = ['เจี่ย ไม้หยาง', 'อี่ ไม้อ่อน', 'ปิ่ง ไฟหยาง', 'ติง ไฟอ่อน', 'อู่ ดินหยาง', 'จี่ ดินอ่อน', 'เกิง โลหะหยาง', 'ซิน โลหะอ่อน', 'เหริน น้ำหยาง', 'กุ้ย น้ำอ่อน'];
 const STEMS_EN = ['Jia (Yang Wood)', 'Yi (Yin Wood)', 'Bing (Yang Fire)', 'Ding (Yin Fire)', 'Wu (Yang Earth)', 'Ji (Yin Earth)', 'Geng (Yang Metal)', 'Xin (Yin Metal)', 'Ren (Yang Water)', 'Gui (Yin Water)'];
 const STEMS_EL = ['ไม้', 'ไม้', 'ไฟ', 'ไฟ', 'ดิน', 'ดิน', 'โลหะ', 'โลหะ', 'น้ำ', 'น้ำ'];
 // Main (本氣) element of each Earthly Branch, 子=0..亥=11. The four branches carry
@@ -1262,16 +1462,6 @@ function calcBazi(d) {
     // Ben Ming Nian 2026: Fire Horse year 丙午
     // Check if year branch is 午 (idx=6) → Horse year
     const benMing = yp.bi === 6; // born in Horse year
-    const luckyMap = {
-        '甲': 'ไฟ ดิน', '乙': 'ไฟ ดิน', '丙': 'ไม้ ดิน', '丁': 'ไม้ ดิน',
-        '戊': 'ไฟ ไม้', '己': 'ไฟ ไม้', '庚': 'น้ำ ดิน', '辛': 'น้ำ ดิน',
-        '壬': 'โลหะ ไม้', '癸': 'โลหะ ไม้',
-    };
-    const avoidMap = {
-        '甲': 'โลหะ', '乙': 'โลหะ', '丙': 'น้ำ', '丁': 'น้ำ',
-        '戊': 'ไม้', '己': 'ไม้', '庚': 'ไฟ', '辛': 'ไฟ',
-        '壬': 'ดิน', '癸': 'ดิน',
-    };
     const BAZI_EL_BASE = { 'ไม้': 750, 'ไฟ': 790, 'ดิน': 760, 'โลหะ': 740, 'น้ำ': 720 };
     const hasSelfPunch = yp.bi === dp.bi;
     const mpStemIdx = STEMS.indexOf(mp.stem);
@@ -1287,6 +1477,31 @@ function calcBazi(d) {
     // a BaZi reader actually assesses, and it spans a comparable range honestly.
     const _dmStr = _baziDMStrength(dp.si, { year: { si: yp.si, bi: yp.bi }, month: { si: mp.si, bi: mp.bi }, day: { si: dp.si, bi: dp.bi }, hour: { si: STEMS.indexOf(hp.stem), bi: BRANCHES.indexOf(hp.branch) } });
     const _balance = 50 - Math.abs(_dmStr.pct - 50); // 0 at the extremes, 50 when poised
+    // ── ธาตุมงคล / ธาตุที่ต้องเลี่ยง — อ่านจาก 身強/身弱 ไม่ใช่จากตารางตายตัว ──
+    //
+    // luckyMap keyed the answer on the Day Master STEM alone, so every 甲 chart was
+    // prescribed Fire and Earth — output and wealth, which is the remedy for a
+    // STRONG Day Master — including the 財多身弱 charts that need the exact
+    // opposite. On the director's own chart the report printed 財重 (wealth already
+    // heavy) and then made "add Earth" its number-one HIGH recommendation, Earth
+    // BEING the wealth element it had just called excessive.
+    //
+    // The 用神/忌神 block later in the same report has been strength-aware since it
+    // was written, so the book has been arguing with itself on a single page. The
+    // rule is the one that block already uses: a weak Day Master is fed (resource +
+    // self), a strong one is drained (output + wealth), and a balanced one leans on
+    // its resource while avoiding whatever already dominates.
+    const _EL_BY_I = ['ไม้', 'ไฟ', 'ดิน', 'โลหะ', 'น้ำ']; // ลำดับเดียวกับ _EL_IDX
+    const _dmI = _EL_IDX[dmElement] ?? 0;
+    const _elRel = (n) => _EL_BY_I[(_dmI + n) % 5];
+    const _self = _elRel(0), _output = _elRel(1), _wealth = _elRel(2), _officer = _elRel(3), _resource = _elRel(4);
+    const _uniq = (xs) => Array.from(new Set(xs)).join(' ');
+    const luckyElStr = _dmStr.verdict === 'weak' ? _uniq([_resource, _self])
+        : _dmStr.verdict === 'strong' ? _uniq([_output, _wealth])
+            : _resource;
+    const avoidElStr = _dmStr.verdict === 'weak' ? _uniq([_officer, _wealth])
+        : _dmStr.verdict === 'strong' ? _uniq([_resource, _self])
+            : dominantEl;
     const baziScore = Math.max(400, Math.min(960, (BAZI_EL_BASE[STEMS_EL[dp.si]] ?? 700) + (hasSelfPunch ? 40 : 0) + (benMing ? 30 : 0) + _balance - 25));
     const baziResult = {
         yearStem: yp.stem, yearBranch: yp.branch, yearStemTh: pStem(yp.si), yearBranchTh: pBranch(yp.bi),
@@ -1295,7 +1510,7 @@ function calcBazi(d) {
         hourStem: hp.stem, hourBranch: hp.branch, hourStemTh: hp.stemTh, hourBranchTh: hp.branchTh,
         dayMaster: dp.stem, dayMasterTh: pStem(dp.si), dayMasterElement: pEl(dmElement), dayMasterPolarity: dmPolarity,
         missingElement: pEl(missingEl), dominantElement: pEl(dominantEl),
-        luckyElement: pEl(luckyMap[dp.stem] ?? 'ดิน'), avoidElement: pEl(avoidMap[dp.stem] ?? 'น้ำ'),
+        luckyElement: pEl(luckyElStr), avoidElement: pEl(avoidElStr),
         currentLuckPillar: `${currentLP.stem}${currentLP.branch}`,
         currentLuckPillarTh: `${currentLP.stemTh} ${currentLP.branchTh} (${currentLP.period})`,
         benMingNian2026: benMing,
@@ -1304,8 +1519,8 @@ function calcBazi(d) {
             const dmEl = dmElement;
             const missing = missingEl;
             const dominant = dominantEl;
-            const luckyEl = luckyMap[dp.stem] ?? 'ดิน';
-            const avoidEl = avoidMap[dp.stem] ?? 'น้ำ';
+            const luckyEl = luckyElStr;
+            const avoidEl = avoidElStr;
             const currentLuckPillar = `${currentLP.stem}${currentLP.branch}`;
             const elEn = tEl(dmEl);
             const missingEn = tEl(missing);
@@ -1349,7 +1564,7 @@ function calcBazi(d) {
     baziResult.deepReading = baziResult.reading + _baziDeepSections({
         dmIdx: dp.si, elCount,
         dmEl: dmElement, missing: missingEl, dominant: dominantEl,
-        luckyEl: luckyMap[dp.stem] ?? 'ดิน', avoidEl: avoidMap[dp.stem] ?? 'น้ำ',
+        luckyEl: luckyElStr, avoidEl: avoidElStr,
         polarity: dmPolarity, dayStemTh: pStem(dp.si),
         pillars: {
             year: { s: yp.stem, b: yp.branch, sTh: pStem(yp.si), bTh: pBranch(yp.bi), si: yp.si, bi: yp.bi },
@@ -1601,8 +1816,8 @@ function _nineStarDeepSections(a) {
             : `ในปี 2026 ทิศ${B('ตะวันตกเฉียงใต้')}มีดาว 5 (ห้าเหลือง — พลังงานผันผวนที่สุด) หลีกเลี่ยงการก่อสร้างหรือขุดดินในทิศนั้นปีนี้`) +
         P(`✅ ${B(isEn ? 'Enhance' : 'เสริม')}: ${isEn ? `work desk facing ${eDir(dir)} · head toward ${eDir(sleepDir)} at night · wear ${eColor(color)} daily` : `โต๊ะทำงานหันไปทาง${eDir(dir)} · นอนหันหัวไปทาง${eDir(sleepDir)} · ใส่สี${eColor(color)}ทุกวัน`}`) +
         P(`⚠️ ${B(isEn ? 'Reduce' : 'ลด')}: ${isEn ? `Southwest in 2026 (Star 5) · the element/colour of your controlling element (${eEl(stressEl)})` : `ทิศตะวันตกเฉียงใต้ปี 2026 (ดาว 5) · ธาตุหรือสีของธาตุที่ควบคุมคุณ (${eEl(stressEl)})`}`)));
-    sections.push(blk('💬', 'คำถามยอดฮิต — ตอบจากดวง Nine Star Ki ของคุณ', 'Popular Questions — Answered from Your Nine Star Ki', faqQ(isEn ? 'How is 2026 — a peak or a caution year?' : 'ปี 2026 ปีพีคหรือปีระวัง?', isEn ? (a.isHonmei ? `2026 is your ${B('Honmei-sei Kaiki')} (本命星回帰) — the most powerful year in your 9-year cycle; the annual star (9 Fire) matches your own. Everything amplifies: successes multiply, but so do missteps. Act with intention.` : `${a.year2026Analysis} Use your lucky direction (${eDir(dir)}) and colour (${eColor(color)}) consistently this year.`)
-        : (a.isHonmei ? `2026 เป็นปี ${B('Honmei-sei Kaiki')} (本命星回帰) ของคุณ — ปีทรงพลังที่สุดในวงจร 9 ปี ดาวปี (9 ไฟ) ตรงกับดาวคุณพอดี ทุกสิ่งขยายผล ทั้งสำเร็จและพลาด ทำด้วยเจตนา` : `${a.year2026Analysis} ใช้ทิศนำโชค (${eDir(dir)}) และสี (${eColor(color)}) อย่างสม่ำเสมอปีนี้`)) +
+    sections.push(blk('💬', 'คำถามยอดฮิต — ตอบจากดวง Nine Star Ki ของคุณ', 'Popular Questions — Answered from Your Nine Star Ki', faqQ(isEn ? 'How is 2026 — a peak or a caution year?' : 'ปี 2026 ปีพีคหรือปีระวัง?', isEn ? (a.isHonmei ? `2026 is your ${B('Honmei-sei Kaiki')} (本命星回帰) — the annual star (1 White Water) matches your own, seating it in the central palace 中宮 (chugu). Tradition calls that 八方塞がり (happo fusagari, blocked in all eight directions): hold position, close out what is open.` : `${a.year2026Analysis} Use your lucky direction (${eDir(dir)}) and colour (${eColor(color)}) consistently this year.`)
+        : (a.isHonmei ? `2026 เป็นปี ${B('Honmei-sei Kaiki')} (本命星回帰) ของคุณ — ดาวปี (1 白水星 ธาตุน้ำ) ตรงกับดาวคุณพอดี ดาวจึงเข้า 中宮 (จงกง กลางผัง) ตำราเรียกว่า 八方塞がり (ฮับโปฟุซางาริ ปิดทั้งแปดทิศ) — ปีตั้งหลัก ปิดงานค้าง ไม่ใช่ปีเปิดตัว` : `${a.year2026Analysis} ใช้ทิศนำโชค (${eDir(dir)}) และสี (${eColor(color)}) อย่างสม่ำเสมอปีนี้`)) +
         faqQ(isEn ? 'What is my greatest natural strength?' : 'จุดแข็งที่สุดโดยธรรมชาติของฉัน?', isEn ? (coreEn.split('.')[0] + '.') : (coreTh.split(' ').slice(0, 18).join(' ') + '…')) +
         faqQ(isEn ? 'Which star numbers are most compatible?' : 'ดาวเลขไหนเข้ากันได้ดีที่สุด?', isEn ? `Stars ${compatList} (${eEl(fuelEl)} — feeds your ${eEl(el)}) align most naturally. Stars ${challengeList} (${eEl(stressEl)}) need deliberate effort but spark growth.` : `ดาว ${compatList} (ธาตุ${eEl(fuelEl)} — หนุนธาตุ${eEl(el)}) เข้ากันธรรมชาติที่สุด ดาว ${challengeList} (ธาตุ${eEl(stressEl)}) ต้องใช้ความพยายามแต่จุดประกายการเติบโต`) +
         faqQ(isEn ? 'Which careers suit Star ' + star + ' best?' : 'อาชีพไหนเหมาะกับดาว ' + star + ' ที่สุด?', isEn ? careerEn : careerTh) +
@@ -1647,7 +1862,7 @@ function calcNineStar(d) {
     const data = NSK_DATA[star];
     const isHonmei = star === 1; // 2026 year star = 1 (一白水星)
     const analysis2026 = isHonmei
-        ? tPick('Honmei-sei Kaiki 本命星回帰 — ดาวของคุณตรงกับดาวปี 2026 พอดี ทุกสิ่งขยายผลคูณสอง ทั้งโอกาสและความเสี่ยง ต้องใส่ใจทุกการกระทำ', 'Honmei-sei Kaiki 本命星回帰 — your star matches the 2026 year star exactly. Everything amplifies twofold: both opportunity and risk. You must be mindful of every action.')
+        ? tPick('Honmei-sei Kaiki 本命星回帰 — ดาวประจำตัวคุณตรงกับดาวปี 2026 (1 白水星) พอดี ดาวคุณจึงเข้า 中宮 (จงกง กลางผัง) ตำราเรียกปีนี้ว่า 八方塞がり (ฮับโปฟุซางาริ ปิดทั้งแปดทิศ) — เป็นปีตั้งหลัก ไม่ใช่ปีบุก', 'Honmei-sei Kaiki 本命星回帰 — your natal star meets the 2026 year star (1 White Water), seating your star in the central palace 中宮 (chugu). The tradition calls the year 八方塞がり (happo fusagari, blocked in all eight directions): consolidate, do not launch.')
         : tPick(`ปี 2026 เป็นปีดาว 1 (一白水星 ธาตุน้ำ) — ดาวประจำตัวคุณคือดาว ${star} · ${data.dir}คือทิศนำโชคประจำดาวของคุณ`, `2026 is a Star 1 year (一白水星, Water). Your own star is ${star} — ${pDir(data.dir)} is that star's lucky direction.`);
     const NSK_BASE = { 1: 700, 2: 650, 3: 730, 4: 720, 5: 580, 6: 750, 7: 720, 8: 760, 9: 800 };
     const nskScore = Math.max(400, Math.min(960, (NSK_BASE[star] ?? 700) + (star === 1 ? 50 : 0)));
@@ -1673,7 +1888,8 @@ function calcNineStar(d) {
             keyValueEn: `Star ${star} ${data.name} · ${data.el} element · ${data.dir} direction`,
             keyValueMeaning: `ดาวหลักของคุณคือ <strong>ดาว ${star} - ${data.name}</strong> (${data.chinese}) ซึ่งเป็นธาตุ<strong>${data.el}</strong> ทิศนำโชคคือ<strong>${data.dir}</strong> และทิศที่ควรนอนคือ<strong>${data.sleepDir}</strong> ในระบบ Nine Star Ki ดาวของคุณย้ายตำแหน่งทุกปีตามวงจรเก้าปี ตำแหน่งของปีนั้นบอกว่าควรบุกหรือควรเก็บพลัง`,
             keyValueMeaningEn: `Your main star is <strong>Star ${star} — ${data.name}</strong> (${data.chinese}), an element of <strong>${tEl(data.el)}</strong>. Your lucky direction is <strong>${tDir(data.dir)}</strong> and your sleep direction is <strong>${tDir(data.sleepDir)}</strong>. In Nine Star Ki, your star sits in a different position each year — known as the "9-year cycle" — beginning from the centre (position 5) and rotating one square at a time. The position you currently occupy tells you whether this is a year to "step forward" or "pull back to gather strength".`,
-            uniqueTh: `ดาว ${star} วางอยู่ช่องไหนของตาราง Lo Shu เป็นตัวกำหนดทั้งทิศนอนและทิศทำงาน และช่องนั้น <strong>ย้ายทุกปี</strong> — ปี 2026 เป็นปีของดาว 1 ${isHonmei ? 'ซึ่งตรงกับดาวเกิดของคุณพอดี เรียก Honmei-sei Kaiki เกิดขึ้นครั้งเดียวในรอบ 9 ปี ปีแบบนี้ไม่เหมาะกับการทดลองของใหม่ แต่เหมาะกับการทุ่มให้สิ่งที่พิสูจน์แล้ว เพราะเสียงจะดังกว่าปกติทั้งด้านดีและด้านพลาด' : 'ซึ่งไม่ตรงกับดาว ' + star + ' ของคุณ ⇒ ปีนี้คุณไม่ได้อยู่กลางกระดาน เหมาะกับการวางหมากมากกว่าการเปิดตัว'}`,
+            uniqueTh: `ช่องที่ดาว ${star} ของคุณตกในตาราง Lo Shu เป็นตัวกำหนดทิศนอนและทิศทำงาน และช่องนั้น<strong>ย้ายทุกปี</strong><br>
+      ปี 2026 เป็นปีของดาว 1 ${isHonmei ? '— ตรงกับดาวเกิดของคุณพอดี เรียก Honmei-sei Kaiki มาครั้งเดียวในรอบ 9 ปี<br>ปีแบบนี้เสียงดังกว่าปกติทั้งด้านดีและด้านพลาด จึงเหมาะกับการทุ่มให้สิ่งที่พิสูจน์แล้ว มากกว่าลองของใหม่' : '— ไม่ตรงกับดาว ' + star + ' ของคุณ<br>ปีนี้คุณไม่ได้อยู่กลางกระดาน เหมาะกับการวางหมากมากกว่าการเปิดตัว'}`,
             uniqueEn: `Which cell star ${star} occupies in the Lo Shu square sets both your sleeping and your working direction — and that square <strong>rotates every year</strong>. 2026 is a star-1 year. ${isHonmei ? 'That is your own birth star returning — Honmei-sei Kaiki, once in nine years. Not a year for experiments: a year to pour into what has already proven itself, because everything you do lands louder, the mistakes included.' : 'It does not match your star ' + star + ', so you are not at the centre of the board this year. Better for positioning than for launching.'}`,
             strengthTh: `ดาว ${star} ${data.name} ให้พรพิเศษ — ${star === 1 ? 'ดาวน้ำขาว คุณเป็นนักคิดลึกและนักปรับตัว เหมือนน้ำที่ไหลผ่านอุปสรรคโดยไม่แตก คนดาว 1 มักประสบความสำเร็จในงานที่ต้องใช้สัญชาตญาณและความยืดหยุ่น' : star === 2 ? 'ดาวดินดำ คุณเป็นผู้บ่มเพาะและดูแล มีความอดทนที่คนอื่นอิจฉา เหมาะกับงานระยะยาวที่ไม่ต้องการการยอมรับเร็วๆ' : star === 3 ? 'ดาวไม้เขียวสด คุณเป็นนักริเริ่มและผู้เดินหน้า พลังงานเหมือนฟ้าผ่า ทะลวงได้ทุกอุปสรรค' : star === 4 ? 'ดาวไม้เขียวอ่อน คุณเป็นนักสื่อสารและผู้เชื่อมคน พลังยืดหยุ่นเหมือนลม ไปถึงทุกที่ที่ต้องการ' : star === 5 ? 'ดาวดินเหลือง — ดาวกลางของจัตุรัสเวท พลังงานสูงที่สุดในทุกดาว แต่ต้องจัดการให้สมดุล มิเช่นนั้นจะผันผวน' : star === 6 ? 'ดาวโลหะขาว คุณเป็นผู้นำโดยธรรมชาติ มีหลักการและศักดิ์ศรี เหมือนฟ้าหลวง เหมาะเป็นผู้บริหารหรือผู้มีอำนาจตามหลักการ' : star === 7 ? 'ดาวโลหะแดง คุณมีเสน่ห์และพูดเก่ง เหมือนทะเลสาบยามเย็น ดึงดูดคนเข้าหา เหมาะกับงานค้าขายและการสื่อสาร' : star === 8 ? 'ดาวดินขาว คุณมั่นคงและสะสมทรัพย์ได้ดี เหมือนภูเขา อดทนและสร้างสิ่งถาวร เหมาะกับการลงทุนและอสังหา' : 'ดาวไฟม่วง คุณฉลาดหลักแหลมและมองการณ์ไกล เหมือนไฟส่องทาง สัญชาตญาณเฉียบแหลม ชอบเป็นที่รู้จักและมีอิทธิพล'} สิ่งที่เสริมดวงของคุณคือสี<strong>${data.color}</strong> ทิศทำงาน<strong>${data.dir}</strong> และทิศนอน<strong>${data.sleepDir}</strong>`,
             strengthEn: `Star ${star} ${data.name} grants a distinctive gift — ${star === 1 ? 'White Water star: you are a deep thinker and a master adapter, like water flowing past obstacles without breaking. Star 1 people excel at work that demands intuition and flexibility' : star === 2 ? 'Black Earth star: you are a nurturer and caretaker, with a patience others envy. Suited to long-haul work that doesn\'t demand quick recognition' : star === 3 ? 'Bright Green Wood star: you are an initiator and pace-setter. Your energy is like lightning — piercing through any obstacle' : star === 4 ? 'Soft Green Wood star: you are a communicator and connector. Your energy is wind-like — flexible, reaching everywhere it needs to go' : star === 5 ? 'Yellow Earth star — the central square of the magic grid. The highest-energy star, but it requires deliberate balance or it becomes volatile' : star === 6 ? 'White Metal star: you are a natural leader with principle and dignity, like the celestial sovereign. Suited to executive roles and principled authority' : star === 7 ? 'Red Metal star: you have charm and verbal skill, like a lake at dusk that draws others in. Excellent for sales and communication' : star === 8 ? 'White Earth star: you are steady and accumulate wealth well — like a mountain. Patient, building things that last. Suited to investment and real estate' : 'Purple Fire star: you are sharp and far-sighted, like a fire lighting the way. Acute intuition. You enjoy recognition and influence'}. What amplifies your chart: the colour <strong>${tColor(data.color)}</strong>, work direction <strong>${tDir(data.dir)}</strong>, and sleep direction <strong>${tDir(data.sleepDir)}</strong>.`,
@@ -1909,7 +2125,7 @@ function _numerologyDeepSections(a) {
         [pick('เลขชีวิต (Life Path)', 'Life Path'), `${a.lp} · ${lpNm}`],
         [pick('เลขวันเกิด (Birthday)', 'Birthday'), `${bday}`],
         [pick('Pythagorean', 'Pythagorean'), `${a.pyt}`],
-        [pick('เลขพรหมลิขิต (Destiny)', 'Destiny'), `${a.destiny}`],
+        [pick('เลขวันเกิด (เดือน+วัน)', 'Birthday number (month+day)'), `${a.destiny}`],
         [pick('Personal Year 2026', 'Personal Year 2026'), `${a.py}`],
         [pick('เลข ๗ ตัว (ไทย)', 'Thai 7-Number'), a.thai7.join(' · ')],
     ].map(([l, v]) => `<tr><td style="padding:5px 10px;border-bottom:1px solid #2a2545;color:#9a8a72">${l}</td><td style="padding:5px 10px;border-bottom:1px solid #2a2545;color:#c8b080">${B(v)}</td></tr>`).join('');
@@ -1997,7 +2213,7 @@ function calcNumerology(d) {
             keyValueEn: `เลขเส้นทางนี้ · ${LP_NAMES[lp]} · Personal Year 2026: ${py}`,
             keyValueMeaning: `Life Path ของคุณคือ <strong>${lp} (${LP_NAMES[lp]})</strong> — นี่คือ "พันธกิจหลักของชีวิต" ในระบบ Pythagorean คำนวณจากวันเดือนปีเกิด ลดรูปเหลือเลขเดียว (ยกเว้น Master Numbers 11/22/33 ที่ไม่ลดรูป) Personal Year 2026 ของคุณคือ <strong>${py}</strong> ซึ่งเป็น "ธีมของปี" ที่ปรับทุก 12 เดือน ในระบบไทย เลข ๗ ตัว ๙ ฐานของคุณคือ ${thai7.join(' · ')} — 7 ตัวเลขนี้ร่วมกันอธิบายคุณใน 7 มิติ ตั้งแต่ตัวตน สุขภาพ ความรัก ไปถึงปลายทางชีวิต`,
             keyValueMeaningEn: `Your Life Path is <strong>${lp} (${LP_NAMES[lp]})</strong> — your "core life mission" in the Pythagorean system, calculated by reducing your birth date to a single digit (except Master Numbers 11/22/33, which are kept). Your Personal Year for 2026 is <strong>${py}</strong>, the 12-month theme. In the Thai system, your 7-Number sequence is ${thai7.join(' · ')} — these seven digits describe you across 7 dimensions: identity, health, love, all the way to your life's destination.`,
-            uniqueTh: `เลขศาสตร์อ่านเลขสองชั้นที่ศาสตร์อื่นไม่มี — <strong>เลขเส้นทางนี้</strong> มาจากวันเกิด บอกเส้นทาง ส่วน <strong>Destiny ${destiny}</strong> มาจากตัวสะกดชื่อ บอกสิ่งที่คุณต้องส่งมอบ${lp === destiny ? ' ของคุณตรงกัน ซึ่งพบไม่บ่อย — คนที่ทางกับงานเป็นเรื่องเดียวกันมักไปได้ไกลในสายเดียว แต่เปลี่ยนสายยากกว่าคนอื่น' : ' ของคุณเป็นคนละเลข (' + lp + ' กับ ' + destiny + ') แปลว่าเส้นทางกับหน้าที่ไม่ใช่อันเดียวกัน ความรู้สึกแบบทำได้ดีแต่ไม่ใช่สิ่งที่อยากทำ มักมาจากช่องว่างตรงนี้'} · ฝั่งไทย เลข ๗ ตัว ๙ ฐาน กาง 7 ฐานให้เห็น ${thai7.join('-')} — ฐานที่เลขซ้ำคือด้านที่ชีวิตคุณลงน้ำหนักมากที่สุด`,
+            uniqueTh: `เลขศาสตร์อ่านเลขสองชั้นที่ศาสตร์อื่นไม่มี — <strong>เลขเส้นทางนี้</strong> มาจากวันเกิด บอกเส้นทาง ส่วน <strong>เลขวันเกิด ${destiny}</strong> มาจากเดือนกับวันที่เกิด บอกสิ่งที่คุณต้องส่งมอบ${lp === destiny ? ' ของคุณตรงกัน ซึ่งพบไม่บ่อย — คนที่ทางกับงานเป็นเรื่องเดียวกันมักไปได้ไกลในสายเดียว แต่เปลี่ยนสายยากกว่าคนอื่น' : ' ของคุณเป็นคนละเลข (' + lp + ' กับ ' + destiny + ') แปลว่าเส้นทางกับหน้าที่ไม่ใช่อันเดียวกัน ความรู้สึกแบบทำได้ดีแต่ไม่ใช่สิ่งที่อยากทำ มักมาจากช่องว่างตรงนี้'} · ฝั่งไทย เลข ๗ ตัว ๙ ฐาน กาง 7 ฐานให้เห็น ${thai7.join('-')} — ฐานที่เลขซ้ำคือด้านที่ชีวิตคุณลงน้ำหนักมากที่สุด`,
             uniqueEn: `Numerology reads two numbers where other systems read one — <strong>เลขเส้นทางนี้</strong> comes from the date and describes the road; <strong>Destiny ${destiny}</strong> comes from the letters of your name and describes what you owe.${lp === destiny ? ' Yours match, which is uncommon: when the road and the work are one thing you travel further in a single lane, and change lanes harder than most.' : ' Yours differ (' + lp + ' and ' + destiny + '), so the road and the duty are not the same thing. That particular ache of being good at something that is not what you want usually lives in this gap.'} The Thai seven-base system lays out ${thai7.join('-')}; where a number repeats is where your life puts most of its weight.`,
             strengthTh: `เลขเส้นทางนี้ ${lp === 1 ? '(ผู้นำ) — คุณถูกออกแบบมาเพื่อริเริ่มและบุกเบิก ไม่ใช่ทำตามแผนที่คนอื่นวาง ชีวิตที่เติมใจคือตำแหน่งที่ตัดสินใจได้เอง' : lp === 2 ? '(ผู้ร่วมมือ) — คุณเกิดมาเพื่อเป็น "สะพานเชื่อม" ระหว่างคนหรือกลุ่มคน อาชีพที่เติมใจคือที่ปรึกษา นักประสานงาน นักเจรจา' : lp === 3 ? '(ผู้สร้างสรรค์) — คุณเกิดมาเพื่อแสดงออก สื่อสาร สร้างศิลปะ ชีวิตที่เติมใจคือการใช้เสียง ภาพ หรือคำพูดเปลี่ยนโลก' : lp === 4 ? '(ผู้สร้าง) — คุณเกิดมาเพื่อสร้างรากฐานที่ยั่งยืน วิศวกร สถาปนิก ผู้จัดการระบบ — งานที่ใช้วินัยและความแม่นยำ' : lp === 5 ? '(นักผจญภัย) — คุณเกิดมาเพื่อสำรวจ เปลี่ยนแปลง และนำเสรีภาพมาสู่โลก ชีวิตที่มั่นคงเกินไปจะทำให้คุณเหี่ยว' : lp === 6 ? '(ผู้ดูแล) — คุณเกิดมาเพื่อดูแล ครู ผู้รักษา โรงพยาบาล ครอบครัว — ทุกที่ที่มีคนต้องการการปกป้องคือที่ของคุณ' : lp === 7 ? '(นักปราชญ์) — คุณเกิดมาเพื่อค้นหาความจริงที่ลึกกว่าตาเห็น นักวิจัย นักวิทยาศาสตร์ นักปรัชญา นักจิตวิญญาณ' : lp === 8 ? '(นักบริหาร) — คุณเกิดมาเพื่อสร้างอำนาจและทรัพยากร CEO นักลงทุน ผู้มีอิทธิพล — แต่ต้องใช้อำนาจอย่างมีเมตตา' : lp === 9 ? '(นักมนุษยธรรม) — คุณเกิดมาเพื่อรับใช้ส่วนรวม ศิลปิน-นักกิจกรรม ผู้นำการเปลี่ยนแปลงทางสังคม' : lp === 11 ? '(แสงประภาคาร) — Master Number: คุณเกิดมาเพื่อส่องแสงนำทางในความมืด ผู้ให้แรงบันดาลใจในระดับกว้าง' : lp === 22 ? '(สถาปนิกหลัก) — Master Number: คุณเกิดมาเพื่อสร้างสิ่งยิ่งใหญ่ที่โลกยังไม่เคยมี' : '(Master 33 — ผู้รักษา) — Master Number สูงสุด: ครูแห่งครู ผู้รักษาระดับมวลมนุษย์'} ${py === 1 ? 'Personal Year 1 — ปีแห่งการเริ่มใหม่ ลงมือทำสิ่งที่ตั้งใจมานาน' : py === 9 ? 'Personal Year 9 — ปีแห่งการปิดวงจร ปล่อยวางสิ่งที่ไม่ work' : 'Personal Year ' + py + ' กำหนดธีมปีให้กับคุณ'}`,
             strengthEn: `เลขเส้นทางนี้ ${lp === 1 ? '(The Leader) — you are built to initiate and pioneer, not follow someone else\'s plan. Roles that fulfil you are ones where you decide' : lp === 2 ? '(The Cooperator) — you were born to be a "bridge" between people or groups. Fulfilling work: advisor, coordinator, negotiator' : lp === 3 ? '(The Creator) — you were born to express, communicate, make art. Life lights up when you use voice, image, or word to move the world' : lp === 4 ? '(The Builder) — you were born to lay durable foundations. Engineer, architect, systems manager — work that demands discipline and precision' : lp === 5 ? '(The Adventurer) — you were born to explore, change, and bring freedom into the world. A life too settled will wither you' : lp === 6 ? '(The Nurturer) — you were born to care. Teacher, healer, hospital, family — anywhere people need protection is your place' : lp === 7 ? '(The Sage) — you were born to seek truth deeper than the eye can see. Researcher, scientist, philosopher, mystic' : lp === 8 ? '(The Executive) — you were born to build power and resources. CEO, investor, influencer — but the power must be used with compassion' : lp === 9 ? '(The Humanitarian) — you were born to serve the whole. Artist-activist, leader of social change' : lp === 11 ? '(The Lighthouse) — Master Number: you were born to shine guidance in darkness, an inspirer at scale' : lp === 22 ? '(The Master Builder) — Master Number: you were born to create something monumental the world has never seen' : '(Master 33 — The Healer) — the highest Master Number: teacher of teachers, healer at the species level'}. ${py === 1 ? 'Personal Year 1 — a year for new beginnings, finally launching what you\'ve been planning' : py === 9 ? 'Personal Year 9 — a year of closing cycles, releasing what no longer works' : 'Personal Year ' + py + ' sets the year\'s theme for you'}.`,
@@ -2240,7 +2456,7 @@ function calcVedic(d, w) {
             keyValueEn: `Lagna ${lagnaSign.en} · Nakshatra ${nakshatra} pada ${pada} · Mahadasha ${currentDasha}`,
             keyValueMeaning: `ลัคนา (Ascendant) ของคุณในระบบ Sidereal คือ <strong>${lagnaSign.th}</strong> — ต่างจาก ASC ตะวันตกเพราะ Jyotish คำนวณตามตำแหน่งดาวจริง นักษัตร (Nakshatra) ของดวงจันทร์คุณคือ <strong>${nakshatra}</strong> บาทที่ ${pada} ซึ่งปกครองโดย<strong>${lord}</strong> Jyotish ถือว่า Nakshatra สำคัญกว่าราศีเพราะมันละเอียดกว่า 27 เท่า (27 Nakshatra เทียบกับ 12 ราศี) Mahadasha ปัจจุบันของคุณคือ <strong>${currentDasha}</strong> จนถึงปี ${dashEnd} — ซึ่งเป็น "ยุค" ที่ดาวนั้นปกครองทุกด้านของชีวิต`,
             keyValueMeaningEn: `Your Lagna (Ascendant) in the sidereal system is <strong>${lagnaSign.en}</strong> — different from a Western ASC because Jyotish uses real star positions. Your Moon\'s Nakshatra is <strong>${nakshatra}</strong> at pada ${pada}, ruled by <strong>${tPlanet(lord)}</strong>. Jyotish considers the Nakshatra more important than the sign because it\'s 27× more granular (27 Nakshatras vs. 12 signs). Your current Mahadasha is <strong>${currentDasha}</strong> until ${dashEnd} — the "era" in which that planet governs every dimension of your life.`,
-            uniqueTh: `ระบบเวทเห็นสองอย่างที่ไม่มีที่อื่นในเล่มนี้ — <strong>นักษัตร ${nakshatra} บาท ${pada}</strong> (ดวงจันทร์เดินผ่านไปแล้ว ${(nakshatraProgress * 100).toFixed(0)}% ของนักษัตรนี้ ปกครองโดย${lord}) และ <strong>โยคะ</strong> คือรูปแบบที่เกิดต่อเมื่อดาวหลายดวงเข้าตำแหน่งสัมพันธ์กันพอดีเท่านั้น ของคุณ: ${yogas.length ? yogas.join(' · ') : 'ไม่เข้าโยคะใดในชุดที่เราตรวจ ซึ่งเป็นเรื่องปกติ — โยคะเป็นของหายากโดยนิยาม ไม่ใช่ของที่ทุกคนต้องมี'} · เวลาแบบเวทไม่นับเป็นปีปฏิทิน แต่นับเป็นช่วงที่ดาวดวงหนึ่งครอง ตอนนี้คุณอยู่ช่วง${lord} เหลืออีกราว ${remainingYears.toFixed(1)} ปี ถึงปี ${dashEndYear}`,
+            uniqueTh: `ระบบเวทเห็นสองอย่างที่ไม่มีที่อื่นในเล่มนี้ — <strong>นักษัตร ${nakshatra} บาท ${pada}</strong> (ดวงจันทร์เดินผ่านไปแล้ว ${(nakshatraProgress * 100).toFixed(0)}% ของนักษัตรนี้ ปกครองโดย${lord}) และ <strong>โยคะ</strong> คือรูปแบบที่เกิดต่อเมื่อดาวหลายดวงเข้าตำแหน่งสัมพันธ์กันพอดีเท่านั้น ของคุณ: ${yogas.length ? yogas.join(' · ') : 'ไม่เข้าโยคะใดในชุดที่เราตรวจ ซึ่งเป็นเรื่องปกติ — โยคะเป็นของหายากโดยนิยาม ไม่ใช่ของที่ทุกคนต้องมี'} · เวลาแบบเวทไม่นับเป็นปีปฏิทิน แต่นับเป็นช่วงที่ดาวดวงหนึ่งครอง · ตอนเกิด คุณรับช่วง ${lord} ที่ค้างมาอีก ${remainingYears.toFixed(1)} ปี (จบปี ${dashEndYear}) แล้วจึงเดินตามลำดับต่อไป — ช่วงที่คุณอยู่ตอนนี้ดูที่หน้าไทม์ไลน์`,
             uniqueEn: `Two things here exist nowhere else in this report — <strong>nakshatra ${nakshatra}, pada ${pada}</strong> (the Moon is ${(nakshatraProgress * 100).toFixed(0)}% through it, under ${lord}), and <strong>yogas</strong>, the named patterns that form only when several planets fall into an exact relationship. Yours: ${yogas.length ? yogas.join(' · ') : 'none in the set we test, which is ordinary — yogas are rare by definition, not something everyone carries'}. Vedic time is not counted in calendar years but in planetary periods: you are in ${lord}, roughly ${remainingYears.toFixed(1)} years remaining, to ${dashEndYear}.`,
             strengthTh: `ลัคนา ${lagnaSign.th} ให้คุณคุณสมบัติ${lagnaSign.th === 'เมถุน' ? 'ความคิดเร็ว การสื่อสาร ความสามารถเรียนรู้หลายสาขา คนลัคนาเมถุนมักเป็นนักเขียน ครู ล่าม หรือผู้ทำงานกับข้อมูล' : lagnaSign.th === 'กรกฎ' ? 'สัญชาตญาณ ความเห็นอกเห็นใจ ความรักครอบครัว เหมาะงานที่ดูแลผู้อื่น' : lagnaSign.th === 'สิงห์' ? 'ความเป็นผู้นำ เสน่ห์ ความภูมิใจในตัวเอง เหมาะตำแหน่งสาธารณะ' : lagnaSign.th === 'พฤษภ' ? 'ความมั่นคง ความรักในความงาม ความอดทน เหมาะงานสะสมทรัพย์ระยะยาว' : lagnaSign.th === 'เมษ' ? 'ความริเริ่ม ความกล้า และแรงผลักให้ลงมือก่อนใคร ลัคนาเมษปกครองโดยดาวอังคาร เหมาะงานที่ต้องตัดสินใจเร็วและนำหน้าคนอื่น' : lagnaSign.th === 'กันย์' ? 'ความละเอียด การวิเคราะห์ และใจรักการรับใช้ ลัคนากันย์ปกครองโดยดาวพุธ เหมาะงานที่ต้องความแม่นยำ — การแพทย์ บัญชี ตรวจสอบ' : lagnaSign.th === 'ตุลย์' ? 'ความสมดุล การเจรจา และสายตาด้านความงาม ลัคนาตุลย์ปกครองโดยดาวศุกร์ เหมาะงานที่ต้องประสานคนและสร้างข้อตกลง' : lagnaSign.th === 'พิจิก' ? 'ความลึก พลังฟื้นคืน และความสามารถขุดถึงต้นตอ ลัคนาพิจิกปกครองโดยดาวอังคาร เหมาะงานวิจัย สืบสวน หรือสิ่งที่ต้องเปลี่ยนแปลงจากราก' : lagnaSign.th === 'ธนู' ? 'วิสัยทัศน์กว้าง ความตรงไปตรงมา และใจรักการเรียนรู้ ลัคนาธนูปกครองโดยดาวพฤหัส เหมาะงานสอน กฎหมาย หรือการเดินทางข้ามวัฒนธรรม' : lagnaSign.th === 'มกร' ? 'วินัย ความอดทน และความสามารถสร้างสิ่งที่อยู่ยาว ลัคนามกรปกครองโดยดาวเสาร์ ผลมาช้าแต่มั่นคง เหมาะงานบริหารและงานโครงสร้าง' : lagnaSign.th === 'กุมภ์' ? 'ความคิดนอกกรอบ ใจกว้างต่อส่วนรวม และเครือข่ายที่หลากหลาย ลัคนากุมภ์ปกครองโดยดาวเสาร์ เหมาะงานเทคโนโลยีหรือการเปลี่ยนแปลงสังคม' : lagnaSign.th === 'มีน' ? 'ความเห็นอกเห็นใจ สัญชาตญาณ และจินตนาการ ลัคนามีนปกครองโดยดาวพฤหัส เหมาะงานเยียวยา ศิลปะ หรือเส้นทางทางจิตวิญญาณ' : 'เฉพาะของราศี ' + lagnaSign.th + 'ที่นำไปข้างหน้า'} Nakshatra ${nakshatra} ให้พรเฉพาะ — ${nakshatra === 'Uttara Phalguni' ? 'ความมั่นคง ความช่วยเหลือผู้อื่น ความยุติธรรม นักษัตรนี้ปกครองโดยพระอาทิตย์และเกี่ยวข้องกับการแต่งงานที่มั่นคง' : nakshatra === 'Rohini' ? 'เสน่ห์และความงดงาม รักศิลปะ ปกครองโดยจันทร์' : nakshatra === 'Bharani' ? 'ความรับผิดชอบและพลังเปลี่ยนแปลง' : 'พลังของ ' + nakshatra} คุณอยู่ในช่วง Mahadasha ${currentDasha} ซึ่ง${currentDasha === 'ราหู' ? 'เป็นยุคแห่งโอกาสใหม่ การเดินทางข้ามวัฒนธรรม แต่ก็มีกับดัก — ต้องระวังคนที่ไม่จริงใจเรื่องเงิน' : currentDasha === 'พฤหัส' || currentDasha === 'Jupiter' ? 'เป็นยุคทองของการขยาย การเรียนรู้ และการได้รับการยอมรับ' : currentDasha === 'เสาร์' || currentDasha === 'Saturn' ? 'เป็นยุคของวินัยและการสร้างรากฐาน — ผลลัพธ์มาช้าแต่ยั่งยืน' : 'เป็นยุคของ ' + currentDasha + ' ซึ่งส่งอิทธิพลเฉพาะ'}`,
             strengthEn: `Lagna ${lagnaSign.en} grants ${lagnaSign.en === 'Gemini' ? 'fast thinking, communication, and the ability to master many fields. Gemini ascendants often become writers, teachers, interpreters, or knowledge workers' : lagnaSign.en === 'Cancer' ? 'instinct, empathy, and devotion to family. Suited to caring professions' : lagnaSign.en === 'Leo' ? 'leadership, magnetism, healthy pride. Suited to public-facing roles' : lagnaSign.en === 'Taurus' ? 'stability, love of beauty, patience. Suited to long-haul wealth-building' : lagnaSign.en === 'Aries' ? 'initiative, courage, and the drive to move first. An Aries lagna is ruled by Mars and suits work demanding fast decisions and front-line leadership' : lagnaSign.en === 'Virgo' ? 'precision, analysis, and a genuine instinct to be useful. A Virgo lagna is ruled by Mercury and suits exacting work — medicine, accounting, auditing' : lagnaSign.en === 'Libra' ? 'balance, negotiation, and an eye for beauty. A Libra lagna is ruled by Venus and suits work that brings people together and builds agreement' : lagnaSign.en === 'Scorpio' ? 'depth, resilience, and the ability to dig to the root of things. A Scorpio lagna is ruled by Mars and suits research, investigation, and work that transforms from the ground up' : lagnaSign.en === 'Sagittarius' ? 'wide vision, frankness, and a love of learning. A Sagittarius lagna is ruled by Jupiter and suits teaching, law, and cross-cultural travel' : lagnaSign.en === 'Capricorn' ? 'discipline, endurance, and the patience to build things that last. A Capricorn lagna is ruled by Saturn — results come slowly but hold — and suits administration and structural work' : lagnaSign.en === 'Aquarius' ? 'unconventional thinking, concern for the collective, and a wide network. An Aquarius lagna is ruled by Saturn and suits technology and social reform' : lagnaSign.en === 'Pisces' ? 'compassion, intuition, and imagination. A Pisces lagna is ruled by Jupiter and suits healing, the arts, and contemplative paths' : 'a unique quality of ' + lagnaSign.en + ' that propels you forward'}. Nakshatra ${nakshatra} grants its own gift — ${nakshatra === 'Uttara Phalguni' ? 'stability, helpfulness, justice. Ruled by the Sun and tied to enduring marriage' : nakshatra === 'Rohini' ? 'charm and beauty, love of art. Ruled by the Moon' : nakshatra === 'Bharani' ? 'responsibility and transformative power' : 'the power of ' + nakshatra}. You\'re in Mahadasha ${currentDasha} which is ${currentDasha === 'ราหู' ? 'an era of new opportunity and cross-cultural travel — but a trap-laden one. Watch for insincere people around money' : currentDasha === 'พฤหัส' || currentDasha === 'Jupiter' ? 'a golden era of expansion, learning, and recognition' : currentDasha === 'เสาร์' || currentDasha === 'Saturn' ? 'an era of discipline and foundation-laying — slow results, but durable' : 'an era of ' + currentDasha + ' carrying its own distinctive influence'}.`,
@@ -3034,7 +3250,7 @@ function calcCeltic(d) {
             shadowEn: `The shadow of ${found.name} is ${found.name === 'Rowan' ? 'carrying others\' emotions too heavily — Rowan is the "spirit shield" and tends to absorb negativity for others. Train yourself to set boundaries' : found.name === 'Birch' ? 'starting over too often, finishing nothing — Birch must train patience' : found.name === 'Oak' ? 'shouldering everyone\'s burdens until you forget yourself' : found.name === 'Ash' ? 'bridging too many worlds and losing track of which one is yours' : 'using ' + found.name + '\'s power off-direction'}. Druids prescribe a weekly "Grounding" ritual for ${found.name} people — walk barefoot on earth, or sit against a great tree, for 15 minutes.`,
             practiceTh: `การเชื่อมกับต้นไม้ประจำตัวรายวัน: (1) ถ้าเป็นไปได้ เก็บใบ กิ่ง หรือเปลือกของต้นนี้ไว้ในบ้าน (ถ้าไม่มีในประเทศไทย ใช้รูปภาพ) (2) พก ${found.gem} เป็นเครื่องราง (3) ในวันสำคัญ จุดเทียนสีเขียวและอธิษฐานต่อ Dryad ประจำต้น (4) ทำสมาธิใต้ต้นไม้ใหญ่อย่างน้อยสัปดาห์ละครั้ง (5) เรียนรู้เรื่องต้นไม้ของคุณอย่างลึก — ชีววิทยา นิเวศ ประวัติศาสตร์ — ความรู้เกี่ยวกับต้นไม้ประจำคือความรู้เกี่ยวกับตัวคุณ`,
             practiceEn: `Daily ${found.name} practice: (1) If possible, keep leaves, twigs, or bark of ${found.name} in your home (use a photo if you can\'t source the real tree where you live). (2) Carry ${found.gem} as a charm. (3) On significant days, light a green candle and address the ${found.name} Dryad. (4) Meditate under a large tree at least once a week. (5) Study ${found.name} deeply — its biology, ecology, history — knowing your tree is knowing yourself.`,
-            currentYearTh: `ปี 2026 ในวงจรปฏิทินเซลติกคือ "The Year of the Oak" — ปีที่เหมาะกับการลงรากมากกว่าการแตกกิ่ง'Oak'?'ปีของคุณโดยตรง':'ซึ่ง Oak จะหนุนพลังของต้นคุณในทางที่ทำให้คุณมั่นคงขึ้น'} Sabbats สำคัญที่คุณควรเฉลิมฉลอง: Samhain (31 ต.ค.) เป็นจุดปิดรอบ · Imbolc (1 ก.พ.) เป็นจุดเริ่มใหม่ · Beltane (1 พ.ค.) เป็นจุดของความรักและการเจริญงอกงาม`,
+            currentYearTh: `ปี 2026 ในวงจรปฏิทินเซลติกคือ "The Year of the Oak" — ปีที่เหมาะกับการลงรากมากกว่าการแตกกิ่ง — ${found.name === 'Oak' ? 'ปีของคุณโดยตรง' : `ซึ่ง Oak จะหนุนพลัง${found.th} (${found.name}) ของคุณในทางที่ทำให้คุณมั่นคงขึ้น`} Sabbats สำคัญที่คุณควรเฉลิมฉลอง: Samhain (31 ต.ค.) เป็นจุดปิดรอบ · Imbolc (1 ก.พ.) เป็นจุดเริ่มใหม่ · Beltane (1 พ.ค.) เป็นจุดของความรักและการเจริญงอกงาม`,
             currentYearEn: `2026 in the Celtic calendar is "The Year of the Oak" — favourable for laying foundations and building strength. ${found.name === 'Oak' ? 'Your year, directly' : `Oak supports ${found.name}'s power in a way that makes you steadier`}. Important Sabbats to observe: Samhain (Oct 31) — closing the cycle · Imbolc (Feb 1) — fresh start · Beltane (May 1) — love and flowering.`,
             closingTh: 'Druid กล่าวว่า "The tree you\'re born under is the teacher that will walk with you forever" — ต้นไม้คือครูที่เดินไปกับคุณทั้งชีวิต รู้จักมันให้ดี',
             closingEn: 'The Druids said: "The tree you\'re born under is the teacher that will walk with you forever." Know it well.',
@@ -3112,9 +3328,50 @@ function _thaiDeepSections(a) {
     sec.sort((p, q) => _rk(p) - _rk(q));
     return sec.join('');
 }
-function calcThai(d) {
+// Sunrise, local clock time, for a birth place and date (NOAA's low-precision
+// algorithm; ±1 minute is far tighter than this needs to be). Returns null above
+// the polar circles on the days the sun does not clear the horizon.
+function _sunriseLocalHours(y, m, day, lat, lon, tz) {
+    const rad = Math.PI / 180;
+    const jdate = toJD(y, m, day, 12); // local noon, as a JD
+    const n = Math.round(jdate - 2451545.0 + 0.0008);
+    const Jstar = n - lon / 360; // lon east-positive
+    const M = (357.5291 + 0.98560028 * Jstar) % 360;
+    const C = 1.9148 * Math.sin(M * rad) + 0.02 * Math.sin(2 * M * rad) + 0.0003 * Math.sin(3 * M * rad);
+    const lam = (M + C + 180 + 102.9372) % 360;
+    const Jtransit = 2451545.0 + Jstar + 0.0053 * Math.sin(M * rad) - 0.0069 * Math.sin(2 * lam * rad);
+    const sinDec = Math.sin(lam * rad) * Math.sin(23.44 * rad);
+    const cosDec = Math.cos(Math.asin(sinDec));
+    const cosW = (Math.sin(-0.833 * rad) - Math.sin(lat * rad) * sinDec) / (Math.cos(lat * rad) * cosDec);
+    if (!(cosW >= -1 && cosW <= 1))
+        return null; // midnight sun / polar night
+    const w = Math.acos(cosW) / rad;
+    const Jrise = Jtransit - w / 360;
+    const hoursUtc = ((Jrise + 0.5) % 1) * 24; // JD .0 is noon UTC
+    return ((hoursUtc + tz) % 24 + 24) % 24;
+}
+// The Thai weekday, by the rule Thai tradition actually uses: the day turns at
+// SUNRISE, not at midnight.
+//
+// Every Thai reading in this report — the day deity, the auspicious colour, the
+// whole ทักษา wheel — hangs off this one number, and it was read off the civil
+// calendar. The report even printed the rule to the reader and then said the
+// system does not follow it. Someone born at 05:06 in Bangkok was handed Sunday's
+// deity and colour when the tradition it claims to be reading says Saturday.
+//
+// Above the polar circles, or when the sun never rises that day, there is no
+// sunrise to move the boundary to, so the civil day stands.
+function _thaiWeekday(d) {
     const jd = toJD(d.year, d.month, d.day, 12);
-    const dow = ((Math.floor(jd + 1.5) % 7) + 7) % 7; // 0=Sunday
+    const civil = ((Math.floor(jd + 1.5) % 7) + 7) % 7; // 0=Sunday
+    const rise = _sunriseLocalHours(d.year, d.month, d.day, d.lat, d.lon, d.timezone);
+    if (rise == null)
+        return civil;
+    const born = d.hour + (d.minute || 0) / 60;
+    return born < rise ? (civil + 6) % 7 : civil;
+}
+function calcThai(d) {
+    const dow = _thaiWeekday(d);
     const day = THAI_DAYS[dow];
     const DAY_SCORES = { 'จันทร์': 750, 'อังคาร': 720, 'พุธ': 760, 'พฤหัสบดี': 800, 'ศุกร์': 780, 'เสาร์': 710, 'อาทิตย์': 790 };
     const thaiDayScore = Math.max(400, Math.min(960, (DAY_SCORES[day?.name ?? ''] ?? 700)));
@@ -3139,8 +3396,8 @@ function calcThai(d) {
             keyValueEn: `Born ${day.nameEn} · ruled by ${day.god} · lucky colour ${day.colorEn}`,
             keyValueMeaning: `คุณเกิด<strong>${day.name}</strong> ซึ่งในระบบไทยพราหมณ์ ปกครองโดย<strong>${day.godTh}</strong> (${day.god}) นักษัตรประจำวันคือ${day.nakshatra} และสีมงคลของคุณคือ<strong>${day.color}</strong> ไทยพราหมณ์เชื่อว่าในขณะเกิด วิญญาณของคุณได้รับ "พรแรก" จากเทพประจำวัน — พรนี้ติดตัวไปตลอดและใช้งานได้ผ่านการบูชาและการใช้สีที่ตรงกับเทพ โชคชะตาของคุณคือ<strong>${day.fortune}</strong> ซึ่งคือ "ทิศทางพลังงาน" ที่จักรวาลเปิดให้คุณโดยธรรมชาติ`,
             keyValueMeaningEn: `You were born on <strong>${day.nameEn}</strong>, ruled in the Thai-Brahmin system by <strong>${day.god}</strong>. The day\'s nakshatra is ${day.nakshatra}; your lucky colour is <strong>${day.colorEn}</strong>. Thai-Brahmin teaches that at the moment of birth, your soul receives a "first blessing" from the day-deity — a blessing that travels with you for life and is activated through devotion and the right colour. Your fortune is <strong>${day.fortuneEn}</strong> — the "energy direction" the cosmos naturally opens for you.`,
-            uniqueTh: `โหราศาสตร์ไทยไม่ได้อ่านจากราศี แต่อ่านจาก <strong>วันในสัปดาห์</strong> ซึ่งเป็นหน่วยที่แทบไม่มีศาสตร์อื่นในเล่มนี้ใช้เลย — คุณเกิด${day.name} เทพประจำวันคือ${day.god} สีคือ${day.color} · ข้อควรรู้: ตำราไทยดั้งเดิมนับวันใหม่ตอน <strong>พระอาทิตย์ขึ้น</strong> ไม่ใช่เที่ยงคืน ระบบนี้ใช้วันตามปฏิทินสากล ⇒ ถ้าคุณเกิดก่อนรุ่งสาง ตำราเก่าจะนับให้เป็นวันก่อนหน้า และเทพกับสีจะเปลี่ยนตามไปด้วย`,
-            uniqueEn: `Thai astrology does not read signs; it reads the <strong>weekday</strong>, a unit almost nothing else in this report uses. You were born on ${day.nameEn}, under ${day.god}, colour ${day.colorEn}. Worth knowing: traditional Thai practice turns the day at <strong>sunrise</strong>, not midnight, while this system uses the calendar date. A birth before dawn would be counted on the previous weekday in the older reckoning — and the deity and colour move with it.`,
+            uniqueTh: `โหราศาสตร์ไทยไม่ได้อ่านจากราศี แต่อ่านจาก <strong>วันในสัปดาห์</strong> ซึ่งเป็นหน่วยที่แทบไม่มีศาสตร์อื่นในเล่มนี้ใช้เลย — คุณเกิด${day.name} เทพประจำวันคือ ${day.god} สีคือ${day.color} · ตำราไทยเปลี่ยนวันตอน<strong>พระอาทิตย์ขึ้น</strong> และเล่มนี้นับตามตำรา ⇒ เกิดก่อนรุ่งสางที่พิกัดของคุณ = ใช้วันก่อนหน้า ทั้งเทพ สี และผังทักษา`,
+            uniqueEn: `Thai astrology does not read signs; it reads the <strong>weekday</strong>, a unit almost nothing else in this report uses. You were born on ${day.nameEn}, under ${day.god}, colour ${day.colorEn}. Thai practice turns the day at <strong>sunrise</strong>, not midnight, and <strong>this report follows the tradition</strong>: a birth before dawn at your own coordinates is read on the previous weekday, with the deity, the colour and the whole Taksa wheel moving with it — not on the calendar date.`,
             strengthTh: `ผู้เกิด${day.name} ได้รับพรของ${day.godTh} — ${day.name === 'วันอาทิตย์' ? 'พระอาทิตย์ประทานพลังผู้นำและเสน่ห์โดยธรรมชาติ คนเกิดวันอาทิตย์มักเป็นผู้นำในกลุ่มโดยไม่ต้องพยายาม มีความกล้าตัดสินใจและแสงออร่าที่ดึงดูดคน' : day.name === 'วันจันทร์' ? 'พระจันทร์ประทานสัญชาตญาณและความอ่อนโยน คนเกิดวันจันทร์มักเป็นคนที่มี "ใจ" เข้าถึงความรู้สึกผู้อื่นได้ลึก เหมาะงานดูแล ศิลปะ และการให้คำปรึกษา' : day.name === 'วันอังคาร' ? 'พระอังคารประทานพลังกล้าหาญและความคล่องตัว คนเกิดวันอังคารลงมือได้เร็ว ไม่กลัวความเสี่ยง และมีแรงขับดันสูง เหมาะงานบุกเบิก' : day.name === 'วันพุธ' ? 'พระพุธประทานปัญญาและการสื่อสาร คนเกิดวันพุธเก่งเรียน เก่งพูด เก่งคิด เหมาะงานการศึกษา การขาย การเจรจา' : day.name === 'วันพฤหัสบดี' ? 'พระพฤหัสประทานปัญญาและศีลธรรม คนเกิดวันพฤหัสเป็นที่ปรึกษาโดยธรรมชาติ มีความรู้ลึกและใจดี เหมาะอาชีพครู ที่ปรึกษา และงานบุญ' : day.name === 'วันศุกร์' ? 'พระศุกร์ประทานเสน่ห์และความรัก คนเกิดวันศุกร์มีเสน่ห์ผิดธรรมดา รักความงาม ดึงดูดความรักและความมั่งคั่งได้ง่าย' : 'พระเสาร์ประทานความอดทนและความลึกซึ้ง คนเกิดวันเสาร์อาจประสบความยากลำบากในวัยเยาว์ แต่บ้านปลายชีวิตมักมั่นคงที่สุดในบรรดา 7 วัน เหมาะงานที่ต้องใช้ความอดทนระยะยาว'} นักษัตร${day.nakshatra} ให้คุณคุณสมบัติเฉพาะของนักษัตรประจำวัน`,
             strengthEn: `Those born on ${day.nameEn} carry the blessing of ${day.god} — ${day.god === 'Surya' ? 'Surya grants natural leadership and charisma. Sunday-born often lead a group effortlessly, decide bravely, and carry an aura that draws people in' : day.god === 'Chandra' ? 'Chandra grants intuition and gentleness. Monday-born have "heart" — they read others\' feelings deeply. Suited to caregiving, art, and counselling' : day.god === 'Mangala' ? 'Mangala grants courage and agility. Tuesday-born act fast, fear no risk, carry high drive. Suited to pioneering work' : day.god === 'Budha' ? 'Budha grants intellect and communication. Wednesday-born excel at learning, speaking, thinking. Suited to education, sales, negotiation' : day.god === 'Brihaspati' ? 'Brihaspati grants wisdom and morality. Thursday-born are natural counsellors with deep knowledge and kindness. Suited to teaching, advising, charitable work' : day.god === 'Shukra' ? 'Shukra grants charm and love. Friday-born are unusually charming, drawn to beauty, and easily attract love and abundance' : 'Shani grants endurance and depth. Saturday-born may face hardship early in life, but late-life is often the most stable of the seven. Suited to work demanding long-term endurance'}. Nakshatra ${day.nakshatra} adds the day-nakshatra\'s specific qualities.`,
             shadowTh: `เงาของผู้เกิด${day.name} คือ ${day.name === 'วันอาทิตย์' ? 'ความหยิ่งและไม่ฟังใคร — แสงที่แรงเกินไปก็เผาได้' : day.name === 'วันจันทร์' ? 'ความอ่อนไหวเกินไปและเก็บอารมณ์ไว้นาน — จันทร์เต็มกับข้างแรมสลับกันในใจคุณ' : day.name === 'วันอังคาร' ? 'ความใจร้อนและโกรธง่าย — อังคารพลังมากต้องควบคุม' : day.name === 'วันพุธ' ? 'การพูดเยอะจนเสียน้ำหนัก — พุธเก่งคำ แต่ต้องเลือกใช้' : day.name === 'วันพฤหัสบดี' ? 'การเป็น "ครู" ที่สอนคนอื่นแต่ไม่ฟังตัวเอง' : day.name === 'วันศุกร์' ? 'การหลงในความสวยงามและความสบาย' : 'ความเศร้าและการแบกอารมณ์หนัก — เสาร์เป็นครูของชีวิตที่สอนผ่านความลำบาก'} ไทยพราหมณ์แนะนำว่าในวันที่รู้สึกเงาของคุณครอบงำ ให้บูชา${day.godTh}ด้วยดอกไม้สี${day.color}และอธิษฐานขอพรใหม่`,
@@ -3169,16 +3426,19 @@ function calcThai(d) {
 //   บริวาร (Borivar / Retainers) → อายุ (Ayu / Life) → เดช (Det / Power) →
 //   ศรี (Sri / Dignity) → มูละ (Mula / Wealth) → อุตสาหะ (Utsaha / Effort) →
 //   มนตรี (Montri / Advisors) → กาลกิณี (Kalakini / Misfortune)
-// 8 planet-deities rotate in the same order:
-//   อาทิตย์ Sun → จันทร์ Moon → อังคาร Mars → พุธ Mercury → พฤหัสบดี Jupiter →
-//   ศุกร์ Venus → เสาร์ Saturn → ราหู Rahu
+// 8 planet-deities rotate in the TAKSA sequence ๑๒๓๔๗๕๘๖ — not the order of
+// the days of the week:
+//   อาทิตย์ Sun → จันทร์ Moon → อังคาร Mars → พุธ Mercury → เสาร์ Saturn →
+//   พฤหัสบดี Jupiter → ราหู Rahu → ศุกร์ Venus
 // For weekday X (0=Sunday), the day-lord planet[X] sits in house 0 (บริวาร),
 // and the remaining planets rotate around so each house has a different
 // planet-tenant per weekday — that's what makes the wheel personalised.
 const TAKSA_HOUSE_NAMES_TH = ['บริวาร', 'อายุ', 'เดช', 'ศรี', 'มูละ', 'อุตสาหะ', 'มนตรี', 'กาลกิณี'];
 const TAKSA_HOUSE_NAMES_EN = ['Retainers', 'Life', 'Power', 'Dignity', 'Wealth', 'Effort', 'Advisors', 'Misfortune'];
-const TAKSA_PLANET_NAMES_TH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์', 'ราหู'];
-const TAKSA_PLANET_NAMES_EN = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu'];
+const TAKSA_PLANET_NAMES_TH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'เสาร์', 'พฤหัสบดี', 'ราหู', 'ศุกร์'];
+const TAKSA_PLANET_NAMES_EN = ['Sun', 'Moon', 'Mars', 'Mercury', 'Saturn', 'Jupiter', 'Rahu', 'Venus'];
+// Where each weekday's lord sits in the taksa sequence above (0=Sunday).
+const TAKSA_DOW_TO_SEQ = [0, 1, 2, 3, 5, 7, 4];
 // Planet "strength" buckets used to score the wealth (มูละ) and misfortune
 // (กาลกิณี) house placements. Classical Thai-Brahmin labels:
 //   strong benefic: Jupiter, Sun, Venus, Mercury (warm)
@@ -3244,12 +3504,13 @@ function _taksaDeepSections(a) {
     return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
 }
 function calcTaksa(d) {
-    const jd = toJD(d.year, d.month, d.day, 12);
-    const dow = ((Math.floor(jd + 1.5) % 7) + 7) % 7; // 0=Sunday
+    // Same sunrise rule as calcThai — the ทักษา wheel is built from the weekday, so
+    // the two must never disagree about which day someone was born on.
+    const dow = _thaiWeekday(d);
     // Build the 8-house wheel for this weekday.
     const wheel = [];
     for (let h = 0; h < 8; h++) {
-        const planetIdx = (dow + h) % 8;
+        const planetIdx = (TAKSA_DOW_TO_SEQ[dow] + h) % 8;
         wheel.push({
             house: h,
             houseNameTh: TAKSA_HOUSE_NAMES_TH[h],
@@ -3567,7 +3828,7 @@ function calcScore(d, data) {
             weight: isDailyOnly ? 0 : Math.round(w.weight * 1000) / 10,
             score,
             finding: findings[i] ?? '',
-            color: SCORE_COLORS[i] ?? '#5a5a5a',
+            color: '#8a7440', // one theme colour — see 2026-08-31 rule above
             scoring: !isDailyOnly,
             display: !isHiddenFromDisplay,
         };
@@ -3825,8 +4086,11 @@ function calcPathResonance(d, dmElement) {
     // same domain and the same industry must score the same. They differed by up
     // to forty points on their birthdays, which is not a property of the career.
     const score = Math.min(950, Math.max(400, domainScore + industryAlign));
-    const relation = SHENG[dmElEn] === domainEl ? 'DM_CREATES (เหมาะสูงสุด)' :
-        domainEl === dmElEn ? 'SAME (เข้ากัน)' : SHENG[domainEl] === dmElEn ? 'DM_SUPPORTED (ถูกหนุน)' : 'ต่างธาตุ';
+    // These were the raw enum names (DM_CREATES / SAME / DM_SUPPORTED), rendered
+    // straight into the finance page — a variable name handed over as investment
+    // guidance.
+    const relation = SHENG[dmElEn] === domainEl ? 'ธาตุคุณหล่อเลี้ยงสายงานนี้ (เหมาะสูงสุด)' :
+        domainEl === dmElEn ? 'ธาตุเดียวกับคุณ (เข้ากัน)' : SHENG[domainEl] === dmElEn ? 'สายงานนี้หล่อเลี้ยงธาตุคุณ (ถูกหนุน)' : 'ต่างธาตุ';
     const detail = `Domain: ${domain} (${domainEl}) | Industry: ${industry} (${industryEl}) | Relation: ${relation}`;
     return { score, detail };
 }
@@ -4551,6 +4815,9 @@ function calcAddons(dmEl, tier, dasha) {
     };
 }
 function calculate(d) {
+    // Every tradition re-registers its reading parts below; drop the previous
+    // chart's so a second call can never serve the first one's evidence.
+    _clearReadingParts();
     // Reject impossible Gregorian dates BEFORE any system computes pillars.
     // JavaScript's Date constructor silently rolls invalid dates over to the
     // next valid date (Feb 29 / 2023 → Mar 1; Apr 31 → May 1) — the engine
@@ -5094,6 +5361,7 @@ const FORECAST_DOMAINS_FREE = ['career', 'money', 'love', 'health'];
 const FORECAST_DOMAINS_ALL = [
     'career', 'money', 'love', 'health', 'family', 'learning', 'allies', 'chance',
 ];
+exports.FORECAST_DOMAINS_ALL = FORECAST_DOMAINS_ALL;
 const FORECAST_DOMAIN_LABELS = {
     career: { th: 'การงาน', en: 'Work', icon: '💼' },
     money: { th: 'การเงิน', en: 'Wealth', icon: '💰' },
@@ -5104,6 +5372,7 @@ const FORECAST_DOMAIN_LABELS = {
     allies: { th: 'คนหนุน·เครือข่าย', en: 'Allies', icon: '🤝' },
     chance: { th: 'โอกาส·สิ่งที่คุมไม่ได้', en: 'Chance', icon: '🎲' },
 };
+exports.FORECAST_DOMAIN_LABELS = FORECAST_DOMAIN_LABELS;
 const FORECAST_TIERS = {
     1: { th: 'ระวังเป็นพิเศษ', en: 'Handle with care' },
     2: { th: 'ต่ำกว่าปกติ', en: 'Below your usual' },
@@ -5111,6 +5380,7 @@ const FORECAST_TIERS = {
     4: { th: 'ดีกว่าปกติ', en: 'Above your usual' },
     5: { th: 'ดีเป็นพิเศษ', en: 'One of your best' },
 };
+exports.FORECAST_TIERS = FORECAST_TIERS;
 const FORECAST_ADVICE = {
     act: { th: 'เปิดเกม ลงมือเรื่องใหญ่ได้', en: 'Move now, the window is open' },
     steady: { th: 'เดินตามแผน ไม่ต้องเร่ง', en: 'Hold the plan, no need to push' },
@@ -5297,15 +5567,6 @@ function _fcCtx(c) {
         dashaKey: (c.vedicMahadasha.currentDashaKey || c.vedicMahadasha.currentDasha || '').trim(),
     };
 }
-// ── Nine Star Ki: the year star and the month star ──────────────────────────
-// Year star: the classical digit-reduction — reduce the Gregorian year to one
-// digit, subtract from 11, wrap into 1..9. It steps down by one each year
-// (2024 = 3 Green Wood, 2025 = 2 Black Earth, 2026 = 1 White Water).
-// Month star: fixed by the year's earthly branch group, then descending one
-// star per solar month from 立春. Branch groups: 子午卯酉 start at 8,
-// 辰戌丑未 at 5, 寅申巳亥 at 2. Both are table doctrine, not invention — the
-// previous monthly-brief code carried a hand-typed 12-number array instead,
-// which was not tied to the year OR to the person's natal star.
 function _fcNineStarYear(y) {
     const digitSum = (n) => String(n).split('').reduce((a, b) => a + (+b), 0);
     let r = y;
@@ -5318,6 +5579,7 @@ function _fcNineStarYear(y) {
         s += 9;
     return s;
 }
+exports._fcNineStarYear = _fcNineStarYear;
 // Solar month index from 立春: 0 = 寅 (starts when the Sun reaches 315°),
 // 1 = 卯 (345°), 2 = 辰 (15°), ... Uses the real solar longitude, so the month
 // turns on the solar term rather than on the 1st of the Gregorian month.
@@ -5724,6 +5986,10 @@ function _fcIso(d) {
 const _FC_MONTH_TH = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 const _FC_MONTH_TH_FULL = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
 const _FC_MONTH_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+// Sunday-first, matching Date.getDay(). The report has its own DAY_TH inside a
+// function scope; these are the module-level pair the day labels need.
+const _FC_WEEKDAY_TH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+const _FC_WEEKDAY_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const _FC_MONTH_EN_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 // Signals for one day, memoised. The baseline sweep below reads a year of
 // days and the periods re-read a subset of the same days; computing each day
@@ -5968,6 +6234,10 @@ const _FC_HOUSE_TOPIC_EN = ['the self and the body', 'assets and income', 'learn
 function calcForecast(c, from, opts = {}) {
     const weeksWanted = Math.max(0, opts.weeks ?? 4);
     const monthsWanted = Math.max(0, opts.months ?? 12);
+    // Opt-in: every existing caller asks for weeks and months, and the day sweep
+    // costs a third baseline pass. The free tier landed on the daily view on
+    // 2026-08-31 and needs the same 1-5 per life area the weekly view shows.
+    const daysWanted = Math.max(0, opts.days ?? 0);
     const x = _fcCtx(c);
     const start = new Date(from.getFullYear(), from.getMonth(), from.getDate());
     const getDay = _fcDayCacheFor(c, x);
@@ -5992,8 +6262,20 @@ function calcForecast(c, from, opts = {}) {
             dates.push(new Date(first.getFullYear(), first.getMonth(), i));
         monthWindows.push(dates);
     }
+    // A day is graded against a year of days, never against the weekly baseline.
+    // Scoring one day on the spread of seven-day averages puts it outside the
+    // range nearly every time and pegs it at 1 or 5 — the window that builds the
+    // yardstick has to be the same shape as the window on screen. (Learned the
+    // expensive way on 2026-08-23 with rolling-30 against calendar months.)
+    const dayWindows = [];
+    if (daysWanted > 0) {
+        for (let i = 0; i < 365; i++) {
+            dayWindows.push([new Date(start.getFullYear(), start.getMonth(), start.getDate() + i)]);
+        }
+    }
     const weekBase = _fcBuildBaseline(getDay, weekWindows);
     const monthBase = _fcBuildBaseline(getDay, monthWindows);
+    const dayBase = daysWanted > 0 ? _fcBuildBaseline(getDay, dayWindows) : weekBase;
     // Second pass: what range does each DOMAIN headline cover over the year?
     // Measured by running the very same period function across the year with
     // no domain baseline — never by a parallel implementation, which would be
@@ -6019,6 +6301,7 @@ function calcForecast(c, from, opts = {}) {
     };
     const weekDomBase = buildDomainBase(weekBase, weekWindows);
     const monthDomBase = buildDomainBase(monthBase, monthWindows);
+    const dayDomBase = daysWanted > 0 ? buildDomainBase(dayBase, dayWindows) : weekDomBase;
     // ── Rolling 7-day weeks from today, not calendar weeks ────────────────────
     // "Next week" that ends on Sunday is useless on a Saturday. Week 0 always
     // starts on the day the user is reading.
@@ -6035,6 +6318,16 @@ function calcForecast(c, from, opts = {}) {
         const labelEn = w === 0 ? `This week · ${_FC_MONTH_EN[a.getMonth()]} ${a.getDate()}–${b.getDate()}`
             : `Week ${w + 1} · ${_FC_MONTH_EN[a.getMonth()]} ${a.getDate()} – ${_FC_MONTH_EN[b.getMonth()]} ${b.getDate()}`;
         weeks.push(_fcPeriod(getDay, weekBase, dates, 'week', w, labelTh, labelEn, weekDomBase));
+    }
+    // ── Single days, starting with today ──────────────────────────────────────
+    const days = [];
+    for (let i = 0; i < daysWanted; i++) {
+        const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+        const labelTh = i === 0 ? 'วันนี้' : i === 1 ? 'พรุ่งนี้'
+            : `${_FC_WEEKDAY_TH[d.getDay()]} ${d.getDate()} ${_FC_MONTH_TH[d.getMonth()]}`;
+        const labelEn = i === 0 ? 'Today' : i === 1 ? 'Tomorrow'
+            : `${_FC_WEEKDAY_EN[d.getDay()]} ${_FC_MONTH_EN[d.getMonth()]} ${d.getDate()}`;
+        days.push(_fcPeriod(getDay, dayBase, [d], 'day', i, labelTh, labelEn, dayDomBase));
     }
     // ── Calendar months, starting with the one the user is standing in ────────
     const months = [];
@@ -6087,7 +6380,7 @@ function calcForecast(c, from, opts = {}) {
     }
     return {
         generatedIso: _fcIso(start),
-        weeks, months,
+        days, weeks, months,
         votingCount: voters.size,
         abstainCount: _FC_ABSTENTIONS.length,
         totalSystems: voters.size + _FC_ABSTENTIONS.length,
@@ -6121,7 +6414,21 @@ function _buildSynthesis(signals, tier, lang, c) {
 let _reportLang = 'th';
 function _setReportLang(l) { _reportLang = l; }
 exports._setReportLang = _setReportLang;
+const _readingParts = new Map();
+function _clearReadingParts() { _readingParts.clear(); }
+exports._clearReadingParts = _clearReadingParts;
+function _getReadingParts() { return [..._readingParts.values()]; }
+exports._getReadingParts = _getReadingParts;
 function buildRichReading(args) {
+    _readingParts.set(args.sysTh, {
+        sysTh: args.sysTh, sysEn: args.sysEn,
+        keyValue: args.keyValue, keyValueEn: args.keyValueEn,
+        keyValueMeaning: args.keyValueMeaning, keyValueMeaningEn: args.keyValueMeaningEn,
+        strengthTh: args.strengthTh, strengthEn: args.strengthEn,
+        shadowTh: args.shadowTh, shadowEn: args.shadowEn,
+        currentYearTh: args.currentYearTh, currentYearEn: args.currentYearEn,
+        uniqueTh: args.uniqueTh, uniqueEn: args.uniqueEn,
+    });
     const lang = _reportLang;
     // Pick EN text when (a) lang='en' AND (b) *En provided · else fall back to Th.
     // This lets us migrate translations incrementally without breaking Thai output.
@@ -6600,14 +6907,34 @@ exports.lunarDateOf = lunarDateOf;
 const _ZW_BRANCH = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
 // 納音五行局 by the 60-cycle index of the 命宮 pillar → bureau number.
 const _ZW_BUREAU_N = { '水二局': 2, '木三局': 3, '金四局': 4, '土五局': 5, '火六局': 6 };
-const _ZW_NAYIN_BUREAU = [
-    '金四局', '金四局', '火六局', '火六局', '木三局', '木三局', '土五局', '土五局', '火六局', '火六局',
-    '木三局', '木三局', '土五局', '土五局', '金四局', '金四局', '火六局', '火六局', '水二局', '水二局',
-    '土五局', '土五局', '火六局', '火六局', '木三局', '木三局', '水二局', '水二局', '土五局', '土五局',
-    '金四局', '金四局', '木三局', '木三局', '水二局', '水二局', '土五局', '土五局', '金四局', '金四局',
-    '火六局', '火六局', '水二局', '水二局', '土五局', '土五局', '金四局', '金四局', '木三局', '木三局',
-    '水二局', '水二局', '火六局', '火六局', '土五局', '土五局', '木三局', '木三局', '水二局', '水二局',
+// Derived, not transcribed. The hand-typed 60-cell version that stood here was
+// wrong in THIRTY of its sixty cells: correct for the first four pairs, then it
+// slipped a pair and never recovered. 壬申癸酉 is 劍鋒金 and was returning 火六局;
+// 丙戌丁亥 is 屋上土 and was returning 火六局 too. The bureau number sets where 紫微
+// falls, and 紫微 places all fourteen majors — so half of every chart drawn was
+// built on the wrong bureau, and nothing downstream could notice.
+//
+// 納音 assigns one element to each PAIR of the sexagenary cycle, and the thirty
+// pairs are two identical runs of fifteen. Writing the fifteen and repeating
+// them removes the only thing that went wrong here, which was typing.
+const _ZW_NAYIN_15 = [
+    '金四局', // 甲子乙丑 海中金
+    '火六局', // 丙寅丁卯 爐中火
+    '木三局', // 戊辰己巳 大林木
+    '土五局', // 庚午辛未 路旁土
+    '金四局', // 壬申癸酉 劍鋒金
+    '火六局', // 甲戌乙亥 山頭火
+    '水二局', // 丙子丁丑 澗下水
+    '土五局', // 戊寅己卯 城頭土
+    '金四局', // 庚辰辛巳 白蠟金
+    '木三局', // 壬午癸未 楊柳木
+    '水二局', // 甲申乙酉 泉中水
+    '土五局', // 丙戌丁亥 屋上土
+    '火六局', // 戊子己丑 霹靂火
+    '木三局', // 庚寅辛卯 松柏木
+    '水二局', // 壬辰癸巳 長流水
 ];
+const _ZW_NAYIN_BUREAU = Array.from({ length: 60 }, (_, i) => _ZW_NAYIN_15[Math.floor(i / 2) % 15]);
 // The fourteen majors, as offsets. 紫微 series runs backwards from 紫微;
 // 天府 series runs forwards from 天府, and 天府 mirrors 紫微 about the 寅–申 axis.
 const _ZW_ZIWEI_SERIES = [
@@ -6864,7 +7191,7 @@ function calcHellenistic(d, w) {
             keyValueEn: `${sect} · Trigon Lord: ${trigonLord.includes('Jupiter') ? 'Jupiter (expansion)' : 'Venus (relationships)'} · Lot of Fortune in ${['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'][lotSign]}`,
             keyValueMeaning: `คุณเกิดใน "${sectTh}" — โหราศาสตร์เฮลเลนิสติกแบ่งคนเป็น 2 กลุ่มใหญ่ที่สุดตามเวลาเกิด: กลางวัน (Diurnal) กับ กลางคืน (Nocturnal) ซึ่งเปลี่ยนวิธีการตีความดาวทั้งหมด Trigon Lord ของคุณคือ <strong>${trigonLord}</strong> ซึ่งเป็นดาวที่ "ครอง" ธาตุของดวงอาทิตย์คุณ และ Lot of Fortune — จุดคณิตศาสตร์ที่หาจากตำแหน่ง ASC + Moon − Sun — อยู่ใน${SIGNS_TH[lotSign]} (${Math.round(lotRaw)}°) ซึ่งบ่งชี้ว่า "ทรัพย์ทางโลก" ของคุณจะไหลมาจากทิศทางและวิธีการของราศีนี้`,
             keyValueMeaningEn: `You were born under <strong>${sect}</strong> — Hellenistic astrology\'s biggest division of people, by time of birth: Diurnal (day) vs. Nocturnal (night), which changes the interpretation of every planet. Your Trigon Lord is <strong>${trigonLord.includes('Jupiter') ? 'Jupiter (expansion)' : 'Venus (relationships)'}</strong> — the planet that "owns" your Sun\'s element. The Lot of Fortune — a mathematical point computed from ASC + Moon − Sun — sits in <strong>${['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'][lotSign]}</strong> (${Math.round(lotRaw)}°), telling you the direction and method by which your worldly wealth flows.`,
-            uniqueTh: `สิ่งที่กรีกทำแล้วศาสตร์อื่นไม่ทำคือ <strong>แยกดวงกลางวันกับกลางคืนออกจากกันตั้งแต่ราก</strong> — ดวงอาทิตย์ของคุณอยู่ห่างจากราศีขึ้น ${sunFromAsc.toFixed(0)}° ${isDaySect ? 'อยู่เหนือขอบฟ้า จึงเป็นดวงกลางวัน' : 'อยู่ใต้ขอบฟ้า จึงเป็นดวงกลางคืน'} และนั่นเปลี่ยนว่าดาวดวงไหนเป็นมิตรกับคุณ ไม่ใช่แค่เปลี่ยนคำบรรยาย · เจ้าธาตุสามเหลี่ยมของคุณคือ${trigonLord} · ในระบบนี้ดาวดวงเดียวกันให้ผลคนละอย่างกับคนเกิดกลางวันและกลางคืน ซึ่งเป็นความละเอียดที่โหราศาสตร์สมัยใหม่ตัดทิ้งไปแล้ว`,
+            uniqueTh: `สิ่งที่กรีกทำแล้วศาสตร์อื่นไม่ทำคือ <strong>แยกดวงกลางวันกับกลางคืนออกจากกันตั้งแต่ราก</strong> — ดวงอาทิตย์ของคุณอยู่ห่างจากราศีขึ้น ${sunFromAsc.toFixed(0)}° ${isDaySect ? 'อยู่เหนือขอบฟ้า จึงเป็นดวงกลางวัน' : 'อยู่ใต้ขอบฟ้า จึงเป็นดวงกลางคืน'} และนั่นเปลี่ยนว่าดาวดวงไหนเป็นมิตรกับคุณ ไม่ใช่แค่เปลี่ยนคำบรรยาย · เจ้าธาตุสามเหลี่ยมของคุณคือ ${trigonLord} · ในระบบนี้ดาวดวงเดียวกันให้ผลคนละอย่างกับคนเกิดกลางวันและกลางคืน ซึ่งเป็นความละเอียดที่โหราศาสตร์สมัยใหม่ตัดทิ้งไปแล้ว`,
             uniqueEn: `What the Greeks did that nothing else here does is <strong>split day charts from night charts at the root</strong>. Your Sun sits ${sunFromAsc.toFixed(0)}° from the ascendant, ${isDaySect ? 'above the horizon — a day chart' : 'below the horizon — a night chart'}, and that changes which planets are friendly to you, not merely how they are described. Your trigon lord is ${trigonLord}. In this system the same planet behaves differently for a day birth and a night birth — a distinction modern astrology dropped.`,
             strengthTh: `การเป็น ${sectTh} หมายความว่าคุณได้รับพลังจาก "ดาวแห่ง sect" อย่างเต็มที่ — ${sectTh.includes('กลางวัน') ? 'Sun, Jupiter และ Saturn จะแสดงด้านดีที่สุดในดวงของคุณ เป็นกลุ่มที่คนในประวัติศาสตร์ที่สร้างโครงสร้างยั่งยืน (Cicero, Cato) มักเกิดกลางวัน' : 'Moon, Venus และ Mars จะแสดงด้านดีที่สุด — กลุ่มนี้เกี่ยวข้องกับศิลปิน นักเขียน และผู้นำทางจิตวิญญาณ (Rumi, Frida Kahlo เกิดกลางคืน)'} Trigon Lord ${trigonLord} เป็นผู้ปกป้องดวงของคุณ — เมื่อเกิดวิกฤติ ใช้พลังของ ${trigonLord} เป็นเครื่องเตือนใจ`,
             strengthEn: `Being a ${sect} chart means you receive the full power of "the planets of your sect" — ${isDaySect ? 'Sun, Jupiter, and Saturn show their best in your chart. People who built durable structures across history (Cicero, Cato) tended to be day births' : 'Moon, Venus, and Mars show their best — the cluster of artists, writers, and spiritual leaders (Rumi, Frida Kahlo were night births)'}. Your Trigon Lord ${trigonLord.includes('Jupiter') ? 'Jupiter' : 'Venus'} is the protector of your chart — in a crisis, draw on its energy as your touchstone.`,
@@ -7579,7 +7906,7 @@ function calcZoroastrian(d) {
             keyValueEn: `Yazata: ${yazata} · Amesha Spenta: ${amesha.n} (${tEl(amesha.el)})`,
             keyValueMeaning: `Yazata ประจำวันเกิดคุณคือ <strong>${yazata}</strong> และ Amesha Spenta (เทพสูงสุด 7 องค์) ที่ปกครองเดือนคือ <strong>${amesha.th}</strong> ธาตุของเดือน${amesha.el} ${harmony ? 'ตรงกับธาตุของ Yazata — นี่คือการบูรณาการที่สมบูรณ์ คุณจะรู้สึกว่า "เป็นตัวของตัวเอง" ได้โดยธรรมชาติ' : 'ต่างกับ Yazata — นี่คือโครงสร้างสร้างสมดุล คุณจะรู้สึกว่าตัวเองมี 2 ด้านที่ต้องบาลานซ์ตลอดเวลา'}`,
             keyValueMeaningEn: `Your birth-day Yazata is <strong>${yazata}</strong>, and the Amesha Spenta (one of the seven highest divinities) ruling your birth month is <strong>${amesha.n}</strong>. The month\'s element is ${tEl(amesha.el)}, ${harmony ? 'matching the Yazata\'s element — this is full integration. You\'ll feel "naturally yourself" by default' : 'differing from the Yazata — this is a balancing structure. You\'ll feel two sides of yourself that must be balanced constantly'}.`,
-            uniqueTh: `ปฏิทินโซโรอัสเตอร์ตั้งชื่อ <strong>ทุกวันใน 30 วัน</strong> ตามเทพองค์หนึ่ง และ <strong>ทุกเดือนใน 12 เดือน</strong> ตามคุณธรรมข้อหนึ่ง — ของคุณตรงกับวันที่ ${dayIdx + 1} (${yazata}) ในเดือนที่ ${monthIdx + 1} (${amesha}) · เมื่อชื่อวันไปตรงกับชื่อเดือน วันนั้นถือเป็นวันเทศกาลของเทพองค์นั้น ของคุณ${harmony ? 'ตรงกันพอดี ซึ่งเกิดปีละครั้งต่อเทพหนึ่งองค์' : 'ไม่ตรงกัน ซึ่งเป็นกรณีของคนส่วนใหญ่'}`,
+            uniqueTh: `ปฏิทินโซโรอัสเตอร์ตั้งชื่อ <strong>ทุกวันใน 30 วัน</strong> ตามเทพองค์หนึ่ง และ <strong>ทุกเดือนใน 12 เดือน</strong> ตามคุณธรรมข้อหนึ่ง — ของคุณตรงกับวันที่ ${dayIdx + 1} (${yazata}) ในเดือนที่ ${monthIdx + 1} (${amesha.n}) · เราเทียบ<strong>ธาตุ</strong>ของวันกับของเดือน ไม่ใช่ชื่อ — ของคุณ${harmony ? 'ธาตุตรงกัน คือวันกับเดือนหนุนกันเอง' : 'ธาตุต่างกัน คือวันกับเดือนถ่วงดุลกัน ซึ่งเป็นกรณีของคนส่วนใหญ่'}`,
             uniqueEn: `The Zoroastrian calendar names <strong>each of thirty days</strong> for a divinity and <strong>each of twelve months</strong> for a virtue — yours falls on day ${dayIdx + 1} (${yazata}) of month ${monthIdx + 1} (${amesha}). When a day name meets its own month name, that date is the feast of that divinity. Yours ${harmony ? 'do meet, which happens once a year for any given divinity' : 'do not meet, which is the ordinary case'}.`,
             strengthTh: `Yazata ${yazata} ให้พรพิเศษ — คุณได้รับ "Khvarenah" (โอรัสแสง) ในด้านที่ Yazata ปกครอง โซโรแอสเตรียนเชื่อว่า Khvarenah คือ "แสงของโชค" ที่ติดตัวคนดีและหายไปจากคนชั่ว — ของคุณมั่นคงเพราะเกิดในวันที่ Yazata เข้มแข็ง Amesha Spenta ${amesha.th} เสริมด้วยธาตุ${amesha.el} ซึ่งเกี่ยวข้องกับ${amesha.el === 'ไฟ' ? 'ความบริสุทธิ์ ความกล้า การชำระจิต' : amesha.el === 'น้ำ' ? 'ความเมตตา การชำระกาย การไหล' : amesha.el === 'ดิน' ? 'ความมั่นคง การสร้างบ้าน การรักษาประเพณี' : 'การสื่อสาร การสอน การแพร่แสง'}`,
             strengthEn: `Yazata ${yazata} grants a special blessing — you receive "Khvarenah" (the divine glow) in the domain that Yazata rules. Zoroastrians believe Khvarenah is the "light of fortune" that follows the righteous and fades from the wicked. Yours is stable because you were born on a day when this Yazata stands strong. Amesha Spenta ${amesha.n} adds the ${tEl(amesha.el)} element, tied to ${amesha.el === 'ไฟ' ? 'purity, courage, mental cleansing' : amesha.el === 'น้ำ' ? 'mercy, bodily cleansing, flow' : amesha.el === 'ดิน' ? 'stability, building a home, preserving tradition' : 'communication, teaching, broadcasting light'}.`,
@@ -7647,10 +7974,17 @@ function calcAztec(d) {
         { s: 'Quiahuitl', th: 'ฝน', qTh: 'การชำระล้าง', qEn: 'purification', score: 730 },
         { s: 'Xochitl', th: 'ดอกไม้', qTh: 'ความงามและศิลปะ', qEn: 'beauty and art', score: 790 },
     ];
-    // Tonalpohualli: 260-day cycle. Use JDN from known anchor
-    const refJD = Math.floor(toJD(1900, 1, 1, 12));
+    // Tonalpohualli and the Maya Tzolk'in are ONE 260-day count under two sets of
+    // names — the report says so on its consensus page and counts the pair as a
+    // single voice. It was not one count: this used 1900-01-01 as its anchor,
+    // which is not a Tonalpohualli epoch, just a convenient date. The Maya side
+    // uses the GMT correlation (584283) calibrated so 2012-12-21 = Kin 160.
+    // Result for the sample chart: Maya said Lamat / tone 7, Aztec said Monkey /
+    // tone 4 — 23 days apart, on the page that promised they could never differ.
+    // Same anchor now, so the position is shared and only the names differ
+    // (position 8 = Lamat = Tochtli, the standard correspondence).
     const birthJD = Math.floor(toJD(d.year, d.month, d.day, 12));
-    const dayNum = ((birthJD - refJD) % 260 + 260) % 260;
+    const dayNum = ((birthJD - 584283 + 159) % 260 + 260) % 260;
     const daySignIdx = dayNum % 20;
     const toneNumber = (dayNum % 13) + 1;
     const TONE_NAMES = ['', 'Ce', 'Ome', 'Yei', 'Nahui', 'Mahkuilli', 'Chikuasen', 'Chikome', 'Chikuei', 'Chiknawi', 'Mahtlaktli', 'Mahtlaktli-On-Sey', 'Mahtlaktli-Omome', 'Mahtlaktli-Omei'];
@@ -7918,7 +8252,7 @@ function calcIfaYoruba(d) {
             shadowEn: `Yoruba warns — every Odù has its "Ibi" (shadow). The shadow of Odù ${odu.n} is fighting your fortune or refusing to accept your theme. When you walk against the Ori, "Eshu block" arises — Eshu (god of crossroads) shuts every door until you return to the right path. The signs: nothing you try succeeds, people around you vanish, your luck disappears.`,
             practiceTh: `การปฏิบัติแบบ Ifa: สวด "Orí mi, gbà mí" (หัวจิตวิญญาณของฉัน นำฉัน) ก่อนตัดสินใจใหญ่ — Ifá ถือว่า Orí ของคุณรู้ทางก่อนที่หัวคิดจะตามทัน`,
             practiceEn: `Ifa practice: (1) Chant "Orí mi, gbà mí" (My spirit-head, lead me) before any big decision. (2) Set up an "Igbá Orí" (small bowl) at home with water and 3 coins to represent your Ori. (3) On "Ose Ifá" (every 4 days in the Yoruba calendar), light a white candle and thank your Ori. (4) If you face an Eshu block, place an offering (fruit, sweets) at a crossroads in your village or community.`,
-            currentYearTh: `ปี 2026 ในปฏิทิน Ifá เป็นปีของ Odù "Ogbè" ซึ่งถือเป็นปีที่เปิดทางให้ Odù อื่นที่พร้อม'ความสำเร็จ')||odu.theme.includes('ทรัพย์')?'โดยเฉพาะ Odù ของคุณที่เน้นความสำเร็จ — ปีนี้คือปีที่ Ori เปิดกว้าง':'และสำหรับ Odù ของคุณ ปีนี้คือปีที่ต้องทำพิธีชำระ (Ebo) อย่างน้อย 2 ครั้งเพื่อเปิดทาง'}`,
+            currentYearTh: `ปี 2026 ในปฏิทิน Ifá เป็นปีของ Odù "Ogbè" ซึ่งถือเป็นปีที่เปิดทางให้ Odù อื่นที่พร้อม · ${odu.theme.includes('ความสำเร็จ') || odu.theme.includes('ทรัพย์') ? 'โดยเฉพาะ Odù ของคุณที่เน้นความสำเร็จ — ปีนี้คือปีที่ Ori เปิดกว้าง' : 'และสำหรับ Odù ของคุณ ปีนี้คือปีที่ต้องทำพิธีชำระ (Ebo) อย่างน้อย 2 ครั้งเพื่อเปิดทาง'}`,
             currentYearEn: `2026 in the Ifa calendar is the year of Odù "Ogbè" — which opens doors for any prepared Odù. ${odu.theme.includes('ความสำเร็จ') || odu.theme.includes('ทรัพย์') ? 'Especially favourable for your success-themed Odù — this is a year your Ori opens wide' : 'For your Odù, this year demands at least two purification rituals (Ebo) to open the way'}.`,
             closingTh: 'Ifa ไม่ใช่คำทำนาย — มันคือกระจกที่ให้คุณเห็น Ori ของตัวเอง เห็นแล้ว การเดินก็ง่ายขึ้น',
             closingEn: 'Ifa isn\'t prediction — it\'s a mirror in which you see your own Ori. Once you see it, the walking gets easier.',
@@ -8235,14 +8569,14 @@ function calcVedicMahadasha(d, vedic) {
             keyValueEn: `${vedic.mahadasha} Mahadasha until ${vedic.mahadashaEnd} · Antardasha: ${vedic.antardasha}`,
             keyValueMeaning: `คุณกำลังอยู่ใน Mahadasha ของ <strong>${vedic.mahadasha}</strong> จนถึงปี ${vedic.mahadashaEnd} — ช่วงเวลานี้คือ "ยุค" ที่ดาว${vedic.mahadasha}ปกครองชีวิตคุณทุกด้าน แต่ภายใน Mahadasha ยังมี Antardasha (sub-period) ที่กำลังเปิดคือ <strong>${vedic.antardasha}</strong> — ซึ่งเป็นตัวที่กำหนดทิศทางรายเดือน/รายปี คุณภาพโดยรวมของช่วงนี้คือ <strong>${dq.quality}</strong>`,
             keyValueMeaningEn: `You\'re in the Mahadasha of <strong>${vedic.mahadasha}</strong> until ${vedic.mahadashaEnd} — the "era" in which ${vedic.mahadasha} governs every dimension of your life. Within the Mahadasha, the active Antardasha (sub-period) is <strong>${vedic.antardasha}</strong> — which sets the monthly/annual direction. The overall quality of this period reads as <strong>${dq.quality === 'ดี' ? 'good' : dq.quality === 'มงคล' ? 'auspicious' : dq.quality === 'ท้าทาย' ? 'challenging' : dq.quality === 'ผสม' ? 'mixed' : dq.quality}</strong>.`,
-            uniqueTh: `Vimshottari แบ่งชีวิต 120 ปีออกเป็นช่วงของดาว 9 ดวง ยาวไม่เท่ากันตั้งแต่ 6 ปีถึง 20 ปี — ลำดับและความยาวถูกกำหนดตายตัวเหมือนกันทุกคน สิ่งเดียวที่ดวงของคุณกำหนดคือ <strong>คุณเริ่มตรงไหนของวงล้อ</strong> ซึ่งมาจากตำแหน่งดวงจันทร์ตอนเกิด · ตอนนี้คุณอยู่ช่วง${dashaKey} — ${dq.quality} · ศาสตร์อื่นในเล่มนี้บอกว่าปีไหนดี Vimshottari บอกว่า <strong>ทศวรรษไหน</strong> เป็นของใคร ซึ่งเป็นคนละมาตราเวลากันเลย`,
+            uniqueTh: `ตอนนี้คุณอยู่ช่วง ${dashaKey} — ${dq.quality} · ศาสตร์อื่นในเล่มนี้บอกว่าปีไหนดี Vimshottari บอกว่า <strong>ทศวรรษไหน</strong> เป็นของใคร ซึ่งเป็นคนละมาตราเวลากันเลย`,
             uniqueEn: `Vimshottari splits 120 years into nine planetary periods of unequal length, from six years to twenty. The order and the lengths are identical for everyone; the only thing your chart decides is <strong>where on the wheel you begin</strong>, which comes from the Moon at your birth. You are in ${dashaKey} — ${dq.qualityEn}. Other systems in this report tell you which year is good; Vimshottari tells you whose <strong>decade</strong> you are living in. A different unit of time entirely.`,
-            strengthTh: `Mahadasha ${vedic.mahadasha} ${vedic.mahadasha === 'Jupiter' ? 'คือ "มหาทศาครู" — 16 ปีของการขยาย การเรียนรู้ การได้รับการยอมรับ การเดินทาง การหาครู/ที่ปรึกษา นี่คือช่วงที่ "ใหญ่ขึ้น" ในทุกความหมาย' : vedic.mahadasha === 'Saturn' ? 'คือ "มหาทศาแห่งวินัย" — 19 ปีของการสร้างรากฐาน ผลตอบแทนมาช้าแต่ยั่งยืน อาชีพที่สร้างในช่วงนี้จะอยู่ไปตลอดชีวิต' : vedic.mahadasha === 'Venus' ? 'คือ "มหาทศาแห่งความสุข" — 20 ปีของความรัก ศิลปะ ความมั่งคั่ง ความสวยงาม' : vedic.mahadasha === 'Mars' ? 'คือ "มหาทศาแห่งการกระทำ" — 7 ปีของการต่อสู้ การเป็นผู้นำ การเผชิญหน้าที่สร้างคนให้แข็งแกร่ง' : vedic.mahadasha === 'Rahu' ? 'คือ "มหาทศาแห่งความปรารถนาและความเปลี่ยนแปลง" — 18 ปีของการทลายขีดจำกัด โอกาสแปลกใหม่ การไปต่างประเทศ' : vedic.mahadasha === 'Ketu' ? 'คือ "มหาทศาแห่งจิตวิญญาณและการปล่อยวาง" — 7 ปีของการหันเข้าใน การปฏิบัติธรรม การลดสิ่งสะสม' : vedic.mahadasha === 'Sun' ? 'คือ "มหาทศาแห่งอำนาจ" — 6 ปีของตำแหน่ง ชื่อเสียง ความเป็นผู้นำ' : vedic.mahadasha === 'Moon' ? 'คือ "มหาทศาแห่งอารมณ์และครอบครัว" — 10 ปีของบ้าน ความสัมพันธ์ การดูแล' : 'คือช่วงเวลาของ ' + vedic.mahadasha} Antardasha ${vedic.antardasha} เพิ่มชั้นที่สอง — ผสม Mahadasha + Antardasha แล้วอ่านคุณภาพ`,
-            strengthEn: `Mahadasha ${vedic.mahadasha} is ${vedic.mahadasha === 'Jupiter' ? 'the "Guru Mahadasha" — 16 years of expansion, learning, recognition, travel, finding teachers and mentors. The "growing larger" period in every sense' : vedic.mahadasha === 'Saturn' ? 'the "Mahadasha of discipline" — 19 years of laying foundations. Returns come slowly but durably; careers built here last a lifetime' : vedic.mahadasha === 'Venus' ? 'the "Mahadasha of joy" — 20 years of love, art, abundance, beauty' : vedic.mahadasha === 'Mars' ? 'the "Mahadasha of action" — 7 years of fighting, leading, the kind of confrontation that strengthens you' : vedic.mahadasha === 'Rahu' ? 'the "Mahadasha of desire and transformation" — 18 years of breaking limits, unusual opportunities, going abroad' : vedic.mahadasha === 'Ketu' ? 'the "Mahadasha of spirit and release" — 7 years of turning inward, dharma practice, reducing what you accumulate' : vedic.mahadasha === 'Sun' ? 'the "Mahadasha of authority" — 6 years of position, fame, leadership' : vedic.mahadasha === 'Moon' ? 'the "Mahadasha of feeling and family" — 10 years of home, relationships, caretaking' : 'the era of ' + vedic.mahadasha}. Antardasha ${vedic.antardasha} adds the second layer — combine Mahadasha + Antardasha to read the quality of this moment.`,
-            shadowTh: `${['Saturn', 'Rahu', 'Ketu'].includes(vedic.mahadasha) ? 'Mahadasha ของดาวมืด (Saturn, Rahu, Ketu) มักถูกเข้าใจผิดว่าเป็นช่วงร้าย แต่จริงๆ คือช่วงเปลี่ยนแปลงสูงสุด — ผู้ที่ผ่านช่วงเหล่านี้ได้มักออกมาเป็นคนแกร่งขึ้น' : 'Mahadasha ของดาวสว่าง (Jupiter, Venus, Sun) ดูดีแต่ชวนให้ติดสบาย — ช่วงที่ลื่นที่สุดคือช่วงที่คนวางมือบ่อยที่สุด'} โหราจารย์ Vedic เตือน: "Dasha ไม่ดีไม่มี — มีแต่ Dasha ที่ต้องใช้ผิดหรือถูกเท่านั้น"`,
-            shadowEn: `${['Saturn', 'Rahu', 'Ketu'].includes(vedic.mahadasha) ? 'Dark-planet Mahadashas (Saturn, Rahu, Ketu) are often misread as bad eras — but they\'re actually the biggest transformation windows. Those who pass through them come out stronger' : 'Bright-planet Mahadashas (Jupiter, Venus, Sun) look benign but watch for "comfort trap" — when the energy is good, use it fully, or you\'ll lose the opportunity'}. Vedic teachers warn: "There is no bad Dasha — only Dashas you use rightly or wrongly."`,
-            practiceTh: `การปฏิบัติ Vedic ที่เข้ากับ Mahadasha: (1) ${vedic.mahadasha === 'Jupiter' ? 'สวดมนตราพฤหัส "Om Brihaspataye Namaha" 108 ครั้งทุกวันพฤหัส' : vedic.mahadasha === 'Saturn' ? 'สวด "Om Shanishcharaya Namaha" ทุกวันเสาร์ ถวายน้ำมันงาดำ' : vedic.mahadasha === 'Venus' ? 'สวด "Om Shukraya Namaha" ทุกวันศุกร์ ใส่เสื้อขาว' : vedic.mahadasha === 'Rahu' ? 'สวด "Om Rahave Namaha" บริจาคให้คนที่ด้อยโอกาส' : vedic.mahadasha === 'Ketu' ? 'สวด "Om Ketave Namaha" ทำสมาธิและปฏิบัติธรรม' : 'สวดมนตราประจำดาว Mahadasha ของคุณ'} (2) ใส่อัญมณีประจำ Mahadasha — ${vedic.mahadasha === 'Jupiter' ? 'บุษราคัมเหลือง' : vedic.mahadasha === 'Saturn' ? 'ไพลิน' : vedic.mahadasha === 'Venus' ? 'เพชร' : vedic.mahadasha === 'Rahu' ? 'Hessonite Garnet' : vedic.mahadasha === 'Ketu' ? 'Cat\'s Eye' : 'อัญมณีของดาว'} (3) บริจาคสิ่งที่สัมพันธ์กับดาวอย่างน้อยเดือนละครั้ง`,
-            practiceEn: `Vedic practice for your Mahadasha: (1) ${vedic.mahadasha === 'Jupiter' ? 'Chant the Jupiter mantra "Om Brihaspataye Namaha" 108 times every Thursday' : vedic.mahadasha === 'Saturn' ? 'Chant "Om Shanishcharaya Namaha" every Saturday, offer black sesame oil' : vedic.mahadasha === 'Venus' ? 'Chant "Om Shukraya Namaha" every Friday, wear white' : vedic.mahadasha === 'Rahu' ? 'Chant "Om Rahave Namaha" and donate to the underprivileged' : vedic.mahadasha === 'Ketu' ? 'Chant "Om Ketave Namaha", meditate, do dharma practice' : 'chant your Mahadasha planet\'s mantra'}. (2) Wear your Mahadasha gemstone — ${vedic.mahadasha === 'Jupiter' ? 'Yellow Sapphire' : vedic.mahadasha === 'Saturn' ? 'Blue Sapphire' : vedic.mahadasha === 'Venus' ? 'Diamond' : vedic.mahadasha === 'Rahu' ? 'Hessonite Garnet' : vedic.mahadasha === 'Ketu' ? 'Cat\'s Eye' : 'the planet\'s gemstone'}. (3) Donate something connected to the planet at least once a month.`,
+            strengthTh: `Mahadasha ${vedic.mahadasha} ${dashaKey === 'Jupiter' ? 'คือ "มหาทศาครู" — 16 ปีของการขยาย การเรียนรู้ การได้รับการยอมรับ การเดินทาง การหาครู/ที่ปรึกษา นี่คือช่วงที่ "ใหญ่ขึ้น" ในทุกความหมาย' : dashaKey === 'Saturn' ? 'คือ "มหาทศาแห่งวินัย" — 19 ปีของการสร้างรากฐาน ผลตอบแทนมาช้าแต่ยั่งยืน อาชีพที่สร้างในช่วงนี้จะอยู่ไปตลอดชีวิต' : dashaKey === 'Venus' ? 'คือ "มหาทศาแห่งความสุข" — 20 ปีของความรัก ศิลปะ ความมั่งคั่ง ความสวยงาม' : dashaKey === 'Mars' ? 'คือ "มหาทศาแห่งการกระทำ" — 7 ปีของการต่อสู้ การเป็นผู้นำ การเผชิญหน้าที่สร้างคนให้แข็งแกร่ง' : dashaKey === 'Rahu' ? 'คือ "มหาทศาแห่งความปรารถนาและความเปลี่ยนแปลง" — 18 ปีของการทลายขีดจำกัด โอกาสแปลกใหม่ การไปต่างประเทศ' : dashaKey === 'Ketu' ? 'คือ "มหาทศาแห่งจิตวิญญาณและการปล่อยวาง" — 7 ปีของการหันเข้าใน การปฏิบัติธรรม การลดสิ่งสะสม' : dashaKey === 'Sun' ? 'คือ "มหาทศาแห่งอำนาจ" — 6 ปีของตำแหน่ง ชื่อเสียง ความเป็นผู้นำ' : dashaKey === 'Moon' ? 'คือ "มหาทศาแห่งอารมณ์และครอบครัว" — 10 ปีของบ้าน ความสัมพันธ์ การดูแล' : 'คือช่วงเวลาของ ' + vedic.mahadasha} Antardasha ${vedic.antardasha} เพิ่มชั้นที่สอง — ผสม Mahadasha + Antardasha แล้วอ่านคุณภาพ`,
+            strengthEn: `Mahadasha ${vedic.mahadasha} is ${dashaKey === 'Jupiter' ? 'the "Guru Mahadasha" — 16 years of expansion, learning, recognition, travel, finding teachers and mentors. The "growing larger" period in every sense' : dashaKey === 'Saturn' ? 'the "Mahadasha of discipline" — 19 years of laying foundations. Returns come slowly but durably; careers built here last a lifetime' : dashaKey === 'Venus' ? 'the "Mahadasha of joy" — 20 years of love, art, abundance, beauty' : dashaKey === 'Mars' ? 'the "Mahadasha of action" — 7 years of fighting, leading, the kind of confrontation that strengthens you' : dashaKey === 'Rahu' ? 'the "Mahadasha of desire and transformation" — 18 years of breaking limits, unusual opportunities, going abroad' : dashaKey === 'Ketu' ? 'the "Mahadasha of spirit and release" — 7 years of turning inward, dharma practice, reducing what you accumulate' : dashaKey === 'Sun' ? 'the "Mahadasha of authority" — 6 years of position, fame, leadership' : dashaKey === 'Moon' ? 'the "Mahadasha of feeling and family" — 10 years of home, relationships, caretaking' : 'the era of ' + vedic.mahadasha}. Antardasha ${vedic.antardasha} adds the second layer — combine Mahadasha + Antardasha to read the quality of this moment.`,
+            shadowTh: `${['Saturn', 'Rahu', 'Ketu'].includes(dashaKey) ? 'Mahadasha ของดาวมืด (Saturn, Rahu, Ketu) มักถูกเข้าใจผิดว่าเป็นช่วงร้าย แต่จริงๆ คือช่วงเปลี่ยนแปลงสูงสุด — ผู้ที่ผ่านช่วงเหล่านี้ได้มักออกมาเป็นคนแกร่งขึ้น' : 'Mahadasha ของดาวสว่าง (Jupiter, Venus, Sun) ดูดีแต่ชวนให้ติดสบาย — ช่วงที่ลื่นที่สุดคือช่วงที่คนวางมือบ่อยที่สุด'} โหราจารย์ Vedic เตือน: "Dasha ไม่ดีไม่มี — มีแต่ Dasha ที่ต้องใช้ผิดหรือถูกเท่านั้น"`,
+            shadowEn: `${['Saturn', 'Rahu', 'Ketu'].includes(dashaKey) ? 'Dark-planet Mahadashas (Saturn, Rahu, Ketu) are often misread as bad eras — but they\'re actually the biggest transformation windows. Those who pass through them come out stronger' : 'Bright-planet Mahadashas (Jupiter, Venus, Sun) look benign but watch for "comfort trap" — when the energy is good, use it fully, or you\'ll lose the opportunity'}. Vedic teachers warn: "There is no bad Dasha — only Dashas you use rightly or wrongly."`,
+            practiceTh: `การปฏิบัติ Vedic ที่เข้ากับ Mahadasha: (1) ${dashaKey === 'Jupiter' ? 'สวดมนตราพฤหัส "Om Brihaspataye Namaha" 108 ครั้งทุกวันพฤหัส' : dashaKey === 'Saturn' ? 'สวด "Om Shanishcharaya Namaha" ทุกวันเสาร์ ถวายน้ำมันงาดำ' : dashaKey === 'Venus' ? 'สวด "Om Shukraya Namaha" ทุกวันศุกร์ ใส่เสื้อขาว' : dashaKey === 'Rahu' ? 'สวด "Om Rahave Namaha" บริจาคให้คนที่ด้อยโอกาส' : dashaKey === 'Ketu' ? 'สวด "Om Ketave Namaha" ทำสมาธิและปฏิบัติธรรม' : 'สวดมนตราประจำดาว Mahadasha ของคุณ'} (2) ใส่อัญมณีประจำ Mahadasha — ${dashaKey === 'Jupiter' ? 'บุษราคัมเหลือง' : dashaKey === 'Saturn' ? 'ไพลิน' : dashaKey === 'Venus' ? 'เพชร' : dashaKey === 'Rahu' ? 'Hessonite Garnet' : dashaKey === 'Ketu' ? 'Cat\'s Eye' : 'อัญมณีของดาว'} (3) บริจาคสิ่งที่สัมพันธ์กับดาวอย่างน้อยเดือนละครั้ง`,
+            practiceEn: `Vedic practice for your Mahadasha: (1) ${dashaKey === 'Jupiter' ? 'Chant the Jupiter mantra "Om Brihaspataye Namaha" 108 times every Thursday' : dashaKey === 'Saturn' ? 'Chant "Om Shanishcharaya Namaha" every Saturday, offer black sesame oil' : dashaKey === 'Venus' ? 'Chant "Om Shukraya Namaha" every Friday, wear white' : dashaKey === 'Rahu' ? 'Chant "Om Rahave Namaha" and donate to the underprivileged' : dashaKey === 'Ketu' ? 'Chant "Om Ketave Namaha", meditate, do dharma practice' : 'chant your Mahadasha planet\'s mantra'}. (2) Wear your Mahadasha gemstone — ${dashaKey === 'Jupiter' ? 'Yellow Sapphire' : dashaKey === 'Saturn' ? 'Blue Sapphire' : dashaKey === 'Venus' ? 'Diamond' : dashaKey === 'Rahu' ? 'Hessonite Garnet' : dashaKey === 'Ketu' ? 'Cat\'s Eye' : 'the planet\'s gemstone'}. (3) Donate something connected to the planet at least once a month.`,
             currentYearTh: `ปี 2026 ใน Mahadasha ${vedic.mahadasha} ของคุณ — ${dq.quality.includes('ดี') || dq.quality.includes('มงคล') ? 'ปีนี้เป็นช่วงพีคของ Mahadasha คุณ ใช้โอกาสเต็มที่' : 'ปีนี้ต้องสุขุมรอบคอบ ผลตอบแทนมาช้าแต่มั่นคง'} Antardasha ${vedic.antardasha} จะสิ้นสุดและเปลี่ยนภายในปีนี้หรือปีหน้า — สังเกตการเปลี่ยนแปลงของทิศทางเมื่อ Antardasha เปลี่ยน`,
             currentYearEn: `2026 in your ${vedic.mahadasha} Mahadasha — ${dq.quality.includes('ดี') || dq.quality.includes('มงคล') ? 'this is your Mahadasha\'s peak phase. Use the opening fully' : 'this year demands care and patience; returns come slowly but stably'}. Antardasha ${vedic.antardasha} will end and change within this year or next — watch for the direction shift when the Antardasha changes.`,
             closingTh: 'Vedic Mahadasha ไม่ทำนาย "อะไรจะเกิด" — มันทำนาย "ความรู้สึก" ของช่วงเวลานั้น รู้ไว้ก่อน คุณก็เตรียมใจได้',
