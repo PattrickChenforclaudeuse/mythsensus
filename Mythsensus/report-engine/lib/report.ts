@@ -1556,7 +1556,7 @@ function p06_ninestar(c: ChartData): string {
 
 function p07_vedic(c: ChartData): string {
   const v = c.vedic
-  return section(7, tr('Vedic Jyotish — โหราศาสตร์เวท', 'Vedic Jyotish — India\'s Ancient Star Science'), '🕉️', `
+  return section(7, tr('Vedic Jyotish — โหราศาสตร์ภารตะ (อินเดีย)', 'Vedic Jyotish — India\'s Ancient Star Science'), '🕉️', `
     <table><tbody>
       ${row2(tr('Lagna (ราศีขึ้น)','Lagna (Rising Sign)'), `${v.lagna} · ${v.lagnaSign}`)}
       ${row2(tr('นักษัตรดวงจันทร์','Moon Nakshatra'), `${v.moonNakshatra} ${tr('บาท','Pada')} ${v.nakshathraPada}`)}

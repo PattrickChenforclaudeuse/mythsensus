@@ -71,7 +71,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=206">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=207">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
@@ -2935,7 +2935,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=206" defer></script>
+<script src="/build/ms26-bundle.js?v=207" defer></script>
 <script>
 
 
@@ -6714,7 +6714,7 @@ function renderChart(data){
   const systems=[
     {key:'western', title:{en:'Western Astrology',th:'โหราศาสตร์ตะวันตก'}, sub:{en:'Sun Sign',th:'ราศีดวงอาทิตย์'}, icon:'☀️', result:data.western.glyph+' '+data.western.label[LANG], desc:richDescs.western[LANG], freeNote:{en:'Sun sign, degree position',th:'ราศีและองศาดวงอาทิตย์'}},
     {key:'bazi',    title:{en:'BaZi Four Pillars',th:'สี่เสาชะตา (BaZi)'}, sub:{en:'Year Pillar',th:'เสาปี'}, icon:'🎋', result:data.bazi.label[LANG], desc:richDescs.bazi[LANG], freeNote:{en:'Year pillar only',th:'เฉพาะเสาปี'}},
-    {key:'vedic',   title:{en:'Vedic Jyotish',th:'โหราศาสตร์เวทิก'}, sub:{en:'Moon Rashi',th:'ราศีจันทร์'}, icon:'🌙', result:data.vedic.glyph+' '+data.vedic.label[LANG], desc:richDescs.vedic[LANG], freeNote:{en:'Moon sign (sidereal)',th:'ราศีจันทร์ (sidereal)'}},
+    {key:'vedic',   title:{en:'Vedic Jyotish',th:'โหราศาสตร์ภารตะ (อินเดีย)ิก'}, sub:{en:'Moon Rashi',th:'ราศีจันทร์'}, icon:'🌙', result:data.vedic.glyph+' '+data.vedic.label[LANG], desc:richDescs.vedic[LANG], freeNote:{en:'Moon sign (sidereal)',th:'ราศีจันทร์ (sidereal)'}},
     {key:'nsk',     title:{en:'Nine Star Ki',th:'Nine Star Ki'}, sub:{en:'Popular in Japan & Korea',th:'นิยมในญี่ปุ่นและเกาหลี'}, icon:'⭐', result:'★ '+data.nsk.label[LANG]+' — '+data.nsk.starName[LANG], desc:richDescs.nsk[LANG], freeNote:{en:'Star number & element',th:'ดาวและธาตุ'}},
     {key:'thaiNum', title:{en:'Thai Numerology',th:'เลข ๗ ตัว ๙ ฐาน'}, sub:{en:'7-Number System',th:'เลขศาสตร์ไทย'}, icon:'🔮', result:data.thaiNum.label[LANG], desc:richDescs.thaiNum[LANG], freeNote:{en:'Core destiny numbers',th:'เลขชะตาหลัก'}},
     {key:'pyth',    title:{en:'Pythagorean Numerology',th:'เลขศาสตร์พีทาโกรัส'}, sub:{en:'Life Path',th:'เส้นทางชีวิต'}, icon:'🔢', result:data.pyth.label[LANG], desc:richDescs.pyth[LANG], freeNote:{en:'Life path number & archetype',th:'เลขเส้นทางและต้นแบบ'}},
@@ -20785,7 +20785,7 @@ ${box('d', 'คำแนะนำปฏิบัติ 5 ข้อ',
 )}`);
 
   // ─ P7: Vedic ─
-  const p7 = page(7,'🕉️','Vedic Jyotish — โหราศาสตร์เวท อินเดีย',`
+  const p7 = page(7,'🕉️','Vedic Jyotish — โหราศาสตร์ภารตะ (อินเดีย) อินเดีย',`
 ${origin('อินเดีย · บันทึกใน Vedanga Jyotisha อายุกว่า 5,000 ปี · ต่างจากโหราตะวันตกตรงที่ใช้ Sidereal Zodiac (ราศีตามดาวจริง) ผ่าน Ayanamsa ≈ 24° · มีนักษัตร 27 กลุ่ม และระบบมหาทศา (Dasha) สำหรับพยากรณ์ช่วงชีวิต · ยังใช้กันทั่วเอเชียใต้')}
 <table><tbody>
 <tr><td class="lbl">Lagna (ราศีขึ้น)</td><td>${esc(vedic.lagna)}</td></tr>
