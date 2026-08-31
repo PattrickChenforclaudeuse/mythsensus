@@ -7213,21 +7213,33 @@ function _buildSynthesis(
         ? 'ไม่มีเสียงไหนออกมาหนักไปทางใดทางหนึ่ง'
         : 'None of them leans hard either way');
 
-  // 3 · แล้วควรทำอะไร — ผูกกับคำตัดสิน ไม่ใช่คำอวยลอย ๆ
+  // 3 · แล้วควรทำอะไร — ผูกกับ "เสียงที่ยกมาในประโยคเดียวกัน" ไม่ใช่คำตัดสินระดับวัน
+  //
+  // เดิมผูกกับ tier ของ calcDailyPulse ⇒ หัวข้อขึ้น "วันทอง" (นับจาก calcForecast)
+  // แล้วบรรทัดนี้แนะนำแบบวันกลาง ๆ อยู่ใต้กันเอง · ตอนนี้ประโยคนี้พูดถึงเฉพาะเสียงที่มัน
+  // เพิ่งยกมา จึงไม่ไปแย่งประกาศคำตัดสินของวันกับใคร
   const act = isTh
-    ? (tier.key === 'peak'       ? 'เรื่องที่เลื่อนมานาน เอาวันนี้'
-     : tier.key === 'supportive' ? 'เดินตามแผนที่วางไว้ ไม่ต้องเร่งให้เกินแผน'
-     : tier.key === 'neutral'    ? 'วันแบบนี้ตัดสินใจด้วยข้อมูลของคุณเอง ไม่ต้องรอฤกษ์'
-     : tier.key === 'observe'    ? 'อย่าเพิ่งผูกมัดอะไรที่ถอยกลับไม่ได้'
-     :                             'พักให้พอก่อน งานใหญ่รอวันหน้าได้')
-    : (tier.key === 'peak'       ? 'Whatever you have been postponing, today is the day'
-     : tier.key === 'supportive' ? 'Follow the plan you already have; do not force it past that'
-     : tier.key === 'neutral'    ? 'Decide on your own information today; there is no omen to wait for'
-     : tier.key === 'observe'    ? 'Do not commit to anything you cannot walk back'
-     :                             'Rest first — the big push keeps until another day');
+    ? (!loudest || loudest.score === 0
+        ? 'ไม่มีเสียงไหนดังพอจะสั่งคุณวันนี้ — ตัดสินใจด้วยข้อมูลของคุณเอง ไม่ต้องรอฤกษ์'
+        : loudest.score > 0
+          ? 'ใช้จังหวะที่เสียงนี้เปิดให้ อย่าปล่อยผ่าน'
+          : 'ด้านที่เสียงนี้พูดถึง อย่าเพิ่งผูกมัดอะไรที่ถอยกลับไม่ได้')
+    : (!loudest || loudest.score === 0
+        ? 'No voice is loud enough to overrule you today — decide on your own information.'
+        : loudest.score > 0
+          ? 'Use the opening this voice is giving you.'
+          : 'On what this voice is pointing at, do not commit to anything you cannot walk back.');
 
-  const dot = isTh ? ' · ' : '. ';
-  return `${verdict}${dot}${tally}${dot}${who}${isTh ? ' ⇒ ' : '. '}${act}`;
+  // ⛔ ไม่คืนคำตัดสินและไม่นับเสียงซ้ำอีกแล้ว
+  //
+  // หัวข้อของหน้า (_pulseBar) ประกาศคำตัดสินกับจำนวนศาสตร์ที่ออกเสียงไปแล้ว และมันนับ
+  // จาก calcForecast · ส่วนบรรทัดนี้นับจาก calcDailyPulse ซึ่งเป็นคนละท่อ ⇒ วางซ้อนกัน
+  // แล้วขัดกันบนจอเดียว (เจอจริง 1 ก.ย.: หัวบอก "ดีกว่าปกติ 7" บรรทัดนี้บอก "เตือน 4")
+  //
+  // แบ่งหน้าที่: หัวข้อถือตัวเลขและฉันทามติ · บรรทัดนี้ถือสิ่งที่หัวข้อทำไม่ได้ —
+  // เสียงไหนดังที่สุดวันนี้ และให้ทำอะไร
+  void verdict; void tally;
+  return `${who}${isTh ? ' ⇒ ' : '. '}${act}`;
 }
 
 

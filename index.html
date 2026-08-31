@@ -71,7 +71,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=205">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=206">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
@@ -2073,8 +2073,8 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
      and restyled as a framed gold card so it reads as the primary
      navigation of the app. See `.nav-groups` CSS above. -->
 <nav class="nav-groups" role="tablist">
-  <button class="group-btn active" id="group-free"    onclick="setGroup('free')"    data-t="group_free">✦ ดูดวงฟรี</button>
-  <button class="group-btn"        id="group-premium" onclick="setGroup('premium')" data-t="group_premium">👑 Premium</button>
+  <button class="group-btn active" id="group-free"    onclick="setGroup('free')"    data-t="group_free">✦ ดูดวงฟรีทุกวัน</button>
+  <button class="group-btn"        id="group-premium" onclick="setGroup('premium')" data-t="group_premium">👑 พรีเมียม</button>
   <button class="group-btn"        id="group-profile" onclick="setGroup('profile')" data-t="group_profile">👤 คลังของฉัน</button>
 </nav>
 
@@ -2935,7 +2935,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=205" defer></script>
+<script src="/build/ms26-bundle.js?v=206" defer></script>
 <script>
 
 

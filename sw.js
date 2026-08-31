@@ -379,7 +379,7 @@
 // v180: 2026-07-03 — collection tier stability: renderCollection now guards on
 // GODS_LOADED (re-renders when gods.json lands) so cards no longer flash the
 // random per-draw rarity before snapping to the canonical tier.
-const CACHE = 'mythsensus-v232';
+const CACHE = 'mythsensus-v233';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
