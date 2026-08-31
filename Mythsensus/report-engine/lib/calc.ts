@@ -7369,14 +7369,28 @@ function buildRichReading(args: {
   // keyValueMeaning stays: it is the part that says what the values MEAN. The
   // `closing*` arguments are still accepted so the 24 call sites keep compiling;
   // they are simply no longer rendered.
+  // ลิสต์ (1)(2)(3) ที่ถูกยัดเป็นย่อหน้าเดียว → ขึ้นบรรทัดจริง
+  //
+  // ข้อความ "แนวทางปฏิบัติรายวัน" ของหลายศาสตร์เขียนเป็นลิสต์อยู่แล้ว แต่ถูกเรนเดอร์
+  // ต่อกันรวดเดียว ยาว 400-480 ตัวอักษรในย่อหน้าเดียว — อ่านแล้วเป็นกำแพง ทั้งที่
+  // เนื้อในมันแยกข้อมาตั้งแต่ต้น (director: ดวงต้องอ่านรู้เรื่อง)
+  //
+  // แก้ที่จุดเรนเดอร์จุดเดียว ไม่ใช่ไล่แก้ข้อความทีละอัน — ข้อความใหม่ที่เขียนเป็นลิสต์
+  // จะได้ผลนี้ฟรีโดยไม่ต้องจำกฎ · ไม่มีตัวอักษรไหนถูกตัดออก แค่ขึ้นบรรทัด
+  const _steps = (t: string) => {
+    const x = String(t || '');
+    if (!/\(1\)/.test(x) || !/\(2\)/.test(x)) return x;
+    return x.replace(/\s*(\((?:[1-9]|1[0-9])\))\s*/g, (m, n, i) => (i === 0 ? '' : '<br>') + n + ' ');
+  };
+
   const paragraphs = [
     metaHeader,
     `<p><strong>${L.yourChart}</strong> ${keyValueMeaning}</p>`,
     uniqueText ? `<p style="background:#0e1420;border-left:3px solid #5a8acc;padding:9px 12px;border-radius:0 6px 6px 0"><strong style="color:#aac8ff">${L.unique}</strong> ${uniqueText}</p>` : '',
-    `<p><strong>${L.strength}</strong> ${strengthText}</p>`,
-    `<p><strong>${L.shadow}</strong> ${shadowText}</p>`,
-    `<p><strong>${L.practice}</strong> ${practiceText}</p>`,
-    `<p><strong>${L.thisYear}</strong> ${currentYearText}</p>`,
+    `<p><strong>${L.strength}</strong> ${_steps(strengthText)}</p>`,
+    `<p><strong>${L.shadow}</strong> ${_steps(shadowText)}</p>`,
+    `<p><strong>${L.practice}</strong> ${_steps(practiceText)}</p>`,
+    `<p><strong>${L.thisYear}</strong> ${_steps(currentYearText)}</p>`,
   ];
   return paragraphs.filter(Boolean).join('');
 }
@@ -8077,6 +8091,24 @@ function calcHellenistic(d: BirthData, w: WesternData): HellenisticData {
   // calendar. A system's score is now exactly what its own reading is worth.
   const score = Math.max(440, Math.min(950, SIGN_SCORES[lotSign] + sectBonus));
 
+  // ── Annual Profection (whole-sign houses, traditional rulers) ────────────
+  // อายุ mod 12 = เรือนที่เปิดในปีนั้น · เจ้าเรือนของราศีนั้น = Time Lord ของปี
+  // ใช้เรือนแบบ whole sign และตารางเจ้าเรือนดั้งเดิม (ไม่มียูเรนัส/เนปจูน/พลูโต)
+  // ซึ่งเป็นของตายตัวทั้งคู่ในเฮลเลนิสติก ไม่ใช่การตีความเพิ่ม
+  const _profAge = 2026 - d.year;
+  const _profHouse = (((_profAge % 12) + 12) % 12) + 1;
+  const _ascSignIdx = Math.floor((((w.ascDeg % 360) + 360) % 360) / 30);
+  const _profSignIdx = (_ascSignIdx + _profHouse - 1) % 12;
+  const _TRAD_LORD_TH = ['อังคาร','ศุกร์','พุธ','จันทร์','อาทิตย์','พุธ','ศุกร์','อังคาร','พฤหัสบดี','เสาร์','เสาร์','พฤหัสบดี'];
+  const _TRAD_LORD_EN = ['Mars','Venus','Mercury','the Moon','the Sun','Mercury','Venus','Mars','Jupiter','Saturn','Saturn','Jupiter'];
+  const _SIGNS_TH_P = ['เมษ','พฤษภ','เมถุน','กรกฎ','สิงห์','กันย์','ตุลย์','พิจิก','ธนู','มกร','กุมภ์','มีน'];
+  const _SIGNS_EN_P = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+  const _profSignTh = _SIGNS_TH_P[_profSignIdx];
+  const _profLordTh = _TRAD_LORD_TH[_profSignIdx];
+  const _profLordEn = _TRAD_LORD_EN[_profSignIdx];
+  const _H_TOPIC_TH = ['ตัวเอง ร่างกาย การเริ่มใหม่','ทรัพย์สินและรายได้','พี่น้อง การเดินทางใกล้ การสื่อสาร','บ้าน ครอบครัว รากฐาน','ลูก ความสร้างสรรค์ ความสนุก','งานประจำ สุขภาพ ภาระ','คู่ครองและคู่สัญญา','ของที่ผูกกับคนอื่น การเปลี่ยนผ่าน','การเดินทางไกล ความเชื่อ การเรียนสูง','อาชีพและชื่อเสียง','มิตรและกลุ่มก้อน','สิ่งที่อยู่เบื้องหลัง การพัก การปล่อย'];
+  const _H_TOPIC_EN = ['self, body, beginnings','possessions and income','siblings, short travel, communication','home, family, foundations','children, creativity, play','daily work, health, obligation','partners and contracts','what is bound up with others, and transition','long journeys, belief, higher study','career and reputation','friends and groups','what happens behind the scenes, rest and release'];
+
   const hellenisticResult: HellenisticData = {
     sect, sectTh, trigonLord,
     // lotSign mirrors UI lang; lotSignTh kept as Thai canonical for any caller
@@ -8107,8 +8139,11 @@ function calcHellenistic(d: BirthData, w: WesternData): HellenisticData {
       strengthEn: `Being a ${sect} chart means you receive the full power of "the planets of your sect" — ${isDaySect?'Sun, Jupiter, and Saturn show their best in your chart. People who built durable structures across history (Cicero, Cato) tended to be day births':'Moon, Venus, and Mars show their best — the cluster of artists, writers, and spiritual leaders (Rumi, Frida Kahlo were night births)'}. Your Trigon Lord ${trigonLord.includes('Jupiter')?'Jupiter':'Venus'} is the protector of your chart — in a crisis, draw on its energy as your touchstone.`,
       shadowTh: `Lot of Fortune ใน${SIGNS_TH[lotSign]} หมายความว่าคุณอาจไปผิดที่หากตามหาเงินผิดช่อง — เฮลเลนิสติกบอกว่าเงินของคุณต้องไหลผ่าน${SIGNS_TH[lotSign]==='เมถุน'?'การสื่อสาร การเขียน การสอน':SIGNS_TH[lotSign]==='กรกฎ'?'ครอบครัว บ้าน อสังหาริมทรัพย์':SIGNS_TH[lotSign]==='สิงห์'?'การแสดง ความคิดสร้างสรรค์ ธุรกิจบันเทิง':SIGNS_TH[lotSign]==='กันย์'?'บริการ การวิเคราะห์ สาธารณสุข':'กิจกรรมเฉพาะของราศี' + SIGNS_TH[lotSign]} ไม่ใช่ช่องทางอื่น — การฝืนหาเงินในทางที่ไม่ตรงกับ Lot จะเหนื่อย 3 เท่า`,
       shadowEn: `Lot of Fortune in ${['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'][lotSign]} means you can land in the wrong place if you chase money through the wrong channel. Hellenistic teaches that your money must flow through ${SIGNS_TH[lotSign]==='เมถุน'?'communication, writing, teaching':SIGNS_TH[lotSign]==='กรกฎ'?'family, home, real estate':SIGNS_TH[lotSign]==='สิงห์'?'performance, creativity, entertainment business':SIGNS_TH[lotSign]==='กันย์'?'service, analysis, public health':'activities specific to '+['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'][lotSign]} — not other channels. Forcing money through a non-Lot path tires you 3× harder.`,
-      practiceTh: `เทคนิคเฮลเลนิสติกรายปี: คำนวณ Profection — อายุของคุณ mod 12 = บ้านที่เปิดปีนี้ ดาวที่ปกครองบ้านนั้นคือ Time Lord ของปี ซึ่งเป็นดาวที่มีอิทธิพลสูงสุดกับคุณตลอดสิบสองเดือนนั้น`,
-      practiceEn: `Annual Hellenistic technique: (1) Compute your Profection — your age mod 12 = "the house opening this year". That house defines the year\'s theme. (2) Track the year\'s Time Lord — the planet that "rules" that house will be your year\'s strongest influence. (3) Use Lot of Fortune as your money compass, Lot of Spirit as your career compass, and Lot of Eros as your love compass.`,
+      // เดิมบรรทัดนี้สอนวิธีคำนวณ Profection แล้วปล่อยให้ผู้อ่านไปคิดเอง ทั้งที่ทุกอย่าง
+      // ที่ต้องใช้อยู่ในดวงเขาแล้ว (อายุ + ลัคนา) ⇒ เป็นย่อหน้าที่เหมือนกันทุกคน
+      // เพราะไม่มีคำตอบของใครอยู่ในนั้นเลย
+      practiceTh: `เทคนิคเฮลเลนิสติกรายปี — Profection ของคุณปี 2026: อายุ ${_profAge} ⇒ เปิด<strong>เรือนที่ ${_profHouse}</strong> ราศี${_profSignTh} · Time Lord ของปีคือ<strong>${_profLordTh}</strong> ดาวที่มีอิทธิพลสูงสุดกับคุณตลอดสิบสองเดือนนั้น · หัวข้อของเรือนนี้คือ${_H_TOPIC_TH[_profHouse - 1]}`,
+      practiceEn: `Your 2026 profection: at ${_profAge} you open <strong>house ${_profHouse}</strong> in ${_SIGNS_EN_P[_profSignIdx]} — the year's Time Lord is <strong>${_profLordEn}</strong>, the planet with the strongest claim on your next twelve months. The house's topic is ${_H_TOPIC_EN[_profHouse - 1]}.`,
       currentYearTh: `ปี 2026 — Time Lord จะเปลี่ยนเข้าสู่ Jupiter ในหลายดวง ซึ่ง Jupiter ในเฮลเลนิสติกคือ "Great Benefic" ขยายทุกสิ่งที่มันสัมผัส แต่การขยายนี้ต้องผ่านช่องของ ${trigonLord} ก่อน ดังนั้นโฟกัสที่สิ่งที่ ${trigonLord} ปกป้องให้ดีก่อนปล่อยให้ Jupiter ขยาย`,
       currentYearEn: `2026 — Time Lord shifts to Jupiter in many charts. Jupiter in Hellenistic is the "Great Benefic", expanding everything it touches — but this expansion must flow through ${trigonLord.includes('Jupiter')?'Jupiter':'Venus'} first. So focus on what ${trigonLord.includes('Jupiter')?'Jupiter':'Venus'} protects, before you let Jupiter scale it.`,
       closingTh: 'เฮลเลนิสติกสอนว่า "อย่าถามว่าดาวส่งผลอะไรให้ฉัน — ถามว่าฉันเกิดในช่วงที่ฟ้ากำลังทำอะไร และฉันจะไหลตามฟ้านั้นยังไง"',

@@ -307,7 +307,7 @@ if (!failures.length) {
 //
 // class อื่นยังต้องเป็นศูนย์ · class ใหม่ หรือเกินเพดานแม้แต่ 1 = build แดง
 const DEBT = {
-  'K long-sentence':   98,
+  'K long-sentence':   84,   // 98 -> 84 เมื่อ 31 ส.ค. (ลิสต์ (1)(2)(3) ขึ้นบรรทัดจริง)
   'L thai-in-english':  5,
 };
 const byClass = {};
