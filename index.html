@@ -214,6 +214,44 @@ nav{display:flex;justify-content:center;gap:3px;padding:18px 12px 0;flex-wrap:wr
   .sub-btn{font-size:9px;padding:6px 10px;letter-spacing:1px;}
 }
 
+/* ── Sub-tab row: nothing may park where no scroll can reach it ─────────────
+   Measured 2026-08-31 on a 390px viewport: the premium row (1368px of buttons)
+   rendered CENTRED, so five buttons sat at NEGATIVE x — among them
+   "✨ สร้างรายงาน" (฿650, the most expensive thing on the site) and "🔬 26 ศาสตร์"
+   (฿320). Negative x is reachable by no scroll in any browser, so those buttons
+   were not merely hard to find, they were invisible. The monthly segment lost
+   its own default tab (📅 พยากรณ์ 4 สัปดาห์) the same way.
+   The row is now pinned left and scrolls inside itself. */
+.nav-subs{width:100%;}
+.seg-tabs{justify-content:flex-start;flex-wrap:wrap;row-gap:8px;max-width:100%;padding-bottom:2px;}
+.sub-price{font-size:9.5px;letter-spacing:.5px;color:var(--gold3);margin-left:8px;white-space:nowrap;}
+.sub-btn.active .sub-price{color:var(--gold2);}
+.nav-menu-toggle{display:none;}
+
+/* ── Mobile: the row becomes a notebook menu ────────────────────────────────
+   director 2026-08-31: "ทำเป็นหน้าใหม่ไปเลยว่า กดเข้ารายเดือนแล้ว มี tab ลงมาว่าจะดูอะไร
+   อารมณ์แบบ side tab สมุดโน๊ต". Pick a segment → the list drops down, one reading
+   per line with its price on the right; pick one → the list collapses to the
+   reading you are on, with a tap to reopen. Vertical is what makes the overflow
+   bug above structurally impossible rather than merely fixed. */
+@media(max-width:520px){
+  /* width:100% is load-bearing — the row is a shrink-to-fit box inside a
+     centring ancestor, which is what pushed the horizontal version off both
+     edges. Without it the notebook rows come out narrow and centred. */
+  #navSubs:has(.seg-row) .seg-tabs{flex-direction:column;align-items:stretch;gap:6px;
+    width:100%;overflow:visible;padding:2px 0 10px;}
+  #navSubs:has(.seg-row) .sub-btn{display:flex;justify-content:space-between;align-items:center;
+    text-align:left;border-radius:0 8px 8px 0;border-left:3px solid var(--gold3);
+    padding:10px 12px;font-size:10.5px;letter-spacing:.6px;white-space:normal;}
+  #navSubs:has(.seg-row) .sub-btn.active{border-left-color:var(--gold);}
+  #navSubs:has(.seg-row) .nav-menu-toggle{display:flex;justify-content:space-between;align-items:center;
+    width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--gold3);border-radius:8px;
+    background:rgba(200,164,90,.08);color:var(--gold);cursor:pointer;
+    font-family:'Josefin Sans',sans-serif;font-size:10.5px;letter-spacing:1px;}
+  #navSubs.menu-closed:has(.seg-row) .seg-tabs{display:none;}
+  .nav-menu-toggle .chev{color:var(--gold3);font-size:11px;margin-left:8px;}
+}
+
 /* ── Tier-locked panel (when user hasn't purchased) ───────── */
 .tier-lock{max-width:560px;margin:40px auto;padding:28px 24px;background:var(--bg2);border:1px solid var(--gold3);border-radius:8px;text-align:center;}
 .tier-lock-icon{font-size:42px;margin-bottom:10px;}
@@ -2943,6 +2981,7 @@ en:{
   // ── top-level groups
   group_free:"✦ Free readings",group_premium:"👑 Premium",group_subscription:"🔮 Today",
   seg_monthly:"Monthly membership",seg_onetime:"Single readings",
+  nav_menu_open:"Choose a reading",nav_menu_close:"Close menu",chip_member:"Membership",chip_included:"Included",
   group_addon:"🎁 Soulmate · Remedies",group_profile:"👤 My collection",
   // ── sub-tabs
   sub_forecast:"📅 Weeks ahead",sub_blessing:"🎴 Blessing",sub_organum:"🔮 Oraculum",sub_preview:"📊 Preview",
@@ -3162,6 +3201,7 @@ th:{
   // ── top-level groups
   group_free:"✦ ดูดวงฟรี",group_premium:"👑 Premium",group_subscription:"🔮 ดวงวันนี้",
   seg_monthly:"สมาชิกรายเดือน",seg_onetime:"ดูดวงรายครั้ง",
+  nav_menu_open:"เลือกดูอะไร",nav_menu_close:"ปิดเมนู",chip_member:"สมาชิก",chip_included:"รวมแล้ว",
   group_addon:"🎁 เนื้อคู่ · เสริมดวง",group_profile:"👤 คลังของฉัน",
   // ── sub-tabs
   sub_forecast:"📅 พยากรณ์ 4 สัปดาห์",sub_blessing:"🎴 จั่วไพ่",sub_organum:"🔮 โอราคูลัม",sub_preview:"📊 ดูตัวอย่าง",
@@ -4051,14 +4091,62 @@ function _segIndexOfSub(g, subKey) {
   return i < 0 ? 0 : i;
 }
 
-// Open a segment and land on its first tab.
+// Which premium tab costs what. Keys mirror `PRICING`; the four pet tabs are a
+// single purchase (`_purchasePaywall('pet')`), so they all quote the pet price.
+// A tab that is not listed here is not sold separately — it comes with the
+// membership, which is what the monthly segment says instead of a number.
+const SUB_PRICE = {
+  blueprint:'full_report', deep:'deep', mirror:'mirror', compat:'compat',
+  pilgrimage:'pilgrimage', companions:'companions', exercise:'exercise',
+  food:'food', product:'product',
+  pet:'pet', petreading:'pet', petmatch:'pet', pethouse:'pet',
+};
+
+// The price on a tab, said the way checkout will actually behave.
+// `pilgrimage` has ฿320 in PRICING but no Gumroad product, so pressing buy sends
+// the reader to the subscription — printing "฿320" beside it would be a promise
+// the checkout does not keep. The kind is read off `_gumroadCheckout()` rather
+// than hardcoding which items are wired up, so wiring one up later needs no edit
+// here. Wrapped because `PRICING` is declared further down the same script and a
+// nav paint during boot would otherwise hit its temporal dead zone.
+function _subPriceChip(subKey){
+  try {
+    const pk = SUB_PRICE[subKey];
+    if (!pk) return '';
+    return _gumroadCheckout(pk).kind === 'one-time' ? _priceStr(pk) : t('chip_member');
+  } catch(_) { return ''; }
+}
+
+// Mobile only: the sub-tab list opens as a menu ("มี tab ลงมาว่าจะดูอะไร") and
+// collapses once a reading is picked. Desktop never reads this — the CSS keeps
+// the toggle hidden above 520px and the row stays horizontal.
+let NAV_MENU_OPEN = true;
+
+function _syncNavMenu(){
+  const bar = document.getElementById('navSubs');
+  if (!bar) return;
+  bar.classList.toggle('menu-closed', !NAV_MENU_OPEN);
+  const tog = bar.querySelector('.nav-menu-toggle');
+  if (!tog) return;
+  const active = bar.querySelector('.sub-btn.active .sub-label');
+  const lbl  = tog.querySelector('.menu-label');
+  const chev = tog.querySelector('.chev');
+  if (lbl)  lbl.textContent  = NAV_MENU_OPEN ? t('nav_menu_close')
+                             : ((active && active.textContent) || t('nav_menu_open'));
+  if (chev) chev.textContent = NAV_MENU_OPEN ? '▴' : '▾';
+}
+
+// Open a segment and land on its first tab — with the menu still open, because
+// picking "รายเดือน" or "รายครั้ง" is the question BEFORE "which reading", not
+// after it. Only an explicit tap on a reading collapses the list.
 function setSegment(g, i) {
   const segs = _segmentsOf(g);
   if (!segs[i]) return;
   CUR_SEG = i;
+  NAV_MENU_OPEN = true;
   _paintSubBar(g);
   const first = segs[i].tabs[0];
-  if (first) showSubTab(first[0]);
+  if (first) showSubTab(first[0], { keepMenu: true });
 }
 
 function _paintSubBar(g) {
@@ -4075,11 +4163,23 @@ function _paintSubBar(g) {
     return;
   }
   const cur = (CUR_SEG == null || !segs[CUR_SEG]) ? 0 : CUR_SEG;
+  // Everything under "สมาชิกรายเดือน" is one price for the lot, so each line
+  // says so rather than repeating a number it does not have.
+  const inclusive = segs[cur].label === 'seg_monthly';
   const picker = segs.map((sg, i) =>
     `<button type="button" class="seg-btn${i === cur ? ' active' : ''}" data-seg="${i}" data-t="${sg.label}">${t(sg.label)}</button>`).join('');
-  const tabs = segs[cur].tabs.map(([key, panel, txKey, locked]) =>
-    `<button type="button" class="sub-btn${locked ? ' locked' : ''}" data-sub="${key}" data-panel="${panel}" data-t="${txKey}">${t(txKey)}</button>`).join('');
-  bar.innerHTML = `<span class="seg-row">${picker}</span><span class="seg-tabs">${tabs}</span>`;
+  // The label lives in its own span: applyLang() rewrites textContent on every
+  // [data-t] element, which would flatten a button that also holds a price.
+  const tabs = segs[cur].tabs.map(([key, panel, txKey, locked]) => {
+    const chip = _subPriceChip(key) || (inclusive ? t('chip_included') : '');
+    return `<button type="button" class="sub-btn${locked ? ' locked' : ''}" data-sub="${key}" data-panel="${panel}">`
+      + `<span class="sub-label" data-t="${txKey}">${t(txKey)}</span>`
+      + (chip ? `<span class="sub-price">${chip}</span>` : '')
+      + `</button>`;
+  }).join('');
+  bar.innerHTML = `<span class="seg-row">${picker}</span><span class="seg-tabs">${tabs}</span>`
+    + `<button type="button" class="nav-menu-toggle"><span class="menu-label"></span><span class="chev"></span></button>`;
+  _syncNavMenu();
 }
 
 function setGroup(g) {
@@ -4094,6 +4194,7 @@ function setGroup(g) {
   // Rebuild the sub-tab row WITHOUT inline onclick — the document-level
   // delegation handler picks up clicks via .sub-btn class + data-sub attr.
   if (CUR_GROUP !== g) CUR_SEG = null;   // entering a group opens its first segment
+  NAV_MENU_OPEN = true;                  // …and shows what is in it, before a reading
   _paintSubBar(g);
   // Restore last-visited sub for this group; fall back to default if the
   // saved key no longer exists in the group definition (e.g. tab renamed).
@@ -4105,10 +4206,13 @@ function setGroup(g) {
   const booting = _navBooting;
   _navBooting = false;
   const landOnDefault = booting && g === 'free';
-  showSubTab((valid && !landOnDefault) ? last : GROUPS[g].default);
+  showSubTab((valid && !landOnDefault) ? last : GROUPS[g].default, { keepMenu: true });
 }
 
-function showSubTab(subKey) {
+function showSubTab(subKey, opts) {
+  // Arriving somewhere collapses the mobile menu — except when the caller is
+  // the segment picker, which has only just opened it.
+  if (!(opts && opts.keepMenu)) NAV_MENU_OPEN = false;
   const tabs = ((GROUPS[CUR_GROUP] || {}).tabs || []).filter(x => x[0] !== '--');
   const entry = tabs.find(x => x[0] === subKey);
   if (!entry) {
@@ -4141,12 +4245,15 @@ function showSubTab(subKey) {
     const want = _segIndexOfSub(CUR_GROUP, subKey);
     if (CUR_SEG !== want) { CUR_SEG = want; _paintSubBar(CUR_GROUP); }
   } catch (_) {}
+  _syncNavMenu();
 }
 
 // One delegated listener handles every group / sub click. Survives sub-tab
 // row re-renders, ignores clicks that happen inside disabled / locked
 // buttons, and never relies on inline onclick attributes.
 document.addEventListener('click', e => {
+  const menuBtn = e.target.closest('.nav-menu-toggle');
+  if (menuBtn) { e.preventDefault(); NAV_MENU_OPEN = !NAV_MENU_OPEN; _syncNavMenu(); return; }
   const segBtn = e.target.closest('.seg-btn');
   if (segBtn) {
     e.preventDefault();
@@ -10331,6 +10438,69 @@ function pulseSaveReflection() {
   if (meta) meta.textContent = LANG === 'th' ? 'บันทึกแล้ว ✓' : 'Saved ✓';
 }
 
+// Life-area scores for the daily panel, read off the SAME engine that powers
+// the paid forecast so the free and paid screens can never drift apart.
+//
+// ⚠️ RESOLUTION: ask for `days:1` — a real one-day window with its own 365-day
+// baseline. Falls back to `weeks[0]` (a 7-day window) only if an older bundle
+// is cached, and then SAYS SO in the label instead of calling seven days
+// "today". ⛔ Never relabel the weekly fallback as "วันนี้".
+//
+// ⛔ Do NOT re-tune the 1-5 distribution here. Day scores skew lower than the
+// weekly scale the director approved on 2026-08-23 ("ดีเป็นพิเศษ" lands at
+// ~4.7% of days vs 7% of weeks). That is a live question for the director, not
+// something to quietly compensate for in the renderer.
+function _pulseAreas(chart, today) {
+  try {
+    if (!window.MS26 || typeof MS26.calcForecast !== 'function') return null;
+    // weeks:1 is the FALLBACK, not waste — an older cached bundle ignores
+    // `days` entirely, and asking for weeks:0 there would leave nothing to fall
+    // back to and blank the whole block. (Caught exactly that way: the root
+    // build/ms26-bundle.js lagged the engine by an hour on 2026-08-31.)
+    const fc = MS26.calcForecast(chart, today, { days: 1, weeks: 1, months: 0 });
+    const isTh = LANG === 'th';
+    const day = Array.isArray(fc.days) && fc.days[0];
+    const period = day || (Array.isArray(fc.weeks) && fc.weeks[0]);
+    if (!period || !period.domains) return null;
+    // Which systems actually read this domain, and which just read the day?
+    //
+    // Some traditions have no per-area doctrine at all: Vedic Tara Bala and the
+    // Mayan tone score the WHOLE day and the engine copies that one number into
+    // all eight areas (`for (const d of DOMAINS) dom[d] = taraScore * 0.6`).
+    // Sorted by strength they then lead most boxes — on 2026-08-31 Vedic was the
+    // named voice in 7 of 8 areas with the identical −1.2 in every one.
+    //
+    // Naming it as the voice on "your money" would tell the reader that Vedic
+    // astrology has a view on their money, which it does not — it has a view on
+    // their day. That is precisely the claim this page exists to get right, so
+    // flat voters are separated out and labelled as reading the day as a whole.
+    // Detected from the data (identical raw in every area), never by hardcoding
+    // system names — a doctrine added later is classified correctly for free.
+    const doms = MS26.FORECAST_DOMAINS_ALL || [];
+    const spread = {};
+    for (const k of doms) {
+      for (const v of (period.domains[k] && period.domains[k].votes) || []) {
+        (spread[v.sys] = spread[v.sys] || []).push(v.raw);
+      }
+    }
+    const flat = new Set(
+      Object.keys(spread).filter(sys =>
+        spread[sys].length >= doms.length &&
+        new Set(spread[sys].map(r => Number(r).toFixed(3))).size === 1)
+    );
+    return {
+      period,
+      isDay: !!day,
+      flat,
+      rangeLabel: day
+        ? (isTh ? (period.labelTh || 'วันนี้') : (period.labelEn || 'today'))
+        : (isTh ? '7 วันข้างหน้า (รวมวันนี้)' : 'the next 7 days, today included'),
+      voting: fc.votingCount,
+      abstain: fc.abstainCount,
+    };
+  } catch (_) { return null; }
+}
+
 function renderDailyPulse() {
   const panel = document.getElementById('pulsePanel');
   if (!panel) return;
@@ -10478,6 +10648,112 @@ function renderDailyPulse() {
       ${historyRowsHtml || `<div style="color:var(--muted);text-align:center;padding:20px;font-size:11px">${isTh?'ยังไม่มีประวัติ':'No history yet'}</div>`}
     </div>`;
 
+  // ── Life-area breakdown ─────────────────────────────────────
+  // Director 2026-08-31: "ดูดวงรายวัน ไม่เห็นมีแยกหมวด การงาน เงิน ความรัก
+  // สุขภาพ etc ที่เคยทำเลย มาเป็น 0 บ้าง +3 บ้าง ใครจะเข้าใจ".
+  //
+  // The cause is that there are TWO forecast engines, not a regression:
+  //   calcForecast   → 8 life domains, named voters, abstentions
+  //   calcDailyPulse → per-SYSTEM scores only; DailyPulseSignal has no domain
+  // The free tab used to land on `forecast` (domains). On 2026-08-31 `forecast`
+  // moved behind the subscription and `pulse` became the landing, so the
+  // domain split left the one screen a first-time visitor sees, and what
+  // replaced it was a raw −3..+3 per system. Hence "ใครจะเข้าใจ".
+  //
+  // The scores below are read off the SAME engine the paid forecast uses, so
+  // the free and paid pages can never disagree.
+  const dom = _pulseAreas(chart, today);
+
+  // Funnel instrumentation for the FREE tier's main screen.
+  //
+  // Until now this screen reported nothing: `forecast_view` is emitted only by
+  // renderForecast(), and on 2026-08-31 the four-week forecast moved behind the
+  // subscription while the daily pulse became what a first-time visitor lands
+  // on. So the one step the funnel most needs to measure went dark on the same
+  // day it became the centrepiece — birth_submit was the last event a visitor
+  // could produce, and every free reading after it was invisible.
+  //
+  // Once per session, like _fcViewTracked — a reader who flips tabs back and
+  // forth is one reader, not a crowd.
+  if (!window._pulseViewTracked) {
+    window._pulseViewTracked = true;
+    try {
+      if (window._msTrack) _msTrack.track('pulse_view', {
+        meta: {
+          // did the life-area block actually render, and at what resolution?
+          areas: dom ? (dom.isDay ? 'day' : 'week') : 'none',
+          verdict: pulse.verdictKey,
+          systems: pulse.signals.length,
+        },
+      });
+    } catch (_) {}
+  }
+  const areaCardsHtml = !dom ? '' : (function () {
+    const L = MS26.FORECAST_DOMAIN_LABELS;
+    const TIER = MS26.FORECAST_TIERS;
+    // Colour follows the 1-5 tier, never the raw signed number.
+    const tone = s => s >= 4 ? { c:'#7fc98a', b:'rgba(127,201,138,0.28)', bg:'rgba(127,201,138,0.06)' }
+                   : s <= 2 ? { c:'#d59090', b:'rgba(213,144,144,0.28)', bg:'rgba(213,144,144,0.05)' }
+                            : { c:'var(--muted)', b:'var(--border)',      bg:'transparent' };
+    const dayWideNames = new Set();
+    const cards = MS26.FORECAST_DOMAINS_ALL.map(k => {
+      const v = dom.period.domains[k];
+      if (!v) return '';
+      const tn = tone(v.score);
+      const label = isTh ? L[k].th : L[k].en;
+      const tier = (TIER[v.score] || {})[isTh ? 'th' : 'en'] || '';
+      // fcAdviceFor(domain, adviceKey) → { th, en } — domain FIRST, and it
+      // returns an object, not a string. Getting either wrong renders
+      // "[object Object]" straight onto a paying customer's screen.
+      const adv = MS26.fcAdviceFor ? MS26.fcAdviceFor(k, v.advice) : null;
+      const advice = adv ? (isTh ? adv.th : adv.en) : '';
+      // Name the traditions that actually read THIS area, strongest first.
+      // Flat voters (same number in all eight areas) are held back — they read
+      // the day, not the area, and saying otherwise is the exact overclaim this
+      // page is meant to avoid.
+      const votes = v.votes || [];
+      const sharpV = votes.filter(x => !dom.flat.has(x.sys));
+      const flatV  = votes.filter(x =>  dom.flat.has(x.sys));
+      const nm = x => isTh ? x.sysTh : x.sysEn;
+      const top = sharpV.slice(0, 2).map(nm).filter(Boolean);
+      const rest = sharpV.length - top.length;
+      const who = top.length
+        ? `<div style="font-size:10.5px;color:var(--gold3);margin-top:5px;line-height:1.5">${isTh?'อ่านด้านนี้':'Read this area'}: ${top.join(' · ')}${rest > 0 ? ` <span style="color:var(--muted)">${isTh?'และอีก':'+'} ${rest}</span>` : ''}</div>`
+        : (flatV.length
+            ? `<div style="font-size:10.5px;color:var(--muted);margin-top:5px;line-height:1.5">${isTh?'ไม่มีศาสตร์ไหนอ่านด้านนี้โดยเฉพาะ':'no tradition reads this area specifically'}</div>`
+            : '');
+      // Flat voters are the same set in every area by definition, so they are
+      // collected once and printed under the grid — repeating an identical line
+      // in all eight cards is noise, not disclosure.
+      for (const x of flatV) dayWideNames.add(nm(x));
+      // Only surface disagreement when the engine actually flags it.
+      const splitTag = v.split
+        ? ` <span style="display:inline-block;margin-top:4px;font-size:9.5px;color:#d0a860;border:1px solid rgba(208,168,96,0.4);border-radius:3px;padding:1px 5px;white-space:nowrap">${isTh?'ศาสตร์เห็นไม่ตรงกัน':'systems split'}</span>`
+        : '';
+      return `<div style="border:1px solid ${tn.b};background:${tn.bg};border-radius:8px;padding:11px 13px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
+          <span style="font-size:13px;color:var(--text)">${L[k].icon} ${label}</span>
+          <span style="font-size:11.5px;color:${tn.c};font-weight:600;white-space:nowrap">${tier}</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:5px;line-height:1.6">${advice}${splitTag}</div>
+        ${who}
+      </div>`;
+    }).join('');
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;color:var(--gold3)">${isTh?'แยกตามด้านของชีวิต':'BY AREA OF LIFE'}</div>
+        <div style="font-size:10px;color:var(--muted)">${dom.rangeLabel}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:8px">${cards}</div>
+      ${dayWideNames.size ? `<div style="font-size:10.5px;color:var(--muted);margin-top:8px;line-height:1.6">${isTh?'อ่านรวมทั้งวัน ไม่ได้แยกเป็นด้าน':'Read the day as a whole, not area by area'}: <span style="color:var(--gold3)">${[...dayWideNames].join(' · ')}</span> — ${isTh?'ให้ค่าเท่ากันทุกด้าน จึงไม่ได้บอกว่าด้านไหนต่างจากด้านไหน':'they score every area alike, so they cannot say which area differs'}</div>` : ''}
+      <div style="font-size:10.5px;color:var(--muted);margin-top:8px;line-height:1.6">
+        ${isTh
+          ? `เทียบกับ<strong style="color:var(--text)">ปีของคุณเอง</strong> ไม่ได้เทียบกับคนอื่น · ออกเสียงโดย ${dom.voting} ศาสตร์ที่มีวิชาเดินเวลา อีก ${dom.abstain} ศาสตร์ไม่มีวิธีคำนวณเรื่องเวลา จึงงดออกเสียง`
+          : `Measured against <strong style="color:var(--text)">your own year</strong>, not against other people · ${dom.voting} systems have a timing doctrine and voted; ${dom.abstain} have none and abstained`}
+      </div>
+    </div>`;
+  })();
+
   // Reflection prompt — uses the highest-magnitude signal as the anchor.
   const topSig = pulse.signals.slice().sort((a,b)=>Math.abs(b.score)-Math.abs(a.score))[0];
   const reflectQ = topSig
@@ -10493,15 +10769,33 @@ function renderDailyPulse() {
       ${streak >= 2 ? `<div style="font-family:'Josefin Sans',sans-serif;font-size:11px;color:var(--gold2)">🔥 ${streak} ${t('pulse_streak_label')}</div>` : ''}
     </div>
 
+    <!-- The headline is the WORD, not the number. A signed −3..+3 total was the
+         first thing a first-time visitor saw, in 36px, with nothing on screen
+         saying what it was out of or what it meant (director 2026-08-31:
+         "มาเป็น 0 บ้าง +3 บ้าง ใครจะเข้าใจ"). The number is still here — it is
+         how the verdict is derived and hiding it would be the dishonest fix —
+         but it is now a footnote with its scale spelled out.
+         ⛔ Do not promote the raw total back to hero size. -->
     <div style="text-align:center;padding:18px 16px;background:${tierColor.bg};border:1px solid ${tierColor.border};border-radius:10px;margin-bottom:14px">
-      <div style="font-family:'Cinzel Decorative',serif;font-size:22px;color:var(--gold);margin-bottom:4px">${pulse.verdictEmoji} ${verdictLabel}</div>
-      <div style="font-size:36px;font-weight:700;color:${tierColor.score};margin-bottom:2px">${pulse.total >= 0 ? '+' : ''}${pulse.total}</div>
-      <div style="font-size:10px;color:var(--muted);letter-spacing:1.5px;font-family:'Josefin Sans',sans-serif">${pulse.signals.length} ${pulse.pinnedCount > 0 ? `· ${pulse.pinnedCount} ${t('pulse_pinned_tag')} + ${pulse.signals.length - pulse.pinnedCount} ${t('pulse_score_sub')}` : t('pulse_score_sub')}</div>
+      <div style="font-family:'Cinzel Decorative',serif;font-size:30px;color:${tierColor.score};margin-bottom:6px;line-height:1.25">${pulse.verdictEmoji} ${verdictLabel}</div>
+      <!-- ⛔ No invented scale here. The engine has no fixed min/max — the total
+           is a plain sum of however many systems had something to say today
+           (measured range over 400 days for one chart: −7…+9, and that shifts
+           per chart). Quoting a made-up "out of" was the first thing written
+           here and it was wrong. Describe the DIRECTION, which cannot drift. -->
+      <div style="font-size:11px;color:var(--muted);letter-spacing:0.5px;line-height:1.6">
+        ${isTh
+          ? `รวมเสียงจาก ${pulse.signals.length} ศาสตร์ได้ <strong style="color:${tierColor.score}">${pulse.total > 0 ? '+' : ''}${pulse.total}</strong> · ยิ่งบวกยิ่งหนุน ยิ่งลบยิ่งควรพัก`
+          : `${pulse.signals.length} systems summed to <strong style="color:${tierColor.score}">${pulse.total > 0 ? '+' : ''}${pulse.total}</strong> · the higher the more the day carries you, the lower the more it asks you to rest`}
+        ${pulse.pinnedCount > 0 ? ` · ${pulse.pinnedCount} ${t('pulse_pinned_tag')}` : ''}
+      </div>
     </div>
 
     <div style="padding:14px 16px;background:rgba(0,0,0,0.2);border-radius:8px;line-height:1.85;font-size:13.5px;color:var(--text);margin-bottom:14px;border-left:3px solid var(--gold)">
       ${synthesis}
     </div>
+
+    ${areaCardsHtml}
 
     <!-- Pin row — primary CTA, gold-bordered so it's instantly findable.
          Sits directly under the synthesis (above drill-down) so subscribers
