@@ -644,7 +644,13 @@ function p_allVoices(c: ChartData): string {
     V(tr('อิฟา (โยรูบา)','Ifá'), '🥁', `Odù ${c.ifaYoruba.odu}`, trDF((c.ifaYoruba as any).oduTheme || '')),
     V(tr('ดรีมไทม์ (อะบอริจิน)','Aboriginal'), '🌈', (_lang === 'en' ? (c.aboriginal as any).dreamingAncestor : (c.aboriginal as any).dreamingTh), (c.aboriginal as any).season || ''),
     V(tr('มหาทศา','Vimshottari'), '🪐', `${c.vedicMahadasha.currentDasha}`, tr(`ถึงปี ${c.vedicMahadasha.currentDashaEnd}`, `until ${c.vedicMahadasha.currentDashaEnd}`)),
-    V(tr('ไบโอริทึม','Biorhythm'), '📈', tr('งดออกเสียง', 'abstains'), tr('เป็นรอบคงที่จากวันเกิด ไม่ได้อ่านดวง — เราจึงไม่นับ', 'fixed cycles from a birth date, not a reading — so we do not count it')),
+    // ⛔ ศาสตร์ที่ 26 คือ "เลข ๗ ตัว ๙ ฐาน" ไม่ใช่ไบโอริทึม
+    //    ตัดสินไปแล้ว 6 มิ.ย. 69 (commit 74f4369) — ทักษาเข้าแทนไบโอริทึม และ
+    //    ไบโอริทึมไม่ได้อยู่ในลิสต์ 26 ของเอนจินเลย · ตรวจได้จาก calcForecast
+    //    ⇒ หน้านี้เคยใส่ไบโอริทึมและตกเลข ๗ ตัว ๙ ฐาน (พลาดตอนสร้างหน้า 1 ก.ย. 69)
+    V(tr('เลข ๗ ตัว ๙ ฐาน','Thai 7-Number'), '๗', (c.numerology as any).thaiSeven?.join(' · ') || '—',
+      tr('เก้าฐานอ่านจากวันเกิด — ฐานที่เลขซ้ำคือด้านที่ชีวิตลงน้ำหนักมากสุด',
+         'nine bases read from the birth date — a repeated number marks where the life puts its weight')),
   ]
   return section(0, tr('26 ศาสตร์พูดว่าอะไรบ้าง','What all 26 traditions said'), '📜', `
     <div style="font-size:11.5px;color:#c0b0a0;line-height:1.8;margin-bottom:12px">${tr(
