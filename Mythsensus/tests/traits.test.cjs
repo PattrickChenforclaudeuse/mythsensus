@@ -44,6 +44,10 @@ const WIRED = {
   vedic:          c => String(c.vedic.moonNakshatra),
   mayan:          c => c.mayan.daySignName + '|' + c.mayan.toneNumber,
   zoroastrian:    c => String(c.zoroastrian.dayYazataTh),
+  tibetan:        c => String(c.tibetan.parkha),
+  arabicParts:    c => String((c.arabicParts||{}).partOfFortune) + '|' + String((c.arabicParts||{}).partOfSpirit),
+  aztec:          c => String(c.aztec.daySign),
+  thaiSeven:      c => String(((c.numerology||{}).thaiSeven||[])[3]),
 };
 
 // คู่ที่คำนวณจากของชุดเดียวกัน — **พูดได้ ถ้าพิสูจน์ได้ว่าไม่ใช่เสียงสะท้อน**
@@ -212,7 +216,7 @@ const line = '═'.repeat(70);
 console.log('\n' + line);
 console.log(' ชั้นคุณสมบัติ (traits) · สุ่ม ' + charts.length + ' ดวง');
 console.log(line);
-console.log('\nจำนวนเสียงต่อแกน (เป้าคือ 20 = ทุกศาสตร์ที่มีสิทธิ์ออกเสียง):');
+console.log('\nจำนวนเสียงต่อแกน (ต่อสายแล้ว 24 ศาสตร์ — ตัวเลขนี้ต้องขยับตาม WIRED ทุกครั้งที่เพิ่มศาสตร์):');
 Object.entries(axisStat)
   .sort((a, b) => b[1].sys.size - a[1].sys.size)
   .forEach(([k, a]) => {
@@ -225,6 +229,6 @@ Object.entries(axisStat)
 
 if (ok.length) { console.log('\n✅ ผ่าน'); ok.forEach(([s, w]) => console.log('   · ' + s.padEnd(16) + w)); }
 if (bad.length) { console.log('\n❌ ไม่ผ่าน — ' + bad.length + ' ข้อ'); bad.forEach(([s, w]) => console.log('   · ' + s.padEnd(16) + w)); }
-else console.log('\n❌ ไม่ผ่าน — ไม่พบ');
+else console.log('\n✅ ผ่านทุกข้อ — ไม่พบข้อผิดพลาด');
 console.log('');
 process.exit(bad.length ? 1 : 0);

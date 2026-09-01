@@ -5441,6 +5441,82 @@ const _TR_DASHA: Record<string, TraitSet> = {
   Mercury: { expression: +2, pace: +1, focus: -1, instinct: -2, social: +1 },
 }
 
+// ── ทิเบต · ปาร์คา (ตรีลักษณ์ 8) ────────────────────────────────────────────
+//
+// ⛔ อย่าใช้ Mewa — Mewa มาจากวัฏจักรเดียวกับดาวเก้าดวง จะเป็นเสียงสะท้อน
+//    ของที่เป็นของทิเบตเองคือ **ปาร์คา** ตรีลักษณ์แปดตัวที่คำนวณจากปีเกิด+เพศ
+//    ซึ่งคิวงาคุญี่ปุ่นไม่ได้ใช้เลย · ที่มาของค่า: ธรรมชาติของตรีลักษณ์ตามอี้จิง
+//    ที่ปาร์คารับมา (ภูเขา=หยุดนิ่ง · น้ำ=ไหลลึก · ไฟ=เปล่งสว่าง · ลม=แทรกไป ฯลฯ)
+const _TR_PARKHA: Record<string, TraitSet> = {
+  'Li':   { expression: +2, social: +1, pace: +1 },                    // ไฟ — เปล่งสว่าง
+  'Khy':  { pace: -2, social: +2, structure: +1, change: -2 },         // ดิน — รองรับ
+  'Dha':  { instinct: +2, expression: -1, focus: +1, root: +1 },       // ทะเล/น้ำ — ลึก
+  'Khen': { initiative: +2, structure: +2, expression: -1 },           // ฟ้า/โลหะ — สั่งการ
+  'Kham': { instinct: +2, risk: +1, pace: -1, expression: -2 },        // น้ำลึก — เสี่ยงและเงียบ
+  'Gin':  { pace: -2, change: -2, focus: +2, root: -2 },               // ภูเขา — หยุดนิ่ง
+  'Zin':  { change: +2, pace: +2, initiative: +1 },                    // ฟ้าร้อง/ไม้ — ตั้งต้น
+  'Zon':  { root: +2, change: +1, social: +1, structure: -1 },         // ลม — แทรกไปทั่ว
+};
+
+// ── Arabic Parts · ความสัมพันธ์ระหว่าง Lot of Fortune กับ Lot of Spirit ─────
+//
+// ⛔ อย่าใช้ sect (เฮลเลนิสติกใช้อยู่) และอย่าใช้ราศีของ Fortune เฉยๆ
+//    (จะไปทับโหราศาสตร์ตะวันตก) · ของที่เป็นของสายอาหรับเองคือการอ่าน **ลอตหลายจุด
+//    เทียบกัน** — Fortune คือสิ่งที่มาถึงเราเอง (กาย/โชค) · Spirit คือสิ่งที่เราตั้งใจทำ
+//    (ใจ/การกระทำ) · ทั้งสองอยู่ตรงไหนเทียบกันคือคำตอบที่ไม่มีศาสตร์อื่นในเล่มให้
+const _TR_LOTS: Record<string, TraitSet> = {
+  same:     { focus: +2, initiative: +1, change: -1 },   // ร่วมราศี — สิ่งที่ได้มากับสิ่งที่ตั้งใจเป็นเรื่องเดียวกัน
+  trine:    { pace: +1, social: +1, risk: +1 },          // ทำมุมกลมกลืน — ตั้งใจแล้วมักได้
+  opposite: { change: +2, focus: -1, instinct: +1 },     // ตรงข้าม — ได้มาคนละทางกับที่ตั้งใจ
+  other:    { structure: +1, pace: -1 },                 // ไม่ทำมุมชัด — ต้องประคองสองเรื่องคนละจังหวะ
+};
+
+// ── แอซเท็ก · 20 วันสัญลักษณ์ (โทนัลโปวัลลี) ────────────────────────────────
+//
+// ใช้รอบ 260 วันชุดเดียวกับมายาจริง แต่ **ชื่อและความหมายของสัญลักษณ์ต่างกัน**
+// ตำแหน่งเดียวกัน มายาเรียก Lamat (ดาว) แอซเท็กเรียก Tochtli (กระต่าย) และเทพประจำ
+// กับคำบรรยายก็คนละชุด ⇒ อ่านออกมาคนละคำตอบได้จริง · ด่านจะวัดว่าซ้ำหรือไม่ซ้ำเอง
+const _TR_AZTEC: Record<string, TraitSet> = {
+  'Cipactli':     { initiative: +2, structure: +2, pace: -1 },      // จระเข้ — ตั้งต้นโลก
+  'Ehecatl':      { change: +2, root: +2, expression: +2, focus: -1 }, // ลม
+  'Calli':        { root: -2, pace: -2, social: +1, structure: +1 },   // บ้าน
+  'Cuetzpallin':   { pace: +2, change: +1, risk: +1 },                // กิ้งก่า
+  'Coatl':        { instinct: +2, change: +2, expression: -1 },      // งู
+  'Miquiztli':    { pace: -1, focus: +2, change: +2, social: -1 },   // หัวกะโหลก — ปิดวงจร
+  'Mazatl':       { social: +2, risk: -2, instinct: +1 },            // กวาง
+  'Tochtli':      { social: +2, pace: +1, risk: +1, structure: -1 }, // กระต่าย — ความอุดม
+  'Atl':          { instinct: +2, change: +1, pace: +1 },            // น้ำ
+  'Itzcuintli':   { social: +2, structure: +1, expression: +1 },     // สุนัข — ซื่อสัตย์
+  'Ozomatli':    { expression: +2, social: +2, structure: -2 },     // ลิง
+  'Malinalli':    { focus: +2, structure: -1, change: +1, pace: -1 },// หญ้า — ทนทาน
+  'Acatl':        { structure: +2, focus: +2, expression: +1 },      // ต้นอ้อ
+  'Ocelotl':      { initiative: +2, risk: +2, social: -1, instinct: +1 }, // เสือจากัวร์
+  'Cuauhtli':     { initiative: +2, expression: +2, focus: -1 },     // นกอินทรี
+  'Cozcacuauhtli':{ pace: -2, focus: +2, structure: +2 },            // แร้ง — อายุยืน
+  'Ollin':        { change: +2, pace: +2, structure: -2 },           // การเคลื่อนไหว
+  'Tecpatl':      { structure: +2, expression: +2, risk: +1, social: -1 }, // มีดหินเหล็กไฟ
+  'Quiahuitl':    { change: +2, risk: +2, pace: +2 },                // ฝน
+  'Xochitl':      { social: +2, expression: +2, pace: -1 },          // ดอกไม้
+};
+
+// ── เลข ๗ ตัว ๙ ฐาน · ฐานที่ 4 ──────────────────────────────────────────────
+//
+// ที่มา: ตำราไทยเรียกฐานที่ 4 ว่า "แกนพลังปัจจุบัน" — เป็นฐานที่ใช้อ่านตัวตนที่
+// แสดงออกจริงในชีวิตช่วงนี้ · ค่าจากความหมายประจำเลขในระบบไทย
+// ⛔ อย่าใช้ผลรวมทั้งเจ็ดฐาน จะไปซ้ำกับเลขศาสตร์พีทาโกรัสที่ลดรูปเลขเหมือนกัน
+const _TR_THAI7: Record<number, TraitSet> = {
+  0: { pace: -1, focus: +1 },
+  1: { initiative: +2, social: -1, expression: +1 },
+  2: { social: +2, initiative: -1, instinct: +1 },
+  3: { expression: +2, social: +2, pace: +1 },
+  4: { structure: +2, pace: -2, change: -2 },
+  5: { change: +2, root: +2, pace: +2, focus: -2 },
+  6: { social: +2, expression: +1, risk: -1 },
+  7: { focus: +2, social: -2, instinct: +2, expression: -2 },
+  8: { structure: +2, initiative: +2, risk: +1 },
+  9: { social: +1, change: +1, expression: +1 },
+};
+
 // ── โหราศาสตร์ภารตะ · 27 นักษัตร ────────────────────────────────────────────
 // ที่มา: คุณสมบัติประจำนักษัตรในชโยติษ — คณะ (เทวะ/มนุษยะ/รากษส) บอกอารมณ์พื้นฐาน
 // สัญลักษณ์และเทพประจำบอกทิศทางการกระทำ · ⛔ ไม่ได้ใช้เจ้านักษัตรเป็นตัวชี้
@@ -5891,6 +5967,41 @@ function _attachTraits(c: any): void {
   put('kabbalistic', _TR_SEPHIRA[c.kabbalistic?.sephira],
       `เซฟิรา ${c.kabbalistic?.sephira} — หน้าที่ประจำองค์บนต้นไม้แห่งชีวิต`,
       `Sephira ${c.kabbalistic?.sephira} — the function each holds on the Tree of Life`);
+
+  put('tibetan', _TR_PARKHA[String(c.tibetan?.parkha)],
+      `ปาร์คา ${c.tibetan?.parkhaName} — ตรีลักษณ์ที่คิวงาคุไม่ได้ใช้ (ไม่ใช่ Mewa ซึ่งซ้ำกับดาวเก้าดวง)`,
+      `Parkha ${c.tibetan?.parkha} — the trigram layer kigaku does not use (not the Mewa, which echoes Nine Star Ki)`);
+
+  {
+    // Fortune = สิ่งที่มาถึงเราเอง · Spirit = สิ่งที่เราตั้งใจทำ · อ่านจากมุมระหว่างสองจุด
+    const fo = Number(c.arabicParts?.partOfFortune), sp = Number(c.arabicParts?.partOfSpirit);
+    if (Number.isFinite(fo) && Number.isFinite(sp)) {
+      const d = Math.abs(((fo - sp) % 360 + 360) % 360);
+      const sep = Math.min(d, 360 - d);
+      const rel = sep < 12 ? 'same' : Math.abs(sep - 180) < 12 ? 'opposite'
+                : (Math.abs(sep - 120) < 12 || Math.abs(sep - 240) < 12) ? 'trine' : 'other';
+      const relTh = rel === 'same' ? 'ร่วมราศีกัน' : rel === 'opposite' ? 'อยู่ตรงข้ามกัน'
+                  : rel === 'trine' ? 'ทำมุมกลมกลืน' : 'ไม่ทำมุมชัดเจน';
+      put('arabicParts', _TR_LOTS[rel],
+        `Lot of Fortune กับ Lot of Spirit ${relTh} (ห่าง ${Math.round(sep)}°) — สิ่งที่มาถึงเทียบกับสิ่งที่ตั้งใจ`,
+        `The Lot of Fortune and the Lot of Spirit are ${Math.round(sep)}° apart — what arrives set against what you intend`);
+    }
+  }
+
+  put('aztec', _TR_AZTEC[String(c.aztec?.daySign)],
+      `${c.aztec?.daySign} (${c.aztec?.daySignTh}) — คำบรรยายสัญลักษณ์ฝั่งแอซเท็ก ซึ่งคนละชุดกับชื่อมายาที่ตำแหน่งเดียวกัน`,
+      `${c.aztec?.daySign} — the Aztec characterisation of this sign, a different set from the Mayan name at the same position`);
+
+  {
+    const t7: number[] = (c.numerology as any)?.thaiSeven || [];
+    // เก็บไว้บนก้อนของตัวเอง เพราะเลข ๗ ตัว ๙ ฐาน นับเป็นศาสตร์ที่ 26 แยกจากเลขศาสตร์
+    if (t7.length >= 4) {
+      c.thaiSeven = c.thaiSeven || { bases: t7, base4: t7[3] };
+      put('thaiSeven', _TR_THAI7[t7[3]],
+        `ฐานที่ 4 เป็นเลข ${t7[3]} — ตำราไทยเรียกฐานนี้ว่าแกนพลังปัจจุบัน`,
+        `Base 4 holds ${t7[3]} — Thai doctrine calls this base the current core of a life`);
+    }
+  }
 
   put('vedic', _TR_NAKSHATRA[String(c.vedic?.moonNakshatra)],
       `นักษัตร ${c.vedic?.moonNakshatra} — คุณสมบัติประจำนักษัตรในชโยติษ`,
