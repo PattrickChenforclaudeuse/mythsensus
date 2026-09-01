@@ -41,6 +41,9 @@ const WIRED = {
   ifaYoruba:      c => String(c.ifaYoruba.odu),
   ziwei:          c => String(c.ziwei.mainStar),
   taksa:          c => String(((c.taksa.wheel||[]).find(h=>h.house===7)||{}).planetNameEn),
+  vedic:          c => String(c.vedic.moonNakshatra),
+  mayan:          c => c.mayan.daySignName + '|' + c.mayan.toneNumber,
+  zoroastrian:    c => String(c.zoroastrian.dayYazataTh),
 };
 
 // คู่ที่คำนวณจากของชุดเดียวกัน — **พูดได้ ถ้าพิสูจน์ได้ว่าไม่ใช่เสียงสะท้อน**
@@ -159,29 +162,23 @@ for (const [k, a] of Object.entries(axisStat)) {
 // ── 5 · baseline ที่ตรึงไว้ต้องยังตรงกับของจริง ────────────────────────────
 //
 // ⛔ เติมศาสตร์ใหม่หรือแก้ตาราง = การแจกแจงเลื่อน ⇒ เปอร์เซ็นไทล์ที่โชว์ให้ลูกค้าจะผิด
-//    ด่านนี้วัดใหม่จากดวงที่สุ่มมา แล้วเทียบกับค่าที่ hard-code ไว้ใน calc.ts
+// ⛔ ห้ามย้อนคำนวณค่ากลางจาก raw/z — พอ sd เปลี่ยน มันจะย้อนผิดแล้วขึ้นเขียวทั้งที่เลื่อน
+//    (เจอ 1 ก.ย. 69) · เอนจินจึงพก baseMean/baseSd ที่ใช้จริงมาให้ตรวจตรงๆ
 {
   const acc = {};
-  for (const c of charts) {
-    for (const r of (c.traitProfile || [])) {
-      (acc[r.axis] = acc[r.axis] || []).push(r.raw);
-    }
-  }
+  for (const c of charts) for (const r of (c.traitProfile || [])) (acc[r.axis] = acc[r.axis] || []).push(r.raw);
   let drift = 0;
   for (const [axis, vals] of Object.entries(acc)) {
     const m = vals.reduce((a, b) => a + b, 0) / vals.length;
     const sd = Math.sqrt(vals.reduce((a, b) => a + (b - m) ** 2, 0) / vals.length);
     const r0 = charts[0].traitProfile.find(x => x.axis === axis);
-    if (!r0) continue;
-    // ย้อนหาค่ากลางที่เอนจินใช้จาก raw กับ z ของดวงแรก
-    const usedSd = sd || 1;
-    const usedMean = r0.raw - r0.z * usedSd;
-    if (Math.abs(usedMean - m) > 1.2) {
+    if (!r0 || r0.baseMean === undefined) { drift++; bad.push(['baseline', `แกน ${axis} ไม่ได้พา baseMean/baseSd มา ตรวจไม่ได้`]); continue }
+    if (Math.abs(r0.baseMean - m) > 1.0 || Math.abs(r0.baseSd - sd) > 0.8) {
       drift++;
-      bad.push(['baseline', `แกน ${axis} ค่ากลางที่ตรึงไว้ห่างจากของจริง ${(usedMean - m).toFixed(2)} — ต้องวัดใหม่แล้วเขียนทับใน calc.ts`]);
+      bad.push(['baseline', `แกน ${axis} ที่ตรึงไว้ mean ${r0.baseMean} sd ${r0.baseSd} · ของจริง mean ${m.toFixed(2)} sd ${sd.toFixed(2)} — ต้องเขียนทับ _TRAIT_BASELINE ใน calc.ts`]);
     }
   }
-  if (!drift) ok.push(['baseline', 'ค่ากลางที่ตรึงไว้ยังตรงกับการแจกแจงจริงทุกแกน']);
+  if (!drift) ok.push(['baseline', 'ค่ากลาง/ส่วนเบี่ยงเบนที่ตรึงไว้ยังตรงกับการแจกแจงจริงทุกแกน']);
 }
 
 // ── 6 · แต่ละแกนต้องกระจายเป็นทุกช่วง ไม่ใช่ตอบเหมือนกันหมด ────────────────

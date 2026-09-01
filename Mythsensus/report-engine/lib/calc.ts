@@ -5441,6 +5441,119 @@ const _TR_DASHA: Record<string, TraitSet> = {
   Mercury: { expression: +2, pace: +1, focus: -1, instinct: -2, social: +1 },
 }
 
+// ── โหราศาสตร์ภารตะ · 27 นักษัตร ────────────────────────────────────────────
+// ที่มา: คุณสมบัติประจำนักษัตรในชโยติษ — คณะ (เทวะ/มนุษยะ/รากษส) บอกอารมณ์พื้นฐาน
+// สัญลักษณ์และเทพประจำบอกทิศทางการกระทำ · ⛔ ไม่ได้ใช้เจ้านักษัตรเป็นตัวชี้
+// เพราะจะไปซ้ำกับมหาทศาที่ใช้ดาวเจ้าทศาอยู่แล้ว
+const _TR_NAKSHATRA: Record<string, TraitSet> = {
+  'Ashwini':          { pace: +2, initiative: +2, risk: +1, focus: -1 },
+  'Bharani':          { focus: +2, structure: +2, change: +1, expression: -1 },
+  'Krittika':         { expression: +2, risk: +1, structure: +1, social: -1 },
+  'Rohini':           { pace: -1, social: +2, structure: +1, change: -2 },
+  'Mrigashira':       { root: +2, change: +1, focus: -2, social: +1 },
+  'Ardra':            { change: +2, risk: +2, structure: -2, expression: +1 },
+  'Punarvasu':        { change: +1, social: +2, root: +1, risk: -1 },
+  'Pushya':           { structure: +2, social: +2, change: -2, pace: -1 },
+  'Ashlesha':         { instinct: +2, expression: -2, focus: +2, social: -1 },
+  'Magha':            { structure: +2, social: +1, change: -2, expression: +1 },
+  'Purva Phalguni':   { social: +2, expression: +2, pace: -1, risk: -1 },
+  'Uttara Phalguni':  { structure: +2, social: +1, focus: +1, change: -1 },
+  'Hasta':            { focus: +2, structure: +2, expression: +1, instinct: +1 },
+  'Chitra':           { expression: +2, change: +1, structure: +1, social: +1 },
+  'Swati':            { root: +2, change: +2, social: -1, structure: -2 },
+  'Vishakha':         { initiative: +2, focus: +2, risk: +1, pace: +1 },
+  'Anuradha':         { social: +2, structure: +1, focus: +2, expression: -1 },
+  'Jyeshtha':         { initiative: +2, expression: -1, social: -1, risk: +1 },
+  'Mula':             { change: +2, risk: +2, focus: +2, structure: -2 },
+  'Purva Ashadha':    { expression: +2, initiative: +1, social: +1, risk: +1 },
+  'Uttara Ashadha':   { structure: +2, focus: +2, pace: -1, change: -1 },
+  'Shravana':         { social: +2, focus: +2, expression: -1, instinct: +1 },
+  'Dhanishtha':        { social: +2, expression: +2, pace: +2, structure: +1 },
+  'Shatabhisha':      { social: -2, instinct: +2, focus: +2, expression: -2 },
+  'Purva Bhadrapada': { change: +2, risk: +2, instinct: +1, structure: -1 },
+  'Uttara Bhadrapada':{ pace: -2, structure: +2, instinct: +2, social: -1 },
+  'Revati':           { social: +2, instinct: +2, root: +1, structure: -1 },
+};
+
+// ── มายัน · 20 วันสัญลักษณ์ + 13 โทน ────────────────────────────────────────
+// ที่มา: คุณลักษณะประจำวันสัญลักษณ์ในโทนัลโปวัลลี/ทซอลคิน
+// โทนเป็น "จังหวะ" ของการกระทำ (ตั้งต้น → ตั้งรูป → เปล่ง) จึงลงที่ pace เป็นหลัก
+const _TR_MAYA_SIGN: Record<string, TraitSet> = {
+  'Imix':   { instinct: +2, social: +1, structure: -1 },
+  'Ik':     { change: +2, expression: +2, root: +2, focus: -1 },
+  'Akbal':  { instinct: +2, expression: -2, social: -1, focus: +1 },
+  'Kan':    { structure: +2, focus: +2, change: -1 },
+  'Chicchan':{ instinct: +2, risk: +1, expression: -1 },
+  'Cimi':   { change: +2, pace: -1, social: +1, structure: -1 },
+  'Manik':  { focus: +2, structure: +2, expression: -1 },
+  'Lamat':  { social: +2, expression: +2, risk: +1 },
+  'Muluc':  { instinct: +2, social: +1, expression: +1 },
+  'Oc':     { social: +2, structure: +1, focus: +1 },
+  'Chuen':  { change: +2, expression: +2, structure: -2, social: +1 },
+  'Eb':     { pace: -1, social: +2, root: +1, risk: -1 },
+  'Ben':    { initiative: +2, structure: +2, root: +1 },
+  'Ix':     { instinct: +2, social: -2, focus: +2, expression: -2 },
+  'Men':    { initiative: +2, focus: -1, risk: +1, expression: +1 },
+  'Cib':    { instinct: +2, structure: +1, pace: -2, social: -1 },
+  'Caban':  { change: +2, pace: +2, focus: -1 },
+  'Etznab': { structure: +2, expression: +2, risk: +1, social: -1 },
+  'Cauac':  { change: +2, social: +2, pace: +1, structure: -2 },
+  'Ahau':   { expression: +2, social: +2, focus: +2 },
+};
+const _TR_MAYA_TONE: Record<number, TraitSet> = {
+  1: { initiative: +2, pace: +1 },  2: { pace: -1, social: +1 },   3: { expression: +2, pace: +1 },
+  4: { structure: +2, pace: -1 },   5: { initiative: +1, focus: +1 }, 6: { pace: +1, change: +1 },
+  7: { pace: -1, focus: +1 },       8: { structure: +1, social: +1 }, 9: { pace: +2, initiative: +1 },
+  10:{ structure: +2, change: -1 }, 11:{ change: +2, structure: -2 }, 12:{ social: +2, expression: +1 },
+  13:{ pace: +2, change: +1, focus: -1 },
+};
+
+// ── โซโรอัสเตอร์ · เทพประจำวัน 30 องค์ ──────────────────────────────────────
+//
+// ⛔ ตำราไม่มีวิชาอ่านนิสัยจากวันเกิด (ตรวจแล้ว 1 ก.ย. 69 — เขียนกำกับไว้ในคำอ่านแล้ว)
+//    ค่าที่ใส่จึงมาจาก **สิ่งที่เทพองค์นั้นดูแลตามตำรา** ไม่ใช่คำบรรยายนิสัยคน
+//    ⇒ ลงเฉพาะแกนที่หน้าที่ของเทพองค์นั้นบอกทิศทางการกระทำได้ตรงๆ · ที่เหลือเว้นว่าง
+const _TR_YAZATA: Record<string, TraitSet> = {
+  'Ahura Mazda':   { structure: +1, focus: +1 },
+  'Vohu Manah':    { instinct: -2, structure: +1 },              // จิตใจดี = คิดก่อน
+  'Asha Vahishta': { structure: +2, expression: +1 },            // ความจริง/ระเบียบ
+  'Khshathra Vairya': { initiative: +2, structure: +2 },         // อำนาจที่ใช้เป็น
+  'Spenta Armaiti': { pace: -2, root: -2, structure: +1 },       // ความศรัทธา/พระแม่ดิน
+  'Dae-pa-Adar':   { pace: -1 },
+  'Haurvatat':     { pace: -1, structure: +1 },                  // ความสมบูรณ์
+  'Ameretat':      { pace: -2, focus: +2 },                      // ความไม่ตาย = ระยะยาว
+  'Atar (ไฟ)':     { initiative: +2, risk: +1, expression: +1 }, // ไฟ
+  'Aban (น้ำ)':    { social: +2, instinct: +1 },                 // น้ำ/ความอุดม
+  'Khorshed (อาทิตย์)': { expression: +2, initiative: +1 },
+  'Mah (จันทร์)':  { instinct: +2, pace: -1 },
+  'Tishtrya (ฝน)': { pace: -1, focus: +1 },                      // ดาวฝน = รอฤดู
+  'Geus (วัว)':    { pace: -2, root: -1, structure: +1 },
+  'Dae-pa-Mehr':   { pace: -1 },
+  'Mithra (สัญญา)':{ structure: +2, social: +2, expression: +1 },// พันธสัญญา
+  'Sraosha (วินัย)': { structure: +2, instinct: -1 },            // วินัย/การเชื่อฟัง
+  'Rashnu (ความยุติธรรม)': { structure: +2, instinct: -2 },      // ตราชั่ง = ชั่งก่อนตัดสิน
+  'Fravashi':      { root: -1, social: +2, focus: +1 },          // บรรพบุรุษ = ผูกกับราก
+  'Verethraghna (ชัยชนะ)': { initiative: +2, risk: +2, pace: +1 },
+  'Rama':          { social: +2, pace: -1, risk: -1 },           // ความรื่นรมย์/สันติ
+  'Vata (ลม)':     { root: +2, change: +2, pace: +1 },           // ลม/การเดินทาง
+  'Dae-pa-Din':    { pace: -1 },
+  'Daena (ศรัทธา)':{ instinct: +2, focus: +2, expression: -1 },  // มโนธรรม
+  'Ashi (โชค)':    { risk: +1, social: +1 },
+  'Arshtat (ความซื่อสัตย์)': { expression: +2, structure: +1 },
+  'Asman (ฟ้า)':   { focus: -1, change: +1 },                    // ฟ้า = ภาพใหญ่
+  'Zamyad (โลก)':  { root: -2, structure: +1, pace: -1 },
+  'Mahraspand (วาจา)': { expression: +2, focus: +1 },
+  'Anagran (แสงไม่รู้ดับ)': { focus: +2, social: +1 },
+  // ห้าวัน Gatha ปิดปี — ไม่มีเทพประจำวันเหมือน 360 วันแรก · ช่วงนี้คือ Farvardigan
+  // ที่ดวงวิญญาณบรรพบุรุษกลับมาเยี่ยมบ้าน ธรรมเนียมคือกลับไปหาคนของตัวเอง
+  'Ahunavaiti Gatha':     { social: +2, root: -2, pace: -1 },
+  'Ushtavaiti Gatha':     { social: +2, root: -2, pace: -1 },
+  'Spenta Mainyu Gatha':  { social: +2, root: -2, pace: -1 },
+  'Vohu Xshathra Gatha':  { social: +2, root: -2, pace: -1 },
+  'Vahishtoishti Gatha':  { social: +2, root: -2, pace: -1 },
+  'Avardad-sal-Gah':      { social: +2, root: -2, pace: -1 },
+};
+
 // ── ระบบประเภทพลังงาน · กลไกตัดสินใจ (authority) ────────────────────────────
 // ที่มา: ตัวกลยุทธ์กับกลไกตัดสินใจของแต่ละประเภทเป็นคำตอบตรงตัวของแกนพวกนี้อยู่แล้ว
 // ไม่ต้องตีความ — ตำราบอกเองว่าคนแบบไหนควรรอ ควรตอบสนอง หรือควรแจ้งแล้วลงมือ
@@ -5653,13 +5766,14 @@ const _TR_SAJU: Record<string, TraitSet> = {
 // 🔄 **เติมศาสตร์ใหม่หรือแก้ตารางเมื่อไหร่ ต้องวัดใหม่แล้วเขียนทับตรงนี้**
 //    ด่าน traits จะจับได้เองถ้าค่าที่ตรึงไว้เลื่อนจากของจริง
 const _TRAIT_BASELINE: Record<string, [number, number]> = {
-  pace: [-2.16, 4.62], initiative: [2.96, 4.50], social: [6.92, 3.79],
-  instinct: [4.58, 4.24], expression: [2.88, 4.84], change: [1.08, 3.58],
-  risk: [0.34, 3.76], root: [-0.11, 2.88], structure: [4.05, 4.15], focus: [5.61, 3.64],
+  pace: [-2.10, 4.63], initiative: [2.97, 4.55], social: [7.01, 3.82],
+  instinct: [4.58, 4.16], expression: [2.97, 4.80], change: [1.02, 3.64],
+  risk: [0.35, 3.78], root: [-0.17, 2.92], structure: [4.05, 4.13], focus: [5.60, 3.61],
 };
 
 interface TraitAxisResult {
   axis: string; raw: number; z: number; pct: number;
+  baseMean: number; baseSd: number;
   band: 'strong-neg' | 'neg' | 'mid' | 'pos' | 'strong-pos';
   labelTh: string; labelEn: string;
   voices: number; agreeTh: string[]; dissentTh: string[];
@@ -5706,6 +5820,9 @@ function _buildTraitProfile(c: any): TraitAxisResult[] {
     const ax = TRAIT_AXES[axis];
     out.push({
       axis, raw, z: Math.round(z * 100) / 100,
+      // พาค่ากลาง/ส่วนเบี่ยงเบนที่ **ใช้จริง** ติดมาด้วย เพื่อให้ด่านตรวจได้ตรงๆ
+      // ⛔ ห้ามให้ด่านย้อนคำนวณเอง — มันจะย้อนผิดทันทีที่ sd เปลี่ยน (เจอ 1 ก.ย. 69)
+      baseMean: mean, baseSd: sd,
       // เปอร์เซ็นไทล์แบบประมาณจากการแจกแจงปกติ — พอสำหรับบอกว่า "มากกว่าคนกี่ %"
       pct: Math.max(1, Math.min(99, Math.round((0.5 * (1 + _erf(z / Math.SQRT2))) * 100))),
       band,
@@ -5774,6 +5891,28 @@ function _attachTraits(c: any): void {
   put('kabbalistic', _TR_SEPHIRA[c.kabbalistic?.sephira],
       `เซฟิรา ${c.kabbalistic?.sephira} — หน้าที่ประจำองค์บนต้นไม้แห่งชีวิต`,
       `Sephira ${c.kabbalistic?.sephira} — the function each holds on the Tree of Life`);
+
+  put('vedic', _TR_NAKSHATRA[String(c.vedic?.moonNakshatra)],
+      `นักษัตร ${c.vedic?.moonNakshatra} — คุณสมบัติประจำนักษัตรในชโยติษ`,
+      `Nakshatra ${c.vedic?.moonNakshatra} — the qualities Jyotish gives this asterism`);
+
+  {
+    const sign = _TR_MAYA_SIGN[String(c.mayan?.daySignName)];
+    const tone = _TR_MAYA_TONE[Number(c.mayan?.toneNumber)];
+    if (sign || tone) {
+      const merged: TraitSet = { ...(sign || {}) };
+      for (const [k, v] of Object.entries(tone || {})) merged[k] = (merged[k] || 0) + (v as number);
+      // รวมสองชั้นแล้วอาจเกินสเกล — บีบกลับเข้า −2..+2
+      for (const k of Object.keys(merged)) merged[k] = Math.max(-2, Math.min(2, merged[k]));
+      put('mayan', merged,
+        `${c.mayan?.daySignName} โทน ${c.mayan?.toneNumber} — วันสัญลักษณ์บอกลักษณะ โทนบอกจังหวะ`,
+        `${c.mayan?.daySignName} tone ${c.mayan?.toneNumber} — the day sign gives the character, the tone the rhythm`);
+    }
+  }
+
+  put('zoroastrian', _TR_YAZATA[String(c.zoroastrian?.dayYazataTh)],
+      `เทพ ${c.zoroastrian?.dayYazataTh} — จากสิ่งที่เทพองค์นี้ดูแลตามตำรา (ไม่ใช่คำบรรยายนิสัย ซึ่งตำราไม่มี)`,
+      `${c.zoroastrian?.dayYazata} — from what this divinity governs in the texts, not a character description, which the tradition does not give`);
 
   const _hdAuth = Object.keys(_TR_HD_AUTH).find(k => String(c.humandesign?.authority).includes(k));
   const _hdType = _TR_HD_TYPE[String(c.humandesign?.type)];
