@@ -70,7 +70,9 @@ const _DF_MAP = {
     'BaZi สี่เสา': 'BaZi · Four Pillars',
     'เลขศาสตร์ Pythagorean': 'Pythagorean Numerology',
     'เลข ๗ ตัว ๙ ฐาน': 'Thai 7-Number System',
-    'ระบบประเภทพลังงาน': 'Human Design',
+    // ⛔ เคยแปลกลับเป็น 'Human Design' — คือถอดแบรนด์ใน calc.ts แล้วมาติดกลับตรงนี้
+    //    (director: ใช้หลักการได้ แต่ห้าม mention ชื่อที่สุ่มเสี่ยง)
+    'ระบบประเภทพลังงาน': 'Energy Type System',
     'มายัน Tzolk\'in': 'Mayan Tzolk\'in',
     'เซลติก Tree': 'Celtic Tree',
     'ไทยพราหมณ์': 'Thai Brahmin',
@@ -682,8 +684,8 @@ function p_consensusAxes(c) {
     const elVotes = [
         { lineage: tr('จีน 干支 (BaZi/Saju)', 'Chinese 干支 (BaZi/Saju)'), says: bazi.dayMasterElement, evidence: `${bazi.dayStem}${bazi.dayBranch}` },
         { lineage: tr('Lo Shu 9 ดาว (NSK/ทิเบต)', 'Lo Shu nine stars (NSK/Tibetan)'), says: ninestar.starElement, evidence: `${tr('ดาว', 'star')} ${ninestar.star}` },
-        { lineage: tr('เซลติก', 'Celtic'), says: celtic.element, evidence: String(celtic.treeNameTh || celtic.treeName) },
-        { lineage: 'Ogham', says: ogham.element, evidence: String(ogham.treeNameTh || ogham.treeName) },
+        { lineage: tr('เซลติก', 'Celtic'), says: celtic.element, evidence: String((_lang === 'en' ? celtic.treeName : celtic.treeNameTh) || celtic.treeName) },
+        { lineage: 'Ogham', says: ogham.element, evidence: String((_lang === 'en' ? ogham.treeName : ogham.treeNameTh) || ogham.treeName) },
         { lineage: tr('นอร์ส', 'Norse'), says: norseRune.runeElement, evidence: String(norseRune.runeName) },
     ].filter(v => v.says);
     const elTally = {};
@@ -711,13 +713,13 @@ function p_consensusAxes(c) {
     const dashaPush = ['Sun', 'Mars', 'Jupiter', 'Rahu'].includes(String(vedicMahadasha.currentDashaKey));
     const START = tr('เริ่มเองได้', 'initiate'), WAIT = tr('รอสัญญาณก่อน', 'wait for the signal');
     const tempoVotes = [
-        { lineage: 'Human Design', says: hdInitiates ? START : WAIT, evidence: `${humandesign.type} · ${humandesign.strategy}` },
+        { lineage: tr('ระบบประเภทพลังงาน', 'Energy Type System'), says: hdInitiates ? START : WAIT, evidence: `${humandesign.type} · ${humandesign.strategy}` },
         { lineage: tr('เลขศาสตร์', 'Numerology'), says: [1, 3, 5, 8].includes(py) ? START : WAIT, evidence: `Personal Year ${py}` },
         { lineage: 'Vedic Dasha', says: dashaPush ? START : WAIT, evidence: String(vedicMahadasha.currentDasha) },
         { lineage: tr('Lo Shu 9 ดาว', 'Lo Shu nine stars'), says: [1, 3, 4, 9].includes(ninestar.star) ? START : WAIT, evidence: `${tr('ดาว', 'star')} ${ninestar.star}` },
     ];
     const startN = tempoVotes.filter(v => v.says === START).length;
-    // With an even number of voters this can tie. Human Design is the one
+    // With an even number of voters this can tie. The energy-type read is the one
     // lineage whose doctrine is squarely about this question, so it breaks it —
     // and the page says that out loud rather than presenting a coin-flip as a
     // finding.
@@ -729,8 +731,8 @@ function p_consensusAxes(c) {
         : startN <= 1
             ? tr(`เกือบทุกสายบอกตรงกันว่าจังหวะของคุณคือ<strong>รอสัญญาณก่อนแล้วค่อยลงแรง</strong> — ไม่ใช่ความขี้เกียจ แต่คือกลไก ถ้าเริ่มเองตลอด คุณจะเจอแรงต้านที่คนอื่นไม่เจอ แล้วเหนื่อยกว่าที่ควร`, `Nearly every lineage says your timing runs on <strong>waiting for the signal, then committing hard</strong>. That is mechanics, not laziness. Initiate everything yourself and you will meet resistance other people never meet, and tire faster than the work deserves.`)
             : (hdInitiates === (tempoCall === START)
-                ? tr(`เสียงออกมา ${startN} ต่อ ${tempoVotes.length - startN} — เฉียด แต่<strong>เราตัดสินว่า "${tempoCall}"</strong> ตามเสียงข้างมาก และ Human Design ซึ่งเป็นสายที่มีวิชาว่าด้วยเรื่องนี้โดยตรง (${esc(humandesign.type)} · ${esc(humandesign.strategy)}) ก็อยู่ข้างเดียวกัน · ${tempoVotes.length - startN} สายที่ค้านอยู่ข้างล่าง ถ้าคุณรู้ตัวว่าเป็นอีกแบบ เชื่อตัวเอง แล้วรายงานฉบับนี้ผิดข้อนี้`, `It came out ${startN} to ${tempoVotes.length - startN} — narrow, but <strong>we are calling it "${tempoCall}"</strong> on the majority, and Human Design — the lineage whose doctrine is about exactly this question (${esc(humandesign.type)} · ${esc(humandesign.strategy)}) — is on the same side. The ${tempoVotes.length - startN} dissenters are listed below. If you know you are the other kind, trust that: this report is wrong on this axis.`)
-                : tr(`เสียงออกมา ${startN} ต่อ ${tempoVotes.length - startN} — เฉียด <strong>เราตัดสินว่า "${tempoCall}"</strong> ตามเสียงข้างมากล้วนๆ และต้องบอกให้ชัดว่า <strong>Human Design ค้านข้อนี้</strong> (${esc(humandesign.type)} · ${esc(humandesign.strategy)}) ทั้งที่เป็นสายที่มีวิชาว่าด้วยเรื่องนี้ตรงที่สุด · <strong>นี่คือข้อที่เรามีโอกาสผิดสูงที่สุดในหน้านี้</strong> ถ้าคุณรู้ตัวว่าเป็นแบบที่ HD ว่า ให้เชื่อตัวเอง`, `It came out ${startN} to ${tempoVotes.length - startN} — narrow. <strong>We call it "${tempoCall}"</strong> on the raw majority, and it must be said plainly that <strong>Human Design disagrees</strong> (${esc(humandesign.type)} · ${esc(humandesign.strategy)}) — the one lineage whose doctrine is squarely about this question. <strong>This is the call on this page most likely to be wrong.</strong> If you recognise yourself in what HD says, trust that instead.`));
+                ? tr(`เสียงออกมา ${startN} ต่อ ${tempoVotes.length - startN} — เฉียด แต่<strong>เราตัดสินว่า "${tempoCall}"</strong> ตามเสียงข้างมาก และ ระบบประเภทพลังงาน ซึ่งเป็นสายที่มีวิชาว่าด้วยเรื่องนี้โดยตรง (${esc(humandesign.type)} · ${esc(humandesign.strategy)}) ก็อยู่ข้างเดียวกัน · ${tempoVotes.length - startN} สายที่ค้านอยู่ข้างล่าง ถ้าคุณรู้ตัวว่าเป็นอีกแบบ เชื่อตัวเอง แล้วรายงานฉบับนี้ผิดข้อนี้`, `It came out ${startN} to ${tempoVotes.length - startN} — narrow, but <strong>we are calling it "${tempoCall}"</strong> on the majority, and the energy-type readingesign — the lineage whose doctrine is about exactly this question (${esc(humandesign.type)} · ${esc(humandesign.strategy)}) — is on the same side. The ${tempoVotes.length - startN} dissenters are listed below. If you know you are the other kind, trust that: this report is wrong on this axis.`)
+                : tr(`เสียงออกมา ${startN} ต่อ ${tempoVotes.length - startN} — เฉียด <strong>เราตัดสินว่า "${tempoCall}"</strong> ตามเสียงข้างมากล้วนๆ และต้องบอกให้ชัดว่า <strong>ระบบประเภทพลังงานค้านข้อนี้</strong> (${esc(humandesign.type)} · ${esc(humandesign.strategy)}) ทั้งที่เป็นสายที่มีวิชาว่าด้วยเรื่องนี้ตรงที่สุด · <strong>นี่คือข้อที่เรามีโอกาสผิดสูงที่สุดในหน้านี้</strong> ถ้าคุณรู้ตัวว่าเป็นแบบที่ HD ว่า ให้เชื่อตัวเอง`, `It came out ${startN} to ${tempoVotes.length - startN} — narrow. <strong>We call it "${tempoCall}"</strong> on the raw majority, and it must be said plainly that <strong>the energy-type reading disagrees</strong> (${esc(humandesign.type)} · ${esc(humandesign.strategy)}) — the one lineage whose doctrine is squarely about this question. <strong>This is the call on this page most likely to be wrong.</strong> If you recognise yourself in what HD says, trust that instead.`));
     // ── Axis 3 · what 2026 is for ────────────────────────────────────────────
     const nsk2026 = 1; // 2026 is a 一白水星 year
     const AMP = tr('ปีขยายผล', 'a year that amplifies'), CONSOL = tr('ปีตั้งหลัก', 'a year to consolidate');
@@ -756,12 +758,14 @@ function p_consensusAxes(c) {
         (startN > 1 && startN < 4) ? tr('จังหวะเริ่ม-รอ', 'initiate vs wait') : '',
         (ampN === 2) ? tr('ทิศทางปี 2026', 'what 2026 is for') : '',
     ].filter(Boolean);
+    // ⛔ คอมเมนต์ที่มีคำพูดของ director เคยเป็น <!-- --> ⇒ ติดไปกับไฟล์ที่ลูกค้าได้
+    // The verdict, before the arithmetic that produced it. Director 2026-08-31:
+    // "ตอนนี้อ่านก็ไม่รู้จักตัวเองมากขึ้น" — the page opened on how we count
+    // votes, so the first thing a paying reader met was our bookkeeping
+    // rather than a claim about them. The count is still on the page; it is
+    // now the footnote it always should have been.
     return section(0, tr('ฉันทามติ — 26 ศาสตร์ตกลงกันว่าอะไร', 'The Consensus — what 26 traditions agree on'), '🤝', `
-    <!-- The verdict, before the arithmetic that produced it. Director 2026-08-31:
-         "ตอนนี้อ่านก็ไม่รู้จักตัวเองมากขึ้น" — the page opened on how we count
-         votes, so the first thing a paying reader met was our bookkeeping
-         rather than a claim about them. The count is still on the page; it is
-         now the footnote it always should have been. -->
+
     <div style="background:linear-gradient(135deg,#12100a,#0d0d15);border:1px solid #6a5a32;border-radius:12px;padding:15px 17px;margin-bottom:15px">
       <div style="font-size:10.5px;color:#c08ad8;letter-spacing:2px;margin-bottom:9px">${tr('คำตัดสิน 3 ข้อ', 'THE CALL, IN THREE LINES')}</div>
       ${[
@@ -884,7 +888,7 @@ function p03_convergence(c) {
         elVotes.push({ system: 'Ogham ' + ogham.ogham + ' ' + ogham.treeName, score: sc('Ogham') });
     // Systems that produce dmEl's element OR compatible element
     if (celtic.element === dmEl || SHENG[ELEM_EL_MAP[celtic.element] ?? ''] === dmElEn)
-        elVotes.push({ system: 'Celtic ' + celtic.treeNameTh + ' (' + celtic.element + ')', score: sc('Celtic') });
+        elVotes.push({ system: 'Celtic ' + (_lang === 'en' ? celtic.treeName : celtic.treeNameTh) + ' (' + celtic.element + ')', score: sc('Celtic') });
     if (tibetan.mewaElement === dmEl || SHENG[ELEM_EL_MAP[tibetan.mewaElement] ?? ''] === dmElEn)
         elVotes.push({ system: 'Tibetan Mewa ' + tibetan.mewa + ' (' + tibetan.mewaElement + ')', score: sc('Tibetan') });
     if (nativeAmerican.element === dmEl || SHENG[ELEM_EL_MAP[nativeAmerican.element] ?? ''] === dmElEn)
@@ -986,9 +990,9 @@ function p03_convergence(c) {
         if (s >= _hiCut) {
             const labels = {
                 'Ifa': 'Ifa ' + ifaYoruba.fortune, 'Zi Wei': 'Zi Wei ' + ziwei.palaceQuality, 'Kabbalistic': 'Kabbalistic ' + kabbalistic.sephira,
-                'Norse': 'Norse Rune ' + norseRune.runeName, 'Ogham': 'Ogham ' + ogham.treeNameTh, 'Aztec': 'Aztec ' + aztec.daySignQuality,
+                'Norse': 'Norse Rune ' + norseRune.runeName, 'Ogham': 'Ogham ' + (_lang === 'en' ? ogham.treeName : ogham.treeNameTh), 'Aztec': 'Aztec ' + aztec.daySignQuality,
                 'Native': 'Native Am ' + nativeAmerican.birthTotemTh, 'Aboriginal': 'Aboriginal ' + aboriginal.dreamingTh,
-                'Zoroastrian': 'Zoroastrian ' + trunc(zoroastrian.dayYazataTh, 20), 'Tibetan': 'Tibetan Mewa ' + tibetan.mewa,
+                'Zoroastrian': 'Zoroastrian ' + trunc(_lang === 'en' ? zoroastrian.dayYazata : zoroastrian.dayYazataTh, 20), 'Tibetan': 'Tibetan Mewa ' + tibetan.mewa,
                 'Onmyōdō': 'Onmyōdō ' + onmyodo.rokuyo, 'Saju': 'Saju ' + saju.kwarsal,
             };
             wlthVotes.push({ system: labels[name] ?? name, score: s });
@@ -1049,7 +1053,7 @@ function p03_convergence(c) {
         if (s >= 760) {
             const lbl = {
                 'Ifa': 'Ifa/Yoruba ' + ifaYoruba.oduTheme.slice(0, 12), 'Aboriginal': 'Aboriginal ' + aboriginal.clan,
-                'Native': 'Native Am ' + nativeAmerican.clansmother, 'Zoroastrian': 'Zoroastrian ' + trunc(zoroastrian.dayYazataTh, 20),
+                'Native': 'Native Am ' + nativeAmerican.clansmother, 'Zoroastrian': 'Zoroastrian ' + trunc(_lang === 'en' ? zoroastrian.dayYazata : zoroastrian.dayYazataTh, 20),
                 'Kabbalistic': 'Kabbalistic ' + kabbalistic.archangel, 'Ogham': 'Ogham ' + ogham.treeName,
                 'Norse': 'Norse Rune ' + norseRune.runeName,
             };
@@ -1070,7 +1074,7 @@ function p03_convergence(c) {
         '⏰': tr(`ปี 2026 ไม่ใช่แค่ปีดีโดยบังเอิญ แต่มีกลไกทางโหราศาสตร์หลายชั้นเปิดพร้อมกัน — BaZi Ben Ming Nian หมายถึงพลังงานของคุณ "กลับบ้าน" ครบรอบ 12 ปี, NSK Star 9 Honmei Kaiki หมายถึงดาวเกิดตรงกับดาวปี, Vedic Dasha ชี้ช่วงปกครอง ${vedicMahadasha.currentDasha} — นี่คือ window ที่ควรลงมือ`, `2026 is not just incidentally good — multiple astrological mechanisms open at once. BaZi Ben Ming Nian means your energy "comes home" on its 12-year cycle. NSK Star 9 Honmei Kaiki means your birth star aligns with the year-star. Vedic Dasha currently rules ${vedicMahadasha.currentDasha} — this is the window for action.`),
         '👑': tr(`ลักษณะผู้นำในดวงชาตาไม่ได้มาจากความทะเยอทะยาน แต่มาจากโครงสร้างของพลังงาน — ${humandesign.typeTh} Strategy "${humandesign.strategy}" ประกอบกับ NSK Star ${ninestar.star} และ LP${numerology.lifePath} บ่งว่าคุณถูกออกแบบให้ "guide" มากกว่า "push"`, `The leadership signature in your chart isn't ambition — it's energetic structure. ${trDF(humandesign.typeTh)} Strategy "${trDF(humandesign.strategy)}" combined with NSK Star ${ninestar.star} and LP${numerology.lifePath} indicates you're designed to "guide" rather than "push".`),
         '💎': tr(`ศักยภาพทรัพย์ในดวงไม่ใช่การรับรองว่าจะรวย แต่คือ "ทิศทาง" ที่พลังงานไหลได้ดีที่สุด — Arabic Parts Fortune ใน${arabicParts.fortuneSign} ร่วมกับ ${vedicMahadasha.currentDasha} Dasha และ Lucky Element ${bazi.luckyElement} บ่งทิศ`, `Wealth potential in a chart isn't a guarantee of riches — it's the direction your energy flows best. Arabic Parts Fortune in ${trDF(arabicParts.fortuneSign)} combined with the ${vedicMahadasha.currentDasha} Dasha and Lucky Element ${trDF(bazi.luckyElement)} marks that direction.`),
-        '🔮': tr(`ความลึกทางจิตวิญญาณใน LP${numerology.lifePath} + ${kabbalistic.sephira} + ${celtic.treeNameTh} บ่งว่าคุณมี "antenna" รับสัญญาณที่ละเอียดกว่าคนทั่วไป — สิ่งนี้อาจทำให้ตัดสินใจช้า แต่เมื่อตัดสินใจแล้วมักถูกต้อง`, `The spiritual depth across LP${numerology.lifePath} + ${kabbalistic.sephira} + ${trDF(celtic.treeNameTh)} suggests you have a finer "antenna" for subtle signals than most people. This can make decisions slow — but when you do decide, you're usually right.`),
+        '🔮': tr(`ความลึกทางจิตวิญญาณใน LP${numerology.lifePath} + ${kabbalistic.sephira} + ${celtic.treeNameTh} บ่งว่าคุณมี "antenna" รับสัญญาณที่ละเอียดกว่าคนทั่วไป — สิ่งนี้อาจทำให้ตัดสินใจช้า แต่เมื่อตัดสินใจแล้วมักถูกต้อง`, `The spiritual depth across LP${numerology.lifePath} + ${kabbalistic.sephira} + ${celtic.treeName} suggests you have a finer "antenna" for subtle signals than most people. This can make decisions slow — but when you do decide, you're usually right.`),
         '⚡': tr(`ทุกจุดท้าทายในดวงมีเหตุผล — ธาตุขาด${bazi.missingElement ? bazi.missingElement : 'ไม่มี'} คือพลังงานที่ต้องหามาจากภายนอก ระบบที่ score ต่ำกว่า median ไม่ได้บอกว่า "ดวงแย่" แต่บอกว่า "พลังงานนั้นไม่ใช่ทิศหลัก"`, `Every challenge in your chart has a reason. The missing ${trDF(bazi.missingElement) || 'no'} element is the energy you must source from outside. Systems scoring below median don't say "bad chart" — they say "this energy isn't your primary direction".`),
         '💞': tr(`พลังความสัมพันธ์ใน HD Profile ${humandesign.profile} + ${kabbalistic.archangel} + ${nativeAmerican.clansmother} บ่งว่าเครือข่ายมนุษย์คือ multiplier — คนเดียวได้ 1x แต่ผ่านคนที่ใช่ได้ 5-10x`, `The relational signature in HD Profile ${humandesign.profile} + ${kabbalistic.archangel} + ${nativeAmerican.clansmother} indicates that human networks are your multiplier — solo you do 1x, but through the right people 5-10x.`),
     };
@@ -1284,7 +1288,7 @@ function p_new16systems(c) {
         { name: 'Ogham', icon: '🌿', data: `${c.ogham.ogham} ${c.ogham.treeName}`, detail: trDF(c.ogham.oghamClass), score: c.ogham.score },
         { name: 'Arabic Parts', icon: '⭐', data: `${tr('Fortune ใน', 'Fortune in')} ${trDF(c.arabicParts.fortuneSign)}`, detail: `${tr('Spirit ใน', 'Spirit in')} ${trDF(c.arabicParts.spiritSign)}`, score: c.arabicParts.score },
         { name: 'Kabbalistic', icon: '✡️', data: c.kabbalistic.sephira, detail: c.kabbalistic.archangel, score: c.kabbalistic.score },
-        { name: 'Zoroastrian', icon: '🔥', data: c.zoroastrian.dayYazataTh.slice(0, 20), detail: trDF(c.zoroastrian.monthAmeshaTh.slice(0, 20)), score: c.zoroastrian.score },
+        { name: 'Zoroastrian', icon: '🔥', data: (_lang === 'en' ? c.zoroastrian.dayYazata : c.zoroastrian.dayYazataTh).slice(0, 20), detail: trDF(c.zoroastrian.monthAmeshaTh.slice(0, 20)), score: c.zoroastrian.score },
         { name: 'Aztec', icon: '🦅', data: `${trDF(c.aztec.daySignTh)} ${c.aztec.toneNumber}`, detail: trDF(c.aztec.daySignQuality), score: c.aztec.score },
         { name: 'Native American', icon: '🦅', data: trDF(c.nativeAmerican.birthTotemTh), detail: c.nativeAmerican.clansmother, score: c.nativeAmerican.score },
         { name: 'Ifa/Yoruba', icon: '🥁', data: `Odù ${c.ifaYoruba.odu}`, detail: trDF(c.ifaYoruba.fortune), score: c.ifaYoruba.score },
@@ -1454,13 +1458,13 @@ function p08_energyType(c) {
       ${row2(tr('กลยุทธ์ชีวิต', 'Life Strategy'), h.strategy)}
       ${row2(tr('ศูนย์กลางการตัดสินใจ', 'Decision Authority'), h.authority)}
       ${row2('Definition', h.definition)}
-      ${row2('Incarnation Cross', h.incarnationCross)}
+      ${row2(tr('แกนชะตา', 'Life Axis'), h.incarnationCross)}
       ${row2('Sun Gate', `Gate ${h.sunGate}`)}
       ${row2('Earth Gate', `Gate ${h.earthGate}`)}
     </tbody></table>
     ${box(tr('โปรไฟล์ความหมาย', 'Profile Meaning'), h.profileDesc, 'gold')}
     ${box(tr('Channels สำคัญ', 'Key Channels'), h.channels.join('<br>'), 'dark')}
-    <p style="font-size:11px;color:#5a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:10px"><strong>${tr('ต้นกำเนิด:', 'Origin:')}</strong> ${tr('Ra Uru Hu เสนอปี 1987 ผสม I Ching + โหราศาสตร์ + จักระ เป็นผังพลังงาน 9 ศูนย์', 'Proposed by Ra Uru Hu in 1987 — I Ching, astrology and the chakras folded into a nine-centre bodygraph.')}</p>
+    <p style="font-size:11px;color:#5a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:10px"><strong>${tr('ต้นกำเนิด:', 'Origin:')}</strong> ${tr('เสนอไว้ปี 1987 ผสม I Ching + โหราศาสตร์ + จักระ เป็นผังพลังงาน 9 ศูนย์', 'Proposed in 1987 — I Ching, astrology and the chakras folded into a nine-centre bodygraph.')}</p>
     <h2>${tr('การตีความ', 'Interpretation')}</h2>
     ${h.reading}
     <p style="font-size:11px;color:#6a5a42;margin-top:8px">* ${tr('Energy Type System วิเคราะห์ตามหลักโบดีกราฟ ไม่ใช่คำแนะนำจากผู้ให้บริการใดโดยเฉพาะ', 'The Energy Type System analyses based on BodyGraph principles, not advice from any specific provider.')}</p>
@@ -1640,10 +1644,15 @@ function p14_health(c) {
     const healthSignals = extractSignals(c, 'health');
     const good = healthSignals.filter(s => s.score >= 750);
     const warn = healthSignals.filter(s => s.score < 650);
-    const EL_EXERCISE = {
-        '甲': 'Weight Training / ยิม', '乙': 'Pilates / โยคะ', '丙': 'ว่ายน้ำ / ไตรกีฬา',
-        '丁': 'โยคะ / ว่ายน้ำ', '戊': 'Hiking / เดิน', '己': 'เดิน / ไทชิ',
-        '庚': 'Martial Arts / ฟันดาบ', '辛': 'เต้นรำ / ปิลาเตส', '壬': 'ว่ายน้ำ / พายเรือ', '癸': 'ว่ายน้ำ / ดำน้ำ'
+    // ⛔ ตารางนี้เคยมีชุดเดียว ปนไทย-อังกฤษ ⇒ คนอ่านฉบับอังกฤษได้ "swimming / พายเรือ"
+    const EL_EXERCISE = _lang === 'en' ? {
+        '甲': 'weight training / gym', '乙': 'pilates / yoga', '丙': 'swimming / triathlon',
+        '丁': 'yoga / swimming', '戊': 'hiking / walking', '己': 'walking / tai chi',
+        '庚': 'martial arts / fencing', '辛': 'dance / pilates', '壬': 'swimming / rowing', '癸': 'swimming / diving'
+    } : {
+        '甲': 'เวทเทรนนิ่ง / ยิม', '乙': 'พิลาทิส / โยคะ', '丙': 'ว่ายน้ำ / ไตรกีฬา',
+        '丁': 'โยคะ / ว่ายน้ำ', '戊': 'เดินป่า / เดิน', '己': 'เดิน / ไทชิ',
+        '庚': 'ศิลปะการต่อสู้ / ฟันดาบ', '辛': 'เต้นรำ / พิลาทิส', '壬': 'ว่ายน้ำ / พายเรือ', '癸': 'ว่ายน้ำ / ดำน้ำ'
     };
     // Map BaZi Day Master element → TCM organ pairing (well-established medical
     // tradition: ไม้→ตับ · ไฟ→หัวใจ · ดิน→ม้าม/กระเพาะ · โลหะ→ปอด · น้ำ→ไต)
@@ -1768,7 +1777,7 @@ function p16_activation(c) {
             systems: ['Nine Star Ki', 'BaZi Feng Shui'] },
         { icon: '🎯', pts: 0,
             title: tr(`ทำตาม Strategy "${humandesign.strategy}"`, `Follow your Strategy "${trDF(humandesign.strategy)}"`),
-            body: tr(`Energy Type ${humandesign.typeTh}: หัวใจของ Human Design — ฝืนแล้วเหนื่อยเปล่า`, `Energy Type ${trDF(humandesign.typeTh)}: heart of Human Design — fight it and you exhaust yourself`),
+            body: tr(`Energy Type ${humandesign.typeTh}: หัวใจของระบบประเภทพลังงาน — ฝืนแล้วเหนื่อยเปล่า`, `Energy Type ${trDF(humandesign.typeTh)}: heart of the energy-type reading — fight it and you exhaust yourself`),
             systems: ['Energy Type System', 'Kabbalistic'] },
         { icon: '🔥', pts: 0,
             title: tr(`เสริมธาตุ${bazi.luckyElement}ทุกวัน`, `Reinforce the ${trDF(bazi.luckyElement)} element daily`),
@@ -1784,11 +1793,11 @@ function p16_activation(c) {
             systems: ['Numerology', 'Kabbalistic', 'Zoroastrian'] },
         { icon: '🙏', pts: 0,
             title: tr(`ทำพิธีกรรม${thai.dayName}`, `Perform a ritual on ${trDF(thai.dayName)}`),
-            body: tr(`ไทยพราหมณ์ + Zoroastrian ${zoroastrian.dayYazataTh}: สักการะในวันเกิดของสัปดาห์`, `Thai-Brahmin + Zoroastrian ${zoroastrian.dayYazataTh}: honour the deity on your birth-weekday`),
+            body: tr(`ไทยพราหมณ์ + Zoroastrian ${zoroastrian.dayYazataTh}: สักการะในวันเกิดของสัปดาห์`, `Thai-Brahmin + Zoroastrian ${zoroastrian.dayYazata}: honour the deity on your birth-weekday`),
             systems: ['Thai Brahmin', 'Zoroastrian', 'Onmyōdō'] },
         { icon: '🌿', pts: 0,
             title: tr(`ออกกำลังกาย 3x/สัปดาห์`, `Exercise 3× per week`),
-            body: tr(`${celtic.treeNameTh} ธาตุ${celtic.element} + Native American ${nativeAmerican.birthTotemTh}: เคลื่อนไหวให้เข้ากับธาตุของคุณ`, `Celtic ${trDF(celtic.treeNameTh)} (${trDF(celtic.element)}) + Native American ${trDF(nativeAmerican.birthTotemTh)}: move in tune with your element`),
+            body: tr(`${celtic.treeNameTh} ธาตุ${celtic.element} + Native American ${nativeAmerican.birthTotemTh}: เคลื่อนไหวให้เข้ากับธาตุของคุณ`, `Celtic ${celtic.treeName} (${trDF(celtic.element)}) + Native American ${trDF(nativeAmerican.birthTotemTh)}: move in tune with your element`),
             systems: ['Celtic', 'Native American', 'Energy Type'] },
         { icon: '💬', pts: 0,
             title: tr(`รอ Response ก่อนลงมือ`, `Wait for the inner response before acting`),
@@ -1957,7 +1966,7 @@ function p17_weekly(c) {
       </tbody>
     </table>
 
-    ${box(tr(`วันเกิดของคุณ = ${esc(thai.dayName)} ★`, `Your Birth Weekday = ${esc(thai.dayName)} ★`), tr(`ในทางไทยพราหมณ์ วันเกิดคือวัน "ขอพร" — เทพประจำ${esc(thai.dayName)} (${esc(thai.dayGodTh || thai.dayGod || '—')}) เปิดรับคำขอพิเศษ ควรงดเนื้อสัตว์ / ทำบุญ / ตั้งจิตในวันนี้ทุกสัปดาห์<br><br>ส่วน <strong>Strategy Human Design</strong> ของคุณคือ "${esc(strategy)}" — ใช้ทุกวันเป็นแกนตัดสินใจ ไม่ใช่แค่วันเกิด`, `In Thai Brahmin tradition, your birth weekday is the day for <em>asking blessings</em> — your day-deity ${esc(thai.dayName)} (${esc(thai.dayGodTh || thai.dayGod || '—')}) is most receptive to special petitions. Consider abstaining from meat, making merit, and setting intentions on this weekday throughout the year.<br><br>Your <strong>Human Design Strategy</strong> is "${esc(strategy)}" — use it as your decision compass every day, not only on your birth weekday.`), 'gold')}
+    ${box(tr(`วันเกิดของคุณ = ${esc(thai.dayName)} ★`, `Your Birth Weekday = ${esc(thai.dayName)} ★`), tr(`ในทางไทยพราหมณ์ วันเกิดคือวัน "ขอพร" — เทพประจำ${esc(thai.dayName)} (${esc(thai.dayGodTh || thai.dayGod || '—')}) เปิดรับคำขอพิเศษ ควรงดเนื้อสัตว์ / ทำบุญ / ตั้งจิตในวันนี้ทุกสัปดาห์<br><br>ส่วน <strong>Strategy ระบบประเภทพลังงาน</strong> ของคุณคือ "${esc(strategy)}" — ใช้ทุกวันเป็นแกนตัดสินใจ ไม่ใช่แค่วันเกิด`, `In Thai Brahmin tradition, your birth weekday is the day for <em>asking blessings</em> — your day-deity ${esc(thai.dayName)} (${esc(thai.dayGodTh || thai.dayGod || '—')}) is most receptive to special petitions. Consider abstaining from meat, making merit, and setting intentions on this weekday throughout the year.<br><br>Your <strong>Energy Type Strategy</strong> is "${esc(strategy)}" — use it as your decision compass every day, not only on your birth weekday.`), 'gold')}
   `);
 }
 function p18_monthly2026(c) {
@@ -2194,7 +2203,7 @@ function p20_colors(c) {
         sources.push({
             el: celtic.element,
             color: celticColor,
-            source: `Celtic (${celtic.treeNameTh || celtic.treeName})`,
+            source: `Celtic (${(_lang === 'en' ? celtic.treeName : celtic.treeNameTh) || celtic.treeName})`,
             why: tr(`ต้นไม้ประจำวันเกิดของคุณคือ <strong>${celtic.treeNameTh || celtic.treeName}</strong> — ธาตุ${celtic.element} ของต้นไม้นี้สัมพันธ์กับสี ${celticColor}`, `Your birth tree is <strong>${celtic.treeName}</strong> — its ${celtic.element} element associates with the colour ${celticColor}.`),
         });
     // A source whose element IS the avoid element is not a lucky colour for this
@@ -2340,13 +2349,13 @@ function p22_painPoints(c) {
                     : tr('ปลูกต้นไม้/เดินป่า', 'planting / forest walks');
     const points = [
         { icon: '❤️', topic: tr('ความรัก & ความสัมพันธ์', 'Love & Relationships'),
-            systems: ['Western (Moon)', 'BaZi (Day Master)', 'Human Design'],
+            systems: ['Western (Moon)', 'BaZi (Day Master)', 'Energy Type System'],
             why: tr(`ดวงจันทร์ของคุณอยู่ใน<strong>${c.western.moonSignTh}</strong> — ต้องการความมั่นคงทางอารมณ์แบบเฉพาะ · Day Master <strong>${c.bazi.dayMasterTh}</strong> ธาตุ${dmEl}ทำให้การแสดงอารมณ์มีรูปแบบเฉพาะ — ${dmEmotion}`, `Your Moon sits in <strong>${c.western.moonSign}</strong> — needing a specific kind of emotional stability. Your Day Master <strong>${c.bazi.dayMasterTh}</strong> (${dmEl} element) shapes how you express feelings — you ${dmEmotion}.`),
             challenge: tr(`การผสมของ ${c.western.moonSignTh} (Moon) + ธาตุ${dmEl} (BaZi) ทำให้คุณ <em>ต้องการความใกล้ชิดอย่างลึกซึ้ง</em> แต่ <em>แสดงออกยาก</em> — 3 ศาสตร์อิสระชี้แบบเดียวกัน`, `The blend of ${c.western.moonSign} Moon + ${dmEl} Day Master means you <em>crave deep intimacy</em> but <em>find it hard to express</em> — three independent traditions point the same way.`),
             solution: tr(`ฝึก "บอกความรู้สึกก่อนคู่ถาม" — กฎง่ายๆ: สิ่งที่รู้สึกวันนี้ บอกภายใน 48 ชม. · ใช้ HD Strategy ของคุณ (${c.humandesign.strategy}) เป็นตัวกรองว่าจะบอกเมื่อไหร่`, `Practise the "speak first" rule — share what you feel today within 48 hours. Use your HD Strategy ("${c.humandesign.strategy}") as the filter for when to speak.`)
         },
         { icon: '💼', topic: tr('การงาน & พลังงานทำงาน', 'Work & Work Energy'),
-            systems: ['Human Design', 'BaZi', 'Nine Star Ki'],
+            systems: ['Energy Type System', 'BaZi', 'Nine Star Ki'],
             why: tr(`<strong>${c.humandesign.typeTh}</strong> + <strong>${c.humandesign.authority}</strong> = คุณถูกออกแบบให้ตัดสินใจผ่าน <em>${c.humandesign.authority}</em> ไม่ใช่ mind · NSK ดาว ${c.ninestar.star} ${c.ninestar.starChinese || ''} บอกธีมพลังงานหลักของคุณที่ไม่ควรฝืน`, `<strong>${c.humandesign.typeTh}</strong> + <strong>${c.humandesign.authority}</strong> = you\'re wired to decide through <em>${c.humandesign.authority}</em>, not the mind. NSK Star ${c.ninestar.star} ${c.ninestar.starChinese || ''} marks the dominant energy theme that resists being forced.`),
             challenge: tr(`เมื่อบังคับให้ทำงานขัด Strategy "${c.humandesign.strategy}" คุณจะเหนื่อยเร็วกว่าคนอื่นที่ทำงานเท่ากัน — เป็น bug ของการ <em>บีบพลังงานที่ออกแบบมาต่าง</em> ไม่ใช่ bug ของความพยายาม`, `Forcing work against your "${c.humandesign.strategy}" strategy drains you faster than peers doing the same volume — it\'s a bug in <em>squeezing the wrong-shaped energy</em>, not a bug in your effort.`),
             solution: tr(`ทดลองใช้ Strategy "${c.humandesign.strategy}" อย่างตั้งใจ 90 วัน → สังเกตระดับพลังงานก่อนและหลัง · ถ้าดีขึ้น → วิธีตัดสินใจนี้คือของคุณตลอดชีวิต`, `Run a 90-day experiment using "${c.humandesign.strategy}" deliberately → track your energy before vs after. If it improves, this decision style is yours for life.`)
@@ -2358,13 +2367,13 @@ function p22_painPoints(c) {
             solution: tr(`เสริมธาตุ${missingEl} 3 ทางพร้อมกัน — <strong>สี</strong> (ดูหน้าสีมงคล) · <strong>อาหาร</strong> (รส${missingTaste}) · <strong>กิจกรรม</strong> (${missingActivity})`, `Supplement ${missingEl} on 3 channels at once — <strong>colour</strong> (see the lucky-colour page) · <strong>food</strong> (${missingTaste} flavours) · <strong>activity</strong> (${missingActivity}).`)
         },
         { icon: '🤔', topic: tr('การตัดสินใจ & แรงกดดันภายนอก', 'Decisions & External Pressure'),
-            systems: ['Human Design (Authority)', 'BaZi (Day Master)', 'Numerology (LP)'],
+            systems: ['Energy Type System (Authority)', 'BaZi (Day Master)', 'Numerology (LP)'],
             why: tr(`<strong>${c.humandesign.authority}</strong> + Life Path ${c.numerology.lifePath} → รูปแบบการตัดสินใจของคุณต้องใช้เวลาเฉพาะ (ไม่ใช่ "ช้า" — แต่ "ต้องรอสัญญาณภายในถูกต้อง") · สังคม modernity มักกดดันให้ "ตัดสินใจไว" ซึ่งเป็นของ Mental Authority แบบเดียวเท่านั้น`, `<strong>${c.humandesign.authority}</strong> + Life Path ${c.numerology.lifePath} → your decision style needs specific timing — not "slow", but "wait for the right inner signal". Modern society pressures everyone to "decide fast", which is only correct for one type of authority (the mental kind).`),
             challenge: tr(`เมื่อถูกเร่ง คุณจะตัดสินใจด้วย "mind" ซึ่งไม่ใช่ Authority ของคุณ → ผลลัพธ์มักทำให้เสียใจภายหลัง · นี่ไม่ใช่จุดอ่อน แต่เป็นการ <em>ใช้เครื่องมือผิดประเภท</em>`, `When rushed, you decide via "mind" — which isn\'t your authority. The result usually breeds regret. This isn\'t weakness — it\'s <em>using the wrong tool</em>.`),
             solution: tr(`กฎ <strong>24/72/7</strong> — เรื่องเล็ก: รอ 24 ชม. · เรื่องกลาง: 72 ชม. · เรื่องใหญ่: 7 วัน · ภายในช่วงนั้น ${c.humandesign.authority} จะส่งสัญญาณชัด ไม่ต้องพยายามคิด`, `The <strong>24/72/7 rule</strong> — small matters: wait 24 hrs · medium: 72 hrs · big: 7 days. Within that window, your ${c.humandesign.authority} sends a clear signal — no forcing thought required.`)
         },
         { icon: '🪞', topic: tr('รู้จักตัวเอง & การเข้าสังคม', 'Self-Knowledge & Social Fit'),
-            systems: ['Human Design (Profile)', 'Vedic (Nakshatra)', 'Mayan (Kin)'],
+            systems: ['Energy Type System (Profile)', 'Vedic (Nakshatra)', 'Mayan (Kin)'],
             why: tr(`Profile <strong>${c.humandesign.profile}</strong> + Nakshatra ${c.vedic.moonNakshatra} + Mayan Kin ${c.mayan.kin} — 3 ศาสตร์จาก 3 วัฒนธรรมบอกเรื่อง <em>วิธีที่จิตวิญญาณของคุณมาปรากฏในโลก</em> · มักไม่ตรงกับ "แม่แบบความสำเร็จมาตรฐาน"`, `Profile <strong>${c.humandesign.profile}</strong> + Nakshatra ${c.vedic.moonNakshatra} + Mayan Kin ${c.mayan.kin} — three traditions across three cultures point at <em>how your soul shows up in the world</em>. It rarely matches the "standard success template".`),
             challenge: tr(`คุณจะรู้สึก <em>ไม่ fit</em> ในหลายสถานการณ์ ไม่ใช่เพราะผิดปกติ — แต่เพราะสังคมใช้ template เดียวในการวัดทุกคน ส่วนดวงของคุณเป็น template คนละแบบ`, `You\'ll feel <em>out of place</em> in many settings — not because something\'s wrong with you, but because society measures everyone by one template, and your chart runs on a different one.`),
             solution: tr(`${esc(c.humandesign.profileDesc || 'ทำความเข้าใจ Profile ของตัวเองให้ลึก')} · ใช้ Profile เป็นกรอบอธิบายตัวเอง ไม่ใช่กรอบบังคับ`, `${esc(c.humandesign.profileDesc || 'Study your Profile deeply.')} Use your Profile as a frame for explaining yourself — not as a cage.`)
@@ -2965,14 +2974,14 @@ function extractSignals(c, topic) {
     const SHENG = { Wood: 'Fire', Fire: 'Earth', Earth: 'Metal', Metal: 'Water', Water: 'Wood' };
     const dmEl = bazi.dayMasterElement;
     if (topic === 'element') {
-        all.push({ system: 'BaZi', score: bazi.score, finding: `Day Master ${bazi.dayMasterTh} ธาตุ${dmEl}`, category: 'element', value: dmEl }, { system: 'Nine Star Ki', score: ninestar.score, finding: `Star ${ninestar.star} ธาตุ${ninestar.starElement}`, category: 'element', value: ninestar.starElement }, { system: 'Western', score: western.score, finding: `Sun ${western.sunSignTh}`, category: 'element', value: western.sunSignTh }, { system: 'Vedic', score: vedic.score, finding: `Nakshatra ${vedic.moonNakshatra}`, category: 'element', value: vedic.moonNakshatra.split(' ')[0] }, { system: 'Celtic', score: celtic.score, finding: `${celtic.treeNameTh} ธาตุ${celtic.element}`, category: 'element', value: celtic.element }, { system: 'Tibetan', score: tibetan.score, finding: `Mewa ${tibetan.mewa} ธาตุ${tibetan.mewaElement}`, category: 'element', value: tibetan.mewaElement }, { system: 'Zoroastrian', score: zoroastrian.score, finding: `${zoroastrian.dayYazataTh}`, category: 'element', value: zoroastrian.dayYazataTh });
+        all.push({ system: 'BaZi', score: bazi.score, finding: `Day Master ${bazi.dayMasterTh} ธาตุ${dmEl}`, category: 'element', value: dmEl }, { system: 'Nine Star Ki', score: ninestar.score, finding: `Star ${ninestar.star} ธาตุ${ninestar.starElement}`, category: 'element', value: ninestar.starElement }, { system: 'Western', score: western.score, finding: `Sun ${western.sunSignTh}`, category: 'element', value: western.sunSignTh }, { system: 'Vedic', score: vedic.score, finding: `Nakshatra ${vedic.moonNakshatra}`, category: 'element', value: vedic.moonNakshatra.split(' ')[0] }, { system: 'Celtic', score: celtic.score, finding: tr(`${celtic.treeNameTh} ธาตุ${celtic.element}`, `${celtic.treeName} — ${celtic.element}`), category: 'element', value: celtic.element }, { system: 'Tibetan', score: tibetan.score, finding: `Mewa ${tibetan.mewa} ธาตุ${tibetan.mewaElement}`, category: 'element', value: tibetan.mewaElement }, { system: 'Zoroastrian', score: zoroastrian.score, finding: `${_lang === 'en' ? zoroastrian.dayYazata : zoroastrian.dayYazataTh}`, category: 'element', value: (_lang === 'en' ? zoroastrian.dayYazata : zoroastrian.dayYazataTh) });
     }
     if (topic === 'health') {
         const healthEl = bazi.missingElement.split(' ')[0] || 'ดิน';
-        all.push({ system: 'BaZi', score: bazi.score, finding: tr(`ธาตุขาด ${bazi.missingElement} ควรเสริมผ่านสีและอาหาร`, `Missing ${bazi.missingElement} element — reinforce via colour and food`), category: 'health', value: healthEl }, { system: 'Nine Star Ki', score: ninestar.score, finding: tr(`ทิศนอน ${ninestar.directionSleep} เสริมสุขภาพ`, `Sleep direction ${ninestar.directionSleep} supports health`), category: 'health', value: ninestar.directionSleep }, { system: 'Vedic', score: vedic.score, finding: `${vedic.mahadasha} Dasha: ${vedicMahadasha.dashaQuality}`, category: 'health', value: vedicMahadasha.dashaElement }, { system: 'Celtic', score: celtic.score, finding: tr(`ต้น${celtic.treeNameTh} — gem ${celtic.gemstone}`, `${celtic.treeName} — gem ${celtic.gemstone}`), category: 'health', value: celtic.gemstone }, { system: 'Energy Type', score: humandesign.score, finding: tr(`Strategy "${humandesign.strategy}" ลดการต้านพลังงาน`, `Strategy "${humandesign.strategy}" reduces energetic resistance`), category: 'health', value: humandesign.strategy }, { system: 'Native American', score: nativeAmerican.score, finding: tr(`${nativeAmerican.birthTotemTh} ธาตุ${nativeAmerican.element}`, `${nativeAmerican.birthTotem} (${nativeAmerican.element} element)`), category: 'health', value: nativeAmerican.element }, { system: 'Tibetan', score: tibetan.score, finding: tr(`Mewa ${tibetan.mewa} ธาตุ${tibetan.mewaElement}`, `Mewa ${tibetan.mewa} (${tibetan.mewaElement} element)`), category: 'health', value: tibetan.mewaElement }, { system: tr('ไทยพราหมณ์', 'Thai Brahmin'), score: thai.score, finding: tr(`สีมงคล${thai.dayColor} ${thai.dayName}`, `Lucky colour ${thai.dayColor} on ${thai.dayName}`), category: 'health', value: thai.dayColor }, { system: 'Zoroastrian', score: zoroastrian.score, finding: tr(`${zoroastrian.dayYazataTh} ปกครองสุขภาพ`, `${zoroastrian.dayYazataTh} rules health`), category: 'health', value: tr(zoroastrian.harmony ? 'สมดุล' : 'ต้องสร้างสมดุล', zoroastrian.harmony ? 'balanced' : 'needs balance') });
+        all.push({ system: 'BaZi', score: bazi.score, finding: tr(`ธาตุขาด ${bazi.missingElement} ควรเสริมผ่านสีและอาหาร`, `Missing ${bazi.missingElement} element — reinforce via colour and food`), category: 'health', value: healthEl }, { system: 'Nine Star Ki', score: ninestar.score, finding: tr(`ทิศนอน ${ninestar.directionSleep} เสริมสุขภาพ`, `Sleep direction ${ninestar.directionSleep} supports health`), category: 'health', value: ninestar.directionSleep }, { system: 'Vedic', score: vedic.score, finding: `${vedic.mahadasha} Dasha: ${vedicMahadasha.dashaQuality}`, category: 'health', value: vedicMahadasha.dashaElement }, { system: 'Celtic', score: celtic.score, finding: tr(`ต้น${celtic.treeNameTh} — gem ${celtic.gemstone}`, `${celtic.treeName} — gem ${celtic.gemstone}`), category: 'health', value: celtic.gemstone }, { system: 'Energy Type', score: humandesign.score, finding: tr(`Strategy "${humandesign.strategy}" ลดการต้านพลังงาน`, `Strategy "${humandesign.strategy}" reduces energetic resistance`), category: 'health', value: humandesign.strategy }, { system: 'Native American', score: nativeAmerican.score, finding: tr(`${nativeAmerican.birthTotemTh} ธาตุ${nativeAmerican.element}`, `${nativeAmerican.birthTotem} (${nativeAmerican.element} element)`), category: 'health', value: nativeAmerican.element }, { system: 'Tibetan', score: tibetan.score, finding: tr(`Mewa ${tibetan.mewa} ธาตุ${tibetan.mewaElement}`, `Mewa ${tibetan.mewa} (${tibetan.mewaElement} element)`), category: 'health', value: tibetan.mewaElement }, { system: tr('ไทยพราหมณ์', 'Thai Brahmin'), score: thai.score, finding: tr(`สีมงคล${thai.dayColor} ${thai.dayName}`, `Lucky colour ${thai.dayColor} on ${thai.dayName}`), category: 'health', value: thai.dayColor }, { system: 'Zoroastrian', score: zoroastrian.score, finding: tr(`${zoroastrian.dayYazataTh} ปกครองสุขภาพ`, `${zoroastrian.dayYazata} rules health`), category: 'health', value: tr(zoroastrian.harmony ? 'สมดุล' : 'ต้องสร้างสมดุล', zoroastrian.harmony ? 'balanced' : 'needs balance') });
     }
     if (topic === 'finance') {
-        all.push({ system: 'BaZi', score: bazi.score, finding: tr(`ธาตุมงคล ${bazi.luckyElement}`, `Lucky element ${bazi.luckyElement}`), category: 'finance', value: bazi.luckyElement }, { system: 'Nine Star Ki', score: ninestar.score, finding: tr(`ทิศ ${ninestar.starDirection} เสริมการเงิน`, `Direction ${ninestar.starDirection} supports finance`), category: 'finance', value: ninestar.starDirection }, { system: 'Numerology', score: numerology.score, finding: `Personal Year ${numerology.personalYear2026}: ${numerology.personalYearMeaning.split('—')[0]}`, category: 'finance', value: String(numerology.personalYear2026) }, { system: 'Vedic', score: vedic.score, finding: `${vedicMahadasha.currentDasha} Dasha`, category: 'finance', value: vedicMahadasha.dashaElement }, { system: 'Arabic Parts', score: arabicParts.score, finding: tr(`Part of Fortune ใน ${arabicParts.fortuneSign}`, `Part of Fortune in ${arabicParts.fortuneSign}`), category: 'finance', value: arabicParts.fortuneSign }, { system: 'Hellenistic', score: hellenistic.score, finding: tr(`${hellenistic.sectTh} กับ ${hellenistic.trigonLord}`, `${hellenistic.sectTh} with ${hellenistic.trigonLord}`), category: 'finance', value: hellenistic.trigonLord.split(' ')[0] }, { system: 'Kabbalistic', score: kabbalistic.score, finding: `${kabbalistic.sephira} (${kabbalistic.archangel})`, category: 'finance', value: kabbalistic.sephira }, { system: 'Ifa/Yoruba', score: ifaYoruba.score, finding: `Odù ${ifaYoruba.odu}: ${ifaYoruba.fortune}`, category: 'finance', value: ifaYoruba.fortune }, { system: 'Zoroastrian', score: zoroastrian.score, finding: `${zoroastrian.dayYazataTh}`, category: 'finance', value: tr(zoroastrian.harmony ? 'สอดคล้อง' : 'ระวัง', zoroastrian.harmony ? 'aligned' : 'caution') }, { system: tr('ทักษา', 'Thai Taksa'), score: c.taksa.score, finding: tr(`มูละ (ฐานทรัพย์) = ${c.taksa.mulaTh}`, `Mula wealth house = ${c.taksa.mulaEn}`), category: 'finance', value: c.taksa.mulaTh });
+        all.push({ system: 'BaZi', score: bazi.score, finding: tr(`ธาตุมงคล ${bazi.luckyElement}`, `Lucky element ${bazi.luckyElement}`), category: 'finance', value: bazi.luckyElement }, { system: 'Nine Star Ki', score: ninestar.score, finding: tr(`ทิศ ${ninestar.starDirection} เสริมการเงิน`, `Direction ${ninestar.starDirection} supports finance`), category: 'finance', value: ninestar.starDirection }, { system: 'Numerology', score: numerology.score, finding: `Personal Year ${numerology.personalYear2026}: ${numerology.personalYearMeaning.split('—')[0]}`, category: 'finance', value: String(numerology.personalYear2026) }, { system: 'Vedic', score: vedic.score, finding: `${vedicMahadasha.currentDasha} Dasha`, category: 'finance', value: vedicMahadasha.dashaElement }, { system: 'Arabic Parts', score: arabicParts.score, finding: tr(`Part of Fortune ใน ${arabicParts.fortuneSign}`, `Part of Fortune in ${arabicParts.fortuneSign}`), category: 'finance', value: arabicParts.fortuneSign }, { system: 'Hellenistic', score: hellenistic.score, finding: tr(`${hellenistic.sectTh} กับ ${hellenistic.trigonLord}`, `${hellenistic.sectTh} with ${hellenistic.trigonLord}`), category: 'finance', value: hellenistic.trigonLord.split(' ')[0] }, { system: 'Kabbalistic', score: kabbalistic.score, finding: `${kabbalistic.sephira} (${kabbalistic.archangel})`, category: 'finance', value: kabbalistic.sephira }, { system: 'Ifa/Yoruba', score: ifaYoruba.score, finding: `Odù ${ifaYoruba.odu}: ${ifaYoruba.fortune}`, category: 'finance', value: ifaYoruba.fortune }, { system: 'Zoroastrian', score: zoroastrian.score, finding: `${_lang === 'en' ? zoroastrian.dayYazata : zoroastrian.dayYazataTh}`, category: 'finance', value: tr(zoroastrian.harmony ? 'สอดคล้อง' : 'ระวัง', zoroastrian.harmony ? 'aligned' : 'caution') }, { system: tr('ทักษา', 'Thai Taksa'), score: c.taksa.score, finding: tr(`มูละ (ฐานทรัพย์) = ${c.taksa.mulaTh}`, `Mula wealth house = ${c.taksa.mulaEn}`), category: 'finance', value: c.taksa.mulaTh });
     }
     if (topic === 'timing') {
         all.push({ system: 'BaZi', score: bazi.score, finding: `LP ${bazi.currentLuckPillar} ${bazi.currentLuckPillarTh}`, category: 'timing', value: bazi.currentLuckPillar }, { system: 'Nine Star Ki', score: ninestar.score, finding: ninestar.year2026Analysis.substring(0, 60), category: 'timing', value: ninestar.star === 9 ? 'peak' : 'normal' }, { system: 'Vedic', score: vedic.score, finding: tr(`${vedicMahadasha.currentDasha} Dasha ถึง ${vedicMahadasha.currentDashaEnd}`, `${vedicMahadasha.currentDasha} Dasha until ${vedicMahadasha.currentDashaEnd}`), category: 'timing', value: String(vedicMahadasha.currentDashaEnd) }, { system: 'Numerology', score: numerology.score, finding: `PY ${numerology.personalYear2026}: ${numerology.personalYearMeaning.substring(0, 40)}`, category: 'timing', value: String(numerology.personalYear2026) }, { system: 'Tibetan', score: tibetan.score, finding: `Mewa ${tibetan.mewa} ${tibetan.mewaQuality}`, category: 'timing', value: tibetan.mewaQuality }, { system: 'Onmyōdō', score: onmyodo.score, finding: `${onmyodo.rokuyo} ${onmyodo.rokuyoTh}`, category: 'timing', value: onmyodo.rokuyo }, { system: 'Aztec', score: aztec.score, finding: `${aztec.daySignTh} Tone ${aztec.toneNumber}`, category: 'timing', value: aztec.daySignQuality }, { system: tr('ทักษา', 'Thai Taksa'), score: c.taksa.score, finding: tr(`กาลกิณี ${c.taksa.kalakiniTh} — พลัง/วันที่ควรเลี่ยง`, `Kalakini ${c.taksa.kalakiniEn} — the energy/day to avoid`), category: 'timing', value: c.taksa.kalakiniTh });
@@ -3127,7 +3136,7 @@ function p_norseRune(c) {
     </div>
     ${bar(n.score, '#5a3a5a')}
     <table style="margin:12px 0"><tbody>
-      ${row2(tr('รูน (Thai)', 'Rune (Thai)'), n.runeNameTh)}
+      ${_lang === 'en' ? '' : row2(tr('รูน (Thai)', 'Rune (Thai)'), n.runeNameTh)}
       ${row2(tr('ธาตุ', 'Element'), n.runeElement)}
       ${row2(tr('คำสำคัญ', 'Keyword'), n.runeKeyword)}
     </tbody></table>
@@ -3145,7 +3154,7 @@ function p_ogham(c) {
     </div>
     ${bar(o.score, '#3a6a30')}
     <table style="margin:12px 0"><tbody>
-      ${row2(tr('ต้นไม้ (Thai)', 'Tree (Thai)'), o.treeNameTh)}
+      ${_lang === 'en' ? '' : row2(tr('ต้นไม้ (Thai)', 'Tree (Thai)'), o.treeNameTh)}
       ${row2(tr('กลุ่ม Ogham', 'Ogham Class'), o.oghamClass)}
       ${row2(tr('ธาตุ', 'Element'), o.element)}
     </tbody></table>
@@ -3183,7 +3192,7 @@ function p_kabbalistic(c) {
       ${row2('Sephira Hebrew', k.sephiraHebrew)}
       ${row2('Archangel', k.archangel)}
       ${row2('Hebrew Year', String(k.hebrewYear))}
-      ${row2('Mazal (Zodiac)', k.mazalTh)}
+      ${row2('Mazal (Zodiac)', _lang === 'en' ? k.mazal : k.mazalTh)}
     </tbody></table>
     ${box(tr('การตีความ Kabbalah', 'Kabbalistic Reading'), k.reading, 'purple')}
     <p style="font-size:11px;color:#4a6a70;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:', 'Origin:')}</strong> ${tr('สายลึกลับของยิว เป็นรูปเป็นร่างในสเปนศตวรรษที่ 12-13 อ่านโลกผ่านต้นไม้แห่งชีวิต 10 เซฟิรอท', 'The Jewish mystical stream, formalised in 12th-13th-century Spain, reading the world through the ten sephirot of the Tree of Life.')}</p>
@@ -3194,12 +3203,12 @@ function p_zoroastrian(c) {
     const z = c.zoroastrian;
     return section(0, tr('Zoroastrian — ปรัชญาเปอร์เซีย', 'Zoroastrian — Persian Philosophy'), '🔥', `
     <div class="grid-2" style="margin-bottom:12px">
-      <div class="stat-card"><div class="val" style="font-size:14px">${esc(z.dayYazataTh.slice(0, 15))}</div><div class="lbl">Day Yazata</div></div>
+      <div class="stat-card"><div class="val" style="font-size:14px">${esc((_lang === 'en' ? z.dayYazata : z.dayYazataTh).slice(0, 15))}</div><div class="lbl">Day Yazata</div></div>
       <div class="stat-card"><div class="val">${z.score}</div><div class="lbl">Zoroastrian Score</div></div>
     </div>
     ${bar(z.score, '#8a4a20')}
     <table style="margin:12px 0"><tbody>
-      ${row2(tr('Yazata วันเกิด', 'Birth Yazata'), z.dayYazataTh)}
+      ${row2(tr('Yazata วันเกิด', 'Birth Yazata'), _lang === 'en' ? z.dayYazata : z.dayYazataTh)}
       ${row2(tr('Amesha เดือนเกิด', 'Birth-Month Amesha'), z.monthAmeshaTh)}
       ${row2(tr('ความสอดคล้อง', 'Harmony'), z.harmony ? tr('✓ ธาตุสอดคล้อง — เสริมพลัง', '✓ Elements aligned — power amplified') : tr('○ ธาตุต่างกัน — สร้างสมดุล', '○ Elements differ — creates balance'))}
     </tbody></table>

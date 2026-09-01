@@ -7,14 +7,16 @@
     "deploy": "git push origin main && vercel --yes --prod",
     "check": "node build-check.cjs",
     "test:anchors": "node Mythsensus/tests/external-anchors.test.cjs",
-    "predeploy": "npm run check && npm run test:anchors && npm run test:engine && npm run test:invariants && npm run test:mechanics && npm run test:prose && npm run test:integrity && npm run test:systems",
+    "predeploy": "npm run check && npm run test:anchors && npm run test:engine && npm run test:invariants && npm run test:mechanics && npm run test:prose && npm run test:integrity && npm run test:systems && npm run test:en && npm run test:bilingual",
     "postdeploy": "npm run qa && npm run smoke",
     "smoke": "node Mythsensus/tests/smoke-draw.cjs && node Mythsensus/tests/smoke-reading.cjs",
     "test:invariants": "node Mythsensus/tests/report-invariants.test.cjs",
     "test:mechanics": "node Mythsensus/tests/system-mechanics.test.cjs",
     "test:prose": "node Mythsensus/tests/prose-density.test.cjs",
     "test:integrity": "node Mythsensus/tests/report-integrity.test.cjs",
-    "test:systems": "node Mythsensus/tests/system-audit.test.cjs"
+    "test:systems": "node Mythsensus/tests/system-audit.test.cjs",
+    "test:en": "node Mythsensus/tests/en-report-purity.test.cjs",
+    "test:bilingual": "node Mythsensus/tests/fuzz-bilingual-leak.cjs"
   },
   "dependencies": {
     "@vercel/og": "^0.11.1",
