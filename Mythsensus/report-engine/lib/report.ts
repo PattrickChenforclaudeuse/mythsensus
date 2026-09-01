@@ -707,34 +707,58 @@ function p_consensusAxes(c: ChartData): string {
   const bar = (n: number, of: number, colour: string) =>
     `<span style="display:inline-block;width:${Math.round(n / Math.max(1, of) * 100)}%;height:8px;background:${colour};border-radius:4px"></span>`
 
-  const axisBox = (icon: string, title: string, question: string, votes: Vote[], verdict: string, reading: string) => {
+  // กล่องแกน — **คำตอบขึ้นก่อน หลักฐานอยู่ข้างล่าง**
+  //
+  // ⛔ ห้ามเอาผลนับดิบขึ้นหัวกล่องอีก · ของเดิมพิมพ์ตัวที่ได้เสียงมากสุดเป็นหัวเรื่อง
+  //    แล้วค่อยมี "คำตัดสิน" ที่อาจเป็นคนละค่าอยู่ท้ายกล่อง ⇒ คนอ่านเจอ
+  //        "ธาตุพื้นฐานของคุณ — ลม ... คำตัดสิน: ธาตุไม้"
+  //    (director 1 ก.ย. 69: "ใครจะเข้าใจ" · "อ่านแค่นี้เรายังไม่เอาเลย")
+  //
+  // ⛔ และเมื่อเสียงเสมอ ห้ามพิมพ์ "2/4 สาย" ต่อท้ายคำตัดสินเหมือนเป็นแรงหนุน —
+  //    อีกฝั่งก็ 2/4 เท่ากัน · เสมอคือข้อเท็จจริงเกี่ยวกับคนอ่าน ไม่ใช่ตัวเลขที่ต้องกลบ
+  const axisBox = (icon: string, title: string, question: string, votes: Vote[],
+                   answer: string, answerNote: string, reading: string) => {
     const groups: Record<string, Vote[]> = {}
     votes.forEach(v => { (groups[v.says] = groups[v.says] || []).push(v) })
     const ranked = Object.entries(groups).sort((a, b) => b[1].length - a[1].length)
-    const top = ranked[0]
+    const agreeN = (groups[answer] || []).length
+    const others = ranked.filter(([a]) => a !== answer)
+    const dissent = others.map(([a, vs]) =>
+      `${esc(a)} ${vs.length} (${esc(vs.map(v => v.lineage).join(', '))})`).join(' · ')
     return `
     <div style="background:linear-gradient(135deg,#0f0d0a,#0d0d15);border:1px solid #4a4028;border-radius:12px;padding:14px 16px;margin:12px 0">
       <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:2px">
         <span style="font-size:17px">${icon}</span>
         <span style="font-size:13.5px;font-weight:700;color:#aac8ff">${esc(title)}</span>
       </div>
-      <div style="font-size:10.5px;color:#6a7a90;margin-bottom:3px">${esc(question)}</div>
-      <div style="font-size:10px;color:#5a6a80;margin-bottom:10px">${tr(
-        `มี ${votes.length} ศาสตร์ที่คำนวณเรื่องนี้ได้ อีก ${26 - votes.length} ศาสตร์ไม่มีวิธีคำนวณ เราจึงไม่นับ`,
-        `${votes.length} traditions can compute this one. The other ${26 - votes.length} have no method for it, so they are not counted.`)}</div>
-      ${ranked.map(([answer, vs]) => `
-        <div style="margin:7px 0">
-          <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px">
-            <span style="color:${answer === top[0] ? '#e8c87a' : '#9a8a72'};font-weight:${answer === top[0] ? 700 : 400}">${esc(answer)}</span>
-            <span style="color:#6a7a90;font-size:11px">${vs.length}/${votes.length} ${tr('สาย','lineages')}</span>
-          </div>
-          <div style="margin:3px 0">${bar(vs.length, votes.length, answer === top[0] ? '#c8a45a' : '#4a4028')}</div>
-          <div style="font-size:10px;color:#6a7a90;line-height:1.6">${vs.map(v => `<strong style="color:#8aa8c8">${esc(v.lineage)}</strong> ${esc(v.evidence)}`).join(' · ')}</div>
-        </div>`).join('')}
-      <div style="margin-top:10px;padding-top:9px;border-top:1px solid #2a3a5a">
-        <div style="font-size:11px;color:#c8a45a;font-weight:600;margin-bottom:3px">${esc(verdict)}</div>
-        <div style="font-size:11.5px;color:#c8c0a8;line-height:1.8">${reading}</div>
-      </div>
+      <div style="font-size:10.5px;color:#6a7a90;margin-bottom:9px">${esc(question)}</div>
+
+      <div style="font-size:26px;font-weight:700;color:#e8c87a;line-height:1.25">${esc(answer)}</div>
+      <div style="font-size:11px;color:#9a8a72;margin-top:2px">${esc(answerNote)}</div>
+
+      <div style="font-size:11.5px;color:#c8c0a8;line-height:1.8;margin-top:10px">${reading}</div>
+
+      <details style="margin-top:11px">
+        <summary style="cursor:pointer;list-style:none;font-size:10px;color:#6a7a90;letter-spacing:.4px">
+          ${tr(
+            `ใครพูดว่าอะไร — ${agreeN}/${votes.length} สายหนุนคำตอบนี้${dissent ? ' · อีกฝั่ง: ' + dissent : ''}`,
+            `who said what — ${agreeN}/${votes.length} lineages back this${dissent ? ' · against: ' + dissent : ''}`)}
+        </summary>
+        <div style="margin-top:7px">
+          ${ranked.map(([a, vs]) => `
+            <div style="margin:6px 0">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px">
+                <span style="color:${a === answer ? '#e8c87a' : '#9a8a72'};font-weight:${a === answer ? 700 : 400}">${esc(a)}</span>
+                <span style="color:#6a7a90;font-size:10.5px">${vs.length}/${votes.length} ${tr('สาย','lineages')}</span>
+              </div>
+              <div style="margin:3px 0">${bar(vs.length, votes.length, a === answer ? '#c8a45a' : '#4a4028')}</div>
+              <div style="font-size:10px;color:#6a7a90;line-height:1.6">${vs.map(v => `<strong style="color:#8aa8c8">${esc(v.lineage)}</strong> ${esc(v.evidence)}`).join(' · ')}</div>
+            </div>`).join('')}
+          <div style="font-size:9.5px;color:#5a6a80;margin-top:6px">${tr(
+            `อีก ${26 - votes.length} ศาสตร์ไม่มีวิธีคำนวณเรื่องนี้ จึงไม่นับ`,
+            `the other ${26 - votes.length} traditions have no method for this, so they are not counted`)}</div>
+        </div>
+      </details>
     </div>`
   }
 
@@ -765,7 +789,7 @@ function p_consensusAxes(c: ChartData): string {
   const elClear = elTop[1] >= 3 && elTop[0] === bazi.dayMasterElement
   const elReading = elTop[1] >= 3
     ? tr(`สามสายขึ้นไปที่ไม่เคยรู้จักกันชี้ธาตุ<strong>${esc(elTop[0])}</strong>ตรงกัน — เวลาศาสตร์ที่พัฒนาคนละทวีปมาลงที่คำตอบเดียว มันมักเป็นด้านที่คนรอบตัวคุณเห็นก่อนคุณเห็นเอง ใช้ธาตุนี้เป็นตัวตั้งเวลาเลือกงาน เลือกที่อยู่ และเลือกจังหวะพัก`, `Three or more unrelated lineages land on <strong>${esc(elTop[0])}</strong>. When traditions built on different continents converge, the trait is usually the one other people notice about you before you do. Use it as the default when choosing work, choosing where to live, and choosing when to rest.`)
-    : tr(`<strong>เราตอบว่าธาตุ${esc(elCall)}</strong> · ${elVotes.length} ศาสตร์ตอบมา ${elSplit} แบบ ไม่มีคำตอบไหนได้เสียงข้างมาก เราจึงยึด BaZi เพราะเป็นศาสตร์เดียวในกลุ่มนี้ที่อ่านละเอียดถึง<strong>ชั่วโมงเกิด</strong> ส่วนที่เหลืออ่านแค่ระดับวันหรือเดือน · ข้อนี้เราอาจผิดได้`, `<strong>We are calling it ${esc(elCall)}.</strong> ${elVotes.length} lineages returned ${elSplit} different answers, so there is no real majority and we are not inventing one. The call rests on BaZi because it is the only one of these lineages that reads down to the <strong>hour</strong> of birth; the dissenting ones read the day or the month, one step coarser. If this does not describe you, then we are wrong here — not you.`)
+    : tr(`${elVotes.length} ศาสตร์ตอบมา ${elSplit} แบบ ไม่มีคำตอบไหนได้เสียงข้างมาก เราจึงยึด BaZi เพราะเป็นศาสตร์เดียวในกลุ่มนี้ที่อ่านละเอียดถึง<strong>ชั่วโมงเกิด</strong> ส่วนที่เหลืออ่านแค่ระดับวันหรือเดือน · ถ้าคุณรู้เวลาเกิดแม่นถึงนาที ข้อนี้จะแม่นขึ้นอีก ถ้าไม่แน่ใจเวลาเกิด ให้ถือว่าข้อนี้หลวมที่สุดในสามข้อ`, `<strong>We are calling it ${esc(elCall)}.</strong> ${elVotes.length} lineages returned ${elSplit} different answers, so there is no real majority and we are not inventing one. The call rests on BaZi because it is the only one of these lineages that reads down to the <strong>hour</strong> of birth; the dissenting ones read the day or the month, one step coarser. If this does not describe you, then we are wrong here — not you.`)
 
   // ── Axis 2 · start, or wait to be started ────────────────────────────────
   // A Manifesting Generator responds and then informs; informing is courtesy
@@ -791,12 +815,19 @@ function p_consensusAxes(c: ChartData): string {
   const tempoCall = tempoTied ? (hdInitiates ? START : WAIT) : (startN * 2 > tempoVotes.length ? START : WAIT)
   const tempoN = tempoCall === START ? startN : tempoVotes.length - startN
   const tempoReading = startN >= 4
-    ? tr(`เกือบทุกสายบอกตรงกันว่าคุณเป็นฝ่ายเปิดเกม — <strong>อย่ารอให้ใครอนุญาต</strong> ถ้าคุณรอ คนอื่นจะเดินไปก่อน แล้วคุณจะได้บทที่ไม่ใช่ของคุณ`, `Nearly every lineage says you are the one who opens the game — <strong>do not wait for permission</strong>. When you wait, someone else moves first and you end up playing a part that was never yours.`)
+    ? tr(`เกือบทุกสายบอกตรงกันว่าคุณเป็นฝ่ายเปิดเกม — <strong>อย่ารอให้ใครอนุญาต</strong> ถ้าคุณรอ คุณจะได้เศษของสิ่งที่คุณเริ่มเองได้ทั้งก้อน`,
+         `Nearly every lineage says you are the one who opens — <strong>stop waiting to be allowed</strong>. Wait, and you get a share of what you could have had whole.`)
     : startN <= 1
-    ? tr(`เกือบทุกสายบอกตรงกันว่าจังหวะของคุณคือ<strong>รอสัญญาณก่อนแล้วค่อยลงแรง</strong> — ไม่ใช่ความขี้เกียจ แต่คือกลไก ถ้าเริ่มเองตลอด คุณจะเจอแรงต้านที่คนอื่นไม่เจอ แล้วเหนื่อยกว่าที่ควร`, `Nearly every lineage says your timing runs on <strong>waiting for the signal, then committing hard</strong>. That is mechanics, not laziness. Initiate everything yourself and you will meet resistance other people never meet, and tire faster than the work deserves.`)
-    : (hdInitiates === (tempoCall === START)
-      ? tr(`เสียงออกมา ${startN} ต่อ ${tempoVotes.length - startN} — เฉียด แต่<strong>เราตัดสินว่า "${tempoCall}"</strong> ตามเสียงข้างมาก และ ระบบประเภทพลังงาน ซึ่งเป็นสายที่มีวิชาว่าด้วยเรื่องนี้โดยตรง (${esc(humandesign.type)} · ${esc(humandesign.strategy)}) ก็อยู่ข้างเดียวกัน · ${tempoVotes.length - startN} สายที่ค้านอยู่ข้างล่าง ถ้าคุณรู้ตัวว่าเป็นอีกแบบ เชื่อตัวเอง แล้วรายงานฉบับนี้ผิดข้อนี้`, `It came out ${startN} to ${tempoVotes.length - startN} — narrow, but <strong>we are calling it "${tempoCall}"</strong> on the majority, and the energy-type readingesign — the lineage whose doctrine is about exactly this question (${esc(humandesign.type)} · ${esc(humandesign.strategy)}) — is on the same side. The ${tempoVotes.length - startN} dissenters are listed below. If you know you are the other kind, trust that: this report is wrong on this axis.`)
-      : tr(`เสียงออกมา ${startN} ต่อ ${tempoVotes.length - startN} — เฉียด <strong>เราตัดสินว่า "${tempoCall}"</strong> ตามเสียงข้างมากล้วนๆ และต้องบอกให้ชัดว่า <strong>ระบบประเภทพลังงานค้านข้อนี้</strong> (${esc(humandesign.type)} · ${esc(humandesign.strategy)}) ทั้งที่เป็นสายที่มีวิชาว่าด้วยเรื่องนี้ตรงที่สุด · <strong>นี่คือข้อที่เรามีโอกาสผิดสูงที่สุดในหน้านี้</strong> ถ้าคุณรู้ตัวว่าเป็นแบบที่ HD ว่า ให้เชื่อตัวเอง`, `It came out ${startN} to ${tempoVotes.length - startN} — narrow. <strong>We call it "${tempoCall}"</strong> on the raw majority, and it must be said plainly that <strong>the energy-type reading disagrees</strong> (${esc(humandesign.type)} · ${esc(humandesign.strategy)}) — the one lineage whose doctrine is squarely about this question. <strong>This is the call on this page most likely to be wrong.</strong> If you recognise yourself in what HD says, trust that instead.`))
+    ? tr(`เกือบทุกสายบอกตรงกันว่าจังหวะของคุณคือ<strong>รอสัญญาณก่อนแล้วค่อยลงแรง</strong> — ของที่คุณไปคว้ามาเองมักได้มาแล้วต้องปล่อย ส่วนของที่มาหาคุณเองมักอยู่นาน`,
+         `Nearly every lineage says your timing is to <strong>wait for the signal, then commit</strong> — what you go and grab tends to be handed back, what comes to you tends to stay.`)
+    // ⛔ เสมอ ห้ามเขียนว่า "ตามเสียงข้างมาก" — 2 ต่อ 2 ไม่มีเสียงข้างมาก
+    //    (director 1 ก.ย. 69: "อะไรเนี่ย") · เสมอเป็นคำตอบเกี่ยวกับคนอ่าน ไม่ใช่ข้อบกพร่องของเรา
+    : tempoTied
+    ? tr(`ไม่ใช่ว่าศาสตร์ตอบไม่ได้ แต่<strong>คุณทำได้จริงทั้งสองแบบ</strong> และนั่นคือเหตุผลที่ทุกครั้งที่ต้องเลือก คุณลังเล · เราให้ยึด "${tempoCall}" เป็นค่าตั้งต้นเวลาไม่มีข้อมูลอื่น แต่ข้อนี้เป็นข้อที่คุณมีสิทธิ์ตัดสินเองมากที่สุดในสามข้อ`,
+         `Not because the lineages cannot answer, but because <strong>you genuinely work both ways</strong>, which is why you hesitate every time you have to choose. Default to "${tempoCall}" when you have nothing else to go on; of the three calls, this is the one you have the most right to overrule.`)
+    : tr(`เสียงออกมา ${startN} ต่อ ${tempoVotes.length - startN} — <strong>เราตัดสินว่า "${tempoCall}"</strong> ตามสายที่มากกว่า ซึ่งชนะแค่เสียงเดียว ⇒ ถ้าประสบการณ์ของคุณบอกตรงข้าม ให้เชื่อประสบการณ์`,
+         `It came out ${startN} to ${tempoVotes.length - startN} — <strong>we call it "${tempoCall}"</strong> on a single vote of margin. If your own experience says otherwise, trust your experience.`)
+
 
   // ── Axis 3 · what 2026 is for ────────────────────────────────────────────
   const nsk2026 = 1                               // 2026 is a 一白水星 year
@@ -839,7 +870,11 @@ function p_consensusAxes(c: ChartData): string {
         [tr('คุณวิ่งด้วยธาตุ','You run on'), esc(elCall), elClear
             ? tr(`${elTop[1]}/${elVotes.length} สายตรงกัน`, `${elTop[1]}/${elVotes.length} lineages agree`)
             : tr(`สายแตก — เรายึด BaZi`, `lineages split — we take BaZi`)],
-        [tr('จังหวะของคุณคือ','Your timing is'), esc(tempoCall), tr(`${tempoN}/${tempoVotes.length} สาย`, `${tempoN}/${tempoVotes.length} lineages`)],
+        [tr('จังหวะของคุณคือ','Your timing is'), esc(tempoCall),
+          tempoN * 2 === tempoVotes.length
+            ? tr('สายแบ่งครึ่ง — คุณทำได้ทั้งสองแบบ', 'split evenly — you can do either')
+            : tr(`${Math.max(tempoN, tempoVotes.length - tempoN)}/${tempoVotes.length} สายตรงกัน`,
+                 `${Math.max(tempoN, tempoVotes.length - tempoN)}/${tempoVotes.length} lineages agree`)],
         [tr('ปี 2026 สำหรับคุณคือ','2026, for you, is'), esc(yearCall), ampN >= 3 || ampN <= 1
             ? tr(`${Math.max(ampN, yearVotes.length - ampN)}/${yearVotes.length} สาย`, `${Math.max(ampN, yearVotes.length - ampN)}/${yearVotes.length} lineages`)
             : tr('เสมอ — เรายึด Lo Shu 9 ดาว', 'tied — we take Lo Shu')],
@@ -850,26 +885,46 @@ function p_consensusAxes(c: ChartData): string {
           <span style="font-size:10px;color:#7a6a90;margin-left:auto">${note}</span>
         </div>`).join('')}
       <div style="font-size:11px;color:#c0a8d0;line-height:1.8;margin-top:10px">${tr(
-        'เราฟันธงให้เลยสามข้อ · <strong>ข้อไหนอ่านแล้วรู้สึกว่าไม่ใช่คุณ ให้ถือว่าเราผิดข้อนั้น</strong> · ข้างล่างคือคำตอบของแต่ละศาสตร์ รวมถึงศาสตร์ที่เห็นตรงข้ามกับเรา',
-        'These are our calls, not the safest thing we could have said. <strong>If one of them does not describe you, we are wrong on that line</strong> — not you. Below is what each lineage actually said, dissenters included.')}
+        'สามข้อนี้มาจากสายไหนบ้าง กดดูได้ในแต่ละกล่องข้างล่าง — รวมถึงสายที่ตอบไม่เหมือนกัน',
+        'Open any box below to see which lineages each call came from — including the ones that answered differently.')}
       </div>
     </div>
 
     ${axisBox('✦', tr('ธาตุพื้นฐานของคุณ','Your base element'),
-      tr(`ถามว่า: พลังงานตั้งต้นของคนนี้เป็นธาตุอะไร — ศาสตร์ที่ตอบคำถามนี้ได้มี ${elVotes.length} สาย`,`Asked: what element does this person run on? ${elVotes.length} lineages answer it.`),
+      tr('พลังงานตั้งต้นของคุณเป็นธาตุอะไร', 'what element you run on'),
       elVotes,
-      elTop[1] >= 3
-        ? tr(`คำตัดสิน: ธาตุ${elTop[0]} (${elTop[1]}/${elVotes.length} สาย)`, `Our call: ${elTop[0]} (${elTop[1]}/${elVotes.length} lineages)`)
-        : tr(`คำตัดสิน: ธาตุ${esc(elCall)} — ยึด BaZi (สายที่นำได้แค่ ${elTop[1]}/${elVotes.length} ไม่ถึงเสียงข้างมาก)`, `Our call: ${esc(elCall)} — on BaZi (the leading element holds only ${elTop[1]}/${elVotes.length}, short of a majority)`),
+      tr(`ธาตุ${elCall}`, elCall),
+      // บรรทัดนี้บอกแค่ "ตัวเลขเป็นยังไง" ส่วน *แปลว่าอะไร* อยู่ในคำอ่านข้างล่าง
+      // ⛔ อย่าให้สองบรรทัดพูดเรื่องเดียวกันซ้ำ — คนอ่านจะอ่านประโยคเดิมสองรอบ
+      elClear
+        ? tr(`${elTop[1]} ใน ${elVotes.length} สายเห็นตรงกัน`, `${elTop[1]} of ${elVotes.length} lineages agree`)
+        : tr(`${elVotes.length} สายตอบไม่ตรงกัน`, `${elVotes.length} lineages, no agreement`),
       elReading)}
 
     ${axisBox('✦', tr('คุณเปิดเกมเอง หรือรอให้เกมเปิด','Do you open the game, or wait for it to open'),
-      tr(`ถามว่า: คนนี้ได้ผลดีกว่าเมื่อเริ่มเอง หรือเมื่อรอสัญญาณ — ${tempoVotes.length} ศาสตร์ตอบคำถามนี้`, `Asked: does this person do better initiating, or waiting for a signal? ${tempoVotes.length} traditions answer.`),
-      tempoVotes, tr(`คำตัดสิน: "${tempoCall}" (${tempoN}/${tempoVotes.length} สาย)`, `Our call: "${tempoCall}" (${tempoN}/${tempoVotes.length} lineages)`), tempoReading)}
+      tr('คุณได้ผลดีกว่าเมื่อเริ่มเอง หรือเมื่อรอสัญญาณ', 'whether you do better starting or waiting'),
+      tempoVotes,
+      tempoCall,
+      // ⛔ เสมอ = ห้ามพิมพ์ "2/4 สาย" ต่อท้ายเหมือนเป็นแรงหนุน อีกฝั่งก็ 2/4 เท่ากัน
+      //    เสมอเป็นข้อเท็จจริงเกี่ยวกับคนอ่าน ไม่ใช่ตัวเลขที่ต้องกลบ
+      tempoTied
+        ? tr(`สายแบ่งครึ่งพอดี ${tempoN} ต่อ ${tempoVotes.length - tempoN}`,
+             `split exactly, ${tempoN} to ${tempoVotes.length - tempoN}`)
+        : tr(`${Math.max(tempoN, tempoVotes.length - tempoN)} ใน ${tempoVotes.length} สายเห็นตรงกัน`,
+             `${Math.max(tempoN, tempoVotes.length - tempoN)} of ${tempoVotes.length} lineages agree`),
+      tempoReading)}
 
     ${axisBox('✦', tr('ปี 2026 เป็นปีแบบไหนสำหรับคุณ','What kind of year 2026 is for you'),
-      tr('ถามว่า: ปีนี้ควรเร่งหรือควรตั้งหลัก — 4 สายที่มีระบบเวลาของตัวเองตอบได้','Asked: push this year, or consolidate? Four lineages carry their own clock.'),
-      yearVotes, tr(`คำตัดสิน: ${yearCall} (${Math.max(ampN, yearVotes.length - ampN)}/${yearVotes.length} สาย${ampN === 2 ? ' · เสมอ เรายึด Lo Shu' : ''})`, `Our call: ${yearCall} (${Math.max(ampN, yearVotes.length - ampN)}/${yearVotes.length} lineages${ampN === 2 ? ' · tied, broken on Lo Shu' : ''})`), yearReading)}
+      tr('ปีนี้ควรเร่ง หรือควรตั้งหลัก', 'whether to push this year or hold'),
+      yearVotes,
+      yearCall,
+      ampN * 2 === yearVotes.length
+        ? tr(`สายแบ่งครึ่งพอดี ${ampN} ต่อ ${yearVotes.length - ampN}`,
+             `split exactly, ${ampN} to ${yearVotes.length - ampN}`)
+        : tr(`${Math.max(ampN, yearVotes.length - ampN)} ใน ${yearVotes.length} สายเห็นตรงกัน`,
+             `${Math.max(ampN, yearVotes.length - ampN)} of ${yearVotes.length} lineages agree`),
+      yearReading)}
+
 
     ${(() => {
       // Mandatory axis: how the coming year lands on each area of life. Same
