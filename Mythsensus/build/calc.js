@@ -4,7 +4,7 @@
 //  All 10 systems calculated algorithmically. Zero external API.
 // ============================================================
 Object.defineProperty(exports, "__esModule", { value: true });
-exports._enDisplay = exports.hebrewDateOf = exports.lunarDateOf = exports._getReadingParts = exports._clearReadingParts = exports._setReportLang = exports.calcForecast = exports._fcNineStarYear = exports.FORECAST_TIERS = exports.FORECAST_DOMAIN_LABELS = exports.FORECAST_DOMAINS_ALL = exports.fcAdviceFor = exports.calcDailyPulse = exports.calculate = exports.calcPathResonance = exports.calcLifeTerrain = exports._celticTreeIdx = exports.glossCJK = exports.sweepThaiFromEnglish = void 0;
+exports.hebrewDateOf = exports.lunarDateOf = exports._getReadingParts = exports._clearReadingParts = exports._setReportLang = exports.calcForecast = exports._fcNineStarYear = exports.FORECAST_TIERS = exports.FORECAST_DOMAIN_LABELS = exports.FORECAST_DOMAINS_ALL = exports.fcAdviceFor = exports.calcDailyPulse = exports.calculate = exports.calcPathResonance = exports.calcLifeTerrain = exports._celticTreeIdx = exports.glossCJK = exports.sweepThaiFromEnglish = void 0;
 // ── Bilingual primitives ────────────────────────────────────────
 // Single source of truth for translating Thai data fields to English.
 // Used by buildRichReading() and the per-system calc functions to keep
@@ -7742,8 +7742,8 @@ function calcNorseRune(d) {
             strengthEn: `Your strength is what you carry without effort: ${rune.n === 'Fehu' ? 'you naturally attract money and resources' : rune.n === 'Uruz' ? 'physical power and endurance others envy' : rune.n === 'Thurisaz' ? 'the courage to face conflicts others avoid' : rune.n === 'Ansuz' ? 'your words carry weight — you are a messenger' : rune.n === 'Raidho' ? 'you have good timing — you know when to move and when to pause' : rune.n === 'Kenaz' ? 'you light fires in dark rooms — creative, you see the way out' : rune.n === 'Gebo' ? 'you build alliances through balanced giving and receiving' : rune.n === 'Wunjo' ? 'you spread joy around you without realising it' : rune.n === 'Sowilo' ? 'you are sun-like — high life force, but watch you don\'t scorch others' : 'a unique gift tied to your rune\'s keyword'}. Your Ættir gives a stable ${tEl(rune.el)} foundation.`,
             shadowTh: `ทุกรูนมี "Murkstave" (รูนกลับหัว) — ด้านเงาของมัน เงาของ ${rune.n} คือ${rune.n === 'Fehu' ? 'ความโลภและการเกาะเงินจนขาดอิสระ' : rune.n === 'Thurisaz' ? 'ความก้าวร้าวที่ไม่ตรงเป้า' : rune.n === 'Ansuz' ? 'การพูดมากเกินไปจนสูญค่า' : rune.n === 'Hagalaz' ? 'การรับแรงเปลี่ยนแปลงไม่ไหว' : 'การใช้พลังของรูนในทางที่ผิดเป้าหมาย'} — นักรูนโบราณแนะนำให้ถอยและไตร่ตรองเมื่อรู้สึกเข้าสู่โหมด Murkstave`,
             shadowEn: `Every rune has its "Murkstave" (the reversed reading) — its shadow side. The shadow of ${rune.n} is ${rune.n === 'Fehu' ? 'greed and clinging to money until you lose freedom' : rune.n === 'Thurisaz' ? 'aggression aimed off-target' : rune.n === 'Ansuz' ? 'talking too much, losing weight' : rune.n === 'Hagalaz' ? 'inability to bear the impact of change' : 'using the rune\'s power off-target'} — classical rune-readers say withdraw and reflect when you feel Murkstave creeping in.`,
-            practiceTh: `การใช้รูนรายวัน: (1) เขียน ${rune.r} บนกระดาษเล็กใส่ในกระเป๋าเงินหรือที่ทำงาน (2) ในวันที่ต้องการพลังพิเศษ กล่าว "${rune.n}, help me with ${(0, exports._enDisplay)(rune.kw)}" 3 ครั้งเป็นการเรียกพลังรูน (3) ทำสมาธิ 5 นาทีโดยเพ่งที่รูป ${rune.r} แล้วให้พลัง ${rune.kw} ซึมเข้าร่างกาย`,
-            practiceEn: `Daily rune practice: (1) Write ${rune.r} on a small slip of paper, keep it in your wallet or workplace. (2) When you need special power, say "${rune.n}, help me with ${(0, exports._enDisplay)(rune.kw)}" three times to call the rune. (3) Meditate for 5 minutes focusing on ${rune.r}, letting its power soak into the body.`,
+            practiceTh: `การใช้รูนรายวัน: (1) เขียน ${rune.r} บนกระดาษเล็กใส่ในกระเป๋าเงินหรือที่ทำงาน (2) ในวันที่ต้องการพลังพิเศษ กล่าว "${rune.n}, help me with ${_enDisplay(rune.kw)}" 3 ครั้งเป็นการเรียกพลังรูน (3) ทำสมาธิ 5 นาทีโดยเพ่งที่รูป ${rune.r} แล้วให้พลัง ${rune.kw} ซึมเข้าร่างกาย`,
+            practiceEn: `Daily rune practice: (1) Write ${rune.r} on a small slip of paper, keep it in your wallet or workplace. (2) When you need special power, say "${rune.n}, help me with ${_enDisplay(rune.kw)}" three times to call the rune. (3) Meditate for 5 minutes focusing on ${rune.r}, letting its power soak into the body.`,
             currentYearTh: `ปี 2026 ในปฏิทินรูนโบราณจะเน้นรูน ${rune.n}และรูน Raidho (การเดินทาง) ซึ่งเข้ากันดีกับพลังชีวิตของคุณ ใช้โอกาสนี้เริ่มการเดินทางหรือโครงการใหม่ โดยเฉพาะในช่วงครีษมายัน (20 มิถุนายน) และวิษุวัต (22 กันยายน)`,
             currentYearEn: `2026 in the classical rune calendar emphasises ${rune.n} and Raidho (travel) — both good fits for your life force. Use this window to begin a journey or new project, especially around the summer solstice (June 20) and equinox (September 22).`,
             closingTh: 'รูนไม่ใช่การทำนาย — รูนคือเครื่องมือขอความเห็นจากเทพเจ้า ถามด้วยความเคารพ จะได้รับคำตอบที่ชัด',
@@ -8321,8 +8321,10 @@ const _TH_EN_DISPLAY = {
     'ความลึกลับและความอุดมสมบูรณ์': 'mystery and abundance', 'เส้นทางการงาน': 'the path of work',
     'โชคลาภและปัญญา': 'fortune and wisdom', 'ความซื่อสัตย์': 'integrity',
 };
+// ⛔ ห้ามใส่ `export` — bundler ฝั่งเบราว์เซอร์จะเขียนอ้างอิงเป็น exports._enDisplay
+//    ซึ่งไม่มีอยู่ในหน้าเว็บ ⇒ calculate() throw ทั้งก้อน หน้าดูดวงว่างเปล่า
+//    (พังจริงบน prod 1 ก.ย. 69 · ฝั่ง node ไม่เจอเพราะ CJS มี exports ให้)
 const _enDisplay = (s) => String(s).split(/\s*[·/]\s*/).map(t => _TH_EN_DISPLAY[t] || t).join(' · ');
-exports._enDisplay = _enDisplay;
 const _zoroNameEn = (n) => n.replace(/\s*\([^)]*[฀-๿][^)]*\)\s*$/, '');
 const _ZORO_MONTH_NAMES = ['Farvardin', 'Ardibehesht', 'Khordad', 'Tir', 'Mordad', 'Shahrivar', 'Mehr', 'Aban', 'Azar', 'Dey', 'Bahman', 'Esfand'];
 const _ZORO_JASHAN = { 0: 18, 1: 2, 2: 5, 3: 12, 4: 6, 5: 3, 6: 15, 7: 9, 8: 8, 10: 1, 11: 4 };

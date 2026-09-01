@@ -9244,7 +9244,10 @@ const _TH_EN_DISPLAY: Record<string, string> = {
   'ความลึกลับและความอุดมสมบูรณ์':'mystery and abundance', 'เส้นทางการงาน':'the path of work',
   'โชคลาภและปัญญา':'fortune and wisdom', 'ความซื่อสัตย์':'integrity',
 };
-export const _enDisplay = (s: string): string =>
+// ⛔ ห้ามใส่ `export` — bundler ฝั่งเบราว์เซอร์จะเขียนอ้างอิงเป็น exports._enDisplay
+//    ซึ่งไม่มีอยู่ในหน้าเว็บ ⇒ calculate() throw ทั้งก้อน หน้าดูดวงว่างเปล่า
+//    (พังจริงบน prod 1 ก.ย. 69 · ฝั่ง node ไม่เจอเพราะ CJS มี exports ให้)
+const _enDisplay = (s: string): string =>
   String(s).split(/\s*[·/]\s*/).map(t => _TH_EN_DISPLAY[t] || t).join(' · ');
 
 const _zoroNameEn = (n: string) => n.replace(/\s*\([^)]*[฀-๿][^)]*\)\s*$/, '');
