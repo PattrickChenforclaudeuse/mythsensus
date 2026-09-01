@@ -5482,6 +5482,104 @@ function _addDom(into, d, v) {
 // counted from the natal Ascendant — what Hellenistic and most Vedic practice
 // uses, and what this engine can actually compute (it has an Ascendant, not a
 // full cusp system).
+// แผนที่เรือนสำหรับ profection โดยเฉพาะ — ค่าบวกล้วน
+//
+// ⛔ ห้ามใช้ _houseDomains() ตัวข้างล่างแทน: ตัวนั้นสร้างมาให้ดาวจร จึงมีดีมีร้ายในตัว
+//    (เรือน 6 = เรือนโรค ติดลบ · เรือน 12 = เรือนสูญเสีย ติดลบ) ซึ่งถูกสำหรับดาวจร
+//    แต่ผิดสำหรับ profection — วิชานี้บอกว่า *ปีนี้เรื่องไหนขึ้นเวที* ไม่ได้บอกว่าดีหรือร้าย
+//    ปีที่ตกเรือน 12 คือปีของการถอย การเก็บตัว การปิดเรื่องเก่า ไม่ใช่ปีซวย
+// ศูนย์ทั้งเก้า → ด้านของชีวิต · อิงหน้าที่ของศูนย์นั้นตามตำรา ไม่ได้จับคู่ตามใจ
+// เทพประจำวันบอกว่า "วันนี้เป็นวันของเรื่องอะไร" — ถ้าบรรทัดนั้นบอกแค่ชื่อเทพ
+// คนอ่านได้ชื่อเปอร์เซียหนึ่งคำแล้วจบ ซึ่งตกเกณฑ์ "อ่านแล้วได้ประโยชน์อะไร"
+const _ZORO_DAY_GLOSS_TH = [
+    'วันของผู้สร้าง เหมาะกับการตั้งต้นใหม่ทั้งหมด',
+    'วันของความคิดที่ดี เหมาะกับการตัดสินใจที่ต้องใช้หัว',
+    'วันของความจริงและไฟ เหมาะกับการพูดสิ่งที่เลี่ยงมานาน',
+    'วันของอำนาจที่ใช้เป็น เหมาะกับการรับผิดชอบเพิ่ม',
+    'วันของพระแม่ดิน เหมาะกับบ้านและคนในบ้าน',
+    'วันของความสมบูรณ์ เหมาะกับการดูแลร่างกายและซ่อมสิ่งที่พร่อง',
+    'วันของความไม่ตาย เหมาะกับสิ่งที่อยากให้อยู่ต่อหลังเรา',
+    'วันของผู้สร้าง (องค์แรกในสาม) เป็นวันพัก ไม่ใช่วันเร่ง',
+    'วันของไฟ เหมาะกับการเริ่มสิ่งที่ต้องใช้ใจกล้า',
+    'วันของน้ำและความอุดม เหมาะกับความรักและการให้',
+    'วันของอาทิตย์ เหมาะกับการออกหน้า ให้คนเห็น',
+    'วันของจันทร์ เหมาะกับเรื่องในบ้านและคนที่สนิท',
+    'วันของดาวฝน เหมาะกับการเก็บเกี่ยวสิ่งที่ลงแรงไว้',
+    'วันของฝูงสัตว์ เหมาะกับการดูแลสิ่งที่เลี้ยงเราอยู่',
+    'วันของผู้สร้าง (องค์ที่สอง) เป็นวันทบทวน ไม่ใช่วันตัดสิน',
+    'วันของพันธสัญญา เหมาะกับสัญญา ข้อตกลง และการรักษาคำพูด',
+    'วันของวินัย เหมาะกับการกลับเข้าระเบียบที่หลุดไป',
+    'วันของความยุติธรรม เหมาะกับการชั่งว่าใครควรได้อะไร',
+    'วันของบรรพบุรุษ เหมาะกับการกลับไปหาคนที่มาก่อนเรา',
+    'วันของชัยชนะ เหมาะกับการลงมือกับสิ่งที่ยังไม่กล้าลง',
+    'วันของความรื่นรมย์ เหมาะกับการอยู่กับคนที่ทำให้เบา',
+    'วันของลม เหมาะกับการเดินทางและการเปลี่ยนที่',
+    'วันของผู้สร้าง (องค์สุดท้าย) เป็นวันปิดเรื่อง ไม่ใช่วันเปิด',
+    'วันของมโนธรรม เหมาะกับการถามตัวเองว่าที่ทำอยู่ถูกไหม',
+    'วันของโชคลาภ เหมาะกับการขอ การเสนอ การยื่นเรื่อง',
+    'วันของความซื่อตรง เหมาะกับการพูดตรงกับคนที่ต้องพูดด้วย',
+    'วันของฟ้า เหมาะกับการมองภาพใหญ่มากกว่ารายละเอียด',
+    'วันของโลก เหมาะกับที่ดิน บ้าน และสิ่งที่จับต้องได้',
+    'วันของวาจาศักดิ์สิทธิ์ เหมาะกับการเขียนและการสอน',
+    'วันของแสงไม่รู้ดับ เหมาะกับสิ่งที่ทำแล้วไม่หวังผลกลับ',
+];
+const _ZORO_DAY_GLOSS_EN = [
+    'the Creator day — for beginning things outright',
+    'the good-mind day — for decisions that need a clear head',
+    'the truth-and-fire day — for saying what you have been avoiding',
+    'the day of power well used — for taking on more responsibility',
+    'the Earth Mother day — for home and the people in it',
+    'the wholeness day — for the body and for mending what is short',
+    'the immortality day — for what you want to outlast you',
+    'the first Creator day — a day to rest, not to push',
+    'the fire day — for starting what takes nerve',
+    'the waters day — for love and for giving',
+    'the sun day — for stepping out where people can see you',
+    'the moon day — for the household and for close company',
+    'the rain-star day — for harvesting what you already put in',
+    'the herds day — for tending what feeds you',
+    'the second Creator day — a day to review, not to rule',
+    'the covenant day — for contracts, terms, and keeping your word',
+    'the discipline day — for returning to an order you let slip',
+    'the justice day — for weighing who is owed what',
+    'the ancestors day — for going back to those who came first',
+    'the victory day — for acting on what you have not dared',
+    'the day of ease — for the people who make you lighter',
+    'the wind day — for travel and for changing ground',
+    'the last Creator day — for closing, not for opening',
+    'the conscience day — for asking whether what you do is right',
+    'the fortune day — for asking, offering, filing, applying',
+    'the rectitude day — for speaking plainly to whoever needs it',
+    'the sky day — for the whole picture rather than the detail',
+    'the earth day — for land, home, and what you can touch',
+    'the holy-word day — for writing and for teaching',
+    'the endless-light day — for what you do without expecting return',
+];
+const _FC_HD_CENTRE_DOM = {
+    Head: { learning: 1.2 }, // แรงกดดันให้คิด ให้หาคำตอบ
+    Ajna: { learning: 1.2 }, // การประมวลผล ความเห็นที่ตกผลึก
+    Throat: { career: 1.2, allies: .6 }, // การพูดออกไป การทำให้เกิดขึ้นจริง
+    G: { love: 1, career: .6 }, // ตัวตน ทิศทาง และความรัก
+    Heart: { money: 1.2, career: .6 }, // เจตจำนง การให้สัญญา คุณค่าของตัวเอง
+    Spleen: { health: 1.2 }, // สัญชาตญาณ ระบบภูมิคุ้มกัน ความปลอดภัย
+    Sacral: { health: 1, career: .6 }, // กำลังงานที่ใช้ทำงานทั้งวัน
+    SolarPlexus: { love: 1.2, family: .6 }, // อารมณ์ คลื่นความรู้สึกต่อคนใกล้ตัว
+    Root: { chance: 1, career: .6 }, // แรงกดดันให้ลงมือ จังหวะเร่ง
+};
+const _FC_PROFECTION_DOM = [
+    { health: 1.2, career: .6 }, // 1 ตัวเอง ร่างกาย การเริ่มใหม่
+    { money: 1.2 }, // 2 ทรัพย์ รายได้
+    { learning: 1.2, allies: .6 }, // 3 การเรียนรู้ พี่น้อง การเดินทางใกล้
+    { family: 1.2 }, // 4 บ้าน ราก พ่อแม่
+    { love: 1.2, chance: .6 }, // 5 ความรัก ลูก การเล่น
+    { health: 1.2, career: .6 }, // 6 งานประจำวันกับร่างกาย — ปีที่ต้องจัดการวินัย
+    { love: 1.2, allies: .6 }, // 7 คู่ และการตกลงแบบเปิดหน้า
+    { chance: 1.2, money: .6 }, // 8 เงินของคนอื่น สิ่งที่คุมไม่ได้
+    { learning: 1.2, chance: .6 }, // 9 การเดินทางไกล ความเชื่อ การศึกษาสูง
+    { career: 1.2 }, // 10 ตำแหน่ง ชื่อเสียง
+    { allies: 1.2, money: .6 }, // 11 มิตร และลาภที่มากับมิตร
+    { health: .6, learning: .6 }, // 12 การถอย ที่ลับ การปิดเรื่องเก่า
+];
 function _houseDomains(house, mag) {
     const d = {};
     switch (house) {
@@ -5565,8 +5663,13 @@ function _fcCtx(c) {
     const digitSum = (n) => String(n).split('').reduce((a, b) => a + (+b), 0);
     const reduce11 = (n) => { while (n > 9 && n !== 11 && n !== 22)
         n = digitSum(n); return n; };
+    // ⛔ ต้องใช้ jd ที่มีเวลาเกิดจริง ไม่ใช่ birthJD ที่ตรึงเที่ยงวัน — gate เลื่อนได้
+    //    ภายในวันเดียว ใช้เที่ยงวันแทนจะได้ bodygraph ของคนอื่น
+    const _hdBg = _hdBodygraph(toJD(c.input.year, c.input.month, c.input.day, c.input.hour - c.input.timezone + c.input.minute / 60));
     return {
         dmStemIdx,
+        hdGates: new Set(_hdBg.activeGates),
+        hdOpenCentres: new Set(_hdBg.openCentres),
         dmEl: _elKey(c.bazi.dayMasterElement) || _FC_STEM_EL[dmStemIdx],
         ascSignIdx: Math.floor(mod360(c.western.ascDeg) / 30),
         natalNakIdx: Math.max(0, NAKSHATRAS_EN.findIndex(n => n.toLowerCase() === natalNak)),
@@ -5981,6 +6084,181 @@ function _fcDaySignals(c, date, x) {
             noteEn: `Moon in house ${moonH} · Jupiter in house ${jupH} · Saturn in house ${satH}`,
         });
     }
+    // ── ออนเมียวโด · 六曜 the six-day cycle ───────────────────────────────────
+    // เลิกงดออกเสียง 1 ก.ย. 69 · เหตุผลเดิมคือ "เครื่องยนต์ยังไม่เดินปฏิทิน
+    // จันทรคติญี่ปุ่น" ซึ่งไม่จริงมาสักพักแล้ว — _lunarDate() เดินอยู่และถูกตรึง
+    // กับวันตรุษจีนจริงในด่าน system-audit §10b
+    //
+    // นี่คือรอบที่ยังพิมพ์อยู่บนปฏิทินญี่ปุ่นทุกวันนี้ และคนญี่ปุ่นยังใช้เลือกวัน
+    // แต่งงานกับวันงานศพจริง — คำทำนายของแต่ละวันมาจากตัวคำในชื่อวันเอง
+    // ไม่ได้แต่งเพิ่ม: 友引 ห้ามจัดงานศพเพราะ "ดึงเพื่อนไปด้วย" จึงเป็นวันของคน
+    // 仏滅 คือวันที่แม้พระพุทธเจ้าก็ดับ จึงห้ามงานมงคลทุกชนิด
+    //
+    // ⛔ วันเดียวกันให้ค่าเท่ากันทุกคน — ต่างจากศาสตร์อื่นที่เทียบกับดวงกำเนิด
+    //    รอบหกวันเป็นปฏิทินสาธารณะ ไม่ใช่ดวงส่วนตัว จึงถ่วงเบา (±1 ไม่ใช่ ±2)
+    {
+        const lun = _lunarDate(jd);
+        const idx = (((lun.month + lun.day) % 6) + 6) % 6;
+        const R = [
+            { cjk: '大安', th: 'ไทอัง — วันมหาสิริมงคล ทำอะไรก็ราบรื่นทั้งวัน', en: 'Taian — the auspicious day, favourable from morning to night',
+                dom: { career: 1, money: 1, love: 1, health: 0.5, family: 1, learning: 0.5, allies: 1, chance: 1 } },
+            { cjk: '赤口', th: 'ชักโก — วันปากแดง ระวังไฟ ของมีคม และการปะทะคารม เว้นช่วงเที่ยง', en: 'Shakko — the red-mouth day: fire, blades and quarrels, except around noon',
+                dom: { allies: -1, health: -1, money: -0.5, love: -0.5 } },
+            { cjk: '先勝', th: 'เซนโช — ชิงลงมือก่อนได้เปรียบ เช้าดี บ่ายแผ่ว', en: 'Sensho — move first and win; the morning is yours, the afternoon is not',
+                dom: { career: 1, chance: 1, money: 0.5 } },
+            { cjk: '友引', th: 'โทโมบิกิ — ดึงเพื่อนไปด้วย วันของคนรอบตัว (ญี่ปุ่นห้ามจัดงานศพ)', en: 'Tomobiki — it pulls friends along; a day for the people around you (funerals are avoided)',
+                dom: { allies: 1.5, love: 1, family: 1 } },
+            { cjk: '先負', th: 'เซมบุ — ผู้ใจเย็นเป็นฝ่ายชนะ เช้าอย่าเพิ่งรีบ', en: 'Sembu — the patient one wins; do not rush the morning',
+                dom: { chance: -1, career: -0.5, learning: 0.5 } },
+            { cjk: '仏滅', th: 'บุตสึเมตสึ — วันที่แม้พระพุทธเจ้าก็ดับ เลี่ยงงานมงคล เหมาะกับการปิดเรื่องเก่า', en: 'Butsumetsu — the day even the Buddha passed; avoid celebrations, good for closing things',
+                dom: { love: -1.5, money: -1, chance: -1, career: -0.5, health: -0.5 } },
+        ];
+        const r = R[idx];
+        out.push({
+            sys: 'onmyodo', sysTh: 'ออนเมียวโด', sysEn: 'Onmyodo',
+            doctrineTh: '六曜 โรกุโย — รอบหกวันจาก (เดือน + วัน) ทางจันทรคติ',
+            doctrineEn: 'Rokuyo (六曜) — a six-day cycle from the lunar month plus the lunar day',
+            velocity: 'daily', dom: { ...r.dom },
+            noteTh: `${r.cjk} ${r.th}`,
+            noteEn: `${r.cjk} — ${r.en}`,
+        });
+    }
+    // ── โซโรอัสเตอร์ · เทพประจำวันในรอบ 30 วัน ────────────────────────────────
+    // เลิกงดออกเสียง 1 ก.ย. 69 · เหตุผลเดิม "ปฏิทินไม่ตรงกับที่เครื่องยนต์เดิน"
+    // จริงตอนนั้น เพราะเครื่องยนต์เอาวันที่เกรกอเรียนมาสวมชื่อเปอร์เซีย
+    // ตอนนี้เดิน Fasli จริงแล้ว (ดู _zoroDate) และตรงหมุดเทศกาลจริงทั้ง Tirgan/Mehregan
+    //
+    // ทุกวันในสามสิบวันมีเทพประจำ และไม่มีองค์ไหนเป็นอัปมงคล — ศาสตร์นี้จึงไม่มีวัน
+    // "ห้ามทำ" แบบโรกุโย มันบอกว่า *วันนี้เป็นวันของเรื่องอะไร* ไม่ใช่ดีหรือร้าย
+    // ค่าจึงเป็นบวกทั้งหมด แล้วปล่อยให้ baseline รายปีเป็นตัวตัดว่าวันไหนสูงกว่าปกติ
+    {
+        const zd = _zoroDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
+        const D = [
+            { career: .5, learning: .5, health: .5, allies: .5 }, // Hormazd
+            { learning: 1.5, allies: .5 }, // Vohu Manah — ความคิดที่ดี
+            { health: 1, career: 1 }, // Asha Vahishta — ความจริงและไฟ
+            { career: 1.5, money: 1 }, // Khshathra — อำนาจที่ใช้เป็น
+            { family: 1.5, love: .5 }, // Spenta Armaiti — พระแม่ดิน
+            { health: 1.5, family: .5 }, // Haurvatat — ความสมบูรณ์
+            { health: 1, learning: .5 }, // Ameretat — ความไม่ตาย พืชพรรณ
+            { learning: .5 }, // Dae-pa-Adar
+            { career: 1, health: .5, love: .5 }, // Atar — ไฟ
+            { love: 1.5, family: 1 }, // Aban — น้ำ ความอุดม
+            { career: 1, health: 1, chance: .5 }, // Khorshed — อาทิตย์
+            { family: 1, love: 1 }, // Mah — จันทร์
+            { money: 1.5, chance: .5 }, // Tishtrya — ดาวฝน เก็บเกี่ยว
+            { money: 1, family: .5 }, // Geus — ฝูงสัตว์
+            { learning: .5 }, // Dae-pa-Mehr
+            { career: 1, allies: 1.5, money: .5 }, // Mithra — พันธสัญญา
+            { health: 1, learning: 1 }, // Sraosha — วินัย
+            { career: 1, money: .5, allies: .5 }, // Rashnu — ความยุติธรรม
+            { family: 1.5, health: .5 }, // Fravashi — บรรพบุรุษ
+            { career: 1.5, chance: 1.5 }, // Verethraghna — ชัยชนะ
+            { love: 1.5, allies: 1 }, // Rama — ความรื่นรมย์
+            { chance: 1, career: .5 }, // Vata — ลม การเดินทาง
+            { learning: .5 }, // Dae-pa-Din
+            { learning: 1.5 }, // Daena — มโนธรรม
+            { money: 1.5, chance: 1.5 }, // Ashi — โชคลาภ
+            { allies: 1, career: .5 }, // Arshtat — ความซื่อตรง
+            { learning: 1, chance: .5 }, // Asman — ฟ้า
+            { money: 1, family: 1 }, // Zamyad — โลก
+            { learning: 1.5, allies: .5 }, // Mahraspand — วาจาศักดิ์สิทธิ์
+            { health: 1, learning: 1, chance: .5 }, // Anagran — แสงไม่รู้ดับ
+        ];
+        const monthName = _ZORO_MONTH_NAMES[zd.monthIdx] || '';
+        if (zd.gatha) {
+            out.push({
+                sys: 'zoroastrian', sysTh: 'โซโรอัสเตอร์', sysEn: 'Zoroastrian',
+                doctrineTh: 'ห้าวัน Gatha ปิดปี — ช่วง Farvardigan ที่ดวงวิญญาณบรรพบุรุษกลับมาเยี่ยมบ้าน',
+                doctrineEn: 'The five Gatha days that close the year — Farvardigan, when the ancestor spirits come home',
+                velocity: 'daily', dom: { family: 1.5, learning: .5 },
+                noteTh: `${_ZORO_GATHA[zd.gatha - 1]} — วันปิดปี ธรรมเนียมให้กลับไปหาคนของตัวเอง ไม่ใช่ออกไปหาของใหม่`,
+                noteEn: `${_ZORO_GATHA[zd.gatha - 1]} — a year-closing day; the custom is to return to your own people, not to seek new ground`,
+            });
+        }
+        else {
+            const isJashan = _ZORO_JASHAN[zd.monthIdx] === zd.dayIdx;
+            const dom = {};
+            const src = D[zd.dayIdx] || {};
+            for (const k of Object.keys(src))
+                _addDom(dom, k, src[k] * (isJashan ? 2 : 1));
+            const nm = _ZORO_DAY_NAMES[zd.dayIdx];
+            out.push({
+                sys: 'zoroastrian', sysTh: 'โซโรอัสเตอร์', sysEn: 'Zoroastrian',
+                doctrineTh: 'เทพประจำวัน (Yazata) ในรอบสามสิบวันของปฏิทิน Fasli — วันไหนเป็นวันของเรื่องอะไร',
+                doctrineEn: 'The day-Yazata in the thirty-day Fasli cycle — what each day is a day *for*',
+                velocity: 'daily', dom,
+                noteTh: `วัน ${nm} ในเดือน ${monthName} — ${_ZORO_DAY_GLOSS_TH[zd.dayIdx]}${isJashan ? ' · ชื่อวันตรงชื่อเดือน คือวัน Jashan เทศกาลของเทพองค์นี้ ปีละครั้ง' : ''}`,
+                noteEn: `Day of ${nm} in the month of ${monthName} — ${_ZORO_DAY_GLOSS_EN[zd.dayIdx]}${isJashan ? ' · day name meets month name: this is the Jashan, the feast of that divinity, once a year' : ''}`,
+            });
+        }
+    }
+    // ── เฮลเลนิสติก · Annual Profection ───────────────────────────────────────
+    // เลิกงดออกเสียง 1 ก.ย. 69 · เหตุผลเดิมคือ "profection บอกหัวข้อ ไม่ตัดสินดีร้าย"
+    // ซึ่งจริง — แต่กระดานนี้ไม่ได้ถามว่าดีหรือร้าย มันถามว่า *ด้านไหนของชีวิตกำลังถูกจุด*
+    // การชี้ว่าปีนี้เรื่องไหนขึ้นเวที คือคำตอบที่ตรงคำถามที่สุดที่ศาสตร์นี้ให้ได้
+    //
+    // วิชานี้เรียบง่ายและเก่าที่สุดในตำรากรีก: เรือนที่ 1 คือปีที่เกิด แล้วเลื่อนเรือนละ 1 ปี
+    // ครบรอบทุก 12 ปี — เพราะฉะนั้นอายุ 12, 24, 36 กลับมาเรือน 1 เหมือนตอนเกิด
+    // ⛔ นับจากวันเกิด ไม่ใช่ปีปฏิทิน — คนเกิดเดือนธันวายังอยู่เรือนเดิมจนถึงวันเกิดปีถัดไป
+    {
+        const age = Math.floor((jd - x.birthJD) / 365.2422);
+        if (age >= 0) {
+            const house = (age % 12) + 1;
+            const signIdx = (x.ascSignIdx + (house - 1)) % 12;
+            out.push({
+                sys: 'hellenistic', sysTh: 'เฮลเลนิสติก', sysEn: 'Hellenistic',
+                doctrineTh: 'Annual Profection — เรือนที่ถูกจุดในปีนี้ นับจากลัคนาเลื่อนปีละหนึ่งเรือน',
+                doctrineEn: 'Annual profection — the house lit up this year, moving one house per year of life from the Ascendant',
+                velocity: 'yearly', dom: { ..._FC_PROFECTION_DOM[house - 1] },
+                noteTh: `ปีอายุ ${age} ตกเรือน ${house} (ราศี${SIGN_NAMES_TH[signIdx]}) — เรื่องของเรือนนี้คือหัวข้อที่ปีนี้จะบังคับให้คุณจัดการ`,
+                noteEn: `Age ${age} profects to house ${house} (${SIGN_NAMES_EN[signIdx]}) — the affairs of that house are what this year makes you deal with`,
+            });
+        }
+    }
+    // ── ระบบประเภทพลังงาน · ดาวจรมาต่อวงจรที่ดวงกำเนิดเปิดค้างไว้ ─────────────
+    // เลิกงดออกเสียง 1 ก.ย. 69 · เหตุผลเดิม "มีวิชา transit จริง แต่เว็บยังไม่ได้คำนวณ"
+    //
+    // กลไกทั้งหมดของศาสตร์นี้คือ "ประตูเดี่ยวไม่ทำอะไรเลย ต้องครบคู่ถึงจะเป็นวงจร"
+    // ดาวจรก็ใช้กลไกเดียวกัน: วันไหนดาวจรเปิดประตูที่เป็นคู่ของประตูที่คุณเปิดค้างไว้
+    // วงจรนั้นจะติดขึ้นชั่วคราว และศูนย์ที่เคยว่างจะมีพลังของคนอื่นไหลผ่านในวันนั้น
+    //
+    // ⛔ นับเฉพาะวงจรที่ดวงกำเนิด "ยังไม่ครบ" — ถ้าครบอยู่แล้วดาวจรไม่ได้เพิ่มอะไร
+    //    (ถ้านับด้วยจะกลายเป็นให้คะแนนซ้ำกับสิ่งที่ติดตัวอยู่ตลอดชีวิต ไม่ใช่ข่าววันนี้)
+    {
+        const tGates = new Set(_hdBodies(jd).map(([, lon]) => _hdGateLine(lon).gate));
+        const lit = [];
+        for (const [a, b] of _HD_CHANNELS) {
+            if (x.hdGates.has(a) && x.hdGates.has(b))
+                continue; // ครบอยู่แล้ว ไม่ใช่ข่าว
+            if (x.hdGates.has(a) && tGates.has(b))
+                lit.push({ mine: a, theirs: b, centre: _HD_GATE_CENTRE[b] });
+            else if (x.hdGates.has(b) && tGates.has(a))
+                lit.push({ mine: b, theirs: a, centre: _HD_GATE_CENTRE[a] });
+        }
+        if (lit.length) {
+            // ศูนย์ที่ปกติว่าง = ที่ที่คนคนนี้ไวต่อแรงจากข้างนอกที่สุด จึงถ่วงหนักกว่า
+            const onOpen = lit.filter(l => x.hdOpenCentres.has(l.centre));
+            const mag = Math.min(2, 0.5 * lit.length + 0.5 * onOpen.length);
+            const dom = {};
+            for (const l of lit) {
+                const part = _FC_HD_CENTRE_DOM[l.centre];
+                if (!part)
+                    continue;
+                for (const k of Object.keys(part))
+                    _addDom(dom, k, part[k] * (mag / lit.length));
+            }
+            const first = lit[0];
+            out.push({
+                sys: 'humandesign', sysTh: 'ระบบประเภทพลังงาน', sysEn: 'Energy Type System',
+                doctrineTh: 'ดาวจรเปิดประตูที่เป็นคู่ของประตูในดวงกำเนิด — วงจรที่ค้างครึ่งเดียวจะติดขึ้นชั่วคราว',
+                doctrineEn: 'A transit opens the partner of a gate you already hold — a half-finished circuit closes for the day',
+                velocity: 'daily', dom,
+                noteTh: `มีวงจรติดขึ้นชั่วคราว ${lit.length} วง เช่น ประตู ${first.mine} ของคุณได้คู่ ${first.theirs} จากดาวจร${onOpen.length ? ` · ${onOpen.length} วงลงที่ศูนย์ที่ปกติว่างของคุณ ซึ่งเป็นจุดที่คุณรับแรงจากคนอื่นแรงที่สุด` : ''}`,
+                noteEn: `${lit.length} circuits close temporarily today — your gate ${first.mine} meets its partner ${first.theirs} in transit${onOpen.length ? `, ${onOpen.length} of them landing on centres that are normally open for you` : ''}`,
+            });
+        }
+    }
     return out;
 }
 const _fcRound1 = (n) => Math.round(n * 10) / 10;
@@ -6218,14 +6496,10 @@ function _fcPeriod(getDay, base, dates, kind, index, labelTh, labelEn, domBase) 
 // Saying which is which is the whole point.
 const _FC_ABSTENTIONS = [
     { sysTh: 'ไทยพราหมณ์', sysEn: 'Thai Brahmin', whyTh: 'ให้ความหมายของวันเกิด ไม่ใช่วิชาทำนายช่วงเวลา — และสัญญาณวันในสัปดาห์ถูกนับไปแล้วโดยทักษา', whyEn: 'Reads the meaning of a birth weekday, not a timing technique — and the weekday signal is already cast by Taksa' },
-    { sysTh: 'เฮลเลนิสติก', sysEn: 'Hellenistic', whyTh: 'Profection บอกว่า "หัวข้อไหนของปี" ไม่ได้ตัดสินว่าดีหรือร้าย จึงแสดงเป็นหัวข้อประจำปีแทนการโหวต', whyEn: 'Annual profection names the year’s topic, it does not rule good or bad — shown as the year’s theme instead of a vote' },
     { sysTh: 'ซาจู (เกาหลี)', sysEn: 'Saju', whyTh: 'ใช้เสาสี่หลักชุดเดียวกับ BaZi — โหวตซ้ำจะทำให้จีนมีสองเสียง', whyEn: 'Uses the same four pillars as BaZi — voting twice would give one tradition two voices' },
-    { sysTh: 'ซื่อเว่ยโต่วซู', sysEn: 'Zi Wei Dou Shu', whyTh: 'มีวิชา 流年/流月 จริง แต่เว็บยังไม่ได้คำนวณดาวจร — ยังไม่ต่อสาย', whyEn: 'Has genuine annual/monthly techniques, but this engine has not computed its star transits yet' },
-    { sysTh: 'ระบบประเภทพลังงาน', sysEn: 'ระบบประเภทพลังงาน', whyTh: 'มีวิชา transit จริง แต่เว็บยังไม่ได้คำนวณ — ยังไม่ต่อสาย', whyEn: 'Has a real transit technique, not yet computed here' },
-    { sysTh: 'ออนเมียวโด', sysEn: 'Onmyodo', whyTh: 'ต้องเดินปฏิทินจันทรคติญี่ปุ่น ซึ่งเครื่องยนต์ยังไม่ได้เดิน', whyEn: 'Requires the Japanese lunisolar calendar, which this engine does not yet track' },
-    { sysTh: 'โหราศาสตร์ทิเบต', sysEn: 'Tibetan', whyTh: 'ต้องตัดปีที่ Losar ไม่ใช่ปฏิทินจีน', whyEn: 'Its year turns at Losar, not on the Chinese boundary this engine uses' },
-    { sysTh: 'โซโรอัสเตอร์', sysEn: 'Zoroastrian', whyTh: 'ปฏิทินไม่ตรงกับที่เครื่องยนต์เดิน', whyEn: 'Runs on a calendar this engine does not track' },
-    { sysTh: 'แอซเท็ก', sysEn: 'Aztec', whyTh: 'ยังไม่ได้คำนวณจากศาสตร์นั้นจริง', whyEn: 'Not yet computed from its own doctrine' },
+    { sysTh: 'ซื่อเว่ยโต่วซู', sysEn: 'Zi Wei Dou Shu', whyTh: 'วิชา 流年 ทั้งหมดยืนอยู่บนตำแหน่ง 命宮 ซึ่งด่านตรวจของเรายังยืนยันกับแหล่งอ้างอิงภายนอกไม่ได้ — ให้โหวตตอนนี้คือเอาเสียงมาวางบนฐานที่ยังพิสูจน์ไม่ผ่าน', whyEn: 'Its entire annual technique stands on the Life Palace position, which our audit cannot yet confirm against an outside source — voting now would rest a voice on an unproven foundation' },
+    { sysTh: 'โหราศาสตร์ทิเบต', sysEn: 'Tibetan', whyTh: 'Mewa ของเราคำนวณจากชุดเดียวกับดาวเก้าดวง — ด่านตรวจยืนยันว่าดาวเดียวกันให้ธาตุเดียวกันเสมอ ให้โหวตด้วยจะเป็นเสียงซ้ำ ไม่ใช่หลักฐานอิสระ', whyEn: 'Our Mewa is derived from the same nine-star cycle — the audit confirms the same star always yields the same element, so a vote here would be an echo, not independent evidence' },
+    { sysTh: 'แอซเท็ก', sysEn: 'Aztec', whyTh: 'โทนัลโปวัลลีใช้รอบ 260 วันชุดเดียวกับปฏิทินมายา — ให้โหวตด้วยจะกลายเป็นเมโสอเมริกามีสองเสียง', whyEn: 'Its tonalpohualli is the same 260-day count the Maya calendar already casts — voting too would give one tradition two voices' },
     { sysTh: 'อิฟา (โยรูบา)', sysEn: 'Ifá (Yoruba)', whyTh: 'อิฟาไม่ใช้วันเกิดโดยหลักวิชา — ต้องทอดโอปเปเล ถามทีละคำถาม', whyEn: 'Ifá does not work from a birth date at all — it requires casting, question by question' },
     { sysTh: 'ดรีมไทม์ (อะบอริจิน)', sysEn: 'Aboriginal Dreamtime', whyTh: 'ไม่มีวิชาทำนายรายสัปดาห์จากวันเกิด และเป็นความรู้ที่มีเจ้าของทางวัฒนธรรม', whyEn: 'No week-ahead technique from a birth date, and it is culturally owned knowledge' },
     { sysTh: 'คับบาลาห์', sysEn: 'Kabbalah', whyTh: 'เป็นแผนที่ของจิต ไม่ใช่ปฏิทินทำนาย', whyEn: 'A map of the psyche, not a predictive calendar' },
@@ -6234,7 +6508,7 @@ const _FC_ABSTENTIONS = [
     { sysTh: 'โอแฮม', sysEn: 'Ogham', whyTh: 'เป็นระบบอักษร ไม่ใช่ปฏิทิน — การผูกอักษรกับช่วงเวลาเป็นงานสมัยใหม่ชุดเดียวกับปฏิทินต้นไม้', whyEn: 'An alphabet, not a calendar — binding letters to dates comes from the same modern revival as the tree calendar' },
     { sysTh: 'โทเท็มพื้นเมืองอเมริกัน', sysEn: 'Native American Totem', whyTh: 'ตารางโทเท็มตามเดือนเกิดเป็นงานสมัยใหม่', whyEn: 'The birth-month totem table is a modern invention' },
     { sysTh: 'Arabic Parts', sysEn: 'Arabic Parts', whyTh: 'เป็นจุดคำนวณในดวงกำเนิด ไม่ใช่วิชาเดินเวลา', whyEn: 'Computed points in the natal chart, not a timing technique' },
-    { sysTh: 'เลข ๗ ตัว ๙ ฐาน', sysEn: 'Thai 7-Number', whyTh: 'ฐานทั้งเก้าอ่านจากวันเกิด เป็นภาพนิ่งของดวง ยังไม่ได้ต่อสายวิชาดาวจรตามอายุ', whyEn: 'Its nine bases read the birth date as a fixed picture; the age-progression layer is not wired up here yet' },
+    { sysTh: 'เลข ๗ ตัว ๙ ฐาน', sysEn: 'Thai 7-Number', whyTh: 'ฐานทั้งเก้าอ่านจากวันเกิดเป็นภาพนิ่ง · ชั้นดาวจรตามอายุมีสอนกันหลายสำนักและเราไม่มีตำราที่ยืนยันได้ว่าใช้สูตรไหน — เดาแล้วใส่ลงไปคือแต่ง จึงยังไม่ต่อสาย', whyEn: 'Its nine bases read the birth date as a fixed picture. The age-progression layer is taught differently by different schools and we have no source that settles which rule is correct — guessing one would be inventing, so it stays unwired' },
 ];
 // Traditional (pre-modern) rulers, used only to name the profection time-lord.
 const _FC_SIGN_LORD_TH = ['อังคาร', 'ศุกร์', 'พุธ', 'จันทร์', 'อาทิตย์', 'พุธ', 'ศุกร์', 'อังคาร', 'พฤหัสบดี', 'เสาร์', 'เสาร์', 'พฤหัสบดี'];
@@ -7123,12 +7397,18 @@ function calcZiWei(d) {
 // ── ONMYŌDŌ (陰陽道) ────────────────────────────────────────────
 function calcOnmyodo(d) {
     // Rokuyo (六曜): (month + day) % 6 — birth day fortune
+    // ลำดับต้องเรียงตามค่า (เดือนจันทรคติ + วันจันทรคติ) mod 6 ไม่ใช่เรียงตามคะแนน
+    //
+    // ของเดิมเรียงผิด 3 ใน 6 ช่อง ⇒ ครึ่งหนึ่งของวันแสดงโรกุโยผิด · คอมเมนต์เดิมเขียนว่า
+    // "สูตรถูก ปฏิทินผิด" — แก้ปฏิทินไปแล้วแต่ไม่มีใครกลับมาตรวจตาราง
+    //
+    // กฎที่ตรวจได้: ขึ้น 1 ค่ำเดือน 1 = 先勝 เสมอ แล้วเดิน 先勝 → 友引 → 先負 → 仏滅 → 大安 → 赤口
     const ROKUYO = [
         { name: '大安', th: 'มหาสิริมงคล', thEn: 'Great Peace', score: 860 },
-        { name: '友引', th: 'ดึงโชคเพื่อน', thEn: 'Pulling Friends', score: 780 },
-        { name: '先勝', th: 'ชนะในเช้า', thEn: 'Early Victory', score: 720 },
-        { name: '先負', th: 'ชนะในเย็น', thEn: 'Late Victory', score: 690 },
         { name: '赤口', th: 'ปากแดง-ระวัง', thEn: 'Red Mouth — caution', score: 620 },
+        { name: '先勝', th: 'ชนะในเช้า', thEn: 'Early Victory', score: 720 },
+        { name: '友引', th: 'ดึงโชคเพื่อน', thEn: 'Pulling Friends', score: 780 },
+        { name: '先負', th: 'ชนะในเย็น', thEn: 'Late Victory', score: 690 },
         { name: '仏滅', th: 'พระพุทธเจ้าสิ้น-ระวัง', thEn: 'Buddha\'s passing — caution', score: 560 },
     ];
     // 十二直 runs on the day branch of the sexagenary calendar, not on the
@@ -7909,15 +8189,44 @@ function _zoroastrianDeepSections(a) {
         faqQ(pick('อาชีพที่เหมาะ?', 'Fitting career?'), pick(_elDom(a.ameshaElRaw).car[0], _elDom(a.ameshaElRaw).car[1]))));
     return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
 }
+// ── ปฏิทินโซโรอัสเตอร์ (Fasli) ────────────────────────────────────────────
+// มีสามสายที่ใช้กันอยู่จริง — Shahenshahi, Kadmi, Fasli — ต่างกันที่วันขึ้นปีใหม่
+// เลือก Fasli เพราะเป็นสายเดียวที่ผูกกับหมุดสุริยคติที่คำนวณได้ (Nowruz 21 มี.ค.)
+// อีกสองสายเลื่อนไปเรื่อยเพราะไม่มีวันอธิกสุรทิน ต้องใช้ตารางประกาศของชุมชนถึงจะรู้
+//
+// ⛔ ลำดับชื่อวันเคยผิด — วัน Dae องค์ที่สาม (Dae-pa-Din ลำดับที่ 23) หายไป
+//    แล้วมีคำว่า 'Dae2' ไปโผล่ท้ายตารางแทน ⇒ ชื่อวันตั้งแต่ลำดับ 23 ถึง 30 เลื่อนหมด
+const _ZORO_DAY_NAMES = [
+    'Ahura Mazda', 'Vohu Manah', 'Asha Vahishta', 'Khshathra Vairya', 'Spenta Armaiti',
+    'Haurvatat', 'Ameretat', 'Dae-pa-Adar', 'Atar (ไฟ)', 'Aban (น้ำ)', 'Khorshed (อาทิตย์)', 'Mah (จันทร์)',
+    'Tishtrya (ฝน)', 'Geus (วัว)', 'Dae-pa-Mehr', 'Mithra (สัญญา)', 'Sraosha (วินัย)', 'Rashnu (ความยุติธรรม)',
+    'Fravashi', 'Verethraghna (ชัยชนะ)', 'Rama', 'Vata (ลม)', 'Dae-pa-Din', 'Daena (ศรัทธา)',
+    'Ashi (โชค)', 'Arshtat (ความซื่อสัตย์)', 'Asman (ฟ้า)', 'Zamyad (โลก)', 'Mahraspand (วาจา)', 'Anagran (แสงไม่รู้ดับ)',
+];
+const _ZORO_DAY_SCORE = [820, 800, 810, 790, 780, 810, 800, 700, 800, 790, 800, 780, 760, 750, 720, 800, 790, 790, 770, 800, 780, 760, 700, 770, 800, 780, 810, 780, 790, 820];
+// ห้าวัน Gatha ปิดท้ายปี ตั้งชื่อตามบทสวดห้าบท เป็นช่วง Farvardigan ที่ดวงวิญญาณ
+// บรรพบุรุษกลับมาเยี่ยมบ้าน — ไม่มีเทพประจำวันเหมือน 360 วันแรก
+const _ZORO_GATHA = ['Ahunavaiti Gatha', 'Ushtavaiti Gatha', 'Spenta Mainyu Gatha', 'Vohu Xshathra Gatha', 'Vahishtoishti Gatha', 'Avardad-sal-Gah'];
+// เดือนไหนมีวันชื่อเดียวกัน = วัน Jashan ของเทพองค์นั้น (ค่าคือ index ของวันในเดือนนั้น)
+const _ZORO_MONTH_NAMES = ['Farvardin', 'Ardibehesht', 'Khordad', 'Tir', 'Mordad', 'Shahrivar', 'Mehr', 'Aban', 'Azar', 'Dey', 'Bahman', 'Esfand'];
+const _ZORO_JASHAN = { 0: 18, 1: 2, 2: 5, 3: 12, 4: 6, 5: 3, 6: 15, 7: 9, 8: 8, 10: 1, 11: 4 };
+// ย้อนกลับ: วัน/เดือนโซโรอัสเตอร์ → วันเกรกอเรียนของปีนั้น (ใช้บอก "วันของคุณ")
+function _zoroToGregorian(gYear, monthIdx, dayIdx) {
+    const t = new Date(Date.UTC(gYear, 2, 21) + (monthIdx * 30 + dayIdx) * 86400000);
+    return { d: t.getUTCDate(), m: t.getUTCMonth() + 1 };
+}
+function _zoroDate(y, m, day) {
+    const at = Date.UTC(y, m - 1, day);
+    const nowruz = Date.UTC(y, 2, 21);
+    const start = at >= nowruz ? nowruz : Date.UTC(y - 1, 2, 21);
+    const n = Math.round((at - start) / 86400000);
+    if (n >= 360)
+        return { dayIdx: -1, monthIdx: 11, gatha: n - 359 };
+    return { dayIdx: n % 30, monthIdx: Math.floor(n / 30), gatha: 0 };
+}
 function calcZoroastrian(d) {
-    const DAY_YAZATA = [
-        'Ahura Mazda', 'Vohu Manah', 'Asha Vahishta', 'Khshathra Vairya', 'Spenta Armaiti',
-        'Haurvatat', 'Ameretat', 'Dae', 'Atar (ไฟ)', 'Aban (น้ำ)', 'Khorshed (อาทิตย์)', 'Mah (จันทร์)',
-        'Tishtrya (ฝน)', 'Geus (วัว)', 'Dadar', 'Mithra (สัญญา)', 'Sraosha (วินัย)', 'Rashnu (ความยุติธรรม)',
-        'Fravashi', 'Verethraghna (ชัยชนะ)', 'Rama', 'Vata (ลม)', 'Daena (ศรัทธา)', 'Ashi (โชค)',
-        'Arshtat (ความซื่อสัตย์)', 'Asman (ฟ้า)', 'Zamyad (โลก)', 'Mahraspand (วาจา)', 'Anagran (แสงไม่รู้ดับ)', 'Dae2',
-    ];
-    const DAY_YAZATA_SCORE = [820, 800, 810, 790, 780, 810, 800, 700, 800, 790, 800, 780, 760, 750, 720, 800, 790, 790, 770, 800, 780, 760, 770, 800, 780, 810, 780, 790, 820, 700];
+    const DAY_YAZATA = _ZORO_DAY_NAMES;
+    const DAY_YAZATA_SCORE = _ZORO_DAY_SCORE;
     const MONTH_AMESHA = [
         { n: 'Farvardin (Fravashi)', th: 'เดือนวิญญาณบรรพบุรุษ', thEn: 'Month of ancestor spirits', el: 'ดิน' },
         { n: 'Ardibehesht (Asha)', th: 'เดือนความจริง-ไฟ', thEn: 'Month of truth-fire', el: 'ไฟ' },
@@ -7932,12 +8241,23 @@ function calcZoroastrian(d) {
         { n: 'Bahman (Vohu Manah)', th: 'เดือนจิตใจดี', thEn: 'Month of good mind', el: 'ลม' },
         { n: 'Esfand (Spenta Armaiti)', th: 'เดือนพระแม่ดิน', thEn: 'Month of the Earth Mother', el: 'ดิน' },
     ];
-    const dayIdx = (d.day - 1) % 30;
-    const monthIdx = (d.month - 1) % 12;
-    const yazata = DAY_YAZATA[dayIdx];
+    // แก้ 1 ก.ย. 69 — ของเดิมเป็น `(d.day - 1) % 30` กับ `(d.month - 1) % 12`
+    // คือเอา "วันที่กับเดือนแบบเกรกอเรียน" มาสวมชื่อเปอร์เซีย ไม่ใช่ปฏิทินโซโรอัสเตอร์เลย
+    // ตอนนี้เดินแบบ Fasli จริง (ปีเริ่มที่ Nowruz 21 มี.ค. · 12 เดือน × 30 วัน + Gatha 5 วัน)
+    const _zd = _zoroDate(d.year, d.month, d.day);
+    const dayIdx = _zd.gatha ? -1 : _zd.dayIdx;
+    const monthIdx = _zd.monthIdx;
+    const yazata = _zd.gatha ? _ZORO_GATHA[_zd.gatha - 1] : DAY_YAZATA[dayIdx];
     const amesha = MONTH_AMESHA[monthIdx];
-    const harmony = yazata.includes('ไฟ') === amesha.el.includes('ไฟ');
-    const base = DAY_YAZATA_SCORE[dayIdx] ?? 720;
+    // harmony เคยมีสามความหมายในไฟล์เดียว: โค้ดเช็ค "เป็นไฟทั้งคู่ไหม" (ซึ่งเป็นจริง
+    // เกือบทุกวันเพราะไม่ใช่ไฟทั้งคู่ก็นับ) · ข้อความไทยบอกว่า "ธาตุตรงกัน" ·
+    // ข้อความอังกฤษบอกว่า "ชื่อวันตรงกับชื่อเดือน" ⇒ เหลือความหมายเดียว = Jashan
+    // วันที่ชื่อวันตรงกับชื่อเดือน คือวันเทศกาลของเทพองค์นั้น (Mehregan, Tirgan, Adargan)
+    // เป็นของจริงที่ตรวจได้ ปีละครั้งต่อหนึ่งเทพ ไม่ใช่ค่าที่จริงเกือบทุกวัน
+    const harmony = !_zd.gatha && _ZORO_JASHAN[monthIdx] === dayIdx;
+    const base = (_zd.gatha ? 780 : DAY_YAZATA_SCORE[dayIdx]) ?? 720;
+    // วันที่ Yazata ประจำวันเกิดกลับมาปกครองในเดือนเกิดของตัวเอง — ต่างกันทุกคน
+    const _zdGN = _zd.gatha ? null : _zoroToGregorian(new Date().getFullYear(), monthIdx, dayIdx);
     // Jitter removed 2026-08-27 (director): every system used to add
     // `(day*N + month*M) % K - K/2` to its own score. Two charts three days
     // apart could land in the bottom tier and the top tier off nothing but the
@@ -7965,18 +8285,18 @@ function calcZoroastrian(d) {
             yearsOld: 3500,
             keyValue: `Yazata: ${yazata} · Amesha Spenta: ${amesha.th} (${amesha.el})`,
             keyValueEn: `Yazata: ${yazata} · Amesha Spenta: ${amesha.n} (${tEl(amesha.el)})`,
-            keyValueMeaning: `Yazata ประจำวันเกิดคุณคือ <strong>${yazata}</strong> และ Amesha Spenta (เทพสูงสุด 7 องค์) ที่ปกครองเดือนคือ <strong>${amesha.th}</strong> ธาตุของเดือน${amesha.el} ${harmony ? 'ตรงกับธาตุของ Yazata — นี่คือการบูรณาการที่สมบูรณ์ คุณจะรู้สึกว่า "เป็นตัวของตัวเอง" ได้โดยธรรมชาติ' : 'ต่างกับ Yazata — นี่คือโครงสร้างสร้างสมดุล คุณจะรู้สึกว่าตัวเองมี 2 ด้านที่ต้องบาลานซ์ตลอดเวลา'}`,
+            keyValueMeaning: `Yazata ประจำวันเกิดคุณคือ <strong>${yazata}</strong> และ Amesha Spenta (เทพสูงสุด 7 องค์) ที่ปกครองเดือนคือ <strong>${amesha.th}</strong> (ธาตุ${amesha.el}) ${harmony ? 'ชื่อวันของคุณตรงกับชื่อเดือน — นั่นคือวัน Jashan วันเทศกาลของเทพองค์นั้นเอง เกิดปีละครั้งต่อหนึ่งเทพ และคุณเกิดตรงวันนั้น' : 'ชื่อวันกับชื่อเดือนเป็นคนละองค์ ซึ่งเป็นกรณีของคนเกือบทั้งหมด — เทพสององค์ดูแลคุณคนละด้าน'}`,
             keyValueMeaningEn: `Your birth-day Yazata is <strong>${yazata}</strong>, and the Amesha Spenta (one of the seven highest divinities) ruling your birth month is <strong>${amesha.n}</strong>. The month\'s element is ${tEl(amesha.el)}, ${harmony ? 'matching the Yazata\'s element — this is full integration. You\'ll feel "naturally yourself" by default' : 'differing from the Yazata — this is a balancing structure. You\'ll feel two sides of yourself that must be balanced constantly'}.`,
-            uniqueTh: `ปฏิทินโซโรอัสเตอร์ตั้งชื่อ <strong>ทุกวันใน 30 วัน</strong> ตามเทพองค์หนึ่ง และ <strong>ทุกเดือนใน 12 เดือน</strong> ตามคุณธรรมข้อหนึ่ง — ของคุณตรงกับวันที่ ${dayIdx + 1} (${yazata}) ในเดือนที่ ${monthIdx + 1} (${amesha.n}) · เราเทียบ<strong>ธาตุ</strong>ของวันกับของเดือน ไม่ใช่ชื่อ — ของคุณ${harmony ? 'ธาตุตรงกัน คือวันกับเดือนหนุนกันเอง' : 'ธาตุต่างกัน คือวันกับเดือนถ่วงดุลกัน ซึ่งเป็นกรณีของคนส่วนใหญ่'}`,
-            uniqueEn: `The Zoroastrian calendar names <strong>each of thirty days</strong> for a divinity and <strong>each of twelve months</strong> for a virtue — yours falls on day ${dayIdx + 1} (${yazata}) of month ${monthIdx + 1} (${amesha}). When a day name meets its own month name, that date is the feast of that divinity. Yours ${harmony ? 'do meet, which happens once a year for any given divinity' : 'do not meet, which is the ordinary case'}.`,
+            uniqueTh: `ปฏิทินโซโรอัสเตอร์ตั้งชื่อ <strong>ทุกวันใน 30 วัน</strong> ตามเทพองค์หนึ่ง และ <strong>ทุกเดือนใน 12 เดือน</strong> ตามคุณธรรมข้อหนึ่ง — ของคุณตรงกับวันที่ ${dayIdx + 1} (${yazata}) ในเดือนที่ ${monthIdx + 1} (${amesha.n}) · เมื่อชื่อวันไปตรงกับชื่อเดือน วันนั้นคือ<strong>วันเทศกาล</strong>ของเทพองค์นั้น (เช่น Mehregan, Tirgan) — ของคุณ${harmony ? 'ตรงกัน ซึ่งเกิดปีละครั้งต่อหนึ่งเทพ' : 'ไม่ตรงกัน ซึ่งเป็นกรณีปกติ'}`,
+            uniqueEn: `The Zoroastrian calendar names <strong>each of thirty days</strong> for a divinity and <strong>each of twelve months</strong> for a virtue — yours falls on day ${dayIdx + 1} (${yazata}) of month ${monthIdx + 1} (${amesha.n}). When a day name meets its own month name, that date is the feast of that divinity. Yours ${harmony ? 'do meet, which happens once a year for any given divinity' : 'do not meet, which is the ordinary case'}.`,
             strengthTh: `Yazata ${yazata} ให้พรพิเศษ — คุณได้รับ "Khvarenah" (โอรัสแสง) ในด้านที่ Yazata ปกครอง โซโรแอสเตรียนเชื่อว่า Khvarenah คือ "แสงของโชค" ที่ติดตัวคนดีและหายไปจากคนชั่ว — ของคุณมั่นคงเพราะเกิดในวันที่ Yazata เข้มแข็ง Amesha Spenta ${amesha.th} เสริมด้วยธาตุ${amesha.el} ซึ่งเกี่ยวข้องกับ${amesha.el === 'ไฟ' ? 'ความบริสุทธิ์ ความกล้า การชำระจิต' : amesha.el === 'น้ำ' ? 'ความเมตตา การชำระกาย การไหล' : amesha.el === 'ดิน' ? 'ความมั่นคง การสร้างบ้าน การรักษาประเพณี' : 'การสื่อสาร การสอน การแพร่แสง'}`,
             strengthEn: `Yazata ${yazata} grants a special blessing — you receive "Khvarenah" (the divine glow) in the domain that Yazata rules. Zoroastrians believe Khvarenah is the "light of fortune" that follows the righteous and fades from the wicked. Yours is stable because you were born on a day when this Yazata stands strong. Amesha Spenta ${amesha.n} adds the ${tEl(amesha.el)} element, tied to ${amesha.el === 'ไฟ' ? 'purity, courage, mental cleansing' : amesha.el === 'น้ำ' ? 'mercy, bodily cleansing, flow' : amesha.el === 'ดิน' ? 'stability, building a home, preserving tradition' : 'communication, teaching, broadcasting light'}.`,
             shadowTh: `โซโรแอสเตรียนมีคำเตือน: "ทุก Khvarenah มีราคา" — พลังที่ใช้เพื่อตัวเองอย่างเดียวจะกลายเป็นสิ่งที่กัดกินเจ้าของมันเอง`,
             shadowEn: `Zoroastrians warn: "Every Khvarenah has a price." If you use your Yazata\'s power only for yourself, you unknowingly summon Ahriman (darkness) into your life. The signs your Khvarenah is dimming: weariness with what you used to love, people quietly drifting away, your once-good fortune starting to stumble. The remedy is returning to "Ashu" — action aligned with truth.`,
             practiceTh: `หลักคำสอนโซโรแอสเตรียนประจำวัน: Humata (คิดดี) · Hukhta (พูดดี) · Hvarshta (ทำดี) — สามข้อนี้คือสิ่งที่รักษา Khvarenah เอาไว้`,
             practiceEn: `Daily Zoroastrian principles: Humata (good thought) · Hukhta (good speech) · Hvarshta (good deed) — these three principles preserve Khvarenah. Small rituals: (1) Light a candle in your workspace as Zoroaster\'s "sacred fire". (2) On your birthday each year, chant your Yazata\'s name 108 times. (3) Wear white on days you want to amplify purity.`,
-            currentYearTh: `ปี 2026 ในปฏิทินโซโรแอสเตรียน (Zoroastrian ปี 3764 YZ) เป็นปีของ Amesha Spenta Asha Vahishta (ความจริงสูงสุด) ที่ผลักทุกคนให้เลือกระหว่างความจริงและความโกหกอย่างชัดเจน ${harmony ? 'ปีนี้จะหล่อเลี้ยงพลังของคุณ' : 'ปีนี้จะทดสอบสมดุลของคุณ'} เทศกาล Nowruz (21 มีนาคม) เป็นจุดสำคัญสำหรับการเริ่มใหม่`,
-            currentYearEn: `2026 in the Zoroastrian calendar (year 3764 YZ) is the year of Amesha Spenta Asha Vahishta (Highest Truth) — pushing everyone to choose clearly between truth and lies. ${harmony ? 'This year will nourish your power' : 'This year will test your balance'}. Nowruz (March 21) is the key fresh-start point.`,
+            currentYearTh: `${_zdGN ? `วันของคุณปีนี้คือ <strong>${_zdGN.d}/${_zdGN.m}</strong> — วันที่ ${yazata} กลับมาปกครองในเดือน ${amesha.n} เดือนเดียวกับที่คุณเกิด${harmony ? ' และเป็นวัน Jashan ของเทพองค์นั้นด้วย เพราะชื่อวันกับชื่อเดือนของคุณตรงกัน' : ''} ธรรมเนียมคือวันนั้นจุดไฟ สวดชื่อเทพ แล้วเริ่มเรื่องที่ค้างไว้` : `คุณเกิดในช่วงห้าวัน Gatha ปิดปี (${yazata}) ซึ่งไม่มีเทพประจำวันเหมือนสามร้อยหกสิบวันแรก — ช่วงนี้เป็น Farvardigan วันของบรรพบุรุษ วันของคุณปีนี้จึงเป็นช่วงก่อน Nowruz 21 มีนาคม ไม่ใช่วันเดียว`} · ปีโซโรอัสเตอร์เริ่มใหม่ที่ Nowruz 21 มีนาคมเสมอ`,
+            currentYearEn: `${_zdGN ? `Your day this year falls on <strong>${_zdGN.d}/${_zdGN.m}</strong> — when ${yazata} rules again inside ${amesha.n}, the month you were born into${harmony ? ', and it is that divinity Jashan as well, since your day name and month name are the same' : ''}. The custom is to light a flame that day, say the name, and start what you have been putting off` : `You were born in the five Gatha days that close the year (${yazata}), which carry no day-Yazata as the first three hundred and sixty days do — this is Farvardigan, the ancestors' span. Your day this year is that stretch before Nowruz on 21 March, not a single date`}. The Zoroastrian year always turns at Nowruz, 21 March.`,
             closingTh: 'โซโรแอสเตรียนเชื่อว่า — ทุกคนเกิดเป็นทหารของ Ahura Mazda ด้วยภารกิจเฉพาะ ภารกิจของคุณซ่อนอยู่ในวันเกิด',
             closingEn: 'Zoroastrians believe — everyone is born a soldier of Ahura Mazda with a unique mission. Yours is hidden in your birth date.',
         }),

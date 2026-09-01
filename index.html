@@ -71,7 +71,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=208">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=209">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
@@ -2935,7 +2935,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=208" defer></script>
+<script src="/build/ms26-bundle.js?v=209" defer></script>
 <script>
 
 
@@ -11099,7 +11099,7 @@ function renderDailyPulse() {
       ${dayWideNames.size ? `<div style="font-size:10.5px;color:var(--muted);margin-top:8px;line-height:1.6">${isTh?'อ่านรวมทั้งวัน ไม่ได้แยกเป็นด้าน':'Read the day as a whole, not area by area'}: <span style="color:var(--gold3)">${[...dayWideNames].join(' · ')}</span> — ${isTh?'ให้ค่าเท่ากันทุกด้าน จึงไม่ได้บอกว่าด้านไหนต่างจากด้านไหน':'they score every area alike, so they cannot say which area differs'}</div>` : ''}
       <div style="font-size:10.5px;color:var(--muted);margin-top:8px;line-height:1.6">
         ${isTh
-          ? `เทียบกับ<strong style="color:var(--text)">ปีของคุณเอง</strong> ไม่ได้เทียบกับคนอื่น · ออกเสียงโดย ${dom.voting} ศาสตร์ที่มีวิชาเดินเวลา อีก ${dom.abstain} ศาสตร์ไม่มีวิธีคำนวณเรื่องเวลา จึงงดออกเสียง`
+          ? `เทียบกับ<strong style="color:var(--text)">ปีของคุณเอง</strong> ไม่ได้เทียบกับคนอื่น · ออกเสียงโดย ${dom.voting} ศาสตร์ที่มีวิชาเดินเวลาเป็นของตัวเอง อีก ${dom.abstain} ศาสตร์งดออกเสียง ด้วยเหตุผลคนละอย่าง — แตะดูได้ว่าใครงดเพราะอะไร`
           : `Measured against <strong style="color:var(--text)">your own year</strong>, not against other people · ${dom.voting} systems have a timing doctrine and voted; ${dom.abstain} have none and abstained`}
       </div>
     </div>`;

@@ -215,6 +215,67 @@ const BRANCH = '子丑寅卯辰巳午未申酉戌亥'.split('');
   if (checked && !wrong) ok('ไบโอริทึม', 'รอบกาย 23 วันตรงกับสูตร sin(2πd/23) ครบทุกดวงที่มีค่า');
 }
 
+// ═══ 10b · ออนเมียวโด — โรกุโยต้องเดินตามรอบ 6 วันจากขึ้น 1 ค่ำเดือน 1 ═══
+//
+// กฎที่ตรวจได้: ขึ้น 1 ค่ำเดือน 1 = 先勝 เสมอ แล้วเดิน 先勝→友引→先負→仏滅→大安→赤口
+// ด่านนี้เกิดขึ้นเพราะตารางในเอนจินเคยเรียงผิด 3 ใน 6 ช่อง (แก้ 1 ก.ย. 69)
+// สูตร (เดือน+วันจันทรคติ) mod 6 ถูกมาตลอด แต่ไม่มีใครกลับมาตรวจว่าตารางที่มันชี้ไปเรียงถูกไหม
+{
+  const WANT = ['先勝','友引','先負','仏滅','大安','赤口'];
+  const CNY  = [[2023,1,22],[2024,2,10],[2025,1,29]];   // ขึ้น 1 ค่ำเดือน 1 (ตรุษจีน)
+  let wrong = 0;
+  for (const [y, m, d] of CNY) {
+    for (let k = 0; k < 6; k++) {
+      const dt = new Date(Date.UTC(y, m - 1, d + k));
+      const c = calculate({ name:'x', gender:'ชาย', year:dt.getUTCFullYear(), month:dt.getUTCMonth()+1,
+                            day:dt.getUTCDate(), hour:12, minute:0, lat:13.75, lon:100.5, timezone:7 });
+      const got = c.onmyodo && c.onmyodo.rokuyo;
+      if (got !== WANT[k]) { wrong++; bad('ออนเมียวโด', `${y}-${m}-${d}+${k} ได้ ${got} ควรเป็น ${WANT[k]}`); }
+    }
+  }
+  if (!wrong) ok('ออนเมียวโด', 'โรกุโยเดินครบรอบ 6 วันจากขึ้น 1 ค่ำเดือน 1 ถูกทั้ง 3 ปีอ้างอิง');
+}
+
+// ═══ 10c · โซโรอัสเตอร์ — ปฏิทิน Fasli ต้องตรงวันเทศกาลจริง ═══════════════
+//
+// ก่อน 1 ก.ย. 69 ศาสตร์นี้ใช้ "วันที่กับเดือนแบบเกรกอเรียน" สวมชื่อเปอร์เซีย
+// ด่านนี้จับด้วยหมุดที่โต้เถียงไม่ได้: Fasli เริ่มปีที่ Nowruz 21 มี.ค. เสมอ
+// และวันที่ชื่อวันตรงชื่อเดือน (Jashan) ตกวันเดิมทุกปี — Tirgan 1 ก.ค. · Mehregan 2 ต.ค.
+{
+  const P = [
+    ['Nowruz 21 มี.ค.',   [2026,3,21], 'Ahura Mazda',    'Farvardin (Fravashi)', false],
+    ['Tirgan 1 ก.ค.',     [2026,7,1],  'Tishtrya (ฝน)',  'Tir (Tishtrya)',       true ],
+    ['Mehregan 2 ต.ค.',   [2026,10,2], 'Mithra (สัญญา)', 'Mehr (Mithra)',        true ],
+    ['วัน Gatha 20 มี.ค.', [2026,3,20], 'Vahishtoishti Gatha', 'Esfand (Spenta Armaiti)', false],
+  ];
+  let wrong = 0;
+  for (const [label, [y,m,d], wantDay, wantMonth, wantJashan] of P) {
+    const z = calculate({ name:'x', gender:'ชาย', year:y, month:m, day:d, hour:12, minute:0,
+                          lat:13.75, lon:100.5, timezone:7 }).zoroastrian;
+    if (z.dayYazataTh !== wantDay)   { wrong++; bad('โซโรอัสเตอร์', `${label} เทพประจำวันได้ ${z.dayYazataTh} ควรเป็น ${wantDay}`); }
+    if (z.monthAmesha !== wantMonth) { wrong++; bad('โซโรอัสเตอร์', `${label} เดือนได้ ${z.monthAmesha} ควรเป็น ${wantMonth}`); }
+    if (!!z.harmony !== wantJashan)  { wrong++; bad('โซโรอัสเตอร์', `${label} Jashan ได้ ${z.harmony} ควรเป็น ${wantJashan}`); }
+  }
+  if (!wrong) ok('โซโรอัสเตอร์', 'ปฏิทิน Fasli ตรงหมุดจริง — Nowruz · Tirgan 1 ก.ค. · Mehregan 2 ต.ค. · Gatha ปิดปี');
+}
+
+// ═══ 10d · ศาสตร์ที่บอกว่าโหวต ต้องโหวตจริง ไม่ใช่แค่ถอดชื่อออกจากลิสต์งด ═══
+{
+  const { calcForecast } = require(path.join(__dirname, '..', 'build', 'calc.js'));
+  const f = calcForecast(charts[0].c, new Date(2026, 8, 1), { days: 7, weeks: 4, months: 12 });
+  const spoke = new Set();
+  for (const p of [...f.days, ...f.weeks, ...f.months])
+    for (const dk of Object.keys(p.domains))
+      for (const v of p.domains[dk].votes) spoke.add(v.sys);
+  const listed = new Set(f.abstentions.map(a => a.sysTh));
+  for (const a of f.abstentions) if (spoke.has(a.sysEn.toLowerCase())) bad('การนับเสียง', `${a.sysTh} อยู่ในลิสต์งดออกเสียง แต่โหวตจริง`);
+  if (f.votingCount + f.abstainCount !== f.totalSystems) bad('การนับเสียง', `โหวต ${f.votingCount} + งด ${f.abstainCount} ≠ รวม ${f.totalSystems}`);
+  if (f.totalSystems !== 26) bad('การนับเสียง', `รวมได้ ${f.totalSystems} ศาสตร์ ควรเป็น 26`);
+  for (const need of ['onmyodo', 'zoroastrian'])
+    if (!spoke.has(need)) bad('การนับเสียง', `${need} ถอดออกจากลิสต์งดแล้ว แต่ไม่มีเสียงโผล่ในรอบพยากรณ์เลย`);
+  if (!BAD.length) ok('การนับเสียง', `โหวต ${f.votingCount} + งด ${f.abstainCount} = ${f.totalSystems} · ไม่มีศาสตร์ไหนอยู่สองฝั่งพร้อมกัน (listed ${listed.size})`);
+}
+
 // ═══ 11 · ทุกศาสตร์ต้องมีคำตอบ อ่านรู้เรื่อง ไม่ใช่ค่าว่าง/ค่าสำรอง ═══════
 const SYS = ['bazi','ninestar','western','vedic','numerology','humandesign','mayan','celtic','thai','taksa',
              'saju','tibetan','ziwei','onmyodo','hellenistic','norseRune','ogham','arabicParts','kabbalistic',
