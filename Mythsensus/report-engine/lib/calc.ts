@@ -6744,7 +6744,7 @@ function _fcDaySignals(c: ChartData, date: Date, x: _FcCtx): _DaySignal[] {
         for (const d of FORECAST_DOMAINS_ALL) _addDom(bz.dom, d, combined * 0.7);
         bz.doctrineTh += ' + 太歲 (กิ่งปี/เดือนที่เดินอยู่ เทียบกิ่งปีเกิด)';
         bz.doctrineEn += ' + Tai Sui (running year/month branch against your birth-year branch)';
-        bz.noteTh += ` · ปี${_FC_BRANCH_TH[yb]}ต่อปีเกิด${_FC_BRANCH_TH[natal]}: ${relY.th}`
+        bz.noteTh += ` · ปี${_FC_BRANCH_TH[yb]} ต่อปีเกิด ${_FC_BRANCH_TH[natal]}: ${relY.th}`
                    + (relM.score !== 0 ? ` · เดือน${_FC_BRANCH_TH[mb]}: ${relM.th}` : '');
         bz.noteEn += ` · year ${ns.yearBranch} vs your ${c.bazi.yearBranch}: ${relY.en}`
                    + (relM.score !== 0 ? ` · month ${ns.branch}: ${relM.en}` : '');
