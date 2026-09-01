@@ -561,7 +561,7 @@ if (BAD.length) {
   console.log('\n❌ ผิด — ' + BAD.length + ' ข้อ');
   BAD.forEach(([s, w]) => console.log('   · ' + s.padEnd(22) + ' ' + w));
 } else {
-  console.log('\n❌ ผิด — ไม่พบ');
+  console.log('\n✅ ตรวจครบ — ไม่พบข้อผิด');
 }
 console.log('\nดวงที่ใช้:');
 charts.forEach(({inp,c},i) => console.log(`  ${i+1}. ${inp.year}-${String(inp.month).padStart(2,'0')}-${String(inp.day).padStart(2,'0')} ${String(inp.hour).padStart(2,'0')}:${String(inp.minute).padStart(2,'0')} tz${inp.timezone} → ${c.bazi.dayMaster}${c.bazi.dayBranch} · NSK${c.ninestar.star} · kin${c.mayan.kin} · LP${c.numerology.lifePath} · ${c.thai.dayName}`));

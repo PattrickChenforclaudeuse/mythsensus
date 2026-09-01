@@ -5840,11 +5840,13 @@ const _TR_SAJU: Record<string, TraitSet> = {
 //
 // ค่ากลาง/ส่วนเบี่ยงเบนวัดจากดวงสุ่ม 3,000 ดวง กระจาย 5 โซนเวลา ปี 1940-2009
 // 🔄 **เติมศาสตร์ใหม่หรือแก้ตารางเมื่อไหร่ ต้องวัดใหม่แล้วเขียนทับตรงนี้**
+// ชุดนี้วัด 1 ก.ย. 69 หลังพบว่าตารางชื่อศาสตร์มี 17 ขณะที่ติด traits ไป 24
+// ⇒ ชุดก่อนหน้าเป็นค่ากลางของ 17 ศาสตร์ ค่ากลางขยับขึ้นสูงสุด 2.96 เมื่อครบ 24
 //    ด่าน traits จะจับได้เองถ้าค่าที่ตรึงไว้เลื่อนจากของจริง
 const _TRAIT_BASELINE: Record<string, [number, number]> = {
-  pace: [-2.10, 4.63], initiative: [2.97, 4.55], social: [7.01, 3.82],
-  instinct: [4.58, 4.16], expression: [2.97, 4.80], change: [1.02, 3.64],
-  risk: [0.35, 3.78], root: [-0.17, 2.92], structure: [4.05, 4.13], focus: [5.60, 3.61],
+  pace: [-3.09, 5.41], initiative: [4.97, 4.76], social: [9.97, 4.88],
+  instinct: [6.58, 4.68], expression: [4.50, 5.79], change: [2.63, 4.45],
+  risk: [1.39, 4.02], root: [0.61, 3.23], structure: [6.99, 5.05], focus: [7.63, 4.22],
 };
 
 interface TraitAxisResult {
@@ -5862,6 +5864,8 @@ const _TR_SYS_TH: Record<string, string> = {
   onmyodo: 'ออนเมียวโด', kabbalistic: 'คับบาลาห์', vedicMahadasha: 'มหาทศา',
   humandesign: 'ระบบประเภทพลังงาน', celtic: 'เซลติก', norseRune: 'รูนนอร์ส',
   nativeAmerican: 'โทเท็มอเมริกัน', ifaYoruba: 'อิฟา', ziwei: 'จื่อเวย', taksa: 'ทักษา',
+  vedic: 'ภารตะ', mayan: 'มายัน', zoroastrian: 'โซโรอัสเตอร์', tibetan: 'ทิเบต',
+  arabicParts: 'Arabic Parts', aztec: 'แอซเท็ก', thaiSeven: 'เลข ๗ ตัว ๙ ฐาน',
 };
 const _TR_SYS_EN: Record<string, string> = {
   bazi: 'BaZi', saju: 'Saju', ninestar: 'Nine Star Ki', western: 'Western',
@@ -5869,9 +5873,20 @@ const _TR_SYS_EN: Record<string, string> = {
   onmyodo: 'Onmyodo', kabbalistic: 'Kabbalah', vedicMahadasha: 'Vimshottari',
   humandesign: 'Energy Type System', celtic: 'Celtic', norseRune: 'Norse Rune',
   nativeAmerican: 'Native American', ifaYoruba: 'Ifá', ziwei: 'Zi Wei', taksa: 'Taksa',
+  vedic: 'Vedic', mayan: 'Mayan', zoroastrian: 'Zoroastrian', tibetan: 'Tibetan',
+  arabicParts: 'Arabic Parts', aztec: 'Aztec', thaiSeven: 'Thai Seven-Base',
 };
 
 function _buildTraitProfile(c: any): TraitAxisResult[] {
+  // ⛔ เคยหล่นมาแล้ว 1 ก.ย. 69: ติด traits ให้ 24 ศาสตร์ แต่ตารางชื่อมี 17
+  //    ⇒ 7 ศาสตร์ถูกคำนวณแล้วทิ้งเงียบ ไม่มี error และ baseline ก็ยังดูนิ่ง
+  //    (บทเรียนเดียวกับ lesson_silent_drop_whitelist_pipes)
+  //    เพิ่มศาสตร์ใหม่เมื่อไหร่ ต้องใส่ชื่อใน _TR_SYS_TH/_TR_SYS_EN ด้วยเสมอ
+  for (const k of Object.keys(c)) {
+    if (c[k] && (c[k] as any).traits && !_TR_SYS_TH[k]) {
+      throw new Error(`traits: ศาสตร์ '${k}' ติด traits แล้วแต่ไม่มีชื่อใน _TR_SYS_TH — จะถูกทิ้งเงียบ`);
+    }
+  }
   const out: TraitAxisResult[] = [];
   const isEn = _reportLang === 'en';
   for (const [axis, [mean, sd]] of Object.entries(_TRAIT_BASELINE)) {

@@ -5331,11 +5331,13 @@ const _TR_SAJU = {
 //
 // ค่ากลาง/ส่วนเบี่ยงเบนวัดจากดวงสุ่ม 3,000 ดวง กระจาย 5 โซนเวลา ปี 1940-2009
 // 🔄 **เติมศาสตร์ใหม่หรือแก้ตารางเมื่อไหร่ ต้องวัดใหม่แล้วเขียนทับตรงนี้**
+// ชุดนี้วัด 1 ก.ย. 69 หลังพบว่าตารางชื่อศาสตร์มี 17 ขณะที่ติด traits ไป 24
+// ⇒ ชุดก่อนหน้าเป็นค่ากลางของ 17 ศาสตร์ ค่ากลางขยับขึ้นสูงสุด 2.96 เมื่อครบ 24
 //    ด่าน traits จะจับได้เองถ้าค่าที่ตรึงไว้เลื่อนจากของจริง
 const _TRAIT_BASELINE = {
-    pace: [-2.10, 4.63], initiative: [2.97, 4.55], social: [7.01, 3.82],
-    instinct: [4.58, 4.16], expression: [2.97, 4.80], change: [1.02, 3.64],
-    risk: [0.35, 3.78], root: [-0.17, 2.92], structure: [4.05, 4.13], focus: [5.60, 3.61],
+    pace: [-3.09, 5.41], initiative: [4.97, 4.76], social: [9.97, 4.88],
+    instinct: [6.58, 4.68], expression: [4.50, 5.79], change: [2.63, 4.45],
+    risk: [1.39, 4.02], root: [0.61, 3.23], structure: [6.99, 5.05], focus: [7.63, 4.22],
 };
 // ชื่อศาสตร์ไว้บอกว่าใครโหวตฝั่งไหน
 const _TR_SYS_TH = {
@@ -5344,6 +5346,8 @@ const _TR_SYS_TH = {
     onmyodo: 'ออนเมียวโด', kabbalistic: 'คับบาลาห์', vedicMahadasha: 'มหาทศา',
     humandesign: 'ระบบประเภทพลังงาน', celtic: 'เซลติก', norseRune: 'รูนนอร์ส',
     nativeAmerican: 'โทเท็มอเมริกัน', ifaYoruba: 'อิฟา', ziwei: 'จื่อเวย', taksa: 'ทักษา',
+    vedic: 'ภารตะ', mayan: 'มายัน', zoroastrian: 'โซโรอัสเตอร์', tibetan: 'ทิเบต',
+    arabicParts: 'Arabic Parts', aztec: 'แอซเท็ก', thaiSeven: 'เลข ๗ ตัว ๙ ฐาน',
 };
 const _TR_SYS_EN = {
     bazi: 'BaZi', saju: 'Saju', ninestar: 'Nine Star Ki', western: 'Western',
@@ -5351,8 +5355,19 @@ const _TR_SYS_EN = {
     onmyodo: 'Onmyodo', kabbalistic: 'Kabbalah', vedicMahadasha: 'Vimshottari',
     humandesign: 'Energy Type System', celtic: 'Celtic', norseRune: 'Norse Rune',
     nativeAmerican: 'Native American', ifaYoruba: 'Ifá', ziwei: 'Zi Wei', taksa: 'Taksa',
+    vedic: 'Vedic', mayan: 'Mayan', zoroastrian: 'Zoroastrian', tibetan: 'Tibetan',
+    arabicParts: 'Arabic Parts', aztec: 'Aztec', thaiSeven: 'Thai Seven-Base',
 };
 function _buildTraitProfile(c) {
+    // ⛔ เคยหล่นมาแล้ว 1 ก.ย. 69: ติด traits ให้ 24 ศาสตร์ แต่ตารางชื่อมี 17
+    //    ⇒ 7 ศาสตร์ถูกคำนวณแล้วทิ้งเงียบ ไม่มี error และ baseline ก็ยังดูนิ่ง
+    //    (บทเรียนเดียวกับ lesson_silent_drop_whitelist_pipes)
+    //    เพิ่มศาสตร์ใหม่เมื่อไหร่ ต้องใส่ชื่อใน _TR_SYS_TH/_TR_SYS_EN ด้วยเสมอ
+    for (const k of Object.keys(c)) {
+        if (c[k] && c[k].traits && !_TR_SYS_TH[k]) {
+            throw new Error(`traits: ศาสตร์ '${k}' ติด traits แล้วแต่ไม่มีชื่อใน _TR_SYS_TH — จะถูกทิ้งเงียบ`);
+        }
+    }
     const out = [];
     const isEn = _reportLang === 'en';
     for (const [axis, [mean, sd]] of Object.entries(_TRAIT_BASELINE)) {
@@ -10527,6 +10542,236 @@ function p02_scoreBreakdown(c) {
 // So 26 readings rest on 22 independent computations, and an axis counts the
 // LINEAGE once. Saying "6 of 7 agree" when two of the seven are the same
 // calculation twice is the thing that made the old consensus unbelievable.
+// ── หน้าฉันทามติรายแกน · 24 ศาสตร์อ่านคนละที่มา แล้วเทียบกัน ────────────────
+//
+// ทำไมต้องมีหน้านี้ทั้งที่มี p_consensusAxes อยู่แล้ว:
+//   p_consensusAxes ตอบสามคำถามที่ **มีแค่สี่สายตอบได้** (ธาตุ · จังหวะ · ทิศทาง)
+//   หน้านี้ตอบคำถามที่ **ทุกสายตอบได้** เพราะแปลงคำบรรยายของแต่ละตำราเป็นแกนเดียวกัน
+//   ⇒ นี่คือที่เดียวในเล่มที่ตัวเลข "กี่ศาสตร์เห็นตรงกัน" มีความหมายจริง
+//
+// ⛔ ห้ามอ่านผลรวมดิบตรงๆ — ตำราแทบทุกสายบรรยายคนในทางบวก ค่ากลางของประชากร
+//    จึงไม่ใช่ 0 (แกน social อยู่ที่ +9.97) · ทุกคำตัดสินในหน้านี้เทียบกับคนอื่น
+//
+// ⛔ ห้ามฟันธงแกนที่มีเสียงน้อยกว่า _TRAIT_MIN_VOICES — วัดแล้วแกน root เฉลี่ยมีแค่
+//    3.6 เสียง เพราะตำราส่วนใหญ่ไม่พูดเรื่องอยู่ติดที่/เคลื่อนที่ · ฟันธงบนเสียงน้อย
+//    = แต่งเรื่อง และคนอ่านแยกไม่ออกจากข้อที่มี 18 สายหนุน
+const _TRAIT_MIN_VOICES = 6;
+// ทางที่เจริญ / ทางที่ต้องระวัง — มาจาก **ราคาของขั้วนั้นเอง** ไม่ใช่คำอวยทั่วไป
+// ทุกขั้วมีของที่ได้มาและของที่จ่ายไป จึงต้องเขียนคู่กันเสมอ ห้ามมีขั้วไหนมีแต่ข้อดี
+const _TRAIT_EDGE = {
+    pace: {
+        posGo: 'งานที่ตัดสินเร็วแล้วได้เปรียบ — เปิดตัวก่อน ทดลองถี่ๆ',
+        posWatch: 'เรื่องที่แก้ทีหลังไม่ได้ ต้องตั้งใจถ่วงตัวเอง เช่น เซ็นสัญญา ย้ายบ้าน',
+        negGo: 'งานที่ยิ่งอยู่นานยิ่งได้เปรียบ — ของที่ต้องสะสมฝีมือหรือความเชื่อใจ',
+        negWatch: 'โอกาสที่มีอายุ ถ้ารอจนพร้อมมักหมดเวลาไปก่อน',
+        posGoEn: 'work that rewards deciding fast — launching early, testing often',
+        posWatchEn: 'anything you cannot undo deserves a deliberate brake: contracts, moving house',
+        negGoEn: 'work that compounds — anything built on accumulated skill or trust',
+        negWatchEn: 'opportunities with an expiry date tend to close while you are still preparing',
+    },
+    initiative: {
+        posGo: 'ตำแหน่งที่ไม่มีใครบอกว่าต้องทำอะไร แล้วคุณตั้งโจทย์เอง',
+        posWatch: 'เริ่มหลายเรื่องพร้อมกันจนไม่มีเรื่องไหนถูกทำจนจบ',
+        negGo: 'บทที่ต้องรอให้เรื่องสุกก่อนแล้วเข้าถูกจังหวะ — งานคัด งานตัดสิน',
+        negWatch: 'ถ้าไม่มีใครเปิดให้ คุณจะรออยู่อย่างนั้น ต้องตั้งเส้นตายให้ตัวเอง',
+        posGoEn: 'a seat where nobody hands you the brief and you set it yourself',
+        posWatchEn: 'starting many things at once until none of them is finished',
+        negGoEn: 'roles that wait for a thing to ripen and then enter well — judging, selecting',
+        negWatchEn: 'if nobody opens the door you will keep waiting: set your own deadlines',
+    },
+    social: {
+        posGo: 'งานที่ผลลัพธ์มาจากคนอื่นด้วย — ขาย พาร์ตเนอร์ ทีม',
+        posWatch: 'ตัดสินใจตามห้องประชุมจนลืมว่าตัวเองคิดอะไร',
+        negGo: 'งานที่ต้องการสมาธิยาวและไม่มีใครมาขัด',
+        negWatch: 'ข่าวสารและโอกาสเดินทางมากับคน ถ้าตัดคนออกหมดจะไม่รู้เรื่องอะไรเลย',
+        posGoEn: 'work whose result depends on other people — selling, partnering, teams',
+        posWatchEn: 'deciding with the room until you lose track of what you thought',
+        negGoEn: 'work that needs long uninterrupted attention',
+        negWatchEn: 'news and openings travel through people; cut them all out and you hear nothing',
+    },
+    instinct: {
+        posGo: 'สนามที่ข้อมูลไม่เคยครบ แล้วต้องตัดสินบนของไม่ครบ',
+        posWatch: 'เรื่องที่ตรวจสอบได้ ให้ตรวจ อย่าใช้ความรู้สึกแทนตัวเลข',
+        negGo: 'งานที่ผิดแล้วแพง จึงคุ้มที่จะคิดช้า — ตรวจสอบ ออกแบบ วางระบบ',
+        negWatch: 'บางเรื่องข้อมูลไม่มีวันครบ รอครบคือไม่ได้ตัดสินใจ',
+        posGoEn: 'fields where the information is never complete and you must decide anyway',
+        posWatchEn: 'when a thing can be checked, check it — do not let a feeling stand in for a number',
+        negGoEn: 'work where mistakes are expensive, so thinking slowly pays — auditing, design, systems',
+        negWatchEn: 'some things never complete; waiting for complete is a decision not to decide',
+    },
+    expression: {
+        posGo: 'บทที่ต้องมีคนพูดแทนเรื่อง — สอน นำเสนอ เจรจา',
+        posWatch: 'พูดก่อนคิดในห้องที่คำพูดถูกจดไว้',
+        negGo: 'บทที่ความน่าเชื่อถือมาจากการไม่พูดพร่ำ — ที่ปรึกษา ผู้ตัดสิน',
+        negWatch: 'คนอ่านใจไม่ออก ความเงียบมักถูกแปลว่าไม่เห็นด้วย',
+        posGoEn: 'roles that need a voice for the thing — teaching, pitching, negotiating',
+        posWatchEn: 'speaking before thinking in rooms where words are minuted',
+        negGoEn: 'roles whose authority comes from not talking much — advising, adjudicating',
+        negWatchEn: 'people cannot read you; silence is usually read as disagreement',
+    },
+    change: {
+        posGo: 'ของที่พังอยู่แล้วและต้องมีคนกล้ารื้อ',
+        posWatch: 'รื้อของที่ยังทำงานได้ เพราะเบื่อ ไม่ใช่เพราะมันเสีย',
+        negGo: 'ของที่มีค่าเพราะมันไม่เปลี่ยน — มาตรฐาน ความไว้ใจ ของสะสม',
+        negWatch: 'พื้นเปลี่ยนใต้เท้าแล้วยังยืนท่าเดิม',
+        posGoEn: 'things already broken that need someone willing to tear them down',
+        posWatchEn: 'tearing down what still works, out of boredom rather than fault',
+        negGoEn: 'things valuable precisely because they do not change — standards, trust, an archive',
+        negWatchEn: 'the ground moves and you are still standing the old way',
+    },
+    risk: {
+        posGo: 'เกมที่ผลตอบแทนไม่สมมาตร — เสียน้อย ได้มาก',
+        posWatch: 'อย่าเอาของที่แพ้แล้วเริ่มใหม่ไม่ได้ไปวางเดิมพัน',
+        negGo: 'บทที่หน้าที่คือกันไม่ให้เกิดความเสียหาย',
+        negWatch: 'ไม่เสี่ยงเลยก็เป็นความเสี่ยงแบบหนึ่ง คือถูกแซงช้าๆ',
+        posGoEn: 'games with asymmetric payoff — lose small, win large',
+        posWatchEn: 'never stake the thing you cannot restart from',
+        negGoEn: 'roles whose job is to keep damage from happening',
+        negWatchEn: 'taking none is its own risk: being overtaken slowly',
+    },
+    root: {
+        posGo: 'งานที่ได้เปรียบเพราะไปถึงที่ — ตลาดใหม่ หน้างาน',
+        posWatch: 'ของที่ต้องอยู่นานถึงจะออกดอก มักถูกทิ้งกลางทาง',
+        negGo: 'ของที่ต้องปักหลักถึงจะได้ — ชื่อเสียงในพื้นที่ เครือข่ายที่ลึก',
+        negWatch: 'โอกาสที่อยู่นอกรัศมีจะไม่มีวันเดินมาหาเอง',
+        posGoEn: 'work that wins by being there — new markets, site work',
+        posWatchEn: 'things that only flower if you stay tend to get abandoned halfway',
+        negGoEn: 'what only comes from staying put — local standing, deep networks',
+        negWatchEn: 'openings outside your radius will never walk to you',
+    },
+    structure: {
+        posGo: 'งานที่ความผิดพลาดแพง จึงต้องมีระบบจริง',
+        posWatch: 'ระบบที่แน่นเกินจะกันของดีที่ยังไม่มีชื่อออกไปด้วย',
+        negGo: 'สนามที่กติกายังไม่ถูกเขียน แล้วต้องเดินไปเขียนเอง',
+        negWatch: 'ของที่โตแล้วต้องมีระเบียบ ถ้าไม่วางไว้ก่อน มันจะพังตอนโตพอดี',
+        posGoEn: 'work where mistakes are expensive and the system has to be real',
+        posWatchEn: 'a system tight enough to also keep out the good thing that has no name yet',
+        negGoEn: 'fields where the rules are not written and you get to write them',
+        negWatchEn: 'what grows needs order; skip it and it breaks exactly when it gets big',
+    },
+    focus: {
+        posGo: 'ของที่ต้องลึกจนคนอื่นตามไม่ทัน — วิชาชีพเฉพาะทาง',
+        posWatch: 'ลึกเรื่องเดียวแล้วตลาดของเรื่องนั้นหาย คือเริ่มใหม่หมด',
+        negGo: 'บทที่ต้องเห็นหลายเรื่องพร้อมกัน — เชื่อมคน เชื่อมสาย',
+        negWatch: 'รู้กว้างแล้วไม่มีอะไรลึกพอให้คนจ้าง',
+        posGoEn: 'what needs depth beyond where others follow — a specialist trade',
+        posWatchEn: 'go deep on one thing and if its market vanishes you start over',
+        negGoEn: 'roles that must hold several things at once — connecting people, connecting fields',
+        negWatchEn: 'broad knowledge with nothing deep enough for anyone to pay for',
+    },
+};
+// ขั้วของแต่ละแกนไว้พิมพ์หัวและท้ายแถบ — สำเนาสำหรับฝั่งรายงาน
+// ⛔ ถ้าเพิ่มแกนใน calc.ts ต้องเพิ่มที่นี่ด้วย ไม่งั้นแถบจะขึ้นชื่อแกนดิบเป็นภาษาอังกฤษ
+const _TRAIT_POLES = {
+    pace: { neg: 'ค่อยเป็นค่อยไป', pos: 'เร็ว', negEn: 'gradual', posEn: 'quick' },
+    initiative: { neg: 'รอจังหวะ', pos: 'เริ่มเอง', negEn: 'waits', posEn: 'initiates' },
+    social: { neg: 'อยู่คนเดียวได้', pos: 'ต้องมีคน', negEn: 'solitary', posEn: 'needs people' },
+    instinct: { neg: 'คิดก่อน', pos: 'เชื่อสัญชาตญาณ', negEn: 'deliberate', posEn: 'instinctive' },
+    expression: { neg: 'เก็บไว้', pos: 'พูดออกไป', negEn: 'contains', posEn: 'expresses' },
+    change: { neg: 'รักษาของเดิม', pos: 'รื้อทำใหม่', negEn: 'preserves', posEn: 'remakes' },
+    risk: { neg: 'เลี่ยงความเสี่ยง', pos: 'รับความเสี่ยงได้', negEn: 'avoids risk', posEn: 'takes risk' },
+    root: { neg: 'อยู่ติดที่', pos: 'เคลื่อนที่', negEn: 'roots', posEn: 'moves' },
+    structure: { neg: 'ยืดหยุ่น', pos: 'มีระเบียบ', negEn: 'loose', posEn: 'ordered' },
+    focus: { neg: 'กว้างหลายเรื่อง', pos: 'ลึกเรื่องเดียว', negEn: 'broad', posEn: 'deep' },
+};
+function p_traitConsensus(c) {
+    const prof = c.traitProfile || [];
+    if (!prof.length)
+        return '';
+    const isEn = _lang === 'en';
+    const solid = prof.filter(r => r.voices >= _TRAIT_MIN_VOICES);
+    const thin = prof.filter(r => r.voices < _TRAIT_MIN_VOICES);
+    // prof เรียงตาม |z| มาจากเอนจินแล้ว — ของที่ห่างจากคนทั่วไปที่สุดขึ้นก่อน
+    const top = solid.filter(r => r.band !== 'mid').slice(0, 3);
+    const _vmin = Math.min(...prof.map(r => r.voices));
+    const _vmax = Math.max(...prof.map(r => r.voices));
+    // แถบตำแหน่ง: ซ้าย-ขวาคือเปอร์เซ็นไทล์ · ขีดกลางคือคนทั่วไป
+    const scale = (r) => {
+        const col = r.band === 'mid' ? '#6a7a90' : (Math.abs(r.z) >= 1.2 ? '#e8c87a' : '#c8a45a');
+        return `
+    <div style="position:relative;height:16px;margin:4px 0">
+      <div style="position:absolute;top:7px;left:0;right:0;height:2px;background:#241d33;border-radius:1px"></div>
+      <div style="position:absolute;top:3px;left:50%;width:1px;height:10px;background:#3d3350"></div>
+      <div style="position:absolute;top:2px;left:${Math.max(0, Math.min(98, r.pct))}%;width:8px;height:12px;margin-left:-4px;background:${col};border-radius:3px"></div>
+    </div>`;
+    };
+    // ⛔ ห้ามเรียกสองกลุ่มนี้ว่า "ตรงกัน / ค้าน" — คำตัดสินของแกนไม่ได้มาจากการนับหัว
+    //    มันมาจาก **น้ำหนักรวมเทียบประชากร** · ของจริงที่เจอ 1 ก.ย. 69 บนดวง director:
+    //    แกน social มี 8 ใน 13 สายดันไปทาง "ต้องมีคน" แต่ผลรวมยังต่ำกว่าค่ากลางของคน
+    //    ทั่วไป เพราะทุกสายให้น้ำหนักเบากว่าที่คนทั่วไปได้ ⇒ ถ้าพิมพ์ว่า "ค้าน 8"
+    //    คนอ่านจะเห็นคำตัดสินที่แพ้โหวตตัวเอง (บั๊กพันธุ์เดียวกับ "ธาตุลม/คำตัดสินธาตุไม้")
+    //    ⇒ เรียกตามสิ่งที่มันเป็นจริง: ใครดันไปทางไหน · และถ้าเสียงข้างมากสวนกับผลรวม
+    //       ให้พูดออกมาตรงๆ ว่าสวน นั่นคือข้อค้นพบ ไม่ใช่ของที่ต้องกลบ
+    const row = (r) => {
+        const a = _TRAIT_POLES[r.axis] || { neg: r.axis, pos: r.axis, negEn: r.axis, posEn: r.axis };
+        const withPop = r.agreeTh || []; // ดันไปทางเดียวกับผลรวม
+        const against = r.dissentTh || []; // ดันไปอีกทาง
+        const called = r.voices >= _TRAIT_MIN_VOICES && r.band !== 'mid';
+        const side = r.pct > 50;
+        const popPole = isEn ? (side ? a.posEn : a.negEn) : (side ? a.pos : a.neg);
+        const otherPole = isEn ? (side ? a.negEn : a.posEn) : (side ? a.neg : a.pos);
+        // เสียงข้างมากสวนกับผลรวมหรือไม่ — เกิดได้จริงเมื่อทุกสายให้น้ำหนักเบา/หนักกว่าปกติ
+        const split = called && against.length > withPop.length;
+        return `
+    <div style="padding:9px 0;border-bottom:1px solid #1b1626">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+        <span style="font-size:12.5px;color:${called ? '#e8c87a' : '#8a7a92'};font-weight:${called ? 700 : 400}">${esc(isEn ? r.labelEn : r.labelTh)}</span>
+        <span style="font-size:9.5px;color:#6a7a90">${r.voices < _TRAIT_MIN_VOICES
+            ? tr('เสียงน้อยเกินจะฟันธง', 'too few voices to call')
+            : r.band === 'mid'
+                // ⛔ ห้ามพิมพ์ "มากกว่าคนทั่วไป 51%" — ตัวเลขที่แปลว่า "เท่าคนอื่น" แต่ดูเหมือนข้อค้นพบ
+                ? tr('พอๆ กับคนส่วนใหญ่', 'about the same as most people')
+                : tr(`${side ? 'มากกว่า' : 'น้อยกว่า'}คนทั่วไป ${side ? r.pct : 100 - r.pct}%`, `${side ? 'above' : 'below'} ${side ? r.pct : 100 - r.pct}% of people`)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:9.5px;color:#5a6a80">
+        <span>${esc(isEn ? a.negEn : a.neg)}</span><span>${esc(isEn ? a.posEn : a.pos)}</span>
+      </div>
+      ${scale(r)}
+      ${split ? `<div style="font-size:9.5px;color:#c8a45a;line-height:1.7;margin:1px 0 3px">${tr(`น่าสนใจ: ${against.length} ใน ${r.voices} สายดันไปทาง${esc(otherPole)} แต่ทุกสายให้น้ำหนักเบากว่าที่คนทั่วไปได้ รวมแล้วคุณจึงยังเอนไปทาง${esc(popPole)}มากกว่าคนส่วนใหญ่`, `Worth noting: ${against.length} of ${r.voices} lineages push toward ${esc(otherPole)}, but each weighs it more lightly than is typical — so the total still leaves you ${esc(popPole)} compared with most people`)}</div>` : ''}
+      <details>
+        <summary style="cursor:pointer;list-style:none;font-size:9.5px;color:#6a7a90">
+          ${tr(`${r.voices} ศาสตร์พูดถึงแกนนี้ — ใครดันไปทางไหน`, `${r.voices} traditions speak to this — which way each pushes`)}
+        </summary>
+        <div style="font-size:9.5px;color:#8a7a92;line-height:1.7;margin:5px 0 2px">
+          <strong style="color:#8aa8c8">${esc(popPole)}</strong> ${esc(withPop.join(', ') || '—')}
+          ${against.length ? `<br><strong style="color:#a88a8a">${esc(otherPole)}</strong> ${esc(against.join(', '))}` : ''}
+        </div>
+      </details>
+    </div>`;
+    };
+    const edges = top.map(r => {
+        const e = _TRAIT_EDGE[r.axis];
+        if (!e)
+            return null;
+        const up = r.z > 0;
+        return {
+            go: isEn ? (up ? e.posGoEn : e.negGoEn) : (up ? e.posGo : e.negGo),
+            watch: isEn ? (up ? e.posWatchEn : e.negWatchEn) : (up ? e.posWatch : e.negWatch),
+        };
+    }).filter(Boolean);
+    const headline = top.length
+        ? tr(`แกนที่คุณห่างจากคนทั่วไปมากที่สุดคือ${esc(top[0].labelTh)} — ${top[0].pct > 50 ? 'มากกว่า' : 'น้อยกว่า'}คนทั่วไป ${top[0].pct > 50 ? top[0].pct : 100 - top[0].pct}% จาก ${top[0].voices} สายที่พูดถึงแกนนี้`, `The axis that puts you furthest from the middle: ${esc(top[0].labelEn)} — ${top[0].pct > 50 ? 'above' : 'below'} ${top[0].pct > 50 ? top[0].pct : 100 - top[0].pct}% of people, out of ${top[0].voices} lineages that speak to it`)
+        : tr('ไม่มีแกนไหนที่คุณห่างจากคนทั่วไปพอจะฟันธง — ตัวนี้เองก็เป็นคำตอบ', 'No axis puts you far enough from the middle to call — which is itself an answer');
+    return section(0, tr('24 ศาสตร์เห็นตรงกันว่าอย่างไร', 'Where 24 traditions converge'), '🧭', `
+    <div style="font-size:11.5px;color:#c0b0a0;line-height:1.8;margin-bottom:4px">${tr(`แต่ละสายอ่านคุณจากคนละที่มา — BaZi อ่านจากก้านวัน ทักษาอ่านจากเจ้าวัน มายาอ่านจากวันสัญลักษณ์ · เราแปลคำบรรยายของ 24 ศาสตร์ลงแกนเดียวกัน ${prof.length} แกน แล้วเทียบกับดวงอื่นสามพันดวง เพราะตำราแทบทุกสายบรรยายคนในทางบวก ค่ากลางจึงไม่ใช่ศูนย์ · แต่ละแกนมีศาสตร์พูดถึงไม่เท่ากัน ในดวงนี้ ${_vmin}-${_vmax} สาย`, `Each lineage reads you from a different starting point — BaZi from the day stem, Taksa from the day lord, the Maya from the day sign. We map what 24 traditions say onto the same ${prof.length} axes, then compare against three thousand other charts, because almost every tradition describes people favourably and the middle is not zero. Not every axis draws the same number of voices — in this chart, ${_vmin} to ${_vmax}.`)}</div>
+    <div style="font-size:13px;color:#e8c87a;line-height:1.7;margin:12px 0 14px;padding:10px 12px;background:#0f0d15;border-left:2px solid #c8a45a;border-radius:0 8px 8px 0">${headline}</div>
+
+    ${prof.map(row).join('')}
+
+    ${edges.length ? `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
+      <div style="background:#0c1108;border:1px solid #2a3a20;border-radius:10px;padding:11px 13px">
+        <div style="font-size:11px;color:#9ac87a;font-weight:700;margin-bottom:6px">${tr('ไปแบบไหนเจริญ', 'Where this prospers')}</div>
+        <div style="font-size:10.5px;color:#b8c8a8;line-height:1.75">${edges.map(e => `· ${esc(e.go)}`).join('<br>')}</div>
+      </div>
+      <div style="background:#110c0c;border:1px solid #3a2420;border-radius:10px;padding:11px 13px">
+        <div style="font-size:11px;color:#c88a7a;font-weight:700;margin-bottom:6px">${tr('ไปแบบไหนต้องระวัง', 'Where to watch it')}</div>
+        <div style="font-size:10.5px;color:#c8b0a8;line-height:1.75">${edges.map(e => `· ${esc(e.watch)}`).join('<br>')}</div>
+      </div>
+    </div>` : ''}
+
+    ${thin.length ? `<div style="font-size:9.5px;color:#5a6a80;line-height:1.7;margin-top:11px">${tr(`${thin.map(r => esc((_TRAIT_POLES[r.axis] || {}).pos || r.axis)).join(' · ')} — แกนพวกนี้มีศาสตร์พูดถึงน้อยกว่า ${_TRAIT_MIN_VOICES} สาย เราจึงไม่ฟันธงให้ · นั่นแปลว่าหลักฐานไม่พอ ไม่ใช่ว่าคุณอยู่กลางๆ`, `${thin.map(r => esc((_TRAIT_POLES[r.axis] || {}).posEn || r.axis)).join(' · ')} — fewer than ${_TRAIT_MIN_VOICES} traditions speak to these, so we do not call them. That is missing evidence, not a middling result.`)}</div>` : ''}`);
+}
 function p_consensusAxes(c) {
     const { bazi, ninestar, numerology, humandesign, vedicMahadasha, celtic, ogham, norseRune, hellenistic } = c;
     const bar = (n, of, colour) => `<span style="display:inline-block;width:${Math.round(n / Math.max(1, of) * 100)}%;height:8px;background:${colour};border-radius:4px"></span>`;
@@ -12812,6 +13057,7 @@ function generateReport(c) {
         // ทุกศาสตร์พูดของตัวเองหนึ่งบรรทัด ก่อนเข้าบล็อกพยากรณ์
         // ⛔ ห้ามย้ายไปท้ายเล่ม — เหตุผลที่มันอยู่ตรงนี้อยู่ในคอมเมนต์ของ p_allVoices
         p_allVoices,
+        p_traitConsensus, // 24 ศาสตร์แปลงลงแกนเดียวกันแล้วเทียบประชากร
         p_yearGrid, // 12 เดือนข้างหน้า × 8 ด้าน (นับจากวันนี้)
         p17_weekly, // จังหวะ 7 วัน
         p23_forecast10yr, // 10 ปี
