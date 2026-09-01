@@ -138,8 +138,16 @@ for (const d of CHARTS) {
   // ── 5. Element consensus: one vote per tradition ──────────────────────
   // BaZi used to vote twice on opposing elements, and Tibetan twice on the same
   // one — which is how a minority element came to win the cover.
-  [['BaZi Day Master', 'BaZi Dominant'], ['Tibetan Mewa', 'Tibetan Parkha']].forEach(pair => {
-    if (html.includes(pair[0]) && html.includes(pair[1])) {
+  // เพิ่ม Celtic↔Ogham 1 ก.ย. 69 — เป็นปฏิทินเดียวกัน (Graves 1948) และธาตุของ
+  // โอแฮมดึงจากตารางเซลติกตรงๆ ⇒ นับสองครั้งคือเซลติกโหวตสองเสียง
+  //
+  // ⛔ ต้องค้นเฉพาะในกล่องฉันทามติ ไม่ใช่ทั้งรายงาน — ชื่ออย่าง "Ogham" โผล่ใน
+  //    หน้าของศาสตร์ตัวเองอยู่แล้ว ค้นทั้งไฟล์จะแดงตลอดโดยไม่เกี่ยวกับการนับเสียง
+  const _consIdx = Math.max(html.indexOf('ELEMENT CONSENSUS'), html.indexOf('ฉันทามติธาตุ'));
+  const consensusBox = _consIdx < 0 ? '' : html.slice(_consIdx, _consIdx + 900);
+  [['BaZi Day Master', 'BaZi Dominant'], ['Tibetan Mewa', 'Tibetan Parkha'],
+   ['Celtic Tree', 'Ogham']].forEach(pair => {
+    if (consensusBox.includes(pair[0]) && consensusBox.includes(pair[1])) {
       fail(id, 'element consensus counts "' + pair[0] + '" and "' + pair[1] + '" as two separate traditions');
     }
   });

@@ -334,7 +334,11 @@ function p01_cover(c) {
         _v('Saju', c.saju.sajuElement);
         _v('Tibetan Mewa', c.tibetan.mewaElement);
         _v('Norse Rune', c.norseRune.runeElement);
-        _v('Ogham', c.ogham.element);
+        // ⛔ ห้ามใส่ Ogham กลับมา — โอแฮมกับปฏิทินต้นไม้เซลติกเป็นของชิ้นเดียวกัน
+        //    (Graves 1948) และตั้งแต่ 1 ก.ย. 69 ธาตุของโอแฮมดึงจาก CELTIC_TREES ตรงๆ
+        //    ⇒ ใส่ทั้งคู่ = เซลติกโหวตสองเสียง ซึ่งพอมันชนะ ปกจะไปขัดกับ Day Master
+        //    ที่รายงานอีก 39 หน้ายืนอยู่บนนั้น · ด่าน report-invariants ตรึงไว้แล้ว
+        //    (คอมเมนต์ข้างบนเขียนว่า "หกศาสตร์ หกเสียง" มาตลอด แต่โค้ดลิสต์เจ็ด)
         const total = Object.values(votes).reduce((s, a) => s + a.length, 0);
         if (total < 2)
             return '';

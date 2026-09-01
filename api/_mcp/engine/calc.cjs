@@ -4,7 +4,7 @@
 //  All 10 systems calculated algorithmically. Zero external API.
 // ============================================================
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.hebrewDateOf = exports.lunarDateOf = exports._getReadingParts = exports._clearReadingParts = exports._setReportLang = exports.calcForecast = exports._fcNineStarYear = exports.FORECAST_TIERS = exports.FORECAST_DOMAIN_LABELS = exports.FORECAST_DOMAINS_ALL = exports.calcDailyPulse = exports.calculate = exports.calcPathResonance = exports.calcLifeTerrain = exports.glossCJK = exports.sweepThaiFromEnglish = void 0;
+exports.hebrewDateOf = exports.lunarDateOf = exports._getReadingParts = exports._clearReadingParts = exports._setReportLang = exports.calcForecast = exports._fcNineStarYear = exports.FORECAST_TIERS = exports.FORECAST_DOMAIN_LABELS = exports.FORECAST_DOMAINS_ALL = exports.calcDailyPulse = exports.calculate = exports.calcPathResonance = exports.calcLifeTerrain = exports._celticTreeIdx = exports.glossCJK = exports.sweepThaiFromEnglish = void 0;
 // ── Bilingual primitives ────────────────────────────────────────
 // Single source of truth for translating Thai data fields to English.
 // Used by buildRichReading() and the per-system calc functions to keep
@@ -3186,33 +3186,27 @@ function _celticDeepSections(a) {
     sec.sort((p, q) => _rk(p) - _rk(q));
     return sec.join('');
 }
-function calcCeltic(d) {
-    const m = d.month, day = d.day;
-    let found = CELTIC_TREES[0];
-    for (const tree of CELTIC_TREES) {
-        const [[sm, sd], [em, ed]] = tree.months;
-        const startMD = sm * 100 + sd;
-        const endMD = em * 100 + ed;
-        const currMD = m * 100 + day;
-        const start = sm <= em ? startMD : startMD; // handle year boundary
-        if (sm <= em) {
-            if (currMD >= startMD && currMD <= endMD) {
-                found = tree;
-                break;
-            }
-        }
-        else {
-            if (currMD >= startMD || currMD <= endMD) {
-                found = tree;
-                break;
-            }
-        }
+// เดือนต้นไม้ตามปฏิทิน Beth-Luis-Nion (Graves 1948) — 13 เดือน เริ่ม 24 ธ.ค.
+//
+// แยกออกมาเป็นฟังก์ชันกลางเพราะโอแฮมใช้ปฏิทินอันเดียวกันเป๊ะ (มันคือปฏิทินเดียวกัน
+// คนละชั้น: เซลติกอ่านชื่อต้นไม้ โอแฮมอ่านตัวอักษร) เก็บสองก๊อปปี้ = เดี๋ยวก็เพี้ยนกัน
+function _celticTreeIdx(month, day) {
+    if (month === 12 && day >= 24)
+        return 0;
+    if (month === 1 && day <= 20)
+        return 0;
+    const currMD = month * 100 + day;
+    for (let i = 0; i < CELTIC_TREES.length; i++) {
+        const [[sm, sd], [em, ed]] = CELTIC_TREES[i].months;
+        const startMD = sm * 100 + sd, endMD = em * 100 + ed;
+        if (sm <= em ? (currMD >= startMD && currMD <= endMD) : (currMD >= startMD || currMD <= endMD))
+            return i;
     }
-    // Handle Dec 24 - Jan 20 (Birch wraps year boundary)
-    if (m === 12 && day >= 24)
-        found = CELTIC_TREES[0];
-    if (m === 1 && day <= 20)
-        found = CELTIC_TREES[0];
+    return 0;
+}
+exports._celticTreeIdx = _celticTreeIdx;
+function calcCeltic(d) {
+    const found = CELTIC_TREES[_celticTreeIdx(d.month, d.day)];
     const TREE_SCORE = { 'Birch': 750, 'Rowan': 790, 'Ash': 770, 'Alder': 760, 'Willow': 720, 'Hawthorn': 640, 'Oak': 830, 'Holly': 760, 'Hazel': 800, 'Vine': 740, 'Ivy': 710, 'Reed': 730, 'Blackthorn': 650, 'Elder': 700, 'Fir': 720, 'Gorse': 710, 'Heather': 760, 'Aspen': 720, 'Yew': 750, 'Mistletoe': 800 };
     const celticScore = Math.max(400, Math.min(960, (TREE_SCORE[found?.name ?? ''] ?? 700)));
     const celticResult = {
@@ -7509,35 +7503,53 @@ function calcHellenistic(d, w) {
         lotSign: _reportLang === 'en' ? SIGNS_EN[lotSign] : SIGNS_TH[lotSign],
         lotSignTh: SIGNS_TH[lotSign],
         score,
-        reading: buildRichReading({
-            sysTh: 'โหราศาสตร์เฮลเลนิสติก',
-            sysEn: 'Hellenistic Astrology',
-            originCountry: 'อเล็กซานเดรีย (อียิปต์-กรีก)',
-            originCountryEn: 'Alexandria (Greco-Egyptian)',
-            popularity: 'กำลังฟื้นฟูผ่าน Project Hindsight · กลุ่มโหรสมัครเล่นตะวันตก',
-            popularityEn: 'Being revived through Project Hindsight · Western enthusiast circles',
-            keyStrength: 'รากฐานของโหรตะวันตกทั้งหมด · ใช้ Sect + Lots ที่ระบบใหม่ทิ้งไป',
-            keyStrengthEn: 'The foundation of all Western astrology · uses Sect + Lots that newer systems dropped',
-            originTh: 'โหราศาสตร์เฮลเลนิสติกเกิดในอเล็กซานเดรีย (อียิปต์กรีก) ช่วง 2,200 ปีก่อน เป็นต้นกำเนิดของโหราศาสตร์ตะวันตกสมัยใหม่แต่ใช้เทคนิคที่ถูกลืมไปในยุคกลาง และกำลังฟื้นฟูโดยกลุ่ม Project Hindsight ตั้งแต่ 1990s เทคนิคเฉพาะคือ Sect (กลางวัน/กลางคืน) Triplicity Rulers และ Lots — การหาจุดคณิตศาสตร์ที่ชี้โชคแต่ละด้าน',
-            originEn: 'Hellenistic astrology was born in Alexandria (Greco-Egyptian Egypt) about 2,200 years ago — the source of all modern Western astrology, using techniques lost in the Middle Ages and now revived since the 1990s by Project Hindsight. Its distinctive techniques are Sect (day vs. night), Triplicity Rulers, and Lots — mathematical points marking each domain of fortune.',
-            yearsOld: 2200,
-            keyValue: `${sectTh} · Trigon Lord: ${trigonLord} · Lot of Fortune ใน${SIGNS_TH[lotSign]}`,
-            keyValueEn: `${sect} · Trigon Lord: ${trigonLord.includes('Jupiter') ? 'Jupiter (expansion)' : 'Venus (relationships)'} · Lot of Fortune in ${['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'][lotSign]}`,
-            keyValueMeaning: `คุณเกิดใน "${sectTh}" — โหราศาสตร์เฮลเลนิสติกแบ่งคนเป็น 2 กลุ่มใหญ่ที่สุดตามเวลาเกิด: กลางวัน (Diurnal) กับ กลางคืน (Nocturnal) ซึ่งเปลี่ยนวิธีการตีความดาวทั้งหมด Trigon Lord ของคุณคือ <strong>${trigonLord}</strong> ซึ่งเป็นดาวที่ "ครอง" ธาตุของดวงอาทิตย์คุณ และ Lot of Fortune — จุดคณิตศาสตร์ที่หาจากตำแหน่ง ASC + Moon − Sun — อยู่ใน${SIGNS_TH[lotSign]} (${Math.round(lotRaw)}°) ซึ่งบ่งชี้ว่า "ทรัพย์ทางโลก" ของคุณจะไหลมาจากทิศทางและวิธีการของราศีนี้`,
-            keyValueMeaningEn: `You were born under <strong>${sect}</strong> — Hellenistic astrology\'s biggest division of people, by time of birth: Diurnal (day) vs. Nocturnal (night), which changes the interpretation of every planet. Your Trigon Lord is <strong>${trigonLord.includes('Jupiter') ? 'Jupiter (expansion)' : 'Venus (relationships)'}</strong> — the planet that "owns" your Sun\'s element. The Lot of Fortune — a mathematical point computed from ASC + Moon − Sun — sits in <strong>${['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'][lotSign]}</strong> (${Math.round(lotRaw)}°), telling you the direction and method by which your worldly wealth flows.`,
-            uniqueTh: `สิ่งที่กรีกทำแล้วศาสตร์อื่นไม่ทำคือ <strong>แยกดวงกลางวันกับกลางคืนออกจากกันตั้งแต่ราก</strong> — ดวงอาทิตย์ของคุณอยู่ห่างจากราศีขึ้น ${sunFromAsc.toFixed(0)}° ${isDaySect ? 'อยู่เหนือขอบฟ้า จึงเป็นดวงกลางวัน' : 'อยู่ใต้ขอบฟ้า จึงเป็นดวงกลางคืน'} และนั่นเปลี่ยนว่าดาวดวงไหนเป็นมิตรกับคุณ ไม่ใช่แค่เปลี่ยนคำบรรยาย · เจ้าธาตุสามเหลี่ยมของคุณคือ ${trigonLord} · ในระบบนี้ดาวดวงเดียวกันให้ผลคนละอย่างกับคนเกิดกลางวันและกลางคืน ซึ่งเป็นความละเอียดที่โหราศาสตร์สมัยใหม่ตัดทิ้งไปแล้ว`,
-            uniqueEn: `What the Greeks did that nothing else here does is <strong>split day charts from night charts at the root</strong>. Your Sun sits ${sunFromAsc.toFixed(0)}° from the ascendant, ${isDaySect ? 'above the horizon — a day chart' : 'below the horizon — a night chart'}, and that changes which planets are friendly to you, not merely how they are described. Your trigon lord is ${trigonLord}. In this system the same planet behaves differently for a day birth and a night birth — a distinction modern astrology dropped.`,
-            strengthTh: `การเป็น ${sectTh} หมายความว่าคุณได้รับพลังจาก "ดาวแห่ง sect" อย่างเต็มที่ — ${sectTh.includes('กลางวัน') ? 'Sun, Jupiter และ Saturn จะแสดงด้านดีที่สุดในดวงของคุณ เป็นกลุ่มที่คนในประวัติศาสตร์ที่สร้างโครงสร้างยั่งยืน (Cicero, Cato) มักเกิดกลางวัน' : 'Moon, Venus และ Mars จะแสดงด้านดีที่สุด — กลุ่มนี้เกี่ยวข้องกับศิลปิน นักเขียน และผู้นำทางจิตวิญญาณ (Rumi, Frida Kahlo เกิดกลางคืน)'} Trigon Lord ${trigonLord} เป็นผู้ปกป้องดวงของคุณ — เมื่อเกิดวิกฤติ ใช้พลังของ ${trigonLord} เป็นเครื่องเตือนใจ`,
-            strengthEn: `Being a ${sect} chart means you receive the full power of "the planets of your sect" — ${isDaySect ? 'Sun, Jupiter, and Saturn show their best in your chart. People who built durable structures across history (Cicero, Cato) tended to be day births' : 'Moon, Venus, and Mars show their best — the cluster of artists, writers, and spiritual leaders (Rumi, Frida Kahlo were night births)'}. Your Trigon Lord ${trigonLord.includes('Jupiter') ? 'Jupiter' : 'Venus'} is the protector of your chart — in a crisis, draw on its energy as your touchstone.`,
-            shadowTh: `Lot of Fortune ใน${SIGNS_TH[lotSign]} หมายความว่าคุณอาจไปผิดที่หากตามหาเงินผิดช่อง — เฮลเลนิสติกบอกว่าเงินของคุณต้องไหลผ่าน${SIGNS_TH[lotSign] === 'เมถุน' ? 'การสื่อสาร การเขียน การสอน' : SIGNS_TH[lotSign] === 'กรกฎ' ? 'ครอบครัว บ้าน อสังหาริมทรัพย์' : SIGNS_TH[lotSign] === 'สิงห์' ? 'การแสดง ความคิดสร้างสรรค์ ธุรกิจบันเทิง' : SIGNS_TH[lotSign] === 'กันย์' ? 'บริการ การวิเคราะห์ สาธารณสุข' : 'กิจกรรมเฉพาะของราศี' + SIGNS_TH[lotSign]} ไม่ใช่ช่องทางอื่น — การฝืนหาเงินในทางที่ไม่ตรงกับ Lot จะเหนื่อย 3 เท่า`,
-            shadowEn: `Lot of Fortune in ${['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'][lotSign]} means you can land in the wrong place if you chase money through the wrong channel. Hellenistic teaches that your money must flow through ${SIGNS_TH[lotSign] === 'เมถุน' ? 'communication, writing, teaching' : SIGNS_TH[lotSign] === 'กรกฎ' ? 'family, home, real estate' : SIGNS_TH[lotSign] === 'สิงห์' ? 'performance, creativity, entertainment business' : SIGNS_TH[lotSign] === 'กันย์' ? 'service, analysis, public health' : 'activities specific to ' + ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'][lotSign]} — not other channels. Forcing money through a non-Lot path tires you 3× harder.`,
-            practiceTh: `เทคนิคเฮลเลนิสติกรายปี: คำนวณ Profection — อายุของคุณ mod 12 = บ้านที่เปิดปีนี้ ดาวที่ปกครองบ้านนั้นคือ Time Lord ของปี ซึ่งเป็นดาวที่มีอิทธิพลสูงสุดกับคุณตลอดสิบสองเดือนนั้น`,
-            practiceEn: `Annual Hellenistic technique: (1) Compute your Profection — your age mod 12 = "the house opening this year". That house defines the year\'s theme. (2) Track the year\'s Time Lord — the planet that "rules" that house will be your year\'s strongest influence. (3) Use Lot of Fortune as your money compass, Lot of Spirit as your career compass, and Lot of Eros as your love compass.`,
-            currentYearTh: `ปี 2026 — Time Lord จะเปลี่ยนเข้าสู่ Jupiter ในหลายดวง ซึ่ง Jupiter ในเฮลเลนิสติกคือ "Great Benefic" ขยายทุกสิ่งที่มันสัมผัส แต่การขยายนี้ต้องผ่านช่องของ ${trigonLord} ก่อน ดังนั้นโฟกัสที่สิ่งที่ ${trigonLord} ปกป้องให้ดีก่อนปล่อยให้ Jupiter ขยาย`,
-            currentYearEn: `2026 — Time Lord shifts to Jupiter in many charts. Jupiter in Hellenistic is the "Great Benefic", expanding everything it touches — but this expansion must flow through ${trigonLord.includes('Jupiter') ? 'Jupiter' : 'Venus'} first. So focus on what ${trigonLord.includes('Jupiter') ? 'Jupiter' : 'Venus'} protects, before you let Jupiter scale it.`,
-            closingTh: 'เฮลเลนิสติกสอนว่า "อย่าถามว่าดาวส่งผลอะไรให้ฉัน — ถามว่าฉันเกิดในช่วงที่ฟ้ากำลังทำอะไร และฉันจะไหลตามฟ้านั้นยังไง"',
-            closingEn: 'Hellenistic teaches: "Don\'t ask what the planets do TO me — ask what the heavens were doing when I was born, and how I can flow with that."',
-        }),
+        reading: (() => {
+            // Profection ของคนคนนี้จริงๆ — เดิมย่อหน้านี้สอนวิธีคำนวณให้ลูกค้าไปทำเอง
+            // ทั้งที่เอนจินคำนวณให้ได้ และตั้งแต่ 1 ก.ย. 69 ก็คำนวณอยู่แล้วเพื่อใช้โหวต
+            // (ผลพลอยได้: ย่อหน้านี้เคยเป็นข้อความก้อนใหญ่ที่ทุกคนได้เหมือนกันเป๊ะ)
+            const _now = new Date();
+            let _age = _now.getFullYear() - d.year;
+            if (_now.getMonth() + 1 < d.month || (_now.getMonth() + 1 === d.month && _now.getDate() < d.day))
+                _age--;
+            _age = Math.max(0, _age);
+            const _house = (_age % 12) + 1;
+            const _ascIdx = Math.floor(mod360(w.ascDeg) / 30);
+            const _pSign = (_ascIdx + _house - 1) % 12;
+            // เจ้าเรือนแบบโบราณ (ก่อนมียูเรนัส/เนปจูน/พลูโต) = Time Lord ของปี
+            const _RULER_TH = ['ดาวอังคาร', 'ดาวศุกร์', 'ดาวพุธ', 'ดวงจันทร์', 'ดวงอาทิตย์', 'ดาวพุธ', 'ดาวศุกร์', 'ดาวอังคาร', 'ดาวพฤหัสบดี', 'ดาวเสาร์', 'ดาวเสาร์', 'ดาวพฤหัสบดี'];
+            const _RULER_EN = ['Mars', 'Venus', 'Mercury', 'the Moon', 'the Sun', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Saturn', 'Jupiter'];
+            const _HOUSE_TH = ['ตัวเองและร่างกาย', 'ทรัพย์และรายได้', 'การเรียนรู้ พี่น้อง การเดินทางใกล้', 'บ้าน ราก และพ่อแม่', 'ความรัก ลูก และการเล่น', 'งานประจำวันกับสุขภาพ', 'คู่และการตกลงแบบเปิดหน้า', 'เงินของคนอื่นและสิ่งที่คุมไม่ได้', 'การเดินทางไกล ความเชื่อ การศึกษา', 'ตำแหน่งและชื่อเสียง', 'มิตรและลาภที่มากับมิตร', 'การถอย ที่ลับ และการปิดเรื่องเก่า'];
+            const _HOUSE_EN = ['the self and the body', 'property and income', 'learning, siblings, short journeys', 'home, roots, parents', 'love, children, play', 'daily work and health', 'the partner and open dealings', 'money that is not yours and what you do not control', 'long journeys, belief, higher study', 'standing and office', 'friends and the gains they bring', 'retreat, hidden things, closing what is old'];
+            return buildRichReading({
+                sysTh: 'โหราศาสตร์เฮลเลนิสติก',
+                sysEn: 'Hellenistic Astrology',
+                originCountry: 'อเล็กซานเดรีย (อียิปต์-กรีก)',
+                originCountryEn: 'Alexandria (Greco-Egyptian)',
+                popularity: 'กำลังฟื้นฟูผ่าน Project Hindsight · กลุ่มโหรสมัครเล่นตะวันตก',
+                popularityEn: 'Being revived through Project Hindsight · Western enthusiast circles',
+                keyStrength: 'รากฐานของโหรตะวันตกทั้งหมด · ใช้ Sect + Lots ที่ระบบใหม่ทิ้งไป',
+                keyStrengthEn: 'The foundation of all Western astrology · uses Sect + Lots that newer systems dropped',
+                originTh: 'โหราศาสตร์เฮลเลนิสติกเกิดในอเล็กซานเดรีย (อียิปต์กรีก) ช่วง 2,200 ปีก่อน เป็นต้นกำเนิดของโหราศาสตร์ตะวันตกสมัยใหม่แต่ใช้เทคนิคที่ถูกลืมไปในยุคกลาง และกำลังฟื้นฟูโดยกลุ่ม Project Hindsight ตั้งแต่ 1990s เทคนิคเฉพาะคือ Sect (กลางวัน/กลางคืน) Triplicity Rulers และ Lots — การหาจุดคณิตศาสตร์ที่ชี้โชคแต่ละด้าน',
+                originEn: 'Hellenistic astrology was born in Alexandria (Greco-Egyptian Egypt) about 2,200 years ago — the source of all modern Western astrology, using techniques lost in the Middle Ages and now revived since the 1990s by Project Hindsight. Its distinctive techniques are Sect (day vs. night), Triplicity Rulers, and Lots — mathematical points marking each domain of fortune.',
+                yearsOld: 2200,
+                keyValue: `${sectTh} · Trigon Lord: ${trigonLord} · Lot of Fortune ใน${SIGNS_TH[lotSign]}`,
+                keyValueEn: `${sect} · Trigon Lord: ${trigonLord.includes('Jupiter') ? 'Jupiter (expansion)' : 'Venus (relationships)'} · Lot of Fortune in ${['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'][lotSign]}`,
+                keyValueMeaning: `คุณเกิดใน "${sectTh}" — โหราศาสตร์เฮลเลนิสติกแบ่งคนเป็น 2 กลุ่มใหญ่ที่สุดตามเวลาเกิด: กลางวัน (Diurnal) กับ กลางคืน (Nocturnal) ซึ่งเปลี่ยนวิธีการตีความดาวทั้งหมด Trigon Lord ของคุณคือ <strong>${trigonLord}</strong> ซึ่งเป็นดาวที่ "ครอง" ธาตุของดวงอาทิตย์คุณ และ Lot of Fortune — จุดคณิตศาสตร์ที่หาจากตำแหน่ง ASC + Moon − Sun — อยู่ใน${SIGNS_TH[lotSign]} (${Math.round(lotRaw)}°) ซึ่งบ่งชี้ว่า "ทรัพย์ทางโลก" ของคุณจะไหลมาจากทิศทางและวิธีการของราศีนี้`,
+                keyValueMeaningEn: `You were born under <strong>${sect}</strong> — Hellenistic astrology\'s biggest division of people, by time of birth: Diurnal (day) vs. Nocturnal (night), which changes the interpretation of every planet. Your Trigon Lord is <strong>${trigonLord.includes('Jupiter') ? 'Jupiter (expansion)' : 'Venus (relationships)'}</strong> — the planet that "owns" your Sun\'s element. The Lot of Fortune — a mathematical point computed from ASC + Moon − Sun — sits in <strong>${['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'][lotSign]}</strong> (${Math.round(lotRaw)}°), telling you the direction and method by which your worldly wealth flows.`,
+                uniqueTh: `สิ่งที่กรีกทำแล้วศาสตร์อื่นไม่ทำคือ <strong>แยกดวงกลางวันกับกลางคืนออกจากกันตั้งแต่ราก</strong> — ดวงอาทิตย์ของคุณอยู่ห่างจากราศีขึ้น ${sunFromAsc.toFixed(0)}° ${isDaySect ? 'อยู่เหนือขอบฟ้า จึงเป็นดวงกลางวัน' : 'อยู่ใต้ขอบฟ้า จึงเป็นดวงกลางคืน'} และนั่นเปลี่ยนว่าดาวดวงไหนเป็นมิตรกับคุณ ไม่ใช่แค่เปลี่ยนคำบรรยาย · เจ้าธาตุสามเหลี่ยมของคุณคือ ${trigonLord} · ในระบบนี้ดาวดวงเดียวกันให้ผลคนละอย่างกับคนเกิดกลางวันและกลางคืน ซึ่งเป็นความละเอียดที่โหราศาสตร์สมัยใหม่ตัดทิ้งไปแล้ว`,
+                uniqueEn: `What the Greeks did that nothing else here does is <strong>split day charts from night charts at the root</strong>. Your Sun sits ${sunFromAsc.toFixed(0)}° from the ascendant, ${isDaySect ? 'above the horizon — a day chart' : 'below the horizon — a night chart'}, and that changes which planets are friendly to you, not merely how they are described. Your trigon lord is ${trigonLord}. In this system the same planet behaves differently for a day birth and a night birth — a distinction modern astrology dropped.`,
+                strengthTh: `การเป็น ${sectTh} หมายความว่าคุณได้รับพลังจาก "ดาวแห่ง sect" อย่างเต็มที่ — ${sectTh.includes('กลางวัน') ? 'Sun, Jupiter และ Saturn จะแสดงด้านดีที่สุดในดวงของคุณ เป็นกลุ่มที่คนในประวัติศาสตร์ที่สร้างโครงสร้างยั่งยืน (Cicero, Cato) มักเกิดกลางวัน' : 'Moon, Venus และ Mars จะแสดงด้านดีที่สุด — กลุ่มนี้เกี่ยวข้องกับศิลปิน นักเขียน และผู้นำทางจิตวิญญาณ (Rumi, Frida Kahlo เกิดกลางคืน)'} Trigon Lord ${trigonLord} เป็นผู้ปกป้องดวงของคุณ — เมื่อเกิดวิกฤติ ใช้พลังของ ${trigonLord} เป็นเครื่องเตือนใจ`,
+                strengthEn: `Being a ${sect} chart means you receive the full power of "the planets of your sect" — ${isDaySect ? 'Sun, Jupiter, and Saturn show their best in your chart. People who built durable structures across history (Cicero, Cato) tended to be day births' : 'Moon, Venus, and Mars show their best — the cluster of artists, writers, and spiritual leaders (Rumi, Frida Kahlo were night births)'}. Your Trigon Lord ${trigonLord.includes('Jupiter') ? 'Jupiter' : 'Venus'} is the protector of your chart — in a crisis, draw on its energy as your touchstone.`,
+                shadowTh: `Lot of Fortune ใน${SIGNS_TH[lotSign]} หมายความว่าคุณอาจไปผิดที่หากตามหาเงินผิดช่อง — เฮลเลนิสติกบอกว่าเงินของคุณต้องไหลผ่าน${SIGNS_TH[lotSign] === 'เมถุน' ? 'การสื่อสาร การเขียน การสอน' : SIGNS_TH[lotSign] === 'กรกฎ' ? 'ครอบครัว บ้าน อสังหาริมทรัพย์' : SIGNS_TH[lotSign] === 'สิงห์' ? 'การแสดง ความคิดสร้างสรรค์ ธุรกิจบันเทิง' : SIGNS_TH[lotSign] === 'กันย์' ? 'บริการ การวิเคราะห์ สาธารณสุข' : 'กิจกรรมเฉพาะของราศี' + SIGNS_TH[lotSign]} ไม่ใช่ช่องทางอื่น — การฝืนหาเงินในทางที่ไม่ตรงกับ Lot จะเหนื่อย 3 เท่า`,
+                shadowEn: `Lot of Fortune in ${['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'][lotSign]} means you can land in the wrong place if you chase money through the wrong channel. Hellenistic teaches that your money must flow through ${SIGNS_TH[lotSign] === 'เมถุน' ? 'communication, writing, teaching' : SIGNS_TH[lotSign] === 'กรกฎ' ? 'family, home, real estate' : SIGNS_TH[lotSign] === 'สิงห์' ? 'performance, creativity, entertainment business' : SIGNS_TH[lotSign] === 'กันย์' ? 'service, analysis, public health' : 'activities specific to ' + ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'][lotSign]} — not other channels. Forcing money through a non-Lot path tires you 3× harder.`,
+                practiceTh: `ปีอายุ ${_age} ของคุณตกเรือนที่ ${_house} (ราศี${SIGNS_TH[_pSign]}) — หัวข้อของปีคือ<strong>${_HOUSE_TH[_house - 1]}</strong> และ Time Lord ที่คุมสิบสองเดือนนี้คือ${_RULER_TH[_pSign]} เจ้าเรือนนั้น · รอบนี้ครบทุก 12 ปี เพราะฉะนั้นอายุ ${_house === 1 ? _age : _age - (_house - 1)} คือปีที่หัวข้อชุดนี้เริ่มรอบล่าสุด`,
+                practiceEn: `At ${_age} you profect to house ${_house} (${SIGNS_EN[_pSign]}) — this year is about <strong>${_HOUSE_EN[_house - 1]}</strong>, and the Time Lord ruling these twelve months is ${_RULER_EN[_pSign]}, the ruler of that sign. The cycle closes every twelve years, so age ${_house === 1 ? _age : _age - (_house - 1)} is when this set of topics last came round.`,
+                currentYearTh: `ปี 2026 — Time Lord จะเปลี่ยนเข้าสู่ Jupiter ในหลายดวง ซึ่ง Jupiter ในเฮลเลนิสติกคือ "Great Benefic" ขยายทุกสิ่งที่มันสัมผัส แต่การขยายนี้ต้องผ่านช่องของ ${trigonLord} ก่อน ดังนั้นโฟกัสที่สิ่งที่ ${trigonLord} ปกป้องให้ดีก่อนปล่อยให้ Jupiter ขยาย`,
+                currentYearEn: `2026 — Time Lord shifts to Jupiter in many charts. Jupiter in Hellenistic is the "Great Benefic", expanding everything it touches — but this expansion must flow through ${trigonLord.includes('Jupiter') ? 'Jupiter' : 'Venus'} first. So focus on what ${trigonLord.includes('Jupiter') ? 'Jupiter' : 'Venus'} protects, before you let Jupiter scale it.`,
+                closingTh: 'เฮลเลนิสติกสอนว่า "อย่าถามว่าดาวส่งผลอะไรให้ฉัน — ถามว่าฉันเกิดในช่วงที่ฟ้ากำลังทำอะไร และฉันจะไหลตามฟ้านั้นยังไง"',
+                closingEn: 'Hellenistic teaches: "Don\'t ask what the planets do TO me — ask what the heavens were doing when I was born, and how I can flow with that."',
+            });
+        })(),
         deepReading: '',
     };
     hellenisticResult.deepReading = _hellenisticDeepSections({
@@ -7581,8 +7593,32 @@ function _norseRuneDeepSections(a) {
 }
 function calcNorseRune(d) {
     // Elder Futhark 24 runes; birth date → rune via day-of-year
-    const doy = Math.floor((new Date(d.year, d.month - 1, d.day).getTime() - new Date(d.year, 0, 0).getTime()) / 86400000);
-    const runeIdx = Math.floor((doy - 1) / (365 / 24)) % 24;
+    // แก้ 1 ก.ย. 69 — ของเดิมวาง Fehu ไว้ที่ 1 ม.ค. ⇒ ทุกคนได้รูนผิดไปครึ่งปี
+    //
+    // ปฏิทินครึ่งเดือนของ Pennick เริ่ม "ปีรูน" ที่กลางฤดูร้อน **29 มิ.ย.** ไม่ใช่ต้นปีปฏิทิน
+    // และไม่ได้แบ่งปีเท่าๆ กัน 24 ส่วน — มันมีวันเริ่มระบุไว้เป็นวันๆ สลับ 15/14 วัน
+    // การหาร 365/24 ทำให้ขอบเลื่อนได้ถึง 1 วัน ⇒ คนที่เกิดคาบเส้นได้รูนผิด จึงใช้ตารางตรงๆ
+    //
+    // ⚠️ วันปิดช่วงในแต่ละแหล่งเขียนต่างกัน ±1 (นับปลายรวม/ไม่รวม) แต่ **วันเริ่ม** ตรงกัน
+    //    ด่านใน system-audit จึงตรึงเฉพาะวันกลางช่วงที่ไม่มีใครเถียง ไม่ตรึงขอบ
+    const _RUNE_START = [
+        [6, 29], [7, 14], [7, 29], [8, 13], [8, 29], [9, 13], [9, 28], [10, 13], [10, 28], [11, 13], [11, 28], [12, 13],
+        [12, 28], [1, 13], [1, 28], [2, 12], [2, 27], [3, 14], [3, 30], [4, 14], [4, 29], [5, 14], [5, 29], [6, 14],
+    ];
+    const _rnMD = d.month * 100 + d.day;
+    let runeIdx = 23; // ก่อน 29 มิ.ย. ต้นปีปฏิทิน = ช่วงท้ายของปีรูน
+    for (let i = 0; i < _RUNE_START.length; i++) {
+        const cur = _RUNE_START[i][0] * 100 + _RUNE_START[i][1];
+        const nxt = _RUNE_START[(i + 1) % 24][0] * 100 + _RUNE_START[(i + 1) % 24][1];
+        const wraps = nxt <= cur;
+        if (wraps ? (_rnMD >= cur || _rnMD < nxt) : (_rnMD >= cur && _rnMD < nxt)) {
+            runeIdx = i;
+            break;
+        }
+    }
+    const _rnStartMD = _RUNE_START[0];
+    const _rnDoyOf = (m, dd) => Math.floor((Date.UTC(2001, m - 1, dd) - Date.UTC(2001, 0, 1)) / 86400000);
+    const runeDoy = ((_rnDoyOf(d.month, d.day) - _rnDoyOf(_rnStartMD[0], _rnStartMD[1])) % 365 + 365) % 365 + 1;
     const RUNES = [
         { r: 'ᚠ', n: 'Fehu', th: 'โชคลาภ', el: 'ไฟ', kw: 'ความมั่งคั่ง', score: 800 },
         { r: 'ᚢ', n: 'Uruz', th: 'กระทิง', el: 'ดิน', kw: 'ความแข็งแกร่ง', score: 780 },
@@ -7649,8 +7685,8 @@ function calcNorseRune(d) {
             keyValueEn: `${rune.r} ${rune.n} · ${rune.kw === 'ความมั่งคั่ง' ? 'wealth' : rune.kw === 'ความแข็งแกร่ง' ? 'strength' : rune.kw === 'ความท้าทาย' ? 'challenge' : rune.kw === 'ปัญญาและสาร' ? 'wisdom and message' : rune.kw === 'เส้นทางชีวิต' ? 'life journey' : rune.kw === 'ความรู้' ? 'knowledge' : rune.kw === 'การแลกเปลี่ยน' ? 'exchange' : rune.kw === 'ความสำเร็จ' ? 'success' : rune.kw === 'การเปลี่ยนแปลง' ? 'change' : rune.kw === 'การเอาชีวิตรอด' ? 'survival' : rune.kw === 'การหยุดนิ่ง' ? 'stillness' : rune.kw === 'รางวัลแห่งแรงงาน' ? 'reward of labour' : rune.kw === 'ความอดทน' ? 'endurance' : rune.kw === 'ลึกลับและโชค' ? 'mystery and luck' : rune.kw === 'การปกป้อง' ? 'protection' : rune.kw === 'ชัยชนะ' ? 'victory' : rune.kw === 'ความกล้าหาญ' ? 'courage' : rune.kw === 'การเกิดใหม่' ? 'rebirth' : rune.kw === 'การเดินทาง' ? 'travel' : rune.kw === 'ตัวตนและชุมชน' ? 'self and community' : rune.kw === 'ความรู้สึกลึก' ? 'deep feeling' : rune.kw === 'ศักยภาพ' ? 'potential' : rune.kw === 'การตื่นรู้' ? 'awakening' : 'heritage and roots'} · ${tEl(rune.el)} element`,
             keyValueMeaning: `รูนประจำวันเกิดของคุณคือ <strong>${rune.r} ${rune.n}</strong> ซึ่งแปลว่า "${rune.th}" และเกี่ยวข้องกับคำสำคัญ <strong>${rune.kw}</strong> ธาตุหลักคือ${rune.el} — ในทฤษฎีรูน แต่ละรูนเชื่อมโยงกับ Ættir (แถว 8 รูน) หนึ่งใน 3 แถว ซึ่งปกครองโดยเทพ Freyja Heimdall หรือ Tyr รูน ${rune.n} ของคุณปกครองโดย${rune.n === 'Fehu' || rune.n === 'Uruz' || rune.n === 'Thurisaz' || rune.n === 'Ansuz' || rune.n === 'Raidho' || rune.n === 'Kenaz' || rune.n === 'Gebo' || rune.n === 'Wunjo' ? 'Freyja (เทพีความรักและความมั่งคั่ง)' : rune.n === 'Hagalaz' || rune.n === 'Nauthiz' || rune.n === 'Isa' || rune.n === 'Jera' || rune.n === 'Eihwaz' || rune.n === 'Perthro' || rune.n === 'Algiz' || rune.n === 'Sowilo' ? 'Heimdall (เทพเฝ้าสะพานสายรุ้ง)' : 'Tyr (เทพแห่งความยุติธรรมและการต่อสู้)'}`,
             keyValueMeaningEn: `Your birth-day rune is <strong>${rune.r} ${rune.n}</strong> — its core keyword is <strong>${rune.kw === 'ความมั่งคั่ง' ? 'wealth' : rune.kw === 'ความแข็งแกร่ง' ? 'strength' : rune.kw === 'ความท้าทาย' ? 'challenge' : rune.kw === 'ปัญญาและสาร' ? 'wisdom and message' : rune.kw === 'เส้นทางชีวิต' ? 'life journey' : rune.kw === 'ความรู้' ? 'knowledge' : rune.kw === 'การแลกเปลี่ยน' ? 'exchange' : rune.kw === 'ความสำเร็จ' ? 'success' : rune.kw === 'การเปลี่ยนแปลง' ? 'change' : rune.kw === 'การเอาชีวิตรอด' ? 'survival' : rune.kw === 'การหยุดนิ่ง' ? 'stillness' : rune.kw === 'รางวัลแห่งแรงงาน' ? 'reward of labour' : rune.kw === 'ความอดทน' ? 'endurance' : rune.kw === 'ลึกลับและโชค' ? 'mystery and luck' : rune.kw === 'การปกป้อง' ? 'protection' : rune.kw === 'ชัยชนะ' ? 'victory' : rune.kw === 'ความกล้าหาญ' ? 'courage' : rune.kw === 'การเกิดใหม่' ? 'rebirth' : rune.kw === 'การเดินทาง' ? 'travel' : rune.kw === 'ตัวตนและชุมชน' ? 'self and community' : rune.kw === 'ความรู้สึกลึก' ? 'deep feeling' : rune.kw === 'ศักยภาพ' ? 'potential' : rune.kw === 'การตื่นรู้' ? 'awakening' : 'heritage and roots'}</strong>, primary element ${tEl(rune.el)}. In rune theory, each rune belongs to one of three Ættir (rows of 8) ruled by Freyja, Heimdall, or Tyr. Your ${rune.n} is ruled by ${rune.n === 'Fehu' || rune.n === 'Uruz' || rune.n === 'Thurisaz' || rune.n === 'Ansuz' || rune.n === 'Raidho' || rune.n === 'Kenaz' || rune.n === 'Gebo' || rune.n === 'Wunjo' ? 'Freyja (goddess of love and wealth)' : rune.n === 'Hagalaz' || rune.n === 'Nauthiz' || rune.n === 'Isa' || rune.n === 'Jera' || rune.n === 'Eihwaz' || rune.n === 'Perthro' || rune.n === 'Algiz' || rune.n === 'Sowilo' ? 'Heimdall (guardian of the rainbow bridge)' : 'Tyr (god of justice and battle)'}.`,
-            uniqueTh: `รูนไม่ได้แบ่งปีเป็น 12 เดือน แต่แบ่งเป็น <strong>24 ครึ่งเดือน</strong> ช่วงละราว 15 วัน — คุณเกิดวันที่ ${doy} ของปี ตกอยู่ครึ่งเดือนที่ ${runeIdx + 1} คือ ${rune.n} ${rune.r} · ความละเอียดระดับ 15 วันทำให้รูนแยกคนเกิดต้นเดือนกับปลายเดือนออกจากกันได้ ในขณะที่ศาสตร์ที่ใช้เดือนเต็มจะเหมารวมว่าเหมือนกัน`,
-            uniqueEn: `The runes cut the year not into twelve months but into <strong>twenty-four half-months</strong> of about fifteen days. You were born on day ${doy} of the year, in half-month ${runeIdx + 1}: ${rune.n} ${rune.r}. That resolution separates someone born early in a month from someone born late in it — a difference any month-based system flattens away.`,
+            uniqueTh: `รูนไม่ได้แบ่งปีเป็น 12 เดือน แต่แบ่งเป็น <strong>24 ครึ่งเดือน</strong> ช่วงละราว 15 วัน — คุณเกิดวันที่ ${runeDoy} ของปี ตกอยู่ครึ่งเดือนที่ ${runeIdx + 1} คือ ${rune.n} ${rune.r} · ความละเอียดระดับ 15 วันทำให้รูนแยกคนเกิดต้นเดือนกับปลายเดือนออกจากกันได้ ในขณะที่ศาสตร์ที่ใช้เดือนเต็มจะเหมารวมว่าเหมือนกัน`,
+            uniqueEn: `The runes cut the year not into twelve months but into <strong>twenty-four half-months</strong> of about fifteen days. The runic year opens at midsummer, on 29 June — you were born on day ${runeDoy} of it, in half-month ${runeIdx + 1}: ${rune.n} ${rune.r}. That resolution separates someone born early in a month from someone born late in it — a difference any month-based system flattens away.`,
             strengthTh: `${rune.kw} คือพลังที่คุณมีในตัวโดยไม่ต้องพยายาม ${rune.n === 'Fehu' ? 'คุณดึงดูดเงินและทรัพยากรโดยธรรมชาติ' : rune.n === 'Uruz' ? 'คุณมีพลังกายและความอดทนที่คนอื่นอิจฉา' : rune.n === 'Thurisaz' ? 'คุณกล้าเผชิญหน้ากับความขัดแย้งที่คนอื่นหลีกเลี่ยง' : rune.n === 'Ansuz' ? 'คำพูดของคุณมีน้ำหนัก คุณเป็นผู้นำพาสาร' : rune.n === 'Raidho' ? 'คุณมีจังหวะชีวิตที่ดี รู้ว่าเมื่อไหร่ควรเคลื่อน เมื่อไหร่ควรหยุด' : rune.n === 'Kenaz' ? 'คุณจุดไฟในห้องที่มืด — สร้างสรรค์และเห็นทางออก' : rune.n === 'Gebo' ? 'คุณสร้างพันธมิตรผ่านการให้และการรับที่สมดุล' : rune.n === 'Wunjo' ? 'คุณแพร่ความสุขให้คนรอบข้างโดยไม่รู้ตัว' : rune.n === 'Sowilo' ? 'คุณเหมือนแสงอาทิตย์ — พลังชีวิตสูง แต่ต้องระวังไม่ให้เผาคนอื่น' : 'คุณมีพลังเฉพาะตัวที่เกี่ยวข้องกับ ' + rune.kw} Ættir ของคุณให้พลังแห่ง${rune.el}ที่มั่นคงเป็นพื้นฐาน`,
             strengthEn: `Your strength is what you carry without effort: ${rune.n === 'Fehu' ? 'you naturally attract money and resources' : rune.n === 'Uruz' ? 'physical power and endurance others envy' : rune.n === 'Thurisaz' ? 'the courage to face conflicts others avoid' : rune.n === 'Ansuz' ? 'your words carry weight — you are a messenger' : rune.n === 'Raidho' ? 'you have good timing — you know when to move and when to pause' : rune.n === 'Kenaz' ? 'you light fires in dark rooms — creative, you see the way out' : rune.n === 'Gebo' ? 'you build alliances through balanced giving and receiving' : rune.n === 'Wunjo' ? 'you spread joy around you without realising it' : rune.n === 'Sowilo' ? 'you are sun-like — high life force, but watch you don\'t scorch others' : 'a unique gift tied to your rune\'s keyword'}. Your Ættir gives a stable ${tEl(rune.el)} foundation.`,
             shadowTh: `ทุกรูนมี "Murkstave" (รูนกลับหัว) — ด้านเงาของมัน เงาของ ${rune.n} คือ${rune.n === 'Fehu' ? 'ความโลภและการเกาะเงินจนขาดอิสระ' : rune.n === 'Thurisaz' ? 'ความก้าวร้าวที่ไม่ตรงเป้า' : rune.n === 'Ansuz' ? 'การพูดมากเกินไปจนสูญค่า' : rune.n === 'Hagalaz' ? 'การรับแรงเปลี่ยนแปลงไม่ไหว' : 'การใช้พลังของรูนในทางที่ผิดเป้าหมาย'} — นักรูนโบราณแนะนำให้ถอยและไตร่ตรองเมื่อรู้สึกเข้าสู่โหมด Murkstave`,
@@ -7715,32 +7751,40 @@ function _oghamDeepSections(a) {
 }
 // ── OGHAM ────────────────────────────────────────────────────────
 function calcOgham(d) {
-    // Beth-Luis-Nion calendar: 13 months + 1 day, based on birth date
+    // แก้ 1 ก.ย. 69 — ของเดิมผิดสองชั้นพร้อมกัน:
+    //   (ก) ปฏิทินเป็น `((month-1) + floor(day/28)) % 13` = เดือนเกรกอเรียน ขยับตอนวันที่ 28
+    //       ไม่ใช่ปฏิทินต้นไม้เลย ทั้งที่คอมเมนต์บรรทัดบนเขียนว่า "Beth-Luis-Nion calendar"
+    //   (ข) ตัวอักษรจับคู่ผิดต้นตั้งแต่ตัวที่ 3 — ᚃ คือ Fearn (อัลเดอร์) ไม่ใช่แอช ·
+    //       ᚊ คือ Quert (แอปเปิล) ไม่ใช่เถาองุ่น · และตัวที่ 13 เป็น Straif (แบล็คธอร์น)
+    //       ทั้งที่ปฏิทิน 13 เดือนจบที่ Ruis (เอลเดอร์)
+    //
+    // โอแฮมกับปฏิทินต้นไม้เซลติกเป็นของชิ้นเดียวกัน (Graves 1948) คนละชั้น —
+    // เซลติกอ่านชื่อต้น โอแฮมอ่านตัวอักษร ⇒ ต้องใช้ `_celticTreeIdx` ตัวเดียวกัน
+    // และธาตุก็ดึงจาก CELTIC_TREES ไม่เก็บสำเนาที่สอง
     const OGHAM = [
-        { o: 'ᚁ', tree: 'Birch', th: 'เบิร์ช', cls: 'ต้นใหม่', el: 'น้ำ', score: 750 },
-        { o: 'ᚂ', tree: 'Rowan', th: 'โรวัน', cls: 'ต้นปกป้อง', el: 'ไฟ', score: 790 },
-        { o: 'ᚃ', tree: 'Ash', th: 'แอช', cls: 'ต้นเชื่อมโยง', el: 'ลม', score: 770 },
-        { o: 'ᚄ', tree: 'Alder', th: 'อัลเดอร์', cls: 'ต้นผู้นำ', el: 'ไฟ', score: 760 },
-        { o: 'ᚅ', tree: 'Willow', th: 'วิลโลว์', cls: 'ต้นจันทร์', el: 'น้ำ', score: 720 },
-        { o: 'ᚆ', tree: 'Hawthorn', th: 'ฮอว์ธอร์น', cls: 'ต้นอุปสรรค', el: 'ไฟ', score: 640 },
-        { o: 'ᚇ', tree: 'Oak', th: 'โอ๊ก', cls: 'ต้นกษัตริย์', el: 'ดิน', score: 820 },
-        { o: 'ᚈ', tree: 'Holly', th: 'ฮอลลี่', cls: 'ต้นนักรบ', el: 'ไฟ', score: 760 },
-        { o: 'ᚉ', tree: 'Hazel', th: 'เฮเซล', cls: 'ต้นปัญญา', el: 'ลม', score: 800 },
-        { o: 'ᚊ', tree: 'Vine', th: 'เถาองุ่น', cls: 'ต้นมีสวรรค์', el: 'น้ำ', score: 740 },
-        { o: 'ᚋ', tree: 'Ivy', th: 'ไอวี่', cls: 'ต้นผู้แสวงหา', el: 'น้ำ', score: 710 },
-        { o: 'ᚌ', tree: 'Reed', th: 'กก', cls: 'ต้นผู้ส่งสาร', el: 'ลม', score: 730 },
-        { o: 'ᚍ', tree: 'Blackthorn', th: 'แบล็คธอร์น', cls: 'ต้นเวทมนตร์', el: 'ดิน', score: 650 },
+        { o: 'ᚁ', irish: 'Beith', tree: 'Birch', th: 'เบิร์ช', cls: 'ต้นใหม่', score: 750 },
+        { o: 'ᚂ', irish: 'Luis', tree: 'Rowan', th: 'โรวัน', cls: 'ต้นปกป้อง', score: 790 },
+        { o: 'ᚅ', irish: 'Nion', tree: 'Ash', th: 'แอช', cls: 'ต้นเชื่อมโยง', score: 770 },
+        { o: 'ᚃ', irish: 'Fearn', tree: 'Alder', th: 'อัลเดอร์', cls: 'ต้นผู้นำ', score: 760 },
+        { o: 'ᚄ', irish: 'Sail', tree: 'Willow', th: 'วิลโลว์', cls: 'ต้นจันทร์', score: 720 },
+        { o: 'ᚆ', irish: 'Uath', tree: 'Hawthorn', th: 'ฮอว์ธอร์น', cls: 'ต้นอุปสรรค', score: 640 },
+        { o: 'ᚇ', irish: 'Duir', tree: 'Oak', th: 'โอ๊ก', cls: 'ต้นกษัตริย์', score: 820 },
+        { o: 'ᚈ', irish: 'Tinne', tree: 'Holly', th: 'ฮอลลี่', cls: 'ต้นนักรบ', score: 760 },
+        { o: 'ᚉ', irish: 'Coll', tree: 'Hazel', th: 'เฮเซล', cls: 'ต้นปัญญา', score: 800 },
+        { o: 'ᚋ', irish: 'Muin', tree: 'Vine', th: 'เถาองุ่น', cls: 'ต้นมีสวรรค์', score: 740 },
+        { o: 'ᚌ', irish: 'Gort', tree: 'Ivy', th: 'ไอวี่', cls: 'ต้นผู้แสวงหา', score: 710 },
+        { o: 'ᚍ', irish: 'nGetal', tree: 'Reed', th: 'กก', cls: 'ต้นผู้ส่งสาร', score: 730 },
+        { o: 'ᚏ', irish: 'Ruis', tree: 'Elder', th: 'เอลเดอร์', cls: 'ต้นปิดวงจร', score: 700 },
     ];
-    // Thai → English class names for the 13 Beth-Luis-Nion Ogham trees.
     const OGHAM_CLS_EN = {
         'ต้นใหม่': 'beginner tree', 'ต้นปกป้อง': 'protector tree', 'ต้นเชื่อมโยง': 'connector tree',
         'ต้นผู้นำ': 'leader tree', 'ต้นจันทร์': 'moon tree', 'ต้นอุปสรรค': 'obstacle tree',
         'ต้นกษัตริย์': 'king tree', 'ต้นนักรบ': 'warrior tree', 'ต้นปัญญา': 'wisdom tree',
         'ต้นมีสวรรค์': 'heavenly tree', 'ต้นผู้แสวงหา': 'seeker tree', 'ต้นผู้ส่งสาร': 'messenger tree',
-        'ต้นเวทมนตร์': 'magic tree',
+        'ต้นปิดวงจร': 'closing tree',
     };
-    const oghamIdx = ((d.month - 1) + Math.floor(d.day / 28)) % 13;
-    const og = OGHAM[oghamIdx];
+    const oghamIdx = _celticTreeIdx(d.month, d.day);
+    const og = { ...OGHAM[oghamIdx], el: CELTIC_TREES[oghamIdx].el };
     // Jitter removed 2026-08-27 (director): every system used to add
     // `(day*N + month*M) % K - K/2` to its own score. Two charts three days
     // apart could land in the bottom tier and the top tier off nothing but the
@@ -8106,7 +8150,10 @@ function calcKabbalistic(d) {
     // Gregorian month number.
     const _MAZ_ORDER = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
     const mazalIdx = Math.max(0, _MAZ_ORDER.indexOf(_kbYetzirah.sign));
-    const hebrewYear = d.year + 3760;
+    // แก้ 1 ก.ย. 69 — ของเดิม `d.year + 3760` ไม่พลิกที่ Rosh Hashanah เลย
+    // ⇒ ทุกคนที่เกิดตั้งแต่ปีใหม่ยิวถึงสิ้นปีเกรกอเรียน (ราวหนึ่งในสามของคน) ได้ปีผิด
+    // ของถูกคำนวณอยู่แล้วใน `heb` ข้างบน — แก้ครึ่งเดียวแล้วทิ้งอีกครึ่งไว้
+    const hebrewYear = heb.year;
     // Jitter removed 2026-08-27 (director): every system used to add
     // `(day*N + month*M) % K - K/2` to its own score. Two charts three days
     // apart could land in the bottom tier and the top tier off nothing but the

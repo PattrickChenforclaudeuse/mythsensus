@@ -276,6 +276,182 @@ const BRANCH = '子丑寅卯辰巳午未申酉戌亥'.split('');
   if (!BAD.length) ok('การนับเสียง', `โหวต ${f.votingCount} + งด ${f.abstainCount} = ${f.totalSystems} · ไม่มีศาสตร์ไหนอยู่สองฝั่งพร้อมกัน (listed ${listed.size})`);
 }
 
+// ═══ 10e · ศาสตร์ที่อ่านจากปฏิทินตะวันตก — ทาบกับตารางที่ตีพิมพ์ ═══════════
+//
+// ทั้งหมดนี้ตรวจได้เพราะมี "ตารางที่พิมพ์ไว้แล้ว" ให้ทาบ ไม่ต้องเถียงกันเรื่องตีความ
+// ทำขึ้น 1 ก.ย. 69 หลัง director ถามว่า "ทำไมเจอของผิดตลอดเวลา" — คำตอบคือเพราะ
+// 195 ค่าที่เอนจินคำนวณ ส่วนใหญ่ไม่เคยถูกทาบกับอะไรเลย ⇒ ไล่ตรึงทีละศาสตร์
+{
+  const at = (m, d, y = 2025) => calculate({ name:'x', gender:'ชาย', year:y, month:m, day:d,
+                                             hour:12, minute:0, lat:13.75, lon:100.5, timezone:7 });
+
+  // ── ปฏิทินต้นไม้เซลติก (Graves 1948) — 13 เดือน เริ่ม 24 ธ.ค. ────────────
+  const CELTIC = [[12,24,'Birch'],[1,21,'Rowan'],[2,18,'Ash'],[3,18,'Alder'],[4,15,'Willow'],
+                  [5,13,'Hawthorn'],[6,10,'Oak'],[7,8,'Holly'],[8,5,'Hazel'],[9,2,'Vine'],
+                  [9,30,'Ivy'],[10,28,'Reed'],[11,25,'Elder']];
+  let wrong = 0;
+  for (const [m, d, name] of CELTIC) {
+    const got = at(m, d).celtic.treeName;
+    if (got !== name) { wrong++; bad('เซลติก', d + '/' + m + ' ได้ ' + got + ' ตารางว่า ' + name); }
+    if (d > 1 && at(m, d - 1).celtic.treeName === name) {
+      wrong++; bad('เซลติก', (d-1) + '/' + m + ' ก็ได้ ' + name + ' — ขอบไม่ตรง');
+    }
+  }
+  if (!wrong) ok('เซลติก', 'ขอบทั้ง 13 เดือนตรงตารางปฏิทินต้นไม้ของ Graves (1948)');
+
+  // ── โอแฮม = ปฏิทินเดียวกับเซลติก คนละชั้น (ตัวอักษร ไม่ใช่ชื่อต้น) ────────
+  // ⛔ ของเดิมเป็น ((month-1) + floor(day/28)) % 13 = เดือนเกรกอเรียน · แก้ 1 ก.ย. 69
+  const OG_LETTER = { Birch:'ᚁ', Rowan:'ᚂ', Ash:'ᚅ', Alder:'ᚃ', Willow:'ᚄ', Hawthorn:'ᚆ',
+                      Oak:'ᚇ', Holly:'ᚈ', Hazel:'ᚉ', Vine:'ᚋ', Ivy:'ᚌ', Reed:'ᚍ', Elder:'ᚏ' };
+  let ogDiff = 0, ogLetter = 0;
+  for (let m = 1; m <= 12; m++) for (let d = 1; d <= new Date(2025, m, 0).getDate(); d++) {
+    const c = at(m, d);
+    if (c.celtic.treeName !== c.ogham.treeName) ogDiff++;
+    if (OG_LETTER[c.ogham.treeName] && c.ogham.ogham !== OG_LETTER[c.ogham.treeName]) ogLetter++;
+  }
+  if (ogDiff) bad('โอแฮม', 'เดินคนละปฏิทินกับเซลติก ' + ogDiff + ' วัน ทั้งที่เป็นปฏิทินเดียวกัน (Graves 1948)');
+  if (ogLetter) bad('โอแฮม', 'ตัวอักษรไม่ตรงต้นไม้ ' + ogLetter + ' วัน (ᚃ=Fearn/อัลเดอร์ · ᚅ=Nion/แอช · ᚏ=Ruis/เอลเดอร์)');
+  if (!ogDiff && !ogLetter) ok('โอแฮม ↔ เซลติก', 'ปฏิทินตรงกันทั้งปี ตัวอักษรจับคู่ต้นไม้ถูกทุกวัน (คู่แฝด ไม่ใช่สองเสียง)');
+
+  // ── รูนครึ่งเดือนของ Pennick — ปีรูนเริ่มกลางฤดูร้อน 29 มิ.ย. ────────────
+  // ตรึงเฉพาะวันกลางช่วงที่ไม่มีใครเถียง ไม่ตรึงขอบ (แต่ละแหล่งนับปลายต่างกัน ±1)
+  const RUNE = [[7,1,'Fehu'],[7,20,'Uruz'],[8,5,'Thurisaz'],[8,20,'Ansuz'],[9,5,'Raidho'],
+                [9,20,'Kenaz'],[10,5,'Gebo'],[10,20,'Wunjo'],[11,5,'Hagalaz'],[11,20,'Nauthiz'],
+                [12,5,'Isa'],[12,20,'Jera'],[1,5,'Eihwaz'],[1,20,'Perthro'],[2,5,'Algiz'],
+                [2,20,'Sowilo'],[3,5,'Tiwaz'],[3,20,'Berkano'],[4,5,'Ehwaz'],[4,20,'Mannaz'],
+                [5,5,'Laguz'],[5,20,'Ingwaz'],[6,5,'Dagaz'],[6,20,'Othalan']];
+  let rw = 0;
+  for (const [m, d, name] of RUNE) {
+    const got = at(m, d).norseRune.runeName;
+    if (got !== name) { rw++; bad('รูนนอร์ส', d + '/' + m + ' ได้ ' + got + ' ตาราง Pennick ว่า ' + name); }
+  }
+  if (!rw) ok('รูนนอร์ส', 'ครบ 24 ครึ่งเดือนตรงตาราง Pennick · ปีรูนเริ่ม Fehu 29 มิ.ย. ตามหมุดกลางฤดูร้อน');
+
+  // ── โทเท็มพื้นเมืองอเมริกัน (ตารางตามเดือนเกิดที่ตีพิมพ์) ────────────────
+  const TOTEM = [[1,20,'Otter'],[2,19,'Wolf'],[3,21,'Falcon'],[4,20,'Beaver'],[5,21,'Deer'],
+                 [6,21,'Woodpecker'],[7,22,'Salmon'],[8,22,'Brown Bear'],[9,22,'Raven'],
+                 [10,23,'Snake'],[11,22,'Elk'],[12,22,'Snow Goose']];
+  let tw = 0;
+  for (const [m, d, name] of TOTEM) {
+    const got = at(m, d).nativeAmerican.birthTotem;
+    if (got !== name) { tw++; bad('โทเท็มอเมริกัน', d + '/' + m + ' ได้ ' + got + ' ตารางว่า ' + name); }
+    if (at(m, d - 1).nativeAmerican.birthTotem === name) {
+      tw++; bad('โทเท็มอเมริกัน', (d-1) + '/' + m + ' ก็ได้ ' + name + ' — ขอบเลื่อน');
+    }
+  }
+  if (!tw) ok('โทเท็มอเมริกัน', 'ขอบทั้ง 12 ช่วงตรงตารางโทเท็มตามเดือนเกิดที่ตีพิมพ์');
+
+  // ── ปีฮีบรูต้องพลิกที่ Rosh Hashanah ไม่ใช่ 1 ม.ค. ──────────────────────
+  // ⛔ ของเดิม d.year + 3760 ไม่พลิกเลย · แก้ 1 ก.ย. 69
+  const kab = (y, m, d) => calculate({ name:'x', gender:'ชาย', year:y, month:m, day:d, hour:12,
+                                       minute:0, lat:31.8, lon:35.2, timezone:2 }).kabbalistic;
+  const RH = [[1977, 9, 13, 5738], [2025, 9, 23, 5786], [2024, 10, 3, 5785]];
+  let hw = 0;
+  for (const [y, m, d, want] of RH) {
+    const got = kab(y, m, d).hebrewYear, before = kab(y, m, d - 2).hebrewYear;
+    if (got !== want)        { hw++; bad('คับบาลาห์', d + '/' + m + '/' + y + ' ปีฮีบรูได้ ' + got + ' ควรเป็น ' + want + ' (Rosh Hashanah)'); }
+    if (before !== want - 1) { hw++; bad('คับบาลาห์', (d-2) + '/' + m + '/' + y + ' ได้ ' + before + ' ควรยังเป็น ' + (want-1) + ' (ก่อนปีใหม่)'); }
+  }
+  // เจ็ดเซฟิรอทล่าง = เจ็ดวันสร้างโลก ⇒ ต้องเดินตามวันในสัปดาห์ ไม่ใช่เลขที่ไม่มีที่มา
+  const SEQ = ['Chesed','Geburah','Tiphareth','Netzach','Hod','Yesod','Malkuth'];
+  let sw = 0;
+  for (let k = 0; k < 14; k++) {
+    const dt = new Date(Date.UTC(2025, 0, 1 + k));
+    const got = kab(dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate()).sephira;
+    const want = SEQ[dt.getUTCDay()];
+    if (got !== want) { sw++; bad('คับบาลาห์', dt.toISOString().slice(0,10) + ' เซฟิราได้ ' + got + ' วันในสัปดาห์ชี้ไปที่ ' + want); }
+  }
+  if (!hw && !sw) ok('คับบาลาห์', 'ปีฮีบรูพลิกตรงวัน Rosh Hashanah จริง 3 ปีอ้างอิง · เซฟิราเดินตามวันในสัปดาห์ (เจ็ดวันสร้างโลก)');
+
+  // ── ฤดูนูงการ์ 6 ฤดู (อะบอริจิน) ────────────────────────────────────────
+  const NOONGAR = [[12,'Birak'],[1,'Birak'],[2,'Bunuru'],[3,'Bunuru'],[4,'Djeran'],[5,'Djeran'],
+                   [6,'Makuru'],[7,'Makuru'],[8,'Djilba'],[9,'Djilba'],[10,'Kambarang'],[11,'Kambarang']];
+  let nw = 0;
+  for (const [m, name] of NOONGAR) {
+    const got = at(m, 15).aboriginal.dreamingAncestor;
+    if (got !== name) { nw++; bad('อะบอริจิน', 'เดือน ' + m + ' ได้ ' + got + ' ตารางฤดูนูงการ์ว่า ' + name); }
+  }
+  if (!nw) ok('อะบอริจิน', 'ตรงตารางหกฤดูของชาวนูงการ์ทั้ง 12 เดือน (ค่าประมาณตามเดือน — ของจริงอ่านจากธรรมชาติ)');
+}
+
+// ═══ 10f · ศาสตร์ที่ตรวจได้ด้วยกฎภายในของตัวเอง ═════════════════════════════
+{
+  const NAKS = ['Ashwini','Bharani','Krittika','Rohini','Mrigashira','Ardra','Punarvasu','Pushya','Ashlesha',
+                'Magha','Purva Phalguni','Uttara Phalguni','Hasta','Chitra','Swati','Vishakha','Anuradha','Jyeshtha',
+                'Mula','Purva Ashadha','Uttara Ashadha','Shravana','Dhanishta','Shatabhisha','Purva Bhadrapada',
+                'Uttara Bhadrapada','Revati'];
+  // วิมโศตตรี: เจ้าของนักษัตรวนเก้าองค์ตามลำดับนี้ ยาวรวม 120 ปีพอดี
+  // ชื่อไทยของเกตุ/ราหูสะกดได้หลายแบบ (เกตุ/เคตุ) ⇒ รับได้หลายสะกด ไม่งั้นด่านแดง
+  // เพราะการสะกด ไม่ใช่เพราะค่าผิด — และด่านที่แดงผิดเรื่องคือด่านที่คนจะเลิกอ่าน
+  const LORDS = [['Ketu',['เกต','เคต'],7],['Venus',['ศุกร'],20],['Sun',['อาทิตย'],6],['Moon',['จันทร'],10],
+                 ['Mars',['อังคาร'],7],['Rahu',['ราห'],18],['Jupiter',['พฤหัส'],16],['Saturn',['เสาร'],19],
+                 ['Mercury',['พุธ'],17]];
+  const total = LORDS.reduce((a, l) => a + l[2], 0);
+  if (total !== 120) bad('วิมโศตตรี', 'ความยาวทศารวมได้ ' + total + ' ปี ตำราว่า 120');
+  else ok('วิมโศตตรี', 'ความยาวทศาเก้าองค์รวม 120 ปีพอดี ตามลำดับ เกตุ→ศุกร์→อาทิตย์→จันทร์→อังคาร→ราหู→พฤหัส→เสาร์→พุธ');
+
+  const nowY = new Date().getFullYear();
+  let lw = 0, dw = 0; const seenLord = new Set();
+  for (const { c } of charts) {
+    const i = NAKS.findIndex(n => n.toLowerCase() === String(c.vedic.moonNakshatra || '').toLowerCase());
+    if (i < 0) { lw++; bad('โหราศาสตร์ภารตะ', 'นักษัตร "' + c.vedic.moonNakshatra + '" ไม่อยู่ใน 27 ชื่อมาตรฐาน'); continue; }
+    const want = LORDS[i % 9];
+    if (!want[1].some(sp => String(c.vedic.nakshatraLord).includes(sp))) {
+      lw++; bad('โหราศาสตร์ภารตะ', c.vedic.moonNakshatra + ' เจ้าของได้ ' + c.vedic.nakshatraLord + ' ตำราว่า ' + want[1][0]);
+    }
+    const cur = LORDS.find(l => l[0] === c.vedicMahadasha.currentDashaKey);
+    if (!cur) { dw++; bad('วิมโศตตรี', 'ทศาปัจจุบัน "' + c.vedicMahadasha.currentDashaKey + '" ไม่ใช่หนึ่งในเก้าองค์'); continue; }
+    seenLord.add(cur[0]);
+    const left = Number(c.vedicMahadasha.currentDashaEnd) - nowY;
+    if (!(left >= 0 && left <= cur[2])) {
+      dw++; bad('วิมโศตตรี', 'ทศา ' + cur[1][0] + ' ยาวได้มากสุด ' + cur[2] + ' ปี แต่เหลืออีก ' + left + ' ปี');
+    }
+    if (String(c.vedic.mahadasha) !== String(c.vedicMahadasha.currentDasha)) {
+      dw++; bad('วิมโศตตรี', 'vedic.mahadasha (' + c.vedic.mahadasha + ') ไม่ตรงกับ vedicMahadasha.currentDasha (' + c.vedicMahadasha.currentDasha + ') — ค่าเดียวกันสองที่ อย่าให้เพี้ยน');
+    }
+  }
+  if (!lw) ok('โหราศาสตร์ภารตะ', 'เจ้าของนักษัตรตรงวัฏจักรเก้าองค์ของวิมโศตตรีครบ 10 ดวง');
+  if (!dw) ok('วิมโศตตรี', 'ทศาปัจจุบันเป็นองค์ที่ถูกและเหลือไม่เกินความยาวของมันครบ 10 ดวง (' + seenLord.size + ' องค์ต่างกัน)');
+
+  // ── เฮลเลนิสติก: sect ต้องมาจากอาทิตย์อยู่เหนือ/ใต้ขอบฟ้า ────────────────
+  let sw2 = 0;
+  for (const [h, want] of [[12,'Day'],[13,'Day'],[2,'Night'],[23,'Night']]) {
+    const g = calculate({ name:'x', gender:'ชาย', year:1991, month:2, day:3, hour:h, minute:0,
+                          lat:13.75, lon:100.5, timezone:7 }).hellenistic.sect;
+    if (!String(g).startsWith(want)) { sw2++; bad('เฮลเลนิสติก', 'เกิด ' + h + ':00 ได้ ' + g + ' ควรเป็น ' + want + ' Sect'); }
+  }
+  if (!sw2) ok('เฮลเลนิสติก', 'sect แยกกลางวัน/กลางคืนถูกทั้งเที่ยง บ่าย ตีสอง และห้าทุ่ม');
+
+  // ── Arabic Parts ใช้ Lot of Fortune ตัวเดียวกับเฮลเลนิสติก = คู่แฝด ───────
+  let same = 0, tot = 0;
+  for (const { c } of charts) { tot++; if (c.arabicParts.partOfFortune === c.hellenistic.lotOfFortune) same++; }
+  if (same !== tot) bad('Arabic Parts ↔ เฮลเลนิสติก', 'Part of Fortune ตรงกันแค่ ' + same + '/' + tot + ' ดวง — ถ้าเป็นสูตรเดียวกันต้องตรงทุกดวง');
+  else ok('Arabic Parts ↔ เฮลเลนิสติก', 'Part of Fortune เป็นค่าเดียวกันเป๊ะทั้ง 10 ดวง (คู่แฝด — ให้โหวตทั้งคู่ไม่ได้)');
+
+  // ── ระบบประเภทพลังงาน: อาทิตย์กับโลกอยู่ตรงข้ามกันบนวงล้อเสมอ ───────────
+  const pair = new Map(); let hw2 = 0;
+  for (const { c } of charts) {
+    const s = c.humandesign.sunGate, e = c.humandesign.earthGate;
+    if (!(s >= 1 && s <= 64 && e >= 1 && e <= 64)) { hw2++; bad('ระบบประเภทพลังงาน', 'ประตูนอกช่วง 1-64: ' + s + '/' + e); continue; }
+    if (s === e) { hw2++; bad('ระบบประเภทพลังงาน', 'ประตูอาทิตย์กับโลกซ้ำกัน (' + s + ') — ต้องอยู่ตรงข้ามกัน'); continue; }
+    if (pair.has(s) && pair.get(s) !== e) { hw2++; bad('ระบบประเภทพลังงาน', 'ประตู ' + s + ' คู่ตรงข้ามไม่คงที่: เคย ' + pair.get(s) + ' คราวนี้ ' + e); }
+    pair.set(s, e);
+  }
+  if (!hw2) ok('ระบบประเภทพลังงาน', 'ประตูอาทิตย์↔โลกจับคู่ตรงข้ามคงที่ทุกดวง (' + pair.size + ' คู่ที่เจอ)');
+
+  // ── อิฟา: ชื่อ Odù ต้องอยู่ในสิบหกองค์หลัก ─────────────────────────────
+  const ODU = ['Ogbe','Oyeku','Iwori','Odi','Irosun','Owonrin','Obara','Okanran','Ogunda',
+               'Osa','Ika','Oturupon','Otura','Irete','Ose','Ofun'];
+  let ow = 0;
+  for (const { c } of charts) {
+    const nm = String(c.ifaYoruba.odu || '');
+    if (!ODU.some(o => nm.toLowerCase().startsWith(o.toLowerCase()))) { ow++; bad('อิฟา', 'Odù "' + nm + '" ไม่อยู่ในสิบหกองค์หลัก'); }
+    const n = Number(c.ifaYoruba.oduNumber);
+    if (!(n >= 0 && n < 16)) { ow++; bad('อิฟา', 'oduNumber ' + n + ' หลุดช่วง 0-15'); }
+  }
+  if (!ow) ok('อิฟา (โยรูบา)', 'ชื่อ Odù อยู่ในสิบหกองค์หลักและเลขอยู่ในช่วง ครบ 10 ดวง');
+}
+
 // ═══ 11 · ทุกศาสตร์ต้องมีคำตอบ อ่านรู้เรื่อง ไม่ใช่ค่าว่าง/ค่าสำรอง ═══════
 const SYS = ['bazi','ninestar','western','vedic','numerology','humandesign','mayan','celtic','thai','taksa',
              'saju','tibetan','ziwei','onmyodo','hellenistic','norseRune','ogham','arabicParts','kabbalistic',
