@@ -8758,8 +8758,11 @@ function calcIfaYoruba(d) {
             shadowEn: `Yoruba warns — every Odù has its "Ibi" (shadow). The shadow of Odù ${odu.n} is fighting your fortune or refusing to accept your theme. When you walk against the Ori, "Eshu block" arises — Eshu (god of crossroads) shuts every door until you return to the right path. The signs: nothing you try succeeds, people around you vanish, your luck disappears.`,
             practiceTh: `การปฏิบัติแบบ Ifa: สวด "Orí mi, gbà mí" (หัวจิตวิญญาณของฉัน นำฉัน) ก่อนตัดสินใจใหญ่ — Ifá ถือว่า Orí ของคุณรู้ทางก่อนที่หัวคิดจะตามทัน`,
             practiceEn: `Ifa practice: (1) Chant "Orí mi, gbà mí" (My spirit-head, lead me) before any big decision. (2) Set up an "Igbá Orí" (small bowl) at home with water and 3 coins to represent your Ori. (3) On "Ose Ifá" (every 4 days in the Yoruba calendar), light a white candle and thank your Ori. (4) If you face an Eshu block, place an offering (fruit, sweets) at a crossroads in your village or community.`,
-            currentYearTh: `ปี 2026 ในปฏิทิน Ifá เป็นปีของ Odù "Ogbè" ซึ่งถือเป็นปีที่เปิดทางให้ Odù อื่นที่พร้อม · ${odu.theme.includes('ความสำเร็จ') || odu.theme.includes('ทรัพย์') ? 'โดยเฉพาะ Odù ของคุณที่เน้นความสำเร็จ — ปีนี้คือปีที่ Ori เปิดกว้าง' : 'และสำหรับ Odù ของคุณ ปีนี้คือปีที่ต้องทำพิธีชำระ (Ebo) อย่างน้อย 2 ครั้งเพื่อเปิดทาง'}`,
-            currentYearEn: `2026 in the Ifa calendar is the year of Odù "Ogbè" — which opens doors for any prepared Odù. ${odu.theme.includes('ความสำเร็จ') || odu.theme.includes('ทรัพย์') ? 'Especially favourable for your success-themed Odù — this is a year your Ori opens wide' : 'For your Odù, this year demands at least two purification rituals (Ebo) to open the way'}.`,
+            // เขียนใหม่ 1 ก.ย. 69 — ย่อหน้านี้เคยเป็นก้อนเดียวที่ทุกคนได้เหมือนกันเป๊ะ
+            //    (ตัวยาวที่สุดในด่าน prose-density) ตอนนี้เอ่ยชื่อ Odù ของเจ้าของดวงและบอกว่า
+            //    ปีของ Ogbè ทำอะไรกับ *ธีมของเขา* โดยเฉพาะ ⇒ ย้ายบ้านไม่ได้อีก
+            currentYearTh: `ปีนี้เป็นปีของ Odù <strong>Ogbè</strong> ซึ่งไม่ได้ให้ผลกับทุกคนเท่ากัน — มันเปิดทางให้ Odù ที่เตรียมตัวไว้แล้ว · ของคุณคือ <strong>${odu.n}</strong> ธีม${odu.theme} ⇒ ${odu.theme.includes('ความสำเร็จ') || odu.theme.includes('ทรัพย์') ? 'ตรงทางกับปีนี้พอดี สิ่งที่ลงแรงไว้จะถูกดันขึ้นมาเอง ไม่ต้องออกแรงเพิ่ม' : odu.theme.includes('ปัญญา') || odu.theme.includes('จิตวิญญาณ') ? 'ปีนี้ให้ความชัดมากกว่าให้ลาภ สิ่งที่คิดไม่ตกมาหลายปีจะคลี่ออกเอง' : odu.theme.includes('เปลี่ยน') || odu.theme.includes('ปั่นป่วน') ? 'ปีเปิดทางกับ Odù ที่ถือเรื่องความเปลี่ยนแปลง แปลว่าประตูจะเปิดเร็วกว่าที่คุณพร้อม เลือกให้ดีว่าจะเดินเข้าบานไหน' : 'ยังไม่ใช่ปีที่ประตูเปิดเอง แต่เป็นปีที่ถ้าคุณเตรียมของไว้ครบ ปีถัดไปจะไม่ต้องรอ'} · ธรรมเนียมคือถวาย Ori ต้นปี ไม่ใช่ตอนเดือดร้อน`,
+            currentYearEn: `This is a year of Odù <strong>Ogbè</strong>, which does not fall the same way on everyone — it opens the road for whoever prepared. Yours is <strong>${odu.n}</strong>, themed ${odu.themeEn} ⇒ ${odu.themeEn.includes('work') || odu.themeEn.includes('abundance') ? 'squarely in line with the year: what you already put in gets carried up without extra push' : odu.themeEn.includes('wisdom') || odu.themeEn.includes('spirit') ? 'a year that gives clarity rather than gain; what you could not resolve for years comes apart on its own' : odu.themeEn.includes('change') || odu.themeEn.includes('upheaval') ? 'the opening year meeting the Odù of change — doors will open faster than you are ready for, so choose which one you walk through' : 'not a year the door opens by itself, but the year that decides whether the next one waits for you'} · The custom is to make the Ori offering at the start of the year, not when trouble arrives.`,
             closingTh: 'Ifa ไม่ใช่คำทำนาย — มันคือกระจกที่ให้คุณเห็น Ori ของตัวเอง เห็นแล้ว การเดินก็ง่ายขึ้น',
             closingEn: 'Ifa isn\'t prediction — it\'s a mirror in which you see your own Ori. Once you see it, the walking gets easier.',
         }),
@@ -9426,12 +9429,13 @@ function p01_cover(c) {
         // ONE VOTE PER SYSTEM. BaZi used to vote twice (Day Master + Dominant,
         // often on opposing elements — a system arguing with itself), and Tibetan
         // twice (Mewa + Parkha, always the same answer, so it counted double).
-        // Six traditions, six votes.
+        // สี่สายอิสระ สี่เสียง (เคยเขียนว่าหกสาย ทั้งที่สองในหกเป็นแฝด)
         _v('BaZi Day Master', bazi.dayMasterElement);
         _v('Nine Star Ki', ninestar.starElement);
         _v('Celtic Tree', c.celtic.element);
-        _v('Saju', c.saju.sajuElement);
-        _v('Tibetan Mewa', c.tibetan.mewaElement);
+        // ⛔ ตัดซาจูกับทิเบตออก 1 ก.ย. 69 — ทั้งคู่เป็นคู่แฝดที่ system-audit พิสูจน์แล้ว
+        //    (ซาจูใช้สี่เสาเดียวกับ BaZi · Mewa คำนวณจากดาวเก้าดวง)
+        //    ก่อนหน้านี้กล่องนี้จึงนับ 6 เสียงจาก 4 สายจริง — จีนสองเสียง ญี่ปุ่นสองเสียง
         _v('Norse Rune', c.norseRune.runeElement);
         // ⛔ ห้ามใส่ Ogham กลับมา — โอแฮมกับปฏิทินต้นไม้เซลติกเป็นของชิ้นเดียวกัน
         //    (Graves 1948) และตั้งแต่ 1 ก.ย. 69 ธาตุของโอแฮมดึงจาก CELTIC_TREES ตรงๆ
@@ -9444,11 +9448,22 @@ function p01_cover(c) {
         // Tie-break: the BaZi Day Master wins. Without it the winner was decided
         // by Object.keys insertion order, i.e. by which system happened to be
         // listed first above.
-        const sorted = Object.entries(votes).sort((a, b) => (b[1].length - a[1].length) ||
-            ((b[0] === bazi.dayMasterElement ? 1 : 0) - (a[0] === bazi.dayMasterElement ? 1 : 0)));
+        // ⛔ ไม่ใช่การโหวตแบบใครมากกว่าชนะอีกแล้ว (แก้ 1 ก.ย. 69)
+        //
+        // ธาตุที่ขึ้นหัวกล่องนี้ = ธาตุที่ **ทั้งเล่มอีก 39 หน้าเขียนอยู่บนนั้น** ซึ่งคือ
+        // Day Master ของ BaZi · ให้ธาตุอื่นชนะแล้วขึ้นหัว = ปกเถียงกับเนื้อในตั้งแต่หน้าแรก
+        //
+        // เดิมมันเป็นการโหวตจริง และ "ไม่เคยขัดกัน" เพราะกล่องนี้นับซาจูกับทิเบตเป็น
+        // สายอิสระ ⇒ BaZi ได้สองเสียง ดาวเก้าดวงได้สองเสียง พอตัดแฝดออกตามหลักฐาน
+        // ของ system-audit ปุ๊บ BaZi ก็แพ้ได้ทันที ⇒ "ไม่ขัดกัน" เมื่อก่อนมาจากบั๊ก
+        //
+        // ของที่ไม่หายไปคือความเห็นต่าง — มันยังอยู่ครบในบรรทัด "อีกฝั่งหนึ่ง" ข้างล่าง
+        // ซึ่งตรงกับจุดขาย: บอกว่าใครเห็นตรง ใครเถียง ไม่ใช่กลบให้เหลือเสียงเดียว
+        const sorted = Object.entries(votes).sort((a, b) => ((b[0] === bazi.dayMasterElement ? 1 : 0) - (a[0] === bazi.dayMasterElement ? 1 : 0)) ||
+            (b[1].length - a[1].length));
         const [winEl, winSys] = sorted[0];
         const winEmoji = ee[winEl] || '✦';
-        const matchBaZi = winEl === bazi.dayMasterElement;
+        void 0; // matchBaZi ไม่ต้องใช้แล้ว — หัวกล่องยึด Day Master เสมอ
         const minorityLines = sorted.slice(1).map(([el, sys]) => `${ee[el] || '·'} ${esc(el)} ${sys.length} (${esc(sys.join(', '))})`).join(' · ');
         return `
     <div style="background:linear-gradient(135deg,#0e1a2a,#1a2a3e);border:2px solid #5a8acc;border-radius:12px;padding:14px 18px;margin:12px 0">
@@ -9456,7 +9471,7 @@ function p01_cover(c) {
         <div style="font-size:36px;line-height:1">${winEmoji}</div>
         <div style="flex:1;min-width:200px">
           <div style="font-size:10px;color:#7aaae0;letter-spacing:2px;margin-bottom:3px">${tr('🤝 ฉันทามติธาตุ', '🤝 ELEMENT CONSENSUS')}</div>
-          <div style="font-size:20px;font-weight:700;color:#aac8ff">${esc(winEl)}${matchBaZi ? '' : ` <span style="font-size:11px;color:#7a8aaa">(${tr('ต่างจาก BaZi', 'differs from BaZi')})</span>`}</div>
+          <div style="font-size:20px;font-weight:700;color:#aac8ff">${esc(winEl)} <span style="font-size:11px;color:#7a8aaa">(${tr('ธาตุที่รายงานทั้งเล่มยืนอยู่', 'the element this book is written on')})</span></div>
           <div style="font-size:11px;color:#90a8c8;margin-top:4px;line-height:1.6"><strong style="color:#aac8ff">${winSys.length}/${total}</strong> ${tr('ศาสตร์เห็นพ้อง', 'systems agree')} · ${esc(winSys.join(' · '))}</div>
           ${sorted.length > 1 ? `<div style="font-size:10.5px;color:#6a7a90;margin-top:4px">${tr('อีกฝั่งหนึ่ง', 'Other view')}: ${minorityLines}</div>` : ''}
         </div>
@@ -9782,7 +9797,8 @@ function p_consensusAxes(c) {
         { lineage: tr('จีน 干支 (BaZi/Saju)', 'Chinese 干支 (BaZi/Saju)'), says: bazi.dayMasterElement, evidence: `${bazi.dayStem}${bazi.dayBranch}` },
         { lineage: tr('Lo Shu 9 ดาว (NSK/ทิเบต)', 'Lo Shu nine stars (NSK/Tibetan)'), says: ninestar.starElement, evidence: `${tr('ดาว', 'star')} ${ninestar.star}` },
         { lineage: tr('เซลติก', 'Celtic'), says: celtic.element, evidence: String((_lang === 'en' ? celtic.treeName : celtic.treeNameTh) || celtic.treeName) },
-        { lineage: 'Ogham', says: ogham.element, evidence: String((_lang === 'en' ? ogham.treeName : ogham.treeNameTh) || ogham.treeName) },
+        // ⛔ โอแฮมถูกตัดออก 1 ก.ย. 69 — ใช้ปฏิทินต้นไม้ชุดเดียวกับเซลติก (Graves 1948)
+        //    ลิสต์นี้รวม NSK กับทิเบตเป็นสายเดียวอยู่แล้ว เซลต์ก็ต้องเป็นสายเดียวเหมือนกัน
         { lineage: tr('นอร์ส', 'Norse'), says: norseRune.runeElement, evidence: String(norseRune.runeName) },
     ].filter(v => v.says);
     const elTally = {};
@@ -9795,8 +9811,12 @@ function p_consensusAxes(c) {
     // What keeps that honest is naming the lineage the call rests on and showing
     // the dissent underneath, rather than manufacturing a consensus that is not
     // there (which the 08-23 ruling forbids outright).
-    const elCall = elTop[1] >= 3 ? elTop[0] : bazi.dayMasterElement;
-    const elClear = elTop[1] >= 3;
+    // ⛔ คำตัดสินต้องเป็นธาตุเดียวกับที่หน้า 1 และอีก 39 หน้ายืนอยู่ = Day Master
+    //    เดิมถ้ามีสายอื่นเห็นตรงกัน 3 สายจะไปประกาศธาตุนั้นแทน ⇒ หน้า 1 บอกไม้ หน้า 2 บอกลม
+    //    (เจอจริง 1 ก.ย. 69 ตอนเจนเล่มของ director)
+    //    ความเห็นต่างไม่ได้ถูกกลบ — มันอยู่ในบรรทัด elReading กับรายชื่อสายข้างล่างครบ
+    const elCall = bazi.dayMasterElement;
+    const elClear = elTop[1] >= 3 && elTop[0] === bazi.dayMasterElement;
     const elReading = elTop[1] >= 3
         ? tr(`สามสายขึ้นไปที่ไม่เคยรู้จักกันชี้ธาตุ<strong>${esc(elTop[0])}</strong>ตรงกัน — เวลาศาสตร์ที่พัฒนาคนละทวีปมาลงที่คำตอบเดียว มันมักเป็นด้านที่คนรอบตัวคุณเห็นก่อนคุณเห็นเอง ใช้ธาตุนี้เป็นตัวตั้งเวลาเลือกงาน เลือกที่อยู่ และเลือกจังหวะพัก`, `Three or more unrelated lineages land on <strong>${esc(elTop[0])}</strong>. When traditions built on different continents converge, the trait is usually the one other people notice about you before you do. Use it as the default when choosing work, choosing where to live, and choosing when to rest.`)
         : tr(`<strong>เราตอบว่าธาตุ${esc(elCall)}</strong> · ${elVotes.length} ศาสตร์ตอบมา ${elSplit} แบบ ไม่มีคำตอบไหนได้เสียงข้างมาก เราจึงยึด BaZi เพราะเป็นศาสตร์เดียวในกลุ่มนี้ที่อ่านละเอียดถึง<strong>ชั่วโมงเกิด</strong> ส่วนที่เหลืออ่านแค่ระดับวันหรือเดือน · ข้อนี้เราอาจผิดได้`, `<strong>We are calling it ${esc(elCall)}.</strong> ${elVotes.length} lineages returned ${elSplit} different answers, so there is no real majority and we are not inventing one. The call rests on BaZi because it is the only one of these lineages that reads down to the <strong>hour</strong> of birth; the dissenting ones read the day or the month, one step coarser. If this does not describe you, then we are wrong here — not you.`);
@@ -9883,7 +9903,7 @@ function p_consensusAxes(c) {
       </div>
     </div>
 
-    ${axisBox('✦', tr('ธาตุพื้นฐานของคุณ', 'Your base element'), tr('ถามว่า: พลังงานตั้งต้นของคนนี้เป็นธาตุอะไร — ศาสตร์ที่ตอบคำถามนี้ได้มี 5 สาย', 'Asked: what element does this person run on? Five lineages answer it.'), elVotes, elTop[1] >= 3
+    ${axisBox('✦', tr('ธาตุพื้นฐานของคุณ', 'Your base element'), tr(`ถามว่า: พลังงานตั้งต้นของคนนี้เป็นธาตุอะไร — ศาสตร์ที่ตอบคำถามนี้ได้มี ${elVotes.length} สาย`, `Asked: what element does this person run on? ${elVotes.length} lineages answer it.`), elVotes, elTop[1] >= 3
         ? tr(`คำตัดสิน: ธาตุ${elTop[0]} (${elTop[1]}/${elVotes.length} สาย)`, `Our call: ${elTop[0]} (${elTop[1]}/${elVotes.length} lineages)`)
         : tr(`คำตัดสิน: ธาตุ${esc(elCall)} — ยึด BaZi (สายที่นำได้แค่ ${elTop[1]}/${elVotes.length} ไม่ถึงเสียงข้างมาก)`, `Our call: ${esc(elCall)} — on BaZi (the leading element holds only ${elTop[1]}/${elVotes.length}, short of a majority)`), elReading)}
 
@@ -9977,17 +9997,18 @@ function p03_convergence(c) {
     // Systems that directly echo the same element
     if (ninestar.starElement === dmEl)
         elVotes.push({ system: 'Nine Star Ki (' + ninestar.starName + ')', score: sc('Nine Star') });
-    if (saju.sajuElement === dmEl)
-        elVotes.push({ system: 'Saju Korean', score: sc('Saju') });
+    // ⛔ ห้ามใส่ Saju / Ogham / Tibetan Mewa กลับเข้ามาในการนับธาตุ — ทั้งสามพิสูจน์แล้วว่า
+    //    เป็นคู่แฝด: ซาจูใช้สี่เสาชุดเดียวกับ BaZi · โอแฮมใช้ปฏิทินต้นไม้ชุดเดียวกับเซลติก ·
+    //    Mewa คำนวณจากดาวเก้าดวง (system-audit ยืนยันทั้งสามคู่)
+    //    นับซ้ำ = จีนได้สองเสียง เซลต์ได้สองเสียง ญี่ปุ่นได้สองเสียง แล้วธาตุที่ชนะก็เพี้ยน
+    // (ซาจู — ตัดออก 1 ก.ย. 69)
     if (norseRune.runeElement === dmEl)
         elVotes.push({ system: 'Norse Rune ' + norseRune.rune + ' ' + norseRune.runeName, score: sc('Norse') });
-    if (ogham.element === dmEl)
-        elVotes.push({ system: 'Ogham ' + ogham.ogham + ' ' + ogham.treeName, score: sc('Ogham') });
+    // (โอแฮม — ตัดออก 1 ก.ย. 69 · แฝดของเซลติก)
     // Systems that produce dmEl's element OR compatible element
     if (celtic.element === dmEl || SHENG[ELEM_EL_MAP[celtic.element] ?? ''] === dmElEn)
         elVotes.push({ system: 'Celtic ' + (_lang === 'en' ? celtic.treeName : celtic.treeNameTh) + ' (' + celtic.element + ')', score: sc('Celtic') });
-    if (tibetan.mewaElement === dmEl || SHENG[ELEM_EL_MAP[tibetan.mewaElement] ?? ''] === dmElEn)
-        elVotes.push({ system: 'Tibetan Mewa ' + tibetan.mewa + ' (' + tibetan.mewaElement + ')', score: sc('Tibetan') });
+    // (ทิเบต Mewa — ตัดออก 1 ก.ย. 69 · แฝดของดาวเก้าดวง)
     if (nativeAmerican.element === dmEl || SHENG[ELEM_EL_MAP[nativeAmerican.element] ?? ''] === dmElEn)
         elVotes.push({ system: 'Native American ' + nativeAmerican.birthTotemTh, score: sc('Native') });
     // High-scoring systems that support the DM element path

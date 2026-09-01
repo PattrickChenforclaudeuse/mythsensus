@@ -145,8 +145,11 @@ for (const d of CHARTS) {
   //    หน้าของศาสตร์ตัวเองอยู่แล้ว ค้นทั้งไฟล์จะแดงตลอดโดยไม่เกี่ยวกับการนับเสียง
   const _consIdx = Math.max(html.indexOf('ELEMENT CONSENSUS'), html.indexOf('ฉันทามติธาตุ'));
   const consensusBox = _consIdx < 0 ? '' : html.slice(_consIdx, _consIdx + 900);
+  // เพิ่ม BaZi↔Saju และ NSK↔Tibetan 1 ก.ย. 69 — พิสูจน์แล้วใน system-audit ว่าเป็นแฝด
+  // (หน้า 1 ของเล่มที่ขายจริงเคยนับ 6 เสียงจาก 4 สาย จีนสองเสียง ญี่ปุ่นสองเสียง)
   [['BaZi Day Master', 'BaZi Dominant'], ['Tibetan Mewa', 'Tibetan Parkha'],
-   ['Celtic Tree', 'Ogham']].forEach(pair => {
+   ['Celtic Tree', 'Ogham'], ['BaZi Day Master', 'Saju'],
+   ['Nine Star Ki', 'Tibetan Mewa']].forEach(pair => {
     if (consensusBox.includes(pair[0]) && consensusBox.includes(pair[1])) {
       fail(id, 'element consensus counts "' + pair[0] + '" and "' + pair[1] + '" as two separate traditions');
     }
