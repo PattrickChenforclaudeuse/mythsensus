@@ -729,7 +729,7 @@ function p02_scoreBreakdown(c) {
 // So 26 readings rest on 22 independent computations, and an axis counts the
 // LINEAGE once. Saying "6 of 7 agree" when two of the seven are the same
 // calculation twice is the thing that made the old consensus unbelievable.
-// ── หน้าฉันทามติรายแกน · 24 ศาสตร์อ่านคนละที่มา แล้วเทียบกัน ────────────────
+// ── หน้าฉันทามติรายแกน · ทุกศาสตร์ที่ติดชั้นแกน อ่านคนละที่มา แล้วเทียบกัน ────────────────
 //
 // ทำไมต้องมีหน้านี้ทั้งที่มี p_consensusAxes อยู่แล้ว:
 //   p_consensusAxes ตอบสามคำถามที่ **มีแค่สี่สายตอบได้** (ธาตุ · จังหวะ · ทิศทาง)
@@ -951,6 +951,7 @@ function p_traitConsensus(c) {
     const thin = prof.filter(r => r.voices < _TRAIT_MIN_VOICES);
     // prof เรียงตาม |z| มาจากเอนจินแล้ว — ของที่ห่างจากคนทั่วไปที่สุดขึ้นก่อน
     const top = solid.filter(r => r.band !== 'mid').slice(0, 3);
+    const _nSys = Number(c.traitSystemCount) || 0;
     const _vmin = Math.min(...prof.map(r => r.voices));
     const _vmax = Math.max(...prof.map(r => r.voices));
     // แผนภูมิแท่ง — **ความยาว = ห่างจากคนทั่วไปแค่ไหน** ไม่ใช่คะแนนดิบ
@@ -1023,8 +1024,8 @@ function p_traitConsensus(c) {
     const headline = top.length
         ? tr(`แกนที่คุณห่างจากคนทั่วไปมากที่สุดคือ${esc(top[0].labelTh)} — ${top[0].pct > 50 ? 'มากกว่า' : 'น้อยกว่า'}คนทั่วไป ${top[0].pct > 50 ? top[0].pct : 100 - top[0].pct}% จาก ${top[0].voices} สายที่พูดถึงแกนนี้`, `The axis that puts you furthest from the middle: ${esc(top[0].labelEn)} — ${top[0].pct > 50 ? 'above' : 'below'} ${top[0].pct > 50 ? top[0].pct : 100 - top[0].pct}% of people, out of ${top[0].voices} lineages that speak to it`)
         : tr('ไม่มีแกนไหนที่คุณห่างจากคนทั่วไปพอจะฟันธง — ตัวนี้เองก็เป็นคำตอบ', 'No axis puts you far enough from the middle to call — which is itself an answer');
-    return section(0, tr('24 ศาสตร์เห็นตรงกันว่าอย่างไร', 'Where 24 traditions converge'), '🧭', `
-    <div style="font-size:11.5px;color:#c0b0a0;line-height:1.8;margin-bottom:4px">${tr(`แต่ละสายอ่านคุณจากคนละที่มา — BaZi อ่านจากก้านวัน ทักษาอ่านจากเจ้าวัน มายาอ่านจากวันสัญลักษณ์ · เราแปลคำบรรยายของ 24 ศาสตร์ลงแกนเดียวกัน ${prof.length} แกน แล้วเทียบกับดวงอื่นสามพันดวง เพราะตำราแทบทุกสายบรรยายคนในทางบวก ค่ากลางจึงไม่ใช่ศูนย์ · แต่ละแกนมีศาสตร์พูดถึงไม่เท่ากัน ในดวงนี้ ${_vmin}-${_vmax} สาย`, `Each lineage reads you from a different starting point — BaZi from the day stem, Taksa from the day lord, the Maya from the day sign. We map what 24 traditions say onto the same ${prof.length} axes, then compare against three thousand other charts, because almost every tradition describes people favourably and the middle is not zero. Not every axis draws the same number of voices — in this chart, ${_vmin} to ${_vmax}.`)}</div>
+    return section(0, tr(`${_nSys} ศาสตร์เห็นตรงกันว่าอย่างไร`, `Where ${_nSys} traditions converge`), '🧭', `
+    <div style="font-size:11.5px;color:#c0b0a0;line-height:1.8;margin-bottom:4px">${tr(`แต่ละสายอ่านคุณจากคนละที่มา — BaZi อ่านจากก้านวัน ทักษาอ่านจากเจ้าวัน มายาอ่านจากวันสัญลักษณ์ · เราแปลคำบรรยายของ ${_nSys} ศาสตร์ลงแกนเดียวกัน ${prof.length} แกน แล้วเทียบกับดวงอื่นสามพันดวง เพราะตำราแทบทุกสายบรรยายคนในทางบวก ค่ากลางจึงไม่ใช่ศูนย์ · แต่ละแกนมีศาสตร์พูดถึงไม่เท่ากัน ในดวงนี้ ${_vmin}-${_vmax} สาย`, `Each lineage reads you from a different starting point — BaZi from the day stem, Taksa from the day lord, the Maya from the day sign. We map what ${_nSys} traditions say onto the same ${prof.length} axes, then compare against three thousand other charts, because almost every tradition describes people favourably and the middle is not zero. Not every axis draws the same number of voices — in this chart, ${_vmin} to ${_vmax}.`)}</div>
     <div style="font-size:13px;color:#e8c87a;line-height:1.7;margin:12px 0 14px;padding:10px 12px;background:#0f0d15;border-left:2px solid #c8a45a;border-radius:0 8px 8px 0">${headline}</div>
 
     <div style="font-size:9.5px;color:#5f6f85;line-height:1.7;margin:2px 0 12px">${tr('ยิ่งแท่งยาว ยิ่งแปลว่าคุณห่างจากคนทั่วไปในเรื่องนั้นมาก · แท่งสั้นไม่ได้แปลว่าไม่สำคัญ แปลว่าคุณอยู่ใกล้ตรงกลาง', 'The longer the bar, the further this puts you from the middle. A short bar does not mean unimportant — it means you sit near the middle.')}</div>
@@ -3329,7 +3330,7 @@ function generateReport(c) {
         // ทุกศาสตร์พูดของตัวเองหนึ่งบรรทัด ก่อนเข้าบล็อกพยากรณ์
         // ⛔ ห้ามย้ายไปท้ายเล่ม — เหตุผลที่มันอยู่ตรงนี้อยู่ในคอมเมนต์ของ p_allVoices
         p_allVoices,
-        p_traitConsensus, // 24 ศาสตร์แปลงลงแกนเดียวกันแล้วเทียบประชากร
+        p_traitConsensus, // ทุกศาสตร์ที่ติดชั้นแกน แปลงลงแกนเดียวกันแล้วเทียบประชากร
         p_yearGrid, // 12 เดือนข้างหน้า × 8 ด้าน (นับจากวันนี้)
         p17_weekly, // จังหวะ 7 วัน
         p23_forecast10yr, // 10 ปี

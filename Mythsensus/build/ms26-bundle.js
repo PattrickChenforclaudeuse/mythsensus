@@ -5163,6 +5163,36 @@ const _TR_CELTIC = {
     Reed: { expression: +2, focus: +1, social: +1, instinct: +1 },
     Elder: { change: +2, root: +2, structure: -1, pace: +1 },
 };
+// ── โอแฮม · Bríatharogam (คำนิยามประจำตัวอักษร) ────────────────────────────
+//
+// ⛔ อย่าใช้ความหมายของ "ต้นไม้" — เซลติกใช้อยู่แล้ว และโอแฮมเดินดัชนีเดียวกัน
+//    ⇒ ถ้าอ่านต้นไม้เหมือนกัน มันคือเสียงสะท้อน ไม่ใช่อีกเสียง
+//
+// ชั้นที่เป็นของโอแฮมเองคือ **Bríatharogam** — กลอนนิยามสองคำที่ตำราไอริชโบราณ
+// ใช้อธิบายว่าตัวอักษรแต่ละตัวหมายถึงอะไร (ในที่นี้ใช้สาย Morainn mac Moín)
+// คนละชุดกับสัญลักษณ์ของต้นไม้จริงๆ เช่น ᚈ Tinne ต้นฮอลลี่ = "ต้นนักรบ" ในสายเซลติก
+// แต่ Bríatharogam นิยามว่า "หนึ่งในสามส่วนของล้อ" = ชิ้นส่วนที่ทำให้ของทั้งชิ้นหมุนได้
+//
+// ⚠️ ตำราไม่ได้เขียนไว้ว่าเป็นวิชาอ่านนิสัยคน (เหมือนกรณีโซโรอัสเตอร์) —
+//    ค่าที่ใส่มาจาก **ความหมายตรงตัวของกลอนนิยาม** ไม่ใช่คำบรรยายบุคลิกที่ตำราให้
+//    ⇒ ลงเฉพาะแกนที่กลอนบอกทิศทางได้ตรงๆ ที่เหลือเว้นว่าง
+// ที่มาของกลอน: Auraicept na nÉces / In Lebor Ogaim — ตรวจกับตัวบท 1 ก.ย. 69
+const _TR_OGHAM = {
+    // ชื่อคีย์ = ชื่อไอริชที่ตาราง OGHAM ของเอนจินคายออกมา
+    'Beith': { root: +1, expression: +1 }, // féochos foltchain — ตีนแห้งแต่ผมละเอียด: ข้างบนประณีตกว่าฐานที่ตั้งอยู่
+    'Luis': { expression: +2, instinct: +1 }, // lí súla — ประกายของดวงตา: เป็นสิ่งที่ถูกมองเห็น
+    'Nion': { social: +2, structure: +1, change: -1 }, // costud síde — การสถาปนาความสงบ: จบเรื่องให้คนอื่นได้
+    'Fearn': { initiative: +2, risk: +2, pace: +1 }, // airenach fían — แนวหน้าของกองรบ: เข้าก่อนคนอื่น
+    'Sail': { expression: -2, social: -1, pace: -1 }, // lí ambi — สีหน้าของผู้ไร้ชีวิต: ถอนตัวและเงียบ
+    'Uath': { risk: +2, social: +1, structure: -1 }, // condál cúan — ฝูงหมาล่าเนื้อที่รวมตัว: อันตรายที่มากับหมู่
+    'Duir': { structure: +2, focus: +2, change: -2 }, // ardam dosae — ต้นที่สูงที่สุด: ยืนอยู่เหนือและไม่ขยับ
+    'Tinne': { structure: +2, social: +1, initiative: -1 }, // trian roith — หนึ่งในสามส่วนของล้อ: เป็นชิ้นส่วนที่ทำให้ของทั้งชิ้นหมุน
+    'Coll': { focus: +2, expression: +1 }, // caíniu fedaib — ต้นที่งามที่สุด: ถูกเลือกเพราะคุณภาพ
+    'Muin': { focus: +2, initiative: +1, pace: -1 }, // tressam fedmae — แข็งแรงที่สุดในการออกแรง: ทนยาว
+    'Gort': { social: +2, risk: -1 }, // milsiu féraib — หญ้าที่หวานที่สุด: เป็นของที่คนอื่นเข้ามาหา
+    'nGetal': { instinct: +1, focus: +1, social: +1 }, // lúth lego — กำลังของหมอ: หน้าที่คือทำให้คนอื่นกลับมาไหว
+    'Ruis': { expression: +2, instinct: +2 }, // tindem rucci — การหน้าแดงที่เข้มที่สุด: อารมณ์ขึ้นหน้าก่อนคำพูด
+};
 // ── รูนนอร์ส · 24 รูน ───────────────────────────────────────────────────────
 // ที่มา: ความหมายประจำรูนใน Elder Futhark (ตามบทกวีรูนนอร์สและไอซ์แลนด์)
 const _TR_RUNE = {
@@ -5333,11 +5363,12 @@ const _TR_SAJU = {
 // 🔄 **เติมศาสตร์ใหม่หรือแก้ตารางเมื่อไหร่ ต้องวัดใหม่แล้วเขียนทับตรงนี้**
 // ชุดนี้วัด 1 ก.ย. 69 หลังพบว่าตารางชื่อศาสตร์มี 17 ขณะที่ติด traits ไป 24
 // ⇒ ชุดก่อนหน้าเป็นค่ากลางของ 17 ศาสตร์ ค่ากลางขยับขึ้นสูงสุด 2.96 เมื่อครบ 24
+// วัดใหม่อีกรอบเมื่อต่อโอแฮมเข้ามาเป็นตัวที่ 25 (เลื่อนอีก 0.54)
 //    ด่าน traits จะจับได้เองถ้าค่าที่ตรึงไว้เลื่อนจากของจริง
 const _TRAIT_BASELINE = {
-    pace: [-3.09, 5.41], initiative: [4.97, 4.76], social: [9.97, 4.88],
-    instinct: [6.58, 4.68], expression: [4.50, 5.79], change: [2.63, 4.45],
-    risk: [1.39, 4.02], root: [0.61, 3.23], structure: [6.99, 5.05], focus: [7.63, 4.22],
+    pace: [-3.18, 5.55], initiative: [5.12, 4.85], social: [10.43, 5.00],
+    instinct: [6.89, 4.75], expression: [4.81, 5.90], change: [2.39, 4.58],
+    risk: [1.59, 4.21], root: [0.69, 3.23], structure: [7.30, 5.21], focus: [8.17, 4.46],
 };
 // ชื่อศาสตร์ไว้บอกว่าใครโหวตฝั่งไหน
 const _TR_SYS_TH = {
@@ -5347,7 +5378,7 @@ const _TR_SYS_TH = {
     humandesign: 'ระบบประเภทพลังงาน', celtic: 'เซลติก', norseRune: 'รูนนอร์ส',
     nativeAmerican: 'โทเท็มอเมริกัน', ifaYoruba: 'อิฟา', ziwei: 'จื่อเวย', taksa: 'ทักษา',
     vedic: 'ภารตะ', mayan: 'มายัน', zoroastrian: 'โซโรอัสเตอร์', tibetan: 'ทิเบต',
-    arabicParts: 'Arabic Parts', aztec: 'แอซเท็ก', thaiSeven: 'เลข ๗ ตัว ๙ ฐาน',
+    arabicParts: 'Arabic Parts', aztec: 'แอซเท็ก', thaiSeven: 'เลข ๗ ตัว ๙ ฐาน', ogham: 'โอแฮม',
 };
 const _TR_SYS_EN = {
     bazi: 'BaZi', saju: 'Saju', ninestar: 'Nine Star Ki', western: 'Western',
@@ -5356,7 +5387,7 @@ const _TR_SYS_EN = {
     humandesign: 'Energy Type System', celtic: 'Celtic', norseRune: 'Norse Rune',
     nativeAmerican: 'Native American', ifaYoruba: 'Ifá', ziwei: 'Zi Wei', taksa: 'Taksa',
     vedic: 'Vedic', mayan: 'Mayan', zoroastrian: 'Zoroastrian', tibetan: 'Tibetan',
-    arabicParts: 'Arabic Parts', aztec: 'Aztec', thaiSeven: 'Thai Seven-Base',
+    arabicParts: 'Arabic Parts', aztec: 'Aztec', thaiSeven: 'Thai Seven-Base', ogham: 'Ogham',
 };
 function _buildTraitProfile(c) {
     // ⛔ เคยหล่นมาแล้ว 1 ก.ย. 69: ติด traits ให้ 24 ศาสตร์ แต่ตารางชื่อมี 17
@@ -5467,6 +5498,11 @@ function _attachTraits(c) {
             c.thaiSeven = c.thaiSeven || { bases: t7, base4: t7[3] };
             put('thaiSeven', _TR_THAI7[t7[3]], `ฐานที่ 4 เป็นเลข ${t7[3]} — ตำราไทยเรียกฐานนี้ว่าแกนพลังปัจจุบัน`, `Base 4 holds ${t7[3]} — Thai doctrine calls this base the current core of a life`);
         }
+    }
+    {
+        // ⛔ ต้องอ่านจากชื่อไอริช (ตัวอักษร) ไม่ใช่ชื่อต้นไม้ — ชื่อต้นเป็นของเซลติก
+        const _ogIrish = c.ogham?.irish;
+        put('ogham', _TR_OGHAM[String(_ogIrish)], `กลอนนิยาม Bríatharogam ของตัว ${c.ogham?.ogham} (${_ogIrish}) — คำนิยามประจำตัวอักษร ไม่ใช่ความหมายของต้นไม้ซึ่งเซลติกอ่านไปแล้ว`, `The Bríatharogam kenning for ${c.ogham?.ogham} (${_ogIrish}) — how the old Irish texts define the letter, not what the tree means, which Celtic already read`);
     }
     put('vedic', _TR_NAKSHATRA[String(c.vedic?.moonNakshatra)], `นักษัตร ${c.vedic?.moonNakshatra} — คุณสมบัติประจำนักษัตรในชโยติษ`, `Nakshatra ${c.vedic?.moonNakshatra} — the qualities Jyotish gives this asterism`);
     {
@@ -5604,6 +5640,10 @@ function calculate(d) {
     _attachTraits(_out);
     // ผลรวมรายแกนเทียบประชากร — ทุกแท็บอ่านจาก chart.traitProfile ได้เลย
     _out.traitProfile = _buildTraitProfile(_out);
+    // ⛔ ห้ามฝังจำนวนศาสตร์เป็นเลขดิบในหน้ารายงาน — เคยค้างมาแล้วสองรอบ
+    //    ("7-10 ศาสตร์" ค้างข้ามยุค · "24 ศาสตร์" ค้างทันทีที่ต่อโอแฮมเป็นตัวที่ 25)
+    //    ให้อ่านจากตัวนี้เสมอ มันนับจากศาสตร์ที่ติดชั้นแกนไว้จริง
+    _out.traitSystemCount = Object.keys(_out).filter((k) => _out[k]?.traits).length;
     return _out;
 }
 
@@ -8547,6 +8587,8 @@ function calcOgham(d) {
     const score = Math.max(430, Math.min(940, og.score));
     const oghamResult = {
         ogham: og.o, treeName: og.tree, treeNameTh: og.th,
+        // ชื่อไอริชของตัวอักษร — ชั้น Bríatharogam อ่านจากตัวนี้ ไม่ใช่จากชื่อต้นไม้
+        irish: og.irish,
         oghamClass: _reportLang === 'en' ? (OGHAM_CLS_EN[og.cls] || og.cls) : og.cls,
         element: pEl(og.el),
         score,
@@ -10542,7 +10584,7 @@ function p02_scoreBreakdown(c) {
 // So 26 readings rest on 22 independent computations, and an axis counts the
 // LINEAGE once. Saying "6 of 7 agree" when two of the seven are the same
 // calculation twice is the thing that made the old consensus unbelievable.
-// ── หน้าฉันทามติรายแกน · 24 ศาสตร์อ่านคนละที่มา แล้วเทียบกัน ────────────────
+// ── หน้าฉันทามติรายแกน · ทุกศาสตร์ที่ติดชั้นแกน อ่านคนละที่มา แล้วเทียบกัน ────────────────
 //
 // ทำไมต้องมีหน้านี้ทั้งที่มี p_consensusAxes อยู่แล้ว:
 //   p_consensusAxes ตอบสามคำถามที่ **มีแค่สี่สายตอบได้** (ธาตุ · จังหวะ · ทิศทาง)
@@ -10764,6 +10806,7 @@ function p_traitConsensus(c) {
     const thin = prof.filter(r => r.voices < _TRAIT_MIN_VOICES);
     // prof เรียงตาม |z| มาจากเอนจินแล้ว — ของที่ห่างจากคนทั่วไปที่สุดขึ้นก่อน
     const top = solid.filter(r => r.band !== 'mid').slice(0, 3);
+    const _nSys = Number(c.traitSystemCount) || 0;
     const _vmin = Math.min(...prof.map(r => r.voices));
     const _vmax = Math.max(...prof.map(r => r.voices));
     // แผนภูมิแท่ง — **ความยาว = ห่างจากคนทั่วไปแค่ไหน** ไม่ใช่คะแนนดิบ
@@ -10836,8 +10879,8 @@ function p_traitConsensus(c) {
     const headline = top.length
         ? tr(`แกนที่คุณห่างจากคนทั่วไปมากที่สุดคือ${esc(top[0].labelTh)} — ${top[0].pct > 50 ? 'มากกว่า' : 'น้อยกว่า'}คนทั่วไป ${top[0].pct > 50 ? top[0].pct : 100 - top[0].pct}% จาก ${top[0].voices} สายที่พูดถึงแกนนี้`, `The axis that puts you furthest from the middle: ${esc(top[0].labelEn)} — ${top[0].pct > 50 ? 'above' : 'below'} ${top[0].pct > 50 ? top[0].pct : 100 - top[0].pct}% of people, out of ${top[0].voices} lineages that speak to it`)
         : tr('ไม่มีแกนไหนที่คุณห่างจากคนทั่วไปพอจะฟันธง — ตัวนี้เองก็เป็นคำตอบ', 'No axis puts you far enough from the middle to call — which is itself an answer');
-    return section(0, tr('24 ศาสตร์เห็นตรงกันว่าอย่างไร', 'Where 24 traditions converge'), '🧭', `
-    <div style="font-size:11.5px;color:#c0b0a0;line-height:1.8;margin-bottom:4px">${tr(`แต่ละสายอ่านคุณจากคนละที่มา — BaZi อ่านจากก้านวัน ทักษาอ่านจากเจ้าวัน มายาอ่านจากวันสัญลักษณ์ · เราแปลคำบรรยายของ 24 ศาสตร์ลงแกนเดียวกัน ${prof.length} แกน แล้วเทียบกับดวงอื่นสามพันดวง เพราะตำราแทบทุกสายบรรยายคนในทางบวก ค่ากลางจึงไม่ใช่ศูนย์ · แต่ละแกนมีศาสตร์พูดถึงไม่เท่ากัน ในดวงนี้ ${_vmin}-${_vmax} สาย`, `Each lineage reads you from a different starting point — BaZi from the day stem, Taksa from the day lord, the Maya from the day sign. We map what 24 traditions say onto the same ${prof.length} axes, then compare against three thousand other charts, because almost every tradition describes people favourably and the middle is not zero. Not every axis draws the same number of voices — in this chart, ${_vmin} to ${_vmax}.`)}</div>
+    return section(0, tr(`${_nSys} ศาสตร์เห็นตรงกันว่าอย่างไร`, `Where ${_nSys} traditions converge`), '🧭', `
+    <div style="font-size:11.5px;color:#c0b0a0;line-height:1.8;margin-bottom:4px">${tr(`แต่ละสายอ่านคุณจากคนละที่มา — BaZi อ่านจากก้านวัน ทักษาอ่านจากเจ้าวัน มายาอ่านจากวันสัญลักษณ์ · เราแปลคำบรรยายของ ${_nSys} ศาสตร์ลงแกนเดียวกัน ${prof.length} แกน แล้วเทียบกับดวงอื่นสามพันดวง เพราะตำราแทบทุกสายบรรยายคนในทางบวก ค่ากลางจึงไม่ใช่ศูนย์ · แต่ละแกนมีศาสตร์พูดถึงไม่เท่ากัน ในดวงนี้ ${_vmin}-${_vmax} สาย`, `Each lineage reads you from a different starting point — BaZi from the day stem, Taksa from the day lord, the Maya from the day sign. We map what ${_nSys} traditions say onto the same ${prof.length} axes, then compare against three thousand other charts, because almost every tradition describes people favourably and the middle is not zero. Not every axis draws the same number of voices — in this chart, ${_vmin} to ${_vmax}.`)}</div>
     <div style="font-size:13px;color:#e8c87a;line-height:1.7;margin:12px 0 14px;padding:10px 12px;background:#0f0d15;border-left:2px solid #c8a45a;border-radius:0 8px 8px 0">${headline}</div>
 
     <div style="font-size:9.5px;color:#5f6f85;line-height:1.7;margin:2px 0 12px">${tr('ยิ่งแท่งยาว ยิ่งแปลว่าคุณห่างจากคนทั่วไปในเรื่องนั้นมาก · แท่งสั้นไม่ได้แปลว่าไม่สำคัญ แปลว่าคุณอยู่ใกล้ตรงกลาง', 'The longer the bar, the further this puts you from the middle. A short bar does not mean unimportant — it means you sit near the middle.')}</div>
@@ -13142,7 +13185,7 @@ function generateReport(c) {
         // ทุกศาสตร์พูดของตัวเองหนึ่งบรรทัด ก่อนเข้าบล็อกพยากรณ์
         // ⛔ ห้ามย้ายไปท้ายเล่ม — เหตุผลที่มันอยู่ตรงนี้อยู่ในคอมเมนต์ของ p_allVoices
         p_allVoices,
-        p_traitConsensus, // 24 ศาสตร์แปลงลงแกนเดียวกันแล้วเทียบประชากร
+        p_traitConsensus, // ทุกศาสตร์ที่ติดชั้นแกน แปลงลงแกนเดียวกันแล้วเทียบประชากร
         p_yearGrid, // 12 เดือนข้างหน้า × 8 ด้าน (นับจากวันนี้)
         p17_weekly, // จังหวะ 7 วัน
         p23_forecast10yr, // 10 ปี

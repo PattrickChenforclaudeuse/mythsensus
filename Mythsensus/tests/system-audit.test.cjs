@@ -551,6 +551,37 @@ const line = '═'.repeat(70);
 console.log('\n' + line);
 console.log(' ไล่ตรวจ 26 ศาสตร์ · ดวงสุ่ม 10 ดวง (seed 20260831)');
 console.log(line);
+// ═══ ภารตะ · นวางศ์ (pada) เดินต่อเนื่อง ═══════════════════════════════════
+//
+// นักษัตรกว้าง 13°20' แบ่งเป็น 4 บาท (pada) บาทละ 3°20' ซึ่งคือนวางศ์ (D9)
+// จันทร์เดินราว 13.2°/วัน ⇒ ต้องข้ามบาทราวทุก 6 ชั่วโมง และต้องเดินหน้าอย่างเดียว
+// ถ้า pada ถอยหลัง หรือข้ามเลข หรือขึ้นนักษัตรใหม่โดยไม่ได้จบที่บาท 4 = คำนวณผิด
+//
+// ⛔ นี่คือด่านที่พิสูจน์ว่า "นวางศ์" ที่หน้าภารตะเอ่ยถึง คำนวณจริง ไม่ใช่คำโฆษณา
+//    (1 ก.ย. 69 เคยจดโน้ตไว้ว่าเอ่ยแต่ไม่ได้คำนวณ — ตรวจแล้วโน้ตนั้นผิด มันคำนวณอยู่
+//     แต่ตอนนั้นไม่มีอะไรพิสูจน์ว่าเดินถูก ⇒ ตรึงไว้ตรงนี้)
+{
+  let back = 0, jump = 0, outOfRange = 0, changes = 0;
+  let prev = null;
+  for (let h = 0; h < 72; h++) {
+    const t = new Date(Date.UTC(1991, 1, 3, 0, 0) + h * 3600e3);
+    const c = calculate({ name: 'x', gender: 'ชาย', year: t.getUTCFullYear(), month: t.getUTCMonth() + 1,
+                     day: t.getUTCDate(), hour: t.getUTCHours(), minute: 0,
+                     lat: 13.75, lon: 100.5, timezone: 0, lang: 'th' });
+    const n = c.vedic.moonNakshatra, p = Number(c.vedic.nakshathraPada);
+    if (!(p >= 1 && p <= 4)) outOfRange++;
+    if (prev) {
+      if (prev.n === n) { if (p < prev.p) back++; else if (p - prev.p > 1) jump++; else if (p !== prev.p) changes++; }
+      else { if (prev.p !== 4 || p !== 1) jump++; else changes++; }
+    }
+    prev = { n, p };
+  }
+  if (outOfRange) bad('ภารตะ/นวางศ์', `บาทออกนอกช่วง 1-4 จำนวน ${outOfRange} ครั้ง`);
+  else if (back || jump) bad('ภารตะ/นวางศ์', `บาทถอยหลัง ${back} · ข้ามเลข ${jump} ใน 72 ชม.`);
+  else if (changes < 8) bad('ภารตะ/นวางศ์', `72 ชม. ควรข้ามบาทราว 12 ครั้ง แต่ข้ามแค่ ${changes} — จันทร์อาจไม่ได้เดินจริง`);
+  else ok('ภารตะ/นวางศ์', `บาทเดินหน้าอย่างเดียว 1→2→3→4 แล้วขึ้นนักษัตรใหม่ที่บาท 1 · ข้าม ${changes} ครั้งใน 72 ชม. (จันทร์ 13.2°/วัน)`);
+}
+
 console.log('\n✅ พิสูจน์ด้วยการคำนวณซ้ำอิสระ / เทียบค่าอ้างอิง — ' + PROVEN.length + ' ข้อ');
 PROVEN.forEach(([s, w]) => console.log('   · ' + s.padEnd(22) + ' ' + w));
 if (SHAPE.length) {

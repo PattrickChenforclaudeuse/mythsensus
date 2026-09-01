@@ -5156,6 +5156,36 @@ const _TR_CELTIC = {
     Reed: { expression: +2, focus: +1, social: +1, instinct: +1 },
     Elder: { change: +2, root: +2, structure: -1, pace: +1 },
 };
+// ── โอแฮม · Bríatharogam (คำนิยามประจำตัวอักษร) ────────────────────────────
+//
+// ⛔ อย่าใช้ความหมายของ "ต้นไม้" — เซลติกใช้อยู่แล้ว และโอแฮมเดินดัชนีเดียวกัน
+//    ⇒ ถ้าอ่านต้นไม้เหมือนกัน มันคือเสียงสะท้อน ไม่ใช่อีกเสียง
+//
+// ชั้นที่เป็นของโอแฮมเองคือ **Bríatharogam** — กลอนนิยามสองคำที่ตำราไอริชโบราณ
+// ใช้อธิบายว่าตัวอักษรแต่ละตัวหมายถึงอะไร (ในที่นี้ใช้สาย Morainn mac Moín)
+// คนละชุดกับสัญลักษณ์ของต้นไม้จริงๆ เช่น ᚈ Tinne ต้นฮอลลี่ = "ต้นนักรบ" ในสายเซลติก
+// แต่ Bríatharogam นิยามว่า "หนึ่งในสามส่วนของล้อ" = ชิ้นส่วนที่ทำให้ของทั้งชิ้นหมุนได้
+//
+// ⚠️ ตำราไม่ได้เขียนไว้ว่าเป็นวิชาอ่านนิสัยคน (เหมือนกรณีโซโรอัสเตอร์) —
+//    ค่าที่ใส่มาจาก **ความหมายตรงตัวของกลอนนิยาม** ไม่ใช่คำบรรยายบุคลิกที่ตำราให้
+//    ⇒ ลงเฉพาะแกนที่กลอนบอกทิศทางได้ตรงๆ ที่เหลือเว้นว่าง
+// ที่มาของกลอน: Auraicept na nÉces / In Lebor Ogaim — ตรวจกับตัวบท 1 ก.ย. 69
+const _TR_OGHAM = {
+    // ชื่อคีย์ = ชื่อไอริชที่ตาราง OGHAM ของเอนจินคายออกมา
+    'Beith': { root: +1, expression: +1 }, // féochos foltchain — ตีนแห้งแต่ผมละเอียด: ข้างบนประณีตกว่าฐานที่ตั้งอยู่
+    'Luis': { expression: +2, instinct: +1 }, // lí súla — ประกายของดวงตา: เป็นสิ่งที่ถูกมองเห็น
+    'Nion': { social: +2, structure: +1, change: -1 }, // costud síde — การสถาปนาความสงบ: จบเรื่องให้คนอื่นได้
+    'Fearn': { initiative: +2, risk: +2, pace: +1 }, // airenach fían — แนวหน้าของกองรบ: เข้าก่อนคนอื่น
+    'Sail': { expression: -2, social: -1, pace: -1 }, // lí ambi — สีหน้าของผู้ไร้ชีวิต: ถอนตัวและเงียบ
+    'Uath': { risk: +2, social: +1, structure: -1 }, // condál cúan — ฝูงหมาล่าเนื้อที่รวมตัว: อันตรายที่มากับหมู่
+    'Duir': { structure: +2, focus: +2, change: -2 }, // ardam dosae — ต้นที่สูงที่สุด: ยืนอยู่เหนือและไม่ขยับ
+    'Tinne': { structure: +2, social: +1, initiative: -1 }, // trian roith — หนึ่งในสามส่วนของล้อ: เป็นชิ้นส่วนที่ทำให้ของทั้งชิ้นหมุน
+    'Coll': { focus: +2, expression: +1 }, // caíniu fedaib — ต้นที่งามที่สุด: ถูกเลือกเพราะคุณภาพ
+    'Muin': { focus: +2, initiative: +1, pace: -1 }, // tressam fedmae — แข็งแรงที่สุดในการออกแรง: ทนยาว
+    'Gort': { social: +2, risk: -1 }, // milsiu féraib — หญ้าที่หวานที่สุด: เป็นของที่คนอื่นเข้ามาหา
+    'nGetal': { instinct: +1, focus: +1, social: +1 }, // lúth lego — กำลังของหมอ: หน้าที่คือทำให้คนอื่นกลับมาไหว
+    'Ruis': { expression: +2, instinct: +2 }, // tindem rucci — การหน้าแดงที่เข้มที่สุด: อารมณ์ขึ้นหน้าก่อนคำพูด
+};
 // ── รูนนอร์ส · 24 รูน ───────────────────────────────────────────────────────
 // ที่มา: ความหมายประจำรูนใน Elder Futhark (ตามบทกวีรูนนอร์สและไอซ์แลนด์)
 const _TR_RUNE = {
@@ -5326,11 +5356,12 @@ const _TR_SAJU = {
 // 🔄 **เติมศาสตร์ใหม่หรือแก้ตารางเมื่อไหร่ ต้องวัดใหม่แล้วเขียนทับตรงนี้**
 // ชุดนี้วัด 1 ก.ย. 69 หลังพบว่าตารางชื่อศาสตร์มี 17 ขณะที่ติด traits ไป 24
 // ⇒ ชุดก่อนหน้าเป็นค่ากลางของ 17 ศาสตร์ ค่ากลางขยับขึ้นสูงสุด 2.96 เมื่อครบ 24
+// วัดใหม่อีกรอบเมื่อต่อโอแฮมเข้ามาเป็นตัวที่ 25 (เลื่อนอีก 0.54)
 //    ด่าน traits จะจับได้เองถ้าค่าที่ตรึงไว้เลื่อนจากของจริง
 const _TRAIT_BASELINE = {
-    pace: [-3.09, 5.41], initiative: [4.97, 4.76], social: [9.97, 4.88],
-    instinct: [6.58, 4.68], expression: [4.50, 5.79], change: [2.63, 4.45],
-    risk: [1.39, 4.02], root: [0.61, 3.23], structure: [6.99, 5.05], focus: [7.63, 4.22],
+    pace: [-3.18, 5.55], initiative: [5.12, 4.85], social: [10.43, 5.00],
+    instinct: [6.89, 4.75], expression: [4.81, 5.90], change: [2.39, 4.58],
+    risk: [1.59, 4.21], root: [0.69, 3.23], structure: [7.30, 5.21], focus: [8.17, 4.46],
 };
 // ชื่อศาสตร์ไว้บอกว่าใครโหวตฝั่งไหน
 const _TR_SYS_TH = {
@@ -5340,7 +5371,7 @@ const _TR_SYS_TH = {
     humandesign: 'ระบบประเภทพลังงาน', celtic: 'เซลติก', norseRune: 'รูนนอร์ส',
     nativeAmerican: 'โทเท็มอเมริกัน', ifaYoruba: 'อิฟา', ziwei: 'จื่อเวย', taksa: 'ทักษา',
     vedic: 'ภารตะ', mayan: 'มายัน', zoroastrian: 'โซโรอัสเตอร์', tibetan: 'ทิเบต',
-    arabicParts: 'Arabic Parts', aztec: 'แอซเท็ก', thaiSeven: 'เลข ๗ ตัว ๙ ฐาน',
+    arabicParts: 'Arabic Parts', aztec: 'แอซเท็ก', thaiSeven: 'เลข ๗ ตัว ๙ ฐาน', ogham: 'โอแฮม',
 };
 const _TR_SYS_EN = {
     bazi: 'BaZi', saju: 'Saju', ninestar: 'Nine Star Ki', western: 'Western',
@@ -5349,7 +5380,7 @@ const _TR_SYS_EN = {
     humandesign: 'Energy Type System', celtic: 'Celtic', norseRune: 'Norse Rune',
     nativeAmerican: 'Native American', ifaYoruba: 'Ifá', ziwei: 'Zi Wei', taksa: 'Taksa',
     vedic: 'Vedic', mayan: 'Mayan', zoroastrian: 'Zoroastrian', tibetan: 'Tibetan',
-    arabicParts: 'Arabic Parts', aztec: 'Aztec', thaiSeven: 'Thai Seven-Base',
+    arabicParts: 'Arabic Parts', aztec: 'Aztec', thaiSeven: 'Thai Seven-Base', ogham: 'Ogham',
 };
 function _buildTraitProfile(c) {
     // ⛔ เคยหล่นมาแล้ว 1 ก.ย. 69: ติด traits ให้ 24 ศาสตร์ แต่ตารางชื่อมี 17
@@ -5460,6 +5491,11 @@ function _attachTraits(c) {
             c.thaiSeven = c.thaiSeven || { bases: t7, base4: t7[3] };
             put('thaiSeven', _TR_THAI7[t7[3]], `ฐานที่ 4 เป็นเลข ${t7[3]} — ตำราไทยเรียกฐานนี้ว่าแกนพลังปัจจุบัน`, `Base 4 holds ${t7[3]} — Thai doctrine calls this base the current core of a life`);
         }
+    }
+    {
+        // ⛔ ต้องอ่านจากชื่อไอริช (ตัวอักษร) ไม่ใช่ชื่อต้นไม้ — ชื่อต้นเป็นของเซลติก
+        const _ogIrish = c.ogham?.irish;
+        put('ogham', _TR_OGHAM[String(_ogIrish)], `กลอนนิยาม Bríatharogam ของตัว ${c.ogham?.ogham} (${_ogIrish}) — คำนิยามประจำตัวอักษร ไม่ใช่ความหมายของต้นไม้ซึ่งเซลติกอ่านไปแล้ว`, `The Bríatharogam kenning for ${c.ogham?.ogham} (${_ogIrish}) — how the old Irish texts define the letter, not what the tree means, which Celtic already read`);
     }
     put('vedic', _TR_NAKSHATRA[String(c.vedic?.moonNakshatra)], `นักษัตร ${c.vedic?.moonNakshatra} — คุณสมบัติประจำนักษัตรในชโยติษ`, `Nakshatra ${c.vedic?.moonNakshatra} — the qualities Jyotish gives this asterism`);
     {
@@ -5597,6 +5633,10 @@ function calculate(d) {
     _attachTraits(_out);
     // ผลรวมรายแกนเทียบประชากร — ทุกแท็บอ่านจาก chart.traitProfile ได้เลย
     _out.traitProfile = _buildTraitProfile(_out);
+    // ⛔ ห้ามฝังจำนวนศาสตร์เป็นเลขดิบในหน้ารายงาน — เคยค้างมาแล้วสองรอบ
+    //    ("7-10 ศาสตร์" ค้างข้ามยุค · "24 ศาสตร์" ค้างทันทีที่ต่อโอแฮมเป็นตัวที่ 25)
+    //    ให้อ่านจากตัวนี้เสมอ มันนับจากศาสตร์ที่ติดชั้นแกนไว้จริง
+    _out.traitSystemCount = Object.keys(_out).filter((k) => _out[k]?.traits).length;
     return _out;
 }
 exports.calculate = calculate;
@@ -8540,6 +8580,8 @@ function calcOgham(d) {
     const score = Math.max(430, Math.min(940, og.score));
     const oghamResult = {
         ogham: og.o, treeName: og.tree, treeNameTh: og.th,
+        // ชื่อไอริชของตัวอักษร — ชั้น Bríatharogam อ่านจากตัวนี้ ไม่ใช่จากชื่อต้นไม้
+        irish: og.irish,
         oghamClass: _reportLang === 'en' ? (OGHAM_CLS_EN[og.cls] || og.cls) : og.cls,
         element: pEl(og.el),
         score,
