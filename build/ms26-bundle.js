@@ -9668,6 +9668,60 @@ function p_secondarySystems2(c) {
     const half = Math.ceil(cards.length / 2);
     return section(0, tr('16 ศาสตร์เพิ่มเติม — มองในหน้าเดียว (2/2)', '16 More Systems — At a Glance (2/2)'), '🌐', _secondaryGrid(cards.slice(half)));
 }
+// ═══════════════════════════════════════════════════════════════════════════
+//  ทั้ง 26 ศาสตร์พูดว่าอะไร — หน้าเดียว บรรทัดละศาสตร์
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// director 1 ก.ย. 69: "เราขาย 26 ศาสตร์ แต่ตัวแรกๆ เราพูดแค่ 3-5 ศาสตร์เอง"
+//
+// วัดแล้วเขาถูก · หน้าแรกๆ ถามคำถามที่มีแค่ 4 สายตอบได้ (ธาตุ · จังหวะ · ปีนี้)
+// ส่วนอีก 21 ศาสตร์ไม่ได้พูดอะไรเกี่ยวกับคนอ่านเลยจนถึงหน้าของตัวเองในบล็อกหลักฐาน
+// และ `p02_scoreBreakdown` ที่เอ่ยครบ 26 ให้แค่ **ตัวเลข** ไม่ใช่คำพูด
+//
+// ⛔ หน้านี้ไม่ใช่ตารางคะแนน และห้ามทำให้กลายเป็นตารางคะแนน — คะแนนมีที่ของมันแล้ว
+// ⛔ ห้ามยาวเกินหนึ่งหน้า · นี่คือสารบัญของเสียง ไม่ใช่คำอ่าน คำอ่านอยู่บล็อกหลักฐาน
+function p_allVoices(c) {
+    const V = (name, icon, says, note) => ({ name, icon, says, note });
+    const rows = [
+        V('BaZi', '☯️', `${c.bazi.dayMaster}${c.bazi.dayBranch}`, tr(`ธาตุประจำตัว ${c.bazi.dayMasterElement}`, `day-master element ${c.bazi.dayMasterElement}`)),
+        V(tr('ดาวเก้าดวง', 'Nine Star Ki'), '⭐', `${c.ninestar.star} ${c.ninestar.starName}`, tr(`ธาตุ${c.ninestar.starElement}`, `${c.ninestar.starElement}`)),
+        V(tr('โหราศาสตร์ตะวันตก', 'Western'), '♒', trDF(c.western.sunSignTh), tr(`จันทร์ ${trDF(c.western.moonSignTh)} · ลัคนา ${trDF(c.western.ascSignTh || c.western.ascSign)}`, `Moon ${c.western.moonSign} · ASC ${c.western.ascSign}`)),
+        V(tr('โหราศาสตร์ภารตะ', 'Vedic'), '🕉️', `${c.vedic.moonNakshatra}`, tr(`ลัคนา${trDF(c.vedic.lagnaSign)} · เจ้านักษัตร ${c.vedic.nakshatraLord}`, `lagna ${c.vedic.lagna} · lord ${c.vedic.nakshatraLord}`)),
+        V(tr('เลขศาสตร์', 'Numerology'), '🔢', `Life Path ${c.numerology.lifePath}`, trDF(c.numerology.lifePathName)),
+        V(tr('ระบบประเภทพลังงาน', 'Energy Type System'), '⚡', trDF(c.humandesign.typeTh), `${tr('โปรไฟล์', 'profile')} ${c.humandesign.profile}`),
+        V(tr('มายัน', 'Mayan'), '🌀', `Kin ${c.mayan.kin} ${c.mayan.daySignName}`, trDF(c.mayan.toneNameTh)),
+        V(tr('เซลติก', 'Celtic'), '🌳', trDF(c.celtic.treeNameTh), tr(`ธาตุ${c.celtic.element}`, `${c.celtic.element}`)),
+        V(tr('ไทยพราหมณ์', 'Thai Brahmin'), '🪷', c.thai.dayName, `${c.thai.dayGodTh || c.thai.dayGod}`),
+        V(tr('ทักษา ๘ ภูมิ', 'Taksa'), '🧭', tr(`เจ้าวัน ${c.taksa.dayLordTh}`, `day lord ${c.taksa.dayLordEn}`), tr('ผังแปดภูมิของคุณ', 'your eight-house wheel')),
+        V(tr('ซาจู (เกาหลี)', 'Saju'), '🇰🇷', `${c.saju.dayPillar}`, tr('สี่เสาแบบเกาหลี — ชุดเดียวกับ BaZi', 'Korean four pillars — the same set as BaZi')),
+        V(tr('โหราศาสตร์ทิเบต', 'Tibetan'), '☸️', `Mewa ${c.tibetan.mewa}`, trDF(c.tibetan.parkhaName || '')),
+        V(tr('ซื่อเว่ยโต่วซู', 'Zi Wei Dou Shu'), '🌌', trDF(c.ziwei.mainStarTh), trDF(c.ziwei.lifePalaceName)),
+        V(tr('ออนเมียวโด', 'Onmyōdō'), '⛩️', String(c.onmyodo.rokuyo).replace(/\s*\(.*$/, ''), trDF(c.onmyodo.rokuyoTh)),
+        V(tr('เฮลเลนิสติก', 'Hellenistic'), '🏛️', trDF(c.hellenistic.sectTh || c.hellenistic.sect), tr(`Fortune ใน${trDF(c.hellenistic.lotSignTh)}`, `Fortune in ${c.hellenistic.lotSign}`)),
+        V(tr('รูนนอร์ส', 'Norse Rune'), 'ᚱ', `${c.norseRune.rune} ${c.norseRune.runeName}`, trDF(c.norseRune.runeKeyword)),
+        V(tr('โอแฮม', 'Ogham'), '🌿', `${c.ogham.ogham} ${_lang === 'en' ? c.ogham.treeName : c.ogham.treeNameTh}`, tr('ปฏิทินต้นไม้ชุดเดียวกับเซลติก', 'the same tree calendar as Celtic')),
+        V('Arabic Parts', '✴️', tr(`Fortune ใน${trDF(c.arabicParts.fortuneSignTh || c.arabicParts.fortuneSign)}`, `Fortune in ${c.arabicParts.fortuneSign}`), tr('จุดคำนวณชุดเดียวกับเฮลเลนิสติก', 'the same computed lot as Hellenistic')),
+        V(tr('คับบาลาห์', 'Kabbalah'), '✡️', c.kabbalistic.sephira, `${c.kabbalistic.archangel} · ${tr('ปีฮีบรู', 'Hebrew year')} ${c.kabbalistic.hebrewYear}`),
+        V(tr('โซโรอัสเตอร์', 'Zoroastrian'), '🔥', _lang === 'en' ? c.zoroastrian.dayYazata : c.zoroastrian.dayYazataTh, c.zoroastrian.monthAmesha),
+        V(tr('แอซเท็ก', 'Aztec'), '🦅', `${trDF(c.aztec.daySignTh)} ${c.aztec.toneNumber}`, trDF(c.aztec.daySignQuality)),
+        V(tr('โทเท็มพื้นเมืองอเมริกัน', 'Native American'), '🪶', trDF(c.nativeAmerican.birthTotemTh), c.nativeAmerican.clansmother),
+        V(tr('อิฟา (โยรูบา)', 'Ifá'), '🥁', `Odù ${c.ifaYoruba.odu}`, trDF(c.ifaYoruba.oduTheme || '')),
+        V(tr('ดรีมไทม์ (อะบอริจิน)', 'Aboriginal'), '🌈', trDF(c.aboriginal.dreamingTh), c.aboriginal.season || ''),
+        V(tr('มหาทศา', 'Vimshottari'), '🪐', `${c.vedicMahadasha.currentDasha}`, tr(`ถึงปี ${c.vedicMahadasha.currentDashaEnd}`, `until ${c.vedicMahadasha.currentDashaEnd}`)),
+        V(tr('ไบโอริทึม', 'Biorhythm'), '📈', tr('งดออกเสียง', 'abstains'), tr('เป็นรอบคงที่จากวันเกิด ไม่ได้อ่านดวง — เราจึงไม่นับ', 'fixed cycles from a birth date, not a reading — so we do not count it')),
+    ];
+    return section(0, tr('26 ศาสตร์พูดว่าอะไรบ้าง', 'What all 26 traditions said'), '📜', `
+    <div style="font-size:11.5px;color:#c0b0a0;line-height:1.8;margin-bottom:12px">${tr('หน้าก่อนหน้าตอบสามคำถามที่มีแค่สี่สายตอบได้ · หน้านี้คือทุกศาสตร์ ศาสตร์ละหนึ่งบรรทัด ว่ามันเห็นอะไรในดวงของคุณ — คำอ่านเต็มของแต่ละศาสตร์อยู่ในบล็อกหลักฐานท้ายเล่ม', 'The previous pages answered three questions only four lineages can answer. This is every tradition, one line each, on what it sees in your chart — the full reading for each is in the evidence block later.')}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 16px">
+      ${rows.map(r => `
+        <div style="display:flex;align-items:baseline;gap:7px;padding:5px 0;border-bottom:1px solid #201a2e">
+          <span style="font-size:12px;width:16px">${r.icon}</span>
+          <span style="font-size:10.5px;color:#8a7a92;width:96px;flex-shrink:0">${esc(r.name)}</span>
+          <span style="font-size:12px;color:#e8c87a;font-weight:600">${esc(r.says)}</span>
+          <span style="font-size:9.5px;color:#6a7a90;margin-left:auto;text-align:right;max-width:130px">${esc(r.note)}</span>
+        </div>`).join('')}
+    </div>`);
+}
 function p02_scoreBreakdown(c) {
     // Group into 🌟 ≥780 / 〰 650-779 / ⚠ <650. Biorhythm carries scoring:false and
     // is a DAILY-changing layer (it would be a frozen, meaningless value in a static
@@ -12043,6 +12097,9 @@ function generateReport(c) {
         p_consensusAxes, // คำตัดสิน 3 ข้อ + สายที่ค้าน + วิธีนับ
         p_whoYouAre, // ฉันทามติที่ดึงจากตัวบทของ 26 ศาสตร์ ไม่ใช่จากคะแนน
         // ═══ 2 · ดวงเป็นอย่างไร — ตอบ "เดือนไหน ดีเรื่องอะไร" ═════════
+        // ทุกศาสตร์พูดของตัวเองหนึ่งบรรทัด ก่อนเข้าบล็อกพยากรณ์
+        // ⛔ ห้ามย้ายไปท้ายเล่ม — เหตุผลที่มันอยู่ตรงนี้อยู่ในคอมเมนต์ของ p_allVoices
+        p_allVoices,
         p_yearGrid, // 12 เดือนข้างหน้า × 8 ด้าน (นับจากวันนี้)
         p17_weekly, // จังหวะ 7 วัน
         p23_forecast10yr, // 10 ปี
