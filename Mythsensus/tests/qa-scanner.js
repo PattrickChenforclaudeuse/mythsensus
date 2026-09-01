@@ -131,7 +131,7 @@ const collectChecks = `() => {
 }`;
 
 const results = [];
-const browser = await chromium.launch({ headless: true });
+let browser = await chromium.launch({ headless: true });
 
 for (const vp of VIEWPORTS) {
   for (const pg of PAGES) {
@@ -141,6 +141,10 @@ for (const vp of VIEWPORTS) {
     const url = BASE_URL + pg.path + (pg.path.includes('?') ? '&' : '?') + 'im=1';
     const key = `${pg.name}-${vp.name}`;
     const shotPath = path.join(OUT_DIR, `${key}.png`);
+    // หน้าเว็บยาวขึ้นเรื่อยๆ จน fullPage screenshot ทำ Chromium ตายทั้งโปรเซส
+    // (เจอ 1 ก.ย. 69 — deploy ผ่านแต่ด่านหลัง deploy ไม่ได้ตรวจอะไรเลยสักหน้า)
+    // ⛔ รูปเป็นของแถม ตัวตรวจต่างหากที่เป็นตาข่ายกันเว็บพัง — รูปพังห้ามลากตัวตรวจตายด้วย
+    if (!browser.isConnected()) browser = await chromium.launch({ headless: true });
     const ctx = await browser.newContext({
       viewport: { width: vp.width, height: vp.height },
       userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -157,7 +161,13 @@ for (const vp of VIEWPORTS) {
       httpStatus = resp ? resp.status() : 0;
       finalUrl = page.url();
       redirected = finalUrl.replace(/\/$/, '') !== url.replace(/\/$/, '');
-      await page.screenshot({ path: shotPath, fullPage: true });
+      try {
+        await page.screenshot({ path: shotPath, fullPage: true });
+      } catch (shotErr) {
+        // หน้ายาวเกินจนถ่ายไม่ไหว → ถ่ายแค่ viewport แทน แล้วเดินต่อ
+        console.warn(`  ⚠ ${key}: fullPage screenshot ล้ม (${String(shotErr).slice(0, 80)}) — ถ่ายเฉพาะ viewport แทน`);
+        await page.screenshot({ path: shotPath }).catch(() => {});
+      }
       checks = await page.evaluate(collectChecks);
 
       // Defense-in-depth smoke test: click a couple of known onclick triggers on the
