@@ -649,8 +649,19 @@ function p_allVoices(c: ChartData): string {
     //    ไบโอริทึมไม่ได้อยู่ในลิสต์ 26 ของเอนจินเลย · ตรวจได้จาก calcForecast
     //    ⇒ หน้านี้เคยใส่ไบโอริทึมและตกเลข ๗ ตัว ๙ ฐาน (พลาดตอนสร้างหน้า 1 ก.ย. 69)
     V(tr('เลข ๗ ตัว ๙ ฐาน','Thai 7-Number'), '๗', (c.numerology as any).thaiSeven?.join(' · ') || '—',
-      tr('เก้าฐานอ่านจากวันเกิด — ฐานที่เลขซ้ำคือด้านที่ชีวิตลงน้ำหนักมากสุด',
-         'nine bases read from the birth date — a repeated number marks where the life puts its weight')),
+      (() => {
+        // บอกเลขที่ซ้ำของ *ดวงนี้* ไม่ใช่คำอธิบายกติกาที่ทุกคนได้เหมือนกัน
+        const t7: number[] = (c.numerology as any).thaiSeven || [];
+        const cnt: Record<number, number[]> = {};
+        t7.forEach((n, i) => { (cnt[n] = cnt[n] || []).push(i + 1) });
+        const rep = Object.entries(cnt).filter(([, ps]) => ps.length > 1)
+          .sort((a, b) => b[1].length - a[1].length)[0];
+        return rep
+          ? tr(`เลข ${rep[0]} ซ้ำที่ฐาน ${rep[1].join(' กับ ')} — ด้านที่ชีวิตลงน้ำหนักมากสุด`,
+               `${rep[0]} repeats at bases ${rep[1].join(' and ')} — where this life puts its weight`)
+          : tr('ไม่มีเลขซ้ำสักฐาน — น้ำหนักชีวิตกระจายไม่กองที่ด้านใดด้านหนึ่ง',
+               'no number repeats — the weight of this life is spread, not piled on one side');
+      })()),
   ]
   return section(0, tr('26 ศาสตร์พูดว่าอะไรบ้าง','What all 26 traditions said'), '📜', `
     <div style="font-size:11.5px;color:#c0b0a0;line-height:1.8;margin-bottom:12px">${tr(
