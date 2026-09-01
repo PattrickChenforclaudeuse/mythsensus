@@ -71,7 +71,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=210">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=211">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 :root{
@@ -2760,7 +2760,7 @@ try{
 <!-- ═══ SUBSCRIPTION ─ Daily Cosmic Pulse ═══ -->
 <div class="panel active" id="panel-pulse">
   <div class="section-title" data-t="pulse_title">DAILY COSMIC PULSE</div>
-  <div class="sky-dom-hint" data-t="pulse_hint">รวมฟ้าวันนี้ + 7-10 ศาสตร์ → คำอ่านเดียวว่าวันนี้มีผลอย่างไรกับคุณ</div>
+  <div class="sky-dom-hint" data-t="pulse_hint">รวมฟ้าวันนี้จากศาสตร์ที่มีวิชาเดินเวลา → คำอ่านเดียวว่าวันนี้มีผลอย่างไรกับคุณ</div>
   <div id="pulsePanel" style="max-width:720px;margin:0 auto;"></div>
 </div>
 
@@ -2935,7 +2935,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=210" defer></script>
+<script src="/build/ms26-bundle.js?v=211" defer></script>
 <script>
 
 
@@ -3220,7 +3220,7 @@ th:{
   sub_sky:"🌌 ฟ้าวันนี้",sub_resonance:"🧭 ดวงของเรากับสภาพแวดล้อม",sub_organum_plus:"🔮 เสียงจาก 108 เทพ",
   sub_pulse:"⚡ ดวงวันนี้",sub_brief:"📰 สรุปเดือน",sub_freq:"📡 ความถี่",sub_lucky:"🌟 ฤกษ์ดี",sub_history_all:"📜 ประวัติทั้งหมด",
   pulse_title:"ดวงคอสมิครายวัน",
-  pulse_hint:"รวมฟ้าวันนี้ + 7-10 ศาสตร์ → คำอ่านเดียวว่าวันนี้มีผลอย่างไรกับคุณ",
+  pulse_hint:"รวมฟ้าวันนี้จากศาสตร์ที่มีวิชาเดินเวลา → คำอ่านเดียวว่าวันนี้มีผลอย่างไรกับคุณ",
   pulse_pin_btn:"⚙ Pin ศาสตร์โปรด",
   pulse_history_btn:"📜 ประวัติ",
   pulse_refresh_btn:"🔄 ดูใหม่",
@@ -10707,10 +10707,18 @@ function _pulseBar(pulse, tierColor){
   const abst = (areas && areas.abstentions) ? areas.abstentions : null;
   if (!doms) return '';
 
+  // ⛔ ต้องนับจาก `v.score` ซึ่งเป็น *ช่องเดียวกับที่การ์ดข้างล่างเอาไปแสดง*
+  //    (การ์ดใช้ TIER[v.score]: 4-5 = ดีกว่าปกติ · 3 = ปกติ · 1-2 = ต่ำกว่าปกติ)
+  //
+  //    ของเดิมนับจาก `up - down` = "ศาสตร์ฝั่งไหนเยอะกว่ากัน" ซึ่งเป็นคนละคำถาม
+  //    กับ "ด้านนี้สูงหรือต่ำกว่าปกติของคุณ" ⇒ 1 ก.ย. 69 หน้าเดียวกันบอก
+  //    "ดีกว่าปกติ 2" ขณะที่การ์ดทั้งแปดใบไม่มีใบไหนเขียนว่าดีกว่าปกติเลย (0/3/5)
+  //    คอมเมนต์เหนือบล็อกนี้เขียนไว้เองว่า "นับจากด้านที่แสดงอยู่จริง ⇒ ขัดกันไม่ได้อีก"
+  //    — เขียนไว้ถูก แต่โค้ดไม่ได้ทำตาม
   let good = 0, mid = 0, low = 0, split = 0;
   for (const k of Object.keys(doms)) {
-    const v = doms[k] || {}; const net = (v.up || 0) - (v.down || 0);
-    if (net > 0) good++; else if (net < 0) low++; else mid++;
+    const v = doms[k] || {}; const sc = Number(v.score);
+    if (sc >= 4) good++; else if (sc <= 2) low++; else mid++;
     // `split` เป็นธงที่เอนจินตั้งเอง และการ์ดรายด้านข้างล่างใช้ธงตัวเดียวกันติดป้าย
     // "ศาสตร์เห็นไม่ตรงกัน" ⇒ หัวข้อกับการ์ดขัดกันไม่ได้
     if (v.split) split++;
@@ -11156,7 +11164,7 @@ function renderDailyPulse() {
 
     <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px">
       <div onclick="togglePulseDrilldown()" style="padding:10px 14px;cursor:pointer;font-size:11px;color:var(--muted);letter-spacing:1.5px;font-family:'Josefin Sans',sans-serif;display:flex;justify-content:space-between;align-items:center;background:rgba(212,170,80,0.03)">
-        <span>${_PULSE_DRILLDOWN_OPEN ? t('pulse_hide_systems') : t('pulse_show_systems')} · ${pulse.signals.length} ${isTh?'ศาสตร์':'systems'}</span>
+        <span>${_PULSE_DRILLDOWN_OPEN ? t('pulse_hide_systems') : t('pulse_show_systems')} · ${pulse.signals.length} ${isTh?'ศาสตร์ที่ให้คะแนนภาพรวมของวัน':'systems scoring the day as a whole'}</span>
         <span style="color:var(--gold3);font-size:9px">${isTh?'แตะเพื่อ':'tap to'} ${_PULSE_DRILLDOWN_OPEN?'collapse':'expand'}</span>
       </div>
       ${_PULSE_DRILLDOWN_OPEN ? sysRowsHtml : ''}

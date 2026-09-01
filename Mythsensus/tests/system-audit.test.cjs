@@ -452,6 +452,40 @@ const BRANCH = '子丑寅卯辰巳午未申酉戌亥'.split('');
   if (!ow) ok('อิฟา (โยรูบา)', 'ชื่อ Odù อยู่ในสิบหกองค์หลักและเลขอยู่ในช่วง ครบ 10 ดวง');
 }
 
+// ═══ 10g · จื่อเวย — 命宮 เดินตามกฎ และชื่อวังไทยต้องตรงกับตัวจีน ═════════
+//
+// ตำแหน่ง 紫微 ยังไม่มีแหล่งอ้างอิงนอกมาเทียบ (ยัง SHAPE อยู่) แต่ *ขาเข้า* พิสูจน์ได้:
+// 命宮 = เริ่มที่ 寅 เดินหน้า (เดือนจันทรคติ − 1) แล้วถอยตามยามเกิด
+//  ⇒ เกิดขึ้น 1 ค่ำเดือน 1 ยามจื่อ ต้องได้ 寅 พอดี และเลื่อนยามไปข้างหน้า วังต้องถอยทีละหนึ่ง
+{
+  const zw = (h) => calculate({ name:'x', gender:'ชาย', year:2024, month:2, day:10, hour:h, minute:30,
+                                lat:13.75, lon:100.5, timezone:8 }).ziwei;
+  const first = zw(0).lifepalace;                       // ยามจื่อ ของวันขึ้น 1 ค่ำเดือน 1
+  let zwBad = 0;
+  if (first !== 3) { zwBad++; bad('จื่อเวย', `ขึ้น 1 ค่ำเดือน 1 ยามจื่อ ได้วัง ${first} ต้องเป็น 寅 (วังที่ 3)`); }
+  for (let k = 1; k < 12; k++) {
+    const want = ((first - 1 - k) % 12 + 12) % 12 + 1;
+    const got = zw(k * 2).lifepalace;
+    if (got !== want) { zwBad++; bad('จื่อเวย', `เลื่อนไป ${k} ยาม ได้วัง ${got} ต้องถอยเป็น ${want}`); }
+  }
+  if (!zwBad) ok('จื่อเวย', '命宮 ลงที่ 寅 พอดีเมื่อเกิดขึ้น 1 ค่ำเดือน 1 ยามจื่อ และถอยทีละวังตามยามครบ 12 ยาม');
+
+  // ชื่อวังไทยกับอังกฤษเก็บคนละตาราง — ต้องแปลเรื่องเดียวกัน
+  const WANT = ['','ชีวิต|Life','พี่น้อง|Siblings','สามี|Spouse','บุตร|Children','ทรัพย์|Wealth','สุขภาพ|Health',
+                'เดินทาง|Travel','เพื่อน|Friends','วิชาชีพ|Career','อสังหา|Property','วาสนา|Fortune','พ่อแม่|Parents'];
+  let pw = 0;
+  for (let i = 1; i <= 12; i++) {
+    const [th, en] = WANT[i].split('|');
+    const c = calculate({ name:'x', gender:'ชาย', year:2024, month:2, day:10, hour:((3 - i + 24) % 12) * 2, minute:30,
+                          lat:13.75, lon:100.5, timezone:8 });
+    if (c.ziwei.lifepalace !== i) continue;              // ไม่ตรงวังที่อยากตรวจก็ข้าม
+    if (!String(c.ziwei.lifePalaceName).includes(th)) {
+      pw++; bad('จื่อเวย', `วังที่ ${i} ชื่อไทยได้ "${c.ziwei.lifePalaceName}" ควรมีคำว่า "${th}" (อังกฤษใช้ ${en})`);
+    }
+  }
+  if (!pw) ok('จื่อเวย', 'ชื่อวังฝั่งไทยแปลตรงกับฝั่งอังกฤษทุกวังที่สุ่มเจอ (兄弟=พี่น้อง · 財帛=ทรัพย์ ไม่ใช่คำอื่น)');
+}
+
 // ═══ 11 · ทุกศาสตร์ต้องมีคำตอบ อ่านรู้เรื่อง ไม่ใช่ค่าว่าง/ค่าสำรอง ═══════
 const SYS = ['bazi','ninestar','western','vedic','numerology','humandesign','mayan','celtic','thai','taksa',
              'saju','tibetan','ziwei','onmyodo','hellenistic','norseRune','ogham','arabicParts','kabbalistic',
