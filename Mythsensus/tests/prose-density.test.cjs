@@ -27,6 +27,16 @@ const path = require('path');
 const { calculate } = require(path.join(__dirname, '..', 'build', 'calc.js'));
 const { generateReport } = require(path.join(__dirname, '..', 'build', 'report.js'));
 
+/**
+ * ⛔ ข้อความใน <span class="src-note"> ถูกตัดออกก่อนวัด — และตัดได้เฉพาะป้ายนี้
+ *
+ * ป้ายนี้ใช้กับ "ที่มาของวิชา" เท่านั้น เช่น ส่วนไหนมาจากตำราจริง ส่วนไหนเป็นชั้นที่
+ * เราต่อเติมเอง · ข้อความแบบนั้น **ต้องเหมือนกันทุกคน** เพราะมันเป็นข้อเท็จจริงเรื่อง
+ * แหล่งที่มา ไม่ใช่คำอ่านของใคร · ถ้านับรวม ด่านนี้จะไปลงโทษการบอกความจริง
+ *
+ * ⛔ ห้ามเอาป้ายนี้ไปครอบข้อความอื่นเพื่อเลี่ยงด่าน — ครอบเมื่อไหร่คือซ่อนคำอ่าน
+ *    ที่ทุกคนได้เหมือนกัน ซึ่งเป็นสิ่งเดียวที่ด่านนี้ถูกสร้างมาจับ
+ */
 const LIMITS = {
   // RATCHET, not a target. 20% was a number I picked with nothing behind it;
   // this is where the report actually sits today (27.3% → 23.2% over one pass).
@@ -37,7 +47,7 @@ const LIMITS = {
   // 2026-08-31: 24.9% → 17.7% after the ten-year forecast stopped printing the
   // same nine Personal-Year paragraphs to everyone and anchored each one to the
   // reader's age. Ratcheted down to lock that in. Nothing was cut to get here.
-  sharedProsePct: 17.9,    // prose identical across all six unrelated charts
+  sharedProsePct: 17.8,    // prose identical across all six unrelated charts
   termPerPage: 4,          // times one of the chart's own key values may appear ON ONE PAGE
   branchCoveragePct: 45,   // share of the population one interpretive line may cover
 };
@@ -63,7 +73,7 @@ const note = [];
 // counting it once inflated an earlier measurement of this from 44% to 69%.
 const prose = html => html
   .replace(/<style[\s\S]*?<\/style>/g, '')
-  .replace(/<[^>]+>/g, '\n')
+  .replace(/<span class="src-note">[\s\S]*?<\/span>/g, ' ').replace(/<[^>]+>/g, '\n')
   .split('\n').map(s => s.trim())
   .filter(s => s.length > 60 && /[ก-๙]/.test(s) && !/^✦/.test(s));
 
@@ -104,7 +114,7 @@ for (let i = 0; i < CHARTS.length; i++) {
   for (const t of terms) {
     let worstN = 0, worstTitle = '';
     for (const pg of pages) {
-      const body = pg.replace(/<[^>]+>/g, ' ');
+      const body = pg.replace(/<span class="src-note">[\s\S]*?<\/span>/g, ' ').replace(/<[^>]+>/g, ' ');
       const n = body.split(t).length - 1;
       if (n > worstN) {
         worstN = n;

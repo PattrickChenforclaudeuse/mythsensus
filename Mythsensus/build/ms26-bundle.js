@@ -8728,7 +8728,9 @@ function _zoroastrianDeepSections(a) {
         P(`${B('Amesha Spenta')}: ${a.ameshaDisp} · ${B(pick('ธาตุเดือน', 'Month element'))}: ${pEl(a.ameshaElRaw)} · ${B(pick('สมดุล', 'Integration'))}: ${pick(a.harmony ? 'บูรณาการเต็ม (เป็นตัวเองโดยธรรมชาติ)' : 'โครงสร้างสร้างสมดุล (มี 2 ด้านต้องบาลานซ์)', a.harmony ? 'full integration (naturally yourself)' : 'a balancing structure (two sides to balance)')}`)));
     sec.push(blk('🧬', 'ตัวตน — Khvarenah', 'Identity — Your Khvarenah', P(pick(`คุณได้รับ "Khvarenah" (โอรัสแสงแห่งโชค) ในด้านที่ ${a.yazata} ปกครอง โซโรแอสเตรียนว่า Khvarenah ติดตามคนดีและหายจากคนชั่ว ธาตุ${pEl(a.ameshaElRaw)}ของเดือนเสริมด้วย ${_elDom(a.ameshaElRaw).doo[0]}`, `You carry "Khvarenah" (the divine glow of fortune) in the domain ${a.yazata} rules. Zoroastrians say Khvarenah follows the righteous and fades from the wicked. Your month\'s ${pEl(a.ameshaElRaw)} element adds ${_elDom(a.ameshaElRaw).doo[1]}.`))));
     const e = _elDom(a.ameshaElRaw);
-    sec.push(blk('💼', 'การงาน — Asha ความถูกต้องในงาน', 'Career — Asha, Right Order at Work', P(`${B(pick('เข้าทาง', 'Best fit'))}: ${pick(e.car[0], e.car[1])}`) +
+    sec.push(blk('💼', 'การงาน — Asha ความถูกต้องในงาน', 'Career — Asha, Right Order at Work', 
+    // บรรทัดนี้มาจากธาตุของเดือน ไม่ได้มาจากเทพประจำวันเกิด — เขียนกำกับให้ตรง
+    P(`${B(pick('บรรยากาศงานที่เข้ากับธาตุเดือน', 'Work climate suited to the month element'))}: ${pick(e.car[0], e.car[1])}`) +
         P(pick(`โซโรแอสเตอร์ยึด 「Asha」 (ระเบียบและความจริง) — งานที่ทำด้วยความซื่อตรงและฝีมือดีคือการบูชาในตัวมันเอง หลัก 「Hvarshta」 (กระทำดี) สอนว่าผลงานที่จับต้องได้สำคัญกว่าคำพูด Amesha Spenta Khshathra (อำนาจที่ดี) หนุนคุณเมื่อใช้ตำแหน่งเพื่อสร้าง ไม่ใช่ครอบงำ`, `Zoroastrianism centres on 「Asha」 (truth and right order) — work done with honesty and craft is itself an act of worship. The principle 「Hvarshta」 (good deeds) holds that tangible output matters more than talk. The Amesha Spenta Khshathra (good dominion) backs you when you use position to build, not dominate.`)) +
         P(`⚠️ ${pick('ควรเลี่ยง', 'Avoid')}: ${pick(e.av[0], e.av[1])}`)));
     sec.push(blk('💰', 'การเงิน — ทรัพย์เพื่อความดี', 'Money — Wealth in Service of Good', P(pick(e.money[0], e.money[1])) +
@@ -8742,8 +8744,13 @@ function _zoroastrianDeepSections(a) {
         P(`⚠️ ${B(pick('เลี่ยง', 'Avoid'))}: ${pick('ใช้พลัง Yazata เพื่อตัวเองอย่างเดียว = เรียก Ahriman; สัญญาณ Khvarenah หรี่คือเบื่อสิ่งที่เคยรัก คนถอยห่าง', 'using your Yazata\'s power only for yourself = summoning Ahriman; the signs of a dimming Khvarenah are weariness with what you loved and people drifting away')}`)));
     sec.push(blk('💬', 'คำถามยอดฮิต', 'Popular Questions', faqQ(pick('Yazata ประจำตัว?', 'My Yazata?'), a.yazata) +
         faqQ(pick('Amesha Spenta เดือนเกิด?', 'My month Amesha Spenta?'), a.ameshaDisp) +
-        faqQ(pick('ธาตุของฉัน?', 'My element?'), pEl(a.ameshaElRaw)) +
-        faqQ(pick('อาชีพที่เหมาะ?', 'Fitting career?'), pick(_elDom(a.ameshaElRaw).car[0], _elDom(a.ameshaElRaw).car[1]))));
+        // ⛔ สองข้อนี้เคยตอบด้วย **ธาตุของเดือน** ซึ่งทำให้ขัดกับทั้งเล่มสองชั้น:
+        //    (ก) "ธาตุของฉัน" ตอบ ลม ขณะที่อีก 40 หน้ายืนบน Day Master ธาตุไม้
+        //    (ข) "อาชีพที่เหมาะ" กลายเป็นอาชีพของธาตุเดือน ⇒ ทุกคนที่เกิดเดือนเดียวกัน
+        //        ได้คำตอบเดียวกัน และไม่เกี่ยวกับเทพประจำวันเกิดของเขาเลย
+        //    โซโรอัสเตอร์ไม่มีวิชาธาตุประจำตัวและไม่มีวิชาเลือกอาชีพ ⇒ ตอบสิ่งที่มันมีจริง
+        faqQ(pick('ธาตุของเดือนเกิด?', 'My birth-month element?'), `${pEl(a.ameshaElRaw)} ${pick('(ของเดือน ไม่ใช่ธาตุประจำตัว — ธาตุประจำตัวดูที่หน้า BaZi)', '(the month\'s, not yours — your own element is on the BaZi page)')}`) +
+        faqQ(pick('ศาสตร์นี้บอกอาชีพได้ไหม?', 'Does this system name a career?'), pick('<span class="src-note">ไม่ได้ — โซโรอัสเตอร์ไม่มีวิชาเลือกอาชีพ สิ่งที่มันบอกคือทำงานด้วยความซื่อตรง (Asha) แล้วงานนั้นเป็นการบูชาในตัวมันเอง</span>', '<span class="src-note">No. Zoroastrianism has no career-selection technique. What it says is that work done with integrity (Asha) is itself an act of worship.</span>'))));
     return _dsSort(sec, ['📜', '🧬', '💼', '💰', '❤️', '🩺', '📅', '🎨', '💬']);
 }
 // ── ปฏิทินโซโรอัสเตอร์ (Fasli) ────────────────────────────────────────────
@@ -8828,7 +8835,16 @@ function calcZoroastrian(d) {
     // แก้ 1 ก.ย. 69 — ของเดิมเป็น `(d.day - 1) % 30` กับ `(d.month - 1) % 12`
     // คือเอา "วันที่กับเดือนแบบเกรกอเรียน" มาสวมชื่อเปอร์เซีย ไม่ใช่ปฏิทินโซโรอัสเตอร์เลย
     // ตอนนี้เดินแบบ Fasli จริง (ปีเริ่มที่ Nowruz 21 มี.ค. · 12 เดือน × 30 วัน + Gatha 5 วัน)
-    const _zd = _zoroDate(d.year, d.month, d.day);
+    // ⛔ roj (วันของโซโรอัสเตอร์) เริ่มที่ **รุ่งอรุณ** ไม่ใช่เที่ยงคืน
+    //    แหล่งของชุมชนยกตัวอย่างตรงๆ ว่าเกิดตี 3 ได้ roj ของวันก่อนหน้า
+    //    (zoroastrians.net) · ก่อนหน้านี้เราใช้วันที่เกรกอเรียนล้วน ⇒ ทุกคนที่เกิด
+    //    ก่อนพระอาทิตย์ขึ้นได้เทพผิดองค์ · เจอ 1 ก.ย. 69 · ใช้ตัวคำนวณรุ่งอรุณตัวเดียว
+    //    กับที่วันไทยใช้ (แก้เรื่องเดียวกันเมื่อเช้าวันนั้น)
+    const _zSunrise = _sunriseLocalHours(d.year, d.month, d.day, d.lat, d.lon, d.timezone);
+    const _zBornBeforeDawn = _zSunrise !== null && (d.hour + d.minute / 60) < _zSunrise;
+    const _zShift = _zBornBeforeDawn ? -1 : 0;
+    const _zRef = new Date(Date.UTC(d.year, d.month - 1, d.day + _zShift));
+    const _zd = _zoroDate(_zRef.getUTCFullYear(), _zRef.getUTCMonth() + 1, _zRef.getUTCDate());
     const dayIdx = _zd.gatha ? -1 : _zd.dayIdx;
     const monthIdx = _zd.monthIdx;
     const yazata = _zd.gatha ? _ZORO_GATHA[_zd.gatha - 1] : DAY_YAZATA[dayIdx];
@@ -8860,8 +8876,8 @@ function calcZoroastrian(d) {
             sysEn: 'Zoroastrian Astrology',
             originCountry: 'เปอร์เซียโบราณ (อิหร่าน)',
             originCountryEn: 'Ancient Persia (Iran)',
-            popularity: 'ชุมชน Parsi ในอินเดียยังใช้ · Nowruz เฉลิมฉลองทั่วโลก',
-            popularityEn: 'Parsi communities in India still practice · Nowruz celebrated worldwide',
+            popularity: 'ชุมชน Parsi ในอินเดียยังใช้ปฏิทินนี้ (สาย Shenshai) · เราเดินสาย Fasli ซึ่งตรึงกับ Nowruz 21 มี.ค.',
+            popularityEn: 'Parsi communities in India still keep this calendar (the Shenshai reckoning) · we walk the Fasli one, which is pinned to Nowruz on 21 March',
             keyStrength: 'เทพพิทักษ์ 30 องค์ประจำ 30 วัน · สอนเรื่องดี/ชั่วอย่างลึก',
             keyStrengthEn: '30 Yazata guardians for 30 days · profound teaching on good vs. evil',
             originTh: 'ศาสนาโซโรแอสเตอร์เป็นหนึ่งในศาสนาเอกเทวะที่เก่าแก่ที่สุดในโลก อายุกว่า 3,500 ปี เกิดในเปอร์เซีย (อิหร่านปัจจุบัน) โดยศาสดา Zarathustra แก่นของศาสตร์คือการต่อสู้ระหว่าง Ahura Mazda (แสงสว่าง ความจริง) กับ Ahriman (ความมืด ความโกหก) ปฏิทินโซโรแอสเตรียนมี 30 วันต่อเดือน แต่ละวันถูกปกครองโดย Yazata (เทพพิทักษ์) คนละองค์ — รวม 30 Yazata ที่บอกถึงคุณสมบัติของวันนั้น',
@@ -8871,8 +8887,8 @@ function calcZoroastrian(d) {
             keyValueEn: `Yazata: ${yazataDisplay} · Amesha Spenta: ${amesha.n} (${tEl(amesha.el)})`,
             keyValueMeaning: `Yazata ประจำวันเกิดคุณคือ <strong>${yazataDisplay}</strong> และ Amesha Spenta (เทพสูงสุด 7 องค์) ที่ปกครองเดือนคือ <strong>${amesha.th}</strong> (ธาตุ${amesha.el}) ${harmony ? 'ชื่อวันของคุณตรงกับชื่อเดือน — นั่นคือวัน Jashan วันเทศกาลของเทพองค์นั้นเอง เกิดปีละครั้งต่อหนึ่งเทพ และคุณเกิดตรงวันนั้น' : 'ชื่อวันกับชื่อเดือนเป็นคนละองค์ ซึ่งเป็นกรณีของคนเกือบทั้งหมด — เทพสององค์ดูแลคุณคนละด้าน'}`,
             keyValueMeaningEn: `Your birth-day Yazata is <strong>${yazataDisplay}</strong>, and the Amesha Spenta (one of the seven highest divinities) ruling your birth month is <strong>${amesha.n}</strong>. The month\'s element is ${tEl(amesha.el)}, ${harmony ? 'matching the Yazata\'s element — this is full integration. You\'ll feel "naturally yourself" by default' : 'differing from the Yazata — this is a balancing structure. You\'ll feel two sides of yourself that must be balanced constantly'}.`,
-            uniqueTh: `ปฏิทินโซโรอัสเตอร์ตั้งชื่อ <strong>ทุกวันใน 30 วัน</strong> ตามเทพองค์หนึ่ง และ <strong>ทุกเดือนใน 12 เดือน</strong> ตามคุณธรรมข้อหนึ่ง — ของคุณตรงกับวันที่ ${dayIdx + 1} (${yazataDisplay}) ในเดือนที่ ${monthIdx + 1} (${amesha.n}) · เมื่อชื่อวันไปตรงกับชื่อเดือน วันนั้นคือ<strong>วันเทศกาล</strong>ของเทพองค์นั้น (เช่น Mehregan, Tirgan) — ของคุณ${harmony ? 'ตรงกัน ซึ่งเกิดปีละครั้งต่อหนึ่งเทพ' : 'ไม่ตรงกัน ซึ่งเป็นกรณีปกติ'}`,
-            uniqueEn: `The Zoroastrian calendar names <strong>each of thirty days</strong> for a divinity and <strong>each of twelve months</strong> for a virtue — yours falls on day ${dayIdx + 1} (${yazataDisplay}) of month ${monthIdx + 1} (${amesha.n}). When a day name meets its own month name, that date is the feast of that divinity. Yours ${harmony ? 'do meet, which happens once a year for any given divinity' : 'do not meet, which is the ordinary case'}.`,
+            uniqueTh: `ปฏิทินโซโรอัสเตอร์ตั้งชื่อ <strong>ทุกวันใน 30 วัน</strong> ตามเทพองค์หนึ่ง และ <strong>ทุกเดือนใน 12 เดือน</strong> ตามคุณธรรมข้อหนึ่ง — ของคุณตรงกับวันที่ ${dayIdx + 1} (${yazataDisplay}) ในเดือนที่ ${monthIdx + 1} (${amesha.n}) · เมื่อชื่อวันไปตรงกับชื่อเดือน วันนั้นคือ<strong>วันเทศกาล</strong>ของเทพองค์นั้น (เช่น Mehregan, Tirgan) — ของคุณ${harmony ? 'ตรงกัน ซึ่งเกิดปีละครั้งต่อหนึ่งเทพ' : 'ไม่ตรงกัน ซึ่งเป็นกรณีปกติ'} <span class="src-note"><strong>ที่มาของแต่ละส่วน:</strong> ปฏิทิน 30 วัน ชื่อเทพประจำวัน และความหมายของแต่ละองค์ — มาจากตำราจริงและยังใช้อยู่ในชุมชนจนวันนี้ · <strong>ส่วนที่เป็นชั้นของเราเอง คือการอ่านนิสัยและโชคของคนจากเทพประจำวันเกิด</strong> — ไม่มีคัมภีร์โซโรอัสเตอร์เล่มไหนที่หลงเหลืออยู่วางวิธีดูดวงจากวันเกิดไว้ ศาสนานี้มีดาราศาสตร์เชิงสังเกตกับปฏิทินที่ตั้งชื่อวัน ไม่ได้มีเครื่องคำนวณดวงกำเนิด</span>`,
+            uniqueEn: `The Zoroastrian calendar names <strong>each of thirty days</strong> for a divinity and <strong>each of twelve months</strong> for a virtue — yours falls on day ${dayIdx + 1} (${yazataDisplay}) of month ${monthIdx + 1} (${amesha.n}). When a day name meets its own month name, that date is the feast of that divinity. Yours ${harmony ? 'do meet, which happens once a year for any given divinity' : 'do not meet, which is the ordinary case'}. <span class="src-note"><strong>Where each part comes from:</strong> the thirty-day calendar, the day-names and what each divinity governs are attested and still in use today. <strong>Reading a person's character and fortune from their birth day-name is our own layer</strong> — no surviving Zoroastrian scripture sets out a birth-chart method. The religion kept observational astronomy and a calendar of named days, not a natal calculator.</span>`,
             strengthTh: `Yazata ${yazataDisplay} ให้พรพิเศษ — คุณได้รับ "Khvarenah" (โอรัสแสง) ในด้านที่ Yazata ปกครอง โซโรแอสเตรียนเชื่อว่า Khvarenah คือ "แสงของโชค" ที่ติดตัวคนดีและหายไปจากคนชั่ว — ของคุณมั่นคงเพราะเกิดในวันที่ Yazata เข้มแข็ง Amesha Spenta ${amesha.th} เสริมด้วยธาตุ${amesha.el} ซึ่งเกี่ยวข้องกับ${amesha.el === 'ไฟ' ? 'ความบริสุทธิ์ ความกล้า การชำระจิต' : amesha.el === 'น้ำ' ? 'ความเมตตา การชำระกาย การไหล' : amesha.el === 'ดิน' ? 'ความมั่นคง การสร้างบ้าน การรักษาประเพณี' : 'การสื่อสาร การสอน การแพร่แสง'}`,
             strengthEn: `Yazata ${yazataDisplay} grants a special blessing — you receive "Khvarenah" (the divine glow) in the domain that Yazata rules. Zoroastrians believe Khvarenah is the "light of fortune" that follows the righteous and fades from the wicked. Yours is stable because you were born on a day when this Yazata stands strong. Amesha Spenta ${amesha.n} adds the ${tEl(amesha.el)} element, tied to ${amesha.el === 'ไฟ' ? 'purity, courage, mental cleansing' : amesha.el === 'น้ำ' ? 'mercy, bodily cleansing, flow' : amesha.el === 'ดิน' ? 'stability, building a home, preserving tradition' : 'communication, teaching, broadcasting light'}.`,
             shadowTh: `โซโรแอสเตรียนมีคำเตือน: "ทุก Khvarenah มีราคา" — พลังที่ใช้เพื่อตัวเองอย่างเดียวจะกลายเป็นสิ่งที่กัดกินเจ้าของมันเอง`,
@@ -10184,7 +10200,7 @@ function p_allVoices(c) {
         })()),
     ];
     return section(0, tr('26 ศาสตร์พูดว่าอะไรบ้าง', 'What all 26 traditions said'), '📜', `
-    <div style="font-size:11.5px;color:#c0b0a0;line-height:1.8;margin-bottom:12px">${tr('หน้าก่อนหน้าตอบสามคำถามที่มีแค่สี่สายตอบได้ · หน้านี้คือทุกศาสตร์ ศาสตร์ละหนึ่งบรรทัด ว่ามันเห็นอะไรในดวงของคุณ — คำอ่านเต็มของแต่ละศาสตร์อยู่ในบล็อกหลักฐานท้ายเล่ม', 'The previous pages answered three questions only four lineages can answer. This is every tradition, one line each, on what it sees in your chart — the full reading for each is in the evidence block later.')}</div>
+    <div style="font-size:11.5px;color:#c0b0a0;line-height:1.8;margin-bottom:12px">${tr(`หน้าก่อนหน้าตอบสามคำถามที่มีแค่สี่สายตอบได้ · หน้านี้คือทั้ง ${rows.length} ศาสตร์ ศาสตร์ละหนึ่งบรรทัด — เริ่มจาก ${esc(rows[0].says)} ของ BaZi ไปจนถึง ${esc(String(rows[rows.length - 1].says))} · คำอ่านเต็มอยู่ในบล็อกหลักฐานท้ายเล่ม`, `The previous pages answered three questions only four lineages can answer. This is all ${rows.length} traditions, one line each — from BaZi's ${esc(rows[0].says)} through to ${esc(String(rows[rows.length - 1].says))}. The full reading for each is in the evidence block later.`)}</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 16px">
       ${rows.map(r => `
         <div style="display:flex;align-items:baseline;gap:7px;padding:5px 0;border-bottom:1px solid #201a2e">

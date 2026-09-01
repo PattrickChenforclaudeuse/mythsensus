@@ -625,7 +625,7 @@ function p_allVoices(c) {
         })()),
     ];
     return section(0, tr('26 ศาสตร์พูดว่าอะไรบ้าง', 'What all 26 traditions said'), '📜', `
-    <div style="font-size:11.5px;color:#c0b0a0;line-height:1.8;margin-bottom:12px">${tr('หน้าก่อนหน้าตอบสามคำถามที่มีแค่สี่สายตอบได้ · หน้านี้คือทุกศาสตร์ ศาสตร์ละหนึ่งบรรทัด ว่ามันเห็นอะไรในดวงของคุณ — คำอ่านเต็มของแต่ละศาสตร์อยู่ในบล็อกหลักฐานท้ายเล่ม', 'The previous pages answered three questions only four lineages can answer. This is every tradition, one line each, on what it sees in your chart — the full reading for each is in the evidence block later.')}</div>
+    <div style="font-size:11.5px;color:#c0b0a0;line-height:1.8;margin-bottom:12px">${tr(`หน้าก่อนหน้าตอบสามคำถามที่มีแค่สี่สายตอบได้ · หน้านี้คือทั้ง ${rows.length} ศาสตร์ ศาสตร์ละหนึ่งบรรทัด — เริ่มจาก ${esc(rows[0].says)} ของ BaZi ไปจนถึง ${esc(String(rows[rows.length - 1].says))} · คำอ่านเต็มอยู่ในบล็อกหลักฐานท้ายเล่ม`, `The previous pages answered three questions only four lineages can answer. This is all ${rows.length} traditions, one line each — from BaZi's ${esc(rows[0].says)} through to ${esc(String(rows[rows.length - 1].says))}. The full reading for each is in the evidence block later.`)}</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 16px">
       ${rows.map(r => `
         <div style="display:flex;align-items:baseline;gap:7px;padding:5px 0;border-bottom:1px solid #201a2e">
