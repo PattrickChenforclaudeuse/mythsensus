@@ -5281,6 +5281,291 @@ function calcAddons(dmEl: string, tier: string, dasha?: string) {
   };
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+//  ชั้นคุณสมบัติ (TRAITS) — ทำให้ 26 ศาสตร์พูดภาษาเดียวกันได้
+// ════════════════════════════════════════════════════════════════════════════
+//
+// ปัญหาที่แก้: เอนจินปล่อยออกมาแต่ **ป้ายชื่อ** (Rowan · Chesed · 甲辰 · Kin 228)
+// ซึ่งเทียบข้ามศาสตร์ไม่ได้เลย · วัดเมื่อ 1 ก.ย. 69 ได้ป้ายชื่อ 157 ป้าย ตัวเลข 57 ค่า
+// และตัวเลขเกือบทั้งหมดคือคะแนนรวมกับเลขดัชนี ⇒ จะหาว่า "ศาสตร์ไหนเห็นตรงกัน"
+// ต้องมานั่งเขียนตารางมือทีละคำถาม ซึ่งไม่มีทางสเกล
+//
+// ชั้นนี้ให้ทุกศาสตร์ปล่อย trait ที่พิมพ์เป็นชนิดเดียวกัน ควบคู่กับป้ายของตัวเอง
+// ⇒ คำถามกลายเป็น query บนมิติ ไม่ใช่ตารางใหม่ทุกครั้ง
+//
+// ⛔ กติกาที่ห้ามละเมิด
+//   1. ค่าต้องมาจาก **คำบรรยายของ token นั้นในตำราของศาสตร์นั้น** ไม่ใช่ความรู้สึก
+//   2. ตำราไม่ได้พูดถึงมิติไหน = **เว้นคีย์นั้นทิ้ง** ห้ามใส่ 0 เพื่อให้ครบ
+//      (0 แปลว่า "ตำราพูดถึงและบอกว่ากลางจริง" ซึ่งไม่เหมือนกับ "ตำราไม่พูด")
+//   3. คู่แฝดที่พิสูจน์แล้วห้ามมี traits ของตัวเอง — ซาจู/โอแฮม/Arabic Parts/
+//      ทิเบต Mewa/แอซเท็ก ใช้ของฝาแฝด ไม่งั้นเสียงซ้ำ
+//   4. director 1 ก.ย. 69: "อย่าไปเชื่อ engine เรามาก" ⇒ เขียนจากตำรา
+//      ไม่ใช่จากข้อความไทยเดิมในไฟล์นี้ ซึ่งวันนี้พบว่าผิดมาแล้วหลายจุด
+//
+// สเกล −2..+2 · ขั้วลบ/บวกกำกับไว้ที่ TRAIT_AXES
+
+interface TraitSet { [k: string]: number }
+
+const TRAIT_AXES: Record<string, { neg: string; pos: string; negEn: string; posEn: string }> = {
+  pace:       { neg: 'ค่อยเป็นค่อยไป', pos: 'เร็ว',            negEn: 'gradual',   posEn: 'quick' },
+  initiative: { neg: 'รอจังหวะ',        pos: 'เริ่มเอง',        negEn: 'waits',     posEn: 'initiates' },
+  social:     { neg: 'อยู่คนเดียวได้',  pos: 'ต้องมีคน',        negEn: 'solitary',  posEn: 'needs people' },
+  instinct:   { neg: 'คิดก่อน',          pos: 'เชื่อสัญชาตญาณ',  negEn: 'deliberate', posEn: 'instinctive' },
+  expression: { neg: 'เก็บไว้',          pos: 'พูดออกไป',        negEn: 'contains',  posEn: 'expresses' },
+  change:     { neg: 'รักษาของเดิม',    pos: 'รื้อทำใหม่',      negEn: 'preserves', posEn: 'remakes' },
+  risk:       { neg: 'เลี่ยงความเสี่ยง', pos: 'รับความเสี่ยงได้', negEn: 'avoids risk', posEn: 'takes risk' },
+  root:       { neg: 'อยู่ติดที่',       pos: 'เคลื่อนที่',      negEn: 'roots',     posEn: 'moves' },
+  structure:  { neg: 'ยืดหยุ่น',         pos: 'มีระเบียบ',       negEn: 'loose',     posEn: 'ordered' },
+  focus:      { neg: 'กว้างหลายเรื่อง',  pos: 'ลึกเรื่องเดียว',  negEn: 'broad',     posEn: 'deep' },
+}
+
+// ── BaZi · ก้านวัน 10 ตัว ────────────────────────────────────────────────────
+// ที่มา: นิสัยห้าธาตุ × ขั้วหยิน-หยาง ตามตำราปาจื้อ — หยางออกรุกเปล่งออก
+// หยินเก็บเข้าและทำงานผ่านคนอื่น · ไม้=เติบโตตั้งต้น · ไฟ=แผ่และเร็ว
+// ดิน=รับและตั้งมั่น · โลหะ=ตัดและมีระเบียบ · น้ำ=ไหลและปรับรูป
+const _TR_BAZI_STEM: Record<string, TraitSet> = {
+  '甲': { pace: -1, initiative: +2, structure: +1, change: -1, focus: +1 },
+  '乙': { pace: -1, initiative: -1, social: +1, structure: -1, change: +1 },
+  '丙': { pace: +2, initiative: +2, expression: +2, social: +1, risk: +1 },
+  '丁': { pace: +1, initiative: -1, expression: +1, social: +1, instinct: +1 },
+  '戊': { pace: -2, initiative: -1, structure: +1, change: -2, root: -2 },
+  '己': { pace: -1, initiative: -1, social: +1, change: -1, root: -1 },
+  '庚': { pace: +1, initiative: +1, structure: +2, expression: +1, change: +1 },
+  '辛': { pace: -1, initiative: -1, structure: +2, expression: -1, focus: +1 },
+  '壬': { pace: +1, initiative: +1, instinct: +1, root: +2, change: +1, focus: -1 },
+  '癸': { pace: -1, initiative: -1, instinct: +2, expression: -2, root: +1 },
+}
+
+// ── ดาวเก้าดวง · 9 ดาว ──────────────────────────────────────────────────────
+// ที่มา: คำบรรยายนิสัยประจำดาวในตำราคิวงาคุ (九星気学)
+const _TR_NINESTAR: Record<number, TraitSet> = {
+  1: { pace: -1, instinct: +2, expression: -2, social: -1, root: +1, focus: +1 },   // 一白水 น้ำ — ลึก เงียบ ปรับตัว
+  2: { pace: -2, initiative: -2, social: +2, structure: +1, change: -2 },            // 二黒土 ดิน — รองรับ อดทน
+  3: { pace: +2, initiative: +2, expression: +2, change: +2, risk: +1 },             // 三碧木 ฟ้าร้อง — เริ่ม เสียงดัง
+  4: { pace: -1, social: +1, change: +1, root: +2, structure: -1 },                  // 四緑木 ลม — แพร่ ปรับ เดินทาง
+  5: { pace: -1, initiative: +1, structure: +1, change: -1, root: -2, focus: +1 },   // 五黄土 ศูนย์กลาง — นิ่ง เป็นแกน
+  6: { pace: +1, initiative: +2, structure: +2, expression: -1, focus: +1 },         // 六白金 ฟ้า — ผู้นำ มีระเบียบ
+  7: { pace: +1, social: +2, expression: +2, instinct: +1, structure: -1 },          // 七赤金 ปาก — สังคม สนุก
+  8: { pace: -2, initiative: -1, structure: +2, change: -2, root: -2, focus: +2 },   // 八白土 ภูเขา — หยุด สะสม
+  9: { pace: +2, expression: +2, social: +1, instinct: +1, focus: -1 },              // 九紫火 ไฟ — เปล่ง เห็นชัด
+}
+
+// ── โหราศาสตร์ตะวันตก · 12 ราศี ─────────────────────────────────────────────
+// ที่มา: ธาตุ (ไฟ/ดิน/ลม/น้ำ) × ลักษณะ (จร/คงที่/ผสม) ตามตำราคลาสสิก
+const _TR_WESTERN: Record<string, TraitSet> = {
+  Aries:       { pace: +2, initiative: +2, instinct: +1, risk: +2, structure: -1 },
+  Taurus:      { pace: -2, initiative: -1, change: -2, root: -2, structure: +1 },
+  Gemini:      { pace: +2, social: +1, expression: +2, focus: -2, root: +1 },
+  Cancer:      { pace: -1, initiative: -1, instinct: +2, expression: -1, root: -2, social: +1 },
+  Leo:         { pace: +1, initiative: +2, expression: +2, social: +1, change: -1 },
+  Virgo:       { pace: -1, structure: +2, focus: +2, risk: -2, expression: -1 },
+  Libra:       { pace: -1, social: +2, initiative: -1, structure: +1, expression: +1 },
+  Scorpio:     { pace: -1, instinct: +2, expression: -2, focus: +2, change: +1, risk: +1 },
+  Sagittarius: { pace: +2, root: +2, risk: +2, focus: -2, expression: +1 },
+  Capricorn:   { pace: -2, structure: +2, focus: +2, risk: -2, change: -1 },
+  Aquarius:    { change: +2, social: +1, structure: -1, instinct: -1, focus: -1 },
+  Pisces:      { pace: -1, instinct: +2, expression: -1, structure: -2, focus: -1 },
+}
+
+// ── เลขศาสตร์ · เลขเส้นทาง ──────────────────────────────────────────────────
+// ที่มา: คำบรรยายประจำเลขในระบบพีทาโกรัส
+const _TR_LP: Record<number, TraitSet> = {
+  1:  { initiative: +2, social: -1, structure: +1, risk: +1 },
+  2:  { initiative: -2, social: +2, instinct: +1, expression: -1, pace: -1 },
+  3:  { expression: +2, social: +2, pace: +1, focus: -2 },
+  4:  { pace: -2, structure: +2, change: -2, risk: -2, root: -1 },
+  5:  { pace: +2, change: +2, root: +2, risk: +2, focus: -2 },
+  6:  { social: +2, structure: +1, root: -1, change: -1 },
+  7:  { social: -2, focus: +2, expression: -2, instinct: +1, pace: -1 },
+  8:  { initiative: +2, structure: +2, risk: +1, focus: +1 },
+  9:  { social: +1, expression: +1, change: +1, focus: -1 },
+  11: { instinct: +2, expression: +1, social: +1, structure: -1 },
+  22: { structure: +2, focus: +2, pace: -1, change: +1 },
+  33: { social: +2, expression: +1, structure: -1 },
+}
+
+// ── ไทยพราหมณ์ · 7 วัน ──────────────────────────────────────────────────────
+// ที่มา: ลักษณะเทพประจำวันในตำราไทย (อาทิตย์=องอาจ · จันทร์=อ่อนโยน ·
+// อังคาร=ใจร้อน · พุธ=เจรจา · พฤหัส=ครูบา · ศุกร์=รื่นรมย์ · เสาร์=อดทนหนักแน่น)
+const _TR_THAI_DAY: Record<number, TraitSet> = {
+  0: { initiative: +2, expression: +2, structure: +1, social: +1 },       // อาทิตย์
+  1: { pace: -1, instinct: +2, expression: -1, social: +1, initiative: -1 }, // จันทร์
+  2: { pace: +2, initiative: +2, risk: +2, expression: +1, structure: -1 },  // อังคาร
+  3: { expression: +2, social: +2, focus: -1, change: +1, pace: +1 },        // พุธ
+  4: { structure: +2, focus: +2, social: +1, change: -1, pace: -1 },         // พฤหัสบดี
+  5: { social: +2, expression: +1, instinct: +1, risk: -1, pace: -1 },       // ศุกร์
+  6: { pace: -2, structure: +2, change: -2, social: -1, focus: +2, root: -1 }, // เสาร์
+}
+
+// ── เฮลเลนิสติก · sect ───────────────────────────────────────────────────────
+// ที่มา: หลัก hairesis — สายกลางวันผูกกับอาทิตย์/เหตุผล/ออกหน้า
+// สายกลางคืนผูกกับจันทร์/สัญชาตญาณ/ทำงานในที่ร่ม
+const _TR_SECT: Record<string, TraitSet> = {
+  day:   { instinct: -2, expression: +1, initiative: +1, structure: +1 },
+  night: { instinct: +2, expression: -1, initiative: -1, structure: -1 },
+}
+
+// ── ออนเมียวโด · ขั้วหยิน-หยาง ของก้านปีเกิด ────────────────────────────────
+// ที่มา: หลักอินโย (陰陽) — หยางเปล่งออก เคลื่อนก่อน · หยินรับเข้า รอจังหวะ
+const _TR_ONMYO: Record<string, TraitSet> = {
+  yang: { initiative: +2, expression: +2, pace: +1 },
+  yin:  { initiative: -2, expression: -2, pace: -1, instinct: +1 },
+}
+
+// ── คับบาลาห์ · 10 เซฟิรอท ──────────────────────────────────────────────────
+// ที่มา: หน้าที่ประจำองค์บนต้นไม้แห่งชีวิต (เมตตา↔วินัย · ชัยชนะ↔ความรุ่งโรจน์)
+const _TR_SEPHIRA: Record<string, TraitSet> = {
+  Keter:      { instinct: +2, focus: +2, expression: -2 },
+  Chokmah:    { initiative: +2, instinct: +2, pace: +2, structure: -1 },
+  Binah:      { instinct: -2, structure: +2, pace: -2, focus: +2 },
+  Chesed:     { social: +2, expression: +2, change: +1, risk: +1, structure: -1 },
+  Geburah:    { structure: +2, risk: -2, expression: -1, change: +1, social: -1 },
+  Tiphareth:  { social: +1, expression: +1, structure: +1 },
+  Netzach:    { instinct: +2, social: +2, pace: +1, structure: -2 },
+  Hod:        { instinct: -2, structure: +2, focus: +2, expression: +1 },
+  Yesod:      { instinct: +2, expression: -1, social: +1, change: +1 },
+  Malkuth:    { pace: -1, root: -2, structure: +1, instinct: -1 },
+}
+
+// ── มหาทศา · ดาวเจ้าทศา 9 องค์ ──────────────────────────────────────────────
+// ที่มา: ธรรมชาติของดาวในชโยติษ (การกะ) — ทศาบอกว่าช่วงนี้ชีวิตเดินด้วยแรงของดาวใด
+const _TR_DASHA: Record<string, TraitSet> = {
+  Ketu:    { social: -2, focus: +2, expression: -2, instinct: +2, root: +1 },
+  Venus:   { social: +2, expression: +1, pace: -1, risk: -1 },
+  Sun:     { initiative: +2, expression: +2, structure: +1, instinct: -1 },
+  Moon:    { instinct: +2, social: +1, pace: -1, expression: -1, structure: -1 },
+  Mars:    { pace: +2, initiative: +2, risk: +2, structure: -1 },
+  Rahu:    { change: +2, risk: +2, root: +2, structure: -2, pace: +1 },
+  Jupiter: { structure: +1, focus: +2, social: +1, expression: +1, pace: -1 },
+  Saturn:  { pace: -2, structure: +2, change: -2, social: -1, risk: -2, focus: +2 },
+  Mercury: { expression: +2, pace: +1, focus: -1, instinct: -2, social: +1 },
+}
+
+// ── ซาจู · ความแข็ง-อ่อนของ Day Master (신강/신약) ──────────────────────────
+//
+// ⛔ อย่าเพิ่งคิดว่านี่คือ BaZi ซ้ำ · คำนวณจากแปดตัวอักษรชุดเดียวกันจริง
+//    แต่ **ตั้งคำถามคนละข้อ** ซึ่งเป็นความต่างที่มีเนื้อ ไม่ใช่แต่งให้ต่าง:
+//      BaZi  ถามว่า "ก้านวันของคุณเป็นธาตุนิสัยอะไร"     → อ่านตัวก้าน
+//      ซาจู  ถามว่า "ทั้งดวงมันหนุนหรือดูดก้านวันนั้น"   → อ่านทั้งผัง
+//    ธรรมเนียมเกาหลีสมัยใหม่เอาน้ำหนักเกือบทั้งหมดไปที่ข้อหลัง แล้วอ่านต่อไปทาง
+//    การตัดสินใจจริงในชีวิต (궁합 คู่ครอง · ตั้งชื่อ · ดวงปี) ส่วนจีนอ่านไปทาง
+//    โครงสร้าง 格局 ธาตุที่ใช้ได้ และจังหวะหลายสิบปี
+//    (director 1 ก.ย. 69: "คู่แฝดไม่ต้องเงียบก็ได้ ลองกางคู่กันดู")
+//
+// วิธีนับ: แปดตัวอักษรแปลงเป็นธาตุ · ธาตุเดียวกับก้านวัน (比劫) และธาตุที่ให้กำเนิด
+// ก้านวัน (印) = ฝ่ายหนุน · ที่เหลือ (食傷 財 官殺) = ฝ่ายดูด
+// กิ่งเดือนนับสองเพราะเป็นตัวชี้ฤดู (得令/失令) ตามที่ตำราให้น้ำหนัก
+const _SAJU_SHENG: Record<string, string> = { 'ไม้':'ไฟ', 'ไฟ':'ดิน', 'ดิน':'โลหะ', 'โลหะ':'น้ำ', 'น้ำ':'ไม้' };
+const _SAJU_BRANCH_EL: Record<string, string> = {
+  '子':'น้ำ','丑':'ดิน','寅':'ไม้','卯':'ไม้','辰':'ดิน','巳':'ไฟ',
+  '午':'ไฟ','未':'ดิน','申':'โลหะ','酉':'โลหะ','戌':'ดิน','亥':'น้ำ',
+};
+const _SAJU_STEM_EL: Record<string, string> = {
+  '甲':'ไม้','乙':'ไม้','丙':'ไฟ','丁':'ไฟ','戊':'ดิน',
+  '己':'ดิน','庚':'โลหะ','辛':'โลหะ','壬':'น้ำ','癸':'น้ำ',
+};
+
+function _sajuStrength(b: any): { band: 'strong' | 'balanced' | 'weak'; support: number; drain: number; note: string } {
+  const dmEl = _SAJU_STEM_EL[b?.dayMaster] || '';
+  // ธาตุที่ให้กำเนิดก้านวัน = ตัวที่ _SAJU_SHENG ชี้มาหา dmEl
+  const motherEl = Object.keys(_SAJU_SHENG).find(k => _SAJU_SHENG[k] === dmEl) || '';
+  const cells: Array<[string, number]> = [
+    [_SAJU_STEM_EL[b?.yearStem] || '', 1],  [_SAJU_BRANCH_EL[b?.yearBranch] || '', 1],
+    [_SAJU_STEM_EL[b?.monthStem] || '', 1], [_SAJU_BRANCH_EL[b?.monthBranch] || '', 2],  // กิ่งเดือนนับสอง
+    [_SAJU_STEM_EL[b?.dayStem] || '', 1],   [_SAJU_BRANCH_EL[b?.dayBranch] || '', 1],
+    [_SAJU_STEM_EL[b?.hourStem] || '', 1],  [_SAJU_BRANCH_EL[b?.hourBranch] || '', 1],
+  ];
+  let support = 0, drain = 0;
+  for (const [el, w] of cells) {
+    if (!el) continue;
+    if (el === dmEl || el === motherEl) support += w; else drain += w;
+  }
+  const band = support >= drain + 1 ? 'strong' : drain >= support + 3 ? 'weak' : 'balanced';
+  const note = band === 'strong'
+    ? `신강 — ผังหนุนก้านวัน ${support} ต่อ ${drain} ตัวเองแข็งพอจะถือของหนัก`
+    : band === 'weak'
+    ? `신약 — ผังดูดก้านวัน ${drain} ต่อ ${support} ของที่มาถึงมักหนักกว่ากำลังถือ`
+    : `ก้ำกึ่ง ${support} ต่อ ${drain} — แข็งหรืออ่อนขึ้นกับจังหวะที่เข้ามา`;
+  return { band, support, drain, note };
+}
+
+// ที่มาของค่า: หลักอ่าน 신강/신약 ในธรรมเนียมเกาหลี — แข็งไปคือดันเองได้แต่ชนคน
+// อ่อนไปคือทำคนเดียวไม่ไหวต้องมีคนหนุน ไม่ใช่ "ดวงไม่ดี" แค่คนละวิธีเดิน
+const _TR_SAJU: Record<string, TraitSet> = {
+  strong:   { initiative: +2, social: -1, risk: +1, expression: +1, structure: -1 },
+  balanced: { initiative: 0, social: 0, risk: 0 },
+  weak:     { initiative: -2, social: +2, risk: -2, structure: +1, expression: -1 },
+}
+
+// ── ติด traits ให้แต่ละศาสตร์ ────────────────────────────────────────────────
+//
+// ติดไว้บนก้อนข้อมูลของศาสตร์เอง (`chart.bazi.traits`) ไม่ใช่ export ตัวใหม่
+//   · ทุกแท็บที่มีดวงอยู่แล้วได้ traits ไปด้วยฟรี ไม่ต้องแก้ทีละหน้า
+//   · ไม่เพิ่ม export = ไม่เสี่ยงซ้ำรอยที่ทำหน้าเว็บพังเมื่อเช้า 1 ก.ย. 69
+//
+// ⛔ ศาสตร์ที่เป็นคู่แฝดจะไม่มี traits ของตัวเอง (ซาจู · โอแฮม · Arabic Parts ·
+//    ทิเบต Mewa · แอซเท็ก) — ตั้งใจให้ว่าง ไม่ใช่ลืม · ใส่เมื่อไหร่ = เสียงซ้ำ
+function _attachTraits(c: any): void {
+  // ⛔ ภาษาไทยอยู่ได้เฉพาะฟิลด์ที่ลงท้าย Th — ฟิลด์อื่นต้องตามภาษาที่กำลังแสดง
+  //    (ด่าน fuzz-bilingual-leak จับได้ทันทีตอนใส่ traitSrc ไทยล้วน 1 ก.ย. 69)
+  const put = (sysKey: string, t: TraitSet | undefined, srcTh: string, srcEn: string) => {
+    if (!c[sysKey] || !t) return;
+    c[sysKey].traits = { ...t };
+    c[sysKey].traitSrcTh = srcTh;
+    c[sysKey].traitSrc = _reportLang === 'en' ? srcEn : srcTh;
+  };
+
+  put('bazi', _TR_BAZI_STEM[c.bazi?.dayMaster],
+      `ก้านวัน ${c.bazi?.dayMaster} — นิสัยห้าธาตุ × ขั้วหยินหยาง ตามตำราปาจื้อ`,
+      `Day stem ${c.bazi?.dayMaster} — the five-element temperaments crossed with yin/yang polarity, per BaZi doctrine`);
+
+  put('ninestar', _TR_NINESTAR[c.ninestar?.star],
+      `ดาว ${c.ninestar?.star} ${c.ninestar?.starName} — คำบรรยายประจำดาวในตำราคิวงาคุ`,
+      `Star ${c.ninestar?.star} ${c.ninestar?.starName} — the character each star carries in kigaku`);
+
+  put('western', _TR_WESTERN[c.western?.sunSign],
+      `ราศีอาทิตย์ ${c.western?.sunSign} — ธาตุและลักษณะตามตำราคลาสสิก`,
+      `Sun in ${c.western?.sunSign} — element and modality, classical doctrine`);
+
+  put('numerology', _TR_LP[c.numerology?.lifePath],
+      `เลขเส้นทาง ${c.numerology?.lifePath} — คำบรรยายประจำเลขในระบบพีทาโกรัส`,
+      `Life Path ${c.numerology?.lifePath} — the character of the number in the Pythagorean system`);
+
+  put('thai', _TR_THAI_DAY[c.thai?.dayOfWeek],
+      `${c.thai?.dayName} — ลักษณะเทพประจำวันในตำราไทย`,
+      `${c.thai?.dayName} — the nature of the weekday deity in Thai doctrine`);
+
+  put('hellenistic', _TR_SECT[/Night/i.test(String(c.hellenistic?.sect)) ? 'night' : 'day'],
+      `${c.hellenistic?.sect} — หลัก hairesis สายกลางวัน/กลางคืน`,
+      `${c.hellenistic?.sect} — the doctrine of hairesis, day and night sects`);
+
+  put('onmyodo', _TR_ONMYO[/หยาง|Yang/i.test(String(c.onmyodo?.onmyoPolarity)) ? 'yang' : 'yin'],
+      `ขั้ว ${c.onmyodo?.onmyoPolarity} — หลักอินโย (陰陽)`,
+      `${c.onmyodo?.onmyoPolarity} polarity — the yin-yang principle (陰陽)`);
+
+  put('kabbalistic', _TR_SEPHIRA[c.kabbalistic?.sephira],
+      `เซฟิรา ${c.kabbalistic?.sephira} — หน้าที่ประจำองค์บนต้นไม้แห่งชีวิต`,
+      `Sephira ${c.kabbalistic?.sephira} — the function each holds on the Tree of Life`);
+
+  // ซาจู — อ่านผังเดียวกับ BaZi แต่ด้วยคำถามของตัวเอง (ดู _sajuStrength)
+  if (c.saju && c.bazi) {
+    const st = _sajuStrength(c.bazi);
+    c.saju.dmStrength = st.band;
+    c.saju.dmStrengthNoteTh = st.note;
+    c.saju.dmStrengthNote = _reportLang === 'en'
+      ? `${st.band} day master — support ${st.support} against drain ${st.drain}`
+      : st.note;
+    put('saju', _TR_SAJU[st.band], `ความแข็ง-อ่อนของก้านวัน (신강/신약) — ${st.note}`,
+        `Day-master strength (신강/신약) — support ${st.support} against drain ${st.drain}, the pivotal question in Korean practice`);
+  }
+
+  const dashaEn = (Object.entries(PLANET_TH_EN).find(([th]) => th === c.vedicMahadasha?.currentDasha)?.[1])
+                  || c.vedicMahadasha?.currentDashaKey || c.vedicMahadasha?.currentDasha;
+  put('vedicMahadasha', _TR_DASHA[String(dashaEn)],
+      `ทศา ${c.vedicMahadasha?.currentDasha} — ธรรมชาติของดาวตามหลักการกะในชโยติษ`,
+      `${c.vedicMahadasha?.currentDasha} dasha — the planet's nature as a karaka in Jyotish`);
+}
+
 export function calculate(d: BirthData): ChartData {
   // Every tradition re-registers its reading parts below; drop the previous
   // chart's so a second call can never serve the first one's evidence.
@@ -5373,7 +5658,9 @@ export function calculate(d: BirthData): ChartData {
   const dashaThaiKey = (Object.entries(PLANET_TH_EN).find(([_, en]) => en === vedicMahadasha.currentDasha)?.[0]) || vedicMahadasha.currentDasha;
   const addons = calcAddons(dmEl, (score as any).tierEn || (score as any).tier || 'Resonant', dashaThaiKey);
 
-  return { ...partial, score, addons } as any;
+  const _out = { ...partial, score, addons } as any;
+  _attachTraits(_out);
+  return _out;
 }
 
 // ============================================================
