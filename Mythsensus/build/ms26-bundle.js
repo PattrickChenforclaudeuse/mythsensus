@@ -5219,8 +5219,10 @@ function calcDailyPulse(c, date, opts = {}) {
     const TARA_NAMES_EN = ['Janma', 'Sampat', 'Vipat', 'Kshema', 'Pratyari', 'Sadhaka', 'Vadha', 'Mitra', 'Param Mitra'];
     candidates.push({
         sys: 'Vedic Moon',
-        sysTh: 'จันทร์เวทิก', sysEn: 'Vedic Moon',
-        noteTh: `Moon Nakshatra ${NAKSHATRAS_EN[todayNakIdx]} · Tara ${TARA_NAMES_TH[taraIdx]}`,
+        // ชื่อเดียวกับที่ฝั่ง forecast ใช้ — เดิมเรียก 'จันทร์เวทิก' ที่นี่ที่เดียว
+        // ทำให้บรรทัด "เสียงที่หนักที่สุด" อ้างชื่อศาสตร์ที่ไม่มีอยู่ในรายชื่อผู้ออกเสียงข้างล่าง
+        sysTh: 'โหราศาสตร์ภารตะ (อินเดีย)', sysEn: 'Vedic',
+        noteTh: `จันทร์จรนักษัตร ${NAKSHATRAS_EN[todayNakIdx]} · ตารา${TARA_NAMES_TH[taraIdx]}`,
         noteEn: `Moon Nakshatra ${NAKSHATRAS_EN[todayNakIdx]} · Tara ${TARA_NAMES_EN[taraIdx]}`,
         score: taraScore,
         velocity: 'daily',
@@ -5407,43 +5409,84 @@ const FORECAST_ADVICE = {
 // So the KEY stays global and the WORDING varies by area. Only the combinations
 // that actually read wrong are overridden; anything absent falls back to
 // FORECAST_ADVICE, because most of the eight are already area-neutral.
+// เพิ่มคำต่อด้าน 1 ก.ย. 69 — `steady` ไม่เคยมี override เลยสักด้าน และมันคือคีย์ที่
+// เจอบ่อยที่สุด (สถานะ "ปกติ") ⇒ วันธรรมดาๆ วันหนึ่ง สามในแปดด้านพิมพ์ประโยค
+// เดียวกันเป๊ะว่า "เดินตามแผน ไม่ต้องเร่ง" ซึ่งอ่านแล้วเหมือนเครื่องตอบอัตโนมัติ
+// (director 1 ก.ย.: "ไม่ใช่พูดวนๆ ไม่ได้อะไรเหมือนเดิม")
 const FORECAST_ADVICE_BY_DOMAIN = {
     career: {
+        steady: { th: 'งานเดินของมันได้ ไม่ต้องเข้าไปเร่ง', en: 'The work moves on its own today, let it' },
+        prepare: { th: 'เตรียมของให้พร้อม ยังไม่ใช่วันเสนอ', en: 'Get the material ready, today is not the day to pitch' },
+        hold: { th: 'เซ็นอะไรที่ถอยไม่ได้ เลื่อนไปก่อน', en: 'Push back anything you cannot unsign' },
+        guard: { th: 'ตรวจงานให้ละเอียดกว่าปกติ', en: 'Check the work more carefully than usual' },
+        talk: { th: 'พูดกับหัวหน้าหรือทีมให้ตรง อย่าอ้อม', en: 'Say it straight to your lead or your team' },
         rest: { th: 'ถอยจากงานสักพัก อย่าเพิ่งรับเพิ่ม', en: 'Step back from work, take nothing new on' },
         connect: { th: 'พึ่งทีม ขอแรงคนอื่นได้', en: 'Lean on your team, ask for hands' },
     },
     money: {
+        steady: { th: 'ตัวเลขนิ่ง ปล่อยให้มันนิ่ง', en: 'The numbers are steady, leave them steady' },
+        prepare: { th: 'ตั้งงบไว้ก่อน ยังไม่ใช่วันจ่าย', en: 'Set the budget, today is not the day to spend it' },
+        hold: { th: 'อย่าเพิ่งโอน อย่าเพิ่งเซ็น', en: 'Do not transfer, do not sign' },
+        guard: { th: 'เช็คตัวเลขซ้ำก่อนกดยืนยัน', en: 'Read the number twice before you confirm' },
         act: { th: 'กล้าลงเงินก้อนได้', en: 'Green light on the big spend' },
         rest: { th: 'หยุดเคลื่อนเงินไว้ก่อน', en: 'Stop moving money for now' },
         talk: { th: 'คุยเรื่องเงินให้จบ อย่าปล่อยค้าง', en: 'Settle the money conversation, do not leave it open' },
         connect: { th: 'ขอคำแนะนำก่อนตัดสินใจเรื่องเงิน', en: 'Get advice before you decide' },
     },
     love: {
+        steady: { th: 'ไม่ต้องพิสูจน์อะไรวันนี้ อยู่ด้วยกันก็พอ', en: 'Nothing to prove today, being there is enough' },
+        prepare: { th: 'ยังไม่ใช่วันเปิดเรื่องใหญ่ ค่อยๆ ตั้งหลัก', en: 'Not the day for the big conversation, find your footing first' },
+        hold: { th: 'อย่าเพิ่งตัดสินใจเรื่องที่ย้อนกลับไม่ได้', en: 'Decide nothing you cannot take back' },
+        connect: { th: 'ให้คนที่รู้จักกันทั้งคู่ช่วยพูดได้', en: 'Someone who knows you both can carry the message' },
         act: { th: 'พูดออกไป เข้าหาก่อนได้', en: 'Say it, make the first move' },
         guard: { th: 'อย่าเพิ่งให้คำสัญญา', en: 'Promise nothing yet' },
         rest: { th: 'เว้นระยะให้กันบ้าง', en: 'Give each other room' },
     },
     health: {
+        steady: { th: 'ร่างกายไม่ได้เรียกร้องอะไร ทำเท่าเดิม', en: 'The body is asking for nothing, keep the same load' },
+        prepare: { th: 'จัดตารางนอนกินให้เข้าที่ก่อน', en: 'Get sleep and meals back on a schedule first' },
+        hold: { th: 'เลื่อนหัตถการที่ไม่ด่วนออกไป', en: 'Postpone anything elective' },
+        rest: { th: 'วันนี้พัก ไม่ต้องออกแรง', en: 'Rest today, spend nothing' },
         act: { th: 'ร่างกายรับไหว ออกแรงได้', en: 'Your body can take it right now, spend it' },
         talk: { th: 'บอกอาการให้ตรง อย่าเก็บไว้', en: 'Say what hurts, do not sit on it' },
         connect: { th: 'ไปหาหมอ หรือชวนใครไปด้วย', en: 'See someone, or bring someone with you' },
         guard: { th: 'ระวังร่างกาย อย่าฝืนเกิน', en: 'Go easy on the body, do not push past it' },
     },
     family: {
+        steady: { th: 'บ้านไม่มีอะไรต้องแก้วันนี้', en: 'Nothing at home needs fixing today' },
+        prepare: { th: 'คุยกันไว้ก่อน ยังไม่ต้องลงมือ', en: 'Talk it through first, act later' },
+        hold: { th: 'เรื่องบ้านที่ย้อนยาก ยังไม่ต้องเคาะวันนี้', en: 'The hard-to-reverse house decision can wait' },
+        guard: { th: 'เรื่องในบ้านวันนี้ ฟังมากกว่าพูด', en: 'At home today, listen more than you speak' },
+        talk: { th: 'บอกที่บ้านให้รู้ อย่าให้เขาเดา', en: 'Tell them, do not make them guess' },
+        connect: { th: 'ชวนคนในบ้านมาช่วยกันตัดสิน', en: 'Bring the household into the decision' },
         act: { th: 'เริ่มเรื่องบ้านที่ค้างไว้ได้', en: 'Start the house thing you left' },
         rest: { th: 'อยู่บ้านเฉยๆ ก็พอ', en: 'Being home is enough' },
     },
     learning: {
+        steady: { th: 'อ่านต่อจากที่ค้างไว้ พอแล้ว', en: 'Pick up where you left off, that is enough' },
+        prepare: { th: 'รวบรวมของที่ต้องอ่านไว้ ยังไม่ต้องเริ่ม', en: 'Gather what you need to read, do not start yet' },
+        hold: { th: 'อย่าเพิ่งลงทะเบียนอะไรยาวๆ', en: 'Do not enrol in anything long' },
+        talk: { th: 'ถามให้ชัด ดีกว่าเดาเอาเอง', en: 'Ask plainly, it beats guessing' },
+        connect: { th: 'ถามคนที่ทำมาก่อน เร็วกว่าอ่านเอง', en: 'Ask someone who has done it, it is faster than reading' },
         act: { th: 'ลงมือเรียนของใหม่ได้', en: 'Start the new thing you meant to learn' },
         rest: { th: 'พักสมอง ยังไม่ต้องยัดเพิ่ม', en: 'Rest your head, stop cramming' },
         guard: { th: 'อย่าเพิ่งผูกมัดคอร์สยาวๆ', en: 'Do not sign up for anything long yet' },
     },
     allies: {
+        steady: { th: 'ไม่ต้องขยายวง คนที่มีอยู่พอแล้ว', en: 'No need to widen the circle, the one you have is enough' },
+        prepare: { th: 'ลิสต์ชื่อคนที่ต้องคุยไว้ ยังไม่ต้องทัก', en: 'List who you need to talk to, do not message yet' },
+        hold: { th: 'อย่าเพิ่งรับปากเป็นตัวแทนใคร', en: 'Do not agree to speak for anyone yet' },
+        talk: { th: 'เคลียร์กับคนที่ค้างคาให้จบ', en: 'Close the thing that has been left open' },
         act: { th: 'ทักไปก่อน ขยายวงได้', en: 'Reach out first, widen the circle' },
         rest: { th: 'ถอยจากวงสังคมสักพัก', en: 'Step out of the room for a while' },
         guard: { th: 'อย่าเพิ่งรับปากใคร', en: 'Do not agree to anything yet' },
     },
     chance: {
+        steady: { th: 'ไม่มีประตูใหม่เปิดวันนี้ ไม่ต้องมองหา', en: 'No new door opens today, stop looking for one' },
+        prepare: { th: 'ยังไม่ใช่จังหวะ เก็บแรงไว้', en: 'Not the moment, keep your powder dry' },
+        hold: { th: 'ยังไม่ใช่วันวางเดิมพัน', en: 'Not a day to place the bet' },
+        guard: { th: 'ข้อเสนอที่ดีเกินจริงวันนี้ ให้ผ่านไปก่อน', en: 'Anything that looks too good today, let it pass' },
+        talk: { th: 'ถามตรงๆ อาจได้โอกาสที่ไม่ได้คิดไว้', en: 'Ask outright — the opening may not be the one you expected' },
         act: { th: 'เสี่ยงได้ จังหวะเปิดอยู่', en: 'Take the shot, the window is open' },
         rest: { th: 'ยังไม่ต้องเสี่ยงอะไร', en: 'No need to gamble on anything' },
         connect: { th: 'โอกาสมาทางคน ไม่ใช่ทางแผน', en: 'The opening comes through people, not plans' },
@@ -5453,6 +5496,7 @@ function fcAdviceFor(domain, key) {
     const byDom = FORECAST_ADVICE_BY_DOMAIN[domain];
     return (byDom && byDom[key]) || FORECAST_ADVICE[key];
 }
+
 // ── Element key normalisation ───────────────────────────────────────────────
 // ChartData carries element names already localised (pEl() returns Thai in TH
 // reports) while the five-element tables are keyed in English. Comparing the

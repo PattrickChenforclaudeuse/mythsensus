@@ -486,6 +486,29 @@ const BRANCH = '子丑寅卯辰巳午未申酉戌亥'.split('');
   if (!pw) ok('จื่อเวย', 'ชื่อวังฝั่งไทยแปลตรงกับฝั่งอังกฤษทุกวังที่สุ่มเจอ (兄弟=พี่น้อง · 財帛=ทรัพย์ ไม่ใช่คำอื่น)');
 }
 
+// ═══ 10h · คำแนะนำห้ามซ้ำข้ามด้าน ═══════════════════════
+//
+// 1 ก.ย. 69 director: "ไม่ใช่พูดวนๆ ไม่ได้อะไรเหมือนเดิม" — วันนั้นสามในแปดด้าน
+// พิมพ์ประโยคเดียวกันเป๊ะ เพราะคีย์ `steady` ไม่เคยมีคำเฉพาะด้านเลยสักด้าน
+// ⛔ เพิ่มคีย์ใหม่หรือด้านใหม่เมื่อไหร่ ต้องเขียนคำของมันเอง ห้ามปล่อยตกไปที่คำกลาง
+{
+  const { fcAdviceFor } = require(path.join(__dirname, '..', 'build', 'calc.js'));
+  if (typeof fcAdviceFor !== 'function') { bad('คำแนะนำ', 'fcAdviceFor ไม่ถูก export ออกมา ตรวจไม่ได้'); }
+  else {
+    const KEYS = ['act','steady','prepare','hold','guard','rest','connect','talk'];
+    const DOMS = ['career','money','love','health','family','learning','allies','chance'];
+    let dup = 0;
+    for (const k of KEYS) {
+      const seen = {};
+      for (const d of DOMS) { const t = fcAdviceFor(d, k).th; (seen[t] = seen[t] || []).push(d); }
+      for (const [txt, ds] of Object.entries(seen)) {
+        if (ds.length > 1) { dup++; bad('คำแนะนำ', `"${k}" พิมพ์ประโยคเดียวกันใน ${ds.join('/')} → "${txt}"`); }
+      }
+    }
+    if (!dup) ok('คำแนะนำ', `8 คีย์ × 8 ด้าน = 64 ประโยค ไม่มีคู่ไหนซ้ำข้ามด้าน (อ่านแล้วไม่รู้สึกว่าเครื่องตอบอัตโนมัติ)`);
+  }
+}
+
 // ═══ 11 · ทุกศาสตร์ต้องมีคำตอบ อ่านรู้เรื่อง ไม่ใช่ค่าว่าง/ค่าสำรอง ═══════
 const SYS = ['bazi','ninestar','western','vedic','numerology','humandesign','mayan','celtic','thai','taksa',
              'saju','tibetan','ziwei','onmyodo','hellenistic','norseRune','ogham','arabicParts','kabbalistic',
