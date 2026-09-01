@@ -34,6 +34,13 @@ const WIRED = {
   kabbalistic:    c => c.kabbalistic.sephira,
   vedicMahadasha: c => c.vedicMahadasha.currentDasha,
   saju:           c => String(c.saju.dmStrength),
+  humandesign:    c => c.humandesign.type + '|' + c.humandesign.authority,
+  celtic:         c => c.celtic.treeName,
+  norseRune:      c => c.norseRune.runeName,
+  nativeAmerican: c => c.nativeAmerican.birthTotem,
+  ifaYoruba:      c => String(c.ifaYoruba.odu),
+  ziwei:          c => String(c.ziwei.mainStar),
+  taksa:          c => String(((c.taksa.wheel||[]).find(h=>h.house===7)||{}).planetNameEn),
 };
 
 // คู่ที่คำนวณจากของชุดเดียวกัน — **พูดได้ ถ้าพิสูจน์ได้ว่าไม่ใช่เสียงสะท้อน**
@@ -133,10 +140,75 @@ for (const c of charts) {
     }
   }
 }
+// ⚠️ ความเอียงของ "ค่ารายตัว" เป็นแค่สัญญาณเตือน ไม่ใช่ด่านตัดสินอีกแล้ว
+//
+// ตอนแรกตั้งเป็นด่านตาย เพราะกลัวแกนที่ตอบเหมือนกันทุกคน · แต่พอเอนจินอ่านผลเป็น
+// **เปอร์เซ็นไทล์เทียบประชากร** แทนค่าดิบ ความเอียงของตารางก็ถูกดูดซับไปแล้ว
+// (แกน social ค่ากลางอยู่ที่ +6.9 — คนที่ได้ +3 คือฝั่ง "อยู่คนเดียวได้" ไม่ใช่ฝั่งสังคม)
+//
+// สิ่งที่ต้องคุมจริงคือ **ผลลัพธ์กระจายไหม** ซึ่งด่านข้อ 6 วัดตรงๆ อยู่แล้ว
+// ⛔ ห้ามเอาข้อนี้กลับไปเป็นด่านตายเพื่อ "ให้เข้ม" — มันจะบีบให้คนไปบิดค่าในตาราง
+//    ให้สถิติสวย ซึ่งคือบิดตำรา และเป็นสิ่งที่ทั้งชั้นนี้ตั้งใจไม่ทำ
+const skewNote = [];
 for (const [k, a] of Object.entries(axisStat)) {
   const tot = a.neg + a.pos + a.zero;
   const skew = Math.max(a.neg, a.pos) / tot;
-  if (skew > 0.75) bad.push(['ความเอียง', `แกน ${k} เอียงไปฝั่งเดียว ${Math.round(skew * 100)}% — แกนแบบนี้ตอบเหมือนกันเกือบทุกคน`]);
+  if (skew > 0.75) skewNote.push(`${k} ${Math.round(skew * 100)}%`);
+}
+
+// ── 5 · baseline ที่ตรึงไว้ต้องยังตรงกับของจริง ────────────────────────────
+//
+// ⛔ เติมศาสตร์ใหม่หรือแก้ตาราง = การแจกแจงเลื่อน ⇒ เปอร์เซ็นไทล์ที่โชว์ให้ลูกค้าจะผิด
+//    ด่านนี้วัดใหม่จากดวงที่สุ่มมา แล้วเทียบกับค่าที่ hard-code ไว้ใน calc.ts
+{
+  const acc = {};
+  for (const c of charts) {
+    for (const r of (c.traitProfile || [])) {
+      (acc[r.axis] = acc[r.axis] || []).push(r.raw);
+    }
+  }
+  let drift = 0;
+  for (const [axis, vals] of Object.entries(acc)) {
+    const m = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const sd = Math.sqrt(vals.reduce((a, b) => a + (b - m) ** 2, 0) / vals.length);
+    const r0 = charts[0].traitProfile.find(x => x.axis === axis);
+    if (!r0) continue;
+    // ย้อนหาค่ากลางที่เอนจินใช้จาก raw กับ z ของดวงแรก
+    const usedSd = sd || 1;
+    const usedMean = r0.raw - r0.z * usedSd;
+    if (Math.abs(usedMean - m) > 1.2) {
+      drift++;
+      bad.push(['baseline', `แกน ${axis} ค่ากลางที่ตรึงไว้ห่างจากของจริง ${(usedMean - m).toFixed(2)} — ต้องวัดใหม่แล้วเขียนทับใน calc.ts`]);
+    }
+  }
+  if (!drift) ok.push(['baseline', 'ค่ากลางที่ตรึงไว้ยังตรงกับการแจกแจงจริงทุกแกน']);
+}
+
+// ── 6 · แต่ละแกนต้องกระจายเป็นทุกช่วง ไม่ใช่ตอบเหมือนกันหมด ────────────────
+{
+  const bands = {};
+  for (const c of charts) for (const r of (c.traitProfile || [])) {
+    (bands[r.axis] = bands[r.axis] || {})[r.band] = ((bands[r.axis] || {})[r.band] || 0) + 1;
+  }
+  let flat = 0;
+  for (const [axis, b] of Object.entries(bands)) {
+    const tot = Object.values(b).reduce((a, x) => a + x, 0);
+    const top = Math.max(...Object.values(b));
+    if (top / tot > 0.8) { flat++; bad.push(['การกระจาย', `แกน ${axis} ตกช่วงเดียว ${Math.round(top / tot * 100)}% ของดวง — ไม่แยกคน`]); }
+  }
+  if (!flat) ok.push(['การกระจาย', `ทั้ง ${Object.keys(bands).length} แกนกระจายหลายช่วง ไม่มีแกนไหนตอบเหมือนกันหมด`]);
+}
+
+// ── 7 · หนึ่งดวงต้องมีหลายศาสตร์พูด ───────────────────────────────────────
+{
+  const counts = charts.map(c => {
+    const sys = new Set();
+    for (const k of Object.keys(c)) if (c[k] && c[k].traits) sys.add(k);
+    return sys.size;
+  });
+  const min = Math.min(...counts), avg = counts.reduce((a, b) => a + b, 0) / counts.length;
+  if (min < 10) bad.push(['จำนวนเสียง', `มีดวงที่มีศาสตร์พูดแค่ ${min} ตัว — น้อยเกินจะเรียกว่าฉันทามติ`]);
+  else ok.push(['จำนวนเสียง', `ทุกดวงมีศาสตร์พูดอย่างน้อย ${min} ตัว (เฉลี่ย ${avg.toFixed(1)})`]);
 }
 
 const line = '═'.repeat(70);

@@ -5441,6 +5441,149 @@ const _TR_DASHA: Record<string, TraitSet> = {
   Mercury: { expression: +2, pace: +1, focus: -1, instinct: -2, social: +1 },
 }
 
+// ── ระบบประเภทพลังงาน · กลไกตัดสินใจ (authority) ────────────────────────────
+// ที่มา: ตัวกลยุทธ์กับกลไกตัดสินใจของแต่ละประเภทเป็นคำตอบตรงตัวของแกนพวกนี้อยู่แล้ว
+// ไม่ต้องตีความ — ตำราบอกเองว่าคนแบบไหนควรรอ ควรตอบสนอง หรือควรแจ้งแล้วลงมือ
+const _TR_HD_AUTH: Record<string, TraitSet> = {
+  Sacral:      { instinct: +2, initiative: +1, pace: +1 },   // เชื่อการตอบสนองของท้อง ณ วินาทีนั้น
+  Emotional:   { instinct: -2, pace: -2, initiative: -1 },   // ต้องรอให้คลื่นอารมณ์นิ่งก่อน = ห้ามเชื่อแรงแรก
+  Splenic:     { instinct: +2, pace: +2, expression: -1 },   // สัญชาตญาณครั้งเดียว เงียบ และเร็ว
+  Ego:         { initiative: +2, expression: +2, risk: +1 },
+  Self:        { initiative: +1, social: +1, instinct: +1 },
+  Mental:      { instinct: -2, social: +2, structure: -1 },  // ต้องคุยกับคนอื่นถึงจะรู้ว่าคิดอะไร
+  Lunar:       { pace: -2, instinct: +1, initiative: -2 },   // รอครบรอบจันทร์ก่อนตัดสินใจใหญ่
+};
+const _TR_HD_TYPE: Record<string, TraitSet> = {
+  Manifestor:            { initiative: +2, social: -1, expression: +1 },
+  Generator:             { initiative: -1, pace: -1, focus: +1 },
+  'Manifesting Generator': { initiative: +1, pace: +2, focus: -1 },
+  Projector:             { initiative: -2, social: +2, focus: +2 },
+  Reflector:             { initiative: -2, pace: -2, social: +1, structure: -2 },
+};
+
+// ── เซลติก · 13 ต้นไม้ ──────────────────────────────────────────────────────
+// ที่มา: คำบรรยายบุคลิกประจำต้นในปฏิทินต้นไม้ของ Graves (1948)
+const _TR_CELTIC: Record<string, TraitSet> = {
+  Birch:    { initiative: +2, change: +2, pace: +1, structure: -1 },
+  Rowan:    { instinct: +2, social: -1, focus: +1, expression: -1 },
+  Ash:      { instinct: +1, social: +1, focus: -1, change: +1 },
+  Alder:    { initiative: +2, expression: +2, pace: +1, risk: +1 },
+  Willow:   { instinct: +2, pace: -1, expression: -2, social: +1 },
+  Hawthorn: { change: +2, risk: +1, structure: -2, expression: +1 },
+  Oak:      { structure: +2, focus: +2, pace: -1, change: -2, initiative: +1 },
+  Holly:    { initiative: +2, risk: +2, structure: +1, social: -1 },
+  Hazel:    { focus: +2, structure: +2, instinct: -1, expression: +1 },
+  Vine:     { social: +2, instinct: +1, structure: -1, change: +1 },
+  Ivy:      { pace: -2, focus: +2, social: +1, change: -1 },
+  Reed:     { expression: +2, focus: +1, social: +1, instinct: +1 },
+  Elder:    { change: +2, root: +2, structure: -1, pace: +1 },
+};
+
+// ── รูนนอร์ส · 24 รูน ───────────────────────────────────────────────────────
+// ที่มา: ความหมายประจำรูนใน Elder Futhark (ตามบทกวีรูนนอร์สและไอซ์แลนด์)
+const _TR_RUNE: Record<string, TraitSet> = {
+  Fehu:     { risk: +1, initiative: +1, structure: +1 },
+  Uruz:     { initiative: +2, pace: +1, risk: +1, social: -1 },
+  Thurisaz: { risk: +2, change: +2, expression: +1, structure: -2 },
+  Ansuz:    { expression: +2, social: +1, instinct: +1 },
+  Raidho:   { root: +2, structure: +1, pace: +1 },
+  Kenaz:    { focus: +2, instinct: -1, expression: +1 },
+  Gebo:     { social: +2, expression: +1, risk: -1 },
+  Wunjo:    { social: +2, expression: +2, pace: +1 },
+  Hagalaz:  { change: +2, risk: +2, structure: -2, pace: +2 },
+  Nauthiz:  { pace: -2, structure: +2, risk: -2, focus: +2 },
+  Isa:      { pace: -2, initiative: -2, change: -2, expression: -2 },
+  Jera:     { pace: -2, structure: +2, change: -1, focus: +1 },
+  Eihwaz:   { focus: +2, pace: -1, structure: +1, social: -1 },
+  Perthro:  { instinct: +2, risk: +1, expression: -2 },
+  Algiz:    { risk: -2, structure: +1, instinct: +1, expression: -1 },
+  Sowilo:   { initiative: +2, expression: +2, pace: +2 },
+  Tiwaz:    { initiative: +2, structure: +2, focus: +2, risk: +1 },
+  Berkano:  { pace: -1, social: +2, change: +1, instinct: +1 },
+  Ehwaz:    { social: +2, root: +2, pace: +1 },
+  Mannaz:   { social: +2, structure: +1, instinct: -1 },
+  Laguz:    { instinct: +2, expression: -1, root: +1, structure: -2 },
+  Ingwaz:   { pace: -2, focus: +2, change: -1, root: -1 },
+  Dagaz:    { change: +2, pace: +1, expression: +1, instinct: +1 },
+  Othalan:  { root: -2, structure: +2, change: -2, social: +1 },
+};
+
+// ── โทเท็มพื้นเมืองอเมริกัน · 12 โทเท็มตามเดือนเกิด ─────────────────────────
+// ที่มา: คำบรรยายนิสัยประจำโทเท็มในตารางที่ตีพิมพ์ (งานสมัยใหม่ — ระบุไว้ในคำอ่าน)
+const _TR_TOTEM: Record<string, TraitSet> = {
+  Otter:        { change: +2, social: +1, structure: -2, instinct: +1 },
+  Wolf:         { instinct: +2, social: -1, expression: -1, focus: +1 },
+  Falcon:       { initiative: +2, pace: +2, risk: +1 },
+  Beaver:       { structure: +2, focus: +2, pace: -1, change: -2 },
+  Deer:         { social: +2, expression: +2, pace: +1, risk: -1 },
+  Woodpecker:   { social: +2, instinct: +1, root: -1, expression: +1 },
+  Salmon:       { initiative: +2, focus: +2, risk: +1, root: +1 },
+  'Brown Bear': { structure: +2, focus: +2, pace: -2, social: -1 },
+  Raven:        { social: +2, change: +1, expression: +1 },
+  Snake:        { change: +2, instinct: +2, expression: -2, risk: +1 },
+  Elk:          { structure: +1, social: +2, pace: -1, focus: +1 },
+  'Snow Goose': { structure: +2, focus: +2, change: -1, risk: -1 },
+};
+
+// ── อิฟา · 16 Odù หลัก ──────────────────────────────────────────────────────
+// ที่มา: ธีมประจำ Odù ในตำราอิฟา
+// ⛔ อิฟาไม่ได้ทำนายจากวันเกิดโดยหลักวิชา (ต้องทอดโอปเปเล) — ค่านี้จึงเป็น
+//    ลักษณะของ Odù เอง ไม่ใช่คำยืนยันว่าคนนี้ได้ Odù นี้จริง · เขียนกำกับไว้ในคำอ่านแล้ว
+const _TR_ODU: Record<string, TraitSet> = {
+  Ogbe:     { initiative: +2, expression: +2, pace: +1 },
+  Oyeku:    { pace: -2, expression: -2, instinct: +2, social: -1 },
+  Iwori:    { instinct: +2, change: +1, focus: +1 },
+  Odi:      { root: -2, social: +2, structure: +1, pace: -1 },
+  Irosun:   { instinct: +2, focus: +2, expression: -1 },
+  Owonrin:  { change: +2, risk: +2, structure: -2, pace: +2 },
+  Obara:    { expression: +2, social: +2, risk: +1 },
+  Okanran:  { risk: +2, change: +2, expression: +1, structure: -1 },
+  Ogunda:   { initiative: +2, focus: +2, structure: +1, social: -1 },
+  Osa:      { change: +2, pace: +2, risk: +2, structure: -2 },
+  Ika:      { instinct: +2, expression: -2, focus: +1 },
+  Oturupon: { pace: -2, structure: +2, risk: -2, focus: +1 },
+  Otura:    { social: +2, expression: +2, instinct: +1 },
+  Irete:    { structure: +2, focus: +2, change: -1 },
+  Ose:      { social: +2, instinct: +2, expression: +1 },
+  Ofun:     { pace: -1, focus: +2, structure: +1, social: +1 },
+};
+
+// ── ทักษา · ดาวกาลกิณี ──────────────────────────────────────────────────────
+// ⛔ อย่าใช้ "เจ้าวัน" เป็นตัวชี้ — มันมาจากวันเกิดเหมือนไทยพราหมณ์ จะกลายเป็นเสียงสะท้อน
+//    ของที่เป็นของทักษาเองคือ **ภูมิกาลกิณี** — ดาวที่ตกภูมินี้คือสิ่งที่ดูดกำลังคนนั้น
+//    ซึ่งเป็นคำตอบเรื่อง "ทางที่ต้องระวัง" โดยตรง และไม่มีศาสตร์อื่นในเล่มพูดแบบนี้
+// ที่มา: ความหมายภูมิกาลกิณีในตำราทักษาปกรณ์ + ธรรมชาติของดาวที่ตกภูมินั้น
+const _TR_TAKSA_KALA: Record<string, TraitSet> = {
+  Sun:     { expression: -2, social: +1 },        // กาลกิณีเป็นอาทิตย์ = ออกหน้ามากแล้วเสีย
+  Moon:    { instinct: -1, pace: +1 },            // = อ่อนไหวตามอารมณ์แล้วเสีย
+  Mars:    { risk: -2, pace: -1 },                // = ใจร้อนแล้วเสีย
+  Mercury: { expression: -1, focus: +1 },         // = พูดมากหรือคิดฟุ้งแล้วเสีย
+  Jupiter: { structure: -1, social: -1 },         // = เชื่อผู้ใหญ่หรือยึดตำรามากแล้วเสีย
+  Venus:   { social: -1, risk: -1 },              // = ตามใจคนหรือความสบายแล้วเสีย
+  Saturn:  { pace: +1, change: +1 },              // = ยื้อและอดทนนานเกินแล้วเสีย
+  Rahu:    { risk: -2, change: -2 },              // = ไล่ของใหม่หรือทางลัดแล้วเสีย
+  Ketu:    { social: +1, focus: -1 },             // = ปลีกตัวมากแล้วเสีย
+};
+
+// ── ซื่อเว่ยโต่วซู · 14 ดาวหลัก ─────────────────────────────────────────────
+// ที่มา: บุคลิกประจำดาวหลักในตำราจื่อเวย
+const _TR_ZIWEI: Record<string, TraitSet> = {
+  '紫微': { initiative: +2, structure: +2, social: +1, expression: +1 },   // จักรพรรดิ
+  '天機': { focus: +2, change: +2, instinct: +1, structure: -1 },          // ปัญญา
+  '太陽': { expression: +2, social: +2, initiative: +2 },                   // อาทิตย์
+  '武曲': { structure: +2, focus: +2, expression: -1, risk: +1 },          // โลหะแกร่ง
+  '天同': { pace: -2, social: +2, risk: -2, initiative: -1 },              // สวรรค์สมดุล
+  '廉貞': { change: +2, risk: +2, focus: +2, structure: -1 },              // ศักดิ์ศรี
+  '天府': { structure: +2, change: -2, pace: -1, risk: -1 },               // คลังหลวง
+  '太陰': { instinct: +2, expression: -2, pace: -1, social: +1 },          // จันทร์
+  '貪狼': { social: +2, change: +2, risk: +2, expression: +2 },            // โลภหมาป่า
+  '巨門': { expression: +2, instinct: +1, social: -1, focus: +1 },         // ประตูใหญ่
+  '天相': { social: +2, structure: +2, initiative: -1 },                   // เสนาบดี
+  '天梁': { structure: +2, focus: +2, pace: -2, social: +1 },              // คานสวรรค์
+  '七殺': { initiative: +2, risk: +2, pace: +2, social: -1 },              // เจ็ดสังหาร
+  '破軍': { change: +2, risk: +2, structure: -2, pace: +2 },               // ทลายทัพ
+};
+
 // ── ซาจู · ความแข็ง-อ่อนของ Day Master (신강/신약) ──────────────────────────
 //
 // ⛔ อย่าเพิ่งคิดว่านี่คือ BaZi ซ้ำ · คำนวณจากแปดตัวอักษรชุดเดียวกันจริง
@@ -5497,6 +5640,91 @@ const _TR_SAJU: Record<string, TraitSet> = {
   weak:     { initiative: -2, social: +2, risk: -2, structure: +1, expression: -1 },
 }
 
+// ── ผลรวมของแกน · เทียบกับประชากร ──────────────────────────────────────────
+//
+// ⛔ ห้ามอ่านค่าดิบตรงๆ · ตำราแทบทุกสายบรรยายคนในทางบวก ผลรวมดิบจึงเอียงโดย
+//    ธรรมชาติ (แกน social ค่ากลางอยู่ที่ +6.9 ไม่ใช่ 0) ⇒ ถ้าอ่านดิบ ทุกคนจะ
+//    "เป็นคนสังคม" หมด · ทางที่ถูกคือเทียบกับคนอื่น ไม่ใช่เทียบกับศูนย์
+//
+// ⛔ และห้ามแก้ด้วยการบิดค่าในตารางให้สถิติสวย — นั่นคือบิดตำรา
+//    (director 1 ก.ย. 69: "เน้น Quality ให้ดีที่สุด")
+//
+// ค่ากลาง/ส่วนเบี่ยงเบนวัดจากดวงสุ่ม 3,000 ดวง กระจาย 5 โซนเวลา ปี 1940-2009
+// 🔄 **เติมศาสตร์ใหม่หรือแก้ตารางเมื่อไหร่ ต้องวัดใหม่แล้วเขียนทับตรงนี้**
+//    ด่าน traits จะจับได้เองถ้าค่าที่ตรึงไว้เลื่อนจากของจริง
+const _TRAIT_BASELINE: Record<string, [number, number]> = {
+  pace: [-2.16, 4.62], initiative: [2.96, 4.50], social: [6.92, 3.79],
+  instinct: [4.58, 4.24], expression: [2.88, 4.84], change: [1.08, 3.58],
+  risk: [0.34, 3.76], root: [-0.11, 2.88], structure: [4.05, 4.15], focus: [5.61, 3.64],
+};
+
+interface TraitAxisResult {
+  axis: string; raw: number; z: number; pct: number;
+  band: 'strong-neg' | 'neg' | 'mid' | 'pos' | 'strong-pos';
+  labelTh: string; labelEn: string;
+  voices: number; agreeTh: string[]; dissentTh: string[];
+}
+
+// ชื่อศาสตร์ไว้บอกว่าใครโหวตฝั่งไหน
+const _TR_SYS_TH: Record<string, string> = {
+  bazi: 'BaZi', saju: 'ซาจู', ninestar: 'ดาวเก้าดวง', western: 'ตะวันตก',
+  numerology: 'เลขศาสตร์', thai: 'ไทยพราหมณ์', hellenistic: 'เฮลเลนิสติก',
+  onmyodo: 'ออนเมียวโด', kabbalistic: 'คับบาลาห์', vedicMahadasha: 'มหาทศา',
+  humandesign: 'ระบบประเภทพลังงาน', celtic: 'เซลติก', norseRune: 'รูนนอร์ส',
+  nativeAmerican: 'โทเท็มอเมริกัน', ifaYoruba: 'อิฟา', ziwei: 'จื่อเวย', taksa: 'ทักษา',
+};
+const _TR_SYS_EN: Record<string, string> = {
+  bazi: 'BaZi', saju: 'Saju', ninestar: 'Nine Star Ki', western: 'Western',
+  numerology: 'Numerology', thai: 'Thai Brahmin', hellenistic: 'Hellenistic',
+  onmyodo: 'Onmyodo', kabbalistic: 'Kabbalah', vedicMahadasha: 'Vimshottari',
+  humandesign: 'Energy Type System', celtic: 'Celtic', norseRune: 'Norse Rune',
+  nativeAmerican: 'Native American', ifaYoruba: 'Ifá', ziwei: 'Zi Wei', taksa: 'Taksa',
+};
+
+function _buildTraitProfile(c: any): TraitAxisResult[] {
+  const out: TraitAxisResult[] = [];
+  const isEn = _reportLang === 'en';
+  for (const [axis, [mean, sd]] of Object.entries(_TRAIT_BASELINE)) {
+    let raw = 0, voices = 0;
+    const agree: string[] = [], dissent: string[] = [];
+    for (const sys of Object.keys(_TR_SYS_TH)) {
+      const v = ((c[sys] || {}).traits || {})[axis];
+      if (v === undefined) continue;
+      raw += v; voices++;
+    }
+    if (!voices) continue;
+    const z = sd ? (raw - mean) / sd : 0;
+    // ฝั่งไหนคือ "ตรงกับคำตอบ" ขึ้นกับว่าผลรวมออกมาทางบวกหรือลบเทียบค่ากลาง
+    for (const sys of Object.keys(_TR_SYS_TH)) {
+      const v = ((c[sys] || {}).traits || {})[axis];
+      if (v === undefined || v === 0) continue;
+      const name = isEn ? _TR_SYS_EN[sys] : _TR_SYS_TH[sys];
+      if (Math.sign(v) === Math.sign(z || 1)) agree.push(name); else dissent.push(name);
+    }
+    const band: TraitAxisResult['band'] =
+      z >= 1.2 ? 'strong-pos' : z >= 0.4 ? 'pos' : z <= -1.2 ? 'strong-neg' : z <= -0.4 ? 'neg' : 'mid';
+    const ax = TRAIT_AXES[axis];
+    out.push({
+      axis, raw, z: Math.round(z * 100) / 100,
+      // เปอร์เซ็นไทล์แบบประมาณจากการแจกแจงปกติ — พอสำหรับบอกว่า "มากกว่าคนกี่ %"
+      pct: Math.max(1, Math.min(99, Math.round((0.5 * (1 + _erf(z / Math.SQRT2))) * 100))),
+      band,
+      labelTh: band === 'mid' ? 'อยู่กลางๆ' : (z > 0 ? ax.pos : ax.neg),
+      labelEn: band === 'mid' ? 'in the middle' : (z > 0 ? ax.posEn : ax.negEn),
+      voices, agreeTh: agree, dissentTh: dissent,
+    });
+  }
+  return out.sort((a, b) => Math.abs(b.z) - Math.abs(a.z));
+}
+
+// erf แบบประมาณ (Abramowitz & Stegun 7.1.26) — คลาดเคลื่อน < 1.5e-7 พอสำหรับเปอร์เซ็นไทล์
+function _erf(x: number): number {
+  const sign = x < 0 ? -1 : 1; x = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * x);
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+  return sign * y;
+}
+
 // ── ติด traits ให้แต่ละศาสตร์ ────────────────────────────────────────────────
 //
 // ติดไว้บนก้อนข้อมูลของศาสตร์เอง (`chart.bazi.traits`) ไม่ใช่ export ตัวใหม่
@@ -5546,6 +5774,42 @@ function _attachTraits(c: any): void {
   put('kabbalistic', _TR_SEPHIRA[c.kabbalistic?.sephira],
       `เซฟิรา ${c.kabbalistic?.sephira} — หน้าที่ประจำองค์บนต้นไม้แห่งชีวิต`,
       `Sephira ${c.kabbalistic?.sephira} — the function each holds on the Tree of Life`);
+
+  const _hdAuth = Object.keys(_TR_HD_AUTH).find(k => String(c.humandesign?.authority).includes(k));
+  const _hdType = _TR_HD_TYPE[String(c.humandesign?.type)];
+  if (c.humandesign && (_hdAuth || _hdType)) {
+    put('humandesign', { ...(_hdType || {}), ...(_hdAuth ? _TR_HD_AUTH[_hdAuth] : {}) },
+        `${c.humandesign.type} · ${c.humandesign.authority} — กลยุทธ์กับกลไกตัดสินใจของประเภทนี้`,
+        `${c.humandesign.type} · ${c.humandesign.authority} — the strategy and decision mechanism this type is given`);
+  }
+
+  put('celtic', _TR_CELTIC[c.celtic?.treeName],
+      `ต้น${c.celtic?.treeNameTh} — บุคลิกประจำต้นในปฏิทินต้นไม้ของ Graves`,
+      `${c.celtic?.treeName} — the character Graves gives this tree in the tree calendar`);
+
+  put('norseRune', _TR_RUNE[c.norseRune?.runeName],
+      `รูน ${c.norseRune?.runeName} — ความหมายประจำรูนใน Elder Futhark`,
+      `Rune ${c.norseRune?.runeName} — its meaning in the Elder Futhark`);
+
+  put('nativeAmerican', _TR_TOTEM[c.nativeAmerican?.birthTotem],
+      `โทเท็ม ${c.nativeAmerican?.birthTotem} — คำบรรยายนิสัยประจำโทเท็มตามเดือนเกิด`,
+      `Totem ${c.nativeAmerican?.birthTotem} — the character given to this birth-month totem`);
+
+  put('ifaYoruba', _TR_ODU[String(c.ifaYoruba?.odu)],
+      `Odù ${c.ifaYoruba?.odu} — ธีมประจำ Odù ในตำราอิฟา`,
+      `Odù ${c.ifaYoruba?.odu} — the theme this Odù carries in Ifá`);
+
+  put('ziwei', _TR_ZIWEI[String(c.ziwei?.mainStar)],
+      `ดาว ${c.ziwei?.mainStar} — บุคลิกประจำดาวหลักในตำราจื่อเวย`,
+      `Star ${c.ziwei?.mainStar} — the character of this main star in Zi Wei doctrine`);
+
+  // ทักษา — ใช้ดาวที่ตกภูมิกาลกิณี ไม่ใช่เจ้าวัน (เจ้าวันจะซ้ำกับไทยพราหมณ์)
+  {
+    const kala = (c.taksa?.wheel || []).find((h: any) => h.house === 7);
+    if (kala) put('taksa', _TR_TAKSA_KALA[String(kala.planetNameEn)],
+      `กาลกิณีเป็น${kala.planetNameTh} — สิ่งที่ดูดกำลังของคุณตามภูมิทักษา`,
+      `${kala.planetNameEn} falls in the Kalakini house — what drains you in the Taksa wheel`);
+  }
 
   // ซาจู — อ่านผังเดียวกับ BaZi แต่ด้วยคำถามของตัวเอง (ดู _sajuStrength)
   if (c.saju && c.bazi) {
@@ -5660,6 +5924,8 @@ export function calculate(d: BirthData): ChartData {
 
   const _out = { ...partial, score, addons } as any;
   _attachTraits(_out);
+  // ผลรวมรายแกนเทียบประชากร — ทุกแท็บอ่านจาก chart.traitProfile ได้เลย
+  _out.traitProfile = _buildTraitProfile(_out);
   return _out;
 }
 
