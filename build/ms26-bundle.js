@@ -10561,107 +10561,188 @@ const _TRAIT_MIN_VOICES = 6;
 const _TRAIT_EDGE = {
     pace: {
         posGo: 'งานที่ตัดสินเร็วแล้วได้เปรียบ — เปิดตัวก่อน ทดลองถี่ๆ',
-        posWatch: 'เรื่องที่แก้ทีหลังไม่ได้ ต้องตั้งใจถ่วงตัวเอง เช่น เซ็นสัญญา ย้ายบ้าน',
+        posWatch: 'เรื่องที่ถอยไม่ได้ ตั้งกฎให้ตัวเองนอนหนึ่งคืนก่อนเซ็น',
         negGo: 'งานที่ยิ่งอยู่นานยิ่งได้เปรียบ — ของที่ต้องสะสมฝีมือหรือความเชื่อใจ',
-        negWatch: 'โอกาสที่มีอายุ ถ้ารอจนพร้อมมักหมดเวลาไปก่อน',
+        negWatch: 'ของที่มีวันหมดอายุ ให้ตั้งวันตัดสินไว้ล่วงหน้า ไม่ใช่รอจนพร้อม',
         posGoEn: 'work that rewards deciding fast — launching early, testing often',
-        posWatchEn: 'anything you cannot undo deserves a deliberate brake: contracts, moving house',
+        posWatchEn: 'for anything you cannot undo, make yourself sleep on it before signing',
         negGoEn: 'work that compounds — anything built on accumulated skill or trust',
-        negWatchEn: 'opportunities with an expiry date tend to close while you are still preparing',
+        negWatchEn: 'for anything with an expiry date, set the decision date in advance rather than waiting to feel ready',
     },
     initiative: {
-        posGo: 'ตำแหน่งที่ไม่มีใครบอกว่าต้องทำอะไร แล้วคุณตั้งโจทย์เอง',
-        posWatch: 'เริ่มหลายเรื่องพร้อมกันจนไม่มีเรื่องไหนถูกทำจนจบ',
-        negGo: 'บทที่ต้องรอให้เรื่องสุกก่อนแล้วเข้าถูกจังหวะ — งานคัด งานตัดสิน',
-        negWatch: 'ถ้าไม่มีใครเปิดให้ คุณจะรออยู่อย่างนั้น ต้องตั้งเส้นตายให้ตัวเอง',
+        posGo: 'ตำแหน่งที่ไม่มีใครตั้งโจทย์ให้ แล้วคุณตั้งเอง',
+        posWatch: 'ตั้งเพดานว่าเปิดเรื่องใหม่ได้กี่เรื่อง ก่อนต้องปิดของเก่าหนึ่งเรื่อง',
+        negGo: 'บทที่ต้องรอให้เรื่องสุกแล้วเข้าถูกจังหวะ — งานคัด งานตัดสิน',
+        negWatch: 'เขียนเส้นตายของตัวเองลงปฏิทิน อย่ารอให้คนอื่นมาเปิดให้',
         posGoEn: 'a seat where nobody hands you the brief and you set it yourself',
-        posWatchEn: 'starting many things at once until none of them is finished',
+        posWatchEn: 'cap how many things you may open before one has to close',
         negGoEn: 'roles that wait for a thing to ripen and then enter well — judging, selecting',
-        negWatchEn: 'if nobody opens the door you will keep waiting: set your own deadlines',
+        negWatchEn: 'put your own deadline in the calendar instead of waiting for someone to open the door',
     },
     social: {
         posGo: 'งานที่ผลลัพธ์มาจากคนอื่นด้วย — ขาย พาร์ตเนอร์ ทีม',
-        posWatch: 'ตัดสินใจตามห้องประชุมจนลืมว่าตัวเองคิดอะไร',
+        posWatch: 'จดความเห็นตัวเองก่อนเข้าห้องประชุม แล้วค่อยเทียบตอนออก',
         negGo: 'งานที่ต้องการสมาธิยาวและไม่มีใครมาขัด',
-        negWatch: 'ข่าวสารและโอกาสเดินทางมากับคน ถ้าตัดคนออกหมดจะไม่รู้เรื่องอะไรเลย',
+        negWatch: 'นัดเจอคนนอกวงให้เป็นตารางประจำ ไม่ใช่รอให้มีเรื่องค่อยนัด',
         posGoEn: 'work whose result depends on other people — selling, partnering, teams',
-        posWatchEn: 'deciding with the room until you lose track of what you thought',
+        posWatchEn: 'write down your own view before the meeting, then compare on the way out',
         negGoEn: 'work that needs long uninterrupted attention',
-        negWatchEn: 'news and openings travel through people; cut them all out and you hear nothing',
+        negWatchEn: 'schedule people outside your circle on a fixed cadence rather than only when you need something',
     },
     instinct: {
         posGo: 'สนามที่ข้อมูลไม่เคยครบ แล้วต้องตัดสินบนของไม่ครบ',
-        posWatch: 'เรื่องที่ตรวจสอบได้ ให้ตรวจ อย่าใช้ความรู้สึกแทนตัวเลข',
+        posWatch: 'ตัวเลขที่หาได้ ให้หาก่อนเคาะ อย่างน้อยหนึ่งตัว',
         negGo: 'งานที่ผิดแล้วแพง จึงคุ้มที่จะคิดช้า — ตรวจสอบ ออกแบบ วางระบบ',
-        negWatch: 'บางเรื่องข้อมูลไม่มีวันครบ รอครบคือไม่ได้ตัดสินใจ',
+        negWatch: 'ตั้งไว้ล่วงหน้าว่ารู้แค่ไหนถือว่าพอ แล้วเคาะที่จุดนั้น',
         posGoEn: 'fields where the information is never complete and you must decide anyway',
-        posWatchEn: 'when a thing can be checked, check it — do not let a feeling stand in for a number',
+        posWatchEn: 'find at least one number you can actually look up before you call it',
         negGoEn: 'work where mistakes are expensive, so thinking slowly pays — auditing, design, systems',
-        negWatchEn: 'some things never complete; waiting for complete is a decision not to decide',
+        negWatchEn: 'decide in advance how much you need to know, then call it at that point',
     },
     expression: {
         posGo: 'บทที่ต้องมีคนพูดแทนเรื่อง — สอน นำเสนอ เจรจา',
-        posWatch: 'พูดก่อนคิดในห้องที่คำพูดถูกจดไว้',
+        posWatch: 'ในห้องที่คำพูดถูกจดไว้ ให้ถามหนึ่งคำถามก่อนแสดงความเห็น',
         negGo: 'บทที่ความน่าเชื่อถือมาจากการไม่พูดพร่ำ — ที่ปรึกษา ผู้ตัดสิน',
-        negWatch: 'คนอ่านใจไม่ออก ความเงียบมักถูกแปลว่าไม่เห็นด้วย',
+        negWatch: 'ก่อนปิดวาระ พูดหนึ่งประโยคว่าคุณเห็นด้วยหรือไม่ อย่าปล่อยให้เขาเดา',
         posGoEn: 'roles that need a voice for the thing — teaching, pitching, negotiating',
-        posWatchEn: 'speaking before thinking in rooms where words are minuted',
+        posWatchEn: 'in rooms where words are minuted, ask one question before you give a view',
         negGoEn: 'roles whose authority comes from not talking much — advising, adjudicating',
-        negWatchEn: 'people cannot read you; silence is usually read as disagreement',
+        negWatchEn: 'before an item closes, say in one sentence whether you agree — do not leave them guessing',
     },
     change: {
         posGo: 'ของที่พังอยู่แล้วและต้องมีคนกล้ารื้อ',
-        posWatch: 'รื้อของที่ยังทำงานได้ เพราะเบื่อ ไม่ใช่เพราะมันเสีย',
+        posWatch: 'ก่อนรื้อ เขียนให้ได้หนึ่งบรรทัดว่ามันเสียตรงไหน ถ้าเขียนไม่ได้ แปลว่าเบื่อ',
         negGo: 'ของที่มีค่าเพราะมันไม่เปลี่ยน — มาตรฐาน ความไว้ใจ ของสะสม',
-        negWatch: 'พื้นเปลี่ยนใต้เท้าแล้วยังยืนท่าเดิม',
+        negWatch: 'ตั้งรอบทบทวนประจำปี ว่าอะไรที่เคยจริงแล้ววันนี้ไม่จริงแล้ว',
         posGoEn: 'things already broken that need someone willing to tear them down',
-        posWatchEn: 'tearing down what still works, out of boredom rather than fault',
+        posWatchEn: 'before tearing down, write one line naming the fault — if you cannot, it is boredom',
         negGoEn: 'things valuable precisely because they do not change — standards, trust, an archive',
-        negWatchEn: 'the ground moves and you are still standing the old way',
+        negWatchEn: 'set a yearly review of what used to be true and is not any more',
     },
     risk: {
         posGo: 'เกมที่ผลตอบแทนไม่สมมาตร — เสียน้อย ได้มาก',
-        posWatch: 'อย่าเอาของที่แพ้แล้วเริ่มใหม่ไม่ได้ไปวางเดิมพัน',
+        posWatch: 'เขียนไว้ก่อนลงเงินว่าถ้าแพ้ เหลืออะไรให้เริ่มใหม่',
         negGo: 'บทที่หน้าที่คือกันไม่ให้เกิดความเสียหาย',
-        negWatch: 'ไม่เสี่ยงเลยก็เป็นความเสี่ยงแบบหนึ่ง คือถูกแซงช้าๆ',
+        negWatch: 'กันงบก้อนเล็กที่แพ้ได้ไว้ต่างหาก แล้วบังคับตัวเองให้ใช้',
         posGoEn: 'games with asymmetric payoff — lose small, win large',
-        posWatchEn: 'never stake the thing you cannot restart from',
+        posWatchEn: 'before you stake anything, write down what is left to restart from if it goes',
         negGoEn: 'roles whose job is to keep damage from happening',
-        negWatchEn: 'taking none is its own risk: being overtaken slowly',
+        negWatchEn: 'ring-fence a small budget you can afford to lose, then make yourself spend it',
     },
     root: {
         posGo: 'งานที่ได้เปรียบเพราะไปถึงที่ — ตลาดใหม่ หน้างาน',
-        posWatch: 'ของที่ต้องอยู่นานถึงจะออกดอก มักถูกทิ้งกลางทาง',
+        posWatch: 'เลือกหนึ่งเรื่องที่จะอยู่กับมันเกินสามปี แล้วเขียนชื่อมันไว้',
         negGo: 'ของที่ต้องปักหลักถึงจะได้ — ชื่อเสียงในพื้นที่ เครือข่ายที่ลึก',
-        negWatch: 'โอกาสที่อยู่นอกรัศมีจะไม่มีวันเดินมาหาเอง',
+        negWatch: 'ออกไปนอกรัศมีตามรอบที่กำหนดไว้ ไม่ใช่ตอนมีธุระ',
         posGoEn: 'work that wins by being there — new markets, site work',
-        posWatchEn: 'things that only flower if you stay tend to get abandoned halfway',
+        posWatchEn: 'pick one thing you will stay with past three years, and write its name down',
         negGoEn: 'what only comes from staying put — local standing, deep networks',
-        negWatchEn: 'openings outside your radius will never walk to you',
+        negWatchEn: 'travel outside your radius on a set cadence, not only when there is an errand',
     },
     structure: {
         posGo: 'งานที่ความผิดพลาดแพง จึงต้องมีระบบจริง',
-        posWatch: 'ระบบที่แน่นเกินจะกันของดีที่ยังไม่มีชื่อออกไปด้วย',
+        posWatch: 'เปิดช่องยกเว้นไว้หนึ่งช่อง สำหรับของดีที่ยังไม่เข้าเกณฑ์',
         negGo: 'สนามที่กติกายังไม่ถูกเขียน แล้วต้องเดินไปเขียนเอง',
-        negWatch: 'ของที่โตแล้วต้องมีระเบียบ ถ้าไม่วางไว้ก่อน มันจะพังตอนโตพอดี',
+        negWatch: 'เขียนขั้นตอนไว้ตั้งแต่ยังทำคนเดียว ก่อนถึงวันที่ต้องส่งต่อ',
         posGoEn: 'work where mistakes are expensive and the system has to be real',
-        posWatchEn: 'a system tight enough to also keep out the good thing that has no name yet',
+        posWatchEn: 'keep one exception slot open for the good thing that does not meet the criteria yet',
         negGoEn: 'fields where the rules are not written and you get to write them',
-        negWatchEn: 'what grows needs order; skip it and it breaks exactly when it gets big',
+        negWatchEn: 'write the steps down while you are still the only one doing it, before you have to hand it over',
     },
     focus: {
         posGo: 'ของที่ต้องลึกจนคนอื่นตามไม่ทัน — วิชาชีพเฉพาะทาง',
-        posWatch: 'ลึกเรื่องเดียวแล้วตลาดของเรื่องนั้นหาย คือเริ่มใหม่หมด',
+        posWatch: 'ให้เวลาสัปดาห์ละครั้งกับเรื่องนอกสายที่ไม่เกี่ยวกันเลย',
         negGo: 'บทที่ต้องเห็นหลายเรื่องพร้อมกัน — เชื่อมคน เชื่อมสาย',
-        negWatch: 'รู้กว้างแล้วไม่มีอะไรลึกพอให้คนจ้าง',
+        negWatch: 'เลือกหนึ่งเรื่องที่จะลึกกว่าคนอื่นให้ได้ แล้วอย่าแตะเรื่องใหม่จนกว่าจะถึง',
         posGoEn: 'what needs depth beyond where others follow — a specialist trade',
-        posWatchEn: 'go deep on one thing and if its market vanishes you start over',
+        posWatchEn: 'give one slot a week to something entirely outside your field',
         negGoEn: 'roles that must hold several things at once — connecting people, connecting fields',
-        negWatchEn: 'broad knowledge with nothing deep enough for anyone to pay for',
+        negWatchEn: 'pick one thing to go deeper on than anyone around you, and add nothing new until you get there',
     },
 };
 // ขั้วของแต่ละแกนไว้พิมพ์หัวและท้ายแถบ — สำเนาสำหรับฝั่งรายงาน
 // ⛔ ถ้าเพิ่มแกนใน calc.ts ต้องเพิ่มที่นี่ด้วย ไม่งั้นแถบจะขึ้นชื่อแกนดิบเป็นภาษาอังกฤษ
+// ชื่อแกนแบบกลางๆ ไว้เป็นหัวข้อเล็กเหนือคำตอบ
+// ⛔ ห้ามเอาชื่อขั้วมาเป็นหัวข้อ — ขั้วคือ "คำตอบ" ถ้าเอามาเป็นหัวข้อด้วยจะซ้ำทุกแถว
+const _TRAIT_AXIS_NAME = {
+    pace: { th: 'จังหวะการลงมือ', en: 'How you move' },
+    initiative: { th: 'ใครเป็นคนเปิดเรื่อง', en: 'Who opens the move' },
+    social: { th: 'ต้องมีคนรอบตัวแค่ไหน', en: 'How much you need people' },
+    instinct: { th: 'ตัดสินใจด้วยอะไร', en: 'What you decide with' },
+    expression: { th: 'พูดออกหรือเก็บไว้', en: 'Out loud or held in' },
+    change: { th: 'ซ่อมของเดิมหรือรื้อ', en: 'Mend it or remake it' },
+    risk: { th: 'รับความเสี่ยงแค่ไหน', en: 'How much risk you carry' },
+    root: { th: 'ปักหลักหรือเคลื่อนที่', en: 'Rooted or moving' },
+    structure: { th: 'ต้องมีระบบแค่ไหน', en: 'How much system you need' },
+    focus: { th: 'ลึกเรื่องเดียวหรือกว้าง', en: 'Deep or broad' },
+};
+// คำบรรยายใต้แท่ง — **บอกว่ามันแปลว่าอะไรในชีวิตจริง ไม่ใช่ทวนชื่อขั้ว**
+//
+// ⛔ ทุกประโยคต้องผ่าน "ทดสอบย้ายบ้าน": ถ้าย้ายไปใส่แกนอื่นแล้วยังฟังดูเข้าท่า
+//    = ไส้กลวง ต้องเขียนใหม่ · และทุกขั้วต้องมีทั้งของที่ได้และของที่จ่าย
+//    ห้ามมีขั้วไหนอ่านแล้วเป็นคำชมล้วน (director 1 ก.ย.: "ภาษายังไม่ดี")
+const _TRAIT_MEANING = {
+    pace: {
+        pos: 'ตัดสินใจแล้วลงมือเร็วกว่าคนรอบตัว ได้เปรียบตรงที่ออกตัวก่อน แลกกับบางเรื่องที่รู้ว่าพลาดตอนถอยไม่ได้แล้ว',
+        neg: 'ขยับทีละขั้นและไม่ชอบถูกเร่ง ของที่ต้องสะสมจะเข้าทาง ส่วนโอกาสที่มีอายุสั้นมักหลุดมือไปตอนกำลังเตรียมตัว',
+        posEn: 'You decide and move faster than the people around you. The edge is being early; the cost is finding out you were wrong once it is too late to back out.',
+        negEn: 'You move a step at a time and dislike being hurried. Anything that compounds suits you; short-lived openings tend to close while you are still preparing.',
+    },
+    initiative: {
+        pos: 'เปิดเรื่องเองโดยไม่รอใครสั่ง ถ้าไม่มีคนตั้งโจทย์ให้ คุณตั้งเอง — แต่มักเปิดพร้อมกันหลายเรื่องจนบางเรื่องไม่ถูกปิด',
+        neg: 'รอให้เรื่องชัดก่อนแล้วค่อยเข้า ไม่ใช่ไม่กล้า แต่ไม่ชอบเข้าไปตอนภาพยังไม่นิ่ง ข้อเสียคือถ้าไม่มีใครเปิดให้ จะรออยู่อย่างนั้น',
+        posEn: 'You open things yourself rather than waiting to be told. If nobody sets the brief, you set it — though you tend to open several at once and leave some unclosed.',
+        negEn: 'You wait for a thing to become clear before entering. Not timidity — you dislike moving while the picture is unsettled. The cost: if nobody opens the door, you keep waiting.',
+    },
+    social: {
+        pos: 'คิดออกตอนได้คุยกับคน อยู่คนเดียวนานๆ แล้วงานจะช้าลงเอง ข้อควรระวังคือตัดสินตามห้องจนลืมว่าตัวเองคิดอะไร',
+        neg: 'ทำงานได้ดีตอนไม่มีใครมาขัด และไม่ได้ต้องการคนรอบตัวมาก แต่ข่าวกับโอกาสเดินทางมากับคน ตัดคนออกหมดแล้วจะไม่รู้เรื่องอะไรเลย',
+        posEn: 'You think best while talking to people; alone for too long your work slows by itself. The risk is deciding with the room until you lose track of what you thought.',
+        negEn: 'You work well when nobody interrupts and you do not need many people around. But news and openings travel through people — cut them all out and you hear nothing.',
+    },
+    instinct: {
+        pos: 'รู้คำตอบก่อนจะอธิบายเหตุผลได้ ในเรื่องที่ข้อมูลไม่มีทางครบ นี่คือข้อได้เปรียบ · เรื่องที่ตรวจสอบได้ก็ควรตรวจ อย่าให้ความรู้สึกแทนตัวเลข',
+        neg: 'อยากเห็นเหตุผลครบก่อนจะเชื่อ ช้ากว่าแต่พลาดน้อยกว่าในเรื่องที่ผิดแล้วแพง · บางเรื่องข้อมูลไม่มีวันครบ รอครบคือไม่ได้ตัดสินใจ',
+        posEn: 'You know the answer before you can explain it. Where information is never complete, that is an advantage — but check what can be checked, and do not let a feeling stand in for a number.',
+        negEn: 'You want the reasoning before you will believe it. Slower, but you make fewer of the expensive mistakes — though some things never complete, and waiting for complete is a decision not to decide.',
+    },
+    expression: {
+        pos: 'คิดอะไรออกมาข้างนอกทันที คนรอบตัวจึงรู้เสมอว่าคุณยืนตรงไหน ข้อเสียคือบางห้องคำพูดถูกจดไว้',
+        neg: 'ประมวลจนจบในหัวก่อนถึงจะพูด คนรอบตัวมักรู้ความเห็นคุณช้ากว่าที่คุณตัดสินใจไปแล้ว และความเงียบมักถูกแปลว่าไม่เห็นด้วย',
+        posEn: 'What you think comes straight out, so people always know where you stand. The cost: in some rooms, words are minuted.',
+        negEn: 'You finish thinking before you speak, so people hear your view later than you reached it — and silence is usually read as disagreement.',
+    },
+    change: {
+        pos: 'เจอของที่ไม่เวิร์กแล้วอยากรื้อมากกว่าซ่อม ดีตอนของมันพังจริง อันตรายตอนรื้อเพราะเบื่อ ไม่ใช่เพราะเสีย',
+        neg: 'ให้ค่ากับของที่อยู่ตัวแล้ว จะเปลี่ยนต่อเมื่อมีเหตุผลจริง ข้อเสียคือพื้นเปลี่ยนใต้เท้าแล้วยังยืนท่าเดิม',
+        posEn: 'Faced with something that does not work, you would rather tear it down than patch it. Right when it is genuinely broken; dangerous when the reason is boredom.',
+        negEn: 'You value what has settled and change only for a real reason. The cost: the ground moves and you are still standing the old way.',
+    },
+    risk: {
+        pos: 'ยอมเสี่ยงเมื่อเห็นว่าเสียน้อยแต่ได้มาก · เส้นที่ต้องไม่ข้ามคือของที่แพ้แล้วเริ่มใหม่ไม่ได้',
+        neg: 'เลือกทางที่ไม่พังก่อนทางที่ได้เยอะ · แต่ไม่เสี่ยงเลยก็เป็นความเสี่ยงแบบหนึ่ง คือถูกแซงช้าๆ',
+        posEn: 'You take the bet when the loss is small and the win is large. The line you must not cross: staking the thing you cannot restart from.',
+        negEn: 'You pick the path that will not break over the path that pays most — though taking no risk is its own risk: being overtaken slowly.',
+    },
+    root: {
+        pos: 'ได้ของจากการไปถึงที่ ไม่ใช่จากการอยู่ที่เดียวนานๆ ข้อเสียคือของที่ต้องอยู่นานถึงจะออกดอก มักถูกทิ้งกลางทาง',
+        neg: 'สะสมของได้จากการปักหลัก ทั้งชื่อในพื้นที่และคนที่รู้จักคุณจริง แต่โอกาสที่อยู่นอกรัศมีจะไม่เดินมาหาเอง',
+        posEn: 'What you gain comes from turning up, not from staying put. The cost: things that only flower if you stay tend to get abandoned halfway.',
+        negEn: 'You accumulate by staying — local standing, people who actually know you. But openings outside your radius will not walk to you.',
+    },
+    structure: {
+        pos: 'วางระบบก่อนลงมือ และอึดอัดกับงานที่ไม่มีกติกา ระวังระบบที่แน่นจนกันของดีที่ยังไม่มีชื่อออกไปด้วย',
+        neg: 'ทำงานได้ในที่ที่กติกายังไม่ถูกเขียน และไม่อยากถูกล็อกด้วยขั้นตอนที่ไม่จำเป็น ข้อเสียคือของที่โตแล้วต้องมีระเบียบ ถ้าไม่วางไว้ก่อนมันจะพังตอนโตพอดี',
+        posEn: 'You build the system before you start, and chafe at work with no rules. Watch for a system tight enough to also exclude the good thing that has no name yet.',
+        negEn: 'You can work where the rules are not written and dislike being locked into unnecessary steps. The cost: what grows needs order, and skipping it means it breaks exactly when it gets big.',
+    },
+    focus: {
+        pos: 'ลงลึกเรื่องเดียวจนคนอื่นตามไม่ทัน ความเสี่ยงคือถ้าตลาดของเรื่องนั้นหายไป คือเริ่มใหม่หมด',
+        neg: 'ถือหลายเรื่องพร้อมกันได้ และเห็นจุดเชื่อมที่คนอยู่ในเรื่องเดียวมองไม่เห็น ข้อเสียคือรู้กว้างแล้วอาจไม่มีอะไรลึกพอให้คนจ้าง',
+        posEn: 'You go deeper into one thing than others follow. The risk: if the market for that thing disappears, you start over.',
+        negEn: 'You can hold several things at once and see the joins that specialists miss. The cost: broad knowledge with nothing deep enough for anyone to pay for.',
+    },
+};
 const _TRAIT_POLES = {
     pace: { neg: 'ค่อยเป็นค่อยไป', pos: 'เร็ว', negEn: 'gradual', posEn: 'quick' },
     initiative: { neg: 'รอจังหวะ', pos: 'เริ่มเอง', negEn: 'waits', posEn: 'initiates' },
@@ -10685,56 +10766,59 @@ function p_traitConsensus(c) {
     const top = solid.filter(r => r.band !== 'mid').slice(0, 3);
     const _vmin = Math.min(...prof.map(r => r.voices));
     const _vmax = Math.max(...prof.map(r => r.voices));
-    // แถบตำแหน่ง: ซ้าย-ขวาคือเปอร์เซ็นไทล์ · ขีดกลางคือคนทั่วไป
-    const scale = (r) => {
-        const col = r.band === 'mid' ? '#6a7a90' : (Math.abs(r.z) >= 1.2 ? '#e8c87a' : '#c8a45a');
-        return `
-    <div style="position:relative;height:16px;margin:4px 0">
-      <div style="position:absolute;top:7px;left:0;right:0;height:2px;background:#241d33;border-radius:1px"></div>
-      <div style="position:absolute;top:3px;left:50%;width:1px;height:10px;background:#3d3350"></div>
-      <div style="position:absolute;top:2px;left:${Math.max(0, Math.min(98, r.pct))}%;width:8px;height:12px;margin-left:-4px;background:${col};border-radius:3px"></div>
-    </div>`;
-    };
-    // ⛔ ห้ามเรียกสองกลุ่มนี้ว่า "ตรงกัน / ค้าน" — คำตัดสินของแกนไม่ได้มาจากการนับหัว
-    //    มันมาจาก **น้ำหนักรวมเทียบประชากร** · ของจริงที่เจอ 1 ก.ย. 69 บนดวง director:
-    //    แกน social มี 8 ใน 13 สายดันไปทาง "ต้องมีคน" แต่ผลรวมยังต่ำกว่าค่ากลางของคน
-    //    ทั่วไป เพราะทุกสายให้น้ำหนักเบากว่าที่คนทั่วไปได้ ⇒ ถ้าพิมพ์ว่า "ค้าน 8"
-    //    คนอ่านจะเห็นคำตัดสินที่แพ้โหวตตัวเอง (บั๊กพันธุ์เดียวกับ "ธาตุลม/คำตัดสินธาตุไม้")
-    //    ⇒ เรียกตามสิ่งที่มันเป็นจริง: ใครดันไปทางไหน · และถ้าเสียงข้างมากสวนกับผลรวม
-    //       ให้พูดออกมาตรงๆ ว่าสวน นั่นคือข้อค้นพบ ไม่ใช่ของที่ต้องกลบ
+    // แผนภูมิแท่ง — **ความยาว = ห่างจากคนทั่วไปแค่ไหน** ไม่ใช่คะแนนดิบ
+    //
+    // ⛔ ห้ามใช้ pct ตรงๆ เป็นความยาว — คนที่อยู่เปอร์เซ็นไทล์ 50 (เหมือนคนทั่วไปเป๊ะ)
+    //    จะได้แท่งยาวครึ่งจอทั้งที่ไม่มีอะไรจะบอก · 98% กับ 2% ได้แท่งยาวเท่ากันถูกแล้ว
+    //    เพราะทั้งคู่คือ "ห่างจากคนทั่วไปมาก" ต่างกันที่คำตอบ ซึ่งเขียนไว้เป็นหัวข้ออยู่แล้ว
+    const barPct = (r) => Math.round(Math.abs(r.pct - 50) * 2);
     const row = (r) => {
         const a = _TRAIT_POLES[r.axis] || { neg: r.axis, pos: r.axis, negEn: r.axis, posEn: r.axis };
-        const withPop = r.agreeTh || []; // ดันไปทางเดียวกับผลรวม
-        const against = r.dissentTh || []; // ดันไปอีกทาง
-        const called = r.voices >= _TRAIT_MIN_VOICES && r.band !== 'mid';
+        const nm = _TRAIT_AXIS_NAME[r.axis] || { th: r.axis, en: r.axis };
+        const mn = _TRAIT_MEANING[r.axis];
+        const withPop = r.agreeTh || [];
+        const against = r.dissentTh || [];
+        const enough = r.voices >= _TRAIT_MIN_VOICES;
+        const called = enough && r.band !== 'mid';
         const side = r.pct > 50;
+        const strong = Math.abs(r.z) >= 1.2;
         const popPole = isEn ? (side ? a.posEn : a.negEn) : (side ? a.pos : a.neg);
         const otherPole = isEn ? (side ? a.negEn : a.posEn) : (side ? a.neg : a.pos);
-        // เสียงข้างมากสวนกับผลรวมหรือไม่ — เกิดได้จริงเมื่อทุกสายให้น้ำหนักเบา/หนักกว่าปกติ
         const split = called && against.length > withPop.length;
-        return `
-    <div style="padding:9px 0;border-bottom:1px solid #1b1626">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
-        <span style="font-size:12.5px;color:${called ? '#e8c87a' : '#8a7a92'};font-weight:${called ? 700 : 400}">${esc(isEn ? r.labelEn : r.labelTh)}</span>
-        <span style="font-size:9.5px;color:#6a7a90">${r.voices < _TRAIT_MIN_VOICES
-            ? tr('เสียงน้อยเกินจะฟันธง', 'too few voices to call')
+        // ⛔ ห้ามเปลี่ยน "สี" ตามสถานะแถว — ดวงที่ไม่มีแกนเสียงน้อยจะไม่มีสีนั้นในหน้าเลย
+        //    ⇒ จานสีของเล่มเปลี่ยนตามคนอ่าน ซึ่งด่าน theme-drift จับได้ (เจอจริง 1 ก.ย.)
+        //    ใช้ "ความทึบ" แทน สีชุดเดียวทุกแถวทุกดวง · ความแรงสื่อด้วยความยาวแท่งอยู่แล้ว
+        const dim = !enough ? '.30' : r.band === 'mid' ? '.45' : strong ? '1' : '.82';
+        // ⛔ ประโยค "อยู่กลางๆ" กับ "เสียงไม่พอ" ห้ามเป็นข้อความสำเร็จรูปชุดเดียว —
+        //    บางดวงมีถึง 5 แกนที่อยู่กลาง ⇒ ครึ่งหน้าจะเป็นประโยคเดียวกันซ้ำๆ (เจอจริง 1 ก.ย.)
+        //    ให้พูดถึงเรื่องของแกนตัวเองเสมอ โดยดึงชื่อขั้ว/ชื่อแกนของแถวนั้นมาประกอบ
+        const meaning = !enough
+            ? tr(`มีแค่ ${r.voices} สายที่พูดถึงเรื่อง${esc(isEn ? nm.en : nm.th)} ตำราที่เหลือไม่มีวิชาด้านนี้ — หลักฐานไม่พอจะฟันธง ไม่ใช่ว่าคุณอยู่กลางๆ`, `Only ${r.voices} traditions speak to ${esc(isEn ? nm.en : nm.th).toLowerCase()}; the rest have no technique for it — that is missing evidence, not a middling result.`)
             : r.band === 'mid'
-                // ⛔ ห้ามพิมพ์ "มากกว่าคนทั่วไป 51%" — ตัวเลขที่แปลว่า "เท่าคนอื่น" แต่ดูเหมือนข้อค้นพบ
-                ? tr('พอๆ กับคนส่วนใหญ่', 'about the same as most people')
-                : tr(`${side ? 'มากกว่า' : 'น้อยกว่า'}คนทั่วไป ${side ? r.pct : 100 - r.pct}%`, `${side ? 'above' : 'below'} ${side ? r.pct : 100 - r.pct}% of people`)}</span>
+                ? tr(`คุณไม่ได้เอนไปทาง${esc(isEn ? a.posEn : a.pos)}หรือ${esc(isEn ? a.negEn : a.neg)}ชัดเจน เรื่องนี้คุณปรับตามสถานการณ์ได้ และไม่ใช่จุดที่คนจะจำคุณได้`, `You lean neither ${esc(isEn ? a.posEn : a.pos)} nor ${esc(isEn ? a.negEn : a.neg)} in any marked way. You adapt this to the situation — and it is not what people will remember you for.`)
+                : mn ? (isEn ? (side ? mn.posEn : mn.negEn) : (side ? mn.pos : mn.neg)) : '';
+        return `
+    <div style="margin:0 0 16px">
+      <div style="font-size:9.5px;color:#6a7a90;letter-spacing:.3px;margin-bottom:2px">${esc(isEn ? nm.en : nm.th)}</div>
+      <div style="display:flex;align-items:baseline;gap:9px">
+        <span style="font-size:15px;font-weight:${called ? 700 : 400};color:#e8c87a;opacity:${called ? '1' : '.5'}">${esc(!enough ? tr('ยังฟันธงไม่ได้', 'cannot call this yet')
+            : r.band === 'mid' ? tr('พอๆ กับคนส่วนใหญ่', 'same as most people')
+                : popPole)}</span>
+        <span style="font-size:10px;color:#6a7a90;margin-left:auto;white-space:nowrap">${called ? tr(`${side ? 'มากกว่า' : 'น้อยกว่า'}คนทั่วไป ${side ? r.pct : 100 - r.pct}% · ${r.voices} สาย`, `${side ? 'above' : 'below'} ${side ? r.pct : 100 - r.pct}% of people · ${r.voices} lineages`)
+            : tr(`${r.voices} สาย`, `${r.voices} lineages`)}</span>
       </div>
-      <div style="display:flex;justify-content:space-between;font-size:9.5px;color:#5a6a80">
-        <span>${esc(isEn ? a.negEn : a.neg)}</span><span>${esc(isEn ? a.posEn : a.pos)}</span>
+      <div style="height:9px;background:#16121f;border-radius:5px;overflow:hidden;margin:5px 0 6px">
+        <div style="width:${Math.max(2, barPct(r))}%;height:100%;background:linear-gradient(90deg,#5f4a24,#c8a45a);opacity:${dim};border-radius:5px"></div>
       </div>
-      ${scale(r)}
-      ${split ? `<div style="font-size:9.5px;color:#c8a45a;line-height:1.7;margin:1px 0 3px">${tr(`น่าสนใจ: ${against.length} ใน ${r.voices} สายดันไปทาง${esc(otherPole)} แต่ทุกสายให้น้ำหนักเบากว่าที่คนทั่วไปได้ รวมแล้วคุณจึงยังเอนไปทาง${esc(popPole)}มากกว่าคนส่วนใหญ่`, `Worth noting: ${against.length} of ${r.voices} lineages push toward ${esc(otherPole)}, but each weighs it more lightly than is typical — so the total still leaves you ${esc(popPole)} compared with most people`)}</div>` : ''}
-      <details>
-        <summary style="cursor:pointer;list-style:none;font-size:9.5px;color:#6a7a90">
-          ${tr(`${r.voices} ศาสตร์พูดถึงแกนนี้ — ใครดันไปทางไหน`, `${r.voices} traditions speak to this — which way each pushes`)}
+      <div style="font-size:11px;color:#b5aec4;line-height:1.8">${esc(meaning)}</div>
+      ${split ? `<div style="font-size:10px;color:#c8a45a;line-height:1.75;margin-top:4px">${tr(`น่าสังเกต — ${against.length} ใน ${r.voices} สายดันไปทาง${esc(otherPole)} แต่ให้น้ำหนักเบากว่าที่คนทั่วไปได้ พอรวมกันจึงยังเอนมาทาง${esc(popPole)}`, `Worth noting — ${against.length} of ${r.voices} lineages push toward ${esc(otherPole)}, but weigh it more lightly than is typical, so the total still leans ${esc(popPole)}`)}</div>` : ''}
+      <details style="margin-top:4px">
+        <summary style="cursor:pointer;list-style:none;font-size:9.5px;color:#8aa8c8">
+          ▸ ${tr(`${r.voices} สายที่พูดถึงเรื่องนี้ — กดดูว่าใครดันไปทางไหน`, `the ${r.voices} lineages that speak to this — open to see which way each pushes`)}
         </summary>
         <div style="font-size:9.5px;color:#8a7a92;line-height:1.7;margin:5px 0 2px">
-          <strong style="color:#8aa8c8">${esc(popPole)}</strong> ${esc(withPop.join(', ') || '—')}
-          ${against.length ? `<br><strong style="color:#a88a8a">${esc(otherPole)}</strong> ${esc(against.join(', '))}` : ''}
+          <strong style="color:#e8c87a">${esc(popPole)}</strong> ${esc(withPop.join(', ') || '—')}
+          ${against.length ? `<br><strong style="color:#9a8a72">${esc(otherPole)}</strong> ${esc(against.join(', '))}` : ''}
         </div>
       </details>
     </div>`;
@@ -10756,16 +10840,17 @@ function p_traitConsensus(c) {
     <div style="font-size:11.5px;color:#c0b0a0;line-height:1.8;margin-bottom:4px">${tr(`แต่ละสายอ่านคุณจากคนละที่มา — BaZi อ่านจากก้านวัน ทักษาอ่านจากเจ้าวัน มายาอ่านจากวันสัญลักษณ์ · เราแปลคำบรรยายของ 24 ศาสตร์ลงแกนเดียวกัน ${prof.length} แกน แล้วเทียบกับดวงอื่นสามพันดวง เพราะตำราแทบทุกสายบรรยายคนในทางบวก ค่ากลางจึงไม่ใช่ศูนย์ · แต่ละแกนมีศาสตร์พูดถึงไม่เท่ากัน ในดวงนี้ ${_vmin}-${_vmax} สาย`, `Each lineage reads you from a different starting point — BaZi from the day stem, Taksa from the day lord, the Maya from the day sign. We map what 24 traditions say onto the same ${prof.length} axes, then compare against three thousand other charts, because almost every tradition describes people favourably and the middle is not zero. Not every axis draws the same number of voices — in this chart, ${_vmin} to ${_vmax}.`)}</div>
     <div style="font-size:13px;color:#e8c87a;line-height:1.7;margin:12px 0 14px;padding:10px 12px;background:#0f0d15;border-left:2px solid #c8a45a;border-radius:0 8px 8px 0">${headline}</div>
 
+    <div style="font-size:9.5px;color:#5f6f85;line-height:1.7;margin:2px 0 12px">${tr('ยิ่งแท่งยาว ยิ่งแปลว่าคุณห่างจากคนทั่วไปในเรื่องนั้นมาก · แท่งสั้นไม่ได้แปลว่าไม่สำคัญ แปลว่าคุณอยู่ใกล้ตรงกลาง', 'The longer the bar, the further this puts you from the middle. A short bar does not mean unimportant — it means you sit near the middle.')}</div>
     ${prof.map(row).join('')}
 
     ${edges.length ? `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
       <div style="background:#0c1108;border:1px solid #2a3a20;border-radius:10px;padding:11px 13px">
-        <div style="font-size:11px;color:#9ac87a;font-weight:700;margin-bottom:6px">${tr('ไปแบบไหนเจริญ', 'Where this prospers')}</div>
+        <div style="font-size:11px;color:#9ac87a;font-weight:700;margin-bottom:6px">${tr('งานแบบไหนเข้าทางคุณ', 'What kind of work suits this')}</div>
         <div style="font-size:10.5px;color:#b8c8a8;line-height:1.75">${edges.map(e => `· ${esc(e.go)}`).join('<br>')}</div>
       </div>
       <div style="background:#110c0c;border:1px solid #3a2420;border-radius:10px;padding:11px 13px">
-        <div style="font-size:11px;color:#c88a7a;font-weight:700;margin-bottom:6px">${tr('ไปแบบไหนต้องระวัง', 'Where to watch it')}</div>
+        <div style="font-size:11px;color:#c88a7a;font-weight:700;margin-bottom:6px">${tr('สิ่งที่ควรทำเป็นนิสัย', 'Habits worth building')}</div>
         <div style="font-size:10.5px;color:#c8b0a8;line-height:1.75">${edges.map(e => `· ${esc(e.watch)}`).join('<br>')}</div>
       </div>
     </div>` : ''}
