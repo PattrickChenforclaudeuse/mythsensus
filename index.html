@@ -826,6 +826,22 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opa
 /* ── LOGIN MODAL ── */
 .login-overlay{position:fixed;inset:0;background:rgba(4,4,7,.94);backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px}
 .login-box{background:var(--bg2);border:1px solid var(--gold3);border-radius:8px;padding:32px 28px;max-width:400px;width:100%;text-align:center;overflow-y:auto;max-height:92vh}
+/* หน้าแรกบนเดสก์ท็อป — 2 ก.ย. 69 (director: "แก้เลย")
+   หน้าแรกเป็น overlay ที่ .login-box คุมความกว้างไว้ 400-460px ทุกจอ ⇒ บนจอ 1440
+   คนเห็นคอลัมน์ผอมกลางจอ ว่างซ้ายขวา 35% ทั้งที่เดสก์ท็อปคือ 266 จาก 440 เซสชัน
+   ⛔ ตัวห่อ .ec-* เป็น display:contents โดยปริยาย — **ลำดับบนมือถือไม่ขยับเลย**
+      ลำดับนั้นถูกจัดมาแล้ว 25 ส.ค. พร้อมเหตุผลเขียนกำกับในไฟล์ ห้ามสลับเพื่อความสวย
+   ⛔ ห้ามเอา order/flex-direction ไปใส่นอก media query นี้ */
+.ec-lang,.ec-a,.ec-b,.ec-a2{display:contents}
+@media(min-width:1000px){
+  .login-overlay .login-box{max-width:900px!important;padding:34px 40px 32px}
+  #entryHeroStep{display:grid;grid-template-columns:1fr 1fr;column-gap:38px;align-items:start;text-align:left}
+  #entryHeroStep>.ec-lang{grid-column:1/-1;display:flex;justify-content:center;align-items:center;margin:6px 0 22px}
+  #entryHeroStep>.ec-lang>button{flex:0 0 auto;align-self:center}
+  #entryHeroStep>.ec-a{grid-column:1;grid-row:2;display:flex;flex-direction:column}
+  #entryHeroStep>.ec-b{grid-column:2;grid-row:2;display:flex;flex-direction:column}
+  #entryHeroStep>.ec-a2{grid-column:1;grid-row:3;display:flex;flex-direction:column;margin-top:4px}
+}
 .login-logo{font-family:'Cinzel Decorative',serif;font-size:20px;color:var(--gold);letter-spacing:5px;margin-bottom:6px}
 .login-tagline-sm{font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:24px}
 /* คำโปรยหลักใต้โลโก้ — ตัวนี้คือประโยคที่บอกว่าสินค้าคืออะไร ต้องอ่านออกจากระยะไกล
@@ -1649,16 +1665,18 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
            Order now: the day's real vote split first (given, not asked for),
            one line of promise, then the date fields. The methodology paragraph
            moved to the bottom — it is proof, and proof belongs after the hook. -->
-      <div style="display:flex;justify-content:center;gap:6px;margin:14px 0 16px">
+      <div class="ec-lang" style="display:flex;justify-content:center;gap:6px;margin:14px 0 16px">
         <button id="entryHeroLangTh" onclick="setLangExplicit('th')" style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;padding:5px 15px;border-radius:6px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.15);color:var(--gold)">🇹🇭 ไทย</button>
         <button id="entryHeroLangEn" onclick="setLangExplicit('en')" style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;padding:5px 15px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text)">🇬🇧 EN</button>
       </div>
+      <div class="ec-a">
       <!-- The nation's own chart — a real reading from the same engine, handed
            over before anyone is asked for a birth date. Filled by
            _entryFillCity() after first paint; stays hidden for nations with no
            documented founding chart, because inventing a ฤกษ์ would be the same
            sin as inventing doctrine for a system that has none. -->
       <div id="entryCityRow" style="margin:0 0 16px"></div>
+      </div><div class="ec-b">
       <!-- one line of promise — the MAP of agreement and disagreement, never a
            verdict. Promising "the consensus" would be a promise most charts break. -->
       <div style="text-align:center;margin:0 0 16px;font-family:'Josefin Sans','Cormorant Garamond','Sarabun',serif;font-size:15px;color:var(--text);line-height:1.6;text-wrap:pretty;font-variant-numeric:lining-nums" data-eh="hook2">แล้วบอกตรงๆ ว่า <strong style="color:var(--gold)">ใครเห็นตรงกัน ใครเถียง ใครไม่มีวิธีตอบ</strong></div>
@@ -1687,6 +1705,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
        visitor had received anything at all. -->
       <div style="text-align:center;margin-top:14px;font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:.5px;color:var(--muted)" data-eh="alt"><button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">เทียบดวงสองคน</button></div>
       <div style="text-align:center;margin-top:16px;font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px" data-eh="signin">มีบัญชีแล้ว? <button onclick="showLoginOverlay()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:1px;text-decoration:underline;padding:0">ลงชื่อเข้าใช้ →</button></div>
+      </div><div class="ec-a2">
       <!-- Today through three traditions. This is a SECOND free reading, and it
            used to sit right under the buttons where its opening lines showed
            above the fold — 162 characters competing with the nation card, which
@@ -1695,6 +1714,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <div id="entrySample" style="margin:16px 0 0"></div>
       <!-- How the scoring actually works. This was the FOURTH block on the
            landing, four lines deep, ahead of everything the visitor came for. -->
+      </div>
       <div style="text-align:center;margin:18px 0 0;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--muted);line-height:1.7;text-wrap:pretty" data-eh="hooksub">เราถาม 26 ศาสตร์พร้อมกัน แต่เฉพาะศาสตร์ที่<strong style="color:var(--text);white-space:nowrap">มีวิชาทำนายช่วงเวลาจริง</strong>ถึงจะให้คะแนนได้ · เต็ม 5 แยกทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร</div>
     </div>
 
