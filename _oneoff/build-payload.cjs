@@ -53,11 +53,15 @@ const payload = {
     ageNow: 2026 - INPUT.year, today: '2 ก.ย. 2569',
   },
   chart,
-  แกนนิสัยจาก25ศาสตร์: (c.traitProfile || []).map(t => ({
-    axis: t.axis, labelTh: t.labelTh, pct: t.pct, band: t.band, voices: t.voices,
-    // ศาสตร์นี้ออกเสียงในแกนนี้ด้วยหรือเปล่า — ชั้นเรียบเรียงจะได้ไม่อ้างเสียงที่ไม่ใช่ของตัวเอง
-    ศาสตร์นี้ร่วมออกเสียง: [...(t.agreeTh || []), ...(t.dissentTh || [])].includes(SYS_TH[sys].split(' ')[0]),
-  })),
+  // ⛔ ห้ามส่งชั้นเทียบ 25 ศาสตร์เข้ามาที่นี่ — มันเป็นเสียงรวมของทุกศาสตร์
+  //    ศาสตร์ผอมๆ จะไปหยิบมาตอบให้ครบ 45 ข้อ แล้วอ้างว่าเป็นวิชาของตัวเอง
+  //    เกิดจริง 2 ก.ย. 69: โอแฮมมีแกนของตัวเองแค่ expression กับ instinct
+  //    แต่ไปอ้าง risk / root / focus ซึ่งเป็นเสียงของศาสตร์อื่นล้วน
+  //    ⇒ ส่งเฉพาะแกนที่ศาสตร์นี้ให้คะแนนเอง และส่งคะแนนดิบของตัวเอง ไม่ใช่เปอร์เซ็นไทล์รวม
+  แกนนิสัยที่ศาสตร์นี้ให้คะแนนเอง: Object.entries((node.traits || {})).map(([axis, raw]) => {
+    const t = (c.traitProfile || []).find(x => x.axis === axis);
+    return { axis, ชื่อไทย: t ? t.labelTh : axis, คะแนนที่ศาสตร์นี้ให้: raw };
+  }),
   เดือนข้างหน้า12เดือน: f.months.map(m => ({
     label: m.labelTh,
     dom: Object.fromEntries(Object.entries(m.domains).map(([k, v]) => [k, v.score])),

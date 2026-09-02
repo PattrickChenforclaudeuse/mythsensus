@@ -21,86 +21,16 @@
    "instinct": 1
   }
  },
- "แกนนิสัยจาก25ศาสตร์": [
+ "แกนนิสัยที่ศาสตร์นี้ให้คะแนนเอง": [
   {
    "axis": "expression",
-   "labelTh": "เก็บไว้",
-   "pct": 4,
-   "band": "strong-neg",
-   "voices": 12,
-   "ศาสตร์นี้ร่วมออกเสียง": true
+   "ชื่อไทย": "เก็บไว้",
+   "คะแนนที่ศาสตร์นี้ให้": 2
   },
   {
    "axis": "instinct",
-   "labelTh": "เชื่อสัญชาตญาณ",
-   "pct": 95,
-   "band": "strong-pos",
-   "voices": 11,
-   "ศาสตร์นี้ร่วมออกเสียง": true
-  },
-  {
-   "axis": "structure",
-   "labelTh": "ยืดหยุ่น",
-   "pct": 9,
-   "band": "strong-neg",
-   "voices": 14,
-   "ศาสตร์นี้ร่วมออกเสียง": false
-  },
-  {
-   "axis": "focus",
-   "labelTh": "ลึกเรื่องเดียว",
-   "pct": 91,
-   "band": "strong-pos",
-   "voices": 14,
-   "ศาสตร์นี้ร่วมออกเสียง": false
-  },
-  {
-   "axis": "initiative",
-   "labelTh": "รอจังหวะ",
-   "pct": 16,
-   "band": "neg",
-   "voices": 6,
-   "ศาสตร์นี้ร่วมออกเสียง": false
-  },
-  {
-   "axis": "social",
-   "labelTh": "อยู่คนเดียวได้",
-   "pct": 24,
-   "band": "neg",
-   "voices": 13,
-   "ศาสตร์นี้ร่วมออกเสียง": false
-  },
-  {
-   "axis": "change",
-   "labelTh": "รื้อทำใหม่",
-   "pct": 74,
-   "band": "pos",
-   "voices": 8,
-   "ศาสตร์นี้ร่วมออกเสียง": false
-  },
-  {
-   "axis": "root",
-   "labelTh": "เคลื่อนที่",
-   "pct": 71,
-   "band": "pos",
-   "voices": 5,
-   "ศาสตร์นี้ร่วมออกเสียง": false
-  },
-  {
-   "axis": "pace",
-   "labelTh": "อยู่กลางๆ",
-   "pct": 37,
-   "band": "mid",
-   "voices": 10,
-   "ศาสตร์นี้ร่วมออกเสียง": false
-  },
-  {
-   "axis": "risk",
-   "labelTh": "อยู่กลางๆ",
-   "pct": 63,
-   "band": "mid",
-   "voices": 7,
-   "ศาสตร์นี้ร่วมออกเสียง": false
+   "ชื่อไทย": "เชื่อสัญชาตญาณ",
+   "คะแนนที่ศาสตร์นี้ให้": 1
   }
  ],
  "เดือนข้างหน้า12เดือน": [

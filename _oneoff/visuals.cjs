@@ -47,24 +47,30 @@ function elementChips(chart) {
   </div>`;
 }
 
-// ── แกนนิสัย: แท่งจากกึ่งกลาง เพราะค่าคือเปอร์เซ็นไทล์เทียบคนทั่วไป ───────
+// ── แกนนิสัยที่ศาสตร์นี้ให้คะแนนเอง: -2..+2 วัดจากกึ่งกลาง ────────────────
+//
+// ⛔ ห้ามเอาเปอร์เซ็นไทล์ของชั้นเทียบ 25 ศาสตร์มาวาดที่นี่ — นั่นคือเสียงรวม
+//    ไม่ใช่เสียงของศาสตร์นี้ · หน้านี้ขายว่า "ศาสตร์เดียวพูด" ต้องพูดด้วยของตัวเอง
 function traitBars(traits, pick) {
-  const rows = traits.filter(t => !pick || pick.includes(t.axis));
+  const rows = (traits || []).filter(t => !pick || pick.includes(t.axis));
+  if (!rows.length) return '';
+  const SAY = { '-2': 'ชัดไปทางซ้าย', '-1': 'เอียงซ้าย', '0': 'กลางๆ', '1': 'เอียงขวา', '2': 'ชัดไปทางขวา' };
   return `<div style="margin:10px 0 14px">
     ${rows.map(t => {
-      const pct = t.pct;
+      const v = Math.max(-2, Math.min(2, Number(t['คะแนนที่ศาสตร์นี้ให้']) || 0));
+      const pct = 50 + v * 25;
       const from = Math.min(pct, 50), w = Math.abs(pct - 50);
-      const col = Math.abs(pct - 50) < 12 ? DIM : (pct > 50 ? GOOD : '#7a9ac8');
-      return `<div style="display:grid;grid-template-columns:118px 1fr 132px;align-items:center;gap:10px;margin-bottom:7px">
-        <div style="font-size:13px;color:#c8b890;text-align:right">${esc(t.labelTh)}</div>
+      const col = v === 0 ? DIM : (v > 0 ? GOOD : '#7a9ac8');
+      return `<div style="display:grid;grid-template-columns:130px 1fr 96px;align-items:center;gap:10px;margin-bottom:7px">
+        <div style="font-size:13.5px;color:#c8b890;text-align:right">${esc(t['ชื่อไทย'] || t.axis)}</div>
         <div style="position:relative;height:15px;background:#131019;border-radius:3px">
           <div style="position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:#3a3428"></div>
           <div style="position:absolute;left:${from}%;width:${w}%;top:0;bottom:0;background:${col};border-radius:3px"></div>
         </div>
-        <div style="font-size:12px;color:${DIM}">${esc(t.voices)} ศาสตร์พูดตรงกัน</div>
+        <div style="font-size:12px;color:${col}">${esc(SAY[String(v)] || '')}</div>
       </div>`;
     }).join('')}
-    <div style="font-size:12px;color:#8a7a62;margin-top:5px">เส้นกลาง = ระดับปกติของคนทั่วไป · ยิ่งยาวออกจากกลาง ยิ่งต่างจากคนทั่วไป</div>
+    <div style="font-size:12px;color:#8a7a62;margin-top:5px">นี่คือคะแนนที่ <strong>ศาสตร์นี้ศาสตร์เดียว</strong> ให้ ไม่ใช่ค่าเฉลี่ยจากทุกศาสตร์ · เส้นกลาง = ศาสตร์นี้ไม่ออกความเห็นด้านนั้น</div>
   </div>`;
 }
 

@@ -1,0 +1,689 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8">
+<title>โอแฮม — คำอ่านรายศาสตร์</title><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Cormorant Garamond','Sarabun','Noto Sans Thai',serif;
+  color:#e6e2d8;
+  background-color:#040407;
+  background-image:
+    radial-gradient(1px 1px at 14% 22%, rgba(255,235,200,.85) 50%, transparent 55%),
+    radial-gradient(1px 1px at 26% 72%, rgba(200,220,255,.70) 50%, transparent 55%),
+    radial-gradient(1px 1px at 42% 34%, rgba(255,255,255,.80) 50%, transparent 55%),
+    radial-gradient(1.3px 1.3px at 58% 18%, rgba(255,245,220,.95) 50%, transparent 55%),
+    radial-gradient(1px 1px at 73% 64%, rgba(220,220,255,.75) 50%, transparent 55%),
+    radial-gradient(1px 1px at 82% 30%, rgba(255,255,230,.85) 50%, transparent 55%),
+    radial-gradient(1.5px 1.5px at 92% 78%, rgba(255,235,200,.95) 50%, transparent 55%),
+    radial-gradient(0.8px 0.8px at 10% 88%, rgba(255,255,255,.60) 50%, transparent 55%),
+    radial-gradient(0.8px 0.8px at 34% 8%,  rgba(200,220,255,.60) 50%, transparent 55%),
+    radial-gradient(0.9px 0.9px at 65% 90%, rgba(255,245,220,.70) 50%, transparent 55%),
+    radial-gradient(ellipse at center, #0a0a12 0%, #060610 55%, #040407 100%);
+  background-size: 600px 800px, 700px 900px, 500px 700px, 800px 600px, 640px 750px, 720px 820px, 560px 680px, 900px 1000px, 820px 920px, 680px 860px, 100% 100%;
+  background-attachment: fixed;
+}
+/* Each page uses transparent so the body star field shows through.
+   min-height removed so content flows to next page when overflowing —
+   UX first, hard pagination second. */
+.page{padding:9mm 13mm 9mm;page-break-after:always;position:relative;background:transparent}
+.page-header{display:flex;align-items:center;gap:10px;border-bottom:1px solid #3a3020;padding-bottom:6px;margin-bottom:11px}
+.page-icon{font-size:22px}
+.page-title{font-size:16px;font-weight:700;color:#c8a45a;flex:1;letter-spacing:1px}
+.page-num{font-size:12.5px;color:#967f5d}
+.page-body{font-size:14.5px;line-height:1.62;color:#ded7c4;padding-bottom:10px}
+.page-footer{text-align:center;font-size:11.5px;color:#967f5d;border-top:1px solid #2a2010;padding-top:5px;margin-top:10px}
+h2{font-size:15px;color:#c8a45a;font-weight:700;margin:10px 0 5px;border-left:3px solid #c8a45a;padding-left:10px}
+h3{font-size:13px;color:#c8a45a;font-weight:600;margin:12px 0 6px}
+p{margin-bottom:5px;color:#c8c0a8}
+table{width:100%;border-collapse:collapse;margin:10px 0}
+th{background:#0d0d15;color:#c8a45a;padding:8px 10px;text-align:left;font-size:14px}
+td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:14px;vertical-align:top}
+.lbl{color:#9a8a72;font-weight:600;width:30%;background:#0a0a10}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0}
+.stat-card{background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px;text-align:center}
+.stat-card .val{font-size:28px;font-weight:700;color:#c8a45a}
+.stat-card .lbl{font-size:12.5px;color:#9a8a72;width:auto;background:transparent;padding:0;margin-top:4px}
+.pillar{background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px;text-align:center}
+.pillar.dm{border-color:#c8a45a;background:#12101c}
+.pillar .stem{font-size:32px;font-weight:700;color:#c8a45a}
+.pillar .branch{font-size:22px;color:#c8a45a;margin-top:4px}
+.pillar .sublabel{font-size:11.5px;color:#967f5d;margin-top:2px}
+.conv{border-left:3px solid #c8a45a;padding:8px 12px;margin:8px 0;background:#0d0d15}
+.conv.med{border-left-color:#6a5a42;background:#0a0a10}
+.warn{background:#1a0a0a;border:2px solid #c01020;border-radius:8px;padding:12px;margin:8px 0;color:#f0c8b0}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12.5px;font-weight:600;margin:2px}
+@media print{
+  /* The report is a dark-theme design built almost entirely from INLINE
+     dark backgrounds + light text. The previous half-baked light override
+     (body→#fff, recolour ~6 selectors) left every inline-styled element +
+     the light .page-body/p/h3 text invisible on white paper — the "saved
+     PDF unreadable" bug (Director 2026-07-02). Fix: force the browser to
+     print the colours/backgrounds faithfully so the PDF == the screen.
+     print-color-adjust:exact overrides Chrome's "Background graphics: off"
+     default, which was dropping every dark box background. */
+  *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  html,body{ background:#040407 !important; background-image:none !important; color:#e6e2d8 !important; }
+  .page{ page-break-after:always; min-height:0; background:#040407 !important; }
+  /* Keep boxes/tables/cards from being cut across A4 sheet boundaries. A ~43
+     logical-page report overflows to ~80+ physical sheets, and without this
+     content splits mid-box → hard to read (Director 2026-07-02). break-inside
+     :avoid is only a hint — an element taller than a page still breaks, so
+     this can't create blank pages. */
+  .rbox, table, tr, .stat-card, .pillar, .conv, .warn,
+  .grid-2 > div, .grid-3 > div,
+  div[style*="border-radius"]{ break-inside:avoid; page-break-inside:avoid; }
+  .page-header{ break-inside:avoid; }
+  h2, h3{ break-after:avoid; page-break-after:avoid; }
+}</style></head>
+<body>
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">&#10022;</span>
+    <span class="page-title">โอแฮม — คำอ่านเฉพาะศาสตร์นี้</span>
+    <span class="page-num">หน้า 1 / 8</span>
+  </div>
+  <div class="page-body">
+  <div style="font-size:17px;color:#e8c87a;line-height:1.72;margin:6px 0 16px;padding:13px 15px;background:#0f0d15;border-left:3px solid #c8a45a;border-radius:0 8px 8px 0">ชัยพัทธ์คือคนที่ตั้งตัวเป็นด่านกันความเสียหายให้คนข้างหลัง โดยใช้หัวไม่ใช่แรง และไม่ยอมตัดสินอะไรจากลางสังหรณ์จนกว่าจะมีของจริงมายืนยัน</div>
+  
+  <p style="line-height:1.75;margin-bottom:14px">โอแฮมอ่านคนจากตัวอักษรไม้หนึ่งตัวที่ตกกับเจ้าชะตา แล้วดูสามชั้นคือชั้นของไม้ ธาตุประจำไม้ และคะแนนแกนนิสัยที่มีอยู่เพียงสองแกน โดยไม่มีเรือนชะตา ไม่มีบัญชีธาตุ และไม่มีตารางอวัยวะ</p>
+  <h2>ไม้โรวัน อักษร ᚂ ชื่อไอริชว่า Luis ชั้นต้นปกป้อง ธาตุลม</h2>
+  
+  <p style="font-size:13px;color:#a08a66;line-height:1.7;margin-top:12px">ไม้ประจำตัว: โรวัน (Luis) — ไม้ที่หน้าที่หลักคือกันสิ่งไม่ดีออกจากคนที่อยู่ข้างหลัง · ชั้นของไม้: ต้นปกป้อง — บทบาทที่ทำงานตอนอยู่ข้างหลัง ไม่ใช่ตอนอยู่หน้าเวที · ธาตุ: ลม — เครื่องมือคือการคิดและการสื่อสาร ไม่ใช่การปะทะตรง · แกนเก็บไว้ (expression) = 2 · แกนเชื่อสัญชาตญาณ (instinct) = 1 — สูงกว่ากันหนึ่งเท่าตัว · คะแนนรวมประจำผัง 790 · ตารางจังหวะครอบคลุมกันยายน 2569 ถึงสิงหาคม 2570 เท่านั้น</p>
+  <p style="font-size:13px;color:#a08a66;line-height:1.7">นี่คือฐานของทั้งเล่ม — บทต่อจากนี้อ้างกลับมาที่นี่ ไม่กางใหม่ทุกบท</p></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">&#10022;</span>
+    <span class="page-title">โครงของดวงใบนี้</span>
+    <span class="page-num">หน้า 2 / 8</span>
+  </div>
+  <div class="page-body">
+    
+      <p style="line-height:1.78;margin-bottom:11px">โอแฮมไม่ได้กางวันเดือนปีเป็นตาราง แต่ยกไม้หนึ่งต้นขึ้นมาเป็นตัวแทนคนทั้งคน ของคุณคือโรวัน และเมื่อเอาชั้นต้นปกป้องมาวางทับกับธาตุลม สิ่งที่ได้คือคนที่รับหน้าที่กันความเสียหายด้วยการอ่านและการอธิบาย ไม่ใช่ด้วยการลงแรงหรือปะทะ คะแนนรวม 790 ที่ศาสตร์นี้ให้ไว้จึงเป็นค่าประจำผังของคนแบบนี้ ไม่ใช่กราฟที่เดินตามอายุ ทั้งเล่มนี้จะย้อนกลับมาที่สามค่านี้ตลอด</p><h2 style="margin-top:14px">ความเงียบที่ข้างในตัดสินไปแล้ว</h2>
+      <p style="line-height:1.78;margin-bottom:11px">แกนเก็บไว้ 2 กับแกนเชื่อสัญชาตญาณ 1 อ่านเทียบกันได้ว่า คุณเก็บความเห็นไว้กับตัวมากกว่าที่คุณยอมทำตามความรู้สึกอยู่หนึ่งเท่าตัว เจอเรื่องใหม่ปฏิกิริยาแรกคือเงียบและดูก่อน คนที่เพิ่งเจอคุณจึงอ่านความเงียบนั้นว่าเฉยๆ หรือยังไม่ได้คิด ซึ่งผิดจากของจริง เพราะคุณประเมินเสร็จแล้วแต่รอจังหวะที่พูดออกไปแล้วได้ผล ผลคือคนมักประเมินความเข้มข้นของคุณต่ำไปในช่วงแรก</p>
+    <div style="margin:10px 0 14px">
+    <div style="display:grid;grid-template-columns:130px 1fr 96px;align-items:center;gap:10px;margin-bottom:7px">
+        <div style="font-size:13.5px;color:#c8b890;text-align:right">เก็บไว้</div>
+        <div style="position:relative;height:15px;background:#131019;border-radius:3px">
+          <div style="position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:#3a3428"></div>
+          <div style="position:absolute;left:50%;width:50%;top:0;bottom:0;background:#9ac86a;border-radius:3px"></div>
+        </div>
+        <div style="font-size:12px;color:#9ac86a">ชัดไปทางขวา</div>
+      </div><div style="display:grid;grid-template-columns:130px 1fr 96px;align-items:center;gap:10px;margin-bottom:7px">
+        <div style="font-size:13.5px;color:#c8b890;text-align:right">เชื่อสัญชาตญาณ</div>
+        <div style="position:relative;height:15px;background:#131019;border-radius:3px">
+          <div style="position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:#3a3428"></div>
+          <div style="position:absolute;left:50%;width:25%;top:0;bottom:0;background:#9ac86a;border-radius:3px"></div>
+        </div>
+        <div style="font-size:12px;color:#9ac86a">เอียงขวา</div>
+      </div>
+    <div style="font-size:12px;color:#8a7a62;margin-top:5px">นี่คือคะแนนที่ <strong>ศาสตร์นี้ศาสตร์เดียว</strong> ให้ ไม่ใช่ค่าเฉลี่ยจากทุกศาสตร์ · เส้นกลาง = ศาสตร์นี้ไม่ออกความเห็นด้านนั้น</div>
+  </div>
+    <h2 style="margin-top:14px">ของที่ออกจากมือคุณแล้วเชื่อถือได้</h2>
+      <p style="line-height:1.78;margin-bottom:11px">จุดแข็งที่ตรงที่สุดคือกว่าคุณจะพูด มันผ่านการทวนในหัวมาหลายรอบแล้ว สิ่งที่คุณยืนยันจึงมักไม่พลาด แกนเชื่อสัญชาตญาณที่ต่ำไม่ได้เป็นโทษตรงนี้ มันกันคุณไม่ให้รีบสรุปตามอารมณ์ และธาตุลมทำให้คุณเรียบเรียงเหตุผลออกมาให้คนอื่นเข้าใจได้ พรสวรรค์ที่ตรงตัวคืองานที่ต้องตรวจของคนอื่นให้เรียบร้อยก่อนถึงมือคนนอก</p><h2 style="margin-top:14px">จุดอ่อนที่งอกจากแกนเดียวกับจุดแข็ง</h2>
+      <p style="line-height:1.78;margin-bottom:11px">แกนเก็บไว้ที่สูงทำให้ข้อทักท้วงของคุณออกช้ากว่าจังหวะที่มันยังมีประโยชน์ พอพูดตอนงานเดินไปแล้ว มันกลายเป็นการรื้อแทนที่จะเป็นการกัน ส่วนแกนเชื่อสัญชาตญาณที่ต่ำทำให้คุณเลื่อนการขยับออกไปเรื่อยๆ เพื่อรอข้อมูลที่บางเรื่องไม่มีวันครบ สิ่งที่ต้องคุมคือการรอให้ชัวร์ร้อยเปอร์เซ็นต์ในเรื่องที่แค่ชัวร์เจ็ดสิบก็ตัดสินได้แล้ว</p>
+    <div style="margin-top:14px;padding:10px 13px;background:#0d1208;border-left:3px solid #6a9a4a;border-radius:0 8px 8px 0;line-height:1.7"><strong style="color:#9ac86a">ทำได้เลย</strong> &#8212; ตั้งเพดานให้ตัวเองว่า เรื่องที่ชัวร์ถึงเจ็ดสิบเปอร์เซ็นต์ให้ตัดสินได้เลย ไม่ต้องรอข้อมูลครบ</div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">&#10022;</span>
+    <span class="page-title">งานที่ดวงนี้ทำได้ดีและงานที่ทำแล้วพัง</span>
+    <span class="page-num">หน้า 3 / 8</span>
+  </div>
+  <div class="page-body">
+    
+      <p style="line-height:1.78;margin-bottom:11px">ชั้นต้นปกป้องบอกบทบาทของคุณไว้ตรงตัวคือเป็นด่าน ธาตุลมบอกว่าด่านนี้ทำงานด้วยการอ่านและอธิบาย และแกนเชื่อสัญชาตญาณที่ต่ำบอกว่าคุณจะทำได้ดีเมื่อมีเกณฑ์ให้ตรวจ ไม่ใช่เมื่อต้องชี้ขาดจากความรู้สึก รวมกันแล้วงานที่เข้าทางที่สุดคืองานตรวจ งานคุมมาตรฐาน งานเรียบเรียงของยุ่งให้คนอื่นใช้ต่อได้ และงานที่ความผิดพลาดหนึ่งครั้งแพงพอจนต้องมีคนคอยกัน</p><h2 style="margin-top:14px">บทบาทที่กินพลังคุณสองต่อ</h2>
+      <p style="line-height:1.78;margin-bottom:11px">แกนทั้งสองชี้ไปทางเดียวกันในเรื่องนี้ งานที่ต้องเปิดปากขายทุกวันบังคับให้คุณทั้งฝืนพูดและพูดก่อนที่จะตรวจเสร็จ บทบาทเจรจาสดที่ต้องยื่นราคาในห้องทันที หรืองานที่วัดผลจากจำนวนครั้งที่กล้าเสี่ยง จะพลิกของที่คุณถนัดให้กลายเป็นข้อเสีย ยิ่งบทบาทเร่งมากเท่าไหร่ ความแม่นที่เป็นทุนของคุณก็หายไปมากเท่านั้น</p>
+    <div style="margin:10px 0 14px">
+    <div style="margin-bottom:9px">
+        <div style="font-size:13px;color:#c8b890;margin-bottom:3px">การงาน</div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;align-items:end;height:70px">
+          <div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">5</div>
+              <div style="height:55px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#c87a6a;line-height:1.2;margin-bottom:2px">1</div>
+              <div style="height:11px;background:#c87a6a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:3px">
+          <div style="font-size:11.5px;color:#a08a66;text-align:center">กัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ตุล</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤศ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ธัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มกร</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กุม</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มีน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">เมษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มิถ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กรก</div><div style="font-size:11.5px;color:#a08a66;text-align:center">สิง</div>
+        </div>
+      </div>
+    <div style="font-size:12px;color:#8a7a62">เขียว = เดือนที่ดีที่สุดของด้านนั้น · แดง = เดือนที่ต้องระวัง · คะแนน 1-5 เทียบกับปีของคุณเอง</div>
+  </div>
+    <h2 style="margin-top:14px">อยู่ในโครงสร้างที่มีคนอื่นเป็นหน้าร้าน</h2>
+      <p style="line-height:1.78;margin-bottom:11px">การทำเองล้วนๆ บังคับให้ต้องประกาศตัวซ้ำๆ กับคนแปลกหน้า ซึ่งไม่ใช่ด้านที่คะแนนของคุณอยู่ ถ้าจะทำเองจริง รูปแบบที่ไปได้คือมีหุ้นส่วนออกหน้าแทน แล้วคุณถือฝั่งคุณภาพและความเสี่ยงไว้ ส่วนการนำคนคุณทำได้ แต่เป็นการนำแบบวางเกณฑ์ ตรวจงาน และแก้ให้ดูเป็นตัวอย่าง ทีมจะตามเพราะเชื่อว่าคุณตรวจมาแล้ว ไม่ใช่เพราะเสียงดัง</p><h2 style="margin-top:14px">สนามที่มีกติกา หรือสนามที่คุณเขียนกติกาเอง</h2>
+      <p style="line-height:1.78;margin-bottom:11px">ในสนามที่ยังไม่มีกติกา คนต้องเดินด้วยลางเป็นหลักเพราะไม่มีอะไรให้ตรวจ นั่นคือสภาพที่ทำให้คุณช้าและลังเลที่สุด แต่ชั้นต้นปกป้องเปิดทางที่สามไว้ให้ คือเข้าไปในสนามใหม่ในฐานะคนวางเกณฑ์ให้มันเสียเอง แล้วค่อยลงเล่นตามเกณฑ์นั้น วิธีนี้ทำให้คุณอยู่ในของใหม่ได้โดยไม่ต้องเปลี่ยนวิธีตัดสินใจของตัวเอง</p>
+    <div style="margin-top:14px;padding:10px 13px;background:#0d1208;border-left:3px solid #6a9a4a;border-radius:0 8px 8px 0;line-height:1.7"><strong style="color:#9ac86a">ทำได้เลย</strong> &#8212; รับบทเจ้าของเกณฑ์แทนบทคนออกหน้า และถ้าต้องเข้าของใหม่ ให้เข้าไปเขียนเกณฑ์ก่อนลงเล่น</div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">&#10022;</span>
+    <span class="page-title">ทางเดินของเงินในดวงนี้</span>
+    <span class="page-num">หน้า 4 / 8</span>
+  </div>
+  <div class="page-body">
+    
+      <p style="line-height:1.78;margin-bottom:11px">ช่องทางรายได้เป็นเรื่องที่โอแฮมบอกไม่ได้ แต่รูปทรงของจังหวะบอกได้ชัด ค่าด้านเงินของคุณอยู่ที่ 2 ถึง 3 เกือบทั้งปี แล้วเด้งขึ้น 5 อยู่สองเดือนคือพฤศจิกายน 2569 กับมกราคม 2570 ส่วนตุลาคม 2569 ลงไปที่ 1 รูปแบบแบบนี้คือเงินเข้าเป็นก้อนตามรอบ ไม่ใช่รายได้ที่ราบเท่ากันทุกเดือน การวางแผนจ่ายจึงต้องอิงก้อน ไม่ใช่อิงค่าเฉลี่ย</p><h2 style="margin-top:14px">เสี่ยงได้เฉพาะดีลที่กางตัวเลขให้ดูได้</h2>
+      <p style="line-height:1.78;margin-bottom:11px">แกนเชื่อสัญชาตญาณ 1 คือค่าที่ต่ำที่สุดในผังทั้งใบ แปลว่าถ้าให้ตัดสินโดยไม่มีข้อมูล คุณจะทั้งช้าและไม่แม่น การเสี่ยงที่เข้ากับดวงใบนี้คือแบบที่คำนวณล่วงหน้าได้ว่าแย่ที่สุดเสียเท่าไหร่ ส่วนการลงเงินตามคนแนะนำหรือตามความรู้สึกว่าน่าจะได้ เป็นรูปแบบที่ผังนี้ไม่รองรับเลย</p>
+    <div style="margin:10px 0 14px">
+    <div style="margin-bottom:9px">
+        <div style="font-size:13px;color:#c8b890;margin-bottom:3px">การเงิน</div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;align-items:end;height:70px">
+          <div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#c87a6a;line-height:1.2;margin-bottom:2px">1</div>
+              <div style="height:11px;background:#c87a6a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">5</div>
+              <div style="height:55px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">5</div>
+              <div style="height:55px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:3px">
+          <div style="font-size:11.5px;color:#a08a66;text-align:center">กัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ตุล</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤศ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ธัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มกร</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กุม</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มีน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">เมษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มิถ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กรก</div><div style="font-size:11.5px;color:#a08a66;text-align:center">สิง</div>
+        </div>
+      </div><div style="margin-bottom:9px">
+        <div style="font-size:13px;color:#c8b890;margin-bottom:3px">โอกาส</div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;align-items:end;height:70px">
+          <div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#c87a6a;line-height:1.2;margin-bottom:2px">1</div>
+              <div style="height:11px;background:#c87a6a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:3px">
+          <div style="font-size:11.5px;color:#a08a66;text-align:center">กัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ตุล</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤศ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ธัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มกร</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กุม</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มีน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">เมษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มิถ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กรก</div><div style="font-size:11.5px;color:#a08a66;text-align:center">สิง</div>
+        </div>
+      </div>
+    <div style="font-size:12px;color:#8a7a62">เขียว = เดือนที่ดีที่สุดของด้านนั้น · แดง = เดือนที่ต้องระวัง · คะแนน 1-5 เทียบกับปีของคุณเอง</div>
+  </div>
+    <h2 style="margin-top:14px">จับก้อนคู่กับกฎกางตัวเลข</h2>
+      <p style="line-height:1.78;margin-bottom:11px">สองเรื่องข้างบนใช้ด้วยกันได้ตรงๆ เดือนก้อนอย่างพฤศจิกายน 2569 และมกราคม 2570 คือช่วงที่มีเงินให้ตัดสินใจ ส่วนตุลาคม 2569 ที่ค่าเงินและโอกาสลงไปที่ 1 พร้อมกันคือช่วงที่ไม่ควรผูกรายจ่ายก้อนใหม่ เอาข้อห้ามเรื่องการเสี่ยงแบบไม่มีตัวเลขมาคุมเดือนก้อนไว้ แล้วเงินที่เข้ามาเป็นรอบจะไม่ถูกใช้ไปกับดีลที่ตรวจไม่ได้</p>
+    <div style="margin-top:14px;padding:10px 13px;background:#0d1208;border-left:3px solid #6a9a4a;border-radius:0 8px 8px 0;line-height:1.7"><strong style="color:#9ac86a">ทำได้เลย</strong> &#8212; ตั้งกฎว่าเงินก้อนจากพฤศจิกายน 2569 และมกราคม 2570 ลงได้เฉพาะดีลที่บอกตัวเลขขาดทุนสูงสุดล่วงหน้าได้</div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">&#10022;</span>
+    <span class="page-title">คนรอบตัวและที่ทางของคุณ</span>
+    <span class="page-num">หน้า 5 / 8</span>
+  </div>
+  <div class="page-body">
+    
+      <p style="line-height:1.78;margin-bottom:11px">วิธีแสดงความรักของคุณคือจัดการเรื่องให้เรียบร้อยแทนการบอก ชั้นต้นปกป้องบวกแกนเก็บไว้ทำให้คุณกันปัญหาออกจากคนที่คุณรักโดยไม่รายงานว่าทำอะไรไปบ้าง คุณจึงให้เยอะกว่าที่อีกฝ่ายมองเห็น และเพราะตัวคุณเองไม่พูด คุณก็ไม่ถนัดถอดรหัสความเงียบของคนอื่นเช่นกัน ความรักที่ถึงคุณจริงคือแบบที่พูดออกมาเป็นคำ ไม่ใช่แบบที่ต้องเดา</p><h2 style="margin-top:14px">พื้นที่ส่วนตัวคือห้องทำงาน ไม่ใช่การหนี</h2>
+      <p style="line-height:1.78;margin-bottom:11px">กระบวนการคิดของคุณเกิดข้างในก่อนเสมอ ถ้าถูกเร่งให้พูดระหว่างที่ยังคิดไม่จบ คุณจะปิดมากกว่าเปิด นี่คือกลไกเดียวกับที่ทำให้ความสัมพันธ์ของคุณพัง เรื่องค้างที่ไม่ถูกพูดสะสมจนเรื่องเล็กที่ควรจบในสองนาทีกลายเป็นก้อนใหญ่ที่พูดตอนนั้นแล้วเจ็บทั้งคู่ อีกฝ่ายมักตกใจเพราะไม่เคยได้รับสัญญาณเลย</p><h2 style="margin-top:14px">คู่ที่ไม่แปลความเงียบเป็นการปฏิเสธ</h2>
+      <p style="line-height:1.78;margin-bottom:11px">คนที่ไปกับคุณได้คือคนที่กล้าถามซ้ำว่าคิดอะไรอยู่ โดยไม่ตีความว่าการไม่ตอบทันทีคือความไม่แคร์ และเป็นคนที่พูดความต้องการของตัวเองออกมาเป็นคำได้ เพราะคุณไม่ถนัดเดา ส่วนคนที่ใช้การง้อและการอ่านใจเป็นภาษาหลักจะเหนื่อยกับดวงใบนี้ ข้อตกลงที่ควรมีคือกำหนดให้ชัดว่าคุณจะกลับมาคุยเมื่อไหร่ ไม่ใช่ปล่อยให้เงียบลอยไว้</p>
+    <div style="margin:10px 0 14px">
+    <div style="margin-bottom:9px">
+        <div style="font-size:13px;color:#c8b890;margin-bottom:3px">ความรัก</div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;align-items:end;height:70px">
+          <div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#c87a6a;line-height:1.2;margin-bottom:2px">1</div>
+              <div style="height:11px;background:#c87a6a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">5</div>
+              <div style="height:55px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:3px">
+          <div style="font-size:11.5px;color:#a08a66;text-align:center">กัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ตุล</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤศ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ธัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มกร</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กุม</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มีน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">เมษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มิถ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กรก</div><div style="font-size:11.5px;color:#a08a66;text-align:center">สิง</div>
+        </div>
+      </div><div style="margin-bottom:9px">
+        <div style="font-size:13px;color:#c8b890;margin-bottom:3px">คนหนุน</div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;align-items:end;height:70px">
+          <div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#c87a6a;line-height:1.2;margin-bottom:2px">1</div>
+              <div style="height:11px;background:#c87a6a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">5</div>
+              <div style="height:55px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:3px">
+          <div style="font-size:11.5px;color:#a08a66;text-align:center">กัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ตุล</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤศ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ธัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มกร</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กุม</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มีน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">เมษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มิถ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กรก</div><div style="font-size:11.5px;color:#a08a66;text-align:center">สิง</div>
+        </div>
+      </div><div style="margin-bottom:9px">
+        <div style="font-size:13px;color:#c8b890;margin-bottom:3px">ครอบครัว</div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;align-items:end;height:70px">
+          <div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#c87a6a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#c87a6a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#c87a6a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#c87a6a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#c87a6a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#c87a6a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#c87a6a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#c87a6a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">5</div>
+              <div style="height:55px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#c87a6a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#c87a6a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:3px">
+          <div style="font-size:11.5px;color:#a08a66;text-align:center">กัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ตุล</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤศ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ธัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มกร</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กุม</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มีน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">เมษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มิถ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กรก</div><div style="font-size:11.5px;color:#a08a66;text-align:center">สิง</div>
+        </div>
+      </div>
+    <div style="font-size:12px;color:#8a7a62">เขียว = เดือนที่ดีที่สุดของด้านนั้น · แดง = เดือนที่ต้องระวัง · คะแนน 1-5 เทียบกับปีของคุณเอง</div>
+  </div>
+    <h2 style="margin-top:14px">คนที่หนุนกับคนที่ดูด</h2>
+      <p style="line-height:1.78;margin-bottom:11px">คนที่หนุนคุณคือคนที่ถามแล้วรอคำตอบได้ และคนที่เอาข้อมูลมาวางให้ตรวจแทนการเร่งให้ตัดสิน ตารางชี้ว่าคนกลุ่มนี้จะเข้ามาชัดที่สุดในมกราคม 2570 และพฤษภาคม 2570 ส่วนคนที่ดูดพลังคือคนที่ต้องการคำตอบทันทีทุกครั้ง คนที่แปลความเงียบของคุณเป็นการตกลง และคนที่ขายด้วยความเร้าใจล้วนๆ จนคุณต้องไปหาข้อมูลมาถ่วงเองทุกรอบ</p><h2 style="margin-top:14px">วงเล็กคือขนาดที่คุณเปิดได้</h2>
+      <p style="line-height:1.78;margin-bottom:11px">จำนวนคนไม่ได้เพิ่มผลงานให้คุณ แต่เพิ่มต้นทุนในการพูด ในวงใหญ่คุณจะได้ข้อมูลกลับไปเยอะแต่ปล่อยของออกมาน้อย ส่วนวงสามถึงห้าคนคือขนาดที่คุณเปิดได้จริง อีกด้านที่ต้องรู้คือคุณเป็นที่พึ่งของคนอื่นโดยไม่บอกว่าตัวเองหนักแค่ไหน คนรอบตัวจึงเคยชินกับการพึ่งคุณ ทั้งที่ไม่เคยมีใครถูกจัดให้เป็นที่พึ่งของคุณเลย</p>
+    <div style="margin-top:14px;padding:10px 13px;background:#0d1208;border-left:3px solid #6a9a4a;border-radius:0 8px 8px 0;line-height:1.7"><strong style="color:#9ac86a">ทำได้เลย</strong> &#8212; ตั้งกติกาว่าเรื่องคาใจต้องออกจากปากภายในสามวันโดยไม่ต้องรอให้คิดจบ และเลือกคนไว้หนึ่งคนที่คุณจะบอกความจริงด้วยโดยไม่รอให้เขาถาม</div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">&#10022;</span>
+    <span class="page-title">ร่างกายและการเรียนรู้</span>
+    <span class="page-num">หน้า 6 / 8</span>
+  </div>
+  <div class="page-body">
+    
+      <p style="line-height:1.78;margin-bottom:11px">คนที่ประมวลผลข้างในจะไม่ได้พักเลยถ้ายังต้องคุย การพักที่คืนพลังให้คุณจึงคือเวลาที่ไม่มีใครรอคำตอบ ไม่ใช่ทริปที่ต้องเข้าสังคม ตารางสุขภาพชี้ว่าเดือนที่ควรลดโหลดคือธันวาคม 2569 และกุมภาพันธ์ 2570 ส่วนมีนาคม 2570 เป็นเดือนที่รับการฟื้นฟูได้เต็มที่ที่สุดของทั้งปี ถ้าจะเริ่มอะไรกับร่างกาย ให้ไปเริ่มในเดือนนั้น</p><h2 style="margin-top:14px">เข้าหัวเมื่อได้ลงมือตรวจเอง</h2>
+      <p style="line-height:1.78;margin-bottom:11px">แกนเชื่อสัญชาตญาณที่ต่ำบอกว่าคุณไม่ได้เรียนแบบซึมซับหรือจับความรู้สึก คุณต้องได้ทดลอง เทียบ และเห็นด้วยตัวเองว่าอะไรจริงอะไรไม่จริง การนั่งฟังบรรยายเฉยๆ จะผ่านไปโดยไม่ติด วิธีที่ได้ผลคือหยิบของจริงมาทำหนึ่งชิ้นทุกครั้งที่เรียนอะไรใหม่ ให้มีชิ้นงานที่ตรวจได้ออกมาเสมอ ไม่ใช่แค่โน้ต</p>
+    <div style="margin:10px 0 14px">
+    <div style="margin-bottom:9px">
+        <div style="font-size:13px;color:#c8b890;margin-bottom:3px">สุขภาพ</div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;align-items:end;height:70px">
+          <div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#c87a6a;line-height:1.2;margin-bottom:2px">1</div>
+              <div style="height:11px;background:#c87a6a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">5</div>
+              <div style="height:55px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:3px">
+          <div style="font-size:11.5px;color:#a08a66;text-align:center">กัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ตุล</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤศ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ธัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มกร</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กุม</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มีน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">เมษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มิถ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กรก</div><div style="font-size:11.5px;color:#a08a66;text-align:center">สิง</div>
+        </div>
+      </div><div style="margin-bottom:9px">
+        <div style="font-size:13px;color:#c8b890;margin-bottom:3px">เรียนรู้</div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;align-items:end;height:70px">
+          <div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#c87a6a;line-height:1.2;margin-bottom:2px">1</div>
+              <div style="height:11px;background:#c87a6a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">5</div>
+              <div style="height:55px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:3px">
+          <div style="font-size:11.5px;color:#a08a66;text-align:center">กัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ตุล</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤศ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ธัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มกร</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กุม</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มีน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">เมษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มิถ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กรก</div><div style="font-size:11.5px;color:#a08a66;text-align:center">สิง</div>
+        </div>
+      </div>
+    <div style="font-size:12px;color:#8a7a62">เขียว = เดือนที่ดีที่สุดของด้านนั้น · แดง = เดือนที่ต้องระวัง · คะแนน 1-5 เทียบกับปีของคุณเอง</div>
+  </div>
+    <h2 style="margin-top:14px">สิ่งที่ต้องฝึกกับสิ่งที่ไม่ควรฝืน</h2>
+      <p style="line-height:1.78;margin-bottom:11px">สิ่งที่ต้องฝึกคือปล่อยความเห็นที่ยังไม่สมบูรณ์ออกมาให้เร็วขึ้นหนึ่งจังหวะ ระบุไปเลยว่านี่คือความคิดดิบ จะได้ไม่ต้องรอให้มันครบ ส่วนสิ่งที่ไม่ควรฝืนคืออย่าไปฝึกเป็นคนตัดสินเร็วด้วยความรู้สึก เพราะดวงใบนี้ไม่ได้ให้ของมาทางนั้น ใช้ระบบและเกณฑ์ทดแทนได้ผลกว่า เดือนที่เหมาะจะเริ่มฝึกคือพฤษภาคม 2570 ซึ่งด้านการเรียนรู้ขึ้นถึง 5</p>
+    <div style="margin-top:14px;padding:10px 13px;background:#0d1208;border-left:3px solid #6a9a4a;border-radius:0 8px 8px 0;line-height:1.7"><strong style="color:#9ac86a">ทำได้เลย</strong> &#8212; ลดนัดและลดโหลดในธันวาคม 2569 กับกุมภาพันธ์ 2570 แล้วเก็บมีนาคม 2570 ไว้ฟื้นตัว ส่วนของใหม่ที่จะเรียนให้ทำออกมาเป็นชิ้นงานเสมอ</div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">&#10022;</span>
+    <span class="page-title">จังหวะและสิ่งที่ควรทำ</span>
+    <span class="page-num">หน้า 7 / 8</span>
+  </div>
+  <div class="page-body">
+    
+      <p style="line-height:1.78;margin-bottom:11px">กันยายน 2569 เป็นเดือนของคนและบ้าน ไม่ใช่เดือนของงานและเงิน ค่าด้านความรัก ครอบครัว และมิตรสหายอยู่ที่ 4 เท่ากันสามด้าน ขณะที่งาน เงิน และโอกาสอยู่ที่ 2 การพยายามดันดีลใหญ่ตอนนี้จะฝืนกับผัง สิ่งที่ควรทำคือเก็บงานเดิมให้เรียบ แล้วใช้เวลาไปกับคนที่จะกลายเป็นแรงหนุนในรอบถัดไป</p><h2 style="margin-top:14px">มกราคม 2570 คือจุดที่ควรยิง</h2>
+      <p style="line-height:1.78;margin-bottom:11px">มกราคม 2570 ให้ค่างาน 5 เงิน 5 พร้อมโอกาส 4 การเรียนรู้ 4 และมิตรสหาย 4 เป็นเดือนเดียวในตารางที่ทุกด้านหลักขึ้นพร้อมกัน มีนาคม 2570 ขึ้นอีกครั้งแต่หนักไปทางสุขภาพ 5 และครอบครัว 5 ส่วนพฤษภาคม 2570 เด่นที่ความรัก การเรียนรู้ และมิตรสหายที่ 5 ทั้งสามด้าน แผนที่ตรงกับผังคือเตรียมของให้เสร็จก่อนมกราคม แล้วยิงในเดือนนั้น</p><h2 style="margin-top:14px">สามเดือนที่ผลักอะไรก็ไม่ขยับ</h2>
+      <p style="line-height:1.78;margin-bottom:11px">ตุลาคม 2569 เงินและโอกาสลงไปที่ 1 พร้อมกัน ธันวาคม 2569 สุขภาพและความรักลงไปที่ 1 ทั้งคู่ ส่วนกุมภาพันธ์ 2570 งาน การเรียนรู้ และมิตรสหายลงที่ 1 พร้อมกันสามด้าน สามเดือนนี้ไม่ใช่เดือนที่จะเปิดเรื่องใหม่ ให้ใช้เก็บงานหลังบ้านและตั้งหลักไว้รับมกราคมกับมีนาคม 2570</p>
+    <div style="margin:10px 0 14px">
+    <div style="margin-bottom:9px">
+        <div style="font-size:13px;color:#c8b890;margin-bottom:3px">โอกาส</div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;align-items:end;height:70px">
+          <div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#c87a6a;line-height:1.2;margin-bottom:2px">1</div>
+              <div style="height:11px;background:#c87a6a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:3px">
+          <div style="font-size:11.5px;color:#a08a66;text-align:center">กัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ตุล</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤศ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ธัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มกร</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กุม</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มีน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">เมษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มิถ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กรก</div><div style="font-size:11.5px;color:#a08a66;text-align:center">สิง</div>
+        </div>
+      </div><div style="margin-bottom:9px">
+        <div style="font-size:13px;color:#c8b890;margin-bottom:3px">การงาน</div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;align-items:end;height:70px">
+          <div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">2</div>
+              <div style="height:22px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#9ac86a;line-height:1.2;margin-bottom:2px">5</div>
+              <div style="height:55px;background:#9ac86a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#c87a6a;line-height:1.2;margin-bottom:2px">1</div>
+              <div style="height:11px;background:#c87a6a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">3</div>
+              <div style="height:33px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div><div style="text-align:center">
+              <div style="font-size:11.5px;color:#6a5f4a;line-height:1.2;margin-bottom:2px">4</div>
+              <div style="height:44px;background:#6a5f4a;border-radius:2px 2px 0 0"></div>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:3px">
+          <div style="font-size:11.5px;color:#a08a66;text-align:center">กัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ตุล</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤศ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">ธัน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มกร</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กุม</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มีน</div><div style="font-size:11.5px;color:#a08a66;text-align:center">เมษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">พฤษ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">มิถ</div><div style="font-size:11.5px;color:#a08a66;text-align:center">กรก</div><div style="font-size:11.5px;color:#a08a66;text-align:center">สิง</div>
+        </div>
+      </div>
+    <div style="font-size:12px;color:#8a7a62">เขียว = เดือนที่ดีที่สุดของด้านนั้น · แดง = เดือนที่ต้องระวัง · คะแนน 1-5 เทียบกับปีของคุณเอง</div>
+  </div>
+    <h2 style="margin-top:14px">ของที่เสริมดวงใบนี้จริง</h2>
+      <p style="line-height:1.78;margin-bottom:11px">ธาตุลมใช้ให้เป็นประโยชน์ได้ด้วยช่องทางที่เป็นคำและเป็นเอกสาร เช่นเขียนสรุปหรืออธิบายเรื่องยากให้คนอื่นเข้าใจ นั่นคือที่ที่คุณแรงที่สุด ส่วนไม้โรวันชั้นต้นปกป้องจะเสริมเมื่อคุณได้ทำหน้าที่กันความเสียหายให้ทีมจริงๆ ไม่ใช่ถูกดันไปยืนหน้าเวที จังหวะที่เสริมคือมกราคม 2570 สำหรับงานและเงิน กับมีนาคม 2570 สำหรับกำลังกายและบ้าน ผังชุดนี้ไม่มีข้อมูลสีและทิศ จึงไม่ระบุ</p><h2 style="margin-top:14px">ถ้าเปลี่ยนได้อย่างเดียว</h2>
+      <p style="line-height:1.78;margin-bottom:11px">ทั้งผังมีสองแกน และแกนเก็บไว้คือแกนที่กระทบทั้งเรื่องงาน คู่ และคนรอบตัวมากที่สุด ข้อดีของมันคือความแม่น ข้อเสียคือของออกช้าเกินจุดที่ยังแก้ได้ วิธีเปลี่ยนที่ทำได้จริงคือฝึกส่งความเห็นดิบพร้อมป้ายกำกับว่ายังไม่สรุป โดยเริ่มจากงานที่เดิมพันไม่สูงก่อน ถ้าขยับได้ข้อเดียวนี้ ทั้งเรื่องที่พูดช้าในงาน เรื่องค้างกับคู่ และการถูกคนดูดพลังจะเบาลงพร้อมกัน</p>
+    <div style="margin-top:14px;padding:10px 13px;background:#0d1208;border-left:3px solid #6a9a4a;border-radius:0 8px 8px 0;line-height:1.7"><strong style="color:#9ac86a">ทำได้เลย</strong> &#8212; เตรียมของให้เสร็จภายในธันวาคม 2569 เพื่อยิงในมกราคม 2570 และเริ่มฝึกส่งความเห็นดิบตั้งแต่ตุลาคม 2569 ซึ่งเป็นเดือนเงียบอยู่แล้ว</div></div>
+  <div class="page-footer">MYTHSENSUS &#183; คำอ่านรายศาสตร์ สร้างโดย AI บนค่าที่คำนวณจากดวงจริง เพื่อการสำรวจตนเอง ไม่ใช่คำแนะนำวิชาชีพ</div>
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">&#10022;</span>
+    <span class="page-title">อ่านจบแล้วทำอะไรต่อ</span>
+    <span class="page-num">หน้า 8 / 8</span>
+  </div>
+  <div class="page-body">
+  <p style="line-height:1.78">ชัยพัทธ์ ถ้าจะทำอย่างเดียวจากทั้งเล่มนี้ ให้เปิดปฏิทินแล้วกันเวลาสองสัปดาห์แรกของมกราคม 2570 ไว้สำหรับเรื่องงานและเงินที่คุณตั้งใจจะดันมากที่สุด แล้วเดินถอยหลังจากวันนั้นมาวางว่าอะไรต้องเสร็จภายในธันวาคม 2569 ระหว่างทางใช้กติกาข้อเดียวคือ ความเห็นที่คิดได้ต้องออกจากปากภายในสามวัน ไม่ต้องรอให้คิดจบ</p>
+  <h2>เรื่องที่ศาสตร์นี้อ่านไม่ได้</h2>
+  <p style="line-height:1.75;color:#c8b890;margin-bottom:8px">ไม่ใช่ข้อบกพร่องของดวงคุณ — เป็นขอบเขตของวิชา</p>
+  <table><thead><tr><th>เรื่อง</th><th>ทำไม</th><th>ควรไปดูจากไหน</th></tr></thead><tbody>
+  <tr><td>ธาตุที่ขาดและต้องไปหาเติมจากข้างนอก</td><td>โอแฮมผูกธาตุไว้กับไม้ประจำตัวเพียงค่าเดียวคือลม ซึ่งเป็นป้ายบอกวิธีทำงาน ไม่ใช่ยอดคงเหลือที่หักลบกันได้</td><td style="color:#9ab0c8">ปาจื่อ ที่ตีทั้งสี่เสาออกมาเป็นตารางห้าธาตุแล้วนับจำนวนได้จริง</td></tr><tr><td>สิ่งที่มีล้นจนกลายเป็นภาระ</td><td>ค่าที่ศาสตร์นี้ให้มามีแค่ไม้หนึ่งต้น ธาตุหนึ่งธาตุ และแกนนิสัยสองแกน ไม่มีตัวไหนเป็นปริมาณสะสมที่จะเกินได้</td><td style="color:#9ab0c8">ศาสตร์ที่นับจำนวนดาวหรือธาตุซ้ำในผังเดียวกัน</td></tr><tr><td>วาสนาทั้งชีวิตหนักไปทางด้านไหน</td><td>คะแนนรายด้านของศาสตร์นี้มีเฉพาะในกรอบสิบสองเดือน เป็นตารางจังหวะ ไม่ใช่การชั่งน้ำหนักทั้งชีวิต</td><td style="color:#9ab0c8">ทักษา หรือโหราศาสตร์ที่แบ่งภพประจำตัว</td></tr><tr><td>บทเรียนของชีวิตนี้และรูปแบบที่ทำซ้ำโดยไม่รู้ตัว</td><td>ทั้งผังเป็นภาพปัจจุบันของนิสัย ไม่มีกลไกไหนบันทึกกรรมเก่าหรือวงจรที่วนกลับมา</td><td style="color:#9ab0c8">มหาทศาของโหราศาสตร์อินเดีย หรือจุดโหนดในดวงตะวันตก</td></tr><tr><td>อะไรทำให้เบื่องานเร็วที่สุด</td><td>สองแกนที่มีวัดวิธีแสดงออกและวิธีตัดสินใจ ไม่ได้วัดความอดทนหรือระยะความสนใจ</td><td style="color:#9ab0c8">ศาสตร์ที่มีดาวหรือเรือนว่าด้วยพลังขับเคลื่อนและความแปรปรวน</td></tr><tr><td>ความสำเร็จจะมาช้าหรือมาเร็ว</td><td>ข้อมูลจังหวะยาวแค่กันยายน 2569 ถึงสิงหาคม 2570 ส่วนไม้และแกนนิสัยเป็นค่านิ่งที่ไม่เดินตามอายุ</td><td style="color:#9ab0c8">ระบบทศา หรือระบบเสาสิบปี</td></tr><tr><td>เป็นคนหาเก่งหรือเก็บเก่ง</td><td>ในผังไม่มีค่าไหนแทนทรัพย์สะสมหรือกระแสเงิน มีแค่คะแนนรายเดือนที่บอกว่าเดือนไหนเรื่องเงินเด่น</td><td style="color:#9ab0c8">ศาสตร์ที่มีเรือนทรัพย์แยกจากเรือนรายได้</td></tr><tr><td>รูปแบบที่ทำให้เงินรั่ว</td><td>คะแนนเงินรายเดือนบอกความเข้มของเรื่องเงิน แต่ไม่แยกว่าเป็นเงินเข้าหรือเงินออก และไม่มีตัวชี้การเสียทรัพย์</td><td style="color:#9ab0c8">ศาสตร์ที่มีเรือนทรัพย์และตัวชี้การสูญเสียโดยตรง</td></tr><tr><td>ความสัมพันธ์ภายในที่มีต่อเงิน</td><td>สองแกนที่มีพูดเรื่องการแสดงออกและการตัดสินใจเท่านั้น ไม่มีแกนไหนเกี่ยวกับคุณค่าหรือความมั่นคง</td><td style="color:#9ab0c8">ศาสตร์ที่มีเรือนทรัพย์</td></tr><tr><td>รูปแบบความสัมพันธ์ที่ทำซ้ำ</td><td>ผังให้ค่านิ่งสามอย่างกับตารางสิบสองเดือน ไม่มีชั้นไหนบันทึกอดีต จึงบอกได้แค่ท่าทีปัจจุบัน</td><td style="color:#9ab0c8">ศาสตร์ที่มีเรือนคู่และดาวจรที่ย้อนอดีตได้</td></tr><tr><td>อวัยวะที่ต้องดูแลเป็นพิเศษ</td><td>ธาตุลมในศาสตร์นี้เป็นวิธีทำงานของคน ไม่ใช่แผนที่ร่างกาย การแปลลมเป็นปอดคือการยืมตารางของศาสตร์อื่นมาสวม</td><td style="color:#9ab0c8">ศาสตร์ที่มีตารางธาตุกับอวัยวะโดยตรง หรือผลตรวจร่างกายจริงซึ่งแม่นกว่าทุกศาสตร์</td></tr><tr><td>ร่างกายเตือนก่อนหรือพังทีเดียว</td><td>ไม่มีตัวชี้ที่แยกระหว่างการสะสมกับการเกิดฉับพลัน ทั้งผังไม่มีค่าไหนพูดเรื่องร่างกายเลย</td><td style="color:#9ab0c8">ประวัติสุขภาพจริง ประกอบกับศาสตร์ที่มีเรือนโรค</td></tr><tr><td>ควรปักหลักหรือย้ายไปไกลจากบ้านเกิด</td><td>ไม่มีค่าไหนในผังผูกกับสถานที่หรือการเดินทาง การแปลธาตุลมว่าเป็นคนเคลื่อนที่คือการเล่นกับความหมายของคำ</td><td style="color:#9ab0c8">ศาสตร์ที่มีเรือนที่อยู่และเรือนการเดินทาง หรือดูจากเงื่อนไขจริงเรื่องงานและครอบครัว</td></tr><tr><td>ได้แรงหนุนจากครอบครัวมากน้อยแค่ไหน</td><td>ไม่มีเรือนบิดามารดาหรือเรือนวงศ์ตระกูล มีเพียงคะแนนครอบครัวรายเดือนที่บอกได้แค่ว่าเดือนไหนเรื่องบ้านเข้มขึ้น</td><td style="color:#9ab0c8">ศาสตร์ที่มีเรือนครอบครัวโดยตรง</td></tr><tr><td>บ้านคือที่พักหรือฐานปฏิบัติการ</td><td>ไม่มีตัวชี้ที่แยกพื้นที่พักออกจากพื้นที่ทำงาน การตอบจากชั้นต้นปกป้องจะเป็นการเดาที่ตำราไม่ได้บอกไว้</td><td style="color:#9ab0c8">ศาสตร์ที่มีเรือนที่อยู่อาศัยแยกออกมาชัด</td></tr><tr><td>ชีวิตพีคช่วงต้น กลาง หรือปลาย</td><td>ข้อมูลเริ่มกันยายน 2569 จบสิงหาคม 2570 ส่วนคะแนนรวม 790 เป็นค่าประจำผัง ไม่ใช่กราฟเวลา</td><td style="color:#9ab0c8">ศาสตร์ที่แบ่งช่วงอายุเป็นทศาหรือเป็นเสาสิบปี</td></tr><tr><td>สิ่งที่บั่นทอนดวงและของแสลงประจำตัว</td><td>การบอกของบั่นทอนต้องมีคู่ปฏิปักษ์ในระบบ แต่ผังนี้ให้ธาตุมาค่าเดียวโดยไม่มีคู่เทียบ</td><td style="color:#9ab0c8">ศาสตร์ที่มีตารางธาตุข่มธาตุ</td></tr>
+  </tbody></table></div>
+  <div class="page-footer">MYTHSENSUS &#183; คำอ่านรายศาสตร์ สร้างโดย AI บนค่าที่คำนวณจากดวงจริง เพื่อการสำรวจตนเอง ไม่ใช่คำแนะนำวิชาชีพ</div>
+</div></body></html>

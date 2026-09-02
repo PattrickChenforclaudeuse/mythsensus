@@ -28,17 +28,15 @@ const SYS = process.argv[2] || 'bazi';
 const d = JSON.parse(fs.readFileSync(path.join(__dirname, process.argv[3] || `compose-${SYS}.json`), 'utf8'));
 const P = JSON.parse(fs.readFileSync(path.join(__dirname, `payload-${SYS}.json`), 'utf8'));
 const TITLE = P.systemTh;
-const traits = P['แกนนิสัยจาก25ศาสตร์'];
+const traits = P['แกนนิสัยที่ศาสตร์นี้ให้คะแนนเอง'] || [];
 const months = P['เดือนข้างหน้า12เดือน'];
 
 // ภาพประจำบท — เลือกจากเรื่องที่บทนั้นพูด ไม่ใช่สลับไปเรื่อย
 const CHAPTER_VISUAL = [
   () => V.traitBars(traits),                                      // 1 โครงดวง
-  () => V.traitBars(traits, ['initiative', 'structure', 'focus', 'risk', 'change'])
-      + V.monthBars(months, ['career']),                          // 2 งาน
+  () => V.monthBars(months, ['career']),                          // 2 งาน
   () => V.monthBars(months, ['money', 'chance']),                 // 3 เงิน
-  () => V.traitBars(traits, ['social', 'expression', 'root'])
-      + V.monthBars(months, ['love', 'allies', 'family']),        // 4 คน
+  () => V.monthBars(months, ['love', 'allies', 'family']),        // 4 คน
   () => V.monthBars(months, ['health', 'learning']),              // 5 ร่างกาย/เรียนรู้
   () => P.chart.luckPillars
         ? V.luckStrip(P.chart.luckPillars.map(l => `${l.ageStart}-${l.ageEnd} ${l.stem}${l.branch} ${l.stemTh} ${l.branchTh} (${l.period})`), P.context.ageNow)
