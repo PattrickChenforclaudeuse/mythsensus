@@ -48,7 +48,6 @@ const WIRED = {
   arabicParts:    c => String((c.arabicParts||{}).partOfFortune) + '|' + String((c.arabicParts||{}).partOfSpirit),
   aztec:          c => String(c.aztec.daySign),
   ogham:          c => String((c.ogham||{}).irish),
-  thaiSeven:      c => String(((c.numerology||{}).thaiSeven||[])[3]),
 };
 
 // คู่ที่คำนวณจากของชุดเดียวกัน — **พูดได้ ถ้าพิสูจน์ได้ว่าไม่ใช่เสียงสะท้อน**
@@ -217,7 +216,7 @@ const line = '═'.repeat(70);
 console.log('\n' + line);
 console.log(' ชั้นคุณสมบัติ (traits) · สุ่ม ' + charts.length + ' ดวง');
 console.log(line);
-console.log('\nจำนวนเสียงต่อแกน (ต่อสายแล้ว 25 ศาสตร์ — ตัวเลขนี้ต้องขยับตาม WIRED ทุกครั้งที่เพิ่มศาสตร์):');
+console.log('\nจำนวนเสียงต่อแกน (ต่อสายแล้ว 24 ศาสตร์ — ตัวเลขนี้ต้องขยับตาม WIRED ทุกครั้งที่เพิ่มศาสตร์):');
 Object.entries(axisStat)
   .sort((a, b) => b[1].sys.size - a[1].sys.size)
   .forEach(([k, a]) => {

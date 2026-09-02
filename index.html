@@ -71,7 +71,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=225">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=226">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -2966,7 +2966,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=225" defer></script>
+<script src="/build/ms26-bundle.js?v=226" defer></script>
 <script>
 
 
@@ -8098,6 +8098,29 @@ function _isOwner(){ return _OWNER_MODE; }
 // rollback is on, OR (c) the user is an active Gumroad subscriber, OR (d) user
 // has an active gift code, OR (e) the specific item has been purchased for the
 // current chart.
+// ศาสตร์ที่ปลดให้ฟรีหนึ่งตัวต่อดวง — เลือกจากดวง ไม่ใช่สุ่มทุกครั้ง
+//
+// ⛔ ห้ามใช้ Math.random() เด็ดขาด · Oracle เสียเงินจริงต่อการ render หนึ่งครั้ง
+//    ($0.08-0.15) และแคชผูกกับ (ดวง + ศาสตร์) ถ้าสุ่มใหม่ทุกคลิก แคชจะไม่เคยโดน
+//    = จ่ายทุกครั้งที่คนกด และคนกดรัวเผางบได้
+//    เลือกจากแฮชของดวง ⇒ คนเดิมได้ศาสตร์เดิมเสมอ · ครั้งที่สองเป็นต้นไปฟรีจริง
+//    ผลพลอยได้: "ทำไมฉันได้มายา เพื่อนได้ BaZi" กลายเป็นเรื่องที่เอาไปเล่าต่อได้
+//
+// เพดานฝั่ง server ที่กันความเสียหายอยู่แล้ว: งบรวม $30/วัน · 10 render/ดวง/24 ชม.
+// (api/oracle/addon.js — DEFAULT_DAILY_BUDGET_CENTS / DEFAULT_USER_DAILY_RENDERS)
+function _freeOracleSystem(hashOverride){
+  try {
+    const keys = DEEP_SYSTEMS.map(function(r){ return r[0]; })
+      // ⛔ ไบโอริทึมไม่ได้อยู่ใน 26 ศาสตร์ที่ขาย และถูกถอดออกจาก Oracle แล้ว 2 ก.ย.
+      .filter(function(k){ return k !== 'biorhythm'; });
+    if (!keys.length) return null;
+    const h = String(hashOverride || _chartInputHash());
+    let n = 0;
+    for (let i = 0; i < h.length; i++) n = (n * 31 + h.charCodeAt(i)) >>> 0;
+    return keys[n % keys.length];
+  } catch(_) { return null; }
+}
+
 function _hasItemAccess(itemKey, hashOverride){
   if (_OWNER_MODE) return true;
   if (_BETA_ALL_UNLOCKED) return true;
@@ -8107,6 +8130,8 @@ function _hasItemAccess(itemKey, hashOverride){
   // explicitly clicked first (consumed via _showDeep). Add-ons + Cosmic
   // Blueprint are NOT covered. See _giftConsumedMap / _showDeep redemption.
   if (_hasActiveGift() && itemKey.indexOf('deep_') === 0 && _giftConsumedFor(hash) === itemKey) return true;
+  // ฟรีหนึ่งศาสตร์ต่อดวง (director 2 ก.ย.) — ตัวไหนขึ้นกับดวง ไม่ได้เลือกเอง
+  if (itemKey.indexOf('deep_') === 0 && itemKey.slice(5) === _freeOracleSystem(hash)) return true;
   const map  = _readPurchases();
   return Boolean(map[itemKey + ':' + hash]);
 }

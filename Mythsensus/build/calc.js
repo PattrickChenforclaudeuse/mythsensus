@@ -1983,6 +1983,25 @@ function calcLifePath(year, month, day) {
 function calcPersonalYear(year, month, day, currentYear) {
     return reduceToSingle(month + day + digitSum(currentYear), false);
 }
+// ⚠️⚠️ สูตรนี้ไม่ตรงกับตำรา — ตรวจ 2 ก.ย. 69 อย่าเพิ่งเอาไปขาย
+//
+// ตรวจกับสองแหล่งอิสระ (มหาหมอดู · meemodel) แล้วพบว่าของเราผิดอย่างน้อย 3 ชั้น:
+//
+//  1. **รูปทรงผิด** — เลข ๗ ตัว ๙ ฐาน คือ **ตาราง 7 ช่อง × 9 ฐาน** ที่แต่ละช่องมีชื่อ
+//     (ฐาน1 อัตตะ·หินะ·ธนัง·ปิตา·มาตา·โภคา·มัชฌิมา · ฐาน2 ตะนุ·กดุมภะ·สหัชชะ·พันธุ·ปุตตะ·อริ·ปัตนิ
+//      ฐาน3 มรณะ·ศุภะ·กัมมะ·ลาภะ·พยายะ·ทาสา·ทาสี · ฐาน8 อาตมะ·ทาสา·โชค·สมบัติ·โจร·อุบาทว์·อุปถัมภ์
+//      ฐาน9 อัตตะ·สักกะ·ญาติ·ธนัง·เคหัง·นาวัง·ภริยัง)
+//     ของเราคืนเลขแค่ 7 ตัว = คืนมาแค่แถวเดียว ไม่ใช่ตาราง
+//
+//  2. **เดือนต้องเป็นเดือนไทย (จันทรคติ) ไม่ใช่เดือนสากล** — meemodel เขียนชัดว่า
+//     "ต้องใช้ปฏิทิน 100 ปี เพราะต้องใช้เดือนและปีไทย ใช้เดือนสากลโดยตรงไม่ได้"
+//     ของเราใส่ `month` เกรกอเรียนตรงๆ
+//
+//  3. **วันเปลี่ยนที่ 6 โมงเช้า** — "คนที่เกิดระหว่างเที่ยงคืนถึง 6 โมงเช้า ให้นับย้อน 1 วัน"
+//     ของเรารับ day มาดิบๆ ไม่ได้ขยับตามเวลาเกิด (กติกาเดียวกับ _thaiWeekday ที่เราทำถูกแล้ว)
+//
+// ⛔ ห้ามเอาศาสตร์นี้เข้า Oracle จนกว่าจะแก้ครบ — ขายคำอ่านบนสูตรที่รู้ว่าผิดไม่ได้
+// ⛔ ชั้นแกน (_TR_THAI7) อ่านจากฐาน 4 ของสูตรนี้ ⇒ ค่าที่ได้ยังเชื่อไม่ได้เช่นกัน
 function calcThaiSeven(year, month, day) {
     // 7-number system: extract 7 positions from full date
     const dateStr = `${day.toString().padStart(2, '0')}${month.toString().padStart(2, '0')}${year}`;
@@ -5381,11 +5400,12 @@ const _TR_SAJU = {
 // ชุดนี้วัด 1 ก.ย. 69 หลังพบว่าตารางชื่อศาสตร์มี 17 ขณะที่ติด traits ไป 24
 // ⇒ ชุดก่อนหน้าเป็นค่ากลางของ 17 ศาสตร์ ค่ากลางขยับขึ้นสูงสุด 2.96 เมื่อครบ 24
 // วัดใหม่อีกรอบเมื่อต่อโอแฮมเข้ามาเป็นตัวที่ 25 (เลื่อนอีก 0.54)
+// และวัดอีกรอบ 2 ก.ย. เมื่อถอด เลข ๗ ตัว ๙ ฐาน ออกเพราะสูตรผิด — เหลือ 24 ศาสตร์
 //    ด่าน traits จะจับได้เองถ้าค่าที่ตรึงไว้เลื่อนจากของจริง
 const _TRAIT_BASELINE = {
-    pace: [-3.18, 5.55], initiative: [5.12, 4.85], social: [10.43, 5.00],
-    instinct: [6.89, 4.75], expression: [4.81, 5.90], change: [2.39, 4.58],
-    risk: [1.59, 4.21], root: [0.69, 3.23], structure: [7.30, 5.21], focus: [8.17, 4.46],
+    pace: [-3.19, 5.51], initiative: [4.84, 4.90], social: [10.27, 4.68],
+    instinct: [6.57, 4.64], expression: [4.61, 5.89], change: [2.16, 4.42],
+    risk: [1.63, 4.16], root: [0.29, 3.13], structure: [6.84, 5.11], focus: [8.09, 4.42],
 };
 // ชื่อศาสตร์ไว้บอกว่าใครโหวตฝั่งไหน
 const _TR_SYS_TH = {
@@ -5395,7 +5415,7 @@ const _TR_SYS_TH = {
     humandesign: 'ระบบประเภทพลังงาน', celtic: 'เซลติก', norseRune: 'รูนนอร์ส',
     nativeAmerican: 'โทเท็มอเมริกัน', ifaYoruba: 'อิฟา', ziwei: 'จื่อเวย', taksa: 'ทักษา',
     vedic: 'ภารตะ', mayan: 'มายัน', zoroastrian: 'โซโรอัสเตอร์', tibetan: 'ทิเบต',
-    arabicParts: 'Arabic Parts', aztec: 'แอซเท็ก', thaiSeven: 'เลข ๗ ตัว ๙ ฐาน', ogham: 'โอแฮม',
+    arabicParts: 'Arabic Parts', aztec: 'แอซเท็ก', ogham: 'โอแฮม',
 };
 const _TR_SYS_EN = {
     bazi: 'BaZi', saju: 'Saju', ninestar: 'Nine Star Ki', western: 'Western',
@@ -5404,7 +5424,7 @@ const _TR_SYS_EN = {
     humandesign: 'Energy Type System', celtic: 'Celtic', norseRune: 'Norse Rune',
     nativeAmerican: 'Native American', ifaYoruba: 'Ifá', ziwei: 'Zi Wei', taksa: 'Taksa',
     vedic: 'Vedic', mayan: 'Mayan', zoroastrian: 'Zoroastrian', tibetan: 'Tibetan',
-    arabicParts: 'Arabic Parts', aztec: 'Aztec', thaiSeven: 'Thai Seven-Base', ogham: 'Ogham',
+    arabicParts: 'Arabic Parts', aztec: 'Aztec', ogham: 'Ogham',
 };
 function _buildTraitProfile(c) {
     // ⛔ เคยหล่นมาแล้ว 1 ก.ย. 69: ติด traits ให้ 24 ศาสตร์ แต่ตารางชื่อมี 17
@@ -5509,12 +5529,22 @@ function _attachTraits(c) {
     }
     put('aztec', _TR_AZTEC[String(c.aztec?.daySign)], `${c.aztec?.daySign} (${c.aztec?.daySignTh}) — คำบรรยายสัญลักษณ์ฝั่งแอซเท็ก ซึ่งคนละชุดกับชื่อมายาที่ตำแหน่งเดียวกัน`, `${c.aztec?.daySign} — the Aztec characterisation of this sign, a different set from the Mayan name at the same position`);
     {
+        // ⛔ ถอดเสียงของ เลข ๗ ตัว ๙ ฐาน ออกจากชั้นเทียบศาสตร์ 2 ก.ย. 69
+        //
+        //    เดิมอ่านนิสัยจาก "ฐานที่ 4" ของ calcThaiSeven — แต่ตรวจกับสองแหล่ง
+        //    (มหาหมอดู · meemodel) แล้วพบว่าสูตรของเราไม่ใช่ตำราตัวนี้เลย
+        //    รายละเอียดอยู่ในคอมเมนต์เหนือ calcThaiSeven
+        //    ⇒ ค่าที่ได้จึงเป็นเลขที่เราคิดเอง ไม่ใช่ฐานที่ 4 ของจริง
+        //       เอามาออกเสียงในฉันทามติไม่ได้ ต้องถอดก่อน ไม่ใช่ปล่อยไว้แล้วค่อยแก้
+        //
+        //    ✅ เปิดกลับเมื่อแก้ครบสามข้อ: ใช้เดือนไทยจันทรคติ · เปลี่ยนวันที่ 6 โมงเช้า ·
+        //       คืนค่าเป็นตาราง 7 ช่อง × 9 ฐาน แทนลิสต์ 7 ตัว
+        //    ที่ถอดสูตรได้แล้ว: ฐาน4 = ฐาน1+2+3 รายช่อง · ฐาน5 = ฐาน4 ลบ 7 จนเหลือ ≤7
+        //                      ฐาน6 = ฐาน5×2 ลบ 7 · ฐาน7 = ฐาน6×2 ลบ 7 (ตรวจทีละช่องแล้ว)
+        //    ที่ยังไม่รู้: ค่าตั้งต้นของฐาน 2-3 · วิธีได้ฐาน 8-9 — ต้องหาตำราก่อน ห้ามเดา
         const t7 = c.numerology?.thaiSeven || [];
-        // เก็บไว้บนก้อนของตัวเอง เพราะเลข ๗ ตัว ๙ ฐาน นับเป็นศาสตร์ที่ 26 แยกจากเลขศาสตร์
-        if (t7.length >= 4) {
+        if (t7.length >= 4)
             c.thaiSeven = c.thaiSeven || { bases: t7, base4: t7[3] };
-            put('thaiSeven', _TR_THAI7[t7[3]], `ฐานที่ 4 เป็นเลข ${t7[3]} — ตำราไทยเรียกฐานนี้ว่าแกนพลังปัจจุบัน`, `Base 4 holds ${t7[3]} — Thai doctrine calls this base the current core of a life`);
-        }
     }
     {
         // ⛔ ต้องอ่านจากชื่อไอริช (ตัวอักษร) ไม่ใช่ชื่อต้นไม้ — ชื่อต้นเป็นของเซลติก

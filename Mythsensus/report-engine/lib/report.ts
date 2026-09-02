@@ -657,11 +657,15 @@ function p_allVoices(c: ChartData): string {
         t7.forEach((n, i) => { (cnt[n] = cnt[n] || []).push(i + 1) });
         const rep = Object.entries(cnt).filter(([, ps]) => ps.length > 1)
           .sort((a, b) => b[1].length - a[1].length)[0];
+        // ⛔ ห้ามอ้างความหมายตามตำราจากเลขชุดนี้ — ตรวจ 2 ก.ย. 69 แล้วพบว่าสูตรของเรา
+        //    ไม่ใช่ เลข ๗ ตัว ๙ ฐาน จริง (ของจริงเป็นตาราง 7 ช่อง × 9 ฐาน ใช้เดือนไทย
+        //    จันทรคติ และเปลี่ยนวันที่ 6 โมงเช้า) · รายละเอียดอยู่เหนือ calcThaiSeven
+        //    ⇒ พูดได้แค่รูปแบบของเลขที่เห็น ไม่พูดว่าตำราแปลว่าอะไร
         return rep
-          ? tr(`เลข ${rep[0]} ซ้ำที่ฐาน ${rep[1].join(' กับ ')} — ด้านที่ชีวิตลงน้ำหนักมากสุด`,
-               `${rep[0]} repeats at bases ${rep[1].join(' and ')} — where this life puts its weight`)
-          : tr('ไม่มีเลขซ้ำสักฐาน — น้ำหนักชีวิตกระจายไม่กองที่ด้านใดด้านหนึ่ง',
-               'no number repeats — the weight of this life is spread, not piled on one side');
+          ? tr(`เลข ${rep[0]} ซ้ำ ${rep[1].length} ครั้งในชุดนี้ — ยังไม่ผูกคำแปลตามตำรา (สูตรอยู่ระหว่างสอบทาน)`,
+               `${rep[0]} appears ${rep[1].length} times in this set — no doctrinal reading attached yet (the formula is under review)`)
+          : tr('ไม่มีเลขซ้ำในชุดนี้ — ยังไม่ผูกคำแปลตามตำรา (สูตรอยู่ระหว่างสอบทาน)',
+               'no number repeats in this set — no doctrinal reading attached yet (the formula is under review)');
       })()),
   ]
   return section(0, tr('26 ศาสตร์พูดว่าอะไรบ้าง','What all 26 traditions said'), '📜', `

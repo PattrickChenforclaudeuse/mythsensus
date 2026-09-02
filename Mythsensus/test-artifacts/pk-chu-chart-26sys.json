@@ -1124,24 +1124,16 @@
       7,
       3
     ],
-    "base4": 5,
-    "traits": {
-      "change": 2,
-      "root": 2,
-      "pace": 2,
-      "focus": -2
-    },
-    "traitSrcTh": "ฐานที่ 4 เป็นเลข 5 — ตำราไทยเรียกฐานนี้ว่าแกนพลังปัจจุบัน",
-    "traitSrc": "ฐานที่ 4 เป็นเลข 5 — ตำราไทยเรียกฐานนี้ว่าแกนพลังปัจจุบัน"
+    "base4": 5
   },
   "traitProfile": [
     {
       "axis": "expression",
       "raw": -6,
-      "z": -1.83,
-      "baseMean": 4.81,
-      "baseSd": 5.9,
-      "pct": 3,
+      "z": -1.8,
+      "baseMean": 4.61,
+      "baseSd": 5.89,
+      "pct": 4,
       "band": "strong-neg",
       "labelTh": "เก็บไว้",
       "labelEn": "contains",
@@ -1166,10 +1158,10 @@
     {
       "axis": "instinct",
       "raw": 14,
-      "z": 1.5,
-      "baseMean": 6.89,
-      "baseSd": 4.75,
-      "pct": 93,
+      "z": 1.6,
+      "baseMean": 6.57,
+      "baseSd": 4.64,
+      "pct": 95,
       "band": "strong-pos",
       "labelTh": "เชื่อสัญชาตญาณ",
       "labelEn": "instinctive",
@@ -1193,10 +1185,10 @@
     {
       "axis": "structure",
       "raw": 0,
-      "z": -1.4,
-      "baseMean": 7.3,
-      "baseSd": 5.21,
-      "pct": 8,
+      "z": -1.34,
+      "baseMean": 6.84,
+      "baseSd": 5.11,
+      "pct": 9,
       "band": "strong-neg",
       "labelTh": "ยืดหยุ่น",
       "labelEn": "loose",
@@ -1221,85 +1213,16 @@
       ]
     },
     {
-      "axis": "initiative",
-      "raw": 0,
-      "z": -1.06,
-      "baseMean": 5.12,
-      "baseSd": 4.85,
-      "pct": 15,
-      "band": "neg",
-      "labelTh": "รอจังหวะ",
-      "labelEn": "waits",
-      "voices": 6,
-      "agreeTh": [
-        "ซาจู",
-        "เฮลเลนิสติก",
-        "ออนเมียวโด"
-      ],
-      "dissentTh": [
-        "BaZi",
-        "ระบบประเภทพลังงาน",
-        "อิฟา"
-      ]
-    },
-    {
-      "axis": "root",
-      "raw": 4,
-      "z": 1.02,
-      "baseMean": 0.69,
-      "baseSd": 3.23,
-      "pct": 85,
-      "band": "pos",
-      "labelTh": "เคลื่อนที่",
-      "labelEn": "moves",
-      "voices": 6,
-      "agreeTh": [
-        "ดาวเก้าดวง",
-        "มหาทศา",
-        "ทิเบต",
-        "เลข ๗ ตัว ๙ ฐาน"
-      ],
-      "dissentTh": [
-        "ไทยพราหมณ์",
-        "โซโรอัสเตอร์"
-      ]
-    },
-    {
-      "axis": "change",
-      "raw": 7,
-      "z": 1.01,
-      "baseMean": 2.39,
-      "baseSd": 4.58,
-      "pct": 84,
-      "band": "pos",
-      "labelTh": "รื้อทำใหม่",
-      "labelEn": "remakes",
-      "voices": 9,
-      "agreeTh": [
-        "ตะวันตก",
-        "คับบาลาห์",
-        "มหาทศา",
-        "โทเท็มอเมริกัน",
-        "จื่อเวย",
-        "เลข ๗ ตัว ๙ ฐาน"
-      ],
-      "dissentTh": [
-        "BaZi",
-        "ไทยพราหมณ์",
-        "ภารตะ"
-      ]
-    },
-    {
       "axis": "focus",
-      "raw": 12,
-      "z": 0.86,
-      "baseMean": 8.17,
-      "baseSd": 4.46,
-      "pct": 80,
-      "band": "pos",
+      "raw": 14,
+      "z": 1.34,
+      "baseMean": 8.09,
+      "baseSd": 4.42,
+      "pct": 91,
+      "band": "strong-pos",
       "labelTh": "ลึกเรื่องเดียว",
       "labelEn": "deep",
-      "voices": 15,
+      "voices": 14,
       "agreeTh": [
         "BaZi",
         "ดาวเก้าดวง",
@@ -1316,17 +1239,38 @@
       ],
       "dissentTh": [
         "ตะวันตก",
+        "ระบบประเภทพลังงาน"
+      ]
+    },
+    {
+      "axis": "initiative",
+      "raw": 0,
+      "z": -0.99,
+      "baseMean": 4.84,
+      "baseSd": 4.9,
+      "pct": 16,
+      "band": "neg",
+      "labelTh": "รอจังหวะ",
+      "labelEn": "waits",
+      "voices": 6,
+      "agreeTh": [
+        "ซาจู",
+        "เฮลเลนิสติก",
+        "ออนเมียวโด"
+      ],
+      "dissentTh": [
+        "BaZi",
         "ระบบประเภทพลังงาน",
-        "เลข ๗ ตัว ๙ ฐาน"
+        "อิฟา"
       ]
     },
     {
       "axis": "social",
       "raw": 7,
-      "z": -0.69,
-      "baseMean": 10.43,
-      "baseSd": 5,
-      "pct": 25,
+      "z": -0.7,
+      "baseMean": 10.27,
+      "baseSd": 4.68,
+      "pct": 24,
       "band": "neg",
       "labelTh": "อยู่คนเดียวได้",
       "labelEn": "solitary",
@@ -1350,11 +1294,82 @@
       ]
     },
     {
+      "axis": "change",
+      "raw": 5,
+      "z": 0.64,
+      "baseMean": 2.16,
+      "baseSd": 4.42,
+      "pct": 74,
+      "band": "pos",
+      "labelTh": "รื้อทำใหม่",
+      "labelEn": "remakes",
+      "voices": 8,
+      "agreeTh": [
+        "ตะวันตก",
+        "คับบาลาห์",
+        "มหาทศา",
+        "โทเท็มอเมริกัน",
+        "จื่อเวย"
+      ],
+      "dissentTh": [
+        "BaZi",
+        "ไทยพราหมณ์",
+        "ภารตะ"
+      ]
+    },
+    {
+      "axis": "root",
+      "raw": 2,
+      "z": 0.55,
+      "baseMean": 0.29,
+      "baseSd": 3.13,
+      "pct": 71,
+      "band": "pos",
+      "labelTh": "เคลื่อนที่",
+      "labelEn": "moves",
+      "voices": 5,
+      "agreeTh": [
+        "ดาวเก้าดวง",
+        "มหาทศา",
+        "ทิเบต"
+      ],
+      "dissentTh": [
+        "ไทยพราหมณ์",
+        "โซโรอัสเตอร์"
+      ]
+    },
+    {
+      "axis": "pace",
+      "raw": -5,
+      "z": -0.33,
+      "baseMean": -3.19,
+      "baseSd": 5.51,
+      "pct": 37,
+      "band": "mid",
+      "labelTh": "อยู่กลางๆ",
+      "labelEn": "in the middle",
+      "voices": 10,
+      "agreeTh": [
+        "BaZi",
+        "ดาวเก้าดวง",
+        "เลขศาสตร์",
+        "ไทยพราหมณ์",
+        "ออนเมียวโด",
+        "มายัน",
+        "Arabic Parts"
+      ],
+      "dissentTh": [
+        "มหาทศา",
+        "ระบบประเภทพลังงาน",
+        "แอซเท็ก"
+      ]
+    },
+    {
       "axis": "risk",
       "raw": 3,
       "z": 0.33,
-      "baseMean": 1.59,
-      "baseSd": 4.21,
+      "baseMean": 1.63,
+      "baseSd": 4.16,
       "pct": 63,
       "band": "mid",
       "labelTh": "อยู่กลางๆ",
@@ -1371,34 +1386,7 @@
         "ซาจู",
         "รูนนอร์ส"
       ]
-    },
-    {
-      "axis": "pace",
-      "raw": -3,
-      "z": 0.03,
-      "baseMean": -3.18,
-      "baseSd": 5.55,
-      "pct": 51,
-      "band": "mid",
-      "labelTh": "อยู่กลางๆ",
-      "labelEn": "in the middle",
-      "voices": 11,
-      "agreeTh": [
-        "มหาทศา",
-        "ระบบประเภทพลังงาน",
-        "แอซเท็ก",
-        "เลข ๗ ตัว ๙ ฐาน"
-      ],
-      "dissentTh": [
-        "BaZi",
-        "ดาวเก้าดวง",
-        "เลขศาสตร์",
-        "ไทยพราหมณ์",
-        "ออนเมียวโด",
-        "มายัน",
-        "Arabic Parts"
-      ]
     }
   ],
-  "traitSystemCount": 25
+  "traitSystemCount": 24
 }

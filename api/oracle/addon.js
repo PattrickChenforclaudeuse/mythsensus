@@ -32,9 +32,19 @@ const SYSTEMS = [
   'humandesign', 'mayan', 'thai', 'saju', 'celtic',
   'tibetan', 'ziwei', 'onmyodo', 'hellenistic', 'norseRune',
   'ogham', 'arabicParts', 'kabbalistic', 'zoroastrian', 'aztec',
-  'nativeAmerican', 'ifaYoruba', 'aboriginal', 'biorhythm',
+  'nativeAmerican', 'ifaYoruba', 'aboriginal',
   'vedicMahadasha', 'taksa',
 ]
+// ⛔ ถอด 'biorhythm' ออก 2 ก.ย. 69 (director สั่ง) —
+//    ไบโอริทึมไม่ได้อยู่ใน 26 ศาสตร์ที่เราประกาศขายตั้งแต่ 6 มิ.ย. 69 (ทักษาเข้าแทน)
+//    แต่ยังค้างอยู่ในลิสต์นี้ ⇒ ขาย Deep Reading ของศาสตร์ที่ไม่ได้อยู่ในสินค้าได้
+//    ตรวจก่อนถอด: myth_addon_reading มี 3 แถวทั้งหมด (numerology×2 · bazi×1)
+//    ไม่มีใครเคย render ไบโอริทึม และคีย์ซื้อเป็น 'deep' รวม ไม่ได้แยกรายศาสตร์ ⇒ ไม่กระทบใคร
+//    ไบโอริทึมยังอยู่ในแอปเป็นชั้นรายวัน (scoring:false) เหมือนเดิม แค่ไม่ใช่ของที่ขาย
+//
+// ⚠️ ยังไม่ใส่ 'thaiSeven' แทน แม้มันจะเป็นศาสตร์ที่ 26 จริง —
+//    เพราะสูตรฐานของเราน่าจะผิดตั้งแต่ฐาน 4 (ดูคอมเมนต์ที่ calcThaiSeven ใน calc.ts)
+//    ขายคำอ่านบนสูตรที่ยังสงสัยไม่ได้ · ปลดล็อกเมื่อยืนยันสูตรกับตำราแล้ว
 
 const SCHEMA_VERSION = '2.1' // 6 cat × 10 Q (health + people restored 2026-06-23)
 // ── Decoupled render (2026-06-23) ────────────────────────────────────────────
