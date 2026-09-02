@@ -3360,6 +3360,22 @@ function _sunriseLocalHours(y, m, day, lat, lon, tz) {
 //
 // Above the polar circles, or when the sun never rises that day, there is no
 // sunrise to move the boundary to, so the civil day stands.
+// วันตามปฏิทินสากล (ไม่ขยับตามพระอาทิตย์ขึ้น) — ไว้บอกลูกค้าว่าเราเริ่มจากวันไหน
+function _civilWeekday(d) {
+    const jd = toJD(d.year, d.month, d.day, 12);
+    return ((Math.floor(jd + 1.5) % 7) + 7) % 7;
+}
+function _bornBeforeSunrise(d) {
+    const rise = _sunriseLocalHours(d.year, d.month, d.day, d.lat, d.lon, d.timezone);
+    return rise != null && (d.hour + (d.minute || 0) / 60) < rise;
+}
+function _sunriseHHMM(d) {
+    const rise = _sunriseLocalHours(d.year, d.month, d.day, d.lat, d.lon, d.timezone);
+    if (rise == null)
+        return '';
+    const h = Math.floor(rise), m = Math.round((rise - h) * 60);
+    return `${String(m === 60 ? h + 1 : h).padStart(2, '0')}:${String(m === 60 ? 0 : m).padStart(2, '0')}`;
+}
 function _thaiWeekday(d) {
     const jd = toJD(d.year, d.month, d.day, 12);
     const civil = ((Math.floor(jd + 1.5) % 7) + 7) % 7; // 0=Sunday
@@ -3376,6 +3392,14 @@ function calcThai(d) {
     const thaiDayScore = Math.max(400, Math.min(960, (DAY_SCORES[day?.name ?? ''] ?? 700)));
     const thaiResult = {
         dayOfWeek: dow, dayName: tPick(day.name, day.nameEn), dayColor: tPick(day.color, day.colorEn),
+        // ⛔ ต้องส่งวันตามปฏิทินสากลกับเหตุผลออกไปด้วยเสมอ —
+        //    2 ก.ย. director อ่านหน้าไทยพราหมณ์แล้วบอก "อันนี้ผิด เราเกิดอาทิตย์"
+        //    ทั้งที่เอนจินถูก: เขาเกิด 05:06 ก่อนพระอาทิตย์ขึ้น โหราศาสตร์ไทยเริ่มวันที่
+        //    อาทิตย์ขึ้น จึงนับเป็นวันเสาร์ · คำนวณถูกแต่ไม่บอกเหตุ = ลูกค้าอ่านว่าผิด
+        //    และพอเจอจุดที่ "ผิด" หนึ่งจุด เขาจะไม่เชื่อทั้งเล่ม
+        civilDayName: tPick(THAI_DAYS[_civilWeekday(d)].name, THAI_DAYS[_civilWeekday(d)].nameEn),
+        bornBeforeSunrise: _bornBeforeSunrise(d),
+        sunriseLocal: _sunriseHHMM(d),
         dayGod: day.god, dayGodTh: tPick(day.godTh, day.god),
         nakshatra: tPick(day.nakshatra, day.nakshatraEn),
         fortuneDay: tPick(day.fortune, day.fortuneEn),

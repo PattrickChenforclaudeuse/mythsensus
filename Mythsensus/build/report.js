@@ -376,7 +376,8 @@ function p01_cover(c) {
           ${sorted.length > 1 ? `<div style="font-size:10.5px;color:#6a7a90;margin-top:4px">${tr('อีกฝั่งหนึ่ง', 'Other view')}: ${minorityLines}</div>` : ''}
         </div>
       </div>
-      <!-- removed 2026-08-31: a lecture on method, on the cover, identical for every buyer -->`;
+      <!-- removed 2026-08-31: a lecture on method, on the cover, identical for every buyer -->
+    </div>`;
     })()}
 
     ${bazi.benMingNian2026 ? `
@@ -988,13 +989,9 @@ function p_traitConsensus(c) {
         return `
     <div style="margin:0 0 16px">
       <div style="font-size:9.5px;color:#6a7a90;letter-spacing:.3px;margin-bottom:2px">${esc(isEn ? nm.en : nm.th)}</div>
-      <div style="display:flex;align-items:baseline;gap:9px">
-        <span style="font-size:15px;font-weight:${called ? 700 : 400};color:#e8c87a;opacity:${called ? '1' : '.5'}">${esc(!enough ? tr('ยังฟันธงไม่ได้', 'cannot call this yet')
+      <div style="font-size:15px;font-weight:${called ? 700 : 400};color:#e8c87a;opacity:${called ? '1' : '.5'}">${esc(!enough ? tr('ยังฟันธงไม่ได้', 'cannot call this yet')
             : r.band === 'mid' ? tr('พอๆ กับคนส่วนใหญ่', 'same as most people')
-                : popPole)}</span>
-        <span style="font-size:10px;color:#6a7a90;margin-left:auto;white-space:nowrap">${called ? tr(`${side ? 'มากกว่า' : 'น้อยกว่า'}คนทั่วไป ${side ? r.pct : 100 - r.pct}% · ${r.voices} สาย`, `${side ? 'above' : 'below'} ${side ? r.pct : 100 - r.pct}% of people · ${r.voices} lineages`)
-            : tr(`${r.voices} สาย`, `${r.voices} lineages`)}</span>
-      </div>
+                : popPole)}</div>
       <div style="height:9px;background:#16121f;border-radius:5px;overflow:hidden;margin:5px 0 6px">
         <div style="width:${Math.max(2, barPct(r))}%;height:100%;background:linear-gradient(90deg,#5f4a24,#c8a45a);opacity:${dim};border-radius:5px"></div>
       </div>
@@ -1022,13 +1019,12 @@ function p_traitConsensus(c) {
         };
     }).filter(Boolean);
     const headline = top.length
-        ? tr(`แกนที่คุณห่างจากคนทั่วไปมากที่สุดคือ${esc(top[0].labelTh)} — ${top[0].pct > 50 ? 'มากกว่า' : 'น้อยกว่า'}คนทั่วไป ${top[0].pct > 50 ? top[0].pct : 100 - top[0].pct}% จาก ${top[0].voices} สายที่พูดถึงแกนนี้`, `The axis that puts you furthest from the middle: ${esc(top[0].labelEn)} — ${top[0].pct > 50 ? 'above' : 'below'} ${top[0].pct > 50 ? top[0].pct : 100 - top[0].pct}% of people, out of ${top[0].voices} lineages that speak to it`)
-        : tr('ไม่มีแกนไหนที่คุณห่างจากคนทั่วไปพอจะฟันธง — ตัวนี้เองก็เป็นคำตอบ', 'No axis puts you far enough from the middle to call — which is itself an answer');
+        ? tr(`สิ่งที่ต่างจากคนทั่วไปมากที่สุดในดวงคุณคือ${esc(top[0].labelTh)}`, `What sets you furthest from the middle: ${esc(top[0].labelEn)}`)
+        : tr('ไม่มีเรื่องไหนที่คุณต่างจากคนทั่วไปมากพอจะฟันธง — ตัวนี้เองก็เป็นคำตอบ', 'Nothing here puts you far enough from the middle to call — which is itself an answer');
     return section(0, tr(`${_nSys} ศาสตร์เห็นตรงกันว่าอย่างไร`, `Where ${_nSys} traditions converge`), '🧭', `
-    <div style="font-size:11.5px;color:#c0b0a0;line-height:1.8;margin-bottom:4px">${tr(`แต่ละสายอ่านคุณจากคนละที่มา — BaZi อ่านจากก้านวัน ทักษาอ่านจากเจ้าวัน มายาอ่านจากวันสัญลักษณ์ · เราแปลคำบรรยายของ ${_nSys} ศาสตร์ลงแกนเดียวกัน ${prof.length} แกน แล้วเทียบกับดวงอื่นสามพันดวง เพราะตำราแทบทุกสายบรรยายคนในทางบวก ค่ากลางจึงไม่ใช่ศูนย์ · แต่ละแกนมีศาสตร์พูดถึงไม่เท่ากัน ในดวงนี้ ${_vmin}-${_vmax} สาย`, `Each lineage reads you from a different starting point — BaZi from the day stem, Taksa from the day lord, the Maya from the day sign. We map what ${_nSys} traditions say onto the same ${prof.length} axes, then compare against three thousand other charts, because almost every tradition describes people favourably and the middle is not zero. Not every axis draws the same number of voices — in this chart, ${_vmin} to ${_vmax}.`)}</div>
+    <div style="font-size:11.5px;color:#c0b0a0;line-height:1.8;margin-bottom:2px">${tr(`${_nSys} ศาสตร์อ่านคุณจากคนละที่มา แล้ววางคำตอบทั้งหมดลงบนแกนเดียวกัน ${prof.length} เรื่อง · <strong style="color:#c8a45a">เส้นยิ่งยาว ยิ่งต่างจากคนทั่วไป</strong>`, `${_nSys} traditions read you from different starting points; every answer is placed on the same ${prof.length} scales. <strong style="color:#c8a45a">The longer the bar, the further from the middle.</strong>`)}</div>
     <div style="font-size:13px;color:#e8c87a;line-height:1.7;margin:12px 0 14px;padding:10px 12px;background:#0f0d15;border-left:2px solid #c8a45a;border-radius:0 8px 8px 0">${headline}</div>
 
-    <div style="font-size:9.5px;color:#5f6f85;line-height:1.7;margin:2px 0 12px">${tr('ยิ่งแท่งยาว ยิ่งแปลว่าคุณห่างจากคนทั่วไปในเรื่องนั้นมาก · แท่งสั้นไม่ได้แปลว่าไม่สำคัญ แปลว่าคุณอยู่ใกล้ตรงกลาง', 'The longer the bar, the further this puts you from the middle. A short bar does not mean unimportant — it means you sit near the middle.')}</div>
     ${prof.map(row).join('')}
 
     ${edges.length ? `
@@ -1043,7 +1039,7 @@ function p_traitConsensus(c) {
       </div>
     </div>` : ''}
 
-    ${thin.length ? `<div style="font-size:9.5px;color:#5a6a80;line-height:1.7;margin-top:11px">${tr(`${thin.map(r => esc((_TRAIT_POLES[r.axis] || {}).pos || r.axis)).join(' · ')} — แกนพวกนี้มีศาสตร์พูดถึงน้อยกว่า ${_TRAIT_MIN_VOICES} สาย เราจึงไม่ฟันธงให้ · นั่นแปลว่าหลักฐานไม่พอ ไม่ใช่ว่าคุณอยู่กลางๆ`, `${thin.map(r => esc((_TRAIT_POLES[r.axis] || {}).posEn || r.axis)).join(' · ')} — fewer than ${_TRAIT_MIN_VOICES} traditions speak to these, so we do not call them. That is missing evidence, not a middling result.`)}</div>` : ''}`);
+    ${thin.length ? `<div style="font-size:9.5px;color:#5a6a80;line-height:1.7;margin-top:11px">${tr(`เรื่องที่ยังไม่ฟันธงให้: ${thin.map(r => esc((_TRAIT_AXIS_NAME[r.axis] || {}).th || r.axis)).join(' · ')} — มีศาสตร์พูดถึงน้อยเกินไป`, `Not called here: ${thin.map(r => esc((_TRAIT_AXIS_NAME[r.axis] || {}).en || r.axis)).join(' · ')} — too few traditions speak to them.`)}</div>` : ''}`);
 }
 function p_consensusAxes(c) {
     const { bazi, ninestar, numerology, humandesign, vedicMahadasha, celtic, ogham, norseRune, hellenistic } = c;
@@ -2221,7 +2217,12 @@ function p16_activation(c) {
             title: tr(`ทำตาม Strategy "${humandesign.strategy}"`, `Follow your Strategy "${trDF(humandesign.strategy)}"`),
             body: tr(`Energy Type ${humandesign.typeTh}: หัวใจของระบบประเภทพลังงาน — ฝืนแล้วเหนื่อยเปล่า`, `Energy Type ${trDF(humandesign.typeTh)}: heart of the energy-type reading — fight it and you exhaust yourself`),
             systems: ['Energy Type System', 'Kabbalistic'] },
-        { icon: '🔥', pts: 0,
+        // ⛔ ไอคอนต้องมาจากธาตุจริงของดวง ห้าม hardcode —
+        //    ของเดิมตรึงไว้ที่ 🔥 ทุกดวง ⇒ คนธาตุน้ำเห็นไอคอนไฟคู่กับคำว่า "เสริมธาตุน้ำ"
+        //    (director 2 ก.ย.: "สัญลักษณ์ผิด") · ไอคอนที่ขัดกับข้อความข้างๆ ทำลายความเชื่อทั้งหน้า
+        // luckyElement เป็นได้หลายธาตุ เช่น "น้ำ ไม้" ⇒ ต้องหยิบตัวแรกมาเป็นไอคอน
+        { icon: { 'ไม้': '🌳', 'ไฟ': '🔥', 'ดิน': '🌍', 'โลหะ': '⚔️', 'น้ำ': '🌊',
+                'Wood': '🌳', 'Fire': '🔥', 'Earth': '🌍', 'Metal': '⚔️', 'Water': '🌊' }[String(bazi.luckyElement).trim().split(/[\s,·/]+/)[0]] || '✦', pts: 0,
             title: tr(`เสริมธาตุ${bazi.luckyElement}ทุกวัน`, `Reinforce the ${trDF(bazi.luckyElement)} element daily`),
             body: tr(`BaZi: ธาตุมงคล${bazi.luckyElement} หนุน Day Master ${bazi.dayMasterTh}`, `BaZi: lucky element ${trDF(bazi.luckyElement)} supports Day Master ${trDF(bazi.dayMasterTh)}`),
             systems: ['BaZi', 'Saju (Korean)', 'Tibetan Mewa'] },
@@ -2408,7 +2409,9 @@ function p17_weekly(c) {
       </tbody>
     </table>
 
-    ${box(tr(`วันเกิดของคุณ = ${esc(thai.dayName)} ★`, `Your Birth Weekday = ${esc(thai.dayName)} ★`), tr(`ในทางไทยพราหมณ์ วันเกิดคือวัน "ขอพร" — เทพประจำ${esc(thai.dayName)} (${esc(thai.dayGodTh || thai.dayGod || '—')}) เปิดรับคำขอพิเศษ ควรงดเนื้อสัตว์ / ทำบุญ / ตั้งจิตในวันนี้ทุกสัปดาห์<br><br>ส่วน <strong>Strategy ระบบประเภทพลังงาน</strong> ของคุณคือ "${esc(strategy)}" — ใช้ทุกวันเป็นแกนตัดสินใจ ไม่ใช่แค่วันเกิด`, `In Thai Brahmin tradition, your birth weekday is the day for <em>asking blessings</em> — your day-deity ${esc(thai.dayName)} (${esc(thai.dayGodTh || thai.dayGod || '—')}) is most receptive to special petitions. Consider abstaining from meat, making merit, and setting intentions on this weekday throughout the year.<br><br>Your <strong>Energy Type Strategy</strong> is "${esc(strategy)}" — use it as your decision compass every day, not only on your birth weekday.`), 'gold')}
+    ${box(tr(`วันเกิดของคุณ = ${esc(thai.dayName)} ★${thai.bornBeforeSunrise
+        ? ` <span style="font-size:11px;color:#9a8a72;font-weight:400">— คุณเกิดวัน${esc(thai.civilDayName)}ตามปฏิทินสากล แต่เวลาเกิดอยู่ก่อนพระอาทิตย์ขึ้น${thai.sunriseLocal ? ` (${esc(thai.sunriseLocal)} น.)` : ''} และโหราศาสตร์ไทยเริ่มวันใหม่ตอนอาทิตย์ขึ้น ไม่ใช่เที่ยงคืน จึงนับเป็นวัน${esc(thai.dayName)}</span>` : ''}`, `Your Birth Weekday = ${esc(thai.dayName)} ★${thai.bornBeforeSunrise
+        ? ` <span style="font-size:11px;color:#9a8a72;font-weight:400">— by the civil calendar you were born on ${esc(thai.civilDayName)}, but before sunrise${thai.sunriseLocal ? ` (${esc(thai.sunriseLocal)})` : ''}. Thai astrology starts its day at sunrise, not at midnight, so it counts as ${esc(thai.dayName)}.</span>` : ''}`), tr(`ในทางไทยพราหมณ์ วันเกิดคือวัน "ขอพร" — เทพประจำ${esc(thai.dayName)} (${esc(thai.dayGodTh || thai.dayGod || '—')}) เปิดรับคำขอพิเศษ ควรงดเนื้อสัตว์ / ทำบุญ / ตั้งจิตในวันนี้ทุกสัปดาห์<br><br>ส่วน <strong>Strategy ระบบประเภทพลังงาน</strong> ของคุณคือ "${esc(strategy)}" — ใช้ทุกวันเป็นแกนตัดสินใจ ไม่ใช่แค่วันเกิด`, `In Thai Brahmin tradition, your birth weekday is the day for <em>asking blessings</em> — your day-deity ${esc(thai.dayName)} (${esc(thai.dayGodTh || thai.dayGod || '—')}) is most receptive to special petitions. Consider abstaining from meat, making merit, and setting intentions on this weekday throughout the year.<br><br>Your <strong>Energy Type Strategy</strong> is "${esc(strategy)}" — use it as your decision compass every day, not only on your birth weekday.`), 'gold')}
   `);
 }
 function p18_monthly2026(c) {
