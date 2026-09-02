@@ -841,9 +841,16 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opa
   /* ⛔ ห้ามล็อก ec-b ไว้แถวเดียว — ความสูงของแถว 2 จะถูกกำหนดโดยคอลัมน์ขวา
      แล้วการ์ดซ้ายใบล่างจะถูกดันลงจนเกิดช่องว่างก้อนใหญ่คั่นกลาง (เจอจริง 2 ก.ย.)
      ให้ขวาคร่อมสองแถว ⇒ ซ้ายไหลต่อเนื่องเหมือนคอลัมน์เดียว */
+  /* ซ้าย = หลักฐานใบเดียว · ขวา = ฝั่งลงมือ · ล่าง = แถบเต็มความกว้าง
+     ⛔ ห้ามเอา .ec-a2 ไปต่อท้ายคอลัมน์ซ้าย — ซ้ายจะยาวกว่าขวามาก
+        เหลือรูโหว่มุมขวาล่างเกือบ 1 ใน 3 ของการ์ด (เจอจริง 2 ก.ย.)
+        ให้มันคร่อมสองคอลัมน์เป็นแถบล่างแทน สองคอลัมน์บนจะจบพร้อมกัน */
   #entryHeroStep>.ec-a{grid-column:1;grid-row:2;display:flex;flex-direction:column}
-  #entryHeroStep>.ec-b{grid-column:2;grid-row:2 / span 2;display:flex;flex-direction:column;align-self:start}
-  #entryHeroStep>.ec-a2{grid-column:1;grid-row:3;display:flex;flex-direction:column;margin-top:14px}
+  #entryHeroStep>.ec-b{grid-column:2;grid-row:2;display:flex;flex-direction:column;align-self:start}
+  #entryHeroStep>.ec-a2{grid-column:1 / -1;grid-row:3;display:grid;grid-template-columns:1fr 1fr;
+                        gap:0 34px;align-items:start;margin-top:20px;padding-top:18px;
+                        border-top:1px solid rgba(217,173,82,.18)}
+  #entryHeroStep>.ec-a2>#entrySample{margin:0!important}
 }
 .login-logo{font-family:'Cinzel Decorative',serif;font-size:20px;color:var(--gold);letter-spacing:5px;margin-bottom:6px}
 .login-tagline-sm{font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:24px}
@@ -1717,8 +1724,8 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <div id="entrySample" style="margin:16px 0 0"></div>
       <!-- How the scoring actually works. This was the FOURTH block on the
            landing, four lines deep, ahead of everything the visitor came for. -->
-      </div>
       <div style="text-align:center;margin:18px 0 0;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--muted);line-height:1.7;text-wrap:pretty" data-eh="hooksub">เราถาม 26 ศาสตร์พร้อมกัน แต่เฉพาะศาสตร์ที่<strong style="color:var(--text);white-space:nowrap">มีวิชาทำนายช่วงเวลาจริง</strong>ถึงจะให้คะแนนได้ · เต็ม 5 แยกทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร</div>
+      </div>
     </div>
 
     <!-- ════ STEP 1 — the birth-data form (revealed by the hero CTA) ════ -->
