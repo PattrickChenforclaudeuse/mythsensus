@@ -838,9 +838,12 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opa
   #entryHeroStep{display:grid;grid-template-columns:1fr 1fr;column-gap:38px;align-items:start;text-align:left}
   #entryHeroStep>.ec-lang{grid-column:1/-1;display:flex;justify-content:center;align-items:center;margin:6px 0 22px}
   #entryHeroStep>.ec-lang>button{flex:0 0 auto;align-self:center}
+  /* ⛔ ห้ามล็อก ec-b ไว้แถวเดียว — ความสูงของแถว 2 จะถูกกำหนดโดยคอลัมน์ขวา
+     แล้วการ์ดซ้ายใบล่างจะถูกดันลงจนเกิดช่องว่างก้อนใหญ่คั่นกลาง (เจอจริง 2 ก.ย.)
+     ให้ขวาคร่อมสองแถว ⇒ ซ้ายไหลต่อเนื่องเหมือนคอลัมน์เดียว */
   #entryHeroStep>.ec-a{grid-column:1;grid-row:2;display:flex;flex-direction:column}
-  #entryHeroStep>.ec-b{grid-column:2;grid-row:2;display:flex;flex-direction:column}
-  #entryHeroStep>.ec-a2{grid-column:1;grid-row:3;display:flex;flex-direction:column;margin-top:4px}
+  #entryHeroStep>.ec-b{grid-column:2;grid-row:2 / span 2;display:flex;flex-direction:column;align-self:start}
+  #entryHeroStep>.ec-a2{grid-column:1;grid-row:3;display:flex;flex-direction:column;margin-top:14px}
 }
 .login-logo{font-family:'Cinzel Decorative',serif;font-size:20px;color:var(--gold);letter-spacing:5px;margin-bottom:6px}
 .login-tagline-sm{font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:24px}
