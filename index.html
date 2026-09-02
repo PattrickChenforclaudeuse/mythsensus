@@ -74,12 +74,20 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <link rel="preload" as="script" href="/build/ms26-bundle.js?v=225">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
+/* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
+   วัดของเดิมแล้ว contrast ผ่านหมด (text 15.8:1 · gold 8.7:1) ปัญหาไม่ใช่อ่านไม่ออก
+   แต่เป็น **ความอิ่มสีต่ำ** — --muted อยู่ที่ 17% · --text 22% ⇒ ทั้งหน้าออกเทาน้ำตาล
+   ⛔ ห้ามแก้ด้วยการเพิ่ม contrast อย่างเดียว มันจะขาวโพลนแต่ยังหม่นเหมือนเดิม
+   ⛔ ตัวเลข contrast ต้องไม่ตกจากของเดิม — ตรวจซ้ำได้ด้วยสคริปต์วัดจานสี */
 :root{
-  --bg:#040407;--bg2:#0a0a10;--bg3:#0d0d15;
-  --gold:#c8a45a;--gold2:#e8c87a;--gold3:#a8843a;
-  --text:#e6e2d8;--muted:#9a8a72;--border:rgba(200,164,90,.22);
-  --green:#4aba50;--blue:#6090c0;--red:#ff6060;--purple:#b070e0;
-  --fire:#e06040;--earth:#60a060;--air:#a0b040;--water:#4080c0;
+  /* พื้นเดิมเป็นดำเกือบสนิท #040407 = แบนไม่มีความลึก เติมน้ำเงินม่วงนิดให้มีมิติ */
+  --bg:#07060e;--bg2:#0e0c1a;--bg3:#141021;
+  /* ทองเดิม 50% sat → 62% · ทองสว่าง 71% → 78% · ทองเข้มขึ้นให้เส้นขอบมีตัวตน */
+  --gold:#d9ad52;--gold2:#f2d484;--gold3:#b8862e;
+  /* text สว่างขึ้นเล็กน้อย · muted เดิม 17% sat คือตัวที่ทำให้หน้าดูหม่นที่สุด → 28% */
+  --text:#f0ece0;--muted:#b39a76;--border:rgba(217,173,82,.34);
+  --green:#4fd15a;--blue:#6ba4de;--red:#ff6b6b;--purple:#c07ef5;
+  --fire:#f26a42;--earth:#5fb35f;--air:#b4c73f;--water:#3f8fd6;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{
@@ -820,6 +828,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opa
 .login-box{background:var(--bg2);border:1px solid var(--gold3);border-radius:8px;padding:32px 28px;max-width:400px;width:100%;text-align:center;overflow-y:auto;max-height:92vh}
 .login-logo{font-family:'Cinzel Decorative',serif;font-size:20px;color:var(--gold);letter-spacing:5px;margin-bottom:6px}
 .login-tagline-sm{font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:24px}
+/* คำโปรยหลักใต้โลโก้ — ตัวนี้คือประโยคที่บอกว่าสินค้าคืออะไร ต้องอ่านออกจากระยะไกล
+   เร่งขนาด/น้ำหนัก/สี 2 ก.ย. 69 · ของเดิม 9px w400 สี --muted ทำให้หัวใจของหน้าจางที่สุดในจอ */
+.login-tagline-sm.is-hero{font-size:13px;font-weight:600;color:var(--text);letter-spacing:.6px;text-transform:none;margin-bottom:20px;line-height:1.55}
 .login-section-title{font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:14px}
 .login-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border-radius:4px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;margin-bottom:8px;transition:all .2s}
 .login-btn:hover{border-color:var(--gold3);color:var(--gold);background:rgba(200,164,90,.06)}
@@ -1618,7 +1629,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 <div class="login-overlay" id="entryOverlay" style="display:flex" role="dialog" aria-modal="true" aria-labelledby="entryOverlayTitle">
   <div class="login-box" style="max-width:460px">
     <div class="login-logo" id="entryOverlayTitle"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></div>
-    <div class="login-tagline-sm" data-eh="tagline">ดวงคุณ จาก 26 ศาสตร์ทั่วโลก พร้อมกัน</div>
+    <div class="login-tagline-sm is-hero" data-eh="tagline">ดวงคุณ จาก 26 ศาสตร์ทั่วโลก พร้อมกัน</div>
 
     <!-- STEP 0: DRAW-FIRST landing (variant B, 2026-07-01). Kills the old
          text-wall hero that drove the 5-second bounce: a brand-new visitor now
