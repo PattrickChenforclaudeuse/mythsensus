@@ -142,6 +142,19 @@ export default async function handler(req, res) {
   // exist on sessions logged AFTER the deploy — older sessions count as cold.
   const engaged = sessions.filter(x => x.meta && (x.meta.interacted || x.meta.scrolled)).length;
   const jserrs  = rows.filter(x => x.event === 'jserror');
+  // ── ขั้นที่สินค้าเดินอยู่จริงตอนนี้ (เพิ่ม 2 ก.ย. 69) ────────────────
+  // director: "หลายๆตัวเราไม่ได้เอามาดูแล้ว มันไม่มีแล้ว ให้ปรับตามปัจจุบัน"
+  // นับ exact จาก myth_events 7/30/90 วัน แล้วพบว่ากระดานวัด funnel ของยุคก่อน:
+  //   โชว์อยู่แต่ตายแล้ว — Drew a god 0 · Shares 1/90d · Destiny 0/90d
+  //                        Purchase click/success **0 ทั้ง 90 วัน**
+  //   ยิงเยอะแต่ไม่มีบนกระดาน — page_view 706/7d · pulse_view 76 · forecast_view 31
+  //                             blueprint_gen 4 (ตัวที่ขายจริง)
+  const pulses   = rows.filter(x => x.event === 'pulse_view');
+  const forecasts= rows.filter(x => x.event === 'forecast_view');
+  const bluep    = rows.filter(x => x.event === 'blueprint_gen');
+  const pageviews= rows.filter(x => x.event === 'page_view');
+  const pClick2  = rows.filter(x => x.event === 'purchase_click');
+  const pOk2     = rows.filter(x => x.event === 'purchase_success');
   const errByDev = jserrs.reduce((m, x) => { const d = (x.meta && x.meta.dev) || x.device || '?'; m[d] = (m[d] || 0) + 1; return m; }, {});
   const errTop  = Object.entries(errByDev).sort((a, b) => b[1] - a[1]);
   const errMsg  = jserrs.length ? ((jserrs[0].meta && jserrs[0].meta.msg) || '') : '';
@@ -174,6 +187,9 @@ export default async function handler(req, res) {
   const row = (label, val, sub) => `<tr><td style="padding:7px 10px;color:#c8c0a8">${label}</td><td style="padding:7px 10px;text-align:right;color:#e9d9a8;font-weight:700">${val}</td><td style="padding:7px 10px;color:#7a6a52;font-size:12px">${sub || ''}</td></tr>`;
   const fmtS = (msv) => (msv / 1000).toFixed(1) + 's';
 
+  // ⛔ ลำดับแถว = ทางเดินจริงของสินค้า ไม่ใช่ทางเดินที่เคยตั้งใจไว้
+  //    ถ้าเปลี่ยนสินค้าเมื่อไหร่ ต้องกลับมาเรียงใหม่ ไม่งั้นกระดานจะวัดของที่ไม่มีแล้ว
+  //    วิธีเช็ค: นับ exact ต่อ event 7/30/90 วัน แล้วดูว่าอะไร 0 ทั้ง 90 วัน
   const funnelRows = [
     row('Sessions', nS, `${days}-day window`),
     // The window total is the number people misread. 594 over 90 days sounds
@@ -183,16 +199,28 @@ export default async function handler(req, res) {
     row('Typical day', medDay + ' sessions', `median of the last 14 days · busiest ${maxDay}, quietest ${minDay}`),
     row('Active time (median)', fmtS(med), `p75 ${fmtS(p75)} · p90 ${fmtS(p90)}`),
     row('Bounce &lt;5s', pct(bounce, nS) + '%', `${bounce} sess · &gt;60s: ${pct(over60, nS)}%`),
-    row('Engaged (tapped/scrolled)', pct(engaged, nS) + '%', `${engaged} sess · cold-bounce ${pct(nS - engaged, nS)}% · (post-deploy only)`),
-    row('Entry choice · Draw-first', uSid(entryDraw), `vs Form-first ${uSid(entryForm)} · which door they pick (new 7-01)`),
-    row('Filled birthday', pct(births.length, nS) + '%', `${births.length} sess · the new core path`),
-    row('Saw consensus', pct(consensus.length, nS) + '%', `${consensus.length} sess · "what 26 systems agree on"`),
-    row('Drew a god ≥1', pct(drew, nS) + '%', `${drew}/${nS} · ${totalDraws} draws total`),
+    row('Engaged (tapped/scrolled)', pct(engaged, nS) + '%', `${engaged} sess · cold-bounce ${pct(nS - engaged, nS)}%`),
+
+    row('— ทางเดินจริงของสินค้าวันนี้ —', '', ''),
+    row('Pages opened', pageviews.length, `${uSid(pageviews)} sess · ทุกหน้ารวมบล็อก/pricing`),
+    row('Entry choice · Form-first', uSid(entryForm), `vs Draw-first ${uSid(entryDraw)} · ประตูไหนถูกเลือก`),
+    row('Daily Pulse viewed', uSid(pulses), `${pulses.length} events · ของฟรีตัวหลักตอนนี้`),
+    row('Filled birthday', pct(births.length, nS) + '%', `${births.length} sess`),
+    row('Forecast viewed', uSid(forecasts), `${forecasts.length} events · หน้าพยากรณ์`),
+    row('Saw consensus', pct(consensus.length, nS) + '%', `${consensus.length} sess · แบนเนอร์ 10 ศาสตร์เห็นตรงกัน`),
+    row('Blueprint generated', uSid(bluep), `${bluep.length} events · ตัวที่ขาย $59`),
     row('Reached paywall', pct(paywall, nS) + '%', `${paywall} sess`),
-    row('Shares', shares.length, `share-rate ${pct(shares.length, nS)}% of sessions`),
-    row('Checkout clicks', checkouts.length, ''),
-    row('Destiny (1-in-M)', destinies.length, ''),
-    row('JS errors', jserrs.length, jserrs.length ? `⚠️ ${errTop.map(([d, n]) => `${esc(d)}:${n}`).join(' · ')} — “${esc(errMsg.slice(0, 60))}”` : 'none — running clean'),
+    row('Checkout clicks', checkouts.length, checkouts.length ? '' : 'ไม่มีเลยในหน้าต่างนี้'),
+    row('Purchase success', pOk2.length, pOk2.length ? '' : '⚠️ 0 มาตลอด 90 วัน — ยังไม่เคยมีใครกลับมาแบบปลดล็อก'),
+    row('JS errors', jserrs.length, jserrs.length ? `⚠️ ${errTop.map(([d, n]) => `${esc(d)}:${n}`).join(' · ')} — “${esc(errMsg.slice(0, 60))}”` : 'none'),
+  ].join('');
+
+  // ⛔ ไม่ลบขั้นที่ตายทิ้ง — ย้ายมาไว้ที่นี่ เพราะถ้าลบแล้วมันฟื้นขึ้นมา จะไม่มีใครรู้
+  const deadRows = [
+    row('Drew a god ≥1', drew, `${totalDraws} draws · ทางเดินยุคก่อน`),
+    row('Shares', shares.length, 'ทางเดินยุคก่อน'),
+    row('Destiny (1-in-M)', destinies.length, 'ไม่เคยยิงเลยตั้งแต่มีข้อมูล'),
+    row('Purchase clicks', pClick2.length, 'ไม่เคยยิงเลยใน 90 วัน — เช็คว่าแท็กยังผูกกับปุ่มอยู่ไหม'),
   ].join('');
 
   const nvrCell = (v) => `<td style="padding:6px 10px;text-align:right;color:#9a8a72">${v}</td>`;
@@ -245,6 +273,7 @@ export default async function handler(req, res) {
 <h1>🔮 MYTHSENSUS · ENGAGEMENT FUNNEL</h1>
 <div class="muted">Source: myth_events (first-party) · window ${days}d (data reaches back ${coverDays}d, ${rows.length} events)${coverDays && coverDays < days - 1 ? ' — no data older than that' : ''} · ${nS} sessions${internalN ? ` · <span style="color:#c8a45a">${internalN} internal (?im=1)</span>` : ''}${machineN ? ` · <span style="color:#c8a45a">${machineN} automated (webdriver/crawler UA)</span>` : ''}${suspectN ? ` · <span style="color:#8a7a62">${suspectN} machine-shaped, unflagged (1 event, no session-end — pre-24-Aug data has no flag)</span>` : ''}${(internalN||machineN||suspectN) ? ' <span style="color:#7a6a52">— all excluded</span>' : ''} · <a href="?k=${esc(q.k)}&days=7">7d</a> · <a href="?k=${esc(q.k)}&days=30">30d</a> · <a href="?k=${esc(q.k)}&days=90">90d</a></div>
 <h2>Funnel</h2><table>${funnelRows}</table>
+<h2>เลิกใช้แล้ว <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(ทางเดินยุคก่อน — เก็บไว้ดูเผื่อฟื้น ไม่ลบ)</span></h2><table>${deadRows}</table>
 <h2>Money intent <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(distinct sessions · instrumented 2026-07-01)</span></h2><table>${moneyRows}</table>
 <h2>New vs returning <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(post-deploy only · ${tagged.length} tagged)</span></h2><table><tr><th>Cohort</th><th style="text-align:right">Sessions</th><th style="text-align:right">Bounce&lt;5s</th><th style="text-align:right">&gt;60s</th><th style="text-align:right">Draw%</th><th style="text-align:right">Engaged%</th></tr>${nvrRows}</table>
 <h2>By week <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(rolling 7 days back from today — read down the Sessions column for the trend)</span></h2><table><tr><th>Week</th><th style="text-align:right">Sessions</th><th style="text-align:right">Filled birthday</th><th style="text-align:right">Read forecast</th><th style="text-align:right">Shares</th></tr>${weekRows || '<tr><td colspan=5 style="padding:10px;color:#6a5a42">no data</td></tr>'}</table>
