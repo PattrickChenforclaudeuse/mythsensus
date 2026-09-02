@@ -71,7 +71,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=228">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=229">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -847,9 +847,10 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opa
         ให้มันคร่อมสองคอลัมน์เป็นแถบล่างแทน สองคอลัมน์บนจะจบพร้อมกัน */
   #entryHeroStep>.ec-a{grid-column:1;grid-row:2;display:flex;flex-direction:column}
   #entryHeroStep>.ec-b{grid-column:2;grid-row:2;display:flex;flex-direction:column;align-self:start}
-  #entryHeroStep>.ec-a2{grid-column:1 / -1;grid-row:3;display:grid;grid-template-columns:1fr 1fr;
-                        gap:0 34px;align-items:start;margin-top:20px;padding-top:18px;
-                        border-top:1px solid rgba(217,173,82,.18)}
+  /* แถบล่างเหลือการ์ดเดียวหลังถอดย่อหน้าวิธีคิดออก (2 ก.ย.) ⇒ คอลัมน์เดียว จัดกลาง
+     ไม่งั้นจะเหลือช่องว่างครึ่งขวาของแถบ */
+  #entryHeroStep>.ec-a2{grid-column:1 / -1;grid-row:3;display:block;max-width:430px;margin:20px auto 0;
+                        padding-top:18px;border-top:1px solid rgba(217,173,82,.18)}
   #entryHeroStep>.ec-a2>#entrySample{margin:0!important}
   /* การ์ดซ้ายเรนเดอร์ไม่ได้ → กลับไปเป็นคอลัมน์เดียว ไม่ทิ้งครึ่งจอว่าง */
   #entryHeroStep.ec-solo{grid-template-columns:1fr;max-width:460px;margin:0 auto;text-align:center}
@@ -1729,7 +1730,9 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <div id="entrySample" style="margin:16px 0 0"></div>
       <!-- How the scoring actually works. This was the FOURTH block on the
            landing, four lines deep, ahead of everything the visitor came for. -->
-      <div style="text-align:center;margin:18px 0 0;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--muted);line-height:1.7;text-wrap:pretty" data-eh="hooksub">เราถาม 26 ศาสตร์พร้อมกัน แต่เฉพาะศาสตร์ที่<strong style="color:var(--text);white-space:nowrap">มีวิชาทำนายช่วงเวลาจริง</strong>ถึงจะให้คะแนนได้ · เต็ม 5 แยกทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร</div>
+      <!-- ⛔ ย่อหน้า "เราถาม 26 ศาสตร์…" ถูกถอดออก 2 ก.ย. 69 (director: "เอาออก")
+           เป็นคำอธิบายว่าทำไมบางศาสตร์ถึงงดออกเสียง = วิธีทำงานของเรา ไม่ใช่เรื่องของคนอ่าน
+           และเลข "งดออกเสียง" เองก็เป็นความประทับใจแรกที่ไม่ดีอยู่แล้ว -->
       </div>
     </div>
 
@@ -2981,7 +2984,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=228" defer></script>
+<script src="/build/ms26-bundle.js?v=229" defer></script>
 <script>
 
 
@@ -3955,7 +3958,9 @@ function _refreshEntryHero(){
     cta:      { th:'✦ ดูดวงวันนี้ของคุณ · ฟรี', en:'✦ See your day · Free' },
     drawalt:  { th:'หรือรับพรจากเทพประจำวันก่อน →', en:'or receive today’s blessing first →' },
     compare:  { th:'💑 เทียบดวงกับใครสักคน · แค่ 2 วันเกิด', en:'💑 Compare with someone · just 2 birth dates' },
-    hooksub:  { th:'เราถาม 26 ศาสตร์พร้อมกัน แต่เฉพาะศาสตร์ที่<strong style="color:var(--text);white-space:nowrap">มีวิชาทำนายช่วงเวลาจริง</strong>ถึงจะให้คะแนนได้ · เต็ม 5 แยกทีละด้าน ส่วนที่เหลือขอไม่ออกเสียง — และเราบอกให้รู้ว่าใครบ้าง เพราะอะไร', en:'We ask all 26 traditions, but only the ones with a <strong style="color:var(--text)">real timing technique</strong> get to score you — out of 5, area by area. The rest abstain, and we name them and say why.' },
+    // ⛔ ถอดบรรทัด "เราถาม 26 ศาสตร์…" ออก 2 ก.ย. 69 (director: "เอาออก")
+    //    เป็นคำอธิบายว่าทำไมบางศาสตร์งดออกเสียง = วิธีทำงานของเรา ไม่ใช่เรื่องของคนอ่าน
+    hooksub:  { th:'', en:'' },
     draw2:    { th:'🙏 รับพรวันนี้ก่อนก็ได้', en:'🙏 Or draw today’s blessing' },
     alt:      { th:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">เทียบดวงสองคน</button>', en:'<button onclick="entryCompareTwo()" style="background:none;border:none;color:var(--gold2);cursor:pointer;font:inherit;text-decoration:underline;padding:0">Compare two charts</button>' },
     signin:   { th:'มีบัญชีแล้ว? ' + sgn + 'ลงชื่อเข้าใช้ →</button>', en:'Already have an account? ' + sgn + 'Sign in →</button>' }
