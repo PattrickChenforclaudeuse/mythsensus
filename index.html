@@ -11319,17 +11319,44 @@ function renderDailyPulse() {
       const M_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       const when = isTh ? `วัน${D_TH[wd]} ${dnum} ${M_TH[tm.getMonth()]}` : `${D_EN[wd]} ${dnum} ${M_EN[tm.getMonth()]}`;
       const lord = isTh ? P_TH[wd] : P_EN[wd];
+      // ⛔ ของเดิมใช้ที่ตรงนี้บอกสองอย่างที่คนอ่านไม่ต้องรู้ —
+      //    (1) นโยบายว่าเราคิดใหม่ทุกวันไม่ใช่ทุกสัปดาห์ = เรื่องของเรา ไม่ใช่ของเขา
+      //    (2) "เราไม่บอกล่วงหน้า ถ้าบอกได้ตอนนี้ก็ไม่ต้องมีพรุ่งนี้" = ประโยคเท่ๆ
+      //        ที่แปลว่า "เราไม่มีอะไรให้" · director 2 ก.ย.: "จะบอกเพื่อ?"
+      //    ⇒ ใส่ของที่ใช้ได้จริงแทน: สีประจำวันกับสิ่งที่วันนั้นเหมาะทำตามคติไทย
+      //       ทั้งคู่เป็นข้อเท็จจริงของปฏิทิน รู้ได้ตั้งแต่วันนี้ ไม่ใช่คำทำนาย
+      //    ⛔ ยังห้ามบอกตัวเลขของพรุ่งนี้ล่วงหน้า — นั่นคือสิ่งที่ยังต้องกลับมาดู
+      const DAY_COLOR_TH = ['แดง','เหลืองครีม','ชมพู','เขียว','ส้ม','ฟ้า','ม่วงเข้ม'];
+      const DAY_COLOR_EN = ['red','cream yellow','pink','green','orange','light blue','deep purple'];
+      const DAY_FOR_TH = [
+        'วันของการเริ่มและการนำ — เหมาะเปิดเรื่องที่ต้องมีคนตาม',
+        'วันของการเจรจาและประคองใจคน — เหมาะคุยเรื่องที่ต้องใช้ความนุ่มนวล',
+        'วันของแรงและการลงมือ — เหมาะงานที่ต้องดันให้จบ',
+        'วันของการสื่อสารและการค้า — เหมาะติดต่อ เจรจา เขียนงาน',
+        'วันครู — เหมาะเริ่มเรียน ขอคำแนะนำ และไหว้ครูบาอาจารย์',
+        'วันของความสัมพันธ์และงานสวยงาม — เหมาะนัดเจอและงานศิลป์',
+        'วันของความอดทนและการสะสาง — เหมาะเคลียร์ของค้างมากกว่าเริ่มใหม่',
+      ];
+      const DAY_FOR_EN = [
+        'a day for beginning and leading — good for opening what others will follow',
+        'a day for talking and tending people — good for conversations that need a soft hand',
+        'a day for force and finishing — good for pushing something over the line',
+        'a day for messages and trade — good for contacting, negotiating, writing',
+        "a teacher's day — good for starting to learn and asking for guidance",
+        'a day for relationships and beautiful work — good for meeting and for craft',
+        'a day for patience and clearing — better for settling what is overdue than starting anew',
+      ];
       return `<div style="margin-top:14px;padding:13px 14px;border:1px solid var(--gold3);border-radius:8px;background:rgba(200,164,90,.05)">
         <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold3);margin-bottom:7px">${isTh?'พรุ่งนี้':'TOMORROW'}</div>
         <div style="font-size:12.5px;color:var(--text);line-height:1.65">
           ${isTh
-            ? `<strong style="color:var(--gold2)">${when}</strong> — วันของ${lord} · ทั้ง 8 ด้านข้างบนคิดใหม่ทั้งชุด เพราะฟ้าเปลี่ยนทุกวัน ไม่ใช่ทุกสัปดาห์`
-            : `<strong style="color:var(--gold2)">${when}</strong> — the day of ${lord}. All eight areas above are recomputed, because the sky moves daily, not weekly.`}
+            ? `<strong style="color:var(--gold2)">${when}</strong> — วันของ${lord} · สีประจำวันคือ<strong style="color:var(--gold2)">สี${DAY_COLOR_TH[wd]}</strong>`
+            : `<strong style="color:var(--gold2)">${when}</strong> — the day of ${lord}. Its colour is <strong style="color:var(--gold2)">${DAY_COLOR_EN[wd]}</strong>.`}
         </div>
         <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-top:6px">
           ${isTh
-            ? 'เราไม่บอกล่วงหน้าว่าพรุ่งนี้จะออกมาเท่าไหร่ — ถ้าบอกได้ตอนนี้ ก็ไม่ต้องมีพรุ่งนี้'
-            : 'We do not tell you tomorrow\'s numbers now — if we could, there would be no reason for tomorrow.'}
+            ? DAY_FOR_TH[wd]
+            : DAY_FOR_EN[wd]}
         </div>
       </div>`;
     })()}
