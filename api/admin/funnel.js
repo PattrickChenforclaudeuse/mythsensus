@@ -205,6 +205,7 @@ export default async function handler(req, res) {
     row('Pages opened', pageviews.length, `${uSid(pageviews)} sess · ทุกหน้ารวมบล็อก/pricing`),
     row('Entry choice · Form-first', uSid(entryForm), `vs Draw-first ${uSid(entryDraw)} · ประตูไหนถูกเลือก`),
     row('Daily Pulse viewed', uSid(pulses), `${pulses.length} events · ของฟรีตัวหลักตอนนี้`),
+    row('Drew a god ≥1', drew, `${totalDraws} draws · ยังมีคนใช้ อย่าเพิ่งตัดทิ้ง`),
     row('Filled birthday', pct(births.length, nS) + '%', `${births.length} sess`),
     row('Forecast viewed', uSid(forecasts), `${forecasts.length} events · หน้าพยากรณ์`),
     row('Saw consensus', pct(consensus.length, nS) + '%', `${consensus.length} sess · แบนเนอร์ 10 ศาสตร์เห็นตรงกัน`),
@@ -217,8 +218,7 @@ export default async function handler(req, res) {
 
   // ⛔ ไม่ลบขั้นที่ตายทิ้ง — ย้ายมาไว้ที่นี่ เพราะถ้าลบแล้วมันฟื้นขึ้นมา จะไม่มีใครรู้
   const deadRows = [
-    row('Drew a god ≥1', drew, `${totalDraws} draws · ทางเดินยุคก่อน`),
-    row('Shares', shares.length, 'ทางเดินยุคก่อน'),
+    row('Shares', shares.length, shares.length ? '' : 'แทบไม่มีใครแชร์'),
     row('Destiny (1-in-M)', destinies.length, 'ไม่เคยยิงเลยตั้งแต่มีข้อมูล'),
     row('Purchase clicks', pClick2.length, 'ไม่เคยยิงเลยใน 90 วัน — เช็คว่าแท็กยังผูกกับปุ่มอยู่ไหม'),
   ].join('');
