@@ -128,6 +128,8 @@ export interface BaziData {
   hourStem: string; hourBranch: string; hourStemTh: string; hourBranchTh: string;
   dayMaster: string; dayMasterTh: string; dayMasterElement: string; dayMasterPolarity: string;
   missingElement: string; dominantElement: string;
+  /** จำนวนอักษรของแต่ละธาตุจากทั้งแปดตัว รวมกันได้ 8 เสมอ — ห้ามนับเองที่อื่น */
+  elementCounts: Record<string, number>;
   luckyElement: string; avoidElement: string;
   currentLuckPillar: string; currentLuckPillarTh: string;
   benMingNian2026: boolean; luckPillars: LuckPillar[];
@@ -1609,8 +1611,13 @@ function calcBazi(d: BirthData): BaziData {
   // thing a BaZi reader says out loud. Five relationships, five different lives.
   const _EL_ORDER = ['ไม้','ไฟ','ดิน','โลหะ','น้ำ'];
   const _elIdx = (e: string) => _EL_ORDER.indexOf(e);
+  // นับธาตุจากอักษรทั้งแปด (ก้าน 4 + กิ่ง 4) — เปิดออกมาเป็นฟิลด์ 2 ก.ย. 69
+  // ⛔ ที่เปิดเพราะตัวเรนเดอร์ภายนอกเคยต้องลอกตาราง BRANCHES_EL ไปนับเอง
+  //    ลอกเมื่อไหร่ = เพี้ยนเมื่อนั้น ⇒ ให้เอนจินเป็นคนนับที่เดียว
+  //    นี่คือการนับ 八字 ที่มองเห็น ไม่รวมก้านซ่อนในกิ่ง (藏干) ซึ่งเป็นอีกมุมหนึ่ง
+  const _elCounts: Record<string, number> = {};
   const _pile = (() => {
-    const counts: Record<string, number> = {};
+    const counts: Record<string, number> = _elCounts;
     for (const st of [yp.stem, mp.stem, dp.stem, hp.stem]) { const i = STEMS.indexOf(st); if (i >= 0) counts[STEMS_EL[i]] = (counts[STEMS_EL[i]] || 0) + 1 }
     for (const br of [yp.branch, mp.branch, dp.branch, hp.branch]) { const i = BRANCHES.indexOf(br); if (i >= 0) counts[BRANCHES_EL[i]] = (counts[BRANCHES_EL[i]] || 0) + 1 }
     const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
@@ -1656,18 +1663,18 @@ function calcBazi(d: BirthData): BaziData {
   // was really "whichever element the year stem happened to be". Ties now fall
   // to the Day Master element, which is the canonical "your element" everywhere
   // else in the report, instead of to array order.
-  const elCount: Record<string, number> = {};
-  for (const st of allStems) {
-    const si = STEMS.indexOf(st);
-    if (si >= 0) { const el = STEMS_EL[si]; elCount[el] = (elCount[el] || 0) + 1; }
-  }
-  for (const br of allBranches) {
-    const bi = BRANCHES.indexOf(br);
-    if (bi >= 0) { const el = BRANCHES_EL[bi]; elCount[el] = (elCount[el] || 0) + 1; }
-  }
+  // ⛔ เคยนับธาตุสองรอบในฟังก์ชันเดียว (ที่นี่ กับที่ _pile ข้างบน) ด้วยสูตรเดียวกันเป๊ะ
+  //    = สองแหล่งความจริงที่รอวันแยกทางกัน · ยุบเหลือรอบเดียว 2 ก.ย. 69
+  //    การตัดสิน "ธาตุเด่น" ยังเหมือนเดิมทุกประการ รวมถึงกติกาแก้เสมอที่เอนเข้าหาก้านวัน
+  const elCount: Record<string, number> = _elCounts;
   const _domMax = Math.max(0, ...Object.values(elCount));
   const _domTied = Object.keys(elCount).filter(e => elCount[e] === _domMax);
-  const dominantEl = _domTied.includes(dmElement) ? dmElement : (_domTied[0] ?? dmElement);
+  // ⛔ เสมอที่ก้านวันไม่ได้ร่วมเสมอด้วย เคยตัดสินด้วย "ธาตุไหนถูกใส่เข้า object ก่อน"
+  //    ซึ่งขึ้นกับว่าอักษรตัวไหนมาก่อนในผัง = ตัดสินด้วยลำดับอาร์เรย์ ไม่ใช่ด้วยวิชา
+  //    (คอมเมนต์ข้างบนเตือนเรื่องนี้ไว้เอง แต่แก้ไปแค่ครึ่งเดียว) · พบตอนเปิด elementCounts
+  //    2 ก.ย. 69 · เสมอ 3 ทางเจอ 16 ใน 600 ดวง ⇒ เรียงตามวงจรก่อกำเนิด ไม้→ไฟ→ดิน→โลหะ→น้ำ
+  const dominantEl = _domTied.includes(dmElement) ? dmElement
+    : (_EL_ORDER.filter(e => _domTied.includes(e))[0] ?? _domTied[0] ?? dmElement);
 
   // Ben Ming Nian 2026: Fire Horse year 丙午
   // Check if year branch is 午 (idx=6) → Horse year
@@ -1725,6 +1732,7 @@ function calcBazi(d: BirthData): BaziData {
     hourStem: hp.stem, hourBranch: hp.branch, hourStemTh: hp.stemTh, hourBranchTh: hp.branchTh,
     dayMaster: dp.stem, dayMasterTh: pStem(dp.si), dayMasterElement: pEl(dmElement), dayMasterPolarity: dmPolarity,
     missingElement: pEl(missingEl), dominantElement: pEl(dominantEl),
+    elementCounts: Object.fromEntries(_EL_ORDER.map(e => [pEl(e), _elCounts[e] || 0])),
     luckyElement: pEl(luckyElStr), avoidElement: pEl(avoidElStr),
     currentLuckPillar: `${currentLP.stem}${currentLP.branch}`,
     currentLuckPillarTh: `${currentLP.stemTh} ${currentLP.branchTh} (${currentLP.period})`,

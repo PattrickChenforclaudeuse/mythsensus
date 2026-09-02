@@ -53,3 +53,12 @@ _seo-gen/
 __pycache__/
 *.pyc
 Mythsensus/tests/walk-*.json
+
+# ผลผลิตชั่วคราวของต้นแบบคำอ่านรายศาสตร์ — ไฟล์ raw/prompt ที่ประกอบใหม่ได้
+_oneoff/_in*.txt
+_oneoff/*.raw.txt
+_oneoff/nul
+_oneoff/err*.txt
+_oneoff/compose2.html
+_oneoff/compose3.html
+_oneoff/oneoff-bazi-v2.html

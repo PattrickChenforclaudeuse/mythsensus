@@ -1,0 +1,273 @@
+{
+ "system": "western",
+ "systemTh": "โหราศาสตร์ตะวันตก",
+ "context": {
+  "name": "ชัยพัทธ์",
+  "gender": "ชาย",
+  "birth": "3 ก.พ. 2534 05:06 กรุงเทพฯ",
+  "ageNow": 35,
+  "today": "2 ก.ย. 2569"
+ },
+ "chart": {
+  "sunSign": "Aquarius",
+  "sunSignTh": "กุมภ์",
+  "sunDeg": 313.56863161952924,
+  "moonSign": "Libra",
+  "moonSignTh": "ตุลย์",
+  "moonDeg": 181.1794998841632,
+  "ascSign": "Capricorn",
+  "ascSignTh": "มกร",
+  "ascDeg": 287.37248543143374,
+  "jupiterSign": "สิงห์",
+  "saturnSign": "มกร",
+  "transitNote2026": "ดาวพฤหัสบดีในสิงห์ 2026 — โอกาสขยายตัวในด้านที่เกี่ยวข้องกับราศีนี้",
+  "score": 760,
+  "traits": {
+   "change": 2,
+   "social": 1,
+   "structure": -1,
+   "instinct": -1,
+   "focus": -1
+  }
+ },
+ "แกนนิสัยจาก25ศาสตร์": [
+  {
+   "axis": "expression",
+   "labelTh": "เก็บไว้",
+   "pct": 4,
+   "band": "strong-neg",
+   "voices": 12,
+   "ศาสตร์นี้ร่วมออกเสียง": false
+  },
+  {
+   "axis": "instinct",
+   "labelTh": "เชื่อสัญชาตญาณ",
+   "pct": 95,
+   "band": "strong-pos",
+   "voices": 11,
+   "ศาสตร์นี้ร่วมออกเสียง": false
+  },
+  {
+   "axis": "structure",
+   "labelTh": "ยืดหยุ่น",
+   "pct": 9,
+   "band": "strong-neg",
+   "voices": 14,
+   "ศาสตร์นี้ร่วมออกเสียง": false
+  },
+  {
+   "axis": "focus",
+   "labelTh": "ลึกเรื่องเดียว",
+   "pct": 91,
+   "band": "strong-pos",
+   "voices": 14,
+   "ศาสตร์นี้ร่วมออกเสียง": false
+  },
+  {
+   "axis": "initiative",
+   "labelTh": "รอจังหวะ",
+   "pct": 16,
+   "band": "neg",
+   "voices": 6,
+   "ศาสตร์นี้ร่วมออกเสียง": false
+  },
+  {
+   "axis": "social",
+   "labelTh": "อยู่คนเดียวได้",
+   "pct": 24,
+   "band": "neg",
+   "voices": 13,
+   "ศาสตร์นี้ร่วมออกเสียง": false
+  },
+  {
+   "axis": "change",
+   "labelTh": "รื้อทำใหม่",
+   "pct": 74,
+   "band": "pos",
+   "voices": 8,
+   "ศาสตร์นี้ร่วมออกเสียง": false
+  },
+  {
+   "axis": "root",
+   "labelTh": "เคลื่อนที่",
+   "pct": 71,
+   "band": "pos",
+   "voices": 5,
+   "ศาสตร์นี้ร่วมออกเสียง": false
+  },
+  {
+   "axis": "pace",
+   "labelTh": "อยู่กลางๆ",
+   "pct": 37,
+   "band": "mid",
+   "voices": 10,
+   "ศาสตร์นี้ร่วมออกเสียง": false
+  },
+  {
+   "axis": "risk",
+   "labelTh": "อยู่กลางๆ",
+   "pct": 63,
+   "band": "mid",
+   "voices": 7,
+   "ศาสตร์นี้ร่วมออกเสียง": false
+  }
+ ],
+ "เดือนข้างหน้า12เดือน": [
+  {
+   "label": "กันยายน 2569",
+   "dom": {
+    "career": 2,
+    "money": 2,
+    "love": 4,
+    "health": 3,
+    "family": 4,
+    "learning": 3,
+    "allies": 4,
+    "chance": 2
+   }
+  },
+  {
+   "label": "ตุลาคม 2569",
+   "dom": {
+    "career": 3,
+    "money": 1,
+    "love": 2,
+    "health": 2,
+    "family": 2,
+    "learning": 3,
+    "allies": 2,
+    "chance": 1
+   }
+  },
+  {
+   "label": "พฤศจิกายน 2569",
+   "dom": {
+    "career": 4,
+    "money": 5,
+    "love": 2,
+    "health": 3,
+    "family": 2,
+    "learning": 2,
+    "allies": 2,
+    "chance": 4
+   }
+  },
+  {
+   "label": "ธันวาคม 2569",
+   "dom": {
+    "career": 2,
+    "money": 2,
+    "love": 1,
+    "health": 1,
+    "family": 3,
+    "learning": 2,
+    "allies": 3,
+    "chance": 2
+   }
+  },
+  {
+   "label": "มกราคม 2570",
+   "dom": {
+    "career": 5,
+    "money": 5,
+    "love": 2,
+    "health": 4,
+    "family": 2,
+    "learning": 4,
+    "allies": 4,
+    "chance": 4
+   }
+  },
+  {
+   "label": "กุมภาพันธ์ 2570",
+   "dom": {
+    "career": 1,
+    "money": 2,
+    "love": 3,
+    "health": 2,
+    "family": 2,
+    "learning": 1,
+    "allies": 1,
+    "chance": 3
+   }
+  },
+  {
+   "label": "มีนาคม 2570",
+   "dom": {
+    "career": 4,
+    "money": 3,
+    "love": 4,
+    "health": 5,
+    "family": 5,
+    "learning": 4,
+    "allies": 4,
+    "chance": 4
+   }
+  },
+  {
+   "label": "เมษายน 2570",
+   "dom": {
+    "career": 3,
+    "money": 3,
+    "love": 3,
+    "health": 4,
+    "family": 3,
+    "learning": 3,
+    "allies": 2,
+    "chance": 4
+   }
+  },
+  {
+   "label": "พฤษภาคม 2570",
+   "dom": {
+    "career": 3,
+    "money": 3,
+    "love": 5,
+    "health": 4,
+    "family": 3,
+    "learning": 5,
+    "allies": 5,
+    "chance": 3
+   }
+  },
+  {
+   "label": "มิถุนายน 2570",
+   "dom": {
+    "career": 4,
+    "money": 4,
+    "love": 3,
+    "health": 2,
+    "family": 3,
+    "learning": 4,
+    "allies": 4,
+    "chance": 3
+   }
+  },
+  {
+   "label": "กรกฎาคม 2570",
+   "dom": {
+    "career": 4,
+    "money": 3,
+    "love": 3,
+    "health": 3,
+    "family": 2,
+    "learning": 2,
+    "allies": 2,
+    "chance": 4
+   }
+  },
+  {
+   "label": "สิงหาคม 2570",
+   "dom": {
+    "career": 4,
+    "money": 3,
+    "love": 4,
+    "health": 3,
+    "family": 4,
+    "learning": 3,
+    "allies": 3,
+    "chance": 2
+   }
+  }
+ ]
+}

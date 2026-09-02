@@ -1,0 +1,549 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8">
+<title>BaZi ปาจื้อ (สี่เสา) — คำอ่านรายศาสตร์</title><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Cormorant Garamond','Sarabun','Noto Sans Thai',serif;
+  color:#e6e2d8;
+  background-color:#040407;
+  background-image:
+    radial-gradient(1px 1px at 14% 22%, rgba(255,235,200,.85) 50%, transparent 55%),
+    radial-gradient(1px 1px at 26% 72%, rgba(200,220,255,.70) 50%, transparent 55%),
+    radial-gradient(1px 1px at 42% 34%, rgba(255,255,255,.80) 50%, transparent 55%),
+    radial-gradient(1.3px 1.3px at 58% 18%, rgba(255,245,220,.95) 50%, transparent 55%),
+    radial-gradient(1px 1px at 73% 64%, rgba(220,220,255,.75) 50%, transparent 55%),
+    radial-gradient(1px 1px at 82% 30%, rgba(255,255,230,.85) 50%, transparent 55%),
+    radial-gradient(1.5px 1.5px at 92% 78%, rgba(255,235,200,.95) 50%, transparent 55%),
+    radial-gradient(0.8px 0.8px at 10% 88%, rgba(255,255,255,.60) 50%, transparent 55%),
+    radial-gradient(0.8px 0.8px at 34% 8%,  rgba(200,220,255,.60) 50%, transparent 55%),
+    radial-gradient(0.9px 0.9px at 65% 90%, rgba(255,245,220,.70) 50%, transparent 55%),
+    radial-gradient(ellipse at center, #0a0a12 0%, #060610 55%, #040407 100%);
+  background-size: 600px 800px, 700px 900px, 500px 700px, 800px 600px, 640px 750px, 720px 820px, 560px 680px, 900px 1000px, 820px 920px, 680px 860px, 100% 100%;
+  background-attachment: fixed;
+}
+/* Each page uses transparent so the body star field shows through.
+   min-height removed so content flows to next page when overflowing —
+   UX first, hard pagination second. */
+.page{padding:9mm 13mm 9mm;page-break-after:always;position:relative;background:transparent}
+.page-header{display:flex;align-items:center;gap:10px;border-bottom:1px solid #3a3020;padding-bottom:6px;margin-bottom:11px}
+.page-icon{font-size:22px}
+.page-title{font-size:16px;font-weight:700;color:#c8a45a;flex:1;letter-spacing:1px}
+.page-num{font-size:12.5px;color:#967f5d}
+.page-body{font-size:14.5px;line-height:1.62;color:#ded7c4;padding-bottom:10px}
+.page-footer{text-align:center;font-size:11.5px;color:#967f5d;border-top:1px solid #2a2010;padding-top:5px;margin-top:10px}
+h2{font-size:15px;color:#c8a45a;font-weight:700;margin:10px 0 5px;border-left:3px solid #c8a45a;padding-left:10px}
+h3{font-size:13px;color:#c8a45a;font-weight:600;margin:12px 0 6px}
+p{margin-bottom:5px;color:#c8c0a8}
+table{width:100%;border-collapse:collapse;margin:10px 0}
+th{background:#0d0d15;color:#c8a45a;padding:8px 10px;text-align:left;font-size:14px}
+td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:14px;vertical-align:top}
+.lbl{color:#9a8a72;font-weight:600;width:30%;background:#0a0a10}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0}
+.stat-card{background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px;text-align:center}
+.stat-card .val{font-size:28px;font-weight:700;color:#c8a45a}
+.stat-card .lbl{font-size:12.5px;color:#9a8a72;width:auto;background:transparent;padding:0;margin-top:4px}
+.pillar{background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px;text-align:center}
+.pillar.dm{border-color:#c8a45a;background:#12101c}
+.pillar .stem{font-size:32px;font-weight:700;color:#c8a45a}
+.pillar .branch{font-size:22px;color:#c8a45a;margin-top:4px}
+.pillar .sublabel{font-size:11.5px;color:#967f5d;margin-top:2px}
+.conv{border-left:3px solid #c8a45a;padding:8px 12px;margin:8px 0;background:#0d0d15}
+.conv.med{border-left-color:#6a5a42;background:#0a0a10}
+.warn{background:#1a0a0a;border:2px solid #c01020;border-radius:8px;padding:12px;margin:8px 0;color:#f0c8b0}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12.5px;font-weight:600;margin:2px}
+@media print{
+  /* The report is a dark-theme design built almost entirely from INLINE
+     dark backgrounds + light text. The previous half-baked light override
+     (body→#fff, recolour ~6 selectors) left every inline-styled element +
+     the light .page-body/p/h3 text invisible on white paper — the "saved
+     PDF unreadable" bug (Director 2026-07-02). Fix: force the browser to
+     print the colours/backgrounds faithfully so the PDF == the screen.
+     print-color-adjust:exact overrides Chrome's "Background graphics: off"
+     default, which was dropping every dark box background. */
+  *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  html,body{ background:#040407 !important; background-image:none !important; color:#e6e2d8 !important; }
+  .page{ page-break-after:always; min-height:0; background:#040407 !important; }
+  /* Keep boxes/tables/cards from being cut across A4 sheet boundaries. A ~43
+     logical-page report overflows to ~80+ physical sheets, and without this
+     content splits mid-box → hard to read (Director 2026-07-02). break-inside
+     :avoid is only a hint — an element taller than a page still breaks, so
+     this can't create blank pages. */
+  .rbox, table, tr, .stat-card, .pillar, .conv, .warn,
+  .grid-2 > div, .grid-3 > div,
+  div[style*="border-radius"]{ break-inside:avoid; page-break-inside:avoid; }
+  .page-header{ break-inside:avoid; }
+  h2, h3{ break-after:avoid; page-break-after:avoid; }
+}</style></head>
+<body>
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">BaZi ปาจื้อ (สี่เสา) — อ่านดวงคุณด้วยศาสตร์นี้ศาสตร์เดียว</span>
+    <span class="page-num">หน้า 1 / 12</span>
+  </div>
+  <div class="page-body">
+  <div style="font-size:17px;color:#e8c87a;line-height:1.7;margin:6px 0 16px;padding:12px 14px;background:#0f0d15;border-left:3px solid #c8a45a;border-radius:0 8px 8px 0">ชัยพัทธ์คือไม้ต้นใหญ่ที่เกิดกลางกองดิน มีทรัพย์และภาระให้แบกเต็มดวง แต่ตัวไม้เองยังขาดน้ำหล่อเลี้ยง ทั้งเล่มนี้จึงวนอยู่ที่คำถามเดียวคือจะเติมกำลังตัวเองอย่างไรก่อนไปถือของที่หนักกว่านี้</div>
+  <h2>ศาสตร์นี้อ่านคนจากอะไร</h2>
+  <p style="line-height:1.75">ปาจื้อตั้งต้นที่ก้านวันเกิด (Day Master) แล้วดูว่าธาตุอื่นในสี่เสาหนุนหรือบีบก้านวันนั้น จากนั้นจึงอ่านเสาโชคสิบปีว่าช่วงไหนเติมสิ่งที่ขาด ช่วงไหนซ้ำเติมสิ่งที่ล้นอยู่แล้ว</p>
+  <h2>คำถามที่บังคับให้ศาสตร์นี้ตอบ</h2>
+  <p style="line-height:1.75">คำถามชุดเดียวกันนี้ถูกถามกับทุกศาสตร์ — 45 ข้อ 10 หมวด
+  ศาสตร์นี้ตอบได้ตามตำรา <strong style="color:#9ac86a">43 ข้อ</strong>
+  และไม่มีวิธีตอบ <strong style="color:#c88a6a">2 ข้อ</strong>
+  ข้อที่ตอบไม่ได้เราบอกตรงๆ ว่าไม่มี ไม่เดาให้ครบ</p>
+  <table>
+    <thead><tr><th>หมวด</th><th>คำถาม</th><th>ศาสตร์นี้ตอบได้</th></tr></thead>
+    <tbody><tr><td>ตัวตนและพื้นดวง</td><td>9</td><td style="color:#c8b06a">8</td></tr><tr><td>การงาน</td><td>7</td><td style="color:#9ac86a">7</td></tr><tr><td>เงินและทรัพย์</td><td>5</td><td style="color:#9ac86a">5</td></tr><tr><td>ความรักและคู่</td><td>5</td><td style="color:#9ac86a">5</td></tr><tr><td>สุขภาพ</td><td>3</td><td style="color:#c8b06a">2</td></tr><tr><td>ครอบครัวและที่ทาง</td><td>4</td><td style="color:#9ac86a">4</td></tr><tr><td>คนรอบตัว</td><td>3</td><td style="color:#9ac86a">3</td></tr><tr><td>การเรียนรู้</td><td>2</td><td style="color:#9ac86a">2</td></tr><tr><td>จังหวะชีวิต</td><td>4</td><td style="color:#9ac86a">4</td></tr><tr><td>เสริมดวงและข้อควรระวัง</td><td>3</td><td style="color:#9ac86a">3</td></tr></tbody>
+  </table></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">A · ตัวตนและพื้นดวง</span>
+    <span class="page-num">หน้า 2 / 12</span>
+  </div>
+  <div class="page-body">
+    <p style="line-height:1.75;color:#c8b890;margin-bottom:12px">ปาจื้ออ่านตัวตนจากก้านวันเกิดเทียบกับธาตุอื่นในสี่เสา ว่าอะไรหนุนและอะไรบีบ</p>
+    
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">A1 · แก่นของฉันคืออะไร — ศาสตร์นี้ใช้อะไรเป็นตัวตั้งในการอ่านฉัน</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">ปาจื้ออ่านชัยพัทธ์จากก้านวัน 甲 เจี่ย ไม้หยาง ที่เกิดในเดือนฉลู ซึ่งดินหนาและน้ำแห้ง</div>
+        <div style="line-height:1.72">ก้านวันคือ 甲 เจี่ย ไม้หยาง (Yang Wood) ไม้ต้นใหญ่ที่โตทางเดียวคือขึ้นบน ทั้งดวงมีดินเป็นธาตุเด่นและขาดน้ำ ตำราเรียกโครงแบบนี้ว่า 財多身弱 (ไฉตัวเซินเยฺว่อ คือทรัพย์หนา ตัวเบา) แปลว่ามีของให้จัดการมากกว่ากำลังที่มี ทุกคำตอบในเล่มนี้จึงกลับมาที่ประเด็นเดียวเสมอ คือตัวไม้มีแรงพอจะถือของที่ถืออยู่แล้วหรือยัง</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: dayMaster · ธาตุก้านวัน · เดือนเกิด · ธาตุโดดเด่น · ธาตุที่ขาด</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">A2 · นิสัยหลักที่ติดตัวมาแต่เกิดคืออะไร</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">ตรงและไม่ยอมงอ บวกกับปากที่คมกว่าที่ตั้งใจไว้</div>
+        <div style="line-height:1.72">甲 คือไม้ที่หักได้แต่ไม่โค้ง นิสัยพื้นจึงตรง ยึดหลักของตัวเอง เปลี่ยนทิศช้า และรับปากแล้วแบกจนจบ ก้านชั่วโมงเป็น 丁 ติง ไฟอ่อน ซึ่งเป็น 傷官 ซางกวน (ดาวแหกกติกา) ทำให้ความคิดออกมาเป็นคำวิจารณ์ที่คมและไม่รอจังหวะ ส่วนกิ่งชั่วโมงเถาะเป็น 羊刃 หยางเริ่น (ใบมีด) แปลว่าเวลาโดนบีบจะตัดสินเด็ดขาดกว่าปกติมาก</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: dayMaster · ชั่วโมงเกิด</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">A3 · จุดแข็งที่สุดของฉัน และพรสวรรค์ที่ติดตัวมา</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">มองเห็นว่าอะไรมีมูลค่า และใช้ฝีมือกดแรงกดดันจากคนที่มีอำนาจได้</div>
+        <div style="line-height:1.72">ก้านปีเป็น 庚 เกิง โลหะหยาง ซึ่งเป็น 七殺 ชีชา (แรงบีบจากอำนาจ) แต่นั่งบนกิ่งมะเมียซึ่งเป็นไฟ และก้านชั่วโมง 丁 ก็เป็นไฟ ตำราเรียกรูปนี้ว่า 傷官駕殺 คือเอาฝีมือขึ้นคุมอำนาจ ไม่ใช่เอาความเชื่อฟัง พรสวรรค์อีกอย่างมาจากดินที่ล้นทั้งดวงซึ่งเป็นดาวทรัพย์ ทำให้ประเมินมูลค่าของและของคนได้เร็วกว่าคนทั่วไป</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ปีเกิด · ชั่วโมงเกิด · ธาตุโดดเด่น</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">A4 · จุดอ่อนที่ต้องรู้ตัวไว้ และนิสัยที่ควรคุม</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">รับงานเกินกำลังแล้วไม่ยอมวาง กับคำพูดที่เผลอตัดคนที่ยังต้องใช้</div>
+        <div style="line-height:1.72">โครง 財多身弱 ทำให้เห็นโอกาสแล้วรับไว้ก่อนโดยไม่นับกำลังตัวเอง พอรับมาแล้วนิสัยไม้ก็ไม่ยอมคืน สุดท้ายกลายเป็นการทำงานหนักที่ผลตกไปอยู่กับคนอื่น อีกจุดคือ 傷官 ที่ก้านชั่วโมง เวลาเห็นคนทำไม่ได้เรื่องจะพูดตรงจนคนที่ควรอยู่ข้างเดียวกันถอยออกไป สองอย่างนี้คือสิ่งที่ต้องคุม ไม่ใช่คุมความขยัน</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุโดดเด่น · ชั่วโมงเกิด · dayMaster</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">A5 · สิ่งที่ดวงฉันขาด ต้องไปหาเติมจากข้างนอก</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">ขาดน้ำ ซึ่งในดวงนี้แปลตรงตัวว่าขาดคนเติมและขาดการพัก</div>
+        <div style="line-height:1.72">ธาตุน้ำไม่ขึ้นมาที่ก้านเสาไหนเลย มีแค่ซ่อนอยู่ในกิ่งฉลูกับกิ่งมะโรง น้ำต่อไม้คือ 正印 เจิ้งอิ้น (ดาวอุปถัมภ์ คือผู้ใหญ่ ความรู้ และการพักเติมพลัง) อ่านตรงตัวได้ว่าชีวิตนี้ต้องออกไปหาแหล่งเติมเอง ไม่มีใครยกมาให้ถึงมือ สิ่งที่ต้องเติมมีสามอย่าง คนที่สอนได้จริง เวลานอนที่ไม่ต่อรอง และความรู้ที่ลึกกว่าที่งานบังคับ</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุที่ขาด · ธาตุมงคล · เดือนเกิด · วันเกิด</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">A6 · สิ่งที่ดวงฉันมีล้นจนกลายเป็นภาระ</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">ดินล้น คือมีของและมีคนให้ดูแลมากเกินกำลังของไม้ต้นเดียว</div>
+        <div style="line-height:1.72">ก้านเดือน 己 กิ่งเดือนฉลู และกิ่งวันมะโรง เป็นดินทั้งหมด ดินต่อไม้คือดาวทรัพย์ ล้นแบบนี้ไม่ได้แปลว่ารวยอัตโนมัติ แต่แปลว่ามีเรื่องให้รับผิดชอบมากกว่ากำลังที่มี ทั้งงาน ทั้งเงิน ทั้งคนที่พึ่งพา ยิ่งเพิ่มของเข้ามาโดยไม่เพิ่มกำลัง ทรัพย์จะกลายเป็นตัวกดแทนที่จะเป็นตัวหนุน นี่คือกับดักหลักของดวงนี้</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: เดือนเกิด · วันเกิด · ธาตุโดดเด่น · ธาตุที่ควรเลี่ยง</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">A7 · คนอื่นเห็นฉันแบบไหนตอนแรกเจอ และตัวจริงต่างตรงไหน</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">ภาพแรกคือคนนิ่งและรับผิดชอบ ตัวจริงคือคนที่คิดเร็วและไม่ยอมใครอยู่ข้างใน</div>
+        <div style="line-height:1.72">เสาปีกับเสาเดือนคือด้านที่คนนอกเห็น เป็นโลหะกับดิน ออกมาเป็นคนหนักแน่น พูดน้อย เชื่อถือได้ ดูเป็นคนของหน้าที่ แต่เสาวันกับเสาชั่วโมงเป็นไม้กับไฟ ข้างในคิดเร็ว มีความเห็นตลอดเวลา และไม่ได้ยอมรับสิ่งที่ทำตามอยู่จริง ช่องว่างนี้ทำให้คนรอบตัวคาดหวังความอดทนจากเขามากกว่าที่เขามีจริง</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ปีเกิด · เดือนเกิด · วันเกิด · ชั่วโมงเกิด</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">A8 · วาสนาของฉันหนักไปทางไหน</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">หนักไปทางทรัพย์และความรับผิดชอบ ไม่ใช่ทางชื่อเสียงหรือตำแหน่ง</div>
+        <div style="line-height:1.72">ดาวเด่นในดวงคือดาวทรัพย์ซึ่งเป็นดิน กับ 七殺 ซึ่งเป็นโลหะ ไม่ใช่ดาวอุปถัมภ์หรือดาวตำแหน่ง ทางที่ดวงเปิดให้จึงเป็นการถือของจริง ทั้งเงิน สินทรัพย์ งานที่มีตัวเลข และคนที่ต้องดูแล มากกว่าการได้เกียรติยศหรือตำแหน่งทางการ วาสนาแบบนี้โตด้วยการสะสมและการจัดการ ไม่ได้โตด้วยการได้รับการยกย่อง</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุโดดเด่น · ปีเกิด · เดือนเกิด</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #4a4038">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">A9 · สิ่งที่ฉันมาเรียนรู้ในชีวิตนี้ และรูปแบบที่ทำซ้ำโดยไม่รู้ตัว</div>
+        <div style="font-size:15.5px;font-weight:700;color:#9a8f80;line-height:1.5;margin-bottom:5px">ปาจื้อไม่มีเทคนิคอ่านภารกิจข้ามชาติ ตอบข้อนี้ตามตำราไม่ได้</div>
+        <div style="line-height:1.72">ปาจื้ออ่านโครงสร้างธาตุของชีวิตนี้เท่านั้น ไม่มีชั้นเรื่องกรรมเก่าหรือสิ่งที่ติดตัวมาเรียนรู้ข้ามภพ จึงตอบครึ่งแรกของคำถามนี้ไม่ได้ ถ้าต้องการกรอบนั้นให้ไปดูโหราศาสตร์พระเวทที่อ่านราหูกับเกตุ หรือระบบ Human Design ส่วนครึ่งหลังคือรูปแบบที่ทำซ้ำ ปาจื้ออ่านได้จากคู่กิ่งที่เบียดกัน และตอบไว้แล้วที่ข้อ D2 กับ A4</div>
+        
+        
+      </div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">B · การงาน</span>
+    <span class="page-num">หน้า 3 / 12</span>
+  </div>
+  <div class="page-body">
+    <p style="line-height:1.75;color:#c8b890;margin-bottom:12px">การงานในปาจื้ออ่านจากดาวทรัพย์ ดาวอำนาจ และดาวแสดงออก ว่าตัวไหนแรงและตัวไหนคุมตัวไหน</p>
+    
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">B1 · งานแบบไหนเข้าทางฉันจริงๆ</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">งานที่แปลงฝีมือเป็นสินทรัพย์ที่วัดเป็นตัวเลขได้ และมีสนามให้ตัดสินใจเอง</div>
+        <div style="line-height:1.72">ดวงนี้มีดาวทรัพย์หนา คู่กับ 傷官 ที่ก้านชั่วโมง งานที่เข้าทางคือถืองานที่มีของจริง มีต้นทุน มีปริมาณ มีกำหนดส่ง แล้วใช้ฝีมือของตัวเองตัดสินหน้างาน ไม่ใช่งานตีความนโยบายหรืองานที่วัดผลไม่ได้ 甲 ยังเป็นไม้ที่โตทางเดียว จึงเหมาะกับสายที่สะสมความเชี่ยวชาญทับกันไปเรื่อยๆ มากกว่าย้ายสายบ่อย</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุโดดเด่น · ชั่วโมงเกิด · dayMaster</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">B2 · บทบาทแบบไหนที่ฉันจะพัง</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">บทบาทที่ต้องเชื่อฟังกฎที่ตัวเองไม่เห็นด้วย และยังห้ามพูด</div>
+        <div style="line-height:1.72">กิ่งเดือนฉลูซ่อน 辛 ซิน โลหะอ่อน ซึ่งเป็น 正官 (ดาวกฎระเบียบ) ส่วนก้านชั่วโมงเป็น 傷官 ตำราเรียกคู่นี้ว่า 傷官見官 คือชนกันโดยโครงสร้าง ตำแหน่งที่ให้เขาเป็นคนบังคับใช้กฎแทนคนอื่น หรือเป็นตัวแทนองค์กรที่เขาไม่ศรัทธา จะพังทั้งผลงานและความสัมพันธ์ และโลหะยังเป็นธาตุที่ควรเลี่ยงของดวงนี้อยู่แล้ว</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: เดือนเกิด · ชั่วโมงเกิด · ธาตุที่ควรเลี่ยง</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">B3 · ฉันเหมาะเป็นลูกจ้างหรือทำเอง</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">ทำเองได้ แต่ห้ามเป็นเจ้าของเดี่ยวที่แบกทุกฟังก์ชันไว้คนเดียว</div>
+        <div style="line-height:1.72">ก้านวัน 甲 ผูกกับก้านเดือน 己 เป็นคู่ 甲己合 แปลว่าเขาถูกมัดกับโครงสร้างทรัพย์มาตั้งแต่เกิด ไม่ใช่คนที่ลอยอิสระได้จริง ทำเองได้ถ้ามีคนถือหลังบ้าน ทั้งบัญชี ระบบ และคนคุมรายละเอียด เพราะกำลังไม้ต้นเดียวไม่พอกับดินทั้งกอง ถ้าเปิดเองแบบแบกครบทุกหน้าที่ จะได้ยอดแต่เสียตัวไปพร้อมกัน</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: dayMaster · เดือนเกิด · ธาตุโดดเด่น</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">B4 · ฉันเหมาะนำคน หรือเหมาะเป็นคนลงมือ</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">นำได้ในทีมเล็กที่ตัวเองยังลงมือด้วย ไม่ใช่ผู้บริหารที่สั่งอย่างเดียว</div>
+        <div style="line-height:1.72">รูป 傷官駕殺 ให้ความสามารถในการคุมคนที่มีอำนาจ แต่คุมด้วยฝีมือที่พิสูจน์ได้ ไม่ใช่ด้วยตำแหน่ง พอถอยไปเป็นคนสั่งล้วนโดยไม่แตะงานจริง อำนาจในดวงจะหายไปทันทีเพราะฐานคือฝีมือ กิ่งชั่วโมงเถาะที่เป็น 羊刃 ก็บอกว่าเวลาเร่ง เขาจะดึงงานกลับมาทำเอง ทีมจึงควรเล็กและอยู่ใกล้มือ</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ปีเกิด · ชั่วโมงเกิด</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">B5 · อะไรทำให้ฉันเบื่องานเร็วที่สุด</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">งานซ้ำที่ห้ามปรับวิธี ทำให้เบื่อเร็วที่สุด</div>
+        <div style="line-height:1.72">傷官 ที่ก้านชั่วโมงคือแรงที่ต้องได้ปรับ ได้แก้ และได้ทำให้ดีกว่าเดิม พอเจองานที่ทำซ้ำแบบเดิมและมีคนห้ามไม่ให้ปรับ พลังส่วนนี้จะกลายเป็นความหงุดหงิดและการหาเรื่องเปลี่ยนโดยไม่จำเป็น อีกตัวเร่งคือดินที่ล้น งานที่มีแต่ปริมาณให้จัดการโดยไม่มีอะไรใหม่จะดูดกำลังจนหมดใจก่อนหมดแรง</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ชั่วโมงเกิด · ธาตุโดดเด่น</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">B6 · ฉันควรอยู่สนามที่มีกติกาชัด หรือสนามที่ยังไม่มีกติกา</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">สนามที่ยังไม่มีกติกา แต่ต้องมีเพดานงบและเส้นตายที่ชัด</div>
+        <div style="line-height:1.72">傷官 กับ 正官 ในดวงชนกัน แปลว่าเข้าไปในสนามที่มีระเบียบตายตัวแล้วจะฝืน แต่โครง 財多身弱 ก็บอกว่าถ้าปล่อยอิสระเต็มที่จะรับของเกินตัว รูปที่ใช้ได้จริงคือให้เขากำหนดวิธีเอง แต่ล็อกไว้สองอย่างคืองบและเส้นตาย ที่เหลือปล่อย นี่คือเงื่อนไขที่ทำให้ฝีมือออกมาได้โดยที่ตัวไม่พัง</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ชั่วโมงเกิด · เดือนเกิด · ธาตุโดดเด่น</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">B7 · ความสำเร็จของฉันมาช้าหรือมาเร็ว</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">มาช้าแบบสะสม ของจริงเริ่มตั้งแต่เสาโชคอายุ 20 เป็นต้นมา</div>
+        <div style="line-height:1.72">สองเสาโชคแรก อายุ 0-19 เป็นก้านโลหะทั้งคู่ ซึ่งเป็นธาตุที่ควรเลี่ยง ช่วงนั้นจึงเหนื่อยมากกว่าผลที่ได้ ของจริงเริ่มที่เสาโชคอายุ 20-29 ที่ก้านเป็นน้ำหยาง ต่อด้วยอายุ 30-39 ก้านน้ำอ่อน และอายุ 40-49 ก้านไม้ ทั้งสามเสานี้ตรงกับธาตุมงคล แปลว่าเป็นดวงที่สร้างสะสมไปเรื่อยแล้วหนักที่สุดช่วงสี่สิบ ไม่ใช่ดวงแจ้งเกิดเร็ว</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: เสาโชคทั้งชุด · ธาตุมงคล · ธาตุที่ควรเลี่ยง</div>
+      </div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">C · เงินและทรัพย์</span>
+    <span class="page-num">หน้า 4 / 12</span>
+  </div>
+  <div class="page-body">
+    <p style="line-height:1.75;color:#c8b890;margin-bottom:12px">เรื่องเงินในปาจื้ออ่านจากดาวทรัพย์เทียบกับกำลังของก้านวัน ว่าถือไหวได้แค่ไหน</p>
+    
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">C1 · เงินของฉันมาทางไหนเป็นหลัก และมาเป็นก้อนหรือไหลเรื่อยๆ</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">หลักคือรายได้ตรงจากงานและสัญญาที่ไหลเรื่อยๆ มีก้อนแทรกเป็นครั้งคราวจากของที่ถือไว้</div>
+        <div style="line-height:1.72">ก้านเดือน 己 กับกิ่งเดือนฉลูเป็น 正財 เจิ้งไฉ (ทรัพย์ตรง คือเงินที่มาตามงานและตามสัญญา) ส่วนกิ่งวันมะโรงซ่อน 戊 ซึ่งเป็น 偏財 (ทรัพย์เอียง คือเงินก้อน) เจิ้งไฉอยู่ในตำแหน่งเด่นกว่า เงินหลักจึงไหลเรื่อยตามงานที่ทำ ส่วนก้อนใหญ่จะมาจากของที่ถือไว้ ไม่ใช่จากการเสี่ยงครั้งเดียว</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: เดือนเกิด · วันเกิด · ธาตุโดดเด่น</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">C2 · ฉันเป็นคนหาเก่งหรือเก็บเก่ง</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">หาเก่งกว่าเก็บ เพราะกำลังตัวไม่พอจะถือทรัพย์กองใหญ่</div>
+        <div style="line-height:1.72">ตำราปาจื้อถือว่าคนถือทรัพย์ได้เท่ากับกำลังของก้านวัน ดวงนี้ทรัพย์หนาแต่ไม้เบา คือหาเข้ามาได้ไม่ยากแต่เงินไม่ค่อยค้างอยู่ ยิ่งกิ่งชั่วโมงเถาะเป็น 劫財 เจี๋ยไฉ (ดาวแย่งทรัพย์) เงินมักออกไปทางคนใกล้ตัวและทางการตัดสินใจคนเดียว วิธีแก้ไม่ใช่หาเพิ่ม แต่คือแยกบัญชีให้เงินก้อนออกไปพ้นมือ</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุโดดเด่น · dayMaster · ชั่วโมงเกิด</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">C3 · ฉันเสี่ยงเรื่องเงินได้แค่ไหน</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">เสี่ยงได้น้อยกว่าที่ตัวเองคิด และควรเสี่ยงเฉพาะตอนเสาโชคเป็นน้ำหรือไม้</div>
+        <div style="line-height:1.72">โครง 財多身弱 คือดวงที่แพ้เกมใหญ่ เพราะเวลาทรัพย์เข้ามาเป็นก้อนโดยกำลังไม่พอ ผลที่ตามมาคือหนี้และงานที่คุมไม่ทัน เพดานที่ปลอดภัยคือเสี่ยงด้วยเงินที่หายไปแล้วไม่กระทบรายได้ประจำ ช่วงที่พอเปิดได้คือเสาโชคปัจจุบัน 癸巳 ที่ก้านเป็นน้ำอ่อนซึ่งเป็นธาตุมงคล และเสาถัดไปอายุ 40-49 ที่ก้านเป็นไม้</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุโดดเด่น · เสาโชคปัจจุบัน · เสาโชคทั้งชุด · ธาตุมงคล</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">C4 · รูปแบบที่ทำให้เงินรั่วของฉันคืออะไร</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">รั่วไปทางคนที่มาพึ่ง และทางการอัปเกรดเครื่องมือที่ยังไม่จำเป็น</div>
+        <div style="line-height:1.72">รูรั่วมีสองทางตามโครงดวง ทางแรกคือ 甲己合 ที่มัดเขาไว้กับภาระ เงินออกไปกับหน้าที่ที่รับปากไว้โดยไม่ได้ตั้งงบล่วงหน้า ทางที่สองคือ 傷官 ที่ก้านชั่วโมง ทำให้ลงทุนกับของและวิธีใหม่ก่อนที่งานจะเรียกร้องจริง ทั้งสองทางไม่ใช่ความฟุ่มเฟือย แต่เป็นการจ่ายที่มีเหตุผลรองรับทุกครั้ง จึงตรวจไม่เจอถ้าไม่จดแยกไว้</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: dayMaster · เดือนเกิด · ชั่วโมงเกิด</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">C5 · ความสัมพันธ์ของฉันกับเงินเป็นแบบไหน</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">เงินคือหน้าที่และเครื่องพิสูจน์ ไม่ใช่ของที่เขาใช้เพื่อความสุขของตัวเอง</div>
+        <div style="line-height:1.72">คู่ 甲己合 คือก้านวันผูกเข้ากับดาวทรัพย์ตรง ตำราอ่านว่าเจ้าชะตาถูกทรัพย์มัด ไม่ใช่เป็นคนถือทรัพย์ ผลในชีวิตจริงคือเขาคิดเรื่องเงินในฐานะภาระที่ต้องดูแลคนอื่น ไม่ใช่ทรัพยากรของตัวเอง มีเท่าไรก็รู้สึกว่ายังไม่พอ เพราะตัววัดไม่ได้อยู่ที่ยอด แต่อยู่ที่จำนวนคนที่ยังต้องรับผิดชอบ</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: dayMaster · เดือนเกิด · ธาตุโดดเด่น</div>
+      </div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">D · ความรักและคู่</span>
+    <span class="page-num">หน้า 5 / 12</span>
+  </div>
+  <div class="page-body">
+    <p style="line-height:1.75;color:#c8b890;margin-bottom:12px">ผู้ชายในปาจื้ออ่านเรื่องคู่จากดาวทรัพย์ และจากกิ่งวันซึ่งเป็นเรือนคู่</p>
+    
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">D1 · ฉันให้ความรักแบบไหน และรับความรักแบบไหน</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">ให้ด้วยการรับผิดชอบและจัดการให้ ส่วนขาที่รับ เขายังไม่มีช่องรับ</div>
+        <div style="line-height:1.72">ผู้ชายในปาจื้ออ่านคู่จากดาวทรัพย์ ดวงนี้ดาวทรัพย์หนามาก การให้ความรักจึงออกมาเป็นการดูแล จ่าย และแก้ปัญหาให้ ไม่ใช่การบอกความรู้สึก ส่วนขาที่รับคือดาวอุปถัมภ์ซึ่งเป็นธาตุน้ำ ที่ไม่ขึ้นก้านเสาไหนเลย แปลว่าเวลามีคนดูแลกลับ เขาจะอึดอัดและรีบตอบแทนคืน แทนที่จะรับไว้เฉยๆ</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุโดดเด่น · ธาตุที่ขาด · dayMaster</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">D2 · รูปแบบความสัมพันธ์ที่ฉันทำซ้ำคืออะไร</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">เลือกคนที่ต้องแบก แล้วเอาเวลาที่ควรให้ความสัมพันธ์ไปทุ่มกับงาน</div>
+        <div style="line-height:1.72">กิ่งวันมะโรงคือเรือนคู่ กิ่งชั่วโมงเถาะเบียดกับมะโรงเป็นคู่ 卯辰害 ตำราอ่านว่าแรงที่มาจากตัวเองไปกระทบเรือนคู่ ไม่ใช่คนนอกมาทำ รูปแบบที่วนซ้ำคือเข้าไปในความสัมพันธ์ด้วยการรับหน้าที่ดูแล พอภาระหนักขึ้นก็ถอยไปลงกับงานเพราะงานตอบกลับชัดกว่า แล้วอีกฝ่ายรู้สึกว่าถูกวางลง</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: วันเกิด · ชั่วโมงเกิด · ธาตุโดดเด่น</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">D3 · ฉันต้องการพื้นที่ส่วนตัวมากแค่ไหนในความสัมพันธ์</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">ต้องการมาก และต้องเป็นพื้นที่ที่ไม่มีใครเข้ามาแก้ ไม่ใช่แค่เวลาว่าง</div>
+        <div style="line-height:1.72">กิ่งชั่วโมงเถาะเป็น 羊刃 ซึ่งเป็นรากของก้านวันเอง ตำแหน่งชั่วโมงคือเรือนส่วนตัวและช่วงเวลาที่ไม่มีใครเห็น แปลว่าเขาเติมกำลังคืนได้จากที่ของตัวเองเท่านั้น การขอพื้นที่ตรงนี้ไม่ใช่การหนีความสัมพันธ์ แต่เป็นวิธีเดียวที่ไม้ต้นนี้จะกลับมามีแรงพออยู่กับคนอื่น ถ้าถูกรุกจนไม่เหลือ อารมณ์จะออกมาเป็นการตัดขาด</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ชั่วโมงเกิด · dayMaster</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">D4 · อะไรทำให้ความสัมพันธ์ของฉันพังบ่อยที่สุด</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">คำพูดตอนเหนื่อยที่คมเกินเรื่อง บวกการแบกเงียบไว้จนถึงจุดที่ระเบิด</div>
+        <div style="line-height:1.72">傷官 ที่ก้านชั่วโมงคือคำที่ออกมาก่อนจะทันคิดว่ากระทบใคร ส่วนโครงทรัพย์หนาทำให้เขาเลือกวิธีแบกเงียบก่อน ไม่บอกว่าไหวหรือไม่ไหว สองอย่างนี้รวมกันได้รูปเดิมทุกครั้ง คือเก็บไว้นานเกินไปแล้วปล่อยออกมาครั้งเดียวด้วยประโยคที่แรงเกินกว่าเรื่องที่เกิดจริง จุดที่ต้องแก้คือจังหวะการพูด ไม่ใช่เนื้อหาที่พูด</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ชั่วโมงเกิด · ธาตุโดดเด่น · วันเกิด</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">D5 · ฉันเหมาะกับคู่แบบไหน (ลักษณะ ไม่ใช่ตัวบุคคล)</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">คนที่เติมพลังให้ ไม่ใช่คนที่เพิ่มหน้าที่ให้ และต้องคุมรายละเอียดของตัวเองได้</div>
+        <div style="line-height:1.72">ธาตุมงคลคือน้ำกับไม้ คู่ที่หนุนคือคนที่ทำให้เขาได้พักและได้เรียนรู้ คือคนที่นิ่ง ฟังเป็น มีโลกของตัวเอง และไม่เรียกร้องให้เขารับบทผู้จัดการตลอดเวลา ส่วนแบบที่ควรเลี่ยงคือคนแบบดินและแบบโลหะในความหมายนิสัย คือคนที่ยกภาระให้ และคนที่คุมด้วยกฎกับคำตัดสิน เพราะดวงนี้มีสองอย่างนั้นล้นอยู่แล้ว</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุมงคล · ธาตุที่ควรเลี่ยง · ธาตุโดดเด่น</div>
+      </div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">E · สุขภาพ</span>
+    <span class="page-num">หน้า 6 / 12</span>
+  </div>
+  <div class="page-body">
+    <p style="line-height:1.75;color:#c8b890;margin-bottom:12px">สุขภาพในปาจื้ออ่านจากธาตุที่อ่อน ธาตุที่ล้น และธาตุที่ขาด แล้วแปลงเป็นอวัยวะ</p>
+    
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">E1 · ร่างกายส่วนไหนที่ต้องดูแลเป็นพิเศษ</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">ตับกับเส้นเอ็นตามธาตุไม้ ระบบย่อยตามดินที่ล้น และไตกับการนอนตามน้ำที่ขาด</div>
+        <div style="line-height:1.72">ปาจื้อจับอวัยวะตามธาตุ ก้านวันเป็นไม้ที่กำลังไม่พอ ให้ระวังตับ ถุงน้ำดี เส้นเอ็น และสายตา ดินที่ล้นทั้งดวงลงที่กระเพาะและระบบย่อย ซึ่งเป็นจุดที่จะแสดงอาการก่อนที่อื่น ส่วนน้ำที่ขาดคือไต หลังส่วนล่าง และคุณภาพการนอน สามจุดนี้คือรายการที่ควรไปตรวจจริง ไม่ใช่รอจนรู้สึกได้เอง</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: dayMaster · ธาตุก้านวัน · ธาตุโดดเด่น · ธาตุที่ขาด</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #4a4038">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">E2 · ฉันเป็นคนที่ร่างกายเตือนก่อน หรือพังทีเดียว</div>
+        <div style="font-size:15.5px;font-weight:700;color:#9a8f80;line-height:1.5;margin-bottom:5px">ปาจื้อไม่มีเทคนิคแยกว่าร่างกายจะเตือนก่อนหรือพังทีเดียว</div>
+        <div style="line-height:1.72">ตำราปาจื้ออ่านได้แค่ว่าธาตุไหนอ่อน ธาตุไหนล้น และช่วงเวลาไหนธาตุนั้นถูกกระทบ แต่ไม่มีวิธีระบุรูปแบบการแสดงอาการว่าค่อยเป็นค่อยไปหรือมาเฉียบพลัน เรื่องนี้ต้องดูจากข้อมูลจริงของตัวเอง คือผลตรวจสุขภาพย้อนหลังตั้งแต่สามปีขึ้นไปและประวัติครอบครัว ไม่ใช่จากดวง ให้ใช้ข้อ E1 เป็นรายการที่ต้องตรวจ แล้วให้ตัวเลขเป็นคนตอบ</div>
+        
+        
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">E3 · ความเครียดของฉันลงที่ไหนก่อน และต้องพักแบบไหนถึงฟื้น</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">ลงที่ระบบย่อยก่อน แล้วต่อที่การนอน และฟื้นได้ด้วยการหยุดเท่านั้น</div>
+        <div style="line-height:1.72">เวลากดดัน ธาตุที่ล้นจะออกก่อน คือดิน แปลเป็นอาการทางกระเพาะและความอยากอาหารที่ผิดปกติ ถัดมาคือน้ำที่พร่องอยู่แล้วจะพร่องลงอีก ออกมาเป็นนอนไม่ลึกและเพลียสะสม การพักที่ใช้ได้กับดวงนี้คือแบบน้ำ นอนให้พอ อยู่นิ่ง อยู่กับน้ำ และตัดหน้าที่ออกจริงในช่วงนั้น ไม่ใช่เปลี่ยนไปทำกิจกรรมอย่างอื่นแทน</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุโดดเด่น · ธาตุที่ขาด · ธาตุมงคล</div>
+      </div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">F · ครอบครัวและที่ทาง</span>
+    <span class="page-num">หน้า 7 / 12</span>
+  </div>
+  <div class="page-body">
+    <p style="line-height:1.75;color:#c8b890;margin-bottom:12px">ครอบครัวและที่ทางอ่านจากเสาปีเสาเดือนซึ่งเป็นเรือนพ่อแม่ และเสาชั่วโมงซึ่งเป็นเรือนส่วนตัว</p>
+    
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">F1 · ฉันเป็นคนปักหลักหรือเคลื่อนที่ ควรอยู่ใกล้บ้านเกิดหรือไปไกล</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">ปักหลักตามธรรมชาติของ 甲 และควรเลือกทิศเหนือหรือตะวันออกเป็นฐาน</div>
+        <div style="line-height:1.72">甲 คือไม้ที่ลงรากแล้วอยู่ยาว ย้ายบ่อยจะเสียกำลังที่สะสมไว้ ส่วนเรื่องทิศ ปาจื้ออ่านจากธาตุมงคล น้ำคือทิศเหนือ ไม้คือทิศตะวันออก สองทิศนี้คือฐานที่ควรเลือก ส่วนตะวันตกซึ่งเป็นโลหะควรเลี่ยง ขอบเขตของศาสตร์นี้คือบอกทิศได้ แต่ไม่มีเรือนย้ายถิ่นแบบโหราศาสตร์จีนสายจื่อเวย จึงตอบเรื่องระยะห่างจากบ้านเกิดตรงๆ ไม่ได้</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: dayMaster · ธาตุมงคล · ธาตุที่ควรเลี่ยง</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">F2 · ฉันได้แรงหนุนจากครอบครัวมากน้อยแค่ไหน</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">ได้ความคาดหวังมากกว่าแรงหนุน เพราะเสาปีและเสาเดือนเป็นแรงกดไม่ใช่แรงเติม</div>
+        <div style="line-height:1.72">เสาปีกับเสาเดือนคือเรือนพ่อแม่และต้นทุนที่ได้มาแต่เกิด ก้านปีเป็น 庚 ซึ่งเป็น 七殺 คือแรงกดดันและมาตรฐานที่ตั้งไว้สูง ก้านเดือนกับกิ่งเดือนเป็นดาวทรัพย์ คือหน้าที่และภาระ ส่วนดาวอุปถัมภ์ซึ่งเป็นน้ำนั้นซ่อนอยู่ในกิ่งเท่านั้น ไม่ขึ้นมาที่ก้าน แปลว่าแรงหนุนมีจริงแต่ไม่ออกหน้า ต้องเอ่ยปากขอถึงจะได้</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ปีเกิด · เดือนเกิด · ธาตุที่ขาด</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">F3 · บ้านสำหรับฉันคือที่พัก หรือฐานปฏิบัติการ</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">ต้องเป็นที่พักเป็นหลัก เพราะเป็นที่เดียวที่ดวงนี้เติมกำลังคืนได้</div>
+        <div style="line-height:1.72">เรือนชั่วโมงคือบ้านและช่วงเวลาส่วนตัว กิ่งเถาะที่นั่นเป็นรากของก้านวันเอง คือจุดที่ 甲 ได้กำลังกลับคืนมา ในดวงที่กำลังตัวไม่พออยู่แล้ว ถ้าเปลี่ยนบ้านเป็นที่ทำงานเต็มเวลา เท่ากับตัดแหล่งเติมทิ้งไปทั้งแหล่ง ทำได้อย่างมากคือกันไว้ห้องเดียวสำหรับทำงาน ส่วนที่เหลือต้องรักษาสภาพเป็นที่พักจริง</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ชั่วโมงเกิด · dayMaster · ธาตุที่ขาด</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">F4 · ฉันเป็นที่พึ่งของคนอื่น หรือมีคนเป็นที่พึ่งให้</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">เป็นที่พึ่งของคนอื่นเป็นหลัก และแทบไม่มีใครเป็นที่พึ่งให้เขา</div>
+        <div style="line-height:1.72">ดาวทรัพย์ซึ่งหมายถึงสิ่งที่เขาต้องดูแลนั้นล้นทั้งดวง ส่วนดาวอุปถัมภ์ซึ่งหมายถึงคนที่ดูแลเขา คือธาตุน้ำที่ขาดไป อ่านตรงตัวได้ว่าตำแหน่งของเขาในทุกวงคือคนที่คนอื่นมาพิง และเขาแทบไม่มีที่พิงกลับ นี่ไม่ใช่เรื่องโชค แต่เป็นโครงที่ต้องแก้ด้วยการหาคนกลุ่มนั้นเข้ามาเอง ตามที่ระบุไว้ที่ข้อ A5</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุโดดเด่น · ธาตุที่ขาด</div>
+      </div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">G · คนรอบตัว</span>
+    <span class="page-num">หน้า 8 / 12</span>
+  </div>
+  <div class="page-body">
+    <p style="line-height:1.75;color:#c8b890;margin-bottom:12px">คนรอบตัวอ่านจากธาตุมงคลและธาตุที่ควรเลี่ยง แล้วแปลงเป็นประเภทของคน</p>
+    
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">G1 · ใครคือคนประเภทที่หนุนดวงฉัน</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">สองแบบ คือคนที่สอนและให้เขาได้พัก (น้ำ) กับคนที่ลงมือแบ่งงานไปทำจริง (ไม้)</div>
+        <div style="line-height:1.72">ธาตุมงคลคือน้ำกับไม้ แปลเป็นคนได้สองแบบ น้ำคือ 正印 ผู้ใหญ่หรือครูที่ให้ความรู้และอนุญาตให้เขาหยุด ส่วนไม้คือ 比劫 เพื่อนร่วมรุ่นที่รับงานไปทำจริง ไม่ใช่แค่ให้กำลังใจ ในดวงที่ตัวเบาและของหนัก คนสองแบบนี้เปลี่ยนผลลัพธ์ได้มากกว่าความขยันของตัวเอง จึงควรตั้งใจไปหา ไม่ใช่รอให้เจอเอง</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุมงคล · ธาตุที่ขาด · ธาตุโดดเด่น</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">G2 · ใครคือคนประเภทที่ดูดพลังฉัน</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">คนที่ยกภาระให้ (ดิน) และคนที่คุมด้วยกฎกับคำตัดสิน (โลหะ)</div>
+        <div style="line-height:1.72">ธาตุที่ควรเลี่ยงคือโลหะกับดิน แปลเป็นคนได้สองแบบ แบบดินคือคนที่โยนหน้าที่มาให้แล้วหายไป ซึ่งดวงนี้จะรับไว้อัตโนมัติเพราะมีคู่ 甲己合 อยู่ในดวง แบบโลหะคือคนที่ใช้มาตรฐานและอำนาจกดโดยไม่ลงมือเอง สองแบบนี้ไม่ได้แปลว่าเป็นคนไม่ดี แต่เป็นคนที่ดวงนี้แพ้เป็นระบบ ต้องตั้งกติกาไว้ล่วงหน้า</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุที่ควรเลี่ยง · ธาตุโดดเด่น · dayMaster</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">G3 · ฉันเข้ากับคนหมู่มาก หรือคนกลุ่มเล็ก</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">กลุ่มเล็กที่เขาเป็นแกน ไม่ใช่วงใหญ่ที่ต้องแบ่งพลังให้ทุกคน</div>
+        <div style="line-height:1.72">กิ่งชั่วโมงเป็น 劫財 ซึ่งหมายถึงคนรุ่นเดียวกันที่ใช้ทรัพยากรชุดเดียวกัน ในดวงตัวเบา ดาวนี้ช่วยได้เมื่ออยู่เป็นกลุ่มเล็กที่แบ่งงานกันชัด แต่จะกลายเป็นการแย่งเมื่ออยู่ในวงใหญ่ที่ไม่มีขอบเขต ขนาดที่ใช้ได้จริงคือทีมที่เขายังจำชื่อและงานของทุกคนได้ เกินจากนั้นพลังจะหมดไปกับการประคองความสัมพันธ์</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ชั่วโมงเกิด · dayMaster · ธาตุโดดเด่น</div>
+      </div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">H · การเรียนรู้</span>
+    <span class="page-num">หน้า 9 / 12</span>
+  </div>
+  <div class="page-body">
+    <p style="line-height:1.75;color:#c8b890;margin-bottom:12px">การเรียนรู้อ่านจากดาวอุปถัมภ์ซึ่งเป็นขารับ และดาวแสดงออกซึ่งเป็นขาผลิต</p>
+    
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">H1 · ฉันเรียนรู้แบบไหนถึงเข้าหัว และควรลงลึกหรือเก็บกว้าง</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">เข้าหัวเมื่อได้ทำของจริงออกมา และควรลงลึกสายเดียว ไม่ใช่เก็บกว้าง</div>
+        <div style="line-height:1.72">ดาวอุปถัมภ์ซึ่งเป็นขารับความรู้ คือธาตุน้ำที่ขาดไป ส่วนดาว 傷官 ซึ่งเป็นขาผลิตออกนั้นแรง แปลว่าอ่านหรือฟังเฉยๆ จะไม่ค้างในหัว ต้องแปลงเป็นงานหรือของที่ทำเสร็จจริงถึงจะอยู่ ส่วนเรื่องความลึก 甲 คือไม้ที่โตทางเดียว การเก็บกว้างจะได้ปริมาณแต่ไม่ได้ความสูง ควรเลือกสายเดียวแล้วทับลงไปเรื่อยๆ</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุที่ขาด · ชั่วโมงเกิด · dayMaster</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">H2 · อะไรที่ฉันต้องฝึกที่สุด และอะไรที่ไม่ควรฝืน</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">ต้องฝึกการประเมินกำลังตัวเองก่อนรับงาน ส่วนที่ไม่ควรฝืนคือการเป็นคนบังคับใช้กฎแทนองค์กร</div>
+        <div style="line-height:1.72">ทักษะที่ดวงนี้ขาดจริงคือการนับกำลังก่อนรับ เพราะโครงทรัพย์หนาทำให้เห็นของแล้วรับก่อนคิด ฝึกได้ด้วยการตั้งเพดานเป็นตัวเลขไว้ล่วงหน้า ส่วนสิ่งที่ไม่ควรฝืนคือบทบาทที่ต้องบังคับใช้กฎที่ตัวเองไม่เชื่อ เพราะ 傷官 กับ 正官 ในดวงชนกันโดยโครงสร้าง ฝืนไปก็ได้ผลงานที่แย่และเสียคนไปพร้อมกัน</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุโดดเด่น · ชั่วโมงเกิด · เดือนเกิด</div>
+      </div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">I · จังหวะชีวิต</span>
+    <span class="page-num">หน้า 10 / 12</span>
+  </div>
+  <div class="page-body">
+    <p style="line-height:1.75;color:#c8b890;margin-bottom:12px">จังหวะชีวิตอ่านจากเสาโชคสิบปี ประกอบกับค่ารายเดือนสิบสองเดือนข้างหน้า</p>
+    
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">I1 · ตอนนี้ฉันอยู่ช่วงไหนของชีวิต</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">อยู่ในเสาโชค 癸巳 ที่ก้านเป็นน้ำซึ่งตรงกับสิ่งที่ขาดพอดี แต่กิ่งเป็นไฟที่ดึงกำลังออก</div>
+        <div style="line-height:1.72">เสาโชคปัจจุบันครอบอายุ 30-39 ก้านเป็น 癸 น้ำอ่อน ตรงกับธาตุมงคลและเติมสิ่งที่ทั้งดวงขาดมาตลอด สิบปีนี้จึงเป็นช่วงที่ควรใช้เรียนและสร้างฐาน แต่กิ่งเป็นมะเส็งซึ่งเป็นไฟ ดึงกำลังไม้ออกไปทางการแสดงผลงาน บวกกับที่ระบุไว้ว่าปีนี้เป็นปีชง รวมแล้วคือปีที่ควรกระชับของเดิม ไม่ใช่ปีที่ควรขยาย</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: เสาโชคปัจจุบัน · ageNow · ธาตุมงคล · ธาตุที่ขาด · ปีชง2026</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">I2 · ช่วงไหนของชีวิตที่เป็นขาขึ้นของฉัน</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">ขาขึ้นใหญ่คือเสาโชคอายุ 40-49 ส่วนระยะใกล้คือ พฤศจิกายน 2569 กับ มกราคม 2570</div>
+        <div style="line-height:1.72">เสาโชคอายุ 40-49 ก้านเป็น 甲 ไม้หยางเหมือนก้านวัน คือช่วงที่กำลังของตัวเองขึ้นมาเทียบกับดินที่ล้นได้เป็นครั้งแรก นั่นคือขาขึ้นจริงของทั้งชีวิต ส่วนระยะใกล้ พฤศจิกายน 2569 เด่นด้านเงินและโอกาส มกราคม 2570 เด่นทั้งงานและเงินพร้อมกัน มีนาคม 2570 เด่นด้านกำลังกายและครอบครัว พฤษภาคม 2570 เด่นด้านคนรอบตัวและการเรียน</div>
+        <div style="font-size:12.5px;color:#9ac86a;margin-top:4px">ช่วงเวลา: พฤศจิกายน 2569 · มกราคม 2570 · มีนาคม 2570 · พฤษภาคม 2570</div>
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: เสาโชคทั้งชุด · ธาตุมงคล · เดือนข้างหน้า12เดือน</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">I3 · ช่วงไหนที่ต้องตั้งหลัก</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">ตั้งหลักที่ ตุลาคม 2569 ธันวาคม 2569 และ กุมภาพันธ์ 2570 ส่วนระยะยาวคือเสาโชคอายุ 50-59</div>
+        <div style="line-height:1.72">ตุลาคม 2569 ค่าด้านเงินและโอกาสต่ำที่สุดในรอบปี เป็นเดือนสำหรับปิดงานเก่าไม่ใช่เปิดของใหม่ ธันวาคม 2569 ค่าด้านสุขภาพและความสัมพันธ์ต่ำ ให้ลดตารางลงจริง กุมภาพันธ์ 2570 ค่าด้านงาน การเรียน และคนรอบตัวต่ำพร้อมกัน อย่าเริ่มโครงการที่ต้องพึ่งคนอื่นในเดือนนั้น ระยะยาวคือเสาโชคอายุ 50-59 ที่กิ่งเป็นมะแมซึ่งเป็นดิน ธาตุที่ควรเลี่ยง</div>
+        <div style="font-size:12.5px;color:#9ac86a;margin-top:4px">ช่วงเวลา: ตุลาคม 2569 · ธันวาคม 2569 · กุมภาพันธ์ 2570</div>
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: เดือนข้างหน้า12เดือน · เสาโชคทั้งชุด · ธาตุที่ควรเลี่ยง</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">I4 · ชีวิตฉันพีคช่วงต้น กลาง หรือปลาย</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">พีคช่วงกลาง โดยยอดจริงอยู่ที่อายุ 40-49 ไม่ใช่ช่วงต้นและไม่ใช่ปลาย</div>
+        <div style="line-height:1.72">ไล่เสาโชคทั้งแปดเสาแล้วเห็นรูปชัด อายุ 0-19 ก้านเป็นโลหะทั้งคู่ซึ่งเป็นธาตุที่ควรเลี่ยง อายุ 20-39 ก้านเป็นน้ำทั้งสองเสา อายุ 40-59 ก้านเป็นไม้ทั้งสองเสา รวมเป็นสี่สิบปีที่ธาตุมงคลขึ้นก้านต่อเนื่อง จากนั้นอายุ 60-79 ก้านกลับไปเป็นไฟและกิ่งเป็นโลหะ กำลังจะถอย ช่วงปลายจึงควรวางไว้ให้เบา ไม่ใช่วางไว้สู้</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: เสาโชคทั้งชุด · ธาตุมงคล · ธาตุที่ควรเลี่ยง</div>
+      </div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">J · เสริมดวงและข้อควรระวัง</span>
+    <span class="page-num">หน้า 11 / 12</span>
+  </div>
+  <div class="page-body">
+    <p style="line-height:1.75;color:#c8b890;margin-bottom:12px">ข้อสรุปว่าต้องเติมธาตุอะไรและลดอะไร แล้วแปลงออกมาเป็นสิ่งที่ทำได้จริง</p>
+    
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">J1 · สิ่งที่เสริมดวงฉัน (ธาตุ/สี/ทิศ/จังหวะ)</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">น้ำและไม้ คือทิศเหนือกับตะวันออก สีดำน้ำเงินและเขียว และการนอนที่ไม่ต่อรอง</div>
+        <div style="line-height:1.72">ธาตุมงคลคือน้ำกับไม้ ทิศที่หนุนคือเหนือซึ่งเป็นน้ำ และตะวันออกซึ่งเป็นไม้ สีที่ใช้คือดำ น้ำเงิน และเขียว จังหวะที่หนุนคือฤดูหนาวถึงต้นฤดูใบไม้ผลิ และชั่วโมงกลางคืนถึงเช้ามืด ในทางพฤติกรรม น้ำแปลเป็นการนอน การหยุด และการหาคนที่สอนได้ ส่วนไม้แปลเป็นคนร่วมงานที่แบ่งงานไปทำจริง สองอย่างนี้ให้ผลมากกว่าเครื่องรางใดๆ</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุมงคล · ธาตุที่ขาด</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">J2 · สิ่งที่บั่นทอนดวงฉัน</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">โลหะและดิน คือการรับภาระเพิ่ม สภาพแวดล้อมที่คุมด้วยกฎ และการตัดเวลานอนทิ้ง</div>
+        <div style="line-height:1.72">ธาตุที่ควรเลี่ยงคือโลหะกับดิน แปลเป็นสิ่งที่ทำจริงในชีวิต ดินคือการรับของเพิ่มโดยไม่เพิ่มกำลัง ทั้งงาน ทรัพย์สิน และคนที่ต้องดูแล โลหะคือการอยู่ในที่ที่ถูกตัดสินด้วยกฎและมาตรฐานตลอดเวลา ตัวเร่งที่แรงที่สุดคือการตัดเวลานอนเพื่อรับงานเพิ่ม เพราะนั่นคือการลดน้ำและเพิ่มดินพร้อมกันในการตัดสินใจครั้งเดียว</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุที่ควรเลี่ยง · ธาตุโดดเด่น · ธาตุที่ขาด</div>
+      </div>
+      <div style="margin:0 0 16px;padding-left:12px;border-left:2px solid #c8a45a">
+        <div style="font-size:12.5px;color:#a08a66;margin-bottom:2px">J3 · ถ้าเปลี่ยนได้อย่างเดียว ควรเปลี่ยนอะไร</div>
+        <div style="font-size:15.5px;font-weight:700;color:#e8c87a;line-height:1.5;margin-bottom:5px">เปลี่ยนลำดับ คือเติมกำลังตัวเองก่อนแล้วค่อยรับของเพิ่ม ไม่ใช่รับก่อนแล้วค่อยหาแรง</div>
+        <div style="line-height:1.72">ทั้งเล่มชี้กลับมาที่โครงเดียวคือทรัพย์หนาและตัวเบา ถ้าเปลี่ยนได้อย่างเดียวให้เปลี่ยนลำดับการตัดสินใจ ตั้งเงื่อนไขว่าจะรับงานหรือภาระใหม่ได้ต่อเมื่อมีสองอย่างพร้อมก่อน คือเวลานอนที่ยังไม่ถูกแตะ และคนที่รับงานส่วนหนึ่งไปทำจริง ถ้าไม่ครบสองข้อให้ปฏิเสธ นี่คือการเติมน้ำและไม้ในรูปที่ทำได้จริงทุกวัน</div>
+        
+        <div style="font-size:12px;color:#8a7a62;margin-top:3px">อ่านจาก: ธาตุโดดเด่น · ธาตุมงคล · dayMaster</div>
+      </div></div>
+  <div class="page-footer">✦ MYTHSENSUS ✦ คำอ่านรายศาสตร์ สร้างโดย AI บนค่าที่คำนวณจากดวงจริง เพื่อการสำรวจตนเอง ไม่ใช่คำแนะนำวิชาชีพ ✦</div>
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">อ่านจบแล้วทำอะไรต่อ</span>
+    <span class="page-num">หน้า 12 / 12</span>
+  </div>
+  <div class="page-body">
+  <p style="line-height:1.75">ชัยพัทธ์ครับ ทั้งเล่มนี้ไม่ได้บอกให้ขยันขึ้น แต่บอกว่ากำลังของไม้ต้นนี้ถูกใช้เกินตัวมานาน สิ่งที่ควรทำต่อมีอย่างเดียว คือเขียนรายการภาระที่ถืออยู่ทั้งหมดลงกระดาษแผ่นเดียว แล้วเลือกยกออกหนึ่งอย่างให้จบภายใน ตุลาคม 2569 ซึ่งเป็นเดือนที่ค่าทุกด้านต่ำและเหมาะกับการปิดของเก่ามากกว่าเปิดของใหม่</p>
+  <h2>ข้อที่ศาสตร์นี้ตอบไม่ได้ (2 ข้อ)</h2>
+  <p style="line-height:1.75;color:#c8b890">ไม่ใช่ข้อบกพร่องของดวงคุณ — เป็นขอบเขตของวิชา ข้อเหล่านี้ต้องอ่านจากศาสตร์อื่น</p>
+  <table><thead><tr><th>ข้อ</th><th>คำถาม</th></tr></thead><tbody>
+  <tr><td style="white-space:nowrap">A9</td><td>สิ่งที่ฉันมาเรียนรู้ในชีวิตนี้ และรูปแบบที่ทำซ้ำโดยไม่รู้ตัว</td></tr><tr><td style="white-space:nowrap">E2</td><td>ฉันเป็นคนที่ร่างกายเตือนก่อน หรือพังทีเดียว</td></tr>
+  </tbody></table></div>
+  <div class="page-footer">✦ MYTHSENSUS ✦ คำอ่านรายศาสตร์ สร้างโดย AI บนค่าที่คำนวณจากดวงจริง เพื่อการสำรวจตนเอง ไม่ใช่คำแนะนำวิชาชีพ ✦</div>
+</div></body></html>

@@ -1,0 +1,276 @@
+{
+ "system": "bazi",
+ "systemTh": "BaZi ปาจื้อ (สี่เสา)",
+ "context": {
+  "name": "ชัยพัทธ์",
+  "gender": "ชาย",
+  "birth": "3 ก.พ. 2534 05:06 กรุงเทพฯ",
+  "ageNow": 35,
+  "today": "2 ก.ย. 2569"
+ },
+ "chart": {
+  "pillars": {
+   "ปีเกิด": "庚午 (เกิง โลหะหยาง มะเมีย (ม้า))",
+   "เดือนเกิด": "己丑 (จี่ ดินอ่อน ฉลู (วัว))",
+   "วันเกิด": "甲辰 (เจี่ย ไม้หยาง มะโรง (มังกร))",
+   "ชั่วโมงเกิด": "丁卯 (ติง ไฟอ่อน เถาะ (กระต่าย))"
+  },
+  "dayMaster": "甲 เจี่ย ไม้หยาง",
+  "ธาตุก้านวัน": "ไม้",
+  "ขั้ว": "+",
+  "ธาตุโดดเด่น": "ดิน",
+  "ธาตุที่ขาด": "น้ำ",
+  "ธาตุมงคล": "น้ำ ไม้",
+  "ธาตุที่ควรเลี่ยง": "โลหะ ดิน",
+  "ปีชง2026": true,
+  "เสาโชคปัจจุบัน": "癸巳 (กุ้ย น้ำอ่อน มะเส็ง (งู) (2021–2030))",
+  "เสาโชคทั้งชุด": [
+   "0-9 庚寅 เกิง โลหะหยาง ขาล (เสือ) (1991–2000)",
+   "10-19 辛卯 ซิน โลหะอ่อน เถาะ (กระต่าย) (2001–2010)",
+   "20-29 壬辰 เหริน น้ำหยาง มะโรง (มังกร) (2011–2020)",
+   "30-39 癸巳 กุ้ย น้ำอ่อน มะเส็ง (งู) (2021–2030)",
+   "40-49 甲午 เจี่ย ไม้หยาง มะเมีย (ม้า) (2031–2040)",
+   "50-59 乙未 อี่ ไม้อ่อน มะแม (แพะ) (2041–2050)",
+   "60-69 丙申 ปิ่ง ไฟหยาง วอก (ลิง) (2051–2060)",
+   "70-79 丁酉 ติง ไฟอ่อน ระกา (ไก่) (2061–2070)"
+  ],
+  "คะแนน": 786,
+  "จำนวนอักษรแต่ละธาตุ": {
+   "ไม้": 2,
+   "ไฟ": 2,
+   "ดิน": 3,
+   "โลหะ": 1,
+   "น้ำ": 0
+  }
+ },
+ "แกนนิสัยจาก25ศาสตร์": [
+  {
+   "axis": "expression",
+   "labelTh": "เก็บไว้",
+   "pct": 4,
+   "band": "strong-neg",
+   "voices": 12
+  },
+  {
+   "axis": "instinct",
+   "labelTh": "เชื่อสัญชาตญาณ",
+   "pct": 95,
+   "band": "strong-pos",
+   "voices": 11
+  },
+  {
+   "axis": "structure",
+   "labelTh": "ยืดหยุ่น",
+   "pct": 9,
+   "band": "strong-neg",
+   "voices": 14
+  },
+  {
+   "axis": "focus",
+   "labelTh": "ลึกเรื่องเดียว",
+   "pct": 91,
+   "band": "strong-pos",
+   "voices": 14
+  },
+  {
+   "axis": "initiative",
+   "labelTh": "รอจังหวะ",
+   "pct": 16,
+   "band": "neg",
+   "voices": 6
+  },
+  {
+   "axis": "social",
+   "labelTh": "อยู่คนเดียวได้",
+   "pct": 24,
+   "band": "neg",
+   "voices": 13
+  },
+  {
+   "axis": "change",
+   "labelTh": "รื้อทำใหม่",
+   "pct": 74,
+   "band": "pos",
+   "voices": 8
+  },
+  {
+   "axis": "root",
+   "labelTh": "เคลื่อนที่",
+   "pct": 71,
+   "band": "pos",
+   "voices": 5
+  },
+  {
+   "axis": "pace",
+   "labelTh": "อยู่กลางๆ",
+   "pct": 37,
+   "band": "mid",
+   "voices": 10
+  },
+  {
+   "axis": "risk",
+   "labelTh": "อยู่กลางๆ",
+   "pct": 63,
+   "band": "mid",
+   "voices": 7
+  }
+ ],
+ "เดือนข้างหน้า12เดือน": [
+  {
+   "label": "กันยายน 2569",
+   "dom": {
+    "career": 2,
+    "money": 2,
+    "love": 4,
+    "health": 3,
+    "family": 4,
+    "learning": 3,
+    "allies": 4,
+    "chance": 2
+   }
+  },
+  {
+   "label": "ตุลาคม 2569",
+   "dom": {
+    "career": 3,
+    "money": 1,
+    "love": 2,
+    "health": 2,
+    "family": 2,
+    "learning": 3,
+    "allies": 2,
+    "chance": 1
+   }
+  },
+  {
+   "label": "พฤศจิกายน 2569",
+   "dom": {
+    "career": 4,
+    "money": 5,
+    "love": 2,
+    "health": 3,
+    "family": 2,
+    "learning": 2,
+    "allies": 2,
+    "chance": 4
+   }
+  },
+  {
+   "label": "ธันวาคม 2569",
+   "dom": {
+    "career": 2,
+    "money": 2,
+    "love": 1,
+    "health": 1,
+    "family": 3,
+    "learning": 2,
+    "allies": 3,
+    "chance": 2
+   }
+  },
+  {
+   "label": "มกราคม 2570",
+   "dom": {
+    "career": 5,
+    "money": 5,
+    "love": 2,
+    "health": 4,
+    "family": 2,
+    "learning": 4,
+    "allies": 4,
+    "chance": 4
+   }
+  },
+  {
+   "label": "กุมภาพันธ์ 2570",
+   "dom": {
+    "career": 1,
+    "money": 2,
+    "love": 3,
+    "health": 2,
+    "family": 2,
+    "learning": 1,
+    "allies": 1,
+    "chance": 3
+   }
+  },
+  {
+   "label": "มีนาคม 2570",
+   "dom": {
+    "career": 4,
+    "money": 3,
+    "love": 4,
+    "health": 5,
+    "family": 5,
+    "learning": 4,
+    "allies": 4,
+    "chance": 4
+   }
+  },
+  {
+   "label": "เมษายน 2570",
+   "dom": {
+    "career": 3,
+    "money": 3,
+    "love": 3,
+    "health": 4,
+    "family": 3,
+    "learning": 3,
+    "allies": 2,
+    "chance": 4
+   }
+  },
+  {
+   "label": "พฤษภาคม 2570",
+   "dom": {
+    "career": 3,
+    "money": 3,
+    "love": 5,
+    "health": 4,
+    "family": 3,
+    "learning": 5,
+    "allies": 5,
+    "chance": 3
+   }
+  },
+  {
+   "label": "มิถุนายน 2570",
+   "dom": {
+    "career": 4,
+    "money": 4,
+    "love": 3,
+    "health": 2,
+    "family": 3,
+    "learning": 4,
+    "allies": 4,
+    "chance": 3
+   }
+  },
+  {
+   "label": "กรกฎาคม 2570",
+   "dom": {
+    "career": 4,
+    "money": 3,
+    "love": 3,
+    "health": 3,
+    "family": 2,
+    "learning": 2,
+    "allies": 2,
+    "chance": 4
+   }
+  },
+  {
+   "label": "สิงหาคม 2570",
+   "dom": {
+    "career": 4,
+    "money": 3,
+    "love": 4,
+    "health": 3,
+    "family": 4,
+    "learning": 3,
+    "allies": 3,
+    "chance": 2
+   }
+  }
+ ]
+}

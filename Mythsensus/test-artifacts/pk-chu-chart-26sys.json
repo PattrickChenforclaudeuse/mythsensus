@@ -60,6 +60,13 @@
     "dayMasterPolarity": "+",
     "missingElement": "น้ำ",
     "dominantElement": "ดิน",
+    "elementCounts": {
+      "ไม้": 2,
+      "ไฟ": 2,
+      "ดิน": 3,
+      "โลหะ": 1,
+      "น้ำ": 0
+    },
     "luckyElement": "น้ำ ไม้",
     "avoidElement": "โลหะ ดิน",
     "currentLuckPillar": "癸巳",

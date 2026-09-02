@@ -1,0 +1,233 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8">
+<title>BaZi ปาจื้อ (สี่เสา) — คำอ่านรายศาสตร์</title><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Cormorant Garamond','Sarabun','Noto Sans Thai',serif;
+  color:#e6e2d8;
+  background-color:#040407;
+  background-image:
+    radial-gradient(1px 1px at 14% 22%, rgba(255,235,200,.85) 50%, transparent 55%),
+    radial-gradient(1px 1px at 26% 72%, rgba(200,220,255,.70) 50%, transparent 55%),
+    radial-gradient(1px 1px at 42% 34%, rgba(255,255,255,.80) 50%, transparent 55%),
+    radial-gradient(1.3px 1.3px at 58% 18%, rgba(255,245,220,.95) 50%, transparent 55%),
+    radial-gradient(1px 1px at 73% 64%, rgba(220,220,255,.75) 50%, transparent 55%),
+    radial-gradient(1px 1px at 82% 30%, rgba(255,255,230,.85) 50%, transparent 55%),
+    radial-gradient(1.5px 1.5px at 92% 78%, rgba(255,235,200,.95) 50%, transparent 55%),
+    radial-gradient(0.8px 0.8px at 10% 88%, rgba(255,255,255,.60) 50%, transparent 55%),
+    radial-gradient(0.8px 0.8px at 34% 8%,  rgba(200,220,255,.60) 50%, transparent 55%),
+    radial-gradient(0.9px 0.9px at 65% 90%, rgba(255,245,220,.70) 50%, transparent 55%),
+    radial-gradient(ellipse at center, #0a0a12 0%, #060610 55%, #040407 100%);
+  background-size: 600px 800px, 700px 900px, 500px 700px, 800px 600px, 640px 750px, 720px 820px, 560px 680px, 900px 1000px, 820px 920px, 680px 860px, 100% 100%;
+  background-attachment: fixed;
+}
+/* Each page uses transparent so the body star field shows through.
+   min-height removed so content flows to next page when overflowing —
+   UX first, hard pagination second. */
+.page{padding:9mm 13mm 9mm;page-break-after:always;position:relative;background:transparent}
+.page-header{display:flex;align-items:center;gap:10px;border-bottom:1px solid #3a3020;padding-bottom:6px;margin-bottom:11px}
+.page-icon{font-size:22px}
+.page-title{font-size:16px;font-weight:700;color:#c8a45a;flex:1;letter-spacing:1px}
+.page-num{font-size:12.5px;color:#967f5d}
+.page-body{font-size:14.5px;line-height:1.62;color:#ded7c4;padding-bottom:10px}
+.page-footer{text-align:center;font-size:11.5px;color:#967f5d;border-top:1px solid #2a2010;padding-top:5px;margin-top:10px}
+h2{font-size:15px;color:#c8a45a;font-weight:700;margin:10px 0 5px;border-left:3px solid #c8a45a;padding-left:10px}
+h3{font-size:13px;color:#c8a45a;font-weight:600;margin:12px 0 6px}
+p{margin-bottom:5px;color:#c8c0a8}
+table{width:100%;border-collapse:collapse;margin:10px 0}
+th{background:#0d0d15;color:#c8a45a;padding:8px 10px;text-align:left;font-size:14px}
+td{padding:7px 10px;border-bottom:1px solid #2a2010;font-size:14px;vertical-align:top}
+.lbl{color:#9a8a72;font-weight:600;width:30%;background:#0a0a10}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0}
+.stat-card{background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px;text-align:center}
+.stat-card .val{font-size:28px;font-weight:700;color:#c8a45a}
+.stat-card .lbl{font-size:12.5px;color:#9a8a72;width:auto;background:transparent;padding:0;margin-top:4px}
+.pillar{background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px;text-align:center}
+.pillar.dm{border-color:#c8a45a;background:#12101c}
+.pillar .stem{font-size:32px;font-weight:700;color:#c8a45a}
+.pillar .branch{font-size:22px;color:#c8a45a;margin-top:4px}
+.pillar .sublabel{font-size:11.5px;color:#967f5d;margin-top:2px}
+.conv{border-left:3px solid #c8a45a;padding:8px 12px;margin:8px 0;background:#0d0d15}
+.conv.med{border-left-color:#6a5a42;background:#0a0a10}
+.warn{background:#1a0a0a;border:2px solid #c01020;border-radius:8px;padding:12px;margin:8px 0;color:#f0c8b0}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12.5px;font-weight:600;margin:2px}
+@media print{
+  /* The report is a dark-theme design built almost entirely from INLINE
+     dark backgrounds + light text. The previous half-baked light override
+     (body→#fff, recolour ~6 selectors) left every inline-styled element +
+     the light .page-body/p/h3 text invisible on white paper — the "saved
+     PDF unreadable" bug (Director 2026-07-02). Fix: force the browser to
+     print the colours/backgrounds faithfully so the PDF == the screen.
+     print-color-adjust:exact overrides Chrome's "Background graphics: off"
+     default, which was dropping every dark box background. */
+  *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  html,body{ background:#040407 !important; background-image:none !important; color:#e6e2d8 !important; }
+  .page{ page-break-after:always; min-height:0; background:#040407 !important; }
+  /* Keep boxes/tables/cards from being cut across A4 sheet boundaries. A ~43
+     logical-page report overflows to ~80+ physical sheets, and without this
+     content splits mid-box → hard to read (Director 2026-07-02). break-inside
+     :avoid is only a hint — an element taller than a page still breaks, so
+     this can't create blank pages. */
+  .rbox, table, tr, .stat-card, .pillar, .conv, .warn,
+  .grid-2 > div, .grid-3 > div,
+  div[style*="border-radius"]{ break-inside:avoid; page-break-inside:avoid; }
+  .page-header{ break-inside:avoid; }
+  h2, h3{ break-after:avoid; page-break-after:avoid; }
+}</style></head>
+<body>
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">BaZi ปาจื้อ (สี่เสา) — คำอ่านเฉพาะศาสตร์นี้</span>
+    <span class="page-num">หน้า 1 / 8</span>
+  </div>
+  <div class="page-body">
+  <div style="font-size:17px;color:#e8c87a;line-height:1.72;margin:6px 0 18px;padding:13px 15px;background:#0f0d15;border-left:3px solid #c8a45a;border-radius:0 8px 8px 0">ชัยพัทธ์คือไม้ต้นใหญ่ที่เกิดกลางกองดิน มีทรัพย์และภาระให้แบกเต็มดวง แต่ตัวไม้เองยังขาดน้ำหล่อเลี้ยง ทั้งเล่มนี้จึงวนอยู่ที่คำถามเดียว คือจะเติมกำลังตัวเองอย่างไรก่อนไปถือของที่หนักกว่านี้</div>
+  <p style="line-height:1.75;margin-bottom:16px">ปาจื้อตั้งต้นที่ก้านวันเกิด แล้วดูว่าธาตุอื่นในสี่เสาหนุนหรือบีบก้านวันนั้น จากนั้นจึงอ่านเสาโชคสิบปีว่าช่วงไหนเติมสิ่งที่ขาด ช่วงไหนซ้ำเติมสิ่งที่ล้นอยู่แล้ว</p>
+  <h2>財多身弱 ไฉตัวเซินเยฺว่อ ทรัพย์หนา ตัวเบา</h2>
+  <table><tbody><tr><td style="width:34%;color:#c8b890"></td><td>ก้านวัน 甲 เจี่ย ไม้หยาง เกิดเดือนฉลูที่ดินหนาและน้ำแห้ง</td></tr><tr><td style="width:34%;color:#c8b890"></td><td>สี่เสา 庚午 ปี · 己丑 เดือน · 甲辰 วัน · 丁卯 ชั่วโมง</td></tr><tr><td style="width:34%;color:#c8b890"></td><td>ธาตุโดดเด่นคือดิน ธาตุที่ขาดคือน้ำ</td></tr><tr><td style="width:34%;color:#c8b890"></td><td>ธาตุมงคลคือน้ำกับไม้ ธาตุที่ควรเลี่ยงคือโลหะกับดิน</td></tr><tr><td style="width:34%;color:#c8b890"></td><td>เสาโชคปัจจุบัน 癸巳 ครอบอายุ 30-39 และปี 2569 เป็นปีชง</td></tr></tbody></table>
+  <p style="font-size:13px;color:#a08a66;line-height:1.7;margin-top:10px">ค่าเหล่านี้คือฐานของทั้งเล่ม — บทต่อจากนี้จะอ้างกลับมาที่นี่ ไม่กางใหม่ทุกบท</p></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">โครงของดวงใบนี้</span>
+    <span class="page-num">หน้า 2 / 8</span>
+  </div>
+  <div class="page-body">
+    
+      
+      <p style="line-height:1.78;margin-bottom:11px">ปาจื้ออ่านชัยพัทธ์จากก้านวันเกิด คือ 甲 ไม้ต้นใหญ่ที่โตทางเดียวคือขึ้นบน แล้ววางมันลงกลางเดือนฉลูที่ดินหนาและน้ำแห้ง ผลคือโครงที่ตำราเรียกว่า 財多身弱 มีของให้จัดการมากกว่ากำลังที่ถืออยู่ ทุกเรื่องในเล่มนี้ ทั้งงาน เงิน คน และร่างกาย จะย้อนกลับมาที่คำถามเดียวเสมอ คือไม้ต้นนี้มีแรงพอกับของที่แบกอยู่แล้วหรือยัง</p>
+      <h2 style="margin-top:14px">ตรงจนหักได้ แต่ไม่ยอมโค้ง</h2>
+      <p style="line-height:1.78;margin-bottom:11px">甲 คือไม้ที่หักได้แต่ไม่โค้ง นิสัยพื้นจึงตรง ยึดหลักของตัวเอง เปลี่ยนทิศช้า และรับปากแล้วแบกจนจบ ก้านชั่วโมงเป็น 丁 ไฟอ่อน ซึ่งเป็น 傷官 ซางกวน ดาวแหกกติกา ทำให้ความคิดออกมาเป็นคำวิจารณ์ที่คมและไม่รอจังหวะ ส่วนกิ่งชั่วโมงเถาะเป็น 羊刃 หยางเริ่น ใบมีด แปลว่าเวลาถูกบีบ เขาจะตัดสินเด็ดขาดกว่าที่เรื่องตรงหน้าเรียกร้อง</p>
+      
+      <p style="line-height:1.78;margin-bottom:11px">ก้านปีเป็น 庚 โลหะหยาง ซึ่งเป็น 七殺 ชีชา แรงบีบจากอำนาจ แต่มันนั่งบนกิ่งมะเมียซึ่งเป็นไฟ และก้านชั่วโมงก็เป็นไฟอีกตัว ตำราเรียกรูปนี้ว่า 傷官駕殺 คือเอาฝีมือขึ้นคุมอำนาจ ไม่ใช่เอาความเชื่อฟัง ดาวเด่นของดวงจึงเป็นทรัพย์กับ 七殺 ไม่ใช่ดาวตำแหน่ง วาสนาเลยหนักไปทางถือของจริง ทั้งเงิน สินทรัพย์ และคนที่ต้องดูแล มากกว่าทางเกียรติยศ และดินที่ล้นยังทำให้ประเมินมูลค่าของและของคนได้เร็วกว่าคนทั่วไป</p>
+      <h2 style="margin-top:14px">สิ่งที่ล้น กับสิ่งที่ไม่ขึ้นมาเลยสักเสา</h2>
+      <p style="line-height:1.78;margin-bottom:11px">ดินอยู่ที่ก้านเดือน กิ่งเดือน และกิ่งวัน ครบสามที่ ดินต่อไม้คือดาวทรัพย์ ล้นแบบนี้ไม่ได้แปลว่ารวยอัตโนมัติ แต่แปลว่ามีเรื่องให้รับผิดชอบเกินกำลัง ส่วนน้ำไม่ขึ้นก้านเสาไหนเลย มีแค่ซ่อนในกิ่งฉลูกับกิ่งมะโรง น้ำต่อไม้คือ 正印 เจิ้งอิ้น ดาวอุปถัมภ์ ทั้งผู้ใหญ่ที่สอนได้ ความรู้ และการพักเติมพลัง อ่านตรงตัวคือของที่เติมกำลังต้องออกไปหาเอง ไม่มีใครยกมาให้ถึงมือ</p>
+      
+      <p style="line-height:1.78;margin-bottom:11px">จุดอ่อนจึงชัดสองข้อ เห็นโอกาสแล้วรับไว้ก่อนโดยไม่นับกำลัง พอรับมาแล้วนิสัยไม้ก็ไม่ยอมคืน กับปากที่ตัดคนซึ่งยังต้องใช้ออกไป และยังมีช่องว่างอีกชั้น เสาปีกับเสาเดือนที่คนนอกเห็นเป็นโลหะกับดิน ออกมาเป็นคนนิ่ง พูดน้อย เป็นคนของหน้าที่ ส่วนเสาวันกับเสาชั่วโมงเป็นไม้กับไฟ ข้างในคิดเร็วและไม่ได้ยอมรับสิ่งที่ทำตามอยู่ คนรอบตัวจึงคาดหวังความอดทนจากเขามากกว่าที่มีจริง</p>
+    <div style="margin-top:14px;padding:10px 13px;background:#0d1208;border-left:3px solid #6a9a4a;border-radius:0 8px 8px 0;line-height:1.7"><strong style="color:#9ac86a">ทำได้เลย</strong> — คุมสองอย่างพอ คือการรับงานเกินกำลังกับจังหวะที่พูด ไม่ต้องไปคุมความขยันที่มีอยู่แล้ว</div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">คุณเป็นคนทำงานแบบไหน</span>
+    <span class="page-num">หน้า 3 / 8</span>
+  </div>
+  <div class="page-body">
+    
+      
+      <p style="line-height:1.78;margin-bottom:11px">งานที่เข้าทางคือถืองานที่มีของจริง มีต้นทุน มีปริมาณ มีกำหนดส่ง แล้วใช้ฝีมือตัดสินหน้างานเอง ดาวทรัพย์ที่หนาให้สนามแบบนั้น ส่วน 傷官 ให้แรงที่จะปรับให้ดีกว่าเดิม งานตีความนโยบายหรืองานที่วัดผลไม่ได้จะไม่เข้ากับทั้งสองตัว และเพราะ 甲 โตทางเดียว การสะสมความเชี่ยวชาญทับกันในสายเดียวจะให้ผลมากกว่าการย้ายสายบ่อย</p>
+      <h2 style="margin-top:14px">ตำแหน่งที่ชนกันตั้งแต่ในโครงดวง</h2>
+      <p style="line-height:1.78;margin-bottom:11px">กิ่งเดือนฉลูซ่อน 辛 โลหะอ่อน ซึ่งเป็น 正官 ดาวกฎระเบียบ ชนกับ 傷官 ที่ก้านชั่วโมงโดยตรง ตำราเรียกรูปนี้ว่า 傷官見官 ตำแหน่งที่ให้เขาบังคับใช้กฎแทนคนอื่น หรือเป็นตัวแทนองค์กรที่เขาไม่ศรัทธา จะพังทั้งผลงานและความสัมพันธ์ รูปที่ใช้ได้จริงคือสนามที่ยังไม่มีกติกา ให้เขากำหนดวิธีเอง แล้วล็อกไว้แค่สองอย่าง คืองบกับเส้นตาย เพราะปล่อยอิสระเต็มที่เขาจะรับของเกินตัว</p>
+      
+      <p style="line-height:1.78;margin-bottom:11px">ก้านวันผูกกับก้านเดือนเป็นคู่ 甲己合 คือถูกมัดไว้กับโครงสร้างทรัพย์มาตั้งแต่เกิด ไม่ใช่คนที่ลอยอิสระได้จริง ทำเองได้ถ้ามีคนถือหลังบ้าน ทั้งบัญชี ระบบ และคนคุมรายละเอียด เปิดเองแบบแบกครบทุกหน้าที่จะได้ยอดแต่เสียตัวไปพร้อมกัน การนำคนก็ใช้เงื่อนไขเดียวกัน อำนาจของเขามาจากฝีมือที่พิสูจน์ได้ ไม่ใช่จากตำแหน่ง พอถอยไปสั่งอย่างเดียวโดยไม่แตะงานจริง ฐานนั้นหายทันที ทีมจึงควรเล็กพอที่มือยังถึง</p>
+      
+      <p style="line-height:1.78;margin-bottom:11px">สิ่งที่ทำให้เบื่อเร็วที่สุดคืองานซ้ำที่ห้ามปรับวิธี เพราะ 傷官 ต้องได้แก้และได้ทำให้ดีขึ้น พอถูกห้าม พลังส่วนนี้จะกลายเป็นการหาเรื่องเปลี่ยนโดยไม่จำเป็น ส่วนจังหวะของความสำเร็จเป็นแบบสะสม เสาโชคอายุ 0-19 ก้านเป็นโลหะทั้งคู่ จึงเหนื่อยเกินผลที่ได้ ของจริงเริ่มที่อายุ 20-29 ที่ก้านเป็นน้ำหยาง ต่อด้วยน้ำอ่อนและไม้ ทั้งสามเสาตรงกับธาตุมงคล และหนักที่สุดตอนสี่สิบ</p>
+    <div style="margin-top:14px;padding:10px 13px;background:#0d1208;border-left:3px solid #6a9a4a;border-radius:0 8px 8px 0;line-height:1.7"><strong style="color:#9ac86a">ทำได้เลย</strong> — รับงานที่ล็อกงบกับเส้นตายไว้แต่ปล่อยวิธีให้เลือกเอง และอย่ารับบทคนบังคับใช้กฎแทนองค์กร</div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">เงินเดินยังไงในดวงนี้</span>
+    <span class="page-num">หน้า 4 / 8</span>
+  </div>
+  <div class="page-body">
+    
+      
+      <p style="line-height:1.78;margin-bottom:11px">ก้านเดือน 己 กับกิ่งเดือนฉลูเป็น 正財 เจิ้งไฉ ทรัพย์ตรง คือเงินที่มาตามงานและตามสัญญา ส่วนกิ่งวันมะโรงซ่อน 戊 ซึ่งเป็น 偏財 ทรัพย์เอียง คือเงินก้อน เจิ้งไฉอยู่ในตำแหน่งที่เด่นกว่า เงินหลักของเขาจึงไหลเรื่อยไปตามงานที่ทำ ส่วนก้อนใหญ่มาจากของที่ถือไว้อยู่แล้ว ไม่ใช่จากการเสี่ยงครั้งเดียวให้จบ</p>
+      
+      <p style="line-height:1.78;margin-bottom:11px">ตำราถือว่าคนถือทรัพย์ได้เท่ากับกำลังของก้านวัน ดวงนี้ทรัพย์หนาแต่ไม้เบา หาเข้ามาไม่ยากแต่เงินไม่ค่อยค้างอยู่ ยิ่งกิ่งชั่วโมงเถาะเป็น 劫財 เจี๋ยไฉ ดาวแย่งทรัพย์ เงินจะออกไปทางคนใกล้ตัวและทางการตัดสินใจคนเดียว และเพราะมี 甲己合 อยู่ในดวง เขาจึงคิดเรื่องเงินในฐานะภาระที่ต้องดูแลคนอื่น มีเท่าไรก็ยังไม่พอ เพราะตัววัดไม่ได้อยู่ที่ยอด แต่อยู่ที่จำนวนคนที่ยังต้องรับผิดชอบ</p>
+      <h2 style="margin-top:14px">รูรั่วที่มีเหตุผลรองรับทุกครั้ง</h2>
+      <p style="line-height:1.78;margin-bottom:11px">เงินรั่วสองทาง ทางแรกออกไปกับหน้าที่ที่รับปากไว้โดยไม่ได้ตั้งงบล่วงหน้า ทางที่สองคือการลงทุนกับเครื่องมือและวิธีใหม่ก่อนที่งานจะเรียกร้องจริง ซึ่งมาจาก 傷官 ทั้งสองทางไม่ใช่ความฟุ่มเฟือย ทุกครั้งมีเหตุผลรองรับ จึงตรวจไม่เจอถ้าไม่แยกจดไว้ต่างหาก ทางแก้ที่ตรงกับโครงดวงคือแยกบัญชีให้เงินก้อนออกไปพ้นมือ ไม่ใช่พยายามหาเข้ามาเพิ่ม</p>
+      
+      <p style="line-height:1.78;margin-bottom:11px">เพดานความเสี่ยงต่ำกว่าที่เขาประเมินตัวเองไว้ เพราะทรัพย์ก้อนใหญ่ที่เข้ามาตอนกำลังไม่พอจะกลายเป็นหนี้และงานที่คุมไม่ทัน เส้นที่ปลอดภัยคือเสี่ยงด้วยเงินที่หายไปแล้วไม่กระทบรายได้ประจำ ช่วงที่พอเปิดได้มีสองช่วง คือเสาโชคปัจจุบัน 癸巳 ที่ก้านเป็นน้ำอ่อน และเสาอายุ 40-49 ที่ก้านเป็นไม้ นอกจากสองช่วงนี้ให้ถือว่าเกมใหญ่ไม่ใช่สนามของดวงนี้</p>
+    <div style="margin-top:14px;padding:10px 13px;background:#0d1208;border-left:3px solid #6a9a4a;border-radius:0 8px 8px 0;line-height:1.7"><strong style="color:#9ac86a">ทำได้เลย</strong> — แยกบัญชีเงินก้อนออกไปพ้นมือ และตั้งงบล่วงหน้าให้ทุกภาระที่รับปากไว้กับคนอื่น</div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">คุณอยู่กับคนยังไง</span>
+    <span class="page-num">หน้า 5 / 8</span>
+  </div>
+  <div class="page-body">
+    
+      
+      <p style="line-height:1.78;margin-bottom:11px">เขาให้ความรักด้วยการรับผิดชอบ จ่าย และแก้ปัญหาให้ เพราะผู้ชายในปาจื้ออ่านคู่จากดาวทรัพย์ และดาวทรัพย์ในดวงนี้หนามาก แต่ขาที่รับคือ 正印 ซึ่งเป็นน้ำที่ไม่ขึ้นก้านเสาไหนเลย เวลามีคนดูแลกลับ เขาจะอึดอัดและรีบตอบแทนคืนแทนที่จะรับไว้เฉยๆ รูปเดียวกันนี้ทำให้ตำแหน่งของเขาในทุกวงคือคนที่คนอื่นมาพิง และแทบไม่มีที่พิงกลับ</p>
+      <h2 style="margin-top:14px">รูปเดิมที่วนกลับมาทุกครั้ง</h2>
+      <p style="line-height:1.78;margin-bottom:11px">กิ่งวันมะโรงคือเรือนคู่ และกิ่งชั่วโมงเถาะเบียดกับมะโรงเป็นคู่ 卯辰害 ตำราอ่านว่าแรงที่มากระทบเรือนคู่มาจากตัวเอง ไม่ใช่จากคนนอก วงจรจึงซ้ำรูปเดิม เข้าไปด้วยการรับหน้าที่ดูแล พอภาระหนักขึ้นก็ถอยไปลงกับงานเพราะงานตอบกลับชัดกว่า แล้วเก็บเงียบไว้จนปล่อยออกมาครั้งเดียวด้วยประโยคที่แรงเกินกว่าเรื่องที่เกิดจริง สิ่งที่ต้องแก้คือจังหวะการพูด ไม่ใช่เนื้อหาที่พูด</p>
+      
+      <p style="line-height:1.78;margin-bottom:11px">กิ่งชั่วโมงเถาะเป็นรากของก้านวันเอง และเรือนชั่วโมงคือที่ส่วนตัวกับเวลาที่ไม่มีใครเห็น แปลว่าเขาเติมกำลังคืนได้จากที่ของตัวเองเท่านั้น การขอพื้นที่ตรงนี้จึงไม่ใช่การหนีความสัมพันธ์ ถ้าถูกรุกจนไม่เหลือ อารมณ์จะออกมาเป็นการตัดขาด ด้วยเหตุผลเดียวกัน บ้านต้องคงสภาพเป็นที่พัก เปลี่ยนเป็นที่ทำงานเต็มเวลาเมื่อไรคือตัดแหล่งเติมทิ้งทั้งแหล่ง กันไว้ได้อย่างมากห้องเดียว</p>
+      
+      <p style="line-height:1.78;margin-bottom:11px">คนที่หนุนดวงนี้มีสองแบบตามธาตุมงคล แบบน้ำคือผู้ใหญ่หรือครูที่ให้ความรู้และอนุญาตให้เขาหยุด แบบไม้คือ 比劫 เพื่อนร่วมรุ่นที่รับงานไปทำจริง ไม่ใช่แค่ให้กำลังใจ คู่ที่เข้ากันก็อยู่ในกลุ่มนี้ คือคนที่นิ่ง ฟังเป็น มีโลกของตัวเอง ส่วนสองแบบที่ดูดพลังคือคนที่โยนหน้าที่มาให้แล้วหายไป ซึ่งเขารับไว้อัตโนมัติเพราะ 甲己合 กับคนที่คุมด้วยกฎและคำตัดสินโดยไม่ลงมือเอง</p>
+      <h2 style="margin-top:14px">ฐานที่ควรลงราก</h2>
+      <p style="line-height:1.78;margin-bottom:11px">ทิศที่หนุนคือเหนือซึ่งเป็นน้ำ และตะวันออกซึ่งเป็นไม้ ส่วนตะวันตกควรเลี่ยง และควรปักหลักยาว เพราะ 甲 ลงรากแล้วอยู่ยาว ย้ายบ่อยจะเสียกำลังที่สะสมไว้ ครอบครัวให้มาตรฐานและภาระมากกว่าแรงหนุน เพราะเสาปีเป็น 七殺 ส่วนเสาเดือนเป็นดาวทรัพย์ และ 正印 ซ่อนอยู่แค่ในกิ่ง แรงหนุนจึงมีจริงแต่ต้องเอ่ยปากขอ วงคนก็เช่นกัน ควรเล็กพอที่เขายังจำงานของทุกคนได้</p>
+    <div style="margin-top:14px;padding:10px 13px;background:#0d1208;border-left:3px solid #6a9a4a;border-radius:0 8px 8px 0;line-height:1.7"><strong style="color:#9ac86a">ทำได้เลย</strong> — หาคนสองแบบเข้ามาให้ได้ คือคนที่สอนได้จริงกับคนที่รับงานไปทำจริง แล้วกันบ้านไว้เป็นที่พัก</div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">ร่างกายและการเรียนรู้</span>
+    <span class="page-num">หน้า 6 / 8</span>
+  </div>
+  <div class="page-body">
+    
+      
+      <p style="line-height:1.78;margin-bottom:11px">ปาจื้อจับอวัยวะตามธาตุ ก้านวันเป็นไม้ที่กำลังไม่พอ ให้ระวังตับ ถุงน้ำดี เส้นเอ็น และสายตา ดินที่ล้นทั้งดวงลงที่กระเพาะและระบบย่อย ซึ่งจะแสดงอาการก่อนที่อื่น ส่วนน้ำที่ขาดคือไต หลังส่วนล่าง และคุณภาพการนอน สามจุดนี้คือรายการที่ควรไปตรวจด้วยตัวเลขจริง ไม่ใช่รอจนรู้สึกได้เอง</p>
+      <h2 style="margin-top:14px">ความเครียดลงที่ระบบย่อยก่อนเสมอ</h2>
+      <p style="line-height:1.78;margin-bottom:11px">เวลาถูกกดดัน ธาตุที่ล้นจะออกก่อน คือดิน แปลเป็นอาการทางกระเพาะและความอยากอาหารที่ผิดปกติ ถัดมาคือน้ำที่พร่องอยู่แล้วพร่องลงอีก ออกมาเป็นนอนไม่ลึกและเพลียสะสม การพักที่ใช้ได้กับดวงนี้เป็นแบบน้ำเท่านั้น คือนอนให้พอ อยู่นิ่ง อยู่กับน้ำ และตัดหน้าที่ออกจริงในช่วงนั้น การเปลี่ยนไปทำกิจกรรมอย่างอื่นแทนไม่นับเป็นการพัก</p>
+      
+      <p style="line-height:1.78;margin-bottom:11px">ขารับความรู้คือ 正印 ที่ขาดไป ส่วนขาผลิตออกคือ 傷官 ที่แรง อ่านหรือฟังเฉยๆ จึงไม่ค้างในหัว ต้องแปลงเป็นงานหรือของที่ทำเสร็จจริงถึงจะอยู่ และเพราะ 甲 โตทางเดียว การเก็บกว้างจะได้ปริมาณแต่ไม่ได้ความสูง ทางที่ให้ผลคือเลือกสายเดียวแล้วทับลงไปเรื่อยๆ พร้อมกับหาคนสอนมาชดเชยขารับที่หายไป</p>
+      
+      <p style="line-height:1.78;margin-bottom:11px">ทักษะที่ต้องฝึกจริงมีข้อเดียว คือการนับกำลังตัวเองก่อนรับงาน เพราะโครงทรัพย์หนาทำให้เห็นของแล้วรับก่อนคิด ฝึกได้ด้วยการตั้งเพดานเป็นตัวเลขไว้ล่วงหน้า ส่วนสิ่งที่ไม่ควรฝืนคือบทบาทที่ต้องบังคับใช้กฎที่ตัวเองไม่เชื่อ เพราะ 傷官見官 อยู่ในโครงมาตั้งแต่ต้น ฝืนไปจะได้ผลงานที่แย่และเสียคนไปพร้อมกัน</p>
+    <div style="margin-top:14px;padding:10px 13px;background:#0d1208;border-left:3px solid #6a9a4a;border-radius:0 8px 8px 0;line-height:1.7"><strong style="color:#9ac86a">ทำได้เลย</strong> — ไปตรวจตับ ระบบย่อย และการนอนด้วยตัวเลขจริง แล้วเปลี่ยนสิ่งที่เรียนให้ออกมาเป็นงานที่ทำเสร็จ</div></div>
+  
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">จังหวะและสิ่งที่ควรทำ</span>
+    <span class="page-num">หน้า 7 / 8</span>
+  </div>
+  <div class="page-body">
+    
+      
+      <p style="line-height:1.78;margin-bottom:11px">ตอนนี้อยู่ในเสาโชค 癸巳 ครอบอายุ 30-39 ก้านเป็นน้ำอ่อน ตรงกับสิ่งที่ทั้งดวงขาดมาตลอด สิบปีนี้จึงเป็นช่วงที่ควรใช้เรียนและสร้างฐาน แต่กิ่งเป็นมะเส็งซึ่งเป็นไฟ ดึงกำลังไม้ออกไปทางการแสดงผลงาน บวกกับปี 2569 เป็นปีชง รวมแล้วคือปีที่ควรกระชับของเดิมให้แน่น ไม่ใช่ปีที่ควรขยาย</p>
+      
+      <p style="line-height:1.78;margin-bottom:11px">ยอดจริงของทั้งชีวิตอยู่ที่เสาโชคอายุ 40-49 ที่ก้านเป็นไม้หยางเหมือนก้านวัน คือครั้งแรกที่กำลังตัวเองขึ้นมาเทียบกับดินที่ล้นได้ ไล่ทั้งแปดเสาแล้วเห็นรูปเดียวกัน อายุ 0-19 ก้านเป็นโลหะซึ่งควรเลี่ยง อายุ 20-59 เป็นน้ำสองเสาแล้วไม้สองเสาติดกัน จากนั้นอายุ 60-79 ก้านกลับไปเป็นไฟและกิ่งเป็นโลหะ กำลังจะถอย ชีวิตนี้จึงพีคช่วงกลาง ช่วงปลายควรวางไว้ให้เบา ไม่ใช่วางไว้สู้</p>
+      <h2 style="margin-top:14px">เดือนที่เปิดได้ กับเดือนที่ต้องตั้งหลัก</h2>
+      <p style="line-height:1.78;margin-bottom:11px">ระยะใกล้ พฤศจิกายน 2569 เด่นด้านเงินและโอกาส มกราคม 2570 เด่นทั้งงานและเงิน มีนาคม 2570 เด่นด้านกำลังกายและครอบครัว พฤษภาคม 2570 เด่นด้านคนรอบตัวและการเรียน ตุลาคม 2569 ตรงข้าม ค่าเงินและโอกาสต่ำที่สุดในรอบปี ใช้ปิดงานเก่า ธันวาคม 2569 สุขภาพและความสัมพันธ์ต่ำ ให้ลดตารางลงจริง กุมภาพันธ์ 2570 งาน การเรียน และคนรอบตัวต่ำพร้อมกัน ระยะยาวคือเสาอายุ 50-59 ที่กิ่งเป็นมะแม ธาตุดิน</p>
+      
+      <p style="line-height:1.78;margin-bottom:11px">สิ่งที่เสริมคือน้ำกับไม้ ทิศเหนือและตะวันออก สีดำ น้ำเงิน และเขียว จังหวะฤดูหนาวถึงต้นฤดูใบไม้ผลิ และชั่วโมงกลางคืนถึงเช้ามืด ในทางพฤติกรรม น้ำแปลเป็นการนอนและการหาคนที่สอนได้ ไม้แปลเป็นคนร่วมงานที่แบ่งงานไปทำจริง ส่วนที่บั่นทอนคือโลหะกับดิน คือการรับของเพิ่มโดยไม่เพิ่มกำลัง และการอยู่ในที่ที่ถูกตัดสินด้วยกฎตลอดเวลา ตัวเร่งที่แรงที่สุดคือการตัดเวลานอนเพื่อรับงานเพิ่ม เพราะเป็นการลดน้ำและเพิ่มดินพร้อมกันในครั้งเดียว</p>
+      
+      <p style="line-height:1.78;margin-bottom:11px">ถ้าเปลี่ยนได้อย่างเดียว ให้เปลี่ยนลำดับการตัดสินใจ ไม่ใช่เปลี่ยนความพยายาม ตั้งเงื่อนไขว่าจะรับงานหรือภาระใหม่ได้ต่อเมื่อมีสองอย่างพร้อมก่อน คือเวลานอนที่ยังไม่ถูกแตะ และคนที่รับงานส่วนหนึ่งไปทำจริง ไม่ครบสองข้อให้ปฏิเสธ นี่คือการเติมน้ำและไม้ในรูปที่ทำได้ทุกวัน และเป็นทางแก้โครงทรัพย์หนาตัวเบาที่ตรงจุดที่สุดเท่าที่ปาจื้อบอกได้</p>
+    <div style="margin-top:14px;padding:10px 13px;background:#0d1208;border-left:3px solid #6a9a4a;border-radius:0 8px 8px 0;line-height:1.7"><strong style="color:#9ac86a">ทำได้เลย</strong> — ตั้งเงื่อนไขก่อนรับงานใหม่ว่าต้องมีเวลานอนที่ไม่ถูกแตะและมีคนรับงานไปทำจริง ไม่ครบให้ปฏิเสธ</div></div>
+  <div class="page-footer">✦ MYTHSENSUS ✦ คำอ่านรายศาสตร์ สร้างโดย AI บนค่าที่คำนวณจากดวงจริง เพื่อการสำรวจตนเอง ไม่ใช่คำแนะนำวิชาชีพ ✦</div>
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <span class="page-icon" style="color:#c8a45a;font-size:13px">✦</span>
+    <span class="page-title">อ่านจบแล้วทำอะไรต่อ</span>
+    <span class="page-num">หน้า 8 / 8</span>
+  </div>
+  <div class="page-body">
+  <p style="line-height:1.78">ชัยพัทธ์ครับ ทั้งเล่มนี้ไม่ได้บอกให้ขยันขึ้น แต่บอกว่ากำลังของไม้ต้นนี้ถูกใช้เกินตัวมานาน สิ่งที่ควรทำต่อมีอย่างเดียว คือเขียนรายการภาระที่ถืออยู่ทั้งหมดลงกระดาษแผ่นเดียว แล้วเลือกยกออกหนึ่งอย่างให้จบภายในตุลาคม 2569 ซึ่งเป็นเดือนที่ค่าทุกด้านต่ำและเหมาะกับการปิดของเก่ามากกว่าเปิดของใหม่</p>
+  <h2>เรื่องที่ศาสตร์นี้อ่านไม่ได้</h2>
+  <p style="line-height:1.75;color:#c8b890;margin-bottom:8px">ไม่ใช่ข้อบกพร่องของดวงคุณ — เป็นขอบเขตของวิชา</p>
+  <table><thead><tr><th>เรื่อง</th><th>ทำไม</th><th>ควรไปดูจากไหน</th></tr></thead><tbody>
+  <tr><td>ภารกิจที่ติดตัวมาเรียนรู้ข้ามภพ</td><td>ปาจื้ออ่านโครงสร้างธาตุของชีวิตนี้เท่านั้น ไม่มีชั้นเรื่องกรรมเก่าหรือสิ่งที่ติดตัวมาข้ามภพ</td><td style="color:#9ab0c8">โหราศาสตร์พระเวทที่อ่านราหูกับเกตุ หรือระบบ Human Design ส่วนรูปแบบที่ทำซ้ำนั้นอยู่ในบทที่ 1 และบทที่ 4 แล้ว</td></tr><tr><td>ร่างกายจะเตือนล่วงหน้าหรือพังทีเดียว</td><td>ตำราอ่านได้แค่ว่าธาตุไหนอ่อน ธาตุไหนล้น และช่วงไหนถูกกระทบ แต่ไม่มีวิธีระบุรูปแบบการแสดงอาการว่าค่อยเป็นค่อยไปหรือเฉียบพลัน</td><td style="color:#9ab0c8">ผลตรวจสุขภาพย้อนหลังตั้งแต่สามปีขึ้นไปและประวัติครอบครัว โดยใช้สามจุดในบทที่ 5 เป็นรายการที่ต้องตรวจ</td></tr>
+  </tbody></table></div>
+  <div class="page-footer">✦ MYTHSENSUS ✦ คำอ่านรายศาสตร์ สร้างโดย AI บนค่าที่คำนวณจากดวงจริง เพื่อการสำรวจตนเอง ไม่ใช่คำแนะนำวิชาชีพ ✦</div>
+</div></body></html>
