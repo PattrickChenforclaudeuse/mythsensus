@@ -171,7 +171,7 @@ const ENGINE_INFO = {
   open_source: 'The compiled engine ships client-side on mythsensus.com and as the MIT npm package mythsensus-mcp — the math is fully inspectable. Durable edge: weight calibration + 1,069-deity curation + in-depth synthesis depth.',
   pricing: {
     free: 'Cosmic Score + 5-system consensus preview (this MCP) · full 26-system reading free on the website',
-    deep_reading_one_time: '$9 per system', full_report_one_time: '$19 (in-depth PDF, all 26 systems)',
+    deep_reading_one_time: '$9 per system', full_report_one_time: '$59 (in-depth PDF, all 26 systems)',
     subscription: '$8.99/month',
   },
   mcp_repo: 'https://www.npmjs.com/package/mythsensus-mcp',
