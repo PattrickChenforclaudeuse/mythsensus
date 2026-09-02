@@ -851,6 +851,11 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opa
                         gap:0 34px;align-items:start;margin-top:20px;padding-top:18px;
                         border-top:1px solid rgba(217,173,82,.18)}
   #entryHeroStep>.ec-a2>#entrySample{margin:0!important}
+  /* การ์ดซ้ายเรนเดอร์ไม่ได้ → กลับไปเป็นคอลัมน์เดียว ไม่ทิ้งครึ่งจอว่าง */
+  #entryHeroStep.ec-solo{grid-template-columns:1fr;max-width:460px;margin:0 auto;text-align:center}
+  #entryHeroStep.ec-solo>.ec-a,#entryHeroStep.ec-solo>.ec-b,
+  #entryHeroStep.ec-solo>.ec-a2{grid-column:1;grid-row:auto;display:block}
+  #entryHeroStep.ec-solo>.ec-a2{border-top:none;margin-top:0;padding-top:0}
 }
 .login-logo{font-family:'Cinzel Decorative',serif;font-size:20px;color:var(--gold);letter-spacing:5px;margin-bottom:6px}
 .login-tagline-sm{font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:24px}
@@ -3699,6 +3704,33 @@ function _entryNationKey() {
   } catch (_) { return ''; }
 }
 
+// ⛔ กันครึ่งจอว่าง — เลย์เอาต์เดสก์ท็อปเป็นสองคอลัมน์ ถ้าการ์ดฝั่งซ้าย
+//    เรนเดอร์ไม่ได้ (ไม่ว่าด้วยเหตุใด) ฟอร์มจะไปนั่งข้างช่องว่างเปล่าครึ่งจอ
+//    ซึ่งอ่านออกว่าเว็บพัง · ตัวนี้ยุบกลับเป็นคอลัมน์เดียวให้อัตโนมัติ
+//    ⇒ เลย์เอาต์ทนทานต่อความล้มเหลวของการ์ด โดยไม่ต้องรู้ว่าพังเพราะอะไร
+// ⛔ ตัวจับเวลาอิสระ — ห้ามพึ่งให้ _entryFillCity หรือ _renderEntryToday
+//    เป็นคนเรียกอย่างเดียว เพราะตอน bundle โหลดไม่ได้ ทั้งสองตัวอาจไม่ถูกเรียกเลย
+//    (ทดสอบด้วยการบล็อก ms26-bundle.js แล้วพบว่าคลาสไม่ถูกใส่ 2 ก.ย.)
+try {
+  addEventListener('load', function () {
+    [1200, 4000, 9000].forEach(function (t) {
+      setTimeout(function () { try { _entryBalanceCols(); } catch (_) {} }, t);
+    });
+  });
+} catch (_) {}
+
+function _entryBalanceCols() {
+  try {
+    const step = document.getElementById('entryHeroStep');
+    if (!step) return;
+    const vis = (id) => {
+      const e = document.getElementById(id);
+      return !!(e && getComputedStyle(e).display !== 'none' && e.innerHTML.trim());
+    };
+    step.classList.toggle('ec-solo', !vis('entryCityRow') && !vis('entrySample'));
+  } catch (_) {}
+}
+
 function _entryNationChart() {
   const cfg = _NATION_CHARTS[_entryNationKey()];
   if (!cfg || !window.MS26) return null;
@@ -3712,12 +3744,20 @@ function _entryNationChart() {
 
 // Runs after first paint. The day's facts are already on screen by then, so
 // nothing the reader can see is waiting on this.
-function _entryFillCity() {
+function _entryFillCity(tries) {
   const host = document.getElementById('entryCityRow');
   if (!host) return;
   const isTh = (typeof LANG === 'undefined') || LANG === 'th';
   const cc = _entryNationChart();
-  if (!cc) { host.innerHTML = ''; host.style.display = 'none'; return; }
+  // ⛔ ห้ามซ่อนถาวรตั้งแต่ครั้งแรกที่พลาด — _entryNationChart() คืน null ทุกครั้ง
+  //    ที่ window.MS26 ยังไม่โหลด ซึ่งเป็นเรื่องปกติในช่วงแรกของการเปิดหน้า
+  //    ของเดิมพลาดครั้งเดียวแล้วซ่อนตลอด ไม่มีการลองใหม่
+  //    (director 2 ก.ย.: "ขึ้นแปปเดียวแล้วก็หายไป คนกรอกจะงงไหม")
+  //    ลองใหม่แบบเดียวกับ _renderEntryToday ที่ทำถูกอยู่แล้ว
+  if (!cc) {
+    if ((tries || 0) < 25) { setTimeout(function(){ _entryFillCity((tries || 0) + 1); }, 300); return; }
+    host.innerHTML = ''; host.style.display = 'none'; _entryBalanceCols(); return;
+  }
   host.style.display = '';
 
   const today = new Date();
@@ -3753,7 +3793,7 @@ function _entryFillCity() {
         d.rows[k] = { up: v.up, mid: v.mid, down: v.down, n: v.n };
       });
       try { localStorage.setItem(key, JSON.stringify(d)); } catch (_) {}
-    } catch (_) { host.style.display = 'none'; return; }
+    } catch (_) { host.style.display = 'none'; _entryBalanceCols(); return; }
   }
 
   const L = MS26.FORECAST_DOMAIN_LABELS;
@@ -3867,7 +3907,8 @@ function _renderEntryToday(tries){
     var dowTh = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'][now.getDay()];
     var dowEn = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][now.getDay()];
     rows.push({ th:'ไทยพราหมณ์', en:'Thai Brahmin', v: (isTh? ('วัน'+dowTh) : dowEn) });
-    host.innerHTML =
+    setTimeout(function(){ try{ _entryBalanceCols(); }catch(_){} }, 0);
+  host.innerHTML =
       `<div style="border:1px solid rgba(212,170,80,.22);border-radius:10px;padding:11px 13px;background:rgba(0,0,0,.22)">`
       + `<div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">`
       + (isTh ? 'วันนี้ ในสายตา 3 ศาสตร์ · ฟรี ไม่ต้องกรอกอะไร' : 'Today, seen by 3 traditions · free, nothing to fill in') + `</div>`
@@ -3920,6 +3961,7 @@ function _refreshEntryHero(){
     signin:   { th:'มีบัญชีแล้ว? ' + sgn + 'ลงชื่อเข้าใช้ →</button>', en:'Already have an account? ' + sgn + 'Sign in →</button>' }
   };
   try { _renderEntryToday(0); } catch(_){}
+  try { _entryBalanceCols(); } catch (_){}
   document.querySelectorAll('#entryOverlay [data-eh]').forEach(function(el){
     var m = M[el.getAttribute('data-eh')];
     if (m) el.innerHTML = isTh ? m.th : m.en;
@@ -4010,7 +4052,7 @@ function applyLang(){
     if (typeof _entryLang !== 'undefined') _entryLang = (LANG === 'th') ? 'th' : 'en';
     if (typeof _entryRefreshLang === 'function') _entryRefreshLang();
   } catch(_){}
-  try { if (typeof _entryFillCity === 'function') _entryFillCity(); } catch(_){}
+  try { if (typeof _entryFillCity === 'function') _entryFillCity(0); } catch(_){}
 }
 function renderDate(){const d=new Date();document.getElementById('dateDisplay').textContent=d.toLocaleDateString(LANG==='th'?'th-TH':'en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
 // ════════════════════════════════════════
