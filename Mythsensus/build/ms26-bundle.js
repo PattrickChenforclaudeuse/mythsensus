@@ -10006,6 +10006,80 @@ const trDF = (s) => {
         return s;
     return _DF_MAP[s] ?? s;
 };
+// ── อภิธานศัพท์ · เติมคำแปลให้ศัพท์เฉพาะ "ครั้งแรกที่โผล่ในแต่ละหน้า" ────────
+//
+// กวาดทั้งเล่ม 2 ก.ย. 69 พบ **ศัพท์ที่ไม่มีคำแปล 87 จุด ใน 29 จาก 42 หน้า**
+// (NSK · PY · Day Master · MG · Sacral Authority · Mewa · Dasha · TCM · Odù ฯลฯ)
+// director: "PY NSK คืออะไร รู้ไปทำไม" · "รกด้วย fluff ที่เขาไม่น่าจะรู้เรื่อง"
+//
+// ⛔ ห้ามไล่แก้ทีละหน้า — จะพลาดตัวถัดไปเสมอ (lesson_grep_the_name_misses_the_next_one)
+//    ทำที่ section() ที่เดียว ⇒ หน้าใหม่ที่เขียนทีหลังได้คำแปลอัตโนมัติ
+// ⛔ เติมครั้งเดียวต่อหน้า ไม่ใช่ทุกครั้งที่เจอ ไม่งั้นย่อหน้าจะรกกว่าเดิม
+// ⛔ ห้ามแตะข้อความที่อยู่ในแท็ก (attribute/style) — ตัดเฉพาะช่วงนอกแท็กเท่านั้น
+const GLOSSARY = [
+    // [ศัพท์, คำแปลไทย, คำแปลอังกฤษ]
+    ['Sacral Authority', 'กลไกตัดสินใจจากท้อง — ตอบสนองก่อนคิด', 'a gut-response decision mechanism'],
+    ['Ben Ming Nian', 'ปีชง — ปีนักษัตรวนมาตรงกับปีเกิด', 'the year your birth animal returns'],
+    ['Bríatharogam', 'กลอนนิยามประจำตัวอักษรโอแฮม', 'the two-word kenning that defines each ogham letter'],
+    ['Part of Fortune', 'จุดโชคลาภ คำนวณจากอาทิตย์ จันทร์ และลัคนา', 'a point computed from Sun, Moon and Ascendant'],
+    ['Lot of Fortune', 'จุดโชคลาภ คำนวณจากอาทิตย์ จันทร์ และลัคนา', 'a point computed from Sun, Moon and Ascendant'],
+    ['Personal Year', 'ปีส่วนตัวในรอบ 9 ปีของเลขศาสตร์', 'your year within numerology&rsquo;s nine-year cycle'],
+    ['Luck Pillar', 'เสาโชค — ช่วงชีวิตช่วงละ 10 ปีในวิชาปาจื้อ', 'a ten-year life phase in BaZi'],
+    ['Antardasha', 'ช่วงย่อยที่ซ้อนอยู่ในมหาทศา', 'the sub-period nested inside the major one'],
+    ['Mahadasha', 'ช่วงดาวปกครองใหญ่ตามวิชาภารตะ', 'the major planetary period in Vedic timing'],
+    ['Day Master', 'ก้านวันเกิด — ตัวแทนของคุณในผังสี่เสา', 'the day stem, which stands for you in the chart'],
+    ['Nakshatra', 'นักษัตร — 27 กลุ่มดาวที่ดวงจันทร์เดินผ่าน', 'one of 27 lunar mansions'],
+    ['Tzolk', 'ปฏิทิน 260 วันของมายา', 'the Mayan 260-day count'],
+    ['Life Path', 'เลขเส้นทางชีวิต จากผลรวมวันเดือนปีเกิด', 'the number from summing your full birth date'],
+    ['Fravashi', 'ดวงวิญญาณบรรพชนที่คอยคุ้มครองตามคติโซโรอัสเตอร์', 'the guardian ancestral spirit'],
+    ['Tzadkiel', 'เทวทูตประจำเรือนเมตตา', 'the archangel of the mercy sphere'],
+    ['Rokuyo', 'ปฏิทินหกวันของญี่ปุ่น บอกจังหวะดี-ร้ายของวัน', 'the Japanese six-day cycle of auspicious days'],
+    ['Chesed', 'เรือนแห่งความเมตตาในต้นไม้คับบาลาห์', 'the sphere of mercy on the Kabbalistic tree'],
+    ['Parkha', 'ตรีลักษณ์แปดตัวของทิเบต', 'one of eight Tibetan trigrams'],
+    ['Lagna', 'ลัคนา — ราศีที่ขึ้นขอบฟ้าตอนคุณเกิด', 'the sign rising at your birth'],
+    ['Dasha', 'ช่วงดาวปกครองตามวิชาภารตะ', 'a planetary period in Vedic timing'],
+    ['Mewa', 'ตัวเลขวิเศษเก้าช่องของทิเบต', 'one of the nine Tibetan magic numbers'],
+    ['NSK', 'ดาวเก้าดวง — วิชาคิวงาคุของญี่ปุ่น', 'Nine Star Ki, the Japanese star system'],
+    ['TCM', 'แพทย์แผนจีน', 'traditional Chinese medicine'],
+    ['Odù', 'บทประจำชะตาในวิชาอิฟา', 'the verse that holds a destiny in Ifá'],
+    ['MG', 'ประเภทพลังงานที่เริ่มเองได้แต่ต้องรอสัญญาณ', 'an energy type that initiates but waits for a signal'],
+    ['HD Strategy', 'กลไกตัดสินใจประจำประเภทพลังงาน', 'the decision rule for your energy type'],
+    ['Kin', 'ลำดับวันที่ 1-260 ในปฏิทินมายา', 'your day number in the Mayan 260-day count'],
+    ['Odu', 'บทประจำชะตาในวิชาอิฟา', 'the verse that holds a destiny in Ifá'],
+    ['PY', 'ปีส่วนตัวในรอบ 9 ปีของเลขศาสตร์', 'Personal Year in the nine-year cycle'],
+];
+// เติมคำแปลครั้งแรกที่ศัพท์โผล่ในหน้านั้น · ทำงานเฉพาะช่วงข้อความนอกแท็ก
+function _glossPage(html) {
+    const isEn = _lang === 'en';
+    const used = new Set();
+    // ตัดเป็นช่วง: แท็ก (ห้ามแตะ) สลับกับข้อความ (แตะได้)
+    return html.replace(/(<[^>]*>)|([^<]+)/g, (_m, tag, text) => {
+        if (tag)
+            return tag;
+        let out = text;
+        for (const [term, th, en] of GLOSSARY) {
+            if (used.has(term))
+                continue;
+            // ⛔ ถ้าครั้งแรกอยู่ในวงเล็บอยู่แล้ว ให้ไปลองครั้งถัดไป — ห้ามตัดทั้งหน้าทิ้ง
+            //    (ผิดมาแล้ว 2 ก.ย.: "NSK)" ทำให้ NSK ไม่ได้คำแปลเลยทั้งหน้า)
+            //    เปิด '(' = มีคำอธิบายของมันเองแล้ว · ปิด ')' = อยู่ในวงเล็บ เติมแล้วจะได้ ') )'
+            let i = out.indexOf(term);
+            while (i >= 0) {
+                const after = out.slice(i + term.length, i + term.length + 2).trim();
+                if (!after.startsWith('(') && !after.startsWith(')'))
+                    break;
+                i = out.indexOf(term, i + term.length);
+            }
+            if (i < 0)
+                continue;
+            used.add(term);
+            out = out.slice(0, i + term.length)
+                + `<span class="gloss" style="font-size:.82em;color:#7a8a9e"> (${isEn ? en : th})</span>`
+                + out.slice(i + term.length);
+        }
+        return out;
+    });
+}
 function section(_num, title, icon, content) {
     _pageNum++;
     const isEn = _lang === 'en';
@@ -10022,7 +10096,7 @@ function section(_num, title, icon, content) {
     <span class="page-num">${pageLabel}</span>
   </div>
   <div class="page-body">
-    ${content}
+    ${_glossPage(content)}
   </div>
   <div class="page-footer">${footerText}</div>
 </div>`;
@@ -11916,6 +11990,56 @@ function p12_numerology(c) {
     <p style="margin-top:8px">${esc(n.thaiSevenReading)}</p>
   `);
 }
+// ── เสาโชคเทียบก้านวัน — ทศวรรษนี้เป็นแบบไหนตามตำราปาจื้อ ──────────────────
+//
+// ⛔ คอลัมน์ "ความหมาย" ของตารางเสาโชคเคยพิมพ์คำอ่านไทยของอักษรจีนช่องซ้าย
+//    = ทวนของเดิมคนละสคริปต์ ไม่ได้บอกอะไรเพิ่ม (director 2 ก.ย.: "อ่านแล้วไม่รู้อะไรเพิ่มเลย")
+//    ของที่บอกอะไรจริงคือ **ความสัมพันธ์ระหว่างธาตุของเสากับก้านวัน** ซึ่งเป็นแกนกลาง
+//    ของวิชาปาจื้อ: ธาตุที่หล่อเลี้ยงเรา / ธาตุเดียวกับเรา / ธาตุที่เราสร้าง /
+//    ธาตุที่เราคุม / ธาตุที่คุมเรา — ห้าอย่างนี้คือสิบเทพย่อ
+const _STEM_EL = {
+    '甲': 'ไม้', '乙': 'ไม้', '丙': 'ไฟ', '丁': 'ไฟ', '戊': 'ดิน',
+    '己': 'ดิน', '庚': 'โลหะ', '辛': 'โลหะ', '壬': 'น้ำ', '癸': 'น้ำ',
+};
+const _EL_PRODUCES = { 'ไม้': 'ไฟ', 'ไฟ': 'ดิน', 'ดิน': 'โลหะ', 'โลหะ': 'น้ำ', 'น้ำ': 'ไม้' };
+const _EL_CONTROLS = { 'ไม้': 'ดิน', 'ดิน': 'น้ำ', 'น้ำ': 'ไฟ', 'ไฟ': 'โลหะ', 'โลหะ': 'ไม้' };
+// ⛔ ชื่อธาตุภายในเป็นภาษาไทย — ประโยคฝั่งอังกฤษต้องแปลก่อนใช้เสมอ
+//    (ลืมไปครั้งหนึ่ง 2 ก.ย. แล้วได้ 'ไม้ feeds your ไม้' · ด่าน test:en จับได้)
+const _EL_EN = { 'ไม้': 'Wood', 'ไฟ': 'Fire', 'ดิน': 'Earth', 'โลหะ': 'Metal', 'น้ำ': 'Water' };
+const _elEn = (x) => _EL_EN[x] || x;
+// ⛔ ต้องเอ่ยธาตุของเสาและธาตุของก้านวันจริงในประโยค ไม่ใช่เขียนลอยๆ
+//    เหตุผลสองชั้น: (ก) คนอ่านเห็นว่าทำไมถึงสรุปแบบนั้น ไม่ต้องเชื่อเปล่าๆ
+//    (ข) ประโยคตายตัวล้วนจะเหมือนกันทุกดวง แล้วไปโดนด่าน prose-density
+//        ซึ่งจับถูกแล้ว — ของที่เหมือนกันทุกคนไม่ใช่คำอ่านของใคร
+function _pillarRole(stem, dmEl) {
+    const el = _STEM_EL[stem];
+    if (!el || !dmEl)
+        return { th: '', en: '' };
+    if (el === dmEl)
+        return {
+            th: `${el}เหมือนก้านวันคุณ — ช่วงที่มีพวก แต่ต้องแบ่งของกับคนอื่น`,
+            en: `${_elEn(el)} matches your day stem — allies arrive, and so does competition`
+        };
+    if (_EL_PRODUCES[el] === dmEl)
+        return {
+            th: `${el}หล่อเลี้ยง${dmEl}ของคุณ — ช่วงที่มีคนหนุน ได้เรียน ได้พัก`,
+            en: `${_elEn(el)} feeds your ${_elEn(dmEl)} — support, learning and recovery`
+        };
+    if (_EL_PRODUCES[dmEl] === el)
+        return {
+            th: `${dmEl}ของคุณสร้าง${el} — ช่วงของผลงานและการแสดงออก`,
+            en: `your ${_elEn(dmEl)} produces ${_elEn(el)} — a decade of output and expression`
+        };
+    if (_EL_CONTROLS[dmEl] === el)
+        return {
+            th: `${dmEl}ของคุณคุม${el} — ช่วงของทรัพย์และโอกาส แต่กินแรง`,
+            en: `your ${_elEn(dmEl)} controls ${_elEn(el)} — wealth and opportunity, at a cost in energy`
+        };
+    return {
+        th: `${el}คุม${dmEl}ของคุณ — ช่วงที่มีแรงกดจากภายนอก กติกา และผู้มีอำนาจ`,
+        en: `${_elEn(el)} controls your ${_elEn(dmEl)} — outside pressure, rules and authority`
+    };
+}
 function p13_luckPillars(c) {
     const age2026 = 2026 - c.input.year;
     const { bazi, vedic, ninestar, numerology, biorhythm, vedicMahadasha } = c;
@@ -11926,7 +12050,7 @@ function p13_luckPillars(c) {
         return `<tr ${isCurrent ? 'style="background:#1a1a08;border:1px solid #c8a45a44"' : ''}>
       <td style="font-size:12px">${esc(lp.ageStart)}–${esc(lp.ageEnd)}</td>
       <td style="font-size:18px">${esc(lp.stem)}${esc(lp.branch)}</td>
-      <td style="font-size:11px;color:#9a8a72">${esc(lp.stemTh)} ${esc(lp.branchTh)}</td>
+      <td style="font-size:11px;color:#9a8a72">${esc(_pillarRole(lp.stem, c.bazi.dayMasterElement)[_lang === 'en' ? 'en' : 'th'] || (lp.stemTh + ' ' + lp.branchTh))}</td>
       <td style="font-size:11px;color:#6a8a60">${nskDecadeNote}</td>
       <td>${isCurrent ? `<span style="color:#c8a45a;font-weight:700">▶ ${tr('ปัจจุบัน', 'Current')}</span>` : ''}</td>
     </tr>`;
@@ -11956,7 +12080,7 @@ function p13_luckPillars(c) {
     <!-- BaZi Luck Pillars (main) -->
     <h2 style="font-size:14px;color:#c8a45a;margin-bottom:8px">🔥 ${tr('BaZi Luck Pillars — แกนหลัก 10 ปีต่อเสา', 'BaZi Luck Pillars — 10 years per pillar')}</h2>
     <table>
-      <thead><tr><th>${tr('อายุ', 'Age')}</th><th>${tr('เสา', 'Pillar')}</th><th>${tr('ความหมาย', 'Meaning')}</th><th>NSK Note</th><th></th></tr></thead>
+      <thead><tr><th>${tr('อายุ', 'Age')}</th><th>${tr('เสา', 'Pillar')}</th><th>${tr('ทศวรรษนี้เป็นแบบไหน', 'What this decade is')}</th><th>NSK Note</th><th></th></tr></thead>
       <tbody>${luckRows}</tbody>
     </table>
 
@@ -12212,6 +12336,11 @@ function p16_activation(c) {
 
     <div style="font-size:13px;font-weight:600;color:#60c060;margin-bottom:8px">✅ ${tr('สิ่งที่ควรทำ · Priority-ranked (เรียงจากศาสตร์เห็นพ้องมากสุด)', 'What to do · Priority-ranked (most-agreed-upon first)')}</div>
     ${positives.slice(0, 8).map((a, n) => {
+        // ⛔ ป้าย "+${delta}" ถูกถอดออกจากหน้า 2 ก.ย. 69 — ค่าเท่ากันทั้ง 5 แถว
+        //    ป้ายที่ไม่เคยต่างกันไม่ได้บอกอะไร แค่กินที่แล้วชวนให้ถามว่าคืออะไร
+        //    (director: "+9 ข้างหลังคืออะไร") ถ้าจะเอากลับมา ต้องทำให้มันต่างกันจริงก่อน
+        // ⛔ และห้ามเขียนเหตุผลเป็น <!-- --> ในสตริง HTML — มันติดไปกับไฟล์ลูกค้า
+        //    และทำให้ด่าน test:en แดงเพราะเจอภาษาไทยในเล่มอังกฤษ (พลาดมาแล้ววันนี้)
         const delta = cosmicDelta(a.systems.length);
         const priority = n < 3 ? 'HIGH' : n < 6 ? 'MEDIUM' : 'LOW';
         const priorityColor = n < 3 ? '#c8a45a' : n < 6 ? '#c0a060' : '#7a6a52';
@@ -12226,7 +12355,7 @@ function p16_activation(c) {
             <span style="font-weight:600;color:#c8a45a;font-size:13px">${n + 1}. ${esc(a.title)}</span>
             <div style="display:flex;gap:6px;align-items:center">
               <span style="font-size:10px;color:#60a060;background:#0a1a0e;padding:2px 8px;border-radius:10px">${a.systems.length} ${tr('ศาสตร์ตรงกัน', 'agree')}</span>
-              <span style="font-size:10px;color:#60c060;background:#0a1a0e;padding:2px 8px;border-radius:10px">+${delta}</span>
+
             </div>
           </div>
           <div style="font-size:11.5px;color:#c8c0a8;margin-top:4px;line-height:1.55">${esc(a.body)}</div>

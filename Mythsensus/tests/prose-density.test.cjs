@@ -28,6 +28,11 @@ const { calculate } = require(path.join(__dirname, '..', 'build', 'calc.js'));
 const { generateReport } = require(path.join(__dirname, '..', 'build', 'report.js'));
 
 /**
+ * ⛔ ข้อความใน <span class="gloss"> ก็ถูกตัดออกก่อนวัดเช่นกัน (เพิ่ม 2 ก.ย. 69)
+ *    อภิธานศัพท์เป็นข้อความที่ "เหมือนกันทุกดวงโดยธรรมชาติ" — คำแปลของ NSK
+ *    ต้องเป็นคำเดิมเสมอ ไม่ใช่ของที่ควรผันตามคน · ตัวชี้วัดนี้สร้างมาจับ
+ *    การเขียนแบบแม่แบบขี้เกียจ ไม่ใช่จับพจนานุกรม ⇒ นับรวมแล้วจะอ่านผิด
+ *    ⛔ ห้ามเอาคลาส gloss ไปใช้กับอย่างอื่นเด็ดขาด มันคือช่องหลบการวัด
  * ⛔ ข้อความใน <span class="src-note"> ถูกตัดออกก่อนวัด — และตัดได้เฉพาะป้ายนี้
  *
  * ป้ายนี้ใช้กับ "ที่มาของวิชา" เท่านั้น เช่น ส่วนไหนมาจากตำราจริง ส่วนไหนเป็นชั้นที่
@@ -73,7 +78,7 @@ const note = [];
 // counting it once inflated an earlier measurement of this from 44% to 69%.
 const prose = html => html
   .replace(/<style[\s\S]*?<\/style>/g, '')
-  .replace(/<span class="src-note">[\s\S]*?<\/span>/g, ' ').replace(/<[^>]+>/g, '\n')
+  .replace(/<span class="src-note">[\s\S]*?<\/span>/g, ' ').replace(/<span class="gloss"[^>]*>[\s\S]*?<\/span>/g, ' ').replace(/<[^>]+>/g, '\n')
   .split('\n').map(s => s.trim())
   .filter(s => s.length > 60 && /[ก-๙]/.test(s) && !/^✦/.test(s));
 
@@ -114,7 +119,7 @@ for (let i = 0; i < CHARTS.length; i++) {
   for (const t of terms) {
     let worstN = 0, worstTitle = '';
     for (const pg of pages) {
-      const body = pg.replace(/<span class="src-note">[\s\S]*?<\/span>/g, ' ').replace(/<[^>]+>/g, ' ');
+      const body = pg.replace(/<span class="src-note">[\s\S]*?<\/span>/g, ' ').replace(/<span class="gloss"[^>]*>[\s\S]*?<\/span>/g, ' ').replace(/<[^>]+>/g, ' ');
       const n = body.split(t).length - 1;
       if (n > worstN) {
         worstN = n;
