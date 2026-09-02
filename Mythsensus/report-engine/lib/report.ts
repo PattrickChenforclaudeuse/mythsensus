@@ -2400,6 +2400,9 @@ function p13_luckPillars(c: ChartData): string {
   `)
 }
 
+// ⛔ ห้ามเขียนย่อหน้า "หน้านี้อธิบาย…" (director 2 ก.ย.: "รก")
+//    หัวข้อของหน้าบอกอยู่แล้วว่าหน้านี้คืออะไร · ย่อหน้าที่ทวนหัวข้อตัวเอง
+//    คือที่ว่างที่ไม่ได้บอกอะไรกับคนอ่าน · เก็บแค่บรรทัด ≠ กับจำนวนศาสตร์ที่ต่างตามดวง
 function p14_health(c: ChartData): string {
   const { bazi, ninestar, vedic, humandesign, biorhythm, celtic, tibetan, thai, nativeAmerican, vedicMahadasha, norseRune } = c
   const healthSignals = extractSignals(c, 'health')
@@ -2427,11 +2430,8 @@ function p14_health(c: ChartData): string {
     <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
       <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:12px">${tr('สุขภาพตามดวง ≠ พยากรณ์รายวัน','Birth-chart health ≠ daily forecast')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">
-        ${tr(`หน้านี้อธิบาย <strong>ลักษณะประจำตัวด้านสุขภาพตลอดชีวิต</strong> ที่มาจากวันเกิด —
-        เช่น อวัยวะที่เปราะบางตามธรรมชาติ · ชนิดกีฬาที่ร่างกายตอบสนองดี · จังหวะพลังงาน
-        <strong>ไม่ใช่</strong> พยากรณ์วันนี้ว่าจะป่วยหรือไม่ · ${healthSignals.length} ศาสตร์เห็นตรงกัน ${good.length} เรื่อง`, `This page describes <strong>your lifelong health constitution</strong> derived from your birth chart —
-         organs that are naturally vulnerable, sports your body responds to well, and your energy rhythm.
-         It is <strong>not</strong> a daily forecast of illness. · ${healthSignals.length} systems analysed, ${good.length} in agreement.`)}
+        ${tr(`${healthSignals.length} ศาสตร์ที่มีวิชาด้านนี้ · ${good.length} เห็นตรงกัน`,
+             `${healthSignals.length} traditions speak to this · ${good.length} agree`)}
       </div>
     </div>
 
@@ -2485,11 +2485,8 @@ function p15_finance(c: ChartData): string {
     <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
       <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:12px">${tr('การเงินตามดวง ≠ พยากรณ์หวย','Birth-chart finance ≠ lottery forecast')}</div>
       <div style="font-size:11.5px;color:#c8c0a8;line-height:1.75">
-        ${tr(`หน้านี้อธิบาย <strong>ลักษณะทางการเงินประจำตัว</strong> — ว่าคุณเหมาะกับการลงทุนแบบไหน ความเสี่ยงระดับใด
-        ช่วงเวลาของชีวิตที่ควรลงทุน/สะสม · <strong>ไม่ใช่</strong> การบอกตัวเลขผลตอบแทนหรือทำนายราคาทรัพย์สิน ·
-        ${finSignals.length} ศาสตร์วิเคราะห์ โดย ${good.length} เห็นเสริมและ ${warn.length} เห็นเตือน`, `This page describes <strong>your innate financial pattern</strong> — what kind of investing suits you, your risk
-         tolerance, and the life-phases best for accumulating versus deploying capital. It is <strong>not</strong> a return
-         forecast or asset-price prediction. · ${finSignals.length} systems analysed: ${good.length} supportive, ${warn.length} cautionary.`)}
+        ${tr(`${finSignals.length} ศาสตร์ที่มีวิชาด้านนี้ · ${good.length} เห็นเสริม · ${warn.length} เห็นเตือน`,
+             `${finSignals.length} traditions speak to this · ${good.length} supportive · ${warn.length} cautionary`)}
       </div>
     </div>
 
@@ -3931,7 +3928,13 @@ export function generateReport(c: ChartData): string {
   // An English buyer paid for English. Values the engine picked in Thai get one
   // last pass through the engine's own dictionaries; anything it cannot
   // translate stays Thai and keeps the integrity gate red.
-  const pages = _lang === 'en' ? sweepThaiFromEnglish(composed) : composed
+  // ⛔ ตัดคอมเมนต์ HTML ทิ้งทั้งหมดก่อนส่งออก
+  //    คอมเมนต์ในไฟล์ที่ลูกค้าเปิดอ่านได้ไม่มีประโยชน์กับใครเลย และเคยทำให้
+  //    คำพูดภายใน/คำพูด director หลุดไปกับเล่ม · ผิดกฎนี้ 3 ครั้งในวันเดียว (2 ก.ย. 69)
+  //    ทั้งที่เขียนเตือนตัวเองไว้สองรอบ ⇒ ตัดที่นี่ทีเดียว จบทั้งของเก่าและของใหม่
+  //    ด่าน report-integrity มีข้อ Z คอยกันไม่ให้กลับมา
+  const stripped = composed.replace(/<!--[\s\S]*?-->/g, '')
+  const pages = _lang === 'en' ? sweepThaiFromEnglish(stripped) : stripped
 
   return `<!DOCTYPE html>
 <html lang="th">

@@ -105,6 +105,17 @@ for (const input of CHARTS) {
   const text = strip(html);
   const pages = pagesOf(html);
 
+  // ⛔ Z · ห้ามมีคอมเมนต์ HTML ในไฟล์ที่ส่งลูกค้า
+  //    ผิดกฎนี้ 3 ครั้งในวันเดียว (2 ก.ย. 69) ทั้งที่เขียนเตือนตัวเองไว้แล้วสองรอบ
+  //    ⇒ คอมเมนต์เตือนไม่พอ ต้องมีด่านบังคับ
+  //    ที่เสียหาย: คำพูดภายในและคำพูด director ติดไปกับเล่มที่ลูกค้าเปิดอ่านได้
+  //    และทำให้ด่าน test:en แดงเพราะเจอภาษาไทยในเล่มอังกฤษ
+  {
+    const cm = html.match(/<!--[\s\S]{0,300}?-->/g) || [];
+    if (cm.length) fail(name, 'Z html-comment',
+      `เจอคอมเมนต์ HTML ${cm.length} จุด — ตัวแรก: ${cm[0].replace(/\s+/g, ' ').slice(0, 70)}`);
+  }
+
   // A · code artefacts
   for (const [label, re] of CODE_ARTEFACTS) {
     for (const p of pages) {
