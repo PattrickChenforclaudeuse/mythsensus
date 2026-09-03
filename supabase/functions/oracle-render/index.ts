@@ -31,6 +31,65 @@ const RENDER_TIMEOUT_MS = 140_000 // abort early enough that the 'error' write l
 // before Supabase kills the instance at the 150s wall-clock ceiling — a slow render
 // then flips to 'error' and auto-retries on the next poll, instead of sticking 'running'.
 
+// ราคาต่อล้านโทเคน (input, output) เป็นเซนต์ — ⛔ ห้ามฝังเรตลงในสูตรคิดเงินอีก
+// เคยฝังเรตของ Sonnet 4.6 ไว้ตรงๆ พอสลับเป็น Sonnet 5 ก็คิดเงินเกินจริง 1.5 เท่าเงียบๆ
+// ⛔ ห้ามเขียนราคาจากความจำ — ค่าพวกนี้ลอกมาจากตารางราคาทางการ ตรวจซ้ำก่อนแก้เสมอ
+const PRICE_CENTS_PER_MTOK: Record<string, [number, number]> = {
+  'claude-sonnet-5': [200, 1000],
+  'claude-sonnet-4-6': [300, 1500],
+  'claude-haiku-4-5': [100, 500],
+  'claude-opus-5': [500, 2500],
+}
+function centsFor(model: string, usage: any): number {
+  const [pi, po] = PRICE_CENTS_PER_MTOK[model] || PRICE_CENTS_PER_MTOK['claude-sonnet-5']
+  const inTok = (usage?.input_tokens || 0) + (usage?.cache_read_input_tokens || 0) * 0.1
+  // cost_cents เป็น INTEGER → ปัดขึ้นเป็นเซนต์เต็ม (PostgREST ไม่รับทศนิยม)
+  return Math.ceil((inTok / 1e6) * pi + ((usage?.output_tokens || 0) / 1e6) * po)
+}
+
+// ยิง Anthropic หนึ่งก้อน แล้วคืน JSON ที่ parse แล้ว + usage
+// ⛔ ห้ามกลืน stop_reason — refusal กับ max_tokens ต้องโยน ไม่ใช่ปล่อยให้ jsonrepair
+//    ซ่อมคำอ่านที่ขาดครึ่งให้กลายเป็น JSON ที่ถูกต้องแล้วแคชไว้ขายคน
+async function callOnce(opts: {
+  systemPrompt: string; userMessage: string; maxTokens: number; model: string; signal: AbortSignal
+}): Promise<{ obj: any; usage: any }> {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+    body: JSON.stringify({
+      model: opts.model,
+      max_tokens: opts.maxTokens,
+      system: opts.systemPrompt,
+      messages: [{ role: 'user', content: opts.userMessage }],
+    }),
+    signal: opts.signal,
+  })
+  if (!resp.ok) throw new Error('anthropic ' + resp.status + ': ' + (await resp.text()).slice(0, 200))
+  const data = await resp.json()
+  if (data.stop_reason === 'refusal') throw new Error('anthropic refused: ' + (data.stop_details?.category ?? 'unknown'))
+  if (data.stop_reason === 'max_tokens') throw new Error('anthropic hit max_tokens (' + opts.maxTokens + ') — truncated, not caching')
+  let txt = (Array.isArray(data.content) ? data.content : [])
+    .filter((b: any) => b?.type === 'text').map((b: any) => b.text || '').join('').trim()
+  if (!txt) throw new Error('anthropic returned no text block (stop_reason=' + data.stop_reason + ')')
+  if (txt.startsWith('```')) txt = txt.replace(/^```(?:json)?\n?/i, '').replace(/```\s*$/, '').trim()
+  let obj: any
+  try { obj = JSON.parse(txt) } catch (_) { obj = JSON.parse(jsonrepair(txt)) }
+  return { obj, usage: data.usage || {} }
+}
+
+async function upsertPhase(ck: any, patch: Record<string, unknown>) {
+  const r = await fetch(`${REST}/myth_addon_reading?on_conflict=chart_hash,system,lang,relationship_status,prompt_version`, {
+    method: 'POST',
+    headers: { ...sbHeaders, Prefer: 'resolution=merge-duplicates' },
+    body: JSON.stringify({
+      chart_hash: ck.chart_hash, system: ck.system, lang: ck.lang,
+      relationship_status: ck.relationship_status, prompt_version: ck.prompt_version,
+      generated_at_iso: new Date().toISOString(), ...patch,
+    }),
+  })
+  if (!r.ok) throw new Error('phase upsert ' + r.status + ': ' + (await r.text()).slice(0, 160))
+}
+
 const sbHeaders = { apikey: SERVICE, Authorization: 'Bearer ' + SERVICE, 'Content-Type': 'application/json' }
 
 async function upsertJob(jobKey: string, status: string, error?: string | null) {
@@ -112,11 +171,71 @@ Deno.serve(async (req: Request) => {
   for (const k of ['chart_hash', 'system', 'lang', 'relationship_status', 'prompt_version']) {
     if (!ck[k]) return json({ error: 'missing cache_key.' + k }, 400)
   }
-  if (!body.systemPrompt || !body.userMessage) return json({ error: 'missing prompt' }, 400)
+  const batch = Array.isArray(body.calls) && body.calls.length > 0
+  if (!batch && (!body.systemPrompt || !body.userMessage)) return json({ error: 'missing prompt' }, 400)
+  if (batch && !['answers', 'compose'].includes(body.phase)) return json({ error: 'batch needs phase answers|compose' }, 400)
+  if (batch && body.calls.length > 12) return json({ error: 'too many calls (max 12)' }, 400)
   const jobKey = [ck.chart_hash, ck.system, ck.lang, ck.relationship_status, ck.prompt_version].join('|')
 
   // Mark running (the Vercel side already gated duplicate triggers via job freshness).
   await upsertJob(jobKey, 'running')
+
+  // ── โหมดยิงขนาน — ชั้น 1 (คำตอบ 45 ข้อ) และชั้น 2 (เรียบเรียง) ─────────────
+  //
+  // ทำไมต้องแตกก้อน: เพดาน max_tokens ต่อครั้งคือ 7000 แต่ชั้น 1 ทั้งชุด ~22,000
+  // และเวลาไล่เขียนทีเดียวเกิน 150 วินาทีที่ Supabase ให้ ⇒ ก้อนเล็กหลายก้อนขนานกัน
+  // ทั้งลงใต้เพดานและเสร็จในเวลาของก้อนที่ช้าที่สุด ไม่ใช่ผลรวม
+  //
+  // ⛔ ก้อนไหนพังก้อนเดียว = ทั้งเฟสถือว่าพัง ห้ามแคชของที่ไม่ครบ
+  //    คนจ่ายเงินแล้วได้คำอ่านที่หายไปสามหมวดคือของเสียที่มองไม่เห็น
+  if (batch) {
+    const runBatch = (async () => {
+      try {
+        const controller = new AbortController()
+        const timer = setTimeout(() => controller.abort(), RENDER_TIMEOUT_MS)
+        let settled: PromiseSettledResult<{ key: string; obj: any; usage: any }>[]
+        try {
+          settled = await Promise.allSettled(body.calls.map(async (c: any) => {
+            const r = await callOnce({
+              systemPrompt: c.systemPrompt, userMessage: c.userMessage,
+              maxTokens: Math.min(Number(c.maxTokens) || 4000, 8000),
+              model: body.model || DEFAULT_MODEL, signal: controller.signal,
+            })
+            return { key: String(c.key), obj: r.obj, usage: r.usage }
+          }))
+        } finally { clearTimeout(timer) }
+
+        const failed = settled.filter(x => x.status === 'rejected')
+        if (failed.length) {
+          throw new Error(`${failed.length}/${body.calls.length} ก้อนพัง: ` +
+            failed.map((f: any) => String(f.reason).slice(0, 90)).join(' | '))
+        }
+        const ok = settled.map((x: any) => x.value)
+        const merged: Record<string, any> = {}
+        let cents = 0
+        for (const r of ok) { merged[r.key] = r.obj; cents += centsFor(body.model || DEFAULT_MODEL, r.usage) }
+
+        if (body.phase === 'answers') {
+          const n = Object.values(merged).reduce((a: number, g: any) => a + (Array.isArray(g?.answers) ? g.answers.length : 0), 0)
+          if (n !== 45) throw new Error(`ชั้น 1 ต้องได้ 45 ข้อ ได้ ${n}`)
+          await upsertPhase(ck, { answers_json: merged, phase: 'answers', cost_cents: cents, model: body.model || DEFAULT_MODEL })
+        } else {
+          const chapters = Object.keys(merged).length
+          if (chapters !== 6) throw new Error(`ชั้น 2 ต้องได้ 6 บท ได้ ${chapters}`)
+          for (const [k, v] of Object.entries(merged)) {
+            if (!v?.title || !Array.isArray(v?.blocks) || !v.blocks.length) throw new Error(`บท ${k} ไม่มี title/blocks`)
+          }
+          await upsertPhase(ck, { oracle_json: { schema: '3.0-composed', system: ck.system, lang: ck.lang, chapters: merged }, phase: 'done', cost_cents: cents, model: body.model || DEFAULT_MODEL })
+        }
+        await upsertJob(jobKey, body.phase === 'answers' ? 'answers_ready' : 'done')
+      } catch (e) {
+        await upsertJob(jobKey, 'error', String(e).slice(0, 300))
+      }
+    })()
+    // @ts-ignore EdgeRuntime is provided by the Supabase Edge runtime.
+    EdgeRuntime.waitUntil(runBatch)
+    return json({ status: 'started', phase: body.phase, calls: body.calls.length }, 202)
+  }
 
   const render = (async () => {
     try {
@@ -173,8 +292,7 @@ Deno.serve(async (req: Request) => {
       if (verr) throw new Error('validation: ' + verr)
 
       const usage = data.usage || {}
-      // cost_cents is an INTEGER column → round UP to whole cents (PostgREST rejects floats).
-      const costCents = Math.ceil((usage.input_tokens || 0) * 0.0003 + (usage.output_tokens || 0) * 0.0015)
+      const costCents = centsFor(body.model || DEFAULT_MODEL, usage)
       await upsertCache(ck, oracle, costCents, body.model || DEFAULT_MODEL)
       await upsertJob(jobKey, 'done')
     } catch (e) {

@@ -46,7 +46,9 @@ const SYSTEMS = [
 //    เพราะสูตรฐานของเราน่าจะผิดตั้งแต่ฐาน 4 (ดูคอมเมนต์ที่ calcThaiSeven ใน calc.ts)
 //    ขายคำอ่านบนสูตรที่ยังสงสัยไม่ได้ · ปลดล็อกเมื่อยืนยันสูตรกับตำราแล้ว
 
-const SCHEMA_VERSION = '2.1' // 6 cat × 10 Q (health + people restored 2026-06-23)
+// 3 ก.ย. 69: 2.1 (6 หมวด x 10 คำถาม ยิงครั้งเดียว) -> 3.0 (45 ข้อ + เรียบเรียง 6 บท)
+// prompt_version คำนวณจากค่านี้ ⇒ แถวแคชเก่าไม่ชนกับใหม่ ถอยกลับได้ด้วยการเปลี่ยนค่านี้กลับ
+const SCHEMA_VERSION = '3.0'
 // ── Decoupled render (2026-06-23) ────────────────────────────────────────────
 // The Deep Reading takes ~100s on Sonnet 4.6 (whose Thai is native, unlike Haiku's
 // translationese). That's over Vercel Hobby's 60s function ceiling, so this
@@ -108,7 +110,9 @@ function loadSystemFramework(system) {
 function computePromptVersion(system) {
   const base = loadBasePrompt()
   const framework = loadSystemFramework(system)
-  const concat = `${SCHEMA_VERSION}|${base}|${framework}`
+  const v3 = loadV3()
+  // ⛔ ต้องรวมไฟล์ v3 เข้าไปด้วย ไม่งั้นแก้คำถาม/กฎแล้วลูกค้ายังได้ของเก่าจากแคช
+  const concat = `${SCHEMA_VERSION}|${base}|${framework}|${v3.answersBase}|${v3.composeBase}|${JSON.stringify(v3.questions)}`
   return createHash('sha256').update(concat).digest('hex').slice(0, 16)
 }
 
@@ -131,6 +135,91 @@ function buildUserMessage(body) {
     context: body.context || {},
   }
   return JSON.stringify(payload, null, 2)
+}
+
+// ══ ท่อสองชั้น (v3) ═══════════════════════════════════════════════════════
+//
+// ชั้น 1  คำตอบคำถามบังคับ 45 ข้อ → เก็บใน answers_json = วัตถุดิบทำ consensus ข้ามศาสตร์
+// ชั้น 2  เรียบเรียงเป็นความเรียง 6 บท → oracle_json = สิ่งที่ลูกค้าอ่าน
+//
+// director 2 ก.ย. 69: "เขาไม่ได้ต้องการการตอบเป็นข้อๆ เราได้คำตอบมา engine ต้องมีหน้าที่
+// เรียบเรียงต่อด้วย ส่วนที่เป็นข้อๆเอาไว้สำหรับทำ consensus"
+//
+// ⛔ ทำไมต้องแตกเป็นหลายก้อน ไม่ใช่ยิงทีเดียว — วัดแล้วทั้งสองชั้นเกินเพดานของที่มี:
+//    ชั้น 1 ทั้งชุด ~22,000 tokens · ชั้น 2 ~12,000 · เพดานต่อครั้งคือ 7,000
+//    และเวลาเขียนรวดเดียวเกิน 150 วินาทีที่ Supabase Edge ให้
+//    ⇒ ชั้น 1 แตกตามหมวด 10 ก้อน · ชั้น 2 แตกตามบท 6 ก้อน ยิงขนานทั้งคู่
+//    แต่ละก้อนลงใต้เพดานสบาย และเวลารวมเท่ากับก้อนที่ช้าที่สุด ไม่ใช่ผลรวม
+const V3_DIR = join(process.cwd(), 'Mythsensus/report-engine/lib/oracle/_v3')
+let _v3 = null
+function loadV3() {
+  if (_v3) return _v3
+  _v3 = {
+    questions: JSON.parse(readFileSync(join(V3_DIR, 'questions.json'), 'utf-8')),
+    answersBase: readFileSync(join(V3_DIR, 'answers-base.md'), 'utf-8'),
+    composeBase: readFileSync(join(V3_DIR, 'compose-base.md'), 'utf-8'),
+  }
+  return _v3
+}
+
+// ฐานของเล่ม — คำนวณจาก payload ฝั่งเรา ไม่ใช่ให้โมเดลคิด
+// ⛔ ต้อง deterministic เพราะทั้ง 6 บทเขียนขนานกัน ไม่มีบทไหนเห็นของบทอื่น
+//    ถ้าปล่อยให้แต่ละบทสรุปฐานเอง ลูกค้าจะได้อ่านฐานเดิมหกรอบ และอาจไม่ตรงกันด้วย
+function buildBasis(body) {
+  const c = body.chart || {}
+  const lines = []
+  const put = (k, v) => { if (v !== undefined && v !== null && v !== '') lines.push(`${k}: ${v}`) }
+  put('ธาตุประจำตัว', c.dayMasterElement)
+  put('ธาตุที่ล้นในดวง', c.dominantElement)
+  put('ธาตุที่ไม่มีในดวง', c.missingElement)
+  put('ธาตุที่เสริมแล้วดี', c.luckyElement)
+  put('ธาตุที่เจอแล้วหนัก', c.avoidElement)
+  put('ช่วงชีวิตปัจจุบัน', c.currentLuckPillarTh || c.currentLuckPillar)
+  // ศาสตร์ที่ไม่ใช่ดวงจีนไม่มีฟิลด์พวกนี้ — ใช้ค่าเด่นที่มีแทน ไม่ปล่อยว่าง
+  if (!lines.length) {
+    for (const k of Object.keys(c).slice(0, 6)) {
+      const v = c[k]
+      if (typeof v === 'string' || typeof v === 'number') put(k, v)
+    }
+  }
+  return lines
+}
+
+function buildAnswerCalls(body) {
+  const { questions, answersBase } = loadV3()
+  const framework = loadSystemFramework(body.system)
+  const payload = buildUserMessage(body)
+  return questions.groups.map(g => ({
+    key: g.key,
+    maxTokens: 4000,
+    systemPrompt: `${answersBase}\n\n---\n\n## วิธีอ่านของศาสตร์นี้\n\n${framework}\n\n---\n\n` +
+      `## หมวดที่ต้องตอบในก้อนนี้: ${g.key} · ${g.title} (${g.questions.length} ข้อ)\n\n` +
+      g.questions.map(q => `- ${q.q} ${q.text}`).join('\n'),
+    userMessage: payload,
+  }))
+}
+
+function buildComposeCalls(body, answersJson) {
+  const { questions, composeBase } = loadV3()
+  const basis = buildBasis(body)
+  return questions.chapters.map(ch => {
+    const groups = ch.from.map(k => answersJson[k]).filter(Boolean)
+    const unanswered = groups.flatMap(g => (g.answers || []).filter(a => a.answerable === false))
+    return {
+      key: ch.key,
+      maxTokens: 3500,
+      systemPrompt: `${composeBase}\n\n---\n\n## บทที่ต้องเขียนในก้อนนี้\n\n` +
+        `ชื่อบท: ${ch.title}\n` +
+        `หลอมจากหมวด: ${ch.from.join(' + ')}\n` +
+        `ข้อที่ศาสตร์นี้ตอบไม่ได้ในหมวดนี้: ${unanswered.length} ข้อ (ใส่ลง limits)`,
+      userMessage: JSON.stringify({
+        basis,
+        context: body.context || {},
+        months: body.months || [],
+        answers: groups,
+      }, null, 1),
+    }
+  })
 }
 
 function validateInput(body) {
@@ -252,7 +341,7 @@ async function requireOracleAccess(req) {
 
 async function readCache({ chart_hash, system, lang, relationship_status, prompt_version }) {
   try {
-    const sql = `SELECT oracle_json, cost_cents, model, generated_at_iso
+    const sql = `SELECT oracle_json, answers_json, phase, cost_cents, model, generated_at_iso
                  FROM public.myth_addon_reading
                  WHERE chart_hash = '${sqlEscape(chart_hash)}'
                    AND system = '${sqlEscape(system)}'
@@ -362,7 +451,9 @@ export default async function handler(req, res) {
 
   // 1. Cache lookup
   const cached = await readCache(cache_key)
-  if (cached && cached.oracle_json) {
+  // ⛔ เงื่อนไขต้องเป็น phase='done' ด้วย — แถวที่มีแค่คำตอบ 45 ข้อ
+  //    ยังไม่มี oracle_json ถ้านับว่าเสร็จ ลูกค้าจะค้างคาอยู่ตรงนั้นตลอดไป
+  if (cached && cached.oracle_json && cached.phase !== 'answers') {
     return res.status(200).json({
       oracle: cached.oracle_json,
       cached: true,
@@ -393,26 +484,40 @@ export default async function handler(req, res) {
     })
   }
 
-  // 3. Not cached → make sure a render job is running on the woam worker, then ask
-  //    the client to poll. The ~100s Sonnet render runs OFF this request (Vercel
-  //    Hobby caps functions at 60s); the worker writes the cache when it finishes.
+  // 3. ยังไม่มีในแคช → เดินทีละเฟส แล้วให้เบราว์เซอร์ถามซ้ำ
+  //
+  //   ไม่มีแถว       → เฟส 1: คำตอบ 45 ข้อ (10 ก้อนขนาน)
+  //   phase='answers' → เฟส 2: เรียบเรียง 6 บท (6 ก้อนขนาน)
+  //   phase='done'    → คืนของจากแคชข้างบนไปแล้ว
+  //
+  // ⛔ ห้ามยิงเฟส 2 ก่อนเฟส 1 จะจบ — ชั้นเรียบเรียงอ่านจากคำตอบ ไม่ใช่จากดวงตรงๆ
   const jobKey = [cache_key.chart_hash, cache_key.system, cache_key.lang, cache_key.relationship_status, cache_key.prompt_version].join('|')
   const job = await readJob(jobKey)
-  const jobFresh = !!(job && job.status === 'running' && job.fresh)
-  if (!jobFresh) {
-    // No active job (or it errored / went stale) → (re)trigger. We await only the
-    // worker's fast 202 ack; the render continues in its background task. A failed
-    // prior render therefore auto-retries on the next poll.
+  const jobBusy = !!(job && (job.status === 'running' || job.status === 'answers_ready') && job.fresh)
+
+  if (!jobBusy) {
+    const phase = cached && cached.phase === 'answers' && cached.answers_json ? 'compose' : 'answers'
+    let calls
+    try {
+      calls = phase === 'answers'
+        ? buildAnswerCalls(body)
+        : buildComposeCalls(body, cached.answers_json)
+    } catch (e) {
+      console.error('[oracle/addon] build calls failed:', e.message)
+      return res.status(500).json({ error: 'oracle_prompt_build_failed' })
+    }
     try {
       await triggerRender({
         cache_key: { ...cache_key, year: body.year },
-        systemPrompt: buildSystemPrompt(body.system),
-        userMessage: buildUserMessage(body),
+        phase,
+        calls,
         model: RENDER_MODEL,
       })
     } catch (e) {
       return res.status(502).json({ error: 'oracle_trigger_failed' })
     }
+    return res.status(202).json({ status: 'generating', phase, calls: calls.length, generated_ms: Date.now() - t0 })
   }
-  return res.status(202).json({ status: 'generating', generated_ms: Date.now() - t0 })
+
+  return res.status(202).json({ status: 'generating', phase: job.status === 'answers_ready' ? 'compose' : 'answers', generated_ms: Date.now() - t0 })
 }
