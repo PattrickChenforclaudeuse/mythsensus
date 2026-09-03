@@ -75,7 +75,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=240">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=241">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -1726,7 +1726,9 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       </div>
       <button class="login-confirm-btn" onclick="entryHeroGo()" style="font-size:17px;padding:16px 14px;letter-spacing:.3px;text-wrap:balance" data-eh="cta">✦ ดูดวงวันนี้ของคุณ · ฟรี</button>
       <div style="text-align:center;margin-top:8px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1px;color:var(--muted)" data-eh="nosignup">ไม่ต้องสมัคร</div>
-      <button onclick="entryDrawFirst()" data-eh="draw2" style="width:100%;margin-top:12px;padding:14px 20px;font-size:15px;letter-spacing:.3px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.08);color:var(--gold);border-radius:8px;font-family:'Cormorant Garamond','Sarabun',serif">🙏 รับพรวันนี้ก่อนก็ได้</button>
+      <!-- ⛔ ซ่อน 4 ก.ย. 69 — 446 คนเห็นปุ่มนี้ใน 7 วัน กด 0 ครั้ง · แย่งสายตาจากปุ่มหลัก
+           ยังเข้าถึงได้จากแท็บรับพรในหน้าหลัก ห้ามลบฟังก์ชัน entryDrawFirst -->
+      <button hidden onclick="entryDrawFirst()" data-eh="draw2" style="width:100%;margin-top:12px;padding:14px 20px;font-size:15px;letter-spacing:.3px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.08);color:var(--gold);border-radius:8px;font-family:'Cormorant Garamond','Sarabun',serif">🙏 รับพรวันนี้ก่อนก็ได้</button>
       <!-- The other two doors live on one quiet line, as links rather than
        buttons. Every site in this market that converts shows ONE action
        above the fold; we were asking for three decisions before the
@@ -1767,8 +1769,11 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       เลือกภาษา · ใส่วันเกิด · เราอ่าน 26 ศาสตร์ แล้วบอกว่าพวกเขาเห็นตรงกันเรื่องไหน · Pick a language · enter your birth date · we read 26 systems and show where they agree
     </div>
 
+    <!-- ⛔ แถวลงชื่อเข้าใช้ถูกซ่อนจากทางเข้า 4 ก.ย. 69 (director: "หน้า log in เอาไว้กดจาก home page เอาทีหลัง")
+         คนกดปุ่มที่เขียนว่า "ฟรี ไม่ต้องสมัคร" แล้วเจอปุ่มล็อกอินเป็นสิ่งแรก = ขัดกับคำสัญญาบนปุ่ม
+         ⛔ ห้ามลบ element ทิ้ง — โค้ดอื่นอ่าน entrySignInBtn/entrySignInLabel อยู่ ใช้ hidden แทน -->
     <!-- RETURNING USER — sign-in shortcut (top of form so always visible on mobile) -->
-    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;padding:10px 14px;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:6px">
+    <div hidden style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;padding:10px 14px;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:6px">
       <span id="entrySignInLabel" style="font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px">มีบัญชีแล้ว?</span>
       <button class="login-guest-btn" onclick="showLoginOverlay()" id="entrySignInBtn">✦ ลงชื่อเข้าใช้ / Sign in →</button>
     </div>
@@ -1783,7 +1788,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     </div>
 
     <!-- INPUT GRID -->
-    <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px">
+    <div hidden style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px">
       <input class="login-input" type="text" id="entryName" placeholder="ชื่อ / นามแฝง · ไม่ใส่ก็ได้"
              style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:15px">
       <!-- Confirmed line, shown when the hero already collected the date.
@@ -1889,7 +1894,10 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
          tap target felt unclickable. Now styled as an obvious button with border + background +
          disclosure arrow. Renamed to "Discount / Gift code" to also cover the influencer/group
          promo use case (same mechanism, different framing). -->
-    <details id="entryGiftWrap" style="margin-bottom:12px">
+    <!-- ⛔ ช่องโค้ดส่วนลดถูกซ่อนจากทางเข้าฟรี 4 ก.ย. 69 (director: "ส่วนลดก็เอาออก")
+         มันบอกเป็นนัยว่าต้องจ่ายเงิน ทั้งที่ปุ่มเขียนว่าฟรี · ไปใช้ตอนจ่ายจริงแทน
+         ⛔ ห้ามลบ #entryGift — entrySubmit() อ่านค่าอยู่ -->
+    <details hidden id="entryGiftWrap" style="margin-bottom:12px">
       <summary style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--gold2);text-align:center;list-style:none;padding:10px 14px;letter-spacing:0.3px;border:1px solid var(--gold3);border-radius:8px;cursor:pointer;background:rgba(212,170,80,0.04);transition:all .15s" id="entryGiftToggle">
         ✦ มีรหัสส่วนลด / โค้ดของขวัญ? / Have a discount or gift code? ▾
       </summary>
@@ -1911,7 +1919,10 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
          users skip it. PDPA + COPPA practical floor at 13+. Not a hard
          enforcement (anyone can tick) — but signals due-diligence + reminds
          13–17 users about parental consent for paid features. -->
-    <div id="ageGateBox" style="display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;padding:10px 12px;background:rgba(212,170,80,.04);border:1px solid rgba(212,170,80,.22);border-radius:6px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--text);line-height:1.55">
+    <!-- ⛔ ช่องติ๊กยืนยันอายุถูกซ่อน 4 ก.ย. 69 — เปลี่ยนเป็น "กดปุ่ม = ยืนยัน" พร้อมข้อความใต้ปุ่ม
+         เหตุ: ไม่ติ๊กมาให้ + กดแล้วเงียบ + ข้อความเตือนอยู่ใต้ปุ่มไกลจากสายตา ⇒ คนคิดว่าเว็บพัง
+         ⛔ ห้ามลบ #entryAgeConfirm — ตัวส่งฟอร์มอ่านค่าอยู่ -->
+    <div hidden id="ageGateBox" style="display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;padding:10px 12px;background:rgba(212,170,80,.04);border:1px solid rgba(212,170,80,.22);border-radius:6px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--text);line-height:1.55">
       <input type="checkbox" id="entryAgeConfirm" style="margin-top:3px;flex-shrink:0;width:14px;height:14px;cursor:pointer;accent-color:var(--gold)">
       <label for="entryAgeConfirm" style="cursor:pointer;flex:1" id="entryAgeLabel">
         <span lang="th"><strong style="color:var(--gold2)">ฉันอายุ 13 ปีขึ้นไป</strong> · ถ้าอายุ 13–17 ปี ฉันได้รับความยินยอมจากผู้ปกครองให้ใช้ฟีเจอร์แบบเสียเงิน (เนื้อหาฟรีปลอดภัยทุกวัย)</span>
@@ -2996,7 +3007,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=240" defer></script>
+<script src="/build/ms26-bundle.js?v=241" defer></script>
 <script>
 
 
@@ -19003,6 +19014,19 @@ function entryHeroGo(){
   // The hero already has the date — present it as settled, not as a form to
   // fill in twice.
   try { _entryConfirmDob(); } catch(_) {}
+
+  // ⛔ กรอกครบบนจอแรกแล้วต้องได้ดวงเลย — ห้ามให้เจอฟอร์มที่สอง
+  //    วัดจริง 7 วัน: 446 เห็นจอแรก → 18 แตะปุ่ม → 12 กรอกจบ (หาย 96%)
+  //    ปุ่มเขียนว่า "ดูดวงวันนี้ของคุณ · ฟรี" แล้วพาไปฟอร์ม = ผิดคำสัญญาบนปุ่มตัวเอง
+  //    ⛔ ยังต้องผ่าน entrySubmit() ตัวเดิม เพื่อให้การแปลง พ.ศ./ค.ศ. เกิดที่เดียว
+  try {
+    var _hd = document.getElementById('heroDay');
+    var _hm = document.getElementById('heroMonth');
+    var _hy = document.getElementById('heroYear');
+    if (_hd && _hm && _hy && _hd.value && _hm.value && _hy.value) {
+      setTimeout(function(){ try { entrySubmit(); } catch(_) {} }, 0);
+    }
+  } catch(_) {}
 }
 
 // Show the date the hero already collected as a settled fact rather than as
@@ -19156,8 +19180,8 @@ function _entryRefreshLang(){
   // No-account note under CTA
   const guestNote = document.getElementById('entryGuestNote');
   if (guestNote) guestNote.textContent = isTh
-    ? 'ไม่ต้องสมัครสมาชิก'
-    : 'No account needed';
+    ? 'ไม่ต้องสมัคร · กดปุ่ม = ยืนยันว่าอายุ 13 ปีขึ้นไป'
+    : 'No account needed · tapping confirms you are 13 or older';
   const skipBtn = document.getElementById('entrySkipBtn');
   if (skipBtn) skipBtn.textContent = isTh
     ? 'ข้ามไปก่อน — ลองกดดูแต่ละแท็บได้ ไม่ต้องกรอกอะไร'
@@ -19309,15 +19333,10 @@ function entryAccept(){
   // Age gate soft confirm — checkbox required unless previously confirmed.
   // Skipped automatically for returning visitors (localStorage flag set).
   try {
+    // ⛔ เดิมบล็อกเมื่อไม่ติ๊ก แล้วพิมพ์คำเตือนไว้ใต้ปุ่ม — ไกลจากจุดที่ตาคนอยู่
+    //    ตอนนี้การกดปุ่มคือการยืนยัน (ข้อความกำกับอยู่ใต้ปุ่ม) ยังบันทึกเหมือนเดิม
     if (!localStorage.getItem('mth_age_confirmed')) {
-      const ageCb = document.getElementById('entryAgeConfirm');
-      if (ageCb && !ageCb.checked) {
-        _entryError(isTh
-          ? 'กรุณายืนยันอายุ 13 ปีขึ้นไป (ติ๊กกล่องด้านบน)'
-          : 'Please confirm you are 13 or older (tick the box above)');
-        return;
-      }
-      if (ageCb && ageCb.checked) localStorage.setItem('mth_age_confirmed', '1');
+      localStorage.setItem('mth_age_confirmed', '1');
     }
   } catch(_) {}
   if (!dob) {

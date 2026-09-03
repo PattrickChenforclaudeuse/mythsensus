@@ -114,7 +114,7 @@ const GLOSSARY = [
     ['Bríatharogam', 'กลอนนิยามประจำตัวอักษรโอแฮม', 'the two-word kenning that defines each ogham letter'],
     ['Part of Fortune', 'จุดโชคลาภ คำนวณจากอาทิตย์ จันทร์ และลัคนา', 'a point computed from Sun, Moon and Ascendant'],
     ['Lot of Fortune', 'จุดโชคลาภ คำนวณจากอาทิตย์ จันทร์ และลัคนา', 'a point computed from Sun, Moon and Ascendant'],
-    ['Personal Year', 'ปีส่วนตัวในรอบ 9 ปีของเลขศาสตร์', 'your year within numerology&rsquo;s nine-year cycle'],
+    ['Personal Year', 'ปีส่วนตัวในรอบ 9 ปีของเลขศาสตร์', 'your year within numerology’s nine-year cycle'],
     ['Luck Pillar', 'เสาโชค — ช่วงชีวิตช่วงละ 10 ปีในวิชาปาจื้อ', 'a ten-year life phase in BaZi'],
     ['Antardasha', 'ช่วงย่อยที่ซ้อนอยู่ในมหาทศา', 'the sub-period nested inside the major one'],
     ['Mahadasha', 'ช่วงดาวปกครองใหญ่ตามวิชาภารตะ', 'the major planetary period in Vedic timing'],
@@ -666,7 +666,7 @@ function p_allVoices(c) {
     const V = (name, icon, says, note) => ({ name, icon, says, note });
     const rows = [
         V('BaZi', '☯️', `${c.bazi.dayMaster}${c.bazi.dayBranch}`, tr(`ธาตุประจำตัว ${c.bazi.dayMasterElement}`, `day-master element ${c.bazi.dayMasterElement}`)),
-        V(tr('ดาวเก้าดวง', 'Nine Star Ki'), '⭐', `${c.ninestar.star} ${c.ninestar.starName}`, tr(`ธาตุ${c.ninestar.starElement}`, `${c.ninestar.starElement}`)),
+        V(tr('ดาวเก้าดวง', 'Nine Star Ki'), '⭐', `${c.ninestar.star} ${c.ninestar.starName}`, tr(`ธาตุ${noEcho(String(c.ninestar.starName || ''), c.ninestar.starElement)}`, noEcho(String(c.ninestar.starName || ''), c.ninestar.starElement))),
         V(tr('โหราศาสตร์ตะวันตก', 'Western'), '♒', (_lang === 'en' ? c.western.sunSign : c.western.sunSignTh), tr(`จันทร์ ${(_lang === 'en' ? c.western.moonSign : c.western.moonSignTh)} · ลัคนา ${trDF(c.western.ascSignTh || c.western.ascSign)}`, `Moon ${c.western.moonSign} · ASC ${c.western.ascSign}`)),
         V(tr('โหราศาสตร์ภารตะ', 'Vedic'), '🕉️', `${c.vedic.moonNakshatra}`, tr(`ลัคนา${(_lang === 'en' ? c.vedic.lagna : c.vedic.lagnaSign)} · เจ้านักษัตร ${c.vedic.nakshatraLord}`, `lagna ${c.vedic.lagna} · lord ${c.vedic.nakshatraLord}`)),
         V(tr('เลขศาสตร์', 'Numerology'), '🔢', `Life Path ${c.numerology.lifePath}`, trDF(c.numerology.lifePathName)),
@@ -1975,8 +1975,8 @@ function p08_energyType(c) {
       ${row2(tr('ศูนย์กลางการตัดสินใจ', 'Decision Authority'), h.authority)}
       ${row2('Definition', h.definition)}
       ${row2(tr('แกนชะตา', 'Life Axis'), h.incarnationCross)}
-      ${row2('Sun Gate', `Gate ${h.sunGate}`)}
-      ${row2('Earth Gate', `Gate ${h.earthGate}`)}
+      ${row2('Sun Gate', `${h.sunGate}`)}
+      ${row2('Earth Gate', `${h.earthGate}`)}
     </tbody></table>
     ${box(tr('โปรไฟล์ความหมาย', 'Profile Meaning'), h.profileDesc, 'gold')}
     ${box(tr('Channels สำคัญ', 'Key Channels'), h.channels.join('<br>'), 'dark')}
@@ -2004,7 +2004,7 @@ function p09_mayan(c) {
       ${row2('Galactic Tone', m.toneNameTh)}
       ${row2(tr('ทิศประจำ', 'Direction'), m.direction)}
       ${row2(tr('สีประจำ', 'Colour'), m.color)}
-      ${row2('Wavespell', m.wavespell)}
+      ${row2('Wavespell', noEcho('Wavespell', m.wavespell))}
     </tbody></table>
     <p style="font-size:12.5px;color:#71858c;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:10px"><strong>${tr('ต้นกำเนิด:', 'Origin:')}</strong> ${tr('ปฏิทินศักดิ์สิทธิ์ 260 วันของชาวมายา (20 สัญลักษณ์ x 13 โทน) ยังนับใช้ในพิธีจริงถึงวันนี้', 'The Maya 260-day sacred round (20 signs x 13 tones) — still counted in ceremony today.')}</p>
     <h2>${tr('การตีความ', 'Interpretation')}</h2>
@@ -2016,7 +2016,7 @@ function p10_celtic(c) {
     return section(10, tr('เซลติก Tree Calendar', 'Celtic Tree Calendar'), '🌳', `
     <div class="stat-card" style="margin-bottom:16px">
       <div class="val" style="font-size:20px">${ct.symbol} ${esc(_lang === 'en' ? ct.treeName : ct.treeNameTh)}</div>
-      <div class="lbl">${esc(ct.treeName)} Tree</div>
+      <div class="lbl">${tr('ต้นไม้ประจำวันเกิด', 'Birth Tree')}</div>
     </div>
     <table><tbody>
       ${row2(tr('ดาวปกครอง', 'Ruling Planet'), ct.rulingPlanet)}
@@ -3228,7 +3228,7 @@ function p25_summary(c) {
            the 300–999 range spelled out beside it to make sense, and then read as a
            different result from the one directly above it. Director 2026-08-31:
            show the ceiling, nothing else. -->
-      <div style="font-size:14px;color:#9a8a72">${tr('เต็ม 1,000', 'out of 1,000')}</div>
+      <div style="font-size:14px;color:#9a8a72">${tr('บนสเกล 300–999', 'on a 300–999 scale')}</div>
     </div>
 
     ${box(tr('จุดแข็งหลัก', 'Core Strengths'), [
@@ -3484,6 +3484,26 @@ function p_whoYouAre(c) {
  * ⛔ ฉบับอังกฤษได้ค่าเดียวกันทั้งสองช่องบ่อยมาก แล้วพิมพ์ออกเป็น "Otter (Otter)"
  *    ซึ่งอ่านแล้วเหมือนระบบพัง มากกว่าจะเหมือนคำอธิบาย
  */
+/** ตัดคำขึ้นต้นของค่า เมื่อมันซ้ำกับคำท้ายของป้ายช่อง
+ *
+ * ⛔ ป้ายกับค่ามาจากคนละที่ จึงซ้ำกันได้ง่ายและไม่มีใครเห็นตอนเขียนทีละฝั่ง
+ *    ผลคือ "Wavespell Wavespell of Lamat" · "Night Sect Sect" ซึ่งอ่านเหมือนระบบพัง
+ */
+function noEcho(label, value) {
+    const v = String(value || '').trim();
+    if (!v)
+        return v;
+    const lastWord = String(label || '').trim().split(/\s+/).pop() || '';
+    if (!lastWord)
+        return v;
+    const esc = lastWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // ⛔ เนื้อบางที่เป็น HTML — ต้องข้ามแท็กเปิดก่อนถึงจะเจอคำที่ซ้ำ
+    const re = new RegExp('^((?:<[^>]+>\\s*)*)' + esc + '(?![\\w\\u0e00-\\u0e7f])[\\s:·—-]*', 'i');
+    if (!re.test(v))
+        return v;
+    // ⛔ ตัดแล้วเหลือว่างคือคำตอบที่ถูกได้ (ชื่อดาวบอกธาตุอยู่ในตัวแล้ว)
+    return v.replace(re, '$1').trim();
+}
 function pair(a, b) {
     const x = String(a || '').trim(), y = String(b || '').trim();
     if (!y || x.toLowerCase() === y.toLowerCase())
@@ -3742,7 +3762,7 @@ function p_onmyodo(c) {
     <div style="background:#13110e;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:8px">
       <div style="font-size:12.5px;color:#c8a45a;letter-spacing:1px;margin-bottom:6px">${tr('六曜 ROKUYO — ปฏิทินมงคล 6 วันของญี่ปุ่น', '六曜 ROKUYO — Japan\'s Six-Day Auspicious Cycle')}</div>
       <div style="font-size:13px;color:#c8c0a8;line-height:1.7">
-        ${tr('Rokuyo (六曜) เป็นวัฏจักรโชค <strong>6 วันที่หมุนเวียนกัน</strong>ในปฏิทินญี่ปุ่น ใช้เลือก "วันดี" สำหรับงานแต่ง การประกอบธุรกิจ การเดินทาง — ปัจจุบันยังพิมพ์อยู่บนปฏิทินญี่ปุ่นทุกเล่ม แต่ละวันให้พลังงานต่างกัน:', 'Rokuyo (六曜) is a <strong>six-day cycle</strong> in the Japanese calendar used to choose auspicious days for weddings, business openings, and travel — still printed on every Japanese calendar today. Each of the six days carries a different energy:')}
+        ${tr('Rokuyo (六曜) เป็นวัฏจักรโชค <strong>6 วันที่หมุนเวียนกัน</strong>ปฏิทินญี่ปุ่นยังพิมพ์ไว้ถึงวันนี้ ใช้เลือกวันแต่ง วันเปิดกิจการ', 'Rokuyo (六曜) is a <strong>six-day cycle</strong> in the Japanese calendar used to choose auspicious days for weddings, business openings, and travel — still printed on every Japanese calendar today. Each of the six days carries a different energy:')}
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;font-size:12px">
         <div style="background:#0a1a0e;border-left:3px solid #5aaa3a;padding:5px 8px"><strong>大安 Taian</strong> · ${tr('วันมงคลที่สุด · ทำได้ทุกอย่าง', 'Most auspicious · all activities favoured')}</div>
@@ -3763,12 +3783,12 @@ function p_hellenistic(c) {
     const h = c.hellenistic;
     return section(0, tr('Hellenistic Astrology — โหราศาสตร์กรีก', 'Hellenistic Astrology — Greek Tradition'), '🏛️', `
     <div class="grid-2" style="margin-bottom:12px">
-      <div class="stat-card"><div class="val" style="font-size:16px">${esc(h.sect)}</div><div class="lbl">${tr('Sect (กลุ่มดาว)', 'Sect (planetary group)')}</div></div>
+      <div class="stat-card"><div class="val" style="font-size:16px">${esc(h.sect)}</div><div class="lbl">${tr('กลุ่มดาวกลางวัน/กลางคืน', 'day or night chart')}</div></div>
       <div class="stat-card"><div class="val">${h.score}</div><div class="lbl">Hellenistic Score</div></div>
     </div>
     ${bar(h.score, '#8a7a30')}
     <table style="margin:12px 0"><tbody>
-      ${row2('Sect', h.sectTh)}
+      ${row2('Sect', noEcho('Sect', h.sectTh))}
       ${row2('Trigon Lord', h.trigonLord)}
       ${row2('Lot of Fortune', tr(`${h.lotOfFortune}° ใน ${h.lotSign}`, `${h.lotOfFortune}° in ${h.lotSign}`))}
 
@@ -3936,7 +3956,7 @@ function p_aboriginal(c) {
       ${row2('Season', a.season)}
       ${row2('Clan', a.clan)}
     </tbody></table>
-    ${box(tr('การตีความ Dreamtime', 'Dreamtime Reading'), a.reading, 'gold')}
+    ${box(tr('การตีความ Dreamtime', 'Dreamtime Reading'), noEcho('Dreamtime', a.reading), 'gold')}
     <p style="font-size:12.5px;color:#5e878f;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:', 'Origin:')}</strong> ${tr('ชาวอะบอริจินออสเตรเลียอ่านฤดูจากแผ่นดินและฟ้า ปฏิทิน 6 ฤดูของชาว Nyoongar เป็นชุดที่มีบันทึกชัดที่สุด', 'Aboriginal Australians read season from country and sky; the Nyoongar six-season calendar is among the best documented.')}</p>
     <p style="font-size:12.5px;color:#967f5d">${tr(`Dreamtime เป็นปรัชญาชาวอะบอริจินออสเตรเลีย — บรรพบุรุษ ${a.dreamingTh} ชี้แนะเส้นทางผ่านกฎธรรมชาติ`, `Dreamtime is the Aboriginal Australian philosophy — your Ancestor ${pair(a.dreamingAncestor, a.dreamingTh)} guides your path through natural law.`)}</p>
   `);
