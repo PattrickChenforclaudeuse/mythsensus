@@ -554,7 +554,7 @@ function p_threeScores(c: ChartData): string {
   const { bazi, score } = c
   const SHENG: Record<string,string> = {Wood:'Fire',Fire:'Earth',Earth:'Metal',Metal:'Water',Water:'Wood'}
   const EL_EN: Record<string,string> = {'ไม้':'Wood','ไฟ':'Fire','ดิน':'Earth','โลหะ':'Metal','น้ำ':'Water'}
-  const dmElEn = EL_EN[bazi.dayMasterElement] ?? 'Fire'
+  const dmElEn = EL_EN[elKey(bazi.dayMasterElement)] ?? 'Fire'
   // Domain example: Interior BD (construction = Earth, BD = Fire domain → Fire creates Earth → DM_CREATES)
   const bdEl = 'ไฟ' // BD domain = fire (persuasion, leadership)
   const industryEl = 'ดิน' // interior/construction = earth
@@ -1516,7 +1516,7 @@ function p03_convergence(c: ChartData): string {
   // Vote: system score ≥ median + element/energy aligns with DM
   const ELEM_EL_MAP: Record<string,string> = {'ไม้':'Wood','ไฟ':'Fire','ดิน':'Earth','โลหะ':'Metal','น้ำ':'Water','ลม':'Wood','Air':'Wood'}
   const SHENG: Record<string,string> = {Wood:'Fire',Fire:'Earth',Earth:'Metal',Metal:'Water',Water:'Wood'}
-  const dmElEn = ELEM_EL_MAP[dmEl] ?? 'Fire'
+  const dmElEn = ELEM_EL_MAP[elKey(dmEl)] ?? 'Fire'
   const elVotes: Vote[] = []
   // BaZi — always votes for its own DM
   elVotes.push({ system:'BaZi Day Master', score:sc('BaZi') })
@@ -2110,7 +2110,7 @@ function p07_vedic(c: ChartData): string {
   const v = c.vedic
   return section(7, tr('Vedic Jyotish — โหราศาสตร์ภารตะ (อินเดีย)', 'Vedic Jyotish — India\'s Ancient Star Science'), '🕉️', `
     <table><tbody>
-      ${row2(tr('Lagna (ราศีขึ้น)','Lagna (Rising Sign)'), `${v.lagna} · ${v.lagnaSign}`)}
+      ${row2(tr('Lagna (ราศีขึ้น)','Lagna (Rising Sign)'), v.lagna === v.lagnaSign ? `${v.lagna}` : `${v.lagna} · ${v.lagnaSign}`)}
       ${row2(tr('นักษัตรดวงจันทร์','Moon Nakshatra'), `${v.moonNakshatra} ${tr('บาท','Pada')} ${v.nakshathraPada}`)}
       ${row2(tr('ดาวปกครองนักษัตร','Nakshatra Lord'), v.nakshatraLord)}
       ${row2(tr('มหาทศาปัจจุบัน','Current Mahadasha'), `${v.mahadasha} (${v.mahadashaPeriod})`)}
@@ -2225,7 +2225,7 @@ function p11_thai(c: ChartData): string {
       </div>
     </div>
     <table style="margin:12px 0"><tbody>
-      ${row2(tr('เทพผู้ปกครอง','Ruling Deity'), `${t.dayGodTh} (${t.dayGod})`)}
+      ${row2(tr('เทพผู้ปกครอง','Ruling Deity'), t.dayGodTh === t.dayGod ? `${t.dayGod}` : `${t.dayGodTh} (${t.dayGod})`)}
       ${row2(tr('นักษัตรไทย','Thai Nakshatra'), t.nakshatra)}
       ${row2(tr('ด้านมงคล','Auspicious Domain'), t.fortuneDay)}
     </tbody></table>
@@ -2436,9 +2436,13 @@ function p14_health(c: ChartData): string {
 
   // Map BaZi Day Master element → TCM organ pairing (well-established medical
   // tradition: ไม้→ตับ · ไฟ→หัวใจ · ดิน→ม้าม/กระเพาะ · โลหะ→ปอด · น้ำ→ไต)
-  const ORGAN: Record<string,string> = { 'ไม้':'ตับ+ถุงน้ำดี','ไฟ':'หัวใจ+ลำไส้เล็ก','ดิน':'ม้าม+กระเพาะ','โลหะ':'ปอด+ลำไส้ใหญ่','น้ำ':'ไต+กระเพาะปัสสาวะ' }
+  // ⛔ ต้องมีทั้งสองภาษาในตาราง — ปล่อยให้ตัวกวาดคำไทยแปลให้ไม่ได้ เพราะมันแทนที่แบบ substring
+  //    แล้ว 'น้ำ' (ธาตุ) ไปกินข้างใน 'ถุงน้ำดี' กลายเป็น 'ถุงWaterดี' ในฉบับอังกฤษ
+  const ORGAN: Record<string,string> = _lang === 'en'
+    ? { 'ไม้':'liver and gallbladder','ไฟ':'heart and small intestine','ดิน':'spleen and stomach','โลหะ':'lungs and large intestine','น้ำ':'kidneys and bladder' }
+    : { 'ไม้':'ตับ+ถุงน้ำดี','ไฟ':'หัวใจ+ลำไส้เล็ก','ดิน':'ม้าม+กระเพาะ','โลหะ':'ปอด+ลำไส้ใหญ่','น้ำ':'ไต+กระเพาะปัสสาวะ' }
   const dmEl = bazi.dayMasterElement
-  const organ = ORGAN[dmEl] || '—'
+  const organ = ORGAN[elKey(dmEl)] || '—'
 
   return section(20, tr('Health Coaching — ลักษณะประจำตัวจาก 26 ศาสตร์','Health Coaching — Constitutional Patterns from 26 Systems'), '🌿', `
     <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
@@ -2706,11 +2710,12 @@ function p17_weekly(c: ChartData): string {
   // ผสานกับ Day Master ของผู้ใช้ → บอก "พลังประจำวัน" ที่เหมาะกับคุณ
   const { bazi, ninestar, humandesign, thai, celtic } = c
   const dmEl = bazi.dayMasterElement
+  const _dmElForRate = dmEl
   // Day-of-week cosmology (Vedic / Hellenistic / ไทยพราหมณ์ — all agree on the 7-planet system)
   const daysData = [
     { name: tr('จันทร์','Monday'),   planet: tr('จันทร์ · Moon','Moon'),       element: tr('น้ำ','Water'),  color: tr('เหลือง','Yellow'),     energy: tr('สัญชาตญาณ · อารมณ์','Intuition · Emotion') },
     { name: tr('อังคาร','Tuesday'),  planet: tr('อังคาร · Mars','Mars'),       element: tr('ไฟ','Fire'),    color: tr('ชมพู','Pink'),         energy: tr('ลงมือ · ความกล้า · การแข่งขัน','Action · Courage · Competition') },
-    { name: tr('พุธ','Wednesday'),   planet: tr('พุธ · Mercury','Mercury'),    element: tr('ไม้','Wood'),   color: tr('เขียว','Green'),       energy: tr('สื่อสาร · เจรจา · สอน','Communication · Negotiation · Teaching') },
+    { name: tr('พุธ','Wednesday'),   planet: tr('พุธ · Mercury','Mercury'),    element: tr('น้ำ','Water'),   color: tr('เขียว','Green'),       energy: tr('สื่อสาร · เจรจา · สอน','Communication · Negotiation · Teaching') },
     { name: tr('พฤหัสบดี','Thursday'), planet: tr('พฤหัส · Jupiter','Jupiter'), element: tr('ไม้','Wood'),   color: tr('ส้ม','Orange'),        energy: tr('ขยายตัว · การเรียนรู้ · โชคลาภ','Expansion · Learning · Fortune') },
     { name: tr('ศุกร์','Friday'),    planet: tr('ศุกร์ · Venus','Venus'),      element: tr('โลหะ','Metal'), color: tr('ฟ้าอ่อน','Light Blue'), energy: tr('ความสัมพันธ์ · ศิลปะ · ความงาม','Relationships · Art · Beauty') },
     { name: tr('เสาร์','Saturday'),  planet: tr('เสาร์ · Saturn','Saturn'),    element: tr('ดิน','Earth'),  color: tr('ดำ/ม่วง','Black/Purple'), energy: tr('วินัย · โครงสร้าง · ความอดทน','Discipline · Structure · Endurance') },
@@ -2719,7 +2724,11 @@ function p17_weekly(c: ChartData): string {
   // ศาสตร์ 5 ธาตุ: เสริม (SHENG) · ควบคุม (KE) · กลาง
   const SHENG: Record<string,string> = { 'น้ำ':'ไม้','ไม้':'ไฟ','ไฟ':'ดิน','ดิน':'โลหะ','โลหะ':'น้ำ' }
   const KE:    Record<string,string> = { 'น้ำ':'ไฟ', 'ไฟ':'โลหะ','โลหะ':'ไม้','ไม้':'ดิน','ดิน':'น้ำ' }
-  const rate = (dayEl: string): {label:string; color:string; why:string} => {
+  // ⛔ เทียบด้วยคีย์มาตรฐาน — เดิมเทียบสตริงตรงๆ ทำให้ฉบับอังกฤษ ('Wood' vs 'ไม้')
+  //    ไม่ตรงสักวัน แล้วขึ้น "Neutral — elements unrelated" 5 ใน 7 วัน ทั้งที่ในวิชาห้าธาตุ
+  //    ไม่มีธาตุคู่ไหนไม่เกี่ยวกันเลย
+  const rate = (dayElRaw: string): {label:string; color:string; why:string} => {
+    const dayEl = elKey(dayElRaw), dmEl = elKey(_dmElForRate)
     if (dayEl === dmEl)       return { label: tr('☀️ พลังเท่าตัว','☀️ Full power'), color:'#c8a45a', why: tr('ธาตุของวันตรงกับ Day Master — ดึงพลังของตัวเองมาใช้ได้ 100%','The day\'s element matches your Day Master — 100% of your native energy available.') }
     if (SHENG[dayEl] === dmEl) return { label: tr('🟢 วันที่หล่อเลี้ยง','🟢 A nourishing day'), color:'#60a060', why: tr(`${dayEl} สร้าง ${dmEl} ในวงจร 5 ธาตุ — ได้รับการหล่อเลี้ยง`, `${dayEl} produces ${dmEl} in the 5-element cycle — you receive nourishment.`) }
     if (SHENG[dmEl] === dayEl) return { label: tr('🟡 วันที่คุณให้','🟡 A day you give'), color:'#c0a060', why: tr(`${dmEl} สร้าง ${dayEl} — คุณเป็นผู้ให้ รู้สึกภูมิใจแต่เหนื่อยง่าย`, `${dmEl} produces ${dayEl} — you\'re the giver: proud but easily depleted.`) }
@@ -2763,13 +2772,21 @@ function p17_weekly(c: ChartData): string {
       </tbody>
     </table>
 
-    ${box(
-      tr(`วันเกิดของคุณ = ${esc(thai.dayName)} ★${(thai as any).bornBeforeSunrise
-            ? ` <span style="font-size:12.5px;color:#9a8a72;font-weight:400">— คุณเกิดวัน${esc((thai as any).civilDayName)}ตามปฏิทินสากล แต่เวลาเกิดอยู่ก่อนพระอาทิตย์ขึ้น${(thai as any).sunriseLocal ? ` (${esc((thai as any).sunriseLocal)} น.)` : ''} และโหราศาสตร์ไทยเริ่มวันใหม่ตอนอาทิตย์ขึ้น ไม่ใช่เที่ยงคืน จึงนับเป็นวัน${esc(thai.dayName)}</span>` : ''}`,
-         `Your Birth Weekday = ${esc(thai.dayName)} ★${(thai as any).bornBeforeSunrise
-            ? ` <span style="font-size:12.5px;color:#9a8a72;font-weight:400">— by the civil calendar you were born on ${esc((thai as any).civilDayName)}, but before sunrise${(thai as any).sunriseLocal ? ` (${esc((thai as any).sunriseLocal)})` : ''}. Thai astrology starts its day at sunrise, not at midnight, so it counts as ${esc(thai.dayName)}.</span>` : ''}`),
-      tr(`ในทางไทยพราหมณ์ วันเกิดคือวัน "ขอพร" — เทพประจำ${esc(thai.dayName)} (${esc(thai.dayGodTh||thai.dayGod||'—')}) เปิดรับคำขอพิเศษ ควรงดเนื้อสัตว์ / ทำบุญ / ตั้งจิตในวันนี้ทุกสัปดาห์<br><br>ส่วน <strong>Strategy ระบบประเภทพลังงาน</strong> ของคุณคือ "${esc(strategy)}" — ใช้ทุกวันเป็นแกนตัดสินใจ ไม่ใช่แค่วันเกิด`, `In Thai Brahmin tradition, your birth weekday is the day for <em>asking blessings</em> — your day-deity ${esc(thai.dayName)} (${esc(thai.dayGodTh||thai.dayGod||'—')}) is most receptive to special petitions. Consider abstaining from meat, making merit, and setting intentions on this weekday throughout the year.<br><br>Your <strong>Energy Type Strategy</strong> is "${esc(strategy)}" — use it as your decision compass every day, not only on your birth weekday.`),
-      'gold')}
+    ${(() => {
+      // ⛔ box() escape หัวกล่อง — ห้ามใส่ markup ในหัว ไม่งั้นแท็กถูกพิมพ์เป็นข้อความให้คนจ่ายเงินเห็น
+      //    คำอธิบายเรื่องวันเริ่มที่อาทิตย์ขึ้นจึงย้ายลงเนื้อกล่อง
+      // ⛔ civilDayName มีคำว่า "วัน" นำหน้าอยู่แล้ว — ต่อ "คุณเกิดวัน" เข้าไปได้ "วันวันอาทิตย์"
+      const _civil = String((thai as any).civilDayName || '').replace(/^วัน/, '')
+      const _sunriseNote = (thai as any).bornBeforeSunrise
+        ? tr(`<div style="font-size:12.5px;color:#9a8a72;margin-bottom:8px">— คุณเกิดวัน${esc(_civil)}ตามปฏิทินสากล แต่เวลาเกิดอยู่ก่อนพระอาทิตย์ขึ้น${(thai as any).sunriseLocal ? ` (${esc((thai as any).sunriseLocal)} น.)` : ''} และโหราศาสตร์ไทยเริ่มวันใหม่ตอนอาทิตย์ขึ้น ไม่ใช่เที่ยงคืน จึงนับเป็น${esc(thai.dayName)}</div>`,
+             `<div style="font-size:12.5px;color:#9a8a72;margin-bottom:8px">— by the civil calendar you were born on ${esc((thai as any).civilDayName)}, but before sunrise${(thai as any).sunriseLocal ? ` (${esc((thai as any).sunriseLocal)})` : ''}. Thai astrology starts its day at sunrise, not at midnight, so it counts as ${esc(thai.dayName)}.</div>`)
+        : ''
+      return box(
+      tr(`วันเกิดของคุณ = ${esc(thai.dayName)} ★`,
+         `Your Birth Weekday = ${esc(thai.dayName)} ★`),
+      _sunriseNote + tr(`ในทางไทยพราหมณ์ วันเกิดคือวัน "ขอพร" — เทพประจำ${esc(thai.dayName)} (${esc(thai.dayGodTh||thai.dayGod||'—')}) เปิดรับคำขอพิเศษ ควรงดเนื้อสัตว์ / ทำบุญ / ตั้งจิตในวันนี้ทุกสัปดาห์<br><br>ส่วน <strong>Strategy ระบบประเภทพลังงาน</strong> ของคุณคือ "${esc(strategy)}" — ใช้ทุกวันเป็นแกนตัดสินใจ ไม่ใช่แค่วันเกิด`, `In Thai Brahmin tradition, your birth weekday is the day for <em>asking blessings</em> — your day-deity ${esc(thai.dayName)} (${esc(thai.dayGodTh||thai.dayGod||'—')}) is most receptive to special petitions. Consider abstaining from meat, making merit, and setting intentions on this weekday throughout the year.<br><br>Your <strong>Energy Type Strategy</strong> is "${esc(strategy)}" — use it as your decision compass every day, not only on your birth weekday.`),
+      'gold')
+    })()}
   `)
 }
 
@@ -2900,7 +2917,7 @@ function p19_decade(c: ChartData): string {
   // one-line filler. Decade 25–34 can be ลงมือลุย vs พักค้นหา depending on
   // which element supports dmEl at that Luck Pillar.
   const SHENG_BY: Record<string,string> = { 'ไม้':'น้ำ','ไฟ':'ไม้','ดิน':'ไฟ','โลหะ':'ดิน','น้ำ':'โลหะ' }
-  const feedEl = SHENG_BY[dmEl] || 'น้ำ'
+  const feedEl = SHENG_BY[elKey(dmEl)] || 'น้ำ'
   const decades = [
     { age:'25–34', label: tr('วัยสร้างรากฐาน','Foundation Years'),
       why: tr(`ช่วงที่ Day Master ${dmEl} ต้องการ ${feedEl} หล่อเลี้ยง — ทุกประสบการณ์คือวัตถุดิบ`, `A phase where your ${dmEl} Day Master needs ${feedEl} to nourish it — every experience is raw material.`) },
@@ -3847,6 +3864,33 @@ function p_whoYouAre(c: ChartData): string {
 }
 
 // ── MAIN EXPORT ──────────────────────────────────────────────
+/** ชื่อธาตุ → คีย์ไทยมาตรฐาน สำหรับใช้ค้นตารางห้าธาตุ
+ *
+ * ⛔ `dayMasterElement` เปลี่ยนภาษาตาม UI ('ไม้' / 'Wood') แต่ตารางห้าธาตุทุกตัวคีย์เป็นไทย
+ *    ค้นตรงๆ ในฉบับอังกฤษจะได้ undefined แล้วตกไป fallback เงียบๆ ไม่มี error ให้เห็น
+ * ⛔ ใช้เฉพาะตอน "ค้นตาราง" ห้ามเอาไปแทนค่าที่พิมพ์ให้คนอ่าน (ฉบับอังกฤษต้องเห็น Wood ไม่ใช่ ไม้)
+ */
+/** คู่ค่าสองภาษา — คืนค่าเดียวเมื่อสองฝั่งเหมือนกัน
+ *
+ * ⛔ ฉบับอังกฤษได้ค่าเดียวกันทั้งสองช่องบ่อยมาก แล้วพิมพ์ออกเป็น "Otter (Otter)"
+ *    ซึ่งอ่านแล้วเหมือนระบบพัง มากกว่าจะเหมือนคำอธิบาย
+ */
+function pair(a?: string, b?: string): string {
+  const x = String(a || '').trim(), y = String(b || '').trim()
+  if (!y || x.toLowerCase() === y.toLowerCase()) return x
+  if (!x) return y
+  return `${x} (${y})`
+}
+
+function elKey(el: string): string {
+  const M: Record<string,string> = {
+    'Wood':'ไม้','Fire':'ไฟ','Earth':'ดิน','Metal':'โลหะ','Water':'น้ำ',
+    'Air':'ไม้','ลม':'ไม้',
+    'ไม้':'ไม้','ไฟ':'ไฟ','ดิน':'ดิน','โลหะ':'โลหะ','น้ำ':'น้ำ',
+  }
+  return M[el] || el
+}
+
 export function generateReport(c: ChartData): string {
   _pageNum = 0  // reset counter for each report
   // Propagate chart language to module-local _lang + the buildRichReading
@@ -4136,7 +4180,7 @@ function p_ziwei(c: ChartData): string {
     </div>
     ${bar(z.score,'#5a3a8a')}
     <table style="margin:12px 0"><tbody>
-      ${row2(tr('ดาวหลัก (Thai)','Main Star (Thai)'), z.mainStarTh)}
+      ${_lang === 'en' ? '' : row2('ดาวหลัก (Thai)', z.mainStarTh)}
       ${row2(tr('วังชีวิต Life Palace','Life Palace (命宮)'), z.lifePalaceName)}
       ${row2(tr('คุณภาพวัง Palace Quality','Palace Quality'), z.palaceQuality)}
     </tbody></table>
@@ -4161,7 +4205,7 @@ function p_onmyodo(c: ChartData): string {
     </div>
     ${bar(o.score,'#6a4a2a')}
     <table style="margin:12px 0"><tbody>
-      ${row2('Rokuyo (Thai)', o.rokuyoTh)}
+      ${_lang === 'en' ? '' : row2('Rokuyo (Thai)', o.rokuyoTh)}
       ${row2(tr('พลังงานคะแนน','Energy Score'), String(o.rokuyoScore))}
       ${row2('Onmyo Polarity', o.onmyoPolarity)}
       ${row2('Jūnishi Nakshatra', o.juniShiNakshatra)}
@@ -4362,7 +4406,7 @@ function p_aztec(c: ChartData): string {
     </div>
     ${bar(a.score,'#8a4a10')}
     <table style="margin:12px 0"><tbody>
-      ${row2('Day Sign (EN)', a.daySign + ' ' + a.daySignTh)}
+      ${_lang === 'en' ? '' : row2('Day Sign (EN)', pair(a.daySign, a.daySignTh))}
       ${row2('Tone Number', `${a.toneNumber} — ${a.toneName}`)}
       ${row2('Day Sign Quality', a.daySignQuality)}
     </tbody></table>
@@ -4373,7 +4417,7 @@ function p_aztec(c: ChartData): string {
     )}</p>
     <p style="font-size:12.5px;color:#967f5d">${tr(
       `Tonalpohualli คือปฏิทิน 260 วัน (20 Day Signs × 13 Tones) ใช้ร่วมกับ Mayan Tzolk'in — ${a.daySignTh} Tone ${a.toneNumber} กำหนดพลังงาน`,
-      `Tonalpohualli is a 260-day calendar (20 Day Signs × 13 Tones), paired with the Mayan Tzolk'in — ${a.daySign} (${a.daySignTh}) Tone ${a.toneNumber} sets your energy signature.`
+      `Tonalpohualli is a 260-day calendar (20 Day Signs × 13 Tones), paired with the Mayan Tzolk'in — ${pair(a.daySign, a.daySignTh)} Tone ${a.toneNumber} sets your energy signature.`
     )}</p>
   `)
 }
@@ -4387,7 +4431,7 @@ function p_nativeAmerican(c: ChartData): string {
     </div>
     ${bar(n.score,'#8a5a30')}
     <table style="margin:12px 0"><tbody>
-      ${row2('Birth Totem (EN)', n.birthTotem)}
+      ${_lang === 'en' ? '' : row2('Birth Totem (EN)', n.birthTotem)}
       ${row2('Moon Cycle', n.moonCycle)}
       ${row2('Clan', n.clansmother)}
       ${row2(tr('ธาตุ','Element'), n.element)}
@@ -4399,7 +4443,7 @@ function p_nativeAmerican(c: ChartData): string {
     )}</p>
     <p style="font-size:12.5px;color:#967f5d">${tr(
       `Medicine Wheel มี 13 moon cycle — Birth Totem ${n.birthTotemTh} (${n.birthTotem}) ใน ${n.clansmother} บ่งถึงสัตว์นำทางทางจิตวิญญาณ`,
-      `The Medicine Wheel has 13 moon cycles — your Birth Totem ${n.birthTotem} (${n.birthTotemTh}) in the ${n.clansmother} clan marks your spirit guide animal.`
+      `The Medicine Wheel has 13 moon cycles — your Birth Totem ${pair(n.birthTotem, n.birthTotemTh)} in the ${String(n.clansmother || '').replace(/\s*clan$/i, '')} clan marks your spirit guide animal.`
     )}</p>
   `)
 }
@@ -4413,7 +4457,7 @@ function p_ifaYoruba(c: ChartData): string {
     </div>
     ${bar(i.score,'#6a4a10')}
     <table style="margin:12px 0"><tbody>
-      ${row2('Odù (Thai)', i.oduTh)}
+      ${_lang === 'en' ? '' : row2('Odù (Thai)', i.oduTh)}
       ${row2('Theme', i.oduTheme)}
       ${row2('Fortune', i.fortune)}
     </tbody></table>
@@ -4438,7 +4482,7 @@ function p_aboriginal(c: ChartData): string {
     </div>
     ${bar(a.score,'#6a4a30')}
     <table style="margin:12px 0"><tbody>
-      ${row2('Ancestor (EN)', a.dreamingAncestor)}
+      ${_lang === 'en' ? '' : row2('Ancestor (EN)', a.dreamingAncestor)}
       ${row2('Season', a.season)}
       ${row2('Clan', a.clan)}
     </tbody></table>
@@ -4449,7 +4493,7 @@ function p_aboriginal(c: ChartData): string {
     )}</p>
     <p style="font-size:12.5px;color:#967f5d">${tr(
       `Dreamtime เป็นปรัชญาชาวอะบอริจินออสเตรเลีย — บรรพบุรุษ ${a.dreamingTh} ชี้แนะเส้นทางผ่านกฎธรรมชาติ`,
-      `Dreamtime is the Aboriginal Australian philosophy — your Ancestor ${a.dreamingAncestor} (${a.dreamingTh}) guides your path through natural law.`
+      `Dreamtime is the Aboriginal Australian philosophy — your Ancestor ${pair(a.dreamingAncestor, a.dreamingTh)} guides your path through natural law.`
     )}</p>
   `)
 }
