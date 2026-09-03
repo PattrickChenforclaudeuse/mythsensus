@@ -79,6 +79,8 @@ const bundle = [
   '    FORECAST_ADVICE: FORECAST_ADVICE,',
   '    fcAdviceFor: fcAdviceFor,',
   '    FORECAST_TIERS: FORECAST_TIERS,',
+  // ป้ายขั้วแกนนิสัย — หน้าเว็บวาดแท่งรายศาสตร์จากตารางนี้ ส่งมาจากเอนจินเพื่อไม่ให้มีสำเนาที่สอง
+  '    traitAxisLabels: traitAxisLabels,',
   '  };',
   '})(typeof window !== "undefined" ? window : globalThis);',
   '',

@@ -4,7 +4,7 @@
 //  All 10 systems calculated algorithmically. Zero external API.
 // ============================================================
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.hebrewDateOf = exports.lunarDateOf = exports._getReadingParts = exports._clearReadingParts = exports._setReportLang = exports.calcForecast = exports._fcNineStarYear = exports.FORECAST_TIERS = exports.FORECAST_DOMAIN_LABELS = exports.FORECAST_DOMAINS_ALL = exports.fcAdviceFor = exports.calcDailyPulse = exports.calculate = exports.calcPathResonance = exports.calcLifeTerrain = exports._celticTreeIdx = exports.glossCJK = exports.sweepThaiFromEnglish = void 0;
+exports.hebrewDateOf = exports.lunarDateOf = exports.traitAxisLabels = exports._getReadingParts = exports._clearReadingParts = exports._setReportLang = exports.calcForecast = exports._fcNineStarYear = exports.FORECAST_TIERS = exports.FORECAST_DOMAIN_LABELS = exports.FORECAST_DOMAINS_ALL = exports.fcAdviceFor = exports.calcDailyPulse = exports.calculate = exports.calcPathResonance = exports.calcLifeTerrain = exports._celticTreeIdx = exports.glossCJK = exports.sweepThaiFromEnglish = void 0;
 // ── Bilingual primitives ────────────────────────────────────────
 // Single source of truth for translating Thai data fields to English.
 // Used by buildRichReading() and the per-system calc functions to keep
@@ -8058,6 +8058,11 @@ function _lunarDate(jd) {
     }
     return { month: num, day: _cstDayNum(jd) - _cstDayNum(nm[idx]) + 1, leap: idx === leapIdx };
 }
+// ป้ายขั้วของแกนนิสัย — หน้าเว็บวาดแท่งรายศาสตร์จากตารางนี้
+// ⛔ ต้องเป็น export function ไม่ใช่ export const — bundler แปลง const เป็น `exports.X =` ซึ่งพังในเบราว์เซอร์
+// ⛔ ห้ามคัดลอกป้ายไปไว้ที่ index.html — สำเนาที่สองจะเพี้ยนเสมอ (บทเรียนนาฬิกาเสาวัน 4 สำเนา 25 ส.ค.)
+function traitAxisLabels() { return TRAIT_AXES; }
+exports.traitAxisLabels = traitAxisLabels;
 function lunarDateOf(jd) { return _lunarDate(jd); }
 exports.lunarDateOf = lunarDateOf;
 // ── 紫微斗數 — real star placement ──────────────────────────────────────────

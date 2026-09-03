@@ -9055,6 +9055,11 @@ function _lunarDate(jd: number): LunarDate {
   for (let i = 1; i <= idx; i++) { if (i !== leapIdx) num = num % 12 + 1 }
   return { month: num, day: _cstDayNum(jd) - _cstDayNum(nm[idx]) + 1, leap: idx === leapIdx };
 }
+// ป้ายขั้วของแกนนิสัย — หน้าเว็บวาดแท่งรายศาสตร์จากตารางนี้
+// ⛔ ต้องเป็น export function ไม่ใช่ export const — bundler แปลง const เป็น `exports.X =` ซึ่งพังในเบราว์เซอร์
+// ⛔ ห้ามคัดลอกป้ายไปไว้ที่ index.html — สำเนาที่สองจะเพี้ยนเสมอ (บทเรียนนาฬิกาเสาวัน 4 สำเนา 25 ส.ค.)
+export function traitAxisLabels() { return TRAIT_AXES }
+
 export function lunarDateOf(jd: number): LunarDate { return _lunarDate(jd) }
 
 // ── 紫微斗數 — real star placement ──────────────────────────────────────────

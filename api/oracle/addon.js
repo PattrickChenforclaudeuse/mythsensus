@@ -63,6 +63,8 @@ const ORACLE_RENDER_URL = process.env.ORACLE_RENDER_URL || 'https://woamqrhifuxs
 const JOB_FRESH_MS = 3 * 60 * 1000 // a 'running' job newer than this is not re-triggered
 const DEFAULT_DAILY_BUDGET_CENTS = 3000
 const DEFAULT_USER_DAILY_RENDERS = 10
+// เพดานของฟรีต่อ 1 อีเมลตลอดชีพ — กันคนเปลี่ยนวันเกิดไปเรื่อยๆ เพื่อรูดของฟรี
+const FREE_DEEP_MAX_PER_EMAIL = Number(process.env.ORACLE_FREE_DEEP_MAX) || 3
 
 // ─── Auth / entitlement (2026-06-10) ─────────────────────
 // The Deep Reading is a paid product, but this endpoint shipped with NO
@@ -329,7 +331,7 @@ function sqlEscape(v) { return String(v).replace(/'/g, "''") }
 // Fails CLOSED on every uncertainty (misconfig, network, DB error) so a fault
 // can never re-open the denial-of-wallet hole — owners/premium short-circuit
 // before the DB query, so a purchase-table outage never blocks subscribers.
-async function requireOracleAccess(req) {
+async function requireOracleAccess(req, body) {
   const SUPABASE_URL = process.env.SUPABASE_URL
   const ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
   if (!SUPABASE_URL || !ANON) {
@@ -367,6 +369,48 @@ async function requireOracleAccess(req) {
     if (Array.isArray(rows) && rows.length > 0) return { ok: true, userKey, via: 'purchase' }
   } catch (_) {
     return { ok: false, status: 503, error: 'entitlement_check_failed', message: 'Could not verify your purchase — please try again.' }
+  }
+  // แจกฟรี 1 ศาสตร์ต่อ 1 ดวง (director 2 ก.ย.) — ต้องลงชื่อเข้าใช้ก่อน
+  //
+  // ⛔ ต้องลงชื่อเข้าใช้ เพราะการเรนเดอร์ 1 ครั้งเป็นเงินจริง (~64 เซนต์)
+  //    ถ้าแจกให้คนไม่มีตัวตน = เปิดรูให้ใครก็ได้รูดเงินเราทั้งวัน
+  //    (โค้ดด้านบนเขียนกำกับไว้เองว่า "can never re-open the denial-of-wallet hole")
+  // ⛔ ตัวแรกที่เขาขอ = ตัวที่ได้ เปลี่ยนใจไม่ได้ ไม่งั้นเปิดทีละตัวจนครบ 26 ฟรี
+  // ⛔ เปลี่ยนวันเกิดได้ดวงใหม่ ⇒ ได้ของฟรีอีกใบ จึงต้องมีเพดานต่อคนด้วย
+  const freeSystem = String((body && body.system) || '').trim()
+  const freeHash = String((body && body.chart_hash) || '').trim()
+  if (freeSystem && freeHash) {
+    try {
+      const rows = await supabaseQuery(
+        `SELECT system FROM public.myth_free_deep WHERE email = '${sqlEscape(email)}' AND chart_hash = '${sqlEscape(freeHash)}' LIMIT 1`
+      )
+      if (Array.isArray(rows) && rows[0]) {
+        if (rows[0].system === freeSystem) return { ok: true, userKey, via: 'free' }
+        return { ok: false, status: 403, error: 'free_already_used', message: 'You already opened your free reading for this chart.' }
+      }
+      const used = await supabaseQuery(
+        `SELECT count(*)::int AS n FROM public.myth_free_deep WHERE email = '${sqlEscape(email)}'`
+      )
+      const n = Array.isArray(used) && used[0] ? Number(used[0].n) : 0
+      if (n >= FREE_DEEP_MAX_PER_EMAIL) {
+        return { ok: false, status: 403, error: 'free_quota_reached', message: 'Deep Reading requires a Mythsensus subscription or purchase.' }
+      }
+      // จองสิทธิ์ก่อนเรนเดอร์ — ถ้าจองไม่ติด (ยิงซ้อนกันมา) ให้ถือว่าคนอื่นจองไปแล้ว แล้วอ่านซ้ำ
+      await supabaseQuery(
+        `INSERT INTO public.myth_free_deep (email, chart_hash, system)
+         VALUES ('${sqlEscape(email)}', '${sqlEscape(freeHash)}', '${sqlEscape(freeSystem)}')
+         ON CONFLICT (email, chart_hash) DO NOTHING`
+      )
+      const after = await supabaseQuery(
+        `SELECT system FROM public.myth_free_deep WHERE email = '${sqlEscape(email)}' AND chart_hash = '${sqlEscape(freeHash)}' LIMIT 1`
+      )
+      if (Array.isArray(after) && after[0] && after[0].system === freeSystem) {
+        return { ok: true, userKey, via: 'free' }
+      }
+    } catch (e) {
+      // ⛔ ระบบแจกฟรีล่ม ห้ามกลายเป็นแจกฟรีไม่อั้น — ตกไปที่ปฏิเสธตามปกติ
+      console.warn('[oracle/addon] free-deep check failed:', e.message)
+    }
   }
   return { ok: false, status: 403, error: 'not_entitled', message: 'Deep Reading requires a Mythsensus subscription or purchase.' }
 }
@@ -467,7 +511,7 @@ export default async function handler(req, res) {
 
   // AUTH GATE — before any cache read or LLM call. Cached reads are still paid
   // content, so unauthenticated/unentitled callers are blocked here too.
-  const access = await requireOracleAccess(req)
+  const access = await requireOracleAccess(req, body)
   if (!access.ok) {
     return res.status(access.status).json({ error: access.error, message: access.message })
   }

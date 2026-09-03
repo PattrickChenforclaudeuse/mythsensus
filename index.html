@@ -75,7 +75,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=236">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=239">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -2994,7 +2994,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=236" defer></script>
+<script src="/build/ms26-bundle.js?v=239" defer></script>
 <script>
 
 
@@ -9578,6 +9578,8 @@ const _deepMode = {}; // systemKey -> 'engineer' | 'oracle'
 const _deepOracleCache = {}; // systemKey -> OracleAddonOutput (per-render memo)
 const _deepOracleErrors = {}; // systemKey -> err message (sticky until next try)
 const _deepOracleLoading = {}; // systemKey -> boolean (true while fetch in flight)
+// ⛔ ต้องแยก "ยังไม่ล็อกอิน" ออกจาก "ระบบพัง" ให้ได้ — เดิมเก็บแต่ข้อความ เลยขึ้นกล่องแดงเหมือนกันหมด
+const _deepOracleErrorKeys = {}; // systemKey -> รหัสสาเหตุจากเซิร์ฟเวอร์
 
 const ORACLE_TAG_COLORS = {
   peak:        { bg: 'rgba(212,175,55,0.10)',  border: '#d4aa50', text: '#e8d080' },
@@ -9779,6 +9781,55 @@ function _orLuck(b, ageNow) {
 }
 
 /** ประกอบภาพประจำบท — คืน '' เมื่อศาสตร์นั้นไม่มีข้อมูลชนิดนั้น (ไม่ใช่ทุกศาสตร์มีสี่เสา) */
+/** แกนนิสัยที่ศาสตร์นี้อ่านได้ — ภาพเปิดของบทแรก ใช้ได้ทุกศาสตร์
+ *
+ * ⛔ พูดเฉพาะสิ่งที่ศาสตร์นี้เองอ่าน ห้ามเทียบว่า "ตรงกัน/ค้าน" กับศาสตร์อื่น
+ *    คำตัดสินรวมมาจากน้ำหนักเทียบประชากร ไม่ใช่การนับหัว (ข้อห้าม 1 ก.ย.)
+ * ⛔ ห้ามให้สีสื่อค่าบวก/ลบ — ดวงที่ไม่มีค่าลบจะไม่มีสีนั้นเลย ธีมจะเปลี่ยนตามคนอ่าน ใช้ความทึบแทน
+ */
+function _orTraits(b) {
+  try {
+    const tr = b && b.traits;
+    if (!tr || typeof tr !== 'object') return '';
+    const axes = (typeof MS26 !== 'undefined' && MS26.traitAxisLabels) ? MS26.traitAxisLabels() : null;
+    if (!axes) return '';
+    const isTh = LANG === 'th';
+    const rows = Object.keys(tr)
+      .filter(a => axes[a] && Number.isFinite(Number(tr[a])) && Number(tr[a]) !== 0)
+      .sort((a, b2) => Math.abs(Number(tr[b2])) - Math.abs(Number(tr[a])));
+    if (!rows.length) return '';
+    const cells = rows.map(a => {
+      const v = Math.max(-2, Math.min(2, Number(tr[a])));
+      const ax = axes[a];
+      const neg = isTh ? ax.neg : ax.negEn;
+      const pos = isTh ? ax.pos : ax.posEn;
+      // แท่งออกจากกึ่งกลางไปทางขั้วที่ศาสตร์นี้ชี้ · ความทึบ = แรงของสัญญาณ
+      const pct = Math.abs(v) / 2 * 50;
+      const op = 0.35 + Math.abs(v) / 2 * 0.5;
+      const bar = v < 0
+        ? `<div style="position:absolute;right:50%;width:${pct}%;top:0;bottom:0;background:var(--gold);opacity:${op};border-radius:3px 0 0 3px"></div>`
+        : `<div style="position:absolute;left:50%;width:${pct}%;top:0;bottom:0;background:var(--gold);opacity:${op};border-radius:0 3px 3px 0"></div>`;
+      return `
+        <div style="display:grid;grid-template-columns:1fr 132px 1fr;align-items:center;gap:8px;margin-bottom:7px">
+          <div style="font-size:12px;color:${v < 0 ? 'var(--text)' : 'var(--muted)'};text-align:right;line-height:1.35">${neg}</div>
+          <div style="position:relative;height:13px;background:var(--bg3);border-radius:3px">
+            <div style="position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--border)"></div>
+            ${bar}
+          </div>
+          <div style="font-size:12px;color:${v > 0 ? 'var(--text)' : 'var(--muted)'};line-height:1.35">${pos}</div>
+        </div>`;
+    }).join('');
+    return `
+      <div style="margin:12px 0 16px">
+        <div style="font-size:13px;color:var(--text);margin-bottom:8px">${isTh ? 'แกนที่ศาสตร์นี้อ่านได้' : 'What this system reads'}</div>
+        ${cells}
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5">${isTh
+          ? 'ยิ่งแท่งยาวและเข้ม = ศาสตร์นี้ให้น้ำหนักทางนั้นมาก · แกนที่ศาสตร์นี้ไม่พูดถึงจะไม่ปรากฏ'
+          : 'Longer, denser bar = this system leans harder that way. Axes it says nothing about are omitted.'}</div>
+      </div>`;
+  } catch (e) { return ''; }
+}
+
 function _orChapterVisual(i, sys) {
   try {
     const chart = typeof _getMS26ChartFromProfile === 'function' ? _getMS26ChartFromProfile() : null;
@@ -9787,7 +9838,9 @@ function _orChapterVisual(i, sys) {
     const f = MS26.calcForecast(chart, new Date(), { weeks: 0, months: 12 });
     const m = f.months || [];
     switch (i) {
-      case 0: return _orPillars(b) + _orElements(b);
+      // ⛔ เสาหลัก+ธาตุมีเฉพาะปาจื้อ ⇒ อีก 25 ศาสตร์เคยได้บทแรกเป็นตัวหนังสือล้วน
+      //    ตกมาที่แกนนิสัย ซึ่งทุกศาสตร์ที่ออกเสียงมีเหมือนกัน
+      case 0: { const v = _orPillars(b) + _orElements(b); return v || _orTraits(b); }
       case 1: return _orMonths(m, ['career']);
       case 2: return _orMonths(m, ['money', 'chance']);
       case 3: return _orMonths(m, ['love', 'allies', 'family']);
@@ -9897,24 +9950,33 @@ function _renderOracleLoading() {
     </div>`;
 }
 
+/** จุดชนวนการสร้างคำอ่าน — เรียกซ้ำได้ ไม่ยิงซ้ำ
+ *
+ * ⛔ เดิมโค้ดนี้ฝังอยู่ใน _setDeepMode ที่มีแต่ "คนกดปุ่ม" เป็นคนเรียก
+ *    พอถอดปุ่มออกแล้วให้ oracle เป็นค่าเริ่มต้น = ไม่มีใครเรียก หน้าหมุนค้างถาวร
+ *    ทุกครั้งที่ย้ายค่าเริ่มต้นไปทางที่เคยเป็นทางเลือก ต้องถามว่าใครจุดชนวนทางนั้น
+ * ⛔ ยิง 1 ครั้งเสมอ = 1 การเรียกที่มีค่าใช้จ่ายจริง (~64 เซนต์) ห้ามให้ยิงซ้ำ
+ */
+function _kickOracle(k) {
+  if (_deepOracleCache[k] || _deepOracleLoading[k] || _deepOracleErrors[k]) return false;
+  _deepOracleLoading[k] = true;
+  _fetchOracle(k)
+    .then(out => { _deepOracleCache[k] = out; _deepOracleLoading[k] = false; _showDeep(k); })
+    .catch(e => {
+      _deepOracleErrors[k] = e.userMsg || (LANG==='th' ? 'ไม่สามารถสังเคราะห์การอ่านได้ในขณะนี้' : 'Cannot synthesize reading right now');
+      _deepOracleErrorKeys[k] = e.errorKey || '';
+      _deepOracleLoading[k] = false;
+      _showDeep(k);
+    });
+  return true;
+}
+
 /** Set the mode + trigger fetch if needed, then re-render the deep panel */
 function _setDeepMode(k, mode) {
   if (mode !== 'engineer' && mode !== 'oracle') return;
   _deepMode[k] = mode;
-  if (mode === 'oracle' && !_deepOracleCache[k] && !_deepOracleLoading[k]) {
-    _deepOracleLoading[k] = true;
-    _deepOracleErrors[k] = null;
-    _showDeep(k); // re-render to show loading skeleton
-    _fetchOracle(k)
-      .then(out => { _deepOracleCache[k] = out; _deepOracleLoading[k] = false; _showDeep(k); })
-      .catch(e => {
-        _deepOracleErrors[k] = e.userMsg || (LANG==='th' ? 'ไม่สามารถสังเคราะห์การอ่านได้ในขณะนี้' : 'Cannot synthesize reading right now');
-        _deepOracleLoading[k] = false;
-        _showDeep(k);
-      });
-  } else {
-    _showDeep(k); // re-render with new mode
-  }
+  if (mode === 'oracle') { _deepOracleErrors[k] = null; _deepOracleErrorKeys[k] = ''; _kickOracle(k); }
+  _showDeep(k);
 }
 
 // Toast confirming gift-code redemption — fades after ~3.2s.
@@ -10036,6 +10098,15 @@ function _showDeep(k, isUserClick){
       bodyContent = _renderOracleLoading();
     } else if (_deepOracleCache[k]) {
       bodyContent = _renderOracleOutput(_deepOracleCache[k]);
+    } else if (_deepOracleErrors[k] && /auth_required|invalid_token/.test(_deepOracleErrorKeys[k] || '')) {
+      // ยังไม่ได้ลงชื่อเข้าใช้ — เชิญ ไม่ใช่แจ้งข้อผิดพลาด
+      bodyContent = `<div style="padding:26px 22px;text-align:center;background:rgba(212,175,55,0.05);border:1px solid var(--gold3);border-radius:10px">
+        <div style="font-family:'Cinzel Decorative',serif;font-size:15px;color:var(--gold);margin-bottom:8px">${isTh?'ศาสตร์นี้ฟรีสำหรับดวงของคุณ':'This system is free for your chart'}</div>
+        <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.75;max-width:420px;margin:0 auto 16px">${isTh
+          ? 'ลงชื่อเข้าใช้เพื่อเปิดอ่าน — เก็บคำอ่านไว้ในคลังของคุณ และเปิดซ้ำได้จากทุกเครื่อง'
+          : 'Sign in to open it — your reading is saved to your library and readable from any device.'}</div>
+        <button onclick="showLoginOverlay()" style="font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;background:var(--gold);color:#0d0d15;border:none;padding:11px 26px;border-radius:6px;cursor:pointer;font-weight:600">${isTh?'ลงชื่อเข้าใช้ →':'SIGN IN →'}</button>
+      </div>`;
     } else if (_deepOracleErrors[k]) {
       bodyContent = `<div style="padding:24px;text-align:center;background:rgba(184,48,16,0.05);border:1px solid rgba(184,48,16,0.25);border-radius:8px;color:#e07050;font-family:'Cormorant Garamond','Sarabun',serif;font-size:14px;line-height:1.7">
         <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;color:#b83010;margin-bottom:8px">${isTh?'⚠ Oracle ใช้งานไม่ได้':'⚠ ORACLE UNAVAILABLE'}</div>
@@ -10044,7 +10115,10 @@ function _showDeep(k, isUserClick){
         <button onclick="_setDeepMode('${k}','engineer')" style="margin-top:12px;margin-left:8px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;background:transparent;color:var(--muted);border:1px solid var(--border);padding:7px 16px;border-radius:5px;cursor:pointer">${isTh?'กลับ Engineer':'Back to Engineer'}</button>
       </div>`;
     } else {
-      // Fallthrough — shouldn't happen, but render a stub.
+      // ⛔ ช่องนี้เคยเขียนว่า "shouldn't happen" — ตอนนี้คือสภาพแรกของทุกคนที่เปิดเข้ามา
+      //    (ยังไม่มี cache ยังไม่โหลด ยังไม่ error) ⇒ ต้องจุดชนวนตรงนี้ ไม่ใช่แค่วาดโครงกระดูก
+      //    เลื่อนออกไปหลังวาดจบ กัน _showDeep เรียกซ้อนตัวเองระหว่างกำลังวาด
+      setTimeout(() => { if (_kickOracle(k)) _showDeep(k); }, 0);
       bodyContent = _renderOracleLoading();
     }
   } else if (hasReading) {
