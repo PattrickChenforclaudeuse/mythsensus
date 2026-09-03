@@ -75,7 +75,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=233">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=234">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -2994,7 +2994,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=233" defer></script>
+<script src="/build/ms26-bundle.js?v=234" defer></script>
 <script>
 
 
@@ -9687,8 +9687,65 @@ function _renderOracleSection(section) {
 }
 
 /** Top-level: render full OracleAddonOutput as HTML for the deep-sys-panel */
+/** คำอ่านรูปใหม่ (schema 3.0-composed) — ความเรียง 6 บท ไม่ใช่คำถาม-คำตอบ
+ *
+ * ⛔ ห้ามวาดเป็นรายการคำถาม — ชุด 45 ข้ออยู่ใน answers_json ไว้ทำ consensus
+ *    สิ่งที่ลูกค้าอ่านคือความเรียงเท่านั้น (director 2 ก.ย.)
+ * ⛔ ห้ามใส่อีโมจิ (director 2 ก.ย.)
+ */
+function _renderComposedOracle(oracle) {
+  const isTh = LANG === 'th';
+  const ch = oracle.chapters || {};
+  const keys = Object.keys(ch).sort();          // ch1..ch6
+  if (!keys.length) {
+    return `<div style="padding:24px;text-align:center;color:var(--muted)">${isTh ? 'ไม่พบเนื้อหา' : 'No content'}</div>`;
+  }
+  const limits = [];
+  const body = keys.map(k => {
+    const c = ch[k] || {};
+    (c.limits || []).forEach(l => limits.push(l));
+    const blocks = (c.blocks || []).map(b => `
+      ${b.sub ? `<div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:16px;font-weight:600;color:var(--gold);margin:16px 0 6px;padding-left:10px;border-left:3px solid var(--gold3)">${_escapeHtml(b.sub)}</div>` : ''}
+      <p style="font-size:14.5px;line-height:1.78;color:var(--text);margin:0 0 11px">${_escapeHtml(b.text || '')}</p>`).join('');
+    return `
+      <section style="margin-bottom:26px">
+        <h3 style="font-family:'Cinzel Decorative',serif;font-size:15px;letter-spacing:1.4px;color:var(--gold);margin:0 0 10px">${_escapeHtml(c.title || '')}</h3>
+        ${blocks}
+        ${c.takeaway ? `<div style="margin-top:12px;padding:10px 13px;background:rgba(120,180,90,.07);border-left:3px solid #6a9a4a;border-radius:0 8px 8px 0;font-size:14px;line-height:1.7;color:var(--text)"><strong style="color:#9ac86a">${isTh ? 'ทำได้เลย' : 'Do this'}</strong> &#8212; ${_escapeHtml(c.takeaway)}</div>` : ''}
+      </section>`;
+  }).join('');
+
+  // ⛔ หน้าที่บอกว่าศาสตร์นี้อ่านอะไรไม่ได้ คือของที่ต่างจากดูดวงทั่วไป ห้ามซ่อน
+  const limitsHtml = limits.length ? `
+    <div style="margin-top:26px;padding-top:18px;border-top:1px solid var(--border)">
+      <div style="font-family:'Cinzel Decorative',serif;font-size:14px;letter-spacing:1.2px;color:var(--gold);margin-bottom:6px">${isTh ? 'เรื่องที่ศาสตร์นี้อ่านไม่ได้' : 'What this system cannot read'}</div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.7;margin:0 0 10px">${isTh ? 'ไม่ใช่ข้อบกพร่องของดวงคุณ — เป็นขอบเขตของวิชา' : 'Not a gap in your chart — a boundary of the tradition.'}</p>
+      ${limits.map(l => `
+        <div style="margin-bottom:9px;padding-left:11px;border-left:2px solid var(--border)">
+          <div style="font-size:14px;color:var(--text);line-height:1.6">${_escapeHtml(l.topic || '')}</div>
+          <div style="font-size:12.5px;color:var(--muted);line-height:1.6">${_escapeHtml(l.why || '')}</div>
+          ${l.whereInstead ? `<div style="font-size:12.5px;color:#9ab0c8;line-height:1.6">${isTh ? 'ควรไปดูจาก' : 'Look instead at'}: ${_escapeHtml(l.whereInstead)}</div>` : ''}
+        </div>`).join('')}
+    </div>` : '';
+
+  return `
+    <div class="oracle-output">
+      ${body}
+      ${limitsHtml}
+      <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid var(--border);font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold3)">
+        ${isTh ? 'คำอ่านเรียบเรียงโดย AI จากค่าที่คำนวณจากดวงจริง · ทุกตัวเลข deterministic' : 'Composed by AI from deterministic chart values'}
+      </div>
+    </div>`;
+}
+
 function _renderOracleOutput(oracle) {
   const isTh = LANG === 'th';
+  // คำอ่านรูปใหม่มาเป็น chapters ไม่ใช่ sections — แยกทางก่อนตรวจโครงเก่า
+  // ⛔ ของเดิมเช็คแค่ Array.isArray(oracle.sections) ⇒ ของใหม่ตกไปเข้าช่อง 'ไม่พบเนื้อหา'
+  //    เซิร์ฟเวอร์สร้างครบแล้วแต่หน้าเว็บไม่รู้จัก คนจ่ายเงินเห็นหน้าว่าง
+  if (oracle && (oracle.schema === '3.0-composed' || oracle.chapters)) {
+    return _renderComposedOracle(oracle);
+  }
   if (!oracle || !Array.isArray(oracle.sections)) {
     return `<div style="padding:24px;text-align:center;color:var(--muted)">${isTh?'ไม่พบเนื้อหา':'No content'}</div>`;
   }
