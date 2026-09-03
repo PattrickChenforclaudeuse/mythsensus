@@ -54,7 +54,9 @@ const SCHEMA_VERSION = '2.1' // 6 cat × 10 Q (health + people restored 2026-06-
 // fires a Supabase Edge Function on woam (oracle-render, 150s ceiling) that does
 // ONE Sonnet call and writes the cache. The browser polls this endpoint until the
 // cached row appears. See supabase/functions/oracle-render/index.ts.
-const RENDER_MODEL = 'claude-sonnet-4-6'
+// 3 ก.ย. 69: 4-6 -> 5 · ถูกกว่า ($2/$10 เทียบ $3/$15 ต่อล้านโทเคน) และใหม่กว่า
+// ⛔ ห้ามเปลี่ยนเป็น Haiku — ทดสอบแล้วภาษาไทยไม่ผ่าน (แปลแข็ง) เห็นใน CLAUDE.md
+const RENDER_MODEL = 'claude-sonnet-5'
 const ORACLE_RENDER_URL = process.env.ORACLE_RENDER_URL || 'https://woamqrhifuxsscnihqco.supabase.co/functions/v1/oracle-render'
 const JOB_FRESH_MS = 3 * 60 * 1000 // a 'running' job newer than this is not re-triggered
 const DEFAULT_DAILY_BUDGET_CENTS = 3000

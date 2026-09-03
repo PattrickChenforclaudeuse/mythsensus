@@ -24,7 +24,8 @@ const ANTHROPIC_KEY = Deno.env.get('ANTHROPIC_API_KEY') ?? ''
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
 const SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const REST = SUPABASE_URL.replace(/\/+$/, '') + '/rest/v1'
-const DEFAULT_MODEL = 'claude-sonnet-4-6'
+// 3 ก.ย. 69: 4-6 -> 5 · ถูกกว่าและใหม่กว่า · ถอยกลับ = แก้บรรทัดนี้กลับแล้ว deploy
+const DEFAULT_MODEL = 'claude-sonnet-5'
 const MAX_TOKENS = 7000 // 6 cat × 10 Q — raised from 5500 when health + people returned (2026-06-23)
 const RENDER_TIMEOUT_MS = 140_000 // abort early enough that the 'error' write lands
 // before Supabase kills the instance at the 150s wall-clock ceiling — a slow render

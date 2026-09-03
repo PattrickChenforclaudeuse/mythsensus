@@ -1284,7 +1284,7 @@ let _authEmail = '';    // Email pending OTP verification
       "inLanguage": ["th","en"],
       "datePublished": "2026-04-27",
       "dateModified": "2026-06-01",
-      "description": "Mythsensus reads 26 divination traditions against one birth date — BaZi, Vedic, Western, Nine Star Ki, Mayan, and 22 others — and shows where they agree, where they contradict, and which have no method to answer. Free: a daily reading recomputed every day, a deity blessing from more than 1,000 deities, and the 108 Oraculum oracle — no signup. Cosmic Blueprint adds depth: $9 per-system deep readings, a $19 in-depth PDF full report, and a $8.99/month subscription for daily-refresh features.",
+      "description": "Mythsensus reads 26 divination traditions against one birth date — BaZi, Vedic, Western, Nine Star Ki, Mayan, and 22 others — and shows where they agree, where they contradict, and which have no method to answer. Free: a daily reading recomputed every day, a deity blessing from more than 1,000 deities, and the 108 Oraculum oracle — no signup. Cosmic Blueprint adds depth: $9 per-system deep readings, a $59 in-depth PDF full report, and a $8.99/month subscription for daily-refresh features.",
       "featureList": [
         "BaZi (Four Pillars of Destiny)",
         "Vedic Jyotish",
@@ -1388,7 +1388,7 @@ let _authEmail = '';    // Email pending OTP verification
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"What is Mythsensus?","acceptedAnswer":{"@type":"Answer","text":"Mythsensus reads 26 ancient divination systems together — BaZi, Vedic, Western, Nine Star Ki, Mayan, Thai Brahmin and more — and shows where they agree, where they contradict, and which ones have no method to answer the question at all — 8 of the 26 can speak to timing, the other 18 abstain, and it says so."}},
-{"@type":"Question","name":"Is Mythsensus free?","acceptedAnswer":{"@type":"Answer","text":"Yes. A daily reading recomputed every day, the Cosmic Score, a deity blessing from over 1,000 gods, and the 108 Oraculum oracle are free with no signup. Paid adds $9 per-system deep readings and a $19 in-depth PDF report."}},
+{"@type":"Question","name":"Is Mythsensus free?","acceptedAnswer":{"@type":"Answer","text":"Yes. A daily reading recomputed every day, the Cosmic Score, a deity blessing from over 1,000 gods, and the 108 Oraculum oracle are free with no signup. Paid adds $9 per-system deep readings and a $59 in-depth PDF report."}},
 {"@type":"Question","name":"Which divination systems does Mythsensus use?","acceptedAnswer":{"@type":"Answer","text":"26 systems including Chinese BaZi (Four Pillars), Vedic astrology, Western astrology, Nine Star Ki, Mayan Tzolkin, Thai Brahmin day-deity, numerology and 19 more."}},
 {"@type":"Question","name":"Do I need to create an account?","acceptedAnswer":{"@type":"Answer","text":"No. You get your free Cosmic Score and daily deity draw instantly with just your birth date — no signup, and it works offline."}}
 ]}
@@ -2719,7 +2719,7 @@ try{
     <iframe id="cb-report-frame" style="width:100%;height:100%;border:none" title="Cosmic Blueprint"></iframe>
   </div>
 
-  <!-- CB PAYWALL — teaser + $19 unlock, shown when the full report is gated.
+  <!-- CB PAYWALL — teaser + $59 unlock, shown when the full report is gated.
        Lives in the parent document (NOT the iframe) so the purchase buttons
        can call _purchaseItem / _purchaseSubscription. Populated by _cbShowPaywall(). -->
   <div id="cb-paywall-wrap" style="display:none;max-width:760px;margin:8px auto 0;padding:0 14px"></div>
@@ -4196,7 +4196,7 @@ const RENDERERS = {
 
 // Which segment of a two-part group is open. Premium holds both "what a
 // membership includes" and "what you buy once"; showing all 21 destinations at
-// once meant the $19 report sat behind seven buttons of horizontal scroll
+// once meant the $59 report sat behind seven buttons of horizontal scroll
 // (director 2026-08-31: "ต้องกดเข้าไปในสมาชิกรายเดือน หรือว่ารายครั้งก่อน ถึงจะ
 // เห็น tab ย่อย"). Pick the segment first, then see only its tabs.
 let CUR_SEG = null;
@@ -7958,7 +7958,7 @@ function _markGiftCodeUsed(code){
 
 // ── Per-input purchase model ──────────────────────────────
 // Pricing model decided 2026-05-02:
-//   • $19  one-time = Full Report in-depth PDF for ONE chart input
+//   • $59  one-time = Full Report in-depth PDF for ONE chart input
 //   • $5–9 add-ons  = utility add-ons (Mirror/Pet/Companions/Exercise/Food/
 //                     Product/Compat) — each tied to ONE chart input;
 //                     re-view free, change input → repurchase
@@ -7983,7 +7983,9 @@ const PRICING = {
   pilgrimage:  { usd: 9,  thb: 320 },   // Cosmic Pilgrimage — sacred places by chart
   forecast12:  { usd: 9,  thb: 320 },   // 12-month forecast map — DIRECTOR OWNS THIS PRICE. No Gumroad product yet, so the paywall shows membership instead (see _GUMROAD_PRODUCTS).
   // Big bundle — Full Report in-depth PDF (NOT an add-on)
-  full_report: { usd: 19, thb: 650 },
+  full_report: { usd: 59, thb: 1990 },  // 3 ก.ย. 69: ฿650 -> ฿1,990 ต่อ director
+  //   ⛔ ราคานี้ต้องตรงกับ Gumroad เสมอ — เปลี่ยนที่นี่ที่เดียวแล้วลืมอีกฝั่ง = คนกดจ่ายคนละราคากับที่เห็น
+  //   ⛔ ครั้งก่อน (2 ก.ย.) แก้แต่ข้อความ ไม่ได้แตะ PRICING เลยไม่มีผลจริงเลยสองสัปดาห์
 };
 
 // ── Price display: ONE currency per language ──────────────────────────────
@@ -8120,10 +8122,10 @@ function _addToLibrary(itemKey, opts){
 //     === 'premium', surfaced via /api/me/plan) unlocks EVERYTHING.
 //   - Gift code unlocks ONE Deep Reading per chart hash (user picks which) and
 //     EXPIRES (mth_gift_expiry). It does NOT grant the subscription, add-ons, or
-//     the $19 Cosmic Blueprint — see _hasActiveGift / _hasItemAccess (deep_ only).
+//     the $59 Cosmic Blueprint — see _hasActiveGift / _hasItemAccess (deep_ only).
 //     (Earlier this comment said "unlocks everything (beta access)" — that was
 //     stale; the code has always scoped gifts to Deep Readings.)
-//   - Per-item one-time purchases ($9 system / $19 report) — Phase 2:
+//   - Per-item one-time purchases ($9 system / $59 report) — Phase 2:
 //     real per-item Gumroad products + server-side purchase records. For
 //     now the local purchase map is still honoured (kept for forward-compat).
 // Flip _BETA_ALL_UNLOCKED back to true only for an emergency open-access
@@ -8284,7 +8286,7 @@ const _GUMROAD_PRODUCTS = {
   compat:      { url: 'https://garsell.gumroad.com/l/mdjeln?wanted=true', permalink: 'mdjeln' }, // $9
   pilgrimage:  { url: '', permalink: '' }, // $9 — TODO: create Gumroad product, falls back to subscription for now
   forecast12:  { url: 'https://garsell.gumroad.com/l/utisor?wanted=true', permalink: 'utisor' }, //  — live 2026-08-23
-  full_report: { url: 'https://garsell.gumroad.com/l/mbkayz?wanted=true', permalink: 'mbkayz' }, // $19
+  full_report: { url: 'https://garsell.gumroad.com/l/mbkayz?wanted=true', permalink: 'mbkayz' }, // $59
 };
 
 // Resolve the checkout URL for a given itemKey: prefer per-item one-time
@@ -16835,7 +16837,7 @@ function viewMultiProfile(idx) {
     // Jump to the Premium → Generate panel.
     setGroup('premium');
     showSubTab('blueprint');
-    // GATE: a saved profile's full Blueprint is the same $19 full_report product,
+    // GATE: a saved profile's full Blueprint is the same $59 full_report product,
     // scoped to THAT profile's chart hash. Owner / subscriber / a buyer of THIS
     // profile's chart pass; everyone else gets the teaser + paywall.
     const _pHash = _chartInputHash({ dob: p.dob, time: p.time, gender: p.gender, city: p.city, name: p.name });
@@ -19197,8 +19199,8 @@ const TAB_TOUR_STEPS = [
   {
     titleTh: 'พร้อมเจาะลึก? เลือกเพิ่มได้ (ไม่บังคับ)',
     titleEn: 'Ready to go deeper? Optional add-ons',
-    bodyTh: '<strong>Cosmic Blueprint</strong> ($19 ครั้งเดียว) — full breakdown 26 ศาสตร์ · <strong>Subscription</strong> รายเดือน — daily refresh + Biorhythm · <em>ลองฟรีก่อนได้ ไม่ต้องตัดสินใจตอนนี้</em>',
-    bodyEn: '<strong>Cosmic Blueprint</strong> ($19 one-time) — full 26-system breakdown · <strong>Subscription</strong> monthly — daily refresh + Biorhythm · <em>Explore free first · no rush</em>',
+    bodyTh: '<strong>Cosmic Blueprint</strong> ($59 ครั้งเดียว) — full breakdown 26 ศาสตร์ · <strong>Subscription</strong> รายเดือน — daily refresh + Biorhythm · <em>ลองฟรีก่อนได้ ไม่ต้องตัดสินใจตอนนี้</em>',
+    bodyEn: '<strong>Cosmic Blueprint</strong> ($59 one-time) — full 26-system breakdown · <strong>Subscription</strong> monthly — daily refresh + Biorhythm · <em>Explore free first · no rush</em>',
     pointerTh: '👆 ปุ่ม <strong>👑 Cosmic Blueprint</strong> ด้านบน · เปิดดูตัวอย่าง form ก่อนได้ ไม่ผูกพัน',
     pointerEn: '👆 The <strong>👑 Cosmic Blueprint</strong> button above · open it to peek at the form, no commitment',
     target: '#group-premium',
@@ -22131,7 +22133,7 @@ function _cbOnReaderResize() {
 window.addEventListener('resize', _cbOnReaderResize);
 window.addEventListener('orientationchange', _cbOnReaderResize);
 
-// Show the free TEASER + $19 paywall instead of the full report when the user
+// Show the free TEASER + $59 paywall instead of the full report when the user
 // isn't entitled to full_report. The free taste = Cosmic Score + the "X systems
 // agree" Grand Convergence preview (our selling point); the in-depth detail is the
 // paid product. Lives in the parent doc (#cb-paywall-wrap) so the purchase
@@ -22231,9 +22233,9 @@ function cb_generate() {
   const industry    = localStorage.getItem('mth_industry')     || '';
   const careerLevel = localStorage.getItem('mth_careerLevel')  || '';
 
-  // ── GATE: the full in-depth Cosmic Blueprint IS the $19 'full_report' product ──
+  // ── GATE: the full in-depth Cosmic Blueprint IS the $59 'full_report' product ──
   // (Director 2026-06-10: Full Report = Cosmic Blueprint = Cosmic Premium = one
-  // $19 product.) Owner / subscriber / one-time buyer of THIS chart pass via
+  // $59 product.) Owner / subscriber / one-time buyer of THIS chart pass via
   // _hasItemAccess; everyone else gets the free teaser (Cosmic Score + "systems
   // agree" convergence preview) + the paywall instead of the full report. Keyed
   // on the same localStorage chart hash the rest of the app uses.
