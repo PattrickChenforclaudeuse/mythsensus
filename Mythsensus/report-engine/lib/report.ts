@@ -333,8 +333,8 @@ function p01_cover(c: ChartData): string {
   const _pct = Math.round(((score.total - 300) / 699) * 100)
   const tierSub  = ''
   const scoreWhere = tr(
-    `คะแนนนี้คือ <strong>ค่าเฉลี่ยคะแนนที่ 26 ศาสตร์ให้คุณ</strong> เทียบกับดวงสุ่ม 3,000 ดวงที่เราใช้ตั้งสเกล — ของคุณสูงกว่า <strong>${_pct}%</strong> ของดวงเหล่านั้น · สเกลเต็ม 1,000`,
-    `This is the <strong>average of the scores the 26 traditions gave you</strong>, placed against 3,000 random charts used to set the scale — yours sits above <strong>${_pct}%</strong> of them. The scale runs to 1,000.`)
+    `<strong>มัธยฐาน</strong>ของคะแนนที่ 26 ศาสตร์ให้คุณ (ไม่ใช่ค่าเฉลี่ย) เทียบกับดวงสุ่ม 3,000 ดวง — สูงกว่า <strong>${_pct}%</strong> · ${score.total} คือตำแหน่งบนสเกล 300–999 ไม่ใช่เปอร์เซ็นต์`,
+    `The <strong>median</strong> of the scores the 26 traditions gave you (a median, not an average), against 3,000 random charts — yours sits above <strong>${_pct}%</strong>. ${score.total} is a position on a 300–999 scale, not a percentage.`)
 
   return section(1, tr('Cosmic Blueprint — ภาพรวม', 'Cosmic Blueprint — Overview'), '✦', `
     <div style="text-align:center;margin-bottom:16px">
@@ -776,8 +776,10 @@ function p02_scoreBreakdown(c: ChartData): string {
   const _sorted = voting.map(b => b.score).sort((a, b) => a - b)
   const _median = _sorted.length ? _sorted[Math.floor(_sorted.length / 2)] : 0
   const _low = _sorted.length ? _sorted[Math.floor(_sorted.length * 0.25)] : 0
-  const stars = voting.filter(b => b.score >= _median)
-  const mids  = voting.filter(b => b.score >= _low && b.score < _median)
+  // ⛔ ต้องใช้เกณฑ์ชุดเดียวกับหน้าแรก (starCount/midCount/warnCount ใน calc.ts)
+  //    ไม่งั้นเล่มเดียวกันรายงานสองชุดตัวเลขเรื่องเดียวกัน และผลรวมไม่ครบ 26
+  const stars = voting.filter(b => b.score >= 780)
+  const mids  = voting.filter(b => b.score >= 650 && b.score < 780)
   const warns = voting.filter(b => b.score < 650)
 
   const systemRow = (b: typeof allSorted[0], icon: string) => `
@@ -792,14 +794,14 @@ function p02_scoreBreakdown(c: ChartData): string {
 
   return section(3, tr('คะแนนรายศาสตร์ — ใครให้เท่าไหร่', 'Score by tradition — who scored what'), '🌐', `
     <div style="font-size:12.5px;color:#927f62;margin-bottom:12px;line-height:1.6">
-      ${tr('Cosmic Score = อันดับเปอร์เซ็นไทล์ของมัธยฐาน 26 ศาสตร์ (สเกลเต็ม 1,000 · คนละสเกลกับคะแนนดิบด้านล่าง)', 'Cosmic Score = the percentile rank of your 26-system median (scale out of 1,000, NOT the raw scores below)')} = <strong style="color:#c8a45a">${c.score.total}</strong>
+      ${tr('Cosmic Score = มัธยฐาน 26 ศาสตร์ → ตำแหน่งในประชากร → สเกล 300–999 (ไม่ใช่เปอร์เซ็นต์ · คนละสเกลกับคะแนนดิบล่าง)', 'Cosmic Score = your 26-system median → population rank → a 300–999 scale (not a percentage; a different scale from the raw scores below)')} = <strong style="color:#c8a45a">${c.score.total}</strong>
       · ${tr('ความสอดคล้อง','Consensus')} = ${c.score.agreement} · ${tr('มัธยฐานดิบ','Raw median')} = ${_scoreMedian(c)} · Mean = ${c.score.mean} · Modal = ${c.score.modalBin}–${c.score.modalBin+49}
     </div>
 
     <!-- Stars -->
     <div style="margin-bottom:12px">
       <div style="font-size:13px;font-weight:600;color:#4aaa4a;margin-bottom:6px">
-        🌟 ${tr('ให้คะแนนสูง', 'Scored high')} — ${stars.length} ${tr(`ศาสตร์ (สูงกว่ามัธยฐานของคุณ ${_median})`, `traditions (above your median, ${_median})`)}
+        🌟 ${tr('ให้คะแนนสูง', 'Scored high')} — ${stars.length} ${tr('ศาสตร์ (780 ขึ้นไป)', 'traditions (780 and above)')}
       </div>
       ${stars.map(b => systemRow(b,'🌟')).join('')}
     </div>
@@ -1332,8 +1334,8 @@ function p_consensusAxes(c: ChartData): string {
   const nsk2026 = 1                               // 2026 is a 一白水星 year
   const AMP = tr('ปีขยายผล', 'a year that amplifies'), CONSOL = tr('ปีตั้งหลัก', 'a year to consolidate')
   const yearVotes: Vote[] = [
-    { lineage: 'BaZi', says: bazi.benMingNian2026 ? AMP : CONSOL, evidence: bazi.benMingNian2026 ? tr('เบิ่นมิ่งเหนียน (ปีชง)','Ben Ming Nian') : tr('ไม่ใช่ปีชง','not your year branch') },
-    { lineage: tr('Lo Shu 9 ดาว','Lo Shu nine stars'), says: ninestar.star === nsk2026 ? AMP : CONSOL, evidence: ninestar.star === nsk2026 ? 'Honmei-sei Kaiki' : `${tr('ดาว','star')} ${ninestar.star} ≠ ${nsk2026}` },
+    { lineage: 'BaZi', says: bazi.benMingNian2026 ? CONSOL : AMP, evidence: bazi.benMingNian2026 ? tr('เบิ่นมิ่งเหนียน (ปีชง)','Ben Ming Nian') : tr('ไม่ใช่ปีชง','not your year branch') },
+    { lineage: tr('Lo Shu 9 ดาว','Lo Shu nine stars'), says: ninestar.star === nsk2026 ? CONSOL : AMP, evidence: ninestar.star === nsk2026 ? 'Honmei-sei Kaiki' : `${tr('ดาว','star')} ${ninestar.star} ≠ ${nsk2026}` },
     { lineage: tr('เลขศาสตร์','Numerology'), says: [1, 3, 5, 8, 9].includes(py) ? AMP : CONSOL, evidence: `Personal Year ${py}` },
     { lineage: 'Vedic Dasha', says: dashaPush ? AMP : CONSOL, evidence: `${vedicMahadasha.currentDasha} ${tr('ถึง','to')} ${(vedicMahadasha as any).currentDashaEnd ?? ''}` },
   ]
@@ -1341,7 +1343,8 @@ function p_consensusAxes(c: ChartData): string {
   // A 2–2 tie used to print "a year of two unlike halves", which is what a
   // horoscope says when it does not want to be checked. Nine Star Ki breaks it:
   // of the four, its doctrine is the one built as an annual cycle.
-  const nskAmp = ninestar.star === nsk2026
+  // ⛔ ดาวประจำตัวกลับเข้าจงกง = 八方塞がり ปิดแปดทิศ ⇒ เป็นเสียง "ตั้งหลัก" ไม่ใช่ "ขยาย"
+  const nskAmp = ninestar.star !== nsk2026
   const yearCall = ampN >= 3 ? AMP : ampN <= 1 ? CONSOL : (nskAmp ? AMP : CONSOL)
   const yearReading = ampN >= 3
     ? tr(`${ampN} จาก ${yearVotes.length} สายบอกว่า 2026 เป็นปีที่<strong>ทุกอย่างถูกคูณ</strong> ทั้งที่ทำถูกและที่ทำพลาด ปีแบบนี้ไม่ควรทดลองของใหม่ที่ยังไม่มั่นใจ แต่ควรทุ่มกับสิ่งที่พิสูจน์แล้วว่าได้ผล`, `${ampN} of ${yearVotes.length} lineages read 2026 as a year that <strong>multiplies whatever you put in</strong> — the good moves and the bad ones alike. Not the year for experiments you are unsure of; the year to pour everything into what has already proven itself.`)
@@ -2294,6 +2297,9 @@ const _elEn = (x: string) => _EL_EN[x] || x
 function _pillarRole(stem: string, dmEl: string, dmStem?: string): { th: string; en: string } {
   const el = _STEM_EL[stem]
   if (!el || !dmEl) return { th: '', en: '' }
+  // ⛔ _STEM_EL คืนชื่อธาตุไทยเสมอ แต่ dmEl เปลี่ยนภาษาตาม UI
+  //    เทียบตรงๆ ในฉบับอังกฤษจะไม่ตรงสักกิ่ง แล้วตกไปสาขาสุดท้ายทุกแถว
+  const dmK = elKey(dmEl)
   // ⛔ ธาตุอย่างเดียวไม่พอ — เสาโชคเดินทีละก้าน ก้านคู่ติดกันเป็นธาตุเดียวกันเสมอ
   //    (庚/辛 โลหะทั้งคู่) ⇒ ถ้าตัดสินด้วยธาตุล้วน แถวจะซ้ำกันเป๊ะทีละคู่ ทั้งตาราง
   //    ตำราแยกด้วย "ขั้วเดียวกันหรือคนละขั้ว" อยู่แล้ว = 正/偏 ของสิบเทพ
@@ -2302,22 +2308,22 @@ function _pillarRole(stem: string, dmEl: string, dmStem?: string): { th: string;
     ? (_POL.indexOf(stem) % 2) === (_POL.indexOf(dmStem) % 2)
     : true
   const P = (a: string, b: string) => same ? a : b
-  if (el === dmEl) return {
+  if (el === dmK) return {
     th: P(`${el}ขั้วเดียวกับก้านวันคุณ (比肩) — ช่วงที่มีพวกเดินไปทางเดียวกัน`,
           `${el}คนละขั้วกับก้านวันคุณ (劫財) — ช่วงที่มีคนมาแบ่งของกันตรงๆ`),
     en: P(`${_elEn(el)} of your own polarity (Bi Jian) — companions who move your way`,
           `${_elEn(el)} of the opposite polarity (Jie Cai) — people who divide the same pot`) }
-  if (_EL_PRODUCES[el] === dmEl) return {
+  if (_EL_PRODUCES[el] === dmK) return {
     th: P(`${el}หล่อเลี้ยง${dmEl}ของคุณแบบนอกตำรา (偏印) — ช่วงที่ได้วิชาจากทางลัดและครูนอกระบบ`,
           `${el}หล่อเลี้ยง${dmEl}ของคุณตามครรลอง (正印) — ช่วงที่มีผู้ใหญ่หนุน ได้เรียน ได้พัก`),
     en: P(`${_elEn(el)} feeds your ${_elEn(dmEl)} unconventionally (Pian Yin) — knowledge from side doors`,
           `${_elEn(el)} feeds your ${_elEn(dmEl)} through proper channels (Zheng Yin) — mentors, study, recovery`) }
-  if (_EL_PRODUCES[dmEl] === el) return {
+  if (_EL_PRODUCES[dmK] === el) return {
     th: P(`${dmEl}ของคุณสร้าง${el}อย่างไหลลื่น (食神) — ช่วงที่ผลงานออกง่าย ไม่ต้องฝืน`,
           `${dmEl}ของคุณสร้าง${el}อย่างแหลมคม (傷官) — ช่วงที่ผลงานเด่นแต่ปากพาไป`),
     en: P(`your ${_elEn(dmEl)} produces ${_elEn(el)} smoothly (Shi Shen) — output that comes easily`,
           `your ${_elEn(dmEl)} produces ${_elEn(el)} sharply (Shang Guan) — strong output, sharp tongue`) }
-  if (_EL_CONTROLS[dmEl] === el) return {
+  if (_EL_CONTROLS[dmK] === el) return {
     th: P(`${dmEl}ของคุณคุม${el}แบบลาภจร (偏財) — ช่วงที่เงินเข้าเป็นก้อน ไม่สม่ำเสมอ`,
           `${dmEl}ของคุณคุม${el}แบบทรัพย์ประจำ (正財) — ช่วงที่รายได้นิ่งแต่ต้องเฝ้า`),
     en: P(`your ${_elEn(dmEl)} controls ${_elEn(el)} irregularly (Pian Cai) — money in lumps`,
@@ -2448,8 +2454,8 @@ function p14_health(c: ChartData): string {
     <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
       <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:14px">${tr('สุขภาพตามดวง ≠ พยากรณ์รายวัน','Birth-chart health ≠ daily forecast')}</div>
       <div style="font-size:13px;color:#c8c0a8;line-height:1.75">
-        ${tr(`${healthSignals.length} ศาสตร์ที่มีวิชาด้านนี้ · ${good.length} เห็นตรงกัน`,
-             `${healthSignals.length} traditions speak to this · ${good.length} agree`)}
+        ${tr(`${healthSignals.length} ศาสตร์ที่มีวิชาด้านนี้ · ${good.length} เห็นตรงกัน · ${healthSignals.length - good.length - warn.length} กลางๆ · ${warn.length} เห็นเตือน`,
+             `${healthSignals.length} traditions speak to this · ${good.length} agree · ${healthSignals.length - good.length - warn.length} neutral · ${warn.length} cautionary`)}
       </div>
     </div>
 
@@ -2503,8 +2509,8 @@ function p15_finance(c: ChartData): string {
     <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
       <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:14px">${tr('การเงินตามดวง ≠ พยากรณ์หวย','Birth-chart finance ≠ lottery forecast')}</div>
       <div style="font-size:13px;color:#c8c0a8;line-height:1.75">
-        ${tr(`${finSignals.length} ศาสตร์ที่มีวิชาด้านนี้ · ${good.length} เห็นเสริม · ${warn.length} เห็นเตือน`,
-             `${finSignals.length} traditions speak to this · ${good.length} supportive · ${warn.length} cautionary`)}
+        ${tr(`${finSignals.length} ศาสตร์ที่มีวิชาด้านนี้ · ${good.length} เห็นเสริม · ${finSignals.length - good.length - warn.length} กลางๆ · ${warn.length} เห็นเตือน`,
+             `${finSignals.length} traditions speak to this · ${good.length} supportive · ${finSignals.length - good.length - warn.length} neutral · ${warn.length} cautionary`)}
       </div>
     </div>
 
@@ -3019,13 +3025,21 @@ function p20_colors(c: ChartData): string {
       `Your birth star is Star ${ninestar.star} — ${ninestar.starColor} is the symbolic colour of this star in Japanese astrology. Feng Shui uses it as a key accent colour.`
     ),
   })
-  const bzColor = bazi.luckyElement === 'ไฟ' ? tr('แดง / ส้ม','Red / Orange')
-                : bazi.luckyElement === 'ไม้' ? tr('เขียว','Green')
-                : bazi.luckyElement === 'น้ำ' ? tr('ดำ / น้ำเงิน','Black / Blue')
-                : bazi.luckyElement === 'โลหะ' ? tr('ขาว / เงิน','White / Silver')
-                : tr('เหลือง / น้ำตาล','Yellow / Brown')
+  // ⛔ luckyElement/avoidElement เก็บได้หลายธาตุในสตริงเดียว ("น้ำ ไม้")
+  //    เทียบ === ทีละธาตุจะไม่ตรงสักอัน แล้วตกไปค่าเริ่มต้น = เหลือง/น้ำตาล (ธาตุดิน)
+  //    ซึ่งเป็นธาตุที่ดวงนี้ต้องเลี่ยง ⇒ หน้าเดียวกันแนะนำและห้ามสีเดียวกัน
+  const _ELS = (v?: string) => String(v || '').split(/[\s·/]+/).map(x => elKey(x.trim())).filter(x => ['ไม้','ไฟ','ดิน','โลหะ','น้ำ'].includes(x))
+  const _EL_COLOUR: Record<string,string> = {
+    'ไฟ': tr('แดง / ส้ม','Red / Orange'), 'ไม้': tr('เขียว','Green'),
+    'น้ำ': tr('ดำ / น้ำเงิน','Black / Blue'), 'โลหะ': tr('ขาว / เงิน','White / Silver'),
+    'ดิน': tr('เหลือง / น้ำตาล','Yellow / Brown'),
+  }
+  const _luckyEls = _ELS(bazi.luckyElement)
+  const bzColor = _luckyEls.length
+    ? [...new Set(_luckyEls.map(e => _EL_COLOUR[e]))].join(' · ')
+    : tr('เขียว','Green')
   sources.push({
-    el: bazi.luckyElement,
+    el: _luckyEls[0] || '',
     color: bzColor,
     source: `BaZi (Day Master ${bazi.dayMasterTh})`,
     why: tr(
@@ -3079,11 +3093,15 @@ function p20_colors(c: ChartData): string {
   const _overlaps = goodSources.filter(x =>
     _avoidEls.some(el => (WUXING_COLOUR_WORDS[el] || []).some(w => x.color.includes(w))))
 
-  const avoidColor = bazi.avoidElement === 'ไฟ' ? tr('แดงสด','Bright Red')
-                   : bazi.avoidElement === 'น้ำ' ? tr('ดำสนิท','Solid Black')
-                   : bazi.avoidElement === 'ไม้' ? tr('เขียวเข้ม','Deep Green')
-                   : bazi.avoidElement === 'โลหะ' ? tr('เงินแท้ / โครเมียม','Pure Silver / Chrome')
-                   : tr('เหลืองฉูดฉาด','Loud Yellow')
+  const _EL_AVOID_COLOUR: Record<string,string> = {
+    'ไฟ': tr('แดงสด','Bright Red'), 'น้ำ': tr('ดำสนิท','Solid Black'),
+    'ไม้': tr('เขียวเข้ม','Deep Green'), 'โลหะ': tr('เงินแท้ / โครเมียม','Pure Silver / Chrome'),
+    'ดิน': tr('เหลืองฉูดฉาด','Loud Yellow'),
+  }
+  const _avoidElsList = _ELS(bazi.avoidElement)
+  const avoidColor = _avoidElsList.length
+    ? [...new Set(_avoidElsList.map(e => _EL_AVOID_COLOUR[e]))].join(' · ')
+    : tr('เหลืองฉูดฉาด','Loud Yellow')
 
   return section(20, tr('สีมงคลและการแต่งตัว — ที่มาจาก 4 ศาสตร์','Lucky Colours & Style — Sourced from 4 Systems'), '👗', `
     <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
@@ -3096,7 +3114,7 @@ function p20_colors(c: ChartData): string {
       </div>
     </div>
 
-    <h2>${tr('สีที่แนะนำ','Recommended Colours')} · ${goodSources.length} ${tr('ศาสตร์ยืนยัน','systems concur')}</h2>
+    <h2>${tr('สีที่แนะนำ','Recommended Colours')} · ${goodSources.length} ${tr('ศาสตร์ (เสนอคนละสี — ดูเหตุผลของแต่ละสาย)','traditions, each naming a different colour — see the reasoning under each')}</h2>
     ${goodSources.map(s => `
       <div style="border-left:3px solid #c8a45a;background:#0d0d15;padding:10px 14px;margin:8px 0;border-radius:0 8px 8px 0">
         <div style="display:flex;justify-content:space-between;align-items:baseline">
@@ -3313,8 +3331,8 @@ function p22_painPoints(c: ChartData): string {
       <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:14px">${tr('นี่คือ "จุดที่ต้องดูแล" ไม่ใช่ "ดวงเสีย"','These are "areas to nurture", not "broken charts"')}</div>
       <div style="font-size:13px;color:#c8c0a8;line-height:1.75">
         ${tr(
-          'Pain Point ทั้ง 5 นี้มาจากการอ่านข้าม 3–5 ศาสตร์พร้อมกัน — ยิ่งหลายศาสตร์ชี้จุดเดียวกัน ยิ่งเป็นจุดที่ควรให้ความสนใจในชีวิต · แต่ละข้ออธิบาย <strong>ทำไมเป็น pain point ของคุณโดยเฉพาะ</strong> (Why) + <strong>อาการที่จะเจอ</strong> (Challenge) + <strong>วิธีรับมือตามดวง</strong> (Solution)',
-          'These 5 Pain Points emerge from cross-reading 3–5 systems at once — the more traditions point at the same spot, the more it merits attention. Each item explains <strong>why it\'s your specific pain point</strong> (Why) + <strong>the symptoms you\'ll encounter</strong> (Challenge) + <strong>how to navigate it through your chart</strong> (Solution).'
+          'ยิ่งหลายศาสตร์ชี้จุดเดียวกัน ยิ่งควรให้ความสนใจ · แต่ละข้อบอก <strong>ทำไมเป็นของคุณ</strong> + <strong>อาการ</strong> + <strong>วิธีรับมือ</strong>',
+          'The more traditions point at the same spot, the more it merits attention. Each item gives <strong>why it is yours</strong>, <strong>the symptoms</strong>, and <strong>how to handle it</strong>.'
         )}
       </div>
     </div>
@@ -3570,7 +3588,7 @@ function p25_summary(c: ChartData): string {
   const dmEl = bazi.dayMasterElement
   const closingMsg = tr(
     `คุณคือ "<strong style="color:#c8a45a">${esc(score.cosmicEntity)}</strong>" — พลังของธาตุ${esc(dmEl)} ที่เดินอยู่บน Life Path ${esc(String(numerology.lifePath))} (${esc(numerology.lifePathName)}) 26 ศาสตร์มองคุณจากคนละมุม — บางมุมตรงกัน บางมุมขัดกัน และหน้า 2 บอกไว้แล้วว่าตรงไหนเป็นตรงไหน · ดวงชะตาไม่ใช่โชคที่ตายตัว มันคือแผนที่พลังงานที่ช่วยให้คุณรู้จักตัวเองและเลือกทางได้ฉลาดขึ้น · จุดแข็งทุกข้อในรายงานนี้จะเปล่งประกายก็ต่อเมื่อคุณกล้าหยิบมันมาใช้จริง — จงเดินต่อไปด้วยความมั่นใจ`,
-    `You are "<strong style="color:#c8a45a">${esc(score.cosmicEntity)}</strong>" — the force of the ${esc(dmEl)} element walking Life Path ${esc(String(numerology.lifePath))} (${esc(numerology.lifePathName)}). All 26 systems look at you from different angles yet project the same image. Your chart is not a fixed fate — it is an energy map that helps you know yourself and choose your path with more wisdom. Every strength named in this report only shines once you dare to actually use it. Walk forward with confidence.`)
+    `You are "<strong style="color:#c8a45a">${esc(score.cosmicEntity)}</strong>" — the force of the ${esc(dmEl)} element walking Life Path ${esc(String(numerology.lifePath))} (${esc(numerology.lifePathName)}). All 26 traditions look at you from a different angle — some agree, some contradict each other, and page 2 says which is which. Your chart is not a fixed fate — it is an energy map that helps you know yourself and choose your path with more wisdom. Every strength named in this report only shines once you dare to actually use it. Walk forward with confidence.`)
   return section(25, tr('สรุปภาพรวมและคำส่งท้าย','Final Summary & Closing Reflection'), '✨', `
     <div style="text-align:center;margin-bottom:20px">
       <div style="font-size:48px;font-weight:700;color:#c8a45a">${score.total}</div>

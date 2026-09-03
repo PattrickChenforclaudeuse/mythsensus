@@ -52,7 +52,7 @@ const LIMITS = {
   // 2026-08-31: 24.9% → 17.7% after the ten-year forecast stopped printing the
   // same nine Personal-Year paragraphs to everyone and anchored each one to the
   // reader's age. Ratcheted down to lock that in. Nothing was cut to get here.
-  sharedProsePct: 16.4,    // prose identical across all six unrelated charts
+  sharedProsePct: 16.3,    // prose identical across all six unrelated charts
   termPerPage: 4,          // times one of the chart's own key values may appear ON ONE PAGE
   branchCoveragePct: 45,   // share of the population one interpretive line may cover
 };
