@@ -5,22 +5,29 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
 <!--
-  /en — English entry point (2026-08-15).
+  /en — English entry point.
 
-  WHY THIS FILE EXISTS: /en used to be a Vercel rewrite straight to /, so it served
-  the Thai index.html verbatim — including its Thai og:title and og:description.
-  Every English-language share (Facebook, Reddit, Slack, Discord, Product Hunt)
-  therefore rendered a Thai preview card, which is close to useless to an English
-  reader and reads as the wrong-language link. Crawlers only read the <head>, so a
-  small English head plus a hand-off into the app fixes the preview without
-  duplicating the 1.8 MB single-page app.
+  HISTORY
+  2026-08-15 · Created as a head-only stub because /en had been a Vercel rewrite
+    to /, which served the Thai index.html verbatim — so every English share on
+    Facebook, Reddit, Slack or Discord rendered a Thai preview card.
+  2026-09-03 · Turned into a real page. The stub carried 91 characters of visible
+    text and ran location.replace('/?lang=en') on load, so the URL that hreflang
+    nominates as the English edition of this site had no content of its own for a
+    search engine to rank, and read as a redirect rather than a document. Our own
+    counter showed 927 English-locale visitors in 30 days against 1,635 Thai,
+    with 11 arrivals from Google in that whole window — the English audience is
+    already here and organic search is not how it finds us.
 
-  The app itself still needs to come up in English: it reads localStorage.mth_lang
-  at boot, so we set it here BEFORE handing off, and pass ?lang=en as a visible
-  fallback that the app's own detector also honours.
-
-  Reversible: delete this file and restore { "source": "/en", "destination": "/" }
-  in vercel.json.
+  ⛔ DO NOT reintroduce the automatic redirect. A page that navigates away on load
+     cannot be the hreflang target; the language handoff belongs on the links,
+     which set mth_lang on click and pass ?lang=en.
+  ⛔ Head tags are load-bearing and easy to drop when regenerating: canonical,
+     three hreflang lines, Google Fonts, page-beacon.js. A page regenerated
+     without the beacon vanishes from our own traffic figures with no error.
+  ⛔ Prices here must match PRICING in index.html and the Gumroad products.
+     Membership price cannot be changed through the Gumroad API — the variant
+     endpoint returns success while echoing the old price back.
 -->
 
 <title>Mythsensus — 26 traditions read your birth date. See where they disagree.</title>
@@ -46,23 +53,329 @@
 <meta name="twitter:description" content="Laid side by side: what they agree on, and where they contradict. Free, no signup.">
 <meta name="twitter:image" content="https://mythsensus.com/assets/og-banner.jpg">
 
+<link rel="icon" href="/favicon.svg">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Josefin+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+
 <style>
-  html,body{margin:0;height:100%;background:#0a0a12;color:#c8a45a;
-    font-family:'Josefin Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-    display:flex;align-items:center;justify-content:center;text-align:center}
-  a{color:#c8a45a}
+  :root{--bg:#0a0a12;--bg2:#0d0d18;--card:#12111f;--gold:#d4af37;--gold2:#e8c96a;--gold3:#8a7434;
+        --text:#f0ece0;--muted:#9a9088;--border:rgba(212,175,55,.22)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:'Cormorant Garamond',Georgia,serif;
+       font-size:18px;line-height:1.8}
+  a{color:var(--gold2);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:760px;margin:0 auto;padding:0 22px}
+
+  header.nav{position:sticky;top:0;z-index:20;background:rgba(10,10,18,.94);
+       backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+  .nav-in{max-width:760px;margin:0 auto;padding:0 22px;height:58px;
+       display:flex;align-items:center;justify-content:space-between}
+  .logo{font-family:'Cinzel Decorative',serif;font-size:17px;letter-spacing:4px}
+  .logo b{color:var(--gold);font-weight:400}
+  .logo span{opacity:.6}
+  .nav-links{font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.6px;
+       text-transform:uppercase;display:flex;gap:18px}
+  .nav-links a{color:var(--text);opacity:.72}
+
+  .hero{padding:60px 0 34px;border-bottom:1px solid var(--border)}
+  h1{font-family:'Cinzel Decorative',serif;font-size:clamp(27px,4.6vw,40px);line-height:1.28;
+       color:var(--gold);font-weight:400;margin-bottom:18px}
+  .lede{font-size:20px;line-height:1.75;color:var(--text)}
+  .lede em{color:var(--gold2);font-style:normal}
+
+  h2{font-family:'Cinzel Decorative',serif;font-size:20px;letter-spacing:.6px;color:var(--gold);
+       font-weight:400;margin:44px 0 14px;line-height:1.35}
+  h3{font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;
+       color:var(--gold2);margin:26px 0 8px;font-weight:600}
+  p{margin-bottom:15px}
+  ul{margin:0 0 15px 20px}
+  li{margin-bottom:7px}
+
+  .cta{display:inline-block;background:var(--gold);color:#0d0d15;font-family:'Josefin Sans',sans-serif;
+       font-size:13px;letter-spacing:2px;font-weight:600;padding:14px 32px;border-radius:6px;margin:6px 0}
+  .cta:hover{text-decoration:none;background:var(--gold2)}
+  .cta-note{font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1px;color:var(--muted);
+       margin-top:8px}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 22px;
+       margin:18px 0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:16px 0}
+  .grid .card{margin:0}
+  .grid h3{margin-top:0}
+  .grid ul{margin-left:16px;font-size:16px}
+
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:16px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;
+       color:var(--gold2);font-weight:600}
+  td.price{white-space:nowrap;color:var(--gold2)}
+
+  .faq dt{font-family:'Josefin Sans',sans-serif;font-size:14px;letter-spacing:.4px;color:var(--gold2);
+       margin-top:20px;font-weight:600}
+  .faq dd{margin:6px 0 0}
+
+  footer{border-top:1px solid var(--border);margin-top:54px;padding:26px 0 46px;
+       font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.2px;color:var(--muted)}
+  footer a{color:var(--muted)}
+  .foot-links{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:12px}
 </style>
 
 <script>
-  // Hand off immediately. Set the language first so the app boots English even if
-  // the query string is stripped somewhere along the way.
-  try { localStorage.setItem('mth_lang','en'); } catch (_) {}
-  location.replace('/?lang=en');
+  // The language handoff lives on the links, not on page load. A page that
+  // navigates away the moment it renders cannot be the hreflang target for
+  // English, which is exactly what this file is nominated as.
+  function goApp(e){
+    try { localStorage.setItem('mth_lang','en'); } catch (_) {}
+    if (e) { e.preventDefault(); location.href = '/?lang=en'; }
+    return false;
+  }
 </script>
-  <script defer src="/assets/page-beacon.js"></script>
+<script defer src="/assets/page-beacon.js"></script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why do different astrologers give me different answers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because they are reading different systems. Western astrology divides the sky by season, Vedic Jyotish by fixed stars, BaZi by a sixty-term calendar of stems and branches, the Mayan Tzolk'in by a 260-day count that ignores the sun entirely. Each was built in a different place to answer a different question, so disagreement between them is expected rather than evidence that one is fake. Mythsensus shows you the disagreement instead of hiding it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Mythsensus free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The daily reading is free every day and needs no account. One in-depth system reading per birth chart is also free once you sign in. Deeper readings and the full report are paid."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need my exact birth time?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Systems that need an exact time, such as a rising sign or an hour pillar, will say so rather than guess. Everything that can be read from the date alone still works."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this generated by AI?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The chart itself is not. Every position, pillar, star and number is computed by a deterministic engine, so the same birth data always produces the same chart. Language models are used only to write the prose around those fixed values, and the in-depth readings are composed from a structured set of answers rather than free invention."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which traditions are included?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Twenty-six, including BaZi, Korean Saju, Zi Wei Dou Shu, Nine Star Ki, Onmyodo, Vedic Jyotish and Mahadasha, Tibetan astrology, Western and Hellenistic astrology, Arabic Parts, Kabbalistic and Pythagorean numerology, Mayan Tzolk'in, Aztec Tonalpohualli, Norse runes, Celtic tree astrology, Ogham, Zoroastrian astrology, Ifa, Native American birth totems, Aboriginal Dreamtime, Thai Brahmin astrology and Human Design."
+      }
+    }
+  ]
+}
+</script>
 </head>
+
 <body>
-  <p>Mythsensus — 26 ancient divination systems, one Cosmic Score.<br>
-  <a href="/?lang=en">Continue to Mythsensus &rarr;</a></p>
+
+<header class="nav">
+  <div class="nav-in">
+    <div class="logo"><b>MYTH</b><span>SENSUS</span></div>
+    <nav class="nav-links">
+      <a href="/blog/">Library</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/?lang=en" onclick="return goApp(event)">Open</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="hero">
+    <h1>Twenty-six traditions read the same birth date. Here is where they disagree.</h1>
+    <p class="lede">Most divination sites pick one tradition and speak with one voice. That is comfortable, and it is
+      how you end up with three readings that contradict each other and no way to tell which one to believe.
+      Mythsensus runs a single birth date through twenty-six systems at once and shows you
+      <em>what they converge on and where they pull apart</em>.</p>
+    <p style="margin-top:20px">
+      <a class="cta" href="/?lang=en" onclick="return goApp(event)">READ MY CHART — FREE</a>
+    </p>
+    <p class="cta-note">No account for the daily reading. No card. Works on a phone.</p>
+  </section>
+
+  <h2>The problem with a single opinion</h2>
+  <p>Ask a Western astrologer and a Vedic astrologer for your sun sign and you will often get two different
+    answers, because one divides the sky by the seasons and the other by the fixed stars, and the two have
+    drifted about twenty-four degrees apart over two thousand years. Neither is lying. They are measuring
+    different things.</p>
+  <p>The same is true across the board. BaZi reads you through a sixty-term calendar of heavenly stems and
+    earthly branches. The Mayan Tzolk'in uses a 260-day count with no connection to the solar year at all.
+    Nine Star Ki turns your birth year into one of nine numbers and reads the year you are standing in.
+    Human Design cares about a moment roughly three months before you were born. These are separate
+    instruments, and expecting them to agree is like expecting a thermometer and a barometer to show the
+    same number.</p>
+  <p>So the useful question is not <em>which one is right</em>. It is: when twenty-six independent traditions
+    look at the same person, what do they keep saying anyway, and where do they split? That is the reading
+    this site produces.</p>
+
+  <h2>What you get without paying</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Today's reading</h3>
+      <p style="margin:0">A fresh reading every day across the main systems, with the day's own influences.
+        No account, no card, no email.</p>
+    </div>
+    <div class="card">
+      <h3>One deep system</h3>
+      <p style="margin:0">One in-depth reading of a single tradition, free for your chart once you sign in.
+        Six composed chapters, not a list of bullet points.</p>
+    </div>
+  </div>
+
+  <h2>The twenty-six traditions</h2>
+  <p>Each one has its own article explaining where it came from and what it can and cannot see.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>East Asia</h3>
+      <ul>
+        <li><a href="/blog/bazi-four-pillars/">BaZi — Four Pillars of Destiny</a></li>
+        <li><a href="/blog/korean-saju/">Korean Saju</a></li>
+        <li><a href="/blog/zi-wei-dou-shu/">Zi Wei Dou Shu</a></li>
+        <li><a href="/blog/nine-star-ki/">Nine Star Ki</a></li>
+        <li><a href="/blog/onmyodo/">Japanese Onmyōdō</a></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>South and Inner Asia</h3>
+      <ul>
+        <li><a href="/blog/vedic-jyotish/">Vedic Jyotish</a></li>
+        <li><a href="/blog/vedic-mahadasha/">Vedic Mahadasha</a></li>
+        <li><a href="/blog/tibetan-astrology/">Tibetan astrology</a></li>
+        <li><a href="/blog/thai-brahmin/">Thai Brahmin astrology</a></li>
+        <li><a href="/blog/thai-seven-number/">Thai seven-number system</a></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Mediterranean and Near East</h3>
+      <ul>
+        <li><a href="/blog/western-astrology/">Western astrology</a></li>
+        <li><a href="/blog/hellenistic-astrology/">Hellenistic astrology</a></li>
+        <li><a href="/blog/arabic-parts/">Arabic Parts</a></li>
+        <li><a href="/blog/kabbalistic-numerology/">Kabbalistic numerology</a></li>
+        <li><a href="/blog/pythagorean-numerology/">Pythagorean numerology</a></li>
+        <li><a href="/blog/zoroastrian-astrology/">Zoroastrian astrology</a></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>The Americas</h3>
+      <ul>
+        <li><a href="/blog/mayan-tzolkin/">Mayan Tzolk'in</a></li>
+        <li><a href="/blog/aztec-tonalpohualli/">Aztec Tonalpohualli</a></li>
+        <li><a href="/blog/native-american-totems/">Native American birth totems</a></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Northern and Western Europe</h3>
+      <ul>
+        <li><a href="/blog/norse-runes/">Norse runes</a></li>
+        <li><a href="/blog/celtic-tree/">Celtic tree astrology</a></li>
+        <li><a href="/blog/ogham-alphabet/">Ogham</a></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Africa, Oceania and modern</h3>
+      <ul>
+        <li><a href="/blog/ifa-yoruba/">Ifá divination</a></li>
+        <li><a href="/blog/aboriginal-dreamtime/">Aboriginal Dreamtime</a></li>
+        <li><a href="/blog/human-design-system/">Human Design</a></li>
+        <li><a href="/blog/energy-type-system/">Energy type and aura</a></li>
+        <li><a href="/blog/biorhythm/">Biorhythm</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>How the comparison is built</h2>
+  <p>Every chart value is computed, not written. Pillars, planetary positions, star placements, day counts
+    and numerological reductions all come from a deterministic engine, which means the same birth data
+    produces the same chart every time, on any device, forever. Nothing about your chart is invented at the
+    moment you ask for it.</p>
+  <p>The comparison layer sits on top of that. Traditions that speak to the same underlying question — how
+    fast you move, whether you keep things or remake them, whether you need people around you — are lined
+    up on shared axes so you can see the shape of the agreement rather than a single averaged number.</p>
+  <p>Two rules keep it honest. Where a tradition has nothing to say about a topic, the reading says so
+    instead of filling the space, because a silence in a two-thousand-year-old system is information about
+    the system and not a gap in you. And where only a couple of traditions speak to an axis, the reading
+    reports thin evidence rather than delivering a verdict that a handful of voices cannot support.</p>
+
+  <h2>What it costs</h2>
+  <table>
+    <tr><th>What</th><th>Price</th></tr>
+    <tr><td>Daily reading — no account needed</td><td class="price">Free</td></tr>
+    <tr><td>First in-depth system reading for your chart</td><td class="price">Free</td></tr>
+    <tr><td>Any further in-depth system reading</td><td class="price">$9 each</td></tr>
+    <tr><td>Add-ons — compatibility, pet, companions, food, exercise, product personality</td><td class="price">$5–$9</td></tr>
+    <tr><td>Full Report — the long-form document</td><td class="price">$59</td></tr>
+    <tr><td>Membership — the whole library plus daily features</td><td class="price">$8.99/mo · $89.99/yr</td></tr>
+  </table>
+  <p class="cta-note">Checkout is handled by Gumroad, which takes care of cards, VAT and receipts.
+    Paid readings for a chart stay readable for as long as that chart is yours.
+    Full detail on the <a href="/pricing">pricing page</a>.</p>
+
+  <h2>Questions people actually ask</h2>
+  <dl class="faq">
+    <dt>Do I need my exact birth time?</dt>
+    <dd>No. The systems that genuinely need one — a rising sign, an hour pillar — will tell you they cannot
+      answer without it rather than quietly guessing. Everything readable from the date alone still works.</dd>
+
+    <dt>Is this generated by AI?</dt>
+    <dd>The chart is not. It is arithmetic on calendars, and it is reproducible. Language models write the
+      prose around those fixed values, and the in-depth readings are composed from a structured set of
+      answers rather than invented in one pass.</dd>
+
+    <dt>Will it tell me when I am going to die, or whether to take the job?</dt>
+    <dd>No, and it will say so. Readings that promise a date or a decision are selling certainty that the
+      source material does not contain.</dd>
+
+    <dt>What if the traditions contradict each other about me?</dt>
+    <dd>Then you will see the contradiction, named, with which traditions sit on which side. That is the
+      point of the site rather than a failure of it.</dd>
+
+    <dt>Is there a Thai version?</dt>
+    <dd>Yes — the whole site runs in Thai at <a href="/">mythsensus.com</a>, and you can switch language at
+      any time from inside the app.</dd>
+  </dl>
+
+  <h2>Start with your own chart</h2>
+  <p>It takes a birth date. Everything else is optional, and the reading tells you what it loses without it.</p>
+  <p><a class="cta" href="/?lang=en" onclick="return goApp(event)">READ MY CHART — FREE</a></p>
+  <p class="cta-note">Or browse the <a href="/blog/">Cosmic Library</a> first — every tradition explained,
+    free to read.</p>
+
+  <footer>
+    <div class="foot-links">
+      <a href="/blog/">Cosmic Library</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/how-it-works">How it works</a>
+      <a href="/disclaimer">Disclaimer</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/">ภาษาไทย</a>
+    </div>
+    <div>Mythsensus — twenty-six traditions, one birth date. For reflection, not for medical, legal or
+      financial decisions.</div>
+  </footer>
+
+</div>
+
 </body>
 </html>
