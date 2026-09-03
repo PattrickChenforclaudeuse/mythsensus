@@ -75,7 +75,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=239">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=240">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -289,8 +289,10 @@ nav{display:flex;justify-content:center;gap:3px;padding:18px 12px 0;flex-wrap:wr
 .deep-sys-btn{font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1px;padding:6px 11px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);cursor:pointer;border-radius:14px;transition:all .2s;}
 .deep-sys-btn:hover{color:var(--gold);border-color:var(--gold3);}
 .deep-sys-btn.active{color:var(--gold);border-color:var(--gold);background:rgba(200,164,90,.10);}
-.deep-sys-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:22px 20px;max-width:720px;margin:0 auto;}
-.deep-sys-title{font-family:'Cinzel Decorative',serif;font-size:18px;color:var(--gold);letter-spacing:2px;margin-bottom:4px;}
+.deep-sys-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:22px 20px;max-width:720px;margin:0 auto 14px;border-top:2px solid var(--gold3);}
+/* ⛔ เป็น <h3> แล้ว (3 ก.ย. 69) — ต้องล้างค่าเริ่มต้นของเบราว์เซอร์ ไม่งั้นขนาด/ระยะเพี้ยน
+ * 11 แท็บที่ขายเงินเคยมีหัวข้อจริง 0 อัน ทั้งที่ยาว 1,287-5,122 ตัวอักษร */
+h3.deep-sys-title,.deep-sys-title{font-family:'Cinzel Decorative',serif;font-size:19px;font-weight:400;color:var(--gold);letter-spacing:2px;line-height:1.4;margin:0 0 6px;}
 .deep-sys-origin{font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
 .deep-sys-reading{font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:17px;line-height:1.85;color:var(--text);margin-bottom:14px;}
 /* Restore paragraph spacing inside deep readings — the global `*{margin:0}`
@@ -2994,7 +2996,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=239" defer></script>
+<script src="/build/ms26-bundle.js?v=240" defer></script>
 <script>
 
 
@@ -10142,7 +10144,7 @@ function _showDeep(k, isUserClick){
        <!-- Header row: title + PRIMARY badge -->
        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:10px">
          <div>
-           <div class="deep-sys-title">${data.title}</div>
+           <h3 class="deep-sys-title">${data.title}</h3>
            <div class="deep-sys-origin">${data.origin}</div>
          </div>
          <span style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--gold);background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.4);padding:3px 8px;border-radius:12px;white-space:nowrap;flex-shrink:0">${isTh?'ศาสตร์หลัก':'PRIMARY'}</span>
@@ -10440,7 +10442,7 @@ function renderResonance(){
 
     <!-- Chart fingerprints summary -->
     <div class="deep-sys-card">
-      <div class="deep-sys-title">${isTh?'3 จุดยึดจากดวงคุณ':'3 anchors from your chart'}</div>
+      <h3 class="deep-sys-title">${isTh?'3 จุดยึดจากดวงคุณ':'3 anchors from your chart'}</h3>
       <div class="deep-sys-origin">${isTh?'ใช้สำหรับคำนวณ resonance ทั้งหมด':'these 3 values drive the resonance math'}</div>
       <div class="deep-sys-stats" style="margin-top:8px">
         <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${isTh?'ธาตุ':'Element'}</div><div class="deep-sys-stat-val">${elLabel(dmEl)}</div></div>
@@ -10454,7 +10456,7 @@ function renderResonance(){
          Replaces free-text inputs that used to silently fall back to defaults
          when the user typed something unrecognised (e.g. "thai" vs "Thailand"). -->
     <div class="deep-sys-card" style="margin-top:14px">
-      <div class="deep-sys-title">${isTh?'บริบทชีวิตปัจจุบัน':'Your current life context'}</div>
+      <h3 class="deep-sys-title">${isTh?'บริบทชีวิตปัจจุบัน':'Your current life context'}</h3>
       <div class="deep-sys-origin">${isTh?'เลือกจากตัวเลือก · ผลลัพธ์อัพเดททันที':'pick from the wheels · scores recompute instantly'}</div>
 
       <!-- COUNTRY PICKER (searchable) ---------------------------- -->
@@ -10526,7 +10528,7 @@ function renderResonance(){
          empty state encourages them to provide context. -->
     ${hasContext ? `
     <div class="deep-sys-card" style="margin-top:14px;border-color:var(--gold3)">
-      <div class="deep-sys-title">${isTh?'เลนส์บริบท (อัพเดททันทีตามที่กรอก)':'Context lenses (update as you edit)'}</div>
+      <h3 class="deep-sys-title">${isTh?'เลนส์บริบท (อัพเดททันทีตามที่กรอก)':'Context lenses (update as you edit)'}</h3>
       <div class="deep-sys-origin">${isTh?'บริบทเสริม — บอกว่าธาตุของคุณเข้ากับที่ที่อยู่/งานที่ทำแค่ไหน ไม่ใช่ส่วนหนึ่งของคะแนน Cosmic Score':'context only — how your element fits where you live and work; not part of your Cosmic Score'}</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:12px">
         <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
@@ -10648,7 +10650,7 @@ function renderResonance(){
       return `<!-- ── Resonance extra data layers (Top-5 + 3-year arc) ── -->
     <!-- 🌍 Top 5 countries — ranked by your specific chart -->
     <div class="deep-sys-card" style="margin-top:14px">
-      <div class="deep-sys-title">🌍 ${isTh?'5 ประเทศที่เข้ากับดวงคุณมากที่สุด':'Top 5 countries for your chart'}</div>
+      <h3 class="deep-sys-title">🌍 ${isTh?'5 ประเทศที่เข้ากับดวงคุณมากที่สุด':'Top 5 countries for your chart'}</h3>
       <div class="deep-sys-origin">${isTh?`คำนวณจากธาตุ${elLabel(dmEl)} × ระดับ${careerLevel||'Mid'}${levelBonus?` (${levelBonus>=0?'+':''}${levelBonus})`:''} · แตะเพื่อเลือก`:`Computed from your ${elLabel(dmEl)} element × ${careerLevel||'Mid'} level${levelBonus?` (${levelBonus>=0?'+':''}${levelBonus})`:''} · tap to pick`}</div>
       <div style="margin-top:10px">
         ${top(countryRanked,5).map((c,i) => rankRow(c, i+1, country, 'mth_country', `${elLabel(c.el)} ${c.match>0?'+':c.match<0?'':''}${c.match!==0?c.match:''}`)).join('')}
@@ -10658,7 +10660,7 @@ function renderResonance(){
 
     <!-- 💼 Top 5 domains — ranked by your specific chart -->
     <div class="deep-sys-card" style="margin-top:14px">
-      <div class="deep-sys-title">💼 ${isTh?'5 สายอาชีพที่เหมาะกับธาตุคุณ':'Top 5 career domains for your element'}</div>
+      <h3 class="deep-sys-title">💼 ${isTh?'5 สายอาชีพที่เหมาะกับธาตุคุณ':'Top 5 career domains for your element'}</h3>
       <div class="deep-sys-origin">${isTh?`ธาตุ${elLabel(dmEl)} ของคุณเข้ากับสายเหล่านี้ที่สุด · แตะเพื่อเลือก`:`Your ${elLabel(dmEl)} element fits these domains best · tap to pick`}</div>
       <div style="margin-top:10px">
         ${top(domainRanked,5).map((d,i) => rankRow(d, i+1, career, 'mth_career', elLabel(d.el))).join('')}
@@ -10668,7 +10670,7 @@ function renderResonance(){
 
     <!-- 🏭 Top 5 industries — ranked by your specific chart -->
     <div class="deep-sys-card" style="margin-top:14px">
-      <div class="deep-sys-title">🏭 ${isTh?'5 อุตสาหกรรมที่หนุนพลังคุณ':'Top 5 industries that amplify you'}</div>
+      <h3 class="deep-sys-title">🏭 ${isTh?'5 อุตสาหกรรมที่หนุนพลังคุณ':'Top 5 industries that amplify you'}</h3>
       <div class="deep-sys-origin">${isTh?`ธาตุ${elLabel(dmEl)} ของคุณสอดคล้องกับอุตสาหกรรมเหล่านี้ · แตะเพื่อเลือก`:`Your ${elLabel(dmEl)} element resonates with these · tap to pick`}</div>
       <div style="margin-top:10px">
         ${top(industryRanked,5).map((d,i) => rankRow(d, i+1, industry, 'mth_industry', elLabel(d.el))).join('')}
@@ -10678,7 +10680,7 @@ function renderResonance(){
 
     <!-- 📅 3-year forecast arc -->
     <div class="deep-sys-card" style="margin-top:14px">
-      <div class="deep-sys-title">📅 ${isTh?'จังหวะ 3 ปีของคุณ':'Your 3-year arc'}</div>
+      <h3 class="deep-sys-title">📅 ${isTh?'จังหวะ 3 ปีของคุณ':'Your 3-year arc'}</h3>
       <div class="deep-sys-origin">${isTh?'Nine Star Ki ปีต่อปี + Personal Year (Numerology) ของคุณ':'Year-by-year Nine Star Ki × Personal Year'}</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:12px">
         ${arcYears.map(a => `
@@ -10708,7 +10710,7 @@ function renderResonance(){
 
     <!-- Reasoning: what your chart says about country/career -->
     <div class="deep-sys-card" style="margin-top:14px">
-      <div class="deep-sys-title">${isTh?'ทำไมธาตุคุณเหมาะกับประเทศนี้':'Why your element fits these countries'}</div>
+      <h3 class="deep-sys-title">${isTh?'ทำไมธาตุคุณเหมาะกับประเทศนี้':'Why your element fits these countries'}</h3>
       <div class="deep-sys-origin">${isTh?'อิงจาก BaZi 5-element + geography tradition':'from BaZi 5-element + geography tradition'}</div>
       <div style="margin-top:10px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13.5px;color:var(--text);line-height:1.7">
         <div style="margin-bottom:8px"><strong style="color:var(--gold)">${isTh?'ประเทศที่ธาตุ':'Countries that match your'} ${elLabel(dmEl)} ${isTh?'เข้ากัน':'element'}:</strong> ${elFit.examples}</div>
@@ -10723,7 +10725,7 @@ function renderResonance(){
 
     <!-- Career archetype -->
     <div class="deep-sys-card" style="margin-top:14px">
-      <div class="deep-sys-title">${isTh?'อาชีพที่ Life Path ชี้ไว้':'Career archetype from your Life Path'}</div>
+      <h3 class="deep-sys-title">${isTh?'อาชีพที่ Life Path ชี้ไว้':'Career archetype from your Life Path'}</h3>
       <div class="deep-sys-origin">${isTh?'Pythagorean Numerology · Life Path '+lpNum:'Pythagorean Numerology · Life Path '+lpNum}</div>
       <div style="margin-top:10px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13.5px;color:var(--text);line-height:1.7">
         <div style="margin-bottom:8px"><strong style="color:var(--gold)">${isTh?'ต้นแบบ':'Archetype'}:</strong> ${lpData.archetype}</div>
@@ -10739,7 +10741,7 @@ function renderResonance(){
 
     <!-- How this connects to Cosmic Blueprint -->
     <div class="deep-sys-card" style="margin-top:14px;background:rgba(212,175,55,0.04);border-color:var(--gold3)">
-      <div class="deep-sys-title">🔗 ${isTh?'เชื่อมกับ Cosmic Blueprint':'Connection to Cosmic Blueprint'}</div>
+      <h3 class="deep-sys-title">🔗 ${isTh?'เชื่อมกับ Cosmic Blueprint':'Connection to Cosmic Blueprint'}</h3>
       <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.7;margin-top:8px">
         ${isTh
           ? `คะแนนด้านบนคือ <strong>คะแนนเดียวกัน</strong> ที่จะปรากฏในรายงาน Cosmic Blueprint · กดปุ่มด้านล่างเพื่อ <strong>สร้างรายงานใหม่ด้วยคะแนนล่าสุด</strong>ทันที (ไม่ต้องไปกด Generate เองอีก)`
@@ -11691,7 +11693,7 @@ function _mbSignificantDaysHTML(monthIdx, year){
   const todayDay = isCurrentMonth ? now.getDate() : -1;
 
   return `
-    <div class="deep-sys-title">⭐ ${isTh?`10 วันสำคัญใน ${mNames[monthIdx]}`:`10 Significant Days in ${mNames[monthIdx]}`}</div>
+    <h3 class="deep-sys-title">⭐ ${isTh?`10 วันสำคัญใน ${mNames[monthIdx]}`:`10 Significant Days in ${mNames[monthIdx]}`}</h3>
     <div class="deep-sys-origin">${isTh?'จาก biorhythm 3 วงจรของคุณ · กดดูเดือนอื่นที่แถบด้านบน':'Your 3-cycle biorhythm · click any month above to view it'}</div>
 
     <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -12905,7 +12907,7 @@ function renderFreqHistory(){
   }).join('');
   const catCard = cats.length ? `
     <div class="deep-sys-card">
-      <div class="deep-sys-title">${isTh?'🎯 หมวดที่จักรวาลย้ำ':'🎯 Themes the universe keeps sending'}</div>
+      <h3 class="deep-sys-title">${isTh?'🎯 หมวดที่จักรวาลย้ำ':'🎯 Themes the universe keeps sending'}</h3>
       <div class="deep-sys-origin">${isTh?`ธีมของเทพทุกองค์ที่จั่วได้ · จาก ${blessings} พร + ${organa} โอราคูลัม`:`Theme of every deity drawn · from ${blessings} blessings + ${organa} Oraculum`}</div>
       <div style="margin-top:4px">${catRows}</div>
     </div>` : '';
@@ -12919,14 +12921,14 @@ function renderFreqHistory(){
     </div>`).join('');
   const godCard = `
     <div class="deep-sys-card" style="margin-top:14px">
-      <div class="deep-sys-title">${isTh?'เทพที่กลับมาหาคุณบ่อย (รายองค์)':'Deities that keep returning (individual)'}</div>
+      <h3 class="deep-sys-title">${isTh?'เทพที่กลับมาหาคุณบ่อย (รายองค์)':'Deities that keep returning (individual)'}</h3>
       <div class="deep-sys-origin">${isTh?`จาก ${blessings} พร + ${organa} คำถามโอราคูลัม`:`From ${blessings} blessings + ${organa} Oraculum readings`}</div>
       ${godRows || `<div style="font-size:12px;color:var(--muted);padding-top:8px">${isTh?'ยังไม่มีเทพที่บันทึก':'No deities recorded yet'}</div>`}
     </div>`;
 
   const themeRows = themes.length ? `
     <div class="deep-sys-card" style="margin-top:14px">
-      <div class="deep-sys-title">${isTh?'คำที่โอราคูลัมย้ำ':'Words the Oraculum repeats'}</div>
+      <h3 class="deep-sys-title">${isTh?'คำที่โอราคูลัมย้ำ':'Words the Oraculum repeats'}</h3>
       <div class="deep-sys-origin">${isTh?'คำที่ 108 เทพโหวตให้บ่อยสุดในคำถามของคุณ':'Words the 108 gods voted for most across your questions'}</div>
       <div class="deep-sys-stats">
         ${themes.map(([w,n])=>`<div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${_esc(w)}</div><div class="deep-sys-stat-val">${n}×</div></div>`).join('')}
@@ -13441,7 +13443,7 @@ function renderStreak(){
 
   el.innerHTML = `
     <div class="deep-sys-card" style="text-align:center">
-      <div class="deep-sys-title">${consec} ${t('streak_days')}</div>
+      <h3 class="deep-sys-title">${consec} ${t('streak_days')}</h3>
       <div class="deep-sys-origin">${t('streak_sub')} · ${days.size} ${isTh?'วันใช้งานทั้งหมด':'total active days'}</div>
       <div class="deep-sys-reading" style="font-size:13px">${t('streak_desc')}</div>
     </div>
@@ -14194,7 +14196,7 @@ function renderMirror(){
     ${reasoning}
     <!-- 2-axis Mirror summary: Primary + Cosmic Entity paired so they read as two perspectives on one person. -->
     <div class="deep-sys-card" style="background:linear-gradient(180deg,rgba(212,175,55,0.07),rgba(212,175,55,0.02));border:1px solid rgba(212,175,55,0.35);padding:18px 18px 16px">
-      <div style="text-align:center;font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2.5px;color:var(--gold);margin-bottom:14px">${isTh?'🪞 เทพกระจกของคุณมี 2 มิติ · อ่านคนละแกน':'🪞 YOUR MIRROR HAS 2 AXES · TWO READINGS OF YOU'}</div>
+      <h3 style="text-align:center;font-family:'Josefin Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:2.5px;color:var(--gold);margin:0 0 14px">${isTh?'🪞 เทพกระจกของคุณมี 2 มิติ · อ่านคนละแกน':'🪞 YOUR MIRROR HAS 2 AXES · TWO READINGS OF YOU'}</h3>
       <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:stretch">
         <div style="text-align:center;padding:10px 12px;background:rgba(0,0,0,.18);border-radius:8px;border:1px solid rgba(212,175,55,0.18)">
           <div style="font-family:'Josefin Sans',sans-serif;font-size:8.5px;letter-spacing:2px;color:var(--gold);margin-bottom:4px">${isTh?'แกน 1 · ธาตุ':'AXIS 1 · ELEMENT'}</div>
@@ -14229,14 +14231,14 @@ function renderMirror(){
       '🪞 Secondary & Tertiary archetypes',
       `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">
         <div class="deep-sys-card">
-          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--muted)">SECONDARY ARCHETYPE</div>
+          <h3 style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:var(--muted);margin:0">SECONDARY ARCHETYPE</h3>
           <div style="font-family:'Cinzel Decorative',serif;font-size:16px;color:var(--gold);margin:8px 0;letter-spacing:0.5px">${gods.secondary}</div>
           <div style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:10px">${gods.secondaryDesc}</div>
           ${gods.secondaryReflect ? `<div style="padding:10px 12px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.25);border-radius:6px;margin-bottom:8px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--text);line-height:1.75"><div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--gold);margin-bottom:5px">🪞 ${isTh?'สะท้อนคุณ':'MIRRORS YOU'}</div>${gods.secondaryReflect}</div>` : ''}
           ${gods.secondaryStory ? `<div style="padding:10px 12px;background:rgba(0,0,0,.18);border-left:2px solid var(--gold3);border-radius:0 6px 6px 0;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--muted);line-height:1.75"><div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--gold3);margin-bottom:5px">📜 ${isTh?'ตำนาน':'MYTH'}</div>${gods.secondaryStory}</div>` : ''}
         </div>
         <div class="deep-sys-card">
-          <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--muted)">TERTIARY ARCHETYPE</div>
+          <h3 style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:var(--muted);margin:0">TERTIARY ARCHETYPE</h3>
           <div style="font-family:'Cinzel Decorative',serif;font-size:16px;color:var(--gold);margin:8px 0;letter-spacing:0.5px">${gods.tertiary}</div>
           <div style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:10px">${gods.tertiaryDesc}</div>
           ${gods.tertiaryReflect ? `<div style="padding:10px 12px;background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.25);border-radius:6px;margin-bottom:8px;font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:12.5px;color:var(--text);line-height:1.75"><div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--gold);margin-bottom:5px">🪞 ${isTh?'สะท้อนคุณ':'MIRRORS YOU'}</div>${gods.tertiaryReflect}</div>` : ''}
@@ -14249,7 +14251,7 @@ function renderMirror(){
     <!-- Cosmic Entity — Mirror v2.1: enriched with story + practice fields -->
     <div class="deep-sys-card" style="margin-top:12px;border-color:rgba(212,175,55,0.5);background:rgba(212,175,55,0.05);padding:20px">
       <div style="text-align:center">
-        <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:2px;color:var(--gold)">${isTh?'✦ แกน 2 · COSMIC ENTITY — consensus 26 ศาสตร์':'✦ AXIS 2 · COSMIC ENTITY — 26-SYSTEM CONSENSUS'}</div>
+        <h3 style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:2px;color:var(--gold);margin:0">${isTh?'✦ แกน 2 · COSMIC ENTITY — consensus 26 ศาสตร์':'✦ AXIS 2 · COSMIC ENTITY — 26-SYSTEM CONSENSUS'}</h3>
         <div style="font-family:'Cinzel Decorative',serif;font-size:18px;color:var(--gold);margin:10px 0;letter-spacing:0.5px">${cosmic.name}</div>
         <div style="font-size:13px;color:var(--text);line-height:1.65;max-width:560px;margin:0 auto">${cosmic.desc}</div>
         <div style="margin-top:10px;font-size:10.5px;color:var(--muted);letter-spacing:0.5px">Score ${score}/1,000 · LP ${lp} · ${nakshatra}</div>
@@ -14262,7 +14264,7 @@ function renderMirror(){
       '⚠️ ด้านมืดที่ต้องระวัง · Shadow',
       '⚠️ Shadow archetype — what to watch',
       `<div class="deep-sys-card" style="border-color:rgba(160,40,40,0.5);background:rgba(160,40,40,0.04)">
-        <div style="font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:1.5px;color:#c06060">⚠️ SHADOW ARCHETYPE — ${isTh?'ด้านมืดที่ต้องระวัง':'the side to watch out for'}</div>
+        <h3 style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:#c06060;margin:0">⚠️ SHADOW ARCHETYPE — ${isTh?'ด้านมืดที่ต้องระวัง':'the side to watch out for'}</h3>
         <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:16px;color:#c08080;margin:8px 0">${gods.shadow}</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.6">${gods.shadowDesc}</div>
         ${gods.shadowStory ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(160,40,40,0.08);border-radius:6px;font-size:11.5px;color:#c09088;line-height:1.7"><div style="font-size:9px;letter-spacing:1.5px;color:#c06060;margin-bottom:4px">📜 ${isTh?'ตำนานด้านมืด':'SHADOW MYTH'}</div>${gods.shadowStory}</div>` : ''}
@@ -14794,7 +14796,7 @@ function _methodologyCard(titleTh, titleEn, originTh, originEn, methods){
   const isTh = LANG === 'th';
   const nums = ['①','②','③','④','⑤','⑥'];
   return `<div class="deep-sys-card" style="margin-bottom:14px;background:rgba(212,175,55,0.04);border:1px solid rgba(212,175,55,0.4)">
-    <div class="deep-sys-title">🔍 ${isTh?titleTh:titleEn}</div>
+    <h3 class="deep-sys-title">🔍 ${isTh?titleTh:titleEn}</h3>
     <div class="deep-sys-origin">${isTh?originTh:originEn}</div>
     <div style="display:flex;flex-direction:column;gap:9px;margin-top:14px">
       ${methods.map((m,i) => `<div style="padding:10px 12px;background:rgba(0,0,0,.15);border-left:3px solid var(--gold3);border-radius:0 6px 6px 0">
@@ -14934,7 +14936,7 @@ function renderPet(){
 
     <!-- Primary Pet -->
     <div class="deep-sys-card">
-      <div class="deep-sys-title">🐾 ${isTh?'สัตว์เลี้ยงหลัก':'Primary pet'} — ${isTh?'ธาตุ':'Element'} ${elLabel(dmEl)}</div>
+      <h3 class="deep-sys-title">🐾 ${isTh?'สัตว์เลี้ยงหลัก':'Primary pet'} — ${isTh?'ธาตุ':'Element'} ${elLabel(dmEl)}</h3>
       <div class="deep-sys-origin">${isTh?'คำนวณจาก Day Master · Nine Star Ki · Biorhythm':'Based on Day Master · Nine Star Ki · Biorhythm'}</div>
       <div style="text-align:center;font-size:48px;margin:16px 0">${p.main.split(' ')[0]}</div>
       <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:18px;color:var(--gold);text-align:center;margin-bottom:12px">${p.main.slice(2)}</div>
@@ -14952,7 +14954,7 @@ function renderPet(){
 
     <!-- 🆕 20-Pet Compatibility Map (restore Top 3 + Avoid) -->
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">🐾 ${isTh?'แผนที่สัตว์เลี้ยง 20 ชนิด':'20-Pet Compatibility Map'}</div>
+      <h3 class="deep-sys-title">🐾 ${isTh?'แผนที่สัตว์เลี้ยง 20 ชนิด':'20-Pet Compatibility Map'}</h3>
       <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${elLabel(dmEl)} · 5-element cycle`:`Ranked for your ${elLabel(dmEl)} element · 5-element cycle`}</div>
 
       <div style="margin-top:14px">
@@ -14999,7 +15001,7 @@ function renderPet(){
 
     <!-- 🆕 30-Day Adoption Plan — tuned to HD type + LP + NSK direction -->
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">📅 ${isTh?'แผน 30 วันรับเลี้ยง':'30-Day Adoption Plan'}</div>
+      <h3 class="deep-sys-title">📅 ${isTh?'แผน 30 วันรับเลี้ยง':'30-Day Adoption Plan'}</h3>
       <div class="deep-sys-origin">${isTh?'ปรับตาม':'Tuned to'} HD ${hdKey} · LP ${lp} · NSK ${nskDir}</div>
 
       <div style="margin-top:14px">
@@ -15029,7 +15031,7 @@ function renderPet(){
 
     <!-- 🆕 Weekly Care Rhythm — Vedic planetary days -->
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">🌙 ${isTh?'จังหวะดูแลรายสัปดาห์':'Weekly Care Rhythm'}</div>
+      <h3 class="deep-sys-title">🌙 ${isTh?'จังหวะดูแลรายสัปดาห์':'Weekly Care Rhythm'}</h3>
       <div class="deep-sys-origin">${isTh?'จากดวงดาวประจำวัน (Vedic week)':'Vedic planetary rulers per weekday'}</div>
       <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px">
         ${WEEKLY_PET_RHYTHM.map(d => `
@@ -15045,7 +15047,7 @@ function renderPet(){
 
     <!-- 🆕 Biorhythm 7-Day Window — peak bonding day highlighted -->
     <div class="deep-sys-card" style="margin-top:12px;border-color:rgba(212,175,55,0.5)">
-      <div class="deep-sys-title">⚡ ${isTh?'หน้าต่าง 7 วัน · Biorhythm':'7-Day Window · Biorhythm'}</div>
+      <h3 class="deep-sys-title">⚡ ${isTh?'หน้าต่าง 7 วัน · Biorhythm':'7-Day Window · Biorhythm'}</h3>
       <div class="deep-sys-origin">${isTh?'วันที่ดีสุดสำหรับ bonding ใน 7 วันข้างหน้า':'Best bonding day in the next 7 days'}</div>
       ${bio7.length ? `
         <div style="margin-top:14px;padding:12px;background:rgba(212,175,55,0.06);border-radius:8px;text-align:center">
@@ -15074,7 +15076,7 @@ function renderPet(){
 
     <!-- 🆕 Lifespan × Mahadasha — pet life vs current chapter -->
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">⏳ ${isTh?'อายุสัตว์ × Mahadasha':'Lifespan × Mahadasha'}</div>
+      <h3 class="deep-sys-title">⏳ ${isTh?'อายุสัตว์ × Mahadasha':'Lifespan × Mahadasha'}</h3>
       <div class="deep-sys-origin">${isTh?'สัตว์ตัวนี้จะอยู่กับคุณข้าม chapter ชีวิตไหม':'Will this pet span your life chapters?'}</div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
@@ -15106,7 +15108,7 @@ function renderPet(){
       'ดูเพิ่ม · ตัวเลือกรอง · ควรเลี่ยง · เคล็ดดูแล',
       'More: secondary pick · avoid · care',
       `<div class="deep-sys-card">
-        <div class="deep-sys-title">🌟 ${isTh?'ทางเลือกรอง':'Secondary option'}</div>
+        <h3 class="deep-sys-title">🌟 ${isTh?'ทางเลือกรอง':'Secondary option'}</h3>
         <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:16px;color:var(--gold);margin:8px 0">${p.secondary}</div>
         <div style="font-size:13px;color:var(--text);line-height:1.6">${p.secWhy}</div>
         ${p.secStory ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(0,0,0,.2);border-radius:6px;font-size:11.5px;color:var(--muted);line-height:1.7">${p.secStory}</div>` : ''}
@@ -15227,7 +15229,7 @@ function renderCompanions(){
 
     <!-- 🆕 20-Mythic-Creature Compatibility Map (restore Top 3 + Avoid pattern) -->
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">🐉 ${isTh?'แผนที่สัตว์ตำนาน 20 ตัว':'20-Mythic-Creature Compatibility Map'}</div>
+      <h3 class="deep-sys-title">🐉 ${isTh?'แผนที่สัตว์ตำนาน 20 ตัว':'20-Mythic-Creature Compatibility Map'}</h3>
       <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${elLabel(dmEl)} · 5-element cycle · 4 ตัว/ธาตุ จากหลายวัฒนธรรม`:`Ranked for your ${elLabel(dmEl)} element · 5-element cycle · 4 creatures per element across cultures`}</div>
 
       <div style="margin-top:14px">
@@ -15280,7 +15282,7 @@ function renderCompanions(){
 
     <!-- 🆕 7-Day Ritual Schedule — Vedic planetary day × creature invocation -->
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">🕯️ ${isTh?'ปฏิทินพิธี 7 วัน':'7-Day Ritual Schedule'}</div>
+      <h3 class="deep-sys-title">🕯️ ${isTh?'ปฏิทินพิธี 7 วัน':'7-Day Ritual Schedule'}</h3>
       <div class="deep-sys-origin">${isTh?'อัญเชิญ companion ที่ตรงกับดวงดาวประจำวัน':'Invoke the companion matched to each weekday\'s ruling planet'}</div>
       <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px">
         ${RITUAL_WEEK.map(d => `
@@ -15296,7 +15298,7 @@ function renderCompanions(){
 
     <!-- 🆕 4-Stage Sacred Pilgrimage — tuned to current Mahadasha -->
     <div class="deep-sys-card" style="margin-top:12px;border-color:rgba(212,175,55,0.5)">
-      <div class="deep-sys-title">🛤️ ${isTh?'เส้นทางจาริก 4 ขั้น':'4-Stage Sacred Pilgrimage'}</div>
+      <h3 class="deep-sys-title">🛤️ ${isTh?'เส้นทางจาริก 4 ขั้น':'4-Stage Sacred Pilgrimage'}</h3>
       <div class="deep-sys-origin">${isTh?`ปรับตาม Mahadasha ปัจจุบัน · ${mahadasha}`:`Tuned to your current Mahadasha · ${mahadasha}`}</div>
 
       <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -15506,14 +15508,14 @@ async function renderPilgrimage(){
   const langHist  = isTh ? 'history_th' : 'history_en';
   const renderCard = (s) => `
     <div style="border:1px solid var(--gold3);border-radius:10px;padding:14px 16px;margin-bottom:10px;background:rgba(212,170,80,0.04)">
-      <div style="font-family:'Cinzel Decorative','Sarabun',serif;font-size:15px;color:var(--gold);margin-bottom:4px">${s[langName] || s.name_en}</div>
+      <h4 style="font-family:'Cinzel Decorative','Sarabun',serif;font-size:15.5px;font-weight:400;color:var(--gold);margin:0 0 4px;line-height:1.4">${s[langName] || s.name_en}</h4>
       <div style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">${s.province ? s.province + ' · ' : ''}${s.country}${s.tradition ? ' · ' + s.tradition : ''}</div>
-      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:13px;color:var(--text);line-height:1.55;margin-bottom:${s[langHist] ? '10px' : '0'}">${s[langReason] || s.fit_reason_en || ''}</div>
-      ${s[langHist] ? `<div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--muted);line-height:1.6;padding-top:8px;border-top:1px dashed rgba(212,170,80,0.18);font-style:italic">${s[langHist]}</div>` : ''}
+      <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:13.5px;color:var(--text);line-height:1.65;margin-bottom:${s[langHist] ? '8px' : '0'}">${s[langReason] || s.fit_reason_en || ''}</div>
+      ${s[langHist] ? `<details style="border-top:1px dashed rgba(212,170,80,0.18);padding-top:7px"><summary style="cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.6px;color:var(--gold3);text-transform:uppercase;list-style:none">${isTh?'ประวัติของที่นี่':'History of this place'}</summary><div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:12.5px;color:var(--muted);line-height:1.7;margin-top:7px;font-style:italic">${s[langHist]}</div></details>` : ''}
     </div>`;
   const section = (titleTh, titleEn, items) => items.length ? `
     <div style="margin-top:18px">
-      <div style="font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2.5px;color:var(--gold);margin-bottom:10px;text-transform:uppercase">✦ ${isTh ? titleTh : titleEn}</div>
+      <h3 style="font-family:'Josefin Sans',sans-serif;font-size:11.5px;font-weight:600;letter-spacing:2.5px;color:var(--gold);margin:0 0 10px;text-transform:uppercase">✦ ${isTh ? titleTh : titleEn}</h3>
       ${items.map(renderCard).join('')}
     </div>` : '';
 
@@ -15539,7 +15541,7 @@ async function renderPilgrimage(){
     ${section(`ในประเทศเกิด — ${birthCountry}`, `In your country of birth — ${birthCountry}`, inBirth)}
 
     <div style="margin-top:22px;padding:14px 16px;border:1px solid var(--gold3);border-radius:10px;background:rgba(212,170,80,0.04)">
-      <div style="font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2.5px;color:var(--gold);margin-bottom:12px;text-transform:uppercase">✦ ${isTh?'ภูมิประเทศที่เหมาะกับธาตุของคุณ':'Terrain affinity for your element'}</div>
+      <h3 style="font-family:'Josefin Sans',sans-serif;font-size:11.5px;font-weight:600;letter-spacing:2.5px;color:var(--gold);margin:0 0 12px;text-transform:uppercase">✦ ${isTh?'ภูมิประเทศที่เหมาะกับธาตุของคุณ':'Terrain affinity for your element'}</h3>
       <div style="font-size:12px;color:var(--muted);margin-bottom:6px;font-family:'Cormorant Garamond','Sarabun',serif">${isTh?'ส่งเสริม':'Favors'}</div>
       <div style="margin-bottom:12px">${aff.favor.map(t => chip(t,'favor')).join('')}</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:6px;font-family:'Cormorant Garamond','Sarabun',serif">${isTh?'ไม่ส่งเสริม':'Avoid'}</div>
@@ -15642,7 +15644,7 @@ function renderExercise(){
     )}
 
     <div class="deep-sys-card">
-      <div class="deep-sys-title">🏃 ${isTh?'แผนออกกำลังกาย':'Exercise plan'} — ${isTh?'ธาตุ':'Element'} ${elLabel(dmEl)}</div>
+      <h3 class="deep-sys-title">🏃 ${isTh?'แผนออกกำลังกาย':'Exercise plan'} — ${isTh?'ธาตุ':'Element'} ${elLabel(dmEl)}</h3>
       <div class="deep-sys-stats" style="margin-top:10px">
         <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${isTh?'กายวันนี้':'Physical today'}</div><div class="deep-sys-stat-val" style="color:${physical>0?'#5a9a40':'#c05050'}">${physical>0?'+':''}${physical}%</div></div>
         <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${isTh?'อารมณ์':'Emotional'}</div><div class="deep-sys-stat-val">${emotional>0?'+':''}${emotional}%</div></div>
@@ -15652,7 +15654,7 @@ function renderExercise(){
     </div>
 
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">✅ ${isTh?'กีฬาที่แนะนำสำหรับธาตุ':'Recommended sports for element'} ${elLabel(dmEl)}</div>
+      <h3 class="deep-sys-title">✅ ${isTh?'กีฬาที่แนะนำสำหรับธาตุ':'Recommended sports for element'} ${elLabel(dmEl)}</h3>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
         ${ex.sports.map((s,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg2);border-radius:6px">
           <span style="font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--gold);width:20px">${i+1}</span>
@@ -15666,7 +15668,7 @@ function renderExercise(){
       const ranked = ALL_EXERCISES_20.map(it => ({ ...it, cmp: _petCompat(dmEl, it.el) })).sort((a,b) => b.cmp.score - a.cmp.score);
       const top3 = ranked.slice(0,3), bot3 = ranked.slice(-3).reverse();
       return `<div class="deep-sys-card" style="margin-top:12px">
-        <div class="deep-sys-title">🏃 ${isTh?'แผนที่กีฬา 20 ชนิด':'20-Exercise Compatibility Map'}</div>
+        <h3 class="deep-sys-title">🏃 ${isTh?'แผนที่กีฬา 20 ชนิด':'20-Exercise Compatibility Map'}</h3>
         <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${elLabel(dmEl)} · 5-element cycle · 4 ชนิด/ธาตุ`:`Ranked for ${elLabel(dmEl)} · 5-element cycle · 4 per element`}</div>
         <div style="margin-top:14px">
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· เข้ากับร่างคุณที่สุด':'· BEST FOR YOUR BODY'}</div>
@@ -15705,7 +15707,7 @@ function renderExercise(){
 
     <!-- 🆕 7-Day Workout Rhythm -->
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">📅 ${isTh?'จังหวะออกกำลังรายสัปดาห์':'7-Day Workout Rhythm'}</div>
+      <h3 class="deep-sys-title">📅 ${isTh?'จังหวะออกกำลังรายสัปดาห์':'7-Day Workout Rhythm'}</h3>
       <div class="deep-sys-origin">${isTh?'ปรับรายวันตามดวงดาวประจำวัน (Vedic)':'Daily focus by Vedic planetary rulers'}</div>
       <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px">
         ${WORKOUT_WEEK.map(d => `<div style="display:grid;grid-template-columns:78px 1fr;gap:10px;padding:8px 10px;background:rgba(212,170,80,0.04);border-left:2px solid var(--gold3);border-radius:0 6px 6px 0">
@@ -15717,7 +15719,7 @@ function renderExercise(){
 
     <!-- 🆕 4-Week 30-Day Progression -->
     <div class="deep-sys-card" style="margin-top:12px;border-color:rgba(212,175,55,0.5)">
-      <div class="deep-sys-title">📈 ${isTh?'แผน 30 วัน · Progression':'30-Day Progression Plan'}</div>
+      <h3 class="deep-sys-title">📈 ${isTh?'แผน 30 วัน · Progression':'30-Day Progression Plan'}</h3>
       <div class="deep-sys-origin">${isTh?'4 สัปดาห์ · Build → Peak → Deload':'4 weeks · Build → Peak → Deload'}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
         ${EXERCISE_30DAY[isTh?'th':'en'].map((s,i) => `<div style="padding:12px;background:${i===2?'rgba(212,175,55,0.07)':'rgba(0,0,0,.2)'};border-radius:8px;${i===2?'border:1px solid var(--gold3)':''}">
@@ -15834,7 +15836,7 @@ function renderFood(){
     )}
 
     <div class="deep-sys-card">
-      <div class="deep-sys-title">🍽️ ${isTh?'อาหารตามธาตุ':'Diet by element'} — ${elLabel(dmEl)}</div>
+      <h3 class="deep-sys-title">🍽️ ${isTh?'อาหารตามธาตุ':'Diet by element'} — ${elLabel(dmEl)}</h3>
       <div class="deep-sys-origin">Mahadasha: ${dasha} · Life Path: ${lp}</div>
 
       <div style="margin-top:14px">
@@ -15853,7 +15855,7 @@ function renderFood(){
       const ranked = ALL_FOODS_20.map(it => ({ ...it, cmp: _petCompat(dmEl, it.el) })).sort((a,b) => b.cmp.score - a.cmp.score);
       const top3 = ranked.slice(0,3), bot3 = ranked.slice(-3).reverse();
       return `<div class="deep-sys-card" style="margin-top:12px">
-        <div class="deep-sys-title">🍽️ ${isTh?'แผนที่อาหาร 20 ชนิด':'20-Food Compatibility Map'}</div>
+        <h3 class="deep-sys-title">🍽️ ${isTh?'แผนที่อาหาร 20 ชนิด':'20-Food Compatibility Map'}</h3>
         <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${elLabel(dmEl)} · TCM 5-flavor cycle`:`Ranked for ${elLabel(dmEl)} · TCM 5-flavor cycle`}</div>
         <div style="margin-top:14px">
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· บำรุงร่างคุณที่สุด':'· BEST FOR YOUR BODY'}</div>
@@ -15892,7 +15894,7 @@ function renderFood(){
 
     <!-- 🆕 7-Day Meal Rhythm -->
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">🍽️ ${isTh?'จังหวะมื้อรายสัปดาห์':'7-Day Meal Rhythm'}</div>
+      <h3 class="deep-sys-title">🍽️ ${isTh?'จังหวะมื้อรายสัปดาห์':'7-Day Meal Rhythm'}</h3>
       <div class="deep-sys-origin">${isTh?'ปรับมื้อแต่ละวันตามดวงดาว':'Daily focus by Vedic planetary rulers'}</div>
       <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px">
         ${MEAL_WEEK.map(d => `<div style="display:grid;grid-template-columns:78px 1fr;gap:10px;padding:8px 10px;background:rgba(212,170,80,0.04);border-left:2px solid var(--gold3);border-radius:0 6px 6px 0">
@@ -15904,7 +15906,7 @@ function renderFood(){
 
     <!-- 🆕 30-Day Diet Protocol -->
     <div class="deep-sys-card" style="margin-top:12px;border-color:rgba(212,175,55,0.5)">
-      <div class="deep-sys-title">📅 ${isTh?'แผนอาหาร 30 วัน':'30-Day Diet Protocol'}</div>
+      <h3 class="deep-sys-title">📅 ${isTh?'แผนอาหาร 30 วัน':'30-Day Diet Protocol'}</h3>
       <div class="deep-sys-origin">${isTh?'Detox → Rebuild → Optimize → Integrate':'Detox → Rebuild → Optimize → Integrate'}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
         ${FOOD_30DAY[isTh?'th':'en'].map((s,i) => `<div style="padding:12px;background:${i===2?'rgba(212,175,55,0.07)':'rgba(0,0,0,.2)'};border-radius:8px;${i===2?'border:1px solid var(--gold3)':''}">
@@ -16076,7 +16078,7 @@ function renderProduct(){
     ) : ''}
 
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">🎨 ${isTh?'บุคลิกผลิตภัณฑ์':'Product personality'} — ${isTh?'ธาตุ':'Element'} ${elLabel(dmEl)}</div>
+      <h3 class="deep-sys-title">🎨 ${isTh?'บุคลิกผลิตภัณฑ์':'Product personality'} — ${isTh?'ธาตุ':'Element'} ${elLabel(dmEl)}</h3>
       <div class="deep-sys-origin">NSK Star Color: ${starColor} · Cosmic Score: ${score}</div>
 
       <div style="margin-top:14px">
@@ -16131,7 +16133,7 @@ function renderProduct(){
       const ranked = ALL_MATERIALS_20.map(it => ({ ...it, cmp: _petCompat(dmEl, it.el) })).sort((a,b) => b.cmp.score - a.cmp.score);
       const top3 = ranked.slice(0,3), bot3 = ranked.slice(-3).reverse();
       return `<div class="deep-sys-card" style="margin-top:12px">
-        <div class="deep-sys-title">🎨 ${isTh?'แผนที่วัสดุ/สี 20 ชนิด':'20-Material Compatibility Map'}</div>
+        <h3 class="deep-sys-title">🎨 ${isTh?'แผนที่วัสดุ/สี 20 ชนิด':'20-Material Compatibility Map'}</h3>
         <div class="deep-sys-origin">${isTh?`จัดอันดับสำหรับธาตุ ${elLabel(dmEl)} · ใช้กับ wardrobe + interior`:`Ranked for ${elLabel(dmEl)} · wardrobe + interior`}</div>
         <div style="margin-top:14px">
           <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:#4a9a40;margin-bottom:6px">✨ TOP 3 ${isTh?'· เสริม aura':'· AMPLIFY YOUR AURA'}</div>
@@ -16170,7 +16172,7 @@ function renderProduct(){
 
     <!-- 🆕 7-Day Wardrobe Cadence -->
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">👗 ${isTh?'จังหวะแต่งกายรายสัปดาห์':'7-Day Wardrobe Cadence'}</div>
+      <h3 class="deep-sys-title">👗 ${isTh?'จังหวะแต่งกายรายสัปดาห์':'7-Day Wardrobe Cadence'}</h3>
       <div class="deep-sys-origin">${isTh?'แต่งตามดวงดาว ดึงพลังประจำวัน':'Dress by planetary ruler · channel each day\'s energy'}</div>
       <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px">
         ${STYLE_WEEK.map(d => `<div style="display:grid;grid-template-columns:78px 1fr;gap:10px;padding:8px 10px;background:rgba(212,170,80,0.04);border-left:2px solid var(--gold3);border-radius:0 6px 6px 0">
@@ -16182,7 +16184,7 @@ function renderProduct(){
 
     <!-- 🆕 NSK-Directional Room Layout -->
     <div class="deep-sys-card" style="margin-top:12px;border-color:rgba(212,175,55,0.5)">
-      <div class="deep-sys-title">🏠 ${isTh?'ผังจัดห้องตาม NSK':'NSK-Directional Room Layout'}</div>
+      <h3 class="deep-sys-title">🏠 ${isTh?'ผังจัดห้องตาม NSK':'NSK-Directional Room Layout'}</h3>
       <div class="deep-sys-origin">${isTh?`ทิศ ${nskDir||starColor} ของคุณ · จุดเสริมพลัง 4 ทิศ`:`Your NSK direction ${nskDir||starColor} · 4-direction power placement`}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
         <div style="padding:12px;background:rgba(0,0,0,.2);border-radius:8px">
@@ -16254,7 +16256,7 @@ function renderCompat(){
 
   el.innerHTML = `
     ${hasProfile ? `    <div class="deep-sys-card">
-      <div class="deep-sys-title">💑 ${isTh?'เทียบดวง — ดวงของคุณ':'Compatibility — your chart'}</div>
+      <h3 class="deep-sys-title">💑 ${isTh?'เทียบดวง — ดวงของคุณ':'Compatibility — your chart'}</h3>
       <div class="deep-sys-stats" style="margin-top:8px">
         <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">${isTh?'ธาตุ':'Element'}</div><div class="deep-sys-stat-val">${myEl}</div></div>
         <div class="deep-sys-stat"><div class="deep-sys-stat-lbl">Life Path</div><div class="deep-sys-stat-val">${myLP}</div></div>
@@ -16266,7 +16268,7 @@ function renderCompat(){
       '⚡ ธาตุที่เข้ากัน · Element compatibility',
       '⚡ Element compatibility guide',
       `<div class="deep-sys-card">
-        <div class="deep-sys-title">⚡ ${isTh?'ธาตุที่เข้ากัน':'Element compatibility'}</div>
+        <h3 class="deep-sys-title">⚡ ${isTh?'ธาตุที่เข้ากัน':'Element compatibility'}</h3>
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
           <div style="padding:8px 12px;background:rgba(40,100,40,0.1);border-left:3px solid #4a9a40;border-radius:0 6px 6px 0">
             <div style="font-size:10px;color:#4a9a40;letter-spacing:1px;margin-bottom:2px">🌟 ${isTh?'เข้ากันดีมาก':'Excellent match'}</div>
@@ -16288,7 +16290,7 @@ function renderCompat(){
       </div>`
     )}` : `
     <div class="deep-sys-card">
-      <div class="deep-sys-title">💑 ${isTh?'เทียบดวงสองคน':'Compare two charts'}</div>
+      <h3 class="deep-sys-title">💑 ${isTh?'เทียบดวงสองคน':'Compare two charts'}</h3>
       <div style="margin-top:8px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:13px;line-height:1.8;color:var(--muted)">${isTh
         ? 'ใส่วันเกิดสองคน แค่นั้น — ไม่ต้องสมัคร ไม่ต้องสร้างโปรไฟล์ ห้าศาสตร์ที่มีวิชาดูคู่จริงจะให้คำตัดสิน ที่เหลือวางดวงคู่กันไว้ให้อ่านเอง'
         : 'Two birth dates, nothing else — no sign-up, no profile. The five traditions with a real pairing method give a verdict; the rest lay both charts side by side for you to read.'}</div>
@@ -16296,7 +16298,7 @@ function renderCompat(){
 
     <!-- Enter partner DOB -->
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">🔍 ${hasProfile ? (isTh?'กรอกข้อมูลคู่เพื่อเทียบ':'Enter partner data to compare') : (isTh?'ใส่วันเกิดสองคน':'Enter two birth dates')}</div>
+      <h3 class="deep-sys-title">🔍 ${hasProfile ? (isTh?'กรอกข้อมูลคู่เพื่อเทียบ':'Enter partner data to compare') : (isTh?'ใส่วันเกิดสองคน':'Enter two birth dates')}</h3>
 
       <!-- Saved-profile quick picker: user saves a report → it appears here
            so they don't have to retype DOB/name every time. -->
@@ -17700,7 +17702,7 @@ function renderPetReading(){
       </div>
     </div>
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">✨ ${isTh?'นิสัยน้อง':'Personality'}</div>
+      <h3 class="deep-sys-title">✨ ${isTh?'นิสัยน้อง':'Personality'}</h3>
       <div style="font-size:13.5px;color:var(--text);line-height:1.75;margin-top:8px">${persona}</div>
       <div id="petLuckyBox" style="text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
         <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold2);margin-bottom:5px">🎰 ${isTh?'เลขนำโชคของ '+_esc(pet.name)+' วันนี้':_esc(pet.name)+"'s lucky numbers today"}</div>
@@ -17712,7 +17714,7 @@ function renderPetReading(){
   // Deep (gated) — full care guide across systems
   const deepHtml = `
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">🐾 ${isTh?'คู่มือดูแล '+_esc(pet.name):'Care guide for '+_esc(pet.name)}</div>
+      <h3 class="deep-sys-title">🐾 ${isTh?'คู่มือดูแล '+_esc(pet.name):'Care guide for '+_esc(pet.name)}</h3>
       <div class="deep-sys-origin">${isTh?'จาก ปีนักษัตร · ธาตุปาจี · ราศี · เลขชีวิต · Nine Star Ki · มายัน':'From Chinese zodiac · BaZi element · sun sign · life number · Nine Star Ki · Mayan'}</div>
       <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
         ${_petCareRow('🧭', isTh?'นิสัยเด่น':'Temperament', isTh?`${czP.th} · ${elL.temper}`:`${czP.en}; ${elL.temper}`)}
@@ -17827,7 +17829,7 @@ function renderPetCompat(){
   // Deep: full 4-axis breakdown + how-to-harmonise
   const deepHtml = `
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">💞 ${isTh?'เทียบเต็ม 4 ศาสตร์':'Full 4-system breakdown'}</div>
+      <h3 class="deep-sys-title">💞 ${isTh?'เทียบเต็ม 4 ศาสตร์':'Full 4-system breakdown'}</h3>
       ${r.rows.map(row => `
         <div style="padding:10px 0;border-bottom:1px solid var(--border)">
           <div style="display:flex;justify-content:space-between;align-items:center">
@@ -17916,13 +17918,13 @@ function renderPetHousehold(){
       <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:16px;color:var(--gold);margin-top:4px">${isTh?'ความกลมเกลียวของบ้าน':'Household harmony'}</div>
     </div>
     <div class="deep-sys-card">
-      <div class="deep-sys-title">🕊️ ${isTh?'ตัวเชื่อมของบ้าน':'The peacemaker'}</div>
+      <h3 class="deep-sys-title">🕊️ ${isTh?'ตัวเชื่อมของบ้าน':'The peacemaker'}</h3>
       <div style="text-align:center;font-size:40px;margin:8px 0">${_petEmoji(peace.pet)}</div>
       <div style="text-align:center;font-size:14px;color:var(--gold)">${_esc(peace.pet.name)}</div>
       <div style="text-align:center;font-size:12px;color:var(--muted);margin-top:4px">${isTh?`เข้ากับน้องตัวอื่นเฉลี่ย ${Math.round(peaceAvg)}% — มักเป็นตัวที่ทำให้บ้านสงบ`:`Averages ${Math.round(peaceAvg)}% with the others — the calming presence`}</div>
     </div>
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">🐾 ${isTh?'น้องเข้ากันเองรายคู่':'Pet × pet pairs'}</div>
+      <h3 class="deep-sys-title">🐾 ${isTh?'น้องเข้ากันเองรายคู่':'Pet × pet pairs'}</h3>
       <div style="margin-top:8px">${pairCards}</div>
     </div>
     <div class="deep-sys-card" style="margin-top:12px">${_petShareBtns(shareText, 'pet_house')}</div>`;
@@ -17936,7 +17938,7 @@ function renderLoginMgmt(){
   if (user) {
     el.innerHTML = `
       <div class="deep-sys-card">
-        <div class="deep-sys-title">${user.name||'User'}</div>
+        <h3 class="deep-sys-title">${user.name||'User'}</h3>
         <div class="deep-sys-origin">${t('login_method_label')}: ${user.method||'guest'}</div>
         <div class="deep-sys-reading">${t('login_session_desc')}</div>
         <button class="ghost-btn" onclick="logoutUser()" style="color:#ff6060;border-color:#ff606055">${t('login_logout')}</button>
@@ -17962,7 +17964,7 @@ function renderSettings(){
   const curScale = getFontScale();
   el.innerHTML = `
     <div class="deep-sys-card">
-      <div class="deep-sys-title">${t('settings_language')}</div>
+      <h3 class="deep-sys-title">${t('settings_language')}</h3>
       <div class="deep-sys-origin">${t('settings_language_sub')}</div>
       <button class="ghost-btn" onclick="toggleLang();renderSettings()">${isTh?'Switch to English':'เปลี่ยนเป็นภาษาไทย'}</button>
     </div>
@@ -17972,7 +17974,7 @@ function renderSettings(){
          own page zoom (Ctrl + Plus / Cmd + Plus). Browser-level zoom hit-
          tests correctly across the page; the in-app version offset clicks. -->
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">${isTh?'🔠 ขนาดตัวอักษร':'🔠 Text size'}</div>
+      <h3 class="deep-sys-title">${isTh?'🔠 ขนาดตัวอักษร':'🔠 Text size'}</h3>
       <div style="margin-top:8px;font-size:13px;color:var(--text);line-height:1.7">${isTh
         ? '👉 ใช้ <strong style="color:var(--gold)">Ctrl + Plus</strong> (Win) หรือ <strong style="color:var(--gold)">Cmd + Plus</strong> (Mac) เพื่อขยายหน้าเว็บ — ปุ่มและ tap-target จะแม่นยำกว่าการปรับใน app'
         : 'Use <strong style="color:var(--gold)">Ctrl + Plus</strong> (Windows) or <strong style="color:var(--gold)">Cmd + Plus</strong> (Mac) to zoom the page — buttons and tap targets stay accurate.'}</div>
@@ -17980,7 +17982,7 @@ function renderSettings(){
 
     <!-- ░░░ DATA & BACKUP ░░░ -->
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">${isTh?'📦 ข้อมูลและสำรองข้อมูล':'📦 Data & Backup'}</div>
+      <h3 class="deep-sys-title">${isTh?'📦 ข้อมูลและสำรองข้อมูล':'📦 Data & Backup'}</h3>
       <div class="deep-sys-origin">${isTh?'ส่งออก/นำเข้าข้อมูลทั้งหมดของคุณเป็นไฟล์ JSON':'Export/import all your data as a JSON file'}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
         <button class="ghost-btn" onclick="exportUserData()">${isTh?'⬇ ส่งออกข้อมูล':'⬇ Export my data'}</button>
@@ -17998,7 +18000,7 @@ function renderSettings(){
     <div class="deep-sys-card" style="margin-top:12px;border-color:${synced?'var(--gold3)':'var(--border)'}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
         <div style="flex:1">
-          <div class="deep-sys-title">${isTh?'☁️ สำรองขึ้นคลาวด์':'☁️ Cloud Backup & Sync'}</div>
+          <h3 class="deep-sys-title">${isTh?'☁️ สำรองขึ้นคลาวด์':'☁️ Cloud Backup & Sync'}</h3>
           <div class="deep-sys-origin">${hasSession
             ?(isTh?`เชื่อมต่อแล้ว · ${_sbSession.user.email}`:`Connected · ${_sbSession.user.email}`)
             :(isTh?'ลงชื่อเข้าใช้เพื่อเปิดใช้งาน':'Sign in to enable cross-device sync')
@@ -18016,7 +18018,7 @@ function renderSettings(){
 
     <!-- ░░░ DANGER ZONE ░░░ -->
     <div class="deep-sys-card" style="margin-top:12px">
-      <div class="deep-sys-title">${t('settings_clear')}</div>
+      <h3 class="deep-sys-title">${t('settings_clear')}</h3>
       <div class="deep-sys-origin">${t('settings_clear_sub')}</div>
       <button class="ghost-btn" onclick="if(confirm(t('settings_clear_confirm'))){localStorage.clear();location.reload();}" style="color:#ff6060;border-color:#ff606055">${t('settings_clear_btn')}</button>
     </div>`;
