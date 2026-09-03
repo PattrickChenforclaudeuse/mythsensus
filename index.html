@@ -75,7 +75,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=235">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=236">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -2994,7 +2994,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=235" defer></script>
+<script src="/build/ms26-bundle.js?v=236" defer></script>
 <script>
 
 
@@ -10011,7 +10011,9 @@ function _showDeep(k, isUserClick){
 
   // Voice mode for this system. Default engineer (existing static reading).
   // Oracle mode lazy-fetches the 4-cat × 8-Q reading from /api/oracle/addon.
-  if (!_deepMode[k]) _deepMode[k] = 'engineer';
+  // ⛔ เคยตั้งค่าเริ่มต้นเป็น 'engineer' ⇒ คนจ่าย $9 เปิดมาเจอข้อความเอนจิน 26,443 ตัวอักษร
+  //    ส่วนของที่ซื้อต้องไปกดปุ่มสลับเอง · ค่าเริ่มต้นต้องเป็นสิ่งที่เขาจ่ายเงินมาเพื่อสิ่งนั้น
+  if (!_deepMode[k]) _deepMode[k] = 'oracle';
   const mode = _deepMode[k];
 
   // Build the body content based on mode + lock state.
@@ -10055,16 +10057,11 @@ function _showDeep(k, isUserClick){
     bodyContent = '';
   }
 
-  // Mode toggle pill — visible only when unlocked + a chart exists.
-  // Engineer = existing static reading. Oracle = lazy-fetched 4-cat × 8-Q.
-  const showModeToggle = !deepLocked;
-  const modeTogglePill = showModeToggle ? `
-    <div style="display:flex;justify-content:center;margin:14px 0 18px">
-      <div role="tablist" style="display:inline-flex;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:3px;gap:2px">
-        <button role="tab" onclick="_setDeepMode('${k}','engineer')" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;padding:6px 14px;border-radius:18px;border:none;cursor:pointer;background:${mode==='engineer'?'var(--gold)':'transparent'};color:${mode==='engineer'?'var(--bg)':'var(--muted)'};font-weight:${mode==='engineer'?'700':'400'};transition:background .15s,color .15s">🛠 ${isTh?'Engineer':'Engineer'}</button>
-        <button role="tab" onclick="_setDeepMode('${k}','oracle')" style="font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;padding:6px 14px;border-radius:18px;border:none;cursor:pointer;background:${mode==='oracle'?'var(--gold)':'transparent'};color:${mode==='oracle'?'var(--bg)':'var(--muted)'};font-weight:${mode==='oracle'?'700':'400'};transition:background .15s,color .15s">✦ ${isTh?'Oracle':'Oracle'}<span style="margin-left:4px;font-size:8px;background:rgba(0,0,0,0.18);padding:1px 5px;border-radius:6px;letter-spacing:1px">BETA</span></button>
-      </div>
-    </div>` : '';
+  // ⛔ ปุ่มสลับ Engineer/Oracle ถูกถอดออก 3 ก.ย. 69 (director: "ไม่จำเป็นก็เอาออก")
+  //    ให้ลูกค้าเลือกระหว่างคำอ่านสองสำนวนของดวงใบเดียวกัน = ยัดปัญหา
+  //    "ดูดวงหลายที่บอกไม่ตรงกัน" ที่สินค้านี้ตั้งใจแก้ กลับเข้าไปในสินค้าเอง
+  //    เสียงเอนจินยังอยู่ในโค้ดและยังใช้เป็นทางถอยเมื่อ Oracle พัง (ปุ่มในกล่อง error)
+  const modeTogglePill = '';
 
   document.getElementById('deepSysPanel').innerHTML =
     `<div class="deep-sys-card">
