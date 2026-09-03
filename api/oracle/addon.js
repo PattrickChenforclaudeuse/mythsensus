@@ -125,12 +125,29 @@ function buildSystemPrompt(system) {
 // Format the user payload exactly as the prompt expects: chart + months + context.
 // The edge fn renders all 6 categories in one call — the split / partial-render
 // protocol was dropped when the render was decoupled (2026-06-23).
+// ตัดร้อยแก้วเก่าออกจาก chart ก่อนส่ง
+// ⛔ chart.deepReading คือคำอ่านฉบับเดิม ยาว ~27,000 ไบต์ = 84% ของ payload ทั้งก้อน
+//    ชั้นใหม่ต้องอ่านจาก "ค่า" ไม่ใช่ลอกคำอ่านเดิมมาเรียบเรียง ⇒ ส่งไปก็ผิดวัตถุประสงค์
+//    และเราส่ง payload เดียวกันซ้ำ 10 ก้อน ⇒ จ่ายค่า input ของมัน 10 รอบเปล่าๆ
+//    วัดจริง 3 ก.ย. 69: input 27,486 tokens ต่อก้อน x 10 ก้อน
+const CHART_DROP = new Set(['reading', 'deepReading', 'traitSrc', 'traitSrcTh'])
+function leanChart(chart) {
+  if (!chart || typeof chart !== 'object') return chart
+  const out = {}
+  for (const [k, v] of Object.entries(chart)) {
+    if (CHART_DROP.has(k)) continue
+    if (typeof v === 'string' && v.length > 400) continue
+    out[k] = v
+  }
+  return out
+}
+
 function buildUserMessage(body) {
   const payload = {
     system: body.system,
     lang: body.lang,
     year: body.year,
-    chart: body.chart,
+    chart: leanChart(body.chart),
     months: body.months || [],
     context: body.context || {},
   }
@@ -165,7 +182,7 @@ function loadV3() {
 // ฐานของเล่ม — คำนวณจาก payload ฝั่งเรา ไม่ใช่ให้โมเดลคิด
 // ⛔ ต้อง deterministic เพราะทั้ง 6 บทเขียนขนานกัน ไม่มีบทไหนเห็นของบทอื่น
 //    ถ้าปล่อยให้แต่ละบทสรุปฐานเอง ลูกค้าจะได้อ่านฐานเดิมหกรอบ และอาจไม่ตรงกันด้วย
-function buildBasis(body) {
+export function buildBasis(body) {
   const c = body.chart || {}
   const lines = []
   const put = (k, v) => { if (v !== undefined && v !== null && v !== '') lines.push(`${k}: ${v}`) }
@@ -185,13 +202,17 @@ function buildBasis(body) {
   return lines
 }
 
-function buildAnswerCalls(body) {
+export function buildAnswerCalls(body) {
   const { questions, answersBase } = loadV3()
   const framework = loadSystemFramework(body.system)
   const payload = buildUserMessage(body)
   return questions.groups.map(g => ({
     key: g.key,
-    maxTokens: 4000,
+    // ⛔ ห้ามตั้งเป็นค่าคงที่ — หมวดใหญ่สุด (A) มี 9 ข้อ เล็กสุด (H) มี 2 ข้อ ต่างกัน 4.5 เท่า
+    //    3 ก.ย. 69 ตั้ง 4000 เท่ากันหมด แล้วตัดกลางครบทั้ง 10 ก้อน ไม่มีก้อนไหนรอด
+    //    วัดจากรอบที่ทำสำเร็จในเครื่อง: ชั้น 1 ทั้งชุด ~22,000 tokens / 45 ข้อ ≈ 490 ต่อข้อ
+    //    เผื่อขึ้นเป็น 700 ต่อข้อ + 800 สำหรับ intro/โครง JSON
+    maxTokens: 1600 + g.questions.length * 1100,
     systemPrompt: `${answersBase}\n\n---\n\n## วิธีอ่านของศาสตร์นี้\n\n${framework}\n\n---\n\n` +
       `## หมวดที่ต้องตอบในก้อนนี้: ${g.key} · ${g.title} (${g.questions.length} ข้อ)\n\n` +
       g.questions.map(q => `- ${q.q} ${q.text}`).join('\n'),
@@ -199,7 +220,7 @@ function buildAnswerCalls(body) {
   }))
 }
 
-function buildComposeCalls(body, answersJson) {
+export function buildComposeCalls(body, answersJson) {
   const { questions, composeBase } = loadV3()
   const basis = buildBasis(body)
   return questions.chapters.map(ch => {
@@ -207,13 +228,24 @@ function buildComposeCalls(body, answersJson) {
     const unanswered = groups.flatMap(g => (g.answers || []).filter(a => a.answerable === false))
     return {
       key: ch.key,
-      maxTokens: 3500,
+      // 3-5 ย่อหน้า ย่อหน้าละ 55-85 คำไทย + limits ⇒ เผื่อไว้ 5,000
+      // ⛔ ตัดกลางเมื่อไหร่ ทั้งเฟสถูกทิ้ง ไม่ใช่ได้บทสั้นๆ มา — เผื่อดีกว่าประหยัด
+      maxTokens: 9000,
       systemPrompt: `${composeBase}\n\n---\n\n## บทที่ต้องเขียนในก้อนนี้\n\n` +
         `ชื่อบท: ${ch.title}\n` +
         `หลอมจากหมวด: ${ch.from.join(' + ')}\n` +
-        `ข้อที่ศาสตร์นี้ตอบไม่ได้ในหมวดนี้: ${unanswered.length} ข้อ (ใส่ลง limits)`,
+        `ข้อที่ศาสตร์นี้ตอบไม่ได้ในหมวดนี้: ${unanswered.length} ข้อ (ใส่ลง limits)
+` +
+        `รหัสข้อที่บทนี้ต้องกินเนื้อให้ครบ: ${groups.flatMap(g => (g.answers || []).map(a => a.q)).join(' ')}
+` +
+        `⛔ ใส่ \`covers\` เป็นอาร์เรย์ของรหัสข้อที่คุณเขียนถึงจริงในบทนี้ — ใช้ตรวจว่าไม่มีข้อไหนหล่น`,
       userMessage: JSON.stringify({
         basis,
+        // ⛔ รายการคำที่ห้ามพิมพ์ซ้ำ — บอกเป็นหลักการอย่างเดียวไม่พอ
+        //    3 ก.ย. 69 รันจริง: ทั้ง 6 บทเขียนขนานกัน ต่างคนต่างกางฐานใหม่
+        //    ได้ 「เจี่ย ไม้หยาง」 ซ้ำ 3 บท · 「กุ้ย น้ำอ่อน มะเส็ง」 ซ้ำ 3 บท
+        //    ให้ค่าที่ห้ามซ้ำเป็นสตริงตรงๆ ไปเลย จะบังคับได้จริงกว่าคำสั่งลอยๆ
+        ห้ามพิมพ์คำเหล่านี้ซ้ำ_ผู้อ่านเห็นแล้วที่หน้าแรก: basis.map(l => l.split(':').slice(1).join(':').trim()).filter(Boolean),
         context: body.context || {},
         months: body.months || [],
         answers: groups,

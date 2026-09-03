@@ -59,6 +59,13 @@ async function callOnce(opts: {
     body: JSON.stringify({
       model: opts.model,
       max_tokens: opts.maxTokens,
+      // ⛔ Sonnet 5 เปิดโหมดคิดเองอัตโนมัติถ้าไม่สั่งอะไร และโทเคนที่ใช้คิด
+      //    กินจาก max_tokens ก้อนเดียวกับคำตอบ
+      //    3 ก.ย. 69 วัดของจริง: ก้อนเล็กสุด (2 คำถาม) ใช้ 2,200/2,200 ไปกับการคิด
+      //    เหลือให้คำตอบ 0 ⇒ ตัน max_tokens ครบทั้ง 10 ก้อน
+      //    งานนี้คือเขียนคำตอบตามรูปแบบที่กำหนด ไม่ใช่โจทย์ที่ต้องคิดยาว
+      //    ปิดแล้วได้พฤติกรรมเดียวกับ Sonnet 4.6 ที่ของเดิมสร้างและทดสอบมาบนนั้น
+      thinking: { type: 'disabled' },
       system: opts.systemPrompt,
       messages: [{ role: 'user', content: opts.userMessage }],
     }),
@@ -67,11 +74,20 @@ async function callOnce(opts: {
   if (!resp.ok) throw new Error('anthropic ' + resp.status + ': ' + (await resp.text()).slice(0, 200))
   const data = await resp.json()
   if (data.stop_reason === 'refusal') throw new Error('anthropic refused: ' + (data.stop_details?.category ?? 'unknown'))
-  if (data.stop_reason === 'max_tokens') throw new Error('anthropic hit max_tokens (' + opts.maxTokens + ') — truncated, not caching')
+  if (data.stop_reason === 'max_tokens') {
+    const th = data.usage?.output_tokens_details?.thinking_tokens || 0
+    throw new Error('anthropic hit max_tokens (' + opts.maxTokens + ')' +
+      (th ? ` — ${th} tokens ไปกับการคิด เหลือให้คำตอบ ${(data.usage?.output_tokens || 0) - th}` : ' — truncated') + ', not caching')
+  }
   let txt = (Array.isArray(data.content) ? data.content : [])
     .filter((b: any) => b?.type === 'text').map((b: any) => b.text || '').join('').trim()
   if (!txt) throw new Error('anthropic returned no text block (stop_reason=' + data.stop_reason + ')')
-  if (txt.startsWith('```')) txt = txt.replace(/^```(?:json)?\n?/i, '').replace(/```\s*$/, '').trim()
+  // ⛔ ห้ามตัดแค่ fence ที่อยู่ต้นสตริง — 3 ก.ย. 69 มีก้อนหนึ่งใส่ backtick ไว้กลาง
+  //    jsonrepair ซ่อมไม่ได้ ทั้งเฟสเลยถูกทิ้งทั้งที่อีก 9 ก้อนสำเร็จ
+  //    จึงตัดเอาเฉพาะช่วงจาก { แรกถึง } สุดท้าย แทนการเดาจากหัวท้าย
+  txt = txt.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim()
+  const _i = txt.indexOf('{'), _j = txt.lastIndexOf('}')
+  if (_i >= 0 && _j > _i) txt = txt.slice(_i, _j + 1)
   let obj: any
   try { obj = JSON.parse(txt) } catch (_) { obj = JSON.parse(jsonrepair(txt)) }
   return { obj, usage: data.usage || {} }
@@ -198,7 +214,7 @@ Deno.serve(async (req: Request) => {
           settled = await Promise.allSettled(body.calls.map(async (c: any) => {
             const r = await callOnce({
               systemPrompt: c.systemPrompt, userMessage: c.userMessage,
-              maxTokens: Math.min(Number(c.maxTokens) || 4000, 8000),
+              maxTokens: Math.min(Number(c.maxTokens) || 6000, 16000),
               model: body.model || DEFAULT_MODEL, signal: controller.signal,
             })
             return { key: String(c.key), obj: r.obj, usage: r.usage }
