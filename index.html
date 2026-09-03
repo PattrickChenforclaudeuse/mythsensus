@@ -75,7 +75,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=234">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=235">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -2994,7 +2994,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=234" defer></script>
+<script src="/build/ms26-bundle.js?v=235" defer></script>
 <script>
 
 
@@ -9687,6 +9687,117 @@ function _renderOracleSection(section) {
 }
 
 /** Top-level: render full OracleAddonOutput as HTML for the deep-sys-panel */
+// ── ภาพประกอบของคำอ่านรายศาสตร์ ────────────────────────────────────────
+// ทุกภาพวาดจากค่าที่เอนจินคำนวณ ไม่ใช่จากข้อความที่โมเดลเขียน
+const _OR_GOLD = '#c8a45a', _OR_DIM = '#a08a66', _OR_GOOD = '#9ac86a', _OR_BAD = '#c87a6a';
+
+/** สี่เสา — การ์ดสี่ใบ เสาวันเน้นเพราะเป็นตัวแทนเจ้าของดวง */
+function _orPillars(b) {
+  if (!b || !b.yearStem) return '';
+  const cells = [
+    ['ปีเกิด', b.yearStem + b.yearBranch, b.yearStemTh + ' ' + b.yearBranchTh, false],
+    ['เดือนเกิด', b.monthStem + b.monthBranch, b.monthStemTh + ' ' + b.monthBranchTh, false],
+    ['วันเกิด', b.dayStem + b.dayBranch, b.dayStemTh + ' ' + b.dayBranchTh, true],
+    ['ชั่วโมงเกิด', b.hourStem + b.hourBranch, b.hourStemTh + ' ' + b.hourBranchTh, false],
+  ];
+  return `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 16px">
+    ${cells.map(([lab, cjk, th, me]) => `<div style="border:1px solid ${me ? _OR_GOLD : 'var(--border)'};border-radius:9px;padding:9px 6px;text-align:center;background:${me ? 'rgba(200,164,90,.07)' : 'transparent'}">
+      <div style="font-size:11.5px;color:${_OR_DIM}">${_escapeHtml(lab)}${me ? ' · ตัวคุณ' : ''}</div>
+      <div style="font-size:24px;color:${me ? '#e8c87a' : _OR_GOLD};line-height:1.3;margin:2px 0">${_escapeHtml(cjk)}</div>
+      <div style="font-size:11.5px;color:var(--text);line-height:1.35">${_escapeHtml(th)}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+/** สมดุลห้าธาตุ — ⛔ สีบอกบทบาทอย่างเดียว ความว่างบอกด้วยเส้นประ */
+function _orElements(b) {
+  if (!b || !b.elementCounts) return '';
+  const ORDER = ['ไม้', 'ไฟ', 'ดิน', 'โลหะ', 'น้ำ'];
+  const max = Math.max(1, ...ORDER.map(e => b.elementCounts[e] || 0));
+  const role = e => e === b.dayMasterElement ? ['ตัวคุณ', '#e8c87a']
+    : (b.luckyElement || '').includes(e) ? ['เสริมแล้วดี', _OR_GOOD]
+    : (b.avoidElement || '').includes(e) ? ['เจอแล้วหนัก', _OR_BAD] : ['', '#6a5f4a'];
+  return `<div style="margin:12px 0 16px">
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:end;height:96px">
+      ${ORDER.map(e => { const n = b.elementCounts[e] || 0, c = role(e)[1];
+        return `<div style="text-align:center">
+          <div style="font-size:14px;color:${c};font-weight:700;margin-bottom:3px">${n}</div>
+          ${n === 0 ? `<div style="height:14px;border:1px dashed ${c};border-radius:3px;opacity:.6"></div>`
+                    : `<div style="height:${Math.round(n / max * 64)}px;background:${c};border-radius:3px 3px 0 0"></div>`}
+        </div>`; }).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:5px">
+      ${ORDER.map(e => { const [lab, c] = role(e);
+        return `<div style="text-align:center"><div style="font-size:13px;color:${c};font-weight:700">${_escapeHtml(e)}</div>
+        <div style="font-size:11.5px;color:${lab ? c : _OR_DIM};opacity:${lab ? .85 : .5}">${_escapeHtml(lab || '—')}</div></div>`; }).join('')}
+    </div>
+    <div style="font-size:11.5px;color:var(--muted);margin-top:6px">นับจากอักษรทั้งแปดในผัง รวมกันได้ 8 พอดี · ช่องเส้นประคือไม่มีเลยในดวง</div>
+  </div>`;
+}
+
+/** 12 เดือนข้างหน้า — เลือกเฉพาะด้านที่บทนั้นพูดถึง */
+function _orMonths(months, keys) {
+  if (!months || !months.length) return '';
+  const LAB = { career: 'การงาน', money: 'การเงิน', love: 'ความรัก', health: 'สุขภาพ',
+                family: 'ครอบครัว', learning: 'เรียนรู้', allies: 'คนหนุน', chance: 'โอกาส' };
+  const short = m => (m.labelTh || '').replace(/25\d\d/, '').trim().slice(0, 3);
+  return `<div style="margin:12px 0 16px">
+    ${keys.map(k => {
+      const vals = months.map(m => (m.domains[k] || {}).score || 0);
+      const hi = Math.max(...vals), lo = Math.min(...vals);
+      return `<div style="margin-bottom:10px">
+        <div style="font-size:13px;color:var(--text);margin-bottom:3px">${_escapeHtml(LAB[k] || k)}</div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;align-items:end;height:62px">
+          ${months.map(m => { const v = (m.domains[k] || {}).score || 0;
+            const c = (v === hi && hi > lo) ? _OR_GOOD : (v === lo && hi > lo) ? _OR_BAD : '#6a5f4a';
+            return `<div style="text-align:center"><div style="font-size:11px;color:${c};line-height:1.1">${v}</div>
+              <div style="height:${v * 9}px;background:${c};border-radius:2px 2px 0 0"></div></div>`; }).join('')}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:3px">
+          ${months.map(m => `<div style="font-size:11px;color:${_OR_DIM};text-align:center">${_escapeHtml(short(m))}</div>`).join('')}
+        </div>
+      </div>`; }).join('')}
+    <div style="font-size:11.5px;color:var(--muted)">เขียว = เดือนที่ดีที่สุดของด้านนั้น · แดง = เดือนที่ต้องระวัง · เทียบกับปีของคุณเอง</div>
+  </div>`;
+}
+
+/** เสาโชค 80 ปี — บอกว่าตอนนี้ยืนตรงไหน */
+function _orLuck(b, ageNow) {
+  if (!b || !Array.isArray(b.luckPillars) || !b.luckPillars.length) return '';
+  return `<div style="margin:12px 0 16px">
+    <div style="display:grid;grid-template-columns:repeat(${b.luckPillars.length},1fr);gap:4px">
+      ${b.luckPillars.map(l => { const here = ageNow >= l.ageStart && ageNow <= l.ageEnd;
+        return `<div style="border:1px solid ${here ? _OR_GOLD : 'var(--border)'};background:${here ? 'rgba(200,164,90,.07)' : 'transparent'};border-radius:7px;padding:7px 3px;text-align:center">
+          <div style="font-size:11px;color:${_OR_DIM}">${l.ageStart}-${l.ageEnd}</div>
+          <div style="font-size:17px;color:${here ? '#e8c87a' : _OR_GOLD};line-height:1.3">${_escapeHtml(l.stem + l.branch)}</div>
+          <div style="font-size:11px;color:var(--text)">${_escapeHtml((l.stemTh || '').split(' ')[0])}</div>
+          ${here ? `<div style="font-size:11px;color:${_OR_GOLD};font-weight:700">ตอนนี้</div>` : ''}
+        </div>`; }).join('')}
+    </div>
+    <div style="font-size:11.5px;color:var(--muted);margin-top:5px">หนึ่งช่องคือหนึ่งช่วงชีวิต ช่วงละ 10 ปี · ช่องกรอบสว่างคือช่วงที่คุณอยู่ตอนนี้</div>
+  </div>`;
+}
+
+/** ประกอบภาพประจำบท — คืน '' เมื่อศาสตร์นั้นไม่มีข้อมูลชนิดนั้น (ไม่ใช่ทุกศาสตร์มีสี่เสา) */
+function _orChapterVisual(i, sys) {
+  try {
+    const chart = typeof _getMS26ChartFromProfile === 'function' ? _getMS26ChartFromProfile() : null;
+    if (!chart) return '';
+    const b = chart[sys] || {};
+    const f = MS26.calcForecast(chart, new Date(), { weeks: 0, months: 12 });
+    const m = f.months || [];
+    switch (i) {
+      case 0: return _orPillars(b) + _orElements(b);
+      case 1: return _orMonths(m, ['career']);
+      case 2: return _orMonths(m, ['money', 'chance']);
+      case 3: return _orMonths(m, ['love', 'allies', 'family']);
+      case 4: return _orMonths(m, ['health', 'learning']);
+      case 5: return _orLuck(b, new Date().getFullYear() - (chart.input || {}).year) || _orMonths(m, ['chance', 'career']);
+      default: return '';
+    }
+  } catch (e) { return ''; }   // ภาพพังห้ามทำให้คำอ่านหาย
+}
+
 /** คำอ่านรูปใหม่ (schema 3.0-composed) — ความเรียง 6 บท ไม่ใช่คำถาม-คำตอบ
  *
  * ⛔ ห้ามวาดเป็นรายการคำถาม — ชุด 45 ข้ออยู่ใน answers_json ไว้ทำ consensus
@@ -9704,9 +9815,16 @@ function _renderComposedOracle(oracle) {
   const body = keys.map(k => {
     const c = ch[k] || {};
     (c.limits || []).forEach(l => limits.push(l));
-    const blocks = (c.blocks || []).map(b => `
-      ${b.sub ? `<div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:16px;font-weight:600;color:var(--gold);margin:16px 0 6px;padding-left:10px;border-left:3px solid var(--gold3)">${_escapeHtml(b.sub)}</div>` : ''}
-      <p style="font-size:14.5px;line-height:1.78;color:var(--text);margin:0 0 11px">${_escapeHtml(b.text || '')}</p>`).join('');
+    const bl = c.blocks || [];
+    const half = Math.ceil(bl.length / 2);
+    // ⛔ หัวข้อย่อยต้องเป็น <h4> จริง ไม่ใช่ div ที่แค่ทำให้ตัวหนา
+    //    กวาด 10 หน้าเมื่อ 3 ก.ย. 69 พบ <h1>-<h4> = 0 อันทั้งเว็บ ทั้งที่หน้าละ 4,000-19,000 ตัวอักษร
+    //    ไม่มีหมุดให้สายตาเกาะ และโปรแกรมอ่านหน้าจอไม่มีสารบัญเลย
+    const para = b => `${b.sub ? `<h4 style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:16px;font-weight:600;color:var(--gold);margin:16px 0 6px;padding-left:10px;border-left:3px solid var(--gold3)">${_escapeHtml(b.sub)}</h4>` : ''}
+      <p style="font-size:14.5px;line-height:1.78;color:var(--text);margin:0 0 11px">${_escapeHtml(b.text || '')}</p>`;
+    const blocks = bl.slice(0, half).map(para).join('')
+      + _orChapterVisual(keys.indexOf(k), oracle.system)
+      + bl.slice(half).map(para).join('');
     return `
       <section style="margin-bottom:26px">
         <h3 style="font-family:'Cinzel Decorative',serif;font-size:15px;letter-spacing:1.4px;color:var(--gold);margin:0 0 10px">${_escapeHtml(c.title || '')}</h3>
