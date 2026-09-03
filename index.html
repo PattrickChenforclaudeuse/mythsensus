@@ -71,7 +71,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=231">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=232">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -312,6 +312,7 @@ main{max-width:820px;margin:0 auto;padding:22px 14px 60px;}
    phone-cramped on desktop while keeping mobile single-column intact. */
 @media (min-width:900px){ main{max-width:940px;} }
 .panel{display:none;}.panel.active{display:block;}
+@media(min-width:1000px){#entryCityRow{min-height:252px}}
 
 /* ── UX micro-animations (added 2026-05-09 quick-win batch) ── */
 @keyframes ms-fade-up { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
@@ -1691,7 +1692,12 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
            _entryFillCity() after first paint; stays hidden for nations with no
            documented founding chart, because inventing a ฤกษ์ would be the same
            sin as inventing doctrine for a system that has none. -->
-      <div id="entryCityRow" style="margin:0 0 16px"></div>
+      <!-- ⛔ min-height คือการจองที่ไว้ก่อน ห้ามเอาออก — การ์ดนี้เติมตอน ๆ วินาทีที่ 2
+           ถ้าไม่จอง มันจะแทรกเข้ามาเหนือช่องกรอกวันเกิด แล้วดันช่องกรอกลงไป 265px บนมือถือ
+           = คนที่กำลังกรอกอยู่จะเห็นฟอร์มหนีออกจากจอคาตา (director 3 ก.ย.: "คนกรอกๆอยู่หาย")
+           วัดจริงบน 375px การ์ดสูง 269px · บน 1280px สูง 252px
+           ⛔ ทางที่คำนวณพังสั่ง display:none อยู่แล้ว ที่จองไว้จึงหายตาม ไม่เหลือช่องว่าง -->
+      <div id="entryCityRow" style="margin:0 0 16px;min-height:269px"></div>
       </div><div class="ec-b">
       <!-- one line of promise — the MAP of agreement and disagreement, never a
            verdict. Promising "the consensus" would be a promise most charts break. -->
@@ -2984,7 +2990,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=231" defer></script>
+<script src="/build/ms26-bundle.js?v=232" defer></script>
 <script>
 
 
