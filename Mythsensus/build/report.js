@@ -2431,8 +2431,8 @@ function p16_activation(c) {
     <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
       <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:14px">${tr('วิธีอ่านและทำตาม', 'How to read this')}</div>
       <div style="font-size:13px;color:#c8c0a8;line-height:1.75">
-        ${tr(`แต่ละข้อถูก <strong>จัดลำดับความสำคัญจากจำนวนศาสตร์ที่เห็นพ้อง</strong> —
-        ยิ่งหลายศาสตร์อิสระชี้ไปทางเดียวกัน ยิ่งมีน้ำหนัก`, `Each item is <strong>ranked by how many independent systems agree on it</strong> — the more traditions point the same direction, the more weight it carries.`)}<br>
+        ${tr(`ข้อที่<strong>นับเสียงได้จริง</strong>ขึ้นก่อน — ป้ายเขียวบอกว่ามีกี่สายที่หนุนข้อนั้นบนแกนเดียวกัน
+        ยิ่งหลายสายชี้ทางเดียวกัน ยิ่งมีน้ำหนัก · <strong>ข้อที่ไม่มีป้าย</strong> คือข้อที่ยืนบนข้อมูลของศาสตร์ที่ระบุไว้เท่านั้น ยังไม่ได้เทียบเสียงข้ามศาสตร์`, `Items whose support can be <strong>counted</strong> come first — the green tag says how many traditions back that item on the same axis. Items <strong>without a tag</strong> rest on the listed systems' data alone; they have not been put to a cross-tradition count.`)}<br>
         <!-- ⛔ คำอธิบาย [+X]/[−X] ถูกถอด 4 ก.ย. 69 — ป้ายนั้นไม่ได้พิมพ์ในลิสต์แล้วตั้งแต่ 2 ก.ย.
              คำอธิบายของสัญลักษณ์ที่ไม่มีอยู่จริง คือสิ่งที่ผู้อ่านยกเป็นหลักฐานว่าไม่มีใครอ่านหน้าตัวเอง
              จะเอากลับมาเมื่อไหร่ ต้องพิมพ์ป้ายจริงในลิสต์ด้วย -->
@@ -2441,7 +2441,12 @@ function p16_activation(c) {
     </div>
 
     <div style="font-size:13px;font-weight:600;color:#60c060;margin-bottom:8px">✅ ${tr('สิ่งที่ควรทำ · Priority-ranked (เรียงจากศาสตร์เห็นพ้องมากสุด)', 'What to do · Priority-ranked (most-agreed-upon first)')}</div>
-    ${[...positives].sort((x, y) => ((x.axis ? (axisBackers(c, x.axis)?.n ?? x.systems.length) : x.systems.length) < (y.axis ? (axisBackers(c, y.axis)?.n ?? y.systems.length) : y.systems.length) ? 1 : -1)).slice(0, 8).map((a, n) => {
+    ${[...positives].sort((x, y) => {
+        // ⛔ ห้ามเอาความยาวลิสต์ที่พิมพ์มือไปแข่งกับจำนวนจริงจาก traitProfile — คนละหน่วย
+        //    ข้อที่นับเสียงได้จริงขึ้นก่อนเสมอ ที่เหลือเรียงตามลำดับที่เขียนไว้
+        const rank = (z) => z.axis ? (axisBackers(c, z.axis)?.n ?? -1) : -1;
+        return rank(y) - rank(x);
+    }).slice(0, 8).map((a, n) => {
         // ⛔ ป้าย "+${delta}" ถูกถอดออกจากหน้า 2 ก.ย. 69 — ค่าเท่ากันทั้ง 5 แถว
         //    ป้ายที่ไม่เคยต่างกันไม่ได้บอกอะไร แค่กินที่แล้วชวนให้ถามว่าคืออะไร
         //    (director: "+9 ข้างหลังคืออะไร") ถ้าจะเอากลับมา ต้องทำให้มันต่างกันจริงก่อน
@@ -2465,7 +2470,7 @@ function p16_activation(c) {
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
             <span style="font-weight:600;color:#c8a45a;font-size:13px">${n + 1}. ${esc(a.title)}</span>
             <div style="display:flex;gap:6px;align-items:center">
-              <span style="font-size:11.5px;color:#60a060;background:#0a1a0e;padding:2px 8px;border-radius:10px">${_n} ${tr('สายที่หนุนข้อนี้', 'traditions behind this')}</span>
+              ${_backers ? `<span style="font-size:11.5px;color:#60a060;background:#0a1a0e;padding:2px 8px;border-radius:10px">${_n} ${tr('สายที่หนุนข้อนี้', 'traditions behind this')}</span>` : ''}
 
             </div>
           </div>
@@ -3005,7 +3010,7 @@ function p22_painPoints(c) {
     <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
       <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:14px">${tr('นี่คือ "จุดที่ต้องดูแล" ไม่ใช่ "ดวงเสีย"', 'These are "areas to nurture", not "broken charts"')}</div>
       <div style="font-size:13px;color:#c8c0a8;line-height:1.75">
-        ${tr('ยิ่งหลายศาสตร์ชี้จุดเดียวกัน ยิ่งควรให้ความสนใจ · แต่ละข้อบอก <strong>ทำไมเป็นของคุณ</strong> + <strong>อาการ</strong> + <strong>วิธีรับมือ</strong>', 'The more traditions point at the same spot, the more it merits attention. Each item gives <strong>why it is yours</strong>, <strong>the symptoms</strong>, and <strong>how to handle it</strong>.')}
+        ${tr('แต่ละข้อบอก <strong>ทำไมเป็นของคุณ</strong> + <strong>อาการ</strong> + <strong>วิธีรับมือ</strong> · บรรทัด "ที่มา" คือข้อมูลที่ข้อนั้นยืนอยู่ ไม่ใช่จำนวนศาสตร์ที่โหวตตรงกัน', 'Each item gives <strong>why it is yours</strong>, <strong>the symptoms</strong>, and <strong>how to handle it</strong>. The "Sources" line names the data each item rests on — it is not a count of traditions voting the same way.')}
       </div>
     </div>
 
@@ -3013,7 +3018,9 @@ function p22_painPoints(c) {
       <div style="border-left:3px solid #8a3040;padding:12px 14px;margin:10px 0;background:#1a0a0a;border-radius:0 8px 8px 0">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;margin-bottom:8px">
           <div style="font-size:15px;font-weight:700;color:#c8a45a">${p.icon} ${esc(p.topic)}</div>
-          <div style="font-size:11.5px;color:#a08060">${p.systems.length} ${tr('ศาสตร์ชี้ตรงกัน', 'systems agree')}</div>
+          <!-- ⛔ เคยพิมพ์ "${p.systems.length} ศาสตร์ชี้ตรงกัน" จากลิสต์ที่พิมพ์มือ = ไม่ได้เทียบอะไรเลย
+               และลิสต์นับ "TCM organ pairing" เป็นหนึ่งศาสตร์ ทั้งที่ไม่ใช่หนึ่งใน 26
+               จะเอาจำนวนกลับมาได้ ต้องผูกกับแกนใน traitProfile เหมือนแผนลงมือก่อน -->
         </div>
         <div style="font-size:11.5px;color:#927f62;margin-bottom:8px">${tr('ที่มา:', 'Sources:')} ${p.systems.map(s => `<strong>${esc(s)}</strong>`).join(' · ')}</div>
         <div style="font-size:13px;color:#c8c0a8;margin-bottom:6px;line-height:1.65"><strong style="color:#c8a45a">${tr('ทำไมเป็น pain point ของคุณ:', 'Why this is your pain point:')}</strong> ${p.why}</div>

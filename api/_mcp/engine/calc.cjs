@@ -3600,7 +3600,7 @@ function calcTaksa(d) {
     // systems via buildRichReading is a larger writeup that we'll add in a
     // later session — this short form already powers the score breakdown
     // line + a usable per-system tile).
-    const readingTh = `ทักษา · เกิด${TAKSA_PLANET_NAMES_TH[dow]} วันลอร์ดสถิตในบริวาร · มูละ (ทรัพย์) ปกครองโดย${mula.planetNameTh} · กาลกิณีปกครองโดย${kalakini.planetNameTh} = วัน${TAKSA_PLANET_NAMES_TH[kalakini.planet]}เป็นวันต้องระวังของคุณ<br><br> ทักษาอ่านจาก<strong>วันในสัปดาห์</strong>เหมือนหน้าไทยพราหมณ์ ⇒ สองหน้านี้มักชี้ทางเดียวกัน ไม่ใช่หลักฐานอิสระเต็มร้อย — แต่คนละตำรา จึงนับแยกเป็นคนละเสียง · ที่ทักษามีเพิ่มคือมันไม่หยุดที่เทพประจำวัน แต่<strong>จัดดาวทั้ง ๘ ดวงลง ๘ บ้าน</strong>รอบตัวคุณ — <strong>มูละ</strong> (บ้านต้นทุนชีวิต) ของคุณปกครองโดย${mula.planetNameTh} ส่วน<strong>กาลกิณี</strong> คือบ้านที่ตำราไทยสั่งให้เลี่ยงตอนตั้งชื่อหรือเลือกฤกษ์ — ทั้งสองอย่างนี้ไม่ปรากฏบนหน้าไทยพราหมณ์เลย`;
+    const readingTh = `ทักษา · เกิด${TAKSA_PLANET_NAMES_TH[dow]} วันลอร์ดสถิตในบริวาร · มูละ (ทรัพย์) ปกครองโดย${mula.planetNameTh} · กาลกิณีปกครองโดย${kalakini.planetNameTh} = วัน${TAKSA_PLANET_NAMES_TH[kalakini.planet]}เป็นวันต้องระวังของคุณ<br><br> ทักษาอ่านจากวันในสัปดาห์เหมือนหน้าไทยพราหมณ์ ⇒ <strong>สองหน้านี้ไม่ใช่หลักฐานอิสระเต็มร้อย</strong> แต่นับแยกเพราะคนละตำรา · ที่เพิ่มมาคือ ๘ บ้านรอบตัวคุณ — มูละของคุณปกครองโดย${mula.planetNameTh} และกาลกิณีคือบ้านที่ตำราสั่งให้เลี่ยง`;
     // Taksa and the Thai Brahmin page both read the weekday, so they move together
     // and must not be counted as two agreeing voices. What Taksa adds is the eight
     // houses — mula and kalakini exist nowhere else in the report.
@@ -9497,7 +9497,7 @@ function _ifaYorubaDeepSections(a) {
                 (th.includes('การงาน') || th.includes('เหล็ก')) ? ['Ogun (เทพเหล็กและการงาน)', 'Ogun (god of iron and work)'] :
                     ['Orisha ประจำธีมของคุณ', 'the Orisha of your theme'];
     const sec = [];
-    sec.push(blk('📜', 'Odù · ธีม · โชค', 'Odù · Theme · Fortune', P(pick(`Ifá คือศาสตร์ทำนายของชาว Yoruba (แอฟริกาตะวันตก 2,000 ปี, มรดก UNESCO) ใช้ระบบ 256 Odù — Babalawo จำคำสอนกว่า 250,000 บท Odù ประจำคุณคือ ${B(a.oduEn)} (${a.oduTh})`, `Ifá is the divination science of the Yoruba (West Africa, 2,000 years, UNESCO heritage) using 256 Odù — Babalawo priests memorise ~250,000 verses. Your Odù is ${B(a.oduEn)} (${a.oduTh}).`)) +
+    sec.push(blk('📜', 'Odù · ธีม · โชค', 'Odù · Theme · Fortune', P(pick(`ตำราอิฟาของชาวโยรูบาแบ่งคนเป็น 256 โอดู · ของคุณคือ ${B(a.oduEn)} (${a.oduTh})`, `Yoruba Ifá sorts people into 256 Odù. Yours is ${B(a.oduEn)} (${a.oduTh}).`)) +
         P(`${B(pick('ธีม', 'Theme'))}: ${a.themeDisp} · ${B(pick('โชค', 'Fortune'))}: ${a.fortuneDisp}`)));
     sec.push(blk('🧬', 'ตัวตน — Ori (เส้นทางที่คุณเลือก)', 'Identity — Ori (the path you chose)', P(pick(`Ori (หัวจิตวิญญาณ) ของคุณถูกออกแบบมาเพื่อ ${a.themeDisp}`, `Your Ori (spirit-head) was designed for ${a.themeDisp}.`)) +
         P(pick(`Orisha (เทพ Yoruba) ที่สัมพันธ์กับ Odù ของคุณคือ ${orisha()[0]} — จะปรากฏเป็นลางและความฝันเมื่อคุณต้องการที่สุด`, `The Orisha (Yoruba deity) tied to your Odù is ${orisha()[1]} — appearing as omens and dreams when you most need them.`))));

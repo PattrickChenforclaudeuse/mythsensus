@@ -515,6 +515,11 @@ html[lang="th"] .panel-intro{font-family:'Leelawadee UI','Leelawadee','Tahoma','
 // the 26 readings parallel without duplicating ternaries everywhere.
 // _reportLang is set by calculate() from BirthData.lang (line ~1810).
 const EL_TH_EN = {
+    // ⛔ คำประสม ธาตุ+สี ของดาวเก้าดวง ต้องอยู่ในตารางเป็นคำเต็ม
+    //    ตัวกวาดคำมีด่านขอบคำแล้ว (กัน 'ถุงน้ำดี' พัง) จึงแปลทีละท่อนให้ไม่ได้อีก
+    'ไม้เขียวสด': 'Fresh Green Wood', 'ไม้เขียวอ่อน': 'Pale Green Wood', 'ไม้เขียว': 'Green Wood',
+    'โลหะขาว': 'White Metal', 'โลหะแดง': 'Red Metal',
+    'ดินเหลือง': 'Yellow Earth', 'น้ำขาว': 'White Water', 'ดินขาว': 'White Earth', 'ไฟม่วง': 'Purple Fire', 'ดินดำ': 'Black Earth',
     'ไฟ': 'Fire', 'ไม้': 'Wood', 'น้ำ': 'Water', 'โลหะ': 'Metal', 'ดิน': 'Earth', 'ลม': 'Air',
 };
 const DIR_TH_EN = {
@@ -1242,9 +1247,26 @@ function sweepThaiFromEnglish(html) {
     const keys = Object.keys(merged).sort((a, b) => b.length - a.length);
     return html.replace(/>([^<]+)</g, (_whole, text) => {
         let out = text;
-        for (const k of keys)
-            if (out.includes(k))
-                out = out.split(k).join(merged[k]);
+        // ⛔ ห้ามแทนที่แบบ substring ดิบๆ — ภาษาไทยไม่มีตัวเว้นคำ คำสั้นจะกินคำยาว
+        //    เคยทำ 'ถุงน้ำดี' กลายเป็น 'ถุงWaterดี' เพราะ 'น้ำ' อยู่ในตารางธาตุ
+        //    แทนที่ได้เฉพาะเมื่อไม่มีอักษรไทยประกบสองข้าง (คือมันเป็นคำเดี่ยวจริง)
+        const isThai = (ch) => !!ch && /[฀-๿]/.test(ch);
+        for (const k of keys) {
+            if (!out.includes(k))
+                continue;
+            let acc = '', i = 0;
+            while (i < out.length) {
+                if (out.startsWith(k, i) && !isThai(out[i - 1]) && !isThai(out[i + k.length])) {
+                    acc += merged[k];
+                    i += k.length;
+                }
+                else {
+                    acc += out[i];
+                    i += 1;
+                }
+            }
+            out = acc;
+        }
         return '>' + out + '<';
     });
 }
@@ -2736,16 +2758,16 @@ function calcNumerology(d) {
             keyValueEn: `Life Path ${lp} · ${LP_NAMES_EN[lp]} · Personal Year 2026: ${py}`,
             keyValueMeaning: `Life Path ของคุณคือ <strong>${lp} (${LP_NAMES[lp]})</strong>`,
             keyValueMeaningEn: `Your Life Path is <strong>${lp} (${LP_NAMES_EN[lp]})</strong> — your "core life mission" in the Pythagorean system, calculated by reducing your birth date to a single digit (except Master Numbers 11/22/33, which are kept). Your Personal Year for 2026 is <strong>${py}</strong>, the 12-month theme. In the Thai system, your 7-Number sequence is ${thai7.join(' · ')} — these seven digits describe you across 7 dimensions: identity, health, love, all the way to your life's destination.`,
-            uniqueTh: `เลขศาสตร์อ่านเลขสองชั้นที่ศาสตร์อื่นไม่มี — <strong>เลขเส้นทางนี้</strong> มาจากวันเกิด บอกเส้นทาง ส่วน <strong>เลขวันเกิด ${destiny}</strong> มาจากเดือนกับวันที่เกิด บอกสิ่งที่คุณต้องส่งมอบ${lp === destiny ? ' ของคุณตรงกัน ซึ่งพบไม่บ่อย — คนที่ทางกับงานเป็นเรื่องเดียวกันมักไปได้ไกลในสายเดียว แต่เปลี่ยนสายยากกว่าคนอื่น' : ' ของคุณเป็นคนละเลข (' + lp + ' กับ ' + destiny + ') แปลว่าเส้นทางกับหน้าที่ไม่ใช่อันเดียวกัน ความรู้สึกแบบทำได้ดีแต่ไม่ใช่สิ่งที่อยากทำ มักมาจากช่องว่างตรงนี้'} · ฝั่งไทย เลข ๗ ตัว ๙ ฐาน กาง 7 ฐานให้เห็น ${thai7.join('-')} — ฐานที่เลขซ้ำคือด้านที่ชีวิตคุณลงน้ำหนักมากที่สุด`,
-            uniqueEn: `Numerology reads two numbers where other systems read one — <strong>เลขเส้นทางนี้</strong> comes from the date and describes the road; <strong>Destiny ${destiny}</strong> comes from the letters of your name and describes what you owe.${lp === destiny ? ' Yours match, which is uncommon: when the road and the work are one thing you travel further in a single lane, and change lanes harder than most.' : ' Yours differ (' + lp + ' and ' + destiny + '), so the road and the duty are not the same thing. That particular ache of being good at something that is not what you want usually lives in this gap.'} The Thai seven-base system lays out ${thai7.join('-')}; where a number repeats is where your life puts most of its weight.`,
-            strengthTh: `เลขเส้นทางนี้ ${lp === 1 ? '(ผู้นำ) — คุณถูกออกแบบมาเพื่อริเริ่มและบุกเบิก ไม่ใช่ทำตามแผนที่คนอื่นวาง ชีวิตที่เติมใจคือตำแหน่งที่ตัดสินใจได้เอง' : lp === 2 ? '(ผู้ร่วมมือ) — คุณเกิดมาเพื่อเป็น "สะพานเชื่อม" ระหว่างคนหรือกลุ่มคน อาชีพที่เติมใจคือที่ปรึกษา นักประสานงาน นักเจรจา' : lp === 3 ? '(ผู้สร้างสรรค์) — คุณเกิดมาเพื่อแสดงออก สื่อสาร สร้างศิลปะ ชีวิตที่เติมใจคือการใช้เสียง ภาพ หรือคำพูดเปลี่ยนโลก' : lp === 4 ? '(ผู้สร้าง) — คุณเกิดมาเพื่อสร้างรากฐานที่ยั่งยืน วิศวกร สถาปนิก ผู้จัดการระบบ — งานที่ใช้วินัยและความแม่นยำ' : lp === 5 ? '(นักผจญภัย) — คุณเกิดมาเพื่อสำรวจ เปลี่ยนแปลง และนำเสรีภาพมาสู่โลก ชีวิตที่มั่นคงเกินไปจะทำให้คุณเหี่ยว' : lp === 6 ? '(ผู้ดูแล) — คุณเกิดมาเพื่อดูแล ครู ผู้รักษา โรงพยาบาล ครอบครัว — ทุกที่ที่มีคนต้องการการปกป้องคือที่ของคุณ' : lp === 7 ? '(นักปราชญ์) — คุณเกิดมาเพื่อค้นหาความจริงที่ลึกกว่าตาเห็น นักวิจัย นักวิทยาศาสตร์ นักปรัชญา นักจิตวิญญาณ' : lp === 8 ? '(นักบริหาร) — คุณเกิดมาเพื่อสร้างอำนาจและทรัพยากร CEO นักลงทุน ผู้มีอิทธิพล — แต่ต้องใช้อำนาจอย่างมีเมตตา' : lp === 9 ? '(นักมนุษยธรรม) — คุณเกิดมาเพื่อรับใช้ส่วนรวม ศิลปิน-นักกิจกรรม ผู้นำการเปลี่ยนแปลงทางสังคม' : lp === 11 ? '(แสงประภาคาร) — Master Number: คุณเกิดมาเพื่อส่องแสงนำทางในความมืด ผู้ให้แรงบันดาลใจในระดับกว้าง' : lp === 22 ? '(สถาปนิกหลัก) — Master Number: คุณเกิดมาเพื่อสร้างสิ่งยิ่งใหญ่ที่โลกยังไม่เคยมี' : '(Master 33 — ผู้รักษา) — Master Number สูงสุด: ครูแห่งครู ผู้รักษาระดับมวลมนุษย์'} ${py === 1 ? 'Personal Year 1 — ปีแห่งการเริ่มใหม่ ลงมือทำสิ่งที่ตั้งใจมานาน' : py === 9 ? 'Personal Year 9 — ปีแห่งการปิดวงจร ปล่อยวางสิ่งที่ไม่ work' : 'Personal Year ' + py + ' กำหนดธีมปีให้กับคุณ'}`,
-            strengthEn: `เลขเส้นทางนี้ ${lp === 1 ? '(The Leader) — you are built to initiate and pioneer, not follow someone else\'s plan. Roles that fulfil you are ones where you decide' : lp === 2 ? '(The Cooperator) — you were born to be a "bridge" between people or groups. Fulfilling work: advisor, coordinator, negotiator' : lp === 3 ? '(The Creator) — you were born to express, communicate, make art. Life lights up when you use voice, image, or word to move the world' : lp === 4 ? '(The Builder) — you were born to lay durable foundations. Engineer, architect, systems manager — work that demands discipline and precision' : lp === 5 ? '(The Adventurer) — you were born to explore, change, and bring freedom into the world. A life too settled will wither you' : lp === 6 ? '(The Nurturer) — you were born to care. Teacher, healer, hospital, family — anywhere people need protection is your place' : lp === 7 ? '(The Sage) — you were born to seek truth deeper than the eye can see. Researcher, scientist, philosopher, mystic' : lp === 8 ? '(The Executive) — you were born to build power and resources. CEO, investor, influencer — but the power must be used with compassion' : lp === 9 ? '(The Humanitarian) — you were born to serve the whole. Artist-activist, leader of social change' : lp === 11 ? '(The Lighthouse) — Master Number: you were born to shine guidance in darkness, an inspirer at scale' : lp === 22 ? '(The Master Builder) — Master Number: you were born to create something monumental the world has never seen' : '(Master 33 — The Healer) — the highest Master Number: teacher of teachers, healer at the species level'}. ${py === 1 ? 'Personal Year 1 — a year for new beginnings, finally launching what you\'ve been planning' : py === 9 ? 'Personal Year 9 — a year of closing cycles, releasing what no longer works' : 'Personal Year ' + py + ' sets the year\'s theme for you'}.`,
-            shadowTh: `ด้านเงาของ เลขเส้นทางนี้ คือ ${lp === 1 ? 'การเป็นเผด็จการและไม่ฟังใคร — คนหมายเลข 1 ที่ไม่พัฒนาตัวเองจะเหงาที่ยอด' : lp === 2 ? 'การเสียตัวตนในความสัมพันธ์ — เป็นสะพานที่ถูกเหยียบจนตัวเองแตก' : lp === 3 ? 'การกระจัดกระจายและผิวเผิน — ใช้ talent ในเรื่องเล็ก' : lp === 4 ? 'ความเข้มงวดและต่อต้านการเปลี่ยนแปลง' : lp === 5 ? 'ความไร้รากและไม่จบอะไร' : lp === 6 ? 'การดูแลคนอื่นจนลืมตัวเอง' : lp === 7 ? 'การโดดเดี่ยวเกินไป จมอยู่ในความคิดตัวเอง' : lp === 8 ? 'การใช้อำนาจในทางกดขี่' : lp === 9 ? 'การ burnout จากการเสียสละ' : 'การไม่ใช้ Master Number เต็มที่ กลับใช้แค่ระดับเลข ' + (lp === 11 ? 2 : lp === 22 ? 4 : 6) + ' แทน'} ตามเลข ๗ ตัวไทย ตำแหน่งตรีและจัตวาเป็นตัวบ่งสุขภาพและอุบัติเหตุ — หากเป็นเลข 3, 5, 7 ต้องระวังเรื่องอุบัติเหตุและการกระทบกระแทก`,
-            shadowEn: `The shadow side of เลขเส้นทางนี้ is ${lp === 1 ? 'becoming a tyrant who listens to no one — undeveloped 1s end up lonely at the top' : lp === 2 ? 'losing self in relationships — a bridge that gets walked on until it cracks' : lp === 3 ? 'scatter and superficiality — using talent on trivia' : lp === 4 ? 'rigidity and resisting change' : lp === 5 ? 'rootlessness and finishing nothing' : lp === 6 ? 'caring for others until you forget yourself' : lp === 7 ? 'isolating too far, drowning in your own thoughts' : lp === 8 ? 'using power oppressively' : lp === 9 ? 'burnout from sacrifice' : 'failing to use the Master Number fully, defaulting to plain ' + (lp === 11 ? 2 : lp === 22 ? 4 : 6) + ' instead'}. In the Thai 7-number system, positions 3 and 4 indicate health and accidents — if either is a 3, 5, or 7, watch for impact accidents.`,
-            practiceTh: `การใช้เลขศาสตร์รายวัน: (1) เขียน เลขเส้นทางนี้ ที่โต๊ะทำงาน — ทุกครั้งที่ตัดสินใจสำคัญ ถามตัวเองว่า "การเลือกนี้ตรงกับ เลขเส้นทางนี้ ของฉันไหม?" (2) ในวันที่หมายเลขตรงกับ Personal Year (${py}) จะเป็นวันที่พลังงานตรงที่สุด (3) เลขโทรศัพท์ เลขทะเบียนรถ เลขบ้าน — เลือกที่ลดรูปแล้วตรงกับ Life Path หรือ Personal Year (4) ในระบบไทย ให้ตั้งอธิษฐานในวันของเลขวัน — ถือเป็นวันที่ "ดวงเบิกทาง"`,
-            practiceEn: `Daily numerology practice: (1) Write เลขเส้นทางนี้ on your desk — every important decision, ask: "Does this match my เลขเส้นทางนี้?" (2) Days where the numerology adds up to your Personal Year (${py}) carry the most aligned energy. (3) Phone numbers, license plates, house numbers — choose ones that reduce to your Life Path or Personal Year. (4) In the Thai system, set intentions on your day-number day — it's considered "the day fortune opens the road".`,
-            currentYearTh: `Personal Year 2026 ของคุณคือ <strong>${py}</strong> — ${py === 1 ? 'ปีเริ่มต้นรอบ 9 ปีใหม่ ตั้งเป้าหมายใหญ่' : py === 2 ? 'ปีสร้างพันธมิตรและความสัมพันธ์' : py === 3 ? 'ปีแสดงออก สร้างชื่อ โชว์ผลงาน' : py === 4 ? 'ปีวางรากฐานและทำงานหนัก ไม่ใช่ปีขยายเสี่ยง' : py === 5 ? 'ปีเปลี่ยนแปลงใหญ่ โอกาสใหม่มาจากทิศที่คาดไม่ถึง' : py === 6 ? 'ปีครอบครัวและความรัก ดูแลความสัมพันธ์สำคัญ' : py === 7 ? 'ปีไตร่ตรองและเรียนรู้ลึก ไม่ใช่ปีขยาย' : py === 8 ? 'ปีเก็บเกี่ยวผล — ผลของ 7 ปีก่อนหน้าจะกลับมา' : 'ปีปิดวงจร ปล่อยวางสิ่งที่ไม่ work ก่อนเริ่มรอบใหม่'} Personal Month ที่พลังสูงสุดในปีนี้คือเดือนที่ตรงกับ เลขเส้นทางนี้ — เตรียมใช้โอกาสให้เต็มที่`,
-            currentYearEn: `Your Personal Year 2026 is <strong>${py}</strong> — ${py === 1 ? 'the start of a new 9-year cycle: set big targets' : py === 2 ? 'a year for building alliances and relationships' : py === 3 ? 'a year to express, build a name, show your work' : py === 4 ? 'a year to lay foundations and work hard — not a year for risky expansion' : py === 5 ? 'a year of major change: new opportunities arrive from unexpected directions' : py === 6 ? 'a year of family and love: tend the important relationships' : py === 7 ? 'a year for reflection and deep learning — not expansion' : py === 8 ? 'a harvest year: the fruit of the past 7 years arrives' : 'a closing year: release what isn\'t working before the next cycle begins'}. Your Personal Month with the strongest energy is the month matching เลขเส้นทางนี้ — prepare to use the opening fully.`,
+            uniqueTh: `เลขศาสตร์อ่านเลขสองชั้นที่ศาสตร์อื่นไม่มี — <strong>${'เลขเส้นทาง ' + lp}</strong> มาจากวันเกิด บอกเส้นทาง ส่วน <strong>เลขวันเกิด ${destiny}</strong> มาจากเดือนกับวันที่เกิด บอกสิ่งที่คุณต้องส่งมอบ${lp === destiny ? ' ของคุณตรงกัน ซึ่งพบไม่บ่อย — คนที่ทางกับงานเป็นเรื่องเดียวกันมักไปได้ไกลในสายเดียว แต่เปลี่ยนสายยากกว่าคนอื่น' : ' ของคุณเป็นคนละเลข (' + lp + ' กับ ' + destiny + ') แปลว่าเส้นทางกับหน้าที่ไม่ใช่อันเดียวกัน ความรู้สึกแบบทำได้ดีแต่ไม่ใช่สิ่งที่อยากทำ มักมาจากช่องว่างตรงนี้'} · ฝั่งไทย เลข ๗ ตัว ๙ ฐาน กาง 7 ฐานให้เห็น ${thai7.join('-')} — ฐานที่เลขซ้ำคือด้านที่ชีวิตคุณลงน้ำหนักมากที่สุด`,
+            uniqueEn: `Numerology reads two numbers where other systems read one — <strong>${'Life Path ' + lp}</strong> comes from the date and describes the road; <strong>Destiny ${destiny}</strong> comes from the letters of your name and describes what you owe.${lp === destiny ? ' Yours match, which is uncommon: when the road and the work are one thing you travel further in a single lane, and change lanes harder than most.' : ' Yours differ (' + lp + ' and ' + destiny + '), so the road and the duty are not the same thing. That particular ache of being good at something that is not what you want usually lives in this gap.'} The Thai seven-base system lays out ${thai7.join('-')}; where a number repeats is where your life puts most of its weight.`,
+            strengthTh: `${'เลขเส้นทาง ' + lp} ${lp === 1 ? '(ผู้นำ) — คุณถูกออกแบบมาเพื่อริเริ่มและบุกเบิก ไม่ใช่ทำตามแผนที่คนอื่นวาง ชีวิตที่เติมใจคือตำแหน่งที่ตัดสินใจได้เอง' : lp === 2 ? '(ผู้ร่วมมือ) — คุณเกิดมาเพื่อเป็น "สะพานเชื่อม" ระหว่างคนหรือกลุ่มคน อาชีพที่เติมใจคือที่ปรึกษา นักประสานงาน นักเจรจา' : lp === 3 ? '(ผู้สร้างสรรค์) — คุณเกิดมาเพื่อแสดงออก สื่อสาร สร้างศิลปะ ชีวิตที่เติมใจคือการใช้เสียง ภาพ หรือคำพูดเปลี่ยนโลก' : lp === 4 ? '(ผู้สร้าง) — คุณเกิดมาเพื่อสร้างรากฐานที่ยั่งยืน วิศวกร สถาปนิก ผู้จัดการระบบ — งานที่ใช้วินัยและความแม่นยำ' : lp === 5 ? '(นักผจญภัย) — คุณเกิดมาเพื่อสำรวจ เปลี่ยนแปลง และนำเสรีภาพมาสู่โลก ชีวิตที่มั่นคงเกินไปจะทำให้คุณเหี่ยว' : lp === 6 ? '(ผู้ดูแล) — คุณเกิดมาเพื่อดูแล ครู ผู้รักษา โรงพยาบาล ครอบครัว — ทุกที่ที่มีคนต้องการการปกป้องคือที่ของคุณ' : lp === 7 ? '(นักปราชญ์) — คุณเกิดมาเพื่อค้นหาความจริงที่ลึกกว่าตาเห็น นักวิจัย นักวิทยาศาสตร์ นักปรัชญา นักจิตวิญญาณ' : lp === 8 ? '(นักบริหาร) — คุณเกิดมาเพื่อสร้างอำนาจและทรัพยากร CEO นักลงทุน ผู้มีอิทธิพล — แต่ต้องใช้อำนาจอย่างมีเมตตา' : lp === 9 ? '(นักมนุษยธรรม) — คุณเกิดมาเพื่อรับใช้ส่วนรวม ศิลปิน-นักกิจกรรม ผู้นำการเปลี่ยนแปลงทางสังคม' : lp === 11 ? '(แสงประภาคาร) — Master Number: คุณเกิดมาเพื่อส่องแสงนำทางในความมืด ผู้ให้แรงบันดาลใจในระดับกว้าง' : lp === 22 ? '(สถาปนิกหลัก) — Master Number: คุณเกิดมาเพื่อสร้างสิ่งยิ่งใหญ่ที่โลกยังไม่เคยมี' : '(Master 33 — ผู้รักษา) — Master Number สูงสุด: ครูแห่งครู ผู้รักษาระดับมวลมนุษย์'} ${py === 1 ? 'Personal Year 1 — ปีแห่งการเริ่มใหม่ ลงมือทำสิ่งที่ตั้งใจมานาน' : py === 9 ? 'Personal Year 9 — ปีแห่งการปิดวงจร ปล่อยวางสิ่งที่ไม่ work' : 'Personal Year ' + py + ' กำหนดธีมปีให้กับคุณ'}`,
+            strengthEn: `${'Life Path ' + lp} ${lp === 1 ? '(The Leader) — you are built to initiate and pioneer, not follow someone else\'s plan. Roles that fulfil you are ones where you decide' : lp === 2 ? '(The Cooperator) — you were born to be a "bridge" between people or groups. Fulfilling work: advisor, coordinator, negotiator' : lp === 3 ? '(The Creator) — you were born to express, communicate, make art. Life lights up when you use voice, image, or word to move the world' : lp === 4 ? '(The Builder) — you were born to lay durable foundations. Engineer, architect, systems manager — work that demands discipline and precision' : lp === 5 ? '(The Adventurer) — you were born to explore, change, and bring freedom into the world. A life too settled will wither you' : lp === 6 ? '(The Nurturer) — you were born to care. Teacher, healer, hospital, family — anywhere people need protection is your place' : lp === 7 ? '(The Sage) — you were born to seek truth deeper than the eye can see. Researcher, scientist, philosopher, mystic' : lp === 8 ? '(The Executive) — you were born to build power and resources. CEO, investor, influencer — but the power must be used with compassion' : lp === 9 ? '(The Humanitarian) — you were born to serve the whole. Artist-activist, leader of social change' : lp === 11 ? '(The Lighthouse) — Master Number: you were born to shine guidance in darkness, an inspirer at scale' : lp === 22 ? '(The Master Builder) — Master Number: you were born to create something monumental the world has never seen' : '(Master 33 — The Healer) — the highest Master Number: teacher of teachers, healer at the species level'}. ${py === 1 ? 'Personal Year 1 — a year for new beginnings, finally launching what you\'ve been planning' : py === 9 ? 'Personal Year 9 — a year of closing cycles, releasing what no longer works' : 'Personal Year ' + py + ' sets the year\'s theme for you'}.`,
+            shadowTh: `ด้านเงาของ ${'เลขเส้นทาง ' + lp} คือ ${lp === 1 ? 'การเป็นเผด็จการและไม่ฟังใคร — คนหมายเลข 1 ที่ไม่พัฒนาตัวเองจะเหงาที่ยอด' : lp === 2 ? 'การเสียตัวตนในความสัมพันธ์ — เป็นสะพานที่ถูกเหยียบจนตัวเองแตก' : lp === 3 ? 'การกระจัดกระจายและผิวเผิน — ใช้ talent ในเรื่องเล็ก' : lp === 4 ? 'ความเข้มงวดและต่อต้านการเปลี่ยนแปลง' : lp === 5 ? 'ความไร้รากและไม่จบอะไร' : lp === 6 ? 'การดูแลคนอื่นจนลืมตัวเอง' : lp === 7 ? 'การโดดเดี่ยวเกินไป จมอยู่ในความคิดตัวเอง' : lp === 8 ? 'การใช้อำนาจในทางกดขี่' : lp === 9 ? 'การ burnout จากการเสียสละ' : 'การไม่ใช้ Master Number เต็มที่ กลับใช้แค่ระดับเลข ' + (lp === 11 ? 2 : lp === 22 ? 4 : 6) + ' แทน'} ตามเลข ๗ ตัวไทย ตำแหน่งตรีและจัตวาเป็นตัวบ่งสุขภาพและอุบัติเหตุ — หากเป็นเลข 3, 5, 7 ต้องระวังเรื่องอุบัติเหตุและการกระทบกระแทก`,
+            shadowEn: `The shadow side of ${'Life Path ' + lp} is ${lp === 1 ? 'becoming a tyrant who listens to no one — undeveloped 1s end up lonely at the top' : lp === 2 ? 'losing self in relationships — a bridge that gets walked on until it cracks' : lp === 3 ? 'scatter and superficiality — using talent on trivia' : lp === 4 ? 'rigidity and resisting change' : lp === 5 ? 'rootlessness and finishing nothing' : lp === 6 ? 'caring for others until you forget yourself' : lp === 7 ? 'isolating too far, drowning in your own thoughts' : lp === 8 ? 'using power oppressively' : lp === 9 ? 'burnout from sacrifice' : 'failing to use the Master Number fully, defaulting to plain ' + (lp === 11 ? 2 : lp === 22 ? 4 : 6) + ' instead'}. In the Thai 7-number system, positions 3 and 4 indicate health and accidents — if either is a 3, 5, or 7, watch for impact accidents.`,
+            practiceTh: `การใช้เลขศาสตร์รายวัน: (1) เขียน ${'เลขเส้นทาง ' + lp} ที่โต๊ะทำงาน — ทุกครั้งที่ตัดสินใจสำคัญ ถามตัวเองว่า "การเลือกนี้ตรงกับ ${'เลขเส้นทาง ' + lp} ของฉันไหม?" (2) ในวันที่หมายเลขตรงกับ Personal Year (${py}) จะเป็นวันที่พลังงานตรงที่สุด (3) เลขโทรศัพท์ เลขทะเบียนรถ เลขบ้าน — เลือกที่ลดรูปแล้วตรงกับ Life Path หรือ Personal Year (4) ในระบบไทย ให้ตั้งอธิษฐานในวันของเลขวัน — ถือเป็นวันที่ "ดวงเบิกทาง"`,
+            practiceEn: `Daily numerology practice: (1) Write ${'Life Path ' + lp} on your desk — every important decision, ask: "Does this match my ${'Life Path ' + lp}?" (2) Days where the numerology adds up to your Personal Year (${py}) carry the most aligned energy. (3) Phone numbers, license plates, house numbers — choose ones that reduce to your Life Path or Personal Year. (4) In the Thai system, set intentions on your day-number day — it's considered "the day fortune opens the road".`,
+            currentYearTh: `Personal Year 2026 ของคุณคือ <strong>${py}</strong> — ${py === 1 ? 'ปีเริ่มต้นรอบ 9 ปีใหม่ ตั้งเป้าหมายใหญ่' : py === 2 ? 'ปีสร้างพันธมิตรและความสัมพันธ์' : py === 3 ? 'ปีแสดงออก สร้างชื่อ โชว์ผลงาน' : py === 4 ? 'ปีวางรากฐานและทำงานหนัก ไม่ใช่ปีขยายเสี่ยง' : py === 5 ? 'ปีเปลี่ยนแปลงใหญ่ โอกาสใหม่มาจากทิศที่คาดไม่ถึง' : py === 6 ? 'ปีครอบครัวและความรัก ดูแลความสัมพันธ์สำคัญ' : py === 7 ? 'ปีไตร่ตรองและเรียนรู้ลึก ไม่ใช่ปีขยาย' : py === 8 ? 'ปีเก็บเกี่ยวผล — ผลของ 7 ปีก่อนหน้าจะกลับมา' : 'ปีปิดวงจร ปล่อยวางสิ่งที่ไม่ work ก่อนเริ่มรอบใหม่'} Personal Month ที่พลังสูงสุดในปีนี้คือเดือนที่ตรงกับ ${'เลขเส้นทาง ' + lp} — เตรียมใช้โอกาสให้เต็มที่`,
+            currentYearEn: `Your Personal Year 2026 is <strong>${py}</strong> — ${py === 1 ? 'the start of a new 9-year cycle: set big targets' : py === 2 ? 'a year for building alliances and relationships' : py === 3 ? 'a year to express, build a name, show your work' : py === 4 ? 'a year to lay foundations and work hard — not a year for risky expansion' : py === 5 ? 'a year of major change: new opportunities arrive from unexpected directions' : py === 6 ? 'a year of family and love: tend the important relationships' : py === 7 ? 'a year for reflection and deep learning — not expansion' : py === 8 ? 'a harvest year: the fruit of the past 7 years arrives' : 'a closing year: release what isn\'t working before the next cycle begins'}. Your Personal Month with the strongest energy is the month matching ${'Life Path ' + lp} — prepare to use the opening fully.`,
             closingTh: 'Pythagoras สอนว่า "ตัวเลขเป็นภาษาของจักรวาล" — เรียนตัวเลขของตัวเอง คุณจะพบว่าโลกพูดเรื่องคุณตลอดเวลา แค่คุณไม่เคยได้ยิน',
             closingEn: 'Pythagoras taught: "Number is the language of the cosmos." Learn your own numbers, and you\'ll find the world has been speaking about you all along — you just hadn\'t learned to listen.',
         }),
@@ -4082,11 +4104,11 @@ function calcTaksa(d) {
     // systems via buildRichReading is a larger writeup that we'll add in a
     // later session — this short form already powers the score breakdown
     // line + a usable per-system tile).
-    const readingTh = `ทักษา · เกิด${TAKSA_PLANET_NAMES_TH[dow]} วันลอร์ดสถิตในบริวาร · มูละ (ทรัพย์) ปกครองโดย${mula.planetNameTh} · กาลกิณีปกครองโดย${kalakini.planetNameTh} = วัน${TAKSA_PLANET_NAMES_TH[kalakini.planet]}เป็นวันต้องระวังของคุณ<br><br> ทักษาอ่านจาก<strong>วันในสัปดาห์</strong>เหมือนหน้าไทยพราหมณ์ทุกประการ ⇒ สองหน้านี้ขยับพร้อมกันเสมอ และควรนับเป็นเสียงเดียวเวลาดูฉันทามติ · ที่ทักษามีเพิ่มคือมันไม่หยุดที่เทพประจำวัน แต่<strong>จัดดาวทั้ง ๘ ดวงลง ๘ บ้าน</strong>รอบตัวคุณ — <strong>มูละ</strong> (บ้านต้นทุนชีวิต) ของคุณปกครองโดย${mula.planetNameTh} ส่วน<strong>กาลกิณี</strong> คือบ้านที่ตำราไทยสั่งให้เลี่ยงตอนตั้งชื่อหรือเลือกฤกษ์ — ทั้งสองอย่างนี้ไม่ปรากฏบนหน้าไทยพราหมณ์เลย`;
+    const readingTh = `ทักษา · เกิด${TAKSA_PLANET_NAMES_TH[dow]} วันลอร์ดสถิตในบริวาร · มูละ (ทรัพย์) ปกครองโดย${mula.planetNameTh} · กาลกิณีปกครองโดย${kalakini.planetNameTh} = วัน${TAKSA_PLANET_NAMES_TH[kalakini.planet]}เป็นวันต้องระวังของคุณ<br><br> ทักษาอ่านจาก<strong>วันในสัปดาห์</strong>เหมือนหน้าไทยพราหมณ์ ⇒ สองหน้านี้มักชี้ทางเดียวกัน ไม่ใช่หลักฐานอิสระเต็มร้อย — แต่คนละตำรา จึงนับแยกเป็นคนละเสียง · ที่ทักษามีเพิ่มคือมันไม่หยุดที่เทพประจำวัน แต่<strong>จัดดาวทั้ง ๘ ดวงลง ๘ บ้าน</strong>รอบตัวคุณ — <strong>มูละ</strong> (บ้านต้นทุนชีวิต) ของคุณปกครองโดย${mula.planetNameTh} ส่วน<strong>กาลกิณี</strong> คือบ้านที่ตำราไทยสั่งให้เลี่ยงตอนตั้งชื่อหรือเลือกฤกษ์ — ทั้งสองอย่างนี้ไม่ปรากฏบนหน้าไทยพราหมณ์เลย`;
     // Taksa and the Thai Brahmin page both read the weekday, so they move together
     // and must not be counted as two agreeing voices. What Taksa adds is the eight
     // houses — mula and kalakini exist nowhere else in the report.
-    const readingEn = `Taksa · ${TAKSA_PLANET_NAMES_EN[dow]} day-lord sits in Retainers · Wealth house (Mula) ruled by ${mula.planetNameEn} · Misfortune house (Kalakini) ruled by ${kalakini.planetNameEn}, so ${TAKSA_PLANET_NAMES_EN[kalakini.planet]}'s weekday is the day to handle with care.<br><br><strong style="color:#aac8ff">What only this tradition can see:</strong> Taksa reads the <strong>weekday</strong>, exactly as the Thai Brahmin page does, so the two always move together and should count as one voice in any consensus. What it adds is that it does not stop at the day deity: it <strong>places all eight planets into eight houses</strong> around you. Your <strong>mula</strong> — the house of what you begin life holding — is ruled by ${mula.planetNameEn}, and <strong>kalakini</strong> is the house Thai texts tell you to avoid when naming a child or choosing a date. Neither appears on the Thai Brahmin page.`;
+    const readingEn = `Taksa · ${TAKSA_PLANET_NAMES_EN[dow]} day-lord sits in Retainers · Wealth house (Mula) ruled by ${mula.planetNameEn} · Misfortune house (Kalakini) ruled by ${kalakini.planetNameEn}, so ${TAKSA_PLANET_NAMES_EN[kalakini.planet]}'s weekday is the day to handle with care.<br><br><strong style="color:#aac8ff">What only this tradition can see:</strong> Taksa reads the <strong>weekday</strong>, as the Thai Brahmin page does, so the two usually point the same way — related rather than fully independent evidence. Separate texts, separate layers, so they count as separate voices. What it adds is that it does not stop at the day deity: it <strong>places all eight planets into eight houses</strong> around you. Your <strong>mula</strong> — the house of what you begin life holding — is ruled by ${mula.planetNameEn}, and <strong>kalakini</strong> is the house Thai texts tell you to avoid when naming a child or choosing a date. Neither appears on the Thai Brahmin page.`;
     const taksaResult = {
         dayOfWeek: dow,
         dayLordTh: TAKSA_PLANET_NAMES_TH[dow],
@@ -5360,9 +5382,7 @@ function calcAddons(dmEl, tier, dasha) {
         product: { ...pick(ADDON_PRODUCT_BY_ELEMENT, ADDON_PRODUCT_BY_ELEMENT_EN), element: dmEl },
     };
 }
-// ⛔ ต้อง export — หน้าเว็บวาดแท่งแกนนิสัยรายศาสตร์จากตารางนี้
-//    ถ้าคัดลอกป้ายขั้วไปไว้ที่ index.html จะเพี้ยนจากเอนจินแน่นอน (บทเรียนนาฬิกาเสาวัน 4 สำเนา 25 ส.ค.)
-exports.TRAIT_AXES = {
+const TRAIT_AXES = {
     pace: { neg: 'ค่อยเป็นค่อยไป', pos: 'เร็ว', negEn: 'gradual', posEn: 'quick' },
     initiative: { neg: 'รอจังหวะ', pos: 'เริ่มเอง', negEn: 'waits', posEn: 'initiates' },
     social: { neg: 'อยู่คนเดียวได้', pos: 'ต้องมีคน', negEn: 'solitary', posEn: 'needs people' },
@@ -5969,7 +5989,7 @@ function _buildTraitProfile(c) {
                 dissent.push(name);
         }
         const band = z >= 1.2 ? 'strong-pos' : z >= 0.4 ? 'pos' : z <= -1.2 ? 'strong-neg' : z <= -0.4 ? 'neg' : 'mid';
-        const ax = exports.TRAIT_AXES[axis];
+        const ax = TRAIT_AXES[axis];
         out.push({
             axis, raw, z: Math.round(z * 100) / 100,
             // พาค่ากลาง/ส่วนเบี่ยงเบนที่ **ใช้จริง** ติดมาด้วย เพื่อให้ด่านตรวจได้ตรงๆ
@@ -8564,6 +8584,11 @@ function _lunarDate(jd) {
     }
     return { month: num, day: _cstDayNum(jd) - _cstDayNum(nm[idx]) + 1, leap: idx === leapIdx };
 }
+// ป้ายขั้วของแกนนิสัย — หน้าเว็บวาดแท่งรายศาสตร์จากตารางนี้
+// ⛔ ต้องเป็น export function ไม่ใช่ export const — bundler แปลง const เป็น `exports.X =` ซึ่งพังในเบราว์เซอร์
+// ⛔ ห้ามคัดลอกป้ายไปไว้ที่ index.html — สำเนาที่สองจะเพี้ยนเสมอ (บทเรียนนาฬิกาเสาวัน 4 สำเนา 25 ส.ค.)
+function traitAxisLabels() { return TRAIT_AXES; }
+
 function lunarDateOf(jd) { return _lunarDate(jd); }
 
 // ── 紫微斗數 — real star placement ──────────────────────────────────────────
@@ -8893,8 +8918,8 @@ function calcHellenistic(d, w) {
                 strengthEn: `Being a ${sect} chart means you receive the full power of "the planets of your sect" — ${isDaySect ? 'Sun, Jupiter, and Saturn show their best in your chart. People who built durable structures across history (Cicero, Cato) tended to be day births' : 'Moon, Venus, and Mars show their best — the cluster of artists, writers, and spiritual leaders (Rumi, Frida Kahlo were night births)'}. Your Trigon Lord ${trigonLord.includes('Jupiter') ? 'Jupiter' : 'Venus'} is the protector of your chart — in a crisis, draw on its energy as your touchstone.`,
                 shadowTh: `Lot of Fortune ใน${SIGNS_TH[lotSign]} หมายความว่าคุณอาจไปผิดที่หากตามหาเงินผิดช่อง — เฮลเลนิสติกบอกว่าเงินของคุณต้องไหลผ่าน${SIGNS_TH[lotSign] === 'เมถุน' ? 'การสื่อสาร การเขียน การสอน' : SIGNS_TH[lotSign] === 'กรกฎ' ? 'ครอบครัว บ้าน อสังหาริมทรัพย์' : SIGNS_TH[lotSign] === 'สิงห์' ? 'การแสดง ความคิดสร้างสรรค์ ธุรกิจบันเทิง' : SIGNS_TH[lotSign] === 'กันย์' ? 'บริการ การวิเคราะห์ สาธารณสุข' : 'กิจกรรมเฉพาะของราศี' + SIGNS_TH[lotSign]} ไม่ใช่ช่องทางอื่น — การฝืนหาเงินในทางที่ไม่ตรงกับ Lot จะเหนื่อย 3 เท่า`,
                 shadowEn: `Lot of Fortune in ${['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'][lotSign]} means you can land in the wrong place if you chase money through the wrong channel. Hellenistic teaches that your money must flow through ${SIGNS_TH[lotSign] === 'เมถุน' ? 'communication, writing, teaching' : SIGNS_TH[lotSign] === 'กรกฎ' ? 'family, home, real estate' : SIGNS_TH[lotSign] === 'สิงห์' ? 'performance, creativity, entertainment business' : SIGNS_TH[lotSign] === 'กันย์' ? 'service, analysis, public health' : 'activities specific to ' + ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'][lotSign]} — not other channels. Forcing money through a non-Lot path tires you 3× harder.`,
-                practiceTh: `ปีอายุ ${_age} ของคุณตกเรือนที่ ${_house} (ราศี${SIGNS_TH[_pSign]}) — หัวข้อของปีคือ<strong>${_HOUSE_TH[_house - 1]}</strong> และ Time Lord ที่คุมสิบสองเดือนนี้คือ${_RULER_TH[_pSign]} เจ้าเรือนนั้น · รอบนี้ครบทุก 12 ปี เพราะฉะนั้นอายุ ${_house === 1 ? _age : _age - (_house - 1)} คือปีที่หัวข้อชุดนี้เริ่มรอบล่าสุด`,
-                practiceEn: `At ${_age} you profect to house ${_house} (${SIGNS_EN[_pSign]}) — this year is about <strong>${_HOUSE_EN[_house - 1]}</strong>, and the Time Lord ruling these twelve months is ${_RULER_EN[_pSign]}, the ruler of that sign. The cycle closes every twelve years, so age ${_house === 1 ? _age : _age - (_house - 1)} is when this set of topics last came round.`,
+                practiceTh: `ปีอายุ ${_age} ของคุณตกเรือนที่ ${_house} (ราศี${SIGNS_TH[_pSign]}) — หัวข้อของปีคือ<strong>${_HOUSE_TH[_house - 1]}</strong> และ Time Lord ที่คุมสิบสองเดือนนี้คือ${_RULER_TH[_pSign]} เจ้าเรือนนั้น · รอบนี้ครบทุก 12 ปี เพราะฉะนั้นอายุ ${_age - 12} คือปีที่หัวข้อชุดนี้เริ่มรอบล่าสุด`,
+                practiceEn: `At ${_age} you profect to house ${_house} (${SIGNS_EN[_pSign]}) — this year is about <strong>${_HOUSE_EN[_house - 1]}</strong>, and the Time Lord ruling these twelve months is ${_RULER_EN[_pSign]}, the ruler of that sign. The cycle closes every twelve years, so age ${_age - 12} is when this set of topics last came round.`,
                 currentYearTh: `ปี 2026 — Time Lord จะเปลี่ยนเข้าสู่ Jupiter ในหลายดวง ซึ่ง Jupiter ในเฮลเลนิสติกคือ "Great Benefic" ขยายทุกสิ่งที่มันสัมผัส แต่การขยายนี้ต้องผ่านช่องของ ${trigonLord} ก่อน ดังนั้นโฟกัสที่สิ่งที่ ${trigonLord} ปกป้องให้ดีก่อนปล่อยให้ Jupiter ขยาย`,
                 currentYearEn: `2026 — Time Lord shifts to Jupiter in many charts. Jupiter in Hellenistic is the "Great Benefic", expanding everything it touches — but this expansion must flow through ${trigonLord.includes('Jupiter') ? 'Jupiter' : 'Venus'} first. So focus on what ${trigonLord.includes('Jupiter') ? 'Jupiter' : 'Venus'} protects, before you let Jupiter scale it.`,
                 closingTh: 'เฮลเลนิสติกสอนว่า "อย่าถามว่าดาวส่งผลอะไรให้ฉัน — ถามว่าฉันเกิดในช่วงที่ฟ้ากำลังทำอะไร และฉันจะไหลตามฟ้านั้นยังไง"',
@@ -10059,7 +10084,7 @@ function calcIfaYoruba(d) {
             yearsOld: 2000,
             keyValue: `Odù ${odu.n} (${odu.th}) · ${odu.theme}`,
             keyValueEn: `Odù ${odu.n} · ${odu.themeEn}`,
-            keyValueMeaning: `Odù ประจำคุณคือ <strong>${odu.n}</strong> ซึ่งในภาษาไทยแปลเป็น "${odu.th}" ธีมหลักของ Odù นี้คือ <strong>${odu.theme}</strong> และโชคชะตาบอกว่า <strong>${odu.fortune}</strong> Yoruba เชื่อว่า Odù คือ "เส้นทางชีวิต" ที่คุณเลือกก่อนเกิด — ไม่ใช่ฟ้ากำหนด แต่คุณเลือกเอง และจะลืมหลังเกิด Babalawo ช่วยให้คุณ "จำทางเดิม" เพื่อเดินไปให้ถึง`,
+            keyValueMeaning: `Odù ประจำคุณคือ <strong>${odu.n}</strong> ซึ่งในภาษาไทยแปลเป็น "${odu.th}" ธีมหลักของ Odù นี้คือ <strong>${odu.theme}</strong> และโชคชะตาบอกว่า <strong>${odu.fortune}</strong> Yoruba เชื่อว่า Odù คือเส้นทางที่คุณเลือกเองก่อนเกิด แล้วลืมหลังเกิด — ไม่ใช่ฟ้ากำหนด Babalawo ช่วยให้คุณ "จำทางเดิม" เพื่อเดินไปให้ถึง`,
             keyValueMeaningEn: `Your Odù is <strong>${odu.n}</strong>. Its core theme is what Yoruba calls "${odu.themeEn}". The fortune reads as <strong>${odu.fortune === 'เยี่ยมยอด' ? 'excellent' : odu.fortune === 'ท้าทาย' ? 'challenging' : odu.fortune === 'ดี' ? 'good' : odu.fortune === 'ผสม' ? 'mixed' : odu.fortune === 'เยี่ยม' ? 'excellent' : odu.fortune === 'เยี่ยมสุด' ? 'highest' : odu.fortune}</strong>. Yoruba teaches that the Odù is the "life path" you chose before birth — not assigned by fate but selected by you, then forgotten after birth. The Babalawo helps you "remember the path" so you can walk it to its destination.`,
             uniqueTh: `Ifá ไม่ได้อ่านจากวันเกิด — มันอ่านจาก <strong>การทอย</strong> โซ่ ọ̀pẹ̀lẹ̀ ตกแปดครั้ง ได้เลขฐานสองแปดหลัก รวมเป็นหนึ่งใน 256 Odù · เราจำลองการทอยนั้นแบบทำซ้ำได้ โดยดึงเลขจากตำแหน่งดาวจริง ณ วินาทีที่คุณเกิด ผลออกมาเป็น <strong>${odu.n}</strong> คู่กับขาที่สอง ${oduPairIdx + 1}/16 · พูดให้ชัด: นี่คือ <strong>ตัวแทน</strong> ของการทอย ไม่ใช่การทอย — Àkọ́sẹ̀jáyé ที่ทำให้เด็กแรกเกิดต้องมี babaláwo ทอยให้จริงๆ และไม่มีโปรแกรมไหนแทนได้`,
             uniqueEn: `Ifá is not read from a birth date — it is read from a <strong>cast</strong>: the ọ̀pẹ̀lẹ̀ chain falls eight times, giving eight binary digits and one of 256 odù. We reproduce that cast deterministically, drawing the bits from where the planets actually stood at your birth. The result is <strong>${odu.n}</strong>, paired with a second leg of ${oduPairIdx + 1}/16. Plainly: this is a <strong>stand-in</strong> for a cast, not a cast. Àkọ́sẹ̀jáyé, the divination performed for a newborn, needs a babaláwo throwing the chain, and no program replaces that.`,
@@ -10525,7 +10550,7 @@ const GLOSSARY = [
     ['Bríatharogam', 'กลอนนิยามประจำตัวอักษรโอแฮม', 'the two-word kenning that defines each ogham letter'],
     ['Part of Fortune', 'จุดโชคลาภ คำนวณจากอาทิตย์ จันทร์ และลัคนา', 'a point computed from Sun, Moon and Ascendant'],
     ['Lot of Fortune', 'จุดโชคลาภ คำนวณจากอาทิตย์ จันทร์ และลัคนา', 'a point computed from Sun, Moon and Ascendant'],
-    ['Personal Year', 'ปีส่วนตัวในรอบ 9 ปีของเลขศาสตร์', 'your year within numerology&rsquo;s nine-year cycle'],
+    ['Personal Year', 'ปีส่วนตัวในรอบ 9 ปีของเลขศาสตร์', 'your year within numerology’s nine-year cycle'],
     ['Luck Pillar', 'เสาโชค — ช่วงชีวิตช่วงละ 10 ปีในวิชาปาจื้อ', 'a ten-year life phase in BaZi'],
     ['Antardasha', 'ช่วงย่อยที่ซ้อนอยู่ในมหาทศา', 'the sub-period nested inside the major one'],
     ['Mahadasha', 'ช่วงดาวปกครองใหญ่ตามวิชาภารตะ', 'the major planetary period in Vedic timing'],
@@ -10739,7 +10764,7 @@ function p01_cover(c) {
     // sentence that says where it comes from.
     const _pct = Math.round(((score.total - 300) / 699) * 100);
     const tierSub = '';
-    const scoreWhere = tr(`คะแนนนี้คือ <strong>ค่าเฉลี่ยคะแนนที่ 26 ศาสตร์ให้คุณ</strong> เทียบกับดวงสุ่ม 3,000 ดวงที่เราใช้ตั้งสเกล — ของคุณสูงกว่า <strong>${_pct}%</strong> ของดวงเหล่านั้น · สเกลเต็ม 1,000`, `This is the <strong>average of the scores the 26 traditions gave you</strong>, placed against 3,000 random charts used to set the scale — yours sits above <strong>${_pct}%</strong> of them. The scale runs to 1,000.`);
+    const scoreWhere = tr(`<strong>มัธยฐาน</strong>ของคะแนนที่ 26 ศาสตร์ให้คุณ (ไม่ใช่ค่าเฉลี่ย) เทียบกับดวงสุ่ม 3,000 ดวง — สูงกว่า <strong>${_pct}%</strong> · ${score.total} คือตำแหน่งบนสเกล 300–999 ไม่ใช่เปอร์เซ็นต์`, `The <strong>median</strong> of the scores the 26 traditions gave you (a median, not an average), against 3,000 random charts — yours sits above <strong>${_pct}%</strong>. ${score.total} is a position on a 300–999 scale, not a percentage.`);
     return section(1, tr('Cosmic Blueprint — ภาพรวม', 'Cosmic Blueprint — Overview'), '✦', `
     <div style="text-align:center;margin-bottom:16px">
       <div style="font-size:11.5px;color:#967f5d;letter-spacing:4px;margin-bottom:6px">✦ MYTHSENSUS — PREMIUM EDITION ✦</div>
@@ -10939,7 +10964,7 @@ function p_threeScores(c) {
     const { bazi, score } = c;
     const SHENG = { Wood: 'Fire', Fire: 'Earth', Earth: 'Metal', Metal: 'Water', Water: 'Wood' };
     const EL_EN = { 'ไม้': 'Wood', 'ไฟ': 'Fire', 'ดิน': 'Earth', 'โลหะ': 'Metal', 'น้ำ': 'Water' };
-    const dmElEn = EL_EN[bazi.dayMasterElement] ?? 'Fire';
+    const dmElEn = EL_EN[elKey(bazi.dayMasterElement)] ?? 'Fire';
     // Domain example: Interior BD (construction = Earth, BD = Fire domain → Fire creates Earth → DM_CREATES)
     const bdEl = 'ไฟ'; // BD domain = fire (persuasion, leadership)
     const industryEl = 'ดิน'; // interior/construction = earth
@@ -11077,7 +11102,7 @@ function p_allVoices(c) {
     const V = (name, icon, says, note) => ({ name, icon, says, note });
     const rows = [
         V('BaZi', '☯️', `${c.bazi.dayMaster}${c.bazi.dayBranch}`, tr(`ธาตุประจำตัว ${c.bazi.dayMasterElement}`, `day-master element ${c.bazi.dayMasterElement}`)),
-        V(tr('ดาวเก้าดวง', 'Nine Star Ki'), '⭐', `${c.ninestar.star} ${c.ninestar.starName}`, tr(`ธาตุ${c.ninestar.starElement}`, `${c.ninestar.starElement}`)),
+        V(tr('ดาวเก้าดวง', 'Nine Star Ki'), '⭐', `${c.ninestar.star} ${c.ninestar.starName}`, tr(`ธาตุ${noEcho(String(c.ninestar.starName || ''), c.ninestar.starElement)}`, noEcho(String(c.ninestar.starName || ''), c.ninestar.starElement))),
         V(tr('โหราศาสตร์ตะวันตก', 'Western'), '♒', (_lang === 'en' ? c.western.sunSign : c.western.sunSignTh), tr(`จันทร์ ${(_lang === 'en' ? c.western.moonSign : c.western.moonSignTh)} · ลัคนา ${trDF(c.western.ascSignTh || c.western.ascSign)}`, `Moon ${c.western.moonSign} · ASC ${c.western.ascSign}`)),
         V(tr('โหราศาสตร์ภารตะ', 'Vedic'), '🕉️', `${c.vedic.moonNakshatra}`, tr(`ลัคนา${(_lang === 'en' ? c.vedic.lagna : c.vedic.lagnaSign)} · เจ้านักษัตร ${c.vedic.nakshatraLord}`, `lagna ${c.vedic.lagna} · lord ${c.vedic.nakshatraLord}`)),
         V(tr('เลขศาสตร์', 'Numerology'), '🔢', `Life Path ${c.numerology.lifePath}`, trDF(c.numerology.lifePathName)),
@@ -11147,8 +11172,10 @@ function p02_scoreBreakdown(c) {
     const _sorted = voting.map(b => b.score).sort((a, b) => a - b);
     const _median = _sorted.length ? _sorted[Math.floor(_sorted.length / 2)] : 0;
     const _low = _sorted.length ? _sorted[Math.floor(_sorted.length * 0.25)] : 0;
-    const stars = voting.filter(b => b.score >= _median);
-    const mids = voting.filter(b => b.score >= _low && b.score < _median);
+    // ⛔ ต้องใช้เกณฑ์ชุดเดียวกับหน้าแรก (starCount/midCount/warnCount ใน calc.ts)
+    //    ไม่งั้นเล่มเดียวกันรายงานสองชุดตัวเลขเรื่องเดียวกัน และผลรวมไม่ครบ 26
+    const stars = voting.filter(b => b.score >= 780);
+    const mids = voting.filter(b => b.score >= 650 && b.score < 780);
     const warns = voting.filter(b => b.score < 650);
     const systemRow = (b, icon) => `
     <div style="display:flex;align-items:center;gap:8px;margin:3px 0;padding:5px 8px;background:#0a0a10;border-radius:6px">
@@ -11161,14 +11188,14 @@ function p02_scoreBreakdown(c) {
     </div>`;
     return section(3, tr('คะแนนรายศาสตร์ — ใครให้เท่าไหร่', 'Score by tradition — who scored what'), '🌐', `
     <div style="font-size:12.5px;color:#927f62;margin-bottom:12px;line-height:1.6">
-      ${tr('Cosmic Score = อันดับเปอร์เซ็นไทล์ของมัธยฐาน 26 ศาสตร์ (สเกลเต็ม 1,000 · คนละสเกลกับคะแนนดิบด้านล่าง)', 'Cosmic Score = the percentile rank of your 26-system median (scale out of 1,000, NOT the raw scores below)')} = <strong style="color:#c8a45a">${c.score.total}</strong>
+      ${tr('Cosmic Score = มัธยฐาน 26 ศาสตร์ → ตำแหน่งในประชากร → สเกล 300–999 (ไม่ใช่เปอร์เซ็นต์ · คนละสเกลกับคะแนนดิบล่าง)', 'Cosmic Score = your 26-system median → population rank → a 300–999 scale (not a percentage; a different scale from the raw scores below)')} = <strong style="color:#c8a45a">${c.score.total}</strong>
       · ${tr('ความสอดคล้อง', 'Consensus')} = ${c.score.agreement} · ${tr('มัธยฐานดิบ', 'Raw median')} = ${_scoreMedian(c)} · Mean = ${c.score.mean} · Modal = ${c.score.modalBin}–${c.score.modalBin + 49}
     </div>
 
     <!-- Stars -->
     <div style="margin-bottom:12px">
       <div style="font-size:13px;font-weight:600;color:#4aaa4a;margin-bottom:6px">
-        🌟 ${tr('ให้คะแนนสูง', 'Scored high')} — ${stars.length} ${tr(`ศาสตร์ (สูงกว่ามัธยฐานของคุณ ${_median})`, `traditions (above your median, ${_median})`)}
+        🌟 ${tr('ให้คะแนนสูง', 'Scored high')} — ${stars.length} ${tr('ศาสตร์ (780 ขึ้นไป)', 'traditions (780 and above)')}
       </div>
       ${stars.map(b => systemRow(b, '🌟')).join('')}
     </div>
@@ -11654,8 +11681,8 @@ function p_consensusAxes(c) {
     const nsk2026 = 1; // 2026 is a 一白水星 year
     const AMP = tr('ปีขยายผล', 'a year that amplifies'), CONSOL = tr('ปีตั้งหลัก', 'a year to consolidate');
     const yearVotes = [
-        { lineage: 'BaZi', says: bazi.benMingNian2026 ? AMP : CONSOL, evidence: bazi.benMingNian2026 ? tr('เบิ่นมิ่งเหนียน (ปีชง)', 'Ben Ming Nian') : tr('ไม่ใช่ปีชง', 'not your year branch') },
-        { lineage: tr('Lo Shu 9 ดาว', 'Lo Shu nine stars'), says: ninestar.star === nsk2026 ? AMP : CONSOL, evidence: ninestar.star === nsk2026 ? 'Honmei-sei Kaiki' : `${tr('ดาว', 'star')} ${ninestar.star} ≠ ${nsk2026}` },
+        { lineage: 'BaZi', says: bazi.benMingNian2026 ? CONSOL : AMP, evidence: bazi.benMingNian2026 ? tr('เบิ่นมิ่งเหนียน (ปีชง)', 'Ben Ming Nian') : tr('ไม่ใช่ปีชง', 'not your year branch') },
+        { lineage: tr('Lo Shu 9 ดาว', 'Lo Shu nine stars'), says: ninestar.star === nsk2026 ? CONSOL : AMP, evidence: ninestar.star === nsk2026 ? 'Honmei-sei Kaiki' : `${tr('ดาว', 'star')} ${ninestar.star} ≠ ${nsk2026}` },
         { lineage: tr('เลขศาสตร์', 'Numerology'), says: [1, 3, 5, 8, 9].includes(py) ? AMP : CONSOL, evidence: `Personal Year ${py}` },
         { lineage: 'Vedic Dasha', says: dashaPush ? AMP : CONSOL, evidence: `${vedicMahadasha.currentDasha} ${tr('ถึง', 'to')} ${vedicMahadasha.currentDashaEnd ?? ''}` },
     ];
@@ -11663,7 +11690,8 @@ function p_consensusAxes(c) {
     // A 2–2 tie used to print "a year of two unlike halves", which is what a
     // horoscope says when it does not want to be checked. Nine Star Ki breaks it:
     // of the four, its doctrine is the one built as an annual cycle.
-    const nskAmp = ninestar.star === nsk2026;
+    // ⛔ ดาวประจำตัวกลับเข้าจงกง = 八方塞がり ปิดแปดทิศ ⇒ เป็นเสียง "ตั้งหลัก" ไม่ใช่ "ขยาย"
+    const nskAmp = ninestar.star !== nsk2026;
     const yearCall = ampN >= 3 ? AMP : ampN <= 1 ? CONSOL : (nskAmp ? AMP : CONSOL);
     const yearReading = ampN >= 3
         ? tr(`${ampN} จาก ${yearVotes.length} สายบอกว่า 2026 เป็นปีที่<strong>ทุกอย่างถูกคูณ</strong> ทั้งที่ทำถูกและที่ทำพลาด ปีแบบนี้ไม่ควรทดลองของใหม่ที่ยังไม่มั่นใจ แต่ควรทุ่มกับสิ่งที่พิสูจน์แล้วว่าได้ผล`, `${ampN} of ${yearVotes.length} lineages read 2026 as a year that <strong>multiplies whatever you put in</strong> — the good moves and the bad ones alike. Not the year for experiments you are unsure of; the year to pour everything into what has already proven itself.`)
@@ -11796,7 +11824,7 @@ function p03_convergence(c) {
     // Vote: system score ≥ median + element/energy aligns with DM
     const ELEM_EL_MAP = { 'ไม้': 'Wood', 'ไฟ': 'Fire', 'ดิน': 'Earth', 'โลหะ': 'Metal', 'น้ำ': 'Water', 'ลม': 'Wood', 'Air': 'Wood' };
     const SHENG = { Wood: 'Fire', Fire: 'Earth', Earth: 'Metal', Metal: 'Water', Water: 'Wood' };
-    const dmElEn = ELEM_EL_MAP[dmEl] ?? 'Fire';
+    const dmElEn = ELEM_EL_MAP[elKey(dmEl)] ?? 'Fire';
     const elVotes = [];
     // BaZi — always votes for its own DM
     elVotes.push({ system: 'BaZi Day Master', score: sc('BaZi') });
@@ -12352,7 +12380,7 @@ function p07_vedic(c) {
     const v = c.vedic;
     return section(7, tr('Vedic Jyotish — โหราศาสตร์ภารตะ (อินเดีย)', 'Vedic Jyotish — India\'s Ancient Star Science'), '🕉️', `
     <table><tbody>
-      ${row2(tr('Lagna (ราศีขึ้น)', 'Lagna (Rising Sign)'), `${v.lagna} · ${v.lagnaSign}`)}
+      ${row2(tr('Lagna (ราศีขึ้น)', 'Lagna (Rising Sign)'), v.lagna === v.lagnaSign ? `${v.lagna}` : `${v.lagna} · ${v.lagnaSign}`)}
       ${row2(tr('นักษัตรดวงจันทร์', 'Moon Nakshatra'), `${v.moonNakshatra} ${tr('บาท', 'Pada')} ${v.nakshathraPada}`)}
       ${row2(tr('ดาวปกครองนักษัตร', 'Nakshatra Lord'), v.nakshatraLord)}
       ${row2(tr('มหาทศาปัจจุบัน', 'Current Mahadasha'), `${v.mahadasha} (${v.mahadashaPeriod})`)}
@@ -12383,8 +12411,8 @@ function p08_energyType(c) {
       ${row2(tr('ศูนย์กลางการตัดสินใจ', 'Decision Authority'), h.authority)}
       ${row2('Definition', h.definition)}
       ${row2(tr('แกนชะตา', 'Life Axis'), h.incarnationCross)}
-      ${row2('Sun Gate', `Gate ${h.sunGate}`)}
-      ${row2('Earth Gate', `Gate ${h.earthGate}`)}
+      ${row2('Sun Gate', `${h.sunGate}`)}
+      ${row2('Earth Gate', `${h.earthGate}`)}
     </tbody></table>
     ${box(tr('โปรไฟล์ความหมาย', 'Profile Meaning'), h.profileDesc, 'gold')}
     ${box(tr('Channels สำคัญ', 'Key Channels'), h.channels.join('<br>'), 'dark')}
@@ -12412,7 +12440,7 @@ function p09_mayan(c) {
       ${row2('Galactic Tone', m.toneNameTh)}
       ${row2(tr('ทิศประจำ', 'Direction'), m.direction)}
       ${row2(tr('สีประจำ', 'Colour'), m.color)}
-      ${row2('Wavespell', m.wavespell)}
+      ${row2('Wavespell', noEcho('Wavespell', m.wavespell))}
     </tbody></table>
     <p style="font-size:12.5px;color:#71858c;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:10px"><strong>${tr('ต้นกำเนิด:', 'Origin:')}</strong> ${tr('ปฏิทินศักดิ์สิทธิ์ 260 วันของชาวมายา (20 สัญลักษณ์ x 13 โทน) ยังนับใช้ในพิธีจริงถึงวันนี้', 'The Maya 260-day sacred round (20 signs x 13 tones) — still counted in ceremony today.')}</p>
     <h2>${tr('การตีความ', 'Interpretation')}</h2>
@@ -12424,7 +12452,7 @@ function p10_celtic(c) {
     return section(10, tr('เซลติก Tree Calendar', 'Celtic Tree Calendar'), '🌳', `
     <div class="stat-card" style="margin-bottom:16px">
       <div class="val" style="font-size:20px">${ct.symbol} ${esc(_lang === 'en' ? ct.treeName : ct.treeNameTh)}</div>
-      <div class="lbl">${esc(ct.treeName)} Tree</div>
+      <div class="lbl">${tr('ต้นไม้ประจำวันเกิด', 'Birth Tree')}</div>
     </div>
     <table><tbody>
       ${row2(tr('ดาวปกครอง', 'Ruling Planet'), ct.rulingPlanet)}
@@ -12451,7 +12479,7 @@ function p11_thai(c) {
       </div>
     </div>
     <table style="margin:12px 0"><tbody>
-      ${row2(tr('เทพผู้ปกครอง', 'Ruling Deity'), `${t.dayGodTh} (${t.dayGod})`)}
+      ${row2(tr('เทพผู้ปกครอง', 'Ruling Deity'), t.dayGodTh === t.dayGod ? `${t.dayGod}` : `${t.dayGodTh} (${t.dayGod})`)}
       ${row2(tr('นักษัตรไทย', 'Thai Nakshatra'), t.nakshatra)}
       ${row2(tr('ด้านมงคล', 'Auspicious Domain'), t.fortuneDay)}
     </tbody></table>
@@ -12514,6 +12542,9 @@ function _pillarRole(stem, dmEl, dmStem) {
     const el = _STEM_EL[stem];
     if (!el || !dmEl)
         return { th: '', en: '' };
+    // ⛔ _STEM_EL คืนชื่อธาตุไทยเสมอ แต่ dmEl เปลี่ยนภาษาตาม UI
+    //    เทียบตรงๆ ในฉบับอังกฤษจะไม่ตรงสักกิ่ง แล้วตกไปสาขาสุดท้ายทุกแถว
+    const dmK = elKey(dmEl);
     // ⛔ ธาตุอย่างเดียวไม่พอ — เสาโชคเดินทีละก้าน ก้านคู่ติดกันเป็นธาตุเดียวกันเสมอ
     //    (庚/辛 โลหะทั้งคู่) ⇒ ถ้าตัดสินด้วยธาตุล้วน แถวจะซ้ำกันเป๊ะทีละคู่ ทั้งตาราง
     //    ตำราแยกด้วย "ขั้วเดียวกันหรือคนละขั้ว" อยู่แล้ว = 正/偏 ของสิบเทพ
@@ -12522,22 +12553,22 @@ function _pillarRole(stem, dmEl, dmStem) {
         ? (_POL.indexOf(stem) % 2) === (_POL.indexOf(dmStem) % 2)
         : true;
     const P = (a, b) => same ? a : b;
-    if (el === dmEl)
+    if (el === dmK)
         return {
             th: P(`${el}ขั้วเดียวกับก้านวันคุณ (比肩) — ช่วงที่มีพวกเดินไปทางเดียวกัน`, `${el}คนละขั้วกับก้านวันคุณ (劫財) — ช่วงที่มีคนมาแบ่งของกันตรงๆ`),
             en: P(`${_elEn(el)} of your own polarity (Bi Jian) — companions who move your way`, `${_elEn(el)} of the opposite polarity (Jie Cai) — people who divide the same pot`)
         };
-    if (_EL_PRODUCES[el] === dmEl)
+    if (_EL_PRODUCES[el] === dmK)
         return {
             th: P(`${el}หล่อเลี้ยง${dmEl}ของคุณแบบนอกตำรา (偏印) — ช่วงที่ได้วิชาจากทางลัดและครูนอกระบบ`, `${el}หล่อเลี้ยง${dmEl}ของคุณตามครรลอง (正印) — ช่วงที่มีผู้ใหญ่หนุน ได้เรียน ได้พัก`),
             en: P(`${_elEn(el)} feeds your ${_elEn(dmEl)} unconventionally (Pian Yin) — knowledge from side doors`, `${_elEn(el)} feeds your ${_elEn(dmEl)} through proper channels (Zheng Yin) — mentors, study, recovery`)
         };
-    if (_EL_PRODUCES[dmEl] === el)
+    if (_EL_PRODUCES[dmK] === el)
         return {
             th: P(`${dmEl}ของคุณสร้าง${el}อย่างไหลลื่น (食神) — ช่วงที่ผลงานออกง่าย ไม่ต้องฝืน`, `${dmEl}ของคุณสร้าง${el}อย่างแหลมคม (傷官) — ช่วงที่ผลงานเด่นแต่ปากพาไป`),
             en: P(`your ${_elEn(dmEl)} produces ${_elEn(el)} smoothly (Shi Shen) — output that comes easily`, `your ${_elEn(dmEl)} produces ${_elEn(el)} sharply (Shang Guan) — strong output, sharp tongue`)
         };
-    if (_EL_CONTROLS[dmEl] === el)
+    if (_EL_CONTROLS[dmK] === el)
         return {
             th: P(`${dmEl}ของคุณคุม${el}แบบลาภจร (偏財) — ช่วงที่เงินเข้าเป็นก้อน ไม่สม่ำเสมอ`, `${dmEl}ของคุณคุม${el}แบบทรัพย์ประจำ (正財) — ช่วงที่รายได้นิ่งแต่ต้องเฝ้า`),
             en: P(`your ${_elEn(dmEl)} controls ${_elEn(el)} irregularly (Pian Cai) — money in lumps`, `your ${_elEn(dmEl)} controls ${_elEn(el)} steadily (Zheng Cai) — regular income that needs tending`)
@@ -12641,14 +12672,18 @@ function p14_health(c) {
     };
     // Map BaZi Day Master element → TCM organ pairing (well-established medical
     // tradition: ไม้→ตับ · ไฟ→หัวใจ · ดิน→ม้าม/กระเพาะ · โลหะ→ปอด · น้ำ→ไต)
-    const ORGAN = { 'ไม้': 'ตับ+ถุงน้ำดี', 'ไฟ': 'หัวใจ+ลำไส้เล็ก', 'ดิน': 'ม้าม+กระเพาะ', 'โลหะ': 'ปอด+ลำไส้ใหญ่', 'น้ำ': 'ไต+กระเพาะปัสสาวะ' };
+    // ⛔ ต้องมีทั้งสองภาษาในตาราง — ปล่อยให้ตัวกวาดคำไทยแปลให้ไม่ได้ เพราะมันแทนที่แบบ substring
+    //    แล้ว 'น้ำ' (ธาตุ) ไปกินข้างใน 'ถุงน้ำดี' กลายเป็น 'ถุงWaterดี' ในฉบับอังกฤษ
+    const ORGAN = _lang === 'en'
+        ? { 'ไม้': 'liver and gallbladder', 'ไฟ': 'heart and small intestine', 'ดิน': 'spleen and stomach', 'โลหะ': 'lungs and large intestine', 'น้ำ': 'kidneys and bladder' }
+        : { 'ไม้': 'ตับ+ถุงน้ำดี', 'ไฟ': 'หัวใจ+ลำไส้เล็ก', 'ดิน': 'ม้าม+กระเพาะ', 'โลหะ': 'ปอด+ลำไส้ใหญ่', 'น้ำ': 'ไต+กระเพาะปัสสาวะ' };
     const dmEl = bazi.dayMasterElement;
-    const organ = ORGAN[dmEl] || '—';
+    const organ = ORGAN[elKey(dmEl)] || '—';
     return section(20, tr('Health Coaching — ลักษณะประจำตัวจาก 26 ศาสตร์', 'Health Coaching — Constitutional Patterns from 26 Systems'), '🌿', `
     <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
       <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:14px">${tr('สุขภาพตามดวง ≠ พยากรณ์รายวัน', 'Birth-chart health ≠ daily forecast')}</div>
       <div style="font-size:13px;color:#c8c0a8;line-height:1.75">
-        ${tr(`${healthSignals.length} ศาสตร์ที่มีวิชาด้านนี้ · ${good.length} เห็นตรงกัน`, `${healthSignals.length} traditions speak to this · ${good.length} agree`)}
+        ${tr(`${healthSignals.length} ศาสตร์ที่มีวิชาด้านนี้ · ${good.length} เห็นตรงกัน · ${healthSignals.length - good.length - warn.length} กลางๆ · ${warn.length} เห็นเตือน`, `${healthSignals.length} traditions speak to this · ${good.length} agree · ${healthSignals.length - good.length - warn.length} neutral · ${warn.length} cautionary`)}
       </div>
     </div>
 
@@ -12698,7 +12733,7 @@ function p15_finance(c) {
     <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
       <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:14px">${tr('การเงินตามดวง ≠ พยากรณ์หวย', 'Birth-chart finance ≠ lottery forecast')}</div>
       <div style="font-size:13px;color:#c8c0a8;line-height:1.75">
-        ${tr(`${finSignals.length} ศาสตร์ที่มีวิชาด้านนี้ · ${good.length} เห็นเสริม · ${warn.length} เห็นเตือน`, `${finSignals.length} traditions speak to this · ${good.length} supportive · ${warn.length} cautionary`)}
+        ${tr(`${finSignals.length} ศาสตร์ที่มีวิชาด้านนี้ · ${good.length} เห็นเสริม · ${finSignals.length - good.length - warn.length} กลางๆ · ${warn.length} เห็นเตือน`, `${finSignals.length} traditions speak to this · ${good.length} supportive · ${finSignals.length - good.length - warn.length} neutral · ${warn.length} cautionary`)}
       </div>
     </div>
 
@@ -12747,6 +12782,7 @@ function p15_finance(c) {
 function p16_activation(c) {
     const { bazi, ninestar, numerology, humandesign, vedic, thai, celtic, tibetan, norseRune, kabbalistic, ifaYoruba, aboriginal, biorhythm, vedicMahadasha, onmyodo, zoroastrian, nativeAmerican, aztec, saju } = c;
     // Pull positive actions from all 26 systems — ranked by how many systems endorse
+    // `axis` = แกนนิสัยที่ข้อนี้ยืนอยู่ ถ้ามี จะนับเสียงจาก traitProfile แทนการนับชื่อในลิสต์
     const positives = [
         { icon: '🧭', pts: 0,
             title: tr(`หันหัวทิศ${ninestar.directionSleep}นอน`, `Sleep with your head pointing ${trDF(ninestar.directionSleep)}`),
@@ -12755,7 +12791,7 @@ function p16_activation(c) {
         { icon: '🎯', pts: 0,
             title: tr(`ทำตาม Strategy "${humandesign.strategy}"`, `Follow your Strategy "${trDF(humandesign.strategy)}"`),
             body: tr(`Energy Type ${humandesign.typeTh}: หัวใจของระบบประเภทพลังงาน — ฝืนแล้วเหนื่อยเปล่า`, `Energy Type ${trDF(humandesign.typeTh)}: heart of the energy-type reading — fight it and you exhaust yourself`),
-            systems: ['Energy Type System', 'Kabbalistic'] },
+            axis: 'initiative', systems: ['Energy Type System', 'Kabbalistic'] },
         // ⛔ ไอคอนต้องมาจากธาตุจริงของดวง ห้าม hardcode —
         //    ของเดิมตรึงไว้ที่ 🔥 ทุกดวง ⇒ คนธาตุน้ำเห็นไอคอนไฟคู่กับคำว่า "เสริมธาตุน้ำ"
         //    (director 2 ก.ย.: "สัญลักษณ์ผิด") · ไอคอนที่ขัดกับข้อความข้างๆ ทำลายความเชื่อทั้งหน้า
@@ -12768,11 +12804,13 @@ function p16_activation(c) {
         { icon: '🎨', pts: 0,
             title: tr(`ใส่สี${ninestar.starColor}เป็น accent`, `Wear ${trDF(ninestar.starColor)} as an accent colour`),
             body: tr(`NSK ${ninestar.starChinese} + ไทยพราหมณ์${thai.dayName}: สี${ninestar.starColor}/${thai.dayColor}`, `NSK ${ninestar.starChinese} + Thai-Brahmin ${trDF(thai.dayName)}: ${trDF(ninestar.starColor)} / ${trDF(thai.dayColor)}`),
-            systems: ['Nine Star Ki', 'Thai Brahmin', 'Celtic'] },
+            // ⛔ เดิมอ้าง Thai Brahmin + Celtic ว่าหนุนสีนี้ แต่หน้าไทยพราหมณ์ให้ม่วง/ดำ และเซลติกให้เขียว
+            //    ⇒ อ้างเฉพาะสายที่พูดถึงสีนี้จริง
+            systems: ['Nine Star Ki'] },
         { icon: '📝', pts: 0,
             title: tr(`Journal ทุกเช้า — ตั้งเจตนา`, `Journal every morning — set intentions`),
             body: tr(`Life Path ${numerology.lifePath} + Kabbalistic ${kabbalistic.sephira}: ความชัดเจนในความคิดเป็นพลังงาน`, `Life Path ${numerology.lifePath} + Kabbalistic ${kabbalistic.sephira}: clarity of thought IS energy`),
-            systems: ['Numerology', 'Kabbalistic', 'Zoroastrian'] },
+            axis: 'expression', systems: ['Numerology', 'Kabbalistic', 'Zoroastrian'] },
         { icon: '🙏', pts: 0,
             title: tr(`ทำพิธีกรรม${thai.dayName}`, `Perform a ritual on ${trDF(thai.dayName)}`),
             body: tr(`ไทยพราหมณ์ + Zoroastrian ${zoroastrian.dayYazataTh}: สักการะในวันเกิดของสัปดาห์`, `Thai-Brahmin + Zoroastrian ${zoroastrian.dayYazata}: honour the deity on your birth-weekday`),
@@ -12784,11 +12822,12 @@ function p16_activation(c) {
         { icon: '💬', pts: 0,
             title: tr(`รอ Response ก่อนลงมือ`, `Wait for the inner response before acting`),
             body: tr(`${humandesign.typeTh} · ${humandesign.authority}: ตัดสินใจตาม inner response`, `${trDF(humandesign.typeTh)} · ${humandesign.authority}: decide from the inner signal`),
-            systems: ['Energy Type System', 'Norse Rune'] },
+            axis: 'initiative', systems: ['Energy Type System', 'Norse Rune'] },
         { icon: '🗺️', pts: 0,
             title: tr(`วางแผนทิศ${ninestar.starDirection}`, `Plan around the ${trDF(ninestar.starDirection)} direction`),
             body: tr(`NSK ทิศโชค${ninestar.starDirection} ปี 2026: ใช้ทิศนี้ในการเดินทางและจัดโต๊ะทำงาน`, `NSK lucky direction ${trDF(ninestar.starDirection)} for 2026: use it for travel and work-desk orientation`),
-            systems: ['Nine Star Ki', 'Arabic Parts'] },
+            // ⛔ Arabic Parts ไม่มีวิชาเรื่องทิศในรายงานนี้ — มีแต่ Lot of Fortune/Spirit
+            systems: ['Nine Star Ki'] },
         { icon: '🌟', pts: 0,
             title: tr(`เชื่อมกับ Odù ${ifaYoruba.odu}`, `Connect with Odù ${ifaYoruba.odu}`),
             body: tr(`Ifa/Yoruba: ${ifaYoruba.oduTh} — ${ifaYoruba.oduTheme}`, `Ifa/Yoruba: ${ifaYoruba.odu} — ${trDF(ifaYoruba.oduTheme)}`),
@@ -12828,22 +12867,33 @@ function p16_activation(c) {
     <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
       <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:14px">${tr('วิธีอ่านและทำตาม', 'How to read this')}</div>
       <div style="font-size:13px;color:#c8c0a8;line-height:1.75">
-        ${tr(`แต่ละข้อถูก <strong>จัดลำดับความสำคัญจากจำนวนศาสตร์ที่เห็นพ้อง</strong> —
-        ยิ่งหลายศาสตร์อิสระชี้ไปทางเดียวกัน ยิ่งมีน้ำหนัก`, `Each item is <strong>ranked by how many independent systems agree on it</strong> — the more traditions point the same direction, the more weight it carries.`)}<br>
-        <strong style="color:#60c060">[+X]</strong> = ${tr('คาดว่าเสริม Cosmic Score Consensus ประมาณ +X จุด', 'expected to lift your Cosmic Score Consensus by ~X points')} ·
-        <strong style="color:#c06060">[−X]</strong> = ${tr('ลด Consensus ถ้าทำสิ่งที่ขัดกับดวง', 'reduces consensus when you act against your chart')}<br>
+        ${tr(`ข้อที่<strong>นับเสียงได้จริง</strong>ขึ้นก่อน — ป้ายเขียวบอกว่ามีกี่สายที่หนุนข้อนั้นบนแกนเดียวกัน
+        ยิ่งหลายสายชี้ทางเดียวกัน ยิ่งมีน้ำหนัก · <strong>ข้อที่ไม่มีป้าย</strong> คือข้อที่ยืนบนข้อมูลของศาสตร์ที่ระบุไว้เท่านั้น ยังไม่ได้เทียบเสียงข้ามศาสตร์`, `Items whose support can be <strong>counted</strong> come first — the green tag says how many traditions back that item on the same axis. Items <strong>without a tag</strong> rest on the listed systems' data alone; they have not been put to a cross-tradition count.`)}<br>
+        <!-- ⛔ คำอธิบาย [+X]/[−X] ถูกถอด 4 ก.ย. 69 — ป้ายนั้นไม่ได้พิมพ์ในลิสต์แล้วตั้งแต่ 2 ก.ย.
+             คำอธิบายของสัญลักษณ์ที่ไม่มีอยู่จริง คือสิ่งที่ผู้อ่านยกเป็นหลักฐานว่าไม่มีใครอ่านหน้าตัวเอง
+             จะเอากลับมาเมื่อไหร่ ต้องพิมพ์ป้ายจริงในลิสต์ด้วย -->
         <span style="color:#967f5d">${tr('หมายเหตุ: Cosmic Score ของวันเกิดคงที่ตลอดชีวิต — ตัวเลขนี้คือ "การใช้ชีวิตให้สอดคล้องกับดวง" ที่ชัดเจนขึ้น ไม่ใช่เปลี่ยนดวง', 'Note: your birth-chart Cosmic Score is fixed for life — this number reflects how aligned you\'re living with it, not a change to the chart itself.')}</span>
       </div>
     </div>
 
     <div style="font-size:13px;font-weight:600;color:#60c060;margin-bottom:8px">✅ ${tr('สิ่งที่ควรทำ · Priority-ranked (เรียงจากศาสตร์เห็นพ้องมากสุด)', 'What to do · Priority-ranked (most-agreed-upon first)')}</div>
-    ${positives.slice(0, 8).map((a, n) => {
+    ${[...positives].sort((x, y) => {
+        // ⛔ ห้ามเอาความยาวลิสต์ที่พิมพ์มือไปแข่งกับจำนวนจริงจาก traitProfile — คนละหน่วย
+        //    ข้อที่นับเสียงได้จริงขึ้นก่อนเสมอ ที่เหลือเรียงตามลำดับที่เขียนไว้
+        const rank = (z) => z.axis ? (axisBackers(c, z.axis)?.n ?? -1) : -1;
+        return rank(y) - rank(x);
+    }).slice(0, 8).map((a, n) => {
         // ⛔ ป้าย "+${delta}" ถูกถอดออกจากหน้า 2 ก.ย. 69 — ค่าเท่ากันทั้ง 5 แถว
         //    ป้ายที่ไม่เคยต่างกันไม่ได้บอกอะไร แค่กินที่แล้วชวนให้ถามว่าคืออะไร
         //    (director: "+9 ข้างหลังคืออะไร") ถ้าจะเอากลับมา ต้องทำให้มันต่างกันจริงก่อน
         // ⛔ และห้ามเขียนเหตุผลเป็น <!-- --> ในสตริง HTML — มันติดไปกับไฟล์ลูกค้า
         //    และทำให้ด่าน test:en แดงเพราะเจอภาษาไทยในเล่มอังกฤษ (พลาดมาแล้ววันนี้)
-        const delta = cosmicDelta(a.systems.length);
+        // ⛔ มีแกน = นับจาก traitProfile (24 ศาสตร์ที่เอนจินคำนวณเอง)
+        //    ไม่มีแกน = ข้อนี้ยืนบนข้อมูลของศาสตร์ในลิสต์เท่านั้น ต้องบอกตามนั้น ห้ามเติมให้ดูหนา
+        const _backers = a.axis ? axisBackers(c, a.axis) : null;
+        const _n = _backers ? _backers.n : a.systems.length;
+        const _names = _backers ? _backers.names : a.systems;
+        const delta = cosmicDelta(_n);
         const priority = n < 3 ? 'HIGH' : n < 6 ? 'MEDIUM' : 'LOW';
         const priorityColor = n < 3 ? '#c8a45a' : n < 6 ? '#c0a060' : '#7a6a52';
         return `
@@ -12856,12 +12906,12 @@ function p16_activation(c) {
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
             <span style="font-weight:600;color:#c8a45a;font-size:13px">${n + 1}. ${esc(a.title)}</span>
             <div style="display:flex;gap:6px;align-items:center">
-              <span style="font-size:11.5px;color:#60a060;background:#0a1a0e;padding:2px 8px;border-radius:10px">${a.systems.length} ${tr('ศาสตร์ตรงกัน', 'agree')}</span>
+              ${_backers ? `<span style="font-size:11.5px;color:#60a060;background:#0a1a0e;padding:2px 8px;border-radius:10px">${_n} ${tr('สายที่หนุนข้อนี้', 'traditions behind this')}</span>` : ''}
 
             </div>
           </div>
           <div style="font-size:13px;color:#c8c0a8;margin-top:4px;line-height:1.55">${esc(a.body)}</div>
-          <div style="font-size:11.5px;color:#7a9070;margin-top:4px">${tr('ที่มา:', 'Sources:')} ${a.systems.slice(0, 3).map(s => '<strong>' + esc(s.replace(/\$\{[^}]*\}/g, '')) + '</strong>').join(' · ')}${a.systems.length > 3 ? ` +${(a.systems.length - 3)} ${tr('อื่นๆ', 'more')}` : ''}</div>
+          <div style="font-size:11.5px;color:#7a9070;margin-top:4px">${tr('ที่มา:', 'Sources:')} ${_names.slice(0, 3).map(s => '<strong>' + esc(s.replace(/\$\{[^}]*\}/g, '')) + '</strong>').join(' · ')}${a.systems.length > 3 ? ` +${(a.systems.length - 3)} ${tr('อื่นๆ', 'more')}` : ''}</div>
         </div>
       </div>`;
     }).join('')}
@@ -12892,11 +12942,12 @@ function p17_weekly(c) {
     // ผสานกับ Day Master ของผู้ใช้ → บอก "พลังประจำวัน" ที่เหมาะกับคุณ
     const { bazi, ninestar, humandesign, thai, celtic } = c;
     const dmEl = bazi.dayMasterElement;
+    const _dmElForRate = dmEl;
     // Day-of-week cosmology (Vedic / Hellenistic / ไทยพราหมณ์ — all agree on the 7-planet system)
     const daysData = [
         { name: tr('จันทร์', 'Monday'), planet: tr('จันทร์ · Moon', 'Moon'), element: tr('น้ำ', 'Water'), color: tr('เหลือง', 'Yellow'), energy: tr('สัญชาตญาณ · อารมณ์', 'Intuition · Emotion') },
         { name: tr('อังคาร', 'Tuesday'), planet: tr('อังคาร · Mars', 'Mars'), element: tr('ไฟ', 'Fire'), color: tr('ชมพู', 'Pink'), energy: tr('ลงมือ · ความกล้า · การแข่งขัน', 'Action · Courage · Competition') },
-        { name: tr('พุธ', 'Wednesday'), planet: tr('พุธ · Mercury', 'Mercury'), element: tr('ไม้', 'Wood'), color: tr('เขียว', 'Green'), energy: tr('สื่อสาร · เจรจา · สอน', 'Communication · Negotiation · Teaching') },
+        { name: tr('พุธ', 'Wednesday'), planet: tr('พุธ · Mercury', 'Mercury'), element: tr('น้ำ', 'Water'), color: tr('เขียว', 'Green'), energy: tr('สื่อสาร · เจรจา · สอน', 'Communication · Negotiation · Teaching') },
         { name: tr('พฤหัสบดี', 'Thursday'), planet: tr('พฤหัส · Jupiter', 'Jupiter'), element: tr('ไม้', 'Wood'), color: tr('ส้ม', 'Orange'), energy: tr('ขยายตัว · การเรียนรู้ · โชคลาภ', 'Expansion · Learning · Fortune') },
         { name: tr('ศุกร์', 'Friday'), planet: tr('ศุกร์ · Venus', 'Venus'), element: tr('โลหะ', 'Metal'), color: tr('ฟ้าอ่อน', 'Light Blue'), energy: tr('ความสัมพันธ์ · ศิลปะ · ความงาม', 'Relationships · Art · Beauty') },
         { name: tr('เสาร์', 'Saturday'), planet: tr('เสาร์ · Saturn', 'Saturn'), element: tr('ดิน', 'Earth'), color: tr('ดำ/ม่วง', 'Black/Purple'), energy: tr('วินัย · โครงสร้าง · ความอดทน', 'Discipline · Structure · Endurance') },
@@ -12905,7 +12956,11 @@ function p17_weekly(c) {
     // ศาสตร์ 5 ธาตุ: เสริม (SHENG) · ควบคุม (KE) · กลาง
     const SHENG = { 'น้ำ': 'ไม้', 'ไม้': 'ไฟ', 'ไฟ': 'ดิน', 'ดิน': 'โลหะ', 'โลหะ': 'น้ำ' };
     const KE = { 'น้ำ': 'ไฟ', 'ไฟ': 'โลหะ', 'โลหะ': 'ไม้', 'ไม้': 'ดิน', 'ดิน': 'น้ำ' };
-    const rate = (dayEl) => {
+    // ⛔ เทียบด้วยคีย์มาตรฐาน — เดิมเทียบสตริงตรงๆ ทำให้ฉบับอังกฤษ ('Wood' vs 'ไม้')
+    //    ไม่ตรงสักวัน แล้วขึ้น "Neutral — elements unrelated" 5 ใน 7 วัน ทั้งที่ในวิชาห้าธาตุ
+    //    ไม่มีธาตุคู่ไหนไม่เกี่ยวกันเลย
+    const rate = (dayElRaw) => {
+        const dayEl = elKey(dayElRaw), dmEl = elKey(_dmElForRate);
         if (dayEl === dmEl)
             return { label: tr('☀️ พลังเท่าตัว', '☀️ Full power'), color: '#c8a45a', why: tr('ธาตุของวันตรงกับ Day Master — ดึงพลังของตัวเองมาใช้ได้ 100%', 'The day\'s element matches your Day Master — 100% of your native energy available.') };
         if (SHENG[dayEl] === dmEl)
@@ -12953,9 +13008,16 @@ function p17_weekly(c) {
       </tbody>
     </table>
 
-    ${box(tr(`วันเกิดของคุณ = ${esc(thai.dayName)} ★${thai.bornBeforeSunrise
-        ? ` <span style="font-size:12.5px;color:#9a8a72;font-weight:400">— คุณเกิดวัน${esc(thai.civilDayName)}ตามปฏิทินสากล แต่เวลาเกิดอยู่ก่อนพระอาทิตย์ขึ้น${thai.sunriseLocal ? ` (${esc(thai.sunriseLocal)} น.)` : ''} และโหราศาสตร์ไทยเริ่มวันใหม่ตอนอาทิตย์ขึ้น ไม่ใช่เที่ยงคืน จึงนับเป็นวัน${esc(thai.dayName)}</span>` : ''}`, `Your Birth Weekday = ${esc(thai.dayName)} ★${thai.bornBeforeSunrise
-        ? ` <span style="font-size:12.5px;color:#9a8a72;font-weight:400">— by the civil calendar you were born on ${esc(thai.civilDayName)}, but before sunrise${thai.sunriseLocal ? ` (${esc(thai.sunriseLocal)})` : ''}. Thai astrology starts its day at sunrise, not at midnight, so it counts as ${esc(thai.dayName)}.</span>` : ''}`), tr(`ในทางไทยพราหมณ์ วันเกิดคือวัน "ขอพร" — เทพประจำ${esc(thai.dayName)} (${esc(thai.dayGodTh || thai.dayGod || '—')}) เปิดรับคำขอพิเศษ ควรงดเนื้อสัตว์ / ทำบุญ / ตั้งจิตในวันนี้ทุกสัปดาห์<br><br>ส่วน <strong>Strategy ระบบประเภทพลังงาน</strong> ของคุณคือ "${esc(strategy)}" — ใช้ทุกวันเป็นแกนตัดสินใจ ไม่ใช่แค่วันเกิด`, `In Thai Brahmin tradition, your birth weekday is the day for <em>asking blessings</em> — your day-deity ${esc(thai.dayName)} (${esc(thai.dayGodTh || thai.dayGod || '—')}) is most receptive to special petitions. Consider abstaining from meat, making merit, and setting intentions on this weekday throughout the year.<br><br>Your <strong>Energy Type Strategy</strong> is "${esc(strategy)}" — use it as your decision compass every day, not only on your birth weekday.`), 'gold')}
+    ${(() => {
+        // ⛔ box() escape หัวกล่อง — ห้ามใส่ markup ในหัว ไม่งั้นแท็กถูกพิมพ์เป็นข้อความให้คนจ่ายเงินเห็น
+        //    คำอธิบายเรื่องวันเริ่มที่อาทิตย์ขึ้นจึงย้ายลงเนื้อกล่อง
+        // ⛔ civilDayName มีคำว่า "วัน" นำหน้าอยู่แล้ว — ต่อ "คุณเกิดวัน" เข้าไปได้ "วันวันอาทิตย์"
+        const _civil = String(thai.civilDayName || '').replace(/^วัน/, '');
+        const _sunriseNote = thai.bornBeforeSunrise
+            ? tr(`<div style="font-size:12.5px;color:#9a8a72;margin-bottom:8px">— คุณเกิดวัน${esc(_civil)}ตามปฏิทินสากล แต่เวลาเกิดอยู่ก่อนพระอาทิตย์ขึ้น${thai.sunriseLocal ? ` (${esc(thai.sunriseLocal)} น.)` : ''} และโหราศาสตร์ไทยเริ่มวันใหม่ตอนอาทิตย์ขึ้น ไม่ใช่เที่ยงคืน จึงนับเป็น${esc(thai.dayName)}</div>`, `<div style="font-size:12.5px;color:#9a8a72;margin-bottom:8px">— by the civil calendar you were born on ${esc(thai.civilDayName)}, but before sunrise${thai.sunriseLocal ? ` (${esc(thai.sunriseLocal)})` : ''}. Thai astrology starts its day at sunrise, not at midnight, so it counts as ${esc(thai.dayName)}.</div>`)
+            : '';
+        return box(tr(`วันเกิดของคุณ = ${esc(thai.dayName)} ★`, `Your Birth Weekday = ${esc(thai.dayName)} ★`), _sunriseNote + tr(`ในทางไทยพราหมณ์ วันเกิดคือวัน "ขอพร" — เทพประจำ${esc(thai.dayName)} (${esc(thai.dayGodTh || thai.dayGod || '—')}) เปิดรับคำขอพิเศษ ควรงดเนื้อสัตว์ / ทำบุญ / ตั้งจิตในวันนี้ทุกสัปดาห์<br><br>ส่วน <strong>Strategy ระบบประเภทพลังงาน</strong> ของคุณคือ "${esc(strategy)}" — ใช้ทุกวันเป็นแกนตัดสินใจ ไม่ใช่แค่วันเกิด`, `In Thai Brahmin tradition, your birth weekday is the day for <em>asking blessings</em> — your day-deity ${esc(thai.dayName)} (${esc(thai.dayGodTh || thai.dayGod || '—')}) is most receptive to special petitions. Consider abstaining from meat, making merit, and setting intentions on this weekday throughout the year.<br><br>Your <strong>Energy Type Strategy</strong> is "${esc(strategy)}" — use it as your decision compass every day, not only on your birth weekday.`), 'gold');
+    })()}
   `);
 }
 function p18_monthly2026(c) {
@@ -13071,7 +13133,7 @@ function p19_decade(c) {
     // one-line filler. Decade 25–34 can be ลงมือลุย vs พักค้นหา depending on
     // which element supports dmEl at that Luck Pillar.
     const SHENG_BY = { 'ไม้': 'น้ำ', 'ไฟ': 'ไม้', 'ดิน': 'ไฟ', 'โลหะ': 'ดิน', 'น้ำ': 'โลหะ' };
-    const feedEl = SHENG_BY[dmEl] || 'น้ำ';
+    const feedEl = SHENG_BY[elKey(dmEl)] || 'น้ำ';
     const decades = [
         { age: '25–34', label: tr('วัยสร้างรากฐาน', 'Foundation Years'),
             why: tr(`ช่วงที่ Day Master ${dmEl} ต้องการ ${feedEl} หล่อเลี้ยง — ทุกประสบการณ์คือวัตถุดิบ`, `A phase where your ${dmEl} Day Master needs ${feedEl} to nourish it — every experience is raw material.`) },
@@ -13161,13 +13223,21 @@ function p20_colors(c) {
             source: tr(`Nine Star Ki (ดาว ${ninestar.star} ${ninestar.starChinese || ''})`, `Nine Star Ki (Star ${ninestar.star} ${ninestar.starChinese || ''})`),
             why: tr(`ดาวเกิดของคุณคือดาว ${ninestar.star} — ${ninestar.starColor}คือสีสัญลักษณ์ของดาวนี้ในโหราศาสตร์ญี่ปุ่น Feng Shui ใช้ค่านี้เป็น accent สำคัญ`, `Your birth star is Star ${ninestar.star} — ${ninestar.starColor} is the symbolic colour of this star in Japanese astrology. Feng Shui uses it as a key accent colour.`),
         });
-    const bzColor = bazi.luckyElement === 'ไฟ' ? tr('แดง / ส้ม', 'Red / Orange')
-        : bazi.luckyElement === 'ไม้' ? tr('เขียว', 'Green')
-            : bazi.luckyElement === 'น้ำ' ? tr('ดำ / น้ำเงิน', 'Black / Blue')
-                : bazi.luckyElement === 'โลหะ' ? tr('ขาว / เงิน', 'White / Silver')
-                    : tr('เหลือง / น้ำตาล', 'Yellow / Brown');
+    // ⛔ luckyElement/avoidElement เก็บได้หลายธาตุในสตริงเดียว ("น้ำ ไม้")
+    //    เทียบ === ทีละธาตุจะไม่ตรงสักอัน แล้วตกไปค่าเริ่มต้น = เหลือง/น้ำตาล (ธาตุดิน)
+    //    ซึ่งเป็นธาตุที่ดวงนี้ต้องเลี่ยง ⇒ หน้าเดียวกันแนะนำและห้ามสีเดียวกัน
+    const _ELS = (v) => String(v || '').split(/[\s·/]+/).map(x => elKey(x.trim())).filter(x => ['ไม้', 'ไฟ', 'ดิน', 'โลหะ', 'น้ำ'].includes(x));
+    const _EL_COLOUR = {
+        'ไฟ': tr('แดง / ส้ม', 'Red / Orange'), 'ไม้': tr('เขียว', 'Green'),
+        'น้ำ': tr('ดำ / น้ำเงิน', 'Black / Blue'), 'โลหะ': tr('ขาว / เงิน', 'White / Silver'),
+        'ดิน': tr('เหลือง / น้ำตาล', 'Yellow / Brown'),
+    };
+    const _luckyEls = _ELS(bazi.luckyElement);
+    const bzColor = _luckyEls.length
+        ? [...new Set(_luckyEls.map(e => _EL_COLOUR[e]))].join(' · ')
+        : tr('เขียว', 'Green');
     sources.push({
-        el: bazi.luckyElement,
+        el: _luckyEls[0] || '',
         color: bzColor,
         source: `BaZi (Day Master ${bazi.dayMasterTh})`,
         why: tr(`ธาตุมงคลของคุณคือ <strong>${bazi.luckyElement}</strong> — สีนี้สะท้อนธาตุที่ <em>หล่อเลี้ยง</em> Day Master ${bazi.dayMasterTh} ตามวงจร 5 ธาตุจีน`, `Your lucky element is <strong>${bazi.luckyElement}</strong> — this colour reflects the element that <em>nourishes</em> your Day Master ${bazi.dayMasterTh} in the Chinese 5-element cycle.`),
@@ -13210,11 +13280,15 @@ function p20_colors(c) {
         'น้ำ': ['ดำ', 'น้ำเงิน', 'Black', 'Blue'],
     };
     const _overlaps = goodSources.filter(x => _avoidEls.some(el => (WUXING_COLOUR_WORDS[el] || []).some(w => x.color.includes(w))));
-    const avoidColor = bazi.avoidElement === 'ไฟ' ? tr('แดงสด', 'Bright Red')
-        : bazi.avoidElement === 'น้ำ' ? tr('ดำสนิท', 'Solid Black')
-            : bazi.avoidElement === 'ไม้' ? tr('เขียวเข้ม', 'Deep Green')
-                : bazi.avoidElement === 'โลหะ' ? tr('เงินแท้ / โครเมียม', 'Pure Silver / Chrome')
-                    : tr('เหลืองฉูดฉาด', 'Loud Yellow');
+    const _EL_AVOID_COLOUR = {
+        'ไฟ': tr('แดงสด', 'Bright Red'), 'น้ำ': tr('ดำสนิท', 'Solid Black'),
+        'ไม้': tr('เขียวเข้ม', 'Deep Green'), 'โลหะ': tr('เงินแท้ / โครเมียม', 'Pure Silver / Chrome'),
+        'ดิน': tr('เหลืองฉูดฉาด', 'Loud Yellow'),
+    };
+    const _avoidElsList = _ELS(bazi.avoidElement);
+    const avoidColor = _avoidElsList.length
+        ? [...new Set(_avoidElsList.map(e => _EL_AVOID_COLOUR[e]))].join(' · ')
+        : tr('เหลืองฉูดฉาด', 'Loud Yellow');
     return section(20, tr('สีมงคลและการแต่งตัว — ที่มาจาก 4 ศาสตร์', 'Lucky Colours & Style — Sourced from 4 Systems'), '👗', `
     <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
       <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:14px">${tr('ทำไม "สีมงคล" ของคุณ = สีเหล่านี้ ไม่ใช่สีอื่น', 'Why your "lucky colours" = these specific shades')}</div>
@@ -13223,7 +13297,7 @@ function p20_colors(c) {
       </div>
     </div>
 
-    <h2>${tr('สีที่แนะนำ', 'Recommended Colours')} · ${goodSources.length} ${tr('ศาสตร์ยืนยัน', 'systems concur')}</h2>
+    <h2>${tr('สีที่แนะนำ', 'Recommended Colours')} · ${goodSources.length} ${tr('ศาสตร์ (เสนอคนละสี — ดูเหตุผลของแต่ละสาย)', 'traditions, each naming a different colour — see the reasoning under each')}</h2>
     ${goodSources.map(s => `
       <div style="border-left:3px solid #c8a45a;background:#0d0d15;padding:10px 14px;margin:8px 0;border-radius:0 8px 8px 0">
         <div style="display:flex;justify-content:space-between;align-items:baseline">
@@ -13372,7 +13446,7 @@ function p22_painPoints(c) {
     <div style="background:#0d0d15;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:14px">
       <div style="color:#c8a45a;font-weight:600;margin-bottom:6px;font-size:14px">${tr('นี่คือ "จุดที่ต้องดูแล" ไม่ใช่ "ดวงเสีย"', 'These are "areas to nurture", not "broken charts"')}</div>
       <div style="font-size:13px;color:#c8c0a8;line-height:1.75">
-        ${tr('Pain Point ทั้ง 5 นี้มาจากการอ่านข้าม 3–5 ศาสตร์พร้อมกัน — ยิ่งหลายศาสตร์ชี้จุดเดียวกัน ยิ่งเป็นจุดที่ควรให้ความสนใจในชีวิต · แต่ละข้ออธิบาย <strong>ทำไมเป็น pain point ของคุณโดยเฉพาะ</strong> (Why) + <strong>อาการที่จะเจอ</strong> (Challenge) + <strong>วิธีรับมือตามดวง</strong> (Solution)', 'These 5 Pain Points emerge from cross-reading 3–5 systems at once — the more traditions point at the same spot, the more it merits attention. Each item explains <strong>why it\'s your specific pain point</strong> (Why) + <strong>the symptoms you\'ll encounter</strong> (Challenge) + <strong>how to navigate it through your chart</strong> (Solution).')}
+        ${tr('แต่ละข้อบอก <strong>ทำไมเป็นของคุณ</strong> + <strong>อาการ</strong> + <strong>วิธีรับมือ</strong> · บรรทัด "ที่มา" คือข้อมูลที่ข้อนั้นยืนอยู่ ไม่ใช่จำนวนศาสตร์ที่โหวตตรงกัน', 'Each item gives <strong>why it is yours</strong>, <strong>the symptoms</strong>, and <strong>how to handle it</strong>. The "Sources" line names the data each item rests on — it is not a count of traditions voting the same way.')}
       </div>
     </div>
 
@@ -13380,7 +13454,9 @@ function p22_painPoints(c) {
       <div style="border-left:3px solid #8a3040;padding:12px 14px;margin:10px 0;background:#1a0a0a;border-radius:0 8px 8px 0">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;margin-bottom:8px">
           <div style="font-size:15px;font-weight:700;color:#c8a45a">${p.icon} ${esc(p.topic)}</div>
-          <div style="font-size:11.5px;color:#a08060">${p.systems.length} ${tr('ศาสตร์ชี้ตรงกัน', 'systems agree')}</div>
+          <!-- ⛔ เคยพิมพ์ "${p.systems.length} ศาสตร์ชี้ตรงกัน" จากลิสต์ที่พิมพ์มือ = ไม่ได้เทียบอะไรเลย
+               และลิสต์นับ "TCM organ pairing" เป็นหนึ่งศาสตร์ ทั้งที่ไม่ใช่หนึ่งใน 26
+               จะเอาจำนวนกลับมาได้ ต้องผูกกับแกนใน traitProfile เหมือนแผนลงมือก่อน -->
         </div>
         <div style="font-size:11.5px;color:#927f62;margin-bottom:8px">${tr('ที่มา:', 'Sources:')} ${p.systems.map(s => `<strong>${esc(s)}</strong>`).join(' · ')}</div>
         <div style="font-size:13px;color:#c8c0a8;margin-bottom:6px;line-height:1.65"><strong style="color:#c8a45a">${tr('ทำไมเป็น pain point ของคุณ:', 'Why this is your pain point:')}</strong> ${p.why}</div>
@@ -13596,7 +13672,7 @@ function p_divineMirror(c) {
 function p25_summary(c) {
     const { score, bazi, numerology, ninestar, western } = c;
     const dmEl = bazi.dayMasterElement;
-    const closingMsg = tr(`คุณคือ "<strong style="color:#c8a45a">${esc(score.cosmicEntity)}</strong>" — พลังของธาตุ${esc(dmEl)} ที่เดินอยู่บน Life Path ${esc(String(numerology.lifePath))} (${esc(numerology.lifePathName)}) 26 ศาสตร์มองคุณจากคนละมุม — บางมุมตรงกัน บางมุมขัดกัน และหน้า 2 บอกไว้แล้วว่าตรงไหนเป็นตรงไหน · ดวงชะตาไม่ใช่โชคที่ตายตัว มันคือแผนที่พลังงานที่ช่วยให้คุณรู้จักตัวเองและเลือกทางได้ฉลาดขึ้น · จุดแข็งทุกข้อในรายงานนี้จะเปล่งประกายก็ต่อเมื่อคุณกล้าหยิบมันมาใช้จริง — จงเดินต่อไปด้วยความมั่นใจ`, `You are "<strong style="color:#c8a45a">${esc(score.cosmicEntity)}</strong>" — the force of the ${esc(dmEl)} element walking Life Path ${esc(String(numerology.lifePath))} (${esc(numerology.lifePathName)}). All 26 systems look at you from different angles yet project the same image. Your chart is not a fixed fate — it is an energy map that helps you know yourself and choose your path with more wisdom. Every strength named in this report only shines once you dare to actually use it. Walk forward with confidence.`);
+    const closingMsg = tr(`คุณคือ "<strong style="color:#c8a45a">${esc(score.cosmicEntity)}</strong>" — พลังของธาตุ${esc(dmEl)} ที่เดินอยู่บน Life Path ${esc(String(numerology.lifePath))} (${esc(numerology.lifePathName)}) 26 ศาสตร์มองคุณจากคนละมุม — บางมุมตรงกัน บางมุมขัดกัน และหน้า 2 บอกไว้แล้วว่าตรงไหนเป็นตรงไหน · ดวงชะตาไม่ใช่โชคที่ตายตัว มันคือแผนที่พลังงานที่ช่วยให้คุณรู้จักตัวเองและเลือกทางได้ฉลาดขึ้น · จุดแข็งทุกข้อในรายงานนี้จะเปล่งประกายก็ต่อเมื่อคุณกล้าหยิบมันมาใช้จริง — จงเดินต่อไปด้วยความมั่นใจ`, `You are "<strong style="color:#c8a45a">${esc(score.cosmicEntity)}</strong>" — the force of the ${esc(dmEl)} element walking Life Path ${esc(String(numerology.lifePath))} (${esc(numerology.lifePathName)}). All 26 traditions look at you from a different angle — some agree, some contradict each other, and page 2 says which is which. Your chart is not a fixed fate — it is an energy map that helps you know yourself and choose your path with more wisdom. Every strength named in this report only shines once you dare to actually use it. Walk forward with confidence.`);
     return section(25, tr('สรุปภาพรวมและคำส่งท้าย', 'Final Summary & Closing Reflection'), '✨', `
     <div style="text-align:center;margin-bottom:20px">
       <div style="font-size:48px;font-weight:700;color:#c8a45a">${score.total}</div>
@@ -13605,7 +13681,7 @@ function p25_summary(c) {
            the 300–999 range spelled out beside it to make sense, and then read as a
            different result from the one directly above it. Director 2026-08-31:
            show the ceiling, nothing else. -->
-      <div style="font-size:14px;color:#9a8a72">${tr('เต็ม 1,000', 'out of 1,000')}</div>
+      <div style="font-size:14px;color:#9a8a72">${tr('บนสเกล 300–999', 'on a 300–999 scale')}</div>
     </div>
 
     ${box(tr('จุดแข็งหลัก', 'Core Strengths'), [
@@ -13850,6 +13926,66 @@ function p_whoYouAre(c) {
   `);
 }
 // ── MAIN EXPORT ──────────────────────────────────────────────
+/** ชื่อธาตุ → คีย์ไทยมาตรฐาน สำหรับใช้ค้นตารางห้าธาตุ
+ *
+ * ⛔ `dayMasterElement` เปลี่ยนภาษาตาม UI ('ไม้' / 'Wood') แต่ตารางห้าธาตุทุกตัวคีย์เป็นไทย
+ *    ค้นตรงๆ ในฉบับอังกฤษจะได้ undefined แล้วตกไป fallback เงียบๆ ไม่มี error ให้เห็น
+ * ⛔ ใช้เฉพาะตอน "ค้นตาราง" ห้ามเอาไปแทนค่าที่พิมพ์ให้คนอ่าน (ฉบับอังกฤษต้องเห็น Wood ไม่ใช่ ไม้)
+ */
+/** คู่ค่าสองภาษา — คืนค่าเดียวเมื่อสองฝั่งเหมือนกัน
+ *
+ * ⛔ ฉบับอังกฤษได้ค่าเดียวกันทั้งสองช่องบ่อยมาก แล้วพิมพ์ออกเป็น "Otter (Otter)"
+ *    ซึ่งอ่านแล้วเหมือนระบบพัง มากกว่าจะเหมือนคำอธิบาย
+ */
+/** ตัดคำขึ้นต้นของค่า เมื่อมันซ้ำกับคำท้ายของป้ายช่อง
+ *
+ * ⛔ ป้ายกับค่ามาจากคนละที่ จึงซ้ำกันได้ง่ายและไม่มีใครเห็นตอนเขียนทีละฝั่ง
+ *    ผลคือ "Wavespell Wavespell of Lamat" · "Night Sect Sect" ซึ่งอ่านเหมือนระบบพัง
+ */
+/** จำนวนศาสตร์ที่หนุนแกนหนึ่ง + ชื่อจริง — อ่านจาก traitProfile ที่เอนจินคำนวณไว้แล้ว
+ *
+ * ⛔ หน้าแผนลงมือเคยพิมพ์ลิสต์ที่มาด้วยมือ จึงอ้างศาสตร์ที่พูดคนละเรื่องได้โดยไม่มีอะไรจับ
+ *    ที่นี่นับจากข้อมูลเดียวกับหน้า 5 ⇒ ตัวเลขกับชื่อพิสูจน์ได้เสมอ
+ * ⛔ ไม่ยุบคู่แฝด — 26 ศาสตร์ตอบคำถามที่มีคำตอบ 3-4 แบบ ความซ้ำคือกลไกของฉันทามติ
+ */
+function axisBackers(c, axis) {
+    const row = (c.traitProfile || []).find((t) => t && t.axis === axis);
+    if (!row)
+        return null;
+    const names = (row.agreeTh || []).map((x) => String(x));
+    return { n: names.length, names };
+}
+function noEcho(label, value) {
+    const v = String(value || '').trim();
+    if (!v)
+        return v;
+    const lastWord = String(label || '').trim().split(/\s+/).pop() || '';
+    if (!lastWord)
+        return v;
+    const esc = lastWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // ⛔ เนื้อบางที่เป็น HTML — ต้องข้ามแท็กเปิดก่อนถึงจะเจอคำที่ซ้ำ
+    const re = new RegExp('^((?:<[^>]+>\\s*)*)' + esc + '(?![\\w\\u0e00-\\u0e7f])[\\s:·—-]*', 'i');
+    if (!re.test(v))
+        return v;
+    // ⛔ ตัดแล้วเหลือว่างคือคำตอบที่ถูกได้ (ชื่อดาวบอกธาตุอยู่ในตัวแล้ว)
+    return v.replace(re, '$1').trim();
+}
+function pair(a, b) {
+    const x = String(a || '').trim(), y = String(b || '').trim();
+    if (!y || x.toLowerCase() === y.toLowerCase())
+        return x;
+    if (!x)
+        return y;
+    return `${x} (${y})`;
+}
+function elKey(el) {
+    const M = {
+        'Wood': 'ไม้', 'Fire': 'ไฟ', 'Earth': 'ดิน', 'Metal': 'โลหะ', 'Water': 'น้ำ',
+        'Air': 'ไม้', 'ลม': 'ไม้',
+        'ไม้': 'ไม้', 'ไฟ': 'ไฟ', 'ดิน': 'ดิน', 'โลหะ': 'โลหะ', 'น้ำ': 'น้ำ',
+    };
+    return M[el] || el;
+}
 function generateReport(c) {
     _pageNum = 0; // reset counter for each report
     // Propagate chart language to module-local _lang + the buildRichReading
@@ -14063,7 +14199,7 @@ function p_ziwei(c) {
     </div>
     ${bar(z.score, '#5a3a8a')}
     <table style="margin:12px 0"><tbody>
-      ${row2(tr('ดาวหลัก (Thai)', 'Main Star (Thai)'), z.mainStarTh)}
+      ${_lang === 'en' ? '' : row2('ดาวหลัก (Thai)', z.mainStarTh)}
       ${row2(tr('วังชีวิต Life Palace', 'Life Palace (命宮)'), z.lifePalaceName)}
       ${row2(tr('คุณภาพวัง Palace Quality', 'Palace Quality'), z.palaceQuality)}
     </tbody></table>
@@ -14081,7 +14217,7 @@ function p_onmyodo(c) {
     </div>
     ${bar(o.score, '#6a4a2a')}
     <table style="margin:12px 0"><tbody>
-      ${row2('Rokuyo (Thai)', o.rokuyoTh)}
+      ${_lang === 'en' ? '' : row2('Rokuyo (Thai)', o.rokuyoTh)}
       ${row2(tr('พลังงานคะแนน', 'Energy Score'), String(o.rokuyoScore))}
       ${row2('Onmyo Polarity', o.onmyoPolarity)}
       ${row2('Jūnishi Nakshatra', o.juniShiNakshatra)}
@@ -14092,7 +14228,7 @@ function p_onmyodo(c) {
     <div style="background:#13110e;border:1px solid #3a3020;border-radius:8px;padding:12px 14px;margin-bottom:8px">
       <div style="font-size:12.5px;color:#c8a45a;letter-spacing:1px;margin-bottom:6px">${tr('六曜 ROKUYO — ปฏิทินมงคล 6 วันของญี่ปุ่น', '六曜 ROKUYO — Japan\'s Six-Day Auspicious Cycle')}</div>
       <div style="font-size:13px;color:#c8c0a8;line-height:1.7">
-        ${tr('Rokuyo (六曜) เป็นวัฏจักรโชค <strong>6 วันที่หมุนเวียนกัน</strong>ในปฏิทินญี่ปุ่น ใช้เลือก "วันดี" สำหรับงานแต่ง การประกอบธุรกิจ การเดินทาง — ปัจจุบันยังพิมพ์อยู่บนปฏิทินญี่ปุ่นทุกเล่ม แต่ละวันให้พลังงานต่างกัน:', 'Rokuyo (六曜) is a <strong>six-day cycle</strong> in the Japanese calendar used to choose auspicious days for weddings, business openings, and travel — still printed on every Japanese calendar today. Each of the six days carries a different energy:')}
+        ${tr('Rokuyo (六曜) เป็นวัฏจักรโชค <strong>6 วันที่หมุนเวียนกัน</strong>ปฏิทินญี่ปุ่นยังพิมพ์ไว้ถึงวันนี้ ใช้เลือกวันแต่ง วันเปิดกิจการ', 'Rokuyo (六曜) is a <strong>six-day cycle</strong> in the Japanese calendar used to choose auspicious days for weddings, business openings, and travel — still printed on every Japanese calendar today. Each of the six days carries a different energy:')}
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;font-size:12px">
         <div style="background:#0a1a0e;border-left:3px solid #5aaa3a;padding:5px 8px"><strong>大安 Taian</strong> · ${tr('วันมงคลที่สุด · ทำได้ทุกอย่าง', 'Most auspicious · all activities favoured')}</div>
@@ -14113,12 +14249,12 @@ function p_hellenistic(c) {
     const h = c.hellenistic;
     return section(0, tr('Hellenistic Astrology — โหราศาสตร์กรีก', 'Hellenistic Astrology — Greek Tradition'), '🏛️', `
     <div class="grid-2" style="margin-bottom:12px">
-      <div class="stat-card"><div class="val" style="font-size:16px">${esc(h.sect)}</div><div class="lbl">${tr('Sect (กลุ่มดาว)', 'Sect (planetary group)')}</div></div>
+      <div class="stat-card"><div class="val" style="font-size:16px">${esc(h.sect)}</div><div class="lbl">${tr('กลุ่มดาวกลางวัน/กลางคืน', 'day or night chart')}</div></div>
       <div class="stat-card"><div class="val">${h.score}</div><div class="lbl">Hellenistic Score</div></div>
     </div>
     ${bar(h.score, '#8a7a30')}
     <table style="margin:12px 0"><tbody>
-      ${row2('Sect', h.sectTh)}
+      ${row2('Sect', noEcho('Sect', h.sectTh))}
       ${row2('Trigon Lord', h.trigonLord)}
       ${row2('Lot of Fortune', tr(`${h.lotOfFortune}° ใน ${h.lotSign}`, `${h.lotOfFortune}° in ${h.lotSign}`))}
 
@@ -14227,13 +14363,13 @@ function p_aztec(c) {
     </div>
     ${bar(a.score, '#8a4a10')}
     <table style="margin:12px 0"><tbody>
-      ${row2('Day Sign (EN)', a.daySign + ' ' + a.daySignTh)}
+      ${_lang === 'en' ? '' : row2('Day Sign (EN)', pair(a.daySign, a.daySignTh))}
       ${row2('Tone Number', `${a.toneNumber} — ${a.toneName}`)}
       ${row2('Day Sign Quality', a.daySignQuality)}
     </tbody></table>
     ${box(tr('การตีความ Tonalpohualli', 'Tonalpohualli Reading'), a.reading, 'gold')}
     <p style="font-size:12.5px;color:#5e878f;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:', 'Origin:')}</strong> ${tr('Tonalpohualli 260 วันของแอซเท็ก รอบเดียวกับของมายา แต่คนละชุดชื่อสัญลักษณ์', 'The Aztec 260-day Tonalpohualli — the same round as the Maya count, under a different set of names.')}</p>
-    <p style="font-size:12.5px;color:#967f5d">${tr(`Tonalpohualli คือปฏิทิน 260 วัน (20 Day Signs × 13 Tones) ใช้ร่วมกับ Mayan Tzolk'in — ${a.daySignTh} Tone ${a.toneNumber} กำหนดพลังงาน`, `Tonalpohualli is a 260-day calendar (20 Day Signs × 13 Tones), paired with the Mayan Tzolk'in — ${a.daySign} (${a.daySignTh}) Tone ${a.toneNumber} sets your energy signature.`)}</p>
+    <p style="font-size:12.5px;color:#967f5d">${tr(`Tonalpohualli คือปฏิทิน 260 วัน (20 Day Signs × 13 Tones) ใช้ร่วมกับ Mayan Tzolk'in — ${a.daySignTh} Tone ${a.toneNumber} กำหนดพลังงาน`, `Tonalpohualli is a 260-day calendar (20 Day Signs × 13 Tones), paired with the Mayan Tzolk'in — ${pair(a.daySign, a.daySignTh)} Tone ${a.toneNumber} sets your energy signature.`)}</p>
   `);
 }
 function p_nativeAmerican(c) {
@@ -14245,14 +14381,14 @@ function p_nativeAmerican(c) {
     </div>
     ${bar(n.score, '#8a5a30')}
     <table style="margin:12px 0"><tbody>
-      ${row2('Birth Totem (EN)', n.birthTotem)}
+      ${_lang === 'en' ? '' : row2('Birth Totem (EN)', n.birthTotem)}
       ${row2('Moon Cycle', n.moonCycle)}
       ${row2('Clan', n.clansmother)}
       ${row2(tr('ธาตุ', 'Element'), n.element)}
     </tbody></table>
     ${box(tr('การตีความ Native American', 'Native American Reading'), n.reading, 'gold')}
     <p style="font-size:12.5px;color:#5e878f;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:', 'Origin:')}</strong> ${tr('Medicine Wheel ของชนพื้นเมืองอเมริกาเหนือ แบ่งปีเป็น 13 รอบจันทร์ แต่ละรอบมีสัตว์ประจำ', 'The Medicine Wheel of North American nations, dividing the year into thirteen moons, each with its own animal.')}</p>
-    <p style="font-size:12.5px;color:#967f5d">${tr(`Medicine Wheel มี 13 moon cycle — Birth Totem ${n.birthTotemTh} (${n.birthTotem}) ใน ${n.clansmother} บ่งถึงสัตว์นำทางทางจิตวิญญาณ`, `The Medicine Wheel has 13 moon cycles — your Birth Totem ${n.birthTotem} (${n.birthTotemTh}) in the ${n.clansmother} clan marks your spirit guide animal.`)}</p>
+    <p style="font-size:12.5px;color:#967f5d">${tr(`Medicine Wheel มี 13 moon cycle — Birth Totem ${n.birthTotemTh} (${n.birthTotem}) ใน ${n.clansmother} บ่งถึงสัตว์นำทางทางจิตวิญญาณ`, `The Medicine Wheel has 13 moon cycles — your Birth Totem ${pair(n.birthTotem, n.birthTotemTh)} in the ${String(n.clansmother || '').replace(/\s*clan$/i, '')} clan marks your spirit guide animal.`)}</p>
   `);
 }
 function p_ifaYoruba(c) {
@@ -14264,7 +14400,7 @@ function p_ifaYoruba(c) {
     </div>
     ${bar(i.score, '#6a4a10')}
     <table style="margin:12px 0"><tbody>
-      ${row2('Odù (Thai)', i.oduTh)}
+      ${_lang === 'en' ? '' : row2('Odù (Thai)', i.oduTh)}
       ${row2('Theme', i.oduTheme)}
       ${row2('Fortune', i.fortune)}
     </tbody></table>
@@ -14282,13 +14418,13 @@ function p_aboriginal(c) {
     </div>
     ${bar(a.score, '#6a4a30')}
     <table style="margin:12px 0"><tbody>
-      ${row2('Ancestor (EN)', a.dreamingAncestor)}
+      ${_lang === 'en' ? '' : row2('Ancestor (EN)', a.dreamingAncestor)}
       ${row2('Season', a.season)}
       ${row2('Clan', a.clan)}
     </tbody></table>
-    ${box(tr('การตีความ Dreamtime', 'Dreamtime Reading'), a.reading, 'gold')}
+    ${box(tr('การตีความ Dreamtime', 'Dreamtime Reading'), noEcho('Dreamtime', a.reading), 'gold')}
     <p style="font-size:12.5px;color:#5e878f;border-left:2px solid #3a5a60;padding:6px 10px;margin-bottom:8px"><strong>${tr('ต้นกำเนิด:', 'Origin:')}</strong> ${tr('ชาวอะบอริจินออสเตรเลียอ่านฤดูจากแผ่นดินและฟ้า ปฏิทิน 6 ฤดูของชาว Nyoongar เป็นชุดที่มีบันทึกชัดที่สุด', 'Aboriginal Australians read season from country and sky; the Nyoongar six-season calendar is among the best documented.')}</p>
-    <p style="font-size:12.5px;color:#967f5d">${tr(`Dreamtime เป็นปรัชญาชาวอะบอริจินออสเตรเลีย — บรรพบุรุษ ${a.dreamingTh} ชี้แนะเส้นทางผ่านกฎธรรมชาติ`, `Dreamtime is the Aboriginal Australian philosophy — your Ancestor ${a.dreamingAncestor} (${a.dreamingTh}) guides your path through natural law.`)}</p>
+    <p style="font-size:12.5px;color:#967f5d">${tr(`Dreamtime เป็นปรัชญาชาวอะบอริจินออสเตรเลีย — บรรพบุรุษ ${a.dreamingTh} ชี้แนะเส้นทางผ่านกฎธรรมชาติ`, `Dreamtime is the Aboriginal Australian philosophy — your Ancestor ${pair(a.dreamingAncestor, a.dreamingTh)} guides your path through natural law.`)}</p>
   `);
 }
 function p_taksa(c) {
@@ -14388,6 +14524,7 @@ function p_vedicMahadasha(c) {
     FORECAST_ADVICE: FORECAST_ADVICE,
     fcAdviceFor: fcAdviceFor,
     FORECAST_TIERS: FORECAST_TIERS,
+    traitAxisLabels: traitAxisLabels,
   };
 })(typeof window !== "undefined" ? window : globalThis);
 
