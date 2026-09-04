@@ -189,8 +189,12 @@ Deno.serve(async (req: Request) => {
   }
   const batch = Array.isArray(body.calls) && body.calls.length > 0
   if (!batch && (!body.systemPrompt || !body.userMessage)) return json({ error: 'missing prompt' }, 400)
-  if (batch && !['answers', 'compose'].includes(body.phase)) return json({ error: 'batch needs phase answers|compose' }, 400)
-  if (batch && body.calls.length > 12) return json({ error: 'too many calls (max 12)' }, 400)
+  if (batch && !['answers', 'compose', 'grid'].includes(body.phase)) return json({ error: 'batch needs phase answers|compose|grid' }, 400)
+  // ⛔ เพดานนี้เคยเป็น 12 — ขยายเป็น 16 เมื่อ 4 ก.ย. 69 เพราะตารางฉันทามติต้องซอย 15 ก้อน
+  //    (คำตอบยาวขึ้นหลังบังคับให้ใส่คำแปลศัพท์ ⇒ ใส่คำถามต่อก้อนได้น้อยลง)
+  //    ฝั่งผู้เรียกประกาศ GRID_MAX_CALLS = 16 ไว้ที่ api/oracle/_grid.js — สองที่ต้องตรงกัน
+  const MAX_BATCH_CALLS = 16
+  if (batch && body.calls.length > MAX_BATCH_CALLS) return json({ error: `too many calls (max ${MAX_BATCH_CALLS})` }, 400)
   const jobKey = [ck.chart_hash, ck.system, ck.lang, ck.relationship_status, ck.prompt_version].join('|')
 
   // Mark running (the Vercel side already gated duplicate triggers via job freshness).
@@ -231,7 +235,28 @@ Deno.serve(async (req: Request) => {
         let cents = 0
         for (const r of ok) { merged[r.key] = r.obj; cents += centsFor(body.model || DEFAULT_MODEL, r.usage) }
 
-        if (body.phase === 'answers') {
+        if (body.phase === 'grid') {
+          // ตารางฉันทามติ — ทุกศาสตร์ตอบคำถามชุดเดียวกัน แล้วเอามาเทียบกันได้จริง
+          //
+          // ⛔ ก้อนหนึ่งคือคำถามกลุ่มหนึ่ง × ทุกศาสตร์ ⇒ ต้องรวมตามศาสตร์ ไม่ใช่ต่อท้ายกัน
+          // ⛔ ห้ามเก็บตารางที่ไม่ครบ — หน้าฉันทามติจะนับเสียงจากตารางนี้
+          //    ตารางขาดช่อง = นับเสียงผิด ซึ่งแย่กว่าไม่มีตารางเลย
+          const grid: Record<string, Record<string, string>> = {}
+          for (const chunk of Object.values(merged)) {
+            for (const [sys, ans] of Object.entries((chunk || {}) as Record<string, any>)) {
+              grid[sys] = { ...(grid[sys] || {}), ...(ans as Record<string, string>) }
+            }
+          }
+          const cells = Object.values(grid).reduce((a: number, g: any) => a + Object.keys(g || {}).length, 0)
+          if (!cells) throw new Error('ตารางว่าง')
+          // ผู้เรียกบอกมาว่าคาดหวังกี่ช่อง — ไม่ฝังตัวเลขไว้ที่นี่ เพราะจำนวนคำถามเปลี่ยนได้
+          const want = Number(body.expectCells) || 0
+          if (want && cells < want) throw new Error(`ตารางต้องได้ ${want} ช่อง ได้ ${cells}`)
+          await upsertPhase(ck, {
+            oracle_json: { schema: 'grid-1.0', lang: ck.lang, cells, grid },
+            phase: 'grid', cost_cents: cents, model: body.model || DEFAULT_MODEL,
+          })
+        } else if (body.phase === 'answers') {
           const n = Object.values(merged).reduce((a: number, g: any) => a + (Array.isArray(g?.answers) ? g.answers.length : 0), 0)
           if (n !== 45) throw new Error(`ชั้น 1 ต้องได้ 45 ข้อ ได้ ${n}`)
           await upsertPhase(ck, { answers_json: merged, phase: 'answers', cost_cents: cents, model: body.model || DEFAULT_MODEL })
@@ -243,7 +268,7 @@ Deno.serve(async (req: Request) => {
           }
           await upsertPhase(ck, { oracle_json: { schema: '3.0-composed', system: ck.system, lang: ck.lang, chapters: merged }, phase: 'done', cost_cents: cents, model: body.model || DEFAULT_MODEL })
         }
-        await upsertJob(jobKey, body.phase === 'answers' ? 'answers_ready' : 'done')
+        await upsertJob(jobKey, body.phase === 'grid' ? 'grid_ready' : body.phase === 'answers' ? 'answers_ready' : 'done')
       } catch (e) {
         await upsertJob(jobKey, 'error', String(e).slice(0, 300))
       }
