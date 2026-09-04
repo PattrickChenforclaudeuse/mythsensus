@@ -75,7 +75,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=243">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=244">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -3007,7 +3007,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=243" defer></script>
+<script src="/build/ms26-bundle.js?v=244" defer></script>
 <script>
 
 
@@ -7314,7 +7314,7 @@ function renderConsensusPreview(){
             ${isTh?'✦ Consensus Preview':'✦ CONSENSUS PREVIEW'}
           </div>
           <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-style:italic;font-size:12.5px;color:var(--muted);margin-top:2px">
-            ${isTh?'สิ่งที่ 26 ศาสตร์เห็นตรงกันเกี่ยวกับคุณ — กดสร้างรายงานเพื่อดูฉบับเต็ม':'What 26 systems agree on about you — generate the full report for depth'}
+            ${isTh?'ตำราแต่ละสายอ่านคุณตรงกันตรงไหน และเถียงกันตรงไหน — กดสร้างรายงานเพื่อดูฉบับเต็ม':'Where the traditions read you the same way — and where they argue. Generate the full report for depth.'}
           </div>
         </div>
         ${score ? `<div style="text-align:right">
@@ -7324,6 +7324,23 @@ function renderConsensusPreview(){
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
         ${cards}
+      </div>
+
+      <!-- ⛔ ปุ่ม ไม่ใช่โหลดอัตโนมัติ — ตารางราคา ~$1.3 ต่อผัง คนเปิดหน้าเฉยๆ ต้องไม่เสียเงิน
+           ⛔ ต้องบอกก่อนกดว่าใช้เวลาสักครู่ ไม่งั้นคนกดแล้วคิดว่าค้าง -->
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">
+          ${isTh?'ถามทีละคำถาม ทุกตำราตอบพร้อมกัน':'One question, every tradition at once'}
+        </div>
+        <div style="font-size:12.5px;color:var(--muted);line-height:1.75;margin-bottom:10px">
+          ${isTh
+            ? 'การ์ดข้างบนคือผลนับเสียงบนแกนบุคลิก · ตรงนี้คือคำตอบดิบของแต่ละตำราต่อคำถามเดียวกัน วางเรียงให้เทียบได้ในที่เดียว'
+            : 'The cards above are counted votes on personality axes. This is each tradition’s own answer to the same question, laid side by side.'}
+        </div>
+        <div id="cb-grid-blocks"></div>
+        <button onclick="loadConsensusGrid(this)" style="margin-top:4px;padding:11px 18px;font-size:13.5px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.08);color:var(--gold);border-radius:8px;font-family:'Cormorant Garamond','Sarabun',serif">
+          ${isTh?'✦ ให้ทุกตำราตอบ · ใช้เวลาสักครู่':'✦ Ask every tradition · takes a moment'}
+        </button>
       </div>
     </div>
   `;
@@ -7911,6 +7928,127 @@ async function _fetchOracle(systemKey) {
       throw e;
     }
     await new Promise((res) => setTimeout(res, POLL_MS));
+  }
+}
+
+// ── ตารางฉันทามติ: หนึ่งคำถาม ทุกตำราตอบพร้อมกัน ────────────────────────
+//
+// ⛔ ห้ามยิงอัตโนมัติ — ตารางราคา ~$1.3 ต่อผัง คนเปิดหน้าเฉยๆ ต้องไม่เสียเงิน
+//    ผู้ใช้กดเองเท่านั้น และบอกไว้ก่อนว่าใช้เวลาสักครู่
+// ⛔ ข้อความคำถามมาจาก API พร้อมตาราง ห้ามเก็บสำเนาไว้ในหน้านี้
+//    (คู่ "ไฟล์ต้นทาง + สำเนาในหน้าเว็บ" เพี้ยนข้างเดียวเสมอ)
+let _gridCache = null;
+async function _fetchGrid() {
+  if (_gridCache) return _gridCache;
+  const chart = _getMS26ChartFromProfile();
+  if (!chart) throw new Error(LANG === 'th' ? 'กรอกวันเกิดก่อน' : 'Enter your birth date first');
+  const profile = getStoredProfile();
+  const body = {
+    mode: 'grid',
+    lang: LANG,
+    chart_hash: _chartInputHash(),
+    chart,
+    year: new Date().getFullYear(),
+    context: { relationship_status: profile.relationship_status || 'unknown' },
+  };
+  const h = { 'Content-Type': 'application/json' };
+  try {
+    if (typeof _sb !== 'undefined' && _sb && _sb.auth) {
+      const { data: { session } } = await _sb.auth.getSession();
+      if (session && session.access_token) h['Authorization'] = 'Bearer ' + session.access_token;
+    }
+  } catch (_) {}
+
+  // ตารางใช้เวลานานกว่าคำอ่านรายศาสตร์ (15 ก้อนขนาน) — เผื่อเวลาไว้มากกว่า
+  const POLL_MS = 5000, MAX_WAIT_MS = 300000;
+  const started = Date.now();
+  while (true) {
+    const r = await fetch('/api/oracle/addon', { method: 'POST', headers: h, body: JSON.stringify(body) });
+    if (!r.ok) {
+      let j = {}; try { j = await r.json(); } catch (_) {}
+      const e = new Error(j.error || ('grid_http_' + r.status));
+      e.userMsg = j.message || (LANG === 'th' ? 'ยังเรียกตารางไม่ได้ตอนนี้' : 'Could not load the table right now.');
+      e.errorKey = j.error;
+      throw e;
+    }
+    const d = await r.json();
+    if (d && d.grid) { _gridCache = d; return d; }
+    if (Date.now() - started > MAX_WAIT_MS) {
+      const e = new Error('grid_timeout');
+      e.userMsg = LANG === 'th'
+        ? 'ตารางใช้เวลานานกว่าปกติ — กดใหม่อีกครั้งได้ ระบบยังทำอยู่เบื้องหลัง'
+        : 'The table is taking longer than usual — press again; it is still being built.';
+      throw e;
+    }
+    await new Promise(res => setTimeout(res, POLL_MS));
+  }
+}
+
+// ชื่อตำราภาษาไทย — ใช้ชุดเดียวกับที่เอนจินใช้ใน traitProfile
+const _GRID_SYS_TH = {
+  western:'ตะวันตก', bazi:'ปาจื้อ', ninestar:'ดาวเก้าดวง', numerology:'เลขศาสตร์',
+  vedic:'ภารตะ', humandesign:'ประเภทพลังงาน', mayan:'มายัน', celtic:'เซลติก',
+  thai:'ไทยพราหมณ์', taksa:'ทักษา', saju:'ซาจู', tibetan:'ทิเบต', ziwei:'จื่อเวย',
+  onmyodo:'ออนเมียวโด', hellenistic:'เฮลเลนิสติก', norseRune:'รูนนอร์ส', ogham:'โอแฮม',
+  arabicParts:'Arabic Parts', kabbalistic:'คับบาลาห์', zoroastrian:'โซโรแอสเตอร์',
+  aztec:'แอซเท็ก', nativeAmerican:'โทเท็มอเมริกัน', ifaYoruba:'อิฟา',
+  aboriginal:'ดรีมไทม์', vedicMahadasha:'มหาทศา',
+};
+
+function _renderGridBlocks(payload) {
+  const isTh = LANG === 'th';
+  const grid = (payload.grid && payload.grid.grid) || {};
+  const qs = payload.questions || [];
+  const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const name = k => isTh ? (_GRID_SYS_TH[k] || k) : k;
+  const blocks = qs.map(q => {
+    const said = [], mute = [];
+    for (const k of Object.keys(grid)) {
+      const v = String(grid[k][q.q] || '').trim();
+      if (v && v !== '—' && v !== '-') said.push([k, v]); else if (v) mute.push(k);
+    }
+    if (!said.length) return '';
+    const rows = said.map(([k, v]) => `<div style="display:flex;gap:12px;padding:7px 0 7px 12px;border-left:2px solid rgba(200,164,90,.3);margin-bottom:7px;line-height:1.7">
+      <span style="flex:0 0 108px;color:var(--gold);font-size:12.5px;font-weight:600">${esc(name(k))}</span>
+      <span style="font-size:13.5px;color:var(--text)">${esc(v)}</span></div>`).join('');
+    return `<details style="margin:0 0 10px;padding:12px 14px;background:var(--bg3);border:1px solid var(--border);border-top:2px solid var(--gold3);border-radius:8px">
+      <summary style="cursor:pointer;font-size:15px;color:var(--gold);font-weight:600;line-height:1.5">${esc(q.text)}</summary>
+      <div style="font-size:12.5px;color:var(--muted);margin:6px 0 10px">${said.length} ${isTh?'ตำรามีวิชาตอบข้อนี้':'traditions can answer this'}${mute.length?` · ${mute.length} ${isTh?'ไม่มี':'cannot'}`:''}</div>
+      ${rows}
+      ${mute.length?`<div style="font-size:12px;color:var(--muted);margin-top:9px;padding-top:8px;border-top:1px dashed rgba(200,164,90,.22);line-height:1.65">${isTh?'ไม่มีวิชาตอบ':'No technique for this'}: ${mute.map(k=>esc(name(k))).join(' · ')} — <em>${isTh?'ไม่ใช่ว่าคำตอบเป็นลบ แต่ตำราไม่ได้พูดเรื่องนี้':'that is silence, not a negative answer'}</em></div>`:''}
+    </details>`;
+  }).filter(Boolean).join('');
+  return blocks || `<div style="font-size:13px;color:var(--muted)">${isTh?'ตารางว่าง':'The table is empty.'}</div>`;
+}
+
+async function loadConsensusGrid(btn) {
+  const host = document.getElementById('cb-grid-blocks');
+  if (!host) return;
+  const isTh = LANG === 'th';
+  if (btn) { btn.disabled = true; btn.textContent = isTh ? 'กำลังให้ทุกตำราตอบ…' : 'Asking every tradition…'; }
+  host.innerHTML = `<div style="font-size:13px;color:var(--muted);line-height:1.8">${isTh
+    ? 'ทุกตำราตอบคำถามชุดเดียวกันพร้อมกัน ใช้เวลาสักครู่ · เปิดหน้านี้ทิ้งไว้ได้ ครั้งต่อไปจะขึ้นทันที'
+    : 'Every tradition is answering the same questions at once — this takes a moment. Leave the page open; next time it appears instantly.'}</div>`;
+  try {
+    const data = await _fetchGrid();
+    host.innerHTML = _renderGridBlocks(data);
+    if (btn) btn.remove();
+  } catch (e) {
+    // ⛔ ยังไม่ได้ลงชื่อเข้าใช้ = เชิญ ไม่ใช่แจ้งข้อผิดพลาด (แบบแผนเดียวกับหน้าคำอ่านรายศาสตร์)
+    //    และข้อความของเซิร์ฟเวอร์เป็นภาษาอังกฤษ จึงต้องเขียนเองตามภาษาที่ผู้อ่านเลือก
+    if (e.errorKey === 'auth_required' || e.errorKey === 'invalid_token') {
+      host.innerHTML = `<div style="padding:20px 18px;text-align:center;background:rgba(212,175,55,0.05);border:1px solid var(--gold3);border-radius:10px">
+        <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.75;max-width:420px;margin:0 auto 14px">${isTh
+          ? 'ลงชื่อเข้าใช้เพื่อให้ทุกตำราตอบ — คำตอบเก็บไว้กับดวงของคุณ เปิดซ้ำได้ทุกเครื่องโดยไม่ต้องรอใหม่'
+          : 'Sign in to have every tradition answer — the answers are saved with your chart and reopen instantly on any device.'}</div>
+        <button onclick="showLoginOverlay()" style="font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;background:var(--gold);color:#0d0d15;border:none;padding:11px 26px;border-radius:6px;cursor:pointer;font-weight:600">${isTh?'ลงชื่อเข้าใช้ →':'SIGN IN →'}</button>
+      </div>`;
+      if (btn) btn.remove();
+      return;
+    }
+    host.innerHTML = `<div style="font-size:13px;color:var(--muted);line-height:1.8">${
+      (e.userMsg || (isTh ? 'ยังเรียกตารางไม่ได้' : 'Could not load the table.'))}</div>`;
+    if (btn) { btn.disabled = false; btn.textContent = isTh ? 'ลองใหม่อีกครั้ง' : 'Try again'; }
   }
 }
 

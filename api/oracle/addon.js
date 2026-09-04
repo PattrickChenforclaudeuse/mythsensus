@@ -48,6 +48,8 @@ const SYSTEMS = [
 
 // 3 ก.ย. 69: 2.1 (6 หมวด x 10 คำถาม ยิงครั้งเดียว) -> 3.0 (45 ข้อ + เรียบเรียง 6 บท)
 // prompt_version คำนวณจากค่านี้ ⇒ แถวแคชเก่าไม่ชนกับใหม่ ถอยกลับได้ด้วยการเปลี่ยนค่านี้กลับ
+import { buildGridCalls, estimateGrid } from './_grid.js'
+
 const SCHEMA_VERSION = '3.0'
 // ── Decoupled render (2026-06-23) ────────────────────────────────────────────
 // The Deep Reading takes ~100s on Sonnet 4.6 (whose Thai is native, unlike Haiku's
@@ -107,6 +109,16 @@ function loadSystemFramework(system) {
   const txt = readFileSync(path, 'utf-8')
   _promptCache.set(system, txt)
   return txt
+}
+
+// เวอร์ชันแคชของตาราง — ผูกกับเนื้อไฟล์คำถาม
+// ⛔ ห้ามใช้เลขที่พิมพ์มือ แก้คำถามแล้วลูกค้าจะยังได้ตารางเก่าจากแคชตลอดไป
+let _gridVer = null
+function computeGridVersion() {
+  if (_gridVer) return _gridVer
+  const raw = readFileSync(join(V3_DIR, 'questions.json'), 'utf-8')
+  _gridVer = 'grid-' + createHash('sha1').update(raw).digest('hex').slice(0, 8)
+  return _gridVer
 }
 
 function computePromptVersion(system) {
@@ -258,6 +270,15 @@ export function buildComposeCalls(body, answersJson) {
 
 function validateInput(body) {
   if (!body || typeof body !== 'object') return 'body must be JSON object'
+  // ⛔ โหมดตาราง (mode:'grid') อ่านทุกศาสตร์พร้อมกัน จึงไม่มี body.system เดียว
+  //    แต่ต้องมี chart เต็ม ไม่ใช่ก้อนเฉพาะศาสตร์แบบโหมดปกติ
+  if (body.mode === 'grid') {
+    if (!body.chart || typeof body.chart !== 'object') return 'chart required (full chart for grid mode)'
+    if (!body.chart_hash || typeof body.chart_hash !== 'string') return 'chart_hash required'
+    if (body.lang !== 'th' && body.lang !== 'en') return 'lang must be "th" or "en"'
+    if (typeof body.year !== 'number' || body.year < 1900 || body.year > 2200) return 'year required (1900-2200)'
+    return null
+  }
   if (!body.system || !SYSTEMS.includes(body.system)) {
     return `system must be one of: ${SYSTEMS.join(', ')}`
   }
@@ -516,17 +537,65 @@ export default async function handler(req, res) {
     return res.status(access.status).json({ error: access.error, message: access.message })
   }
 
+  const isGrid = body.mode === 'grid'
   const relationship_status = body.context?.relationship_status || 'unknown'
   const cache_key = {
     chart_hash: body.chart_hash,
-    system: body.system,
+    system: isGrid ? '_grid' : body.system,
     lang: body.lang,
     relationship_status,
-    prompt_version: computePromptVersion(body.system),
+    prompt_version: isGrid ? computeGridVersion() : computePromptVersion(body.system),
   }
 
   // 1. Cache lookup
   const cached = await readCache(cache_key)
+
+  // ── โหมดตาราง: ทุกศาสตร์ตอบคำถามชุดเดียวกัน แล้วหน้าฉันทามติเอาไปนับเสียง ──
+  //
+  // ⛔ ยิงครั้งเดียวต่อผัง แล้วอยู่ในแคชตลอด — ตารางแพงกว่าสินค้าหลายตัวรวมกัน
+  // ⛔ เดินผ่าน auth + เพดานเงินรายวันเดิมทุกครั้ง ห้ามยกเว้นให้ตาราง
+  if (isGrid) {
+    if (cached && cached.oracle_json && cached.phase === 'grid') {
+      // ⛔ ส่งข้อความคำถามไปด้วย ห้ามให้หน้าเว็บเก็บสำเนาของตัวเอง
+      //    คู่ "ไฟล์คำถาม + สำเนาในหน้าเว็บ" จะเพี้ยนข้างเดียวเสมอ
+      const qs = []
+      for (const g of loadV3().questions.groups)
+        for (const q of g.questions) qs.push({ q: q.q, text: q.text, group: g.key, groupTitle: g.title })
+      return res.status(200).json({
+        grid: cached.oracle_json, questions: qs, cached: true,
+        generated_ms: Date.now() - t0, cost_cents: 0, model: cached.model,
+      })
+    }
+    const gridJobKey = [cache_key.chart_hash, '_grid', cache_key.lang, relationship_status, cache_key.prompt_version].join('|')
+    const gjob = await readJob(gridJobKey)
+    if (gjob && gjob.status === 'running' && gjob.fresh) {
+      return res.status(202).json({ status: 'generating', phase: 'grid', generated_ms: Date.now() - t0 })
+    }
+    const dailyBudget = Number(process.env.ORACLE_DAILY_BUDGET_CENTS) || DEFAULT_DAILY_BUDGET_CENTS
+    const spent = await readDailyCostCents()
+    if (spent >= dailyBudget) {
+      return res.status(429).json({ error: 'daily_budget_exhausted', message: 'Mythsensus oracle daily budget reached — please try again tomorrow.' })
+    }
+    let gridCalls, est
+    try {
+      gridCalls = buildGridCalls(body.chart, body.lang)
+      est = estimateGrid(body.chart)
+    } catch (e) {
+      console.error('[oracle/addon] grid build failed:', e.message)
+      return res.status(500).json({ error: 'grid_build_failed', message: e.message.slice(0, 160) })
+    }
+    try {
+      await triggerRender({
+        cache_key: { ...cache_key, year: body.year },
+        phase: 'grid', calls: gridCalls, model: RENDER_MODEL,
+        // ⛔ ผู้เรียกเป็นคนบอกจำนวนช่องที่ต้องได้ — edge fn จะไม่เก็บตารางที่ไม่ครบ
+        expectCells: est.cells,
+      })
+    } catch (e) {
+      return res.status(502).json({ error: 'oracle_trigger_failed' })
+    }
+    return res.status(202).json({ status: 'generating', phase: 'grid', calls: gridCalls.length, generated_ms: Date.now() - t0 })
+  }
   // ⛔ เงื่อนไขต้องเป็น phase='done' ด้วย — แถวที่มีแค่คำตอบ 45 ข้อ
   //    ยังไม่มี oracle_json ถ้านับว่าเสร็จ ลูกค้าจะค้างคาอยู่ตรงนั้นตลอดไป
   if (cached && cached.oracle_json && cached.phase !== 'answers') {
