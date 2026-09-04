@@ -2664,13 +2664,13 @@ function p16_activation(c: ChartData): string {
     </div>
 
     <div style="font-size:13px;font-weight:600;color:#60c060;margin-bottom:8px">✅ ${tr('สิ่งที่ควรทำ · Priority-ranked (เรียงจากศาสตร์เห็นพ้องมากสุด)','What to do · Priority-ranked (most-agreed-upon first)')}</div>
-    ${[...positives].sort((x,y) => countVoices(y.systems) - countVoices(x.systems)).slice(0,8).map((a,n) => {
+    ${[...positives].sort((x,y) => y.systems.length - x.systems.length).slice(0,8).map((a,n) => {
       // ⛔ ป้าย "+${delta}" ถูกถอดออกจากหน้า 2 ก.ย. 69 — ค่าเท่ากันทั้ง 5 แถว
       //    ป้ายที่ไม่เคยต่างกันไม่ได้บอกอะไร แค่กินที่แล้วชวนให้ถามว่าคืออะไร
       //    (director: "+9 ข้างหลังคืออะไร") ถ้าจะเอากลับมา ต้องทำให้มันต่างกันจริงก่อน
       // ⛔ และห้ามเขียนเหตุผลเป็น <!-- --> ในสตริง HTML — มันติดไปกับไฟล์ลูกค้า
       //    และทำให้ด่าน test:en แดงเพราะเจอภาษาไทยในเล่มอังกฤษ (พลาดมาแล้ววันนี้)
-      const delta = cosmicDelta(countVoices(a.systems))
+      const delta = cosmicDelta(a.systems.length)
       const priority = n < 3 ? 'HIGH' : n < 6 ? 'MEDIUM' : 'LOW'
       const priorityColor = n < 3 ? '#c8a45a' : n < 6 ? '#c0a060' : '#7a6a52'
       return `
@@ -2683,7 +2683,7 @@ function p16_activation(c: ChartData): string {
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
             <span style="font-weight:600;color:#c8a45a;font-size:13px">${n+1}. ${esc(a.title)}</span>
             <div style="display:flex;gap:6px;align-items:center">
-              <span style="font-size:11.5px;color:#60a060;background:#0a1a0e;padding:2px 8px;border-radius:10px">${countVoices(a.systems)} ${tr('สายที่หนุนข้อนี้','traditions behind this')}</span>
+              <span style="font-size:11.5px;color:#60a060;background:#0a1a0e;padding:2px 8px;border-radius:10px">${a.systems.length} ${tr('สายที่หนุนข้อนี้','traditions behind this')}</span>
 
             </div>
           </div>
@@ -3902,27 +3902,6 @@ function p_whoYouAre(c: ChartData): string {
  * ⛔ ป้ายกับค่ามาจากคนละที่ จึงซ้ำกันได้ง่ายและไม่มีใครเห็นตอนเขียนทีละฝั่ง
  *    ผลคือ "Wavespell Wavespell of Lamat" · "Night Sect Sect" ซึ่งอ่านเหมือนระบบพัง
  */
-/** ยุบสายที่อ่านข้อมูลชุดเดียวกัน ให้เหลือเสียงเดียวก่อนนับ
- *
- * ⛔ เอนจินประกาศไว้เองแล้วใน _FC_ABSTENTIONS ว่าคู่ไหนอ่านชุดเดียวกัน
- *    ("ซาจูใช้เสาสี่ชุดเดียวกับ BaZi — โหวตซ้ำจะทำให้จีนมีสองเสียง")
- *    แต่กติกานั้นใช้เฉพาะชั้นพยากรณ์ · หน้าแผนลงมือยังนับซ้ำอยู่
- * ⛔ ยุบเพื่อ "นับ" เท่านั้น — ยังแสดงชื่อครบทุกสายให้คนอ่านตรวจได้
- */
-const _VOICE_FAMILY: Record<string,string> = {
-  'BaZi':'cn-pillars', 'BaZi Feng Shui':'cn-pillars', 'Saju (Korean)':'cn-pillars', 'Saju':'cn-pillars',
-  'Nine Star Ki':'lo-shu', 'Tibetan Mewa':'lo-shu',
-  'Celtic':'tree-cal', 'Ogham':'tree-cal',
-  'Hellenistic':'hellenistic-lots', 'Arabic Parts':'hellenistic-lots',
-  'Mayan':'tzolkin', 'Aztec':'tzolkin',
-  'Thai Brahmin':'thai-weekday', 'Taksa':'thai-weekday',
-}
-function countVoices(systems: string[]): number {
-  const seen = new Set<string>()
-  for (const s of systems) seen.add(_VOICE_FAMILY[s] || s)
-  return seen.size
-}
-
 function noEcho(label: string, value?: string): string {
   const v = String(value || '').trim()
   if (!v) return v
