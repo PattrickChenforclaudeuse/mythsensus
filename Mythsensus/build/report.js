@@ -2346,6 +2346,7 @@ function p15_finance(c) {
 function p16_activation(c) {
     const { bazi, ninestar, numerology, humandesign, vedic, thai, celtic, tibetan, norseRune, kabbalistic, ifaYoruba, aboriginal, biorhythm, vedicMahadasha, onmyodo, zoroastrian, nativeAmerican, aztec, saju } = c;
     // Pull positive actions from all 26 systems — ranked by how many systems endorse
+    // `axis` = แกนนิสัยที่ข้อนี้ยืนอยู่ ถ้ามี จะนับเสียงจาก traitProfile แทนการนับชื่อในลิสต์
     const positives = [
         { icon: '🧭', pts: 0,
             title: tr(`หันหัวทิศ${ninestar.directionSleep}นอน`, `Sleep with your head pointing ${trDF(ninestar.directionSleep)}`),
@@ -2354,7 +2355,7 @@ function p16_activation(c) {
         { icon: '🎯', pts: 0,
             title: tr(`ทำตาม Strategy "${humandesign.strategy}"`, `Follow your Strategy "${trDF(humandesign.strategy)}"`),
             body: tr(`Energy Type ${humandesign.typeTh}: หัวใจของระบบประเภทพลังงาน — ฝืนแล้วเหนื่อยเปล่า`, `Energy Type ${trDF(humandesign.typeTh)}: heart of the energy-type reading — fight it and you exhaust yourself`),
-            systems: ['Energy Type System', 'Kabbalistic'] },
+            axis: 'initiative', systems: ['Energy Type System', 'Kabbalistic'] },
         // ⛔ ไอคอนต้องมาจากธาตุจริงของดวง ห้าม hardcode —
         //    ของเดิมตรึงไว้ที่ 🔥 ทุกดวง ⇒ คนธาตุน้ำเห็นไอคอนไฟคู่กับคำว่า "เสริมธาตุน้ำ"
         //    (director 2 ก.ย.: "สัญลักษณ์ผิด") · ไอคอนที่ขัดกับข้อความข้างๆ ทำลายความเชื่อทั้งหน้า
@@ -2373,7 +2374,7 @@ function p16_activation(c) {
         { icon: '📝', pts: 0,
             title: tr(`Journal ทุกเช้า — ตั้งเจตนา`, `Journal every morning — set intentions`),
             body: tr(`Life Path ${numerology.lifePath} + Kabbalistic ${kabbalistic.sephira}: ความชัดเจนในความคิดเป็นพลังงาน`, `Life Path ${numerology.lifePath} + Kabbalistic ${kabbalistic.sephira}: clarity of thought IS energy`),
-            systems: ['Numerology', 'Kabbalistic', 'Zoroastrian'] },
+            axis: 'expression', systems: ['Numerology', 'Kabbalistic', 'Zoroastrian'] },
         { icon: '🙏', pts: 0,
             title: tr(`ทำพิธีกรรม${thai.dayName}`, `Perform a ritual on ${trDF(thai.dayName)}`),
             body: tr(`ไทยพราหมณ์ + Zoroastrian ${zoroastrian.dayYazataTh}: สักการะในวันเกิดของสัปดาห์`, `Thai-Brahmin + Zoroastrian ${zoroastrian.dayYazata}: honour the deity on your birth-weekday`),
@@ -2385,7 +2386,7 @@ function p16_activation(c) {
         { icon: '💬', pts: 0,
             title: tr(`รอ Response ก่อนลงมือ`, `Wait for the inner response before acting`),
             body: tr(`${humandesign.typeTh} · ${humandesign.authority}: ตัดสินใจตาม inner response`, `${trDF(humandesign.typeTh)} · ${humandesign.authority}: decide from the inner signal`),
-            systems: ['Energy Type System', 'Norse Rune'] },
+            axis: 'initiative', systems: ['Energy Type System', 'Norse Rune'] },
         { icon: '🗺️', pts: 0,
             title: tr(`วางแผนทิศ${ninestar.starDirection}`, `Plan around the ${trDF(ninestar.starDirection)} direction`),
             body: tr(`NSK ทิศโชค${ninestar.starDirection} ปี 2026: ใช้ทิศนี้ในการเดินทางและจัดโต๊ะทำงาน`, `NSK lucky direction ${trDF(ninestar.starDirection)} for 2026: use it for travel and work-desk orientation`),
@@ -2440,13 +2441,18 @@ function p16_activation(c) {
     </div>
 
     <div style="font-size:13px;font-weight:600;color:#60c060;margin-bottom:8px">✅ ${tr('สิ่งที่ควรทำ · Priority-ranked (เรียงจากศาสตร์เห็นพ้องมากสุด)', 'What to do · Priority-ranked (most-agreed-upon first)')}</div>
-    ${[...positives].sort((x, y) => y.systems.length - x.systems.length).slice(0, 8).map((a, n) => {
+    ${[...positives].sort((x, y) => ((x.axis ? (axisBackers(c, x.axis)?.n ?? x.systems.length) : x.systems.length) < (y.axis ? (axisBackers(c, y.axis)?.n ?? y.systems.length) : y.systems.length) ? 1 : -1)).slice(0, 8).map((a, n) => {
         // ⛔ ป้าย "+${delta}" ถูกถอดออกจากหน้า 2 ก.ย. 69 — ค่าเท่ากันทั้ง 5 แถว
         //    ป้ายที่ไม่เคยต่างกันไม่ได้บอกอะไร แค่กินที่แล้วชวนให้ถามว่าคืออะไร
         //    (director: "+9 ข้างหลังคืออะไร") ถ้าจะเอากลับมา ต้องทำให้มันต่างกันจริงก่อน
         // ⛔ และห้ามเขียนเหตุผลเป็น <!-- --> ในสตริง HTML — มันติดไปกับไฟล์ลูกค้า
         //    และทำให้ด่าน test:en แดงเพราะเจอภาษาไทยในเล่มอังกฤษ (พลาดมาแล้ววันนี้)
-        const delta = cosmicDelta(a.systems.length);
+        // ⛔ มีแกน = นับจาก traitProfile (24 ศาสตร์ที่เอนจินคำนวณเอง)
+        //    ไม่มีแกน = ข้อนี้ยืนบนข้อมูลของศาสตร์ในลิสต์เท่านั้น ต้องบอกตามนั้น ห้ามเติมให้ดูหนา
+        const _backers = a.axis ? axisBackers(c, a.axis) : null;
+        const _n = _backers ? _backers.n : a.systems.length;
+        const _names = _backers ? _backers.names : a.systems;
+        const delta = cosmicDelta(_n);
         const priority = n < 3 ? 'HIGH' : n < 6 ? 'MEDIUM' : 'LOW';
         const priorityColor = n < 3 ? '#c8a45a' : n < 6 ? '#c0a060' : '#7a6a52';
         return `
@@ -2459,12 +2465,12 @@ function p16_activation(c) {
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
             <span style="font-weight:600;color:#c8a45a;font-size:13px">${n + 1}. ${esc(a.title)}</span>
             <div style="display:flex;gap:6px;align-items:center">
-              <span style="font-size:11.5px;color:#60a060;background:#0a1a0e;padding:2px 8px;border-radius:10px">${a.systems.length} ${tr('สายที่หนุนข้อนี้', 'traditions behind this')}</span>
+              <span style="font-size:11.5px;color:#60a060;background:#0a1a0e;padding:2px 8px;border-radius:10px">${_n} ${tr('สายที่หนุนข้อนี้', 'traditions behind this')}</span>
 
             </div>
           </div>
           <div style="font-size:13px;color:#c8c0a8;margin-top:4px;line-height:1.55">${esc(a.body)}</div>
-          <div style="font-size:11.5px;color:#7a9070;margin-top:4px">${tr('ที่มา:', 'Sources:')} ${a.systems.slice(0, 3).map(s => '<strong>' + esc(s.replace(/\$\{[^}]*\}/g, '')) + '</strong>').join(' · ')}${a.systems.length > 3 ? ` +${(a.systems.length - 3)} ${tr('อื่นๆ', 'more')}` : ''}</div>
+          <div style="font-size:11.5px;color:#7a9070;margin-top:4px">${tr('ที่มา:', 'Sources:')} ${_names.slice(0, 3).map(s => '<strong>' + esc(s.replace(/\$\{[^}]*\}/g, '')) + '</strong>').join(' · ')}${a.systems.length > 3 ? ` +${(a.systems.length - 3)} ${tr('อื่นๆ', 'more')}` : ''}</div>
         </div>
       </div>`;
     }).join('')}
@@ -3493,6 +3499,19 @@ function p_whoYouAre(c) {
  * ⛔ ป้ายกับค่ามาจากคนละที่ จึงซ้ำกันได้ง่ายและไม่มีใครเห็นตอนเขียนทีละฝั่ง
  *    ผลคือ "Wavespell Wavespell of Lamat" · "Night Sect Sect" ซึ่งอ่านเหมือนระบบพัง
  */
+/** จำนวนศาสตร์ที่หนุนแกนหนึ่ง + ชื่อจริง — อ่านจาก traitProfile ที่เอนจินคำนวณไว้แล้ว
+ *
+ * ⛔ หน้าแผนลงมือเคยพิมพ์ลิสต์ที่มาด้วยมือ จึงอ้างศาสตร์ที่พูดคนละเรื่องได้โดยไม่มีอะไรจับ
+ *    ที่นี่นับจากข้อมูลเดียวกับหน้า 5 ⇒ ตัวเลขกับชื่อพิสูจน์ได้เสมอ
+ * ⛔ ไม่ยุบคู่แฝด — 26 ศาสตร์ตอบคำถามที่มีคำตอบ 3-4 แบบ ความซ้ำคือกลไกของฉันทามติ
+ */
+function axisBackers(c, axis) {
+    const row = (c.traitProfile || []).find((t) => t && t.axis === axis);
+    if (!row)
+        return null;
+    const names = (row.agreeTh || []).map((x) => String(x));
+    return { n: names.length, names };
+}
 function noEcho(label, value) {
     const v = String(value || '').trim();
     if (!v)
