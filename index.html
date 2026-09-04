@@ -75,7 +75,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=241">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=242">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -3007,7 +3007,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=241" defer></script>
+<script src="/build/ms26-bundle.js?v=242" defer></script>
 <script>
 
 
@@ -7295,7 +7295,7 @@ function renderConsensusPreview(){
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
         <span style="font-size:18px">${th.icon}</span>
         <span style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2px;color:var(--gold);text-transform:uppercase">
-          ${th.systems.length} ${isTh?'ศาสตร์เห็นตรงกัน':'systems agree'}
+          ${th.systems.length} ${th.badge || (isTh?'สายที่ออกเสียง':'traditions voting')}
         </span>
       </div>
       <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:14.5px;color:var(--text);line-height:1.55">${th.message}</div>
@@ -7344,67 +7344,54 @@ function _deriveConsensusThemes(chart){
   const isTh = LANG === 'th';
   const themes = [];
 
-  // Theme 1: ELEMENT consensus (BaZi Day Master + Nine Star Ki + Vedic if present)
-  const baziEl = chart.bazi && chart.bazi.dayMasterElement;
-  const nskEl  = chart.ninestar && chart.ninestar.starElement;
-  if (baziEl && nskEl) {
-    const same = baziEl === nskEl;
-    themes.push({
-      icon: same ? '🔥' : '⚖️',
-      systems: ['BaZi','Nine Star Ki'],
-      message: same
-        ? (isTh
-            ? `ธาตุของคุณคือ <strong style="color:var(--gold)">${baziEl}</strong> — ทั้ง BaZi และ Nine Star Ki เห็นตรงกัน เป็นสัญญาณว่าธาตุนี้คือพลังหลักจริงๆ`
-            : `Your element is <strong style="color:var(--gold)">${baziEl}</strong> — both BaZi and Nine Star Ki agree, signalling this is genuinely your core force`)
-        : (isTh
-            ? `BaZi ให้ธาตุ <strong style="color:var(--gold)">${baziEl}</strong> · Nine Star Ki ให้ <strong style="color:var(--gold)">${nskEl}</strong> — สองพลังที่ต้องสมดุลในตัวคุณ`
-            : `BaZi gives <strong style="color:var(--gold)">${baziEl}</strong> · Nine Star Ki gives <strong style="color:var(--gold)">${nskEl}</strong> — two forces you must balance within`)
-    });
-  }
+  // ⛔ ของเดิมนับความยาวลิสต์ที่พิมพ์มือ แล้วเรียกว่า "N ศาสตร์เห็นตรงกัน"
+  //    · BaZi ไม้ vs NSK น้ำ = ไม่ตรงกัน แต่ป้ายยังขึ้น "2 ศาสตร์เห็นตรงกัน"
+  //    · Life Path 7 · อาทิตย์กุมภ์ · Lagna ธนู = คนละหน่วย เทียบไม่ได้ แต่ขึ้น "3 ศาสตร์เห็นตรงกัน"
+  //    ตอนนี้อ่านจาก traitProfile ที่เอนจินคำนวณเอง — 24 ศาสตร์บนแกนเดียวกัน มีตัวเทียบจริง
+  const tp = Array.isArray(chart && chart.traitProfile) ? chart.traitProfile : [];
+  const rows = tp
+    .map(t => {
+      const agree = (t.agreeTh || []).length, dissent = (t.dissentTh || []).length;
+      return { t, agree, dissent, gap: Math.abs(agree - dissent), voices: agree + dissent };
+    })
+    .filter(r => r.voices >= 3);   // ⛔ ต่ำกว่า 3 เสียงไม่พอจะพูดถึงเลย
 
-  // Theme 2: LIFE PATH consensus (Numerology Life Path + Western Sun + Vedic Lagna)
-  const lp  = chart.numerology && chart.numerology.lifePath;
-  const sun = chart.western && (chart.western.sunSignTh||chart.western.sunSign);
-  const lag = chart.vedic && chart.vedic.lagna;
-  if (lp && sun && lag) {
+  // เรียงจากช่องว่างกว้างสุด = ฉันทามติที่แข็งที่สุด
+  const strong = rows.filter(r => r.gap >= 3).sort((a, b) => b.gap - a.gap).slice(0, 2);
+  // แกนที่สูสีที่สุด = จุดที่ศาสตร์ตอบไม่ตรงกัน ซึ่งเป็นจุดขายของสินค้า
+  const split  = rows.filter(r => r.gap <= 1).sort((a, b) => b.voices - a.voices)[0];
+
+  for (const r of strong) {
+    const names = (r.t.agreeTh || []).slice(0, 4).join(' · ');
     themes.push({
-      icon: '🌟',
-      systems: ['Numerology','Western','Vedic'],
+      icon: '🤝',
+      badge: isTh ? 'สายที่อ่านตรงกัน' : 'traditions agree',
+      systems: (r.t.agreeTh || []),
       message: isTh
-        ? `Life Path <strong style="color:var(--gold)">${lp}</strong> · ดวงอาทิตย์ <strong style="color:var(--gold)">${sun}</strong> · Lagna <strong style="color:var(--gold)">${lag}</strong> — สามศาสตร์อิสระชี้ไปที่บทบาทเดียวกันในชีวิตของคุณ`
-        : `Life Path <strong style="color:var(--gold)">${lp}</strong> · Sun in <strong style="color:var(--gold)">${sun}</strong> · Lagna <strong style="color:var(--gold)">${lag}</strong> — three independent systems point to the same life role`
+        ? `<strong style="color:var(--gold)">${r.agree} สาย</strong> อ่านคุณว่า “${r.t.labelTh}” · อีก <strong>${r.dissent} สาย</strong> เห็นต่าง — ${names}${r.agree > 4 ? ' และอื่นๆ' : ''}`
+        : `<strong style="color:var(--gold)">${r.agree} traditions</strong> read you as “${r.t.labelEn}” · <strong>${r.dissent}</strong> disagree — ${names}${r.agree > 4 ? ' and others' : ''}`
     });
   }
 
-  // Theme 3: TIMING consensus (Vedic Mahadasha + Personal Year + current Luck Pillar)
-  const dasha = chart.vedicMahadasha && chart.vedicMahadasha.currentDasha;
-  const py    = chart.numerology && chart.numerology.personalYear2026;
-  // luckPillars[0] is an OBJECT ({stem, branch, stemTh, branchTh, ageStart, ageEnd, period}),
-  // not a string — stringifying directly produced "[object Object]" in the preview card.
-  // Also, luckPillars[0] is the FIRST pillar (childhood), not current. Use bazi.currentLuckPillar
-  // if present, otherwise compose from stemTh+branchTh.
-  const lp1raw = chart.bazi && chart.bazi.luckPillars && chart.bazi.luckPillars[0];
-  const lp1    = chart.bazi && chart.bazi.currentLuckPillarTh
-    || (lp1raw && (lp1raw.stemTh || lp1raw.stem) + ' ' + (lp1raw.branchTh || lp1raw.branch))
-    || '';
-  if (dasha && py) {
+  if (split) {
     themes.push({
-      icon: '⏳',
-      systems: ['Vedic Mahadasha','Numerology PY', lp1?'BaZi Luck':null].filter(Boolean),
+      icon: '⚖️',
+      // ⛔ ใบนี้คือใบที่ศาสตร์ "ไม่ตรงกัน" — ห้ามใช้ป้ายเดียวกับใบที่ตรงกัน
+      badge: isTh ? 'สายที่ออกเสียง (ไม่ตรงกัน)' : 'traditions voting (split)',
+      systems: [...(split.t.agreeTh || []), ...(split.t.dissentTh || [])],
       message: isTh
-        ? `ช่วงนี้: Mahadasha <strong style="color:var(--gold)">${dasha}</strong> · Personal Year <strong style="color:var(--gold)">${py}</strong>${lp1?` · Luck Pillar <strong style="color:var(--gold)">${lp1}</strong>`:''} — ธีมพลังงานปีนี้ถูกขีดเส้นไว้แล้ว`
-        : `This period: Mahadasha <strong style="color:var(--gold)">${dasha}</strong> · Personal Year <strong style="color:var(--gold)">${py}</strong>${lp1?` · Luck Pillar <strong style="color:var(--gold)">${lp1}</strong>`:''} — the energy theme of this year is set`
+        ? `เรื่อง “${split.t.labelTh}” เสียงออกมา <strong style="color:var(--gold)">${split.agree} ต่อ ${split.dissent}</strong> — <strong>ศาสตร์ตอบไม่ตรงกัน เราจึงไม่ฟันธงให้</strong> ข้อนี้คุณตัดสินเองได้มากที่สุด`
+        : `On “${split.t.labelEn}” the vote is <strong style="color:var(--gold)">${split.agree} to ${split.dissent}</strong> — <strong>the traditions do not agree, so we do not call it</strong>. This one is most yours to decide.`
     });
   }
 
-  // Fallback if not enough data
   if (themes.length === 0) {
     themes.push({
       icon: '✦',
-      systems: ['—'],
+      systems: [],
       message: isTh
-        ? 'กรอกข้อมูลให้ครบเพื่อปลดล็อก consensus จาก 26 ศาสตร์'
-        : 'Complete your profile to unlock 26-system consensus themes'
+        ? 'กรอกวันเกิดให้ครบ แล้วจะเห็นว่าแต่ละศาสตร์อ่านคุณตรงกันตรงไหน และเถียงกันตรงไหน'
+        : 'Enter your birth date to see where the traditions agree about you — and where they argue'
     });
   }
   return themes;
