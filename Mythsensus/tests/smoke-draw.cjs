@@ -2,8 +2,14 @@
 /**
  * smoke-draw.cjs — drive the one journey the whole funnel depends on.
  *
- * A brand-new visitor lands, taps the single dominant CTA ("จั่วพรวันนี้ · ฟรี"),
- * and should get a revealed god card with a share affordance under the blessing.
+ * A brand-new visitor reaches the blessing and should get a revealed god card
+ * with a share affordance under it.
+ *
+ * ⛔ 2026-09-04: the entry overlay's second CTA (entryDrawFirst) was deliberately
+ *    hidden when the landing was cut back to one form. This test kept clicking it
+ *    and went red for a change that was intended. The blessing is still a real
+ *    door — it just moved to the blessing tab — so the walk moved with it rather
+ *    than the test being deleted.
  * Nothing tested this. qa-scanner proves pages load and throw no errors; it never
  * clicks anything, so on 2026-08-15 the landing page could serve 200 with every
  * button dead and every automated check stayed green.
@@ -30,10 +36,25 @@ const problems = [];
 
   await page.goto(URL, { waitUntil: 'networkidle', timeout: 45000 });
 
-  // 1. the entry CTA must exist and be clickable
-  const cta = page.locator('button[onclick*="entryDrawFirst"]');
-  if (!(await cta.count())) problems.push('entry CTA (entryDrawFirst) not found on the landing page');
-  else await cta.first().click();
+  // 1. leave the entry overlay, open the blessing tab, tap draw.
+  //    entryDrawFirst() is still the function behind it (index.html keeps a note
+  //    forbidding its removal) — it is just no longer surfaced on the landing.
+  const closed = await page.evaluate(() => {
+    try { if (typeof entryDrawFirst === 'function') { entryDrawFirst(); return 'entryDrawFirst'; } } catch (_) {}
+    return null;
+  });
+  if (!closed) {
+    problems.push('entryDrawFirst() is gone — the blessing has no entry point left');
+  } else {
+    // the draw button lives in the blessing panel and must be reachable and live
+    const drawBtn = page.locator('#drawBtn');
+    try {
+      await drawBtn.waitFor({ state: 'visible', timeout: 15000 });
+      if (!(await page.locator('.god-card.revealed').count())) await drawBtn.click();
+    } catch (_) {
+      problems.push('#drawBtn never became visible after opening the blessing');
+    }
+  }
 
   // 2. the card must actually reveal — this is the step that needs real rAF,
   //    which is why a hidden/headless-throttled pane could never confirm it.
