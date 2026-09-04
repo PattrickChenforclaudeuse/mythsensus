@@ -2587,7 +2587,9 @@ function p16_activation(c: ChartData): string {
     { icon:'🎨', pts:0,
       title: tr(`ใส่สี${ninestar.starColor}เป็น accent`, `Wear ${trDF(ninestar.starColor)} as an accent colour`),
       body: tr(`NSK ${ninestar.starChinese} + ไทยพราหมณ์${thai.dayName}: สี${ninestar.starColor}/${thai.dayColor}`, `NSK ${ninestar.starChinese} + Thai-Brahmin ${trDF(thai.dayName)}: ${trDF(ninestar.starColor)} / ${trDF(thai.dayColor)}`),
-      systems:['Nine Star Ki','Thai Brahmin','Celtic'] },
+      // ⛔ เดิมอ้าง Thai Brahmin + Celtic ว่าหนุนสีนี้ แต่หน้าไทยพราหมณ์ให้ม่วง/ดำ และเซลติกให้เขียว
+      //    ⇒ อ้างเฉพาะสายที่พูดถึงสีนี้จริง
+      systems:['Nine Star Ki'] },
     { icon:'📝', pts:0,
       title: tr(`Journal ทุกเช้า — ตั้งเจตนา`, `Journal every morning — set intentions`),
       body: tr(`Life Path ${numerology.lifePath} + Kabbalistic ${kabbalistic.sephira}: ความชัดเจนในความคิดเป็นพลังงาน`, `Life Path ${numerology.lifePath} + Kabbalistic ${kabbalistic.sephira}: clarity of thought IS energy`),
@@ -2607,7 +2609,8 @@ function p16_activation(c: ChartData): string {
     { icon:'🗺️', pts:0,
       title: tr(`วางแผนทิศ${ninestar.starDirection}`, `Plan around the ${trDF(ninestar.starDirection)} direction`),
       body: tr(`NSK ทิศโชค${ninestar.starDirection} ปี 2026: ใช้ทิศนี้ในการเดินทางและจัดโต๊ะทำงาน`, `NSK lucky direction ${trDF(ninestar.starDirection)} for 2026: use it for travel and work-desk orientation`),
-      systems:['Nine Star Ki','Arabic Parts'] },
+      // ⛔ Arabic Parts ไม่มีวิชาเรื่องทิศในรายงานนี้ — มีแต่ Lot of Fortune/Spirit
+      systems:['Nine Star Ki'] },
     { icon:'🌟', pts:0,
       title: tr(`เชื่อมกับ Odù ${ifaYoruba.odu}`, `Connect with Odù ${ifaYoruba.odu}`),
       body: tr(`Ifa/Yoruba: ${ifaYoruba.oduTh} — ${ifaYoruba.oduTheme}`, `Ifa/Yoruba: ${ifaYoruba.odu} — ${trDF(ifaYoruba.oduTheme)}`),
@@ -2653,20 +2656,21 @@ function p16_activation(c: ChartData): string {
       <div style="font-size:13px;color:#c8c0a8;line-height:1.75">
         ${tr(`แต่ละข้อถูก <strong>จัดลำดับความสำคัญจากจำนวนศาสตร์ที่เห็นพ้อง</strong> —
         ยิ่งหลายศาสตร์อิสระชี้ไปทางเดียวกัน ยิ่งมีน้ำหนัก`, `Each item is <strong>ranked by how many independent systems agree on it</strong> — the more traditions point the same direction, the more weight it carries.`)}<br>
-        <strong style="color:#60c060">[+X]</strong> = ${tr('คาดว่าเสริม Cosmic Score Consensus ประมาณ +X จุด','expected to lift your Cosmic Score Consensus by ~X points')} ·
-        <strong style="color:#c06060">[−X]</strong> = ${tr('ลด Consensus ถ้าทำสิ่งที่ขัดกับดวง','reduces consensus when you act against your chart')}<br>
+        <!-- ⛔ คำอธิบาย [+X]/[−X] ถูกถอด 4 ก.ย. 69 — ป้ายนั้นไม่ได้พิมพ์ในลิสต์แล้วตั้งแต่ 2 ก.ย.
+             คำอธิบายของสัญลักษณ์ที่ไม่มีอยู่จริง คือสิ่งที่ผู้อ่านยกเป็นหลักฐานว่าไม่มีใครอ่านหน้าตัวเอง
+             จะเอากลับมาเมื่อไหร่ ต้องพิมพ์ป้ายจริงในลิสต์ด้วย -->
         <span style="color:#967f5d">${tr('หมายเหตุ: Cosmic Score ของวันเกิดคงที่ตลอดชีวิต — ตัวเลขนี้คือ "การใช้ชีวิตให้สอดคล้องกับดวง" ที่ชัดเจนขึ้น ไม่ใช่เปลี่ยนดวง','Note: your birth-chart Cosmic Score is fixed for life — this number reflects how aligned you\'re living with it, not a change to the chart itself.')}</span>
       </div>
     </div>
 
     <div style="font-size:13px;font-weight:600;color:#60c060;margin-bottom:8px">✅ ${tr('สิ่งที่ควรทำ · Priority-ranked (เรียงจากศาสตร์เห็นพ้องมากสุด)','What to do · Priority-ranked (most-agreed-upon first)')}</div>
-    ${positives.slice(0,8).map((a,n) => {
+    ${[...positives].sort((x,y) => countVoices(y.systems) - countVoices(x.systems)).slice(0,8).map((a,n) => {
       // ⛔ ป้าย "+${delta}" ถูกถอดออกจากหน้า 2 ก.ย. 69 — ค่าเท่ากันทั้ง 5 แถว
       //    ป้ายที่ไม่เคยต่างกันไม่ได้บอกอะไร แค่กินที่แล้วชวนให้ถามว่าคืออะไร
       //    (director: "+9 ข้างหลังคืออะไร") ถ้าจะเอากลับมา ต้องทำให้มันต่างกันจริงก่อน
       // ⛔ และห้ามเขียนเหตุผลเป็น <!-- --> ในสตริง HTML — มันติดไปกับไฟล์ลูกค้า
       //    และทำให้ด่าน test:en แดงเพราะเจอภาษาไทยในเล่มอังกฤษ (พลาดมาแล้ววันนี้)
-      const delta = cosmicDelta(a.systems.length)
+      const delta = cosmicDelta(countVoices(a.systems))
       const priority = n < 3 ? 'HIGH' : n < 6 ? 'MEDIUM' : 'LOW'
       const priorityColor = n < 3 ? '#c8a45a' : n < 6 ? '#c0a060' : '#7a6a52'
       return `
@@ -2679,7 +2683,7 @@ function p16_activation(c: ChartData): string {
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
             <span style="font-weight:600;color:#c8a45a;font-size:13px">${n+1}. ${esc(a.title)}</span>
             <div style="display:flex;gap:6px;align-items:center">
-              <span style="font-size:11.5px;color:#60a060;background:#0a1a0e;padding:2px 8px;border-radius:10px">${a.systems.length} ${tr('ศาสตร์ตรงกัน','agree')}</span>
+              <span style="font-size:11.5px;color:#60a060;background:#0a1a0e;padding:2px 8px;border-radius:10px">${countVoices(a.systems)} ${tr('สายที่หนุนข้อนี้','traditions behind this')}</span>
 
             </div>
           </div>
@@ -3898,6 +3902,27 @@ function p_whoYouAre(c: ChartData): string {
  * ⛔ ป้ายกับค่ามาจากคนละที่ จึงซ้ำกันได้ง่ายและไม่มีใครเห็นตอนเขียนทีละฝั่ง
  *    ผลคือ "Wavespell Wavespell of Lamat" · "Night Sect Sect" ซึ่งอ่านเหมือนระบบพัง
  */
+/** ยุบสายที่อ่านข้อมูลชุดเดียวกัน ให้เหลือเสียงเดียวก่อนนับ
+ *
+ * ⛔ เอนจินประกาศไว้เองแล้วใน _FC_ABSTENTIONS ว่าคู่ไหนอ่านชุดเดียวกัน
+ *    ("ซาจูใช้เสาสี่ชุดเดียวกับ BaZi — โหวตซ้ำจะทำให้จีนมีสองเสียง")
+ *    แต่กติกานั้นใช้เฉพาะชั้นพยากรณ์ · หน้าแผนลงมือยังนับซ้ำอยู่
+ * ⛔ ยุบเพื่อ "นับ" เท่านั้น — ยังแสดงชื่อครบทุกสายให้คนอ่านตรวจได้
+ */
+const _VOICE_FAMILY: Record<string,string> = {
+  'BaZi':'cn-pillars', 'BaZi Feng Shui':'cn-pillars', 'Saju (Korean)':'cn-pillars', 'Saju':'cn-pillars',
+  'Nine Star Ki':'lo-shu', 'Tibetan Mewa':'lo-shu',
+  'Celtic':'tree-cal', 'Ogham':'tree-cal',
+  'Hellenistic':'hellenistic-lots', 'Arabic Parts':'hellenistic-lots',
+  'Mayan':'tzolkin', 'Aztec':'tzolkin',
+  'Thai Brahmin':'thai-weekday', 'Taksa':'thai-weekday',
+}
+function countVoices(systems: string[]): number {
+  const seen = new Set<string>()
+  for (const s of systems) seen.add(_VOICE_FAMILY[s] || s)
+  return seen.size
+}
+
 function noEcho(label: string, value?: string): string {
   const v = String(value || '').trim()
   if (!v) return v
