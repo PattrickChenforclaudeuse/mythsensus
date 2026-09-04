@@ -93,6 +93,20 @@ async function callOnce(opts: {
   return { obj, usage: data.usage || {} }
 }
 
+/** อ่านตารางที่เคยเก็บไว้ — ใช้ต่อยอดในรอบเก็บตก · ไม่มีก็คืนว่าง */
+async function readGrid(ck: any): Promise<Record<string, Record<string, string>>> {
+  try {
+    const q = `${REST}/myth_addon_reading?chart_hash=eq.${encodeURIComponent(ck.chart_hash)}` +
+      `&system=eq.${encodeURIComponent(ck.system)}&lang=eq.${encodeURIComponent(ck.lang)}` +
+      `&relationship_status=eq.${encodeURIComponent(ck.relationship_status)}` +
+      `&prompt_version=eq.${encodeURIComponent(ck.prompt_version)}&select=oracle_json`
+    const r = await fetch(q, { headers: sbHeaders })
+    if (!r.ok) return {}
+    const rows = await r.json()
+    return (rows[0] && rows[0].oracle_json && rows[0].oracle_json.grid) || {}
+  } catch (_) { return {} }
+}
+
 async function upsertPhase(ck: any, patch: Record<string, unknown>) {
   const r = await fetch(`${REST}/myth_addon_reading?on_conflict=chart_hash,system,lang,relationship_status,prompt_version`, {
     method: 'POST',
@@ -192,8 +206,10 @@ Deno.serve(async (req: Request) => {
   if (batch && !['answers', 'compose', 'grid'].includes(body.phase)) return json({ error: 'batch needs phase answers|compose|grid' }, 400)
   // ⛔ เพดานนี้เคยเป็น 12 — ขยายเป็น 16 เมื่อ 4 ก.ย. 69 เพราะตารางฉันทามติต้องซอย 15 ก้อน
   //    (คำตอบยาวขึ้นหลังบังคับให้ใส่คำแปลศัพท์ ⇒ ใส่คำถามต่อก้อนได้น้อยลง)
-  //    ฝั่งผู้เรียกประกาศ GRID_MAX_CALLS = 16 ไว้ที่ api/oracle/_grid.js — สองที่ต้องตรงกัน
-  const MAX_BATCH_CALLS = 16
+  //    ฝั่งผู้เรียกประกาศ GRID_MAX_CALLS ไว้ที่ api/oracle/_grid.js — สองที่ต้องตรงกัน
+  //    ขยาย 16 → 28 เมื่อ 4 ก.ย. หลังยิงจริงแล้ว 1 ใน 15 ก้อนชนเพดานเวลา 140 วินาที
+  //    ก้อนเล็กลง (2 คำถาม/ก้อน) ⇒ จำนวนก้อนมากขึ้น แต่แต่ละก้อนเขียนเสร็จเร็วกว่ามาก
+  const MAX_BATCH_CALLS = 28
   if (batch && body.calls.length > MAX_BATCH_CALLS) return json({ error: `too many calls (max ${MAX_BATCH_CALLS})` }, 400)
   const jobKey = [ck.chart_hash, ck.system, ck.lang, ck.relationship_status, ck.prompt_version].join('|')
 
@@ -235,27 +251,83 @@ Deno.serve(async (req: Request) => {
         let cents = 0
         for (const r of ok) { merged[r.key] = r.obj; cents += centsFor(body.model || DEFAULT_MODEL, r.usage) }
 
+        let gridComplete = false
         if (body.phase === 'grid') {
           // ตารางฉันทามติ — ทุกศาสตร์ตอบคำถามชุดเดียวกัน แล้วเอามาเทียบกันได้จริง
           //
           // ⛔ ก้อนหนึ่งคือคำถามกลุ่มหนึ่ง × ทุกศาสตร์ ⇒ ต้องรวมตามศาสตร์ ไม่ใช่ต่อท้ายกัน
           // ⛔ ห้ามเก็บตารางที่ไม่ครบ — หน้าฉันทามติจะนับเสียงจากตารางนี้
           //    ตารางขาดช่อง = นับเสียงผิด ซึ่งแย่กว่าไม่มีตารางเลย
+          const okSysPre = Array.isArray(body.expectSystems) ? new Set(body.expectSystems) : null
+          const okQPre = Array.isArray(body.expectQuestions) ? new Set(body.expectQuestions) : null
+          // ⛔ บางก้อนส่งกลับสลับแกน {"B5":{"bazi":...}} แทน {"bazi":{"B5":...}} ทุกครั้งที่ยิง
+          //    สั่งด้วยคำไม่ได้ผล (ยิงซ้ำ 3 รอบก็เหมือนเดิม) ⇒ ตรวจรูปทรงแล้วสลับกลับ
+          //    เงื่อนไขต้องแน่น: ชั้นนอกเป็นรหัสคำถาม "ทุกตัว" และชั้นในเป็นชื่อศาสตร์ "ทุกตัว"
+          //    ไม่ครบเงื่อนไข = ไม่สลับ ปล่อยให้ถูกตัดแล้วรายงาน ห้ามเดา
+          const looksTransposed = (o: Record<string, any>) => {
+            if (!okSysPre || !okQPre) return false
+            const outer = Object.keys(o)
+            if (!outer.length || !outer.every(k => okQPre.has(k))) return false
+            return outer.every(k => {
+              const inner = o[k]
+              if (!inner || typeof inner !== 'object') return false
+              const ik = Object.keys(inner)
+              return ik.length > 0 && ik.every(x => okSysPre.has(x))
+            })
+          }
           const grid: Record<string, Record<string, string>> = {}
-          for (const chunk of Object.values(merged)) {
-            for (const [sys, ans] of Object.entries((chunk || {}) as Record<string, any>)) {
+          let transposedChunks = 0
+          for (const rawChunk of Object.values(merged)) {
+            let chunk = (rawChunk || {}) as Record<string, any>
+            if (looksTransposed(chunk)) {
+              transposedChunks++
+              const flip: Record<string, Record<string, string>> = {}
+              for (const [q, bySys] of Object.entries(chunk))
+                for (const [sys, v] of Object.entries(bySys as Record<string, string>))
+                  (flip[sys] = flip[sys] || {})[q] = v
+              chunk = flip
+            }
+            for (const [sys, ans] of Object.entries(chunk)) {
               grid[sys] = { ...(grid[sys] || {}), ...(ans as Record<string, string>) }
             }
           }
+          if (!Object.keys(grid).length) throw new Error('ตารางว่าง')
+          // ⛔ นับเฉพาะคีย์ที่ผู้เรียกประกาศไว้ — ยอดนับดิบถูกหลอกได้
+          //    ยิงจริง 4 ก.ย. ได้ 1,191/1,125 ช่องเพราะโมเดลส่งสลับแกน ({"B5":{"bazi":...}})
+          //    และแต่งชื่อศาสตร์ขึ้นเอง (ziwei_actual, hellenisticFix) ⇒ ขยะทำให้ยอดเกินเป้าแล้ว "ผ่าน"
+          // ⛔ ของที่ตัดต้องนับไว้ ห้ามตัดเงียบ
+          const okSys = Array.isArray(body.expectSystems) ? new Set(body.expectSystems) : null
+          const okQ = Array.isArray(body.expectQuestions) ? new Set(body.expectQuestions) : null
+          const dropped: string[] = []
+          if (okSys || okQ) {
+            for (const sys of Object.keys(grid)) {
+              if (okSys && !okSys.has(sys)) { dropped.push(sys); delete grid[sys]; continue }
+              if (!okQ) continue
+              for (const q of Object.keys(grid[sys])) {
+                if (!okQ.has(q)) { dropped.push(sys + '/' + q); delete grid[sys][q] }
+              }
+            }
+          }
+          // ⛔ รวมกับของที่เคยได้มาแล้ว — รอบเก็บตกยิงเฉพาะช่องที่ขาด จึงต้องต่อยอด ไม่ใช่ทับ
+          const prev = await readGrid(ck)
+          for (const [sys, ans] of Object.entries(prev)) {
+            grid[sys] = { ...(ans as Record<string, string>), ...(grid[sys] || {}) }
+          }
           const cells = Object.values(grid).reduce((a: number, g: any) => a + Object.keys(g || {}).length, 0)
-          if (!cells) throw new Error('ตารางว่าง')
           // ผู้เรียกบอกมาว่าคาดหวังกี่ช่อง — ไม่ฝังตัวเลขไว้ที่นี่ เพราะจำนวนคำถามเปลี่ยนได้
           const want = Number(body.expectCells) || 0
-          if (want && cells < want) throw new Error(`ตารางต้องได้ ${want} ช่อง ได้ ${cells}`)
+          // ⛔ ยังไม่ครบ = เก็บไว้เป็น grid_partial ห้ามทิ้งของที่ได้มา และห้ามเรียกว่าเสร็จ
+          //    หน้าฉันทามติอ่านเฉพาะ phase='grid' เท่านั้น
+          //    ⛔ ห้ามเติมช่องที่ขาดด้วย "—" — "—" แปลว่าตำราไม่มีวิชา (ข้อเท็จจริงของตำรา)
+          //       ช่องที่ขาดคือโมเดลไม่ได้ตอบ คนละเรื่องกัน เดาแทนกันไม่ได้
+          const complete = !want || cells >= want
           await upsertPhase(ck, {
-            oracle_json: { schema: 'grid-1.0', lang: ck.lang, cells, grid },
-            phase: 'grid', cost_cents: cents, model: body.model || DEFAULT_MODEL,
+            oracle_json: { schema: 'grid-1.0', lang: ck.lang, cells, want, grid,
+              droppedCount: dropped.length, droppedSample: dropped.slice(0, 12), transposedChunks },
+            phase: complete ? 'grid' : 'grid_partial', cost_cents: cents, model: body.model || DEFAULT_MODEL,
           })
+          gridComplete = complete
+          if (!complete) await upsertJob(jobKey, 'grid_partial', `ได้ ${cells}/${want} ช่อง — ต้องยิงรอบเก็บตก`)
         } else if (body.phase === 'answers') {
           const n = Object.values(merged).reduce((a: number, g: any) => a + (Array.isArray(g?.answers) ? g.answers.length : 0), 0)
           if (n !== 45) throw new Error(`ชั้น 1 ต้องได้ 45 ข้อ ได้ ${n}`)
@@ -268,7 +340,8 @@ Deno.serve(async (req: Request) => {
           }
           await upsertPhase(ck, { oracle_json: { schema: '3.0-composed', system: ck.system, lang: ck.lang, chapters: merged }, phase: 'done', cost_cents: cents, model: body.model || DEFAULT_MODEL })
         }
-        await upsertJob(jobKey, body.phase === 'grid' ? 'grid_ready' : body.phase === 'answers' ? 'answers_ready' : 'done')
+        if (body.phase !== 'grid') await upsertJob(jobKey, body.phase === 'answers' ? 'answers_ready' : 'done')
+        else if (gridComplete) await upsertJob(jobKey, 'grid_ready')
       } catch (e) {
         await upsertJob(jobKey, 'error', String(e).slice(0, 300))
       }

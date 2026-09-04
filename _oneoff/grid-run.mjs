@@ -13,12 +13,13 @@ import { createRequire } from 'node:module'
 
 const require = createRequire(import.meta.url)
 require('../build/ms26-bundle.js')
-const { buildGridCalls, estimateGrid } = await import('../api/oracle/_grid.js')
+const { buildGridCalls, estimateGrid, GRID_MAX_CALLS } = await import('../api/oracle/_grid.js')
 const { checkCell } = require('../Mythsensus/tests/grid-answer-hygiene.cjs')
 
 const MODEL = 'claude-sonnet-5'
 const PRICE = { in: 200 / 1e6, out: 1000 / 1e6 }   // เซนต์ต่อ token (ตรงกับ edge fn)
-const MAX_CALLS = 12
+// ⛔ อ่านจากแหล่งเดียว — เลขนี้เคยซ้ำสามที่แล้วหลุดที่หนึ่ง
+const MAX_CALLS = GRID_MAX_CALLS
 const MAX_CENTS = 300                               // เพดานกันพลาด $3
 
 const env = Object.fromEntries(

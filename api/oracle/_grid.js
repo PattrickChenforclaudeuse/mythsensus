@@ -20,8 +20,8 @@
 import { readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 
-export const GRID_MAX_CALLS = 16     // ตารางยอมยิงได้กี่ครั้ง
-export const EDGE_BATCH_LIMIT = 12   // edge fn ที่ deploy อยู่รับได้แค่นี้ — ยังไม่ได้ใช้เส้นทางนี้
+export const GRID_MAX_CALLS = 28     // ตารางยอมยิงได้กี่ครั้ง (ขยายจาก 16 เมื่อ 4 ก.ย. — ดู MAX_Q_PER_CALL)
+export const EDGE_BATCH_LIMIT = 28   // ต้องเท่ากับ MAX_BATCH_CALLS ใน supabase/functions/oracle-render/index.ts
 
 const V3_DIR = join(process.cwd(), 'Mythsensus', 'report-engine', 'lib', 'oracle', '_v3')
 
@@ -86,7 +86,11 @@ export function buildGridCalls(chart, lang = 'th') {
   // ⛔ ขยายจาก 95 เพราะเพดานคำขึ้นจาก 20 → 26 เพื่อให้ใส่คำแปลศัพท์ได้ (4 ก.ย.)
   //    ยังไม่ได้วัดของจริงหลังแก้ — ต้องวัดใหม่แล้วเขียนทับตัวเลขนี้ ห้ามปล่อยค้าง
   const PER_CELL = 125                      // 83 ที่วัดได้ตอน 20 คำ × 1.3 + เผื่อ
-  const maxQPerCall = Math.max(1, Math.floor((CAP - 900) / (sysCount * PER_CELL)))
+  // ⛔ เพดานเวลาของ edge fn (140 วินาที) คุมกว่าเพดานโทเคน — ก้อนใหญ่ผ่าน CAP ได้
+  //    แต่เขียนไม่ทันเวลา · วัดจริง 4 ก.ย.: 4 คำถาม/ก้อน ⇒ 1 ใน 15 ก้อนชนเพดานเวลา
+  //    2 คำถาม/ก้อน ⇒ ขาออกครึ่งเดียว มีที่เหลือให้ช้าได้เท่าตัว
+  const MAX_Q_PER_CALL = 2
+  const maxQPerCall = Math.min(MAX_Q_PER_CALL, Math.max(1, Math.floor((CAP - 900) / (sysCount * PER_CELL))))
   const chunks = []
   for (const g of questions.groups) {
     for (let i = 0; i < g.questions.length; i += maxQPerCall) {
