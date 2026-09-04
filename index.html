@@ -75,7 +75,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=244">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=245">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -3007,7 +3007,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=244" defer></script>
+<script src="/build/ms26-bundle.js?v=245" defer></script>
 <script>
 
 
@@ -7327,7 +7327,12 @@ function renderConsensusPreview(){
       </div>
 
       <!-- ⛔ ปุ่ม ไม่ใช่โหลดอัตโนมัติ — ตารางราคา ~$1.3 ต่อผัง คนเปิดหน้าเฉยๆ ต้องไม่เสียเงิน
-           ⛔ ต้องบอกก่อนกดว่าใช้เวลาสักครู่ ไม่งั้นคนกดแล้วคิดว่าค้าง -->
+           ⛔ ต้องบอกก่อนกดว่าใช้เวลาสักครู่ ไม่งั้นคนกดแล้วคิดว่าค้าง
+           ⛔ หน้านี้อยู่เหนือฟอร์ม = หน้าของคนที่ยังไม่จ่าย ⇒ ห้ามวางของขายไว้ตรงนี้
+              (director 4 ก.ย.: "ของฟรีไม่ให้เสียเงิน เอาเท่าที่มีนั่นแหละพอแล้ว")
+              คนใช้ฟรีเห็นเฉพาะการ์ดนับเสียงจาก traitProfile ซึ่งคำนวณในเครื่อง ไม่มีค่าใช้จ่าย
+              การซ่อนปุ่มไม่ใช่ระบบกันเงินรั่ว — เซิร์ฟเวอร์ยังกันอีกชั้นด้วย requireOracleAccess -->
+      ${(typeof _IS_PREMIUM !== 'undefined' && _IS_PREMIUM) || (typeof _OWNER_MODE !== 'undefined' && _OWNER_MODE) ? `
       <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
         <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">
           ${isTh?'ถามทีละคำถาม ทุกตำราตอบพร้อมกัน':'One question, every tradition at once'}
@@ -7341,7 +7346,7 @@ function renderConsensusPreview(){
         <button onclick="loadConsensusGrid(this)" style="margin-top:4px;padding:11px 18px;font-size:13.5px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.08);color:var(--gold);border-radius:8px;font-family:'Cormorant Garamond','Sarabun',serif">
           ${isTh?'✦ ให้ทุกตำราตอบ · ใช้เวลาสักครู่':'✦ Ask every tradition · takes a moment'}
         </button>
-      </div>
+      </div>` : ''}
     </div>
   `;
 }
