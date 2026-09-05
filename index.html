@@ -75,7 +75,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=250">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=252">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -1537,6 +1537,22 @@ async function _shareCardImage(){
     const url = g ? _cardUrl(g) : null;
     if (!url) { _shareDraw(); return; }
     try { if (window._msTrack) _msTrack.track('share', { god: g.name, meta: { ch: 'image' } }); } catch(_){}
+    // ⛔ แนบไฟล์เฉพาะบนมือถือ — บนเดสก์ท็อป ตัวแชร์ของ Windows หยิบไปแต่ไฟล์
+    //    แล้วทิ้งข้อความกับลิงก์ ⇒ คนรับได้รูปเปล่าที่กลับมาหาเว็บไม่ได้
+    //    จุดประสงค์ของการแชร์คือพาคนกลับมา ลิงก์จึงสำคัญกว่ารูปเสมอ
+    var _isMobile = false;
+    try {
+      _isMobile = (navigator.maxTouchPoints || 0) > 0
+        && window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    } catch (_) {}
+    if (!_isMobile) {
+      if (navigator.share) {
+        await navigator.share({ title: 'Mythsensus', text: _webShareText(), url: _webShareUrl() });
+      } else {
+        _webShareToggle(document.getElementById('godShareBtn'));
+      }
+      return;
+    }
     const blob = await (await fetch(url, { mode: 'cors' })).blob();
     const file = new File([blob], (g.name || 'mythsensus') + '-card.webp', { type: 'image/webp' });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -3007,7 +3023,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=250" defer></script>
+<script src="/build/ms26-bundle.js?v=252" defer></script>
 <script>
 
 
@@ -4021,6 +4037,17 @@ function _refreshEntryHero(){
   } catch(_){}
 }
 function applyLang(){
+  // ⛔ /?lang=en เป็นไฟล์เดียวกับหน้าไทย ชื่อแท็บจึงเป็นไทยจนกว่าจะสลับตรงนี้
+  //    คนอังกฤษเห็นแท็บภาษาไทย และตอนแชร์ลิงก์ได้ข้อความไทยไปด้วย
+  //    ⛔ แก้เฉพาะสิ่งที่คนเห็น ไม่ได้ช่วยเรื่องค้นหา — crawler ไม่รัน JS
+  //       หน้าสำหรับเครื่องค้นหาฝั่งอังกฤษคือ /en ซึ่งถูกอยู่แล้ว
+  try {
+    if (LANG === 'en') {
+      document.title = 'Mythsensus — 26 traditions read one birth date. See where they agree.';
+      var _md = document.querySelector('meta[name="description"]');
+      if (_md) _md.setAttribute('content', 'Most astrology tools pick one tradition. Mythsensus runs your birth date through 26 — BaZi, Vedic, Western, Nine Star Ki, Mayan and more — and shows where they agree, where they contradict, and which have no method to answer. Free daily reading, no signup.');
+    }
+  } catch (_) {}
   // Keep the top-nav lang pill in sync — toggleLang() also updates this,
   // but applyLang() runs at boot too (so EN-preferring returning users see
   // "ไทย" on the pill immediately, not the default "EN").
