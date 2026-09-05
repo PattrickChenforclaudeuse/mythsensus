@@ -75,7 +75,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=252">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=253">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -1531,6 +1531,34 @@ function _webShareText() {
 // Share the actual CARD IMAGE (the viral unit) via the native share sheet when
 // supported (mobile), else download it + open the link menu. The card webp is
 // public on the woam CDN, so the real artwork travels — not just a link.
+// แชร์ผลดวงวันนี้ — ที่ที่คนไปถึงมากสุดในของฟรี (134 ครั้ง เทียบการ์ดขอพร 26)
+//
+// ⛔ ห้ามใส่วันเกิด ชื่อ เวลา หรือเมือง ลงลิงก์เด็ดขาด (ข้อห้ามเดิมที่ _webShareUrl)
+//    ข้อความที่แชร์คือ "ผลของวันนี้" ซึ่งเปลี่ยนทุกวันและไม่ผูกกับตัวบุคคล
+// ⛔ เดสก์ท็อปส่งลิงก์อย่างเดียว — ส่งไฟล์ไปตัวแชร์ของ Windows จะทิ้งลิงก์ทิ้งข้อความ
+//    แล้วคนรับได้รูปเปล่าที่กลับมาหาเว็บไม่ได้ (เจอจริง 5 ก.ย.)
+async function sharePulse() {
+  const isTh = (typeof LANG !== 'undefined' && LANG === 'th');
+  const p = (typeof window !== 'undefined' && window._pulseShare) || {};
+  const verdict = isTh ? (p.verdictTh || '') : (p.verdictEn || '');
+  const voting = p.voting || 0;
+  const text = isTh
+    ? `วันนี้ ${voting} ศาสตร์ทำฉันทามติให้ฉัน — ${verdict}` + (p.good ? ` · ดีกว่าปกติ ${p.good} ด้าน` : '')
+    : `${voting} traditions reached a consensus for me today — ${verdict}` + (p.good ? ` · ${p.good} areas above my usual` : '');
+  const url = 'https://mythsensus.com/';
+  try { if (window._msTrack) _msTrack.track('share', { meta: { ch: 'pulse' } }); } catch (_) {}
+  try {
+    if (navigator.share) { await navigator.share({ title: 'Mythsensus', text: text, url: url }); return; }
+  } catch (_) { return; }   // ผู้ใช้กดยกเลิก = ไม่ต้องทำอะไรต่อ
+  // เบราว์เซอร์ไม่รองรับ — คัดลอกให้แทน
+  try {
+    await navigator.clipboard.writeText(text + ' ' + url);
+    alert(isTh ? 'คัดลอกแล้ว วางในแชตได้เลย' : 'Copied — paste it into a chat');
+  } catch (_) {
+    try { _webShareToggle(null); } catch (__) {}
+  }
+}
+
 async function _shareCardImage(){
   try{
     const g = (typeof _currentDraw !== 'undefined' && _currentDraw) ? _currentDraw.god : null;
@@ -3023,7 +3051,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=252" defer></script>
+<script src="/build/ms26-bundle.js?v=253" defer></script>
 <script>
 
 
@@ -11271,6 +11299,9 @@ function _pulseBar(pulse, tierColor){
   // โทนเดียวกับการ์ดตัวอย่างบนจอแรก ซึ่ง director อนุมัติหน้าตาไว้แล้ว —
   // ทอง / เทาหิน / ดินเผา · ไม่มีเขียวไม่มีแดงสด เพราะทั้งเว็บไม่มีสองสีนี้เลย
   const C_UP = 'var(--gold)', C_MID = '#5b5f6d', C_DOWN = '#c2603f';
+  // ⛔ เก็บไว้ให้ปุ่มแชร์ใช้ — เฉพาะผลของวัน ไม่มีวันเกิด ชื่อ หรือเมือง
+  //    (ข้อห้ามเดิมที่ _webShareUrl(): ลิงก์แชร์ห้ามมีข้อมูลวันเกิดเด็ดขาด)
+  try { window._pulseShare = { good: good, low: low, n: n }; } catch (_) {}
   const V = score >= 3 ? { key:'peak',  th:'วันทอง',      en:'Golden day', c:'var(--gold2)' }
           : score >= 1 ? { key:'up',    th:'ฟ้าหนุน',      en:'Favoured',   c:'var(--gold)'  }
           : score === 0? { key:'even',  th:'เสมอตัว',      en:'Even',       c:'var(--muted)' }
@@ -11304,7 +11335,7 @@ function _pulseBar(pulse, tierColor){
       <details style="text-align:center;margin-bottom:11px">
         <summary style="cursor:pointer;list-style:none;font-size:10.5px;color:var(--muted);letter-spacing:.4px;line-height:1.6">
           ${isTh
-            ? `<strong style="color:var(--gold2)">${areas.voting}</strong> ศาสตร์ทำฉันทามติให้คุณวันนี้ <span style="color:var(--gold3)">— แตะดูว่าอีก ${areas.abstain} สายไม่มีวิชาตอบเรื่องอะไร</span>`
+            ? `${(function(){try{window._pulseShare=Object.assign(window._pulseShare||{},{voting:areas.voting,verdictTh:V.th,verdictEn:V.en});}catch(_){}return '';})()}<strong style="color:var(--gold2)">${areas.voting}</strong> ศาสตร์ทำฉันทามติให้คุณวันนี้ <span style="color:var(--gold3)">— แตะดูว่าอีก ${areas.abstain} สายไม่มีวิชาตอบเรื่องอะไร</span>`
             : `<strong style="color:var(--gold2)">${areas.voting}</strong> traditions reached a consensus for you today <span style="color:var(--gold3)">— tap to see what the other ${areas.abstain} have no method for</span>`}
         </summary>
         <div style="text-align:left;font-size:10.5px;line-height:1.6;margin-top:7px;padding-left:2px;color:var(--muted)">
@@ -11714,6 +11745,8 @@ function renderDailyPulse() {
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
       <button onclick="togglePulseHistory()" style="padding:7px 12px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;cursor:pointer">${t('pulse_history_btn')}</button>
       <button onclick="renderDailyPulse()" style="padding:7px 12px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;cursor:pointer">${t('pulse_refresh_btn')}</button>
+      <!-- ⛔ ปุ่มแชร์ต้องอยู่ตรงที่คนไปถึงจริง — ของเดิมอยู่บนการ์ดขอพร ซึ่งคนไปถึง 5% -->
+      <button onclick="sharePulse()" style="padding:7px 12px;background:rgba(212,170,80,.12);border:1px solid var(--gold3);color:var(--gold);border-radius:6px;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:1.5px;cursor:pointer">${isTh?'✦ แชร์ผลวันนี้':'✦ SHARE TODAY'}</button>
     </div>
 
     ${pinModalHtml}
