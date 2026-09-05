@@ -75,7 +75,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=248">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=249">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -3007,7 +3007,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=248" defer></script>
+<script src="/build/ms26-bundle.js?v=249" defer></script>
 <script>
 
 
@@ -19247,9 +19247,25 @@ function _entryRefreshLang(){
   const priv  = document.getElementById('entryPrivacy');
   const cta   = document.getElementById('entryCta');
   const nameI = document.getElementById('entryName');
-  if (intro) intro.textContent = isTh
-    ? 'เลือกภาษาก่อน · ใส่วันเกิดเพื่อปลดล็อก 26 ศาสตร์โบราณ'
-    : 'Pick a language · enter your birth date to unlock 26 systems';
+  // ⛔ ถ้ากรอกวันเกิดมาจากจอแรกแล้ว ห้ามสั่งให้ทำสิ่งที่ทำไปแล้ว
+  //    ให้ทวนวันเกิดที่ได้มาเพื่อให้ยืนยันแทน (ผู้ใช้กด "แก้ไข" ได้)
+  //    อ่านจากช่องจริงทุกครั้ง ห้ามจำค่าไว้เอง
+  if (intro) {
+    var _hd = document.getElementById('heroDay'), _hm = document.getElementById('heroMonth'), _hy = document.getElementById('heroYear');
+    var _dd = _hd && _hd.value.trim(), _mm = _hm && _hm.value.trim(), _yy = _hy && _hy.value.trim();
+    if (_dd && _mm && _yy) {
+      var _MTH_TH = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+      var _MTH_EN = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var _mi = parseInt(_mm, 10) || 0;
+      intro.textContent = isTh
+        ? 'เกิด ' + _dd + ' ' + (_MTH_TH[_mi] || '') + ' ' + _yy + ' — ถูกไหม กดเปิดได้เลย'
+        : 'Born ' + _dd + ' ' + (_MTH_EN[_mi] || '') + ' ' + _yy + ' — looks right? Open it.';
+    } else {
+      intro.textContent = isTh
+        ? 'ใส่วันเกิดเพื่อปลดล็อก 26 ศาสตร์'
+        : 'Enter your birth date to unlock 26 traditions';
+    }
+  }
   if (priv) priv.textContent = isTh
     ? 'ข้อมูลทั้งหมดอยู่ในเครื่องคุณเท่านั้น — ไม่ส่งขึ้น cloud'
     : 'All data stays on your device — never sent to the cloud';
