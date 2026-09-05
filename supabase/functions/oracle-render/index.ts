@@ -242,11 +242,15 @@ Deno.serve(async (req: Request) => {
         } finally { clearTimeout(timer) }
 
         const failed = settled.filter(x => x.status === 'rejected')
-        if (failed.length) {
-          throw new Error(`${failed.length}/${body.calls.length} ก้อนพัง: ` +
-            failed.map((f: any) => String(f.reason).slice(0, 90)).join(' | '))
+        // ⛔ ตารางเท่านั้นที่ยอมให้ก้อนพังบางก้อน — มันมี grid_partial + รอบเก็บตกรองรับ
+        //    ทิ้งทั้งชุดเพราะก้อนเดียวพัง = เผาเงินของอีก 25 ก้อนทิ้งเปล่าๆ (เจอจริง 5 ก.ย.)
+        // ⛔ ห้ามขยายข้อยกเว้นนี้ไป answers/compose — สองเฟสนั้นไม่มีทางเติมทีหลัง
+        //    คนจ่ายเงินแล้วได้คำอ่านที่หายไปสามหมวดคือของเสียที่มองไม่เห็น
+        const failedNote = failed.map((f: any) => String(f.reason).slice(0, 90)).join(' | ')
+        if (failed.length && (body.phase !== 'grid' || failed.length === body.calls.length)) {
+          throw new Error(`${failed.length}/${body.calls.length} ก้อนพัง: ` + failedNote)
         }
-        const ok = settled.map((x: any) => x.value)
+        const ok = settled.filter((x: any) => x.status === 'fulfilled').map((x: any) => x.value)
         const merged: Record<string, any> = {}
         let cents = 0
         for (const r of ok) { merged[r.key] = r.obj; cents += centsFor(body.model || DEFAULT_MODEL, r.usage) }
@@ -264,16 +268,19 @@ Deno.serve(async (req: Request) => {
           //    สั่งด้วยคำไม่ได้ผล (ยิงซ้ำ 3 รอบก็เหมือนเดิม) ⇒ ตรวจรูปทรงแล้วสลับกลับ
           //    เงื่อนไขต้องแน่น: ชั้นนอกเป็นรหัสคำถาม "ทุกตัว" และชั้นในเป็นชื่อศาสตร์ "ทุกตัว"
           //    ไม่ครบเงื่อนไข = ไม่สลับ ปล่อยให้ถูกตัดแล้วรายงาน ห้ามเดา
+          // ⛔ ใช้เสียงข้างมาก ไม่ใช่ทุกตัว — ของเดิมบังคับ every แล้วคีย์แปลกปลอมตัวเดียว
+          //    ทำให้ไม่สลับกลับ = ทิ้งทั้งก้อน 50 ช่องเงียบๆ (เจอจริง 5 ก.ย. กับก้อนที่มี B5/B6)
+          //    คีย์ที่ไม่เข้าเกณฑ์จะถูก whitelist ข้างล่างตัดทิ้งพร้อมบันทึกจำนวนอยู่แล้ว
+          const majority = (arr: string[], has: (k: string) => boolean) =>
+            arr.length > 0 && arr.filter(has).length * 2 > arr.length
           const looksTransposed = (o: Record<string, any>) => {
             if (!okSysPre || !okQPre) return false
             const outer = Object.keys(o)
-            if (!outer.length || !outer.every(k => okQPre.has(k))) return false
-            return outer.every(k => {
-              const inner = o[k]
-              if (!inner || typeof inner !== 'object') return false
-              const ik = Object.keys(inner)
-              return ik.length > 0 && ik.every(x => okSysPre.has(x))
-            })
+            if (!majority(outer, k => okQPre.has(k))) return false
+            const inner = Object.values(o).filter(v => v && typeof v === 'object')
+            if (inner.length !== outer.length) return false
+            const innerKeys = inner.flatMap(v => Object.keys(v as object))
+            return majority(innerKeys, k => okSysPre.has(k))
           }
           const grid: Record<string, Record<string, string>> = {}
           let transposedChunks = 0
@@ -323,7 +330,8 @@ Deno.serve(async (req: Request) => {
           const complete = !want || cells >= want
           await upsertPhase(ck, {
             oracle_json: { schema: 'grid-1.0', lang: ck.lang, cells, want, grid,
-              droppedCount: dropped.length, droppedSample: dropped.slice(0, 12), transposedChunks },
+              droppedCount: dropped.length, droppedSample: dropped.slice(0, 12), transposedChunks,
+              failedChunks: failed.length, failedNote: failedNote.slice(0, 200) },
             phase: complete ? 'grid' : 'grid_partial', cost_cents: cents, model: body.model || DEFAULT_MODEL,
           })
           gridComplete = complete
