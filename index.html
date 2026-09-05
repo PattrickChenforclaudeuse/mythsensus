@@ -75,7 +75,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=246">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=247">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -1773,7 +1773,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
          คนกดปุ่มที่เขียนว่า "ฟรี ไม่ต้องสมัคร" แล้วเจอปุ่มล็อกอินเป็นสิ่งแรก = ขัดกับคำสัญญาบนปุ่ม
          ⛔ ห้ามลบ element ทิ้ง — โค้ดอื่นอ่าน entrySignInBtn/entrySignInLabel อยู่ ใช้ hidden แทน -->
     <!-- RETURNING USER — sign-in shortcut (top of form so always visible on mobile) -->
-    <div hidden style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;padding:10px 14px;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:6px">
+    <div hidden style="align-items:center;justify-content:center;gap:8px;margin-bottom:14px;padding:10px 14px;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:6px">
       <span id="entrySignInLabel" style="font-family:'Josefin Sans',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px">มีบัญชีแล้ว?</span>
       <button class="login-guest-btn" onclick="showLoginOverlay()" id="entrySignInBtn">✦ ลงชื่อเข้าใช้ / Sign in →</button>
     </div>
@@ -1788,7 +1788,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     </div>
 
     <!-- INPUT GRID -->
-    <div hidden style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px">
+    <div hidden style="grid-template-columns:1fr;gap:8px;margin-bottom:12px">
       <input class="login-input" type="text" id="entryName" placeholder="ชื่อ / นามแฝง · ไม่ใส่ก็ได้"
              style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:15px">
       <!-- Confirmed line, shown when the hero already collected the date.
@@ -1922,7 +1922,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     <!-- ⛔ ช่องติ๊กยืนยันอายุถูกซ่อน 4 ก.ย. 69 — เปลี่ยนเป็น "กดปุ่ม = ยืนยัน" พร้อมข้อความใต้ปุ่ม
          เหตุ: ไม่ติ๊กมาให้ + กดแล้วเงียบ + ข้อความเตือนอยู่ใต้ปุ่มไกลจากสายตา ⇒ คนคิดว่าเว็บพัง
          ⛔ ห้ามลบ #entryAgeConfirm — ตัวส่งฟอร์มอ่านค่าอยู่ -->
-    <div hidden id="ageGateBox" style="display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;padding:10px 12px;background:rgba(212,170,80,.04);border:1px solid rgba(212,170,80,.22);border-radius:6px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--text);line-height:1.55">
+    <div hidden id="ageGateBox" style="align-items:flex-start;gap:10px;margin-bottom:14px;padding:10px 12px;background:rgba(212,170,80,.04);border:1px solid rgba(212,170,80,.22);border-radius:6px;font-family:'Cormorant Garamond','Sarabun',serif;font-size:12px;color:var(--text);line-height:1.55">
       <input type="checkbox" id="entryAgeConfirm" style="margin-top:3px;flex-shrink:0;width:14px;height:14px;cursor:pointer;accent-color:var(--gold)">
       <label for="entryAgeConfirm" style="cursor:pointer;flex:1" id="entryAgeLabel">
         <span lang="th"><strong style="color:var(--gold2)">ฉันอายุ 13 ปีขึ้นไป</strong> · ถ้าอายุ 13–17 ปี ฉันได้รับความยินยอมจากผู้ปกครองให้ใช้ฟีเจอร์แบบเสียเงิน (เนื้อหาฟรีปลอดภัยทุกวัย)</span>
@@ -3007,7 +3007,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=246" defer></script>
+<script src="/build/ms26-bundle.js?v=247" defer></script>
 <script>
 
 
