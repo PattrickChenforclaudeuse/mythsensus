@@ -22,7 +22,10 @@ export default async function handler(req, res) {
   res.setHeader('X-Robots-Tag', 'noindex');
   const q = req.query || {};
   if ((q.k || '') !== KEY) { res.status(401).send('unauthorized'); return; }
-  const days = Math.max(1, Math.min(parseInt(q.days, 10) || 30, 120));
+  // ⛔ เพดานนี้เคยเป็น 120 วัน — ข้อมูลเริ่ม 12 มิ.ย. 69 จะชนราว 10 ต.ค.
+  //    ขยายเป็น 400 เมื่อ 5 ก.ย. · ที่ ~15 เซสชัน/วัน พอไปได้อีกเป็นปี
+  //    ยังไม่ทำตารางสรุปรายวัน จนกว่าตัวนับรอบดึงข้างล่างจะเกิน 20
+  const days = Math.max(1, Math.min(parseInt(q.days, 10) || 30, 400));
 
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -30,6 +33,8 @@ export default async function handler(req, res) {
   const base = SUPABASE_URL.replace(/\/+$/, '');
 
   let rows = [];
+  let pagesFetched = 0;
+  const tQuery = Date.now();
   try {
     const sinceMs = Date.now() - days * 86400000;
     const sinceIso = new Date(sinceMs).toISOString();
@@ -46,6 +51,7 @@ export default async function handler(req, res) {
         },
       });
       const page = await r.json();
+      pagesFetched++;
       if (!Array.isArray(page) || !page.length) break;
       rows = rows.concat(page);
       if (page.length < PAGE) break;   // last page
@@ -271,7 +277,10 @@ export default async function handler(req, res) {
   res.status(200).send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Mythsensus · Funnel</title>
 <style>body{background:#0b0b12;color:#e8e0c9;font-family:-apple-system,'Segoe UI',sans-serif;margin:0;padding:24px;max-width:760px;margin:0 auto}h1{font-size:18px;letter-spacing:2px;color:#c8a45a;font-weight:700}h2{font-size:12px;letter-spacing:2px;color:#8a7a5a;text-transform:uppercase;margin:26px 0 6px}table{width:100%;border-collapse:collapse;background:#13112a;border:1px solid #2a2545;border-radius:8px;overflow:hidden}tr+tr td{border-top:1px solid #211c3a}th{text-align:left;padding:6px 10px;font-size:11px;color:#7a6a52;font-weight:600}.muted{color:#6a5a42;font-size:12px}a{color:#c8a45a}</style></head><body>
 <h1>🔮 MYTHSENSUS · ENGAGEMENT FUNNEL</h1>
-<div class="muted">Source: myth_events (first-party) · window ${days}d (data reaches back ${coverDays}d, ${rows.length} events)${coverDays && coverDays < days - 1 ? ' — no data older than that' : ''} · ${nS} sessions${internalN ? ` · <span style="color:#c8a45a">${internalN} internal (?im=1)</span>` : ''}${machineN ? ` · <span style="color:#c8a45a">${machineN} automated (webdriver/crawler UA)</span>` : ''}${suspectN ? ` · <span style="color:#8a7a62">${suspectN} machine-shaped, unflagged (1 event, no session-end — pre-24-Aug data has no flag)</span>` : ''}${(internalN||machineN||suspectN) ? ' <span style="color:#7a6a52">— all excluded</span>' : ''} · <a href="?k=${esc(q.k)}&days=7">7d</a> · <a href="?k=${esc(q.k)}&days=30">30d</a> · <a href="?k=${esc(q.k)}&days=90">90d</a></div>
+<div class="muted">Source: myth_events (first-party) · window ${days}d (data reaches back ${coverDays}d, ${rows.length} events)${coverDays && coverDays < days - 1 ? ' — no data older than that' : ''} · ${nS} sessions${internalN ? ` · <span style="color:#c8a45a">${internalN} internal (?im=1)</span>` : ''}${machineN ? ` · <span style="color:#c8a45a">${machineN} automated (webdriver/crawler UA)</span>` : ''}${suspectN ? ` · <span style="color:#8a7a62">${suspectN} machine-shaped, unflagged (1 event, no session-end — pre-24-Aug data has no flag)</span>` : ''}${(internalN||machineN||suspectN) ? ' <span style="color:#7a6a52">— all excluded</span>' : ''} · <a href="?k=${esc(q.k)}&days=7">7d</a> · <a href="?k=${esc(q.k)}&days=30">30d</a> · <a href="?k=${esc(q.k)}&days=90">90d</a> · <a href="?k=${esc(q.k)}&days=365">365d</a></div>
+<!-- ⛔ ตัวเตือนว่าถึงเวลาทำตารางสรุปรายวันหรือยัง — ไม่มีตัวนี้ กระดานจะช้าลงเรื่อยๆ
+     จนหมดเวลาของ Vercel เงียบๆ โดยไม่มีใครรู้ว่าเริ่มช้าตั้งแต่เมื่อไหร่ -->
+<div class="muted" style="font-size:11px;margin-top:4px${pagesFetched > 20 ? ';color:#c86a4a' : ''}">ดึง ${pagesFetched} รอบ · ${Date.now() - tQuery} ms${pagesFetched > 20 ? ' — เกิน 20 รอบแล้ว ถึงเวลาทำตารางสรุปรายวัน (ดูคอมเมนต์ที่ const days)' : ''}</div>
 <h2>Funnel</h2><table>${funnelRows}</table>
 <h2>เลิกใช้แล้ว <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(ทางเดินยุคก่อน — เก็บไว้ดูเผื่อฟื้น ไม่ลบ)</span></h2><table>${deadRows}</table>
 <h2>Money intent <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(distinct sessions · instrumented 2026-07-01)</span></h2><table>${moneyRows}</table>
