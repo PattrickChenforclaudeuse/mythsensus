@@ -75,7 +75,7 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
      cache-busting query users can run a stale engine for DAYS after deploy. -->
-<link rel="preload" as="script" href="/build/ms26-bundle.js?v=247">
+<link rel="preload" as="script" href="/build/ms26-bundle.js?v=248">
 <link rel="preload" as="fetch" href="/data/gods.json" crossorigin="anonymous">
 <style>
 /* จานสี — เร่งความอิ่มและความหนา 2 ก.ย. 69 (director: "สีหม่นไป")
@@ -3007,7 +3007,7 @@ try{
 
 </main>
 
-<script src="/build/ms26-bundle.js?v=247" defer></script>
+<script src="/build/ms26-bundle.js?v=248" defer></script>
 <script>
 
 
@@ -3883,10 +3883,10 @@ function _entryFillCity(tries) {
         : 'Different readers, different answers? Here every tradition is asked <strong style="color:var(--gold2)">at once</strong> — yours comes out like this, from your own birth date'}
     </div>
     <div style="text-align:center;font-family:'Cormorant Garamond','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.5;margin-bottom:11px">
+      <!-- ⛔ นำด้วยของที่ได้ ไม่ใช่ของที่ขาด (director 5 ก.ย.)
+           ตัวเลขที่งดยังดูได้ในหน้าดวงวันนี้ ซึ่งมีเหตุผลรายสายกำกับ -->
       <span style="font-family:${NUM};font-variant-numeric:lining-nums tabular-nums;font-size:20px;color:var(--gold);font-weight:600">${d.voting}</span>
-      ${isTh ? 'ศาสตร์ออกเสียง' : d.voting === 1 ? 'tradition votes' : 'traditions vote'} ·
-      <span style="font-family:${NUM};font-variant-numeric:lining-nums tabular-nums;font-size:20px;color:var(--muted);font-weight:600">${d.abstain}</span>
-      ${isTh ? 'งดออกเสียง' : 'abstain'}
+      ${isTh ? 'ศาสตร์ทำฉันทามติให้คุณวันนี้' : d.voting === 1 ? 'tradition reached a consensus for you today' : 'traditions reached a consensus for you today'}
     </div>
     ${rows}
     <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:10px;color:var(--muted);line-height:1.6;margin-top:10px;text-align:center">
@@ -11277,8 +11277,8 @@ function _pulseBar(pulse, tierColor){
       <details style="text-align:center;margin-bottom:11px">
         <summary style="cursor:pointer;list-style:none;font-size:10.5px;color:var(--muted);letter-spacing:.4px;line-height:1.6">
           ${isTh
-            ? `<strong style="color:var(--gold2)">${areas.voting}</strong> ศาสตร์ออกเสียงวันนี้ · <strong>${areas.abstain}</strong> งดออกเสียง <span style="color:var(--gold3)">— แตะดูว่าใครงด เพราะอะไร</span>`
-            : `<strong style="color:var(--gold2)">${areas.voting}</strong> spoke today · <strong>${areas.abstain}</strong> abstained <span style="color:var(--gold3)">— tap for who, and why</span>`}
+            ? `<strong style="color:var(--gold2)">${areas.voting}</strong> ศาสตร์ทำฉันทามติให้คุณวันนี้ <span style="color:var(--gold3)">— แตะดูว่าอีก ${areas.abstain} สายไม่มีวิชาตอบเรื่องอะไร</span>`
+            : `<strong style="color:var(--gold2)">${areas.voting}</strong> traditions reached a consensus for you today <span style="color:var(--gold3)">— tap to see what the other ${areas.abstain} have no method for</span>`}
         </summary>
         <div style="text-align:left;font-size:10.5px;line-height:1.6;margin-top:7px;padding-left:2px;color:var(--muted)">
           ${(abst || []).map(x => `<div style="margin-top:5px">
@@ -19115,6 +19115,27 @@ function showEntryOverlay(){
 // Carries whatever the visitor typed on the landing into the real form, so the
 // three fields they already filled are not asked for a second time. An empty
 // hero just opens the form as before.
+// รับวันเกิดที่กรอกมาจากหน้า /en (โดเมนเดียวกัน จึงส่งผ่าน localStorage ได้)
+// ⛔ หน้า /en เดิมไม่มีช่องกรอกเลย ต้องกดผ่านบทความไปอีกหน้า = ด่านเกินมาหนึ่งชั้น
+//    สำหรับ 36% ของคนเข้า ที่ผ่านแค่ 4.7% เทียบไทย 19.6% (วัด 5 ก.ย.)
+// ⛔ อ่านครั้งเดียวแล้วลบ ไม่ให้ค้างไปเติมให้คนถัดไปที่ใช้เครื่องเดียวกัน
+// ⛔ ค่าใน localStorage แก้ด้วยมือได้ ต้องตรวจก่อนใช้ทุกครั้ง
+function _consumePendingDob(){
+  var raw = null;
+  try { raw = localStorage.getItem('mth_pending_dob'); localStorage.removeItem('mth_pending_dob'); } catch(_) { return false; }
+  if (!raw) return false;
+  var v; try { v = JSON.parse(raw); } catch(_) { return false; }
+  var d = parseInt(v && v.d, 10), m = parseInt(v && v.m, 10), y = parseInt(v && v.y, 10);
+  if (!(d >= 1 && d <= 31) || !(m >= 1 && m <= 12) || !(y >= 1900 && y <= 2200)) return false;
+  var eD = document.getElementById('heroDay'), eM = document.getElementById('heroMonth'), eY = document.getElementById('heroYear');
+  if (!eD || !eM || !eY) return false;
+  eD.value = String(d); eM.value = String(m); eY.value = String(y);
+  try { entryHeroGo(); } catch(_) { return false; }
+  return true;
+}
+try { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(_consumePendingDob, 300); });
+      else setTimeout(_consumePendingDob, 300); } catch(_) {}
+
 function entryHeroGo(){
   try {
     var d = document.getElementById('heroDay');

@@ -81,7 +81,14 @@
        text-transform:uppercase;display:flex;gap:18px}
   .nav-links a{color:var(--text);opacity:.72}
 
-  .hero{padding:60px 0 34px;border-bottom:1px solid var(--border)}
+  .hero{padding:44px 0 30px;border-bottom:1px solid var(--border)}
+  .dob-row{margin-top:22px}
+  .dob-row label{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .dob-fields{display:flex;gap:8px;margin-bottom:14px}
+  .dob-fields input,.dob-fields select{flex:1;min-width:0;padding:13px 10px;font-size:16px;text-align:center;
+    background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit}
+  .dob-fields select{cursor:pointer}
+  .dob-row .cta{width:100%;text-align:center;border:none;cursor:pointer;font-size:16px}
   h1{font-family:'Cinzel Decorative',serif;font-size:clamp(27px,4.6vw,40px);line-height:1.28;
        color:var(--gold);font-weight:400;margin-bottom:18px}
   .lede{font-size:20px;line-height:1.75;color:var(--text)}
@@ -203,14 +210,28 @@
 
   <section class="hero">
     <h1>Twenty-six traditions read the same birth date. Here is where they disagree.</h1>
-    <p class="lede">Most divination sites pick one tradition and speak with one voice. That is comfortable, and it is
-      how you end up with three readings that contradict each other and no way to tell which one to believe.
-      Mythsensus runs a single birth date through twenty-six systems at once and shows you
-      <em>what they converge on and where they pull apart</em>.</p>
-    <p style="margin-top:20px">
-      <a class="cta" href="/?lang=en" onclick="return goApp(event)">READ MY CHART — FREE</a>
-    </p>
-    <p class="cta-note">No account for the daily reading. No card. Works on a phone.</p>
+    <p class="lede">One birth date, twenty-six systems asked at once — you see what they agree on,
+      and where they pull apart.</p>
+
+    <!-- ⛔ ช่องกรอกต้องอยู่จอแรกเหมือนหน้าไทย (director 5 ก.ย.)
+         เดิมหน้านี้เป็นบทความล้วน ต้องกดผ่านไปอีกหน้าถึงจะเจอช่องกรอก
+         = ด่านเกินมาหนึ่งชั้นสำหรับ 36% ของคนเข้า ที่ผ่านแค่ 4.7% เทียบไทย 19.6% -->
+    <div class="dob-row">
+      <label for="enDay">Your birth date</label>
+      <div class="dob-fields">
+        <input id="enDay" type="number" min="1" max="31" placeholder="15" inputmode="numeric" aria-label="Day">
+        <select id="enMonth" aria-label="Month">
+          <option value="">Month</option>
+          <option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option>
+          <option value="4">Apr</option><option value="5">May</option><option value="6">Jun</option>
+          <option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option>
+          <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+        </select>
+        <input id="enYear" type="number" min="1900" max="2026" placeholder="1991" inputmode="numeric" aria-label="Year">
+      </div>
+      <button class="cta" type="button" onclick="return enGo()">See your day &middot; Free</button>
+      <p class="cta-note">No account for the daily reading. No card. Works on a phone.</p>
+    </div>
   </section>
 
   <h2>The problem with a single opinion</h2>
@@ -377,5 +398,18 @@
 
 </div>
 
+<script>
+// ⛔ ส่งวันเกิดข้ามหน้าไปยังแอป — เก็บลง localStorage (โดเมนเดียวกัน) แล้วค่อยพาไป
+//    ห้ามใส่วันเกิดลง query string (ข้อมูลส่วนตัวไม่ควรอยู่บน URL)
+function enGo(){
+  var d=document.getElementById('enDay').value.trim(),
+      m=document.getElementById('enMonth').value.trim(),
+      y=document.getElementById('enYear').value.trim();
+  try{ localStorage.setItem('mth_lang','en'); }catch(e){}
+  if(d&&m&&y){ try{ localStorage.setItem('mth_pending_dob', JSON.stringify({d:d,m:m,y:y})); }catch(e){} }
+  location.href='/?lang=en';
+  return false;
+}
+</script>
 </body>
 </html>
