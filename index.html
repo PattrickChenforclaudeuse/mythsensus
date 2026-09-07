@@ -6772,7 +6772,8 @@ function calcChart(){
 function _observeConsensusSeen(){
   setTimeout(()=>{
     try{
-      const el=document.querySelector('.consensus-banner');
+      // 7 ก.ย. 69: หลังกรอกวันเกิดแอปพาไปหน้า Pulse — จุดขายจึงอยู่ที่ #pulse-consensus ด้วย (ดู _mountPulseConsensus)
+      const el=document.getElementById('pulse-consensus')||document.querySelector('.consensus-banner');
       if(!el||window._consensusViewed) return;
       if(!('IntersectionObserver' in window)){ return; }
       const io=new IntersectionObserver((ents)=>{
@@ -7332,8 +7333,9 @@ function syncAllForms(){
 // Shows "X systems agree on Y" cards above the form so the user grasps the
 // app's value prop *before* clicking Generate. Reads profile, builds a chart,
 // extracts cross-system themes via _deriveConsensusThemes().
-function renderConsensusPreview(){
-  const host = document.getElementById('cb-consensus-preview');
+function renderConsensusPreview(hostEl){
+  // hostEl (7 ก.ย. 69): ให้หน้า Pulse ยืมการ์ดชุดเดียวกันได้ — ไม่ส่ง = หน้า Blueprint ตามเดิม
+  const host = hostEl || document.getElementById('cb-consensus-preview');
   if (!host) return;
   const chart = _getMS26ChartFromProfile();
   if (!chart) { host.style.display='none'; host.innerHTML=''; return; }
@@ -11408,6 +11410,21 @@ function _pulseGreeting(){
     ${isTh ? th : en}</div>`;
 }
 
+// 7 ก.ย. 69 — ตั้งแต่ 31 ส.ค. หลังกรอกวันเกิดแอปพาไปหน้า Pulse แต่จุดขาย "ตำราเห็นตรงกัน" อยู่อีกแท็บ
+//   ⇒ funnel consensus_view = 0 ทุกวัน ทั้งที่ toast บอกให้ "เลื่อนดูว่าพวกเขาเห็นตรงกันว่าอะไร"
+//   ติดการ์ดนับเสียงชุดเดียวกับหน้า Blueprint ไว้บนสุดของ Pulse แล้วให้ตัวจับ consensus_view มองตัวนี้ด้วย
+//   ⛔ ห้ามใส่ของขายในการ์ดนี้ (director 4 ก.ย.: ของฟรีไม่ให้เสียเงิน) — renderConsensusPreview กันไว้แล้ว
+function _mountPulseConsensus(panel){
+  try{
+    if(!panel) return;
+    const old=document.getElementById('pulse-consensus'); if(old) old.remove();
+    const h=document.createElement('div'); h.id='pulse-consensus'; h.style.marginBottom='16px';
+    panel.insertBefore(h, panel.firstChild);
+    renderConsensusPreview(h);
+    if(!h.innerHTML){ h.remove(); return; }
+    if(typeof _observeConsensusSeen==='function') _observeConsensusSeen();
+  }catch(_){}
+}
 function renderDailyPulse() {
   const panel = document.getElementById('pulsePanel');
   if (!panel) return;
@@ -11431,6 +11448,7 @@ function renderDailyPulse() {
   // Subscriber gate — beta = always pass; rendered locked preview shown otherwise.
   if (!_isPulseSubscriber()) {
     panel.innerHTML = _renderPulseLockedPreview(chart);
+    _mountPulseConsensus(panel);
     return;
   }
 
@@ -11698,6 +11716,7 @@ function renderDailyPulse() {
     : (isTh ? 'วันนี้คุณรู้สึกอย่างไร?' : 'How are you feeling today?');
 
   // ── Compose panel HTML ──────────────────────────────────────
+  setTimeout(() => _mountPulseConsensus(panel), 0);   // หลัง innerHTML ข้างล่างเขียนเสร็จ
   panel.innerHTML = `
     ${_pulseGreeting()}
     <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px">
