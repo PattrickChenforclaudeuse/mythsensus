@@ -60,6 +60,10 @@ export default async function handler(req, res) {
     res.status(502).send('query failed: ' + (e && e.message || e)); return;
   }
 
+  // 7 ก.ย. 69 — สำเนาก่อนกรอง: ใช้วาด "เส้นบอท" คู่กับเส้นคน และหา "ยิงล่าสุดต่อ event"
+  // (เซ็นเซอร์ตายเป็นเรื่องของเครื่องมือ นับจากทุก sid — ถ้าดูเฉพาะคน จะสรุปผิดว่าคนไม่เห็นทั้งที่ตัวจับหลุด)
+  const rawRows = rows;
+
   // Exclude the team's own opens (?im=1 → meta.internal) from every headline
   // metric — added 2026-07-01 alongside the self-exclude tag. Kept as a count
   // so the dashboard can show how many were dropped.
@@ -190,6 +194,60 @@ export default async function handler(req, res) {
   const devices = countBy(sessions, 'device');
   const langs = countBy(sessions, 'lang');
 
+  // ── Watchboard (7 ก.ย. 69) ──────────────────────────────────────────────
+  // director: "อันแรกต้องเป็นกราฟคนเข้าต่อวัน · สองเส้น คนกับบอท คนละสี วิ่งคู่กัน ·
+  //            ผังพวกนี้ตามเน็ตมี ไม่ต้องคิดเอง" ⇒ ผังแบบ Plausible: กราฟรายวันก่อน
+  //            แถบตัวเลขบนกราฟ แล้วค่อยแหล่งที่มา/เป้าหมาย · ของเดิมพับไว้ใน <details>
+  // ตัวนับชุดเดียวกับข้างบน — คน = sessions หลังกรอง · บอท = union ของ internal/machine/suspect
+  // นับ 1 ครั้งต่อ sid ณ วันที่เห็นครั้งแรก (ร่างแรกนับแยก 3 กลุ่มแล้วได้ 4,187 vs 2,595 ⇒ ห้ามนับซ้อน)
+  const bkkDay = (ts) => new Date(new Date(ts).getTime() + 7 * 3600e3).toISOString().slice(0, 10);
+  const excluded = new Set([...internalSids, ...machineSids, ...suspectSids]);
+  const firstSeen = {};
+  for (const x of rawRows) { if (!x.sid || !excluded.has(x.sid)) continue; if (!firstSeen[x.sid] || x.ts < firstSeen[x.sid]) firstSeen[x.sid] = x.ts; }
+  const dayKeys = [];
+  { const N = Math.max(1, Math.min(days, coverDays + 1)); for (let i = N - 1; i >= 0; i--) dayKeys.push(bkkDay(new Date(Date.now() - i * 86400000).toISOString())); }
+  const zero = () => Object.fromEntries(dayKeys.map(d => [d, 0]));
+  const dHum = zero(), dBot = zero(), dBirth = zero(), dFb = zero();
+  for (const s of sessions) { const d = bkkDay(s.ts); if (d in dHum) { dHum[d]++; if (/^utm:fb|facebook/i.test(s.ref || '')) dFb[d]++; } }
+  for (const sid in firstSeen) { const d = bkkDay(firstSeen[sid]); if (d in dBot) dBot[d]++; }
+  { const seen = new Set(); for (const b of births) { if (!b.sid || seen.has(b.sid)) continue; seen.add(b.sid); const d = bkkDay(b.ts); if (d in dBirth) dBirth[d]++; } }
+  const series = {
+    days: dayKeys.map(d => String(+d.slice(5, 7)) + '/' + String(+d.slice(8, 10))),
+    hum: dayKeys.map(d => dHum[d]), bot: dayKeys.map(d => dBot[d]),
+    birth: dayKeys.map(d => dBirth[d]), fb: dayKeys.map(d => dFb[d]),
+  };
+  // "ยิงล่าสุดต่อ event" — จากชุดดิบ (เซ็นเซอร์ยิงจากเครื่องไหนก็นับว่ายังมีชีวิต)
+  // เหตุที่ต้องมีแถวนี้: consensus_view/paywall_view หยุดยิง 31 ส.ค. 20:15 แล้วไม่มีใครเห็นอยู่ 7 วัน
+  const lastFired = {};
+  for (const x of rawRows) { if (x.event && x.ts && (!lastFired[x.event] || x.ts > lastFired[x.event])) lastFired[x.event] = x.ts; }
+  const SENSORS = [
+    ['pulse_view', 'เปิด Daily Pulse (ของฟรีตัวหลัก)'], ['birth_submit', 'กรอกวันเกิด'], ['forecast_view', 'เปิดหน้าพยากรณ์'],
+    ['blueprint_gen', 'สร้าง Blueprint (ตัวที่ขาย)'], ['consensus_view', 'แบนเนอร์ศาสตร์เห็นตรงกัน = จุดขาย'], ['paywall_view', 'เห็นราคา'],
+    ['checkout', 'กดไปหน้าจ่าย'], ['purchase_success', 'จ่ายสำเร็จ กลับมาปลดล็อก'],
+  ];
+  const ageDays = (ts) => ts ? (Date.now() - new Date(ts).getTime()) / 86400000 : Infinity;
+  const TH_M = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  const fmtBkk = (ts) => { if (!ts) return '—'; const d = new Date(new Date(ts).getTime() + 7 * 3600e3); return `${d.getUTCDate()} ${TH_M[d.getUTCMonth()]} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`; };
+  const sensorState = (ev) => { const a = ageDays(lastFired[ev]); if (!isFinite(a)) return ['crit', `ไม่มีใน ${days} วัน`]; if (a <= 2) return ['ok', 'สด']; if (a <= 6) return ['watch', `${Math.floor(a)} วัน`]; return ['dead', `ตาย ${Math.floor(a)} วัน`]; };
+  // จุดขายถือว่า "เซ็นเซอร์ตาย" เมื่อคนยังกรอกวันเกิดอยู่ (≤3 วัน) แต่ consensus_view ไม่ยิงเกิน 3 วัน
+  const consDead = ageDays(lastFired.consensus_view) > 3 && ageDays(lastFired.birth_submit) <= 3;
+  const pwDead = ageDays(lastFired.paywall_view) > 3 && ageDays(lastFired.birth_submit) <= 3;
+  const sensorRows = SENSORS.map(([ev, what]) => { const [cls, txt] = sensorState(ev); const bad = cls === 'dead' || cls === 'crit'; return `<tr><td class="ev">${ev}</td><td>${what}</td><td class="when${bad ? ' bad' : ''}">${fmtBkk(lastFired[ev])}</td><td class="st"><span class="pill ${cls}">${txt}</span></td></tr>`; }).join('');
+  const hbar = (v, base, dead) => `<div class="hb"><i${dead ? ' class="dead"' : ''} style="width:${base ? Math.min(100, 100 * v / base).toFixed(1) : 0}%"></i></div>`;
+  const goalRow = (label, v, base, opt = {}) => `<tr><td>${label}</td><td class="bar">${hbar(v, base, opt.dead)}</td><td class="n">${v}${opt.sub ? `<small>${opt.sub}</small>` : ''}</td></tr>`;
+  const refMax = refs.length ? refs[0][1] : 0;
+  const refName = (k) => k === '(none)' ? 'ตรง / ไม่ระบุ' : esc(k);
+  const srcRows = refs.map(([k, v]) => goalRow(refName(k), v, refMax)).join('');
+  const goalRows = [
+    goalRow('เข้าเว็บ (คนจริง)', nS, nS),
+    goalRow('กรอกวันเกิด', births.length, nS, { sub: pct(births.length, nS) + '%' }),
+    goalRow('เห็นจุดขาย (consensus)', consensus.length, nS, { sub: consDead ? 'เซ็นเซอร์ตาย' : pct(consensus.length, nS) + '%', dead: consDead }),
+    goalRow('ถึงราคา (paywall)', uSid(pwViews), nS, { sub: pwDead ? 'เซ็นเซอร์ตาย' : pct(uSid(pwViews), nS) + '%', dead: pwDead }),
+    goalRow('กด checkout', checkouts.length, nS),
+    goalRow('จ่ายจริง', uSid(pSuccess), nS),
+    goalRow('สร้าง Blueprint (ตัวที่ขาย)', uSid(bluep), nS),
+  ].join('');
+
   const row = (label, val, sub) => `<tr><td style="padding:7px 10px;color:#c8c0a8">${label}</td><td style="padding:7px 10px;text-align:right;color:#e9d9a8;font-weight:700">${val}</td><td style="padding:7px 10px;color:#7a6a52;font-size:12px">${sub || ''}</td></tr>`;
   const fmtS = (msv) => (msv / 1000).toFixed(1) + 's';
 
@@ -273,22 +331,146 @@ export default async function handler(req, res) {
   const dayRows = days7.map(d => { const o = byDay[d]; return `<tr><td style="padding:5px 10px;color:#c8c0a8">${d}</td><td style="padding:5px 10px;text-align:right">${o.sess}</td><td style="padding:5px 10px;text-align:right;color:#9a8a72">${pct(o.drew, o.sess)}%</td><td style="padding:5px 10px;text-align:right;color:#c8a45a">${o.share}</td></tr>`; }).join('');
   const listRows = (arr) => arr.map(([k, v]) => `<tr><td style="padding:4px 10px;color:#c8c0a8">${esc(k)}</td><td style="padding:4px 10px;text-align:right;color:#e9d9a8">${v}</td></tr>`).join('');
 
+  const winLink = (n) => `<a href="?k=${esc(q.k)}&days=${n}"${n === days ? ' class="on"' : ''}>${n}d</a>`;
+  const excludedN = excluded.size;
+  const kpi = (k, v, sub, opt = {}) => `<div class="kpi"><div class="k">${opt.swatch ? `<i style="background:${opt.swatch}"></i>` : ''}${k}</div><div class="v${opt.cls ? ' ' + opt.cls : ''}">${v}</div><div class="s">${sub}</div></div>`;
+  const kpis = [
+    kpi('คนจริง', nS.toLocaleString(), `มัธยฐาน ${medDay}/วัน · สูงสุด ${maxDay} · ต่ำสุด ${minDay}`, { swatch: 'var(--gold)' }),
+    kpi('ตัดออก', excludedN.toLocaleString(), `ทีม ${internalN} · webdriver/crawler ${machineN} · รูปทรงเครื่อง ${suspectN}`, { swatch: 'var(--bot)', cls: 'bot' }),
+    kpi('กรอกวันเกิด', pct(births.length, nS) + '<small>%</small>', `${births.length} session`),
+    kpi('เห็นจุดขาย', pct(consensus.length, nS) + '<small>%</small>', consDead ? `<b>เซ็นเซอร์ตาย</b> — ล่าสุด ${fmtBkk(lastFired.consensus_view)}` : `${consensus.length} session`, { cls: consDead ? 'dead' : '' }),
+    kpi('ถึงราคา', uSid(pwViews), pwDead ? `<b>เซ็นเซอร์ตาย</b> — ล่าสุด ${fmtBkk(lastFired.paywall_view)}` : `paywall ${pwViews.length} ครั้ง · checkout ${checkouts.length}`, { cls: pwDead ? 'dead' : '' }),
+    kpi('จ่ายจริง', uSid(pSuccess), pSuccess.length ? `${pSuccess.length} ครั้ง` : `0 ใน ${days} วัน · ล่าสุด ${fmtBkk(lastFired.purchase_success)}`, { cls: pSuccess.length ? '' : 'dead' }),
+  ].join('');
+
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.status(200).send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Mythsensus · Funnel</title>
-<style>body{background:#0b0b12;color:#e8e0c9;font-family:-apple-system,'Segoe UI',sans-serif;margin:0;padding:24px;max-width:760px;margin:0 auto}h1{font-size:18px;letter-spacing:2px;color:#c8a45a;font-weight:700}h2{font-size:12px;letter-spacing:2px;color:#8a7a5a;text-transform:uppercase;margin:26px 0 6px}table{width:100%;border-collapse:collapse;background:#13112a;border:1px solid #2a2545;border-radius:8px;overflow:hidden}tr+tr td{border-top:1px solid #211c3a}th{text-align:left;padding:6px 10px;font-size:11px;color:#7a6a52;font-weight:600}.muted{color:#6a5a42;font-size:12px}a{color:#c8a45a}</style></head><body>
-<h1>🔮 MYTHSENSUS · ENGAGEMENT FUNNEL</h1>
-<div class="muted">Source: myth_events (first-party) · window ${days}d (data reaches back ${coverDays}d, ${rows.length} events)${coverDays && coverDays < days - 1 ? ' — no data older than that' : ''} · ${nS} sessions${internalN ? ` · <span style="color:#c8a45a">${internalN} internal (?im=1)</span>` : ''}${machineN ? ` · <span style="color:#c8a45a">${machineN} automated (webdriver/crawler UA)</span>` : ''}${suspectN ? ` · <span style="color:#8a7a62">${suspectN} machine-shaped, unflagged (1 event, no session-end — pre-24-Aug data has no flag)</span>` : ''}${(internalN||machineN||suspectN) ? ' <span style="color:#7a6a52">— all excluded</span>' : ''} · <a href="?k=${esc(q.k)}&days=7">7d</a> · <a href="?k=${esc(q.k)}&days=30">30d</a> · <a href="?k=${esc(q.k)}&days=90">90d</a> · <a href="?k=${esc(q.k)}&days=365">365d</a></div>
-<!-- ⛔ ตัวเตือนว่าถึงเวลาทำตารางสรุปรายวันหรือยัง — ไม่มีตัวนี้ กระดานจะช้าลงเรื่อยๆ
-     จนหมดเวลาของ Vercel เงียบๆ โดยไม่มีใครรู้ว่าเริ่มช้าตั้งแต่เมื่อไหร่ -->
-<div class="muted" style="font-size:11px;margin-top:4px${pagesFetched > 20 ? ';color:#c86a4a' : ''}">ดึง ${pagesFetched} รอบ · ${Date.now() - tQuery} ms${pagesFetched > 20 ? ' — เกิน 20 รอบแล้ว ถึงเวลาทำตารางสรุปรายวัน (ดูคอมเมนต์ที่ const days)' : ''}</div>
-<h2>Funnel</h2><table>${funnelRows}</table>
-<h2>เลิกใช้แล้ว <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(ทางเดินยุคก่อน — เก็บไว้ดูเผื่อฟื้น ไม่ลบ)</span></h2><table>${deadRows}</table>
-<h2>Money intent <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(distinct sessions · instrumented 2026-07-01)</span></h2><table>${moneyRows}</table>
-<h2>New vs returning <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(post-deploy only · ${tagged.length} tagged)</span></h2><table><tr><th>Cohort</th><th style="text-align:right">Sessions</th><th style="text-align:right">Bounce&lt;5s</th><th style="text-align:right">&gt;60s</th><th style="text-align:right">Draw%</th><th style="text-align:right">Engaged%</th></tr>${nvrRows}</table>
-<h2>By week <span style="text-transform:none;letter-spacing:0;color:#6a5a42">(rolling 7 days back from today — read down the Sessions column for the trend)</span></h2><table><tr><th>Week</th><th style="text-align:right">Sessions</th><th style="text-align:right">Filled birthday</th><th style="text-align:right">Read forecast</th><th style="text-align:right">Shares</th></tr>${weekRows || '<tr><td colspan=5 style="padding:10px;color:#6a5a42">no data</td></tr>'}</table>
-<h2>By day (latest 14)</h2><table><tr><th>Date</th><th style="text-align:right">Sessions</th><th style="text-align:right">Draw%</th><th style="text-align:right">Shares</th></tr>${dayRows || '<tr><td colspan=4 style="padding:10px;color:#6a5a42">no data</td></tr>'}</table>
-<h2>Top referrers</h2><table>${listRows(refs) || ''}</table>
-<div style="display:flex;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px"><h2>Device</h2><table>${listRows(devices)}</table></div><div style="flex:1;min-width:200px"><h2>Language</h2><table>${listRows(langs)}</table></div></div>
-<div class="muted" style="margin-top:24px">⚠️ Tracking started 2026-06-12. The 6-11 wave is NOT in this data. Watch the next wave for whether draw% rises from the ~6% baseline and shares appear.</div>
+  res.status(200).send(`<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Mythsensus · Watchboard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Sarabun:wght@400;500;600&family=Cormorant+Garamond:ital,wght@1,500&display=swap">
+<style>
+:root{--ground:#0e0c15;--surface:#171325;--surface-2:#1e1930;--line:#2b2542;--line-strong:#3a3258;--ink:#efe7d6;--ink-2:#b7ad9a;--muted:#7f7790;--gold:#d9b45a;--gold-dim:#8a7238;--gold-fill:rgba(217,180,90,.14);--bot:#8f86b3;--bot-dim:#4d4766;--good:#7cc79a;--warn:#e3a94f;--crit:#e2685c;--dead:#8b84a3;--num:"Josefin Sans","Segoe UI",sans-serif;--th:"Sarabun","Segoe UI",sans-serif;--display:"Cormorant Garamond",Georgia,serif}
+html{color-scheme:dark}body{background:var(--ground);color:var(--ink);font-family:var(--th);font-size:14px;line-height:1.5;margin:0;padding:24px 20px 56px}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 18px}
+h1{font-family:var(--display);font-style:italic;font-weight:500;font-size:28px;letter-spacing:.5px;margin:0;color:var(--gold)}h1 small{font-family:var(--num);font-style:normal;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-left:10px;vertical-align:middle}
+.win{display:flex;gap:6px;font-family:var(--num);font-size:12px;letter-spacing:1px}.win a{padding:5px 11px;border:1px solid var(--line);border-radius:999px;color:var(--ink-2);text-decoration:none}.win a.on{border-color:var(--gold);color:var(--gold)}
+.meta{font-size:12px;color:var(--muted);width:100%}.meta b{color:var(--ink-2);font-weight:500}.meta .warn{color:var(--crit)}
+.panel{background:var(--surface);border:1px solid var(--line)}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border-bottom:1px solid var(--line)}@media (max-width:820px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.kpi{padding:14px 16px 12px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:4px;min-width:0}.kpi:last-child{border-right:0}@media (max-width:820px){.kpi:nth-child(3){border-right:0}.kpi:nth-child(-n+3){border-bottom:1px solid var(--line)}}
+.kpi .k{font-family:var(--num);font-size:10.5px;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink-2);display:flex;align-items:center;gap:6px}.kpi .k i{width:9px;height:3px;display:inline-block;border-radius:2px}
+.kpi .v{font-family:var(--num);font-weight:700;font-size:26px;line-height:1.05;color:var(--ink);font-variant-numeric:tabular-nums}.kpi .v small{font-size:13px;font-weight:400;color:var(--ink-2);margin-left:2px}.kpi .v.dead{color:var(--dead)}.kpi .v.bot{color:var(--bot)}
+.kpi .s{font-size:11.5px;color:var(--muted)}.kpi .s b{color:var(--crit);font-weight:500}
+.chart-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px 0}
+.legend{display:flex;gap:16px;font-family:var(--num);font-size:11.5px;letter-spacing:.8px;color:var(--ink-2)}.legend span::before{content:"";display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:7px;vertical-align:middle}.legend .h::before{background:var(--gold)}.legend .b::before{background:var(--bot)}.legend .f{color:var(--warn)}.legend .f::before{display:none}
+.toggle{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;font-family:var(--num);font-size:11px;letter-spacing:1px}.toggle button{background:transparent;border:0;color:var(--ink-2);padding:5px 12px;cursor:pointer;font:inherit}.toggle button.on{background:var(--surface-2);color:var(--gold)}.toggle button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.chart{padding:6px 10px 8px;position:relative}.chart svg{width:100%;height:auto;display:block}.chart text{font-family:var(--num);font-size:10.5px;fill:var(--muted)}
+.chart .grid{stroke:var(--line);stroke-width:1}.chart .ln-h{fill:none;stroke:var(--gold);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}.chart .ar-h{fill:var(--gold-fill)}.chart .ln-b{fill:none;stroke:var(--bot);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.chart .pt{fill:var(--gold);stroke:var(--surface);stroke-width:2}.chart .ptb{fill:var(--bot);stroke:var(--surface);stroke-width:2}.chart .lbl{fill:var(--ink);font-weight:600}.chart .lblb{fill:var(--bot);font-weight:600}.chart .fbm{fill:var(--warn)}.chart .xh{stroke:var(--line-strong);stroke-width:1}
+.tip{position:absolute;pointer-events:none;background:var(--surface-2);border:1px solid var(--line-strong);padding:8px 10px;font-size:12px;color:var(--ink-2);display:none;min-width:150px;font-variant-numeric:tabular-nums}.tip b{color:var(--ink);font-family:var(--num);font-weight:600}.tip .r{display:flex;justify-content:space-between;gap:12px}.tip .r i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.chart-note{padding:0 16px 12px;font-size:12px;color:var(--muted)}.chart-note b{color:var(--ink-2);font-weight:500}
+h2{font-family:var(--num);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin:0;font-weight:600;padding:12px 14px 8px}h2 em{font-family:var(--th);font-style:normal;text-transform:none;letter-spacing:0;color:var(--muted);font-weight:400;margin-left:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media (max-width:760px){.two{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}td,th{padding:7px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}th{font-family:var(--num);font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600}tr:last-child td{border-bottom:0}
+td.n{text-align:right;font-family:var(--num);color:var(--ink);white-space:nowrap}td.n small{color:var(--muted);font-family:var(--th);margin-left:6px}td.bar{width:38%}
+.hb{height:8px;background:var(--line);position:relative}.hb i{position:absolute;left:0;top:0;bottom:0;background:var(--gold-dim)}.hb i.dead{background:var(--bot-dim)}
+td.ev{font-family:var(--num);font-size:12.5px;color:var(--ink-2)}td.when{font-family:var(--num);font-size:12.5px;color:var(--ink-2);white-space:nowrap}td.when.bad{color:var(--crit)}td.st{width:1%;white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--num);font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;padding:4px 9px 3px;border-radius:999px;border:1px solid;white-space:nowrap}.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.ok{color:var(--good);border-color:rgba(124,199,154,.45)}.pill.watch{color:var(--warn);border-color:rgba(227,169,79,.45)}.pill.crit{color:var(--crit);border-color:rgba(226,104,92,.45)}.pill.dead{color:var(--dead);border-color:rgba(139,132,163,.45)}
+.tbl-wrap{overflow-x:auto}
+details{border:1px solid var(--line);background:var(--surface)}summary{cursor:pointer;padding:12px 16px;font-family:var(--num);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink-2);list-style:none;display:flex;justify-content:space-between}summary::after{content:"+";color:var(--gold);font-size:16px;line-height:1}details[open] summary::after{content:"–"}summary:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.old{padding:0 16px 16px;font-size:13px}.old h3{font-family:var(--num);font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:18px 0 6px;font-weight:600}.old table{background:transparent}.old td,.old th{padding:5px 10px;border-bottom:1px solid var(--line)}.old .muted{color:var(--muted);font-size:12px}
+.foot{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}.foot b{color:var(--ink-2);font-weight:500}
+</style></head><body><div class="wrap">
+<header>
+  <h1>Mythsensus <small>Watchboard</small></h1>
+  <div class="win">${winLink(7)}${winLink(30)}${winLink(90)}${winLink(365)}</div>
+  <div class="meta">Source: myth_events (first-party) · window ${days}d (data reaches back ${coverDays}d, ${rawRows.length} events)${coverDays && coverDays < days - 1 ? ' — no data older than that' : ''} · ตัดออก ${excludedN} sid (ทีม ${internalN} · automated ${machineN} · machine-shaped ${suspectN}) จากทุกตัวเลขยกเว้นเส้นม่วง · ดึง ${pagesFetched} รอบ · ${Date.now() - tQuery} ms${pagesFetched > 20 ? ' <span class="warn">— เกิน 20 รอบแล้ว ถึงเวลาทำตารางสรุปรายวัน (ดูคอมเมนต์ที่ const days)</span>' : ''}</div>
+</header>
+
+<section class="panel">
+  <div class="kpis">${kpis}</div>
+  <div class="chart-head">
+    <div class="legend"><span class="h">คนจริง / วัน</span><span class="b">บอท เครื่อง ทีม / วัน</span><span class="f">▲ วันที่มาจาก FB ≥10</span></div>
+    <div class="toggle" role="group" aria-label="แกน"><button class="on" data-mode="same">แกนเดียวกัน</button><button data-mode="zoom">ซูมเส้นคน</button></div>
+  </div>
+  <div class="chart"><svg id="daily" viewBox="0 0 1000 300" role="img" aria-label="sessions per day, humans vs bots"></svg><div class="tip" id="tip"></div></div>
+  <div class="chart-note">เส้นทองคือคน เส้นม่วงคือของที่ถูกตัดออก — วัน deploy/ทดสอบจะเห็นเส้นม่วงพุ่งโดยเส้นทองไม่ขยับ · ฐานคนจริงอ่านจาก "มัธยฐาน" ไม่ใช่ยอดรวม</div>
+</section>
+
+<section class="two">
+  <div class="panel"><h2>มาจากไหน <em>session ของคนจริง · ${days} วัน</em></h2><div class="tbl-wrap"><table>${srcRows || '<tr><td class="muted">no data</td></tr>'}</table></div></div>
+  <div class="panel"><h2>เป้าหมาย <em>session ที่ไปถึงแต่ละขั้น · ${days} วัน</em></h2><div class="tbl-wrap"><table>${goalRows}</table></div></div>
+</section>
+
+<section class="panel">
+  <h2>เซ็นเซอร์ยังส่งสัญญาณไหม <em>ยิงครั้งล่าสุดต่อ event ในหน้าต่างนี้ (นับทุกเครื่อง) — ตาย = ไม่ยิงเกิน 6 วัน</em></h2>
+  <div class="tbl-wrap"><table><tr><th>Event</th><th>วัดอะไร</th><th>ยิงล่าสุด</th><th>สถานะ</th></tr>${sensorRows}</table></div>
+</section>
+
+<details><summary>รายละเอียดทั้งหมด (ผังเดิม)</summary><div class="old">
+<h3>Funnel</h3><table>${funnelRows}</table>
+<h3>เลิกใช้แล้ว <span style="text-transform:none;letter-spacing:0">(ทางเดินยุคก่อน — เก็บไว้ดูเผื่อฟื้น ไม่ลบ)</span></h3><table>${deadRows}</table>
+<h3>Money intent <span style="text-transform:none;letter-spacing:0">(distinct sessions · instrumented 2026-07-01)</span></h3><table>${moneyRows}</table>
+<h3>New vs returning <span style="text-transform:none;letter-spacing:0">(post-deploy only · ${tagged.length} tagged)</span></h3><table><tr><th>Cohort</th><th style="text-align:right">Sessions</th><th style="text-align:right">Bounce&lt;5s</th><th style="text-align:right">&gt;60s</th><th style="text-align:right">Draw%</th><th style="text-align:right">Engaged%</th></tr>${nvrRows}</table>
+<h3>By week <span style="text-transform:none;letter-spacing:0">(rolling 7 days back from today)</span></h3><table><tr><th>Week</th><th style="text-align:right">Sessions</th><th style="text-align:right">Filled birthday</th><th style="text-align:right">Read forecast</th><th style="text-align:right">Shares</th></tr>${weekRows || '<tr><td colspan=5 class="muted">no data</td></tr>'}</table>
+<h3>By day (latest 14 · UTC date)</h3><table><tr><th>Date</th><th style="text-align:right">Sessions</th><th style="text-align:right">Draw%</th><th style="text-align:right">Shares</th></tr>${dayRows || '<tr><td colspan=4 class="muted">no data</td></tr>'}</table>
+<div style="display:flex;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px"><h3>Device</h3><table>${listRows(devices)}</table></div><div style="flex:1;min-width:200px"><h3>Language</h3><table>${listRows(langs)}</table></div></div>
+<div class="muted" style="margin-top:18px">⚠️ Tracking started 2026-06-12. The 6-11 wave is NOT in this data.</div>
+</div></details>
+
+<div class="foot">ผัง Watchboard 7 ก.ย. 69 (director: กราฟรายวันก่อน · สองเส้นคน/บอท · ผังมาตรฐาน) · เส้นม่วง = union ของ 3 กลุ่มที่ตัด นับ 1 ครั้งต่อ sid ณ วันแรกที่เห็น (เวลาไทย) · <b>ยิงล่าสุด</b> อ่านจากชุดดิบก่อนกรอง</div>
+</div>
+<script>
+(function(){
+  const S = ${JSON.stringify(series)};
+  const days = S.days, hum = S.hum, bot = S.bot, birth = S.birth, fb = S.fb;
+  const svg = document.getElementById('daily'), tip = document.getElementById('tip');
+  const W=1000, H=300, padL=46, padR=16, padT=22, padB=34;
+  const iw=W-padL-padR, ih=H-padT-padB, n=days.length;
+  const x = i => n > 1 ? padL + i*(iw/(n-1)) : padL + iw/2;
+  let mode='same';
+  function niceMax(v){ if (!(v>0)) return 1; const p=Math.pow(10,Math.floor(Math.log10(v))); const m=v/p; const k = m<=1?1:m<=2?2:m<=5?5:10; return k*p; }
+  function draw(){
+    const max = mode==='same' ? niceMax(Math.max(...bot,...hum)) : niceMax(Math.max(...hum));
+    const y = v => padT + ih - Math.min(v,max)/max*ih;
+    let s = '<defs><clipPath id="cp"><rect x="'+padL+'" y="'+(padT-2)+'" width="'+iw+'" height="'+(ih+2)+'"/></clipPath></defs>';
+    [0, max/4, max/2, max*3/4, max].forEach(t => { s += '<line class="grid" x1="'+padL+'" x2="'+(W-padR)+'" y1="'+y(t)+'" y2="'+y(t)+'"/><text x="'+(padL-8)+'" y="'+(y(t)+4)+'" text-anchor="end">'+Math.round(t).toLocaleString()+'</text>'; });
+    const path = arr => arr.map((v,i)=> (i?'L':'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ');
+    s += '<g clip-path="url(#cp)">';
+    s += '<path class="ar-h" d="'+path(hum)+' L'+x(n-1)+' '+y(0)+' L'+x(0)+' '+y(0)+' Z"/>';
+    s += '<path class="ln-b" d="'+path(bot)+'"/>';
+    s += '<path class="ln-h" d="'+path(hum)+'"/>';
+    s += '</g>';
+    fb.forEach((v,i)=>{ if (v>=10) s += '<path class="fbm" d="M'+(x(i)-5)+' '+(padT+ih+13)+' L'+(x(i)+5)+' '+(padT+ih+13)+' L'+x(i)+' '+(padT+ih+5)+' Z"/>'; });
+    const step = n > 40 ? Math.ceil(n/14) : n > 14 ? 3 : 1;
+    days.forEach((d,i)=>{ if (i%step===0 || i===n-1) s += '<text x="'+x(i)+'" y="'+(H-8)+'" text-anchor="middle">'+d+'</text>'; });
+    const hp = hum.indexOf(Math.max(...hum));
+    if (hum[hp] > 0) s += '<circle class="pt" cx="'+x(hp)+'" cy="'+y(hum[hp])+'" r="4"/><text class="lbl" x="'+x(hp)+'" y="'+(y(hum[hp])-9)+'" text-anchor="middle">'+hum[hp]+' คน</text>';
+    const bp = bot.indexOf(Math.max(...bot));
+    if (bot[bp] > 0) {
+      if (mode==='same') s += '<circle class="ptb" cx="'+x(bp)+'" cy="'+y(bot[bp])+'" r="4"/><text class="lblb" x="'+x(bp)+'" y="'+(y(bot[bp])-9)+'" text-anchor="middle">'+bot[bp].toLocaleString()+' บอท</text>';
+      else s += '<text class="lblb" x="'+x(bp)+'" y="'+(padT+10)+'" text-anchor="middle">▲ บอท '+bot[bp].toLocaleString()+' (เกินแกน)</text>';
+    }
+    s += '<circle class="pt" cx="'+x(n-1)+'" cy="'+y(hum[n-1])+'" r="4"/>';
+    s += '<line id="xh" class="xh" x1="0" x2="0" y1="'+padT+'" y2="'+(padT+ih)+'" style="display:none"/>';
+    svg.innerHTML = s;
+  }
+  draw();
+  document.querySelectorAll('.toggle button').forEach(b => b.addEventListener('click', () => { document.querySelectorAll('.toggle button').forEach(o=>o.classList.remove('on')); b.classList.add('on'); mode=b.dataset.mode; draw(); }));
+  svg.addEventListener('mousemove', e => {
+    const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(n-1, Math.round((px - padL) / (iw/Math.max(1,n-1)))));
+    const xh = document.getElementById('xh'); xh.setAttribute('x1', x(i)); xh.setAttribute('x2', x(i)); xh.style.display='';
+    tip.style.display='block';
+    tip.innerHTML = '<b>'+days[i]+(i===n-1?' (วันนี้ ยังไม่จบวัน)':'')+'</b>'
+      + '<div class="r"><span><i style="background:var(--gold)"></i>คนจริง</span><b>'+hum[i]+'</b></div>'
+      + '<div class="r"><span><i style="background:var(--bot)"></i>บอท/เครื่อง/ทีม</span><b>'+bot[i].toLocaleString()+'</b></div>'
+      + '<div class="r"><span>กรอกวันเกิด</span><b>'+birth[i]+'</b></div>'
+      + (fb[i] ? '<div class="r"><span>มาจาก FB</span><b>'+fb[i]+'</b></div>' : '');
+    tip.style.left = Math.min(r.width - 170, Math.max(0, (x(i)/W)*r.width + 12)) + 'px'; tip.style.top = '14px';
+  });
+  svg.addEventListener('mouseleave', () => { tip.style.display='none'; const xh=document.getElementById('xh'); if (xh) xh.style.display='none'; });
+})();
+</script>
 </body></html>`);
 }

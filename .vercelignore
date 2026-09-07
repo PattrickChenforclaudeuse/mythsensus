@@ -124,3 +124,6 @@
 # ── IndexNow: the <key>.txt MUST stay served (engines verify it), but the
 #    submit helper is internal-only. ──
 /_indexnow-submit.mjs
+
+# 2026-09-07: local post drafts (not for the public site)
+/_content/
