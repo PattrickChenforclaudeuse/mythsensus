@@ -19099,9 +19099,39 @@ let _entryLang = 'th';      // captured choice; commits to global LANG on accept
   } catch(_) {}
 })();
 
+// ปลายทางที่หน้าแลนดิ้งขอผ่าน ?go= (11 ก.ย. 69) — whitelist เท่านั้น · ใช้ได้ทั้งทาง ?dob=,
+// ทางกรอกฟอร์มเอง และคนเก่าที่ข้ามฟอร์ม · หน้า "ดูดวงแมว/สุนัข" ต้องลงที่ห้องสัตว์เลี้ยง ไม่ใช่หน้าแรก
+function _deepGoAfterEntry(){
+  try {
+    const GO = { pethome: 'premium', blueprint: 'premium', deep: 'premium', pulse: 'free' };
+    const g = window._msDeepGo || ''; window._msDeepGo = '';
+    if (GO[g]) setTimeout(() => { try { setGroup(GO[g]); showSubTab(g); } catch(_) {} }, 150);
+  } catch(_) {}
+}
 function showEntryOverlay(){
   const ov = document.getElementById('entryOverlay');
-  if (!ov) { _bootAfterEntry(); return; }
+  try { window._msDeepGo = new URLSearchParams(location.search).get('go') || ''; } catch(_) {}
+  if (!ov) { _bootAfterEntry(); _deepGoAfterEntry(); return; }
+  // ── วันเกิดจากหน้าแลนดิ้ง (11 ก.ย. 69) ────────────────────────────────
+  // หน้า SEO (เลข 7 ตัว 9 ฐาน · สัตว์เลี้ยง · บทความ) ส่ง ?dob=YYYY-MM-DD (ค.ศ.) มาได้
+  // ⇒ ไม่ต้องกรอกซ้ำ ลงคำอ่านฉันทามติทันที · ?go=<แท็บ> เลือกปลายทาง (whitelist ข้างล่าง)
+  // ต้องมาก่อน fast-path ของคนเก่า: คนที่เพิ่งพิมพ์วันเกิดบนหน้าแลนดิ้ง ตั้งใจดูดวงวันนั้น
+  // ไม่ใช่ดวงเก่าที่เครื่องเคยจำ · ผิดรูป/ไม่มี = ตกลงทางเดิมทั้งหมด ไม่แตะอะไร
+  // ⛔ ห้ามแปลง พ.ศ. ที่นี่ — หน้าแลนดิ้งส่ง ค.ศ. มาแล้ว และ _getEntryDob() คือที่เดียวที่แปลง
+  try {
+    const _q = new URLSearchParams(location.search);
+    const _dob = (_q.get('dob') || '').trim();
+    if (/^d{4}-d{2}-d{2}$/.test(_dob)) {
+      _entryLang = (_q.get('lang') === 'en') ? 'en' : (localStorage.getItem('mth_lang') === 'en' && _q.get('lang') !== 'th' ? 'en' : 'th');
+      _setEntryDobFields(_dob);
+      // (_setEntryDobFields ตั้ง era=พ.ศ. + ปี+543 ให้เองแล้ว — ห้ามตั้ง era ทับ ไม่งั้นเพี้ยน 543 ปี)
+      if (_getEntryDob()) {
+        try { history.replaceState(null, '', location.pathname + location.hash); } catch(_) {}   // รีเฟรชแล้วไม่ยิงซ้ำ (utm ถูกเก็บไปก่อนหน้านี้แล้ว)
+        entryAccept();   // ปลายทาง ?go= จัดการใน entryAccept → _deepGoAfterEntry()
+        return;
+      }
+    }
+  } catch(_) {}
   // Saved DOB drives both the fast-path return AND the "Welcome back" pill +
   // hero/form step branching further down. Hoisted to function scope so both
   // sections share it (was: declared inside the try block → ReferenceError in
@@ -19129,6 +19159,7 @@ function showEntryOverlay(){
       localStorage.setItem('mth_last_visit', String(Date.now()));
       ov.style.display = 'none';
       _bootAfterEntry();
+      _deepGoAfterEntry();
       return;
     }
     // Clear the force flag — next visit gets the fast path again.
@@ -19293,7 +19324,10 @@ function entryHeroGo(){
     var _hm = document.getElementById('heroMonth');
     var _hy = document.getElementById('heroYear');
     if (_hd && _hm && _hy && _hd.value && _hm.value && _hy.value) {
-      setTimeout(function(){ try { entrySubmit(); } catch(_) {} }, 0);
+      // ⛔ 11 ก.ย. 69: เดิมเรียก entrySubmit() ซึ่ง **ไม่มีฟังก์ชันนี้อยู่ในไฟล์** — try/catch กลืนเงียบ
+      //    ⇒ จอสองโผล่ทุกคนมาตลอด ทั้งที่ย่อหน้าบนบอกว่าห้าม (ตรวจจริงบนมือถือ 11 ก.ย.)
+      //    ตัวที่ฟอร์มจอสองเรียกจริงคือ entryAccept() — แปลง พ.ศ./ค.ศ. ใน _getEntryDob() ที่เดียวเหมือนเดิม
+      setTimeout(function(){ try { entryAccept(); } catch(_) {} }, 0);
     }
   } catch(_) {}
 }
@@ -19708,6 +19742,7 @@ function entryAccept(){
   // Land on the daily pulse, which is what the hero now promises. The natal
   // preview is one tab across and still one click away.
   showSubTab('pulse');
+  try { _deepGoAfterEntry(); } catch(_) {}   // ถ้ามาจากหน้าแลนดิ้งที่ขอปลายทางไว้ (?go=) ค่อยพาไปต่อ
   setTimeout(() => {
     // Blueprint generator inputs (prefilled, ready the moment they go premium).
     const dInp = document.getElementById('cb-f-dob');

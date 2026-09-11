@@ -176,8 +176,9 @@ html[lang="th"] .body-th{display:block}
   <div class="disclaimer"><p data-en="All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone." data-th="เนื้อหาทั้งหมดบน Mythsensus สร้างขึ้นโดยปัญญาประดิษฐ์ เพื่อความบันเทิง การสำรวจตนเอง และการใคร่ครวญส่วนบุคคล ไม่ใช่คำแนะนำทางวิชาชีพ ดวงดาวอาจส่องทาง แต่ก้าวเดินเป็นของคุณ">All Mythsensus content is created by artificial intelligence for entertainment, self-exploration, and personal reflection. It does not constitute professional advice. The stars may illuminate the path. The steps remain yours alone.</p></div>
   <div class="cta-block">
     <div class="cta-title" data-en="Read your full 26-system report" data-th="อ่านรายงาน 26 ศาสตร์ของคุณ">Read your full 26-system report</div>
-    <div class="cta-sub" data-en="Free beta · No signup · Works offline" data-th="ฟรีช่วงทดสอบ · ไม่ต้องสมัคร · ออฟไลน์ได้">Free beta · No signup · Works offline</div>
-    
+    <div class="cta-sub" data-en="26 systems read one birth date — see where they agree" data-th="26 ศาสตร์อ่านวันเกิดเดียวกัน — ดูว่าตรงกันตรงไหน">26 ศาสตร์อ่านวันเกิดเดียวกัน — ดูว่าตรงกันตรงไหน</div>
+    <a class="btn-gold" href="/?utm_source=blog&utm_medium=cta&utm_campaign=onmyodo" style="display:inline-block;margin-top:.4rem;text-decoration:none" data-en="Enter your birth date → see whether Onmyōdō and 25 other systems agree about you" data-th="ใส่วันเกิด → ดูว่าองเมียวโดกับอีก 25 ศาสตร์อ่านคุณตรงกันไหม">ใส่วันเกิด → ดูว่าองเมียวโดกับอีก 25 ศาสตร์อ่านคุณตรงกันไหม</a>
+    <div style="font-family:'Josefin Sans',sans-serif;font-size:.62rem;letter-spacing:.14em;color:#9a9088;margin-top:.7rem" data-en="Free · no sign-up · result in seconds" data-th="ฟรี · ไม่ต้องสมัคร · เห็นผลในไม่กี่วินาที">ฟรี · ไม่ต้องสมัคร · เห็นผลในไม่กี่วินาที</div>
   </div>
 </div>
 </article>
@@ -230,7 +231,10 @@ function setLang(l){
 }
 (function(){
   const saved=localStorage.getItem('mth_lang');
-  if(saved==='th') setLang('th');
+  const q=new URLSearchParams(location.search).get('lang');
+  const nav=((navigator.language||'')+'').toLowerCase();
+  // ลำดับ: ?lang= > ที่เคยเลือกไว้ > ภาษาเบราว์เซอร์ (คนไทยที่มาจาก Google ต้องได้ไทย ไม่ใช่อังกฤษ)
+  if(q==='th'||(!q&&saved==='th')||(!q&&!saved&&nav.startsWith('th'))) setLang('th');
 })();
 </script>
 </body></html>

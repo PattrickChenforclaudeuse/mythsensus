@@ -223,7 +223,10 @@ function setLang(l){
 }
 (function(){
   const saved=localStorage.getItem('mth_lang');
-  if(saved==='th') setLang('th');
+  const q=new URLSearchParams(location.search).get('lang');
+  const nav=((navigator.language||'')+'').toLowerCase();
+  // ลำดับ: ?lang= > ที่เคยเลือกไว้ > ภาษาเบราว์เซอร์ (คนไทยที่มาจาก Google ต้องได้ไทย ไม่ใช่อังกฤษ)
+  if(q==='th'||(!q&&saved==='th')||(!q&&!saved&&nav.startsWith('th'))) setLang('th');
 })();
 </script>
 </body></html>
