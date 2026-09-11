@@ -70,7 +70,9 @@ addEventListener('unhandledrejection',function(e){var m='rej';try{m='promise:'+(
 <script defer src="/_vercel/insights/script.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Josefin+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<!-- 11 ก.ย. 69: โหลด CSS ฟอนต์แบบไม่บล็อกการวาด (media=print → all เมื่อโหลดเสร็จ) · noscript คงของเดิม -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Josefin+Sans:wght@300;400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Josefin+Sans:wght@300;400;600&display=swap" rel="stylesheet"></noscript>
 <!-- Preload critical assets (engine bundle + deity data). -->
 <!-- ?v= must match the engine release (bump with sw.js CACHE) — /build/* is
      served with max-age=86400 + stale-while-revalidate=604800, so without a
@@ -949,7 +951,8 @@ details.ms-more>.ms-more-body{padding-top:6px;animation:msMoreIn .25s ease}
      it DE-MASKS errors thrown by the SDK — without it, any throw here surfaces in
      our ms-err-buffer as a detail-less "Script error." (the 4 mobile errors on the
      funnel). With it, we get the real message+line. (added 2026-06-23) -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" crossorigin="anonymous"></script>
+<!-- 11 ก.ย. 69: defer — เดิม sync ตรงนี้บล็อกการวาดจอ entry ~2.4s บนมือถือ · ลำดับ defer: supabase → ms26-bundle → app.js เหมือนเดิม · app.js มี guard typeof supabase อยู่แล้ว -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" crossorigin="anonymous" defer></script>
 <script>
 // ── City picker (searchable) ──────────────────────────────────────
 // Master city list extracted from the original <select id="entryCity">
