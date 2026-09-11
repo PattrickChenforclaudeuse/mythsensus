@@ -139,6 +139,13 @@ export default async function handler(req, res) {
   const pClicks   = rows.filter(x => x.event === 'purchase_click');
   const subClicks = rows.filter(x => x.event === 'subscribe_click');
   const pSuccess  = rows.filter(x => x.event === 'purchase_success');
+  // 11 ก.ย. 69 — ระหว่าง consensus_view (124 sid/90d) กับ paywall_view (28) ไม่มีเซ็นเซอร์เลย
+  // ทั้งที่ตรงนั้นมีกำแพง "ลงชื่อเข้าใช้" คั่นอยู่ ⇒ แยกไม่ออกว่า "ไม่มีใครเดินมาถึง"
+  // กับ "ทุกคนมาจอดที่กำแพง". ตัวนี้เพิ่งติด ⇒ ก่อน 11 ก.ย. จะเป็น 0 เสมอ อย่าอ่านว่าไม่มีคนเจอ
+  const walls     = rows.filter(x => x.event === 'signin_wall');
+  // 11 ก.ย. 69 — ปุ่ม "สร้างรายงานฉบับเต็ม" ใต้ Consensus Preview: ข้อความสัญญาปุ่มนี้
+  // มาตลอดแต่ไม่มีปุ่มจริง ⇒ ตัวนี้วัดว่าคนที่อ่านจบแล้วยอมเดินต่อกี่คน (ก่อน 11 ก.ย. = 0 เสมอ)
+  const ctaClicks = rows.filter(x => x.event === 'report_cta_click');
   const nS = sessions.length;
   // The oldest row actually fetched. If this is younger than the window the
   // reader asked for, the answer is thinner than the label and the page has
@@ -234,16 +241,46 @@ export default async function handler(req, res) {
   for (const x of rawRows) { if (x.event && x.ts && (!lastFired[x.event] || x.ts > lastFired[x.event])) lastFired[x.event] = x.ts; }
   const SENSORS = [
     ['pulse_view', 'เปิด Daily Pulse (ของฟรีตัวหลัก)'], ['birth_submit', 'กรอกวันเกิด'], ['forecast_view', 'เปิดหน้าพยากรณ์'],
-    ['blueprint_gen', 'สร้าง Blueprint (ตัวที่ขาย)'], ['consensus_view', 'แบนเนอร์ศาสตร์เห็นตรงกัน = จุดขาย'], ['paywall_view', 'เห็นราคา'],
+    ['blueprint_gen', 'สร้าง Blueprint (ตัวที่ขาย)'], ['consensus_view', 'แบนเนอร์ศาสตร์เห็นตรงกัน = จุดขาย'], ['signin_wall', 'เจอกำแพงลงชื่อเข้าใช้ (คั่นก่อนถึงราคา)'], ['report_cta_click', 'กดปุ่มสร้างรายงานจาก Consensus'], ['paywall_view', 'เห็นราคา'],
     ['checkout', 'กดไปหน้าจ่าย'], ['purchase_success', 'จ่ายสำเร็จ กลับมาปลดล็อก'],
   ];
   const ageDays = (ts) => ts ? (Date.now() - new Date(ts).getTime()) / 86400000 : Infinity;
   const TH_M = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
   const fmtBkk = (ts) => { if (!ts) return '—'; const d = new Date(new Date(ts).getTime() + 7 * 3600e3); return `${d.getUTCDate()} ${TH_M[d.getUTCMonth()]} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`; };
-  const sensorState = (ev) => { const a = ageDays(lastFired[ev]); if (!isFinite(a)) return ['crit', `ไม่มีใน ${days} วัน`]; if (a <= 2) return ['ok', 'สด']; if (a <= 6) return ['watch', `${Math.floor(a)} วัน`]; return ['dead', `ตาย ${Math.floor(a)} วัน`]; };
-  // จุดขายถือว่า "เซ็นเซอร์ตาย" เมื่อคนยังกรอกวันเกิดอยู่ (≤3 วัน) แต่ consensus_view ไม่ยิงเกิน 3 วัน
-  const consDead = ageDays(lastFired.consensus_view) > 3 && ageDays(lastFired.birth_submit) <= 3;
-  const pwDead = ageDays(lastFired.paywall_view) > 3 && ageDays(lastFired.birth_submit) <= 3;
+  // ── จังหวะปกติของแต่ละเซ็นเซอร์ (11 ก.ย. 69) ───────────────────────────
+  // ⛔ เกณฑ์เดิม "เงียบเกิน 3 วัน = ตาย" ใช้เลขเดียวกับทุกตัว — พังกับตัวที่ยิงห่าง
+  //    paywall_view ยิงจริง 28 sid ใน 90 วัน (~1 ทุก 5 วัน) · ช่องว่าง ≥4 วันเกิด 4 ครั้ง
+  //    ใน 45 วันหลังสุด ⇒ ธงตายขึ้นทั้งที่ท่อยังปกติ (สัดส่วน consensus→paywall
+  //    ก่อน 1 ก.ย. 15/84 · 1-11 ก.ย. 1/6 = เท่าเดิม)
+  //    ⇒ ตายเมื่อ "เงียบนานกว่า 3 เท่าของช่องว่างกลางของตัวเอง" พื้น 3 วัน เพดาน 21 วัน
+  //    ยิงไม่ถึง 5 ครั้งในหน้าต่างนี้ = ไม่มีจังหวะให้เทียบ ⇒ ห้ามขึ้นธงตาย ให้บอกว่ายังบอกไม่ได้
+  const gapMed = {};
+  {
+    const byEv = {};
+    for (const x of rawRows) { if (!x.event || !x.ts) continue; (byEv[x.event] = byEv[x.event] || []).push(new Date(x.ts).getTime()); }
+    for (const ev in byEv) {
+      const t = byEv[ev].sort((a, b) => a - b);
+      const gaps = [];
+      for (let i = 1; i < t.length; i++) gaps.push((t[i] - t[i - 1]) / 86400000);
+      gaps.sort((a, b) => a - b);
+      gapMed[ev] = { n: t.length, med: gaps.length ? gaps[Math.floor(gaps.length / 2)] : null };
+    }
+  }
+  const deadAfter = (ev) => { const g = gapMed[ev]; if (!g || g.n < 5 || g.med == null) return null; return Math.min(21, Math.max(3, g.med * 3)); };
+  const rate = (ev) => { const g = gapMed[ev]; return g && g.med != null ? `ปกติทุก ~${g.med < 1 ? (g.med * 24).toFixed(0) + ' ชม.' : g.med.toFixed(1) + ' วัน'}` : 'ยังไม่รู้จังหวะ'; };
+  const sensorState = (ev) => {
+    const a = ageDays(lastFired[ev]);
+    if (!isFinite(a)) return ['crit', `ไม่มีใน ${days} วัน`];
+    const lim = deadAfter(ev);
+    if (lim == null) return [a <= 2 ? 'ok' : 'watch', a <= 2 ? 'สด' : `${Math.floor(a)} วัน · ยิงน้อยเกินจะตัดสิน`];
+    if (a <= Math.min(2, lim)) return ['ok', 'สด'];
+    if (a <= lim) return ['watch', `${Math.floor(a)} วัน · ยังอยู่ในจังหวะ (${rate(ev)})`];
+    return ['dead', `ตาย ${Math.floor(a)} วัน (${rate(ev)})`];
+  };
+  // "เซ็นเซอร์ตาย" = ผิดจังหวะตัวเอง ขณะที่เว็บยังมีคนเดินอยู่ (กรอกวันเกิดภายใน 3 วัน)
+  const sensorDead = (ev) => { const lim = deadAfter(ev); return lim != null && ageDays(lastFired[ev]) > lim && ageDays(lastFired.birth_submit) <= 3; };
+  const consDead = sensorDead('consensus_view');
+  const pwDead = sensorDead('paywall_view');
   const sensorRows = SENSORS.map(([ev, what]) => { const [cls, txt] = sensorState(ev); const bad = cls === 'dead' || cls === 'crit'; return `<tr><td class="ev">${ev}</td><td>${what}</td><td class="when${bad ? ' bad' : ''}">${fmtBkk(lastFired[ev])}</td><td class="st"><span class="pill ${cls}">${txt}</span></td></tr>`; }).join('');
   const hbar = (v, base, dead) => `<div class="hb"><i${dead ? ' class="dead"' : ''} style="width:${base ? Math.min(100, 100 * v / base).toFixed(1) : 0}%"></i></div>`;
   const goalRow = (label, v, base, opt = {}) => `<tr><td>${label}</td><td class="bar">${hbar(v, base, opt.dead)}</td><td class="n">${v}${opt.sub ? `<small>${opt.sub}</small>` : ''}</td></tr>`;
@@ -254,6 +291,7 @@ export default async function handler(req, res) {
     goalRow('เข้าเว็บ (คนจริง)', nS, nS),
     goalRow('กรอกวันเกิด', births.length, nS, { sub: pct(births.length, nS) + '%' }),
     goalRow('เห็นจุดขาย (consensus)', consensus.length, nS, { sub: consDead ? 'เซ็นเซอร์ตาย' : pct(consensus.length, nS) + '%', dead: consDead }),
+    goalRow('เจอกำแพงลงชื่อเข้าใช้', uSid(walls), nS, { sub: uSid(walls) ? pct(uSid(walls), nS) + '%' : 'เพิ่งติดเซ็นเซอร์ 11 ก.ย.' }),
     goalRow('ถึงราคา (paywall)', uSid(pwViews), nS, { sub: pwDead ? 'เซ็นเซอร์ตาย' : pct(uSid(pwViews), nS) + '%', dead: pwDead }),
     goalRow('กด checkout', checkouts.length, nS),
     goalRow('จ่ายจริง', uSid(pSuccess), nS),
@@ -285,6 +323,8 @@ export default async function handler(req, res) {
     row('Filled birthday', pct(births.length, nS) + '%', `${births.length} sess`),
     row('Forecast viewed', uSid(forecasts), `${forecasts.length} events · หน้าพยากรณ์`),
     row('Saw consensus', pct(consensus.length, nS) + '%', `${consensus.length} sess · แบนเนอร์ 10 ศาสตร์เห็นตรงกัน`),
+    row('กดปุ่มสร้างรายงาน', uSid(ctaClicks), `${ctaClicks.length} events · ปุ่มใต้ Consensus · เริ่ม 11 ก.ย.`),
+    row('Sign-in wall hit', uSid(walls), `${walls.length} events · กำแพงที่คั่นก่อนถึงราคา · เซ็นเซอร์เริ่ม 11 ก.ย.`),
     row('Blueprint generated', uSid(bluep), `${bluep.length} events · ตัวที่ขาย $59`),
     row('Reached paywall', pct(paywall, nS) + '%', `${paywall} sess`),
     row('Checkout clicks', checkouts.length, checkouts.length ? '' : 'ไม่มีเลยในหน้าต่างนี้'),
@@ -352,7 +392,9 @@ export default async function handler(req, res) {
     kpi('กรอกวันเกิด', pct(births.length, nS) + '<small>%</small>', `${births.length} session`),
     kpi('เห็นจุดขาย', pct(consensus.length, nS) + '<small>%</small>', consDead ? `<b>เซ็นเซอร์ตาย</b> — ล่าสุด ${fmtBkk(lastFired.consensus_view)}` : `${consensus.length} session`, { cls: consDead ? 'dead' : '' }),
     kpi('ถึงราคา', uSid(pwViews), pwDead ? `<b>เซ็นเซอร์ตาย</b> — ล่าสุด ${fmtBkk(lastFired.paywall_view)}` : `paywall ${pwViews.length} ครั้ง · checkout ${checkouts.length}`, { cls: pwDead ? 'dead' : '' }),
-    kpi('จ่ายจริง', uSid(pSuccess), pSuccess.length ? `${pSuccess.length} ครั้ง` : `0 ใน ${days} วัน · ล่าสุด ${fmtBkk(lastFired.purchase_success)}`, { cls: pSuccess.length ? '' : 'dead' }),
+    // ⛔ เคยใส่ cls 'dead' ตอนเป็น 0 ⇒ เทาเหมือนช่องที่เซ็นเซอร์พัง ทั้งที่นี่คือ "ศูนย์จริง"
+    //    สีเทา = เครื่องมือพัง · ตัวเลขปกติ + คำว่าศูนย์จริง = ของจริงที่ยังไม่เกิด
+    kpi('จ่ายจริง', uSid(pSuccess), pSuccess.length ? `${pSuccess.length} ครั้ง` : `<b>ยังไม่เคยมีสักครั้ง</b> — ตัวเลขจริง ไม่ใช่เซ็นเซอร์พัง`),
   ].join('');
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');

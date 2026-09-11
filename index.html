@@ -7383,6 +7383,23 @@ function renderConsensusPreview(hostEl){
         ${cards}
       </div>
 
+      <!-- ✦ ทางไปต่อ (11 ก.ย. 69) — ข้อความหัวบล็อกเขียนว่า "กดสร้างรายงานเพื่อดูฉบับเต็ม"
+           มาตั้งแต่ต้น แต่ **ไม่เคยมีปุ่มนั้นอยู่จริงในหน้านี้** (ไล่ปุ่มที่มองเห็นทั้งหมด
+           บนมือถือ 11 ก.ย. เจอแต่ ปักหมุด/ประวัติ/ดูใหม่/แชร์) ⇒ คนอ่านจบแล้วไม่มีที่ไปต่อ
+           90 วันมีคนถึงหน้าราคาแค่ 28 sid ส่วนใหญ่ต้องเดินเอง 6 ชั้นถึงจะเจอ
+           ⚠️ ข้อห้ามข้างล่าง (director 4 ก.ย. "ของฟรีไม่ให้เสียเงิน") คุมเรื่อง **ต้นทุน API**
+              ของปุ่ม "ให้ทุกตำราตอบ" (~$1.3/ผัง) ⇒ ปุ่มนี้จึงเป็นแค่ **ทางเดิน** ไปหน้าสร้างรายงาน
+              ไม่เรียก API ไม่ยิง checkout ไม่แปะป้ายราคาใส่หน้าคนใช้ฟรี -->
+      <div style="margin-top:14px;text-align:center">
+        <button onclick="try{if(window._msTrack)_msTrack.track('report_cta_click',{meta:{from:'consensus_preview'}})}catch(_){};setGroup('premium');showSubTab('blueprint')"
+          style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:14px;padding:11px 22px;cursor:pointer;border:1px solid var(--gold);background:rgba(200,164,90,.08);color:var(--gold);border-radius:8px">
+          ${isTh ? '✦ สร้างรายงานฉบับเต็มของคุณ →' : '✦ Build your full report →'}
+        </button>
+        <div style="font-family:'Josefin Sans',sans-serif;font-size:9.5px;letter-spacing:1.2px;color:var(--muted);margin-top:7px">
+          ${isTh ? 'ดูตัวอย่างฟรีก่อนได้ ยังไม่ต้องจ่าย' : 'Free preview first — no payment yet'}
+        </div>
+      </div>
+
       <!-- ⛔ ปุ่ม ไม่ใช่โหลดอัตโนมัติ — ตารางราคา ~$1.3 ต่อผัง คนเปิดหน้าเฉยๆ ต้องไม่เสียเงิน
            ⛔ ต้องบอกก่อนกดว่าใช้เวลาสักครู่ ไม่งั้นคนกดแล้วคิดว่าค้าง
            ⛔ หน้านี้อยู่เหนือฟอร์ม = หน้าของคนที่ยังไม่จ่าย ⇒ ห้ามวางของขายไว้ตรงนี้
@@ -8099,6 +8116,7 @@ async function loadConsensusGrid(btn) {
     // ⛔ ยังไม่ได้ลงชื่อเข้าใช้ = เชิญ ไม่ใช่แจ้งข้อผิดพลาด (แบบแผนเดียวกับหน้าคำอ่านรายศาสตร์)
     //    และข้อความของเซิร์ฟเวอร์เป็นภาษาอังกฤษ จึงต้องเขียนเองตามภาษาที่ผู้อ่านเลือก
     if (e.errorKey === 'auth_required' || e.errorKey === 'invalid_token') {
+      _trackSigninWall('consensus_grid');
       host.innerHTML = `<div style="padding:20px 18px;text-align:center;background:rgba(212,175,55,0.05);border:1px solid var(--gold3);border-radius:10px">
         <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.75;max-width:420px;margin:0 auto 14px">${isTh
           ? 'ลงชื่อเข้าใช้เพื่อให้ทุกตำราตอบ — คำตอบเก็บไว้กับดวงของคุณ เปิดซ้ำได้ทุกเครื่องโดยไม่ต้องรอใหม่'
@@ -8735,6 +8753,19 @@ function _redeemGiftCodeSubmit(){
   sts.textContent = isTh?('✓ ใช้รหัสสำเร็จ · หมดอายุใน '+daysLeft+' วัน'):('✓ Code accepted · expires in '+daysLeft+' day'+(daysLeft!==1?'s':''));
   sts.style.color = 'var(--gold)';
   setTimeout(() => { const m = document.getElementById('giftCodeModal'); if (m) m.remove(); location.reload(); }, 1800);
+}
+
+// ── เซ็นเซอร์กำแพงลงชื่อเข้าใช้ (11 ก.ย. 69) ──────────────────────────────
+// ระหว่าง consensus_view กับ paywall_view ไม่มีตัววัดอะไรเลย ทั้งที่ตรงกลางมีกำแพง
+// "ลงชื่อเข้าใช้" คั่นอยู่ ⇒ กระดานแยกไม่ออกว่า "ไม่มีใครเดินมาถึงราคา" กับ
+// "ทุกคนไปจอดที่กำแพงแล้วเลิก" — สองอย่างนี้ต้องแก้คนละทาง
+function _trackSigninWall(where){
+  try {
+    window._msSeenWall = window._msSeenWall || {};
+    if (window._msSeenWall[where]) return;   // 1 ครั้ง/จุด/session
+    window._msSeenWall[where] = true;
+    if (window._msTrack) _msTrack.track('signin_wall', { meta: { where: where } });
+  } catch(_){}
 }
 
 function _purchasePaywall(itemKey, opts){
@@ -10300,6 +10331,7 @@ function _showDeep(k, isUserClick){
       bodyContent = _renderOracleOutput(_deepOracleCache[k]);
     } else if (_deepOracleErrors[k] && /auth_required|invalid_token/.test(_deepOracleErrorKeys[k] || '')) {
       // ยังไม่ได้ลงชื่อเข้าใช้ — เชิญ ไม่ใช่แจ้งข้อผิดพลาด
+      _trackSigninWall('deep_free');
       bodyContent = `<div style="padding:26px 22px;text-align:center;background:rgba(212,175,55,0.05);border:1px solid var(--gold3);border-radius:10px">
         <div style="font-family:'Cinzel Decorative',serif;font-size:15px;color:var(--gold);margin-bottom:8px">${isTh?'ศาสตร์นี้ฟรีสำหรับดวงของคุณ':'This system is free for your chart'}</div>
         <div style="font-family:'Cormorant Garamond','Sarabun',serif;font-size:14px;color:var(--text);line-height:1.75;max-width:420px;margin:0 auto 16px">${isTh
