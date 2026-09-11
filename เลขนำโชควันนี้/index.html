@@ -108,7 +108,16 @@ footer a{color:var(--muted);margin:0 .5rem}footer a:hover{color:var(--gold)}
   <div class="cta-block">
     <div class="cta-title">✨ ดูเลขนำโชควันนี้ของคุณ</div>
     <div class="cta-sub">จั่วพรประจำวันหรือใส่วันเกิด — เห็นเลข 2 ตัว 3 ตัวประจำวันทันที ฟรี</div>
-    <a class="cta-btn" href="/?utm_source=seo&utm_medium=organic&utm_campaign=lucky">ดูเลขนำโชควันนี้ →</a>
+    <form onsubmit="return _lpgo(this)" style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:.9rem">
+      <input name="d" type="number" inputmode="numeric" min="1" max="31" placeholder="วัน" required aria-label="วันเกิด" style="width:5.2rem;background:#040407;border:1px solid rgba(200,164,90,.45);color:#e6e2d8;border-radius:6px;padding:.75rem .6rem;font-size:1rem;text-align:center">
+      <select name="m" required aria-label="เดือนเกิด" style="background:#040407;border:1px solid rgba(200,164,90,.45);color:#e6e2d8;border-radius:6px;padding:.75rem .6rem;font-family:'Prompt',sans-serif;font-size:.95rem">
+        <option value="">เดือน</option><option value="1">ม.ค.</option><option value="2">ก.พ.</option><option value="3">มี.ค.</option><option value="4">เม.ย.</option><option value="5">พ.ค.</option><option value="6">มิ.ย.</option><option value="7">ก.ค.</option><option value="8">ส.ค.</option><option value="9">ก.ย.</option><option value="10">ต.ค.</option><option value="11">พ.ย.</option><option value="12">ธ.ค.</option>
+      </select>
+      <input name="y" type="number" inputmode="numeric" min="1900" max="2600" placeholder="ปี พ.ศ." required aria-label="ปีเกิด" style="width:7rem;background:#040407;border:1px solid rgba(200,164,90,.45);color:#e6e2d8;border-radius:6px;padding:.75rem .6rem;font-size:1rem;text-align:center">
+      <button type="submit" class="cta-btn" style="border:0;cursor:pointer">ดูดวงของฉัน →</button>
+    </form>
+    <div id="lperr" style="display:none;margin:-.4rem 0 .8rem;font-size:.85rem;color:#e07050">วันที่ไม่ถูกต้อง — ใส่ปี พ.ศ. หรือ ค.ศ. ก็ได้</div>
+    <a href="/?utm_source=seo&utm_medium=organic&utm_campaign=lucky" style="font-size:.9rem;color:#9a9088;text-decoration:underline">ดูเลขนำโชควันนี้ โดยไม่กรอกตรงนี้ →</a>
   </div>
 
   <section id="faq">
@@ -133,4 +142,16 @@ footer a{color:var(--muted);margin:0 .5rem}footer a:hover{color:var(--gold)}
 
 <!-- ประโยคหลักประโยคเดียว เหมือนกันทุกหน้า (11 ก.ย. 69) — AI/เครื่องมือค้นหาจะอ้างเราได้ก็ต่อเมื่อคำอธิบายซ้ำและชัด อย่าแก้เฉพาะหน้า ให้แก้ที่ scratch/patch_oneline.cjs แล้วรันใหม่ -->
 <p id="ms-one-line" style="max-width:760px;margin:0 auto;padding:1.2rem 5% 1.6rem;text-align:center;font-family:'Prompt','Cormorant Garamond','Sarabun',sans-serif;font-size:.86rem;line-height:1.7;color:#9a9088;opacity:.85">Mythsensus อ่านวันเกิดเดียวกันด้วย 26 ศาสตร์โบราณพร้อมกัน แล้วบอกว่าศาสตร์ไหนเห็นตรงกัน ศาสตร์ไหนขัดกัน — ฟรี ไม่ต้องสมัคร</p>
+
+<script>
+function _lpgo(f){
+  var d=parseInt(f.d.value,10),m=parseInt(f.m.value,10),y=parseInt(f.y.value,10),err=document.getElementById('lperr');
+  if(y>2400)y-=543;
+  var ok=d&&m&&y&&y>=1900&&y<=2100&&new Date(y,m-1,d).getDate()===d;
+  if(!ok){if(err)err.style.display='block';return false;}
+  var iso=y+'-'+('0'+m).slice(-2)+'-'+('0'+d).slice(-2);
+  location.href='/?dob='+iso+'&lang=th&utm_source=seo&utm_medium=organic&utm_campaign=lucky';
+  return false;
+}
+</script>
 </body></html>
