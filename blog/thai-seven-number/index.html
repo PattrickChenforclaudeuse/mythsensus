@@ -107,7 +107,9 @@ html[lang="th"] .body-th{display:block}
     "url": "https://mythsensus.com/blog"
   }
 }
-</script>  <script defer src="/assets/page-beacon.js"></script>
+</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"เลข 7 ตัว 9 ฐาน คืออะไร?","acceptedAnswer":{"@type":"Answer","text":"เลขศาสตร์ไทยพราหมณ์ที่แปลงชื่อเต็มภาษาไทยและวันเดือนปีเกิดเป็นตัวเลขหลัก 7 ตัว (ค่า 1–9 โดยลดทอนในระบบฐาน 9) แล้วอ่านความหมายของแต่ละตัวผ่านดาวนพเคราะห์ที่กำกับเลขนั้น ระบบนี้เติบโตในราชสำนักและหมู่พราหมณ์หลวงของไทย ประชาชนทั่วไปรู้จักผ่านพิธีตั้งชื่อ"}},{"@type":"Question","name":"เลข 7 ตัว 9 ฐาน คำนวณจากอะไร?","acceptedAnswer":{"@type":"Answer","text":"จากสองแหล่ง — ค่าตัวเลขของพยางค์ในชื่อเต็มภาษาไทย และตัวเลขของวันเกิด (วัน เดือน ปี) ตัวเลขทั้งหมดถูกลดทอนในฐาน 9 ไม่ใช่ฐาน 10 เพราะเลข 9 ถือเป็นเลขสมบูรณ์ในจักรวาลวิทยาไทย-พราหมณ์ (นพรัตน์ 9 · สวรรค์ 9 ชั้น) บนหน้านี้ใส่วันเกิดแล้วระบบคำนวณให้ทันที"}},{"@type":"Question","name":"เลขแต่ละตัวหมายถึงดาวอะไร?","acceptedAnswer":{"@type":"Answer","text":"1 พระอาทิตย์ · 2 พระจันทร์ · 3 พระอังคาร · 4 ราหู · 5 พระพฤหัสบดี · 6 พระศุกร์ · 7 เกตุ · 8 พระเสาร์ · 9 พระพุธ — การอ่านดูว่าดาวใดถูกขยาย ดาวใดขัดแย้งกัน และดาวใดขาดหายไปจากเลข 7 ตัวของคุณ"}},{"@type":"Question","name":"เลข 7 ตัว 9 ฐาน ใช้ทำอะไรได้บ้าง?","acceptedAnswer":{"@type":"Answer","text":"ใช้ได้ทั้งแบบพยากรณ์และแบบกำหนด — ตั้งชื่อเด็กแรกเกิดให้เสริมดาวที่อ่อน หรือพิจารณาเปลี่ยนชื่อเมื่อพบอุปสรรคซ้ำ ๆ ที่ Mythsensus ระบบนี้เป็นหนึ่งใน 26 ศาสตร์ที่อ่านวันเกิดเดียวกันพร้อมกัน จึงดูได้ด้วยว่าศาสตร์อื่นเห็นตรงกับเลข 7 ตัวของคุณหรือไม่"}}]}</script>
+  <script defer src="/assets/page-beacon.js"></script>
 </head><body>
 <nav class="nav">
   <a href="/en" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
@@ -259,8 +261,11 @@ function setLang(l){
   const q=new URLSearchParams(location.search).get('lang');
   const nav=((navigator.language||'')+'').toLowerCase();
   // ลำดับ: ?lang= > ที่เคยเลือกไว้ > ภาษาเบราว์เซอร์ (คนไทยที่มาจาก Google ต้องได้ไทย ไม่ใช่อังกฤษ)
-  // หน้านี้: ไทยเป็นค่าเริ่มต้น (หัวข้อไทย · ผู้ค้นส่วนใหญ่ไทย) — อังกฤษเฉพาะ ?lang=en หรือเคยเลือกไว้
-  if(q==='en'||(!q&&saved==='en')) setLang('en'); else setLang('th');
+  // หน้านี้มีคนค้นทั้งไทยและอังกฤษ (GSC: 'thai astrology 7 numbers 9 bases' อันดับ 3.8) — ไทยถ้าอยู่ไทยหรือเบราว์เซอร์ไทย
+  // (Chrome ไทยจำนวนมากตั้ง UI อังกฤษ ⇒ ดูเขตเวลาด้วย) · นอกนั้นอังกฤษ · ?lang= และค่าที่เคยเลือกชนะเสมอ
+  let tz=''; try{ tz=Intl.DateTimeFormat().resolvedOptions().timeZone||''; }catch(e){}
+  const thai = nav.startsWith('th') || tz==='Asia/Bangkok';
+  if(q==='en'||(!q&&saved==='en')||(!q&&!saved&&!thai)) setLang('en'); else setLang('th');
 })();
 </script>
 
