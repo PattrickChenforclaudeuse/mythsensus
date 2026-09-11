@@ -230,10 +230,20 @@ export default async function handler(req, res) {
   for (const s of sessions) { const d = bkkDay(s.ts); if (d in dHum) { dHum[d]++; if (/^utm:fb|facebook/i.test(s.ref || '')) dFb[d]++; } }
   for (const sid in firstSeen) { const d = bkkDay(firstSeen[sid]); if (d in dBot) dBot[d]++; }
   { const seen = new Set(); for (const b of births) { if (!b.sid || seen.has(b.sid)) continue; seen.add(b.sid); const d = bkkDay(b.ts); if (d in dBirth) dBirth[d]++; } }
+  // 11 ก.ย. 69 (director): "เพิ่มเส้นอีก 2-3 เส้น อยากดู active time กับ paywall reach"
+  // เวลาอยู่ใช้ **มัธยฐาน** เป็นเส้น — mean โดนแท็บที่เปิดทิ้งไว้ตัวเดียวดึงขึ้นหลายเท่า (mean ยังอยู่ใน tooltip)
+  // ถึงราคา = distinct sid ต่อวัน (คนจริง) — วันละ 0-2 เป็นปกติ ดูคู่กับ "กรอกวันเกิด" เพื่อเห็นช่องว่างระหว่างขั้น
+  const dPw = zero(), dActArr = {};
+  { const seen = new Set(); for (const p of pwViews) { if (!p.sid || seen.has(p.sid)) continue; seen.add(p.sid); const d = bkkDay(p.ts); if (d in dPw) dPw[d]++; } }
+  for (const s of sessions) { const d = bkkDay(s.ts); if (d in dHum) (dActArr[d] = dActArr[d] || []).push((+s.active_ms || 0) / 1000); }
+  const medOf  = (a) => { if (!a || !a.length) return 0; const b = [...a].sort((x, y) => x - y); return b[Math.floor(b.length / 2)]; };
+  const meanOf = (a) => (a && a.length) ? a.reduce((p, c) => p + c, 0) / a.length : 0;
   const series = {
     days: dayKeys.map(d => String(+d.slice(5, 7)) + '/' + String(+d.slice(8, 10))),
     hum: dayKeys.map(d => dHum[d]), bot: dayKeys.map(d => dBot[d]),
     birth: dayKeys.map(d => dBirth[d]), fb: dayKeys.map(d => dFb[d]),
+    pw: dayKeys.map(d => dPw[d]),
+    act: dayKeys.map(d => Math.round(medOf(dActArr[d]))), actMean: dayKeys.map(d => Math.round(meanOf(dActArr[d]))),
   };
   // "ยิงล่าสุดต่อ event" — จากชุดดิบ (เซ็นเซอร์ยิงจากเครื่องไหนก็นับว่ายังมีชีวิต)
   // เหตุที่ต้องมีแถวนี้: consensus_view/paywall_view หยุดยิง 31 ส.ค. 20:15 แล้วไม่มีใครเห็นอยู่ 7 วัน
@@ -415,10 +425,10 @@ h1{font-family:var(--display);font-style:italic;font-weight:500;font-size:28px;l
 .kpi .v{font-family:var(--num);font-weight:700;font-size:26px;line-height:1.05;color:var(--ink);font-variant-numeric:tabular-nums}.kpi .v small{font-size:13px;font-weight:400;color:var(--ink-2);margin-left:2px}.kpi .v.dead{color:var(--dead)}.kpi .v.bot{color:var(--bot)}
 .kpi .s{font-size:11.5px;color:var(--muted)}.kpi .s b{color:var(--crit);font-weight:500}
 .chart-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px 0}
-.legend{display:flex;gap:16px;font-family:var(--num);font-size:11.5px;letter-spacing:.8px;color:var(--ink-2)}.legend span::before{content:"";display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:7px;vertical-align:middle}.legend .h::before{background:var(--gold)}.legend .b::before{background:var(--bot)}.legend .f{color:var(--warn)}.legend .f::before{display:none}
+.legend{display:flex;gap:16px;font-family:var(--num);font-size:11.5px;letter-spacing:.8px;color:var(--ink-2)}.legend span::before{content:"";display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:7px;vertical-align:middle}.legend .h::before{background:var(--gold)}.legend .b::before{background:var(--bot)}.legend .f{color:var(--warn)}.legend .f::before{display:none}.legend .g::before{background:var(--good)}.legend .p::before{background:var(--crit)}.legend .t::before{background:repeating-linear-gradient(90deg,var(--warn) 0 4px,transparent 4px 7px)}.legend span.off{opacity:.35}.legend span{cursor:pointer;user-select:none}.legend .f{cursor:default}
 .toggle{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;font-family:var(--num);font-size:11px;letter-spacing:1px}.toggle button{background:transparent;border:0;color:var(--ink-2);padding:5px 12px;cursor:pointer;font:inherit}.toggle button.on{background:var(--surface-2);color:var(--gold)}.toggle button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
 .chart{padding:6px 10px 8px;position:relative}.chart svg{width:100%;height:auto;display:block}.chart text{font-family:var(--num);font-size:10.5px;fill:var(--muted)}
-.chart .grid{stroke:var(--line);stroke-width:1}.chart .ln-h{fill:none;stroke:var(--gold);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}.chart .ar-h{fill:var(--gold-fill)}.chart .ln-b{fill:none;stroke:var(--bot);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.chart .grid{stroke:var(--line);stroke-width:1}.chart .ln-h{fill:none;stroke:var(--gold);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}.chart .ar-h{fill:var(--gold-fill)}.chart .ln-b{fill:none;stroke:var(--bot);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}.chart .ln-g{fill:none;stroke:var(--good);stroke-width:1.6;stroke-linejoin:round}.chart .ln-p{fill:none;stroke:var(--crit);stroke-width:1.6;stroke-linejoin:round}.chart .ln-t{fill:none;stroke:var(--warn);stroke-width:1.6;stroke-dasharray:5 4;stroke-linejoin:round}.chart text.tr{fill:var(--warn)}
 .chart .pt{fill:var(--gold);stroke:var(--surface);stroke-width:2}.chart .ptb{fill:var(--bot);stroke:var(--surface);stroke-width:2}.chart .lbl{fill:var(--ink);font-weight:600}.chart .lblb{fill:var(--bot);font-weight:600}.chart .fbm{fill:var(--warn)}.chart .xh{stroke:var(--line-strong);stroke-width:1}
 .tip{position:absolute;pointer-events:none;background:var(--surface-2);border:1px solid var(--line-strong);padding:8px 10px;font-size:12px;color:var(--ink-2);display:none;min-width:150px;font-variant-numeric:tabular-nums}.tip b{color:var(--ink);font-family:var(--num);font-weight:600}.tip .r{display:flex;justify-content:space-between;gap:12px}.tip .r i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
 .chart-note{padding:0 16px 12px;font-size:12px;color:var(--muted)}.chart-note b{color:var(--ink-2);font-weight:500}
@@ -444,11 +454,11 @@ details{border:1px solid var(--line);background:var(--surface)}summary{cursor:po
 <section class="panel">
   <div class="kpis">${kpis}</div>
   <div class="chart-head">
-    <div class="legend"><span class="h">คนจริง / วัน</span><span class="b">บอท เครื่อง ทีม / วัน</span><span class="f">▲ วันที่มาจาก FB ≥10</span></div>
+    <div class="legend"><span class="h" data-k="hum">คนจริง / วัน</span><span class="b" data-k="bot">บอท เครื่อง ทีม / วัน</span><span class="g" data-k="birth">กรอกวันเกิด</span><span class="p" data-k="pw">ถึงราคา</span><span class="t" data-k="act">เวลาอยู่ มัธยฐาน (วิ · แกนขวา)</span><span class="f">▲ วันที่มาจาก FB ≥10</span></div>
     <div class="toggle" role="group" aria-label="แกน"><button class="on" data-mode="same">แกนเดียวกัน</button><button data-mode="zoom">ซูมเส้นคน</button></div>
   </div>
   <div class="chart"><svg id="daily" viewBox="0 0 1000 300" role="img" aria-label="sessions per day, humans vs bots"></svg><div class="tip" id="tip"></div></div>
-  <div class="chart-note">เส้นทองคือคน เส้นม่วงคือของที่ถูกตัดออก — วัน deploy/ทดสอบจะเห็นเส้นม่วงพุ่งโดยเส้นทองไม่ขยับ · ฐานคนจริงอ่านจาก "มัธยฐาน" ไม่ใช่ยอดรวม</div>
+  <div class="chart-note">เส้นทองคือคน เส้นม่วงคือของที่ถูกตัดออก — วัน deploy/ทดสอบจะเห็นเส้นม่วงพุ่งโดยเส้นทองไม่ขยับ · <b>ซูมเส้นคน = organic ล้วน ไม่วาดบอท</b> · เขียว/แดง = กี่คนกรอกวันเกิด / กี่คนถึงราคา (แกนซ้ายเดียวกับคน) · เส้นประ = เวลาอยู่มัธยฐานของวันนั้น อ่านแกนขวา · แตะชื่อใน legend เพื่อซ่อน/โชว์เส้น · ฐานคนจริงอ่านจาก "มัธยฐาน" ไม่ใช่ยอดรวม</div>
 </section>
 
 <section class="two">
@@ -477,40 +487,47 @@ details{border:1px solid var(--line);background:var(--surface)}summary{cursor:po
 <script>
 (function(){
   const S = ${JSON.stringify(series)};
-  const days = S.days, hum = S.hum, bot = S.bot, birth = S.birth, fb = S.fb;
+  const days = S.days, hum = S.hum, bot = S.bot, birth = S.birth, fb = S.fb, pw = S.pw, act = S.act, actMean = S.actMean;
   const svg = document.getElementById('daily'), tip = document.getElementById('tip');
-  const W=1000, H=300, padL=46, padR=16, padT=22, padB=34;
+  const W=1000, H=300, padL=46, padR=46, padT=22, padB=34;
+  const show = { hum:true, bot:true, birth:true, pw:true, act:true };   // legend toggles
   const iw=W-padL-padR, ih=H-padT-padB, n=days.length;
   const x = i => n > 1 ? padL + i*(iw/(n-1)) : padL + iw/2;
   let mode='same';
   function niceMax(v){ if (!(v>0)) return 1; const p=Math.pow(10,Math.floor(Math.log10(v))); const m=v/p; const k = m<=1?1:m<=2?2:m<=5?5:10; return k*p; }
   function draw(){
-    const max = mode==='same' ? niceMax(Math.max(...bot,...hum)) : niceMax(Math.max(...hum));
+    // ซูม = organic ล้วน (director 11 ก.ย.: "กราฟเส้นตอนซูมควรดู organic ไม่ดูบอท") — บอทไม่ถูกวาดและไม่ดันแกน
+    const drawBot = mode==='same' && show.bot;
+    const max = mode==='same' ? niceMax(Math.max(...(show.bot?bot:[0]),...hum)) : niceMax(Math.max(...hum));
     const y = v => padT + ih - Math.min(v,max)/max*ih;
+    const amax = niceMax(Math.max(...act, 1));
+    const ya = v => padT + ih - Math.min(v,amax)/amax*ih;
     let s = '<defs><clipPath id="cp"><rect x="'+padL+'" y="'+(padT-2)+'" width="'+iw+'" height="'+(ih+2)+'"/></clipPath></defs>';
     [0, max/4, max/2, max*3/4, max].forEach(t => { s += '<line class="grid" x1="'+padL+'" x2="'+(W-padR)+'" y1="'+y(t)+'" y2="'+y(t)+'"/><text x="'+(padL-8)+'" y="'+(y(t)+4)+'" text-anchor="end">'+Math.round(t).toLocaleString()+'</text>'; });
     const path = arr => arr.map((v,i)=> (i?'L':'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ');
     s += '<g clip-path="url(#cp)">';
-    s += '<path class="ar-h" d="'+path(hum)+' L'+x(n-1)+' '+y(0)+' L'+x(0)+' '+y(0)+' Z"/>';
-    s += '<path class="ln-b" d="'+path(bot)+'"/>';
-    s += '<path class="ln-h" d="'+path(hum)+'"/>';
+    if (show.hum) s += '<path class="ar-h" d="'+path(hum)+' L'+x(n-1)+' '+y(0)+' L'+x(0)+' '+y(0)+' Z"/>';
+    if (drawBot) s += '<path class="ln-b" d="'+path(bot)+'"/>';
+    if (show.act)   s += '<path class="ln-t" d="'+act.map((v,i)=> (i?'L':'M') + x(i).toFixed(1) + ' ' + ya(v).toFixed(1)).join(' ')+'"/>';
+    if (show.birth) s += '<path class="ln-g" d="'+path(birth)+'"/>';
+    if (show.pw)    s += '<path class="ln-p" d="'+path(pw)+'"/>';
+    if (show.hum) s += '<path class="ln-h" d="'+path(hum)+'"/>';
     s += '</g>';
+    if (show.act) [0, amax/2, amax].forEach(t => { s += '<text class="tr" x="'+(W-padR+8)+'" y="'+(ya(t)+4)+'" text-anchor="start">'+Math.round(t)+'s</text>'; });
     fb.forEach((v,i)=>{ if (v>=10) s += '<path class="fbm" d="M'+(x(i)-5)+' '+(padT+ih+13)+' L'+(x(i)+5)+' '+(padT+ih+13)+' L'+x(i)+' '+(padT+ih+5)+' Z"/>'; });
     const step = n > 40 ? Math.ceil(n/14) : n > 14 ? 3 : 1;
     days.forEach((d,i)=>{ if (i%step===0 || i===n-1) s += '<text x="'+x(i)+'" y="'+(H-8)+'" text-anchor="middle">'+d+'</text>'; });
     const hp = hum.indexOf(Math.max(...hum));
-    if (hum[hp] > 0) s += '<circle class="pt" cx="'+x(hp)+'" cy="'+y(hum[hp])+'" r="4"/><text class="lbl" x="'+x(hp)+'" y="'+(y(hum[hp])-9)+'" text-anchor="middle">'+hum[hp]+' คน</text>';
+    if (show.hum && hum[hp] > 0) s += '<circle class="pt" cx="'+x(hp)+'" cy="'+y(hum[hp])+'" r="4"/><text class="lbl" x="'+x(hp)+'" y="'+(y(hum[hp])-9)+'" text-anchor="middle">'+hum[hp]+' คน</text>';
     const bp = bot.indexOf(Math.max(...bot));
-    if (bot[bp] > 0) {
-      if (mode==='same') s += '<circle class="ptb" cx="'+x(bp)+'" cy="'+y(bot[bp])+'" r="4"/><text class="lblb" x="'+x(bp)+'" y="'+(y(bot[bp])-9)+'" text-anchor="middle">'+bot[bp].toLocaleString()+' บอท</text>';
-      else s += '<text class="lblb" x="'+x(bp)+'" y="'+(padT+10)+'" text-anchor="middle">▲ บอท '+bot[bp].toLocaleString()+' (เกินแกน)</text>';
-    }
-    s += '<circle class="pt" cx="'+x(n-1)+'" cy="'+y(hum[n-1])+'" r="4"/>';
+    if (drawBot && bot[bp] > 0) s += '<circle class="ptb" cx="'+x(bp)+'" cy="'+y(bot[bp])+'" r="4"/><text class="lblb" x="'+x(bp)+'" y="'+(y(bot[bp])-9)+'" text-anchor="middle">'+bot[bp].toLocaleString()+' บอท</text>';
+    if (show.hum) s += '<circle class="pt" cx="'+x(n-1)+'" cy="'+y(hum[n-1])+'" r="4"/>';
     s += '<line id="xh" class="xh" x1="0" x2="0" y1="'+padT+'" y2="'+(padT+ih)+'" style="display:none"/>';
     svg.innerHTML = s;
   }
   draw();
   document.querySelectorAll('.toggle button').forEach(b => b.addEventListener('click', () => { document.querySelectorAll('.toggle button').forEach(o=>o.classList.remove('on')); b.classList.add('on'); mode=b.dataset.mode; draw(); }));
+  document.querySelectorAll('.legend span[data-k]').forEach(el => el.addEventListener('click', () => { const k = el.dataset.k; show[k] = !show[k]; el.classList.toggle('off', !show[k]); draw(); }));
   svg.addEventListener('mousemove', e => {
     const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) / r.width * W;
     const i = Math.max(0, Math.min(n-1, Math.round((px - padL) / (iw/Math.max(1,n-1)))));
@@ -519,7 +536,9 @@ details{border:1px solid var(--line);background:var(--surface)}summary{cursor:po
     tip.innerHTML = '<b>'+days[i]+(i===n-1?' (วันนี้ ยังไม่จบวัน)':'')+'</b>'
       + '<div class="r"><span><i style="background:var(--gold)"></i>คนจริง</span><b>'+hum[i]+'</b></div>'
       + '<div class="r"><span><i style="background:var(--bot)"></i>บอท/เครื่อง/ทีม</span><b>'+bot[i].toLocaleString()+'</b></div>'
-      + '<div class="r"><span>กรอกวันเกิด</span><b>'+birth[i]+'</b></div>'
+      + '<div class="r"><span><i style="background:var(--good)"></i>กรอกวันเกิด</span><b>'+birth[i]+'</b></div>'
+      + '<div class="r"><span><i style="background:var(--crit)"></i>ถึงราคา</span><b>'+pw[i]+'</b></div>'
+      + '<div class="r"><span><i style="background:var(--warn)"></i>เวลาอยู่ มัธยฐาน / mean</span><b>'+act[i]+'s / '+actMean[i]+'s</b></div>'
       + (fb[i] ? '<div class="r"><span>มาจาก FB</span><b>'+fb[i]+'</b></div>' : '');
     tip.style.left = Math.min(r.width - 170, Math.max(0, (x(i)/W)*r.width + 12)) + 'px'; tip.style.top = '14px';
   });
