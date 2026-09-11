@@ -203,7 +203,10 @@ console.log('');
 console.log('— Lucky-Day tab day pillar (lifted from index.html) —');
 {
   const fs = require('fs'), path = require('path');
-  const html = fs.readFileSync(path.join(__dirname, '..', '..', 'index.html'), 'utf8');
+  // 11 ก.ย. 69 — โค้ดแอปอยู่ build/app.js แล้ว (ย้ายออกจาก index.html เพื่อความเร็วหน้าแรก) อ่านทั้งสองที่
+  const _root = path.join(__dirname, '..', '..');
+  const _appPath = path.join(_root, 'build', 'app.js');
+  const html = fs.readFileSync(path.join(_root, 'index.html'), 'utf8') + '\n' + (fs.existsSync(_appPath) ? fs.readFileSync(_appPath, 'utf8') : '');
   const lucky = html.slice(html.indexOf('function renderLucky()'));
   const jdSrc  = (lucky.match(/function _jd\([\s\S]*?\n  \}/) || [])[0];
   const cycSrc = (lucky.match(/const _cycle[\s\S]*?const branchIdx[^;]*;/) || [])[0];
@@ -236,7 +239,10 @@ console.log('');
 console.log('— Five-element tables in index.html —');
 {
   const fs = require('fs'), path = require('path');
-  const html = fs.readFileSync(path.join(__dirname, '..', '..', 'index.html'), 'utf8');
+  // 11 ก.ย. 69 — ตารางพวกนี้อยู่ใน build/app.js แล้ว (ย้ายออกจาก index.html) อ่านทั้งสองที่
+  const _root2 = path.join(__dirname, '..', '..');
+  const _app2 = path.join(_root2, 'build', 'app.js');
+  const html = fs.readFileSync(path.join(_root2, 'index.html'), 'utf8') + '\n' + (fs.existsSync(_app2) ? fs.readFileSync(_app2, 'utf8') : '');
   // Canonical, from the engine: CONTROLS / SHENG.
   const CONTROLS = {'ไม้':'ดิน','ไฟ':'โลหะ','ดิน':'น้ำ','โลหะ':'ไม้','น้ำ':'ไฟ'};
   const SHENG    = {'ไม้':'ไฟ','ไฟ':'ดิน','ดิน':'โลหะ','โลหะ':'น้ำ','น้ำ':'ไม้'};

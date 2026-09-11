@@ -80,8 +80,16 @@ function checkRequired(html) {
 }
 
 const indexPath = path.join(ROOT, 'index.html');
+// 11 ก.ย. 69 — โค้ดแอปย้ายไป build/app.js (defer) เพื่อความเร็วหน้าแรก: ต้อง parse ได้ และ globals ที่ต้องมีอยู่ในไฟล์นั้น
+const appPath = path.join(ROOT, 'build', 'app.js');
+let appSrc = '';
+if (fs.existsSync(appPath)) {
+  appSrc = fs.readFileSync(appPath, 'utf8');
+  try { new Function(appSrc); notes.push('build/app.js: parses (' + appSrc.length + ' bytes)'); }
+  catch (e) { failures.push('build/app.js — does not parse: ' + e.message); }
+} else failures.push('build/app.js missing — index.html references it');
 const html = checkScripts(indexPath);
-checkRequired(html);
+checkRequired(html + '\n' + appSrc);   // globals อาจอยู่ในไฟล์ไหนก็ได้ในสองไฟล์นี้
 
 // ── No Thai on the English side ───────────────────────────────────────────────
 // Director's rule (2026-08-23): English words inside Thai copy are fine — the
@@ -118,7 +126,7 @@ function checkEnglishTableIsEnglish(html) {
   }
   if (!found) notes.push('i18n: TX.en carries no Thai');
 }
-checkEnglishTableIsEnglish(html);
+checkEnglishTableIsEnglish(html + '\n' + appSrc);   // TX อยู่ใน build/app.js แล้ว
 
 // ── stray control characters ──────────────────────────────────────────────────
 // Twice now a raw control byte has been pasted into a source file and shipped:
