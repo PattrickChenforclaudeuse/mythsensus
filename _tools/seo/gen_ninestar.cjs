@@ -63,7 +63,7 @@ ${o.ld.map(x => `<script type="application/ld+json">${JSON.stringify(x)}</script
 <nav class="nav">
   <a href="/en" class="nav-logo"><span class="logo-myth">MYTH</span><span class="logo-sensus">SENSUS</span></a>
   <div class="nav-right">
-    <a href="/en/nine-star-ki/" class="nav-link">Nine Star Ki</a>
+    <a href="/en/nine-star-ki" class="nav-link">Nine Star Ki</a>
     <a href="/blog/nine-star-ki?lang=en" class="nav-link">About the system</a>
     <a href="/en" class="nav-link">Free reading</a>
   </div>
@@ -133,7 +133,7 @@ for (const o of stars) {
 }
 // index page
 {
-  const url = 'https://mythsensus.com/en/nine-star-ki/';
+  const url = 'https://mythsensus.com/en/nine-star-ki';
   const title = 'Nine Star Ki (九星気学) — find your star from your birth date, free · all nine stars explained · Mythsensus';
   const desc = 'Nine Star Ki assigns one of nine stars by birth year (the year starts around 4 February). Enter your birth date to find yours, read what each star means — element, colour, lucky direction — and see whether 25 other divination systems agree with it.';
   const rows = stars.map(o => `<tr><td><a href="/en/nine-star-ki/${slug(o)}"><strong>Star ${o.star}</strong> ${o.name}</a></td><td>${o.ch}</td><td>${o.el}</td><td>${o.color}</td><td>${o.dir}</td></tr>`).join('');
