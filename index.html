@@ -19103,9 +19103,10 @@ let _entryLang = 'th';      // captured choice; commits to global LANG on accept
 // ทางกรอกฟอร์มเอง และคนเก่าที่ข้ามฟอร์ม · หน้า "ดูดวงแมว/สุนัข" ต้องลงที่ห้องสัตว์เลี้ยง ไม่ใช่หน้าแรก
 function _deepGoAfterEntry(){
   try {
-    const GO = { pethome: 'premium', blueprint: 'premium', deep: 'premium', pulse: 'free' };
+    // ค่าใน URL → [กลุ่ม, คีย์แท็บจริงใน GROUPS] — คีย์แท็บห้องสัตว์เลี้ยงคือ 'pet' (ส่วน 'pethome' คือชื่อ panel)
+    const GO = { pethome: ['premium', 'pet'], blueprint: ['premium', 'blueprint'], deep: ['premium', 'deep'], pulse: ['free', 'pulse'] };
     const g = window._msDeepGo || ''; window._msDeepGo = '';
-    if (GO[g]) setTimeout(() => { try { setGroup(GO[g]); showSubTab(g); } catch(_) {} }, 150);
+    if (GO[g]) setTimeout(() => { try { setGroup(GO[g][0]); showSubTab(GO[g][1]); } catch(_) {} }, 150);
   } catch(_) {}
 }
 function showEntryOverlay(){
