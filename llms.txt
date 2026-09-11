@@ -5,6 +5,11 @@
 >
 > Under the hood: one Cosmic Score (1–1,000) synthesised from BaZi, Vedic Jyotish, Western astrology, Nine Star Ki, Thai Seven Number (เลข 7 ตัว 9 ฐาน) and 21 others. The free tier is the reading itself; the paid Cosmic Blueprint adds depth, not access.
 
+## Full index
+
+- [llms-full.txt](https://mythsensus.com/llms-full.txt): every canonical URL (122) with title + description, grouped
+- [RSS feed](https://mythsensus.com/blog/feed.xml): Cosmic Library articles
+
 ## Authoritative pages
 
 - [Homepage](https://mythsensus.com/): Birth date input + Cosmic Score + 26-system reading

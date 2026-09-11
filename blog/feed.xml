@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>Mythsensus — Cosmic Library</title>
+  <link>https://mythsensus.com/blog</link>
+  <atom:link href="https://mythsensus.com/blog/feed.xml" rel="self" type="application/rss+xml"/>
+  <description>Mythsensus reads one birth date through 26 divination systems at once and shows where they agree and where they disagree. Articles on each system, Thai and English.</description>
+  <language>th</language>
+  <lastBuildDate>Fri, 11 Sep 2026 13:38:34 GMT</lastBuildDate>
+  <item>
+    <title>เลข 7 ตัว 9 ฐาน คำนวณจากวันเกิด ดูฟรี — แล้วอีก 25 ศาสตร์เห็นตรงกันไหม · Mythsensus</title>
+    <link>https://mythsensus.com/blog/thai-seven-number</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/thai-seven-number</guid>
+    <pubDate>Fri, 11 Sep 2026 02:00:00 GMT</pubDate>
+    <description>ใส่วันเกิด → ได้เลข 7 ตัว 9 ฐานของคุณ (อัตตะ หินะ ธนัง ปิตา มาตา โภคา มัชฌิมา ตะนุ กัมมะ) พร้อมคำอธิบายว่าแต่ละฐานอ่านเรื่องอะไร — และเทียบทันทีว่าอีก 25 ศาสตร์อ่านดวงเดียวกันไปทางเดียวกันไหม ฟรี ไม่ต้องสมัคร</description>
+  </item>
+  <item>
+    <title>Calibration Methodology — how the Cosmic Score is computed · Mythsensus</title>
+    <link>https://mythsensus.com/blog/calibration-methodology</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/calibration-methodology</guid>
+    <pubDate>Fri, 03 Jul 2026 02:00:00 GMT</pubDate>
+    <description>ตำราเปิดสูตร Cosmic Score — median ของ 26 ศาสตร์ เทียบ percentile กับประชากร · ทำไมไม่ใช้ค่าเฉลี่ยถ่วงน้ำหนัก ไม่ใช้ machine learning และช่องโหว่ที่เหลือ</description>
+  </item>
+  <item>
+    <title>สวดพระอภิธรรม ๗ คัมภีร์ แปล — ทำไมสวดตำราที่ลึกที่สุดข้างศพ | Mythsensus</title>
+    <link>https://mythsensus.com/blog/abhidhamma-funeral</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/abhidhamma-funeral</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>สวดพระอภิธรรม ๗ คัมภีร์หน้าศพ — ทำไมต้องเป็นตำราที่เทคนิคที่สุดในพุทธ คำตอบสืบไปถึงการเสด็จโปรดพุทธมารดาบนดาวดึงส์ และข้อที่ว่าสวดให้คนเป็น ไม่ใช่คนตาย</description>
+  </item>
+  <item>
+    <title>อัลฟาติฮะฮ์ แปลไทย + อังกฤษ — บทเปิดอัลกุรอานที่สวด 17 ครั้งต่อวัน | Mythsensus</title>
+    <link>https://mythsensus.com/blog/al-fatihah</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/al-fatihah</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>ซูเราะฮฺอัลฟาติฮะฮ์ 7 โองการที่มุสลิมสวดในละหมาดทุกร็อกอะฮฺ อย่างน้อย 17 ครั้งต่อวัน — แปลทีละโองการ พร้อมโครงสร้างสรรเสริญ → พูดกับพระเจ้าตรงๆ → ขอทางนำ</description>
+  </item>
+  <item>
+    <title>อนิจจา วต สังขารา แปล — บทบังสุกุลที่เทวดากล่าวตอนพระพุทธเจ้าปรินิพพาน | Mythsensus</title>
+    <link>https://mythsensus.com/blog/anicca-vata-sankhara</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/anicca-vata-sankhara</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>อนิจจา วต สังขารา บทชักผ้าบังสุกุล — 4 บรรทัดนี้คือคำที่ท้าวสักกะกล่าวตอนปรินิพพาน และบรรทัดสุดท้ายบอกว่าความสุขอยู่ที่การดับ ไม่ใช่การยึด</description>
+  </item>
+  <item>
+    <title>โพชฌงคปริตร แปล + สิ่งที่ต้องพิจารณาตอนสวด — บทสวดให้คนป่วย ที่จริง ๆ คือแบบตรวจใจตัวเอง | Mythsensus</title>
+    <link>https://mythsensus.com/blog/bojjhanga</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/bojjhanga</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>โพชฌงคปริตร (SN 46.14–16) บทสวดเยี่ยมคนป่วย — คำถามจริงไม่ใช่ 'แปลว่าอะไร' แต่คือ 'ตอนสวดต้องพิจารณาอะไร' ถอดโพชฌงค์ ๗ เป็นแบบตรวจใจตัวเอง</description>
+  </item>
+  <item>
+    <title>Cosmic Score ของ 3 ไอคอนผู้เปลี่ยนโลก — สุนทรภู่ · Steve Jobs · Bruce Lee · Mythsensus</title>
+    <link>https://mythsensus.com/blog/cosmic-score-3-icons</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/cosmic-score-3-icons</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>เครื่องคำนวณ 26 ศาสตร์ของ Mythsensus อ่านดวงให้ 3 บุคคลในประวัติศาสตร์ — สุนทรภู่ · Steve Jobs · Bruce Lee — เปิดเผยตัวเลข Cosmic Score จริงจาก engine</description>
+  </item>
+  <item>
+    <title>Cosmic Score &amp;amp; Path Resonance — คะแนนช่วงไหนคืออะไร · กี่% ของผู้ใช้ · Mythsensus</title>
+    <link>https://mythsensus.com/blog/cosmic-score-and-path-resonance</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/cosmic-score-and-path-resonance</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>คู่มืออ่านคะแนน Mythsensus — Cosmic Score 7 ระดับ (ทิพย์ · รัศมี · ประกาย · ดุลย์ · ปฐพี · แสวง · อรุณ) พร้อม % ประชากร · คะแนนคือตำแหน่ง ไม่ใช่ความเห็นตรงกัน</description>
+  </item>
+  <item>
+    <title>Cosmic Score Vol.2 — Einstein · Marie Curie · Gandhi · แม้แต่ตำนานก็ไม่ได้คะแนนเหมือนกัน · Mythsensus</title>
+    <link>https://mythsensus.com/blog/cosmic-score-icons-vol2</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/cosmic-score-icons-vol2</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>Vol 2 ของซีรีส์ Cosmic Score — Einstein 840 · Marie Curie 420 · Gandhi 390 — ตัวเลขจริงจาก engine 26 ศาสตร์ วัดระดับ (percentile) ไม่ใช่ความยิ่งใหญ่</description>
+  </item>
+  <item>
+    <title>บทสวดข้ามศรัทธา — 6 บทสวดจาก 5 ศาสนา เทียบกัน | Cross-Faith Mantra | Mythsensus</title>
+    <link>https://mythsensus.com/blog/cross-faith-mantra</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/cross-faith-mantra</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>เทียบบทสวด 6 บทจาก 5 ศาสนา — บทสวดคือช่องทางที่มนุษย์ใช้เอื้อมหาสิ่งที่ใหญ่กว่าตัวเอง และแต่ละศาสนาเอื้อมคนละวิธีสิ้นเชิง: ขอ สลาย ประกาศ บันทึก และต้าน</description>
+  </item>
+  <item>
+    <title>อาทิตตปริยายสูตร แปลเต็ม (บาลี-ไทย) — เทศนาว่าด้วยของร้อน: อะไรกำลังไหม้ และควรพิจารณาอะไรตอนสวด | Mythsensus</title>
+    <link>https://mythsensus.com/blog/fire-sermon</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/fire-sermon</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>อาทิตตปริยายสูตร บาลี-ไทยครบทุกท่อน — เทศนาที่ตรัสกับอดีตชฎิลบูชาไฟ 1,003 รูปว่า 'สิ่งทั้งปวงเป็นของร้อน' ร้อนเพราะไฟอะไร และควรไล่ตรวจอะไรทีละทวาร</description>
+  </item>
+  <item>
+    <title>อภิณหปัจจเวกขณ์ (บทพิจารณา 5) แปล + สิ่งที่ต้องพิจารณาจริง ๆ — บทสวดงานศพที่ชวนคุณ ไม่ใช่ผู้ตาย | Mythsensus</title>
+    <link>https://mythsensus.com/blog/five-remembrances</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/five-remembrances</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>อภิณหปัจจเวกขณ์ (อังคุตตรนิกาย 5.57) แปลไทย-อังกฤษ พร้อมคำถามที่ควรถามตัวเองขณะสวดแต่ละบท — ชื่อแปลว่า 'สิ่งที่ควรพิจารณาบ่อยๆ' ไม่ใช่บทสำหรับงานศพ</description>
+  </item>
+  <item>
+    <title>Gayatri Mantra (คายตรีมนตรา) แปลไทย + อังกฤษ — คำอธิษฐานที่ขอปัญญา ไม่ใช่โชคลาภ | Mythsensus</title>
+    <link>https://mythsensus.com/blog/gayatri-mantra</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/gayatri-mantra</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>คายตรีมนตรา (ฤคเวท 3.62.10) สวดเช้า-เที่ยง-เย็น — ไม่ได้ขอทรัพย์หรือการปกป้อง แต่ขอให้แสงกระตุ้นปัญญา · 'คายตรี' เดิมคือฉันทลักษณ์ ไม่ใช่ชื่อเทวี</description>
+  </item>
+  <item>
+    <title>หัวใจพระสูตร (Heart Sutra) แปลไทย + อังกฤษ — บทสวดที่ทลายทุกสิ่งที่คุณยึด | Mythsensus</title>
+    <link>https://mythsensus.com/blog/heart-sutra</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/heart-sutra</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>หัวใจพระสูตร บทสวดมหายานที่ได้ยินทุกวัดจีน-ญี่ปุ่น-ทิเบต — 'รูปคือความว่าง ความว่างคือรูป' ไม่ได้แปลว่าไม่มีอะไรจริง แต่คือการทลายกรอบความคิดทั้งระบบ</description>
+  </item>
+  <item>
+    <title>อิติปิโส (บทสวดพระพุทธคุณ) แปล + สิ่งที่พุทธคุณ 9 ท้าให้พิจารณา — บทที่ท้าให้ &quot;มาพิสูจน์&quot; ไม่ใช่ &quot;เชื่อตาม&quot; | Mythsensus</title>
+    <link>https://mythsensus.com/blog/itipiso</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/itipiso</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>อิติปิโส บทที่คนไทยสวดจนขึ้นใจ — แต่ท่อนธรรมคุณซ่อนคำท้าให้ 'มาพิสูจน์เอง' ไม่ใช่ 'เชื่อตาม' ครบพระพุทธคุณ 9 ธรรมคุณ 6 สังฆคุณ 9</description>
+  </item>
+  <item>
+    <title>กาลามสูตร แปลไทย + อังกฤษ — พระสูตรที่บอกว่า &quot;อย่าเชื่อ&quot; 10 อย่าง | Mythsensus</title>
+    <link>https://mythsensus.com/blog/kalama-sutta</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/kalama-sutta</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>กาลามสูตร (AN 3.65) หลัก 'อย่าเพิ่งเชื่อ' 10 ข้อ ที่ตรัสแก่ชาวกาลามะซึ่งสับสนเพราะครูหลายสำนักสอนขัดกัน — พร้อมคำคมพุทธที่แชร์กันมากที่สุดซึ่งเป็นของปลอม</description>
+  </item>
+  <item>
+    <title>บทข้าแต่พระบิดา (The Lord's Prayer) แปลไทย + อังกฤษ — โครงสร้างคำอธิษฐานที่คริสต์ทั้งโลกใช้ | Mythsensus</title>
+    <link>https://mythsensus.com/blog/lords-prayer</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/lords-prayer</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>บทข้าแต่พระบิดา (มัทธิว 6:9–13) แปลไทย-อังกฤษ-กรีก พร้อมสองเรื่องที่คนไม่รู้ — 'อาหารประจำวัน' ไม่เคยพบในกรีกที่อื่นเลย และท่อนท้ายไม่มีในต้นฉบับเก่าสุด</description>
+  </item>
+  <item>
+    <title>มงคลสูตร (มงคล 38) แปลไทย + อังกฤษ — บทให้พรที่บอกว่ามงคลไม่ได้มาจากของขลัง | Mythsensus</title>
+    <link>https://mythsensus.com/blog/mangala-sutta</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/mangala-sutta</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>มงคลสูตร (มงคล 38 ประการ) — เนื้อหาจริงคือคำตอบที่ย้ายความหมายของ 'มงคล' จากฤกษ์ยาม ของขลัง โชคลาง มาอยู่ที่การประพฤติและการฝึกใจ</description>
+  </item>
+  <item>
+    <title>มาติกา แปลว่าอะไร — บทสวดมาติกาบังสุกุล &quot;กุสลา ธัมมา&quot; ความหมายทีละบรรทัด และเกี่ยวกับอภิธรรม 7 คัมภีร์อย่างไร | Mythsensus</title>
+    <link>https://mythsensus.com/blog/matika</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/matika</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>มาติกา = แม่บทของพระอภิธรรม 7 คัมภีร์ ที่พระสวดก่อนทอดผ้าบังสุกุลในงานศพ — แปล 'กุสลา ธัมมา อกุสลา ธัมมา อัพยากตา ธัมมา' ทีละบรรทัด ทำไมบัญชีธรรมที่แห้งที่สุดจึงถูกสวดในจังหวะที่สะเทือนใจที่สุด</description>
+  </item>
+  <item>
+    <title>กรณียเมตตสูตร แปลไทย + อังกฤษ — บทสวดกันภัยที่ไม่ได้ขออะไรจากใครเลย | Mythsensus</title>
+    <link>https://mythsensus.com/blog/metta-sutta</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/metta-sutta</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>กรณียเมตตสูตร (Sn 1.8) บทสวดกันภัยที่ได้ยินในทุกงานบุญ — แต่ตัวบทไม่มีคำขอต่อเทพองค์ใดเลย มันคือคู่มือฝึกใจให้แผ่เมตตา พร้อมเรื่องเทวดาในป่า</description>
+  </item>
+  <item>
+    <title>โอม มณี ปัทเม หูม (Om Mani Padme Hum) แปล + ความหมาย 6 พยางค์ — มนตร์พระอวโลกิเตศวร/กวนอิม | Mythsensus</title>
+    <link>https://mythsensus.com/blog/om-mani-padme-hum</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/om-mani-padme-hum</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>โอม มณี ปัทเม หูม มนตร์หกพยางค์ของพระอวโลกิเตศวร แปลว่า 'แก้วมณีในดอกบัว' — แต่นักวิชาการเถียงว่ามันอาจไม่ใช่ประโยค และไม่ได้มีไว้ให้แปล</description>
+  </item>
+  <item>
+    <title>บทสวดพาหุงมหากา แปลไทย + อังกฤษ — 8 ชัยชนะของพระพุทธเจ้า · คู่มือรับมือคนยาก | Mythsensus</title>
+    <link>https://mythsensus.com/blog/phahung-mahaka</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/phahung-mahaka</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>พาหุงมหากา ไม่ใช่คำขอพร แต่คือบันทึกเคสจริง 8 เคสที่พระพุทธเจ้าชนะศัตรูด้วยสติและปัญญา ไม่ใช้กำลัง — พร้อมถอดบทเรียนรับมือคนที่เป็นพิษในชีวิตจริง</description>
+  </item>
+  <item>
+    <title>รตนสูตร แปลไทย + อังกฤษ — บทสวดที่มาของน้ำมนต์ และ &quot;อำนาจของสัจจะ&quot; | Mythsensus</title>
+    <link>https://mythsensus.com/blog/ratana-sutta</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/ratana-sutta</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>รตนสูตร ที่มาของน้ำพระพุทธมนต์ — เมืองไพสาลีเจอ 3 ภัย พระอานนท์เดินประพรมน้ำรอบเมือง · ตัวบทไม่ได้ขอเทพ แต่กล่าวความจริงแล้วอ้างอำนาจของสัจจะนั้น</description>
+  </item>
+  <item>
+    <title>เชมา (Shema) แปลไทย + อังกฤษ — 6 คำที่ถกเถียงกันสองพันปี | Mythsensus</title>
+    <link>https://mythsensus.com/blog/shema</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/shema</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>เชมา ยิสราเอล (เฉลยธรรมบัญญัติ 6:4) หัวใจศรัทธาของยิว — 6 คำฮีบรูที่ยังเถียงกันว่า 'พระเจ้าองค์เดียว' หรือ 'พระเจ้าเท่านั้น' และเป็นคำที่พูดกับตัวเอง</description>
+  </item>
+  <item>
+    <title>ตจปัญจกกรรมฐาน (เกสา โลมา นขา ทันตา ตโจ) แปล + สิ่งที่ต้องพิจารณา — กรรมฐานบทแรกที่พระอุปัชฌาย์ให้ทุกคนตอนบวช | Mythsensus</title>
+    <link>https://mythsensus.com/blog/taca-pancaka</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/taca-pancaka</guid>
+    <pubDate>Thu, 02 Jul 2026 02:00:00 GMT</pubDate>
+    <description>เกสา โลมา นขา ทันตา ตโจ แปลว่าอะไร ทำไมพระอุปัชฌาย์ให้ผู้บวชท่องกลับไปกลับมา — ตจปัญจกกรรมฐานคือบทฝึกพิจารณากายบทแรก ไม่ใช่รายการคำศัพท์</description>
+  </item>
+  <item>
+    <title>Aboriginal Australian Dreamtime: The World's Oldest Living Wisdom — Mythsensus</title>
+    <link>https://mythsensus.com/blog/aboriginal-dreamtime</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/aboriginal-dreamtime</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Aboriginal Australian Dreamtime is the world's oldest living wisdom tradition, 65,000 years old — and Mythsensus draws on it for your Cosmic Score.</description>
+  </item>
+  <item>
+    <title>Arabic Parts: The Hidden Points Where Fortune Converges — Mythsensus</title>
+    <link>https://mythsensus.com/blog/arabic-parts</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/arabic-parts</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Arabic Parts are birth chart points from Hellenistic astrology — the Part of Fortune and 96 others — synthesised free into your Mythsensus Cosmic Score.</description>
+  </item>
+  <item>
+    <title>Are You Truly Awake — Or Still Sleepwalking? · Mythsensus</title>
+    <link>https://mythsensus.com/blog/are-you-truly-awake</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/are-you-truly-awake</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Most people react to patterns they have never named. This essay explores what it means to truly wake up — and how ancient wisdom systems name that moment.</description>
+  </item>
+  <item>
+    <title>The Aztec Tonalpohualli: The Sacred Count of Days — Mythsensus</title>
+    <link>https://mythsensus.com/blog/aztec-tonalpohualli</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/aztec-tonalpohualli</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>The Aztec Tonalpohualli is a 260-day sacred calendar assigning each person a divine day sign — included in your free Mythsensus Cosmic Score reading.</description>
+  </item>
+  <item>
+    <title>BaZi — Four Pillars of Destiny: The Architecture of Your Fate — Mythsensus</title>
+    <link>https://mythsensus.com/blog/bazi-four-pillars</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/bazi-four-pillars</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>BaZi (Four Pillars of Destiny) encodes your life's timing into eight Chinese characters from your birth moment. Included free in your Mythsensus score.</description>
+  </item>
+  <item>
+    <title>Biorhythm: The Science-Adjacent Art of Reading Your Inner Cycles — Mythsensus</title>
+    <link>https://mythsensus.com/blog/biorhythm</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/biorhythm</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Biorhythm tracks physical, emotional and intellectual cycles from your birth date — the one modern system among the 26, free and changing daily.</description>
+  </item>
+  <item>
+    <title>Celtic Tree Astrology: The Druids, the Oak, and the Living Calendar of Worlds — Mythsensus</title>
+    <link>https://mythsensus.com/blog/celtic-tree</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/celtic-tree</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Celtic Tree Astrology assigns your birth month to one of 13 sacred Druidic trees — living archetypes. Find your tree free in your Mythsensus Cosmic Score.</description>
+  </item>
+  <item>
+    <title>Destiny Can Change — Especially When You Are Aware · Mythsensus</title>
+    <link>https://mythsensus.com/blog/destiny-can-change</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/destiny-can-change</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Every ancient wisdom system leaves room for awareness as the variable that changes everything. BaZi, Vedic astrology, and the I Ching reject fatalism.</description>
+  </item>
+  <item>
+    <title>Human Design: The Voice, the Supernova, and the Blueprint of Your Aura — Mythsensus</title>
+    <link>https://mythsensus.com/blog/energy-type-system</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/energy-type-system</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Human Design synthesises I Ching, Kabbalah, chakras, and astrology into a bodygraph showing your aura type and strategy. Explore yours free at Mythsensus.</description>
+  </item>
+  <item>
+    <title>Hellenistic Astrology: The Lost Science of Alexandria — Mythsensus</title>
+    <link>https://mythsensus.com/blog/hellenistic-astrology</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/hellenistic-astrology</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Hellenistic Astrology was born in Alexandria where Babylonian, Greek, and Egyptian wisdom merged — its Lots and whole-sign houses are part of Mythsensus.</description>
+  </item>
+  <item>
+    <title>What Is Human Design? — The System That Tells You How You're Built to Decide — Mythsensus</title>
+    <link>https://mythsensus.com/blog/human-design-system</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/human-design-system</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Human Design reveals your aura type — Generator, Projector, Manifestor, or Reflector — and how you are built to decide. Free reading at Mythsensus.</description>
+  </item>
+  <item>
+    <title>Ifá Divination: Africa's Oracle of Infinite Wisdom — Mythsensus</title>
+    <link>https://mythsensus.com/blog/ifa-yoruba</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/ifa-yoruba</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Ifá is West Africa's 8,000-year-old oracle of 256 sacred Odù signs, listed by UNESCO. Discover how Ifá divination shapes your free Mythsensus Cosmic Score.</description>
+  </item>
+  <item>
+    <title>Kabbalah: The Map of How the Soul Descends Into the World — Mythsensus</title>
+    <link>https://mythsensus.com/blog/kabbalistic-numerology</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/kabbalistic-numerology</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Kabbalah maps the soul through ten Sephiroth on the Tree of Life — a Jewish mystical tradition that reveals your soul's archetypal pattern at Mythsensus.</description>
+  </item>
+  <item>
+    <title>Saju: The Korean Four Pillars That Predicted a Dynasty — Mythsensus</title>
+    <link>https://mythsensus.com/blog/korean-saju</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/korean-saju</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Saju is the Korean Four Pillars system — used to advise kings for centuries — encoding your birth into four cosmic pillars in your Mythsensus score.</description>
+  </item>
+  <item>
+    <title>The Mayan Tzolk'in: 260 Days, One Sacred Pulse — Mythsensus</title>
+    <link>https://mythsensus.com/blog/mayan-tzolkin</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/mayan-tzolkin</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>The Mayan Tzolk'in is a 260-day sacred calendar assigning each person a day sign and galactic tone — still kept alive by Maya day-keepers today.</description>
+  </item>
+  <item>
+    <title>Why One Horoscope Isn't Enough — The Case for 26-System Astrology — Mythsensus</title>
+    <link>https://mythsensus.com/blog/multi-system-astrology</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/multi-system-astrology</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>One horoscope is a single lens. Mythsensus combines 26 systems — Western, BaZi, Human Design, and 23 more — into one Cosmic Score from birth date.</description>
+  </item>
+  <item>
+    <title>Native American Birth Totems: The Animal Spirits That Walk With You — Mythsensus</title>
+    <link>https://mythsensus.com/blog/native-american-totems</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/native-american-totems</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Native American Birth Totems assign a spirit animal to your birth season from North American traditions — included free in your Mythsensus Cosmic Score.</description>
+  </item>
+  <item>
+    <title>Nine Star Ki (九星気学) in English: The Nine Stars and What Each One Means — Mythsensus</title>
+    <link>https://mythsensus.com/blog/nine-star-ki</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/nine-star-ki</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Nine Star Ki explained in English — the nine stars of the Lo Shu square, what each number is read for, and how a birth year maps to one of them.</description>
+  </item>
+  <item>
+    <title>Norse Runes: The Alphabet That Gods Bled For — Mythsensus</title>
+    <link>https://mythsensus.com/blog/norse-runes</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/norse-runes</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Norse Runes are the 24-symbol Elder Futhark won by Odin through self-sacrifice — a Viking divination system that reads the hidden forces shaping your life.</description>
+  </item>
+  <item>
+    <title>Ogham: The Secret Language Carved in Trees — Mythsensus</title>
+    <link>https://mythsensus.com/blog/ogham-alphabet</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/ogham-alphabet</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Ogham is the ancient Irish alphabet carved from tree-names — a Druidic system where each letter names a living tree. Part of your free Mythsensus score.</description>
+  </item>
+  <item>
+    <title>Onmyōdō (陰陽道): What Japan’s Imperial Yin-Yang Divination Actually Was — Mythsensus</title>
+    <link>https://mythsensus.com/blog/onmyodo</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/onmyodo</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Onmyōdō was the Heian court's official cosmology — calendar, direction taboos and divination run by state-appointed onmyōji. What it was, and what survives.</description>
+  </item>
+  <item>
+    <title>The Problem with Typical Horoscopes — Mythsensus Cosmic Library</title>
+    <link>https://mythsensus.com/blog/pain-point-horoscopes</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/pain-point-horoscopes</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Why sun-sign horoscopes fail — and what a multi-system reading actually reveals.</description>
+  </item>
+  <item>
+    <title>Pythagorean Numerology: The Secret Brotherhood of Number — Mythsensus</title>
+    <link>https://mythsensus.com/blog/pythagorean-numerology</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/pythagorean-numerology</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Pythagorean Numerology distills your birth date into a Life Path number — revealing purpose as Pythagoras believed: numbers are the universe's language.</description>
+  </item>
+  <item>
+    <title>Thai Brahmin Astrology: The Celestial Court That Never Closed — Mythsensus</title>
+    <link>https://mythsensus.com/blog/thai-brahmin</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/thai-brahmin</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Thai Brahmin Astrology reads seven planetary lords from your birth day — a living royal tradition still practiced in Bangkok's Grand Palace for centuries.</description>
+  </item>
+  <item>
+    <title>Tibetan Astrology: The Princess, the Demoness, and the Wheel of Time — Mythsensus</title>
+    <link>https://mythsensus.com/blog/tibetan-astrology</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/tibetan-astrology</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Tibetan Astrology blends Chinese elemental cycles with Vedic tradition and Buddhist cosmology to read animal signs and sacred time at Mythsensus.</description>
+  </item>
+  <item>
+    <title>Vedic Astrology (Jyotish): The Eye of the Vedas — Mythsensus</title>
+    <link>https://mythsensus.com/blog/vedic-jyotish</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/vedic-jyotish</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Vedic Jyotish is India's 3,000-year-old science of light — the oldest continuous astrology on Earth — reading fate through sidereal planetary positions.</description>
+  </item>
+  <item>
+    <title>Vedic Mahadasha: The 120-Year Planetary Roadmap of Your Life — Mythsensus</title>
+    <link>https://mythsensus.com/blog/vedic-mahadasha</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/vedic-mahadasha</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Vedic Mahadasha is a 120-year planetary timing system — the only Mythsensus tradition that measures when each life phase activates, not just who you are.</description>
+  </item>
+  <item>
+    <title>Western Astrology: The Art of Reading Heaven's Mirror — Mythsensus</title>
+    <link>https://mythsensus.com/blog/western-astrology</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/western-astrology</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Western Astrology is the oldest intellectual tradition in the West — reading sun signs, rising signs, and planetary aspects from your natal chart.</description>
+  </item>
+  <item>
+    <title>Zi Wei Dou Shu: The Sleeping Immortal's Map of 108 Stars — Mythsensus</title>
+    <link>https://mythsensus.com/blog/zi-wei-dou-shu</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/zi-wei-dou-shu</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Zi Wei Dou Shu (紫微斗數) maps 108 stars across 12 life palaces from birth date — China's most detailed astrology system, part of your free Mythsensus reading.</description>
+  </item>
+  <item>
+    <title>Zoroastrian Astrology: When the Magi Read the Stars — Mythsensus</title>
+    <link>https://mythsensus.com/blog/zoroastrian-astrology</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/zoroastrian-astrology</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>Zoroastrian Astrology is the 3,500-year-old Persian Magi tradition — reading stars as a battle between light and darkness to reveal your soul's alignment.</description>
+  </item>
+  <item>
+    <title>ดูดวง AI หลายระบบ — ChatGPT ตอบมั่ว vs. Mythsensus คำนวณจริง · Mythsensus</title>
+    <link>https://mythsensus.com/blog/%E0%B8%94%E0%B8%B9%E0%B8%94%E0%B8%A7%E0%B8%87-ai-%E0%B8%AB%E0%B8%A5%E0%B8%B2%E0%B8%A2%E0%B8%A3%E0%B8%B0%E0%B8%9A%E0%B8%9A</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/%E0%B8%94%E0%B8%B9%E0%B8%94%E0%B8%A7%E0%B8%87-ai-%E0%B8%AB%E0%B8%A5%E0%B8%B2%E0%B8%A2%E0%B8%A3%E0%B8%B0%E0%B8%9A%E0%B8%9A</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>ดูดวงด้วย AI ทำได้จริงไหม? ทำไม ChatGPT ตอบดวงมักผิด — Mythsensus ใช้ algorithm คณิตศาสตร์ของ 26 ศาสตร์โบราณคำนวณจริง ไม่ใช่ AI ตอบมั่ว</description>
+  </item>
+  <item>
+    <title>ดูดวงตามวันเกิดออนไลน์ — แค่บอกวันเกิด รู้ดวงครบ 26 ศาสตร์ · Mythsensus</title>
+    <link>https://mythsensus.com/blog/%E0%B8%94%E0%B8%B9%E0%B8%94%E0%B8%A7%E0%B8%87%E0%B8%95%E0%B8%B2%E0%B8%A1%E0%B8%A7%E0%B8%B1%E0%B8%99%E0%B9%80%E0%B8%81%E0%B8%B4%E0%B8%94-%E0%B8%AD%E0%B8%AD%E0%B8%99%E0%B9%84%E0%B8%A5%E0%B8%99%E0%B9%8C</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/%E0%B8%94%E0%B8%B9%E0%B8%94%E0%B8%A7%E0%B8%87%E0%B8%95%E0%B8%B2%E0%B8%A1%E0%B8%A7%E0%B8%B1%E0%B8%99%E0%B9%80%E0%B8%81%E0%B8%B4%E0%B8%94-%E0%B8%AD%E0%B8%AD%E0%B8%99%E0%B9%84%E0%B8%A5%E0%B8%99%E0%B9%8C</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>ดูดวงตามวันเกิดออนไลน์ที่ Mythsensus — ใส่แค่วันเกิด รู้ Cosmic Score + reading 26 ศาสตร์ครบทันที ไม่ต้องโทรหมอดู ไม่ต้องนัดคิว ฟรี</description>
+  </item>
+  <item>
+    <title>ดูดวงฟรี ไม่ต้องลงทะเบียน — ใส่วันเกิดเห็นดวง 26 ศาสตร์ทันที · Mythsensus</title>
+    <link>https://mythsensus.com/blog/%E0%B8%94%E0%B8%B9%E0%B8%94%E0%B8%A7%E0%B8%87%E0%B8%9F%E0%B8%A3%E0%B8%B5-%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B8%95%E0%B9%89%E0%B8%AD%E0%B8%87%E0%B8%A5%E0%B8%87%E0%B8%97%E0%B8%B0%E0%B9%80%E0%B8%9A%E0%B8%B5%E0%B8%A2%E0%B8%99</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/%E0%B8%94%E0%B8%B9%E0%B8%94%E0%B8%A7%E0%B8%87%E0%B8%9F%E0%B8%A3%E0%B8%B5-%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B8%95%E0%B9%89%E0%B8%AD%E0%B8%87%E0%B8%A5%E0%B8%87%E0%B8%97%E0%B8%B0%E0%B9%80%E0%B8%9A%E0%B8%B5%E0%B8%A2%E0%B8%99</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>ดูดวงฟรี ไม่ต้องลงทะเบียน · ไม่ขอ email · ไม่เก็บข้อมูล — ใส่วันเกิดที่ Mythsensus เห็น Cosmic Score และ reading 26 ศาสตร์ในไม่กี่วินาที</description>
+  </item>
+  <item>
+    <title>ดูดวงรวมหลายศาสตร์ — เมื่อ 26 ศาสตร์ตอบเรื่องเดียวกันแล้วเห็นต่าง · Mythsensus</title>
+    <link>https://mythsensus.com/blog/%E0%B8%94%E0%B8%B9%E0%B8%94%E0%B8%A7%E0%B8%87%E0%B8%A3%E0%B8%A7%E0%B8%A1%E0%B8%AB%E0%B8%A5%E0%B8%B2%E0%B8%A2%E0%B8%A8%E0%B8%B2%E0%B8%AA%E0%B8%95%E0%B8%A3%E0%B9%8C</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/%E0%B8%94%E0%B8%B9%E0%B8%94%E0%B8%A7%E0%B8%87%E0%B8%A3%E0%B8%A7%E0%B8%A1%E0%B8%AB%E0%B8%A5%E0%B8%B2%E0%B8%A2%E0%B8%A8%E0%B8%B2%E0%B8%AA%E0%B8%95%E0%B8%A3%E0%B9%8C</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>ดูดวงศาสตร์เดียวมักได้คำตอบที่บอกไม่หมด รวม BaZi · Vedic · เลข 7 ตัว · ตะวันตก · Nine Star Ki และอีก 22 ศาสตร์ เป็น Cosmic Score เดียวจากวันเกิด</description>
+  </item>
+  <item>
+    <title>ดูดวงหลายที่ไม่ตรงกัน แล้วเชื่ออันไหนดี — วิธีอ่านคำตอบที่ขัดกัน · Mythsensus</title>
+    <link>https://mythsensus.com/blog/%E0%B8%94%E0%B8%B9%E0%B8%94%E0%B8%A7%E0%B8%87%E0%B8%AB%E0%B8%A5%E0%B8%B2%E0%B8%A2%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B8%95%E0%B8%A3%E0%B8%87%E0%B8%81%E0%B8%B1%E0%B8%99</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/%E0%B8%94%E0%B8%B9%E0%B8%94%E0%B8%A7%E0%B8%87%E0%B8%AB%E0%B8%A5%E0%B8%B2%E0%B8%A2%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B8%95%E0%B8%A3%E0%B8%87%E0%B8%81%E0%B8%B1%E0%B8%99</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>หมอดูสามคนบอกคนละอย่าง ไม่ได้แปลว่ามีคนโกหก เราเอา 25 ศาสตร์มาวางบนแกนเดียวกันแล้ววัดจริงว่าคู่ไหนสวนกันกี่เปอร์เซ็นต์ และเรื่องไหนที่แทบไม่มีศาสตร์ไหนตอบได้เลย</description>
+  </item>
+  <item>
+    <title>เลข 7 ตัว vs BaZi — เปรียบเทียบ 2 ศาสตร์ + รวมเข้า Cosmic Score · Mythsensus</title>
+    <link>https://mythsensus.com/blog/%E0%B9%80%E0%B8%A5%E0%B8%827%E0%B8%95%E0%B8%B1%E0%B8%A7-vs-bazi</link>
+    <guid isPermaLink="true">https://mythsensus.com/blog/%E0%B9%80%E0%B8%A5%E0%B8%827%E0%B8%95%E0%B8%B1%E0%B8%A7-vs-bazi</guid>
+    <pubDate>Mon, 01 Jun 2026 02:00:00 GMT</pubDate>
+    <description>เลข 7 ตัว 9 ฐาน (ไทยพราหมณ์) vs BaZi (สี่เสา จีน) ต่างกันยังไง ใช้คนละ input คนละสูตร — แต่ทั้งคู่อยู่ใน 26 ศาสตร์ที่ Mythsensus รวมเป็น Cosmic Score เดียว</description>
+  </item>
+</channel>
+</rss>

@@ -918,6 +918,7 @@ details.ms-more>.ms-more-body{padding-top:6px;animation:msMoreIn .25s ease}
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" href="/favicon.svg">
   <link rel="manifest" href="/manifest.webmanifest">
+<link rel="alternate" type="application/rss+xml" title="Mythsensus — Cosmic Library" href="/blog/feed.xml">
   <meta name="theme-color" content="#040407">
   <link rel="canonical" href="https://mythsensus.com/">
   <!-- hreflang: pair the TH default with the /en variant so Google serves the
@@ -1277,7 +1278,9 @@ let _authEmail = '';    // Email pending OTP verification
       "name": "Mythsensus",
       "url": "https://mythsensus.com",
       "logo": "https://mythsensus.com/og-default.png",
-      "description": "Reads 26 divination traditions against one birth date and shows where they agree, where they contradict, and which have no method to answer."
+      "description": "Mythsensus reads one birth date through 26 divination systems at once and shows where they agree and where they disagree — free, no sign-up.",
+      "sameAs": ["https://www.npmjs.com/package/mythsensus-mcp"],
+      "knowsLanguage": ["th", "en"]
     },
     {
       "@type": "WebApplication",
@@ -1389,9 +1392,7 @@ let _authEmail = '';    // Email pending OTP verification
     </p>
   </div>
 </noscript>
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Organization","name":"Mythsensus","url":"https://mythsensus.com/","logo":"https://mythsensus.com/og-default.png","description":"26 divination traditions read one birth date. Mythsensus shows where they agree, where they contradict, and which ones have no method for the question - it never averages them into a single verdict."}
-</script>
+<!-- (11 ก.ย. 69) Organization ซ้ำถูกลบ — ใช้ตัวใน @graph ตัวเดียว ให้คำอธิบายเอนทิตีตรงกันทุกที่ -->
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"What is Mythsensus?","acceptedAnswer":{"@type":"Answer","text":"Mythsensus reads 26 ancient divination systems together — BaZi, Vedic, Western, Nine Star Ki, Mayan, Thai Brahmin and more — and shows where they agree, where they contradict, and which ones have no method to answer the question at all — 8 of the 26 can speak to timing, the other 18 abstain, and it says so."}},

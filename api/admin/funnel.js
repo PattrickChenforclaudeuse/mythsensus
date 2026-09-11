@@ -230,6 +230,12 @@ export default async function handler(req, res) {
   const AI_RE = /chatgpt|openai|perplexity|claude\.ai|anthropic|gemini\.google|bard\.google|you\.com|phind|kagi|poe\.com|meta\.ai|copilot\.microsoft/i;
   const aiSess = sessions.filter(x => AI_RE.test(x.ref || ''));
   const aiBy = countBy(aiSess, 'ref');
+  // 11 ก.ย. 69 — ประตูที่เปิดคืนนั้น (utm_campaign บน session) รวมเป็นตารางเดียว: จะได้เห็นว่าประตูไหนมีคนเดินเข้าจริง
+  //   campaign อยู่ใน meta.utm.c (srcRef เก็บแค่ source) · weekday-*/ninestar-* ยุบเป็นกลุ่ม
+  const doorOf = (c) => /^weekday-/.test(c) ? 'weekday-* (คนเกิดวัน)' : /^ninestar-/.test(c) ? 'ninestar-* (EN)' : c;
+  const doorSess = sessions.filter(x => x.meta && x.meta.utm && x.meta.utm.c);
+  const doorBy = {}; for (const x of doorSess) { const k = doorOf(x.meta.utm.c) + ' · ' + (x.meta.utm.s || '?'); doorBy[k] = (doorBy[k] || 0) + 1; }
+  const doorRows = Object.entries(doorBy).sort((a, b) => b[1] - a[1]).slice(0, 14);
   const devices = countBy(sessions, 'device');
   const langs = countBy(sessions, 'lang');
 
@@ -510,6 +516,9 @@ details{border:1px solid var(--line);background:var(--surface)}summary{cursor:po
 
 <section class="two">
   <div class="panel"><h2>มาจากไหน <em>session ของคนจริง · ${days} วัน</em></h2><div class="tbl-wrap"><table>${srcRows || '<tr><td class="muted">no data</td></tr>'}</table></div></div>
+  <div class="panel"><h2>ประตูเข้า <em>utm_campaign · source · ${days} วัน · ประตูใหม่เปิด 11 ก.ย.</em></h2><div class="tbl-wrap"><table>${doorRows.length ? doorRows.map(([k, v]) => goalRow(esc(k), v, doorRows[0][1])).join('') : '<tr><td class="muted">ยังไม่มี session ที่ติดแท็ก campaign ในหน้าต่างนี้</td></tr>'}</table></div></div>
+</section>
+<section class="two">
   <div class="panel"><h2>เป้าหมาย <em>session ที่ไปถึงแต่ละขั้น · ${days} วัน</em></h2><div class="tbl-wrap"><table>${goalRows}</table></div></div>
 </section>
 
