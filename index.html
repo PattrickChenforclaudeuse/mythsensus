@@ -3256,7 +3256,7 @@ en:{
   settings_clear:"Clear local data",settings_clear_sub:"Removes all profiles, history and settings from this browser",
   settings_clear_confirm:"Really clear all local data? This cannot be undone.",
   settings_clear_btn:"🗑️ Clear all data",
-  cb_form_title:"✦ Enter Birth Data",cb_lbl_name:"Name",cb_ph_name:"Name or alias",
+  cb_form_title:"✦ Enter Birth Data",cb_resonance_edit:"⚙ Edit in Subscription",cb_lbl_name:"Name",cb_ph_name:"Name or alias",
   cb_lbl_gender:"Gender",cb_lbl_dob:"Date of Birth",cb_lbl_time:"Birth Time",cb_lbl_city:"City of Birth",
   cb_btn_go:"✦ Generate Cosmic Blueprint ✦",
   addon_deep_btn:"✦ Read deeper · 26 systems",
@@ -3482,7 +3482,7 @@ th:{
   settings_clear_sub:"ลบโปรไฟล์ · ประวัติ · การตั้งค่าทั้งหมดจากเบราว์เซอร์",
   settings_clear_confirm:"ล้างข้อมูลทั้งหมดจริงไหม? ย้อนกลับไม่ได้",
   settings_clear_btn:"🗑️ ล้างข้อมูลทั้งหมด",
-  cb_form_title:"✦ กรอกข้อมูลเกิด",cb_lbl_name:"ชื่อ",cb_ph_name:"ชื่อหรือนามแฝง",
+  cb_form_title:"✦ กรอกข้อมูลเกิด",cb_resonance_edit:"⚙ แก้ใน Subscription",cb_lbl_name:"ชื่อ",cb_ph_name:"ชื่อหรือนามแฝง",
   cb_lbl_gender:"เพศ",cb_lbl_dob:"วันเกิด",cb_lbl_time:"เวลาเกิด",cb_lbl_city:"สถานที่เกิด",
   cb_btn_go:"✦ สร้าง Cosmic Blueprint ✦",
   addon_deep_btn:"✦ อ่านลึก 26 ศาสตร์",
@@ -5634,9 +5634,13 @@ function _renderGodCard(god, T, msgIdx, explicitMsg) {
  * _renderGodCard. Returns true if a shared draw was rendered, false otherwise.
  */
 async function _maybeRenderSharedDraw() {
-  if (!location.hash || !location.hash.includes('g=')) return false;
+  // 11 ก.ย. 69 — หน้าวิหารเทพ 21 หน้าลิงก์มาแบบ /?g=ชื่อ (query) 913 จุด แต่ตรงนี้อ่านแค่ #g= (hash)
+  //   ⇒ ทุกปุ่ม "เช็กดวงคุณ →" ตกลงหน้าแรกเงียบๆ มาตลอด · รับทั้งสองแบบ (hash มาก่อนถ้ามีทั้งคู่)
+  const _src = (location.hash && location.hash.includes('g=')) ? location.hash.replace(/^#/,'')
+             : (location.search && location.search.includes('g=')) ? location.search.replace(/^[?]/,'') : '';
+  if (!_src) return false;
   try {
-    const p = new URLSearchParams(location.hash.replace(/^#/,''));
+    const p = new URLSearchParams(_src);
     const name = p.get('g'); if (!name) return false;
     await loadGods();
     if (typeof GODS === 'undefined' || !Array.isArray(GODS)) return false;
