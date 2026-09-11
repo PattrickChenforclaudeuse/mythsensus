@@ -225,6 +225,11 @@ export default async function handler(req, res) {
 
   const countBy = (arr, k) => { const m = {}; for (const x of arr) { const v = x[k] || '(none)'; m[v] = (m[v] || 0) + 1; } return Object.entries(m).sort((a, b) => b[1] - a[1]); };
   const refs = countBy(sessions, 'ref').slice(0, 8);
+  // 11 ก.ย. 69 — "มาจาก AI" รวมเป็นแถวเดียว: ChatGPT ติด utm_source=chatgpt.com มาเอง · Perplexity/Claude/Gemini/You มาเป็น referrer
+  //   ⛔ Copilot มาในชื่อ bing.com แยกจาก Bing search ไม่ได้ จึงไม่นับ (จะนับเกิน) · เห็นครั้งแรก 7 ก.ย. 69 (chatgpt.com 3 session)
+  const AI_RE = /chatgpt|openai|perplexity|claude\.ai|anthropic|gemini\.google|bard\.google|you\.com|phind|kagi|poe\.com|meta\.ai|copilot\.microsoft/i;
+  const aiSess = sessions.filter(x => AI_RE.test(x.ref || ''));
+  const aiBy = countBy(aiSess, 'ref');
   const devices = countBy(sessions, 'device');
   const langs = countBy(sessions, 'lang');
 
@@ -311,7 +316,8 @@ export default async function handler(req, res) {
   const goalRow = (label, v, base, opt = {}) => `<tr><td>${label}</td><td class="bar">${hbar(v, base, opt.dead)}</td><td class="n">${v}${opt.sub ? `<small>${opt.sub}</small>` : ''}</td></tr>`;
   const refMax = refs.length ? refs[0][1] : 0;
   const refName = (k) => k === '(none)' ? 'ตรง / ไม่ระบุ' : esc(k);
-  const srcRows = refs.map(([k, v]) => goalRow(refName(k), v, refMax)).join('');
+  const srcRows = goalRow('🤖 มาจาก AI (chatgpt · perplexity · claude · gemini)', aiSess.length, Math.max(refMax, 1), { sub: aiBy.length ? aiBy.map(([k, v]) => esc(k.replace(/^utm:/, '')) + ' ' + v).join(' · ') : 'ยังไม่มีในหน้าต่างนี้' })
+    + refs.map(([k, v]) => goalRow(refName(k), v, refMax)).join('');
   const goalRows = [
     goalRow('เข้าเว็บ (คนจริง)', nS, nS),
     goalRow('กรอกวันเกิด', births.length, nS, { sub: pct(births.length, nS) + '%' }),

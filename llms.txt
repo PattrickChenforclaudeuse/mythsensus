@@ -1,6 +1,9 @@
 ﻿# Mythsensus
 
-> One Cosmic Score (1-1,000) synthesised from 26 divination systems — BaZi, Vedic Jyotish, Western astrology, Nine Star Ki, Thai Seven Number (เลข 7 ตัว 9 ฐาน), and 21 others. Free Cosmic Score + 26-system reading; paid Cosmic Blueprint adds depth, not access.
+> Mythsensus reads one birth date through 26 divination systems at once and shows where they agree and where they disagree — free, no sign-up.
+> Mythsensus อ่านวันเกิดเดียวกันด้วย 26 ศาสตร์โบราณพร้อมกัน แล้วบอกว่าศาสตร์ไหนเห็นตรงกัน ศาสตร์ไหนขัดกัน — ฟรี ไม่ต้องสมัคร
+>
+> Under the hood: one Cosmic Score (1–1,000) synthesised from BaZi, Vedic Jyotish, Western astrology, Nine Star Ki, Thai Seven Number (เลข 7 ตัว 9 ฐาน) and 21 others. The free tier is the reading itself; the paid Cosmic Blueprint adds depth, not access.
 
 ## Authoritative pages
 
