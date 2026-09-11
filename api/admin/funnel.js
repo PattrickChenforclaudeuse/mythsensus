@@ -103,6 +103,18 @@ export default async function handler(req, res) {
   }
   const suspectSids = new Set(
     Object.keys(evN).filter(sid => evN[sid] === 1 && !hasEnd[sid] && !machineSids.has(sid)));
+  // 2026-09-11: a second shape. Active time is only accrued while the tab is
+  // visible, and a person cannot scroll a page they cannot see — so a session
+  // that ends with active_ms 0 AND scrolled=true is a tab a script drove in the
+  // background. Ninety days back this matches exactly 33 sessions, all on two
+  // days (17 Aug: 23 English tabs opened inside 50 s; 3 Sep: 10 tabs carrying
+  // our own FB utm tags, six of them in the same second) and nothing else.
+  // Both bursts pre-date or dodged the meta.auto flag, so they were counted as
+  // strangers and read as "English visitors bounce in 0 s".
+  for (const x of rows) {
+    if (x.event === "session" && (+x.active_ms || 0) === 0 && x.meta && x.meta.scrolled === true
+        && x.sid && !machineSids.has(x.sid)) suspectSids.add(x.sid);
+  }
 
   rows = rows.filter(x => !machineSids.has(x.sid) && !suspectSids.has(x.sid));
   const sessionsAll = rows.filter(x => x.event === 'session');
