@@ -59,6 +59,21 @@ export default async function handler(req, res) {
   } catch (e) {
     res.status(502).send('query failed: ' + (e && e.message || e)); return;
   }
+  // ── บัญชี + ยอดขายตลอดกาล (11 ก.ย. 69 · director: "มีรายชื่อจำนวนคนสมัครสมาชิกไหม") ──
+  // public.users = สำเนาของ auth.users (ตรวจ 11 ก.ย. เท่ากัน 9/9) · myth_purchases มีแถว manual-grant ของทีมปนอยู่
+  // ⛔ กระดานนี้โชว์แต่ตัวเลขรวม ไม่โชว์อีเมล (นโยบายเดิมของไฟล์: aggregates only, no PII)
+  const OWNERS = new Set(['garsell@hotmail.com', 'chaiyapat.c@yoohui.co.th']);
+  const isTeamEmail = (e) => !e || OWNERS.has(String(e).toLowerCase()) || /@line\.mythsensus\.local$/i.test(e);
+  let acctRows = [], buyRows = [], acctErr = '';
+  try {
+    const h = { apikey: SERVICE, Authorization: 'Bearer ' + SERVICE };
+    const [u, p] = await Promise.all([
+      fetch(base + '/rest/v1/users?select=email,created_at,plan&order=created_at.desc', { headers: h }).then(r => r.json()),
+      fetch(base + '/rest/v1/myth_purchases?select=email,item_key,sale_id,created_at,refunded&order=created_at.desc', { headers: h }).then(r => r.json()),
+    ]);
+    if (Array.isArray(u)) acctRows = u; else acctErr = 'users: ' + JSON.stringify(u).slice(0, 80);
+    if (Array.isArray(p)) buyRows = p; else acctErr += ' purchases: ' + JSON.stringify(p).slice(0, 80);
+  } catch (e) { acctErr = String(e && e.message || e); }
 
   // 7 ก.ย. 69 — สำเนาก่อนกรอง: ใช้วาด "เส้นบอท" คู่กับเส้นคน และหา "ยิงล่าสุดต่อ event"
   // (เซ็นเซอร์ตายเป็นเรื่องของเครื่องมือ นับจากทุก sid — ถ้าดูเฉพาะคน จะสรุปผิดว่าคนไม่เห็นทั้งที่ตัวจับหลุด)
@@ -407,6 +422,32 @@ export default async function handler(req, res) {
     kpi('จ่ายจริง', uSid(pSuccess), pSuccess.length ? `${pSuccess.length} ครั้ง` : `<b>ยังไม่เคยมีสักครั้ง</b> — ตัวเลขจริง ไม่ใช่เซ็นเซอร์พัง`),
   ].join('');
 
+  // บัญชีคนนอก (ตัดเจ้าของ 2 + บัญชีเสมือน LINE) · ยอดซื้อจริง (ตัด manual-grant + เจ้าของ + refund)
+  const nowT = Date.now();
+  const outsiders = acctRows.filter(x => !isTeamEmail(x.email));
+  const inDays = (arr, n) => arr.filter(x => x.created_at && (nowT - new Date(x.created_at).getTime()) <= n * 86400000).length;
+  const realBuys = buyRows.filter(x => !isTeamEmail(x.email) && !/^manual-grant/.test(x.sale_id || '') && !x.refunded);
+  const teamBuys = buyRows.length - realBuys.length;
+  const buyByItem = realBuys.reduce((m, x) => { m[x.item_key || '?'] = (m[x.item_key || '?'] || 0) + 1; return m; }, {});
+  const lastJoin = outsiders.length ? outsiders.map(x => x.created_at).sort().slice(-1)[0] : null;
+  const lastBuy  = realBuys.length ? realBuys.map(x => x.created_at).sort().slice(-1)[0] : null;
+  const distinctBuyers = new Set(realBuys.map(x => String(x.email || '').toLowerCase())).size;
+  const acctPanel = `<section class="two">
+  <div class="panel"><h2>บัญชีที่สมัคร <em>ตลอดกาล · ตัดทีม ${acctRows.length - outsiders.length} บัญชี</em></h2><div class="tbl-wrap"><table>
+    ${goalRow('คนนอกทั้งหมด', outsiders.length, outsiders.length, { sub: lastJoin ? 'ล่าสุด ' + fmtBkk(lastJoin) : '' })}
+    ${goalRow('สมัครใน 30 วัน', inDays(outsiders, 30), outsiders.length)}
+    ${goalRow('สมัครใน 7 วัน', inDays(outsiders, 7), outsiders.length)}
+    ${goalRow('ทีม/บัญชีเสมือน (ไม่นับ)', acctRows.length - outsiders.length, acctRows.length)}
+    ${acctErr ? '<tr><td colspan="3" class="muted">⚠ ' + esc(acctErr) + '</td></tr>' : ''}
+  </table></div></div>
+  <div class="panel"><h2>จ่ายจริงตลอดกาล <em>ตัด manual-grant/ทีม/refund ${teamBuys} แถว</em></h2><div class="tbl-wrap"><table>
+    ${goalRow('รายการซื้อจริง', realBuys.length, Math.max(1, realBuys.length), { sub: lastBuy ? 'ล่าสุด ' + fmtBkk(lastBuy) : 'ยังไม่เคยมี' })}
+    ${goalRow('ผู้ซื้อ (คน)', distinctBuyers, Math.max(1, realBuys.length))}
+    ${Object.entries(buyByItem).sort((a, b) => b[1] - a[1]).map(([k, v]) => goalRow('· ' + esc(k), v, Math.max(1, realBuys.length))).join('')}
+    <tr><td colspan="3" class="muted" style="font-size:11.5px;color:var(--muted)">ที่มา: public.users + myth_purchases (woam) · ไม่ผูกกับหน้าต่างวันข้างบน · "จ่ายจริง" บนแถบ KPI นับจาก purchase_success ใน ${days} วันเท่านั้น</td></tr>
+  </table></div></div>
+</section>`;
+
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.status(200).send(`<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Mythsensus · Watchboard</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Sarabun:wght@400;500;600&family=Cormorant+Garamond:ital,wght@1,500&display=swap">
@@ -465,6 +506,8 @@ details{border:1px solid var(--line);background:var(--surface)}summary{cursor:po
   <div class="panel"><h2>มาจากไหน <em>session ของคนจริง · ${days} วัน</em></h2><div class="tbl-wrap"><table>${srcRows || '<tr><td class="muted">no data</td></tr>'}</table></div></div>
   <div class="panel"><h2>เป้าหมาย <em>session ที่ไปถึงแต่ละขั้น · ${days} วัน</em></h2><div class="tbl-wrap"><table>${goalRows}</table></div></div>
 </section>
+
+${acctPanel}
 
 <section class="panel">
   <h2>เซ็นเซอร์ยังส่งสัญญาณไหม <em>ยิงครั้งล่าสุดต่อ event ในหน้าต่างนี้ (นับทุกเครื่อง) — ตาย = ไม่ยิงเกิน 6 วัน</em></h2>
