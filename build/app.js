@@ -1266,7 +1266,9 @@ const SUB_PRICE = {
   blueprint:'full_report', deep:'deep', mirror:'mirror', compat:'compat',
   pilgrimage:'pilgrimage', companions:'companions', exercise:'exercise',
   food:'food', product:'product',
-  pet:'pet', petreading:'pet', petmatch:'pet', pethouse:'pet',
+  // ⛔ 12 ก.ย. 69: petmatch เคยชี้ 'pet' (฿250) ทั้งที่ตัวปลดล็อกจริงคือ compat (฿320) — ป้ายโกหก
+  //    pethouse แยกเป็นสินค้าของตัวเอง (director: น้อง↔น้อง ต้องจ่ายเพิ่ม แยกจากคน↔น้อง)
+  pet:'pet', petreading:'pet', petmatch:'compat', pethouse:'pethouse',
 };
 
 // The price on a tab, said the way checkout will actually behave.
@@ -5175,6 +5177,7 @@ const PRICING = {
   food:        { usd: 7,  thb: 250 },
   product:     { usd: 5,  thb: 180 },
   compat:      { usd: 9,  thb: 320 },
+  pethouse:    { usd: 7,  thb: 250 },   // บ้านหลายน้อง (น้อง↔น้อง) — สินค้าแยก 12 ก.ย. 69 · ยังไม่มีสินค้า Gumroad ⇒ ปุ่มจะเป็นสมาชิกจนกว่าจะเติม url
   pilgrimage:  { usd: 9,  thb: 320 },   // Cosmic Pilgrimage — sacred places by chart
   forecast12:  { usd: 9,  thb: 320 },   // 12-month forecast map — DIRECTOR OWNS THIS PRICE. No Gumroad product yet, so the paywall shows membership instead (see _GUMROAD_PRODUCTS).
   // Big bundle — Full Report in-depth PDF (NOT an add-on)
@@ -15245,6 +15248,20 @@ function renderPetHousehold(){
     ? `🏠 บ้านน้องของฉันกลมเกลียว ${overall}% — ${_esc(peace.pet.name)} ${_petEmoji(peace.pet)} เป็นตัวเชื่อม (Mythsensus)`
     : `🏠 My pet household harmony is ${overall}% — ${_esc(peace.pet.name)} ${_petEmoji(peace.pet)} is the peacemaker (Mythsensus)`;
 
+  // ── เส้นแบ่งฟรี/จ่าย (12 ก.ย. 69) ─────────────────────────────────────
+  // ฟรี: เลขความกลมเกลียวรวม (ตัวที่คนเอาไปแชร์) · จ่าย: ตัวเชื่อม + คะแนนรายคู่
+  const _houseUnlocked = _hasItemAccess('pethouse');
+  const _housePaid = `
+    ${_houseGate}`;
+  const _houseGate = _houseUnlocked ? _housePaid : _purchasePaywall('pethouse', {
+    label: isTh ? '🏠 บ้านหลายน้อง — น้องเข้ากันเองรายคู่' : '🏠 Household — pet × pet pairs',
+    blurb: isTh
+      ? 'คะแนนความเข้ากันของน้องทุกคู่ในบ้าน + ตัวที่ทำให้บ้านสงบ · คนละรายการกับ "เจ้าของ ↔ น้อง"'
+      : 'Every pet-to-pet pair in the house plus the one keeping the peace · a separate reading from Owner ↔ Pet',
+    benefits: isTh
+      ? ['คะแนนรายคู่ทุกคู่ในบ้าน', 'ตัวเชื่อมของบ้าน + ค่าเฉลี่ยของมัน', 'อัปเดตเองเมื่อเพิ่มน้องตัวใหม่']
+      : ['A score for every pair in the house', 'The peacemaker and its average', 'Recomputes when you add another pet'],
+  });
   el.innerHTML = `
     <div style="text-align:center;margin:8px 0 14px">
       <div style="font-family:'Cinzel Decorative',serif;font-size:46px;color:${ringColor};line-height:1">${overall}<span style="font-size:22px">%</span></div>
