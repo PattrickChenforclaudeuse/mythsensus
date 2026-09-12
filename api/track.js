@@ -42,6 +42,15 @@ export default async function handler(req, res) {
     // 21 Aug. The UA never leaves this function and is never stored; only the
     // boolean is. No fingerprinting, no PII.
     const ua = String(req.headers['user-agent'] || '');
+    // 12 ก.ย. 69 — ครอบครัวเบราว์เซอร์ + ประเทศ (หยาบ ไม่ระบุตัวตน) ติดทุกอีเวนต์: เช้านี้มี crawler 38 session
+    // UA ปกติ desktop/en ไล่ครบทุกหน้าใน sitemap หลุดตัวกรองมาเป็น "คนจริง" — ไม่มีอะไรบอกว่ามันคืออะไร
+    const uaf = (function (u) {
+      const os = /iphone|ipad/i.test(u) ? 'iOS' : /android/i.test(u) ? 'Android' : /windows/i.test(u) ? 'Win' : /mac os/i.test(u) ? 'Mac' : /linux/i.test(u) ? 'Linux' : '?';
+      const b = /headlesschrome/i.test(u) ? 'Headless' : /edg\//i.test(u) ? 'Edge' : /opr\//i.test(u) ? 'Opera' : /chrome\//i.test(u) ? 'Chrome' : /safari\//i.test(u) ? 'Safari' : /firefox\//i.test(u) ? 'Firefox' : /line\//i.test(u) ? 'LINE' : /fban|fbav/i.test(u) ? 'FBapp' : u ? 'Other' : 'none';
+      const v = (u.match(/(?:chrome|firefox|version|edg)\/(\d+)/i) || [])[1] || '';
+      return (b + (v ? ' ' + v : '') + ' ' + os).slice(0, 32);
+    })(ua);
+    const cc = clampStr(req.headers['x-vercel-ip-country'] || '', 2) || null;
     const isBot = /googlebot|bingbot|yandex|duckduckbot|baiduspider|applebot|petalbot|ahrefsbot|semrushbot|mj12bot|dotbot|gptbot|claudebot|claude-web|ccbot|perplexity|amazonbot|bytespider|facebookexternalhit|twitterbot|slackbot|discordbot|telegrambot|whatsapp|embedly|redditbot|pinterest|crawler|spider|crawling|headless|playwright|puppeteer|phantomjs|selenium|webdriver|slurp|bingpreview|python-requests|node-fetch|axios|curl\/|wget|lighthouse|pingdom|gtmetrix|uptimerobot|bot\//i.test(ua);
 
     const rows = events
@@ -58,8 +67,7 @@ export default async function handler(req, res) {
         device:    clampStr(e.device, 16),
         tier:      clampStr(e.tier, 24),
         god:       clampStr(e.god, 64),
-        meta:      isBot ? Object.assign({}, (e.meta && typeof e.meta === 'object') ? e.meta : null, { bot: true })
-                          : ((e.meta && typeof e.meta === 'object') ? e.meta : null),
+        meta:      Object.assign({}, (e.meta && typeof e.meta === 'object') ? e.meta : null, isBot ? { bot: true } : null, { uaf, cc }),
       }))
       .filter(r => r.sid && r.event);
 
