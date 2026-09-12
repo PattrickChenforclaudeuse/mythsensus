@@ -14851,10 +14851,15 @@ const _PET_ENERGY = [
     {th:'ไวต่อสิ่งเร้า — เลี่ยงเสียงดัง/คนแปลกหน้า ทำมุมปลอดภัยให้', en:'Sensitive — avoid loud noise/strangers; make a safe corner'},
   ]},
 ];
+// ⛔ 12 ก.ย. 69 — ห้ามใช้ `>>` กับค่าจาก _petDayHash: มันคืน uint32 (ได้ถึง 4.29 พันล้าน)
+//    แต่ `>>` แปลงเป็น int32 ก่อน ⇒ ค่าที่เกิน 2^31 กลายเป็นลบ → ดัชนีติดลบ → tip = undefined
+//    → ทั้งแท็บ "ดูดวงน้อง" พังทั้งหน้า (เรนเดอร์ไม่ออกเลย) · เกิดกับน้องราวครึ่งหนึ่งแบบสุ่ม
+//    (พบจากน้องทดสอบ "มะลิ" h=3,102,778,888 → h>>3 = -149,023,551 → tips[-1])
+//    ใช้หารแทนเลื่อนบิต — ผลลัพธ์เหมือนกันทุกค่าที่ไม่เกิน 2^31 ⇒ ของเดิมของใครไม่เปลี่ยน
 function _petDailyToday(pet){
   const h = _petDayHash('day|' + (pet.id || pet.name));
   const energy = _PET_ENERGY[h % 3];
-  return { energy, tip: energy.tips[(h >> 3) % energy.tips.length] };
+  return { energy, tip: energy.tips[Math.floor(h / 8) % energy.tips.length] };
 }
 const _PET_HARM_TIPS = [
   {th:'จังหวะดี — เริ่มกิจวัตรใหม่หรือฝึกร่วมกันได้',          en:'Good rhythm — start a new routine or train together'},
@@ -14870,7 +14875,8 @@ function _petDailyHarmony(pet, basePct){
   if (today>=80){ label=isTh?'วันทองของคู่':'Golden day together'; emoji='💛'; c='#4a9a40'; }
   else if (today>=60){ label=isTh?'วันปกติ เข้ากันลื่น':'Smooth day together'; emoji='🟢'; c='var(--gold)'; }
   else { label=isTh?'วันต่างมุมนิดหน่อย':'A slightly off-beat day'; emoji='🌗'; c='#c79a52'; }
-  return { today, label, emoji, c, tip: _PET_HARM_TIPS[(h >> 4) % _PET_HARM_TIPS.length] };
+  // เหตุผลเดียวกับ _petDailyToday — `>>` ทำให้ดัชนีติดลบเมื่อ hash เกิน 2^31 (ตรงนี้ 4 ตัวเลือก พังได้เหมือนกัน)
+  return { today, label, emoji, c, tip: _PET_HARM_TIPS[Math.floor(h / 16) % _PET_HARM_TIPS.length] };
 }
 
 // ════════════════════════════════════════════════════════════════════
