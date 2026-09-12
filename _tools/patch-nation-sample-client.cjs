@@ -2,13 +2,14 @@
 const fs = require('fs'), path = require('path');
 const f = path.join(__dirname, '..', 'build', 'app.js'); let s = fs.readFileSync(f, 'utf8');
 if (s.includes('_nationSampleMem')) { console.log('already patched'); process.exit(0); }
-const anchor = `  if (!d) {
-    try {
-      const f = MS26.calcForecast(cc.chart, today, { days: 1, weeks: 1, months: 0 });`;
+const anchor = `  try { const hit = localStorage.getItem(key); if (hit) d = JSON.parse(hit); } catch (_) {}
+  if (!d) {
+    try {`;
 if (s.split(anchor).length !== 2) { console.error('anchor miss'); process.exit(1); }
 const inject = `  // ── 12 ก.ย. 69: ขอผลจากเซิร์ฟเวอร์ก่อน (ดวงประเทศเหมือนกันทุกคนในวันเดียวกัน) ──
   // โปรไฟล์ CPU ตอนบูตพบว่า calcForecast ตรงนี้ = งานยาว 1.7+2.3 วิบนมือถือช้า (กวาดดาราศาสตร์ทั้งปีทำ baseline)
-  // /api/nation-sample คำนวณด้วยเอนจินตัวเดียวกัน แคชที่ edge ต่อวัน · ล้ม/ช้าเกิน 2 วิ → คำนวณในเครื่องเหมือนเดิม
+  // ไฟล์สถิต data/nation-sample/<วัน>/<ประเทศ>-<ภาษา>.json สร้างล่วงหน้า 14 วันด้วยเอนจินตัวเดียวกัน (_tools/gen-nation-samples.cjs ใน predeploy)
+  // ไม่มีไฟล์/ล้ม/ช้าเกิน 2 วิ → คำนวณในเครื่องเหมือนเดิม (Vercel Hobby เต็ม 12 ฟังก์ชัน จึงไม่ทำเป็น API)
   // ⛔ เฉพาะดวงประเทศเท่านั้น — ดวงผู้ใช้ยังคำนวณในเครื่องเสมอ (วันเกิดไม่ออกจากเครื่อง)
   window._nationSampleMem = window._nationSampleMem || {};
   window._nationSampleState = window._nationSampleState || {};   // key → 'pending' | 'failed'
@@ -19,7 +20,7 @@ const inject = `  // ── 12 ก.ย. 69: ขอผลจากเซิร์
       const dl = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
       const ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
       const timer = setTimeout(function () { try { ctl && ctl.abort(); } catch (_) {} }, 2000);
-      fetch('/api/nation-sample?n=' + encodeURIComponent(_entryNationKey()) + '&lang=' + (isTh ? 'th' : 'en') + '&d=' + dl, ctl ? { signal: ctl.signal } : {})
+      fetch('/data/nation-sample/' + dl + '/' + encodeURIComponent(_entryNationKey()) + '-' + (isTh ? 'th' : 'en') + '.json', ctl ? { signal: ctl.signal } : {})
         .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
         .then(function (j) {
           if (!j || !j.rows || typeof j.voting !== 'number') throw new Error('bad shape');
