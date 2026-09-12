@@ -14957,7 +14957,7 @@ function renderPetReading(){
     ${_petWeeksBlock(chart, isTh)}
     ${_petAvoidDayBlock(chart, pet.name, isTh)}
     ${_petMissingElBlock(chart, pet.name, isTh)}
-    ${_petYearBlock(chart, isTh)}`;
+    ${_petYearBlock(chart, isTh, pet.name)}`;
   const petHash = _petHash(pet);
   const gated = _hasItemAccess('pet', petHash) ? deepHtml : _purchasePaywall('pet', {
     label: isTh ? ('🐾 อ่านลึกดวง '+_esc(pet.name)) : ('🐾 Deep reading for '+_esc(pet.name)),
@@ -15066,10 +15066,12 @@ function _petMissingElBlock(chart, petName, isTh){
 }
 
 // ปีนี้ของน้อง — ข้อความของเอนจินเอง (Nine Star Ki)
-function _petYearBlock(chart, isTh){
+function _petYearBlock(chart, isTh, petName){
   var yr = chart.ninestar && chart.ninestar.year2026Analysis;
   if (!yr) return '';
   var txt = String(yr).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  // ⛔ ข้อความนี้เอนจินเขียนไว้สำหรับคน ('ของคุณ') — ดวงน้องต้องเรียกชื่อน้อง ไม่งั้นอ่านแล้วสับสนว่าเป็นดวงใคร
+  if (petName) txt = txt.split('ดาวประจำตัวคุณ').join('ดาวประจำตัวของ ' + petName).split('ของคุณ').join('ของ ' + petName).split('your star').join(petName + "'s star").split('for you').join('for ' + petName);
   if (!txt) return '';
   return '<div class="deep-sys-card" style="margin-top:12px">' +
     '<h3 class="deep-sys-title">⭐ ' + (isTh ? 'ปีนี้ของน้อง' : 'This year for your pet') + '</h3>' +
