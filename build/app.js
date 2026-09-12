@@ -15252,7 +15252,17 @@ function renderPetHousehold(){
   // ฟรี: เลขความกลมเกลียวรวม (ตัวที่คนเอาไปแชร์) · จ่าย: ตัวเชื่อม + คะแนนรายคู่
   const _houseUnlocked = _hasItemAccess('pethouse');
   const _housePaid = `
-    ${_houseGate}`;
+    <div class="deep-sys-card">
+      <h3 class="deep-sys-title">🕊️ ${isTh?'ตัวเชื่อมของบ้าน':'The peacemaker'}</h3>
+      <div style="text-align:center;font-size:40px;margin:8px 0">${_petEmoji(peace.pet)}</div>
+      <div style="text-align:center;font-size:14px;color:var(--gold)">${_esc(peace.pet.name)}</div>
+      <div style="text-align:center;font-size:12px;color:var(--muted);margin-top:4px">${isTh?`เข้ากับน้องตัวอื่นเฉลี่ย ${Math.round(peaceAvg)}% — มักเป็นตัวที่ทำให้บ้านสงบ`:`Averages ${Math.round(peaceAvg)}% with the others — the calming presence`}</div>
+    </div>
+    <div class="deep-sys-card" style="margin-top:12px">
+      <h3 class="deep-sys-title">🐾 ${isTh?'น้องเข้ากันเองรายคู่':'Pet × pet pairs'}</h3>
+      <div style="margin-top:8px">${pairCards}</div>
+    </div>
+    <div class="deep-sys-card" style="margin-top:12px">${_petShareBtns(shareText, 'pet_house')}</div>`;
   const _houseGate = _houseUnlocked ? _housePaid : _purchasePaywall('pethouse', {
     label: isTh ? '🏠 บ้านหลายน้อง — น้องเข้ากันเองรายคู่' : '🏠 Household — pet × pet pairs',
     blurb: isTh
@@ -15267,17 +15277,7 @@ function renderPetHousehold(){
       <div style="font-family:'Cinzel Decorative',serif;font-size:46px;color:${ringColor};line-height:1">${overall}<span style="font-size:22px">%</span></div>
       <div style="font-family:'Cormorant Garamond','Songti SC','PingFang SC','Microsoft YaHei','Sarabun',serif;font-size:16px;color:var(--gold);margin-top:4px">${isTh?'ความกลมเกลียวของบ้าน':'Household harmony'}</div>
     </div>
-    <div class="deep-sys-card">
-      <h3 class="deep-sys-title">🕊️ ${isTh?'ตัวเชื่อมของบ้าน':'The peacemaker'}</h3>
-      <div style="text-align:center;font-size:40px;margin:8px 0">${_petEmoji(peace.pet)}</div>
-      <div style="text-align:center;font-size:14px;color:var(--gold)">${_esc(peace.pet.name)}</div>
-      <div style="text-align:center;font-size:12px;color:var(--muted);margin-top:4px">${isTh?`เข้ากับน้องตัวอื่นเฉลี่ย ${Math.round(peaceAvg)}% — มักเป็นตัวที่ทำให้บ้านสงบ`:`Averages ${Math.round(peaceAvg)}% with the others — the calming presence`}</div>
-    </div>
-    <div class="deep-sys-card" style="margin-top:12px">
-      <h3 class="deep-sys-title">🐾 ${isTh?'น้องเข้ากันเองรายคู่':'Pet × pet pairs'}</h3>
-      <div style="margin-top:8px">${pairCards}</div>
-    </div>
-    <div class="deep-sys-card" style="margin-top:12px">${_petShareBtns(shareText, 'pet_house')}</div>`;
+    ${_houseGate}`;
   try { if (window._msTrack) _msTrack.track('pet_house', { meta:{ n: built.length, overall } }); } catch(_){}
 }
 
