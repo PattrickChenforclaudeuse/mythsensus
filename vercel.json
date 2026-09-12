@@ -60,6 +60,10 @@
     "api/mcp.js": {
       "maxDuration": 15,
       "includeFiles": "api/_mcp/**"
+    },
+    "api/nation-sample.js": {
+      "maxDuration": 10,
+      "includeFiles": "api/_mcp/**"
     }
   },
   "rewrites": [
