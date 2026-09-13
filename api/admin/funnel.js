@@ -161,6 +161,14 @@ export default async function handler(req, res) {
   // 11 ก.ย. 69 — ปุ่ม "สร้างรายงานฉบับเต็ม" ใต้ Consensus Preview: ข้อความสัญญาปุ่มนี้
   // มาตลอดแต่ไม่มีปุ่มจริง ⇒ ตัวนี้วัดว่าคนที่อ่านจบแล้วยอมเดินต่อกี่คน (ก่อน 11 ก.ย. = 0 เสมอ)
   const ctaClicks = rows.filter(x => x.event === 'report_cta_click');
+  // 13 ก.ย. 69 — ปุ่มความรู้สึกใต้ Pulse (director): ✨ดวงดี / 🙏เสริมดวง เก็บ verdict ของวันคู่กัน
+  //   อ่านผล: "ดวงดี" ควรชุกวัน peak/supportive · "เสริมดวง" ควรชุกวัน neutral/observe — ถ้าไม่สัมพันธ์ = คำอ่านไม่สะท้อนความรู้สึกคน
+  const feelRows = rows.filter(x => x.event === 'pulse_feel');
+  const feelGood = feelRows.filter(x => x.meta && x.meta.feel === 'good');
+  const feelMore = feelRows.filter(x => x.meta && x.meta.feel === 'more');
+  const upV = new Set(['peak', 'supportive']);
+  const feelGoodUp = feelGood.filter(x => upV.has(x.meta && x.meta.verdict)).length;
+  const feelMoreUp = feelMore.filter(x => upV.has(x.meta && x.meta.verdict)).length;
   const nS = sessions.length;
   // The oldest row actually fetched. If this is younger than the window the
   // reader asked for, the answer is thinner than the label and the page has
@@ -279,6 +287,7 @@ export default async function handler(req, res) {
     ['pulse_view', 'เปิด Daily Pulse (ของฟรีตัวหลัก)'], ['birth_submit', 'กรอกวันเกิด'], ['forecast_view', 'เปิดหน้าพยากรณ์'],
     ['blueprint_gen', 'สร้าง Blueprint (ตัวที่ขาย)'], ['consensus_view', 'แบนเนอร์ศาสตร์เห็นตรงกัน = จุดขาย'], ['signin_wall', 'เจอกำแพงลงชื่อเข้าใช้ (คั่นก่อนถึงราคา)'], ['report_cta_click', 'กดปุ่มสร้างรายงานจาก Consensus'], ['paywall_view', 'เห็นราคา'],
     ['checkout', 'กดไปหน้าจ่าย'], ['purchase_success', 'จ่ายสำเร็จ กลับมาปลดล็อก'],
+    ['pulse_feel', 'ปุ่มความรู้สึกใต้ Pulse (✨ดวงดี / 🙏เสริมดวง) · เริ่ม 13 ก.ย.'],
   ];
   const ageDays = (ts) => ts ? (Date.now() - new Date(ts).getTime()) / 86400000 : Infinity;
   const TH_M = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
@@ -361,6 +370,7 @@ export default async function handler(req, res) {
     row('Forecast viewed', uSid(forecasts), `${forecasts.length} events · หน้าพยากรณ์`),
     row('Saw consensus', pct(consensus.length, nS) + '%', `${consensus.length} sess · แบนเนอร์ 10 ศาสตร์เห็นตรงกัน`),
     row('กดปุ่มสร้างรายงาน', uSid(ctaClicks), `${ctaClicks.length} events · ปุ่มใต้ Consensus · เริ่ม 11 ก.ย.`),
+    row('รู้สึกหลังอ่าน Pulse', uSid(feelRows), `✨ ดวงดี ${feelGood.length} (ในวัน peak/supportive ${feelGoodUp}) · 🙏 เสริมดวง ${feelMore.length} (ในวัน peak/supportive ${feelMoreUp}) · เริ่ม 13 ก.ย.`),
     row('Sign-in wall hit', uSid(walls), `${walls.length} events · กำแพงที่คั่นก่อนถึงราคา · เซ็นเซอร์เริ่ม 11 ก.ย.`),
     row('Blueprint generated', uSid(bluep), `${bluep.length} events · ตัวที่ขาย $59`),
     row('Reached paywall', pct(paywall, nS) + '%', `${paywall} sess`),
