@@ -8741,6 +8741,8 @@ function renderDailyPulse() {
 
     ${areaCardsHtml}
 
+    ${_pulseFeelRow(pulse, isTh)}
+
     <!-- Pin row — primary CTA, gold-bordered so it's instantly findable.
          Sits directly under the synthesis (above drill-down) so subscribers
          encounter the pin affordance before any optional content.
@@ -8852,6 +8854,48 @@ function renderDailyPulse() {
       </div>`;
     })()}
   `;
+}
+
+// ── 13 ก.ย. 69 — ปุ่มความรู้สึกหลังอ่าน Daily Pulse (director เคาะ 13 ก.ย. 01:40) ────────
+// ไม่ถาม "ตรง/ไม่ตรง" (คนตอบไม่ได้ใน 43 วิ ที่อ่าน และปุ่ม "ไม่ตรง" ชวนติ) → ถามความรู้สึกด้วย 2 ปุ่มบวก
+//   ✨ วันนี้ดวงดี   → การ์ดแชร์ LINE/X/FB (14 วันก่อนหน้ามีแชร์แค่ 2 ครั้ง)      — ใช้ _petShareBtns เดิม
+//   🙏 อยากเสริมดวง → แท็บ "ขอพรเทพ" ที่มีอยู่แล้ว (ฟรี · จำกัดครั้ง/วัน) ไม่เด้งไปราคา — ใช้ showTab เดิม
+// เก็บ verdict ของวันคู่กับปุ่มที่กด: event `pulse_feel` meta{feel:'good'|'more', verdict}
+//   ⇒ ถ้า "ดวงดี" ชุกวัน peak/supportive และ "เสริมดวง" ชุกวัน neutral/observe = คำอ่านสะท้อนความรู้สึกคน
+//      (ตัววัดความแม่นโดยไม่ต้องถามว่าแม่นไหม) · นับ 1 ครั้ง/วัน/ปุ่ม ด้วย localStorage
+// ทางถอย: ลบบรรทัด ${_pulseFeelRow(pulse, isTh)} ใน renderDailyPulse หรือ copy _backups/2026-09-13-pulse-feel/app.js.pre ทับ
+function _pulseFeelRow(pulse, isTh) {
+  const v = String((pulse && pulse.verdictKey) || '').replace(/[^a-z_]/g, '');
+  const day = new Date().toISOString().slice(0, 10);
+  let done = '';
+  try { done = localStorage.getItem('ms_pulse_feel_' + day) || ''; } catch (_) {}
+  const btn = (feel, label) =>
+    `<button type="button" onclick="_pulseFeel('${feel}','${v}')" data-feel="${feel}" style="flex:1;min-width:140px;padding:11px 14px;border-radius:22px;border:1px solid var(--gold3);background:${done === feel ? 'rgba(212,170,80,0.18)' : 'rgba(212,170,80,0.06)'};color:var(--gold);font-size:13px;cursor:pointer;font-family:inherit">${label}</button>`;
+  return `<div id="pulseFeelRow" style="margin:4px 0 14px;padding:12px 14px;border:1px solid var(--border);border-radius:8px;background:rgba(0,0,0,0.12)">
+    <div style="font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold3);margin-bottom:8px">${isTh ? 'อ่านแล้ว วันนี้รู้สึกยังไง' : 'HOW DOES TODAY FEEL'}</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      ${btn('good', isTh ? '✨ วันนี้ดวงดี' : '✨ Today feels good')}
+      ${btn('more', isTh ? '🙏 อยากเสริมดวง' : '🙏 I want a boost')}
+    </div>
+    <div id="pulseFeelAfter" style="margin-top:10px;font-size:12.5px;color:var(--text);line-height:1.6"></div>
+  </div>`;
+}
+function _pulseFeel(feel, verdict) {
+  const isTh = LANG === 'th';
+  const day = new Date().toISOString().slice(0, 10);
+  let first = true;
+  try { first = localStorage.getItem('ms_pulse_feel_' + day) !== feel; localStorage.setItem('ms_pulse_feel_' + day, feel); } catch (_) {}
+  try { if (first && window._msTrack) _msTrack.track('pulse_feel', { meta: { feel: feel, verdict: verdict || null } }); } catch (_) {}
+  const after = document.getElementById('pulseFeelAfter');
+  if (feel === 'more') {
+    if (after) after.innerHTML = isTh ? 'พาไป "ขอพรเทพ" ของวันนี้…' : 'Taking you to today\u2019s blessing\u2026';
+    try { showTab('blessing'); } catch (_) {}
+    return;
+  }
+  if (after) {
+    const text = isTh ? 'วันนี้ดวงดี ✨ ดูดวงรายวันฟรีจาก 10 ศาสตร์ที่ Mythsensus' : 'Today feels good ✨ free daily reading from 10 traditions at Mythsensus';
+    after.innerHTML = (isTh ? 'เก็บวันดีไว้ — ส่งให้คนที่อยากให้ดวงดีด้วยกัน' : 'Keep the good day \u2014 send it to someone') + _petShareBtns(text, 'pulse');
+  }
 }
 
 // Subscriber-locked preview (used at launch when _isPulseSubscriber returns
