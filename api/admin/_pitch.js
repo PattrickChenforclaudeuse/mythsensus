@@ -173,9 +173,14 @@ export function buildPitch(data, days) {
     act: dayKeys.map(d => Math.round(medOf(dAct[d]))), actMean: dayKeys.map(d => Math.round(meanOf(dAct[d]))),
     lab: { g: 'เริ่มเล่น', p: 'เล่นจบ' },
   };
-  const dayCounts = dayKeys.slice(-14).map(d => dHum[d]).sort((a, b) => a - b);
-  const medDay = dayCounts.length ? dayCounts[Math.floor(dayCounts.length / 2)] : 0;
-  const maxDay = dayCounts.length ? dayCounts[dayCounts.length - 1] : 0, minDay = dayCounts.length ? dayCounts[0] : 0;
+  // มัธยฐาน/สูงสุด/ต่ำสุด คิดตามช่วงที่กดอยู่ ไม่ใช่ 14 วันเสมอ (14 ก.ย. 69 — เหตุผลเดียวกับใน funnel.js)
+  //   ⇒ "สูงสุด" ต้องเท่ากับหมุดบนกราฟของช่วงนั้นเสมอ · 14 วันล่าสุดแยกไว้ต่างหาก
+  const dayVals = dayKeys.map(d => dHum[d]).sort((a, b) => a - b);
+  const medDay = dayVals.length ? dayVals[Math.floor(dayVals.length / 2)] : 0;
+  const maxDay = dayVals.length ? dayVals[dayVals.length - 1] : 0, minDay = dayVals.length ? dayVals[0] : 0;
+  const last14 = dayKeys.slice(-14).map(d => dHum[d]).sort((a, b) => a - b);
+  const med14 = last14.length ? last14[Math.floor(last14.length / 2)] : 0;
+  const med14txt = dayKeys.length > 14 ? ` · 14 วันล่าสุด ${med14}/วัน` : '';   // หน้าต่าง ≤14 วัน = เลขเดียวกัน ไม่ต้องโชว์ซ้ำ
 
   // ── ผลที่ออกให้ (pitchroom_run · source=live · หักเครื่องเรา) ──
   const R = runs.filter(r => !isOurs(r.ip_hash));
@@ -213,7 +218,7 @@ export function buildPitch(data, days) {
 
   // ── ประกอบหน้า ──
   const kpis = [
-    kpi('คนจริง', nS.toLocaleString(), `มัธยฐาน ${medDay}/วัน · สูงสุด ${maxDay} · ต่ำสุด ${minDay}`, { swatch: 'var(--gold)' }),
+    kpi('คนจริง', nS.toLocaleString(), `มัธยฐาน ${medDay}/วัน ตลอด ${dayKeys.length} วันที่แสดง · สูงสุด ${maxDay} · ต่ำสุด ${minDay}${med14txt}`, { swatch: 'var(--gold)' }),
     kpi('ตัดออก', excluded.size.toLocaleString(), `บอท/สคริปต์ ${botS.size} · เครื่องเรา ${ourS.size} · ยิงรัว ${burstS.size}`, { swatch: 'var(--bot)', cls: 'bot' }),
     kpi('เลือกเคส', pct(pick, nS) + '<small>%</small>', `${pick} session · กดแล้วเริ่มรอบทันที · เอาของตัวเองมา ${own}`),
     kpi('เริ่มเล่น', pct(start, nS) + '<small>%</small>', `${start} session · โหมด AI ${startAi}`),

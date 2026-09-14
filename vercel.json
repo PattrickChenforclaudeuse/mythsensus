@@ -39,6 +39,10 @@
     }
   ],
   "functions": {
+    "_comment_funnel": "Watchboard ดึง myth_events 7 หน้า + pitchroom 3 หน้า + บัญชี/ยอดซื้อ ใช้จริง 4-9 วิ (วัด 14 ก.ย. 69) · ค่าเริ่มต้นของ Vercel ตึงเกินไปเวลา Supabase ช้า ⇒ ขึ้นหน้า error ทั้งที่ข้อมูลปกติ",
+    "api/admin/funnel.js": {
+      "maxDuration": 60
+    },
     "api/auth/line/callback.js": {
       "maxDuration": 30
     },

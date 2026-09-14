@@ -179,13 +179,7 @@ export default async function handler(req, res) {
   const oldestTs = rows.length ? rows[rows.length - 1].ts : null;
   const coverDays = oldestTs ? Math.round((Date.now() - new Date(oldestTs).getTime()) / 86400000) : 0;
 
-  // Per-day session counts for the 'typical day' headline above.
-  const perDay = {};
-  for (const x of sessions) { const d = (x.ts || '').slice(0, 10); if (d) perDay[d] = (perDay[d] || 0) + 1; }
-  const dayCounts = Object.keys(perDay).sort().reverse().slice(0, 14).map(d => perDay[d]).sort((a, b) => a - b);
-  const medDay = dayCounts.length ? dayCounts[Math.floor(dayCounts.length / 2)] : 0;
-  const maxDay = dayCounts.length ? dayCounts[dayCounts.length - 1] : 0;
-  const minDay = dayCounts.length ? dayCounts[0] : 0;
+  // "วันปกติ" (มัธยฐาน/สูงสุด/ต่ำสุด) ย้ายไปคิดหลังบล็อก series ข้างล่าง — ดูเหตุผลที่นั่น (14 ก.ย. 69)
 
   const ms = sessions.map(x => +x.active_ms || 0).sort((a, b) => a - b);
   const med = quantile(ms, 0.5), p75 = quantile(ms, 0.75), p90 = quantile(ms, 0.9);
@@ -279,6 +273,21 @@ export default async function handler(req, res) {
     pw: dayKeys.map(d => dPw[d]),
     act: dayKeys.map(d => Math.round(medOf(dActArr[d]))), actMean: dayKeys.map(d => Math.round(meanOf(dActArr[d]))),
   };
+  // ── "วันปกติ" ต้องคิดจากช่วงที่ผู้อ่านกดอยู่ (แก้ 14 ก.ย. 69 · director ทัก "365 วันน้อยกว่า 30 วัน แปลกดี") ──
+  // 🔴 เดิมทั้งสามค่าคิดจาก **14 วันล่าสุดเสมอ** ไม่ว่าจะกดช่วงไหน ⇒ 30/90/365 ขึ้นข้อความเดียวกันเป๊ะ ("สูงสุด 44")
+  //    ขณะที่กราฟข้างใต้ปักหมุดวันพีคของช่วงนั้นว่า 70 คน ⇒ อ่านคู่กันเหมือนตัวเลขหายไป 26 คน
+  // 🔴 และเดิมนับวันด้วยวันที่แบบ UTC ขณะที่กราฟนับแบบเวลาไทย = คนละวันกัน ตัวเลขจึงไม่มีวันตรงกัน
+  // ⇒ ใช้ dHum ชุดเดียวกับที่กราฟวาด (เวลาไทย · รวมวันที่เป็นศูนย์ · ไม่ย้อนเกินวันที่เริ่มเก็บ)
+  //    "สูงสุด" จึงเท่ากับหมุดบนกราฟเสมอ · เก็บมัธยฐาน 14 วันล่าสุดไว้ต่างหาก เพราะ "ช่วงนี้เป็นยังไง" ยังมีประโยชน์
+  // ⛔ ห้ามกลับไปคิดจาก perDay/UTC หรือหนีบ 14 วันให้ทุกช่วงอีก
+  const dayVals = dayKeys.map(d => dHum[d]).sort((a, b) => a - b);
+  const medDay = dayVals.length ? dayVals[Math.floor(dayVals.length / 2)] : 0;
+  const maxDay = dayVals.length ? dayVals[dayVals.length - 1] : 0;
+  const minDay = dayVals.length ? dayVals[0] : 0;
+  const last14 = dayKeys.slice(-14).map(d => dHum[d]).sort((a, b) => a - b);
+  const med14 = last14.length ? last14[Math.floor(last14.length / 2)] : 0;
+  const med14txt = dayKeys.length > 14 ? ` · 14 วันล่าสุด ${med14}/วัน` : '';   // หน้าต่าง ≤14 วัน = เลขเดียวกัน ไม่ต้องโชว์ซ้ำ
+
   // "ยิงล่าสุดต่อ event" — จากชุดดิบ (เซ็นเซอร์ยิงจากเครื่องไหนก็นับว่ายังมีชีวิต)
   // เหตุที่ต้องมีแถวนี้: consensus_view/paywall_view หยุดยิง 31 ส.ค. 20:15 แล้วไม่มีใครเห็นอยู่ 7 วัน
   const SENSORS = [
@@ -325,7 +334,7 @@ export default async function handler(req, res) {
     // like an audience; it is under seven a day, and most of those arrive in
     // one-day spikes after a post. The median day is the honest headline —
     // it ignores the spikes and our own deploy-day traffic alike.
-    row('Typical day', medDay + ' sessions', `median of the last 14 days · busiest ${maxDay}, quietest ${minDay}`),
+    row('Typical day', medDay + ' sessions', `median across the ${dayKeys.length} days shown · busiest ${maxDay}, quietest ${minDay} ${dayKeys.length > 14 ? ` · last 14 days: ${med14}` : ''}`),
     row('Active time (median)', fmtS(med), `p75 ${fmtS(p75)} · p90 ${fmtS(p90)}`),
     row('Bounce &lt;5s', pct(bounce, nS) + '%', `${bounce} sess · &gt;60s: ${pct(over60, nS)}%`),
     row('Engaged (tapped/scrolled)', pct(engaged, nS) + '%', `${engaged} sess · cold-bounce ${pct(nS - engaged, nS)}%`),
@@ -402,7 +411,7 @@ export default async function handler(req, res) {
   const winLink = (n) => `<a href="?k=${esc(q.k)}&days=${n}"${n === days ? ' class="on"' : ''}>${n}d</a>`;
   const excludedN = excluded.size;
   const kpis = [
-    kpi('คนจริง', nS.toLocaleString(), `มัธยฐาน ${medDay}/วัน · สูงสุด ${maxDay} · ต่ำสุด ${minDay}`, { swatch: 'var(--gold)' }),
+    kpi('คนจริง', nS.toLocaleString(), `มัธยฐาน ${medDay}/วัน ตลอด ${dayKeys.length} วันที่แสดง · สูงสุด ${maxDay} · ต่ำสุด ${minDay}${med14txt}`, { swatch: 'var(--gold)' }),
     kpi('ตัดออก', excludedN.toLocaleString(), `ทีม ${internalN} · webdriver/crawler ${machineN} · รูปทรงเครื่อง ${suspectN}`, { swatch: 'var(--bot)', cls: 'bot' }),
     kpi('กรอกวันเกิด', pct(births.length, nS) + '<small>%</small>', `${births.length} session`),
     kpi('เห็นจุดขาย', pct(consensus.length, nS) + '<small>%</small>', consDead ? `<b>เซ็นเซอร์ตาย</b> — ล่าสุด ${fmtBkk(lastFired.consensus_view)}` : `${consensus.length} session`, { cls: consDead ? 'dead' : '' }),
