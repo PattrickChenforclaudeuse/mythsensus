@@ -276,12 +276,18 @@
   // ---- สไตล์ --------------------------------------------------------------
   // ขนาด 1.5em = ใหญ่กว่าเดิม 50% (director 14 ก.ย. — 1em แล้วตราเล็กเกินไป)
   // line-height:0 บนตัวห่อ กันไม่ให้ตราที่สูงขึ้นไปดันความสูงของบรรทัดในตารางแน่น ๆ
-  var css = 'i.msi-wrap{line-height:0;display:inline-flex;align-items:center}'
-    + 'svg.msi{width:1.5em;height:1.5em;display:inline-block;vertical-align:-.38em;'
+  // ⛔ ตัวห่อห้ามเป็น inline-flex — flex item ไม่รับ vertical-align ⇒ ค่าที่ใส่บน <svg> ถูกเมินหมด
+  //    แล้วไอคอนไปอิงเส้นฐานของตัวเอง = ลอยเหนือตัวอักษร (เจอจริง 14 ก.ย.)
+  //    ท่าที่ถูก: จัดตำแหน่งที่ "ตัวห่อ" ด้วย vertical-align แล้วให้ svg เป็น block ข้างใน
+  //    ใช้ค่าติดลบแทน middle เพราะไทยมีสระบน/วรรณยุกต์ ทำให้ middle ดันสูงเกิน
+  var css = 'i.msi-wrap{display:inline-block;line-height:0;vertical-align:-.47em}'
+    + 'svg.msi{width:1.5em;height:1.5em;display:block;'
     + 'stroke:currentColor;fill:none;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round;'
     + 'overflow:visible}'
-    + 'i.msd{width:.93em;height:.93em;border-radius:50%;display:inline-block;vertical-align:-.1em;'
-    + 'background:currentColor}';
+    // ⚠️ จุดสี = ตัว wrapper เอง (class "msd msi-wrap") ไม่ใช่ลูกข้างใน
+    //    ⇒ ห้ามใส่ display:block ที่นี่ ไม่งั้นมันตกบรรทัดของตัวเอง
+    + 'i.msd.msi-wrap{width:.93em;height:.93em;border-radius:50%;display:inline-block;'
+    + 'vertical-align:-.1em;background:currentColor}';
   var st = document.createElement('style');
   st.setAttribute('data-msi', '1');
   st.textContent = css;
