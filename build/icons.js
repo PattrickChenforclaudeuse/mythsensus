@@ -351,12 +351,15 @@
   function schedule() {
     if (queued) return;
     queued = true;
-    requestAnimationFrame(function () {
+    // ⛔ ห้ามใช้ requestAnimationFrame ตัวเดียว — แท็บที่ถูกซ่อน/อยู่เบื้องหลัง rAF ไม่ยิงเลย
+    //    ⇒ queued ค้าง true ถาวร แล้วทุก schedule หลังจากนั้นถูกทิ้งหมด
+    //    (เจอจริงบน prod 14 ก.ย.: ค้างที่ 37 ตราไม่ขยับ แม้ DOM เปลี่ยน)
+    setTimeout(function () {
       queued = false;
-      // ถ้ารอบก่อนยังไม่จบ อย่าทิ้งงาน — ต่อคิวเฟรมถัดไป
+      // ถ้ารอบก่อนยังไม่จบ อย่าทิ้งงาน — ต่อคิวใหม่
       if (busy) { schedule(); return; }
       pass(document.body);
-    });
+    }, 16);
   }
 
   function start() {
