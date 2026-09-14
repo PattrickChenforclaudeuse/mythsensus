@@ -274,10 +274,13 @@
   var RE_SRC = '(?:' + KEYS.map(esc).join('|') + ')\\uFE0F?';
 
   // ---- สไตล์ --------------------------------------------------------------
-  var css = 'svg.msi{width:1em;height:1em;display:inline-block;vertical-align:-.15em;'
+  // ขนาด 1.5em = ใหญ่กว่าเดิม 50% (director 14 ก.ย. — 1em แล้วตราเล็กเกินไป)
+  // line-height:0 บนตัวห่อ กันไม่ให้ตราที่สูงขึ้นไปดันความสูงของบรรทัดในตารางแน่น ๆ
+  var css = 'i.msi-wrap{line-height:0;display:inline-flex;align-items:center}'
+    + 'svg.msi{width:1.5em;height:1.5em;display:inline-block;vertical-align:-.38em;'
     + 'stroke:currentColor;fill:none;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round;'
     + 'overflow:visible}'
-    + 'i.msd{width:.62em;height:.62em;border-radius:50%;display:inline-block;vertical-align:.02em;'
+    + 'i.msd{width:.93em;height:.93em;border-radius:50%;display:inline-block;vertical-align:-.1em;'
     + 'background:currentColor}';
   var st = document.createElement('style');
   st.setAttribute('data-msi', '1');
