@@ -338,7 +338,11 @@
         if (skipNode(n.parentNode)) continue;
         todo.push(n);
       }
-      for (var i = 0; i < todo.length; i++) swapText(todo[i], re);
+      // ⛔ ต้อง try ต่อ "ทีละโหนด" — ถ้าครอบทั้งลูป โหนดเดียวที่พังจะทำให้ที่เหลือไม่ถูกแปลงทั้งชุด
+      //    (เจอจริงบน prod 14 ก.ย.: ในเครื่องได้ 110 ตรา บนโดเมนจริงได้ 37)
+      for (var i = 0; i < todo.length; i++) {
+        try { swapText(todo[i], re); } catch (e) { }
+      }
     } catch (e) { /* หน้าต้องไม่พังเพราะไอคอน */ }
     busy = false;
   }
@@ -347,21 +351,29 @@
   function schedule() {
     if (queued) return;
     queued = true;
-    requestAnimationFrame(function () { queued = false; pass(document.body); });
+    requestAnimationFrame(function () {
+      queued = false;
+      // ถ้ารอบก่อนยังไม่จบ อย่าทิ้งงาน — ต่อคิวเฟรมถัดไป
+      if (busy) { schedule(); return; }
+      pass(document.body);
+    });
   }
 
   function start() {
     pass(document.body);
     try {
       new MutationObserver(function (muts) {
-        if (busy) return;
+        // ⛔ ห้าม return ทิ้งตอน busy — แอปเรนเดอร์ระหว่างที่เรากวาดอยู่ แล้วงานนั้นจะหายถาวร
         for (var i = 0; i < muts.length; i++) {
           if (muts[i].addedNodes.length || muts[i].type === 'characterData') { schedule(); return; }
         }
       }).observe(document.body, { childList: true, subtree: true, characterData: true });
     } catch (e) { }
+    // ตาข่ายกันพลาด: แอปเรนเดอร์ทีหลัง/ช้ากว่าปกติบนเน็ตจริง
+    [150, 600, 1500, 3500].forEach(function (ms) { setTimeout(schedule, ms); });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
+  window.addEventListener('load', schedule);
 })();
