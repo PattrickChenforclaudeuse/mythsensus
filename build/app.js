@@ -749,6 +749,8 @@ function _entryNationChart() {
 // Runs after first paint. The day's facts are already on screen by then, so
 // nothing the reader can see is waiting on this.
 function _entryFillCity(tries) {
+  // 14 ก.ย. 69 — การ์ดซ้ายเป็น HTML นิ่งใน index.html แล้ว (director: ตัวอย่างพอ ไม่ต้องคำนวณดวงประเทศ) · ถอย: _backups/2026-09-14-entry-static-sample/
+  return;
   const host = document.getElementById('entryCityRow');
   if (!host) return;
   const isTh = (typeof LANG === 'undefined') || LANG === 'th';
@@ -906,6 +908,8 @@ function _entryFillCity(tries) {
 }
 
 function _renderEntryToday(tries){
+  // 14 ก.ย. 69 — การ์ดล่างเป็น HTML นิ่งใน index.html แล้ว (ตัวอย่างหนึ่งวัน) · ถอย: _backups/2026-09-14-entry-static-sample/
+  return;
   var host = document.getElementById('entrySample');
   if (!host) return;
   if (!window.MS26 || !MS26.calculate || typeof dateToJD !== 'function') {
